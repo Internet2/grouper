@@ -659,4 +659,140 @@ public class GrouperDdl5_14_0 {
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, table.getName(), "data_row_field_asn_hst_fk_2", "grouper_dictionary", GrouperUtil.toList("value_dictionary_internal_id"), GrouperUtil.toList("internal_id"));
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, table.getName(), "data_row_field_asn_hst_fk_3", "grouper_data_row_assign_hst", GrouperUtil.toList("data_row_assign_internal_id"), GrouperUtil.toList("internal_id"));
   }
+  
+  static void addDependencyViews(Database database, DdlVersionBean ddlVersionBean) {
+    if (!GrouperDdl5_12_0.buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("v5_14_0_addDependencyViews", true)) {
+      return;
+    }
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_sql_dependency_group_v", 
+        "view on dependencies from group to group.  a group is dependent on another group if when the owner changes the dependent group needs to be recalculated",
+        GrouperUtil.toSet("dependency_type_name", "dependency_type_category", "dependency_type_internal_id", "dependency_internal_id",
+            "owner_cache_group_internal_id", "owner_group_name", "owner_group_id", "owner_group_internal_id", "owner_group_id_index",
+            "owner_field_name", "owner_field_type", "owner_field_internal_id", "depen_cache_group_internal_id", "depen_group_name", "depen_group_id", 
+            "depen_group_internal_id", "depen_group_id_index", "depen_field_name", "depen_field_type", "depen_field_internal_id"
+          ),
+          GrouperUtil.toSet("name of the dependency from the grouper_sql_cache_depend_type table.  e.g. mshipHistory_abac or abac_group", 
+                            "category of the dependency from the grouper_sql_cache_depend_type table.  e.g. mshipHistory or abac", 
+                            "internal id of the dependency type from the grouper_sql_cache_depend_type table", 
+                            "internal id of the dependency from the grouper_sql_cache_dependency table", 
+                            "internal id of the owner of the cache group from the grouper_sql_cache_group table", 
+                            "group name of the owner of the dependency", 
+                            "group uuid of the owner of the dependency", 
+                            "group internal id of the owner of the dependency", 
+                            "group id index of the owner of the dependency", 
+                            "field name e.g. members of the owner of the dependency", 
+                            "field type e.g. access of the owner of the dependency", 
+                            "field internal id of the owner of the dependency", 
+                            "internal id of the dependent of the cache group from the grouper_sql_cache_group table", 
+                            "group name of the dependent group of the dependency", 
+                            "group uuid of the dependent group of the dependency", 
+                            "group internal id of the dependent group of the dependency", 
+                            "group id index of the dependent group of the dependency", 
+                            "field name e.g. members of the dependent group of the dependency", 
+                            "field type e.g. access of the dependent group of the dependency", 
+                            "field internal id of the dependent group of the dependency"
+          ),
+          "create view grouper_sql_dependency_group_v (dependency_type_name, dependency_type_category, dependency_type_internal_id, dependency_internal_id, "
+          + "owner_cache_group_internal_id, owner_group_name,owner_group_id, owner_group_internal_id, owner_group_id_index, owner_field_name, owner_field_type, "
+          + "owner_field_internal_id, depen_cache_group_internal_id, depen_group_name, depen_group_id, depen_group_internal_id, depen_group_id_index, depen_field_name, "
+          + "depen_field_type, depen_field_internal_id) as select gscdt_group.name as dependency_type_name, gscdt_group.dependency_category as dependency_type_category, "
+          + "gscdt_group.internal_id as dependency_type_internal_id, gscd_group.internal_id as dependency_internal_id, gscg_owner.internal_id as owner_cache_group_internal_id, "
+          + "gg_owner.name as owner_group_name, gg_owner.id as owner_group_id, gg_owner.internal_id as owner_group_internal_id, gg_owner.id_index as owner_group_id_index, "
+          + "gf_owner.name as owner_field_name, gf_owner.type as owner_field_type, gf_owner.internal_id as owner_field_internal_id, "
+          + "gscg_dependent.internal_id as depen_cache_group_internal_id, gg_dependent.name as depen_group_name, gg_dependent.id as depen_group_name, "
+          + "gg_dependent.internal_id as depen_group_internal_id, gg_dependent.id_index as depen_group_id_index, gf_dependent.name as depen_field_name, "
+          + "gf_dependent.type as depen_field_type, gf_dependent.internal_id as depen_field_internal_id from  grouper_sql_cache_depend_type gscdt_group, "
+          + "grouper_sql_cache_dependency as gscd_group left join grouper_sql_cache_group as gscg_owner on gscd_group.owner_internal_id = gscg_owner.internal_id "
+          + "left join grouper_groups as gg_owner on gg_owner.internal_id = gscg_owner.group_internal_id left join grouper_fields as gf_owner "
+          + "on gscg_owner.field_internal_id = gf_owner.internal_id  left join grouper_sql_cache_group as gscg_dependent "
+          + "on gscd_group.dependent_internal_id = gscg_dependent.internal_id left join grouper_groups as gg_dependent "
+          + "on gg_dependent.internal_id = gscg_dependent.group_internal_id left join grouper_fields as gf_dependent "
+          + "on gscg_dependent.field_internal_id = gf_dependent.internal_id  where gscdt_group.name in "
+          + "('mshipHistory_viaAttribute', 'mshipHistory_recentMships','mshipHistory_abac','abac_group')  and gscd_group.dep_type_internal_id = gscdt_group.internal_id");
+
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_sql_dependency_attr_v", 
+        "view on dependencies with group dependent on an owner data field.  a group is dependent on a data field if when the owner data field value changes the dependent group needs to be recalculated",
+        GrouperUtil.toSet("dependency_type_name", "dependency_type_category", "dependency_type_internal_id", "dependency_internal_id", 
+            "owner_data_field_internal_id", "owner_data_field_config_id", "owner_data_alias_name", "owner_data_alias_lower_name", "owner_data_alias_internal_id", "depen_cache_group_internal_id", "depen_group_name", "depen_group_id", "depen_group_internal_id", "depen_group_id_index", "depen_field_name", "depen_field_type", "depen_field_internal_id"
+          ),
+          GrouperUtil.toSet("name of the dependency from the grouper_sql_cache_depend_type table.  e.g. mshipHistory_abac or abac_group", 
+                            "category of the dependency from the grouper_sql_cache_depend_type table.  e.g. mshipHistory or abac", 
+                            "internal id of the dependency type from the grouper_sql_cache_depend_type table", 
+                            "internal id of the dependency from the grouper_sql_cache_dependency table", 
+                            "internal id of the owner data field from the grouper_data_field table", 
+                            "config id of the ata field owner of the dependency", 
+                            "alias of the owner of the dependency", 
+                            "alias of the data field owner of the dependency", 
+                            "internal if of the alias of the data field owner of the dependency", 
+                            "internal id of the dependent of the cache group from the grouper_sql_cache_group table", 
+                            "group name of the dependent group of the dependency", 
+                            "group uuid of the dependent group of the dependency", 
+                            "group internal id of the dependent group of the dependency", 
+                            "group id index of the dependent group of the dependency", 
+                            "field name e.g. members of the dependent group of the dependency", 
+                            "field type e.g. access of the dependent group of the dependency", 
+                            "field internal id of the dependent group of the dependency"
+          ),
+          "create view grouper_sql_dependency_attr_v (dependency_type_name, dependency_type_category,  dependency_type_internal_id, dependency_internal_id, owner_data_field_internal_id,  "
+          + "owner_data_field_config_id, owner_data_alias_name, owner_data_alias_lower_name,  owner_data_alias_internal_id, depen_cache_group_internal_id, depen_group_name,  "
+          + "depen_group_id, depen_group_internal_id, depen_group_id_index, depen_field_name,  depen_field_type, depen_field_internal_id ) as select gscdt.name as dependency_type_name, "
+          + "gscdt.dependency_category as dependency_type_category, gscdt.internal_id as dependency_type_internal_id, gscd.internal_id as dependency_internal_id, "
+          + "dtf_owner.internal_id as owner_data_field_internal_id, dtf_owner.config_id  as owner_data_field_config_id, gda_owner.name as owner_data_alias_name, "
+          + "gda_owner.lower_name as owner_data_alias_lower_name, gda_owner.internal_id as owner_data_alias_internal_id, gscg_dependent.internal_id as depen_cache_group_internal_id, "
+          + "gg_dependent.name as depen_group_name, gg_dependent.id as depen_group_id, gg_dependent.internal_id as depen_group_internal_id, gg_dependent.id_index as depen_group_id_index, "
+          + "gf_dependent.name as depen_field_name, gf_dependent.type as depen_field_type, gf_dependent.internal_id as depen_field_internal_id from  grouper_sql_cache_depend_type gscdt, "
+          + "grouper_sql_cache_dependency as gscd left join grouper_data_field as dtf_owner on gscd.owner_internal_id = dtf_owner.internal_id "
+          + "left join grouper_data_alias as gda_owner on gda_owner.data_field_internal_id = dtf_owner.internal_id "
+          + "left join grouper_sql_cache_group as gscg_dependent on gscd.dependent_internal_id = gscg_dependent.internal_id "
+          + "left join grouper_groups as gg_dependent on gg_dependent.internal_id = gscg_dependent.group_internal_id "
+          + "left join grouper_fields as gf_dependent on gscg_dependent.field_internal_id = gf_dependent.internal_id  "
+          + "where gscdt.name in ('abac_attribute')  and gscd.dep_type_internal_id = gscdt.internal_id");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_sql_dependency_row_v", 
+        "view on dependencies with group dependent on an owner data row.  a group is dependent on a data row if when the owner data row value changes the dependent group needs to be recalculated",
+        GrouperUtil.toSet("dependency_type_name", "dependency_type_category", "dependency_type_internal_id", "dependency_internal_id", "owner_data_row_internal_id", 
+            "owner_data_row_config_id", "owner_data_alias_name", "owner_data_alias_lower_name", "owner_data_alias_internal_id", "depen_cache_group_internal_id", 
+            "depen_group_name", "depen_group_id", "depen_group_internal_id", "depen_group_id_index", "depen_field_name", "depen_field_type", "depen_field_internal_id"
+          ),
+          GrouperUtil.toSet("name of the dependency from the grouper_sql_cache_depend_type table.  e.g. mshipHistory_abac or abac_group",
+                            "category of the dependency from the grouper_sql_cache_depend_type table.  e.g. mshipHistory or abac",
+                            "internal id of the dependency type from the grouper_sql_cache_depend_type table",
+                            "internal id of the dependency from the grouper_sql_cache_dependency table",
+                            "internal id of the owner data row from the grouper_data_row table",
+                            "config id of the ata row owner of the dependency",
+                            "alias of the owner of the dependency",
+                            "alias of the data row owner of the dependency",
+                            "internal if of the alias of the data row owner of the dependency",
+                            "internal id of the dependent of the cache group from the grouper_sql_cache_group table",
+                            "group name of the dependent group of the dependency",
+                            "group uuid of the dependent group of the dependency",
+                            "group internal id of the dependent group of the dependency",
+                            "group id index of the dependent group of the dependency",
+                            "field name e.g. members of the dependent group of the dependency",
+                            "field type e.g. access of the dependent group of the dependency",
+                            "field internal id of the dependent group of the dependency"
+          ),
+          "create view grouper_sql_dependency_row_v (dependency_type_name, dependency_type_category,  dependency_type_internal_id, dependency_internal_id, owner_data_row_internal_id,  "
+          + "owner_data_row_config_id, owner_data_alias_name, owner_data_alias_lower_name,  owner_data_alias_internal_id, depen_cache_group_internal_id, depen_group_name,  "
+          + "depen_group_id, depen_group_internal_id, depen_group_id_index, depen_field_name,  depen_field_type, depen_field_internal_id ) as select gscdt.name as dependency_type_name, "
+          + "gscdt.dependency_category as dependency_type_category, gscdt.internal_id as dependency_type_internal_id, gscd.internal_id as dependency_internal_id, "
+          + "dtr_owner.internal_id as owner_data_row_internal_id, dtr_owner.config_id  as owner_data_row_config_id, gda_owner.name as owner_data_alias_name, "
+          + "gda_owner.lower_name as owner_data_alias_lower_name, gda_owner.internal_id as owner_data_alias_internal_id, gscg_dependent.internal_id as depen_cache_group_internal_id, "
+          + "gg_dependent.name as depen_group_name, gg_dependent.id as depen_group_id, gg_dependent.internal_id as depen_group_internal_id, gg_dependent.id_index as depen_group_id_index, "
+          + "gf_dependent.name as depen_field_name, gf_dependent.type as depen_field_type, gf_dependent.internal_id as depen_field_internal_id from  grouper_sql_cache_depend_type gscdt, "
+          + "grouper_sql_cache_dependency as gscd left join grouper_data_row as dtr_owner on gscd.owner_internal_id = dtr_owner.internal_id "
+          + "left join grouper_data_alias as gda_owner on gda_owner.data_row_internal_id = dtr_owner.internal_id "
+          + "left join grouper_sql_cache_group as gscg_dependent on gscd.dependent_internal_id = gscg_dependent.internal_id "
+          + "left join grouper_groups as gg_dependent on gg_dependent.internal_id = gscg_dependent.group_internal_id "
+          + "left join grouper_fields as gf_dependent on gscg_dependent.field_internal_id = gf_dependent.internal_id  "
+          + "where gscdt.name in ('abac_row')  and gscd.dep_type_internal_id = gscdt.internal_id");
+
+
+  }
 }

@@ -56,6 +56,16 @@ import edu.internet2.middleware.subject.Subject;
 public interface MemberDAO extends GrouperDAO {
 
   /**
+   * find members by internal ids
+   * @param internalIds
+   * @param exceptionOnNotFound
+   * @param queryOptions
+   * @return
+   */
+  public Map<Long, Member> findByInternalIds(Collection<Long> internalIds, boolean exceptionOnNotFound,
+      QueryOptions queryOptions);
+  
+  /**
    * get all the members that are assigned in a data provider to fields or rows
    * @param dataProviderInternalId
    * @return the members by internal id

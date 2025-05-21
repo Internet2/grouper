@@ -35,9 +35,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -96,8 +98,8 @@ import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDependencyGroupGroupDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDependencyGroupUserDao;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
 
 
 /**
@@ -1744,6 +1746,91 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     return group;
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findByInternalId(java.lang.Long, boolean, QueryOptions, Set)
+   */
+  public Group findByInternalId(Long internalId, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups)
+        throws GrouperDAOException, GroupNotFoundException {
+    StringBuilder hql = new StringBuilder("from Group as theGroup where theGroup.internalId = :internalId ");
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+
+    Group group = byHqlStatic
+      .createQuery(hql.toString())
+      .setCacheable(true)
+      .options(queryOptions)
+      .setCacheRegion(KLASS + ".FindByInternalId")
+      .setLong("internalId", internalId).uniqueResult(Group.class);
+    
+    if (group != null && GrouperUtil.length(typeOfGroups) > 0) {
+      // see if the type of group matches
+      if (!typeOfGroups.contains(group.getTypeOfGroup())) {
+        group = null;
+      }
+    }
+    
+    if (group == null && exceptionIfNotFound) {
+       throw new GroupNotFoundException("Cant find group by internalId: " + internalId);
+    }
+    return group;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findByInternalIds(java.util.Collection, boolean, QueryOptions)
+   */
+  public Map<Long, Group> findByInternalIds(Collection<Long> internalIds, boolean exceptionOnNotFound,
+      QueryOptions queryOptions)
+      throws GroupNotFoundException {
+    //TODO use cache
+    if (internalIds == null) {
+      return null;
+    }
+    Map<Long,Group> groups = new HashMap<>();
+    if (GrouperUtil.length(internalIds) == 0) {
+      return groups;
+    }
+    //lets page through these
+    
+    int theBatchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+
+    int pages = GrouperUtil.batchNumberOfBatches(internalIds, theBatchSize, false);
+
+    List<Long> internalIdsList = GrouperUtil.listFromCollection(internalIds);
+    
+    for (int i=0; i<pages; i++) {
+      List<Long> internalIdPageList = GrouperUtil.batchList(internalIdsList, theBatchSize, i);
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      StringBuilder query = new StringBuilder("select theGroup from Group as theGroup "
+          + " where theGroup.internalId in (");
+
+      //add all the uuids
+      byHqlStatic.setCollectionInClause(query, internalIdPageList);
+      query.append(")");
+      Set<Group> currentList = byHqlStatic.createQuery(query.toString())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindByInternalIds")
+        .listSet(Group.class);
+      if (exceptionOnNotFound && currentList.size() != internalIdPageList.size()) {
+        throw new GroupNotFoundException("Didnt find all internalIds: " + GrouperUtil.toStringForLog(internalIdPageList)
+            + " , " + internalIdPageList.size() + " != " + currentList.size());
+      }
+      
+      //we want to put these in in order...
+      for (Group group : currentList) {
+        groups.put(group.getInternalId(), group);
+      }
+      
+    }
+    return groups;
+  }
+
+  
   /**
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findByUuid(java.lang.String, boolean, QueryOptions, Set)

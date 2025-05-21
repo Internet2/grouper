@@ -83,6 +83,28 @@ public class SqlCacheGroupDao {
     return sqlCacheGroup;
   }
   
+  /**
+   * select caches by internal ids
+   * @param ids
+   * @return the caches if they exist 
+   */
+  public static Map<Long, SqlCacheGroup> retrieveByInternalIds(Collection<Long> ids) {
+    
+    Map<Long, SqlCacheGroup> result = new HashMap<>();
+
+    if (GrouperUtil.length(ids) == 0) {
+      return result;
+    }
+
+    List<SqlCacheGroup> sqlCacheGroups = new GcDbAccess().sql("select * from grouper_sql_cache_group")
+        .selectMultipleColumnName("internal_id").addBindVars(ids).selectList(SqlCacheGroup.class);
+    
+    for (SqlCacheGroup sqlCacheGroup : GrouperClientUtils.nonNull(sqlCacheGroups)) {
+      result.put(sqlCacheGroup.getInternalId(), sqlCacheGroup);
+    }
+    return result;
+  }
+
 
   /**
    * 
@@ -231,6 +253,62 @@ public class SqlCacheGroupDao {
       MultiKey groupNameFieldName = 
           groupInternalIdFieldInternalIdToGroupNameFieldName.get(groupInternalIdFieldInternalId);
       result.put(groupNameFieldName, sqlCacheGroup);
+    }
+
+    return result;
+  }
+
+  /**
+   * select caches by group ids and field ids
+   * @param groupIdsFieldIds
+   * @return the caches if they exist by groupName and fieldName
+   */
+  public static Map<MultiKey, SqlCacheGroup> retrieveByGroupIdsFieldIds(Collection<MultiKey> groupIdsFieldIds) {
+    
+    Map<MultiKey, SqlCacheGroup> result = new HashMap<>();
+
+    if (GrouperUtil.length(groupIdsFieldIds) == 0) {
+      return result;
+    }
+
+    Set<String> fieldIds = new HashSet<>();
+    Set<String> groupIds = new HashSet<>();
+    
+    for (MultiKey groupIdFieldId : groupIdsFieldIds) {
+      groupIds.add((String)groupIdFieldId.getKey(0));
+      fieldIds.add((String)groupIdFieldId.getKey(1));
+    }
+    
+    // all fields and groups, note, some might not be there
+    Map<String, Long> fieldIdToInternalId = FieldFinder.findInternalIdsByIds(fieldIds);
+    Map<String, Long> groupIdToInternalId = GroupFinder.findInternalIdsByIds(groupIds);
+
+    Map<MultiKey, MultiKey> groupInternalIdFieldInternalIdToGroupIdFieldId = new HashMap<>();
+
+    List<MultiKey> groupInternalIdFieldInternalIdList = new ArrayList<MultiKey>();
+    for (MultiKey groupIdFieldId : groupIdsFieldIds) {
+      
+      String groupId = (String)groupIdFieldId.getKey(0);
+      String fieldId = (String)groupIdFieldId.getKey(1);
+
+      Long groupInternalId = groupIdToInternalId.get(groupId);
+      Long fieldInternalId = fieldIdToInternalId.get(fieldId);
+
+      if (groupInternalId != null && fieldInternalId != null) {
+        MultiKey groupInternalIdFieldInternalId = new MultiKey(groupInternalId, fieldInternalId);
+        groupInternalIdFieldInternalIdList.add(groupInternalIdFieldInternalId);
+        groupInternalIdFieldInternalIdToGroupIdFieldId.put(groupInternalIdFieldInternalId, new MultiKey(groupId, fieldId));
+      }
+    }
+
+    // now we have a list of group internal ids and field internal ids we can find
+    Map<MultiKey, SqlCacheGroup> groupInternalIdFieldInternalIdToCacheGroup = retrieveByGroupInternalIdsFieldInternalIds(groupInternalIdFieldInternalIdList);
+    
+    for (MultiKey groupInternalIdFieldInternalId : groupInternalIdFieldInternalIdToCacheGroup.keySet()) {
+      SqlCacheGroup sqlCacheGroup  = groupInternalIdFieldInternalIdToCacheGroup.get(groupInternalIdFieldInternalId);
+      MultiKey groupIdFieldId = 
+          groupInternalIdFieldInternalIdToGroupIdFieldId.get(groupInternalIdFieldInternalId);
+      result.put(groupIdFieldId, sqlCacheGroup);
     }
 
     return result;
@@ -398,6 +476,28 @@ public class SqlCacheGroupDao {
     int defaultBatchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.batchSize", 1000);
 
     new GcDbAccess().storeBatchToDatabase(sqlCacheGroupsToCreate, defaultBatchSize);
+    return result;
+  }
+
+  /**
+   * select caches by group uuids and field uuids
+   * @param groupIdsFieldIds
+   * @return the caches if they exist by groupId and fieldId
+   */
+  public static Map<MultiKey, Long> retrieveByGroupIdsFieldIdsToInternalId(Collection<MultiKey> groupIdsFieldIds) {
+    
+    Map<MultiKey, Long> result = new HashMap<>();
+  
+    if (GrouperUtil.length(groupIdsFieldIds) == 0) {
+      return result;
+    }
+  
+    Map<MultiKey, SqlCacheGroup> groupIdFieldIdToSqlCacheGroup = retrieveByGroupIdsFieldIds(groupIdsFieldIds);
+    
+    for (MultiKey groupIdFieldId : groupIdFieldIdToSqlCacheGroup.keySet()) {
+      SqlCacheGroup sqlCacheGroup = groupIdFieldIdToSqlCacheGroup.get(groupIdFieldId);
+      result.put(groupIdFieldId, sqlCacheGroup.getInternalId());
+    }
     return result;
   }
 

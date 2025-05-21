@@ -2915,6 +2915,8 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdl5_14_0.addGrouperDataFieldAssignHstTableAndIndexes(database, ddlVersionBean);
         GrouperDdl5_14_0.addGrouperDataRowAssignHstTableAndIndexes(database, ddlVersionBean);
         GrouperDdl5_14_0.addGrouperDataRowFieldAsnHstTableAndIndexes(database, ddlVersionBean);
+        
+        GrouperDdl5_14_0.addDependencyViews(database, ddlVersionBean);
     }
   }
   //DON'T ADD ANY MORE Vs
@@ -3325,6 +3327,11 @@ public enum GrouperDdl implements DdlVersionable {
    * @param ddlVersionBean 
    */
   public void dropAllViews(DdlVersionBean ddlVersionBean) {
+
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_sql_dependency_group_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_sql_dependency_attr_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_sql_dependency_row_v", false);
+
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attributes_v", false);
 
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_v", false);
@@ -11050,6 +11057,8 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdl2_5_30.createViewRecentMemLoadV(ddlVersionBean);
 
       GrouperDdl2_5_40.updateSyncMembershipView(database, ddlVersionBean, false);
+      
+      GrouperDdl5_14_0.addDependencyViews(database, ddlVersionBean);
 
     }
     

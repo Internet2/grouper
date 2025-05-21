@@ -76,6 +76,7 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataRowWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperShutdown;
 import edu.internet2.middleware.grouper.plugins.GrouperPluginManager;
@@ -108,8 +109,6 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   private static final Pattern recentMemberOfTimePeriodPattern = Pattern.compile("^(\\d+)\\s*(days?|hours?)$", Pattern.CASE_INSENSITIVE);
 
-  private static ThreadLocal<Set<String>> recentMemberOfGroupNames = new ThreadLocal<Set<String>>();
-  
   public static void main(String[] args) {
 
     try {
@@ -208,7 +207,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       MultiKey multiKey = new MultiKey(sqlCacheGroup.getInternalId(), sqlCacheGroup.getInternalId());
       if (!sqlCacheDependencies.containsKey(multiKey)) {
         // check if other history dependencies
-        List<Long> dependenciesFound = new GcDbAccess().sql("select gscdt.internal_id from grouper_sql_cache_dependency gscd, grouper_sql_cache_depend_type gscdt where gscd.dep_type_internal_id = gscdt.internal_id and gscdt.dependency_category='mshipHistory' and owner_internal_id = ?")
+        List<Long> dependenciesFound = new GcDbAccess().sql("select gscdt.internal_id from grouper_sql_cache_dependency gscd, grouper_sql_cache_depend_type gscdt "
+            + "where gscd.dep_type_internal_id = gscdt.internal_id and gscdt.dependency_category='mshipHistory' and owner_internal_id = ?")
             .addBindVar(sqlCacheGroup.getInternalId())
             .selectList(Long.class);
         
@@ -245,31 +245,26 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     
     Member member = subject != null ? MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true): null;
     
-    GrouperJexlScriptAnalysis grouperJexlScriptAnalysis;
-    try {
-      grouperJexlScriptAnalysis = analyzeJexlScript(grouperDataEngine, jexlScript);
+    GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = analyzeJexlScript(grouperDataEngine, jexlScript);
       
-      if (recentMemberOfGroupNames.get() != null && recentMemberOfGroupNames.get().size() > 0) {
-        Set<MultiKey> groupNamesAndFieldNames = new HashSet<>();
-        for (String groupName : recentMemberOfGroupNames.get()) {
-          groupNamesAndFieldNames.add(new MultiKey(groupName, "members"));
-        }
-        
-        Collection<SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(groupNamesAndFieldNames).values();
-        
-        SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryAbac = SqlCacheDependencyTypeDao.retrieveByDependencyCategoryAndName("mshipHistory", "mshipHistory_abac");
-        Set<MultiKey> ownerInternalIdsDependentInternalIds = new HashSet<>();
-        for (SqlCacheGroup sqlCacheGroup : sqlCacheGroups) {
-          ownerInternalIdsDependentInternalIds.add(new MultiKey(sqlCacheGroup.getInternalId(), sqlCacheGroup.getInternalId()));
-        }
-        
-        Map<MultiKey, SqlCacheDependency> sqlCacheDependencies = SqlCacheDependencyDao.retrieveByDepTypeInternalIdAndOwnerInternalIdsDependentInternalIds(sqlCacheDependencyTypeMshipHistoryAbac.getInternalId(), ownerInternalIdsDependentInternalIds);
-        
-        // go through and see which ones don't have the mshipHistory_abac dependency
-        addMembershipHistoryAbacDependencies(sqlCacheDependencyTypeMshipHistoryAbac, sqlCacheGroups, sqlCacheDependencies);
+    if (GrouperUtil.length(grouperJexlScriptAnalysis.getRecentMemberOfGroupNames()) > 0) {
+      Set<MultiKey> groupNamesAndFieldNames = new HashSet<>();
+      for (String groupName : grouperJexlScriptAnalysis.getRecentMemberOfGroupNames()) {
+        groupNamesAndFieldNames.add(new MultiKey(groupName, "members"));
       }
-    } finally {
-      recentMemberOfGroupNames.remove();
+      
+      Collection<SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(groupNamesAndFieldNames).values();
+      
+      SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryAbac = SqlCacheDependencyTypeDao.retrieveByDependencyCategoryAndName("mshipHistory", "mshipHistory_abac");
+      Set<MultiKey> ownerInternalIdsDependentInternalIds = new HashSet<>();
+      for (SqlCacheGroup sqlCacheGroup : sqlCacheGroups) {
+        ownerInternalIdsDependentInternalIds.add(new MultiKey(sqlCacheGroup.getInternalId(), sqlCacheGroup.getInternalId()));
+      }
+      
+      Map<MultiKey, SqlCacheDependency> sqlCacheDependencies = SqlCacheDependencyDao.retrieveByDepTypeInternalIdAndOwnerInternalIdsDependentInternalIds(sqlCacheDependencyTypeMshipHistoryAbac.getInternalId(), ownerInternalIdsDependentInternalIds);
+      
+      // go through and see which ones don't have the mshipHistory_abac dependency
+      addMembershipHistoryAbacDependencies(sqlCacheDependencyTypeMshipHistoryAbac, sqlCacheGroups, sqlCacheDependencies);
     }
     
     for (GrouperJexlScriptPart grouperJexlScriptPart : grouperJexlScriptAnalysis.getGrouperJexlScriptParts()) {
@@ -591,10 +586,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       String timePeriodString = ((ASTStringLiteral)astArguments.jjtGetChild(1)).getLiteral();
       
       analyzeJexlRecentMemberOf(grouperJexlScriptPart, groupName, timePeriodString);
-      if (recentMemberOfGroupNames.get() == null) {
-        recentMemberOfGroupNames.set(new HashSet<String>());
-      }
-      recentMemberOfGroupNames.get().add(groupName);
+      
+      grouperJexlScriptAnalysis.getRecentMemberOfGroupNames().add(groupName);
+
     } else if (StringUtils.equals("hasAttributeAny", astIdentifierAccess.getName())) {
       
       ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
@@ -1552,83 +1546,33 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     
     Map<String, Object> debugMap = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
     RuntimeException runtimeException = null;
-    try {
 
-//    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("scriptedGroups");
-//    
-//    gcGrouperSync.setSyncEngine(GcGrouperSync.SCRIPTED_GROUPS);
-//    gcGrouperSync.getGcGrouperSyncDao().store();
-//    GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("full");
-//    gcGrouperSyncJob.waitForRelatedJobsToFinishThenRun(true);
-//    
-//    GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
-//    gcGrouperSyncHeartbeat.setGcGrouperSyncJob(gcGrouperSyncJob);
-//    gcGrouperSyncHeartbeat.setFullSync(true);
-//    gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
-//      @Override
-//      public void run() {
-//        
-//      }
-//    });
-//    if (!gcGrouperSyncHeartbeat.isStarted()) {
-//      gcGrouperSyncHeartbeat.runHeartbeatThread();
-//    }
-//    
-//      Map<String, Map<String, GrouperDeprovisioningObjectAttributes>> allFoldersOfInterestForDeprovisioning = retrieveAllFoldersOfInterestForDeprovisioning();
-//      GrouperDaemonUtils.stopProcessingIfJobPaused();
-//
-//      Map<String, Map<String, GrouperDeprovisioningObjectAttributes>> allGroupsOfInterestForDeprovisioning = retrieveAllGroupsOfInterestForDeprovisioning(allFoldersOfInterestForDeprovisioning);
-//      GrouperDaemonUtils.stopProcessingIfJobPaused();
-//      
-//      
-//      Set<String> affiliationsToProcess = new HashSet<String>();
-//      affiliationsToProcess.addAll(allFoldersOfInterestForDeprovisioning.keySet());
-//      affiliationsToProcess.addAll(allGroupsOfInterestForDeprovisioning.keySet());
-//      
-//      for (String affiliationName: affiliationsToProcess) {
-//        GrouperDaemonUtils.stopProcessingIfJobPaused();
-//
-//        Map<String, GrouperDeprovisioningObjectAttributes> grouperDeprovisioningFolderAttributes = allFoldersOfInterestForDeprovisioning.get(affiliationName);
-//        Map<String, GrouperDeprovisioningObjectAttributes> grouperDeprovisioningGroupAttributes = allGroupsOfInterestForDeprovisioning.get(affiliationName);
-//        
-//        Set<GrouperDeprovisioningObjectAttributes> grouperDeprovisioningAttributesToProcess = new HashSet<GrouperDeprovisioningObjectAttributes>();
-//        if (grouperDeprovisioningFolderAttributes != null) {        
-//          grouperDeprovisioningAttributesToProcess.addAll(grouperDeprovisioningFolderAttributes.values());
-//        }
-//        if (grouperDeprovisioningGroupAttributes != null) {
-//          grouperDeprovisioningAttributesToProcess.addAll(grouperDeprovisioningGroupAttributes.values());
-//        }
-//        
-////        propagateAttributes(affiliationName, grouperDeprovisioningAttributesToProcess, grouperDeprovisioningFolderAttributes, debugMap);
-//        
-//      }
-//    
-//    } catch (RuntimeException re) {
-//      runtimeException = re;
-//    } finally {
-//      GcGrouperSyncHeartbeat.endAndWaitForThread(gcGrouperSyncHeartbeat);
-//      debugMap.put("finalLog", true);
-//      synchronized (GrouperDeprovisioningDaemonLogic.class) {
-//        try {
-//          if (gcGrouperSyncJob != null) {
-//            gcGrouperSyncJob.assignHeartbeatAndEndJob();
-//          }
-//        } catch (RuntimeException re2) {
-//          debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
-//          if (runtimeException == null) {
-//            throw re2;
-//          }
-//          
-//        }
-//      }
-//      
-//      if (LOG.isDebugEnabled()) {
-//        LOG.debug(GrouperUtil.mapToString(debugMap));
-//      }
-//      
-//    }
-//
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(GcGrouperSync.SCRIPTED_GROUPS);
+    
+    gcGrouperSync.setSyncEngine(GcGrouperSync.SCRIPTED_GROUPS);
+    gcGrouperSync.getGcGrouperSyncDao().store();
+    GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("full");
+    gcGrouperSyncJob.waitForRelatedJobsToFinishThenRun(true);
+    
+    GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
+    gcGrouperSyncHeartbeat.setGcGrouperSyncJob(gcGrouperSyncJob);
+    gcGrouperSyncHeartbeat.setFullSync(true);
+    gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
+      @Override
+      public void run() {
+        
+      }
+    });
+
+    try {
+      if (!gcGrouperSyncHeartbeat.isStarted()) {
+        gcGrouperSyncHeartbeat.runHeartbeatThread();
+      }
+
+      // all scripts and sync them with dependency tables
       
+      //  GrouperDaemonUtils.stopProcessingIfJobPaused();
+    
       GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
       
       GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
@@ -1642,15 +1586,29 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       
       debugMap.put("jexlScriptGroups", GrouperUtil.length(attributeAssigns));
 
-      List<SqlCacheDependencyType> sqlCacheDependencyTypes = SqlCacheDependencyTypeDao.retrieveByDependencyCategory("abac");
-      Map<String, SqlCacheDependencyType> nameToSqlCacheDependencyType = new HashMap<String, SqlCacheDependencyType>();
-      for (SqlCacheDependencyType sqlCacheDependencyType : sqlCacheDependencyTypes) {
-        nameToSqlCacheDependencyType.put(sqlCacheDependencyType.getName(), sqlCacheDependencyType);
+      Set<String> groupIds = new HashSet<String>();
+      
+      for (AttributeAssign attributeAssign : GrouperUtil.nonNull(attributeAssigns)) {
+
+        String ownerGroupId = attributeAssign.getOwnerGroupId();
+        if (StringUtils.isBlank(ownerGroupId)) {
+          continue;
+        }
+        groupIds.add(ownerGroupId);
       }
       
-      SqlCacheDependencyType sqlCacheDependencyTypeAbacAttribute = nameToSqlCacheDependencyType.get("abac_attribute");
-      SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryAbac = SqlCacheDependencyTypeDao.retrieveByDependencyCategoryAndName("mshipHistory", "mshipHistory_abac");        
-      List<SqlCacheDependency> allMshipHistoryAbacSqlCacheDependencies = SqlCacheDependencyDao.retrieveByDependencyTypeInternalId(sqlCacheDependencyTypeMshipHistoryAbac.getInternalId());
+      Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findByUuids(groupIds, false);
+      
+      Map<String, Group> groupIdToGroup = new HashMap<String, Group>();
+      for (Group group : GrouperUtil.nonNull(groups)) {
+        groupIdToGroup.put(group.getId(), group);
+      }
+      
+      List<SqlCacheDependency> allMshipHistoryAbacSqlCacheDependencies = null;
+      {
+        SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryAbac = SqlCacheDependencyTypeDao.retrieveByName(SqlCacheDependencyTypeDao.NAME_MSHIP_HISTORY_ABAC);
+        allMshipHistoryAbacSqlCacheDependencies = SqlCacheDependencyDao.retrieveByDependencyTypeInternalId(sqlCacheDependencyTypeMshipHistoryAbac.getInternalId());
+      }
       Map<MultiKey, SqlCacheDependency> allMshipHistoryAbacSqlCacheDependenciesMap = Collections.synchronizedMap(new HashMap<>());
       for (SqlCacheDependency sqlCacheDependency : allMshipHistoryAbacSqlCacheDependencies) {
         allMshipHistoryAbacSqlCacheDependenciesMap.put(new MultiKey(sqlCacheDependency.getOwnerInternalId(), sqlCacheDependency.getDependentInternalId()), sqlCacheDependency);
@@ -1678,225 +1636,13 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
           @Override
           public Void callLogic() {
-                
-            String script = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_SCRIPT);
-    
-            //  String includeInternalSourcesString = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES);
-            //  boolean includeInternalSources = GrouperUtil.booleanValue(includeInternalSourcesString, false);
-            
-            //System.out.println(script);
-            
-            try {
-              GrouperJexlScriptAnalysis analyzeJexlScript = analyzeJexlScript(grouperDataEngine, script);
-              GrouperJexlScriptPart grouperJexlScriptPart = analyzeJexlScript.getGrouperJexlScriptParts().get(0);
-              List<MultiKey> arguments = grouperJexlScriptPart.getArguments();
-              String whereClause = grouperJexlScriptPart.getWhereClause().toString();
-      
-              GcDbAccess gcDbAccess = new GcDbAccess();
-              int argumentIndex = 0;
-              
-              String previousAttributeAlias = null;
-              
-              Set<Long> attributeInternalIds = new HashSet<Long>();
-              
-              Map<MultiKey, SqlCacheGroup> allSqlCacheGroupsForCurrentJexl = new HashMap<>();
-                      
-              // TODO put this in the analysis script so all the bind vars are right
-              for (MultiKey argument : arguments) {
-                String argumentString = (String)argument.getKey(0);
-                if (StringUtils.equals(argumentString, "group")) {
-                  String fieldName = (String)argument.getKey(1);
-                  if (!StringUtils.equals(fieldName, "members")) {
-                    throw new RuntimeException("Not expecting field: '" + fieldName + "'");
-                  }
-                  String groupName = (String)argument.getKey(2);
-                  //TODO make this more efficient
-                  Map<MultiKey, SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(GrouperUtil.toList(new MultiKey(groupName, fieldName)));
-                  allSqlCacheGroupsForCurrentJexl.putAll(sqlCacheGroups);
-                  // if group not found, consider it empty
-                  long sqlCacheGroupInternalId = -1;
-                  if (GrouperUtil.length(sqlCacheGroups) == 1) {
-                    sqlCacheGroupInternalId = sqlCacheGroups.values().iterator().next().getInternalId();
-      
-                  }
-                  gcDbAccess.addBindVar(sqlCacheGroupInternalId);
-                } else if (StringUtils.equals(argumentString, "attribute")) {
-                  String attributeAlias = (String)argument.getKey(1);
-                  GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(attributeAlias.toLowerCase());
-                  GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
-                  gcDbAccess.addBindVar(grouperDataField.getInternalId());
-                  attributeInternalIds.add(grouperDataField.getInternalId());
-                  previousAttributeAlias = attributeAlias;
-                } else if (StringUtils.equals(argumentString, "row")) {
-                  String rowAlias = (String)argument.getKey(1);
-                  GrouperDataRowWrapper grouperDataRowWrapper = grouperDataEngine.getGrouperDataProviderIndex().getRowWrapperByLowerAlias().get(rowAlias.toLowerCase());
-                  GrouperDataRow grouperDataRow = grouperDataRowWrapper.getGrouperDataRow();
-                  gcDbAccess.addBindVar(grouperDataRow.getInternalId());
-      
-                } else if (StringUtils.equals(argumentString, "bindVar")) {
-                  
-                  Object value = argument.getKey(1);
-                  gcDbAccess.addBindVar(value);
-      
-                } else if (StringUtils.equals(argumentString, "attributeValue")) {
-                  
-                  MultiKey argumentNameMultiKey = arguments.get(argumentIndex-1);
-                  
-                  String argumentPreviousString = (String)argumentNameMultiKey.getKey(0);
-                  boolean isAttribute = StringUtils.equals(argumentPreviousString, "attribute");
-                  GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(previousAttributeAlias.toLowerCase());
-                  GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
-                  
-                  GrouperDataFieldConfig grouperDataFieldConfig = grouperDataEngine.getFieldConfigByAlias().get(previousAttributeAlias.toLowerCase());
-                  GrouperDataFieldType fieldDataType = grouperDataFieldConfig.getFieldDataType();
-                  GrouperDataFieldAssign grouperDataFieldAssign = new GrouperDataFieldAssign();
-                  
-                  Object value = argument.getKey(1);
-                  fieldDataType.assignValue(grouperDataFieldAssign, value, grouperDataEngine.getGrouperDataProviderIndex().getDictionaryTextByString());
-                  
-                  if (fieldDataType == GrouperDataFieldType.bool || fieldDataType == GrouperDataFieldType.integer || fieldDataType == GrouperDataFieldType.timestamp) {
-                    if (grouperDataFieldAssign.getValueInteger() != null) {
-                      gcDbAccess.addBindVar(grouperDataFieldAssign.getValueInteger());
-                    }
-                    if (isAttribute) {                
-                      whereClause = StringUtils.replace(whereClause, "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_integer");
-                    }
-                    
-                  } else if (fieldDataType == GrouperDataFieldType.string) {
-                    if (grouperDataFieldAssign.getValueDictionaryInternalId() != null) {
-                      gcDbAccess.addBindVar(grouperDataFieldAssign.getValueDictionaryInternalId());
-                    }
-                    if (isAttribute) {                
-                      whereClause = StringUtils.replace(whereClause, "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_dictionary_internal_id");
-                    }
-      
-                  } else {
-                    throw new RuntimeException("not expecting type: " + fieldDataType.getClass().getName());
-                  }
-      
-                } else {
-                  throw new RuntimeException("not expecting argument string: " + argumentString);
-                }
-                argumentIndex++;
-              } 
-              
-              String ownerGroupId = attributeAssign.getOwnerGroupId();
-              
-              Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerGroupId, false);
-      
-              if (group != null) {
-      
-                //  grouper_sql_cache_group
-                //  group_internal_id
-                //  field_internal_id
-                MultiKey groupInternalIdFieldInternalId = new MultiKey(group.getInternalId(), Group.getDefaultList().getInternalId());
-                Map<MultiKey, SqlCacheGroup> groupInternalIdsFieldInternalIdToSqlCacheGroup = SqlCacheGroupDao.retrieveByGroupInternalIdsFieldInternalIds(GrouperUtil.toSet(groupInternalIdFieldInternalId));
-                SqlCacheGroup sqlCacheGroup = groupInternalIdsFieldInternalIdToSqlCacheGroup.get(groupInternalIdFieldInternalId);
-                if (sqlCacheGroup != null) {
-                  List<SqlCacheDependency> sqlCacheDependencies = SqlCacheDependencyDao.retrieveAllByDependentId(sqlCacheGroup.getInternalId());
-                  Set<Long> attributeInternalIdsInDatabase = new HashSet<>();
-                  for (SqlCacheDependency sqlCacheDependency : sqlCacheDependencies) {
-                    if (GrouperUtil.equals(sqlCacheDependencyTypeAbacAttribute.getInternalId(), sqlCacheDependency.getDependencyTypeInternalId())) {
-                      if (!attributeInternalIds.contains(sqlCacheDependency.getOwnerInternalId())) {
-                        SqlCacheDependencyDao.delete(sqlCacheDependency);
-                      } else {
-                        attributeInternalIdsInDatabase.add(sqlCacheDependency.getOwnerInternalId());
-                      }
-                    }
-                  }
-                  
-                  for (Long attributeInternalId : attributeInternalIds) {
-                    if (!attributeInternalIdsInDatabase.contains(attributeInternalId)) {
-                      SqlCacheDependency sqlCacheDependency = new SqlCacheDependency();
-                      sqlCacheDependency.setDependencyTypeInternalId(sqlCacheDependencyTypeAbacAttribute.getInternalId());
-                      sqlCacheDependency.setDependentInternalId(sqlCacheGroup.getInternalId());
-                      sqlCacheDependency.setOwnerInternalId(attributeInternalId);
-                      SqlCacheDependencyDao.store(sqlCacheDependency);
-                    }
-                  }
-                  
-                }
-                
-              }
-              
-              // add mship history abac dependency before the query runs
-              if (recentMemberOfGroupNames.get() != null && recentMemberOfGroupNames.get().size() > 0) {
-                Collection<SqlCacheGroup> sqlCacheGroupsToCheck = new HashSet<>();
-                for (MultiKey groupNameFieldName : allSqlCacheGroupsForCurrentJexl.keySet()) {
-                  String groupName = (String)groupNameFieldName.getKey(0);
-                  String fieldName = (String)groupNameFieldName.getKey(1);
-                  
-                  if (!"members".equals(fieldName)) {
-                    throw new RuntimeException("Unexpected");
-                  }
-                  
-                  if (recentMemberOfGroupNames.get().contains(groupName)) {
-                    SqlCacheGroup sqlCacheGroup = allSqlCacheGroupsForCurrentJexl.get(groupNameFieldName);
-                    sqlCacheGroupsToCheck.add(sqlCacheGroup);
-                    sqlCacheGroupInternalIdsStillNeedingMshipHistory.add(sqlCacheGroup.getInternalId());
-                  }
-                }
-                        
-                // go through and see which ones don't have the mshipHistory_abac dependency
-                addMembershipHistoryAbacDependencies(sqlCacheDependencyTypeMshipHistoryAbac, sqlCacheGroupsToCheck, allMshipHistoryAbacSqlCacheDependenciesMap);                
-              }
-              
-              String sql = "select id from grouper_members gm where " + whereClause;
-      
-      //        System.out.println(script);
-      //        System.out.println(sql);
-      
-              Set<String> memberIds = new HashSet<String>(gcDbAccess.sql(sql).selectList(String.class));
-              
-              Set<String> previousMemberIds = new HashSet<String>(new GcDbAccess().sql("select member_id from grouper_memberships gm "
-                  + "where owner_group_id = ? and field_id = ? and mship_type = 'immediate'")
-                  .addBindVar(attributeAssign.getOwnerGroupId())
-                  .addBindVar(Group.getDefaultList().getId())
-                  .selectList(String.class));
-              
-              Set<String> insertMemberIds = new HashSet<>(memberIds);
-              insertMemberIds.removeAll(previousMemberIds);
-              
-              Set<String> deleteMemberIds = new HashSet<>(previousMemberIds);
-              deleteMemberIds.removeAll(memberIds);
-              
-              if (group == null) {
-                LOG.error("Error group not found '" + ownerGroupId + "'");
-                GrouperUtil.mapAddValue(debugMap, "errorsGroupNull", 1);
-                return null;
-              }
-      
-              for (String memberId : insertMemberIds) {
-                try {
-                  group.addMember(MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, true).getSubject(), false);
-                } catch (RuntimeException re) {
-                  GrouperUtil.mapAddValue(debugMap, "errorsAddMember", 1);
-                  debugMap.put("exceptionAddGroupName", group.getName());
-                  debugMap.put("exceptionAddMemberId", memberId);
-                  debugMap.put("exceptionAddMember", GrouperUtil.getFullStackTrace(re));
-                  LOG.error("Error adding memberId '" + memberId + "' to group: '" + group.getName() + "'", re);
-                }
-              }
-      
-              for (String memberId : deleteMemberIds) {
-                try {
-                  group.deleteMember(MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, true).getSubject(), false);
-                } catch (RuntimeException re) {
-                  GrouperUtil.mapAddValue(debugMap, "errorsDeleteMember", 1);
-                  debugMap.put("exceptionDeleteGroupName", group.getName());
-                  debugMap.put("exceptionDeleteMemberId", memberId);
-                  debugMap.put("exceptionDeleteMember", GrouperUtil.getFullStackTrace(re));
-                  LOG.error("Error deleting memberId '" + memberId + "' from group: '" + group.getName() + "'", re);
-                }
-              }
-              
-              GrouperUtil.mapAddValue(debugMap, "inserts", insertMemberIds.size());
-              otherJobInput.getHib3GrouperLoaderLog().addInsertCount(insertMemberIds.size());
-              GrouperUtil.mapAddValue(debugMap, "deletes", deleteMemberIds.size());
-              otherJobInput.getHib3GrouperLoaderLog().addDeleteCount(deleteMemberIds.size());
-            } finally {
-              recentMemberOfGroupNames.remove();
-            }
+
+            Hib3GrouperLoaderLog hib3GrouperLoaderLog = otherJobInput.getHib3GrouperLoaderLog();
+            Group group = groupIdToGroup.get(attributeAssign.getOwnerGroupId());
+
+            syncFullGroup(debugMap, hib3GrouperLoaderLog, grouperDataEngine,
+                attributeAssign, group, allMshipHistoryAbacSqlCacheDependenciesMap,
+                sqlCacheGroupInternalIdsStillNeedingMshipHistory);
             
             return null;
           }
@@ -1934,13 +1680,32 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       debugMap.put("exception", GrouperUtil.getFullStackTrace(re));
 
     } finally {
+      
+      GcGrouperSyncHeartbeat.endAndWaitForThread(gcGrouperSyncHeartbeat);
+      debugMap.put("finalLog", true);
+      synchronized (GrouperDeprovisioningDaemonLogic.class) {
+        try {
+          if (gcGrouperSyncJob != null) {
+            gcGrouperSyncJob.assignHeartbeatAndEndJob();
+          }
+        } catch (RuntimeException re2) {
+          debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
+          if (runtimeException == null) {
+            throw re2;
+          }
+          
+        }
+      }
+
       otherJobInput.getHib3GrouperLoaderLog().setJobMessage(GrouperUtil.mapToString(debugMap));
-    }
-    
-    if (runtimeException != null) {
-      throw runtimeException;
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+      
     }
 
+      
     if (GrouperUtil.intValue(debugMap.get("errors"), 0) > 0) {
       throw new RuntimeException("Had " + debugMap.get("errors") + " errors, check logs");
     }
@@ -1948,6 +1713,315 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   }
   
   
+  public static void syncFullGroup(Map<String, Object> debugMap,
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog, GrouperDataEngine grouperDataEngine,
+      AttributeAssign attributeAssign, Group group,
+      Map<MultiKey, SqlCacheDependency> allMshipHistoryAbacSqlCacheDependenciesMap,
+      Set<Long> sqlCacheGroupInternalIdsStillNeedingMshipHistory) {
+    Group theGroup = group;
+    
+    GcDbAccess gcDbAccess = new GcDbAccess();
+    String script = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_SCRIPT);
+    GrouperJexlScriptAnalysis analyzeJexlScript = analyzeJexlScript(grouperDataEngine, script);
+
+    
+    //  String includeInternalSourcesString = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES);
+    //  boolean includeInternalSources = GrouperUtil.booleanValue(includeInternalSourcesString, false);
+    
+    //System.out.println(script);
+    
+    
+    GrouperJexlScriptSql grouperJexlScriptSql = generateJexlSql(grouperDataEngine, gcDbAccess, analyzeJexlScript); 
+    
+    if (theGroup != null) {
+
+      MultiKey groupInternalIdFieldInternalId = new MultiKey(theGroup.getInternalId(), Group.getDefaultList().getInternalId());
+      Map<MultiKey, SqlCacheGroup> groupInternalIdsFieldInternalIdToSqlCacheGroup = SqlCacheGroupDao.retrieveByGroupInternalIdsFieldInternalIds(GrouperUtil.toSet(groupInternalIdFieldInternalId));
+      SqlCacheGroup sqlCacheGroup = groupInternalIdsFieldInternalIdToSqlCacheGroup.get(groupInternalIdFieldInternalId);
+      List<SqlCacheDependency> sqlCacheDependencies = SqlCacheDependencyDao.retrieveAllByDependentId(sqlCacheGroup.getInternalId());
+      if (sqlCacheGroup != null) {
+
+        // sync up attribute dependencies on group
+        {
+          SqlCacheDependencyType sqlCacheDependencyTypeAbacAttribute = SqlCacheDependencyTypeDao.retrieveByName(SqlCacheDependencyTypeDao.NAME_ABAC_ATTRIBUTE);
+
+          //  grouper_sql_cache_group
+          //  group_internal_id
+          //  field_internal_id
+          Set<Long> attributeInternalIdsInDatabase = new HashSet<>();
+          for (SqlCacheDependency sqlCacheDependency : sqlCacheDependencies) {
+            if (GrouperUtil.equals(sqlCacheDependencyTypeAbacAttribute.getInternalId(), sqlCacheDependency.getDependencyTypeInternalId())) {
+              if (!grouperJexlScriptSql.getAttributeInternalIds().contains(sqlCacheDependency.getOwnerInternalId())) {
+                SqlCacheDependencyDao.delete(sqlCacheDependency);
+              } else {
+                attributeInternalIdsInDatabase.add(sqlCacheDependency.getOwnerInternalId());
+              }
+            }
+          }
+          
+          for (Long attributeInternalId : grouperJexlScriptSql.getAttributeInternalIds()) {
+            if (!attributeInternalIdsInDatabase.contains(attributeInternalId)) {
+              SqlCacheDependency sqlCacheDependency = new SqlCacheDependency();
+              sqlCacheDependency.setDependencyTypeInternalId(sqlCacheDependencyTypeAbacAttribute.getInternalId());
+              sqlCacheDependency.setDependentInternalId(sqlCacheGroup.getInternalId());
+              sqlCacheDependency.setOwnerInternalId(attributeInternalId);
+              SqlCacheDependencyDao.store(sqlCacheDependency);
+            }
+          }
+          
+        }
+
+        // sync up row dependencies on group
+        {
+          SqlCacheDependencyType sqlCacheDependencyTypeAbacRow = SqlCacheDependencyTypeDao.retrieveByName(SqlCacheDependencyTypeDao.NAME_ABAC_ROW);
+
+          //  grouper_sql_cache_group
+          //  group_internal_id
+          //  field_internal_id
+          Set<Long> rowInternalIdsInDatabase = new HashSet<>();
+          for (SqlCacheDependency sqlCacheDependency : sqlCacheDependencies) {
+            if (GrouperUtil.equals(sqlCacheDependencyTypeAbacRow.getInternalId(), sqlCacheDependency.getDependencyTypeInternalId())) {
+              if (!grouperJexlScriptSql.getRowInternalIds().contains(sqlCacheDependency.getOwnerInternalId())) {
+                SqlCacheDependencyDao.delete(sqlCacheDependency);
+              } else {
+                rowInternalIdsInDatabase.add(sqlCacheDependency.getOwnerInternalId());
+              }
+            }
+          }
+          
+          for (Long rowInternalId : grouperJexlScriptSql.getRowInternalIds()) {
+            if (!rowInternalIdsInDatabase.contains(rowInternalId)) {
+              SqlCacheDependency sqlCacheDependency = new SqlCacheDependency();
+              sqlCacheDependency.setDependencyTypeInternalId(sqlCacheDependencyTypeAbacRow.getInternalId());
+              sqlCacheDependency.setDependentInternalId(sqlCacheGroup.getInternalId());
+              sqlCacheDependency.setOwnerInternalId(rowInternalId);
+              SqlCacheDependencyDao.store(sqlCacheDependency);
+            }
+          }
+          
+        }
+
+        // sync up group dependencies on group
+        {
+          //  grouper_sql_cache_group
+          //  group_internal_id
+          //  field_internal_id
+ 
+            SqlCacheDependencyType sqlCacheDependencyTypeAbacGroup = SqlCacheDependencyTypeDao.retrieveByName(SqlCacheDependencyTypeDao.NAME_ABAC_GROUP);
+
+            Set<Long> groupInternalIdsInDatabase = new HashSet<>();
+            for (SqlCacheDependency sqlCacheDependency : sqlCacheDependencies) {
+              
+              // TODO this should be in the Dao retrieve above
+            if (GrouperUtil.equals(sqlCacheDependencyTypeAbacGroup.getInternalId(), sqlCacheDependency.getDependencyTypeInternalId())) {
+              if (!grouperJexlScriptSql.getGroupInternalIds().contains(sqlCacheDependency.getOwnerInternalId())) {
+                SqlCacheDependencyDao.delete(sqlCacheDependency);
+              } else {
+                groupInternalIdsInDatabase.add(sqlCacheDependency.getOwnerInternalId());
+              }
+            }
+          }
+          
+          for (Long groupInternalId : grouperJexlScriptSql.getGroupInternalIds()) {
+            if (!groupInternalIdsInDatabase.contains(groupInternalId)) {
+              SqlCacheDependency sqlCacheDependency = new SqlCacheDependency();
+              sqlCacheDependency.setDependencyTypeInternalId(sqlCacheDependencyTypeAbacGroup.getInternalId());
+              sqlCacheDependency.setDependentInternalId(sqlCacheGroup.getInternalId());
+              sqlCacheDependency.setOwnerInternalId(groupInternalId);
+              SqlCacheDependencyDao.store(sqlCacheDependency);
+            }
+          }
+        }
+      }
+    }
+    
+    // add mship history abac dependency before the query runs
+    if (GrouperUtil.length(analyzeJexlScript.getRecentMemberOfGroupNames()) > 0) {
+      Collection<SqlCacheGroup> sqlCacheGroupsToCheck = new HashSet<>();
+      for (MultiKey groupNameFieldName : grouperJexlScriptSql.getAllSqlCacheGroupsForCurrentJexl().keySet()) {
+        String groupName = (String)groupNameFieldName.getKey(0);
+        String fieldName = (String)groupNameFieldName.getKey(1);
+        
+        if (!"members".equals(fieldName)) {
+          throw new RuntimeException("Unexpected");
+        }
+        
+        if (analyzeJexlScript.getRecentMemberOfGroupNames().contains(groupName)) {
+          SqlCacheGroup sqlCacheGroup = grouperJexlScriptSql.getAllSqlCacheGroupsForCurrentJexl().get(groupNameFieldName);
+          sqlCacheGroupsToCheck.add(sqlCacheGroup);
+          sqlCacheGroupInternalIdsStillNeedingMshipHistory.add(sqlCacheGroup.getInternalId());
+        }
+      }
+              
+      SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryAbac = SqlCacheDependencyTypeDao.retrieveByName(SqlCacheDependencyTypeDao.NAME_MSHIP_HISTORY_ABAC);
+      // go through and see which ones don't have the mshipHistory_abac dependency
+      addMembershipHistoryAbacDependencies(sqlCacheDependencyTypeMshipHistoryAbac, sqlCacheGroupsToCheck, allMshipHistoryAbacSqlCacheDependenciesMap);                
+    }
+    
+    String sql = "select id from grouper_members gm where " + grouperJexlScriptSql.getWhereClause();
+ 
+ //        System.out.println(script);
+ //        System.out.println(sql);
+ 
+    Set<String> memberIds = new HashSet<String>(gcDbAccess.sql(sql).selectList(String.class));
+    
+    Set<String> previousMemberIds = new HashSet<String>(new GcDbAccess().sql("select member_id from grouper_memberships gm "
+        + "where owner_group_id = ? and field_id = ? and mship_type = 'immediate'")
+        .addBindVar(attributeAssign.getOwnerGroupId())
+        .addBindVar(Group.getDefaultList().getId())
+        .selectList(String.class));
+    
+    Set<String> insertMemberIds = new HashSet<>(memberIds);
+    insertMemberIds.removeAll(previousMemberIds);
+    
+    Set<String> deleteMemberIds = new HashSet<>(previousMemberIds);
+    deleteMemberIds.removeAll(memberIds);
+    
+    if (theGroup == null) {
+      LOG.error("Error group not found '" + attributeAssign.getOwnerGroupId() + "'");
+      GrouperUtil.mapAddValue(debugMap, "errorsGroupNull", 1);
+      return;
+    }
+ 
+    Set<String> memberIdsToInsertOrDelete = new HashSet<String>(insertMemberIds);
+    memberIdsToInsertOrDelete.addAll(deleteMemberIds);
+    
+    Set<Member> members = GrouperDAOFactory.getFactory().getMember().findByIds(memberIdsToInsertOrDelete, null);
+    
+    Map<String, Member> memberIdToUser = new HashMap<String, Member>();
+    
+    for (Member member : GrouperUtil.nonNull(members)) {
+      memberIdToUser.put(member.getId(), member);
+    }
+
+    for (String memberId : insertMemberIds) {
+      try {
+        Member member = memberIdToUser.get(memberId);
+        theGroup.addMember(member.getSubject(), false);
+      } catch (RuntimeException re) {
+        GrouperUtil.mapAddValue(debugMap, "errorsAddMember", 1);
+        debugMap.put("exceptionAddGroupName", theGroup.getName());
+        debugMap.put("exceptionAddMemberId", memberId);
+        debugMap.put("exceptionAddMember", GrouperUtil.getFullStackTrace(re));
+        LOG.error("Error adding memberId '" + memberId + "' to group: '" + theGroup.getName() + "'", re);
+      }
+    }
+ 
+    for (String memberId : deleteMemberIds) {
+      try {
+        Member member = memberIdToUser.get(memberId);
+        theGroup.deleteMember(member.getSubject(), false);
+      } catch (RuntimeException re) {
+        GrouperUtil.mapAddValue(debugMap, "errorsDeleteMember", 1);
+        debugMap.put("exceptionDeleteGroupName", theGroup.getName());
+        debugMap.put("exceptionDeleteMemberId", memberId);
+        debugMap.put("exceptionDeleteMember", GrouperUtil.getFullStackTrace(re));
+        LOG.error("Error deleting memberId '" + memberId + "' from group: '" + theGroup.getName() + "'", re);
+      }
+    }
+    
+    GrouperUtil.mapAddValue(debugMap, "inserts", insertMemberIds.size());
+    if (hib3GrouperLoaderLog != null) {
+      hib3GrouperLoaderLog.addInsertCount(insertMemberIds.size());
+    }
+    GrouperUtil.mapAddValue(debugMap, "deletes", deleteMemberIds.size());
+    if (hib3GrouperLoaderLog != null) {
+      hib3GrouperLoaderLog.addDeleteCount(deleteMemberIds.size());
+    }
+  }
+
+  public static GrouperJexlScriptSql generateJexlSql(GrouperDataEngine grouperDataEngine,
+      GcDbAccess gcDbAccess, GrouperJexlScriptAnalysis analyzeJexlScript) {
+    GrouperJexlScriptSql grouperJexlScriptSql = new GrouperJexlScriptSql();
+    GrouperJexlScriptPart grouperJexlScriptPart = analyzeJexlScript.getGrouperJexlScriptParts().get(0);
+    List<MultiKey> arguments = grouperJexlScriptPart.getArguments();
+    grouperJexlScriptSql.setWhereClause(grouperJexlScriptPart.getWhereClause().toString());
+ 
+    int argumentIndex = 0;
+    
+    String previousAttributeAlias = null;
+            
+    // TODO put this in the analysis script so all the bind vars are right
+    for (MultiKey argument : arguments) {
+      String argumentString = (String)argument.getKey(0);
+      if (StringUtils.equals(argumentString, "group")) {
+        String fieldName = (String)argument.getKey(1);
+        if (!StringUtils.equals(fieldName, "members")) {
+          throw new RuntimeException("Not expecting field: '" + fieldName + "'");
+        }
+        String groupName = (String)argument.getKey(2);
+        //TODO make this more efficient
+        Map<MultiKey, SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(GrouperUtil.toList(new MultiKey(groupName, fieldName)));
+        grouperJexlScriptSql.getAllSqlCacheGroupsForCurrentJexl().putAll(sqlCacheGroups);
+        // if group not found, consider it empty
+        long sqlCacheGroupInternalId = -1;
+        if (GrouperUtil.length(sqlCacheGroups) == 1) {
+          sqlCacheGroupInternalId = sqlCacheGroups.values().iterator().next().getInternalId();
+          grouperJexlScriptSql.getGroupInternalIds().add(sqlCacheGroupInternalId);
+        }
+        gcDbAccess.addBindVar(sqlCacheGroupInternalId);
+      } else if (StringUtils.equals(argumentString, "attribute")) {
+        String attributeAlias = (String)argument.getKey(1);
+        GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(attributeAlias.toLowerCase());
+        GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
+        gcDbAccess.addBindVar(grouperDataField.getInternalId());
+        grouperJexlScriptSql.getAttributeInternalIds().add(grouperDataField.getInternalId());
+        previousAttributeAlias = attributeAlias;
+      } else if (StringUtils.equals(argumentString, "row")) {
+        String rowAlias = (String)argument.getKey(1);
+        GrouperDataRowWrapper grouperDataRowWrapper = grouperDataEngine.getGrouperDataProviderIndex().getRowWrapperByLowerAlias().get(rowAlias.toLowerCase());
+        GrouperDataRow grouperDataRow = grouperDataRowWrapper.getGrouperDataRow();
+        gcDbAccess.addBindVar(grouperDataRow.getInternalId());
+        grouperJexlScriptSql.getRowInternalIds().add(grouperDataRow.getInternalId());
+      } else if (StringUtils.equals(argumentString, "bindVar")) {
+        
+        Object value = argument.getKey(1);
+        gcDbAccess.addBindVar(value);
+ 
+      } else if (StringUtils.equals(argumentString, "attributeValue")) {
+        
+        MultiKey argumentNameMultiKey = arguments.get(argumentIndex-1);
+        
+        String argumentPreviousString = (String)argumentNameMultiKey.getKey(0);
+        boolean isAttribute = StringUtils.equals(argumentPreviousString, "attribute");
+        GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(previousAttributeAlias.toLowerCase());
+        GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
+        
+        GrouperDataFieldConfig grouperDataFieldConfig = grouperDataEngine.getFieldConfigByAlias().get(previousAttributeAlias.toLowerCase());
+        GrouperDataFieldType fieldDataType = grouperDataFieldConfig.getFieldDataType();
+        GrouperDataFieldAssign grouperDataFieldAssign = new GrouperDataFieldAssign();
+        
+        Object value = argument.getKey(1);
+        fieldDataType.assignValue(grouperDataFieldAssign, value, grouperDataEngine.getGrouperDataProviderIndex().getDictionaryTextByString());
+        
+        if (fieldDataType == GrouperDataFieldType.bool || fieldDataType == GrouperDataFieldType.integer || fieldDataType == GrouperDataFieldType.timestamp) {
+          if (grouperDataFieldAssign.getValueInteger() != null) {
+            gcDbAccess.addBindVar(grouperDataFieldAssign.getValueInteger());
+          }
+          if (isAttribute) {                
+            grouperJexlScriptSql.setWhereClause(StringUtils.replace(grouperJexlScriptSql.getWhereClause(), "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_integer"));
+          }
+          
+        } else if (fieldDataType == GrouperDataFieldType.string) {
+          if (grouperDataFieldAssign.getValueDictionaryInternalId() != null) {
+            gcDbAccess.addBindVar(grouperDataFieldAssign.getValueDictionaryInternalId());
+          }
+          if (isAttribute) {                
+            grouperJexlScriptSql.setWhereClause(StringUtils.replace(grouperJexlScriptSql.getWhereClause(), "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_dictionary_internal_id"));
+          }
+ 
+        } else {
+          throw new RuntimeException("not expecting type: " + fieldDataType.getClass().getName());
+        }
+ 
+      } else {
+        throw new RuntimeException("not expecting argument string: " + argumentString);
+      }
+      argumentIndex++;
+    }
+    return grouperJexlScriptSql;
+  }
+
   /**
    * run standalone
    */

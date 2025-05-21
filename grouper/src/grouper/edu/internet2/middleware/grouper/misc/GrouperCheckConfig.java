@@ -2669,6 +2669,15 @@ public class GrouperCheckConfig {
                 .assignMultiAssignable(false)
                 .assignValueType(AttributeDefValueType.string));
 
+            //lets add some rule attributes
+            String jexlScriptJexlLastGroupSyncDefName = jexlScriptRootStemName + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_LAST_GROUP_SYNC_DEF;
+
+            attributeDefSaves.add(new AttributeDefSave().assignName(jexlScriptJexlLastGroupSyncDefName)
+                .assignAttributeDefType(AttributeDefType.attr)
+                .assignToGroupAssn(true)
+                .assignMultiAssignable(false)
+                .assignValueType(AttributeDefValueType.string));
+
           }
           
           {
@@ -4776,6 +4785,12 @@ public class GrouperCheckConfig {
             checkAttribute(jexlScriptStem, jexlScriptValueDef, GrouperAbac.GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES,
                 "true or false if the script should include subjects from internal sources", attributeDefNameSaves);
 
+            String jexlScriptJexlLastGroupSyncDefName = jexlScriptRootStemName + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_LAST_GROUP_SYNC_DEF;
+            AttributeDef jexlScriptJexlLastGroupSyncDef = nameOfAttributeDefToAttributeDef.get(jexlScriptJexlLastGroupSyncDefName); 
+            
+            checkAttribute(jexlScriptStem, jexlScriptJexlLastGroupSyncDef, GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_LAST_GROUP_SYNC, 
+                "UTC timestamp of last group sync (not including full sync): 2024-06-24T08:00:53.123456Z", attributeDefNameSaves);
+            
           }
           AttributeDefNameSave grouperLoaderTypeNameSave = null;
 
