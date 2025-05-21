@@ -628,10 +628,10 @@ public class UiV2Template {
       Stem stem = null;
       Group group = null;
       if (StringUtils.isNotBlank(gshTemplateExec.getOwnerStemName())) {
-        stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), gshTemplateExec.getOwnerStemName(), true);
+        stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), gshTemplateExec.getOwnerStemName(), false);
         GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setGuiStem(new GuiStem(stem));      
       } else if (StringUtils.isNotBlank(gshTemplateExec.getOwnerGroupName())) {
-        group = GroupFinder.findByName(gshTemplateExec.getOwnerGroupName(), true);
+        group = GroupFinder.findByName(gshTemplateExec.getOwnerGroupName(), false);
         GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setGuiGroup(new GuiGroup(group));
       }
       
