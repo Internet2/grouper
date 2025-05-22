@@ -2,12 +2,15 @@ package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateMembershipsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateMembershipsResponse;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
@@ -1281,7 +1284,74 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     return new TargetDaoInsertMembershipsResponse();
     
   }
-  
+
+  @Override
+  public TargetDaoUpdateMembershipsResponse updateMemberships(TargetDaoUpdateMembershipsRequest targetDaoUpdateMembershipsRequest) {
+    List<ProvisioningMembership> targetMemberships = targetDaoUpdateMembershipsRequest.getTargetMemberships();
+
+    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+    String objectTableName = sqlProvisioningConfiguration.getMembershipTableName();
+
+
+    Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetMembershipAttributeNameToConfig();
+
+    String sqlLastModifiedColumn = sqlProvisioningConfiguration.getSqlLastModifiedColumnName();
+    String sqlLastModifiedColumnType = sqlProvisioningConfiguration.getSqlLastModifiedColumnType();
+
+    for (ProvisioningMembership targetMembership: targetMemberships) {
+      List<String> columnsToUpdate = new ArrayList<>();
+      List<Object> oldValuesToUpdate = new ArrayList<>();
+      List<Object> newValuesToUpdate = new ArrayList<>();
+
+      List<String> whereClauseColumns = new ArrayList<>();
+      List<Object> whereClauseValues = new ArrayList<>();
+
+      for (ProvisioningObjectChange objectChange: targetMembership.getInternal_objectChanges()) {
+        columnsToUpdate.add(objectChange.getAttributeName());
+        oldValuesToUpdate.add(objectChange.getOldValue());
+        newValuesToUpdate.add(objectChange.getNewValue());
+      }
+
+      if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+        if (StringUtils.equals("long", sqlLastModifiedColumnType)) {
+          columnsToUpdate.add(sqlLastModifiedColumn);
+          oldValuesToUpdate.add(null);
+          newValuesToUpdate.add(lastModified());
+        } else if (StringUtils.equals("timestamp", sqlLastModifiedColumnType)) {
+          columnsToUpdate.add(sqlLastModifiedColumn);
+          oldValuesToUpdate.add(null);
+          newValuesToUpdate.add(new Timestamp(lastModified()));
+        } else {
+          throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
+        }
+      }
+
+      /* add match on the primary keys */
+      whereClauseColumns.add(sqlProvisioningConfiguration.getMembershipGroupMatchingIdAttribute());
+      whereClauseValues.add(targetMembership.retrieveAttributeValue(sqlProvisioningConfiguration.getMembershipGroupMatchingIdAttribute()));
+
+      whereClauseColumns.add(sqlProvisioningConfiguration.getMembershipEntityMatchingIdAttribute());
+      whereClauseValues.add(targetMembership.retrieveAttributeValue(sqlProvisioningConfiguration.getMembershipEntityMatchingIdAttribute()));
+
+      /* perform the update */
+      SqlProvisionerCommands.updateObjects(sqlProvisioningConfiguration.getDbExternalSystemConfigId(),
+              objectTableName,
+              columnsToUpdate,
+              Collections.singletonList(newValuesToUpdate.toArray()),
+              whereClauseColumns,
+              Collections.singletonList(whereClauseValues.toArray())
+      );
+
+      targetMembership.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+    }
+
+    return new TargetDaoUpdateMembershipsResponse();
+  }
+
   /**
    * 
    */
@@ -2337,7 +2407,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
     grouperProvisionerDaoCapabilities.setCanUpdateGroups(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntities(true);
-    
+    grouperProvisionerDaoCapabilities.setCanUpdateMemberships(true);
+
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
       grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsWithGroup(true);
       grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsSomeByGroups(true);
@@ -2354,6 +2425,5 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroups(true);
       grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByEntities(true);
     }
-    
   }
 }
