@@ -388,7 +388,10 @@ public class GrouperProvisioningConfigurationValidation {
 //      }
 //    }
     if (grouperProvisioningConfiguration.isOperateOnGrouperMemberships() && grouperProvisioningConfiguration.isCustomizeMembershipCrud()) {
-      if (!grouperProvisioningConfiguration.isSelectMemberships() && !grouperProvisioningConfiguration.isInsertMemberships() && !grouperProvisioningConfiguration.isReplaceMemberships()) {
+      if (!grouperProvisioningConfiguration.isSelectMemberships()
+              && !grouperProvisioningConfiguration.isInsertMemberships()
+              && !grouperProvisioningConfiguration.isUpdateMemberships()
+              && !grouperProvisioningConfiguration.isReplaceMemberships()) {
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertMemberships")).assignJqueryHandle("operateOnGrouperMemberships"));
       }
     }
@@ -1318,7 +1321,7 @@ public class GrouperProvisioningConfigurationValidation {
     boolean operateOnGrouperMemberships = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperMemberships"), false);
     boolean customizeCrud = operateOnGrouperMemberships && GrouperUtil.booleanValue(suffixToConfigValue.get("customizeMembershipCrud"), false);
     boolean anythingSet = false;
-    for (String key : new String[] { "insertMemberships", "selectMemberships", "deleteMemberships", "deleteMembershipsIfNotExistInGrouper", 
+    for (String key : new String[] { "insertMemberships", "updateMemberships", "selectMemberships", "deleteMemberships", "deleteMembershipsIfNotExistInGrouper",
         "deleteMembershipsIfGrouperDeleted", "deleteMembershipsIfGrouperCreated", "deleteValueIfManagedByGrouper",
         "deleteMembershipsOnlyInTrackedGroups","deleteMembershipsIfGroupUnmarkedProvisionable"}) {
       if (!customizeCrud) {

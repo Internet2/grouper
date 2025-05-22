@@ -518,8 +518,18 @@ public class GrouperProvisioningCompare {
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != null) {
       switch (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
         case membershipObjects:
-          // we dont update any attribute for memberships, we just insert and delete them
-          return;
+          // if there are only keys to compare, we don't update, just insert and delete
+          if (
+            StringUtils.equals(attributeName, this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipEntityMatchingIdAttribute())
+            || StringUtils.equals(attributeName, this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipGroupMatchingIdAttribute())
+          ) {
+            return;
+          }
+
+          // don't need to compare non-key attributes only if we can't update
+          if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isUpdateMemberships()) {
+            return;
+          }
         case entityAttributes:
           
           attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
@@ -1023,8 +1033,10 @@ public class GrouperProvisioningCompare {
       ProvisioningUpdatable targetProvisioningUpdatable, ProvisioningAttribute targetAttribute, String attributeName, 
       boolean recalc) {
 
-    // we dont update memberships right now
-    if (grouperProvisioningUpdatable instanceof ProvisioningMembership) {
+    // don't compare memberships unless we can update any changes
+    if (grouperProvisioningUpdatable instanceof ProvisioningMembership
+            && !((ProvisioningMembership)grouperProvisioningUpdatable).getProvisioningMembershipWrapper().getProvisioningStateMembership().isUpdate()
+            && !((ProvisioningMembership)grouperProvisioningUpdatable).getProvisioningMembershipWrapper().getProvisioningStateMembership().isRecalcObject()) {
       return;
     }
 
@@ -1074,6 +1086,11 @@ public class GrouperProvisioningCompare {
     
     // We're here because we're updating the membership attribute but we're not updating other attributes
     if (grouperProvisioningUpdatable instanceof ProvisioningGroup && !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isUpdateGroups()) {
+      return;
+    }
+
+    // We're here because we're updating the membership attribute but we're not updating other attributes
+    if (grouperProvisioningUpdatable instanceof ProvisioningMembership && !this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUpdateMemberships()) {
       return;
     }
 

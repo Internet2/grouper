@@ -1688,6 +1688,22 @@ public abstract class GrouperProvisioningConfiguration {
   }
 
   /**
+   * if memberships should be updated in target
+   * @return
+   */
+  public boolean isUpdateMemberships() {
+    return updateMemberships;
+  }
+
+  /**
+   * if memberships should be updated in target
+   * @param updateMemberships
+   */
+  public void setUpdateMemberships(boolean updateMemberships) {
+    this.updateMemberships = updateMemberships;
+  }
+
+  /**
    * if memberships should be deleted in target
    * @return
    */
@@ -1960,7 +1976,13 @@ public abstract class GrouperProvisioningConfiguration {
    */
   private boolean insertMemberships = true;
 
-  
+
+  /**
+   * if memberships should be updated in target
+   */
+  private boolean updateMemberships = false;
+
+
   /**
    * if memberships should be deleted in target
    */
@@ -3040,7 +3062,9 @@ public abstract class GrouperProvisioningConfiguration {
     
     if (!this.operateOnGrouperMemberships) {
       this.insertMemberships = false;
-      
+
+      this.updateMemberships = false;
+
       this.deleteMemberships = false;
   
       this.selectMemberships = false;
@@ -3061,9 +3085,11 @@ public abstract class GrouperProvisioningConfiguration {
     
     this.customizeMembershipCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeMembershipCrud", false), false);
     if (this.customizeMembershipCrud) {
-      
+
       this.insertMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertMemberships", false), true);
-      
+
+      this.updateMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateMemberships", false), false);
+
       this.replaceMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("replaceMemberships", false), false);
 
       this.selectMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectMemberships", false), true);
