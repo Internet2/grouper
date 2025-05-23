@@ -44,6 +44,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.loader.NotificationDaemon;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames;
@@ -188,6 +189,9 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
                 // external subject invite
                 namesOfAttributeDefs.add(ExternalSubjectAttrFramework.retrieveAttributeDefBaseDef().getName());
                 namesOfAttributeDefs.add(ExternalSubjectAttrFramework.retrieveAttributeDefValueDef().getName());
+
+                // jexl scripted groups last group sync
+                namesOfAttributeDefs.add(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_LAST_GROUP_SYNC_DEF);
                 
                 // notifications
                 namesOfAttributeDefs.add(NotificationDaemon.attributeAutoCreateStemName() + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT_DEF);

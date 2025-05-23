@@ -98,13 +98,18 @@ public class Test124gshAi extends GshTemplateV2 {
       GroupSave organizationGroupSave = new GroupSave();
       organizationGroupSave.assignName("a:b:c:" + gsh_input_groupName);
       organizationGroupSave.assignDescription("This is the group for organization: " + gsh_input_groupName);
-     
+
+      boolean createParentStemsIfNotExist = false;
+      organizationGroupSave.assignCreateParentStemsIfNotExist(createParentStemsIfNotExist);
+      
       Group organizationGroup = organizationGroupSave.save();
-     
+
       if (organizationGroupSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
         gsh_builtin_gshTemplateOutput.addOutputLine("Group existed: " + organizationGroup.getName());
-      } else {
+      } else if (organizationGroupSave.getSaveResultType() == SaveResultType.INSERT) {
         gsh_builtin_gshTemplateOutput.addOutputLine("Group created: " + organizationGroup.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group updated: " + organizationGroup.getName());
       }
     }
 

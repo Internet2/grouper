@@ -1,4 +1,4 @@
-Grouper web service sample of service: getAuditEntries, WsSampleGetAuditEntriesRestLite, manually written lite/rest, type: _withInput, format: xml, for version: 2.5.0
+Grouper web service sample of service: getAuditEntries, WsSampleGetAuditEntriesRestLite, manually written lite/rest, type: _withInput, format: xml, for version: 5.0.0
 
 
 #########################################
@@ -9,13 +9,15 @@ Grouper web service sample of service: getAuditEntries, WsSampleGetAuditEntriesR
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/audits HTTP/1.1
-Connection: close
+POST /grouper-ws/servicesRest/v2_5_000/audits HTTP/1.1
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
-Host: localhost:8092
+Content-Type: application/xml
 Content-Length: 136
-Content-Type: application/xml; charset=UTF-8
+Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=DFD2B72F37D675141E68D332FE849CB3
+Accept-Encoding: gzip,deflate
 
 <WsRestGetAuditEntriesLiteRequest>
   <auditType>group</auditType>
@@ -38,136 +40,95 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 23 Nov 2019 21:41:03 GMT
-Connection: close
+Date: Fri, 23 May 2025 18:15:22 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 3ff
 <WsGetAuditEntriesResults>
   <wsAuditEntries>
     <WsAuditEntry>
+      <id>f7ce97ae696045a2b6dc446c4acc09dc</id>
       <actionName>addGroup</actionName>
       <auditCategory>group</auditCategory>
       <auditEntryColumns>
         <WsAuditEntryColumn>
           <label>id</label>
-          <valueString>7504942b3c3e46768c7ed45c08271b96</valueString>
+          <valueString>33f2e88ca7b641a5b352c190662d4c4a</valueString>
         </WsAuditEntryColumn>
         <WsAuditEntryColumn>
           <label>name</label>
-          <valueString>aStem:role2</valueString>
+          <valueString>etc:privilege:stemViewPrecompute</valueString>
         </WsAuditEntryColumn>
         <WsAuditEntryColumn>
           <label>parentStemId</label>
-          <valueString>c667a0547d2846b19fe49c6139a7585c</valueString>
+          <valueString>35b6855f8db24223a7e33d305c5f2953</valueString>
         </WsAuditEntryColumn>
         <WsAuditEntryColumn>
           <label>displayName</label>
-          <valueString>a stem:role2</valueString>
+          <valueString>etc:privilege:stemViewPrecompute</valueString>
         </WsAuditEntryColumn>
       </auditEntryColumns>
     </WsAuditEntry>
     <WsAuditEntry>
+      <id>4833447f92ff426b82b3357e7067c095</id>
       <actionName>addGroup</actionName>
       <auditCategory>group</auditCategory>
       <auditEntryColumns>
         <WsAuditEntryColumn>
           <label>id</label>
-          <valueString>8f0570ede0944e5da5264b1132f7f9d3</valueString>
+          <valueString>9d1df201c2ca473aae9062e63fa572ed</valueString>
         </WsAuditEntryColumn>
         <WsAuditEntryColumn>
           <label>name</label>
-          <valueString>aStem:role</valueString>
+          <valueString>te
+3f9
+st:testGroup</valueString>
         </WsAuditEntryColumn>
         <WsAuditEntryColumn>
           <label>parentStemId</label>
-          <valueString>c667a0547d2846b19fe4
+          <valueString>5d39dfd046834ba7a597b28dbf40ebbb</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>test:testGroup</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>e8d1cd0fc47c44278329fdc013109bb2</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>6f7a323c4a904486bcb8ac1c0a9de5b7</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>test:test1</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>5d39dfd046834ba7a597b28dbf40ebbb</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>test:test1</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>6b1feab7ced74c478ecb49c6fcc7023c</id>
+      <actionName>
+      </
 3fb
-9c6139a7585c</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>displayName</label>
-          <valueString>a stem:role</valueString>
-        </WsAuditEntryColumn>
-      </auditEntryColumns>
-    </WsAuditEntry>
-    <WsAuditEntry>
-      <actionName>addGroup</actionName>
-      <auditCategory>group</auditCategory>
-      <auditEntryColumns>
-        <WsAuditEntryColumn>
-          <label>id</label>
-          <valueString>e6eff24fbfec4175816c7cd8132b9c7f</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>name</label>
-          <valueString>test:groupTestAttrAssign2</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>parentStemId</label>
-          <valueString>709cdb18758546ff914092d8c163c50e</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>displayName</label>
-          <valueString>test:groupTestAttrAssign2</valueString>
-        </WsAuditEntryColumn>
-      </auditEntryColumns>
-    </WsAuditEntry>
-    <WsAuditEntry>
-      <actionName>addGroup</actionName>
-      <auditCategory>group</auditCategory>
-      <auditEntryColumns>
-        <WsAuditEntryColumn>
-          <label>id</label>
-          <valueString>346572535138477cabb75a6ff94de139</valueString>
-        </WsAuditEntryColumn>
-        <
-3f7
-WsAuditEntryColumn>
-          <label>name</label>
-          <valueString>test:groupTestAttrAssign</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>parentStemId</label>
-          <valueString>709cdb18758546ff914092d8c163c50e</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>displayName</label>
-          <valueString>test:groupTestAttrAssign</valueString>
-        </WsAuditEntryColumn>
-      </auditEntryColumns>
-    </WsAuditEntry>
-    <WsAuditEntry>
-      <actionName>addGroup</actionName>
-      <auditCategory>group</auditCategory>
-      <auditEntryColumns>
-        <WsAuditEntryColumn>
-          <label>id</label>
-          <valueString>359fd223772d414cae7cf64479c54083</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>name</label>
-          <valueString>etc:webServiceActAsGroup</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>parentStemId</label>
-          <valueString>e829c708e95d464bb114ca5ac48ea67e</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>displayName</label>
-          <valueString>etc:webServiceActAsGroup</valueString>
-        </WsAuditEntryColumn>
-      </auditEntryColumns>
-    </WsAuditEntry>
-    <WsAuditEntry>
-      <
-3fd
 actionName>
-      </actionName>
       <auditCategory>group</auditCategory>
       <auditEntryColumns>
         <WsAuditEntryColumn>
           <label>id</label>
-          <valueString>23ef87706cf24770a57c81d052cb3813</valueString>
+          <valueString>68ce3c5f94a741e99c3a7a93c09ffb26</valueString>
         </WsAuditEntryColumn>
         <WsAuditEntryColumn>
           <label>name</label>
@@ -175,7 +136,7 @@ actionName>
         </WsAuditEntryColumn>
         <WsAuditEntryColumn>
           <label>parentStemId</label>
-          <valueString>c667a0547d2846b19fe49c6139a7585c</valueString>
+          <valueString>24e71528d3a548e2b8dc6e2890239c87</valueString>
         </WsAuditEntryColumn>
         <WsAuditEntryColumn>
           <label>displayName</label>
@@ -184,12 +145,596 @@ actionName>
       </auditEntryColumns>
     </WsAuditEntry>
     <WsAuditEntry>
+      <id>8364e47c61774bc78c3087273355462f</id>
       <actionName>addGroup</actionName>
       <auditCategory>group</auditCategory>
       <auditEntryColumns>
         <WsAuditEntryColumn>
           <label>id</label>
-          <valueString>11310be917644d6daa9bd698e30afab2</valueString>
+          <valueString>05e479749781484684f732ad666e9cc9</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>test:groupTestAttrAssign</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>
+          </
+3fc
+valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>test:groupTestAttrAssign</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>764069fbec574cdc954c01bb337b78d2</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>d799b2b6c84c4655a27c2bf9272b96c9</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>test:groupTestAttrAssign2</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>5d39dfd046834ba7a597b28dbf40ebbb</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>test:groupTestAttrAssign2</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>9e2c87a3a21b4d1a8c6541fffae0c795</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <
+3f7
+valueString>
+          </valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>aStem:role</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>24e71528d3a548e2b8dc6e2890239c87</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>a stem:role</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>5c7f5d4367df48489097c6e102e8cac1</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>e14721bf8a664b18894f4595ed983e45</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>aStem:role2</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>24e71528d3a548e2b8dc6e2890239c87</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>a stem:role2</valueString>
+        </
+3ff
+WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>8787a62dd1794eb696ab62b5e3b942b3</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>e2df0ce405c846389721144aa70fc520</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:workflowEditors</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>b329fb9a990240ca84b381cb12bff522</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:workflowEditors</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>f25a3552152449f187717b0661090afb</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>0cc5a644f3c747ccba5fda83c7755679</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:sysadminStem
+3ff
+Viewers</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>b329fb9a990240ca84b381cb12bff522</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:sysadminStemViewers</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>1dca97b1b8e84d83bad7ae55689dffbf</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>ea0af774a8e94c118410c66a7aa611f6</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>aStem:whateverGroup</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>24e71528d3a548e2b8dc6e2890239c87</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>a stem:disp1</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>9a07452d6cad4dd29d274d42a5fd0df2</id>
+      <actionName>a
+3ff
+ddGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>5377181c6cd14a52acd4c1424b0dbb4e</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>aStem:whateverGroup2</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>24e71528d3a548e2b8dc6e2890239c87</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>a stem:disp2</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>29e11c0f0f9c4d1e87ca30c18d5d1659</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>90a2c3c8b5c94a0ea802e1af872a4f5a</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>aStem:whateverGroupLeft</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>24e71528d3a548e2b8dc6e2890
+3ff
+239c87</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>a stem:whateverGroupLeftDispExt</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>1a8a56e10529486aa5d7c9b6f0ee5f3f</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>19162f033e8145eaa29046401ba6f639</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>aStem:whateverGroupRight</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>24e71528d3a548e2b8dc6e2890239c87</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>a stem:whateverGroupRightDispExt</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>21ddd79c503d474f842c81c42729a73c</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>944590cf3ccc454ea9f5028484da2b95</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:loaderViewers</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>b329fb9a990240ca84b381cb12bff522</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:loaderViewers</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>1c4ee62dd7f2405f9c701075fc541051</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>d7af24a5400243caa6e1d071a20f0200</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:sysadmingroup</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>b329fb9a990240ca84b381cb12bff522</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString
+3ff
+>etc:sysadmingroup</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>a983980ec17a42c6b3edb223fd6ad596</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>1800a77c15924658a570b14aba8eb632</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:jexlScriptTestingGroup</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>b329fb9a990240ca84b381cb12bff522</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:jexlScriptTestingGroup</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>ffe8c22cb2bc4e37a37bf030dc3f12a1</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>3c058960a21344ce8222bcd6456b29a9</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:sysadminViewersGroup</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>b329fb9a990240ca84b381cb12bff522</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:sysadminViewersGroup</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>2903dfeb11344762ac45a0da70814b31</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>71d21241114b4ed5b70eac63525b03d1</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:sysadminReadersGroup</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>b329fb9a990240ca84b381cb12bff522</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:sysadminReadersGroup</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <
+3f8
+WsAuditEntry>
+      <id>5077b64cb3ac4c0a8c67bce6ac90d1e4</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>cb35ffc35d3748ff8475893c79714ff3</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:attribute:cannotAddSelfToGroup:canAssignCannotAddSelf</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>e66cdf5226424b4cb3f02bfc6fbacf6a</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:attribute:cannotAddSelfToGroup:canAssignCannotAddSelf</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>e42197ff52ce4af8917f041c3e3e7a82</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>04736ece448f4a86ac0e7fa6f312d170</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <
+3ff
+valueString>
+          </valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>e66cdf5226424b4cb3f02bfc6fbacf6a</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:attribute:cannotAddSelfToGroup:canRevokeCannotAddSelf</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>ebcdbfc443d248a5b0d70dd352c5dd08</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>9a7d44f971ce4c80aefbc02f0125aa84</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:deprovisioning:deprovisioningAdmins</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>3e72152edd734980a88f88a4b9b4f0fc</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:deprovisioning:deprovisioningA
+3ff
+dmins</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>e90e23af0ed640838e86cf5e1b40d557</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>a637381412634918a8cb84a446faa8a0</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:loaderEditors</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>b329fb9a990240ca84b381cb12bff522</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:loaderEditors</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>375844ac4ddf4a62b0716bfe047d6f6f</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>846c2aeb95a046c3a29b66338e4d67eb</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString
+3ff
+>etc:attribute:messages:grouperMessageRole</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>591643d856f24265a0e1f3796a730b5d</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:attribute:messages:grouperMessageRole</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>013ce29508e84016a0f20e93589ff818</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>ee376943445a4df49ddd75a976827de9</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:attribute:recentMemberships:grouperRecentMembershipsLoader</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>dec6264ad548471a96d4f9ddd9dc35f6</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:attribute:recentMemberships:grouperRecentMembershi
+3ff
+psLoader</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>dbfd409ad2734428a9b8f3107d4ff85c</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>5f0c39ded4b445499faa0b5c19841a42</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:attribute:instrumentationData:instrumentationDataInstancesGroup</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>6a923210ca4d4f33aa1e78ca81656550</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:attribute:instrumentationData:instrumentationDataInstancesGroup</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>8c1fae90676246fba16b098b0bb59d41</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>5a4aa810d56444f
+3fe
+7a14e4e97680a6da5</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:attribute:instrumentationData:instrumentationDataCollectorsGroup</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>6a923210ca4d4f33aa1e78ca81656550</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:attribute:instrumentationData:instrumentationDataCollectorsGroup</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>4f42ccf417644ce086b3bcf331461522</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>54ff4c6307a34b9c90ad15b5cb4e2286</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>name</label>
+          <valueString>etc:attribute:upgradeTasks:upgradeTasksMetadataGroup</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>parentStemId</label>
+          <valueString>010cf78eac914cf1ae84b280548f1487
+3ff
+</valueString>
+        </WsAuditEntryColumn>
+        <WsAuditEntryColumn>
+          <label>displayName</label>
+          <valueString>etc:attribute:upgradeTasks:upgradeTasksMetadataGroup</valueString>
+        </WsAuditEntryColumn>
+      </auditEntryColumns>
+    </WsAuditEntry>
+    <WsAuditEntry>
+      <id>1519578eae304293b00597e11c69ccda</id>
+      <actionName>addGroup</actionName>
+      <auditCategory>group</auditCategory>
+      <auditEntryColumns>
+        <WsAuditEntryColumn>
+          <label>id</label>
+          <valueString>0bcb58edf06f4c4b8f3de4eba73a17a6</valueString>
         </WsAuditEntryColumn>
         <WsAuditEntryColumn>
           <label>name</label>
@@ -197,88 +742,20 @@ actionName>
         </WsAuditEntryColumn>
         <WsAuditEntryColumn>
           <label>parentStemId</label>
-          <valueString>c667a0547d2846b19fe49c6139a7585c</valueString>
-        </WsAuditEntryColumn>
-        <
-3ff
-WsAuditEntryColumn>
-          <label>displayName</label>
-          <valueString>a stem:a group</valueString>
-        </WsAuditEntryColumn>
-      </auditEntryColumns>
-    </WsAuditEntry>
-    <WsAuditEntry>
-      <actionName>addGroup</actionName>
-      <auditCategory>group</auditCategory>
-      <auditEntryColumns>
-        <WsAuditEntryColumn>
-          <label>id</label>
-          <valueString>a257002a0e49437cbe696c808ff5b816</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>name</label>
-          <valueString>test:testGroup</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>parentStemId</label>
-          <valueString>709cdb18758546ff914092d8c163c50e</valueString>
+          <valueString>24e71528d3a548e2b8dc6e2890239c87</valueString>
         </WsAuditEntryColumn>
         <WsAuditEntryColumn>
           <label>displayName</label>
-          <valueString>test:test group</valueString>
-        </WsAuditEntryColumn>
-      </auditEntryColumns>
-    </WsAuditEntry>
-    <WsAuditEntry>
-      <actionName>addGroup</actionName>
-      <auditCategory>group</auditCategory>
-      <auditEntryColumns>
-        <WsAuditEntryColumn>
-          <label>id</label>
-          <valueString>da481095de974b9e95210471bc8c2fd4</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>name</label>
-          <valueString>etc:deprovisioning:
-3ff
-usersWhoHaveBeenDeprovisioned_employees</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>parentStemId</label>
-          <valueString>019dced35be945f5af9bc9ab88b8e375</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>displayName</label>
-          <valueString>etc:deprovisioning:usersWhoHaveBeenDeprovisioned_employees</valueString>
-        </WsAuditEntryColumn>
-      </auditEntryColumns>
-    </WsAuditEntry>
-    <WsAuditEntry>
-      <actionName>addGroup</actionName>
-      <auditCategory>group</auditCategory>
-      <auditEntryColumns>
-        <WsAuditEntryColumn>
-          <label>id</label>
-          <valueString>75752012aff94f8fa45a96f946eeb1c9</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>name</label>
-          <valueString>etc:deprovisioning:managersWhoCanDeprovision_employees</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>parentStemId</label>
-          <valueString>019dced35be945f5af9bc9ab88b8e375</valueString>
-        </WsAuditEntryColumn>
-        <WsAuditEntryColumn>
-          <label>displayName</label>
-          <valueString>etc:deprovisioning:managersWhoCanDeprovision_employees</valueString>
+          <valueString>aStem:aGroup</valueString>
         </WsAuditEntryColumn>
       </auditEntryColumns>
     </WsAuditEntry>
   </wsAuditEntries>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.2.0, auditType: group, auditActionId: addGroup, wsOwnerAttributeDefLookups: null, wsOwnerAttributeDefNameLookups: null, wsOwnerStemLookups: null, wsOwnerGroupLookups: null, wsOwnerSubjectLookups: null, actAsSubject: null
+    <resultMessage>Success for: clientVersion: 2.5.0, auditType: group, auditActionId: addGroup, wsOwnerAttributeDefLoo
+180
+kup: null, wsOwnerAttributeDefNameLookup: null, wsOwnerStemLookup: null, wsOwnerGroupLookup: null, wsOwnerSubjectLookup: null, actAsSubject: null
 , paramNames:
 , params: null
 , </resultMessage>
@@ -286,8 +763,8 @@ usersWhoHaveBeenDeprovisioned_employees</valueString>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>7</millis>
-    <serverVersion>2.4.0</serverVersion>
+    <millis>201</millis>
+    <serverVersion>5.0.0</serverVersion>
   </responseMetadata>
 </WsGetAuditEntriesResults>
 0
@@ -305,18 +782,10 @@ usersWhoHaveBeenDeprovisioned_employees</valueString>
 
 package edu.internet2.middleware.grouper.ws.samples.rest.audit;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAuditEntriesResults;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.audit.WsRestGetAuditEntriesLiteRequest;
@@ -338,26 +807,18 @@ public class WsSampleGetAuditEntriesRestLite implements WsSampleRest {
  public static void getAuditEntriesLite(WsSampleRestType wsSampleRestType) {
    
    try {
-     HttpClient httpClient = new HttpClient();
-     
-     DefaultHttpParams.getDefaultParams().setParameter(
-         HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+     // grouper http client
+     GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
-     PostMethod method = new PostMethod(
-         RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-           + "/audits");
+     String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+           + "/audits";
      
-     httpClient.getParams().setAuthenticationPreemptive(true);
-     Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-         RestClientSettings.PASS);
-     
-     //no keep alive so response if easier to indent for tests
-     method.setRequestHeader("Connection", "close");
-     
-     //e.g. localhost and 8093
-     httpClient.getState()
-         .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+     // assign the URL and method
+     grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.post);
+     // assign user and pass
+     grouperHttpClient.assignUser(RestClientSettings.USER)
+         .assignPassword(RestClientSettings.PASS);
 
      WsRestGetAuditEntriesLiteRequest getAuditEntriesLite = new WsRestGetAuditEntriesLiteRequest();
      
@@ -370,20 +831,28 @@ public class WsSampleGetAuditEntriesRestLite implements WsSampleRest {
      //make sure right content type is in request (e.g. application/xhtml+xml
      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
      
-     method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-     
-     httpClient.executeMethod(method);
+     // assign body
+     grouperHttpClient.assignBody(requestDocument);
 
-     //make sure a request came back
-     Header successHeader = method.getResponseHeader("X-Grouper-success");
-     String successString = successHeader == null ? null : successHeader.getValue();
+     // content type
+     grouperHttpClient.addHeader("Content-Type", contentType);
+     
+     // execute
+     grouperHttpClient.executeRequest();
+     
+
+     //check if success
+     String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
+
      if (StringUtils.isBlank(successString)) {
        throw new RuntimeException("Web service did not even respond!");
      }
      boolean success = "T".equals(successString);
-     String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+     // check result code
+     String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
      
-     String response = RestClientSettings.responseBodyAsString(method);
+     String response = grouperHttpClient.getResponseBody();
 
      Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
    
@@ -441,7 +910,7 @@ public class WsSampleGetAuditEntriesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, auditType: group, auditActionId: addGroup, wsOwnerAttributeDefLookups: null, wsOwnerAttributeDefNameLookups: null, wsOwnerStemLookups: null, wsOwnerGroupLookups: null, wsOwnerSubjectLookups: null, actAsSubject: null
+Server version: 5.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, auditType: group, auditActionId: addGroup, wsOwnerAttributeDefLookup: null, wsOwnerAttributeDefNameLookup: null, wsOwnerStemLookup: null, wsOwnerGroupLookup: null, wsOwnerSubjectLookup: null, actAsSubject: null
 , paramNames: 
 , params: null
 ,

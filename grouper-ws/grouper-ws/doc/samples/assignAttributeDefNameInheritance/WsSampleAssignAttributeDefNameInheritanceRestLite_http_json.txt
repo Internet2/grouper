@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRestLite, manually written lite/rest, format: http_json, for version: 2.5.0
+Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRestLite, manually written lite/rest, format: http_json, for version: 5.0.0
 
 
 #########################################
@@ -10,11 +10,14 @@ Grouper web service sample of service: assignAttributeDefNameInheritance, WsSamp
 
 
 POST /grouper-ws/servicesRest/v2_5_000/attributeDefNames HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
-Host: localhost:8092
+Content-Type:
 Content-Length: 174
+Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=9F62715A53C9B6733F54FB479A575D20
+Accept-Encoding: gzip,deflate
 
 wsLiteObjectType=WsRestAssignAttributeDefNameInheritanceLiteRequest&assign=T&attributeDefNameName=aStem:permissionDefName&relatedAttributeDefNameName=aStem:permissionDefName3
 
@@ -28,26 +31,26 @@ wsLiteObjectType=WsRestAssignAttributeDefNameInheritanceLiteRequest&assign=T&att
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=0AB9A358EF9C22F7FF72D2AE99CB1F30;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
 Content-Length: 289
-Date: Tue, 31 Mar 2020 20:15:17 GMT
-Connection: close
-Server: Apache TomEE
+Date: Fri, 23 May 2025 17:06:28 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 {
   "WsAssignAttributeDefNameInheritanceResults":{
-    "responseMetadata":{
-      "millis":"33",
-      "serverVersion":"2.5.0"
-    },
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Had 0 successful adds, 1 adds which already existed, 0 successful removes, and 0 removes which didnt exist.",
       "success":"T"
+    },
+    "responseMetadata":{
+      "millis":"21",
+      "serverVersion":"5.0.0"
     }
   }
 }
@@ -80,20 +83,11 @@ Server: Apache TomEE
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
@@ -112,27 +106,19 @@ public class WsSampleAssignAttributeDefNameInheritanceRestLite implements WsSamp
   public static void assignAttributeDefNameInheritanceLite(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aAttributeDefName urlencoded substitutes %3A for a colon
-      PostMethod method = new PostMethod(
-          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/attributeDefNames");
+      String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+            + "/attributeDefNames";
       
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
-      
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-      
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.post);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -153,20 +139,28 @@ public class WsSampleAssignAttributeDefNameInheritanceRestLite implements WsSamp
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
-      httpClient.executeMethod(method);
+      // assign body
+      grouperHttpClient.assignBody(requestDocument);
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
+      // content type
+      grouperHttpClient.addHeader("Content-Type", contentType);
+      
+      // execute
+      grouperHttpClient.executeRequest();
+      
+
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
+      
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
     
@@ -200,7 +194,7 @@ public class WsSampleAssignAttributeDefNameInheritanceRestLite implements WsSamp
    * @param args
    */
   public static void main(String[] args) {
-    assignAttributeDefNameInheritanceLite(WsSampleRestType.xhtml);
+    assignAttributeDefNameInheritanceLite(WsSampleRestType.json);
   }
 
   /**
@@ -227,4 +221,4 @@ public class WsSampleAssignAttributeDefNameInheritanceRestLite implements WsSamp
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: Had 0 successful adds, 1 adds which already existed, 0 successful removes, and 0 removes which didnt exist.
+Server version: 5.0.0, result code: SUCCESS, result message: Had 0 successful adds, 1 adds which already existed, 0 successful removes, and 0 removes which didnt exist.

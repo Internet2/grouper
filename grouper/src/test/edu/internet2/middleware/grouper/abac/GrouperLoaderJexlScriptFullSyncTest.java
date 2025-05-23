@@ -47,7 +47,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testRowAttributeGreaterThanOrEqualNegative"));
+    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testJexlIncrementalChangeAttribute"));
   }
   
   /**
@@ -322,7 +322,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
       nameToSqlCacheDependencyType.put(sqlCacheDependencyType.getName(), sqlCacheDependencyType);
     }
     
-    SqlCacheDependencyType sqlCacheDependencyTypeAbacAttribute = nameToSqlCacheDependencyType.get("abac_attribute");
+    SqlCacheDependencyType sqlCacheDependencyTypeAbacAttribute = nameToSqlCacheDependencyType.get(SqlCacheDependencyTypeDao.NAME_ABAC_ATTRIBUTE);
 
     //  grouper_sql_cache_group
     //  group_internal_id
@@ -1505,4 +1505,387 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     newHistoryCount = new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst").select(Long.class);
     assertEquals(initialHistoryCount + 3, newHistoryCount);
   }
+
+  public void testJexlFullDependencies() {
+    setupDataFields();
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group testGroupA = new GroupSave().assignName("test:GroupA").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupB = new GroupSave().assignName("test:GroupB").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupC = new GroupSave().assignName("test:GroupC").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupE = new GroupSave().assignName("test:GroupE").assignCreateParentStemsIfNotExist(true).save();
+    
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+    
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, testSubject1, true);
+    
+    Subject testSubject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, testSubject2, true);
+    
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, testSubject3, true);
+  
+    testGroupA.addMember(testSubject0);
+    testGroupA.addMember(testSubject1);
+    testGroupA.addMember(testSubject2);
+    testGroupA.addMember(testSubject3);
+    
+    testGroupB.addMember(testSubject0);
+    
+    testGroupC.addMember(testGroupA.toSubject());
+  
+    
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+    
+    // testE has the jexl script
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroupE)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+    
+    // testGroupC: 0, 1, 2, 3
+    // testGroupB is 0
+    // testgrouper_field_row_affil
+    // affiliation less than 300: 0, 3
+    // staff: 0, 2
+    // job number 123, 234, nobody
+    // org with %2%: nobody
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), 
+        """
+        (entity.memberOf('test:GroupC') && !entity.memberOf('test:GroupB'))
+        || entity.hasRow('affiliation', 'affiliationDeptNumber<300')
+        || entity.hasRow('affiliation', 'affiliationCode=staff')
+        || entity.hasAttributeAny('jobNumber', [123, 234])
+        || entity.hasAttributeLike(org, '%2%')
+        """);
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    
+    //GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_sqlCacheFullSync");
+  
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+    
+    Set<Member> members = testGroupE.getMembers();
+    assertEquals(4, members.size());
+    
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member1));
+    assertTrue(members.contains(member2));
+    assertTrue(members.contains(member3));
+    
+    
+    // query to check the group dependencies
+    Set<String> ownerGroupNames = new HashSet<>(new GcDbAccess().sql("select owner_group_name from grouper_sql_dependency_group_v where depen_group_name = ?").addBindVar(testGroupE.getName()).selectList(String.class));
+    assertEquals(2, ownerGroupNames.size());
+    assertTrue(ownerGroupNames.contains(testGroupC.getName()));
+    assertTrue(ownerGroupNames.contains(testGroupB.getName()));
+    
+    // query to check the attribute dependencies
+    Set<String> ownerAttributeNames = new HashSet<>(new GcDbAccess().sql("select owner_data_field_config_id from grouper_sql_dependency_attr_v where depen_group_name = ?").addBindVar(testGroupE.getName()).selectList(String.class));
+    assertEquals(4, ownerAttributeNames.size());
+    assertTrue(ownerAttributeNames.contains("org"));
+    assertTrue(ownerAttributeNames.contains("affiliationDeptNumber"));
+    assertTrue(ownerAttributeNames.contains("affiliationCode"));
+    assertTrue(ownerAttributeNames.contains("jobNumber"));
+    
+    // query to check the row dependencies
+    Set<String> ownerRowNames = new HashSet<>(new GcDbAccess().sql("select owner_data_row_config_id from grouper_sql_dependency_row_v where depen_group_name = ?").addBindVar(testGroupE.getName()).selectList(String.class));
+    assertEquals(1, ownerRowNames.size());
+    assertTrue(ownerRowNames.contains("affiliation"));
+    
+  }
+  
+  public void testJexlIncrementalDependencies() {
+    setupDataFields();
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_grouperLoaderJexlScriptIncremental");
+
+
+    Group testGroupA = new GroupSave().assignName("test:GroupA").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupB = new GroupSave().assignName("test:GroupB").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupC = new GroupSave().assignName("test:GroupC").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupE = new GroupSave().assignName("test:GroupE").assignCreateParentStemsIfNotExist(true).save();
+    
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+    
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, testSubject1, true);
+    
+    Subject testSubject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, testSubject2, true);
+    
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, testSubject3, true);
+  
+    testGroupA.addMember(testSubject0);
+    testGroupA.addMember(testSubject1);
+    testGroupA.addMember(testSubject2);
+    testGroupA.addMember(testSubject3);
+    
+    testGroupB.addMember(testSubject0);
+    
+    testGroupC.addMember(testGroupA.toSubject());
+  
+    
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+    
+    // testE has the jexl script
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroupE)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+    
+    // testGroupC: 0, 1, 2, 3
+    // testGroupB is 0
+    // testgrouper_field_row_affil
+    // affiliation less than 300: 0, 3
+    // staff: 0, 2
+    // job number 123, 234, nobody
+    // org with %2%: nobody
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), 
+        """
+        (entity.memberOf('test:GroupC') && !entity.memberOf('test:GroupB'))
+        || entity.hasRow('affiliation', 'affiliationDeptNumber<300')
+        || entity.hasRow('affiliation', 'affiliationCode=staff')
+        || entity.hasAttributeAny('jobNumber', [123, 234])
+        || entity.hasAttributeLike(org, '%2%')
+        """);
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_grouperLoaderJexlScriptIncremental");
+
+    // TODO check status of the incremental job
+    
+    Set<Member> members = testGroupE.getMembers();
+    assertEquals(4, members.size());
+    
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member1));
+    assertTrue(members.contains(member2));
+    assertTrue(members.contains(member3));
+    
+    
+    // query to check the group dependencies
+    Set<String> ownerGroupNames = new HashSet<>(new GcDbAccess().sql("select owner_group_name from grouper_sql_dependency_group_v where depen_group_name = ?").addBindVar(testGroupE.getName()).selectList(String.class));
+    assertEquals(2, ownerGroupNames.size());
+    assertTrue(ownerGroupNames.contains(testGroupC.getName()));
+    assertTrue(ownerGroupNames.contains(testGroupB.getName()));
+    
+    // query to check the attribute dependencies
+    Set<String> ownerAttributeNames = new HashSet<>(new GcDbAccess().sql("select owner_data_field_config_id from grouper_sql_dependency_attr_v where depen_group_name = ?").addBindVar(testGroupE.getName()).selectList(String.class));
+    assertEquals(4, ownerAttributeNames.size());
+    assertTrue(ownerAttributeNames.contains("org"));
+    assertTrue(ownerAttributeNames.contains("affiliationDeptNumber"));
+    assertTrue(ownerAttributeNames.contains("affiliationCode"));
+    assertTrue(ownerAttributeNames.contains("jobNumber"));
+    
+    // query to check the row dependencies
+    Set<String> ownerRowNames = new HashSet<>(new GcDbAccess().sql("select owner_data_row_config_id from grouper_sql_dependency_row_v where depen_group_name = ?").addBindVar(testGroupE.getName()).selectList(String.class));
+    assertEquals(1, ownerRowNames.size());
+    assertTrue(ownerRowNames.contains("affiliation"));
+    
+  }
+
+  public void testJexlIncrementalChangeAttribute() {
+    setupDataFields();
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_grouperLoaderJexlScriptIncremental");
+
+
+    Group testGroupA = new GroupSave().assignName("test:GroupA").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupB = new GroupSave().assignName("test:GroupB").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupC = new GroupSave().assignName("test:GroupC").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupE = new GroupSave().assignName("test:GroupE").assignCreateParentStemsIfNotExist(true).save();
+    
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+    
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, testSubject1, true);
+    
+    Subject testSubject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, testSubject2, true);
+    
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, testSubject3, true);
+  
+    Subject testSubject4 = SubjectFinder.findByIdAndSource("test.subject.4", "jdbc", true);
+    Member member4 = MemberFinder.findBySubject(grouperSession, testSubject4, true);
+  
+    testGroupA.addMember(testSubject0);
+    testGroupA.addMember(testSubject1);
+    testGroupA.addMember(testSubject2);
+    testGroupA.addMember(testSubject3);
+    
+    testGroupB.addMember(testSubject0);
+    
+    testGroupC.addMember(testGroupA.toSubject());
+  
+    
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+    
+    // testE has the jexl script
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroupE)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+    
+    // testGroupC: 0, 1, 2, 3
+    // testGroupB is 0
+    // testgrouper_field_row_affil
+    // affiliation less than 300: 0, 3
+    // staff: 0, 2
+    // job number 123, 234, nobody
+    // org with %2%: nobody
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), 
+        """
+        (entity.memberOf('test:GroupC') && !entity.memberOf('test:GroupB'))
+        || entity.hasRow('affiliation', 'affiliationDeptNumber<300')
+        || entity.hasRow('affiliation', 'affiliationCode=staff')
+        || entity.hasAttributeAny('jobNumber', [123, 234])
+        || entity.hasAttributeLike(org, '%2%')
+        """);
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_grouperLoaderJexlScriptIncremental");
+
+    // TODO check status of the incremental job
+    
+    Set<Member> members = testGroupE.getMembers();
+    assertEquals(4, members.size());
+    
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member1));
+    assertTrue(members.contains(member2));
+    assertTrue(members.contains(member3));
+    
+    
+    List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+
+    batchBindVars.clear();
+    
+    batchBindVars.add(GrouperUtil.toList("test.subject.4", "staff", "T", "phys", 123));
+
+    new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org, dept_number) values (?, ?, ?, ?, ?)")
+      .batchBindVars(batchBindVars).executeBatchSql();
+
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_grouperLoaderJexlScriptIncremental");
+
+    members = testGroupE.getMembers();
+    assertEquals(5, members.size());
+    
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member1));
+    assertTrue(members.contains(member2));
+    assertTrue(members.contains(member3));
+    assertTrue(members.contains(member4));
+
+    
+  }
+
+  public void testJexlIncrementalChangeGroup() {
+    setupDataFields();
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_grouperLoaderJexlScriptIncremental");
+  
+  
+    Group testGroupA = new GroupSave().assignName("test:GroupA").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupB = new GroupSave().assignName("test:GroupB").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupC = new GroupSave().assignName("test:GroupC").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupE = new GroupSave().assignName("test:GroupE").assignCreateParentStemsIfNotExist(true).save();
+    
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+    
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, testSubject1, true);
+    
+    Subject testSubject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, testSubject2, true);
+    
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, testSubject3, true);
+  
+    Subject testSubject4 = SubjectFinder.findByIdAndSource("test.subject.4", "jdbc", true);
+    Member member4 = MemberFinder.findBySubject(grouperSession, testSubject4, true);
+  
+    testGroupA.addMember(testSubject0);
+    testGroupA.addMember(testSubject1);
+    testGroupA.addMember(testSubject2);
+    testGroupA.addMember(testSubject3);
+    
+    testGroupB.addMember(testSubject0);
+    
+    testGroupC.addMember(testGroupA.toSubject());
+  
+    
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+    
+    // testE has the jexl script
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroupE)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+    
+    // testGroupC: 0, 1, 2, 3
+    // testGroupB is 0
+    // testgrouper_field_row_affil
+    // affiliation less than 300: 0, 3
+    // staff: 0, 2
+    // job number 123, 234, nobody
+    // org with %2%: nobody
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), 
+        """
+        (entity.memberOf('test:GroupC') && !entity.memberOf('test:GroupB'))
+        || entity.hasRow('affiliation', 'affiliationDeptNumber<300')
+        || entity.hasRow('affiliation', 'affiliationCode=staff')
+        || entity.hasAttributeAny('jobNumber', [123, 234])
+        || entity.hasAttributeLike(org, '%2%')
+        """);
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_grouperLoaderJexlScriptIncremental");
+  
+    // TODO check status of the incremental job
+    
+    Set<Member> members = testGroupE.getMembers();
+    assertEquals(4, members.size());
+    
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member1));
+    assertTrue(members.contains(member2));
+    assertTrue(members.contains(member3));
+    
+    testGroupC.addMember(testSubject4);
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_grouperLoaderJexlScriptIncremental");
+  
+    members = testGroupE.getMembers();
+    assertEquals(5, members.size());
+    
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member1));
+    assertTrue(members.contains(member2));
+    assertTrue(members.contains(member3));
+    assertTrue(members.contains(member4));
+  
+    
+  }
+  
+  
 }

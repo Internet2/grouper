@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, manually written lite/rest, format: json, for version: 2.5.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, manually written lite/rest, format: json, for version: 5.0.0
 
 
 #########################################
@@ -10,10 +10,12 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, man
 
 
 GET /grouper-ws/servicesRest/json/v2_5_000/subjects/GrouperSystem/groups HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=3240677C57DBBFF9CD119FE8CE42EC17
+Accept-Encoding: gzip,deflate
 
 
 #########################################
@@ -25,88 +27,68 @@ Host: localhost:8092
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=1F625C9C194908E5DD58C1B410404510;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 1904
-Date: Tue, 31 Mar 2020 20:37:12 GMT
-Connection: close
-Server: Apache TomEE
+Content-Length: 1405
+Date: Fri, 23 May 2025 17:41:25 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 {
   "WsGetGroupsLiteResult":{
-    "responseMetadata":{
-      "millis":"228",
-      "serverVersion":"2.5.0"
-    },
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=GrouperSystem]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null",
       "success":"T"
     },
+    "responseMetadata":{
+      "millis":"24",
+      "serverVersion":"5.0.0"
+    },
     "wsGroups":[
       {
-        "description":"a group description",
-        "displayExtension":"a group",
-        "displayName":"a stem:a group",
-        "enabled":"T",
         "extension":"aGroup",
-        "idIndex":"10009",
+        "typeOfGroup":"group",
+        "displayExtension":"a group",
+        "description":"a group description",
+        "displayName":"a stem:a group",
         "name":"aStem:aGroup",
-        "typeOfGroup":"group",
-        "uuid":"32ca90db41b04a1a9611a214a20bac42"
+        "uuid":"0bcb58edf06f4c4b8f3de4eba73a17a6",
+        "idIndex":"1000028",
+        "enabled":"T"
       },
       {
-        "description":"a group description2",
-        "displayExtension":"a group2",
-        "displayName":"a stem:a group2",
-        "enabled":"T",
         "extension":"aGroup2",
-        "idIndex":"10032",
-        "name":"aStem:aGroup2",
         "typeOfGroup":"group",
-        "uuid":"5819ab9eed78479faedcb72be0987798"
+        "displayExtension":"a group2",
+        "description":"a group description2",
+        "displayName":"a stem:a group2",
+        "name":"aStem:aGroup2",
+        "uuid":"68ce3c5f94a741e99c3a7a93c09ffb26",
+        "idIndex":"1000048",
+        "enabled":"T"
       },
       {
+        "extension":"sysadmingroup",
+        "typeOfGroup":"group",
         "displayExtension":"sysadmingroup",
         "displayName":"etc:sysadmingroup",
-        "enabled":"T",
-        "extension":"sysadmingroup",
-        "idIndex":"10008",
         "name":"etc:sysadmingroup",
-        "typeOfGroup":"group",
-        "uuid":"69b36df0e82f4fee98b760adebed0660"
-      },
-      {
-        "displayExtension":"webServiceActAsGroup",
-        "displayName":"etc:webServiceActAsGroup",
-        "enabled":"T",
-        "extension":"webServiceActAsGroup",
-        "idIndex":"10007",
-        "name":"etc:webServiceActAsGroup",
-        "typeOfGroup":"group",
-        "uuid":"28e109afeac74aa0aabcafaf858ce50a"
-      },
-      {
-        "displayExtension":"webServiceClientUsers",
-        "displayName":"etc:webServiceClientUsers",
-        "enabled":"T",
-        "extension":"webServiceClientUsers",
-        "idIndex":"10006",
-        "name":"etc:webServiceClientUsers",
-        "typeOfGroup":"group",
-        "uuid":"93697d5e07f34c938d0b95e1a5e3a093"
+        "uuid":"d7af24a5400243caa6e1d071a20f0200",
+        "idIndex":"1000001",
+        "enabled":"T"
       }
     ]
     ,
     "wsSubject":{
+      "resultCode":"SUCCESS",
+      "success":"T",
       "id":"GrouperSystem",
       "name":"GrouperSysAdmin",
-      "resultCode":"SUCCESS",
-      "sourceId":"g:isa",
-      "success":"T"
+      "sourceId":"g:isa"
     }
   }
 }
@@ -139,17 +121,10 @@ Server: Apache TomEE
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
@@ -168,41 +143,37 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
   public static void getGroupsLite(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-      GetMethod method = new GetMethod(
-          RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
+      String url = RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
-            + "/subjects/GrouperSystem/groups");
+            + "/subjects/GrouperSystem/groups";
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.get);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
+
+      // execute
+      grouperHttpClient.executeRequest();
       
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-      
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
-      httpClient.executeMethod(method);
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       //convert to object (from xhtml, xml, json, etc)
       WsGetGroupsLiteResult wsGetGroupsLiteResult = (WsGetGroupsLiteResult)wsSampleRestType
@@ -233,7 +204,7 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getGroupsLite(WsSampleRestType.xhtml);
+    getGroupsLite(WsSampleRestType.json);
   }
 
   /**
@@ -259,8 +230,8 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-groups length is 5
-Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=GrouperSystem]
+groups length is 3
+Server version: 5.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=GrouperSystem]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: null

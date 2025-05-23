@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMemberRest, manually written lite/rest, format: json, for version: 2.5.0
+Grouper web service sample of service: addMember, WsSampleAddMemberRest, manually written lite/rest, format: json, for version: 5.0.0
 
 
 #########################################
@@ -10,12 +10,14 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRest, manuall
 
 
 PUT /grouper-ws/servicesRest/v2_5_000/groups/aStem%3AaGroup/members HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
-Host: localhost:8092
+Content-Type: application/json
 Content-Length: 173
-Content-Type: application/json; charset=UTF-8
+Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=C2B9A9804352F4BB464480229A11EE71
+Accept-Encoding: gzip,deflate
 
 {
   "WsRestAddMemberRequest":{
@@ -45,67 +47,67 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=0E1884B25B19DA54AFA439AF39E83104;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 1255
-Date: Tue, 31 Mar 2020 20:12:48 GMT
-Connection: close
-Server: Apache TomEE
+Content-Length: 1257
+Date: Fri, 23 May 2025 17:00:57 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 {
   "WsAddMemberResults":{
-    "responseMetadata":{
-      "millis":"662",
-      "serverVersion":"2.5.0"
-    },
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.5.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\n, replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null\n, disabledDate: null, enabledDate: null",
-      "success":"T"
-    },
     "results":[
       {
-        "resultMetadata":{
-          "resultCode":"SUCCESS_ALREADY_EXISTED",
-          "success":"T"
-        },
         "wsSubject":{
+          "resultCode":"SUCCESS",
+          "success":"T",
           "id":"10021368",
           "name":"10021368",
-          "resultCode":"SUCCESS",
-          "sourceId":"jdbc",
+          "sourceId":"jdbc"
+        },
+        "resultMetadata":{
+          "resultCode":"SUCCESS_ALREADY_EXISTED",
           "success":"T"
         }
         
       },
       {
-        "resultMetadata":{
-          "resultCode":"SUCCESS_ALREADY_EXISTED",
-          "success":"T"
-        },
         "wsSubject":{
+          "resultCode":"SUCCESS",
+          "success":"T",
           "id":"10039438",
           "name":"10039438",
-          "resultCode":"SUCCESS",
-          "sourceId":"jdbc",
+          "sourceId":"jdbc"
+        },
+        "resultMetadata":{
+          "resultCode":"SUCCESS_ALREADY_EXISTED",
           "success":"T"
         }
       }
     ]
     ,
     "wsGroupAssigned":{
-      "description":"a group description",
-      "displayExtension":"a group",
-      "displayName":"a stem:a group",
-      "enabled":"T",
       "extension":"aGroup",
-      "idIndex":"10009",
-      "name":"aStem:aGroup",
       "typeOfGroup":"group",
-      "uuid":"32ca90db41b04a1a9611a214a20bac42"
+      "displayExtension":"a group",
+      "description":"a group description",
+      "displayName":"a stem:a group",
+      "name":"aStem:aGroup",
+      "uuid":"0bcb58edf06f4c4b8f3de4eba73a17a6",
+      "idIndex":"1000028",
+      "enabled":"T"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Success for: clientVersion: 2.5.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\n, replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null\n, disabledDate: null, enabledDate: null",
+      "success":"T"
+    },
+    "responseMetadata":{
+      "millis":"192",
+      "serverVersion":"5.0.0"
     }
   }
 }
@@ -138,18 +140,10 @@ Server: Apache TomEE
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.member;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
@@ -171,32 +165,19 @@ public class WsSampleAddMemberRest implements WsSampleRest {
   public static void addMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
-
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.SO_TIMEOUT, new Integer(30000));
-
-      //httpClient.getParams().setParameter("http.socket.timeout", new Integer(30000));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-      PutMethod method = new PutMethod(
-          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroup/members");
+      String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+            + "/groups/aStem%3AaGroup/members";
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
-
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-      
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.put);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -223,20 +204,28 @@ public class WsSampleAddMemberRest implements WsSampleRest {
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
-      httpClient.executeMethod(method);
+      // assign body
+      grouperHttpClient.assignBody(requestDocument);
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
+      // content type
+      grouperHttpClient.addHeader("Content-Type", contentType);
+      
+      // execute
+      grouperHttpClient.executeRequest();
+      
+
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
+      
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
       
@@ -298,7 +287,7 @@ public class WsSampleAddMemberRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 5.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 , replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null

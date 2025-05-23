@@ -80,6 +80,13 @@ public class FieldFinder {
    */
   static GrouperCache<Boolean, Map<String,Field>> fieldGrouperCache;
 
+  
+  /** 
+   * every X minutes, get new elements.  access this with fieldCache() so it is not null
+   * store this as a complete map in the cache so that elements dont disappear
+   */
+  static Map<String,Field> fieldIdToFieldCache;
+
   /**
    * <pre>
    * return the field cache.
@@ -122,6 +129,14 @@ public class FieldFinder {
       if (theFieldCache == null || theFieldCache.size() == 0) {
         theFieldCache = internal_updateKnownFields();
       }
+      
+      // update the field id to field cache
+      Map<String,Field> theFieldIdToFieldCache = new HashMap<String,Field>();
+      for (Field field : theFieldCache.values()) {
+        theFieldIdToFieldCache.put(field.getUuid(), field);
+      }
+
+      fieldIdToFieldCache = theFieldIdToFieldCache;
     }
     return theFieldCache;
   }
@@ -476,6 +491,49 @@ public class FieldFinder {
       Field field = fieldCache.get(fieldName);
       if (field != null) {
         result.put(fieldName, field.getInternalId());
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * find field internal ids by id (exception if not found)
+   * @param fieldIds
+   * @return the map
+   */
+  public static Map<String, Long> findInternalIdsByIds(Set<String> fieldIds) {
+    Map<String, Long> result = new HashMap<String, Long>();
+    
+    // make sure cache is populated and fresh
+    fieldCache();
+    
+    Map<String, Field> theFieldIdToFieldCache = fieldIdToFieldCache;
+    
+    for (String fieldId : GrouperUtil.nonNull(fieldIds)) {
+      Field field = theFieldIdToFieldCache.get(fieldId);
+      if (field != null) {
+        result.put(fieldId, field.getInternalId());
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * find field internal ids by id
+   * @param fieldIds
+   * @return the map
+   */
+  public static Map<Long, Field> findByInternalIds(Set<Long> fieldInternalIds) {
+    Map<Long, Field> result = new HashMap<Long, Field>();
+    
+    // make sure cache is populated and fresh
+    fieldCache();
+    
+    Map<String, Field> theFieldIdToFieldCache = fieldIdToFieldCache;
+    
+    for (Field field : GrouperUtil.nonNull(theFieldIdToFieldCache.values())) {
+      if (fieldInternalIds.contains(field.getInternalId())) {
+        result.put(field.getInternalId(), field);
       }
     }
     return result;

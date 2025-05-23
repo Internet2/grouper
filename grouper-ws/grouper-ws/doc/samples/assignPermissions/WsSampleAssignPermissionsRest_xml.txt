@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRest, manually written lite/rest, format: xml, for version: 2.5.0
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRest, manually written lite/rest, format: xml, for version: 5.0.0
 
 
 #########################################
@@ -10,12 +10,14 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 
 
 POST /grouper-ws/servicesRest/v2_5_000/permissionAssignments HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
-Host: localhost:8092
+Content-Type: application/xml
 Content-Length: 461
-Content-Type: application/xml; charset=UTF-8
+Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=E46595AD16D5A988F76053801AE6919D
+Accept-Encoding: gzip,deflate
 
 <WsRestAssignPermissionsRequest>
   <permissionAssignOperation>assign_permission</permissionAssignOperation>
@@ -46,24 +48,24 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=4D8804C9D45CAF6BACC7D0E3C7032FD5;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 31 Mar 2020 20:20:17 GMT
-Connection: close
-Server: Apache TomEE
+Date: Fri, 23 May 2025 17:14:32 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
-3f4
+3f6
 <WsAssignPermissionsResults>
   <wsAttributeDefs>
     <WsAttributeDef>
-      <idIndex>10085</idIndex>
+      <idIndex>1000100</idIndex>
       <extension>permissionDef</extension>
       <name>aStem:permissionDef</name>
-      <uuid>82bd0a56a05f45d2b49dc5956670d41f</uuid>
+      <uuid>f5c781dea3f74dcaae0d0efb834442f3</uuid>
       <attributeDefType>perm</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -83,16 +85,16 @@ Server: Apache TomEE
     </WsAttributeDef>
   </wsAttributeDefs>
   <
-3f1
+3f3
 wsAttributeDefNames>
     <WsAttributeDefName>
-      <idIndex>10281</idIndex>
+      <idIndex>1000341</idIndex>
       <extension>permissionDefName</extension>
       <displayExtension>permissionDefName</displayExtension>
       <displayName>a stem:permissionDefName</displayName>
       <name>aStem:permissionDefName</name>
-      <uuid>2e849c0f71a446f6bf89a490cf57c376</uuid>
-      <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
+      <uuid>af4bf504ea474059b87dfed4477c51bf</uuid>
+      <attributeDefId>f5c781dea3f74dcaae0d0efb834442f3</attributeDefId>
       <attributeDefName>aStem:permissionDef</attributeDefName>
     </WsAttributeDefName>
   </wsAttributeDefNames>
@@ -103,21 +105,21 @@ wsAttributeDefNames>
           <disallowed>F</disallowed>
           <attributeAssignActionType>immediate</attributeAssignActionType>
           <attributeAssignDelegatable>FALSE</attributeAssignDelegatable>
-          <attributeAssignActionId>74f1412a22bf4b239b9421095df79f41</attributeAssignActionId>
+          <attributeAssignActionId>533a025d8cf14b15a3960545bef9ecf5</attributeAssignActionId>
           <attributeAssignActionName>write</attributeAssignActionName>
           <attributeAssignType>group</attributeAssignType>
-          <attributeDefNameId>2e849c0f71a446f6bf89a490cf57c376</attributeDefNameId>
+          <attributeDefNameId>af4bf504ea474059b87dfed4477c51bf</attributeDefNameId>
           <attributeDefNameName>
           </
 3ff
 attributeDefNameName>
-          <attributeDefId>82bd0a56a05f45d2b49dc5956670d41f</attributeDefId>
+          <attributeDefId>f5c781dea3f74dcaae0d0efb834442f3</attributeDefId>
           <attributeDefName>aStem:permissionDef</attributeDefName>
-          <createdOn>2020/03/31 13:19:27.323</createdOn>
+          <createdOn>2025/05/23 13:14:10.299</createdOn>
           <enabled>T</enabled>
-          <id>bbc4780f5301439cb1e40765d8955c76</id>
-          <lastUpdated>2020/03/31 13:19:27.323</lastUpdated>
-          <ownerGroupId>3befb91c854541f68a4dcb75fe1f92ee</ownerGroupId>
+          <id>74f72db57a7e4b18a3448070e8326fed</id>
+          <lastUpdated>2025/05/23 13:14:10.299</lastUpdated>
+          <ownerGroupId>6a159359e7034b78aa9a8bb7e3a83980</ownerGroupId>
           <ownerGroupName>aStem:role</ownerGroupName>
         </WsAttributeAssign>
       </wsAttributeAssigns>
@@ -132,8 +134,8 @@ attributeDefNameName>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>73</millis>
-    <serverVersion>2.5.0</serverVersion>
+    <millis>90</millis>
+    <serverVersion>5.0.0</serverVersion>
   </responseMetadata>
   <wsGroups>
     <WsGroup>
@@ -142,10 +144,10 @@ attributeDefNameName>
       <displayExtension>role</displayExtension>
       <displayName>a stem:role</displayName>
       <name>aStem:role</name>
-      <uuid>3befb91c854541f68a4dcb75fe1f92ee</uuid
-6c
+      <uuid>6a159359e7034b78aa9a8bb7e3a83980</uuid
+6e
 >
-      <idIndex>10035</idIndex>
+      <idIndex>1000051</idIndex>
       <enabled>T</enabled>
     </WsGroup>
   </wsGroups>
@@ -181,18 +183,10 @@ attributeDefNameName>
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.permission;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
@@ -214,28 +208,19 @@ public class WsSampleAssignPermissionsRest implements WsSampleRest {
   public static void assignPermissions(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
         + "/permissionAssignments";
-      PostMethod method = new PostMethod(
-          url);
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
-
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-      
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.post);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -258,20 +243,28 @@ public class WsSampleAssignPermissionsRest implements WsSampleRest {
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
-      httpClient.executeMethod(method);
+      // assign body
+      grouperHttpClient.assignBody(requestDocument);
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
+      // content type
+      grouperHttpClient.addHeader("Content-Type", contentType);
+      
+      // execute
+      grouperHttpClient.executeRequest();
+      
+
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
+      
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       Object result = wsSampleRestType
         .getWsLiteResponseContentType().parseString(response);
@@ -333,4 +326,4 @@ public class WsSampleAssignPermissionsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 5.0.0, result code: SUCCESS, result message: , Found 1 results.

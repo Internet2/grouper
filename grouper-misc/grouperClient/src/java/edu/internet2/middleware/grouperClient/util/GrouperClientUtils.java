@@ -19,6 +19,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
+import java.nio.charset.UnsupportedCharsetException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -36,38 +39,58 @@ import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.internet2.middleware.grouperClient.ws.WsRestClassLookup;
-import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
-import edu.internet2.middleware.grouperClient.ws.beans.WsRestAddMemberRequest;
-import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
-import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.Jdk14Logger;
+import org.apache.http.HeaderElement;
+import org.apache.http.HeaderElementIterator;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.message.BasicHeaderElementIterator;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
+import org.apache.http.util.Args;
+import org.apache.http.util.EntityUtils;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.internet2.middleware.grouperClient.ws.WsRestClassLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestAddMemberRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 import edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.morphString.MorphStringConfig;
 
@@ -75,6 +98,154 @@ import edu.internet2.middleware.morphString.MorphStringConfig;
  * utility methods specific to grouper client
  */
 public class GrouperClientUtils extends GrouperClientCommonUtils {
+
+  private static CloseableHttpClient httpTrustAllClient = null;
+  
+  public static CloseableHttpClient httpTrustAllClient(boolean reuseIfConfigured) {
+    CloseableHttpClient closeableHttpClient = httpTrustAllClient;
+    
+    if (closeableHttpClient == null || !reuseIfConfigured) {
+      
+      synchronized (GrouperClientUtils.class) {
+        closeableHttpClient = httpTrustAllClient;
+        
+        if (closeableHttpClient == null || !reuseIfConfigured) {
+          TrustStrategy trustStrategy = new TrustStrategy() {
+            @Override
+            public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+              return true;
+            }
+          };
+      
+          // Trust all, ONLY use for connections you are sure of.
+          SSLContextBuilder builder = new SSLContextBuilder();
+          try {
+            builder.loadTrustMaterial(null, trustStrategy);
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            closeableHttpClient = httpClientBuilderDecorate(HttpClients.custom(), sslsf).setRetryHandler(new DefaultHttpRequestRetryHandler(0, false)).setSSLSocketFactory(sslsf).useSystemProperties().build();
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+          boolean httpClientReuse = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClientHttpClientReuse", true);
+          if (httpClientReuse && reuseIfConfigured) {
+            httpTrustAllClient = closeableHttpClient;
+          }
+        }
+      }
+    }
+    return closeableHttpClient;
+  }
+
+  private static CloseableHttpClient httpClient = null;
+
+  public static CloseableHttpClient httpClient(boolean reuseIfConfigured) {
+    
+    CloseableHttpClient closeableHttpClient = httpClient;
+    
+    if (closeableHttpClient == null || !reuseIfConfigured) {
+      synchronized (GrouperClientUtils.class) {
+        closeableHttpClient = httpClient;
+        if (closeableHttpClient == null || !reuseIfConfigured) {
+          closeableHttpClient = httpClientBuilderDecorate(HttpClientBuilder.create(), null).setRetryHandler(new DefaultHttpRequestRetryHandler(0, false)).useSystemProperties().build();
+          boolean httpClientReuse = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClientHttpClientReuse", true);
+          if (httpClientReuse && reuseIfConfigured) {
+            httpClient = closeableHttpClient;
+          }
+        }        
+      }
+    }
+    
+    return closeableHttpClient;
+  }
+
+  /**
+   * Create a basic authentication string.
+   * @param login is the login.
+   * @param password is the password.
+   * @return "Basic login:password" where login:password is Base64 encoded.
+   */
+  public static String httpBasicAuthenticationString(String login, String password){
+    String basicBase64 = new String(Base64.encodeBase64((login + ":" + password).getBytes()));
+    return "Basic " + basicBase64;
+  }
+
+  public static void httpCloseQuietly(CloseableHttpClient closeableHttpClient, HttpRequestBase httpRequestBase, CloseableHttpResponse closeableHttpResponse, boolean reuseIfConfigured) {
+    if (closeableHttpResponse != null) {
+      EntityUtils.consumeQuietly(closeableHttpResponse.getEntity());
+    }
+    
+    if (httpRequestBase != null) {
+      httpRequestBase.releaseConnection();
+    }
+    
+    if (closeableHttpResponse != null) {
+      try {
+        closeableHttpResponse.close();
+      } catch (IOException e) {
+        // ignore
+      }
+    }
+    
+    // dont close this, just close the methods.  the client is reused
+    boolean httpClientReuse = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClientHttpClientReuse", true);
+    if (!httpClientReuse && reuseIfConfigured) {
+      try{
+        closeableHttpClient.close();
+      } catch (Throwable e){
+      }
+    }
+
+  }
+  
+  private static HttpClientBuilder httpClientBuilderDecorate(HttpClientBuilder httpClientBuilder, SSLConnectionSocketFactory sslSocketFactory) {
+    
+    // https://www.baeldung.com/httpclient-connection-management
+    PoolingHttpClientConnectionManager connManager;
+    if (sslSocketFactory == null) {
+      connManager = new PoolingHttpClientConnectionManager();
+    } else {
+      Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+        .register("http", PlainConnectionSocketFactory.getSocketFactory())
+        .register("https", sslSocketFactory)
+        .build();
+      
+      connManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+    }
+    
+    int httpClientMaxTotalPoolSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClientHttpClientMaxTotalPoolSize", 100);
+    int httpClientDefaultMaxPerRoute = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClientHttpClientDefaultMaxPerRoute", 30);
+    
+    connManager.setMaxTotal(httpClientMaxTotalPoolSize);
+    connManager.setDefaultMaxPerRoute(httpClientDefaultMaxPerRoute);
+    httpClientBuilder.setConnectionManager(connManager);
+    
+    // use the timeout of server, or if not found, use 5 seconds
+    final ConnectionKeepAliveStrategy myStrategy = new ConnectionKeepAliveStrategy() {
+
+      @Override
+      public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
+        Args.notNull(response, "HTTP response");  
+        
+        HeaderElementIterator it = new BasicHeaderElementIterator(response.headerIterator(HTTP.CONN_KEEP_ALIVE));
+        while (it.hasNext()) {
+          HeaderElement he = it.nextElement();
+          String param = he.getName();
+          String value = he.getValue();
+          if (value != null && param.equalsIgnoreCase("timeout")) {
+            try {
+                return Long.parseLong(value) * 1000;
+            } catch(NumberFormatException ignore) {
+            }
+          }
+        }        
+        return 5000;
+
+      }  
+    };
+    
+    httpClientBuilder.setKeepAliveStrategy(myStrategy);
+    return httpClientBuilder;
+  }
 
   public static void main(String[] args) throws Exception {
     //  {
@@ -951,7 +1122,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
   
   /**
    * call HTTP with a url, optional request body, get a response body.  this assumes json by default
-   * @param urlSuffix is after the configured URL
+   * @param urlSuffix is after the configured URL, or if it starts with http:// or https:// just use that
    * @param serviceAuthn is the config string that identifies the user/pass/url
    * @param httpCallMethod HTTP
    * @param body to send if applicable
@@ -959,24 +1130,92 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
    */
   public static HttpCallResponse httpCall(String urlSuffix, String serviceAuthn, HttpCallMethod httpCallMethod, String body) {
     
-    //make sure right content type is in request (e.g. application/xhtml+xml
-    HttpClient httpClient = new HttpClient();
-
-    DefaultHttpParams.getDefaultParams().setParameter(
-        HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
-
-    httpClient.getParams().setAuthenticationPreemptive(true);
+    // Get an http client.
+    CloseableHttpClient closeableHttpClient;
+        
+    String url = null;
     
+    if (urlSuffix.toLowerCase().startsWith("http://") || urlSuffix.toLowerCase().startsWith("https://")) {
+      url = urlSuffix;
+    } else {
+      String urlBase = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService." + serviceAuthn + ".url");
+      if (urlBase == null) {
+        throw new RuntimeException("urlBase is null");
+      }
+      urlBase = stripLastSlashIfExists(urlBase);
+      url = urlBase + urlSuffix;
+    }
+    
+
+    HttpRequestBase httpRequestBase = null;
+    
+    if (httpCallMethod == null) {
+      throw new RuntimeException("You need to pass in an httpCallMethod");
+    }
+    
+    //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+    //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+    switch (httpCallMethod) {
+      case GET:
+        
+        httpRequestBase = new HttpGet(url);
+        if (!GrouperClientUtils.isBlank(body)) {
+          throw new RuntimeException("GET cannot have a body");
+        }
+        break;
+      case POST:
+        
+        httpRequestBase = new HttpPost(url);
+        break;
+        
+      case PUT:
+        
+        httpRequestBase = new HttpPut(url);
+        break;
+        
+      case DELETE:
+        
+        httpRequestBase = new HttpDelete(url);
+        break;
+        
+      default: 
+        throw new RuntimeException("Not expecting method: " + httpCallMethod);
+    }
+    
+    if (!GrouperClientUtils.isBlank(body)) {
+      try {
+        ((HttpPost)httpRequestBase).setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
+
+      } catch (UnsupportedCharsetException uee) {
+        throw new RuntimeException(uee);
+      }
+    }
+
+
+    //make sure right content type is in request (e.g. application/xhtml+xml
+
+    //see if invalid SSL
+    String httpsSocketFactoryName = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.https.customSocketFactory");
+
+    if (StringUtils.equals(httpsSocketFactoryName, "edu.internet2.middleware.grouperClient.ssl.EasySslSocketFactory")) {
+      closeableHttpClient = GrouperClientUtils.httpTrustAllClient(false);
+    } else {
+      closeableHttpClient = GrouperClientUtils.httpClient(false);
+    }
+
     int soTimeoutMillis = GrouperClientConfig.retrieveConfig().propertyValueIntRequired(
         "grouperClient.webService.httpSocketTimeoutMillis");
 
-    httpClient.getParams().setSoTimeout(soTimeoutMillis);
-    httpClient.getParams().setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, soTimeoutMillis);
 
     int connectionManagerMillis = GrouperClientConfig.retrieveConfig().propertyValueIntRequired(
         "grouperClient.webService.httpConnectionManagerTimeoutMillis");
 
-    httpClient.getParams().setConnectionManagerTimeout(connectionManagerMillis);
+    RequestConfig.Builder config = RequestConfig.custom()
+        .setConnectionRequestTimeout(connectionManagerMillis)
+        .setConnectTimeout(connectionManagerMillis)
+        .setSocketTimeout(soTimeoutMillis);
+      
+    httpRequestBase.setConfig(config.build());
 
     String user = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService." + serviceAuthn + ".user");
 
@@ -1004,99 +1243,39 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
       LOG.debug(passPrefix + ": " + GrouperClientUtils.repeat("*", wsPass.length()));
     }
 
-    Credentials defaultcreds = new UsernamePasswordCredentials(user, wsPass);
+    String authenticationString = GrouperClientUtils.httpBasicAuthenticationString(user, wsPass); 
+    httpRequestBase.addHeader("Authorization", authenticationString);
 
-    //set auth scope to null and negative so it applies to all hosts and ports
-    httpClient.getState().setCredentials(new AuthScope(null, -1), defaultcreds);
-
-    String urlBase = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService." + serviceAuthn + ".url");
-    if (urlBase == null) {
-      throw new RuntimeException("urlBase is null");
-    }
-    
-    String url = urlBase + urlSuffix;
-
-    String contentType = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService." + serviceAuthn + ".defaultRequestContentType");
-    contentType = GrouperClientUtils.defaultIfEmpty(contentType, "Application/json");
-
-    HttpMethodBase httpMethodBase = null;
-    
-    if (httpCallMethod == null) {
-      throw new RuntimeException("You need to pass in an httpCallMethod");
-    }
+    String contentType = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.webService." + serviceAuthn + ".defaultRequestContentType");
+    contentType = GrouperClientUtils.defaultIfEmpty(contentType, "application/json");
     
     HttpCallResponse httpCallResponse = new HttpCallResponse();
     httpCallResponse.setHttpCallMethod(httpCallMethod);
     httpCallResponse.setContentType(contentType);
     httpCallResponse.setUrl(url);
     
-    //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
-    //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-    switch (httpCallMethod) {
-      case GET:
-        
-        httpMethodBase = new GetMethod(url);
-        if (!GrouperClientUtils.isBlank(body)) {
-          throw new RuntimeException("GET cannot have a body");
-        }
-        break;
-      case POST:
-        
-        httpMethodBase = new PostMethod(url);
-        if (!GrouperClientUtils.isBlank(body)) {
-          try {
-            ((PostMethod)httpMethodBase).setRequestEntity(new StringRequestEntity(body, "application/json", "UTF-8"));
-          } catch (UnsupportedEncodingException uee) {
-            throw new RuntimeException(uee);
-          }
-        }
-
-        break;
-        
-      case PUT:
-        
-        httpMethodBase = new PutMethod(url);
-        if (!GrouperClientUtils.isBlank(body)) {
-          try {
-            ((PutMethod)httpMethodBase).setRequestEntity(new StringRequestEntity(body, "application/json", "UTF-8"));
-          } catch (UnsupportedEncodingException uee) {
-            throw new RuntimeException(uee);
-          }
-        }
-
-        break;
-        
-      case DELETE:
-        
-        httpMethodBase = new DeleteMethod(url);
-        if (!GrouperClientUtils.isBlank(body)) {
-          throw new RuntimeException("DELETE cannot have a body");
-        }
-
-        break;
-        
-      default: 
-        throw new RuntimeException("Not expecting method: " + httpCallMethod);
-    }
-    
-    httpMethodBase.addRequestHeader("Content-Type", contentType);
+    httpRequestBase.addHeader("Content-Type", contentType);
     
     //no keep alive so response is easier to indent for tests
-    httpMethodBase.setRequestHeader("Connection", "close");
+    httpRequestBase.addHeader("Connection", "close");
+    CloseableHttpResponse closeableHttpResponse = null;
     
     try {
 
-      int responseCodeInt = httpClient.executeMethod(httpMethodBase);
+      closeableHttpResponse = closeableHttpClient.execute(httpRequestBase);
+      int responseCodeInt = closeableHttpResponse.getStatusLine().getStatusCode();
 
       httpCallResponse.setHttpResponseCode(responseCodeInt);
 
+      String theResponse = GrouperClientUtils.responseBodyAsString(closeableHttpResponse);
+      
+      httpCallResponse.setResponseBody(theResponse);
+      
     } catch (IOException ioe) {
       throw new RuntimeException("Error in url: " + url + ", method: " + httpCallMethod + ", body: " + GrouperClientUtils.abbreviate(body, 5000), ioe);
+    } finally {
+      GrouperClientUtils.httpCloseQuietly(closeableHttpClient, httpRequestBase, closeableHttpResponse, false);
     }
-    
-    String theResponse = GrouperClientUtils.responseBodyAsString(httpMethodBase);
-    
-    httpCallResponse.setResponseBody(theResponse);
     
     return httpCallResponse;
   }

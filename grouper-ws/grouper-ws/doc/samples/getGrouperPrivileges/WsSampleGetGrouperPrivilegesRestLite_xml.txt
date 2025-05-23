@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: xml, for version: 2.5.0
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: xml, for version: 5.0.0
 
 
 #########################################
@@ -10,12 +10,14 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 
 
 POST /grouper-ws/servicesRest/v2_5_000/grouperPrivileges HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
-Host: localhost:8092
+Content-Type: application/xml
 Content-Length: 270
-Content-Type: application/xml; charset=UTF-8
+Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=B8A85CCE81A688800A71E4DB93EE0F79
+Accept-Encoding: gzip,deflate
 
 <WsRestGetGrouperPrivilegesLiteRequest>
   <subjectId>test.subject.0</subjectId>
@@ -35,15 +37,15 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=D6AB172CC77F713E348C39A48BC6CB24;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 31 Mar 2020 20:35:18 GMT
-Connection: close
-Server: Apache TomEE
+Date: Fri, 23 May 2025 17:39:14 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 3ff
 <WsGetGrouperPrivilegesLiteResult>
@@ -71,8 +73,8 @@ Server: Apache TomEE
         <description>a group description</description>
         <displayName>a stem:a group</displayName>
         <name>aStem:aGroup</name>
-        <uuid>32ca90db41b04a1a9611a214a20bac42</uuid>
-        <idIndex>10009</idIndex>
+        <uuid>0bcb58edf06f4c4b8f3de4eba73a17a6</uuid>
+        <idIndex>1000028</idIndex>
         <enabled>T</enabled>
       </wsGroup>
       <wsSubject>
@@ -86,11 +88,10 @@ Server: Apache TomEE
   </privilegeResults>
   <responseMetadata>
     <resultWarnings>
-    </
-7c
-resultWarnings>
-    <millis>23</millis>
-    <serverVersion>2.5.0</serverVersion>
+7f
+</resultWarnings>
+    <millis>118</millis>
+    <serverVersion>5.0.0</serverVersion>
   </responseMetadata>
 </WsGetGrouperPrivilegesLiteResult>
 0
@@ -123,18 +124,10 @@ resultWarnings>
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
@@ -154,28 +147,19 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
   public static void getGrouperPrivilegesLite(WsSampleRestType wsSampleRestType) {
 
     try {
-      
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
       
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-      PostMethod method = new PostMethod(
-          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/grouperPrivileges");
+      String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+            + "/grouperPrivileges";
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
-      
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-      
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.post);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -197,20 +181,28 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+      // assign body
+      grouperHttpClient.assignBody(requestDocument);
 
-      httpClient.executeMethod(method);
+      // content type
+      grouperHttpClient.addHeader("Content-Type", contentType);
+      
+      // execute
+      grouperHttpClient.executeRequest();
+      
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
+      
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       //convert to object (from xhtml, xml, json, etc)
       WsGetGrouperPrivilegesLiteResult wsGetGrouperPrivilegesLiteResult = (WsGetGrouperPrivilegesLiteResult)wsSampleRestType
@@ -242,7 +234,7 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
 
     RestClientSettings.resetData();
     
-    getGrouperPrivilegesLite(WsSampleRestType.xhtml);
+    getGrouperPrivilegesLite(WsSampleRestType.json);
   }
 
   /**
@@ -268,4 +260,4 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS_ALLOWED, result message: null
+Server version: 5.0.0, result code: SUCCESS_ALLOWED, result message: null

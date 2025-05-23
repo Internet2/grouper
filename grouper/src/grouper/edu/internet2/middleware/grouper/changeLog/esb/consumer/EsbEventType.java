@@ -5,6 +5,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabel;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -15,6 +16,138 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public enum EsbEventType {
 
+  
+  /** DATA_FIELD_ASSIGN_DELETE event */
+  DATA_FIELD_ASSIGN_DELETE {
+
+    @Override
+    public void processChangeLogEntry(EsbEventContainer esbEventContainer,
+        ChangeLogEntry changeLogEntry) {
+
+      EsbEvent event = esbEventContainer.getEsbEvent();
+
+      event.setEventType(EsbEventType.DATA_FIELD_ASSIGN_DELETE.name());
+      event.setId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_FIELD_ASSIGN_DELETE.id));
+      event.setDataFieldInternalId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_FIELD_ASSIGN_DELETE.dataFieldInternalId));
+      event.setMemberInternalId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_FIELD_ASSIGN_DELETE.memberInternalId));
+      event.setPropertyOldValue(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_FIELD_ASSIGN_DELETE.valueOrInternalId));
+
+    }
+  },
+  
+  /** DATA_FIELD_ASSIGN_ADD event */
+  DATA_FIELD_ASSIGN_ADD {
+
+    @Override
+    public void processChangeLogEntry(EsbEventContainer esbEventContainer,
+        ChangeLogEntry changeLogEntry) {
+
+      EsbEvent event = esbEventContainer.getEsbEvent();
+
+      event.setEventType(EsbEventType.DATA_FIELD_ASSIGN_ADD.name());
+      event.setId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.id));
+      event.setDataFieldInternalId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.dataFieldInternalId));
+      event.setMemberInternalId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.memberInternalId));
+      event.setPropertyNewValue(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.valueOrInternalId));
+
+    }
+  },
+    
+  /** DATA_ROW_ASSIGN_ADD event */
+  DATA_ROW_ASSIGN_ADD {
+
+    @Override
+    public void processChangeLogEntry(EsbEventContainer esbEventContainer,
+        ChangeLogEntry changeLogEntry) {
+
+      EsbEvent event = esbEventContainer.getEsbEvent();
+
+      event.setEventType(EsbEventType.DATA_ROW_ASSIGN_ADD.name());
+      event.setId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_ROW_ASSIGN_ADD.id));
+      event.setDataRowInternalId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_ROW_ASSIGN_ADD.dataRowInternalId));
+      event.setMemberInternalId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_ROW_ASSIGN_ADD.memberInternalId));
+
+    }
+  },
+  
+  /** DATA_ROW_ASSIGN_DELETE event */
+  DATA_ROW_ASSIGN_DELETE {
+
+    @Override
+    public void processChangeLogEntry(EsbEventContainer esbEventContainer,
+        ChangeLogEntry changeLogEntry) {
+
+      EsbEvent event = esbEventContainer.getEsbEvent();
+
+      event.setEventType(EsbEventType.DATA_ROW_ASSIGN_DELETE.name());
+      event.setId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_ROW_ASSIGN_DELETE.id));
+      event.setDataRowInternalId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_ROW_ASSIGN_DELETE.dataRowInternalId));
+      event.setMemberInternalId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_ROW_ASSIGN_DELETE.memberInternalId));
+
+    }
+  },
+  
+  /** DATA_ROWFIELD_ASSIGN_DELETE event */
+  DATA_ROWFIELD_ASSIGN_DELETE {
+
+    @Override
+    public void processChangeLogEntry(EsbEventContainer esbEventContainer,
+        ChangeLogEntry changeLogEntry) {
+
+      EsbEvent event = esbEventContainer.getEsbEvent();
+
+      event.setEventType(EsbEventType.DATA_ROWFIELD_ASSIGN_DELETE.name());
+      event.setId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.id));
+      event.setDataRowInternalId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.dataRowInternalId));
+      event.setDataRowAssignInternalId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.dataRowAssignInternalId));
+      event.setDataFieldInternalId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.dataFieldInternalId));
+      event.setMemberInternalId(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.memberInternalId));
+      event.setPropertyOldValue(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.valueOrInternalId));
+
+    }
+  },
+  
+  /** DATA_ROWFIELD_ASSIGN_ADD event */
+  DATA_ROWFIELD_ASSIGN_ADD {
+
+    @Override
+    public void processChangeLogEntry(EsbEventContainer esbEventContainer,
+        ChangeLogEntry changeLogEntry) {
+
+      EsbEvent event = esbEventContainer.getEsbEvent();
+
+      event.setEventType(EsbEventType.DATA_ROWFIELD_ASSIGN_ADD.name());
+      event.setId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.id));
+      event.setDataRowInternalId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataRowInternalId));
+      event.setDataRowAssignInternalId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataRowAssignInternalId));
+      event.setDataFieldInternalId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataFieldInternalId));
+      event.setMemberInternalId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.memberInternalId));
+      event.setPropertyNewValue(retrieveLabelValue(changeLogEntry, ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.valueOrInternalId));
+      
+    }
+  }, 
+
+  
   /** ATTRIBUTE_ASSIGN_ADD event */
   ATTRIBUTE_ASSIGN_ADD {
 

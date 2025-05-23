@@ -29,7 +29,11 @@ public class GrouperAbac {
   public static final String GROUPER_JEXL_SCRIPT_VALUE_DEF = "grouperJexlScriptValueDef";
 
   public static final String GROUPER_JEXL_SCRIPT_JEXL_SCRIPT = "grouperJexlScriptJexlScript";
-  
+
+  public static final String GROUPER_JEXL_SCRIPT_JEXL_LAST_GROUP_SYNC_DEF = "grouperJexlScriptJexlLastGroupSyncDef";
+
+  public static final String GROUPER_JEXL_SCRIPT_JEXL_LAST_GROUP_SYNC = "grouperJexlScriptJexlLastGroupSync";
+
   public static final String GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES = "grouperJexlScriptIncludeInternalSources";
 
   /**

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -159,4 +160,111 @@ public class SqlCacheDependencyDao {
   public static void delete(SqlCacheDependency sqlCacheDependency) {
     new GcDbAccess().deleteFromDatabase(sqlCacheDependency);
   }
+
+  /**
+   * owner is the group mentioned in the abac script.  dependant is the overall scripted group.
+   * select dependant groups by dependency type and owner internal ids
+   * @param depTypeInternalId
+   * @param ownerGroupCacheInternalIds
+   * @return a map of the owners, to the internal ids of the things dependent on the owner (e.g. groups that have the scripts)
+   */
+  public static Map<Long, Set<Long>> retrieveByDepTypeInternalIdAndOwnerCacheInternalIds(Long depTypeInternalId, Collection<Long> ownerGroupCacheInternalIds) {
+    
+    Map<Long, Set<Long>> result = new HashMap<>();
+  
+    if (GrouperUtil.length(ownerGroupCacheInternalIds) == 0) {
+      return result;
+    }
+  
+    // two bind vars in each record to retrieve
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(ownerGroupCacheInternalIds), batchSize, false);
+    
+    List<Long> ownerGroupCacheInternalIdsList = new ArrayList<>(ownerGroupCacheInternalIds);
+    
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<Long> batchOfOwnerGroupCacheInternalIdsList = GrouperClientUtils.batchList(ownerGroupCacheInternalIdsList, batchSize, batchIndex);
+      
+      StringBuilder sql = new StringBuilder("""
+          select distinct gscd.* 
+          from grouper_sql_cache_dependency gscd 
+          where gscd.dep_type_internal_id = ?
+          and gscd.owner_internal_id in (
+          """);
+      sql.append(GrouperClientUtils.appendQuestions(batchOfOwnerGroupCacheInternalIdsList.size()));
+      sql.append(")");
+      
+      GcDbAccess gcDbAccess = new GcDbAccess().addBindVar(depTypeInternalId);
+      for (Long ownerGroupCacheInternalId : batchOfOwnerGroupCacheInternalIdsList) {
+        gcDbAccess.addBindVar(ownerGroupCacheInternalId);
+      }
+      
+      List<SqlCacheDependency> sqlCacheDependencies = gcDbAccess.sql(sql.toString()).selectList(SqlCacheDependency.class);
+      
+      for (SqlCacheDependency sqlCacheDependency : GrouperClientUtils.nonNull(sqlCacheDependencies)) {
+        
+        Set<Long> internalIdsDependent = result.get(sqlCacheDependency.getOwnerInternalId());
+        
+        if (internalIdsDependent == null) {
+          internalIdsDependent = new java.util.HashSet<Long>();
+          result.put(sqlCacheDependency.getOwnerInternalId(), internalIdsDependent);
+        }
+        
+        internalIdsDependent.add(sqlCacheDependency.getDependentInternalId());
+        
+      }
+      
+    }
+    return result;
+  }
+
+  /**
+   * owner is the group mentioned in the abac script.  dependant is the overall scripted group.
+   * select dependant groups by dependency type and owner internal ids
+   * @param depTypeInternalId
+   * @param dependentGroupCacheInternalIds
+   * @return a map of the owners, to the internal ids of the things dependent on the owner (e.g. groups that have the scripts)
+   */
+  public static List<SqlCacheDependency> retrieveByDepTypeInternalIdAndDependentCacheInternalIds(Long depTypeInternalId, Collection<Long> dependentGroupCacheInternalIds) {
+    
+    // result
+    List<SqlCacheDependency> result = new ArrayList<>();
+  
+    if (GrouperUtil.length(dependentGroupCacheInternalIds) == 0) {
+      return result;
+    }
+  
+    // two bind vars in each record to retrieve
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(dependentGroupCacheInternalIds), batchSize, false);
+    
+    List<Long> ownerGroupCacheInternalIdsList = new ArrayList<>(dependentGroupCacheInternalIds);
+    
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<Long> batchOfOwnerGroupCacheInternalIdsList = GrouperClientUtils.batchList(ownerGroupCacheInternalIdsList, batchSize, batchIndex);
+      
+      StringBuilder sql = new StringBuilder("""
+          select distinct gscd.* 
+          from grouper_sql_cache_dependency gscd 
+          where gscd.dep_type_internal_id = ?
+          and gscd.dependent_internal_id in (
+          """);
+      sql.append(GrouperClientUtils.appendQuestions(batchOfOwnerGroupCacheInternalIdsList.size()));
+      sql.append(")");
+      
+      GcDbAccess gcDbAccess = new GcDbAccess().addBindVar(depTypeInternalId);
+      for (Long ownerGroupCacheInternalId : batchOfOwnerGroupCacheInternalIdsList) {
+        gcDbAccess.addBindVar(ownerGroupCacheInternalId);
+      }
+      
+      List<SqlCacheDependency> sqlCacheDependencies = gcDbAccess.sql(sql.toString()).selectList(SqlCacheDependency.class);
+      
+      result.addAll(sqlCacheDependencies);
+      
+    }
+    return result;
+  }
+
 }

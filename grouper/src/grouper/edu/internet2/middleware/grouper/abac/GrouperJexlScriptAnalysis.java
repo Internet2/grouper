@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.abac;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -46,6 +48,17 @@ public class GrouperJexlScriptAnalysis {
     return result.toString();
   }
   
+  private Set<String> recentMemberOfGroupNames = new HashSet<String>();
+  
+  public Set<String> getRecentMemberOfGroupNames() {
+    return recentMemberOfGroupNames;
+  }
+
+  
+  public void setRecentMemberOfGroupNames(Set<String> recentMemberOfGroupNames) {
+    this.recentMemberOfGroupNames = recentMemberOfGroupNames;
+  }
+
   private String errorMessage;
 
   public String getErrorMessage() {

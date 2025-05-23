@@ -33,6 +33,7 @@
 package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
@@ -464,6 +465,19 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException, GroupNotFoundException;
 
   /**
+   * 
+   * @param internalId
+   * @param exceptionIfNotFound
+   * @param queryOptions
+   * @param typeOfGroups to search in or null for all
+   * @return the group or null or exception
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  Group findByInternalId(Long internalId, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) 
+    throws  GrouperDAOException, GroupNotFoundException;
+
+  /**
    * find all groups which have these uuids
    * @param uuids
    * @param exceptionOnNotFound if exception should be thrown when a uuid doesnt match up
@@ -472,6 +486,20 @@ public interface GroupDAO extends GrouperDAO {
    */
   Set<Group> findByUuids(Collection<String> uuids, boolean exceptionOnNotFound) throws GroupNotFoundException;
   
+  /**
+   * 
+   * @param internalId
+   * @param exceptionIfNotFound
+   * @param queryOptions
+   * @param typeOfGroups to search in or null for all
+   * @return the group or null or exception
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  Map<Long,Group> findByInternalIds(Collection<Long> internalId, boolean exceptionIfNotFound,
+      QueryOptions queryOptions) 
+    throws  GrouperDAOException, GroupNotFoundException;
+
   /**
    * @since   1.3.1
    */

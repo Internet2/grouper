@@ -1,26 +1,96 @@
 package edu.internet2.middleware.grouper.sqlCache;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 
 /**
  * dao for sql cache dependency types
  * @author mchyzer
- *
  */
 public class SqlCacheDependencyTypeDao {
 
+  public static final String NAME_MSHIP_HISTORY_ABAC = "mshipHistory_abac";
+  public static final String NAME_ABAC_GROUP = "abac_group";
+  public static final String NAME_ABAC_ROW = "abac_row";
+  public static final String NAME_ABAC_ATTRIBUTE = "abac_attribute";
+
+  private static class SqlCacheDependencyTypeCache {
+
+    private List<SqlCacheDependencyType> types = new ArrayList<>();
+
+    private Map<String, SqlCacheDependencyType> nameToType = new java.util.HashMap<>();
+
+    private Map<Long, SqlCacheDependencyType> internalIdToType = new java.util.HashMap<>();
+
+    private Map<String, List<SqlCacheDependencyType>> dependencyCategoryToTypes = new java.util.HashMap<>();
+
+  }
 
   public SqlCacheDependencyTypeDao() {
   }
 
+  /**
+   * expirable cache for all dependency types
+   * the caches have a string type: nameToType
+   */
+  private static ExpirableCache<Boolean, SqlCacheDependencyTypeCache> sqlCacheDependencyTypeExpirableCache = new ExpirableCache<>(5);
+  
+  /**
+   * expirable cache for all dependency types
+   * the caches have a string type: nameToType, internalIdToType, dependencyCategoryToTypes (returns list)
+   * @param cacheName e.g. nameToType
+   * @return the cache map
+   */
+  private static SqlCacheDependencyTypeCache sqlCacheDependencyTypeCache() {
+    SqlCacheDependencyTypeCache sqlCacheDependencyTypeCache = sqlCacheDependencyTypeExpirableCache.get(Boolean.TRUE);
+    if (sqlCacheDependencyTypeCache == null) {
+      synchronized(sqlCacheDependencyTypeExpirableCache) {
+        sqlCacheDependencyTypeCache = sqlCacheDependencyTypeExpirableCache.get(Boolean.TRUE);
+        if (sqlCacheDependencyTypeCache == null) {
+          
+          sqlCacheDependencyTypeCache = new SqlCacheDependencyTypeCache();
+          
+          sqlCacheDependencyTypeCache.types = retrieveAllFromDb();
+          
+          for (SqlCacheDependencyType sqlCacheDependencyType : GrouperUtil.nonNull(sqlCacheDependencyTypeCache.types)) {
+            sqlCacheDependencyTypeCache.nameToType.put(sqlCacheDependencyType.getName(), sqlCacheDependencyType);
+            
+          }
+          
+          for (SqlCacheDependencyType sqlCacheDependencyType : GrouperUtil.nonNull(sqlCacheDependencyTypeCache.types)) {
+            sqlCacheDependencyTypeCache.internalIdToType.put(sqlCacheDependencyType.getInternalId(),
+                sqlCacheDependencyType);
+          }
+          
+          for (SqlCacheDependencyType sqlCacheDependencyType : GrouperUtil.nonNull(sqlCacheDependencyTypeCache.types)) {
+            List<SqlCacheDependencyType> sqlCacheDependencyTypesForCategory = sqlCacheDependencyTypeCache.dependencyCategoryToTypes
+                .get(sqlCacheDependencyType.getDependencyCategory());
+            if (sqlCacheDependencyTypesForCategory == null) {
+              sqlCacheDependencyTypesForCategory = new java.util.ArrayList<>();
+              sqlCacheDependencyTypeCache.dependencyCategoryToTypes.put(
+                  sqlCacheDependencyType.getDependencyCategory(),
+                  sqlCacheDependencyTypesForCategory);
+            }
+            sqlCacheDependencyTypesForCategory.add(sqlCacheDependencyType);
+          }
+          
+          sqlCacheDependencyTypeExpirableCache.put(Boolean.TRUE, sqlCacheDependencyTypeCache);
+        }
+      }        
+    }
+    return sqlCacheDependencyTypeCache;
+  }
+  
   /**
    * 
    * @param connectionName
@@ -52,8 +122,7 @@ public class SqlCacheDependencyTypeDao {
    * @return the sql cache dependency type
    */
   public static SqlCacheDependencyType retrieveByInternalId(Long id) {
-    SqlCacheDependencyType sqlCacheDependencyType = new GcDbAccess()
-        .sql("select * from grouper_sql_cache_depend_type where internal_id = ?").addBindVar(id).select(SqlCacheDependencyType.class);
+    SqlCacheDependencyType sqlCacheDependencyType = sqlCacheDependencyTypeCache().internalIdToType.get(id);
     return sqlCacheDependencyType;
   }
   
@@ -63,19 +132,25 @@ public class SqlCacheDependencyTypeDao {
    * @return the sql cache dependency types
    */
   public static List<SqlCacheDependencyType> retrieveByDependencyCategory(String dependencyCategory) {
-    List<SqlCacheDependencyType> sqlCacheDependencyTypes = new GcDbAccess()
-        .sql("select * from grouper_sql_cache_depend_type where dependency_category = ?").addBindVar(dependencyCategory).selectList(SqlCacheDependencyType.class);
-    return sqlCacheDependencyTypes;
+    return sqlCacheDependencyTypeCache().dependencyCategoryToTypes.get(dependencyCategory);
   }
   
   /**
    * select by dependency category
    * @return the sql cache dependency types
    */
-  public static List<SqlCacheDependencyType> retrieveAll() {
+  private static List<SqlCacheDependencyType> retrieveAllFromDb() {
     List<SqlCacheDependencyType> sqlCacheDependencyTypes = new GcDbAccess()
         .sql("select * from grouper_sql_cache_depend_type").selectList(SqlCacheDependencyType.class);
     return sqlCacheDependencyTypes;
+  }
+
+  /**
+   * get all types
+   * @return the sql cache dependency types
+   */
+  private static List<SqlCacheDependencyType> retrieveAll() {
+    return sqlCacheDependencyTypeCache().types;
   }
 
   /**
@@ -85,14 +160,13 @@ public class SqlCacheDependencyTypeDao {
    * @return the sql cache dependency type
    */
   public static SqlCacheDependencyType retrieveByDependencyCategoryAndName(String dependencyCategory, String name) {
-    SqlCacheDependencyType sqlCacheDependencyType = new GcDbAccess()
-        .sql("select * from grouper_sql_cache_depend_type where dependency_category = ? and name = ?")
-        .addBindVar(dependencyCategory).addBindVar(name)
-        .select(SqlCacheDependencyType.class);
-    
-    return sqlCacheDependencyType;
+    return retrieveByName(name);
   }
   
+
+  public static SqlCacheDependencyType retrieveByName(String name) {
+    return sqlCacheDependencyTypeCache().nameToType.get(name);
+  }
 
   /**
    * 
@@ -103,11 +177,14 @@ public class SqlCacheDependencyTypeDao {
     new GcDbAccess().deleteFromDatabase(sqlCacheDependencyType);
   }
   
+  /**
+   * note: names should be unique
+   */
   public static void addDefaultSqlCacheDependencyTypesIfNecessary() {
     {
       List<SqlCacheDependencyType> sqlCacheDependencyTypes = null;
       try {
-        sqlCacheDependencyTypes = retrieveAll();
+        sqlCacheDependencyTypes = retrieveAllFromDb();
       } catch (Exception e) {
         // table doesnt exist
         return;
@@ -135,24 +212,41 @@ public class SqlCacheDependencyTypeDao {
         sqlCacheDependencyTypesToStore.add(sqlCacheDependencyType);
       }
       
-      if (!names.contains("mshipHistory_abac")) {
+      if (!names.contains(NAME_MSHIP_HISTORY_ABAC)) {
         SqlCacheDependencyType sqlCacheDependencyType = new SqlCacheDependencyType();
         sqlCacheDependencyType.setDependencyCategory("mshipHistory");
-        sqlCacheDependencyType.setName("mshipHistory_abac");
+        sqlCacheDependencyType.setName(NAME_MSHIP_HISTORY_ABAC);
         sqlCacheDependencyType.setDescription("Dependency to keep track of sql cache membership history for objects used with ABAC");
         sqlCacheDependencyTypesToStore.add(sqlCacheDependencyType);
       }
       
-      if (!names.contains("abac_attribute")) {
+      if (!names.contains(NAME_ABAC_ATTRIBUTE)) {
         SqlCacheDependencyType sqlCacheDependencyType = new SqlCacheDependencyType();
         sqlCacheDependencyType.setDependencyCategory("abac");
-        sqlCacheDependencyType.setName("abac_attribute");
-        sqlCacheDependencyType.setDescription("Dependency to keep track of memberships which affect abac scripted groups");
+        sqlCacheDependencyType.setName(NAME_ABAC_ATTRIBUTE);
+        sqlCacheDependencyType.setDescription("Dependency to keep track of attributes which affect abac scripted groups");
+        sqlCacheDependencyTypesToStore.add(sqlCacheDependencyType);
+      }
+      
+      if (!names.contains(NAME_ABAC_ROW)) {
+        SqlCacheDependencyType sqlCacheDependencyType = new SqlCacheDependencyType();
+        sqlCacheDependencyType.setDependencyCategory("abac");
+        sqlCacheDependencyType.setName(NAME_ABAC_ROW);
+        sqlCacheDependencyType.setDescription("Dependency to keep track of rows which affect abac scripted groups");
+        sqlCacheDependencyTypesToStore.add(sqlCacheDependencyType);
+      }
+      
+      if (!names.contains(NAME_ABAC_GROUP)) {
+        SqlCacheDependencyType sqlCacheDependencyType = new SqlCacheDependencyType();
+        sqlCacheDependencyType.setDependencyCategory("abac");
+        sqlCacheDependencyType.setName(NAME_ABAC_GROUP);
+        sqlCacheDependencyType.setDescription("Dependency to keep track of groups which affect abac scripted groups");
         sqlCacheDependencyTypesToStore.add(sqlCacheDependencyType);
       }
       
       if (sqlCacheDependencyTypesToStore.size() > 0) {
         SqlCacheDependencyTypeDao.store(sqlCacheDependencyTypesToStore);
+        sqlCacheDependencyTypeExpirableCache.clear();
       }
     }
   }

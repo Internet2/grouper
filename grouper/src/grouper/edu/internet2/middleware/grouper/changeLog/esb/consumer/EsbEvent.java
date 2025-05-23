@@ -34,6 +34,57 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class EsbEvent {
 
+  private String memberInternalId;
+  
+  public String getMemberInternalId() {
+    return memberInternalId;
+  }
+  
+  public void setMemberInternalId(String memberInternalId) {
+    this.memberInternalId = memberInternalId;
+  }
+  
+  private String dataRowInternalId;
+  
+  public String getDataRowInternalId() {
+    return dataRowInternalId;
+  }
+
+  
+  public void setDataRowInternalId(String dataRowInternalId) {
+    this.dataRowInternalId = dataRowInternalId;
+  }
+
+  private String dataRowAssignInternalId;
+  
+  
+  
+  
+  public String getDataRowAssignInternalId() {
+    return dataRowAssignInternalId;
+  }
+
+
+  
+  public void setDataRowAssignInternalId(String dataRowAssignInternalId) {
+    this.dataRowAssignInternalId = dataRowAssignInternalId;
+  }
+
+  private String dataFieldInternalId;
+  
+  
+  
+  
+  public String getDataFieldInternalId() {
+    return dataFieldInternalId;
+  }
+
+
+  
+  public void setDataFieldInternalId(String dataFieldInternalId) {
+    this.dataFieldInternalId = dataFieldInternalId;
+  }
+
   /**
    * messageid of message
    */

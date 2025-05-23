@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
@@ -80,6 +81,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -686,6 +688,54 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     }
 
     return result;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MemberDAO#findByInternalIds(java.util.Collection, boolean, QueryOptions)
+   */
+  public Map<Long, Member> findByInternalIds(Collection<Long> internalIds, boolean exceptionOnNotFound,
+      QueryOptions queryOptions) {
+    //TODO use cache
+    if (internalIds == null) {
+      return null;
+    }
+    Map<Long,Member> members = new HashMap<>();
+    if (GrouperUtil.length(internalIds) == 0) {
+      return members;
+    }
+    //lets page through these
+    
+    int theBatchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+
+    int pages = GrouperUtil.batchNumberOfBatches(internalIds, theBatchSize, false);
+
+    List<Long> internalIdsList = GrouperUtil.listFromCollection(internalIds);
+    
+    for (int i=0; i<pages; i++) {
+      List<Long> internalIdPageList = GrouperUtil.batchList(internalIdsList, theBatchSize, i);
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      StringBuilder query = new StringBuilder("select theMember from Member as theMember "
+          + " where theMember.internalId in (");
+
+      //add all the uuids
+      byHqlStatic.setCollectionInClause(query, internalIdPageList);
+      query.append(")");
+      Set<Member> currentList = byHqlStatic.createQuery(query.toString())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindByInternalIds")
+        .listSet(Member.class);
+      if (exceptionOnNotFound && currentList.size() != internalIdPageList.size()) {
+        throw new MemberNotFoundException("Didnt find all internalIds: " + GrouperUtil.toStringForLog(internalIdPageList)
+            + " , " + internalIdPageList.size() + " != " + currentList.size());
+      }
+      
+      for (Member member : currentList) {
+        members.put(member.getInternalId(), member);
+      }
+      
+    }
+    return members;
   }
 
   /**

@@ -3264,7 +3264,7 @@ public class GcDbAccess {
    * Clone the existing dbAccess.
    * @return the cloned baccess.
    */
-  private GcDbAccess cloneDbAccess(){
+  public GcDbAccess cloneDbAccess(){
     GcDbAccess dbAccess = new GcDbAccess();
     for (Field field : GcDbAccess.class.getDeclaredFields()){
       if (Modifier.isStatic(field.getModifiers())) {

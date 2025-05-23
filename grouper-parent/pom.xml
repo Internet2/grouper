@@ -179,9 +179,7 @@
         <amqp-client.version>5.20.0</amqp-client.version>
         
         <!-- note, jackson version is also in grouper pom -->
-        <jackson.annotations>2.14.0</jackson.annotations>
-        <jackson.core>2.14.0</jackson.core>
-        <jackson.databind>2.14.0</jackson.databind>        
+        <jackson.databind>2.18.2</jackson.databind>        
         <jsoup.version>1.15.3</jsoup.version>        
         <java-ipv6.version>0.17</java-ipv6.version>
         
@@ -416,11 +414,6 @@
                 <version>${json.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-httpclient</groupId>
-                <artifactId>commons-httpclient</artifactId>
-                <version>${commons.httpclient.version}</version>
-            </dependency>
-            <dependency>
               <groupId>org.apache.httpcomponents</groupId>
               <artifactId>httpmime</artifactId>
               <version>${httpmime}</version>
@@ -449,6 +442,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons.lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.databind}</version>
             </dependency>
             <dependency>
               <groupId>net.redhogs.cronparser</groupId>
