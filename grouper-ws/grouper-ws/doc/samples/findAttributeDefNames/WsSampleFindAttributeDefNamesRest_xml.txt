@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRest, manually written lite/rest, format: xml, for version: 2.5.0
+Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRest, manually written lite/rest, format: xml, for version: 5.0.0
 
 
 #########################################
@@ -10,12 +10,14 @@ Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttrib
 
 
 POST /grouper-ws/servicesRest/v2_5_000/attributeDefNames HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
-Host: localhost:8092
+Content-Type: application/xml
 Content-Length: 170
-Content-Type: application/xml; charset=UTF-8
+Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=F6959216E277FD4A3B08DE18AA27981F
+Accept-Encoding: gzip,deflate
 
 <WsRestFindAttributeDefNamesRequest>
   <scope>test:</scope>
@@ -34,219 +36,144 @@ Content-Type: application/xml; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=189322935A3BD77E2EE32CC2DAAE9529;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 31 Mar 2020 20:28:52 GMT
-Connection: close
-Server: Apache TomEE
+Date: Fri, 23 May 2025 17:29:22 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 3ff
 <WsFindAttributeDefNamesResults>
   <attributeDefNameResults>
     <WsAttributeDefName>
-      <idIndex>10300</idIndex>
-      <extension>testAttributeAssignDefNameToSaveLite_soap</extension>
-      <displayExtension>My new attribute def name to save 1 lite + soap</displayExtension>
-      <description>This is a description 1 lite soap</description>
-      <displayName>test:My new attribute def name to save 1 lite + soap</displayName>
-      <name>test:testAttributeAssignDefNameToSaveLite_soap</name>
-      <uuid>58c8007e0b2649c68783c2eefc2aa792</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
-      <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
-    </WsAttributeDefName>
-    <WsAttributeDefName>
-      <idIndex>10303</idIndex>
+      <idIndex>1000358</idIndex>
       <extension>testAttributeAssignDefNameToSave1Rest_json</extension>
       <displayExtension>My new attribute def name to save 1 rest json</displayExtension>
       <description>This is a description 1 rest json</description>
       <displayName>test:My new attribute def name to save 1 rest json</displayName>
-      <name>test:testAttributeAssignDefNameToSave1Re
-3ff
-st_json</name>
-      <uuid>4e6b887b53804f1098626df8cc46eabb</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
+      <name>test:testAttributeAssignDefNameToSave1Rest_json</name>
+      <uuid>044be8b8c8ea459b9b7189acf3e88ec1</uuid>
+      <attributeDefId>c2bf345acadf4e90b6c66b98a7252c33</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
     <WsAttributeDefName>
-      <idIndex>10309</idIndex>
+      <idIndex>1000363</idIndex>
       <extension>testAttributeAssignDefNameToSave1RestLite_http_json</extension>
       <displayExtension>My new attribute def name to save 1 rest lite http_json</displayExtension>
       <description>This is a description 1 rest lite http_json</description>
       <displayName>test:My new attribute def name to save 1 rest lite http_json</displayName>
-      <name>test:testAttributeAssignDefNameToSave1RestLite_http_json</name>
-      <uuid>dc959e0f7ad944db95fb412fe0082530</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
+      <name
+3ff
+>test:testAttributeAssignDefNameToSave1RestLite_http_json</name>
+      <uuid>69b2b9c793ce4408b531832c5676233a</uuid>
+      <attributeDefId>c2bf345acadf4e90b6c66b98a7252c33</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
     <WsAttributeDefName>
-      <idIndex>10308</idIndex>
+      <idIndex>1000362</idIndex>
       <extension>testAttributeAssignDefNameToSave1RestLite_json</extension>
-      <displayExtension>My new attribute def name to save 1 re
-3fe
-st lite json</displayExtension>
+      <displayExtension>My new attribute def name to save 1 rest lite json</displayExtension>
       <description>This is a description 1 rest lite json</description>
       <displayName>test:My new attribute def name to save 1 rest lite json</displayName>
       <name>test:testAttributeAssignDefNameToSave1RestLite_json</name>
-      <uuid>8d8301dc2b8b4b47aee1369edaaef548</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
+      <uuid>19c97a52891e4137b8b75929df959745</uuid>
+      <attributeDefId>c2bf345acadf4e90b6c66b98a7252c33</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
     <WsAttributeDefName>
-      <idIndex>10307</idIndex>
-      <extension>testAttributeAssignDefNameToSave1RestLite_xhtml</extension>
-      <displayExtension>My new attribute def name to save 1 rest lite xhtml</displayExtension>
-      <description>This is a description 1 rest lite xhtml</description>
-      <displayName>test:My new attribute def name to save 1 rest lite xhtml</displayName>
-      <name>test:testAttributeAssignDefNameToSave1RestLite_xhtml</name>
-      <uuid>e073130a5d2f4941a627c959f561c304</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
-      <attributeDefName>test:testAttributeAssignDefNameDef
-3ff
-</attributeDefName>
-    </WsAttributeDefName>
-    <WsAttributeDefName>
-      <idIndex>10310</idIndex>
+      <idIndex>1000364</idIndex>
       <extension>testAttributeAssignDefNameToSave1RestLite_xml</extension>
-      <displayExtension>My new attribute def name to save 1 rest lite xml</displayExtension>
+      <displayExtension>My new att
+3f9
+ribute def name to save 1 rest lite xml</displayExtension>
       <description>This is a description 1 rest lite xml</description>
       <displayName>test:My new attribute def name to save 1 rest lite xml</displayName>
       <name>test:testAttributeAssignDefNameToSave1RestLite_xml</name>
-      <uuid>4793a53ec8e047368253c5ab080df07d</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
+      <uuid>16394441fa8b44abb4f46ef771a2f9f3</uuid>
+      <attributeDefId>c2bf345acadf4e90b6c66b98a7252c33</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
     <WsAttributeDefName>
-      <idIndex>10301</idIndex>
-      <extension>testAttributeAssignDefNameToSave1Rest_xhtml</extension>
-      <displayExtension>My new attribute def name to save 1 rest xhtml</displayExtension>
-      <description>This is a description 1 rest xhtml</description>
-      <displayName>test:My new attribute def name to save 1 rest xhtml</displayName>
-      <name>test:testAttributeAssignDefNameToSave
-3ff
-1Rest_xhtml</name>
-      <uuid>8cb292c2141b49ddb8620cc10683d84d</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
-      <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
-    </WsAttributeDefName>
-    <WsAttributeDefName>
-      <idIndex>10305</idIndex>
+      <idIndex>1000360</idIndex>
       <extension>testAttributeAssignDefNameToSave1Rest_xml</extension>
       <displayExtension>My new attribute def name to save 1 rest xml</displayExtension>
       <description>This is a description 1 rest xml</description>
       <displayName>test:My new attribute def name to save 1 rest xml</displayName>
       <name>test:testAttributeAssignDefNameToSave1Rest_xml</name>
-      <uuid>1287eb3ce8f747e9b11fee3f0bc03eae</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
-      <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
-    </WsAttributeDefName>
-    <WsAttributeDefName>
-      <idIndex>10298</idIndex>
-      <extension>testAttributeAssignDefNameToSave1_soap</extension>
-      <displayExtension>My new attribute def name to save 1 soap</displayExtension>
-      <description>This is a description 1
+      <uuid>110c7ad89bfb4bf7a80e8d691f369a3a</uuid>
+      <attributeDefId>c2bf345acadf4e90b6c66b98a7252c33</attributeDefId>
+      <attributeDefName>
+      </
 3ff
-soap</description>
-      <displayName>test:My new attribute def name to save 1 soap</displayName>
-      <name>test:testAttributeAssignDefNameToSave1_soap</name>
-      <uuid>db140c4de5ee4f1397b1fbd2df3d2734</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
-      <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
+attributeDefName>
     </WsAttributeDefName>
     <WsAttributeDefName>
-      <idIndex>10304</idIndex>
+      <idIndex>1000359</idIndex>
       <extension>testAttributeAssignDefNameToSave2Rest_json</extension>
       <displayExtension>My new attribute def name to save 2 rest json</displayExtension>
       <description>This is a description 2 rest json</description>
       <displayName>test:My new attribute def name to save 2 rest json</displayName>
       <name>test:testAttributeAssignDefNameToSave2Rest_json</name>
-      <uuid>e92d3e7d7ab045af979c84ede47b9edd</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
+      <uuid>b155936a93af4cc2a7a0d62ef36555fc</uuid>
+      <attributeDefId>c2bf345acadf4e90b6c66b98a7252c33</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
     <WsAttributeDefName>
-      <idIndex>10302</idIndex>
-      <extension>testAttributeAssignDefNameToS
-3ff
-ave2Rest_xhtml</extension>
-      <displayExtension>My new attribute def name to save 2 rest xhtml</displayExtension>
-      <description>This is a description 2 rest xhtml</description>
-      <displayName>test:My new attribute def name to save 2 rest xhtml</displayName>
-      <name>test:testAttributeAssignDefNameToSave2Rest_xhtml</name>
-      <uuid>721f5ed5b8ad4c8997fa76f35a902e4e</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
-      <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
-    </WsAttributeDefName>
-    <WsAttributeDefName>
-      <idIndex>10306</idIndex>
+      <idIndex>1000361</idIndex>
       <extension>testAttributeAssignDefNameToSave2Rest_xml</extension>
       <displayExtension>My new attribute def name to save 2 rest xml</displayExtension>
       <description>This is a description 2 rest xml</description>
       <displayName>test:My new attribute def name to save 2 rest xml</displayName>
       <name>test:testAttributeAssignDefNameToSave2Rest_xml</name>
-      <uuid>9ea6b17cd18a43418483560989b45a2d</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
-      <attributeDefName>t
-3fd
-est:testAttributeAssignDefNameDef</attributeDefName>
-    </WsAttributeDefName>
-    <WsAttributeDefName>
-      <idIndex>10299</idIndex>
-      <extension>testAttributeAssignDefNameToSave2_soap</extension>
-      <displayExtension>My new attribute def name to save 2 soap</displayExtension>
-      <description>This is a description 2 soap</description>
-      <displayName>test:My new attribute def name to save 2 soap</displayName>
-      <name>test:testAttributeAssignDefNameToSave2_soap</name>
-      <uuid>8f73df96f4ef49eeaccfa08a3d2fd553</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
+      <uuid>d5
+3ff
+dfbc90943b47939020b23d9a7e96f3</uuid>
+      <attributeDefId>c2bf345acadf4e90b6c66b98a7252c33</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
     <WsAttributeDefName>
-      <idIndex>10280</idIndex>
+      <idIndex>1000340</idIndex>
       <extension>testAttributeAssignAssignName</extension>
       <displayExtension>testAttributeAssignAssignName</displayExtension>
       <displayName>test:testAttributeAssignAssignName</displayName>
       <name>test:testAttributeAssignAssignName</name>
-      <uuid>9416044eb3c7441ea175fc95b2b68c0c</uuid>
-      <attributeDefId>6e57249eb6974c9dbb848172fbd9eb99</attributeDefId>
-      <
-3f9
-attributeDefName>
-      </attributeDefName>
+      <uuid>9451090f499b4fa08844f156650369dc</uuid>
+      <attributeDefId>eeb2eaf13a6a4d95b9ae7aee514c7e8a</attributeDefId>
+      <attributeDefName>test:testAttributeAssignAssignNameDef</attributeDefName>
     </WsAttributeDefName>
     <WsAttributeDefName>
-      <idIndex>10279</idIndex>
+      <idIndex>1000339</idIndex>
       <extension>testAttributeAssignDefName</extension>
       <displayExtension>testAttributeAssignDefName</displayExtension>
       <displayName>test:testAttributeAssignDefName</displayName>
       <name>test:testAttributeAssignDefName</name>
-      <uuid>84c250d8d21c407ba87c779de9ef55dc</uuid>
-      <attributeDefId>3d7adcf55291443d8eb2527d22f6e67c</attributeDefId>
+      <uuid>9f5dbd01041b444ebe9abd696ae91143</uuid>
+      <attributeDefId>c2bf345acadf4e90b6c66b98a7252c3
+3f0
+3</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
     <WsAttributeDefName>
-      <idIndex>10278</idIndex>
+      <idIndex>1000338</idIndex>
       <extension>testAttrName</extension>
       <displayExtension>testAttrName</displayExtension>
       <displayName>test:testAttrName</displayName>
       <name>test:testAttrName</name>
-      <uuid>e328fe96620b42e58d1ff2b6af86f62e</uuid>
-      <attributeDefId>d79024375c684d259b271906bc1e9f4e</attributeDefId>
+      <uuid>d9f0c656ef43442d8f74e173b9c19995</uuid>
+      <attributeDefId>baf0f1606e4041b19ec09d628fb98675</attributeDefId>
       <attributeDefName>test:testAttrNameDef</attributeDefName>
     </WsAttributeDefName>
   </attributeDefNameResults>
   <attributeDefs>
     <WsAttributeDef>
-      <idIndex>
-      </
-3ff
-idIndex>
+      <idIndex>1000097</idIndex>
       <extension>testAttrNameDef</extension>
       <name>test:testAttrNameDef</name>
-      <uuid>d79024375c684d259b271906bc1e9f4e</uuid>
+      <uuid>baf0f1606e4041b19ec09d628fb98675</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -254,7 +181,10 @@ idIndex>
       <assignToAttributeDef>F</assignToAttributeDef>
       <assignToAttributeDefAssignment>F</assignToAttributeDefAssignment>
       <assignToEffectiveMembership>F</assignToEffectiveMembership>
-      <assignToEffectiveMembershipAssignment>F</assignToEffectiveMembershipAssignment>
+      <
+3db
+assignToEffectiveMembershipAssignment>
+      </assignToEffectiveMembershipAssignment>
       <assignToGroup>F</assignToGroup>
       <assignToGroupAssignment>F</assignToGroupAssignment>
       <assignToImmediateMembership>F</assignToImmediateMembership>
@@ -265,12 +195,10 @@ idIndex>
       <assignToStemAssignment>F</assignToStemAssignment>
     </WsAttributeDef>
     <WsAttributeDef>
-      <idIndex>10084</idIndex>
+      <idIndex>1000099</idIndex>
       <extension>testAttributeAssignAssignNameDef</extension>
-      <name>tes
-3fd
-t:testAttributeAssignAssignNameDef</name>
-      <uuid>6e57249eb6974c9dbb848172fbd9eb99</uuid>
+      <name>test:testAttributeAssignAssignNameDef</name>
+      <uuid>eeb2eaf13a6a4d95b9ae7aee514c7e8a</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -278,7 +206,10 @@ t:testAttributeAssignAssignNameDef</name>
       <assignToAttributeDef>F</assignToAttributeDef>
       <assignToAttributeDefAssignment>F</assignToAttributeDefAssignment>
       <assignToEffectiveMembership>F</assignToEffectiveMembership>
-      <assignToEffectiveMembershipAssignment>F</assignToEffectiveMembershipAssignment>
+      <
+3ff
+assignToEffectiveMembershipAssignment>
+      </assignToEffectiveMembershipAssignment>
       <assignToGroup>F</assignToGroup>
       <assignToGroupAssignment>F</assignToGroupAssignment>
       <assignToImmediateMembership>F</assignToImmediateMembership>
@@ -289,13 +220,10 @@ t:testAttributeAssignAssignNameDef</name>
       <assignToStemAssignment>F</assignToStemAssignment>
     </WsAttributeDef>
     <WsAttributeDef>
-      <idIndex>10083</idIndex>
+      <idIndex>1000098</idIndex>
       <extension>testAttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <
-3ff
-uuid>
-      </uuid>
+      <uuid>c2bf345acadf4e90b6c66b98a7252c33</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -303,7 +231,10 @@ uuid>
       <assignToAttributeDef>F</assignToAttributeDef>
       <assignToAttributeDefAssignment>F</assignToAttributeDefAssignment>
       <assignToEffectiveMembership>F</assignToEffectiveMembership>
-      <assignToEffectiveMembershipAssignment>F</assignToEffectiveMembershipAssignment>
+      <assignToEffectiveMembershipAssignment>
+      </
+3fb
+assignToEffectiveMembershipAssignment>
       <assignToGroup>F</assignToGroup>
       <assignToGroupAssignment>F</assignToGroupAssignment>
       <assignToImmediateMembership>F</assignToImmediateMembership>
@@ -316,9 +247,7 @@ uuid>
   </attributeDefs>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.5.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attribute
-1ff
-AssignType: null, attributeDefType: null
+    <resultMessage>Success for: clientVersion: 2.5.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames:
 , params: null
@@ -326,9 +255,12 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>34</millis>
-    <serverVersion>2.5.0</serverVersion>
+    <resultWarnings>
+    </
+7a
+resultWarnings>
+    <millis>65</millis>
+    <serverVersion>5.0.0</serverVersion>
   </responseMetadata>
 </WsFindAttributeDefNamesResults>
 0
@@ -361,18 +293,10 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
@@ -393,27 +317,19 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
   public static void findAttributeDefNames(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aAttributeDefName urlencoded substitutes %3A for a colon
-      PostMethod method = new PostMethod(
-          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/attributeDefNames");
+      String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+            + "/attributeDefNames";
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
-
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-      
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.post);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -431,20 +347,28 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
-      httpClient.executeMethod(method);
+      // assign body
+      grouperHttpClient.assignBody(requestDocument);
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
+      // content type
+      grouperHttpClient.addHeader("Content-Type", contentType);
+      
+      // execute
+      grouperHttpClient.executeRequest();
+      
+
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
+      
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       Object result = wsSampleRestType
         .getWsLiteResponseContentType().parseString(response);
@@ -479,7 +403,7 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    findAttributeDefNames(WsSampleRestType.xhtml);
+    findAttributeDefNames(WsSampleRestType.json);
   }
 
   /**
@@ -506,7 +430,7 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
+Server version: 5.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: 
 , params: null

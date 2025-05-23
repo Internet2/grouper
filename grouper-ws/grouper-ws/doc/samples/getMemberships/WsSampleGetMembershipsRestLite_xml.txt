@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite, manually written lite/rest, format: xml, for version: 2.5.0
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite, manually written lite/rest, format: xml, for version: 5.0.0
 
 
 #########################################
@@ -10,10 +10,12 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 
 
 GET /grouper-ws/servicesRest/xml/v2_5_000/groups/test%3AtestGroup/memberships HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=260FAC7663B6931A1074013727DBC104
+Accept-Encoding: gzip,deflate
 
 
 #########################################
@@ -25,32 +27,32 @@ Host: localhost:8092
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=C7E1D10578BD15D84B80B5FBD13E2638;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 31 Mar 2020 20:39:57 GMT
-Connection: close
-Server: Apache TomEE
+Date: Fri, 23 May 2025 17:50:32 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
-3fd
+3ff
 <WsGetMembershipsResults>
   <wsMemberships>
     <WsMembership>
-      <membershipId>7d62afc8800e499185023303dfb292c0:b2d4ec5c9af547949eef3d57a5a31088</membershipId>
-      <immediateMembershipId>7d62afc8800e499185023303dfb292c0</immediateMembershipId>
+      <membershipId>3ae3868fecf14c8bb9e735c0a633bef4:4a76e8a6e0894ef7b01080f11d53139f</membershipId>
+      <immediateMembershipId>3ae3868fecf14c8bb9e735c0a633bef4</immediateMembershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>bef6a528fd9143059d1220cf0dc58c04</memberId>
-      <groupId>6488e4e9d11d405598a420954c86fabf</groupId>
+      <memberId>701d754df0d8417e85aa8d2da775e7ec</memberId>
+      <groupId>9d1df201c2ca473aae9062e63fa572ed</groupId>
       <subjectId>test.subject.0</subjectId>
       <subjectSourceId>jdbc</subjectSourceId>
       <groupName>test:testGroup</groupName>
-      <createTime>2020/03/31 13:12:53.816</createTime>
+      <createTime>2025/05/23 13:01:40.886</createTime>
     </WsMembership>
   </wsMemberships>
   <wsGroups>
@@ -60,8 +62,8 @@ Server: Apache TomEE
       <displayExtension>testGroup</displayExtension>
       <displayName>test:testGroup</displayName>
       <name>test:testGroup</name>
-      <uuid>6488e4e9d11d405598a420954c86fabf</uuid>
-      <idIndex>10031</idIndex>
+      <uuid>9d1df201c2ca473aae9062e63fa572ed</uuid>
+      <idIndex>1000033</idIndex>
       <enabled>T</enabled>
     </WsGroup>
   </wsGroups>
@@ -70,7 +72,7 @@ Server: Apache TomEE
       <resultCode>SUCCESS</resultCode>
       <success>T</success>
       <
-1b9
+1ba
 memberId>
       </memberId>
       <id>test.subject.0</id>
@@ -84,8 +86,8 @@ memberId>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>49</millis>
-    <serverVersion>2.5.0</serverVersion>
+    <millis>108</millis>
+    <serverVersion>5.0.0</serverVersion>
   </responseMetadata>
 </WsGetMembershipsResults>
 0
@@ -118,17 +120,10 @@ memberId>
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.membership;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
@@ -146,41 +141,37 @@ public class WsSampleGetMembershipsRestLite implements WsSampleRest {
   public static void getMembershipsLite(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-      GetMethod method = new GetMethod(
-          RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
+      String url = RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
-            + "/groups/test%3AtestGroup/memberships");
+            + "/groups/test%3AtestGroup/memberships";
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.get);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
+
+      // execute
+      grouperHttpClient.executeRequest();
       
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-      
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
-      httpClient.executeMethod(method);
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       //convert to object (from xhtml, xml, json, etc)
       WsGetMembershipsResults wsGetMembershipsResults = (WsGetMembershipsResults)wsSampleRestType
@@ -235,4 +226,4 @@ public class WsSampleGetMembershipsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: Found 1 results involving 1 groups and 1 subjects
+Server version: 5.0.0, result code: SUCCESS, result message: Found 1 results involving 1 groups and 1 subjects

@@ -1,4 +1,4 @@
-Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, manually written lite/rest, type: _withInput, format: json, for version: 2.5.0
+Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, manually written lite/rest, type: _withInput, format: json, for version: 5.0.0
 
 
 #########################################
@@ -10,18 +10,20 @@ Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, m
 
 
 POST /grouper-ws/servicesRest/v2_5_000/groups HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
-Host: localhost:8092
+Content-Type: application/json
 Content-Length: 121
-Content-Type: application/json; charset=UTF-8
+Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=C54F3F996C1F69D8C3CE01D6956E7715
+Accept-Encoding: gzip,deflate
 
 {
   "WsRestFindGroupsLiteRequest":{
-    "stemName":"aStem",
     "queryFilterType":"FIND_BY_GROUP_NAME_APPROXIMATE",
-    "groupName":"aGr"
+    "groupName":"aGr",
+    "stemName":"aStem"
   }
 }
 
@@ -35,51 +37,51 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=59D97EB2083DB815CB4EA492F62A1097;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 898
-Date: Tue, 31 Mar 2020 23:01:01 GMT
-Connection: close
-Server: Apache TomEE
+Content-Length: 902
+Date: Fri, 23 May 2025 17:34:07 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 {
   "WsFindGroupsResults":{
     "groupResults":[
       {
-        "description":"a group description",
-        "displayExtension":"a group",
-        "displayName":"a stem:a group",
-        "enabled":"T",
         "extension":"aGroup",
-        "idIndex":"10009",
-        "name":"aStem:aGroup",
         "typeOfGroup":"group",
-        "uuid":"32ca90db41b04a1a9611a214a20bac42"
+        "displayExtension":"a group",
+        "description":"a group description",
+        "displayName":"a stem:a group",
+        "name":"aStem:aGroup",
+        "uuid":"0bcb58edf06f4c4b8f3de4eba73a17a6",
+        "idIndex":"1000028",
+        "enabled":"T"
       },
       {
-        "description":"a group description2",
-        "displayExtension":"a group2",
-        "displayName":"a stem:a group2",
-        "enabled":"T",
         "extension":"aGroup2",
-        "idIndex":"10032",
-        "name":"aStem:aGroup2",
         "typeOfGroup":"group",
-        "uuid":"5819ab9eed78479faedcb72be0987798"
+        "displayExtension":"a group2",
+        "description":"a group description2",
+        "displayName":"a stem:a group2",
+        "name":"aStem:aGroup2",
+        "uuid":"68ce3c5f94a741e99c3a7a93c09ffb26",
+        "idIndex":"1000048",
+        "enabled":"T"
       }
     ]
     ,
-    "responseMetadata":{
-      "millis":"42",
-      "serverVersion":"2.5.0"
-    },
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: 2.5.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]\n, includeGroupDetail: false, actAsSubject: null, paramNames: \n, params: null\n, wsGroupLookups: null",
       "success":"T"
+    },
+    "responseMetadata":{
+      "millis":"56",
+      "serverVersion":"5.0.0"
     }
   }
 }
@@ -112,18 +114,10 @@ Server: Apache TomEE
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
@@ -145,27 +139,19 @@ public class WsSampleFindGroupsRestLite implements WsSampleRest {
   public static void findGroupsLite(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-      PostMethod method = new PostMethod(
-          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/groups");
+      String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+            + "/groups";
       
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
-      
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-      
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.post);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -181,20 +167,28 @@ public class WsSampleFindGroupsRestLite implements WsSampleRest {
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
-      httpClient.executeMethod(method);
+      // assign body
+      grouperHttpClient.assignBody(requestDocument);
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
+      // content type
+      grouperHttpClient.addHeader("Content-Type", contentType);
+      
+      // execute
+      grouperHttpClient.executeRequest();
+      
+
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
+      
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
     
@@ -229,7 +223,7 @@ public class WsSampleFindGroupsRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    findGroupsLite(WsSampleRestType.xhtml);
+    findGroupsLite(WsSampleRestType.json);
   }
 
   /**
@@ -256,7 +250,7 @@ public class WsSampleFindGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
+Server version: 5.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
 , includeGroupDetail: false, actAsSubject: null, paramNames: 
 , params: null
 , wsGroupLookups: null

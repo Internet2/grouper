@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveRest, manually written lite/rest, format: json, for version: 2.5.0
+Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSaveRest, manually written lite/rest, format: json, for version: 5.0.0
 
 
 #########################################
@@ -10,67 +10,69 @@ Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefSav
 
 
 POST /grouper-ws/servicesRest/v2_5_000/attributeDefs HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
-Host: localhost:8092
+Content-Type: application/json
 Content-Length: 1319
-Content-Type: application/json; charset=UTF-8
+Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=090AAA0AA348F51B27C94BDB96BB3FBF
+Accept-Encoding: gzip,deflate
 
 {
   "WsRestAttributeDefSaveRequest":{
-    "actAsSubjectLookup":{
-      "subjectId":"GrouperSystem"
-    },
     "wsAttributeDefsToSave":[
       {
-        "createParentStemsIfNotExist":"T",
         "wsAttributeDef":{
-          "attributeDefType":"attr",
-          "assignToAttributeDef":"T",
-          "assignToStemAssignment":"F",
           "description":"This is a description1 rest json",
-          "assignToMemberAssignment":"F",
-          "assignToEffectiveMembership":"F",
-          "assignToImmediateMembershipAssignment":"F",
-          "assignToEffectiveMembershipAssignment":"F",
-          "assignToStem":"F",
-          "assignToGroupAssignment":"F",
-          "assignToMember":"F",
-          "multiAssignable":"F",
-          "valueType":"string",
           "name":"test1:testAttributeDef_json",
-          "assignToAttributeDefAssignment":"F",
+          "attributeDefType":"attr",
+          "multiAssignable":"F",
           "multiValued":"F",
+          "valueType":"string",
+          "assignToAttributeDef":"T",
+          "assignToAttributeDefAssignment":"F",
+          "assignToEffectiveMembership":"F",
+          "assignToEffectiveMembershipAssignment":"F",
           "assignToGroup":"F",
-          "assignToImmediateMembership":"F"
-        }
-        
+          "assignToGroupAssignment":"F",
+          "assignToImmediateMembership":"F",
+          "assignToImmediateMembershipAssignment":"F",
+          "assignToMember":"F",
+          "assignToMemberAssignment":"F",
+          "assignToStem":"F",
+          "assignToStemAssignment":"F"
+        },
+        "createParentStemsIfNotExist":"T"
       },
       {
-        "createParentStemsIfNotExist":"T",
         "wsAttributeDef":{
-          "attributeDefType":"attr",
-          "assignToAttributeDef":"T",
-          "assignToStemAssignment":"F",
           "description":"This is a description2 rest json",
-          "assignToMemberAssignment":"F",
-          "assignToEffectiveMembership":"F",
-          "assignToImmediateMembershipAssignment":"F",
-          "assignToEffectiveMembershipAssignment":"F",
-          "assignToStem":"F",
-          "assignToGroupAssignment":"F",
-          "assignToMember":"F",
-          "multiAssignable":"F",
-          "valueType":"string",
           "name":"test1:testAttributDef2ToSave1Rest_json",
-          "assignToAttributeDefAssignment":"F",
+          "attributeDefType":"attr",
+          "multiAssignable":"F",
           "multiValued":"F",
+          "valueType":"string",
+          "assignToAttributeDef":"T",
+          "assignToAttributeDefAssignment":"F",
+          "assignToEffectiveMembership":"F",
+          "assignToEffectiveMembershipAssignment":"F",
           "assignToGroup":"F",
-          "assignToImmediateMembership":"F"
-        }
+          "assignToGroupAssignment":"F",
+          "assignToImmediateMembership":"F",
+          "assignToImmediateMembershipAssignment":"F",
+          "assignToMember":"F",
+          "assignToMemberAssignment":"F",
+          "assignToStem":"F",
+          "assignToStemAssignment":"F"
+        },
+        "createParentStemsIfNotExist":"T"
       }
     ]
+    ,
+    "actAsSubjectLookup":{
+      "subjectId":"GrouperSystem"
+    }
   }
 }
 
@@ -84,88 +86,89 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 201
-Set-Cookie: JSESSIONID=E6510A28C5A9D18387DFDE882D9840EC;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 2011
-Date: Tue, 31 Mar 2020 20:23:40 GMT
-Connection: close
-Server: Apache TomEE
+Content-Length: 2015
+Date: Fri, 23 May 2025 17:21:28 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 {
   "WsAttributeDefSaveResults":{
-    "responseMetadata":{
-      "millis":"733",
-      "serverVersion":"2.5.0"
-    },
+    "results":[
+      {
+        "wsAttributeDef":{
+          "idIndex":"1000112",
+          "extension":"testAttributeDef_json",
+          "description":"This is a description1 rest json",
+          "name":"test1:testAttributeDef_json",
+          "uuid":"89527276e3ea4f3ab970fcd7a4cfb83d",
+          "attributeDefType":"attr",
+          "multiAssignable":"F",
+          "multiValued":"F",
+          "valueType":"string",
+          "assignToAttributeDef":"F",
+          "assignToAttributeDefAssignment":"F",
+          "assignToEffectiveMembership":"F",
+          "assignToEffectiveMembershipAssignment":"F",
+          "assignToGroup":"F",
+          "assignToGroupAssignment":"F",
+          "assignToImmediateMembership":"F",
+          "assignToImmediateMembershipAssignment":"F",
+          "assignToMember":"F",
+          "assignToMemberAssignment":"F",
+          "assignToStem":"F",
+          "assignToStemAssignment":"F"
+        },
+        "resultMetadata":{
+          "resultCode":"SUCCESS_INSERTED",
+          "success":"T"
+        }
+        
+      },
+      {
+        "wsAttributeDef":{
+          "idIndex":"1000113",
+          "extension":"testAttributDef2ToSave1Rest_json",
+          "description":"This is a description2 rest json",
+          "name":"test1:testAttributDef2ToSave1Rest_json",
+          "uuid":"0de56c94114a4691973e10c9c6e0cb57",
+          "attributeDefType":"attr",
+          "multiAssignable":"F",
+          "multiValued":"F",
+          "valueType":"string",
+          "assignToAttributeDef":"F",
+          "assignToAttributeDefAssignment":"F",
+          "assignToEffectiveMembership":"F",
+          "assignToEffectiveMembershipAssignment":"F",
+          "assignToGroup":"F",
+          "assignToGroupAssignment":"F",
+          "assignToImmediateMembership":"F",
+          "assignToImmediateMembershipAssignment":"F",
+          "assignToMember":"F",
+          "assignToMemberAssignment":"F",
+          "assignToStem":"F",
+          "assignToStemAssignment":"F"
+        },
+        "resultMetadata":{
+          "resultCode":"SUCCESS_INSERTED",
+          "success":"T"
+        }
+      }
+    ]
+    ,
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: 2.5.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[\n  wsAttributeDef=WsAttributeDef[description=This is a description1 rest json,name=test1:testAttributeDef_json,attributeDefType=attr,multiAssignable=F,multi...\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
       "success":"T"
     },
-    "results":[
-      {
-        "resultMetadata":{
-          "resultCode":"SUCCESS_INSERTED",
-          "success":"T"
-        },
-        "wsAttributeDef":{
-          "assignToAttributeDef":"F",
-          "assignToAttributeDefAssignment":"F",
-          "assignToEffectiveMembership":"F",
-          "assignToEffectiveMembershipAssignment":"F",
-          "assignToGroup":"F",
-          "assignToGroupAssignment":"F",
-          "assignToImmediateMembership":"F",
-          "assignToImmediateMembershipAssignment":"F",
-          "assignToMember":"F",
-          "assignToMemberAssignment":"F",
-          "assignToStem":"F",
-          "assignToStemAssignment":"F",
-          "attributeDefType":"attr",
-          "description":"This is a description1 rest json",
-          "extension":"testAttributeDef_json",
-          "idIndex":"10098",
-          "multiAssignable":"F",
-          "multiValued":"F",
-          "name":"test1:testAttributeDef_json",
-          "uuid":"2b9d4c8be62c4e4fa7c41b9c1c0f8a6c",
-          "valueType":"string"
-        }
-        
-      },
-      {
-        "resultMetadata":{
-          "resultCode":"SUCCESS_INSERTED",
-          "success":"T"
-        },
-        "wsAttributeDef":{
-          "assignToAttributeDef":"F",
-          "assignToAttributeDefAssignment":"F",
-          "assignToEffectiveMembership":"F",
-          "assignToEffectiveMembershipAssignment":"F",
-          "assignToGroup":"F",
-          "assignToGroupAssignment":"F",
-          "assignToImmediateMembership":"F",
-          "assignToImmediateMembershipAssignment":"F",
-          "assignToMember":"F",
-          "assignToMemberAssignment":"F",
-          "assignToStem":"F",
-          "assignToStemAssignment":"F",
-          "attributeDefType":"attr",
-          "description":"This is a description2 rest json",
-          "extension":"testAttributDef2ToSave1Rest_json",
-          "idIndex":"10099",
-          "multiAssignable":"F",
-          "multiValued":"F",
-          "name":"test1:testAttributDef2ToSave1Rest_json",
-          "uuid":"338ef6b67364420a8686b53b39a914ba",
-          "valueType":"string"
-        }
-      }
-    ]
+    "responseMetadata":{
+      "millis":"335",
+      "serverVersion":"5.0.0"
+    }
   }
 }
 
@@ -195,18 +198,10 @@ Server: Apache TomEE
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDef;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefToSave;
@@ -229,29 +224,19 @@ public class WsSampleAttributeDefSaveRest implements WsSampleRest {
   public static void attributeDefSave(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: attributeDefName urlencoded substitutes %3A for a colon
-      PostMethod method = new PostMethod(
-          RestClientSettings.URL + "/" + RestClientSettings.VERSION
-              + "/attributeDefs");
+      String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION
+              + "/attributeDefs";
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER,
-          RestClientSettings.PASS);
-
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(
-              new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT),
-              defaultcreds);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.post);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -305,21 +290,28 @@ public class WsSampleAttributeDefSaveRest implements WsSampleRest {
       String contentType = wsSampleRestType.getWsLiteRequestContentType()
           .getContentType();
 
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType,
-          "UTF-8"));
+      // assign body
+      grouperHttpClient.assignBody(requestDocument);
 
-      httpClient.executeMethod(method);
+      // content type
+      grouperHttpClient.addHeader("Content-Type", contentType);
+      
+      // execute
+      grouperHttpClient.executeRequest();
+      
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
+      
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
 
-      String response = RestClientSettings.responseBodyAsString(method);
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
+      
+      String response = grouperHttpClient.getResponseBody();
 
       Object result = wsSampleRestType
           .getWsLiteResponseContentType().parseString(response);
@@ -358,7 +350,7 @@ public class WsSampleAttributeDefSaveRest implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    attributeDefSave(WsSampleRestType.xhtml);
+    attributeDefSave(WsSampleRestType.json);
   }
 
   /**
@@ -387,7 +379,7 @@ public class WsSampleAttributeDefSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[
+Server version: 5.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsAttributeDefsToSave: Array size: 2: [0]: WsAttributeDefToSave[
   wsAttributeDef=WsAttributeDef[description=This is a description1 rest json,name=test1:testAttributeDef_json,attributeDefType=attr,multiAssignable=F,multi...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite, manually written lite/rest, format: http_json, for version: 2.5.0
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite, manually written lite/rest, format: http_json, for version: 5.0.0
 
 
 #########################################
@@ -10,10 +10,12 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 
 
 GET /grouper-ws/servicesRest/json/v2_5_000/groups/test%3AtestGroup/memberships HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=D8897E40BD60C218B01DCFB8CE133E0D
+Accept-Encoding: gzip,deflate
 
 
 #########################################
@@ -25,66 +27,67 @@ Host: localhost:8092
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=D90757D528D892020BE3665D749DF48E;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 1030
-Date: Tue, 31 Mar 2020 20:39:54 GMT
-Connection: close
-Server: Apache TomEE
+Content-Length: 1032
+Date: Fri, 23 May 2025 17:50:10 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 {
   "WsGetMembershipsResults":{
-    "responseMetadata":{
-      "millis":"46",
-      "serverVersion":"2.5.0"
-    },
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":"Found 1 results involving 1 groups and 1 subjects",
-      "success":"T"
-    },
-    "wsGroups":[
+    "wsMemberships":[
       {
-        "displayExtension":"testGroup",
-        "displayName":"test:testGroup",
+        "membershipId":"3ae3868fecf14c8bb9e735c0a633bef4:4a76e8a6e0894ef7b01080f11d53139f",
+        "immediateMembershipId":"3ae3868fecf14c8bb9e735c0a633bef4",
+        "listName":"members",
+        "listType":"list",
+        "membershipType":"immediate",
         "enabled":"T",
-        "extension":"testGroup",
-        "idIndex":"10031",
-        "name":"test:testGroup",
-        "typeOfGroup":"group",
-        "uuid":"6488e4e9d11d405598a420954c86fabf"
+        "memberId":"701d754df0d8417e85aa8d2da775e7ec",
+        "groupId":"9d1df201c2ca473aae9062e63fa572ed",
+        "subjectId":"test.subject.0",
+        "subjectSourceId":"jdbc",
+        "groupName":"test:testGroup",
+        "createTime":"2025/05/23 13:01:40.886"
       }
     ]
     ,
-    "wsMemberships":[
+    "wsGroups":[
       {
-        "createTime":"2020/03/31 13:12:53.816",
-        "enabled":"T",
-        "groupId":"6488e4e9d11d405598a420954c86fabf",
-        "groupName":"test:testGroup",
-        "immediateMembershipId":"7d62afc8800e499185023303dfb292c0",
-        "listName":"members",
-        "listType":"list",
-        "memberId":"bef6a528fd9143059d1220cf0dc58c04",
-        "membershipId":"7d62afc8800e499185023303dfb292c0:b2d4ec5c9af547949eef3d57a5a31088",
-        "membershipType":"immediate",
-        "subjectId":"test.subject.0",
-        "subjectSourceId":"jdbc"
+        "extension":"testGroup",
+        "typeOfGroup":"group",
+        "displayExtension":"testGroup",
+        "displayName":"test:testGroup",
+        "name":"test:testGroup",
+        "uuid":"9d1df201c2ca473aae9062e63fa572ed",
+        "idIndex":"1000033",
+        "enabled":"T"
       }
     ]
     ,
     "wsSubjects":[
       {
-        "id":"test.subject.0",
-        "memberId":"bef6a528fd9143059d1220cf0dc58c04",
         "resultCode":"SUCCESS",
-        "sourceId":"jdbc",
-        "success":"T"
+        "success":"T",
+        "memberId":"701d754df0d8417e85aa8d2da775e7ec",
+        "id":"test.subject.0",
+        "sourceId":"jdbc"
       }
     ]
+    ,
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Found 1 results involving 1 groups and 1 subjects",
+      "success":"T"
+    },
+    "responseMetadata":{
+      "millis":"72",
+      "serverVersion":"5.0.0"
+    }
   }
 }
 
@@ -116,17 +119,10 @@ Server: Apache TomEE
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.membership;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
@@ -144,41 +140,37 @@ public class WsSampleGetMembershipsRestLite implements WsSampleRest {
   public static void getMembershipsLite(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-      GetMethod method = new GetMethod(
-          RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
+      String url = RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
-            + "/groups/test%3AtestGroup/memberships");
+            + "/groups/test%3AtestGroup/memberships";
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.get);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
+
+      // execute
+      grouperHttpClient.executeRequest();
       
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-      
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
-      httpClient.executeMethod(method);
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       //convert to object (from xhtml, xml, json, etc)
       WsGetMembershipsResults wsGetMembershipsResults = (WsGetMembershipsResults)wsSampleRestType
@@ -233,4 +225,4 @@ public class WsSampleGetMembershipsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: Found 1 results involving 1 groups and 1 subjects
+Server version: 5.0.0, result code: SUCCESS, result message: Found 1 results involving 1 groups and 1 subjects

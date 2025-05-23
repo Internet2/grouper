@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributes, WsSampleAssignAttributesRest, manually written lite/rest, format: json, for version: 2.5.0
+Grouper web service sample of service: assignAttributes, WsSampleAssignAttributesRest, manually written lite/rest, format: json, for version: 5.0.0
 
 
 #########################################
@@ -10,20 +10,23 @@ Grouper web service sample of service: assignAttributes, WsSampleAssignAttribute
 
 
 POST /grouper-ws/servicesRest/v2_5_000/attributeAssignments HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
-Host: localhost:8092
+Content-Type: application/json
 Content-Length: 254
-Content-Type: application/json; charset=UTF-8
+Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=85E2A3318032F6FFE5A8E892A28D0C9A
+Accept-Encoding: gzip,deflate
 
 {
   "WsRestAssignAttributesRequest":{
+    "attributeAssignOperation":"assign_attr",
     "attributeAssignType":"group",
     "wsAttributeDefNameLookups":[
       {
-        "name":"test:testAttributeAssignDefName",
-        "uuid":""
+        "uuid":"",
+        "name":"test:testAttributeAssignDefName"
       }
     ]
     ,
@@ -32,8 +35,6 @@ Content-Type: application/json; charset=UTF-8
         "groupName":"test:groupTestAttrAssign"
       }
     ]
-    ,
-    "attributeAssignOperation":"assign_attr"
   }
 }
 
@@ -47,228 +48,28 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=24954ED48BA68BD126F867B828098D59;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 4675
-Date: Tue, 31 Mar 2020 20:16:16 GMT
-Connection: close
-Server: Apache TomEE
+Content-Length: 3414
+Date: Fri, 23 May 2025 17:07:12 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 {
   "WsAssignAttributesResults":{
-    "responseMetadata":{
-      "millis":"428",
-      "serverVersion":"2.5.0"
-    },
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":", Found 1 results.",
-      "success":"T"
-    },
-    "wsAttributeAssignResults":[
-      {
-        "changed":"F",
-        "deleted":"F",
-        "valuesChanged":"F",
-        "wsAttributeAssigns":[
-          {
-            "attributeAssignActionId":"f4ea797d82c949c8b026fbb46f9b373d",
-            "attributeAssignActionName":"assign",
-            "attributeAssignActionType":"immediate",
-            "attributeAssignDelegatable":"FALSE",
-            "attributeAssignType":"group",
-            "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-            "attributeDefName":"test:testAttributeAssignDefNameDef",
-            "attributeDefNameId":"84c250d8d21c407ba87c779de9ef55dc",
-            "attributeDefNameName":"test:testAttributeAssignDefName",
-            "createdOn":"2020/03/31 13:13:50.762",
-            "disallowed":"F",
-            "enabled":"T",
-            "id":"f455c9b6e95e4d4cb41408e3f2461074",
-            "lastUpdated":"2020/03/31 13:13:50.762",
-            "ownerGroupId":"9c4860dce6a843e18c3de2ef3208082f",
-            "ownerGroupName":"test:groupTestAttrAssign",
-            "wsAttributeAssignValues":[
-              {
-                "id":"00d602b6d7ea445da97358b3fe4750d8",
-                "valueSystem":"15"
-              },
-              {
-                "id":"0dd19f8842544670b34318fb0523cd32",
-                "valueSystem":"15"
-              },
-              {
-                "id":"1c9f1ebabfee4d988d054a1a0fdfbe2b",
-                "valueSystem":"15"
-              },
-              {
-                "id":"227b72466e214fa1915b586d5e6a297b",
-                "valueSystem":"15"
-              },
-              {
-                "id":"38659b8074594f2e8d889383ce7a9a75",
-                "valueSystem":"15"
-              },
-              {
-                "id":"59ebce553a51454295d57d0d6312d572",
-                "valueSystem":"15"
-              },
-              {
-                "id":"6ec66d774080402993437b33a050e88a",
-                "valueSystem":"15"
-              },
-              {
-                "id":"8283f292f48b48a29c2e54b8f3cdb16b",
-                "valueSystem":"15"
-              },
-              {
-                "id":"8838c018afa9460ea1dbdfc7c48c44f1",
-                "valueSystem":"15"
-              },
-              {
-                "id":"99d7c197f9f74ad29d9fd36c436f1bf6",
-                "valueSystem":"15"
-              },
-              {
-                "id":"a69b6e82323845088f0ebf1668074a27",
-                "valueSystem":"15"
-              },
-              {
-                "id":"c3d9336e99384a478534bdc71d305afe",
-                "valueSystem":"15"
-              },
-              {
-                "id":"d6236f1b3063466e97f4fbf98fd83e3e",
-                "valueSystem":"15"
-              },
-              {
-                "id":"176848cff7944c2b8745c0eace2a1c82",
-                "valueSystem":"5"
-              },
-              {
-                "id":"2b76fefe44394a30a5378735940e5bde",
-                "valueSystem":"5"
-              },
-              {
-                "id":"2bb8b45585f74462b45af89f6bd70a05",
-                "valueSystem":"5"
-              },
-              {
-                "id":"3a2375b6e76b44a9bda64e140e8fd84b",
-                "valueSystem":"5"
-              },
-              {
-                "id":"420e068703bc4ad397f42deff51e2f47",
-                "valueSystem":"5"
-              },
-              {
-                "id":"641246d961ed4ae8b0127710ea2e8150",
-                "valueSystem":"5"
-              },
-              {
-                "id":"6b365205a85e4518a6878a5faee32638",
-                "valueSystem":"5"
-              },
-              {
-                "id":"6da667f3ae9045e4aa4a11b722b397f7",
-                "valueSystem":"5"
-              },
-              {
-                "id":"72772b25719041b187a2fdbe7c150517",
-                "valueSystem":"5"
-              },
-              {
-                "id":"7565198fbdc84622bc0e153e904ce2f7",
-                "valueSystem":"5"
-              },
-              {
-                "id":"79c73ccf94ed4475bc803ffdd3cffdfb",
-                "valueSystem":"5"
-              },
-              {
-                "id":"7af94eece57e4d4882a29dd85d0a7555",
-                "valueSystem":"5"
-              },
-              {
-                "id":"7b0e8f21454b4852bbc531d733372dd3",
-                "valueSystem":"5"
-              },
-              {
-                "id":"88a8410ea2e54b74a59d074ebb080427",
-                "valueSystem":"5"
-              },
-              {
-                "id":"a18bc987604840c386da861d2efa75e1",
-                "valueSystem":"5"
-              },
-              {
-                "id":"aa7e7d3bb682446cb39cd6e52328ca95",
-                "valueSystem":"5"
-              },
-              {
-                "id":"ac7ad747ee2b442583d3d6cea34c224a",
-                "valueSystem":"5"
-              },
-              {
-                "id":"c71bb5767e70462bbe1db5ac59a6e2d4",
-                "valueSystem":"5"
-              },
-              {
-                "id":"cc980cf0720e4f5183ea25347d57edb9",
-                "valueSystem":"5"
-              },
-              {
-                "id":"d0b6bd147b8f49089f35af1fd9a71780",
-                "valueSystem":"5"
-              },
-              {
-                "id":"d6d29c48bee74629a53b9194a28442a3",
-                "valueSystem":"5"
-              },
-              {
-                "id":"d96ca594578a4e7b9d9edd5cf69ad92a",
-                "valueSystem":"5"
-              },
-              {
-                "id":"deaeaf010ae64786997cde048173130b",
-                "valueSystem":"5"
-              },
-              {
-                "id":"e1ed17f6b3bc422e9c27698cb6d25049",
-                "valueSystem":"5"
-              },
-              {
-                "id":"f2b8a9c148c245d7a3eec53feb1ff018",
-                "valueSystem":"5"
-              },
-              {
-                "id":"f30ab9ad6ad640c9b64ce9de04e71904",
-                "valueSystem":"5"
-              }
-            ]
-          }
-        ]
-      }
-    ]
-    ,
-    "wsAttributeDefNames":[
-      {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "displayExtension":"testAttributeAssignDefName",
-        "displayName":"test:testAttributeAssignDefName",
-        "extension":"testAttributeAssignDefName",
-        "idIndex":"10279",
-        "name":"test:testAttributeAssignDefName",
-        "uuid":"84c250d8d21c407ba87c779de9ef55dc"
-      }
-    ]
-    ,
     "wsAttributeDefs":[
       {
+        "idIndex":"1000098",
+        "extension":"testAttributeAssignDefNameDef",
+        "name":"test:testAttributeAssignDefNameDef",
+        "uuid":"c2bf345acadf4e90b6c66b98a7252c33",
+        "attributeDefType":"attr",
+        "multiAssignable":"F",
+        "multiValued":"T",
+        "valueType":"integer",
         "assignToAttributeDef":"F",
         "assignToAttributeDefAssignment":"F",
         "assignToEffectiveMembership":"F",
@@ -280,36 +81,154 @@ Server: Apache TomEE
         "assignToMember":"F",
         "assignToMemberAssignment":"F",
         "assignToStem":"F",
-        "assignToStemAssignment":"F",
-        "attributeDefType":"attr",
-        "extension":"testAttributeAssignDefNameDef",
-        "idIndex":"10083",
-        "multiAssignable":"F",
-        "multiValued":"T",
-        "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"3d7adcf55291443d8eb2527d22f6e67c",
-        "valueType":"integer"
+        "assignToStemAssignment":"F"
       }
     ]
     ,
+    "wsAttributeDefNames":[
+      {
+        "idIndex":"1000339",
+        "extension":"testAttributeAssignDefName",
+        "displayExtension":"testAttributeAssignDefName",
+        "displayName":"test:testAttributeAssignDefName",
+        "name":"test:testAttributeAssignDefName",
+        "uuid":"9f5dbd01041b444ebe9abd696ae91143",
+        "attributeDefId":"c2bf345acadf4e90b6c66b98a7252c33",
+        "attributeDefName":"test:testAttributeAssignDefNameDef"
+      }
+    ]
+    ,
+    "wsAttributeAssignResults":[
+      {
+        "wsAttributeAssigns":[
+          {
+            "disallowed":"F",
+            "attributeAssignActionType":"immediate",
+            "attributeAssignDelegatable":"FALSE",
+            "attributeAssignActionId":"0d86cf02b8c8467b9d778660a8c7b57b",
+            "attributeAssignActionName":"assign",
+            "attributeAssignType":"group",
+            "attributeDefNameId":"9f5dbd01041b444ebe9abd696ae91143",
+            "attributeDefNameName":"test:testAttributeAssignDefName",
+            "attributeDefId":"c2bf345acadf4e90b6c66b98a7252c33",
+            "attributeDefName":"test:testAttributeAssignDefNameDef",
+            "wsAttributeAssignValues":[
+              {
+                "id":"260d72d7d9954af8a7e421bd6d96acfa",
+                "valueSystem":"15"
+              },
+              {
+                "id":"334275bf8488481b8e27362d742f714b",
+                "valueSystem":"15"
+              },
+              {
+                "id":"49539f592e1e471f813032966f8f72d1",
+                "valueSystem":"15"
+              },
+              {
+                "id":"4bb630e1599d4ad28e7a002b5ce07905",
+                "valueSystem":"15"
+              },
+              {
+                "id":"d3d3754bc5d54cd295f258a146515cd6",
+                "valueSystem":"15"
+              },
+              {
+                "id":"f18baa9dc3504b0aaf079990fe726a18",
+                "valueSystem":"15"
+              },
+              {
+                "id":"3300b7f666b04e8288cfa72f5ea530ee",
+                "valueSystem":"5"
+              },
+              {
+                "id":"36512dd1e5d3489ab6c95b3c555ad9a1",
+                "valueSystem":"5"
+              },
+              {
+                "id":"40daf06017504fd3a2a917ec50f63557",
+                "valueSystem":"5"
+              },
+              {
+                "id":"4c0d18001f65482da709414562585e4b",
+                "valueSystem":"5"
+              },
+              {
+                "id":"51d002a24cff4d98976cf8a1a5ad191e",
+                "valueSystem":"5"
+              },
+              {
+                "id":"588dc0f8c8da47e2a016d760fc4ac782",
+                "valueSystem":"5"
+              },
+              {
+                "id":"7a0b41b447a045fb8b57b260c0296bd4",
+                "valueSystem":"5"
+              },
+              {
+                "id":"850e0d9f74f74dacb3a15b8ea68cdb0e",
+                "valueSystem":"5"
+              },
+              {
+                "id":"c6eb9b95621a4488a516480a84eff5a5",
+                "valueSystem":"5"
+              },
+              {
+                "id":"c71fcea808014897b524eb4b9c0b9966",
+                "valueSystem":"5"
+              },
+              {
+                "id":"e59a3017d6fd4c6cb6c1870d6525a672",
+                "valueSystem":"5"
+              },
+              {
+                "id":"e60c043efa3f464693c7eefe629280d2",
+                "valueSystem":"5"
+              }
+            ]
+            ,
+            "createdOn":"2025/05/23 13:05:21.624",
+            "enabled":"T",
+            "id":"deeb1e95e7884a889d45d72149dced56",
+            "lastUpdated":"2025/05/23 13:05:21.624",
+            "ownerGroupId":"05e479749781484684f732ad666e9cc9",
+            "ownerGroupName":"test:groupTestAttrAssign"
+          }
+        ]
+        ,
+        "changed":"F",
+        "valuesChanged":"F",
+        "deleted":"F"
+      }
+    ]
+    ,
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":", Found 1 results.",
+      "success":"T"
+    },
+    "responseMetadata":{
+      "millis":"139",
+      "serverVersion":"5.0.0"
+    },
     "wsGroups":[
       {
-        "description":"description",
-        "displayExtension":"groupTestAttrAssign",
-        "displayName":"test:groupTestAttrAssign",
-        "enabled":"T",
         "extension":"groupTestAttrAssign",
-        "idIndex":"10033",
-        "name":"test:groupTestAttrAssign",
         "typeOfGroup":"group",
-        "uuid":"9c4860dce6a843e18c3de2ef3208082f"
+        "displayExtension":"groupTestAttrAssign",
+        "description":"description",
+        "displayName":"test:groupTestAttrAssign",
+        "name":"test:groupTestAttrAssign",
+        "uuid":"05e479749781484684f732ad666e9cc9",
+        "idIndex":"1000049",
+        "enabled":"T"
       }
-    ]
-    ,
-    "wsMemberships":[
     ]
     ,
     "wsStems":[
+    ]
+    ,
+    "wsMemberships":[
     ]
     ,
     "wsSubjects":[
@@ -345,18 +264,10 @@ Server: Apache TomEE
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
@@ -378,28 +289,20 @@ public class WsSampleAssignAttributesRest implements WsSampleRest {
   public static void assignAttributes(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
         + "/attributeAssignments";
-      PostMethod method = new PostMethod(
-          url);
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
 
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-      
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.post);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -422,20 +325,28 @@ public class WsSampleAssignAttributesRest implements WsSampleRest {
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
-      httpClient.executeMethod(method);
+      // assign body
+      grouperHttpClient.assignBody(requestDocument);
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
+      // content type
+      grouperHttpClient.addHeader("Content-Type", contentType);
+      
+      // execute
+      grouperHttpClient.executeRequest();
+      
+
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
+      
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       Object result = wsSampleRestType
         .getWsLiteResponseContentType().parseString(response);
@@ -497,4 +408,4 @@ public class WsSampleAssignAttributesRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 5.0.0, result code: SUCCESS, result message: , Found 1 results.
