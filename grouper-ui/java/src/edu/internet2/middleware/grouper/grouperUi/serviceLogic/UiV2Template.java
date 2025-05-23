@@ -2,6 +2,9 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -217,7 +220,9 @@ public class UiV2Template {
         if (gshTemplateFile != null) {
           String fileName = StringUtils.defaultString(gshTemplateFile == null ? "" : gshTemplateFile.getName());
           try {
-            File file = File.createTempFile(fileName, "");
+            String directoryName = GrouperUtil.uniqueId();
+            Path tempDirectory = Files.createTempDirectory(directoryName, new FileAttribute[0]);
+            File file = new File(tempDirectory.toAbsolutePath().toString() + File.separatorChar + fileName);
             gshTemplateFile.write(file);
             if (gshTemplateInputConfig.getGshTemplateInputType() == GshTemplateInputType.FILE) {
               value = file;
