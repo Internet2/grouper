@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRest, manually written lite/rest, format: json, for version: 2.5.0
+Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRest, manually written lite/rest, format: json, for version: 5.0.0
 
 
 #########################################
@@ -10,19 +10,21 @@ Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttrib
 
 
 POST /grouper-ws/servicesRest/v2_5_000/attributeDefNames HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
-Host: localhost:8092
+Content-Type: application/json
 Content-Length: 107
-Content-Type: application/json; charset=UTF-8
+Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=DEF9EE63C87CC90DFC24A2B2DC1DE9C0
+Accept-Encoding: gzip,deflate
 
 {
   "WsRestFindAttributeDefNamesRequest":{
+    "scope":"test:",
     "actAsSubjectLookup":{
       "subjectId":"GrouperSystem"
-    },
-    "scope":"test:"
+    }
   }
 }
 
@@ -36,219 +38,138 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=F5634D9A406ACC4E75BAA7660CC83C00;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Transfer-Encoding: chunked
-Date: Tue, 31 Mar 2020 20:28:50 GMT
-Connection: close
-Server: Apache TomEE
+Content-Length: 6794
+Date: Fri, 23 May 2025 17:29:00 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
-2000
 {
   "WsFindAttributeDefNamesResults":{
     "attributeDefNameResults":[
       {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "description":"This is a description 1 lite soap",
-        "displayExtension":"My new attribute def name to save 1 lite + soap",
-        "displayName":"test:My new attribute def name to save 1 lite + soap",
-        "extension":"testAttributeAssignDefNameToSaveLite_soap",
-        "idIndex":"10300",
-        "name":"test:testAttributeAssignDefNameToSaveLite_soap",
-        "uuid":"58c8007e0b2649c68783c2eefc2aa792"
-      },
-      {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "description":"This is a description 1 rest json",
-        "displayExtension":"My new attribute def name to save 1 rest json",
-        "displayName":"test:My new attribute def name to save 1 rest json",
+        "idIndex":"1000358",
         "extension":"testAttributeAssignDefNameToSave1Rest_json",
-        "idIndex":"10303",
+        "displayExtension":"My new attribute def name to save 1 rest json",
+        "description":"This is a description 1 rest json",
+        "displayName":"test:My new attribute def name to save 1 rest json",
         "name":"test:testAttributeAssignDefNameToSave1Rest_json",
-        "uuid":"4e6b887b53804f1098626df8cc46eabb"
+        "uuid":"044be8b8c8ea459b9b7189acf3e88ec1",
+        "attributeDefId":"c2bf345acadf4e90b6c66b98a7252c33",
+        "attributeDefName":"test:testAttributeAssignDefNameDef"
       },
       {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "description":"This is a description 1 rest lite http_json",
-        "displayExtension":"My new attribute def name to save 1 rest lite http_json",
-        "displayName":"test:My new attribute def name to save 1 rest lite http_json",
+        "idIndex":"1000363",
         "extension":"testAttributeAssignDefNameToSave1RestLite_http_json",
-        "idIndex":"10309",
+        "displayExtension":"My new attribute def name to save 1 rest lite http_json",
+        "description":"This is a description 1 rest lite http_json",
+        "displayName":"test:My new attribute def name to save 1 rest lite http_json",
         "name":"test:testAttributeAssignDefNameToSave1RestLite_http_json",
-        "uuid":"dc959e0f7ad944db95fb412fe0082530"
+        "uuid":"69b2b9c793ce4408b531832c5676233a",
+        "attributeDefId":"c2bf345acadf4e90b6c66b98a7252c33",
+        "attributeDefName":"test:testAttributeAssignDefNameDef"
       },
       {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "description":"This is a description 1 rest lite json",
-        "displayExtension":"My new attribute def name to save 1 rest lite json",
-        "displayName":"test:My new attribute def name to save 1 rest lite json",
+        "idIndex":"1000362",
         "extension":"testAttributeAssignDefNameToSave1RestLite_json",
-        "idIndex":"10308",
+        "displayExtension":"My new attribute def name to save 1 rest lite json",
+        "description":"This is a description 1 rest lite json",
+        "displayName":"test:My new attribute def name to save 1 rest lite json",
         "name":"test:testAttributeAssignDefNameToSave1RestLite_json",
-        "uuid":"8d8301dc2b8b4b47aee1369edaaef548"
+        "uuid":"19c97a52891e4137b8b75929df959745",
+        "attributeDefId":"c2bf345acadf4e90b6c66b98a7252c33",
+        "attributeDefName":"test:testAttributeAssignDefNameDef"
       },
       {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "description":"This is a description 1 rest lite xhtml",
-        "displayExtension":"My new attribute def name to save 1 rest lite xhtml",
-        "displayName":"test:My new attribute def name to save 1 rest lite xhtml",
-        "extension":"testAttributeAssignDefNameToSave1RestLite_xhtml",
-        "idIndex":"10307",
-        "name":"test:testAttributeAssignDefNameToSave1RestLite_xhtml",
-        "uuid":"e073130a5d2f4941a627c959f561c304"
-      },
-      {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "description":"This is a description 1 rest lite xml",
-        "displayExtension":"My new attribute def name to save 1 rest lite xml",
-        "displayName":"test:My new attribute def name to save 1 rest lite xml",
+        "idIndex":"1000364",
         "extension":"testAttributeAssignDefNameToSave1RestLite_xml",
-        "idIndex":"10310",
+        "displayExtension":"My new attribute def name to save 1 rest lite xml",
+        "description":"This is a description 1 rest lite xml",
+        "displayName":"test:My new attribute def name to save 1 rest lite xml",
         "name":"test:testAttributeAssignDefNameToSave1RestLite_xml",
-        "uuid":"4793a53ec8e047368253c5ab080df07d"
+        "uuid":"16394441fa8b44abb4f46ef771a2f9f3",
+        "attributeDefId":"c2bf345acadf4e90b6c66b98a7252c33",
+        "attributeDefName":"test:testAttributeAssignDefNameDef"
       },
       {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "description":"This is a description 1 rest xhtml",
-        "displayExtension":"My new attribute def name to save 1 rest xhtml",
-        "displayName":"test:My new attribute def name to save 1 rest xhtml",
-        "extension":"testAttributeAssignDefNameToSave1Rest_xhtml",
-        "idIndex":"10301",
-        "name":"test:testAttributeAssignDefNameToSave1Rest_xhtml",
-        "uuid":"8cb292c2141b49ddb8620cc10683d84d"
-      },
-      {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "description":"This is a description 1 rest xml",
-        "displayExtension":"My new attribute def name to save 1 rest xml",
-        "displayName":"test:My new attribute def name to save 1 rest xml",
+        "idIndex":"1000360",
         "extension":"testAttributeAssignDefNameToSave1Rest_xml",
-        "idIndex":"10305",
+        "displayExtension":"My new attribute def name to save 1 rest xml",
+        "description":"This is a description 1 rest xml",
+        "displayName":"test:My new attribute def name to save 1 rest xml",
         "name":"test:testAttributeAssignDefNameToSave1Rest_xml",
-        "uuid":"1287eb3ce8f747e9b11fee3f0bc03eae"
+        "uuid":"110c7ad89bfb4bf7a80e8d691f369a3a",
+        "attributeDefId":"c2bf345acadf4e90b6c66b98a7252c33",
+        "attributeDefName":"test:testAttributeAssignDefNameDef"
       },
       {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "description":"This is a description 1 soap",
-        "displayExtension":"My new attribute def name to save 1 soap",
-        "displayName":"test:My new attribute def name to save 1 soap",
-        "extension":"testAttributeAssignDefNameToSave1_soap",
-        "idIndex":"10298",
-        "name":"test:testAttributeAssignDefNameToSave1_soap",
-        "uuid":"db140c4de5ee4f1397b1fbd2df3d2734"
-      },
-      {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "description":"This is a description 2 rest json",
-        "displayExtension":"My new attribute def name to save 2 rest json",
-        "displayName":"test:My new attribute def name to save 2 rest json",
+        "idIndex":"1000359",
         "extension":"testAttributeAssignDefNameToSave2Rest_json",
-        "idIndex":"10304",
+        "displayExtension":"My new attribute def name to save 2 rest json",
+        "description":"This is a description 2 rest json",
+        "displayName":"test:My new attribute def name to save 2 rest json",
         "name":"test:testAttributeAssignDefNameToSave2Rest_json",
-        "uuid":"e92d3e7d7ab045af979c84ede47b9edd"
+        "uuid":"b155936a93af4cc2a7a0d62ef36555fc",
+        "attributeDefId":"c2bf345acadf4e90b6c66b98a7252c33",
+        "attributeDefName":"test:testAttributeAssignDefNameDef"
       },
       {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "description":"This is a description 2 rest xhtml",
-        "displayExtension":"My new attribute def name to save 2 rest xhtml",
-        "displayName":"test:My new attribute def name to save 2 rest xhtml",
-        "extension":"testAttributeAssignDefNameToSave2Rest_xhtml",
-        "idIndex":"10302",
-        "name":"test:testAttributeAssignDefNameToSave2Rest_xhtml",
-        "uuid":"721f5ed5b8ad4c8997fa76f35a902e4e"
-      },
-      {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "description":"This is a description 2 rest xml",
-        "displayExtension":"My new attribute def name to save 2 rest xml",
-        "displayName":"test:My new attribute def name to save 2 rest xml",
+        "idIndex":"1000361",
         "extension":"testAttributeAssignDefNameToSave2Rest_xml",
-        "idIndex":"10306",
+        "displayExtension":"My new attribute def name to save 2 rest xml",
+        "description":"This is a description 2 rest xml",
+        "displayName":"test:My new attribute def name to save 2 rest xml",
         "name":"test:testAttributeAssignDefNameToSave2Rest_xml",
-        "uuid":"9ea6b17cd18a43418483560989b45a2d"
+        "uuid":"d5dfbc90943b47939020b23d9a7e96f3",
+        "attributeDefId":"c2bf345acadf4e90b6c66b98a7252c33",
+        "attributeDefName":"test:testAttributeAssignDefNameDef"
       },
       {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
-        "description":"This is a description 2 soap",
-        "displayExtension":"My new attribute def name to save 2 soap",
-        "displayName":"test:My new attribute def name to save 2 soap",
-        "extension":"testAttributeAssignDefNameToSave2_soap",
-        "idIndex":"10299",
-        "name":"test:testAttributeAssignDefNameToSave2_soap",
-        "uuid":"8f73df96f4ef49eeaccfa08a3d2fd553"
-      },
-      {
-        "attributeDefId":"6e57249eb6974c9dbb848172fbd9eb99",
-        "attributeDefName":"test:testAttributeAssignAssignNameDef",
+        "idIndex":"1000340",
+        "extension":"testAttributeAssignAssignName",
         "displayExtension":"testAttributeAssignAssignName",
         "displayName":"test:testAttributeAssignAssignName",
-        "extension":"testAttributeAssignAssignName",
-        "idIndex":"10280",
         "name":"test:testAttributeAssignAssignName",
-        "uuid":"9416044eb3c7441ea175fc95b2b68c0c"
+        "uuid":"9451090f499b4fa08844f156650369dc",
+        "attributeDefId":"eeb2eaf13a6a4d95b9ae7aee514c7e8a",
+        "attributeDefName":"test:testAttributeAssignAssignNameDef"
       },
       {
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
-        "attributeDefName":"test:testAttributeAssignDefNameDef",
+        "idIndex":"1000339",
+        "extension":"testAttributeAssignDefName",
         "displayExtension":"testAttributeAssignDefName",
         "displayName":"test:testAttributeAssignDefName",
-        "extension":"testAttributeAssignDefName",
-        "idIndex":"10279",
         "name":"test:testAttributeAssignDefName",
-        "uuid":"84c250d8d21c407ba87c779de9ef55dc"
+        "uuid":"9f5dbd01041b444ebe9abd696ae91143",
+        "attributeDefId":"c2bf345acadf4e90b6c66b98a7252c33",
+        "attributeDefName":"test:testAttributeAssignDefNameDef"
       },
       {
-        "attributeDefId":"d79024375c684d259b271906bc1e9f4e",
-        "attributeDefName":"test:testAttrNameDef",
+        "idIndex":"1000338",
+        "extension":"testAttrName",
         "displayExtension":"testAttrName",
         "displayName":"test:testAttrName",
-        "extension":"testAttrName",
-        "idIndex":"10278",
         "name":"test:testAttrName",
-        "uuid":"e328fe96620b42e58d1ff2b6af86f62e"
+        "uuid":"d9f0c656ef43442d8f74e173b9c19995",
+        "attributeDefId":"baf0f1606e4041b19ec09d628fb98675",
+        "attributeDefName":"test:testAttrNameDef"
       }
     ]
     ,
     "attributeDefs":[
       {
-        "assignToAttributeDef":"F",
-        "assignToAttributeDefAssignment":"F",
-        "assignToEffectiveMembership":"F",
-        "assignToEffectiveMembershipAssignment":"F",
-        "assignToGroup":"F",
-        "assignToGroupAssignment":"F",
-        "assignToImmediateMembership":"F",
-        "assignToImmediateMembershipAssignment":"F",
-        "assignToMember":"F",
-        "assignToMemberAssignment":"F",
-        "assignToStem":"F",
-        "assignToStemAssignment":"F",
-        "attributeDefType":"attr",
+        "idIndex":"1000097",
         "extension":"testAttrNameDef",
-        "idIndex":"10082",
+        "name":"test:testAttrNameDef",
+        "uuid":"baf0f1606e4041b19ec09d628fb98675",
+        "attributeDefType":"attr",
         "multiAssignable":"F",
         "multiValued":"T",
-        "name":"test:testAttrNameDef",
-        "uuid":"d79024375c684d259b271906bc1e9f4e",
-        "valueType":"string"
-      },
-      {
+        "valueType":"string",
         "assignToAttributeDef":"F",
         "assignToAttributeDefAssignment":"F",
         "assignToEffectiveMembership":"F",
@@ -260,19 +181,17 @@ Server: Apache TomEE
         "assignToMember":"F",
         "assignToMemberAssignment":"F",
         "assignToStem":"F",
-        "assignToStemAssignment":"F",
-        "attributeDefTyp
-562
-e":"attr",
+        "assignToStemAssignment":"F"
+      },
+      {
+        "idIndex":"1000099",
         "extension":"testAttributeAssignAssignNameDef",
-        "idIndex":"10084",
+        "name":"test:testAttributeAssignAssignNameDef",
+        "uuid":"eeb2eaf13a6a4d95b9ae7aee514c7e8a",
+        "attributeDefType":"attr",
         "multiAssignable":"F",
         "multiValued":"F",
-        "name":"test:testAttributeAssignAssignNameDef",
-        "uuid":"6e57249eb6974c9dbb848172fbd9eb99",
-        "valueType":"string"
-      },
-      {
+        "valueType":"string",
         "assignToAttributeDef":"F",
         "assignToAttributeDefAssignment":"F",
         "assignToEffectiveMembership":"F",
@@ -284,30 +203,43 @@ e":"attr",
         "assignToMember":"F",
         "assignToMemberAssignment":"F",
         "assignToStem":"F",
-        "assignToStemAssignment":"F",
-        "attributeDefType":"attr",
+        "assignToStemAssignment":"F"
+      },
+      {
+        "idIndex":"1000098",
         "extension":"testAttributeAssignDefNameDef",
-        "idIndex":"10083",
+        "name":"test:testAttributeAssignDefNameDef",
+        "uuid":"c2bf345acadf4e90b6c66b98a7252c33",
+        "attributeDefType":"attr",
         "multiAssignable":"F",
         "multiValued":"T",
-        "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"3d7adcf55291443d8eb2527d22f6e67c",
-        "valueType":"integer"
+        "valueType":"integer",
+        "assignToAttributeDef":"F",
+        "assignToAttributeDefAssignment":"F",
+        "assignToEffectiveMembership":"F",
+        "assignToEffectiveMembershipAssignment":"F",
+        "assignToGroup":"F",
+        "assignToGroupAssignment":"F",
+        "assignToImmediateMembership":"F",
+        "assignToImmediateMembershipAssignment":"F",
+        "assignToMember":"F",
+        "assignToMemberAssignment":"F",
+        "assignToStem":"F",
+        "assignToStemAssignment":"F"
       }
     ]
     ,
-    "responseMetadata":{
-      "millis":"35",
-      "serverVersion":"2.5.0"
-    },
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: 2.5.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null\nwsAttributeDefNameLookups: null\nwsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: \n, params: null\n, wsSubjectLookup: null, serviceRole: null",
       "success":"T"
+    },
+    "responseMetadata":{
+      "millis":"60",
+      "serverVersion":"5.0.0"
     }
   }
 }
-0
 
 
 #########################################
@@ -337,18 +269,10 @@ e":"attr",
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
@@ -369,27 +293,19 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
   public static void findAttributeDefNames(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aAttributeDefName urlencoded substitutes %3A for a colon
-      PostMethod method = new PostMethod(
-          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/attributeDefNames");
+      String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+            + "/attributeDefNames";
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
-
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-      
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.post);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -407,20 +323,28 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
-      httpClient.executeMethod(method);
+      // assign body
+      grouperHttpClient.assignBody(requestDocument);
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
+      // content type
+      grouperHttpClient.addHeader("Content-Type", contentType);
+      
+      // execute
+      grouperHttpClient.executeRequest();
+      
+
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
+      
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       Object result = wsSampleRestType
         .getWsLiteResponseContentType().parseString(response);
@@ -455,7 +379,7 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    findAttributeDefNames(WsSampleRestType.xhtml);
+    findAttributeDefNames(WsSampleRestType.json);
   }
 
   /**
@@ -482,7 +406,7 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
+Server version: 5.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: 
 , params: null

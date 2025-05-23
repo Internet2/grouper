@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRest2, manually written lite/rest, format: json, for version: 2.5.0
+Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRest2, manually written lite/rest, format: json, for version: 5.0.0
 
 
 #########################################
@@ -10,15 +10,19 @@ Grouper web service sample of service: assignAttributesWithValue, WsSampleAssign
 
 
 POST /grouper-ws/servicesRest/v2_5_000/attributeAssignments HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
-Host: localhost:8092
+Content-Type: application/json
 Content-Length: 324
-Content-Type: application/json; charset=UTF-8
+Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=4399F7399BE62FEFA0C9244AF11F0FF7
+Accept-Encoding: gzip,deflate
 
 {
   "WsRestAssignAttributesRequest":{
+    "attributeAssignOperation":"assign_attr",
+    "attributeAssignValueOperation":"add_value",
     "values":[
       {
         "valueSystem":"some_value"
@@ -34,12 +38,9 @@ Content-Type: application/json; charset=UTF-8
     ,
     "wsOwnerMembershipLookups":[
       {
-        "uuid":"11b1a84a22f545c0b22d95a65912694b"
+        "uuid":"0fc39b11f63342b48d46a581f874584d"
       }
     ]
-    ,
-    "attributeAssignValueOperation":"add_value",
-    "attributeAssignOperation":"assign_attr"
   }
 }
 
@@ -53,90 +54,28 @@ Content-Type: application/json; charset=UTF-8
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=A2591DBF71635B39A3C831413F12804D;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 2613
-Date: Tue, 31 Mar 2020 20:18:10 GMT
-Connection: close
-Server: Apache TomEE
+Content-Length: 2686
+Date: Fri, 23 May 2025 17:10:30 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 {
   "WsAssignAttributesResults":{
-    "responseMetadata":{
-      "millis":"120",
-      "serverVersion":"2.5.0"
-    },
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":", Found 1 results.",
-      "success":"T"
-    },
-    "wsAttributeAssignResults":[
-      {
-        "changed":"F",
-        "deleted":"F",
-        "valuesChanged":"T",
-        "wsAttributeAssignValueResults":[
-          {
-            "changed":"T",
-            "deleted":"F",
-            "wsAttributeAssignValue":{
-              "id":"9233c05d32ed45809aef1d479cf466d4",
-              "valueSystem":"some_value"
-            }
-          }
-        ]
-        ,
-        "wsAttributeAssigns":[
-          {
-            "attributeAssignActionId":"7f99b631724f4b239fe0af39c6e56741",
-            "attributeAssignActionName":"assign",
-            "attributeAssignActionType":"immediate",
-            "attributeAssignDelegatable":"FALSE",
-            "attributeAssignType":"imm_mem",
-            "attributeDefId":"d79024375c684d259b271906bc1e9f4e",
-            "attributeDefName":"test:testAttrNameDef",
-            "attributeDefNameId":"e328fe96620b42e58d1ff2b6af86f62e",
-            "attributeDefNameName":"test:testAttrName",
-            "createdOn":"2020/03/31 13:18:07.773",
-            "disallowed":"F",
-            "enabled":"T",
-            "id":"3e928f19552c4ee1af927b49916f8275",
-            "lastUpdated":"2020/03/31 13:18:07.773",
-            "ownerMembershipId":"11b1a84a22f545c0b22d95a65912694b",
-            "wsAttributeAssignValues":[
-              {
-                "id":"348d5ea6e3ed4d4d917a448f889a2464",
-                "valueSystem":"some_value"
-              },
-              {
-                "id":"9233c05d32ed45809aef1d479cf466d4",
-                "valueSystem":"some_value"
-              }
-            ]
-          }
-        ]
-      }
-    ]
-    ,
-    "wsAttributeDefNames":[
-      {
-        "attributeDefId":"d79024375c684d259b271906bc1e9f4e",
-        "attributeDefName":"test:testAttrNameDef",
-        "displayExtension":"testAttrName",
-        "displayName":"test:testAttrName",
-        "extension":"testAttrName",
-        "idIndex":"10278",
-        "name":"test:testAttrName",
-        "uuid":"e328fe96620b42e58d1ff2b6af86f62e"
-      }
-    ]
-    ,
     "wsAttributeDefs":[
       {
+        "idIndex":"1000097",
+        "extension":"testAttrNameDef",
+        "name":"test:testAttrNameDef",
+        "uuid":"baf0f1606e4041b19ec09d628fb98675",
+        "attributeDefType":"attr",
+        "multiAssignable":"F",
+        "multiValued":"T",
+        "valueType":"string",
         "assignToAttributeDef":"F",
         "assignToAttributeDefAssignment":"F",
         "assignToEffectiveMembership":"F",
@@ -148,39 +87,107 @@ Server: Apache TomEE
         "assignToMember":"F",
         "assignToMemberAssignment":"F",
         "assignToStem":"F",
-        "assignToStemAssignment":"F",
-        "attributeDefType":"attr",
-        "extension":"testAttrNameDef",
-        "idIndex":"10082",
-        "multiAssignable":"F",
-        "multiValued":"T",
-        "name":"test:testAttrNameDef",
-        "uuid":"d79024375c684d259b271906bc1e9f4e",
-        "valueType":"string"
+        "assignToStemAssignment":"F"
       }
     ]
     ,
+    "wsAttributeDefNames":[
+      {
+        "idIndex":"1000338",
+        "extension":"testAttrName",
+        "displayExtension":"testAttrName",
+        "displayName":"test:testAttrName",
+        "name":"test:testAttrName",
+        "uuid":"d9f0c656ef43442d8f74e173b9c19995",
+        "attributeDefId":"baf0f1606e4041b19ec09d628fb98675",
+        "attributeDefName":"test:testAttrNameDef"
+      }
+    ]
+    ,
+    "wsAttributeAssignResults":[
+      {
+        "wsAttributeAssignValueResults":[
+          {
+            "changed":"T",
+            "deleted":"F",
+            "wsAttributeAssignValue":{
+              "id":"a6fd0bf9fbbe425bb965bfb760484283",
+              "valueSystem":"some_value"
+            }
+          }
+        ]
+        ,
+        "wsAttributeAssigns":[
+          {
+            "disallowed":"F",
+            "attributeAssignActionType":"immediate",
+            "attributeAssignDelegatable":"FALSE",
+            "attributeAssignActionId":"1764b660019e495f9cbde5c3644cd636",
+            "attributeAssignActionName":"assign",
+            "attributeAssignType":"imm_mem",
+            "attributeDefNameId":"d9f0c656ef43442d8f74e173b9c19995",
+            "attributeDefNameName":"test:testAttrName",
+            "attributeDefId":"baf0f1606e4041b19ec09d628fb98675",
+            "attributeDefName":"test:testAttrNameDef",
+            "wsAttributeAssignValues":[
+              {
+                "id":"10100d9f441149c0881a38d067eb5820",
+                "valueSystem":"some_value"
+              },
+              {
+                "id":"a6fd0bf9fbbe425bb965bfb760484283",
+                "valueSystem":"some_value"
+              },
+              {
+                "id":"f0fc3a724a524401a04f5472fe51fee8",
+                "valueSystem":"some_value"
+              }
+            ]
+            ,
+            "createdOn":"2025/05/23 12:53:39.697",
+            "enabled":"T",
+            "id":"c65936898db34c44b98ba16f52c5e6dc",
+            "lastUpdated":"2025/05/23 12:53:39.697",
+            "ownerMembershipId":"0fc39b11f63342b48d46a581f874584d"
+          }
+        ]
+        ,
+        "changed":"F",
+        "valuesChanged":"T",
+        "deleted":"F"
+      }
+    ]
+    ,
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":", Found 1 results.",
+      "success":"T"
+    },
+    "responseMetadata":{
+      "millis":"129",
+      "serverVersion":"5.0.0"
+    },
     "wsGroups":[
+    ]
+    ,
+    "wsStems":[
     ]
     ,
     "wsMemberships":[
       {
-        "createTime":"2020/03/31 00:25:10.281",
-        "enabled":"T",
-        "groupId":"3befb91c854541f68a4dcb75fe1f92ee",
-        "groupName":"aStem:role",
-        "immediateMembershipId":"11b1a84a22f545c0b22d95a65912694b",
+        "membershipId":"0fc39b11f63342b48d46a581f874584d:92e5dc05e7824eb69386585023b1d2bb",
+        "immediateMembershipId":"0fc39b11f63342b48d46a581f874584d",
         "listName":"members",
         "listType":"list",
-        "memberId":"bef6a528fd9143059d1220cf0dc58c04",
-        "membershipId":"11b1a84a22f545c0b22d95a65912694b:d35ff409fda24afd80da9f14a52b372f",
         "membershipType":"immediate",
+        "enabled":"T",
+        "memberId":"701d754df0d8417e85aa8d2da775e7ec",
+        "groupId":"6a159359e7034b78aa9a8bb7e3a83980",
         "subjectId":"test.subject.0",
-        "subjectSourceId":"jdbc"
+        "subjectSourceId":"jdbc",
+        "groupName":"aStem:role",
+        "createTime":"2025/05/23 12:37:17.336"
       }
-    ]
-    ,
-    "wsStems":[
     ]
     ,
     "wsSubjects":[
@@ -216,18 +223,10 @@ Server: Apache TomEE
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -256,28 +255,20 @@ public class WsSampleAssignAttributesWithValueRest2 implements WsSampleRest {
   public static void assignAttributesWithValue(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
         + "/attributeAssignments";
-      PostMethod method = new PostMethod(
-          url);
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
-
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.post);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
       
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -310,20 +301,28 @@ public class WsSampleAssignAttributesWithValueRest2 implements WsSampleRest {
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
-      httpClient.executeMethod(method);
+      // assign body
+      grouperHttpClient.assignBody(requestDocument);
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
+      // content type
+      grouperHttpClient.addHeader("Content-Type", contentType);
+      
+      // execute
+      grouperHttpClient.executeRequest();
+      
+
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
+      
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       Object result = wsSampleRestType
         .getWsLiteResponseContentType().parseString(response);
@@ -385,4 +384,4 @@ public class WsSampleAssignAttributesWithValueRest2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 5.0.0, result code: SUCCESS, result message: , Found 1 results.

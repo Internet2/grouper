@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeAssignAction, WsSampleFindAttributeAssignActionRestLite, manually written lite/rest, format: http_json, for version: 2.5.0
+Grouper web service sample of service: findAttributeAssignAction, WsSampleFindAttributeAssignActionRestLite, manually written lite/rest, format: http_json, for version: 5.0.0
 
 
 #########################################
@@ -10,11 +10,14 @@ Grouper web service sample of service: findAttributeAssignAction, WsSampleFindAt
 
 
 POST /grouper-ws/servicesRest/v2_5_000/attributeAssignActions HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
-Host: localhost:8092
+Content-Type:
 Content-Length: 115
+Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=044A7FCD25082851D4B0DADD29A1981F
+Accept-Encoding: gzip,deflate
 
 wsLiteObjectType=WsRestGetAttributeAssignActionsLiteRequest&wsNameOfAttributeDef=test:testAttributeAssignDefNameDef
 
@@ -28,47 +31,46 @@ wsLiteObjectType=WsRestGetAttributeAssignActionsLiteRequest&wsNameOfAttributeDef
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=4729CC2677D8DD4647DA8D649FCE8D25;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 1240
-Date: Tue, 31 Mar 2020 20:27:13 GMT
-Connection: close
-Server: Apache TomEE
+Content-Length: 1242
+Date: Fri, 23 May 2025 17:28:16 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 {
   "WsGetAttributeAssignActionsResults":{
-    "responseMetadata":{
-      "millis":"17",
-      "serverVersion":"2.5.0"
-    },
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":", Found 3 results.",
-      "success":"T"
-    },
     "wsAttributeAssignActionTuples":[
       {
         "action":"view",
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
+        "attributeDefId":"c2bf345acadf4e90b6c66b98a7252c33",
         "nameOfAttributeDef":"test:testAttributeAssignDefNameDef"
       },
       {
         "action":"read",
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
+        "attributeDefId":"c2bf345acadf4e90b6c66b98a7252c33",
         "nameOfAttributeDef":"test:testAttributeAssignDefNameDef"
       },
       {
         "action":"assign",
-        "attributeDefId":"3d7adcf55291443d8eb2527d22f6e67c",
+        "attributeDefId":"c2bf345acadf4e90b6c66b98a7252c33",
         "nameOfAttributeDef":"test:testAttributeAssignDefNameDef"
       }
     ]
     ,
     "wsAttributeDefs":[
       {
+        "idIndex":"1000098",
+        "extension":"testAttributeAssignDefNameDef",
+        "name":"test:testAttributeAssignDefNameDef",
+        "uuid":"c2bf345acadf4e90b6c66b98a7252c33",
+        "attributeDefType":"attr",
+        "multiAssignable":"F",
+        "multiValued":"T",
+        "valueType":"integer",
         "assignToAttributeDef":"F",
         "assignToAttributeDefAssignment":"F",
         "assignToEffectiveMembership":"F",
@@ -80,17 +82,19 @@ Server: Apache TomEE
         "assignToMember":"F",
         "assignToMemberAssignment":"F",
         "assignToStem":"F",
-        "assignToStemAssignment":"F",
-        "attributeDefType":"attr",
-        "extension":"testAttributeAssignDefNameDef",
-        "idIndex":"10083",
-        "multiAssignable":"F",
-        "multiValued":"T",
-        "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"3d7adcf55291443d8eb2527d22f6e67c",
-        "valueType":"integer"
+        "assignToStemAssignment":"F"
       }
     ]
+    ,
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":", Found 3 results.",
+      "success":"T"
+    },
+    "responseMetadata":{
+      "millis":"19",
+      "serverVersion":"5.0.0"
+    }
   }
 }
 
@@ -122,18 +126,10 @@ Server: Apache TomEE
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsLiteRequest;
@@ -153,26 +149,18 @@ public class WsSampleFindAttributeAssignActionRestLite implements WsSampleRest {
   public static void findAttributeAssignActionsLite(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
-      PostMethod method = new PostMethod(
-          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/attributeAssignActions");
+      String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+            + "/attributeAssignActions";
       
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
-      
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-      
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.post);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -187,20 +175,28 @@ public class WsSampleFindAttributeAssignActionRestLite implements WsSampleRest {
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
-      httpClient.executeMethod(method);
+      // assign body
+      grouperHttpClient.assignBody(requestDocument);
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
+      // content type
+      grouperHttpClient.addHeader("Content-Type", contentType);
+      
+      // execute
+      grouperHttpClient.executeRequest();
+      
+
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
+      
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
     
@@ -263,4 +259,4 @@ public class WsSampleFindAttributeAssignActionRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: , Found 3 results.
+Server version: 5.0.0, result code: SUCCESS, result message: , Found 3 results.

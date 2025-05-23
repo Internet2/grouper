@@ -1,4 +1,4 @@
-Grouper web service sample of service: externalSubjectSave, WsSampleExternalSubjectSaveRest, manually written lite/rest, format: json, for version: 2.5.0
+Grouper web service sample of service: externalSubjectSave, WsSampleExternalSubjectSaveRest, manually written lite/rest, format: json, for version: 5.0.0
 
 
 #########################################
@@ -10,12 +10,13 @@ Grouper web service sample of service: externalSubjectSave, WsSampleExternalSubj
 
 
 POST /grouper-ws/servicesRest/v2_5_000/externalSubjects HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
-Host: localhost:8092
+Content-Type: application/json
 Content-Length: 328
-Content-Type: application/json; charset=UTF-8
+Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Accept-Encoding: gzip,deflate
 
 {
   "WsRestExternalSubjectSaveRequest":{
@@ -25,10 +26,10 @@ Content-Type: application/json; charset=UTF-8
           "identifier":"b_ident@c.com"
         },
         "wsExternalSubject":{
-          "identifier":"b_ident@c.com",
-          "name":"Another Name",
           "email":"b@c.com",
           "enabled":"T",
+          "identifier":"b_ident@c.com",
+          "name":"Another Name",
           "wsExternalSubjectAttributes":[
             {
               "attributeValue":"b_jabber@c.d",
@@ -56,45 +57,48 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
-Content-Length: 1008
-Date: Mon, 06 Aug 2018 17:13:58 GMT
-Connection: close
+Content-Length: 999
+Date: Fri, 23 May 2025 19:39:14 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 {
   "WsExternalSubjectSaveResults":{
-    "resultMetadata":{
-      "success":"T",
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.5.0, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[\n  wsExternalSubjectLookup=WsExternalSubjectLookup[identifier=b_ident@c.com],\n  wsExternalSubject=WsExternalSubject[email=b@c.com,enabled=T,identifier=b_...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null"
-    },
-    "responseMetadata":{
-      "serverVersion":"2.5.0",
-      "millis":"109"
-    },
     "results":[
       {
-        "resultMetadata":{
-          "success":"T",
-          "resultCode":"SUCCESS_NO_CHANGES_NEEDED"
-        },
         "wsExternalSubject":{
-          "identifier":"b_ident@c.com",
-          "searchStringLower":"another name, b_ident@c.com, b@c.com",
-          "name":"Another Name",
+          "uuid":"0aa3201e818646948fb0716715046c8f",
           "description":"[unverifiedInfo] Another Name [externalUserID] b_ident@c.com",
-          "uuid":"7520cffd3a3e476da7705148537b072a",
           "email":"b@c.com",
           "enabled":"T",
+          "identifier":"b_ident@c.com",
+          "name":"Another Name",
+          "searchStringLower":"another name, b_ident@c.com, b@c.com",
           "wsExternalSubjectAttributes":[
             {
               "attributeValue":"b_jabber@c.d",
-              "uuid":"333edf1a72b940c8be1339e056837e9a",
-              "attributeSystemName":"jabber"
+              "attributeSystemName":"jabber",
+              "uuid":"372ad0b7a9f24ce8a74346dc668316c7"
             }
           ]
+          
+        },
+        "resultMetadata":{
+          "resultCode":"SUCCESS_INSERTED",
+          "success":"T"
         }
       }
     ]
+    ,
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Success for: clientVersion: 2.5.0, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[\n  wsExternalSubjectLookup=WsExternalSubjectLookup[identifier=b_ident@c.com],\n  wsExternalSubject=WsExternalSubject[email=b@c.com,enabled=T,identifier=b_...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
+      "success":"T"
+    },
+    "responseMetadata":{
+      "millis":"386",
+      "serverVersion":"5.0.0"
+    }
   }
 }
 
@@ -126,18 +130,11 @@ Connection: close
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
+
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubject;
 import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectAttribute;
 import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectLookup;
@@ -162,26 +159,18 @@ public class WsSampleExternalSubjectSaveRest implements WsSampleRest {
   public static void externalSubjectSave(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...      
+      String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION
+          + "/externalSubjects";
       
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
-
-      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
-      PostMethod method = new PostMethod(
-          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/externalSubjects");
-
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
-
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
-      
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.post);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -215,20 +204,27 @@ public class WsSampleExternalSubjectSaveRest implements WsSampleRest {
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
-      httpClient.executeMethod(method);
+      // assign body
+      grouperHttpClient.assignBody(requestDocument);
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
+      // content type
+      grouperHttpClient.addHeader("Content-Type", contentType);
+      
+      // execute
+      grouperHttpClient.executeRequest();
+
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
+      
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
+      
+      String response = grouperHttpClient.getResponseBody();
 
       Object result = wsSampleRestType
         .getWsLiteResponseContentType().parseString(response);
@@ -292,7 +288,7 @@ public class WsSampleExternalSubjectSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[
+Server version: 5.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.5.0, wsExternalSubjectToSaves: Array size: 1: [0]: WsExternalSubjectToSave[
   wsExternalSubjectLookup=WsExternalSubjectLookup[identifier=b_ident@c.com],
   wsExternalSubject=WsExternalSubject[email=b@c.com,enabled=T,identifier=b_...
 , actAsSubject: null, txType: NONE, paramNames: 

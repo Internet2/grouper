@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite, manually written lite/rest, format: json, for version: 2.5.0
+Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite, manually written lite/rest, format: json, for version: 5.0.0
 
 
 #########################################
@@ -10,10 +10,13 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite,
 
 
 DELETE /grouper-ws/servicesRest/json/v2_5_000/groups/aStem%3AaGroup123 HTTP/1.1
-Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+Content-Length: 0
 Host: localhost:8092
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.6)
+Cookie: JSESSIONID=D76E365F46C1379B98BC511FFD6D6C84
+Accept-Encoding: gzip,deflate
 
 
 #########################################
@@ -25,26 +28,26 @@ Host: localhost:8092
 
 
 HTTP/1.1 200
-Set-Cookie: JSESSIONID=0E544BCC21218FDB41D7E3893E263E82;path=/grouper-ws/;HttpOnly
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws; HttpOnly
 X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/json;charset=UTF-8
 Content-Length: 568
-Date: Tue, 31 Mar 2020 20:43:09 GMT
-Connection: close
-Server: Apache TomEE
+Date: Fri, 23 May 2025 17:57:28 GMT
+Keep-Alive: timeout=20
+Connection: keep-alive
 
 {
   "WsGroupDeleteLiteResult":{
-    "responseMetadata":{
-      "millis":"71",
-      "serverVersion":"2.5.0"
-    },
     "resultMetadata":{
       "resultCode":"SUCCESS_GROUP_NOT_FOUND",
       "resultMessage":"Success for: clientVersion: 2.5.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]\n\n, actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames: \n, params: nullCant find group: 'WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123,\n  groupFindResult=GROUP_NOT_FOUND]'.",
       "success":"T"
+    },
+    "responseMetadata":{
+      "millis":"27",
+      "serverVersion":"5.0.0"
     },
     "wsGroup":{
       "extension":"aGroup123",
@@ -81,17 +84,10 @@ Server: Apache TomEE
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
@@ -110,41 +106,37 @@ public class WsSampleGroupDeleteRestLite implements WsSampleRest {
   public static void groupDeleteLite(WsSampleRestType wsSampleRestType) {
 
     try {
-      HttpClient httpClient = new HttpClient();
-      
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      // grouper http client
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-      DeleteMethod method = new DeleteMethod(
-          RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
+      String url = RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroup123");
+            + "/groups/aStem%3AaGroup123";
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-          RestClientSettings.PASS);
+      // assign the URL and method
+      grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.delete);
+      // assign user and pass
+      grouperHttpClient.assignUser(RestClientSettings.USER)
+          .assignPassword(RestClientSettings.PASS);
       
-      //no keep alive so response if easier to indent for tests
-      method.setRequestHeader("Connection", "close");
+      // execute
+      grouperHttpClient.executeRequest();
       
-      //e.g. localhost and 8093
-      httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
-      httpClient.executeMethod(method);
+      //check if success
+      String successString = grouperHttpClient.getResponseHeadersLower().get("x-grouper-success");
 
-      //make sure a request came back
-      Header successHeader = method.getResponseHeader("X-Grouper-success");
-      String successString = successHeader == null ? null : successHeader.getValue();
       if (StringUtils.isBlank(successString)) {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      // check result code
+      String resultCode = grouperHttpClient.getResponseHeadersLower().get("x-grouper-resultcode");
       
-      String response = RestClientSettings.responseBodyAsString(method);
+      String response = grouperHttpClient.getResponseBody();
 
       //convert to object (from xhtml, xml, json, etc)
       WsGroupDeleteLiteResult wsGroupDeleteLiteResult = (WsGroupDeleteLiteResult)wsSampleRestType
@@ -173,7 +165,7 @@ public class WsSampleGroupDeleteRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    groupDeleteLite(WsSampleRestType.xhtml);
+    groupDeleteLite(WsSampleRestType.json);
   }
 
   /**
@@ -199,7 +191,7 @@ public class WsSampleGroupDeleteRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.5.0, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: 2.5.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
+Server version: 5.0.0, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: 2.5.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
 
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames: 
 , params: nullCant find group: 'WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123,
