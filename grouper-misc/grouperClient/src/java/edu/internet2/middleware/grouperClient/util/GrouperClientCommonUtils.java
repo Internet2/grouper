@@ -85,9 +85,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
-import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.client.methods.CloseableHttpResponse;
 
 
 
@@ -7901,12 +7901,12 @@ public class GrouperClientCommonUtils  {
    * @param method
    * @return the string of response body
    */
-  public static String responseBodyAsString(HttpMethodBase method) {
+  public static String responseBodyAsString(CloseableHttpResponse closeableHttpResponse) {
     InputStream inputStream = null;
     try {
       
       StringWriter writer = new StringWriter();
-      inputStream = method.getResponseBodyAsStream();
+      inputStream = closeableHttpResponse.getEntity().getContent();
       copy(inputStream, writer);
       return writer.toString();
     } catch (Exception e) {
