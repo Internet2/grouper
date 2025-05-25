@@ -97,6 +97,13 @@ public class GshTemplateConfig {
   
   private Stem folderForGroupsInFolder;
   
+  private GshTemplateType gshTemplateType;
+  
+  
+  public GshTemplateType getGshTemplateType() {
+    return gshTemplateType;
+  }
+
   private GshTemplateFolderShowOnDescendants gshTemplateFolderShowOnDescendants;
   
   private GshTemplateSecurityRunType gshTemplateSecurityRunType;
