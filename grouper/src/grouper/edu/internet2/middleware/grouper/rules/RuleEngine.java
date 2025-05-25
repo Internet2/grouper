@@ -86,9 +86,11 @@ public class RuleEngine {
     Stem stem = stemCache().get(id);
     if (stem == null) {
       stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), id, exceptionOnNull);
-      synchronized (stemCache()) {
-        stemCache().put(id, stem);
-        stemCache().put(stem.getName(), stem);
+      if (stem != null) {        
+        synchronized (stemCache()) {
+          stemCache().put(id, stem);
+          stemCache().put(stem.getName(), stem);
+        }
       }
     }
     return stem;
@@ -98,9 +100,11 @@ public class RuleEngine {
     Stem stem = stemCache().get(name);
     if (stem == null) {
       stem = StemFinder.findByName(name, exceptionOnNull);
-      synchronized (stemCache()) {
-        stemCache().put(stem.getId(), stem);
-        stemCache().put(name, stem);
+      if (stem != null) {
+        synchronized (stemCache()) {
+          stemCache().put(stem.getId(), stem);
+          stemCache().put(name, stem);
+        }
       }
     }
     return stem;

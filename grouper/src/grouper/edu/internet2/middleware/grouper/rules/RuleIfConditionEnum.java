@@ -19,6 +19,9 @@
 package edu.internet2.middleware.grouper.rules;
 
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -1568,6 +1571,78 @@ public enum RuleIfConditionEnum {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.GROUP;
     }
+  },
+  
+  nameMatchesRegex {
+
+    @Override
+    public boolean usesArg0() {
+      return true;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
+
+    @Override
+    public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean) {
+      
+      String regex = ruleDefinition.getIfCondition().getIfConditionEnumArg0();
+      
+      if (StringUtils.isBlank(regex)) {
+        return true;
+      }
+
+      String name = rulesBean.getGroup().getName();
+      Pattern pattern = null;
+      try {        
+        pattern = Pattern.compile(regex);
+      } catch (PatternSyntaxException e) {
+        throw new RuntimeException("Invalid regex: '"+regex+"' configured on the rule");
+      }
+      
+      Matcher matcher = pattern.matcher(name);
+      return matcher.matches();
+    }
+
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return true;
+    }
+
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
+    
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+      return null;
+    }
+    
+    
   };
   
   /** logger */

@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -1615,10 +1617,14 @@ public enum RulePattern {
       
       String folder = patternPropertiesValues.get("AddCreatedGroupsToAnotherGroup.folder");
       String folderScope = patternPropertiesValues.get("AddCreatedGroupsToAnotherGroup.stemScope");
+      String regex = patternPropertiesValues.get("AddCreatedGroupsToAnotherGroup.regex");
       
       ruleConfig.setCheckType(RuleCheckType.groupCreate.name());
       ruleConfig.setCheckOwnerStemScope(folderScope);
       ruleConfig.setCheckOwnerUuidOrName(folder);
+      
+      ruleConfig.setIfConditionOption(RuleIfConditionEnum.nameMatchesRegex.name());
+      ruleConfig.setIfConditionArg0(regex);
       
       ruleConfig.setThenOption(RuleThenEnum.addGroupToOwnerGroup.name());
       
@@ -1667,6 +1673,16 @@ public enum RulePattern {
       } else {
         if (!StringUtils.equals(folderScope, "SUB") && !StringUtils.equals(folderScope, "ONE")) {
           String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditFolderScopeInvalid");
+          errorMessages.add(error);
+        }
+      }
+      
+      String regex = patternPropertiesValues.get("AddCreatedGroupsToAnotherGroup.regex");
+      if (StringUtils.isNotBlank(regex)) {
+        try {        
+          Pattern.compile(regex);
+        } catch (PatternSyntaxException e) {
+          String error = GrouperTextContainer.textOrNull("grouperRuleConfigRegexInvalid");
           errorMessages.add(error);
         }
       }
@@ -1726,6 +1742,22 @@ public enum RulePattern {
         }
         elements.add(attribute);
       }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("AddCreatedGroupsToAnotherGroup.regex");
+        attribute.setLabel(GrouperTextContainer.textOrNull("AddCreatedGroupsToAnotherGroup.regex.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("AddCreatedGroupsToAnotherGroup.regex.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+//        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getIfCondition() != null) {
+          attribute.setValue(ruleDefinition.getIfCondition().getIfConditionEnumArg0());
+        }
+        elements.add(attribute);
+      }
      
       return elements;
     }
@@ -1749,7 +1781,8 @@ public enum RulePattern {
     public boolean isThisThePattern(RuleDefinition ruleDefinition) {
       
       if (ruleDefinition.getCheck() != null && ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.groupCreate &&
-          ruleDefinition.getIfCondition().isBlank() &&
+          (ruleDefinition.getIfCondition().isBlank() || 
+          (ruleDefinition.getIfCondition() != null && ruleDefinition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.nameMatchesRegex)) &&
           ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.addGroupToOwnerGroup) {
         return true;
       }
