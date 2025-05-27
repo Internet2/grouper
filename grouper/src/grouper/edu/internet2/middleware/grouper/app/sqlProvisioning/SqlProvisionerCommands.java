@@ -456,6 +456,10 @@ public class SqlProvisionerCommands {
       String dbExternalSystemConfigId, String ownerTableName, String deletedColumnName, String lastUpdatedColumnName,
       Object olderThanTime) {
     
+    if (StringUtils.isBlank(deletedColumnName)) {
+      return 0;
+    }    
+    
     String sql = "select " + lastUpdatedColumnName + " from " + ownerTableName + " where " + deletedColumnName + " = 'T' and " + lastUpdatedColumnName + " < ?";
 
     List<Object[]> timesToDelete = new GcDbAccess().connectionName(dbExternalSystemConfigId)
