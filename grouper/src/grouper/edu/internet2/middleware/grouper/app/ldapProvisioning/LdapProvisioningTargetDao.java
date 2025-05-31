@@ -16,7 +16,6 @@ import org.ldaptive.LdapException;
 import org.ldaptive.ResultCode;
 import org.ldaptive.ad.GlobalIdentifier;
 import org.ldaptive.ad.SecurityIdentifier;
-
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 
@@ -480,40 +479,50 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
   
       LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
-      LdapModificationResult result = ldapSyncDaoForLdap.modify(ldapConfigId, dn, new ArrayList<LdapModificationItem>(ldapModificationItems.keySet()));
       
-      if (!hasRenameFailure) {
-        targetGroup.setProvisioned(true);  // assume true to start with
-      }
-      
-      if (result.isSuccess()) {
-        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-          if (provisioningObjectChange.getProvisioned() == null) {
-            provisioningObjectChange.setProvisioned(true);
-          }
-        }
-      } else {        
-        // need to see what actually failed
-        for (LdapModificationAttributeError attributeError : result.getAttributeErrors()) {
-          ProvisioningObjectChange provisionObjectChange = ldapModificationItems.get(attributeError.getLdapModificationItem());
-          if (provisionObjectChange == null) {
-            // strange?
-            targetGroup.setProvisioned(false);
-            LOG.warn("Couldn't find provisionObjectChange to add error for attribute: " + attributeError.getLdapModificationItem().getAttribute().getName());
-          } else {
-            provisionObjectChange.setProvisioned(false);
-            provisionObjectChange.setException(attributeError.getError());
-            targetGroup.setProvisioned(false);
-            exceptions.add(attributeError.getError());
-          }
+      try {
+        LdapModificationResult result = ldapSyncDaoForLdap.modify(ldapConfigId, dn, new ArrayList<LdapModificationItem>(ldapModificationItems.keySet()));
+        
+        if (!hasRenameFailure) {
+          targetGroup.setProvisioned(true);  // assume true to start with
         }
         
-        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-          if (provisioningObjectChange.getProvisioned() == null && provisioningObjectChange.getException() == null) {
-            provisioningObjectChange.setProvisioned(true);
+        if (result.isSuccess()) {
+          for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+            if (provisioningObjectChange.getProvisioned() == null) {
+              provisioningObjectChange.setProvisioned(true);
+            }
+          }
+        } else {        
+          // need to see what actually failed
+          for (LdapModificationAttributeError attributeError : result.getAttributeErrors()) {
+            ProvisioningObjectChange provisionObjectChange = ldapModificationItems.get(attributeError.getLdapModificationItem());
+            if (provisionObjectChange == null) {
+              // strange?
+              targetGroup.setProvisioned(false);
+              LOG.warn("Couldn't find provisionObjectChange to add error for attribute: " + attributeError.getLdapModificationItem().getAttribute().getName());
+            } else {
+              provisionObjectChange.setProvisioned(false);
+              provisionObjectChange.setException(attributeError.getError());
+              targetGroup.setProvisioned(false);
+              exceptions.add(attributeError.getError());
+            }
+          }
+          
+          for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+            if (provisioningObjectChange.getProvisioned() == null && provisioningObjectChange.getException() == null) {
+              provisioningObjectChange.setProvisioned(true);
+            }
           }
         }
+      } catch (Exception e) {
+        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+          provisioningObjectChange.setProvisioned(false);
+          provisioningObjectChange.setException(e);
+        }
+        throw e;
       }
+
       
       if (exceptions.size() > 0) {
         throw new RuntimeException("There were " + exceptions.size() + " exceptions, throwing first exception", exceptions.get(0));
@@ -1405,41 +1414,48 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
   
       LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
-      LdapModificationResult result = ldapSyncDaoForLdap.modify(ldapConfigId, targetEntity.retrieveAttributeValueString(ldap_dn), new ArrayList<LdapModificationItem>(ldapModificationItems.keySet()));
+      
+      try {        
+        LdapModificationResult result = ldapSyncDaoForLdap.modify(ldapConfigId, targetEntity.retrieveAttributeValueString(ldap_dn), new ArrayList<LdapModificationItem>(ldapModificationItems.keySet()));
+        if (result.isSuccess()) {
+          for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+            if (provisioningObjectChange.getProvisioned() == null) {
+              provisioningObjectChange.setProvisioned(true);
+            }
+          }
+        } else {        
+          // need to see what actually failed
+          for (LdapModificationAttributeError attributeError : result.getAttributeErrors()) {
+            ProvisioningObjectChange provisionObjectChange = ldapModificationItems.get(attributeError.getLdapModificationItem());
+            if (provisionObjectChange == null) {
+              // strange?
+              targetEntity.setProvisioned(false);
+              LOG.warn("Couldn't find provisionObjectChange to add error for attribute: " + attributeError.getLdapModificationItem().getAttribute().getName());
+            } else {
+              provisionObjectChange.setProvisioned(false);
+              provisionObjectChange.setException(attributeError.getError());
+              targetEntity.setProvisioned(false);
+              exceptions.add(attributeError.getError());
+            }
+          }
+          
+          for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+            if (provisioningObjectChange.getProvisioned() == null && provisioningObjectChange.getException() == null) {
+              provisioningObjectChange.setProvisioned(true);
+            }
+          }
+        }
+      } catch (Exception e) {
+        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+          provisioningObjectChange.setProvisioned(false);
+          provisioningObjectChange.setException(e);
+        }
+        throw e;
+      }
       
       if (!hasRenameFailure) {
         targetEntity.setProvisioned(true);  // assume true to start with
       }
-      
-      if (result.isSuccess()) {
-        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
-          if (provisioningObjectChange.getProvisioned() == null) {
-            provisioningObjectChange.setProvisioned(true);
-          }
-        }
-      } else {        
-        // need to see what actually failed
-        for (LdapModificationAttributeError attributeError : result.getAttributeErrors()) {
-          ProvisioningObjectChange provisionObjectChange = ldapModificationItems.get(attributeError.getLdapModificationItem());
-          if (provisionObjectChange == null) {
-            // strange?
-            targetEntity.setProvisioned(false);
-            LOG.warn("Couldn't find provisionObjectChange to add error for attribute: " + attributeError.getLdapModificationItem().getAttribute().getName());
-          } else {
-            provisionObjectChange.setProvisioned(false);
-            provisionObjectChange.setException(attributeError.getError());
-            targetEntity.setProvisioned(false);
-            exceptions.add(attributeError.getError());
-          }
-        }
-        
-        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
-          if (provisioningObjectChange.getProvisioned() == null && provisioningObjectChange.getException() == null) {
-            provisioningObjectChange.setProvisioned(true);
-          }
-        }
-      }
-      
       if (exceptions.size() > 0) {
         throw new RuntimeException("There were " + exceptions.size() + " exceptions, throwing first exception", exceptions.get(0));
       }
