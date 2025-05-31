@@ -110,7 +110,7 @@ public abstract class ConfigPropertiesCascadeBase {
     // get the cache
     WeakReference<Map<Class<?>, MultiKey>> configCacheWeakReference = configCache.get();
 
-    if (configCacheWeakReference != null) {
+    if (configCacheWeakReference != null && lastTimeCacheClearNanos < lastTimeCacheBuiltNanos) {
       
       // get the map from config class
       mapOfClassToMultiKeyConfigAndExpires = configCacheWeakReference.get();
@@ -137,7 +137,7 @@ public abstract class ConfigPropertiesCascadeBase {
       // get the cache
       configCacheWeakReference = configCache.get();
 
-      if (configCacheWeakReference != null) {
+      if (configCacheWeakReference != null && lastTimeCacheClearNanos < lastTimeCacheBuiltNanos) {
         
         // get the map from config class
         mapOfClassToMultiKeyConfigAndExpires = configCacheWeakReference.get();
@@ -209,7 +209,11 @@ public abstract class ConfigPropertiesCascadeBase {
   public static void clearCache() {
     clearCacheThisOnly();
     ConfigDatabaseLogic.clearCache();
+    lastTimeCacheClearNanos = System.nanoTime();
   }
+  
+  private static long lastTimeCacheClearNanos = -1L;
+  private static long lastTimeCacheBuiltNanos = -1L;
 
   /**
    * 
@@ -236,9 +240,11 @@ public abstract class ConfigPropertiesCascadeBase {
    */
   public Map<String, String> propertiesThreadLocalOverrideMap() {
     if (propertiesThreadLocalOverrideMap == null) {
+      LOG.debug("Going to rebuild the cache");
+      lastTimeCacheBuiltNanos = System.nanoTime();
       propertiesThreadLocalOverrideMap = new InheritableThreadLocal<Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>>();
     }
-
+    
     Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>> overrideMap = propertiesThreadLocalOverrideMap.get();
     if (overrideMap == null) {
       overrideMap = new HashMap<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>();
