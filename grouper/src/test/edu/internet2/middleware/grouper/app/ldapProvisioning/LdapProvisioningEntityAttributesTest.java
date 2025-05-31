@@ -1,12 +1,8 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +13,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDao;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
@@ -31,6 +28,7 @@ import edu.internet2.middleware.grouper.ldap.LdapModificationType;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import junit.textui.TestRunner;
@@ -59,7 +57,7 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisioningEntityAttributesTest("testProvisioningDeleteNotExistInGrouperFull"));    
+    TestRunner.run(new LdapProvisioningEntityAttributesTest("testProvisioningEntityAttributesAssignErrorsToMemberships"));    
     //TestRunner.run(LdapProvisioningEntityAttributesTest.class);
   }
 
@@ -111,6 +109,291 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
   
   public void testProvisioningEntityAttributesDoNotDeleteFull() {
     provisioningEntityAttributesDoNotDeleteHelper(true);
+  }
+  
+  public void testProvisioningEntityAttributesAssignErrorsToMemberships() {
+    
+    EntityAttributeTestConfig entityAttributeTestConfig = new EntityAttributeTestConfig();
+    entityAttributeTestConfig.deleteMemberships = false;
+    entityAttributeTestConfig.deleteMembershipsIfNotExistInGrouper = null;
+    entityAttributeTestConfig.deleteValueIfManagedByGrouper = null;
+    entityAttributeTestConfig.deleteMembershipsOnlyInTrackedGroups = null;
+    entityAttributeTestConfig.deleteMembershipsIfGroupUnmarkedProvisionable = null;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperDeleted = null;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperCreated = null;
+    
+    OverallResult overallResult = new OverallResult();
+    overallResult.aclarkResult.valueNotInGrouper = true;
+    overallResult.aclarkResult.valueUnprovisionableGroup = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupExisting = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperThenDeleted = true;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = true;
+    overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameExisted = true;
+
+    overallResult.adoeResult.valueNotInGrouper = true;
+    overallResult.adoeResult.valueUnprovisionableGroup = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExisting = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.adoeResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameExisted = false;
+    
+    LdapModificationItem item = null;
+    List<LdapModificationItem> ldapModificationItems = null;
+
+    for (String user : new String[] {"aclark", "adoe"}) {
+      ldapModificationItems = new ArrayList<LdapModificationItem>();
+
+      item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "valueNotInGrouper"));
+      ldapModificationItems.add(item);
+      
+      item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "unprovisionableGroup"));
+      ldapModificationItems.add(item);
+      
+      item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "provisionableGroupExisting"));
+      ldapModificationItems.add(item);
+      
+      item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "provisionableGroupMembershipExistedDeletedByGrouper"));
+      ldapModificationItems.add(item);
+      
+      item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "provisionableGroupMembershipNotInGrouper"));
+      ldapModificationItems.add(item);
+      
+      item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "provisionableGroupExistedUnmarkedProvisionable"));
+      ldapModificationItems.add(item);
+      
+      item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "provisionableGroupExistedGroupDeletedInGrouper"));
+      ldapModificationItems.add(item);
+      
+      if (StringUtils.equals(user,  "adoe")) {
+        item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "provisionableGroupRenamedCreatedByGrouperOldName"));
+        ldapModificationItems.add(item);
+        
+      }
+
+      item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "provisionableGroupRenamedExistedOldName"));
+      ldapModificationItems.add(item);
+
+      
+      new LdapSyncDaoForLdap().modify("personLdap", "uid=" + user + ",ou=People,dc=example,dc=edu", ldapModificationItems);
+      
+    }
+
+    // agasper starts with student2
+    List<LdapEntry> ldapEntries = null;
+    
+    LdapProvisionerTestConfigInput ldapProvisionerTestConfigInput = new LdapProvisionerTestConfigInput()
+      .assignConfigId("eduPersonEntitlement")
+      .assignTranslateFromGrouperProvisioningGroupField("extension")
+      .assignMembershipStructureEntityAttributes(true)
+      .assignGroupAttributeCount(1)
+      .assignEntityAttributeCount(3)
+      .assignExplicitFilters(true)
+      .assignEntitlementMetadata(true)
+      .addExtraConfig("deleteMemberships", "false")
+      .addExtraConfig("deleteMembershipsIfNotExistInGrouper", "false")
+      .addExtraConfig("customizeMembershipCrud", "true");
+//      .addExtraConfig("groupAttributeValueCache1has", "true")
+//      .addExtraConfig("groupAttributeValueCache1source", "target")
+//      .addExtraConfig("groupAttributeValueCache1type", "groupAttribute")
+//      .addExtraConfig("groupAttributeValueCache1groupAttribute", "entitlement");
+    
+    LdapProvisionerTestUtils.configureLdapProvisioner(ldapProvisionerTestConfigInput);
+     
+     // ldap specific properties
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.logAllObjectsVerbose", "true");
+  
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
+  
+    Stem prov = new StemSave(this.grouperSession).assignName("prov").save();
+    Stem unprov = new StemSave(this.grouperSession).assignName("unprov").save();
+    Stem provThenUnprov = new StemSave(this.grouperSession).assignName("provThenUnprov").save();
+    
+    Group provisionableGroupCreatedByGrouper = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupCreatedByGrouper").save();
+    Group provisionableGroupExisting = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupExisting").save();
+    Group unprovisionableGroup = new GroupSave(this.grouperSession).assignName("unprov:unprovisionableGroup").save();
+    Group provisionableGroupCreatedByGrouperThenDeleted = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupCreatedByGrouperThenDeleted").save();
+    Group provisionableGroupMembershipExistedDeletedByGrouper = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupMembershipExistedDeletedByGrouper").save();
+    Group provisionableGroupMembershipNotInGrouper = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupMembershipNotInGrouper").save();
+    Group provisionableGroupCreatedByGrouperUnmarkedProvisionable = new GroupSave(this.grouperSession).assignName("provThenUnprov:provisionableGroupCreatedByGrouperUnmarkedProvisionable").save();
+    Group provisionableGroupExistedUnmarkedProvisionable = new GroupSave(this.grouperSession).assignName("provThenUnprov:provisionableGroupExistedUnmarkedProvisionable").save();
+    Group provisionableGroupCreatedByGrouperGroupDeletedInGrouper = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupCreatedByGrouperGroupDeletedInGrouper").save();
+    Group provisionableGroupExistedGroupDeletedInGrouper = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupExistedGroupDeletedInGrouper").save();
+    Group provisionableGroupRenamedCreatedByGrouper = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupRenamedCreatedByGrouperOldName").save();
+    Group provisionableGroupRenamedExisted = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupRenamedExistedOldName").save();
+    
+    // mark some folders to provision
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("eduPersonEntitlement");
+    attributeValue.setTargetName("eduPersonEntitlement");
+    attributeValue.setStemScopeString("sub");
+  
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, prov);
+    
+    attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("eduPersonEntitlement");
+    attributeValue.setTargetName("eduPersonEntitlement");
+    attributeValue.setStemScopeString("sub");
+  
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, provThenUnprov);
+    
+    
+    Subject aclark = SubjectFinder.findById("aclark", true);
+    Subject adoe = SubjectFinder.findById("adoe", true);
+  
+    unprovisionableGroup.addMember(aclark);
+    unprovisionableGroup.addMember(adoe);
+  
+    provisionableGroupExisting.addMember(aclark);
+    provisionableGroupExistedGroupDeletedInGrouper.addMember(aclark);
+
+    provisionableGroupCreatedByGrouper.addMember(aclark);
+
+    provisionableGroupCreatedByGrouperThenDeleted.addMember(aclark);
+    
+    provisionableGroupMembershipExistedDeletedByGrouper.addMember(aclark);
+    
+    provisionableGroupCreatedByGrouperUnmarkedProvisionable.addMember(aclark);
+    
+    provisionableGroupExistedUnmarkedProvisionable.addMember(aclark);
+    
+    provisionableGroupCreatedByGrouperGroupDeletedInGrouper.addMember(aclark);
+ 
+    provisionableGroupRenamedCreatedByGrouper.addMember(aclark);
+
+    provisionableGroupRenamedExisted.addMember(aclark);
+
+    for (int i=0;i<2;i++) {
+      fullProvision("eduPersonEntitlement");
+    
+      Set<String> aclarkValues = retrieveLdapAttributes("aclark");
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("valueNotInGrouper"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("unprovisionableGroup"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupCreatedByGrouper"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupExisting"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupCreatedByGrouperThenDeleted"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupMembershipExistedDeletedByGrouper"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupMembershipNotInGrouper"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupCreatedByGrouperUnmarkedProvisionable"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupExistedUnmarkedProvisionable"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupCreatedByGrouperGroupDeletedInGrouper"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupExistedGroupDeletedInGrouper"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupRenamedCreatedByGrouperOldName"));
+      assertFalse(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupRenamedCreatedByGrouperNewName"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupRenamedExistedOldName"));
+      assertFalse(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupRenamedExistedNewName"));
+  
+      Set<String> adoeValues = retrieveLdapAttributes("adoe");
+      assertTrue(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("valueNotInGrouper"));
+      assertTrue(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("unprovisionableGroup"));
+      assertFalse(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("provisionableGroupCreatedByGrouper"));
+      assertTrue(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("provisionableGroupExisting"));
+      assertFalse(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("provisionableGroupCreatedByGrouperThenDeleted"));
+      assertTrue(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("provisionableGroupMembershipExistedDeletedByGrouper"));
+      assertTrue(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("provisionableGroupMembershipNotInGrouper"));
+      assertFalse(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("provisionableGroupCreatedByGrouperUnmarkedProvisionable"));
+      assertTrue(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("provisionableGroupExistedUnmarkedProvisionable"));
+      assertFalse(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("provisionableGroupCreatedByGrouperGroupDeletedInGrouper"));
+      assertTrue(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("provisionableGroupExistedGroupDeletedInGrouper"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), adoeValues.contains("provisionableGroupRenamedCreatedByGrouperOldName"));
+      assertFalse(GrouperUtil.toStringForLog(aclarkValues), adoeValues.contains("provisionableGroupRenamedCreatedByGrouperNewName"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), adoeValues.contains("provisionableGroupRenamedExistedOldName"));
+      assertFalse(GrouperUtil.toStringForLog(aclarkValues), adoeValues.contains("provisionableGroupRenamedExistedNewName"));
+
+    }
+    
+    
+    if (entityAttributeTestConfig.deleteMemberships != null) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.eduPersonEntitlement.deleteMemberships").value(entityAttributeTestConfig.deleteMemberships ? "true" : "false").store();
+    }
+    if (entityAttributeTestConfig.deleteMembershipsIfNotExistInGrouper != null) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.eduPersonEntitlement.deleteMembershipsIfNotExistInGrouper").value(entityAttributeTestConfig.deleteMembershipsIfNotExistInGrouper ? "true" : "false").store();
+    }
+    if (entityAttributeTestConfig.deleteValueIfManagedByGrouper != null) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.eduPersonEntitlement.deleteValueIfManagedByGrouper").value(entityAttributeTestConfig.deleteValueIfManagedByGrouper ? "true" : "false").store();
+    }
+    if (entityAttributeTestConfig.deleteMembershipsOnlyInTrackedGroups != null) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.eduPersonEntitlement.deleteMembershipsOnlyInTrackedGroups").value(entityAttributeTestConfig.deleteMembershipsOnlyInTrackedGroups ? "true" : "false").store();
+    }
+    if (entityAttributeTestConfig.deleteMembershipsIfGroupUnmarkedProvisionable != null) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.eduPersonEntitlement.deleteMembershipsIfGroupUnmarkedProvisionable").value(entityAttributeTestConfig.deleteMembershipsIfGroupUnmarkedProvisionable ? "true" : "false").store();
+    }
+    if (entityAttributeTestConfig.deleteMembershipsIfGrouperDeleted != null) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.eduPersonEntitlement.deleteMembershipsIfGrouperDeleted").value(entityAttributeTestConfig.deleteMembershipsIfGrouperDeleted ? "true" : "false").store();
+    }
+    if (entityAttributeTestConfig.deleteMembershipsIfGrouperCreated != null) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.eduPersonEntitlement.deleteMembershipsIfGrouperCreated").value(entityAttributeTestConfig.deleteMembershipsIfGrouperCreated ? "true" : "false").store();
+    }
+    
+    provisionableGroupCreatedByGrouperThenDeleted.deleteMember(aclark);
+    provisionableGroupMembershipExistedDeletedByGrouper.deleteMember(aclark);
+    
+    GrouperProvisioningService.deleteAttributeAssign(provThenUnprov, "eduPersonEntitlement");
+    
+    provisionableGroupCreatedByGrouperGroupDeletedInGrouper.delete();
+    provisionableGroupExistedGroupDeletedInGrouper.delete();
+
+    int i=0;
+    for (i=0;i<2;i++) {
+      fullProvision("eduPersonEntitlement");
+  
+      checkResult(i, overallResult, false);
+    }
+
+    new GroupSave().assignGroupNameToEdit(provisionableGroupRenamedCreatedByGrouper.getName()).assignName("prov:provisionableGroupRenamedCreatedByGrouperNewName").save();
+    new GroupSave().assignGroupNameToEdit(provisionableGroupRenamedExisted.getName()).assignName("prov:provisionableGroupRenamedExistedNewName").save();
+    
+    fullProvision("eduPersonEntitlement");
+
+    checkResult(i, overallResult, true);
+    
+    
+    incrementalProvision("eduPersonEntitlement"); // It should do nothing
+    
+    Group anotherProvisionableGroup = new GroupSave(this.grouperSession).assignName("prov:anotherProvisionableGroup").save();
+    aclark = SubjectFinder.findById("aclark", true);
+    adoe = SubjectFinder.findById("adoe", true);
+  
+    anotherProvisionableGroup.addMember(aclark);
+    anotherProvisionableGroup.addMember(adoe);
+    
+    int membershipSyncErrorCount = new GcDbAccess().sql("select count(1) from grouper_sync_membership where error_code is not null").select(int.class);
+    assertEquals(0, membershipSyncErrorCount);
+    
+    try {
+      LdapSyncDao.testingThroughErrors = true;
+      incrementalProvision("eduPersonEntitlement", true, true, true); // It should throw an error now and that should populate the grouper_sync_membership table's error column correctly
+      
+      membershipSyncErrorCount = new GcDbAccess().sql("select count(1) from grouper_sync_membership where error_code is not null").select(int.class);
+      assertEquals(2, membershipSyncErrorCount);
+    } finally {
+      LdapSyncDao.testingThroughErrors = false;
+    }
+    
+    incrementalProvision("eduPersonEntitlement");
+    
+    membershipSyncErrorCount = new GcDbAccess().sql("select count(1) from grouper_sync_membership where error_code is not null").select(int.class);
+    assertEquals(0, membershipSyncErrorCount);
+    
   }
 
   public void provisioningEntityAttributesDoNotDeleteHelper(boolean isFull) {

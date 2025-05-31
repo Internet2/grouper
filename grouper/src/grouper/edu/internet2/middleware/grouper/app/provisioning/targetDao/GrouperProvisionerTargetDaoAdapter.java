@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChang
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningUpdatableAttributeAndValue;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 
 /**
  * wraps the dao so it can convert methods and see if things are available
@@ -3693,9 +3694,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                 provisioningMembershipWrapper.getGrouperTargetMembership().setProvisioned(false);
               } else {
                 if (provisioningMembershipWrapper.getGcGrouperSyncMembership() != null) {
-                  provisioningMembershipWrapper.getGcGrouperSyncMembership().setErrorMessage(GrouperUtil.getFullStackTrace(e));
-                  Timestamp membershipErrorTimestamp = this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().membershipErrorTimestamp(provisioningMembershipWrapper.getGcGrouperSyncMembership());
-                  provisioningMembershipWrapper.getGcGrouperSyncMembership().setErrorTimestamp(membershipErrorTimestamp);
+                  this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(provisioningMembershipWrapper,
+                      GcGrouperSyncErrorCode.ERR, GrouperUtil.getFullStackTrace(e));
                 }
                 
               }
@@ -3739,8 +3739,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                 provisioningMembershipWrapper.getGrouperTargetMembership().setProvisioned(false);
               } else {
                 if (provisioningMembershipWrapper.getGcGrouperSyncMembership() != null) {
-                  provisioningMembershipWrapper.getGcGrouperSyncMembership().setErrorMessage(GrouperUtil.getFullStackTrace(e));
-                  provisioningMembershipWrapper.getGcGrouperSyncMembership().setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+                  this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(provisioningMembershipWrapper,
+                      GcGrouperSyncErrorCode.ERR, GrouperUtil.getFullStackTrace(e));
                 }
                 
               }

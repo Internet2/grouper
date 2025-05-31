@@ -30,6 +30,8 @@ public abstract class LdapSyncDao {
    * logger
    */
   private static final Log LOG = GrouperUtil.getLog(LdapSyncDao.class);
+  
+  public static boolean testingThroughErrors = false;
       
   /**
    * do a filter search
@@ -100,6 +102,11 @@ public abstract class LdapSyncDao {
    */
   public final LdapModificationResult modify(String ldapPoolName, String dn, List<LdapModificationItem> ldapModificationItems) {
     // sort - want to make sure the list is in an expected way (sort attributes together and have deletes before adds)
+    
+    if (testingThroughErrors) {
+      throw new RuntimeException("Testing error condition");
+    }
+    
     List<LdapModificationItem> ldapModificationItemsSorted = new ArrayList<LdapModificationItem>();
     Set<String> ldapModificationItemsUniqueAttributes = new LinkedHashSet<String>();
     for (LdapModificationItem ldapModificationItem : ldapModificationItems) {

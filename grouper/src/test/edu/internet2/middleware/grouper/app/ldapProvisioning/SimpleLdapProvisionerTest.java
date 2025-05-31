@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDao;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
@@ -35,6 +36,7 @@ import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -59,7 +61,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    */
   public static void main(String[] args) {
     // TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionableIncremental"));    
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerRestrictGroup"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapAssignErrorMemberships"));    
   }
   
   public SimpleLdapProvisionerTest() {
@@ -3196,6 +3198,90 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
   
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null).size());
+    
+  }
+  
+ public void testSimpleLdapAssignErrorMemberships() {
+    
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+        .assignConfigId("openldapTestUnixPosixGroups")
+        .assignPosixGroup(true)
+        .assignMembershipAttribute("description")
+        .assignEntityAttributeCount(1)
+        .assignSubjectSourcesToProvision("jdbc")
+        );
+    long started = System.currentTimeMillis();
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("openldapTestUnixPosixGroups");
+    attributeValue.setTargetName("openldapTestUnixPosixGroups");
+    attributeValue.setStemScopeString("sub");
+  
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  
+    //lets sync these over
+    
+    assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null).size());
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision("openldapTestUnixPosixGroups");
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+  
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+  
+    List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null);
+    assertEquals(1, ldapEntries.size());
+    
+    LdapEntry ldapEntry = ldapEntries.get(0);
+    
+    assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(testGroup.getIdIndex().toString(), ldapEntry.getAttribute("gidNumber").getStringValues().iterator().next());
+    assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertEquals(2, ldapEntry.getAttribute("description").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("test.subject.0"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("test.subject.1"));
+    
+   
+    incrementalProvision("openldapTestUnixPosixGroups"); // It should do nothing
+    
+    Group anotherProvisionableGroup = new GroupSave(this.grouperSession).assignName("test:anotherProvisionableGroup").save();
+    anotherProvisionableGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    anotherProvisionableGroup.addMember(SubjectTestHelper.SUBJ1, false);
+  
+    int membershipSyncErrorCount = new GcDbAccess().sql("select count(1) from grouper_sync_membership where error_code is not null").select(int.class);
+    assertEquals(0, membershipSyncErrorCount);
+    
+    try {      
+      LdapSyncDao.testingThroughErrors = true;
+      incrementalProvision("openldapTestUnixPosixGroups", true, true, true); // It should throw an error now and that should populate the grouper_sync_membership table's error column correctly
+      
+      membershipSyncErrorCount = new GcDbAccess().sql("select count(1) from grouper_sync_membership where error_code is not null").select(int.class);
+      assertEquals(2, membershipSyncErrorCount);
+    } finally {
+      LdapSyncDao.testingThroughErrors = false;
+    }
+    
+    incrementalProvision("openldapTestUnixPosixGroups");
+    
+    membershipSyncErrorCount = new GcDbAccess().sql("select count(1) from grouper_sync_membership where error_code is not null").select(int.class);
+    assertEquals(0, membershipSyncErrorCount);
     
   }
 
