@@ -19,12 +19,12 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationDaemonLogic;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEvent;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
@@ -32,7 +32,6 @@ import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventType;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.esb.listener.ProvisioningSyncConsumerResult;
-import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependency;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyDao;
@@ -40,6 +39,8 @@ import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyType;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyTypeDao;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
+import edu.internet2.middleware.grouper.util.GrouperCallable;
+import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -536,6 +537,14 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
 
         debugMap.put("jexlScriptGroups", GrouperUtil.length(groupIdToAttributeAssign));
 
+        int threadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.consumer.grouperLoaderJexlScriptIncremental.threadPoolSize", 10);
+        boolean useThreads = true;
+        if (threadPoolSize <= 1) {
+          useThreads = false;
+        }
+        
+        List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+        List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();    
         
         for (long cacheGroupInternalId : cacheGroupInternalIdToMemberInternalIdsToRecalc.keySet()) {
           SqlCacheGroup sqlCacheGroup = allCacheGroupInternalIdsToCacheGroup.get(cacheGroupInternalId);
@@ -559,9 +568,32 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
             continue;
           }
           
-          syncIncrementalGroup(debugMap, hib3GrouperLoaderLog, grouperDataEngine, attributeAssign, group, memberInternalIds);
+          GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("grouperLoaderJexlSyncForOneGroup: " + group.getId()) {
 
+            @Override
+            public Void callLogic() {
+
+              syncIncrementalGroup(debugMap, hib3GrouperLoaderLog, grouperDataEngine, attributeAssign, group, memberInternalIds);
+              
+              return null;
+            }
+          };
+          
+          if (!useThreads) {
+            grouperCallable.callLogic();
+          } else {
+            GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
+            futures.add(future);
+            
+            GrouperFuture.waitForJob(futures, threadPoolSize, callablesWithProblems);
+          }
+          
         }
+        
+        //wait for the rest
+        GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+
+        GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
       }
 
       // if there are groups to full sync
@@ -600,18 +632,52 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
 
         Set<Long> sqlCacheGroupInternalIdsStillNeedingMshipHistory = Collections.synchronizedSet(new HashSet<Long>());
         
+        int threadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.consumer.grouperLoaderJexlScriptIncremental.threadPoolSize", 10);
+        boolean useThreads = true;
+        if (threadPoolSize <= 1) {
+          useThreads = false;
+        }
+        
+        List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+        List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();    
+        
         // do a group sync
         for (Group group : GrouperUtil.nonNull(groupsToRecalc)) {
           
           AttributeAssign attributeAssign = groupIdToAttributeAssign.get(group.getId());
 
-          GrouperLoaderJexlScriptFullSync.syncFullGroup(debugMap, hib3GrouperLoaderLog, grouperDataEngine, attributeAssign, 
-              group, allMshipHistoryAbacSqlCacheDependenciesMap, sqlCacheGroupInternalIdsStillNeedingMshipHistory);
+          GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("grouperLoaderJexlSyncForOneGroup: " + group.getId()) {
+
+            @Override
+            public Void callLogic() {
+
+              GrouperLoaderJexlScriptFullSync.syncFullGroup(debugMap, hib3GrouperLoaderLog, grouperDataEngine,
+                  attributeAssign, group, allMshipHistoryAbacSqlCacheDependenciesMap,
+                  sqlCacheGroupInternalIdsStillNeedingMshipHistory);
+              
+              // assign the last group sync attribute
+              attributeAssign.getAttributeValueDelegate().assignValue(jexlLastGroupSyncNameOfAttributeDefName, 
+                  GrouperUtil.timestampIsoUtcMicrosConvertToString(new Timestamp(currentTime)));
+              
+              return null;
+            }
+          };
           
-          // assign the last group sync attribute
-          attributeAssign.getAttributeValueDelegate().assignValue(jexlLastGroupSyncNameOfAttributeDefName, 
-              GrouperUtil.timestampIsoUtcMicrosConvertToString(new Timestamp(currentTime)));
+          if (!useThreads) {
+            grouperCallable.callLogic();
+          } else {
+            GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
+            futures.add(future);
+            
+            GrouperFuture.waitForJob(futures, threadPoolSize, callablesWithProblems);
+          }
+          
         }
+        
+        //wait for the rest
+        GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+
+        GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
       }      
     } catch (RuntimeException re) {
       runtimeException = re;
