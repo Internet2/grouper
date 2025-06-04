@@ -704,14 +704,14 @@ public class GrouperDdl5_14_0 {
           + "gscdt_group.internal_id as dependency_type_internal_id, gscd_group.internal_id as dependency_internal_id, gscg_owner.internal_id as owner_cache_group_internal_id, "
           + "gg_owner.name as owner_group_name, gg_owner.id as owner_group_id, gg_owner.internal_id as owner_group_internal_id, gg_owner.id_index as owner_group_id_index, "
           + "gf_owner.name as owner_field_name, gf_owner.type as owner_field_type, gf_owner.internal_id as owner_field_internal_id, "
-          + "gscg_dependent.internal_id as depen_cache_group_internal_id, gg_dependent.name as depen_group_name, gg_dependent.id as depen_group_name, "
+          + "gscg_dependent.internal_id as depen_cache_group_internal_id, gg_dependent.name as depen_group_name, gg_dependent.id as depen_group_id, "
           + "gg_dependent.internal_id as depen_group_internal_id, gg_dependent.id_index as depen_group_id_index, gf_dependent.name as depen_field_name, "
           + "gf_dependent.type as depen_field_type, gf_dependent.internal_id as depen_field_internal_id from  grouper_sql_cache_depend_type gscdt_group, "
-          + "grouper_sql_cache_dependency as gscd_group left join grouper_sql_cache_group as gscg_owner on gscd_group.owner_internal_id = gscg_owner.internal_id "
-          + "left join grouper_groups as gg_owner on gg_owner.internal_id = gscg_owner.group_internal_id left join grouper_fields as gf_owner "
-          + "on gscg_owner.field_internal_id = gf_owner.internal_id  left join grouper_sql_cache_group as gscg_dependent "
-          + "on gscd_group.dependent_internal_id = gscg_dependent.internal_id left join grouper_groups as gg_dependent "
-          + "on gg_dependent.internal_id = gscg_dependent.group_internal_id left join grouper_fields as gf_dependent "
+          + "grouper_sql_cache_dependency gscd_group left join grouper_sql_cache_group gscg_owner on gscd_group.owner_internal_id = gscg_owner.internal_id "
+          + "left join grouper_groups gg_owner on gg_owner.internal_id = gscg_owner.group_internal_id left join grouper_fields gf_owner "
+          + "on gscg_owner.field_internal_id = gf_owner.internal_id  left join grouper_sql_cache_group gscg_dependent "
+          + "on gscd_group.dependent_internal_id = gscg_dependent.internal_id left join grouper_groups gg_dependent "
+          + "on gg_dependent.internal_id = gscg_dependent.group_internal_id left join grouper_fields gf_dependent "
           + "on gscg_dependent.field_internal_id = gf_dependent.internal_id  where gscdt_group.name in "
           + "('mshipHistory_viaAttribute', 'mshipHistory_recentMships','mshipHistory_abac','abac_group')  and gscd_group.dep_type_internal_id = gscdt_group.internal_id");
 
@@ -747,11 +747,11 @@ public class GrouperDdl5_14_0 {
           + "gda_owner.lower_name as owner_data_alias_lower_name, gda_owner.internal_id as owner_data_alias_internal_id, gscg_dependent.internal_id as depen_cache_group_internal_id, "
           + "gg_dependent.name as depen_group_name, gg_dependent.id as depen_group_id, gg_dependent.internal_id as depen_group_internal_id, gg_dependent.id_index as depen_group_id_index, "
           + "gf_dependent.name as depen_field_name, gf_dependent.type as depen_field_type, gf_dependent.internal_id as depen_field_internal_id from  grouper_sql_cache_depend_type gscdt, "
-          + "grouper_sql_cache_dependency as gscd left join grouper_data_field as dtf_owner on gscd.owner_internal_id = dtf_owner.internal_id "
-          + "left join grouper_data_alias as gda_owner on gda_owner.data_field_internal_id = dtf_owner.internal_id "
-          + "left join grouper_sql_cache_group as gscg_dependent on gscd.dependent_internal_id = gscg_dependent.internal_id "
-          + "left join grouper_groups as gg_dependent on gg_dependent.internal_id = gscg_dependent.group_internal_id "
-          + "left join grouper_fields as gf_dependent on gscg_dependent.field_internal_id = gf_dependent.internal_id  "
+          + "grouper_sql_cache_dependency gscd left join grouper_data_field dtf_owner on gscd.owner_internal_id = dtf_owner.internal_id "
+          + "left join grouper_data_alias gda_owner on gda_owner.data_field_internal_id = dtf_owner.internal_id "
+          + "left join grouper_sql_cache_group gscg_dependent on gscd.dependent_internal_id = gscg_dependent.internal_id "
+          + "left join grouper_groups gg_dependent on gg_dependent.internal_id = gscg_dependent.group_internal_id "
+          + "left join grouper_fields gf_dependent on gscg_dependent.field_internal_id = gf_dependent.internal_id  "
           + "where gscdt.name in ('abac_attribute')  and gscd.dep_type_internal_id = gscdt.internal_id");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_sql_dependency_row_v", 
@@ -786,11 +786,11 @@ public class GrouperDdl5_14_0 {
           + "gda_owner.lower_name as owner_data_alias_lower_name, gda_owner.internal_id as owner_data_alias_internal_id, gscg_dependent.internal_id as depen_cache_group_internal_id, "
           + "gg_dependent.name as depen_group_name, gg_dependent.id as depen_group_id, gg_dependent.internal_id as depen_group_internal_id, gg_dependent.id_index as depen_group_id_index, "
           + "gf_dependent.name as depen_field_name, gf_dependent.type as depen_field_type, gf_dependent.internal_id as depen_field_internal_id from  grouper_sql_cache_depend_type gscdt, "
-          + "grouper_sql_cache_dependency as gscd left join grouper_data_row as dtr_owner on gscd.owner_internal_id = dtr_owner.internal_id "
-          + "left join grouper_data_alias as gda_owner on gda_owner.data_row_internal_id = dtr_owner.internal_id "
-          + "left join grouper_sql_cache_group as gscg_dependent on gscd.dependent_internal_id = gscg_dependent.internal_id "
-          + "left join grouper_groups as gg_dependent on gg_dependent.internal_id = gscg_dependent.group_internal_id "
-          + "left join grouper_fields as gf_dependent on gscg_dependent.field_internal_id = gf_dependent.internal_id  "
+          + "grouper_sql_cache_dependency gscd left join grouper_data_row dtr_owner on gscd.owner_internal_id = dtr_owner.internal_id "
+          + "left join grouper_data_alias gda_owner on gda_owner.data_row_internal_id = dtr_owner.internal_id "
+          + "left join grouper_sql_cache_group gscg_dependent on gscd.dependent_internal_id = gscg_dependent.internal_id "
+          + "left join grouper_groups gg_dependent on gg_dependent.internal_id = gscg_dependent.group_internal_id "
+          + "left join grouper_fields gf_dependent on gscg_dependent.field_internal_id = gf_dependent.internal_id  "
           + "where gscdt.name in ('abac_row')  and gscd.dep_type_internal_id = gscdt.internal_id");
 
 
