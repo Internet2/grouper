@@ -1423,6 +1423,11 @@ public class GrouperAzureApiCommands {
                 result.add(grouperAzureUser);
               }
             }
+          } else {
+            grouperAzureUser = GrouperAzureUser.fromJson(userNode);
+            if (grouperAzureUser != null) {
+              result.add(grouperAzureUser);
+            }
           }
         }
       }
@@ -1763,6 +1768,11 @@ public class GrouperAzureApiCommands {
               if (grouperAzureGroup != null) {
                 result.add(grouperAzureGroup);
               }
+            }
+          } else {
+            grouperAzureGroup = GrouperAzureGroup.fromJson(groupNode);
+            if (grouperAzureGroup != null) {
+              result.add(grouperAzureGroup);
             }
           }
         }
