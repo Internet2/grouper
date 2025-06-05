@@ -47,7 +47,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testJexlIncrementalChangeAttribute"));
+    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testJexlIncrementalChangeGroup"));
   }
   
   /**
@@ -1838,52 +1838,68 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
     
     // testE has the jexl script
-    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroupE)
-        .assignAttributeDefName(attributeDefNameMarker).save();
     
-    // testGroupC: 0, 1, 2, 3
-    // testGroupB is 0
-    // testgrouper_field_row_affil
-    // affiliation less than 300: 0, 3
-    // staff: 0, 2
-    // job number 123, 234, nobody
-    // org with %2%: nobody
-    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), 
-        """
-        (entity.memberOf('test:GroupC') && !entity.memberOf('test:GroupB'))
-        || entity.hasRow('affiliation', 'affiliationDeptNumber<300')
-        || entity.hasRow('affiliation', 'affiliationCode=staff')
-        || entity.hasAttributeAny('jobNumber', [123, 234])
-        || entity.hasAttributeLike(org, '%2%')
-        """);
+    List<Group> groups = new ArrayList<Group>();
+    for (int i=1; i<=30; i++) {
+      Group testGroup = new GroupSave().assignName("test:GroupE_"+i).assignCreateParentStemsIfNotExist(true).save();
+      groups.add(testGroup);      
+    }
+    
+    for (Group group: groups) {
+      
+      AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(group)
+          .assignAttributeDefName(attributeDefNameMarker).save();
+      
+      // testGroupC: 0, 1, 2, 3
+      // testGroupB is 0
+      // testgrouper_field_row_affil
+      // affiliation less than 300: 0, 3
+      // staff: 0, 2
+      // job number 123, 234, nobody
+      // org with %2%: nobody
+      attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), 
+          """
+          (entity.memberOf('test:GroupC') && !entity.memberOf('test:GroupB'))
+          || entity.hasRow('affiliation', 'affiliationDeptNumber<300')
+          || entity.hasRow('affiliation', 'affiliationCode=staff')
+          || entity.hasAttributeAny('jobNumber', [123, 234])
+          || entity.hasAttributeLike(org, '%2%')
+          """);
+    }
+    
+  
     
     GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_grouperLoaderJexlScriptIncremental");
   
     // TODO check status of the incremental job
     
-    Set<Member> members = testGroupE.getMembers();
-    assertEquals(4, members.size());
-    
-    assertTrue(members.contains(member0));
-    assertTrue(members.contains(member1));
-    assertTrue(members.contains(member2));
-    assertTrue(members.contains(member3));
+    for (Group group: groups) {
+      Set<Member> members = group.getMembers();
+      assertEquals(4, members.size());
+      
+      assertTrue(members.contains(member0));
+      assertTrue(members.contains(member1));
+      assertTrue(members.contains(member2));
+      assertTrue(members.contains(member3));
+    }
+   
     
     testGroupC.addMember(testSubject4);
     
     GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_grouperLoaderJexlScriptIncremental");
   
-    members = testGroupE.getMembers();
-    assertEquals(5, members.size());
-    
-    assertTrue(members.contains(member0));
-    assertTrue(members.contains(member1));
-    assertTrue(members.contains(member2));
-    assertTrue(members.contains(member3));
-    assertTrue(members.contains(member4));
-  
+    for (Group group: groups) {
+      Set<Member> members = group.getMembers();
+      assertEquals(5, members.size());
+      
+      assertTrue(members.contains(member0));
+      assertTrue(members.contains(member1));
+      assertTrue(members.contains(member2));
+      assertTrue(members.contains(member3));
+      assertTrue(members.contains(member4));
+    }
     
   }
   
