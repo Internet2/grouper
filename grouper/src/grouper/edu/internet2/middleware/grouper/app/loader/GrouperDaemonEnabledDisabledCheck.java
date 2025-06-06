@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.audit.AuditTypeIdentifier;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -277,55 +278,64 @@ public class GrouperDaemonEnabledDisabledCheck {
   }
   
   private static void updateMembershipWithAuditing(Membership membership) {
+    final boolean isEnabled = membership.isEnabled();
+    
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
         AuditControl.WILL_AUDIT, new HibernateHandler() {
       public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
         GrouperDAOFactory.getFactory().getMembership().update(membership);
         
         if (membership.getField().isGroupListField() || membership.getField().isEntityListField()) {
-
-          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_DELETE, 
+          AuditTypeIdentifier auditTypeIdentifier = isEnabled ? AuditTypeBuiltin.MEMBERSHIP_GROUP_ADD : AuditTypeBuiltin.MEMBERSHIP_GROUP_DELETE;
+          
+          AuditEntry auditEntry = new AuditEntry(auditTypeIdentifier, 
               "id", membership.getUuid(), "fieldId", membership.getFieldId(),
                   "fieldName", membership.getField().getName(), "memberId",  membership.getMemberUuid(),
                   "membershipType", membership.getType(), 
                   "groupId", membership.getOwnerGroupId(), "groupName", membership.getOwnerGroup().getName());
-          auditEntry.setDescription("Expired membership: group: " + membership.getGroupName()
+          auditEntry.setDescription("Updated membership: group: " + membership.getGroupName()
               + ", subject: " + membership.getMember().getSubjectSourceId() + "." + membership.getMemberSubjectId() + ", field: "
-              + membership.getField().getName());
+              + membership.getField().getName() + ", enabled: " + isEnabled);
           auditEntry.saveOrUpdate(true);
 
         } else if (membership.getField().isGroupAccessField()) {
-          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_GROUP_DELETE, 
+          AuditTypeIdentifier auditTypeIdentifier = isEnabled ? AuditTypeBuiltin.PRIVILEGE_GROUP_ADD : AuditTypeBuiltin.PRIVILEGE_GROUP_DELETE;
+          
+          AuditEntry auditEntry = new AuditEntry(auditTypeIdentifier, 
               "privilegeType", "access",
                   "privilegeName", AccessPrivilege.listToPriv(membership.getField().getName()).getName(), "memberId",  membership.getMemberUuid(),
                   "groupId", membership.getOwnerGroupId(), "groupName", membership.getOwnerGroup().getName());
           
-          auditEntry.setDescription("Expired privilege: group: " + membership.getGroupName()
+          auditEntry.setDescription("Updated privilege: group: " + membership.getGroupName()
               + ", subject: " +  membership.getMember().getSubjectSourceId() + "." + membership.getMemberSubjectId() + ", privilege: "
-              + AccessPrivilege.listToPriv(membership.getField().getName()).getName());
+              + AccessPrivilege.listToPriv(membership.getField().getName()).getName() + ", enabled: " + isEnabled);
 
           auditEntry.saveOrUpdate(true);
 
         } else if (membership.getField().isStemListField()) {
-          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_STEM_DELETE, 
+          AuditTypeIdentifier auditTypeIdentifier = isEnabled ? AuditTypeBuiltin.PRIVILEGE_STEM_ADD : AuditTypeBuiltin.PRIVILEGE_STEM_DELETE;
+          
+          AuditEntry auditEntry = new AuditEntry(auditTypeIdentifier, 
               "privilegeType", "naming",
                   "privilegeName", NamingPrivilege.listToPriv(membership.getField().getName()).getName(), "memberId",  membership.getMemberUuid(),
                   "stemId", membership.getOwnerStemId(), "stemName", membership.getOwnerStem().getName());
           
-          auditEntry.setDescription("Expired privilege: stem: " + membership.getOwnerStem().getName()
+          auditEntry.setDescription("Updated privilege: stem: " + membership.getOwnerStem().getName()
               + ", subject: " +  membership.getMember().getSubjectSourceId() + "." + membership.getMemberSubjectId() + ", privilege: "
-              + NamingPrivilege.listToPriv(membership.getField().getName()).getName());
+              + NamingPrivilege.listToPriv(membership.getField().getName()).getName() + ", enabled: " + isEnabled);
 
           auditEntry.saveOrUpdate(true);
         } else if (membership.getField().isAttributeDefListField()) {
-          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_ATTRIBUTE_DEF_DELETE, 
+          AuditTypeIdentifier auditTypeIdentifier = isEnabled ? AuditTypeBuiltin.PRIVILEGE_ATTRIBUTE_DEF_ADD : AuditTypeBuiltin.PRIVILEGE_ATTRIBUTE_DEF_DELETE;
+          
+          AuditEntry auditEntry = new AuditEntry(auditTypeIdentifier, 
               "privilegeType", "attributeDef",
                   "privilegeName", AttributeDefPrivilege.listToPriv(membership.getField().getName()).getName(), "memberId",  membership.getMemberUuid(),
                   "attributeDefId", membership.getOwnerAttrDefId(), "attributeDefName", membership.getOwnerAttributeDef().getName());
           
-          auditEntry.setDescription("Expired privilege: attributeDef: " + membership.getOwnerAttributeDef().getName()
+          auditEntry.setDescription("Updated privilege: attributeDef: " + membership.getOwnerAttributeDef().getName()
               + ", subject: " +  membership.getMember().getSubjectSourceId() + "." + membership.getMemberSubjectId() + ", privilege: "
-              + AttributeDefPrivilege.listToPriv(membership.getField().getName()).getName());
+              + AttributeDefPrivilege.listToPriv(membership.getField().getName()).getName() + ", enabled: " + isEnabled);
 
           auditEntry.saveOrUpdate(true);
         } else {
