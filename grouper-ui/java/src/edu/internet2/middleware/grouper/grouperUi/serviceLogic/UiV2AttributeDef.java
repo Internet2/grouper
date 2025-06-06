@@ -2224,7 +2224,7 @@ public class UiV2AttributeDef {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      final AttributeDef attributeDef = retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_VIEW, false).getAttributeDef();
+      final AttributeDef attributeDef = retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_READ, false).getAttributeDef();
       
       if (attributeDef == null) {
         return;
@@ -2254,37 +2254,26 @@ public class UiV2AttributeDef {
     
     final String filter = request.getParameter("filter");
     
-    //switch over to admin so attributes work
-    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-      
-      @Override
-      public Object callback(GrouperSession rootGrouperSession) throws GrouperSessionException {
-        
-        GuiPaging guiPaging = attributeDefContainer.getGuiPaging();
-        QueryOptions queryOptions = new QueryOptions().sortAsc("displayExtension");
-        
-        GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
-        
-        AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinder()
-            .addAttributeDefId(attributeDef.getId())
-            .assignIncludeAssignmentsOnAssignments(true) //if first level
-            .assignRetrieveValues(true) // get values
-            .assignQueryOptions(queryOptions)
-            .assignFilter(filter)
-            .findAttributeAssignFinderResults();
-        
-        GuiAttributeAssignFinderResults guiAttributeAssignFinderResults = new GuiAttributeAssignFinderResults(attributeAssignFinderResults);
-        
-        attributeDefContainer.setGuiAttributeAssignFinderResults(guiAttributeAssignFinderResults);
-        guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
-        
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeAssignments",
-            "/WEB-INF/grouperUi2/attributeDef/attributeDefViewOwnerEntities.jsp"));
-        
-        return null;
-      }
-    });
+    GuiPaging guiPaging = attributeDefContainer.getGuiPaging();
+    QueryOptions queryOptions = new QueryOptions().sortAsc("displayExtension");
     
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
+    
+    AttributeAssignFinderResults attributeAssignFinderResults = new AttributeAssignFinder()
+        .addAttributeDefId(attributeDef.getId())
+        .assignIncludeAssignmentsOnAssignments(true) //if first level
+        .assignRetrieveValues(true) // get values
+        .assignQueryOptions(queryOptions)
+        .assignFilter(filter)
+        .findAttributeAssignFinderResults();
+    
+    GuiAttributeAssignFinderResults guiAttributeAssignFinderResults = new GuiAttributeAssignFinderResults(attributeAssignFinderResults);
+    
+    attributeDefContainer.setGuiAttributeAssignFinderResults(guiAttributeAssignFinderResults);
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeAssignments",
+        "/WEB-INF/grouperUi2/attributeDef/attributeDefViewOwnerEntities.jsp"));
   }
   
   /**
