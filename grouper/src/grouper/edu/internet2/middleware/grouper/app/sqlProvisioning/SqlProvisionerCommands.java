@@ -508,20 +508,28 @@ public class SqlProvisionerCommands {
     
     List<Object[]> groupIdAttributeNameAttributeOldValueAttributeNewValuesOldValueNotNull = new ArrayList<Object[]>();
     List<Object[]> groupIdAttributeNameAttributeOldValueAttributeNewValuesOldValueNull = new ArrayList<Object[]>();
+
+    List<Object[]> valuesForUpdateForOldValueNull = new ArrayList<Object[]>();
+    List<Object[]> valuesForUpdateForOldValueNotNull= new ArrayList<Object[]>();
   
-    for (Object[] whereClauseRow : whereClauseValues) {
+    for (int i=0; i<whereClauseValues.size(); i++) {
+      Object[] whereClauseRow = whereClauseValues.get(i);
+      Object[] valuesToUpdateSingleRow = valuesToUpdate.get(i);
       if (whereClauseRow[whereClauseRow.length-1] == null) {
         groupIdAttributeNameAttributeOldValueAttributeNewValuesOldValueNull.add(whereClauseRow);
+        valuesForUpdateForOldValueNull.add(valuesToUpdateSingleRow);
       } else {
         groupIdAttributeNameAttributeOldValueAttributeNewValuesOldValueNotNull.add(whereClauseRow);
+        valuesForUpdateForOldValueNotNull.add(valuesToUpdateSingleRow);
       }
     }
     
     if (GrouperUtil.length(groupIdAttributeNameAttributeOldValueAttributeNewValuesOldValueNotNull) > 0) {
-      updateObjectsOldValueNotNull(dbExternalSystemConfigId, tableName, columnsToUpdate, valuesToUpdate, whereClauseColumns, groupIdAttributeNameAttributeOldValueAttributeNewValuesOldValueNotNull);
+      updateObjectsOldValueNotNull(dbExternalSystemConfigId, tableName, columnsToUpdate, valuesForUpdateForOldValueNotNull, 
+          whereClauseColumns, groupIdAttributeNameAttributeOldValueAttributeNewValuesOldValueNotNull);      
     }
     if (GrouperUtil.length(groupIdAttributeNameAttributeOldValueAttributeNewValuesOldValueNull) > 0) {
-      updateObjectsOldValueNull(dbExternalSystemConfigId, tableName, columnsToUpdate, valuesToUpdate, whereClauseColumns, groupIdAttributeNameAttributeOldValueAttributeNewValuesOldValueNull);
+      updateObjectsOldValueNull(dbExternalSystemConfigId, tableName, columnsToUpdate, valuesForUpdateForOldValueNull, whereClauseColumns, groupIdAttributeNameAttributeOldValueAttributeNewValuesOldValueNull);
     }
   }
 
