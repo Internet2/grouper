@@ -557,3 +557,65 @@ public class Test124gshAi extends GshTemplateV2 {
       }
     }
     
+    WS_GET_PARAMS: {
+      // #########
+      // Get parameters from the web service input
+      // #########
+
+      String email = gshTemplateV2input.getGsh_builtin_inputString("gsh_input_email");
+
+    }
+
+    SQL_SELECT: {
+      // #########
+      // Get a string selected by sql.  If there is a connection
+      // #########
+
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      // if there is a connection name (e.g. myConnectionName), use it, otherwise, do not set it
+      gcDbAccess.connectionName("myConnectionName");
+
+      String sql = """
+          SELECT DISTINCT the_col FROM some_table WHERE email = ?
+          """;
+      gcDbAccess.sql(sql);
+      
+      // if there is a parameter, then set the bind variable
+      String email = "some@domain.com";
+      gcDbAccess.addBindVar(email);
+
+      // run the query
+      String sqlResult = gcDbAccess.select(String.class);
+    }
+
+    WS_RETURN_DATA: {
+      // #########
+      // Return data to the web service output
+      // #########
+
+      // simple params have a map of json attributes to values
+      Map<String, Object> output = new HashMap<>();
+
+      String someVariable = "test";
+      output.put("matched", StringUtils.isNotBlank(someVariable));
+      output.put("someAttributeName", "theValue");
+      output.put("someNumber", 25);
+
+      gsh_builtin_gshTemplateOutput.setWsOutput(output);
+
+    }
+    GROUP_AS_MEMBER_SUBJECT: {
+      // #########
+      // See if a group has a subject as a member of the group
+      // #########
+
+      boolean exceptionIfGroupNotExist = true;
+      Group group = GroupFinder.findByName("temp:someGroup", exceptionIfGroupNotExist);
+      
+      boolean exceptionIfSubjectNotExist = true;
+      Subject subject = SubjectFinder.findByIdAndSource("someSubjectId", "someSource", exceptionIfSubjectNotExist);
+      
+      boolean isMember = group.hasMember(subject);
+    }
+    
