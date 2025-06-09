@@ -7,6 +7,7 @@
 // Queries should be in triple quoted strings.
 
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +60,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
   @Override
   public void gshRunLogic(GshTemplateV2input gshTemplateV2input,
       GshTemplateV2output gshTemplateV2output) {
-    
+
     GshTemplateOutput gsh_builtin_gshTemplateOutput = gshTemplateV2output.getGsh_builtin_gshTemplateOutput();
     
     // GSH code here
@@ -75,7 +76,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
     }
     
     // perform the GSH template logic
-        
+
     String gsh_input_groupName = null;
 
     String gsh_input_groupNamesToAdd = null;
@@ -89,7 +90,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       // tell the user the GSH template is complete
       gsh_builtin_gshTemplateOutput.addOutputLine("Success: the task was completed");
     }
-    
+
     INPUT_VARIABLES: {
       // #########
       // Scripts can have input variables, the prompt will let AI know what variables to use.
@@ -97,10 +98,10 @@ public class Test124aiGshTraining extends GshTemplateV2 {
 
       // read the value of an input variable string.  the input variable is named gsh_input_action
       String gsh_input_action = gshTemplateV2input.getGsh_builtin_inputString("gsh_input_action");
-     
+
       // read the value of an input variable boolean.  the input variable is named gsh_input_requiresTwostep
       boolean gsh_input_requiresTwostep = gshTemplateV2input.getGsh_builtin_inputBoolean("gsh_input_requiresTwostep");
-
+      
       // read the value of an input variable boolean with default: false.  the input variable is named gsh_input_requiresEmployee
       boolean gsh_input_requiresEmployee = GrouperUtil.booleanValue(gshTemplateV2input.getGsh_builtin_inputBoolean("gsh_input_requiresEmployee"), false);
 
@@ -110,7 +111,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       // #########
       // If the GSH template should not redirect anywhere at the end, and stay on same screen, add this line in the script
       // #########
-  
+
       // the GSH template should not redirect anywhere, stay on same screen
       gsh_builtin_gshTemplateOutput.assignRedirectToGrouperOperation("NONE");
     }
@@ -146,7 +147,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       // Add a list of groups from an input variable gsh_input_groupNamesToAdd to be members of the referenceGroup "my:referenceGroup"
       // #########
       Group referenceGroup = GroupFinder.findByName("my:referenceGroup", true);
-    
+
       // validate
       List<String> groupNamesToAdd = GrouperUtil.splitTrimToList(gsh_input_groupNamesToAdd, ",");
       List<Group> groupsToAdd = new ArrayList<>();
@@ -157,7 +158,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
         }
         groupsToAdd.add(group);
       }
-     
+
       // perform logic
       for (Group group : groupsToAdd) {
         Subject groupSubject = group.toSubject();
@@ -168,25 +169,56 @@ public class Test124aiGshTraining extends GshTemplateV2 {
 
         if (membershipSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
           gsh_builtin_gshTemplateOutput.addOutputLine("Group '" + referenceGroup.getName() + 
-            "' already had member group: '" + group.getName() + "'");
+              "' already had member group: '" + group.getName() + "'");
         } else {
           gsh_builtin_gshTemplateOutput.addOutputLine("Group '" + referenceGroup.getName() + 
-            "' added member group: '" + group.getName() + "'");
+              "' added member group: '" + group.getName() + "'");
         }
-       
+
       }
     }
-    
+
     RUN_DAEMON: {
       // ##########
       // Run a daemon job with a specified name, probably on the daemon node unless otherwise specified
       // ##########
-  
+
       String jobName = "SQL_GROUP_LIST__penn:isc:clientCare:apps:grammarly:service:grammarlyPolicyGroupLoader__9c21f089d5d44aeab0a3244aa5fead30";
       boolean runOnDaemonServer = true;
       GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), jobName, runOnDaemonServer);
     }
 
+    CHECK_DAEMON_JOB_RAN: {
+
+      // ##########
+      // Check if a daemon job ran successfully by job name, poll and sleep a second for a certain amount of time
+      // ##########
+
+      String jobName = "SQL_GROUP_LIST__penn:isc:clientCare:apps:grammarly:service:grammarlyPolicyGroupLoader__9c21f089d5d44aeab0a3244aa5fead30";
+      long utcMillisToCheck = System.currentTimeMillis() - (60 * 1000); // check if it ran in the last minute
+      int numberOfSecondsToWait = 30; // wait up to 30 seconds for the job to run
+      // must be at least 1
+      numberOfSecondsToWait = Math.max(numberOfSecondsToWait, 1);
+      
+      boolean jobRanSuccessfully = false;
+      // loop and sleep a second each time if not first in loop
+      for (int i = 0; i < numberOfSecondsToWait; i++) {
+        if (i > 0) {
+          // if not first iteration, sleep for a second
+          GrouperUtil.sleep(1000); // sleep for 1 second
+        }
+        int successes = new GcDbAccess().sql("""
+            select count(1) from grouper_loader_log where job_name = ? 
+            and status = 'SUCCESS' and ended_time > ?
+            """).addBindVar(jobName).addBindVar(new Timestamp(utcMillisToCheck)).select(int.class);
+        if (successes > 0) {
+          jobRanSuccessfully = true;
+          break; // exit loop if job ran successfully
+        }
+      }
+      
+    }
+    
     CHANGE_LOG: {
       // ##########
       // Run a change log consumer by provisioner config id and wait for it to finish
@@ -370,25 +402,25 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       //#########
       //Add a membership with an end date using MembershipSave
       //#########
-  
+
       //Initialize a MembershipSave instance
       MembershipSave membershipSaveAddEndDate = new MembershipSave();
-  
+
       //Specify the group to which the membership will be added
       String targetGroupNameEndDate = "example:targetGroup";
       membershipSaveAddEndDate.assignGroupName(targetGroupNameEndDate);
-  
+
       //Create a Subject object for the member to be added
       Subject newMember = SubjectFinder.findByIdAndSource("uniqueSubjectId", "uniqueSourceId", true);
       membershipSaveAddEndDate.assignSubject(newMember);
-  
+
       //Specify the membership end date (e.g., 30 days from now)
       Long membershipEndDate = System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000); // 30 days in milliseconds
       membershipSaveAddEndDate.assignImmediateMshipDisabledTime(membershipEndDate);
-  
+
       //Save the changes
       Membership addedMembership = membershipSaveAddEndDate.save();
-  
+
       //Output the result
       if (membershipSaveAddEndDate.getSaveResultType() == SaveResultType.INSERT) {
         String outputLine = "Membership added for subject ID '" + newMember.getId();
@@ -400,37 +432,37 @@ public class Test124aiGshTraining extends GshTemplateV2 {
         gsh_builtin_gshTemplateOutput.addOutputLine(outputLine);
       }
     }
-    
+
     ADD_REPORT_ATTESTATION_TO_FOLDER: {
       // #########
       // Add report attestation to a folder on reportConfigName every 30 days, send emails to group a:b:c
       // #########
-  
+
       // Initialize an AttestationStemSave instance
       AttestationStemSave attestationStemSave = new AttestationStemSave();
-  
+
       // Specify the folder (stem) name to which attestation will be added
       String attestationFolderName = "example:targetFolder";
       attestationStemSave.assignStemName(attestationFolderName);
-  
+
       // Set the attestation type (e.g., "report" or "group")
       attestationStemSave.assignReportConfigName("reportConfigName");
       attestationStemSave.assignAttestationType(AttestationType.report);
-  
+
       // Specify the number of days before a reminder is sent
       attestationStemSave.assignDaysBeforeToRemind(7);
-  
+
       // Specify the number of days until recertification is required
       attestationStemSave.assignDaysUntilRecertify(30);
-  
+
       // Enable email notifications
       attestationStemSave.assignSendEmail(true);
       Group attributeStemSaveEmailToGroup = GroupFinder.findByName("a:b:c", true);
       attestationStemSave.addEmailAddresses(attributeStemSaveEmailToGroup);
-  
+
       // Save the attestation
       attestationStemSave.save();
-  
+
       // Output the result
       if (attestationStemSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
         gsh_builtin_gshTemplateOutput.addOutputLine("No changes made. Attestation already existed for folder: '" + attestationFolderName + "'");
@@ -438,37 +470,37 @@ public class Test124aiGshTraining extends GshTemplateV2 {
         gsh_builtin_gshTemplateOutput.addOutputLine("Attestation added to folder: '" + attestationFolderName + "'");
       }
     }
-    
+
     ADD_ATTESTATION_TO_GROUP: {
       // #########
       // Assign attestation to a group using AttestationGroupSave, send email to group d:e:f
       // #########
-  
+
       // Initialize an AttestationGroupSave instance
       AttestationGroupSave attestationGroupSave = new AttestationGroupSave();
-  
+
       // Specify the group name to which attestation will be assigned
       String attestationGroupSaveGroupName = "example:targetGroup";
       attestationGroupSave.assignGroupName(attestationGroupSaveGroupName);
-  
+
       // Set the attestation type (e.g., "report" or "group")
       AttestationType attestationTypeToAssign = AttestationType.report;
       attestationGroupSave.assignAttestationType(attestationTypeToAssign);
-  
+
       // Specify the number of days before a reminder is sent
       attestationGroupSave.assignDaysBeforeToRemind(7);
-  
+
       // Specify the number of days until recertification is required
       attestationGroupSave.assignDaysUntilRecertify(30);
-  
+
       // Enable email notifications
       attestationGroupSave.assignSendEmail(true);
       Group attributeGroupSaveEmailToGroup = GroupFinder.findByName("d:e:f", true);
       attestationGroupSave.addEmailAddresses(attributeGroupSaveEmailToGroup);
-  
+
       // Save the attestation
       attestationGroupSave.save();
-  
+
       // Output the result
       if (attestationGroupSave.getSaveResultType() == SaveResultType.INSERT) {
         gsh_builtin_gshTemplateOutput.addOutputLine("Attestation added to group: '" + attestationGroupSaveGroupName + "'");
@@ -528,6 +560,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
         gsh_builtin_gshTemplateOutput.addOutputLine("No changes made to the attribute definition: " + attributeDef.getName());
       }
     }
+    
     DATABASE_INSERT: {
        // #########
        // Insert a record into a database table using GcDbAccess
@@ -552,7 +585,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
        // Output success message
        gsh_builtin_gshTemplateOutput.addOutputLine("Record inserted into example_table successfully.");
     }
-
+    
     CREATE_STEM: {
       // #########
       // Create a folder (stem) using StemSave and log the output
@@ -633,6 +666,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       gsh_builtin_gshTemplateOutput.setWsOutput(output);
 
     }
+
     GROUP_AS_MEMBER_SUBJECT: {
       // #########
       // See if a group has a subject as a member of the group
