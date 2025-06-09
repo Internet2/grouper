@@ -1,30 +1,57 @@
-Write an AI GSH GrouperShell Java script to accomplish a specific task.
+// Note, use all imports whether they are needed or not.  Just in case.
 
-This is a simple GSH script.  Note, use all imports whether they are needed or not.  Just in case.
-Write valid Java, but so it works in groovy.  For instance do not have java that uses multiple lines.
-Do not break up string concatenation across multiple lines.  You can use triple quoted strings if necessary.
-Queries should be in triple quoted strings.
+// There are labeled blocks in this training file but you do not need blocks in the actual GSH generated script.
 
-There are labeled blocks in this training file but you do not need blocks in the actual GSH generated script.
+// Write valid Java, but so it works in groovy.  For instance do not have java that uses multiple lines.
+// Do not break up string concatenation across multiple lines.  You can use triple quoted strings if necessary.
+// Queries should be in triple quoted strings.
 
-#########
 
-import edu.internet2.middleware.grouper.*;
-import edu.internet2.middleware.subject.*;
-import edu.internet2.middleware.grouper.cfg.*;
-import edu.internet2.middleware.grouper.misc.*;
-import edu.internet2.middleware.grouper.util.*;
-import edu.internet2.middleware.grouper.app.attestation.*;
-import edu.internet2.middleware.grouper.app.loader.*;
-import edu.internet2.middleware.grouper.app.gsh.template.*;
-import edu.internet2.middleware.grouper.attr.assign.*;
-import edu.internet2.middleware.grouper.attr.finder.*;
-import edu.internet2.middleware.grouper.attr.value.*;
-import edu.internet2.middleware.grouperClient.jdbc.*;
-import org.apache.commons.lang.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class Test124gshAi extends GshTemplateV2 {
+import org.apache.commons.lang.StringUtils;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.CompositeSave;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipSave;
+import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.attestation.AttestationGroupSave;
+import edu.internet2.middleware.grouper.app.attestation.AttestationStemSave;
+import edu.internet2.middleware.grouper.app.attestation.AttestationType;
+import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOutput;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2input;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2output;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
+import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.subject.Subject;
+
+public class Test124aiGshTraining extends GshTemplateV2 {
 
   /**
    * this is the main logic method
@@ -49,9 +76,10 @@ public class Test124gshAi extends GshTemplateV2 {
     
     // perform the GSH template logic
         
-  }
-  
-}
+    String gsh_input_groupName = null;
+
+    String gsh_input_groupNamesToAdd = null;
+
 
     SUCCESS: {
       // #########
@@ -619,3 +647,236 @@ public class Test124gshAi extends GshTemplateV2 {
       boolean isMember = group.hasMember(subject);
     }
     
+    SEND_ABAC_SCRIPT_TO_LOADER: {
+      // #########
+      // if doing an abac script the last line sends abac script to the loader
+      // #########
+
+      String abacScript = """
+          # some abac script
+          """;
+
+      gsh_builtin_gshTemplateOutput.assignAbacScript(abacScript);
+    }
+
+    WEB_SERVICE_HEADER: {
+      // #########
+      // When calling a web service add a header
+      // #########
+
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Add the required headers
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+    }      
+
+    WEB_SERVICE_AUTHENTICATION: {
+      
+      // #########
+      // When calling a web service attach authentication using an external system config id
+      // #########
+      
+      String externalSystemId = "someExternalSystemId";
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Attach bearer token authentication to the HTTP client
+      WsBearerTokenExternalSystem.attachAuthenticationToHttpClient(grouperHttpClient, externalSystemId);
+    }
+    
+    WEB_SERVICE_ENDPOINT: {
+      
+      // #########
+      // When calling a web service get the endpoint using an external system config id
+      // #########
+      
+      String externalSystemId = "someExternalSystemId";
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Retrieve the endpoint from the configuration
+      String endpoint = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueStringRequired("grouper.wsBearerToken." + externalSystemId + ".endpoint");
+
+      // always strip last slash
+      endpoint = GrouperUtil.stripLastSlashIfExists(endpoint);
+
+    }
+
+    WEB_SERVICE_PATH: {
+      
+      // #########
+      // When calling a web service append the path to the endpoint
+      // #########
+      
+      String externalSystemId = "someExternalSystemId";
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Retrieve the endpoint from the configuration
+      String endpoint = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueStringRequired("grouper.wsBearerToken." + externalSystemId + ".endpoint");
+
+      // always strip last slash
+      endpoint = GrouperUtil.stripLastSlashIfExists(endpoint);
+      
+      String path = "/v1/threads";
+      // Construct the URL for the OpenAI API
+      String url = endpoint + path ;
+
+    }
+    WEB_SERVICE_REQUEST_BODY: {
+      
+      // #########
+      // When calling a web service send a request body
+      // #########
+      
+      String externalSystemId = "someExternalSystemId";
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      String body = "";
+      grouperHttpClient.assignBody(body);
+    }
+
+    WEB_SERVICE_METHOD: {
+      
+      // #########
+      // Specify the HTTP method for the web service request: delete, get, post, put, patch
+      // #########
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // method is post
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
+
+    }
+
+    WEB_SERVICE_EXECUTE: {
+      
+      // #########
+      // After setting up the web service, execute
+      // #########
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Execute the request
+      grouperHttpClient.executeRequest();
+
+    }
+
+
+    WEB_SERVICE_CHECK_RESPONSE_CODE: {
+      
+      // #########
+      // Make sure the response code is what you expect
+      // #########
+      
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Check the response code
+      int responseCode = grouperHttpClient.getResponseCode();
+      if (responseCode != 200) {
+        throw new RuntimeException(
+            "Helpful error message: " + responseCode);
+      }
+
+    }
+
+    WEB_SERVICE_GET_JSON_RESPONSE: {
+      
+      // #########
+      // Turn the response into a JSON object
+      // #########
+      
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Read and return the JSON response body
+      JsonNode jsonNode = grouperHttpClient.retrieveJsonNode();
+
+    }
+
+    JSON_ATTRIBUTE: {
+      
+      // #########
+      // Get a specific field from the JSON response
+      // #########
+      
+      
+      // Read and return the JSON response body
+      JsonNode jsonNode = null;
+      
+      // get a specific field from the JSON response
+      String threadId = GrouperUtil.jsonJacksonGetString(jsonNode, "id");      
+      
+
+    }
+
+    JSON_ARRAY: {
+      
+      // #########
+      // Loop through a JSON array
+      // #########
+      
+      
+      // Read and return the JSON response body
+      JsonNode jsonNode = null;
+
+      // get data array
+      ArrayNode dataArrayNode = GrouperUtil.jsonJacksonGetArrayNode(jsonNode, "data");
+      
+      // loop through the data array
+      for (JsonNode dataNode : dataArrayNode) {
+      }
+      
+
+    }
+    
+    JSON_CREATE_WITH_ATTRIBUTES: {
+      
+      // #########
+      // Make a JSON string based on a string attribute
+      // #########
+      
+      
+      ObjectNode objectNode = GrouperUtil.jsonJacksonNode();
+      String attributeValue = "";
+      GrouperUtil.jsonJacksonAssignString(objectNode, "attributeName", attributeValue);
+      String json = objectNode.toString();
+      
+
+    }
+    
+    // composite save
+    COMPOSITE_SAVE: {
+      // #########
+      // Save a composite group using CompositeSave
+      // #########
+      // Create a new CompositeSave instance
+      CompositeSave compositeSave = new CompositeSave();
+      compositeSave.assignOwnerName("a:b:ownerGroupName"); // Replace with the name of the owner group
+      compositeSave.assignLeftFactorName("a:c:leftFactorGroupName"); // Replace with the name of the left factor group
+      compositeSave.assignRightFactorName("a:d:rightFactorGroupName"); // Replace with the name of the right factor group
+      
+      // Replace with the composite type (e.g., "intersection" or "complement")
+      // a complement is also called minus
+      compositeSave.assignType("intersection"); 
+      compositeSave.save();
+
+    }
+
+    
+  }
+  
+}
