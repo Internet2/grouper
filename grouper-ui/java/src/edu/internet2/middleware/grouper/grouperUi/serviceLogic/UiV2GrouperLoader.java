@@ -6,6 +6,13 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import static edu.internet2.middleware.grouper.misc.GrouperCheckConfig.loaderMetadataStemName;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,6 +32,8 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -52,6 +61,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderDisplayNameSyncType;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderImportExport;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderScheduleType;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
@@ -88,6 +98,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
@@ -5377,6 +5388,171 @@ public class UiV2GrouperLoader {
         return;
       }
       throw re;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  public void exportLoaderConfig(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+      
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+
+      if (group == null) {
+        return;
+      }
+      
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacLoader();
+          
+      if (!canEditLoader) {
+        return;
+      }
+    
+      String contents = GrouperLoaderImportExport.exportLoaderConfig(group);
+      
+      response.setContentType("application/octet-stream");
+      response.setHeader("Content-Disposition", "inline;filename=\"" + group.getDisplayExtension() +"_loader_config.json" + "\"");
+      
+      try {
+        PrintWriter out = response.getWriter();
+        out.write(contents);
+        out.close();
+      } catch (IOException e) {
+        throw new RuntimeException("Error occured while writing response");
+      }
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  public void importLoaderConfig(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+      
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+
+      if (group == null) {
+        return;
+      }
+      
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacLoader();
+          
+      if (!canEditLoader) {
+        return;
+      }
+      
+      String grouperLoaderImportConfigFormat = request.getParameter("importLoaderConfigFormat");
+      if (StringUtils.isNotBlank(grouperLoaderImportConfigFormat)) {
+        grouperLoaderContainer.setImportLoaderConfigFormat(grouperLoaderImportConfigFormat);
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/group/groupLoaderImportConfig.jsp"));
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  public void importLoaderConfigSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+      
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+
+      if (group == null) {
+        return;
+      }
+      
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacLoader();
+          
+      if (!canEditLoader) {
+        return;
+      }
+      
+      GrouperRequestWrapper grouperRequestWrapper = GrouperRequestWrapper.retrieveGrouperRequestWrapper(request);
+      
+      String grouperLoaderImportConfigFormat = request.getParameter("importLoaderConfigFormat");
+      
+      String contentsToImport = null;
+      if (StringUtils.equals(grouperLoaderImportConfigFormat, "file")) {
+        
+        FileItem importConfigFile = grouperRequestWrapper.getParameterFileItem("importConfigFile");
+
+        if (importConfigFile == null) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#importConfigFileId",
+              TextContainer.retrieveFromRequest().getText().get("configurationFilesImportFileRequired")));
+          return;
+        }
+
+        String fileName = StringUtils.defaultString(importConfigFile == null ? "" : importConfigFile.getName());
+
+        // GRP-2836: Configuration file upload fails on browsers that include full file path
+        if (fileName.contains("/")) {
+          fileName = GrouperUtil.prefixOrSuffix(fileName, "/", false);
+        }
+        if (fileName.contains("\\")) {
+          fileName = GrouperUtil.prefixOrSuffix(fileName, "\\", false);
+        }
+
+        
+        try {
+          String directoryName = GrouperUtil.uniqueId();
+          Path tempDirectory = Files.createTempDirectory(directoryName, new FileAttribute[0]);
+          File file = new File(tempDirectory.toAbsolutePath().toString() + File.separatorChar + fileName);
+          importConfigFile.write(file);
+          contentsToImport = FileUtils.readFileToString(file, Charset.defaultCharset());
+        } catch (Exception e) {
+          throw new RuntimeException("Cant process file upload '" + fileName + "'", e);
+        } 
+        
+      } else if (StringUtils.equals(grouperLoaderImportConfigFormat, "copyPaste")) {
+        contentsToImport = request.getParameter("loaderConfigContents");
+      } else {
+        throw new RuntimeException("Missing format!!");
+      }
+      
+      List<String> errors = GrouperLoaderImportExport.importLoaderConfig(contentsToImport, group);
+      if (errors.size() > 0) {
+        for (String error: errors) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
+        }
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperLoader.loader&groupId=" + group.getId() + "')"));
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("grouperLoaderImportConfigSuccess")));
+      }
+      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

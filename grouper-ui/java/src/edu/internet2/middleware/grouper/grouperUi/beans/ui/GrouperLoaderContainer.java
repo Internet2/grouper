@@ -62,6 +62,18 @@ public class GrouperLoaderContainer {
   public static void main(String[] args) {
   }
   
+  private String importLoaderConfigFormat;
+  
+  
+  public String getImportLoaderConfigFormat() {
+    return importLoaderConfigFormat;
+  }
+
+  
+  public void setImportLoaderConfigFormat(String importLoaderConfigFormat) {
+    this.importLoaderConfigFormat = importLoaderConfigFormat;
+  }
+
   /**
    * recent memberships from group id
    */
