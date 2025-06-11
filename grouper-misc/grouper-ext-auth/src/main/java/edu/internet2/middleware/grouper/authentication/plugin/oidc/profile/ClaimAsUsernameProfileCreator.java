@@ -15,7 +15,7 @@ public class ClaimAsUsernameProfileCreator extends OidcProfileCreator {
     protected void internalInit(boolean forceReinit) {
         CommonHelper.assertNotNull("claimAsUsername", ((ClaimAsUsernameOidcConfiguration)this.configuration).getClaimAsUsername());
 
-        defaultProfileDefinition(new ClaimAsUsernameProfileDefinition(((ClaimAsUsernameOidcConfiguration)this.configuration).getClaimAsUsername()));
+        setProfileDefinitionIfUndefined(new ClaimAsUsernameProfileDefinition(((ClaimAsUsernameOidcConfiguration)this.configuration).getClaimAsUsername()));
 
         super.internalInit(forceReinit);
     }

@@ -41,8 +41,8 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <pac4j.version>5.7.2</pac4j.version>
-        <javaee-pac4j.version>7.1.0</javaee-pac4j.version>
+        <pac4j.version>6.1.2</pac4j.version>
+        <javaee-pac4j.version>8.0.1</javaee-pac4j.version>
         <slf4j.version>2.0.13</slf4j.version>
     </properties>
 
@@ -76,7 +76,7 @@
         </dependency>
         <dependency>
             <groupId>org.pac4j</groupId>
-            <artifactId>pac4j-cas-clientv4</artifactId>
+            <artifactId>pac4j-cas</artifactId>
             <version>${pac4j.version}</version>
         </dependency>
         <dependency>
@@ -86,7 +86,7 @@
         </dependency>
         <dependency>
             <groupId>org.pac4j</groupId>
-            <artifactId>pac4j-saml-opensamlv5</artifactId>
+            <artifactId>pac4j-saml</artifactId>
             <version>${pac4j.version}</version>
             <exclusions>
                 <exclusion>
@@ -117,7 +117,7 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>
-            <version>10.1</version>
+            <version>11.25</version>
         </dependency>
 
         <dependency>
@@ -130,7 +130,7 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
-            <version>8.5.60</version>
+            <version>9.0.106</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

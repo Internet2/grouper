@@ -11,7 +11,7 @@ public class ClaimAsUsernameOidcClient extends OidcClient {
 
     @Override
     public void init() {
-        this.defaultProfileCreator(new ClaimAsUsernameProfileCreator(this.getConfiguration(), this));
+        this.setProfileCreatorIfUndefined(new ClaimAsUsernameProfileCreator(this.getConfiguration(), this));
 
         super.init();
     }
