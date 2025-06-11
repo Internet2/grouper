@@ -32,8 +32,6 @@ services:
     ports:
       - 389:389
     volumes:
-      - directory_data:/var/lib/ldap
-      - directory_config:/etc/ldap/slapd.d
       - ./directory/certs:/tmp/certs:ro
     environment:
       LDAP_BASE_DN: "dc=unicon,dc=local"
@@ -90,7 +88,8 @@ services:
       - reverse-proxy
       - grouper
     ports:
-      - 15005:15005
+      - 8000:5005
+      #- 9080:8080
     volumes:
       - ../../../target/grouper-authentication-plugin.jar:/opt/grouper/plugins/grouper-authentication-plugin.jar
       - ./grouper/config/grouper.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper.properties
@@ -110,19 +109,14 @@ services:
       GROUPER_DATABASE_USERNAME: "grouper"
       GROUPER_DATABASE_PASSWORD: "grouper"
       GROUPER_MORPHSTRING_ENCRYPT_KEY: "THISISSUPERSECRET!"
-      GROUPER_AUTO_DDL_UPTOVERSION: "4.*.*"
-      GROUPER_RUN_TOMCAT_NOT_SUPERVISOR: "true"
+      GROUPER_AUTO_DDL_UPTOVERSION: "5.*.*"
+      GROUPER_TOMCAT_HTTP_PORT: 8080
+      GROUPER_START_DELAY_SECONDS: 0
       GROUPER_UI_CONFIGURATION_EDITOR_SOURCEIPADDRESSES: "0.0.0.0/0"
-      RUN_SHIB_SP: "false"
-      GROUPER_EXTRA_CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:15005"
+      GROUPER_EXTRA_CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 #      GROUPER_UI_GROUPER_AUTH: "true"
 #      GROUPERSYSTEM_QUICKSTART_PASS: "letmein7"
 networks:
   reverse-proxy:
   idp:
   grouper:
-volumes:
-  directory_data:
-    driver: local
-  directory_config:
-    driver: local
