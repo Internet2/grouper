@@ -236,7 +236,7 @@ public class Pac4JConfigFactoryTest {
         Assert.assertEquals(properties.get("external.authentication.saml.certificateSignatureAlg"), configuration.getCertificateSignatureAlg());
         Assert.assertEquals(Integer.parseInt(properties.get("external.authentication.saml.privateKeySize")), configuration.getPrivateKeySize());
         Assert.assertEquals(properties.get("external.authentication.saml.issuerFormat"), configuration.getIssuerFormat());
-        Assert.assertEquals(Boolean.parseBoolean(properties.get("external.authentication.saml.nameIdPolicyAllowCreate")), configuration.isNameIdPolicyAllowCreate());
+        Assert.assertEquals(Boolean.parseBoolean(properties.get("external.authentication.saml.nameIdPolicyAllowCreate")), configuration.getNameIdPolicyAllowCreate());
         Assert.assertEquals(configuration.getAuthnContextClassRefs().size(), Arrays.asList(properties.get("external.authentication.saml.authnContextClassRefs").split(",")).size());
         Assert.assertEquals(configuration.getBlackListedSignatureSigningAlgorithms().size(), Arrays.asList(properties.get("external.authentication.saml.blackListedSignatureSigningAlgorithms").split(",")).size());
         Assert.assertEquals(configuration.getSignatureReferenceDigestMethods().size(), Arrays.asList(properties.get("external.authentication.saml.signatureReferenceDigestMethods").split(",")).size());

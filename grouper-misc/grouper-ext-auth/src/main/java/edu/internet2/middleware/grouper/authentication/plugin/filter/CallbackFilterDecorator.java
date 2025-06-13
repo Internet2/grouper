@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.authentication.plugin.filter;
 
 import edu.internet2.middleware.grouper.authentication.plugin.ConfigUtils;
+import edu.internet2.middleware.grouper.authentication.plugin.Pac4jConfigFactory;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import org.pac4j.jee.filter.CallbackFilter;
 
@@ -38,6 +39,7 @@ public class CallbackFilterDecorator extends CallbackFilter implements Reinitial
     }
 
     public void initDecorator() {
+        this.setConfig(new Pac4jConfigFactory().build());
         this.setDefaultUrl(ConfigUtils.getBestGrouperConfiguration().propertyValueString("external.authentication.defaultUrl", "/"));
         this.setRenewSession(true);
     }
@@ -60,5 +62,10 @@ public class CallbackFilterDecorator extends CallbackFilter implements Reinitial
         } finally {
             Thread.currentThread().setContextClassLoader(classLoader);
         }
+    }
+
+    @Override
+    public void destroy() {
+        // need to do anything?
     }
 }

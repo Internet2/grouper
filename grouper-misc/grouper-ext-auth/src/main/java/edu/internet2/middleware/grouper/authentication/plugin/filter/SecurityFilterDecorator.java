@@ -32,7 +32,7 @@ public class SecurityFilterDecorator extends SecurityFilter implements Reinitial
 
     public void initDecorator() {
         if (ConfigUtils.isGrouperUi() && FilterDecoratorUtils.isExternalAuthenticationEnabled()) {
-            this.setSharedConfig(new Pac4jConfigFactory().build());
+            this.setConfig(new Pac4jConfigFactory().build());
             this.setClients("client");
             this.setMatchers(String.join(Pac4jConstants.ELEMENT_SEPARATOR, "securityExclusions"));
             this.setAuthorizers(DefaultAuthorizers.NONE);
@@ -46,5 +46,10 @@ public class SecurityFilterDecorator extends SecurityFilter implements Reinitial
         } else {
             chain.doFilter(request, response);
         }
+    }
+
+    @Override
+    public void destroy() {
+
     }
 }
