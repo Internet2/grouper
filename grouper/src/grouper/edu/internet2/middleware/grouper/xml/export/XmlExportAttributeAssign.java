@@ -916,7 +916,7 @@ public class XmlExportAttributeAssign {
         try {
           //keep a set of attribute assign ids (original assigns, not the attributes on attribute assignments)
           //so when merging with existing attributes we dont clobber existing one
-          writer.write("Set<String> attributeAssignIdsAlreadyUsed = new HashSet<>();\n");
+          writer.write("Set attributeAssignIdsAlreadyUsed = new HashSet();\n");
 
           results = query.scroll();
           while(results.next()) {
