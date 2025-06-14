@@ -1297,6 +1297,18 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public TargetDaoInsertEntitiesResponse insertEntities(
       TargetDaoInsertEntitiesRequest targetDaoInsertEntitiesRequest) {
+    // the provisioner will use valid emails
+    return insertEntitiesHelper(targetDaoInsertEntitiesRequest, true);
+  }
+  
+  /**
+   * 
+   * @param targetDaoInsertEntitiesRequest
+   * @param validEmail if false then append .fake12 to the email address
+   * @return
+   */
+  public TargetDaoInsertEntitiesResponse insertEntitiesHelper(
+      TargetDaoInsertEntitiesRequest targetDaoInsertEntitiesRequest, boolean validEmail) {
 
     initDao();
     
@@ -1417,7 +1429,11 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
           //  UserName = First Name<space>Last Name
           //  GUID = EPPN
           //  UserType = “SAML”
-          this.theState.bplogixCommands.createBplogixUser(eppn, GrouperEmail.retrieveEmailAddress(subject), subject.getName());
+          String emailAddress = GrouperEmail.retrieveEmailAddress(subject);
+          if (!validEmail && StringUtils.isNotBlank(emailAddress)) {
+            emailAddress = emailAddress + ".fake12";
+          }
+          this.theState.bplogixCommands.createBplogixUser(eppn, emailAddress, subject.getName());
           GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "bplogixCreateCount", 1);
           
           addBplogixUserRow(eppn, false);
