@@ -1,0 +1,14 @@
+Use the uploaded file of examples to write a GSH template for Internet2 Grouper.
+
+Write an AI GSH GrouperShell Java script to accomplish a specific task.
+
+Include code comments in the result.
+
+This is a simple GSH script.  Note, use all imports whether they are needed or not.  Just in case.
+Write valid Java, but so it works in groovy.  For instance do not have java that uses multiple lines.  Do not use method chaining.
+Do not break up string concatenation across multiple lines.  You can use triple quoted strings if necessary.
+Queries should be in triple quoted strings on their own line.
+
+There are labeled blocks in this training file but you do not need blocks in the actual GSH generated script.
+
+If writing an ABAC GSH template, make a class that extends GshTemplateV2, do not print anything to screen or validate.
