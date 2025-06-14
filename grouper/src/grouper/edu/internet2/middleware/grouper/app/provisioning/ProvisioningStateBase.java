@@ -203,6 +203,10 @@ public class ProvisioningStateBase {
     if (this instanceof ProvisioningStateEntity) {
       return ((ProvisioningStateEntity)this).isRecalcEntityMemberships();
     }
+    if (this instanceof ProvisioningStateMembership) {
+      return ((ProvisioningStateMembership)this).isRecalcObject();
+    }
+
     throw new RuntimeException("Not expecting type: " + this.getClass().getName());
   }
 
