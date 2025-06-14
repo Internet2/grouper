@@ -318,11 +318,7 @@ public class GrouperSftp {
     } catch (org.apache.commons.vfs2.FileSystemException fse) {
       throw new RuntimeException("error", fse);
     }
-    try {
-      SftpFileSystemConfigBuilder.getInstance().setKnownHosts(options, knownHostsFile);
-    } catch (FileSystemException fse) {
-      throw new RuntimeException("error", fse);
-    }
+    SftpFileSystemConfigBuilder.getInstance().setKnownHosts(options, knownHostsFile);
     //set root directory to user home
     SftpFileSystemConfigBuilder.getInstance().setUserDirIsRoot(options, false);
     //timeout
@@ -338,11 +334,7 @@ public class GrouperSftp {
       } else {
         identityInfo =  new IdentityInfo(new File(keyPath));
       }
-      try {
-        SftpFileSystemConfigBuilder.getInstance().setIdentityProvider(options, identityInfo);
-      } catch (org.apache.commons.vfs2.FileSystemException fse) {
-        throw new RuntimeException("error", fse);
-      }
+      SftpFileSystemConfigBuilder.getInstance().setIdentityProvider(options, identityInfo);
     }
     SftpFileSystemConfigBuilder.getInstance().setPreferredAuthentications(options,
         !StringUtils.isBlank(keyPath) ? "publickey" : "password");
