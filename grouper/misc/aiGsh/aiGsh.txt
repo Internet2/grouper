@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -907,6 +909,21 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       // a complement is also called minus
       compositeSave.assignType("intersection"); 
       compositeSave.save();
+
+    }
+    
+    FIND_ATTRIBUTE_DEF_NAME_BY_NAME: {
+
+      // #########
+      // Find an attribute definition name by its full name using AttributeDefNameFinder
+      // #########
+
+      // AttributeDefName full name
+      String attributeDefNameFullName = "example:attributeDef:someAttrDefName";
+
+      // Find the AttributeDefName
+      boolean exceptionIfNotFound = true;
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameFullName, exceptionIfNotFound);
 
     }
 
