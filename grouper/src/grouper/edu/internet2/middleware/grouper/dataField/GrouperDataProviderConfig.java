@@ -1,10 +1,6 @@
 package edu.internet2.middleware.grouper.dataField;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * 
@@ -33,6 +29,8 @@ public class GrouperDataProviderConfig {
 
     this.name = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProvider." + configId + ".name");
     
+    this.subjectSource = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDataProvider." + configId + ".subjectSource", false);
+    this.subjectSourceId = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProvider." + configId + ".subjectSourceId");
   }
   
   private String configId;
@@ -75,7 +73,30 @@ public class GrouperDataProviderConfig {
     this.name = name;
   }
   
+  private boolean subjectSource;
+
+
   
+  public boolean isSubjectSource() {
+    return subjectSource;
+  }
+
+  
+  public void setSubjectSource(boolean subjectSource) {
+    this.subjectSource = subjectSource;
+  }
+  
+  
+  private String subjectSourceId;
 
 
+  
+  public String getSubjectSourceId() {
+    return subjectSourceId;
+  }
+
+  
+  public void setSubjectSourceId(String subjectSourceId) {
+    this.subjectSourceId = subjectSourceId;
+  }
 }

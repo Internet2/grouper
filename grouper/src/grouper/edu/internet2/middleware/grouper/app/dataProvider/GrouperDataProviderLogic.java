@@ -55,7 +55,11 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignHstDa
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowWrapper;
 import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -72,6 +76,9 @@ public class GrouperDataProviderLogic {
       
   private GrouperDataProviderSync grouperDataProviderSync;
   private GrouperDataProvider grouperDataProvider;
+  
+  private Map<String, Member> membersToAddBySubjectId = new LinkedHashMap<>();
+  private Map<String, Member> unresolvedSubjectsWithMembersBySubjectId = new LinkedHashMap<>();
 
   public void setGrouperDataProviderSync(GrouperDataProviderSync grouperDataProviderSync) {
     this.grouperDataProviderSync = grouperDataProviderSync;
@@ -181,7 +188,7 @@ public class GrouperDataProviderLogic {
    * 
    */
   public void syncIncremental() {
-
+    
     String dataProviderConfigId = grouperDataProviderSync.getConfigId();
     
     if (grouperDataProviderSync.getGrouperDataEngine() == null) {
@@ -212,6 +219,13 @@ public class GrouperDataProviderLogic {
     if (!dataEngine.getProviderConfigByConfigId().containsKey(dataProviderConfigId)) {
       grouperDataProviderSync.getDebugMap().put("dataProviderConfigNotFound", dataProviderConfigId);
       return;
+    }
+    
+    boolean isSubjectSource = dataEngine.getProviderConfigByConfigId().get(dataProviderConfigId).isSubjectSource();
+    String subjectSourceIdIfSubjectSource = dataEngine.getProviderConfigByConfigId().get(dataProviderConfigId).getSubjectSourceId();
+    
+    if (isSubjectSource && StringUtils.isBlank(subjectSourceIdIfSubjectSource)) {
+      throw new RuntimeException("subjectSourceId is not specified for " + grouperDataProviderSync.getConfigId());
     }
 
     Timestamp changesFromTimestamp = grouperDataProviderSync.getGcGrouperSyncJob().getLastSyncTimestamp(); // start time of the last success
@@ -255,6 +269,10 @@ public class GrouperDataProviderLogic {
 
       if (!"subjectId".equals(subjectIdType) && !"subjectIdentifier".equals(subjectIdType)) {
         throw new RuntimeException("Unexpected providerChangeLogQuerySubjectIdType: " + subjectIdType);
+      }
+      
+      if (isSubjectSource && !"subjectId".equals(subjectIdType)) {
+        throw new RuntimeException("subjectIdType type must be subjectId for subject source data providers.");
       }
       
       for (Object[] row : rows) {
@@ -314,6 +332,13 @@ public class GrouperDataProviderLogic {
     }
     
     Set<Member> members = MemberFinder.findBySubjects(allSubjects, true);
+
+    if (isSubjectSource) {
+      createMemberObjects(subjectIds, sourceToSubjectIds.get(subjectSourceIdIfSubjectSource), members);
+      members.addAll(membersToAddBySubjectId.values());
+      members.addAll(unresolvedSubjectsWithMembersBySubjectId.values());
+    }
+    
     for (Member member : members) {
       Long memberInternalId = member.getInternalId();
 
@@ -548,6 +573,14 @@ public class GrouperDataProviderLogic {
   private void retrieveSourceData(Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex, boolean isFullSync) {
     GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
 
+    boolean isSubjectSource = dataEngine.getProviderConfigByConfigId().get(grouperDataProviderSync.getConfigId()).isSubjectSource();
+    String subjectSourceIdIfSubjectSource = dataEngine.getProviderConfigByConfigId().get(grouperDataProviderSync.getConfigId()).getSubjectSourceId();
+    
+    if (isSubjectSource && StringUtils.isBlank(subjectSourceIdIfSubjectSource)) {
+      throw new RuntimeException("subjectSourceId is not specified for " + grouperDataProviderSync.getConfigId());
+    }
+
+    
     Map<MultiKey, Subject> subjectIdAttributeSubjectIdSourceIdToSubject = new HashMap<MultiKey, Subject>();
 
     Map<String, Set<String>> sourceToSubjectIds = new HashMap<String, Set<String>>();
@@ -594,6 +627,10 @@ public class GrouperDataProviderLogic {
 
       if (!"subjectId".equals(subjectIdType) && !"subjectIdentifier".equals(subjectIdType)) {
         throw new RuntimeException("Unexpected providerQuerySubjectIdType: " + subjectIdType);
+      }
+      
+      if (isSubjectSource && !"subjectId".equals(subjectIdType)) {
+        throw new RuntimeException("subjectIdType type must be subjectId for subject source data providers.");
       }
       
       // loop over the rows and get the subject ids or identifiers and collect them up
@@ -671,6 +708,10 @@ public class GrouperDataProviderLogic {
     
     Map<Subject, Member> subjectToMember = MemberFinder.findBySubjectsToMap(subjects, true);
     
+    if (isSubjectSource && isFullSync) {
+      createMemberObjects(subjectIds, sourceToSubjectIds.get(subjectSourceIdIfSubjectSource), subjectToMember.values());
+    }
+    
     // pass two, assign the data to the members
     for (GrouperDataProviderQuery grouperDataProviderQuery : grouperDataProviderSync.retrieveGrouperDataProviderQueries()) {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
@@ -693,13 +734,20 @@ public class GrouperDataProviderLogic {
         MultiKey multiKey = new MultiKey(subjectIdType, subjectId, sourceIdAttribute);
         
         Subject subject = subjectIdAttributeSubjectIdSourceIdToSubject.get(multiKey);
-        Member member = subjectToMember.get(subject);
+        Member member = subject == null ? null : subjectToMember.get(subject);
         
         if (member == null) {
-          LOG.warn("Unable to resolve subject " + subjectId + ", " + sourceIdAttribute + ", " + subjectIdType);
-          grouperDataProviderSync.getHib3GrouperLoaderLog().addUnresolvableSubjectCount(1);
-          addUnresolvableSubjectToJobMessage(subjectId);
-          continue;
+          if (isSubjectSource) {
+            member = membersToAddBySubjectId.get(subjectId);
+            if (member == null) {
+              member = unresolvedSubjectsWithMembersBySubjectId.get(subjectId);
+            }
+          } else {
+            LOG.warn("Unable to resolve subject " + subjectId + ", " + sourceIdAttribute + ", " + subjectIdType);
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addUnresolvableSubjectCount(1);
+            addUnresolvableSubjectToJobMessage(subjectId);
+            continue; 
+          }
         }
           
 
@@ -726,6 +774,52 @@ public class GrouperDataProviderLogic {
     }
   }
   
+  private void createMemberObjects(Set<String> subjectIds1, Set<String> subjectIds2, Collection<Member> membersFound) {
+    String subjectSourceIdIfSubjectSource = grouperDataProviderSync.getGrouperDataEngine().getProviderConfigByConfigId().get(grouperDataProviderSync.getConfigId()).getSubjectSourceId();
+
+    Set<String> subjectIdsToAdd = new LinkedHashSet<>();
+    if (subjectIds1 != null) {
+      subjectIdsToAdd.addAll(subjectIds1);
+    }
+    
+    if (subjectIds2 != null) {
+      subjectIdsToAdd.addAll(subjectIds2);
+    }
+          
+    Set<String> allSubjectIdsFoundInMembersTable = new LinkedHashSet<>();
+    for (Member member : membersFound) {
+      allSubjectIdsFoundInMembersTable.add(member.getSubjectId());
+    }
+          
+    subjectIdsToAdd.removeAll(allSubjectIdsFoundInMembersTable);
+    
+    Set<Member> unresolvedSubjectsWithMemberObjects = GrouperDAOFactory.getFactory().getMember().findBySubjectIds(subjectIdsToAdd, subjectSourceIdIfSubjectSource);
+    for (Member member : unresolvedSubjectsWithMemberObjects) {
+      subjectIdsToAdd.remove(member.getSubjectId());
+      unresolvedSubjectsWithMembersBySubjectId.put(member.getSubjectId(), member);
+    }
+    
+    if (subjectIdsToAdd.size() > 0) {
+      List<Long> idIndexes = TableIndex.reserveIds(TableIndexType.member, subjectIdsToAdd.size());
+      List<Long> internalIds = TableIndex.reserveIds(TableIndexType.memberInternalId, subjectIdsToAdd.size());
+      
+      for (String subjectIdToAdd : subjectIdsToAdd) {
+        int count = 0;
+        
+        Member member = new Member();
+        member.setSubjectIdDb(subjectIdToAdd);
+        member.setSubjectSourceIdDb(subjectSourceIdIfSubjectSource);
+        member.setSubjectTypeId("person");
+        member.setUuid(GrouperUuid.getUuid());
+        member.setIdIndex(idIndexes.get(count));
+        member.setInternalId(internalIds.get(count));
+        membersToAddBySubjectId.put(member.getSubjectId(), member);
+        
+        count++;
+      }
+    }    
+  }
+
   private void calculateAndStoreChanges(Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex) {
     GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
 
@@ -1369,9 +1463,15 @@ public class GrouperDataProviderLogic {
       memberInternalIdToRowAssignInternalIds.get(memberInternalId).add(rowAssignInternalId);
     }
     
+    Map<Long, Member> membersToAddByInternalId = new LinkedHashMap<>();
+    for (Member member : membersToAddBySubjectId.values()) {
+      membersToAddByInternalId.put(member.getInternalId(), member);
+    }
+    
     Set<Long> allMemberInternalIdsToUpdate = new LinkedHashSet<>();
     allMemberInternalIdsToUpdate.addAll(memberInternalIdToFieldAssignInternalIds.keySet());
     allMemberInternalIdsToUpdate.addAll(memberInternalIdToRowAssignInternalIds.keySet());
+    allMemberInternalIdsToUpdate.addAll(membersToAddByInternalId.keySet());
     List<Long> allMemberInternalIdsToUpdateList = new ArrayList<>(allMemberInternalIdsToUpdate);
 
     
@@ -1405,7 +1505,13 @@ public class GrouperDataProviderLogic {
           Set<ChangeLogEntryTemp> batchOfChangeLogEntriesDataRowAssignsToInsert = new LinkedHashSet<>();
           Set<ChangeLogEntryTemp> batchOfChangeLogEntriesDataRowAssignsToDelete = new LinkedHashSet<>();
           
+          Set<Member> batchOfMembersToAdd = new LinkedHashSet<>();
+          
           for (Long memberInternalId : batchOfMemberInternalIds) {
+            if (membersToAddByInternalId.containsKey(memberInternalId)) {
+              batchOfMembersToAdd.add(membersToAddByInternalId.get(memberInternalId));
+            }
+            
             for (Long fieldAssignInternalId : GrouperUtil.nonNull(memberInternalIdToFieldAssignInternalIds.get(memberInternalId))) {
               if (fieldAssignIdToGrouperDataFieldAssignHstsToInsert.containsKey(fieldAssignInternalId)) {
                 batchOfGrouperDataFieldAssignHstsToInsert.add(fieldAssignIdToGrouperDataFieldAssignHstsToInsert.get(fieldAssignInternalId));
@@ -1474,7 +1580,12 @@ public class GrouperDataProviderLogic {
               }
             }
           }
-           
+          
+          // TODO ok to use hibernate since the hooks should run?
+          if (batchOfMembersToAdd.size() > 0) {
+            HibernateSession.byObjectStatic().saveBatch(batchOfMembersToAdd);
+          }
+          
           GrouperDataFieldAssignHstDao.store(batchOfGrouperDataFieldAssignHstsToInsert);
           grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataFieldAssignHstsToInsert.size());
           
