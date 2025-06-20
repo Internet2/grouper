@@ -48,7 +48,7 @@ public class ServiceProviderConfigProvider {
   /**
    * Location of the Grouper SCIM documentation
    */
-  public static final String GROUPER_SCIM_WIKI = "https://spaces.at.internet2.edu/display/Grouper/Grouper+TIER+SCIM+server";
+  public static final String GROUPER_SCIM_WIKI = "https://spaces.at.internet2.edu/x/GICOF";
 
   @GET
   @Consumes({MEDIA_TYPE_SCIM, MediaType.APPLICATION_JSON})
