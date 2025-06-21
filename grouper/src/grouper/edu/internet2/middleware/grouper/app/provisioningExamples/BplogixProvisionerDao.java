@@ -84,6 +84,8 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
   public static class TheState {
 
     boolean isProd = false;
+    boolean isStage = false;
+    boolean isDev = false;
 
     String configSuffix;
     String logTableName;
@@ -111,18 +113,43 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
       if(StringUtils.equals("bplogixProd", theProvisionerConfigId)) {
         this.isProd = true;
       }
+      if (StringUtils.equals("bplogixStage", theProvisionerConfigId)) {
+        this.isStage = true;
+      }
+      if (StringUtils.equals("bplogixDev", theProvisionerConfigId)) {
+        this.isDev = true;
+      }
 
-      this.configSuffix = this.isProd ? "Prod" : "Stage";
-      this.logTableName = this.isProd ? "bplogix_provisioning_log_prod" : "bplogix_provisioning_log_stage";
-      this.userTableName = this.isProd ? "bplogix_active_users" : "bplogix_active_users_stage";
-      this.groupNameFedFromBplogix = this.isProd ? "penn:isc:ait:apps:bplogix:service:reports:BPLogixActiveUsers" : "penn:isc:ait:apps:bplogix:service:reports:BPLogixActiveUsersStage";
-      this.groupNameAutomaticLicense = this.isProd ? "penn:isc:ait:apps:bplogix:service:policy:licensingProd:bplogixAutomaticLicenseProd" : "penn:isc:ait:apps:bplogix:service:policy:licensingStage:bplogixAutomaticLicenseStage";
-      this.groupNameCanClaimLicense = this.isProd ? "penn:community:affiliateMemberAlum" : "penn:isc:ait:apps:bplogix:service:policy:licensingStage:bplogixCanClaimLicenseStage";
-      this.groupNameHasSelfClaimedLicense = this.isProd ? "penn:isc:ait:apps:bplogix:service:policy:licensingProd:bplogixHasSelfClaimedLicenseProd" : "penn:isc:ait:apps:bplogix:service:policy:licensingStage:bplogixHasSelfClaimedLicenseStage";
-      this.groupNameRecentBpLogixUser = this.isProd ? "penn:isc:ait:apps:bplogix:service:policy:licensingProd:bplogixRecentAuthenticationProd" : "penn:isc:ait:apps:bplogix:service:policy:licensingStage:bplogixRecentAuthenticationStage";
-      this.groupNameUsersWithTasks = this.isProd ? "penn:isc:ait:apps:bplogix:service:reports:BPLogixActiveUsersWithTask" : "penn:isc:ait:apps:bplogix:service:reports:BPLogixActiveUsersWithTaskStage";
-      this.groupNameUsersWithLicense = this.isProd ? "penn:isc:ait:apps:bplogix:service:policy:licensingProd:bplogixHasLicenseProd" : "penn:isc:ait:apps:bplogix:service:policy:licensingStage:bplogixHasLicenseStage";
-      this.groupNameCanLogIn = this.isProd ? "penn:isc:ait:apps:bplogix:service:policy:bplogixCanLogInProd" : "penn:isc:ait:apps:bplogix:service:policy:bplogixCanLogInStage";
+      this.configSuffix = this.isProd ? "Prod" : (this.isStage ? "Stage" : "Dev");
+      this.logTableName = this.isProd ? "bplogix_provisioning_log_prod" : (this.isStage ? "bplogix_provisioning_log_stage" : "bplogix_provisioning_log_dev");
+      this.userTableName = this.isProd ? "bplogix_active_users" : (this.isStage ? "bplogix_active_users_stage" : "bplogix_active_users_dev");
+      this.groupNameFedFromBplogix = this.isProd ? "penn:isc:ait:apps:bplogix:service:reports:BPLogixActiveUsers" :
+        (this.isStage ? "penn:isc:ait:apps:bplogix:service:reports:BPLogixActiveUsersStage" : "penn:isc:ait:apps:bplogix:service:reports:BPLogixActiveUsersDev");
+      this.groupNameAutomaticLicense = this.isProd ? "penn:isc:ait:apps:bplogix:service:policy:licensingProd:bplogixAutomaticLicenseProd": ( 
+          this.isStage ? "penn:isc:ait:apps:bplogix:service:policy:licensingStage:bplogixAutomaticLicenseStage" : 
+            "penn:isc:ait:apps:bplogix:service:policy:licensingDev:bplogixAutomaticLicenseDev");
+      this.groupNameCanClaimLicense = this.isProd ? "penn:community:affiliateMemberAlum" : (
+              this.isStage ? "penn:isc:ait:apps:bplogix:service:policy:licensingStage:bplogixCanClaimLicenseStage"
+                  : "penn:isc:ait:apps:bplogix:service:policy:licensingDev:bplogixCanClaimLicenseDev");
+      this.groupNameHasSelfClaimedLicense = this.isProd ? "penn:isc:ait:apps:bplogix:service:policy:licensingProd:bplogixHasSelfClaimedLicenseProd" :
+          (this.isStage ? "penn:isc:ait:apps:bplogix:service:policy:licensingStage:bplogixHasSelfClaimedLicenseStage"
+              : "penn:isc:ait:apps:bplogix:service:policy:licensingDev:bplogixHasSelfClaimedLicenseDev");
+      this.groupNameRecentBpLogixUser = this.isProd ? "penn:isc:ait:apps:bplogix:service:policy:licensingProd:bplogixRecentAuthenticationProd" : 
+          (this.isStage
+              ? "penn:isc:ait:apps:bplogix:service:policy:licensingStage:bplogixRecentAuthenticationStage"
+              : "penn:isc:ait:apps:bplogix:service:policy:licensingDev:bplogixRecentAuthenticationDev");
+      this.groupNameUsersWithTasks = this.isProd ? "penn:isc:ait:apps:bplogix:service:reports:BPLogixActiveUsersWithTask" : 
+          (this.isStage
+              ? "penn:isc:ait:apps:bplogix:service:reports:BPLogixActiveUsersWithTaskStage"
+              : "penn:isc:ait:apps:bplogix:service:reports:BPLogixActiveUsersWithTaskDev");
+      this.groupNameUsersWithLicense = this.isProd ? "penn:isc:ait:apps:bplogix:service:policy:licensingProd:bplogixHasLicenseProd" : 
+          (this.isStage
+              ? "penn:isc:ait:apps:bplogix:service:policy:licensingStage:bplogixHasLicenseStage"
+              : "penn:isc:ait:apps:bplogix:service:policy:licensingDev:bplogixHasLicenseDev");
+      this.groupNameCanLogIn = this.isProd ? "penn:isc:ait:apps:bplogix:service:policy:bplogixCanLogInProd"
+          : (this.isStage
+              ? "penn:isc:ait:apps:bplogix:service:policy:bplogixCanLogInStage"
+              : "penn:isc:ait:apps:bplogix:service:policy:bplogixCanLogInDev");
 
       String url = GrouperConfig.retrieveConfig().propertyValueStringRequired("bplogixEndpoint" + this.configSuffix);
       url = GrouperUtil.stripLastSlashIfExists(url);
@@ -251,9 +278,9 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
     /**
      * create a bp logix user, note you should retrieve it after this call
      * @param subjectId
-     * @return true if enabled
+     * @return the uid
      */
-    public void createBplogixUser(String eppn, String email, String name) {
+    public String createBplogixUser(String eppn, String email, String pennid, String name) {
       
       retrieveWsAuthnToken();
     
@@ -297,13 +324,14 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
             <CreateExternalUser xmlns="http://www.bplogix.com/WebServices">
               <UserID>%s</UserID>
               <Email>%s</Email>
+              <CustomString>%s</CustomString>
               <UserName>%s</UserName>
               <GUID>%s</GUID>
               <UserType>SAML</UserType>
             </CreateExternalUser>
           </soap:Body>
         </soap:Envelope>
-          """.formatted(this.wsAuthnToken, eppn, email, name, eppn);
+          """.formatted(this.wsAuthnToken, eppn, email, pennid, name, eppn);
       
       GrouperHttpClient grouperHttpClient = new GrouperHttpClient().assignUrl(this.wsUrl + "/Services/wsUser.asmx").
           assignGrouperHttpMethod("POST").addHeader("Content-Type", "text/xml; charset=utf-8").
@@ -375,6 +403,7 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
         String uid = (String) xPath.evaluate("/Envelope/Body/CreateExternalUserResponse/CreateExternalUserResult/UID", document, XPathConstants.STRING);
         GrouperUtil.assertion(!StringUtils.isBlank(uid), "UID is not found after create for eppn: '" + eppn + "', " + grouperHttpClient.getResponseBody());
         
+        return uid;
       } catch (XPathExpressionException e) {
         throw new RuntimeException("Error getting xpath: " + grouperHttpClient.getResponseCode() + ", " + grouperHttpClient.getResponseBody(), e);
       }
@@ -1127,6 +1156,7 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
     
     // bplogixProd
     // bplogixStage
+    // bplogixDev
     this.theState.initTheState(provisionerConfigId);
 
   }
@@ -1433,7 +1463,10 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
           if (!validEmail && StringUtils.isNotBlank(emailAddress)) {
             emailAddress = emailAddress + ".fake12";
           }
-          this.theState.bplogixCommands.createBplogixUser(eppn, emailAddress, subject.getName());
+          this.theState.bplogixCommands.createBplogixUser(eppn, emailAddress, pennnid, subject.getName());
+          
+          bplogixUser = this.retrieveEntityOrFromCache(eppn);
+          
           GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "bplogixCreateCount", 1);
           
           addBplogixUserRow(eppn, false);
@@ -1549,7 +1582,7 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     
-    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_provisioner_incremental_bplogixStage");
+    //GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_provisioner_incremental_bplogixStage");
 
     
 //    BplogixProvisionerDao bplogixProvisionerDao = new BplogixProvisionerDao();
