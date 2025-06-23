@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -803,8 +804,9 @@ public class GrouperDataProviderLogic {
       List<Long> idIndexes = TableIndex.reserveIds(TableIndexType.member, subjectIdsToAdd.size());
       List<Long> internalIds = TableIndex.reserveIds(TableIndexType.memberInternalId, subjectIdsToAdd.size());
       
+      int count = 0;
+      
       for (String subjectIdToAdd : subjectIdsToAdd) {
-        int count = 0;
         
         Member member = new Member();
         member.setSubjectIdDb(subjectIdToAdd);
@@ -1584,6 +1586,7 @@ public class GrouperDataProviderLogic {
           // TODO ok to use hibernate since the hooks should run?
           if (batchOfMembersToAdd.size() > 0) {
             HibernateSession.byObjectStatic().saveBatch(batchOfMembersToAdd);
+            SubjectSourceCache.clearCache();
           }
           
           GrouperDataFieldAssignHstDao.store(batchOfGrouperDataFieldAssignHstsToInsert);

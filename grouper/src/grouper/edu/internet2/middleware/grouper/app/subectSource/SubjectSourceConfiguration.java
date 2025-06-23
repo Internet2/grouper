@@ -13,6 +13,7 @@ public abstract class SubjectSourceConfiguration extends GrouperConfigurationMod
   static {
     sourceConfigClassNames.add(LdapSubjectSourceConfiguration.class.getName());
     sourceConfigClassNames.add(SqlSubjectSourceConfiguration.class.getName());
+    sourceConfigClassNames.add(DataFieldSubjectSourceConfiguration.class.getName());
   }
   
   /**
