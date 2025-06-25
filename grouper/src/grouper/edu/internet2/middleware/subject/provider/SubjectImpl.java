@@ -761,4 +761,13 @@ public class SubjectImpl implements Subject {
   public void setResolvedFromSource(boolean isResolvedFromSource) {
     this.isResolvedFromSource = isResolvedFromSource;
   }
+  
+  public void internalAssignAttribute(String attributeName, Set<String> attributeValues) {
+    if (this.attributes == null) {
+      this.attributes = new SubjectCaseInsensitiveMapImpl<String, Set<String>>();
+    }
+
+    this.attributes.put(attributeName, attributeValues);
+    
+  }
 }

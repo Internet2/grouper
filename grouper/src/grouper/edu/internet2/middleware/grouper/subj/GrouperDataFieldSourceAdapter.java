@@ -35,6 +35,7 @@ import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.InvalidQueryRuntimeException;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
 import edu.internet2.middleware.subject.util.SubjectApiUtils;
 
 public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
@@ -228,10 +229,10 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
    * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubjectsByIds(java.util.Collection)
    */
   @Override
-  public Map<String, Subject> getSubjectsByIds(Collection<String> ids) {
+  public Map<String, Subject> getSubjectsByIds(Collection<String> subjectIds) {
     
 
-    if (ids == null) {
+    if (subjectIds == null) {
       return null;
     }
 
@@ -247,12 +248,12 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     
     Map<String, Subject> results = new HashMap<String, Subject>();
     
-    if (ids.size() > 0) {
+    if (subjectIds.size() > 0) {
       
       int batchSize = 800;
-      int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(ids, batchSize);
+      int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(subjectIds, batchSize);
       
-      List<String> idsList = new ArrayList<String>(ids);
+      List<String> idsList = new ArrayList<String>(subjectIds);
       
       for (int i=0;i<numberOfBatches;i++) {
 
@@ -430,12 +431,12 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
   }
   
   @Override
-  public Subject getSubject(String id1) throws SubjectNotFoundException, SubjectNotUniqueException {
+  public Subject getSubject(String subjectId) throws SubjectNotFoundException, SubjectNotUniqueException {
     
-    Map<String, Subject> subjectMap = getSubjectsByIds(SubjectApiUtils.toSet(id1));
+    Map<String, Subject> subjectMap = getSubjectsByIds(SubjectApiUtils.toSet(subjectId));
     
     if (SubjectApiUtils.length(subjectMap) > 1) {
-      throw new RuntimeException("Why are there more than one result??? " + id1 + ", " + SubjectApiUtils.length(subjectMap) + " in source: " + this.getId());
+      throw new RuntimeException("Why are there more than one result??? " + subjectId + ", " + SubjectApiUtils.length(subjectMap) + " in source: " + this.getId());
     }
     
     Subject subject = null;
@@ -445,7 +446,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     }
     
     if (subject == null) {
-      throw new SubjectNotFoundException("Subject not found by id: " + id1 + " in source: " + this.getId());
+      throw new SubjectNotFoundException("Subject not found by id: " + subjectId + " in source: " + this.getId());
     }
     return subject;
   }
@@ -525,7 +526,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         
       }
       
-      Subject subjectResult = null;
+      SubjectImpl subjectResult = null;
       for (String subjectId: subjectIdToDataFieldAttributes.keySet()) {
         Map<String, Set<String>> dataFieldConfigIdToSetOfValues = subjectIdToDataFieldAttributes.get(subjectId); // data field attributes
         
@@ -560,7 +561,24 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           }
         }
         
-        subjectResult = createSubject(sourceAttributesToValues, subjectId);
+        subjectResult = (SubjectImpl) createSubject(sourceAttributesToValues, subjectId);
+        // loop through the privacy priority map and set the subject attribute for each key in the map to be the highest priority value that's not blank
+        for (String attributeName : dataFieldCache.attributeNameToListOfPrioritizedPrivacyAttributeNames.keySet()) {
+          List<String> privacyAttributeNames = dataFieldCache.attributeNameToListOfPrioritizedPrivacyAttributeNames.get(attributeName);
+          Set<String> values = null;
+          for (String privacyAttributeName : privacyAttributeNames) {
+            if (privacyAttributeName == null) {
+              continue;
+            }
+            Set<String> attributeValues = subjectResult.getAttributeValues(privacyAttributeName.toLowerCase());
+            if (GrouperUtil.length(attributeValues) > 0 && StringUtils.isNotBlank(attributeValues.iterator().next())) {
+              values = attributeValues;
+              break;
+            }
+          }
+          
+          subjectResult.internalAssignAttribute(attributeName, values);
+        }
         results.add(subjectResult);
         //TODO add privacy
       }
@@ -718,6 +736,8 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     
     private Map<MultiKey, Set<String>> sourceIdSubjectIdToDataFieldConfigIds = new HashMap<MultiKey, Set<String>>();
     
+    private Map<String, List<String>> attributeNameToListOfPrioritizedPrivacyAttributeNames = new HashMap<String, List<String>>();
+    
     private Set<GrouperDataFieldConfig> retrieveAllDataFieldConfigIds(Source source) {
       
       Map<String, GrouperDataFieldConfig> fieldConfigByConfigId = dataEngine.getFieldConfigByConfigId();
@@ -740,10 +760,11 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         for (int i=0; i<numberOfAttrs; i++) {
           
           String dataFieldConfigIdSourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".sourceAttribute");
-          String dataFieldConfigIdName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".name");
+          String dataFieldConfigIdSubjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".name");
           String dataFieldConfigIdTranslationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".translationType");
           boolean isMultivalued = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + source.getConfigId() + ".attribute."+i+".multivaluedDataFieldAttribute", false);
           boolean formatToLowerCase = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + source.getConfigId() + ".attribute."+i+".formatToLowerCase", false);
+          
           if (isMultivalued) {
             this.dataFieldMultivaluedConfigIds.add(dataFieldConfigIdSourceAttribute);
           }
@@ -751,9 +772,37 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
             this.dataFieldFormatToLowerCaseConfigIds.add(dataFieldConfigIdSourceAttribute);
           }
           
+          //if translation type is dataFieldPrivacyTarget then add a key to the privacy attribute names map
+          if (StringUtils.equals(dataFieldConfigIdTranslationType, "dataFieldPrivacyTarget")) {
+            this.attributeNameToListOfPrioritizedPrivacyAttributeNames
+                .put(dataFieldConfigIdSubjectAttributeName, new ArrayList<String>());
+          }
+          
+          boolean privacyDataFieldSource = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + source.getConfigId() + ".attribute."+i+".privacyDataFieldSource", false);
+          
+          if (privacyDataFieldSource) {
+            //privacyAttributeName
+            String privacyAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".privacyAttributeName");
+            // int privacyPriority
+            int privacyPriority = SubjectConfig.retrieveConfig().propertyValueInt("subjectApi.source." + source.getConfigId() + ".attribute."+i+".privacyPriority");
+            // if privacyDataFieldSource then add the attribute name to the list of privacy attributes in the values of the map in the index of the privacy level
+            if (privacyDataFieldSource && StringUtils.isNotBlank(privacyAttributeName)) {
+              List<String> privacyAttributeNames = this.attributeNameToListOfPrioritizedPrivacyAttributeNames.get(privacyAttributeName);
+              if (privacyAttributeNames == null) {
+                privacyAttributeNames = new ArrayList<String>();
+                this.attributeNameToListOfPrioritizedPrivacyAttributeNames
+                    .put(privacyAttributeName, privacyAttributeNames);
+              }
+              while (privacyAttributeNames.size() <= privacyPriority - 1) {
+                privacyAttributeNames.add(null);
+              }
+              privacyAttributeNames.set(privacyPriority - 1, dataFieldConfigIdSubjectAttributeName);
+            }
+          }
+          
           String dataFieldConfigId = null;
           if (StringUtils.equals(dataFieldConfigIdTranslationType, "sourceAttributeSameAsSubjectAttribute")) {
-            dataFieldConfigId = dataFieldConfigIdName;
+            dataFieldConfigId = dataFieldConfigIdSubjectAttributeName;
           } else if (StringUtils.equals(dataFieldConfigIdTranslationType, "sourceAttribute")) {
             dataFieldConfigId = dataFieldConfigIdSourceAttribute;
           } else {

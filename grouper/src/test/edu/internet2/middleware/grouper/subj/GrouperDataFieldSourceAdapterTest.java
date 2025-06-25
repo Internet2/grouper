@@ -204,9 +204,8 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
     
     
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.adapterClass").value("edu.internet2.middleware.grouper.subj.GrouperDataFieldSourceAdapter").store();;
-    new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.0.internal").value("true").store();;
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.0.name").value("name").store();
-    new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.0.translationType").value("sourceAttributeSameAsSubjectAttribute").store();
+    new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.0.translationType").value("dataFieldPrivacyTarget").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.1.name").value("namePrivate").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.1.privacyAttributeName").value("name").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.1.privacyDataFieldSource").value("true").store();
@@ -227,7 +226,7 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.11.sourceAttribute").value("emailPublic").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.11.translationType").value("sourceAttribute").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.12.name").value("description").store();
-    new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.12.translationType").value("sourceAttributeSameAsSubjectAttribute").store();
+    new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.12.translationType").value("dataFieldPrivacyTarget").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.13.name").value("descriptionPrivate").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.13.privacyAttributeName").value("description").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.13.privacyDataFieldSource").value("true").store();
@@ -247,7 +246,7 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.2.sourceAttribute").value("namePublic").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.2.translationType").value("sourceAttribute").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.3.name").value("lfName").store();
-    new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.3.translationType").value("sourceAttributeSameAsSubjectAttribute").store();
+    new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.3.translationType").value("dataFieldPrivacyTarget").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.4.name").value("lfNamePrivate").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.4.privacyAttributeName").value("lfName").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.4.privacyDataFieldSource").value("true").store();
@@ -261,7 +260,7 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.5.sourceAttribute").value("lfNamePublic").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.5.translationType").value("sourceAttribute").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.6.name").value("netId").store();
-    new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.6.translationType").value("sourceAttributeSameAsSubjectAttribute").store();
+    new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.6.translationType").value("dataFieldPrivacyTarget").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.7.name").value("netIdPrivate").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.7.privacyAttributeName").value("netId").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.7.privacyDataFieldSource").value("true").store();
@@ -275,7 +274,7 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.8.sourceAttribute").value("netIdPublic").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.8.translationType").value("sourceAttribute").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.9.name").value("email").store();
-    new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.9.translationType").value("sourceAttributeSameAsSubjectAttribute").store();
+    new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.9.translationType").value("dataFieldPrivacyTarget").store();
 
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.6.subjectIdentifier").value("true").store();
     new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.7.subjectIdentifier").value("true").store();
