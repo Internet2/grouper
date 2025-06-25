@@ -815,7 +815,10 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       output.put("someAttributeName", "theValue");
       output.put("someNumber", 25);
 
-      gsh_builtin_gshTemplateOutput.setWsOutput(output);
+      // if this is not already declared
+      GshTemplateOutput gsh_builtin_gshTemplateOutput2 = gshTemplateV2output.getGsh_builtin_gshTemplateOutput();
+      
+      gsh_builtin_gshTemplateOutput2.setWsOutput(output);
 
     }
 
