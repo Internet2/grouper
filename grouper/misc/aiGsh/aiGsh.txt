@@ -804,7 +804,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
 
     WS_RETURN_DATA: {
       // #########
-      // Return data to the web service output
+      // Return json data to the web service response from java map
       // #########
 
       // simple params have a map of json attributes to values
@@ -815,10 +815,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       output.put("someAttributeName", "theValue");
       output.put("someNumber", 25);
 
-      // if this is not already declared
-      GshTemplateOutput gsh_builtin_gshTemplateOutput2 = gshTemplateV2output.getGsh_builtin_gshTemplateOutput();
-      
-      gsh_builtin_gshTemplateOutput2.setWsOutput(output);
+      gsh_builtin_gshTemplateOutput.setWsOutput(output);
 
     }
 
@@ -1009,6 +1006,17 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       // get a specific field from the JSON response
       String threadId = GrouperUtil.jsonJacksonGetString(jsonNode, "id");      
       
+
+    }
+
+    WS_RETURN_DATA_JSON: {
+      // #########
+      // Return json data to the web service output from JsonNode
+      // #########
+
+      JsonNode jsonNode = null;
+
+      gsh_builtin_gshTemplateOutput.setWsOutput(jsonNode);
 
     }
 
