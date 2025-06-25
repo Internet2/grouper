@@ -12,49 +12,37 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import java.util.*;
 
-import org.apache.commons.lang.StringUtils;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.lang3.*;
+import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Composite;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.*;
+
+import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.CompositeSave;
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupSave;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipSave;
-import edu.internet2.middleware.grouper.StemSave;
-import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.attestation.AttestationGroupSave;
-import edu.internet2.middleware.grouper.app.attestation.AttestationStemSave;
-import edu.internet2.middleware.grouper.app.attestation.AttestationType;
-import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOutput;
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2;
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2input;
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2output;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefSave;
-import edu.internet2.middleware.grouper.attr.AttributeDefType;
-import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
-import edu.internet2.middleware.grouper.group.TypeOfGroup;
-import edu.internet2.middleware.grouper.misc.SaveMode;
-import edu.internet2.middleware.grouper.misc.SaveResultType;
-import edu.internet2.middleware.grouper.util.GrouperHttpClient;
-import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
-import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.grouper.app.attestation.*;
+import edu.internet2.middleware.grouper.app.externalSystem.*;
+import edu.internet2.middleware.grouper.app.gsh.template.*;
+import edu.internet2.middleware.grouper.app.loader.*;
+import edu.internet2.middleware.grouper.attr.finder.*;
+import edu.internet2.middleware.grouper.attr.*;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.group.*;
+import edu.internet2.middleware.grouper.misc.*;
+import edu.internet2.middleware.grouper.util.*;
+import edu.internet2.middleware.grouperClient.jdbc.*;
+import edu.internet2.middleware.subject.*;
+import edu.internet2.middleware.grouper.privs.*;
+
 
 public class Test124aiGshTraining extends GshTemplateV2 {
+
+  /** declare logger, The logger class is always GshTemplateV2.class since the groovy scripts make random classnames */
+  private static final Log LOG = GrouperUtil.getLog(GshTemplateV2.class);
 
   /**
    * this is the main logic method
@@ -257,6 +245,28 @@ public class Test124aiGshTraining extends GshTemplateV2 {
 
     }
 
+    LOG_ERROR_WITH_EXCEPTION: {
+      // #########
+      // Log an error message with an exception
+      // #########
+      try {
+        // Simulate an operation that might throw an exception
+        throw new RuntimeException("This is a simulated exception for logging purposes.");
+      } catch (Exception e) {
+        // Log the error with the exception
+        LOG.error("An error occurred while processing: ", e);
+      }
+    }
+
+    LOG_INFO: {
+      // #########
+      // Log an informational message
+      // #########
+
+      // Log an informational message
+      LOG.info("This is an informational message for the GSH template execution.");
+    }
+    
     CREATE_GROUP_WITH_PARENT_FOLDERS: {
       // #########
       // Create a group and ensure parent stems are created if they do not exist
@@ -435,6 +445,137 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       }
     }
 
+    FIND_ATTRIBUTE_ASSIGNMENT_ON_GROUP: {
+      // #########
+      // Find an attribute assignment on group
+      // #########
+
+      boolean exceptionIfAttributeDefNameNotFound = true;
+      AttributeDefName provisioningMarkerAttributeDefName = AttributeDefNameFinder.findByName("some:attribute:def:name", exceptionIfAttributeDefNameNotFound);
+
+      // If the user in the grouper session is allowed to see this assignment, generally for GSH templates this is false
+      boolean checkSecurity = false;
+      boolean exceptionIfNull = true;
+      Group group = null;
+      AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, provisioningMarkerAttributeDefName, checkSecurity, exceptionIfNull);
+
+    }
+
+    FIND_ATTRIBUTE_VALUE_STRING_ON_ATTRIBUTE_ASSIGNMENT: {
+      // #########
+      // Find an attribute value string on an attribute assignment
+      // #########
+
+      // Assuming 'attributeAssign' is the AttributeAssign object retrieved previously
+      AttributeAssign attributeAssign = null;
+      
+      // Get the attribute value from the attribute assignment
+      String attributeValueString = attributeAssign.getAttributeValueDelegate().retrieveValueString("some:attribute:def:name");
+
+    }
+    
+    FIND_ATTRIBUTE_VALUE_INTEGER_ON_ATTRIBUTE_ASSIGNMENT: {
+      // #########
+      // Find an attribute value integer on an attribute assignment
+      // #########
+
+      // Assuming 'attributeAssign' is the AttributeAssign object retrieved previously
+      AttributeAssign attributeAssign = null;
+      
+      // Get the attribute value from the attribute assignment
+      Long attributeValueLong = attributeAssign.getAttributeValueDelegate().retrieveValueInteger("some:attribute:def:name");
+
+    }
+    
+    ASSIGN_ATTRIBUTE_VALUE_STRING_ON_ATTRIBUTE_ASSIGNMENT: {
+      // #########
+      // Assign an attribute value string on an attribute assignment
+      // #########
+
+      // Assuming 'attributeAssign' is the AttributeAssign object retrieved previously
+      AttributeAssign attributeAssign = null;
+
+      // Assign a string value to the attribute assignment
+      String newValue = "newValue";
+      attributeAssign.getAttributeValueDelegate().assignValueString("some:attribute:def:name", newValue);
+
+    }
+    
+    FIND_FOLDER: {
+      // #########
+      // Find a folder (stem) by name using StemFinder
+      // #########
+
+      // Specify the name of the folder to find
+      String folderNameToFind = "example:targetFolder";
+
+      // Find the stem (folder) by name
+      Stem stem = StemFinder.findByName(folderNameToFind, true);
+
+    }
+
+    GET_GROUPER_SESSION: {
+      // #########
+      // Get the current Grouper session
+      // #########
+
+      // Start a Grouper session as root
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    }
+    
+    REPLACE_PARTS_OF_STRING: {
+      // #########
+      // Replace parts of a string with another string
+      // #########
+
+      // Example string
+      String theString = "Hello, world!";
+      
+      // Replace "world" with "Grouper"
+      theString = StringUtils.replace(theString, "world", "Grouper");
+      
+    }
+    
+    COMPARE_TWO_STRINGS: {
+      // #########
+      // Compare two strings for equality
+      // #########
+
+      String string1 = "Grouper";
+      String string2 = "Grouper";
+
+      boolean areEqual = StringUtils.equals(string1, string2);
+
+    }
+    
+    LIST_GROUPS_IN_FOLDER: {
+      // #########
+      // List all groups in a folder (stem) using StemFinder
+      // #########
+
+      // Find the stem by name
+      Stem stemToListGroups = null;
+
+      // Get all groups in the specified stem.  this method returns a Set<Object> so always declare as Set<Group> before looping through
+      Set<Group> groupsInStem = stemToListGroups.getChildGroups();
+
+    }
+    
+    CONVERT_JSON_NODE_TO_OBJECT_NODE: {
+      // #########
+      // Convert a JsonNode to an ObjectNode
+      // #########
+
+      // Assuming 'jsonNode' is a JsonNode object
+      JsonNode jsonNode = GrouperUtil.jsonJacksonNode("""
+          {"a":"b}
+          """);
+      
+      // if jsonNode was created with GrouperUtil.jsonJacksonNode, then it is am ObjectNode
+      ObjectNode objectNode = (ObjectNode)jsonNode;
+
+    }
+    
     ADD_REPORT_ATTESTATION_TO_FOLDER: {
       // #########
       // Add report attestation to a folder on reportConfigName every 30 days, send emails to group a:b:c
@@ -473,6 +614,15 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       }
     }
 
+    GET_SUBJECT_LOGGED_IN: {
+      // #########
+      // Get the subject logged in to the UI or WS
+      // #########
+
+      // Get the subject logged in to the Grouper session
+      Subject subjectLoggedIn = gshTemplateV2input.getGsh_builtin_subject();
+    }
+    
     ADD_ATTESTATION_TO_GROUP: {
       // #########
       // Assign attestation to a group using AttestationGroupSave, send email to group d:e:f
@@ -911,7 +1061,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       compositeSave.save();
 
     }
-    
+
     FIND_ATTRIBUTE_DEF_NAME_BY_NAME: {
 
       // #########
