@@ -1,0 +1,24 @@
+#########
+# SQL to select subject ids who are members of a group
+# before grouper v5 you need to use this view, in v5+ you can 
+# use the sql membership cache view
+#########
+
+select gmlv.subject_id
+from grouper_memberships_lw_v gmlv
+where gmlv.group_name = 'test:testGroup'
+and gmlv.list_name = 'members'
+and gmlv.subject_source = 'pennperson';
+
+#########
+# SQL to select attribute assignments to a user
+# in this case the attributes are directly assigned to the user
+# and the name of the attribute def name and the value string 
+# is returned
+#########
+
+select attribute_def_name_name, value_string 
+from grouper_aval_asn_member_v gaamv
+where gaamv.subject_id = '10021368' and gaamv.source_id = 'pennperson';
+
+
