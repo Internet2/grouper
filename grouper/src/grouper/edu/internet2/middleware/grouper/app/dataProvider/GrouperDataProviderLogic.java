@@ -66,6 +66,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcTransactionCallback;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -777,7 +778,9 @@ public class GrouperDataProviderLogic {
   
   private void createMemberObjects(Set<String> subjectIds1, Set<String> subjectIds2, Collection<Member> membersFound) {
     String subjectSourceIdIfSubjectSource = grouperDataProviderSync.getGrouperDataEngine().getProviderConfigByConfigId().get(grouperDataProviderSync.getConfigId()).getSubjectSourceId();
-
+    Source source = SubjectFinder.getSource(subjectSourceIdIfSubjectSource);
+    String sourceType = source.getSubjectTypes().iterator().next().getName();
+    
     Set<String> subjectIdsToAdd = new LinkedHashSet<>();
     if (subjectIds1 != null) {
       subjectIdsToAdd.addAll(subjectIds1);
@@ -811,7 +814,7 @@ public class GrouperDataProviderLogic {
         Member member = new Member();
         member.setSubjectIdDb(subjectIdToAdd);
         member.setSubjectSourceIdDb(subjectSourceIdIfSubjectSource);
-        member.setSubjectTypeId("person");
+        member.setSubjectTypeId(sourceType);
         member.setUuid(GrouperUuid.getUuid());
         member.setIdIndex(idIndexes.get(count));
         member.setInternalId(internalIds.get(count));
@@ -1482,13 +1485,13 @@ public class GrouperDataProviderLogic {
     for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
       
       final int theBatchIndex = batchIndex;
+      List<Long> batchOfMemberInternalIds = GrouperUtil.batchList(allMemberInternalIdsToUpdateList, batchSize, theBatchIndex);
       
       new GcDbAccess().callbackTransaction(new GcTransactionCallback<Boolean>() {
         
         @Override
         public Boolean callback(GcDbAccess dbAccessForStorage) {
     
-          List<Long> batchOfMemberInternalIds = GrouperUtil.batchList(allMemberInternalIdsToUpdateList, batchSize, theBatchIndex);
           List<GrouperDataFieldAssignHst> batchOfGrouperDataFieldAssignHstsToInsert = new ArrayList<>();
           List<GrouperDataFieldAssign> batchOfGrouperDataFieldAssignsToDelete = new ArrayList<>();
           List<GrouperDataFieldAssign> batchOfGrouperDataFieldAssignsToInsert = new ArrayList<>();
@@ -1586,7 +1589,7 @@ public class GrouperDataProviderLogic {
           // TODO ok to use hibernate since the hooks should run?
           if (batchOfMembersToAdd.size() > 0) {
             HibernateSession.byObjectStatic().saveBatch(batchOfMembersToAdd);
-            SubjectSourceCache.clearCache();
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfMembersToAdd.size());
           }
           
           GrouperDataFieldAssignHstDao.store(batchOfGrouperDataFieldAssignHstsToInsert);
@@ -1629,6 +1632,26 @@ public class GrouperDataProviderLogic {
           return null;
         }
       });
+
+      // resolve members outside of the transaction to get member row updated
+      boolean isSubjectSource = dataEngine.getProviderConfigByConfigId().get(grouperDataProviderSync.getConfigId()).isSubjectSource();
+      String subjectSourceIdIfSubjectSource = dataEngine.getProviderConfigByConfigId().get(grouperDataProviderSync.getConfigId()).getSubjectSourceId();
+      
+      if (isSubjectSource) {
+        SubjectSourceCache.clearCache();
+
+        Map<Long, GrouperDataMemberWrapper> memberWrapperByInternalId = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId();
+        Set<String> subjectIdsToResolve = new LinkedHashSet<String>();
+        for (long memberInternalId : batchOfMemberInternalIds) {
+          GrouperDataMemberWrapper grouperDataMemberWrapper = memberWrapperByInternalId.get(memberInternalId);
+          if (grouperDataMemberWrapper != null && grouperDataMemberWrapper.getMember() != null) {
+            String subjectId = grouperDataMemberWrapper.getMember().getSubjectId();
+            subjectIdsToResolve.add(subjectId);
+          }
+        }
+        
+        SubjectFinder.findByIds(subjectIdsToResolve, subjectSourceIdIfSubjectSource);
+      }
       
       GrouperDaemonUtils.stopProcessingIfJobPaused();
     }
