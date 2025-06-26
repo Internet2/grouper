@@ -1,0 +1,1207 @@
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=16549081
+
+Grouper : Add a member (entity or group) to a group    
+
+1.  [Grouper](index.html)
+2.  [Grouper Wiki Home](Grouper-Wiki-Home_14517702.html)
+3.  [Grouper User Guides](Grouper-User-Guides_301367442.html)
+4.  [Memberships management](Memberships-management_301367499.html)
+
+Grouper : Add a member (entity or group) to a group
+===================================================
+
+Created by Rob Hebron, last modified by ben.rappleyea.2@at.internet2.edu on May 30, 2024
+
+*   [Summary](#Addamember(entityorgroup)toagroup-Summary)
+*   [Privilege requirements](#Addamember(entityorgroup)toagroup-Privilegerequirements)
+*   [Find the group](#Addamember(entityorgroup)toagroup-Findthegroup)
+*   [View group screen](#Addamember(entityorgroup)toagroup-Viewgroupscreen)
+*   [Click 'Add members'](#Addamember(entityorgroup)toagroup-Click'Addmembers')
+*   [Search for a member to add with the search combobox](#Addamember(entityorgroup)toagroup-Searchforamembertoaddwiththesearchcombobox)
+*   [Alternatively you can use the search panel](#Addamember(entityorgroup)toagroup-Alternativelyyoucanusethesearchpanel)
+*   [Select the member from results and optionally add start and end dates](#Addamember(entityorgroup)toagroup-Selectthememberfromresultsandoptionallyaddstartandenddates)
+*   [See the success](#Addamember(entityorgroup)toagroup-Seethesuccess)
+
+Summary
+-------
+
+You can add a user, service principal, or group to be the member of a group. If a group is a member of another group, then all the members of the member group are effective members of the parent group. The thing that is added to the group is referred to as an entity, subject, or member. Note: a service principal could be a credential that a web service user uses. It could be a local entity in Grouper or something represented in an institutional subject source.
+
+Privilege requirements
+----------------------
+
+If a UI user has the appropriate privileges on a group, they can add a member to the group.
+
+To add or remove a member from a group, the user needs UPDATE/READ or ADMIN on the group. Note these privileges could be effectively assigned due to the user's role in an application folder or org folder. Sysadmins can manage members in any group.
+
+Find the group
+--------------
+
+You can find a Group in Grouper in various ways: searching, navigating, favorites, home screen panels, bookmark, etc
+
+  
+
+View group screen
+-----------------
+
+![](attachments/16549081/278529640.png)
+
+  
+
+Click 'Add members'
+-------------------
+
+Click the 'Add members' button to show the add member panel
+
+![](attachments/16549081/278529641.png)
+
+  
+
+Search for a member to add with the search combobox
+---------------------------------------------------
+
+Note there are icons to distinguish between users, groups,
+
+![](attachments/16549081/278529643.png)
+
+  
+
+Alternatively you can use the search panel
+------------------------------------------
+
+![](attachments/16549081/278529648.png)
+
+  
+
+Exact ID match will search by the subject ID or identifier, which is typically your employee ID, net ID, EPPN, etc. The data sources can help filter by group, person, application, etc. Select the user, then click the Add button to add the member to the group
+
+  
+
+![](attachments/16549081/278529649.png)
+
+Select the member from results and optionally add start and end dates
+---------------------------------------------------------------------
+
+![](attachments/16549081/278529644.png)
+
+  
+
+See the success
+---------------
+
+![](attachments/16549081/278529645.png)
+
+  
+
+Optionally:
+
+1.  Click “import a list of members”  
+    ![](attachments/16549081/297861587.png)  
+      
+    
+2.  In the “Import members” page you are presented with a number of options:  
+    ![](attachments/16549081/297861588.png)  
+    To add a list of people for which you have usernames for click “Copy/paste a list of member IDs” and paste in the list of users you wish to add (clicking “validate entities” will have Grouper check to make sure they are accessible to it)  
+      
+    Once satisfied click “Submit” at the bottom of the screen  
+      
+    The next page is a report of how the import process went, clicking OK will allow you to proceed  
+    ![](attachments/16549081/297861589.png)  
+      
+      
+    
+3.  You can validate that the user was successfully added to the group in the next page
+
+  
+
+Attachments:
+------------
+
+![](images/icons/bullet_blue.gif) [worddav3cc112d7c308cf276895d9be11429824.png](attachments/16549081/16842943.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddavcff56b5e1ba8bdd989cf5674ddb483ed.png](attachments/16549081/16842944.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddave381b15744dcaa0a530dd55f2691a9d6.png](attachments/16549081/16842945.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav2caa7b0fb4ff2b0e50650a79bfd0e789.png](attachments/16549081/16842946.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav6a8ba66958a40f6e0ffa8dfe93762a2a.png](attachments/16549081/16842947.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-10-23\_14-55-32.png](attachments/16549081/278529640.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-10-23\_14-56-59.png](attachments/16549081/278529641.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-10-23\_14-57-46.png](attachments/16549081/278529642.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-10-23\_14-59-10.png](attachments/16549081/278529643.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-10-23\_15-1-8.png](attachments/16549081/278529644.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-10-23\_15-2-15.png](attachments/16549081/278529645.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-10-23\_15-5-13.png](attachments/16549081/278529648.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-10-23\_15-5-53.png](attachments/16549081/278529649.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2024-4-16\_14-4-57-1.png](attachments/16549081/297861587.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2024-4-16\_14-5-43-1.png](attachments/16549081/297861588.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2024-4-16\_14-6-13-1.png](attachments/16549081/297861589.png) (image/png)  
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=16549108
+
+Grouper : Assign someone to be able to manage a group    
+
+1.  [Grouper](index.html)
+2.  [Grouper Wiki Home](Grouper-Wiki-Home_14517702.html)
+3.  [Grouper User Guides](Grouper-User-Guides_301367442.html)
+4.  [Memberships management](Memberships-management_301367499.html)
+
+Grouper : Assign someone to be able to manage a group
+=====================================================
+
+Created by Rob Hebron, last modified by ben.rappleyea.2@at.internet2.edu on May 21, 2024
+
+*   [Summary](#Assignsomeonetobeabletomanageagroup-Summary)
+*   [Privilege requirements](#Assignsomeonetobeabletomanageagroup-Privilegerequirements)
+*   [Procedure](#Assignsomeonetobeabletomanageagroup-Procedure)
+
+Summary
+-------
+
+You can assign privileges to an entity or entities (individual users, or a group) to allow them to manage a group. This involves granting either the **UPDATE** or **ADMIN** permission.
+
+Privilege requirements
+----------------------
+
+You need **ADMIN** on the group to able to assign privileges on the group. If you are a Grouper sysadmin you inherently have this privilege on every group.
+
+Procedure
+---------
+
+1.  Navigate to the group's membership page. Click on the **Privileges** tab.  
+    ![](attachments/16549108/281018667.png)  
+      
+    
+2.  Click the **Add members** button.  
+    ![](attachments/16549108/281018669.png)  
+      
+    
+3.  Enter your search criteria in the **Member name or ID field**, and select the appropriate subject form the list. You can search for an individual person, or a group.  
+    ![](attachments/16549108/281018670.png)  
+      
+    
+4.  In the **Assign these privileges** section of the page, select the checkbox for "**UPDATE**" (can modify group membership) or "**ADMIN**" (can modify group membership, change group name, or delete the group).  
+    ![](attachments/16549108/281018671.png)  
+    *   Choose the simplest permission that will suffice, keeping in mind that anyone with ADMIN privilege can rename or delete the group, whether intentionally or accidentally.
+    *   If the user can manage the group, but is not a member of the group, unselect the checkbox for "**MEMBER**".  
+          
+        
+5.  Click the **Add** button. Note that the selected person or group is now listed in the list of entities with privileges, with the appropriate privilege(s) assigned.  
+    ![](attachments/16549108/281018672.png)  
+      
+    
+
+  
+
+Attachments:
+------------
+
+![](images/icons/bullet_blue.gif) [worddavd664e6cf1a674eee243accf8f1ceca6c.png](attachments/16549108/16842953.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav1d27ffe5fe0cf2c6399bd87f395c071c.png](attachments/16549108/16842954.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav482918c8bfba4070d5210d67b16402e2.png](attachments/16549108/16842955.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav471d8c6c62390ac421f740c8a93cddc3.png](attachments/16549108/16842956.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav15a8e897201e409f0837ce7484570115.png](attachments/16549108/16842957.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddavff07a700053ce1eb02d003a9c5b24b6f.png](attachments/16549108/16842958.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-11-14\_10-21-10.png](attachments/16549108/281018666.png) (image/png)  
+![](images/icons/bullet_blue.gif) [Screenshot 2023-11-14 at 10.21.41.png](attachments/16549108/281018667.png) (image/png)  
+![](images/icons/bullet_blue.gif) [Screenshot 2023-11-14 at 10.22.53.png](attachments/16549108/281018669.png) (image/png)  
+![](images/icons/bullet_blue.gif) [Screenshot 2023-11-14 at 10.24.57.png](attachments/16549108/281018670.png) (image/png)  
+![](images/icons/bullet_blue.gif) [Screenshot 2023-11-14 at 10.26.15.png](attachments/16549108/281018671.png) (image/png)  
+![](images/icons/bullet_blue.gif) [Screenshot 2023-11-14 at 10.28.31.png](attachments/16549108/281018672.png) (image/png)  
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=11076032
+
+Grouper : Draft Script for Interview    
+
+1.  [Grouper](index.html)
+2.  [Grouper Wiki Home](Grouper-Wiki-Home_14517702.html)
+3.  [Grouper History](Grouper-History_147489017.html)
+4.  [Grouper Interview Script](Grouper-Interview-Script_10520067.html)
+
+Grouper : Draft Script for Interview
+====================================
+
+Created by Emily Eisbruch (internet2.edu), last modified on Nov 30, 2009
+
+Draft Script (note that final version deviated somewhat from original script)
+
+Interviewer: I'm <interviewer name> from Internet2 and I'm talking today with Tom Barton, Chair of the Grouper Working Group. We're going to chat with Tom about the **Grouper Groups Management Toolkit** and the recent release of version 1.5 . Welcome, Tom.
+
+Tom: Hi <Interviewer name>, I'm pleased to be here with you.
+
+* * *
+
+Interviewer: We've been hearing a lot about Grouper version 1.5. Perhaps you can set the stage with some background about Grouper and then share some of the highlights of this new release.
+
+Tom:  
+\- Overall succinct goal for grouper  
+\- What we're working on this year  
+\- What's new in 1.5
+
+* * *
+
+Interviewer: Are there particular user needs that drove some of the new development?
+
+Tom: ......yes, we try to be very responsive to user needs ......<<Talk about access management and attribute framework??>>> end with the UI.
+
+* * *
+
+Interviewer: There seems to be a lot of interest in the new Lite User Interface for Grouper. Tell us more about that.
+
+Tom: .... Talk about ther lite membership management screen.  
+ The issue we had was....and now campuses can do...
+
+* * *
+
+Interviewer: What are some of the other features of Grouper 1.5 that people might want to know about?
+
+Tom: - mention other features .  
+ - then mention to look on the website for full details
+
+* * *
+
+Interviewer: We've heard that some integration could be on the horizon between Grouper and uPortal, uPortal being the leading open source portal framework for the higher ed community. Tell us about that integration.
+
+Tom: We are just starting to plan for such integration ..........  
+Those who are interested can look at one of the case studies available for download on our website. Specifically, the GIP RECIA case study shows how a .....
+
+* * *
+
+Interviewer: What's on the horizon for the next release of Grouper?
+
+Tom:
+
+* * *
+
+Interviewer: How can users download and get support for trying Grouper 1.5?
+
+Tom: <mention wiki documentation and users lists>
+
+* * *
+
+Interviewer: What is the best way for users to provide feedback to the development group?
+
+Tom:
+
+* * *
+
+Interviewer: (OPTIONAL?) Can you tell us more about the framework under which Grouper is developed?
+
+Tom: talk about the development team, MACE, Internet2, NSF grants, etc.
+
+* * *
+
+Interviewer: Thanks very much Tom. It's been good talking with you.
+
+Tom: Thanks <Interviewer name>, and to all the listeners out there, we look forward to your feedback on the Grouper-users email lists.
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=14517924
+
+Grouper : Grouper Community    
+
+1.  [Grouper](index.html)
+2.  [Grouper Wiki Home](Grouper-Wiki-Home_14517702.html)
+3.  [Grouper History](Grouper-History_147489017.html)
+
+Grouper : Grouper Community
+===========================
+
+Created by Jessica Bibbee, last modified by Drew Aschenbrener on Mar 29, 2024
+
+This page is out of date and for historical reference only.
+
+**This page is old and not being maintained.**
+
+**Grouper Community**
+---------------------
+
+ Adopters, testers, campuses, contacts and other GM toolkits
+
+#### Deployed
+
+*   [Brown U.](Brown-University_14517757.html) - James Cramton, Steven Carmody (replaces "Brown Grouper")
+    *   [Case study](http://www.internet2.edu/pubs/Middleware-CS-GRP_Brown.pdf) - Oct-2007
+*   [Cornell U.](The-Cornell-Grouper-Project-Page_14517766.html) - Joy Veronneau, Andrea Beesing (replaces their "permit server")
+*   [Duke U.](The-Duke-University-Grouper-page_14517764.html) - Klara Jelinkova, Shilen Patel, Celeste Copeland
+    *   [Case study](http://www.internet2.edu/pubs/Middleware-CS-GRP_Duke.pdf) - Oct-2007
+*   [Ohio U.](The-Ohio-State-University-Grouper-Page_14517923.html) - Steve Langella - (a part of "GridGrouper")
+
+#### Active Testing
+
+*   Internet2 - Michael Gettes, COManage
+*   [Newcastle U.](Newcastle-University-Grouper---WS-Security-with-Rampart_14517775.html) - Caleb Racey
+*   Rechen- und Kommunikationszentrum - RWTH Aachen - Petra Schmitz
+*   Rice U. - Paul Engle, Barry Ribbeck
+*   [U. Memphis](University-of-Memphis-Grouper-Project-Page_14517774.html) - Tom Zeller, Ed Koshland
+*   [U. Pennsylvania](University-of-Pennsylvania-Grouper-Project-Page_14517778.html) - Chris Hyzer, Bill Kasenchar
+*   U. Washington - Jim Fox
+
+#### Active/Feedback on Grouper mailings lists
+
+*   U. Washington - Jim Fox
+*   Tampere University of Technology - Martti Jokipii
+*   South China University of Technology - Allen Chen
+
+#### Showing Interest
+
+*   Texas A&M - Susan Neitsch
+*   U. Kansas?
+
+#### Other Groups Management tools
+
+*   Brown Grouper
+*   Cornell [Permit Server](http://identity.cit.cornell.edu/authz/index.html)
+*   Stanford Authority Manager
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=88574406
+
+Grouper : Grouper Development Team Member    
+
+1.  [Grouper](index.html)
+2.  [Grouper Wiki Home](Grouper-Wiki-Home_14517702.html)
+3.  [Grouper History](Grouper-History_147489017.html)
+
+Grouper : Grouper Development Team Member
+=========================================
+
+Created by Emily Eisbruch (internet2.edu), last modified on Nov 16, 2018
+
+  
+
+[Wiki Home](https://spaces.at.internet2.edu/display/Grouper/Grouper+Wiki+Home)
+
+[Grouper Release Announcements](https://spaces.at.internet2.edu/display/Grouper/Grouper+Release+Announcements)
+
+[Grouper Guides](https://spaces.at.internet2.edu/display/Grouper/Grouper+Administration+Guides)
+
+[Grouper Deployment Guide](https://spaces.at.internet2.edu/display/Grouper/Grouper+Deployment+Guide)
+
+[Community Contributions](https://spaces.at.internet2.edu/display/Grouper/Community+Contributions)
+
+[Internal Developer Resources](https://spaces.at.internet2.edu/display/GrIntDev/Grouper+Internal+Development+Home)
+
+This page is out of date and for historical reference only.
+
+**Join the Grouper Development Team!**
+======================================
+
+**Who**
+-------
+
+We’re looking for a highly skilled, confident, and self\-directed Java software engineering professional who is also comfortable and articulate in dealings with a wide range of members of the Research and Higher Education community. Experience with Identity and Access Management is necessary, and experience with Grouper deployment, Shibboleth deployment, or developing API-based integrations with directory and cloud services is preferred. Campus-based developers or anyone with the interest, perspective, and ability are encouraged to come work with our team.
+
+This work will require a minimum Full-Time Equivalent commitment of 50% on an on-going basis.
+
+**What**
+--------
+
+This position focuses (primarily) on the complex and varied needs of provisioning and deprovisioning. The Grouper team has decided to take a new, message-based approach to adopters’ provisioning and integration needs. The current Grouper provisioning technology, the Provisioning Service Provider, will be maintained but not enhanced. We’ll integrate with some of the leading message-based systems and support both SCIM and proprietary message formats. Connectors for the most popular target systems such as Google will be developed, and we’ll also ensure that LDAP and Active Directory provisioning needs are completely supported out of the box.
+
+The Grouper code base uses Java, Git, Ant and Maven, and has established approaches for logging, auditing, and configuration. New development must build on this framework.
+
+Along with other Grouper team members, this developer will collaborate on lists, conference calls, and participate in other venues with campus and other organizational partners to define new functional requirements, work out bugs, handle support issues, assimilate contributed software, and plan the roadmap for Grouper.
+
+**How**
+-------
+
+Please send a resume and expression of interest to Tom Barton <[tbarton@uchicago.edu](mailto:tbarton@uchicago.edu)\>. The selection process will consist of a review of the resume, conditionally followed by a phone interview, conditionally followed by an interview with the Grouper developer team. We’ll continue until we find a good fit for our team.
+
+**When**
+--------
+
+We hope that you can start ramping up with us around the beginning of September 2015.
+
+* * *
+
+  
+
+#### About Grouper
+
+Grouper is an enterprise access management system designed for the highly distributed management environment and heterogeneous information technology environment common to Universities. The Grouper Project has received funding and development resources from Internet2, National Science Foundation (NSF) Grant No. OCI-0330626, OCI-0721896, and OCI-1032468, Joint Information Systems Committee (JISC) (UK), University of Chicago, University of Pennsylvania, Duke University, University of Washington, University of Memphis, University of Bristol (UK). For more information, visit [Grouper on the Internet2 website](http://www.internet2.edu/products-services/trust-identity-middleware/grouper/).  
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=147489017
+
+Grouper : Grouper History    
+
+1.  [Grouper](index.html)
+2.  [Grouper Wiki Home](Grouper-Wiki-Home_14517702.html)
+
+Grouper : Grouper History
+=========================
+
+Created by Emily Eisbruch (internet2.edu), last modified on Mar 29, 2025
+
+  
+
+[Wiki Home](https://spaces.at.internet2.edu/display/Grouper/Grouper+Wiki+Home)
+
+[Grouper Release Announcements](https://spaces.at.internet2.edu/display/Grouper/Grouper+Release+Announcements)
+
+[Grouper Guides](https://spaces.at.internet2.edu/display/Grouper/Grouper+Administration+Guides)
+
+[Grouper Deployment Guide](https://spaces.at.internet2.edu/display/Grouper/Grouper+Deployment+Guide)
+
+[Community Contributions](https://spaces.at.internet2.edu/display/Grouper/Community+Contributions)
+
+[Internal Developer Resources](https://spaces.at.internet2.edu/display/GrIntDev/Grouper+Internal+Development+Home)
+
+This page shares a bit of Grouper Project history.
+
+Building Grouper has been and continues to be a broad and impressive community effort.
+
+Thanks to everyone who has helped build Grouper and the Grouper community.
+
+**Grouper History from ****Ken** **Klingenstein (as of 2019)**
+--------------------------------------------------------------
+
+A group management tool was part of the original thinking of [RL Bob Morgan, University of Washington](https://spaces.at.internet2.edu/display/rlbob/Home), and others for the Internet2 Middleware Initiative. I recall group management being mentioned in the Fall 1999 Internet2 meeting in Seattle.
+
+The early interest in groups was driven by two thoughts – when you have a bunch of good identities, the first thing you want to do is put them into groups, and groups were thought to be (and still are) the simple way to do role-based access control. That vision was temporarily parked as we began the federated identity development, which led to the InCommon Federation.
+
+Tom Barton, the primary architect and genius behind Grouper, entered the Internet2 sphere as an early adopter at University of Memphis, and began work on Grouper. This would date the start of Grouper to the first NMI grant, circa fall 2000. For more on NMI, see [http://www.nmi-edit.org/](http://www.nmi-edit.org/)
+
+**Grouper Project Leadership**
+------------------------------
+
+*   Tom Barton's leadership of Grouper continued as he moved from University of Memphis to University of Chicago.
+*   Leadership of Grouper passed to Chris Hyzer, University of Pennsylvania in 2015.
+
+**Early Grouper Releases**
+--------------------------
+
+Grouper Version 0.5 was released around December 2004 as part of [NSF Middleware Initiative's 6th release of components](https://spaces.at.internet2.edu/pages/viewpage.action?pageId=14517786&preview=/14517786/14615129/20041117-authz.ppt) (ppt)
+
+The first message to the grouper-users list was to announce the release of version 0.5:
+
+  
+
+  
+
+https://lists.internet2.edu/sympa/arc/grouper-users/2004-12/msg00000.html From: Tom Barton <> To: grouper-users, grouper-dev Subject: 2 Grouper news items Date: Fri, 10 Dec 2004 13:37:23 -0600 1. The first release of Grouper, v0.5, has been finalized for inclusion in the NSF Middleware Initiative's Release 6, to be announced early next week. A Grouper website has been created and linked on the MACE-Dir-Groups website. The Grouper website has the grouper-0.5 source tarball, related documentation, and links to the project bugzilla and anoncvs web access to the software. MACE-Dir-Groups website: http://middleware.internet2.edu/dir/groups/ Grouper website: http://middleware.internet2.edu/dir/groups/grouper/ 2. Gary Brown of the University of Bristol has made a demo of the prototype Grouper UI available for working group members to play with and comment on. Try it at http://portal.bris.ac.uk/GroupsManager/ Read about its underpinnings, limitations, and specifically solicited feedback at http://portal.bris.ac.uk/GroupsManager/doc/Readme.html Tom
+
+  
+
+Version 0.6 (Sep 2005) was the second public release, and the first to include a UI.
+
+  
+
+**Miscellaneous Milestones**
+----------------------------
+
+July 17, 2008: Last release 1.3.0 of Signet (a similar privilege management system that shared subject API code with Grouper)
+
+  
+
+2008-2009: UPenn contributed [significant enhancements](https://spaces.at.internet2.edu/pages/viewpage.action?pageId=14517786&preview=/14517786/14615137/20090114_PennGroupsEducause.ppt) (ppt) leading up to version 1.4:
+
+*   ws + samples
+*   ws client
+*   loader
+*   sso
+*   require group membership for UI access
+*   improve ui and help for 1.2 (Spring 2008)
+*   add tooltips for 1.4 (Jan 2009)
+
+  
+
+January 2010
+
+*   Project imported from cvs into svn per Git logs
+*   [https://spaces.at.internet2.edu/display/Grouper/Grouper+Call+6-Jan-2010](https://spaces.at.internet2.edu/display/Grouper/Grouper+Call+6-Jan-2010)
+*   [http://anonsvn.internet2.edu/svn/i2mi/](http://anonsvn.internet2.edu/svn/i2mi/) (server not found)
+
+  
+July 17, 2014
+
+*   Move from Subversion to Git
+*   [https://spaces.at.internet2.edu/display/Grouper/Grouper+Call+16-July-2014](https://spaces.at.internet2.edu/display/Grouper/Grouper+Call+16-July-2014)
+
+  
+
+2017
+
+*   [TIER Grouper Deployment Guide](http://doi.org/10.26869/TI.25.1) (PDF)
+
+  
+2019
+
+*   [Grouper Deployment Guide updated and moved to Wiki format](Grouper-Deployment-Guide_154765017.html)
+    
+*   [Grouper Visualization released](https://www.internet2.edu/blogs/detail/17088)
+
+  
+
+2020
+
+*   [Grouper v2.5 released](https://incommon.org/news/new-grouper-release-means-simpler-deployment/), requiring containers for deploying Grouper. Simpler deployment.  
+      
+    
+
+2023
+
+*   [Grouper adopted semantic versioning](41582755.html)
+
+**Trivia**
+----------
+
+The demo subject LDAP database "KITN" (which still exists in Grouper's [subject/testDB/ldap](https://github.com/Internet2/grouper/tree/master/subject/testDB/ldap) directory) refers to the fictitious "[Kern Institute of Technology, Northam](https://spaces.at.internet2.edu/display/SignetWG/Signet+QuickStart+and+Demo#SignetQuickStartandDemo-Background)", a mock database originally created for the Signet project. The name was originally the "Kansas Institute of Technology Nashville" which appears in some earlier presentations. 
+
+**Foundational Documents**
+--------------------------
+
+**For [foundational Grouper documents see this wiki](https://spaces.at.internet2.edu/pages/viewpage.action?pageId=14517786#Documents&Presentations-EarlyFoundationalDocumentsonDirectoriesandGroups)** 
+
+**A few Grouper Team and Community photos**
+-------------------------------------------
+
+**![](attachments/147489017/147489034.jpg)**
+
+**2013 at Identity Week in Burlingame, CA**
+
+**![](attachments/147489017/147489028.jpg)**
+
+**2014 at Internet2 Technology Exchange in Indianapolis**
+
+**![](attachments/147489017/147489029.jpg)  
+**
+
+**2015 **at Internet2 Technology Exchange** in Cleveland**
+
+**![](attachments/147489017/147489040.jpg)**
+
+**2017 Grouper session **at Internet2 Technology Exchange **in San Francisco**
+
+**![](attachments/147489017/147489046.jpg)  
+**
+
+****2017 Grouper BOF **at Internet2 Technology Exchange **in San Francisco**** 
+
+  
+
+  
+
+****![](attachments/147489017/163119421.jpeg)****
+
+**2019 Grouper BOF at Internet2 Technology Exchange in New Orleans**
+
+  
+
+**![](attachments/147489017/331450132.jpg)**
+
+**2024 Grouper BOF at Internet2 Technology Exchange in Boston**
+
+Attachments:
+------------
+
+![](images/icons/bullet_blue.gif) [GROUPER-TEAM-Dinner-April 2017.JPG](attachments/147489017/147489027.jpg) (image/jpeg)  
+![](images/icons/bullet_blue.gif) [GrouperTeamIndyOct29,2014.jpg](attachments/147489017/147489028.jpg) (image/jpeg)  
+![](images/icons/bullet_blue.gif) [GrouperTeam-TechEx-Oct2015.jpg](attachments/147489017/147489029.jpg) (image/jpeg)  
+![](images/icons/bullet_blue.gif) [Grouper-identity-week-Thurs-BurlingameCA-2013.jpg](attachments/147489017/147489034.jpg) (image/jpeg)  
+![](images/icons/bullet_blue.gif) [GrouperBOF-TECHEX-Oct2017.jpg](attachments/147489017/147489040.jpg) (image/jpeg)  
+![](images/icons/bullet_blue.gif) [GrouperTeamGLobalSummit2017 (1).jpg](attachments/147489017/147489046.jpg) (image/jpeg)  
+![](images/icons/bullet_blue.gif) [Grouper Team at 2019 TechEx.jpeg](attachments/147489017/163119421.jpeg) (image/jpeg)  
+![](images/icons/bullet_blue.gif) [Grouper BOF TechEx 2024 Boston USE IN BLOG.png](attachments/147489017/331450130.png) (image/png)  
+![](images/icons/bullet_blue.gif) [Grouper BOF TechEx 2024 Boston USE IN BLOG.jpg](attachments/147489017/331450132.jpg) (image/jpeg)  
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=10520067
+
+Grouper : Grouper Interview Script    
+
+1.  [Grouper](index.html)
+2.  [Grouper Wiki Home](Grouper-Wiki-Home_14517702.html)
+3.  [Grouper History](Grouper-History_147489017.html)
+
+Grouper : Grouper Interview Script
+==================================
+
+Created by Steve Olshansky, last modified by Emily Eisbruch (internet2.edu) on Nov 30, 2009
+
+**_Want to learn more about Grouper and the new version 1.5? Listen to the audio interview_**
+
+ ![](attachments/10520067/11304977.jpg)
+
+[Interview with Grouper Working Group Chair Tom Barton (14 minutes)](attachments/10520067/11305022.wav)
+
+Covering:
+
+*   What Grouper is all about
+*   Components of Grouper
+*   New features in Grouper version 1.5
+*   How to get support for using Grouper
+*   How to provide feedback to the Grouper development group
+
+Attachments:
+------------
+
+![](images/icons/bullet_blue.gif) [tomb\_image.jpg](attachments/10520067/11304978.jpg) (image/jpeg)  
+![](images/icons/bullet_blue.gif) [tomb\_image.jpg](attachments/10520067/11304977.jpg) (image/jpeg)  
+![](images/icons/bullet_blue.gif) [GrouperQandA.wav](attachments/10520067/11305022.wav) (audio/x-wav)  
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=281018420
+
+Grouper : How to use the Grouper wiki    
+
+1.  [Grouper](index.html)
+
+Grouper : How to use the Grouper wiki
+=====================================
+
+Created by Chris Hyzer (upenn.edu), last modified by chris.hyzer.3@at.internet2.edu on Nov 15, 2024
+
+Browsing
+--------
+
+Select the category from [Grouper wiki home](Grouper-Wiki-Home_14517702.html) to browse the wiki
+
+![](attachments/281018420/320831864.png)
+
+Authenticating
+--------------
+
+Request access here: [https://incommon.org/help/](https://incommon.org/help/)
+
+If you want to contribute to the Grouper wiki, include that request in the access request.
+
+Or send a message to the incommon-grouper slack channel (which you also get access from above link)
+
+Searching
+---------
+
+*   Sometimes a google search with "Internet2 Grouper <search term>", e.g. "internet2 grouper web services" works better then searching in Confluence (especially if not authenticated)
+*   If searching Confluence, filter by the Grouper space (only if authenticated to Confluence
+
+Out of date pages
+-----------------
+
+If a wiki page needs updating, add this label: needsDocUpdate
+
+Also add a comment which describes what needs updating specifically
+
+Attachments:
+------------
+
+![](images/icons/bullet_blue.gif) [image-2024-11-15\_13-5-34.png](attachments/281018420/320831864.png) (image/png)  
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=143720715
+
+Grouper : Membership view advanced options    
+
+1.  [Grouper](index.html)
+2.  [Grouper Wiki Home](Grouper-Wiki-Home_14517702.html)
+3.  [Grouper User Guides](Grouper-User-Guides_301367442.html)
+4.  [Memberships management](Memberships-management_301367499.html)
+
+Grouper : Membership view advanced options
+==========================================
+
+Created by Shilen Patel (duke.edu), last modified by ben.rappleyea.2@at.internet2.edu on May 21, 2024
+
+  
+
+[Wiki Home](https://spaces.at.internet2.edu/display/Grouper/Grouper+Wiki+Home)
+
+[Grouper Release Announcements](https://spaces.at.internet2.edu/display/Grouper/Grouper+Release+Announcements)
+
+[Grouper Guides](https://spaces.at.internet2.edu/display/Grouper/Grouper+Administration+Guides)
+
+[Grouper Deployment Guide](https://spaces.at.internet2.edu/display/Grouper/Grouper+Deployment+Guide)
+
+[Community Contributions](https://spaces.at.internet2.edu/display/Grouper/Community+Contributions)
+
+[Internal Developer Resources](https://spaces.at.internet2.edu/display/GrIntDev/Grouper+Internal+Development+Home)
+
+Membership UI Advanced Options
+------------------------------
+
+There is an Advanced button when viewing a group's members. This allows additional features - custom composites, enabled/disabled dates, and point in time audit queries.
+
+The UI also has a page that allows you to see all the group memberships under a folder. And the same features exist there as well. This can be accessed under the "More" tab when viewing a folder.
+
+As of Grouper v2.5, there is the ability for attribute assignments on memberships.
+
+  
+
+*   [Custom composites](#Membershipviewadvancedoptions-Customcomposites)
+*   [Enabled/disabled dates](#Membershipviewadvancedoptions-Enabled/disableddates)
+*   [Point in time audit queries](#Membershipviewadvancedoptions-Pointintimeauditqueries)
+*   [Show and filter group memberships under a folder](#Membershipviewadvancedoptions-Showandfiltergroupmembershipsunderafolder)
+*   [Attribute Assignments on Memberships](#Membershipviewadvancedoptions-AttributeAssignmentsonMemberships)
+
+### Custom composites
+
+There's a new feature that allows you to perform a custom composite on a membership list. This can help with use cases involving attestation, auditing and deprovisioning. So for example, you can quickly and easily see all the users in your group who are not employees (without actually creating another composite group). This requires configuration in grouper.properties and grouper.text.en.us.properties. For example:
+
+  
+
+grouper.properties: # {valueType: "string", regex: "^grouper\\\\.membership\\\\.customComposite\\\\.uiKey\\\\.\\\\d+$"} grouper.membership.customComposite.uiKey.0 = customCompositeMinusEmployees # {valueType: "string", regex: "^grouper\\\\.membership\\\\.customComposite\\\\.compositeType\\\\.\\\\d+$"} grouper.membership.customComposite.compositeType.0 = complement # {valueType: "group", regex: "^grouper\\\\.membership\\\\.customComposite\\\\.groupName\\\\.\\\\d+$"} grouper.membership.customComposite.groupName.0 = ref:activeEmployees # {valueType: "string", regex: "^grouper\\\\.membership\\\\.customComposite\\\\.uiKey\\\\.\\\\d+$"} grouper.membership.customComposite.uiKey.1 = customCompositeIntersectIt # {valueType: "string", regex: "^grouper\\\\.membership\\\\.customComposite\\\\.compositeType\\\\.\\\\d+$"} grouper.membership.customComposite.compositeType.1 = intersection # {valueType: "group", regex: "^grouper\\\\.membership\\\\.customComposite\\\\.groupName\\\\.\\\\d+$"} grouper.membership.customComposite.groupName.1 = org:centralIt:staff:itStaff grouper.text.en.us.properties: customCompositeMinusEmployees = Members who are not employees customCompositeIntersectIt = Members who are IT people
+
+  
+
+ ![](attachments/143720715/143720716.png)
+
+  
+
+### Enabled/disabled dates
+
+Previously, the Grouper UI had an issue where if a membership was disabled, then that membership wouldn't be visible in the UI. A disabled membership could exist because the start date is in the future or if there's a disabled date in the past. The UI now exposes this information.
+
+  
+
+![](attachments/143720715/143720718.png)
+
+  
+
+Note that this view is only currently available for direct memberships. Indirect memberships are more complicated since they can involve multiple enabled/disabled dates. However, now if you trace an indirect membership, it will show you if any enabled/disabled dates exist on each of the memberships in the path.
+
+### Point in time audit queries
+
+Grouper has had point in time auditing since v2.0 but none of that information has been exposed in the UI. It's only been available through web services, GSH, and direct database queries. There's now basic information available (and likely more to come later).
+
+  
+
+![](attachments/143720715/143720719.png)
+
+  
+
+### Show and filter group memberships under a folder
+
+  
+
+New option under "More"
+
+![](attachments/143720715/147489063.png)
+
+  
+
+You can see all the group memberships under the folder there. And you have the same filtering options. For example, now you can quickly/easily find all the memberships that don't belong to employees.
+
+  
+
+![](attachments/143720715/147489064.png)
+
+  
+
+### Attribute Assignments on Memberships
+
+The ability to add attribute assignments on memberships is only available when looking at an entity (subject) and seeing memberships.  
+It is not available when on a group and looking at memberships.  
+  
+Start on the subject screen, in the Actions drop down next to groups. Select Attribute Assignments.
+
+  
+
+![](attachments/143720715/166660560.png)
+
+Attachments:
+------------
+
+![](images/icons/bullet_blue.gif) [image2019-2-7\_15-9-51.png](attachments/143720715/143720716.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image2019-2-7\_15-18-45.png](attachments/143720715/143720718.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image2019-2-7\_15-23-11.png](attachments/143720715/143720719.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image2019-3-21\_11-10-22.png](attachments/143720715/147489063.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image2019-3-21\_11-10-45.png](attachments/143720715/147489064.png) (image/png)  
+![](images/icons/bullet_blue.gif) [Attributes on Groups-2020-04-02-03-52-53-004.png](attachments/143720715/166660560.png) (image/png)  
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=301367499
+
+Grouper : Memberships management    
+
+1.  [Grouper](index.html)
+2.  [Grouper Wiki Home](Grouper-Wiki-Home_14517702.html)
+3.  [Grouper User Guides](Grouper-User-Guides_301367442.html)
+
+Grouper : Memberships management
+================================
+
+Created by ben.rappleyea.2@at.internet2.edu, last modified on May 21, 2024
+
+  
+
+[Wiki Home](https://spaces.at.internet2.edu/display/Grouper/Grouper+Wiki+Home)
+
+[Grouper Release Announcements](https://spaces.at.internet2.edu/display/Grouper/Grouper+Release+Announcements)
+
+[Grouper Guides](https://spaces.at.internet2.edu/display/Grouper/Grouper+Administration+Guides)
+
+[Grouper Deployment Guide](https://spaces.at.internet2.edu/display/Grouper/Grouper+Deployment+Guide)
+
+[Community Contributions](https://spaces.at.internet2.edu/display/Grouper/Community+Contributions)
+
+[Internal Developer Resources](https://spaces.at.internet2.edu/display/GrIntDev/Grouper+Internal+Development+Home)
+
+*   [Add a member (entity or group) to a group](https://spaces.at.internet2.edu/display/Grouper/Add+a+member+%28entity+or+group%29+to+a+group)
+*   [Assign someone to be able to manage a group](https://spaces.at.internet2.edu/display/Grouper/Assign+someone+to+be+able+to+manage+a+group)
+*   [Membership view advanced options](https://spaces.at.internet2.edu/display/Grouper/Membership+view+advanced+options)
+*   [Read the members of a group](https://spaces.at.internet2.edu/display/Grouper/Read+the+members+of+a+group)
+*   [Remove a member from a group](https://spaces.at.internet2.edu/display/Grouper/Remove+a+member+from+a+group)
+*   [Search for entity or group](https://spaces.at.internet2.edu/display/Grouper/Search+for+entity+or+group)
+
+  
+
+  
+
+  
+
+  
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=15731084
+
+Grouper : Navigation    
+
+1.  [Grouper](index.html)
+
+Grouper : Navigation
+====================
+
+Created by Ann Kitalong-Will, last modified by Drew Aschenbrener on Apr 08, 2024
+
+[Wiki Home](https://spaces.at.internet2.edu/display/Grouper/Grouper+Wiki+Home)
+
+[Grouper Release Announcements](Grouper-Release-Announcements_46499492.html)
+
+[Grouper Guides](Grouper-Administration-Guides_15730512.html)
+
+[Grouper Deployment Guide](Grouper-Deployment-Guide_154765017.html)
+
+[Community Contributions](https://spaces.at.internet2.edu/display/Grouper/Community+Contributions)
+
+[Internal Developer Resources](https://spaces.at.internet2.edu/display/GrIntDev/Grouper+Internal+Development+Home)
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=16549074
+
+Grouper : Read the members of a group    
+
+1.  [Grouper](index.html)
+2.  [Grouper Wiki Home](Grouper-Wiki-Home_14517702.html)
+3.  [Grouper User Guides](Grouper-User-Guides_301367442.html)
+4.  [Memberships management](Memberships-management_301367499.html)
+
+Grouper : Read the members of a group
+=====================================
+
+Created by Rob Hebron, last modified by ben.rappleyea.2@at.internet2.edu on May 21, 2024
+
+*   [Summary](#Readthemembersofagroup-Summary)
+*   [Privilege requirements](#Readthemembersofagroup-Privilegerequirements)
+*   [Find the group](#Readthemembersofagroup-Findthegroup)
+*   [See the members](#Readthemembersofagroup-Seethemembers)
+*   [Filter by membership type](#Readthemembersofagroup-Filterbymembershiptype)
+*   [Find a member of a group](#Readthemembersofagroup-Findamemberofagroup)
+*   [Use a group filter](#Readthemembersofagroup-Useagroupfilter)
+*   [Show enabled / disabled dates](#Readthemembersofagroup-Showenabled/disableddates)
+*   [Point in time](#Readthemembersofagroup-Pointintime)
+
+Summary
+-------
+
+You can read the members in a group, and use various filters.
+
+Privilege requirements
+----------------------
+
+You need READ or ADMIN on the group to be able to read it members. If you are a Grouper sysadmin or readonly sysadmin you can also READ the members. If you do not see the "Members" tab, or cannot find the group at all, then you cannot READ it memberships.
+
+Find the group
+--------------
+
+You can [find a Group](https://spaces.at.internet2.edu/display/Grouper/Grouper+Book+-+Find+a+group) in Grouper in various ways: searching, navigating, favorites, home screen panels, bookmark, etc
+
+See the members
+---------------
+
+When you click on a group in the UI the members tab shows the members by default.
+
+Under Membership you will see
+
+Membership type
+
+Description
+
+Direct
+
+The member is immediately in the group and can be removed
+
+Indirect
+
+The member is immediately in another group which is immediately in this group. The member cannot be removed, but the group could be removed
+
+Direct, indirect
+
+The member is immediately in the group and can be removed, though they will still be an indirect member of the group.
+
+![](attachments/16549074/281018463.png)
+
+Filter by membership type
+-------------------------
+
+You can filter by membership type. This can be useful to see which members can be removed, or to see a smaller list. Note, you can also visualize the group to see the policy
+
+![](attachments/16549074/281018464.png)
+
+Find a member of a group
+------------------------
+
+Click Advanced, and filter by a user name or group name to find a member of the group
+
+![](attachments/16549074/281018465.png)
+
+Use a group filter
+------------------
+
+If your institution has group filters configured, you can use that to help deprovision users who do not fit certain requirements. Click "Advanced" to see the "Group filter" input.
+
+![](attachments/16549074/281018466.png)
+
+  
+
+Show enabled / disabled dates
+-----------------------------
+
+Click "Advanced" and choose which enabled / disabled status to filter on
+
+![](attachments/16549074/281018470.png)
+
+  
+
+Point in time
+-------------
+
+Click "Advanced" and filter by point in time. You will see multiple entries if entities were added and removed and then added to the group again
+
+![](attachments/16549074/281018471.png)
+
+  
+
+Attachments:
+------------
+
+![](images/icons/bullet_blue.gif) [worddavbf7982fe3a891f2706ed790af4f617e5.png](attachments/16549074/16842938.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav6b39f604cba5d489bda086914fa6cc44.png](attachments/16549074/16842939.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav8d321f5d69a643fb61832ab541e2230f.png](attachments/16549074/16842940.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav736433c207eb9bde4bf73d0337c69ef4.png](attachments/16549074/16842941.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav1ff403ce03c8a33e86948b1f37d836d2.png](attachments/16549074/16842942.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-11-4\_20-56-13.png](attachments/16549074/281018463.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-11-4\_21-0-53.png](attachments/16549074/281018464.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-11-4\_21-4-15.png](attachments/16549074/281018465.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-11-4\_21-8-2.png](attachments/16549074/281018466.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-11-4\_21-14-29.png](attachments/16549074/281018469.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-11-4\_21-14-58.png](attachments/16549074/281018470.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-11-4\_21-16-10.png](attachments/16549074/281018471.png) (image/png)  
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=16549101
+
+Grouper : Remove a member from a group    
+
+1.  [Grouper](index.html)
+2.  [Grouper Wiki Home](Grouper-Wiki-Home_14517702.html)
+3.  [Grouper User Guides](Grouper-User-Guides_301367442.html)
+4.  [Memberships management](Memberships-management_301367499.html)
+
+Grouper : Remove a member from a group
+======================================
+
+Created by Rob Hebron, last modified by ben.rappleyea.2@at.internet2.edu on May 21, 2024
+
+*   [Summary](#Removeamemberfromagroup-Summary)
+*   [Privilege requirements](#Removeamemberfromagroup-Privilegerequirements)
+*   [Procedure](#Removeamemberfromagroup-Procedure)
+
+Summary
+-------
+
+You can remove a member (individual users, or a group) from a group, if you have the permissions required to do so.
+
+Privilege requirements
+----------------------
+
+You need **UPDATE** (or **ADMIN**) on the group in order to remove members from the group. If you are a Grouper sysadmin you inherently have this privilege on every group.
+
+Procedure
+---------
+
+1.  Navigate to the group's membership list page (in this example we're back at the **QS University of Bristol:Academic faculties:Arts:Staff** group).  
+      
+    ![](attachments/16549101/289113106.png)  
+      
+    
+2.  To remove a single member, click the **Actions** menu on their row and select **Revoke membership**. **![](attachments/16549101/289113112.png)** 
+3.  To remove multiple members at once, click the checkbox next to each member who you want to remove, and then click the **Remove selected members** button.  
+    ![](attachments/16549101/289113115.png)  
+      
+    
+
+  
+
+  
+
+Attachments:
+------------
+
+![](images/icons/bullet_blue.gif) [worddav0218719992519d3eb8dce99ded424819.png](attachments/16549101/16842948.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav2618999beeeed1e66e965c4c37806f20.png](attachments/16549101/16842949.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddavd1dfccf77323ec4254fb2c8a6825899d.png](attachments/16549101/16842950.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav0099bf9bab9f5b3b266240a0b04841dd.png](attachments/16549101/16842951.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav622651df8221656941c01e398ade2a70.png](attachments/16549101/16842952.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2024-2-14\_12-51-17.png](attachments/16549101/289113106.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2024-2-14\_14-13-31.png](attachments/16549101/289113112.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2024-2-14\_14-20-54.png](attachments/16549101/289113115.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2024-4-16\_14-4-57-1.png](attachments/16549101/297861582.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2024-4-16\_14-5-43-1.png](attachments/16549101/297861583.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2024-4-16\_14-6-13-1.png](attachments/16549101/297861584.png) (image/png)  
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
+##########
+
+link: https://spaces.at.internet2.edu/pages/viewpage.action?pageId=16549069
+
+Grouper : Search for entity or group    
+
+1.  [Grouper](index.html)
+2.  [Grouper Wiki Home](Grouper-Wiki-Home_14517702.html)
+3.  [Grouper User Guides](Grouper-User-Guides_301367442.html)
+4.  [Memberships management](Memberships-management_301367499.html)
+
+Grouper : Search for entity or group
+====================================
+
+Created by Rob Hebron, last modified by ben.rappleyea.2@at.internet2.edu on May 30, 2024
+
+*   [Summary](#Searchforentityorgroup-Summary)
+*   [Privilege requirements](#Searchforentityorgroup-Privilegerequirements)
+*   [Procedure](#Searchforentityorgroup-Procedure)
+
+Summary
+-------
+
+You can find an entity (an individual or a group) to a group by searching for them.
+
+Privilege requirements
+----------------------
+
+The results of your search will reflect your privileges; you will only be able to see entities that you have permission to see.
+
+Procedure
+---------
+
+1.  Click the search field at the top of any page in the Grouper UI, enter your search term, and press the Enter key to submit. In this example, we search for every entity with "tarbuck" in the name.  
+      
+    ![](attachments/16549069/281018518.png)  
+      
+      
+    
+2.  A search results screen will appear; in this case a list of subjects whose name includes the string "tarbuck".  
+      
+    ![](attachments/16549069/281018520.png)  
+      
+    If instead of "tarbuck" we searched for "arts", the search results list includes a number of groups that contain the string "arts".  
+      
+    ![](attachments/16549069/281018521.png)  
+      
+    
+3.   In the results list, click an entity name or a group path to view the screen for that object.
+    1.  If you selected a subject, you would see the details page for that subject, including their subject attributes and group memberships:  
+        ![](attachments/16549069/281018522.png)
+    2.  If you selected a group, you will see a screen showing the membership of the group:  
+        ![](attachments/16549069/281018523.png)
+
+  
+
+If you cannot see an entity or group, you may lack permission to view it. Try modifying your search, or contact your administrator.
+
+  
+
+Attachments:
+------------
+
+![](images/icons/bullet_blue.gif) [worddav65df127b922daa3252d13c4c635ceb10.png](attachments/16549069/16842931.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav9496be56d00eaa98023cff629edcf3eb.png](attachments/16549069/16842932.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav13d905bc49bf6ade7ac3138306f8993e.png](attachments/16549069/16842933.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav01cedd533470b4a4c1a0ffdb08ff7c8e.png](attachments/16549069/16842934.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddav6eeb98fba9d4af850a2f5ffab7efe5bc.png](attachments/16549069/16842935.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddave7affba8e0fa2df2821dfa09a78a0a99.png](attachments/16549069/16842936.png) (image/png)  
+![](images/icons/bullet_blue.gif) [worddavb5e49df3fb4c2256d37a1c682c67b8a7.png](attachments/16549069/16842937.png) (image/png)  
+![](images/icons/bullet_blue.gif) [Screenshot 2023-11-07 at 11.58.15.png](attachments/16549069/281018519.png) (image/png)  
+![](images/icons/bullet_blue.gif) [Screenshot 2023-11-07 at 11.58.15.png](attachments/16549069/281018518.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-11-7\_12-2-55.png](attachments/16549069/281018520.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-11-7\_12-4-37.png](attachments/16549069/281018521.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-11-7\_12-6-38.png](attachments/16549069/281018522.png) (image/png)  
+![](images/icons/bullet_blue.gif) [image-2023-11-7\_12-7-51.png](attachments/16549069/281018523.png) (image/png)  
+
+Document generated by Confluence on Jun 11, 2025 21:20
+
+[Atlassian](https://www.atlassian.com/)
+
