@@ -760,9 +760,9 @@ public class GrouperDataProviderLogic {
         if (grouperDataMemberWrapper == null) {
           grouperDataMemberWrapper = new GrouperDataMemberWrapper(dataEngine, memberInternalId);
           dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().put(memberInternalId, grouperDataMemberWrapper);
-          grouperDataMemberWrapper.setMember(member);
         }
-        
+
+        grouperDataMemberWrapper.setMember(member);
 
         List<Object[]> userRowsforQuery = grouperDataMemberWrapper.getQueryConfigIdToRowData().get(grouperDataProviderQueryConfig.getConfigId());
         if (userRowsforQuery == null) {
@@ -1638,8 +1638,6 @@ public class GrouperDataProviderLogic {
       String subjectSourceIdIfSubjectSource = dataEngine.getProviderConfigByConfigId().get(grouperDataProviderSync.getConfigId()).getSubjectSourceId();
       
       if (isSubjectSource) {
-        SubjectSourceCache.clearCache();
-
         Map<Long, GrouperDataMemberWrapper> memberWrapperByInternalId = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId();
         Set<String> subjectIdsToResolve = new LinkedHashSet<String>();
         for (long memberInternalId : batchOfMemberInternalIds) {
@@ -1650,7 +1648,7 @@ public class GrouperDataProviderLogic {
           }
         }
         
-        SubjectFinder.findByIds(subjectIdsToResolve, subjectSourceIdIfSubjectSource);
+        SubjectFinder.findByIds(subjectIdsToResolve, subjectSourceIdIfSubjectSource, false, true);
       }
       
       GrouperDaemonUtils.stopProcessingIfJobPaused();
