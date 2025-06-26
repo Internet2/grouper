@@ -280,7 +280,7 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
      * @param subjectId
      * @return the uid
      */
-    public String createBplogixUser(String eppn, String email, String pennid, String name) {
+    public String createBplogixUser(String eppn, String email, String name) {
       
       retrieveWsAuthnToken();
     
@@ -324,14 +324,13 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
             <CreateExternalUser xmlns="http://www.bplogix.com/WebServices">
               <UserID>%s</UserID>
               <Email>%s</Email>
-              <CustomString>%s</CustomString>
               <UserName>%s</UserName>
               <GUID>%s</GUID>
               <UserType>SAML</UserType>
             </CreateExternalUser>
           </soap:Body>
         </soap:Envelope>
-          """.formatted(this.wsAuthnToken, eppn, email, pennid, name, eppn);
+          """.formatted(this.wsAuthnToken, eppn, email, name, eppn);
       
       GrouperHttpClient grouperHttpClient = new GrouperHttpClient().assignUrl(this.wsUrl + "/Services/wsUser.asmx").
           assignGrouperHttpMethod("POST").addHeader("Content-Type", "text/xml; charset=utf-8").
@@ -402,6 +401,111 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
     
         String uid = (String) xPath.evaluate("/Envelope/Body/CreateExternalUserResponse/CreateExternalUserResult/UID", document, XPathConstants.STRING);
         GrouperUtil.assertion(!StringUtils.isBlank(uid), "UID is not found after create for eppn: '" + eppn + "', " + grouperHttpClient.getResponseBody());
+        
+        return uid;
+      } catch (XPathExpressionException e) {
+        throw new RuntimeException("Error getting xpath: " + grouperHttpClient.getResponseCode() + ", " + grouperHttpClient.getResponseBody(), e);
+      }
+    
+    }
+
+    /**
+     * update a bp logix user, set the pennid
+     * @param uid 
+     * @param pennid 
+     * @return the uid
+     */
+    public String updateBplogixUserPennid(String uid, String pennid) {
+      
+      retrieveWsAuthnToken();
+    
+      //  DOCS: https://upenn-dev.bplogix.net/Services/wsUser.asmx?op=UpdateUserFields
+      //
+      //  POST https://upenn-staging.bplogix.net/Services/wsUser.asmx
+      //  Content-Type: text/xml; charset=utf-8
+      //  SOAPAction: http://www.bplogix.com/WebServices/UpdateUserFields
+      //
+      //  <?xml version="1.0" encoding="utf-8"?>
+      //  <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      //    <soap:Header>
+      //      <bpSoapHeader xmlns="http://www.bplogix.com/WebServices">
+      //        <AuthToken>string</AuthToken>
+      //      </bpSoapHeader>
+      //    </soap:Header>
+      //    <soap:Body>
+      //    <UpdateUserFields xmlns="http://www.bplogix.com/WebServices">
+      //     <pUser>
+      //      <UID>abc-123-def-456</UID>
+      //      <CustomString>12345678</CustomString>
+      //     </pUser>
+      //   </UpdateUserFields>
+      //    </soap:Body>
+      //  </soap:Envelope>
+              
+      GrouperUtil.assertion(!StringUtils.isBlank(uid), "uid is required to update user");
+      GrouperUtil.assertion(!StringUtils.isBlank(pennid), "pennid is required to update user");
+      String xml = """
+          <?xml version="1.0" encoding="utf-8"?>
+          <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap:Header>
+              <bpSoapHeader xmlns="http://www.bplogix.com/WebServices">
+                <AuthToken>%s</AuthToken>
+              </bpSoapHeader>
+            </soap:Header>
+            <soap:Body>
+              <UpdateUserFields xmlns="http://www.bplogix.com/WebServices">
+                <pUser>
+                  <UID>%s</UID>
+                  <CustomString>%s</CustomString>
+                </pUser>
+              </UpdateUserFields>
+            </soap:Body>
+          </soap:Envelope>
+            """
+          .formatted(this.wsAuthnToken, uid, pennid);
+      
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient().assignUrl(this.wsUrl + "/Services/wsUser.asmx").
+          assignGrouperHttpMethod("POST").addHeader("Content-Type", "text/xml; charset=utf-8").
+          addHeader("SOAPAction", "http://www.bplogix.com/WebServices/UpdateUserFields").assignAssertResponseCode(200).
+          assignBody(xml).executeRequest();
+      
+      Document document = null;
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(grouperHttpClient.getResponseBody().getBytes(StandardCharsets.UTF_8));
+      
+      try {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        document = db.parse(inputStream);
+      } catch (Exception e) {
+        throw new RuntimeException("Error parsing doc: " + grouperHttpClient.getResponseBody(), e);
+      } finally {
+        GrouperUtil.closeQuietly(inputStream);
+      }
+      
+      XPath xPath = XPathFactory.newInstance().newXPath();
+      
+      try {
+    
+        //  <?xml version="1.0" encoding="utf-8"?>
+        //  <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        //    <soap:Header>
+        //      <bpSoapHeader xmlns="http://www.bplogix.com/WebServices">
+        //        <AuthToken>abc-123-def-456</AuthToken>
+        //        <ThrowErrors>true</ThrowErrors>
+        //        <Error>
+        //          <RC>Good</RC>
+        //        </Error>
+        //      </bpSoapHeader>
+        //    </soap:Header>
+        //    <soap:Body>
+        //      <UpdateUserFieldsResponse xmlns="http://www.bplogix.com/WebServices">
+        //        <UpdateUserFieldsResult>true</UpdateUserFieldsResult>
+        //      </UpdateUserFieldsResponse>
+        //    </soap:Body>
+        //  </soap:Envelope>
+    
+        String result = (String) xPath.evaluate("/Envelope/Body/UpdateUserFieldsResponse/UpdateUserFieldsResult", document, XPathConstants.STRING);
+        GrouperUtil.assertion(StringUtils.equals(result, "true"), "Result should be true after update: '" + result + "', " + grouperHttpClient.getResponseBody());
         
         return uid;
       } catch (XPathExpressionException e) {
@@ -1463,8 +1567,10 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
           if (!validEmail && StringUtils.isNotBlank(emailAddress)) {
             emailAddress = emailAddress + ".fake12";
           }
-          this.theState.bplogixCommands.createBplogixUser(eppn, emailAddress, pennnid, subject.getName());
-          
+          String uid = this.theState.bplogixCommands.createBplogixUser(eppn, emailAddress, subject.getName());
+
+          this.theState.bplogixCommands.updateBplogixUserPennid(uid, pennnid);
+
           bplogixUser = this.retrieveEntityOrFromCache(eppn);
           
           GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "bplogixCreateCount", 1);
