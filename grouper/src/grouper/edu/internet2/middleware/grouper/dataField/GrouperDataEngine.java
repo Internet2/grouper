@@ -711,6 +711,10 @@ public class GrouperDataEngine {
       
     }
     
+    if (!StringUtils.equals(highestLevelAccess, "update") && grouperPrivacyRealmConfig.isPrivacyRealmPublic()) {
+      highestLevelAccess = "read";
+    }
+    
     highestLevelAccessForPrivacyRealmSubject.put(multiKey, highestLevelAccess);
     return highestLevelAccess;
   }

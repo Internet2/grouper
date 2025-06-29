@@ -55,72 +55,27 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
   
   @Override
   public Map<Integer, String> getSortAttributes() {
-    
-    if (this.sortAttributes == null) {
-      synchronized(GrouperLdapSourceAdapter2_5.class) {
-        if (this.sortAttributes == null) {
-          LinkedHashMap<Integer, String> temp = new LinkedHashMap<Integer, String>();
-          
-          String sortAttributeCountKey = "subjectApi.source."+this.getConfigId()+".sortAttributeCount";
-          int sortAttributeCount = SubjectConfig.retrieveConfig().propertyValueInt(sortAttributeCountKey, 0);
-          
-          for (int i = 0; i < sortAttributeCount; i++) {
-            
-            String sortAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source."+this.getConfigId()+".sortAttribute."+i+".attributeName");
-            temp.put(i, sortAttributeName);
-          }
-          
-          this.sortAttributes = temp;
-        }
-      }
-    }
-    
     return this.sortAttributes;
-    
   }
 
   @Override
   public Map<Integer, String> getSearchAttributes() {
-    
-    if (this.searchAttributes == null) {
-      synchronized(GrouperLdapSourceAdapter2_5.class) {
-        if (this.searchAttributes == null) {
-          LinkedHashMap<Integer, String> temp = new LinkedHashMap<Integer, String>();
-          
-          String searchAttributeCountKey = "subjectApi.source."+this.getConfigId()+".searchAttributeCount";
-          int searchAttributeCount = SubjectConfig.retrieveConfig().propertyValueInt(searchAttributeCountKey, 0);
-          
-          for (int i = 0; i < searchAttributeCount; i++) {
-
-            String searchAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source."+this.getConfigId()+".searchAttribute."+i+".attributeName");
-            temp.put(i, searchAttributeName);
-          }
-          
-          this.searchAttributes = temp;
-        }
-      }
-    }
-    
     return this.searchAttributes;
   }
 
 
   @Override
   public void loggingStart() {
-    // TODO Auto-generated method stub
-    
   }
 
   @Override
   public String loggingStop() {
-    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public void checkConfig() {
     // TODO Auto-generated method stub
-    
   }
 
   @Override
@@ -138,7 +93,6 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     if (dataFieldConfigIds != null) {
       return dataFieldConfigIds;
     }
-    
     
     Set<String> result = new HashSet<String>();
     
@@ -230,7 +184,6 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
    */
   @Override
   public Map<String, Subject> getSubjectsByIds(Collection<String> subjectIds) {
-    
 
     if (subjectIds == null) {
       return null;
@@ -716,8 +669,6 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
   
   private boolean errorOnMaxResults;
 
-  private boolean changeSearchQueryForMaxResults;
-  
   private static class DataFieldCache {
     
     private GrouperDataEngine dataEngine;
@@ -824,6 +775,8 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         if (fieldConfigByConfigId.containsKey(fieldConfigId)) {
           GrouperDataFieldConfig grouperDataFieldConfig = fieldConfigByConfigId.get(fieldConfigId);
           dataFieldConfigs.add(grouperDataFieldConfig);
+        } else {
+          throw new RuntimeException("Found invalid config id: '"+fieldConfigId+"', Source id: '"+source.getId()+"'");
         }
       }
       
@@ -858,9 +811,23 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
   @Override
   public void init() throws SourceUnavailableException {
     
+    SubjectConfig.clearCache();
+    SubjectConfig subjectConfig = SubjectConfig.retrieveConfig();
+    
     try {
       Properties props = initParams();
       //this might not exist if it is Grouper source and no driver...
+      
+      this.nameAttributeName = props.getProperty("Name_AttributeType");
+      if (this.nameAttributeName == null) {
+        throw new SourceUnavailableException("Name_AttributeType not defined, source: "
+            + this.getId());
+      }
+      this.descriptionAttributeName = props.getProperty("Description_AttributeType");
+      if (this.descriptionAttributeName == null) {
+        throw new SourceUnavailableException(
+            "Description_AttributeType not defined, source: " + this.getId());
+      }
       
       {
         String maxResultsString = props.getProperty("maxResults");
@@ -890,22 +857,50 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           }
         }
       }
-
-
+      
       {
-        String changeSearchQueryForMaxResultsString = props.getProperty("changeSearchQueryForMaxResults");
-        if (!StringUtils.isBlank(changeSearchQueryForMaxResultsString)) {
-          try {
-            this.changeSearchQueryForMaxResults = SubjectUtils.booleanValue(changeSearchQueryForMaxResultsString);
-          } catch (Exception e) {
-            throw new SourceUnavailableException("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString, e);
-          }
+        LinkedHashMap<Integer, String> temp = new LinkedHashMap<Integer, String>();
+        
+        String searchAttributeCountKey = "subjectApi.source."+this.getConfigId()+".searchAttributeCount";
+        int searchAttributeCount = subjectConfig.propertyValueInt(searchAttributeCountKey, 0);
+        
+        for (int i = 0; i < searchAttributeCount; i++) {
+
+          String searchAttributeName = subjectConfig.propertyValueString("subjectApi.source."+this.getConfigId()+".searchAttribute."+i+".attributeName");
+          temp.put(i, searchAttributeName);
         }
+        this.searchAttributes = temp;
       }
       
+      {
+        LinkedHashMap<Integer, String> temp = new LinkedHashMap<Integer, String>();
+        
+        String sortAttributeCountKey = "subjectApi.source."+this.getConfigId()+".sortAttributeCount";
+        int sortAttributeCount = subjectConfig.propertyValueInt(sortAttributeCountKey, 0);
+        
+        for (int i = 0; i < sortAttributeCount; i++) {
+          
+          String sortAttributeName = subjectConfig.propertyValueString("subjectApi.source."+this.getConfigId()+".sortAttribute."+i+".attributeName");
+          temp.put(i, sortAttributeName);
+        }
+        this.sortAttributes = temp;
+      }
+
+      {
+        String typesAttributeName = "subjectApi.source."+this.getConfigId()+".types";
+        String type = subjectConfig.propertyValueString(typesAttributeName);
+        if (StringUtils.isBlank(type)) {
+          throw new SourceUnavailableException(
+              typesAttributeName + " is required in source: " + this.getId());
+        }
+        addSubjectType(type);
+      }
+      
+      dataFieldCache();
+
     } catch (Exception ex) {
       throw new SourceUnavailableException(
-          "Unable to init subject.properties JDBC source, source: " + this.getId(), ex);
+          "Unable to init subject.properties Datafield source, source: " + this.getId(), ex);
     }
     
 //    GrouperDataEngine dataEngine = new GrouperDataEngine();

@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.testing.GrouperTestBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -373,17 +374,19 @@ public class GrouperCacheDatabase {
               if (!shouldRun) {
                 return;
               }
-
-              if ((System.currentTimeMillis() - lastFullCheckedMillis) > checkFullAfterSeconds*1000) {
-                
-                retrieveFull(false);
-                
-              } else if ((System.currentTimeMillis() - lastIncrementalCheckedMillis) > checkIncrementalAfterSeconds*1000) {
-    
-                retrieveIncremental();
-                
+              
+              synchronized (GrouperTestBase.class) {
+                if ((System.currentTimeMillis() - lastFullCheckedMillis) > checkFullAfterSeconds*1000) {
+                  
+                  retrieveFull(false);
+                  
+                } else if ((System.currentTimeMillis() - lastIncrementalCheckedMillis) > checkIncrementalAfterSeconds*1000) {
+      
+                  retrieveIncremental();
+                  
+                }
               }
-
+              
             } catch (Exception e) {
 
               if (!shouldRun) {
