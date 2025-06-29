@@ -308,7 +308,14 @@ public class GcTableSync {
         debugMap.put("enabled", false);
       } else {
         this.dataBeanFrom = new GcTableSyncTableBean(this);
-        this.dataBeanFrom.configureMetadata(this.gcTableSyncConfiguration.getDatabaseFrom(), this.gcTableSyncConfiguration.getTableFrom());
+        if (this.getGcTableSyncConfiguration().getTableFromType() == GcTableSyncConfiguration.TableFromType.QUERY) {
+          this.dataBeanFrom.configureMetadataForQuery(this.gcTableSyncConfiguration.getDatabaseFrom(), this.gcTableSyncConfiguration.getTableFrom());
+          // not needed for the main query, but used as a subquery in getting max timestamps, etc. This should work for
+          // Postgres, MySql and Oracle, hopefully others too
+          this.dataBeanFrom.getTableMetadata().setTableName("(" + this.gcTableSyncConfiguration.getTableFrom() + ") as A");
+        } else {
+          this.dataBeanFrom.configureMetadata(this.gcTableSyncConfiguration.getDatabaseFrom(), this.gcTableSyncConfiguration.getTableFrom());
+        }
         this.dataBeanFrom.getTableMetadata().setConnectionNameOrReadonly(this.gcTableSyncConfiguration.getDatabaseFrom());
         this.dataBeanFrom.getTableMetadata().assignColumns(this.gcTableSyncConfiguration.getColumnsString());
         this.dataBeanFrom.getTableMetadata().assignPrimaryKeyColumns(this.gcTableSyncConfiguration.getPrimaryKeyColumnsString());

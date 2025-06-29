@@ -61,16 +61,23 @@ public class GcTableSyncTableBean {
     if (StringUtils.endsWith(tableName, ";")) {
       tableName = tableName.substring(0, tableName.length() - 1);
     }
-    // this might be already a query
-    if (tableName.contains(" ")) {
-      this.tableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromCacheOrDatabase(databaseFrom, tableName);
-    } else {
-      this.tableMetadata = GcTableSyncTableMetadata.retrieveTableMetadataFromCacheOrDatabase(databaseFrom, tableName);
+    this.tableMetadata = GcTableSyncTableMetadata.retrieveTableMetadataFromCacheOrDatabase(databaseFrom, tableName);
+}
+
+  /**
+   * get the metadata for this query
+   * @param databaseFrom
+   * @param query
+   */
+  public void configureMetadataForQuery(String databaseFrom, String query) {
+    query = query.trim();
+    if (StringUtils.endsWith(query, ";")) {
+      query = query.substring(0, query.length() - 1);
     }
 
-    
+    this.tableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromCacheOrDatabase(databaseFrom, query);
   }
-  
+
   /**
    * 
    */

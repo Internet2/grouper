@@ -2539,6 +2539,7 @@ public class TableSyncTest extends GrouperTest {
     
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseFrom", "grouper");
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableFrom", "select change_flag, hibernate_version_number, net_id, person_id, some_date, some_float, some_int, some_timestamp, the_group from testgrouper_sync_subject_from");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableFromType", "query");
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseTo", "grouper");
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableTo", "testgrouper_sync_subject_to");
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.columns", "change_flag, hibernate_version_number, net_id, person_id, some_date, some_float, some_int, some_timestamp, the_group");

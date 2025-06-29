@@ -19,7 +19,15 @@ import org.apache.commons.lang3.StringUtils;
  * create an instance, set the key, and call configure
  */
 public class GcTableSyncConfiguration {
-  
+
+  public enum TableFromType {
+    /* get data from a table or view */
+    TABLE,
+
+    /* get data from a query */
+    QUERY
+  }
+
   /**
    * is the config enabled
    */
@@ -282,6 +290,12 @@ public class GcTableSyncConfiguration {
    * table name from
    */
   private String tableFrom;
+
+  /**
+   * table from type
+   */
+  private TableFromType tableFromType;
+
   /**
    * table name to
    */
@@ -495,11 +509,23 @@ public class GcTableSyncConfiguration {
       if (!StringUtils.isBlank(this.databaseToReadonly)) {
         debugMap.put("configDatabaseToReadonly", this.databaseToReadonly);
       }
-  
+
       //  grouperClient.syncTable.personSource.tableFrom = PERSON_SOURCE_TEMP
       this.tableFrom = this.retrieveConfigString("tableFrom", true);
       debugMap.put("configTableFrom", this.tableFrom);
-  
+
+      //  grouperClient.syncTable.personSource.tableFromType = TABLE
+      {
+        String tmpTableFromType = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("tableFromType", false), "table");
+        if ("query".equals(tmpTableFromType)) {
+          this.tableFromType = TableFromType.QUERY;
+        } else {
+          // default to table unless specifically a query
+          this.tableFromType = TableFromType.TABLE;
+        }
+      }
+      debugMap.put("configtableFromType", this.tableFromType);
+
       //  grouperClient.syncTable.personSource.tableTo = PERSON_SOURCE_TEMP
       this.tableTo = GrouperClientUtils.defaultIfBlank(this.retrieveConfigString("tableTo", false), this.tableFrom);
       debugMap.put("configTableTo", this.tableTo);
@@ -776,6 +802,14 @@ public class GcTableSyncConfiguration {
    */
   public String getTableFrom() {
     return this.tableFrom;
+  }
+
+  /**
+   * table name from
+   * @return the tableName
+   */
+  public TableFromType getTableFromType() {
+    return this.tableFromType;
   }
 
   /**
