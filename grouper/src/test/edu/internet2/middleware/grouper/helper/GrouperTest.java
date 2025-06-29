@@ -183,147 +183,150 @@ public class GrouperTest extends GrouperTestBase {
   // @since   1.2.0
   protected void setUp () {
     
-    LOG.debug("setUp");
-    
-    shutdownDelayThreadInterrupt();
+    synchronized (GrouperTestBase.class) {
+      LOG.debug("setUp");
+      
+      shutdownDelayThreadInterrupt();
 
-    GrouperCacheUtils.clearAllCaches();
-    SourceManager.clearAllSources();
-    
-    GrouperSession.stopQuietly(GrouperSession.staticGrouperSession(false));
-    GrouperSession.clearGrouperSessions();
-    
-    //set this and leave it...
-    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, false, true);
-    
-    GrouperProvisioner.setTest_saveLastProvisionerInStaticVariable(true);
-    
-    if (!promptedUserToSeeIfOk) {
-      GrouperUtil.promptUserAboutDbChanges("delete all data in the database to run junit test(s)", true);
+      GrouperCacheUtils.clearAllCaches();
+      SourceManager.clearAllSources();
+      
+      GrouperSession.stopQuietly(GrouperSession.staticGrouperSession(false));
+      GrouperSession.clearGrouperSessions();
+      
+      //set this and leave it...
+      GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, false, true);
+      
+      GrouperProvisioner.setTest_saveLastProvisionerInStaticVariable(true);
+      
+      if (!promptedUserToSeeIfOk) {
+        GrouperUtil.promptUserAboutDbChanges("delete all data in the database to run junit test(s)", true);
+      }
+      
+      //remove any settings in testconfig
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().clear();
+      GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().clear();
+      GrouperWsConfigInApi.retrieveConfig().propertiesOverrideMap().clear();
+      GrouperUiConfigInApi.retrieveConfig().propertiesOverrideMap().clear();
+      SubjectConfig.retrieveConfig().propertiesOverrideMap().clear();
+      ConfigPropertiesCascadeBase.clearCache();
+
+      SourceManager.getInstance().reloadSource("personLdapSource");
+
+      SubjectFinder.internalClearSubjectCustomizerCache();
+
+      for (int i=0;i<20;i++) {
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.group.name." + i, null);
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.group.description." + i, null);
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.group.subjects." + i, null);
+      }
+
+      //set grouper.example.properties stuff...
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.admin", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.optin", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.optout", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.update", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "true");
+      
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.viewonly.use", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.viewonly.group", "$$grouper.rootStemForBuiltinObjects$$:sysadminViewersGroup");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.readonly.use", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.readonly.group", "$$grouper.rootStemForBuiltinObjects$$:sysadminReadersGroup");
+
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.create.grant.all.create", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.create.grant.all.stem", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrAdmin", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptin", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptout", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrUpdate", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("entities.create.grant.all.view", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", "etc:sysadmingroup");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subject.internal.grouperall.name", "EveryEntity");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subject.internal.groupersystem.name", "GrouperSysAdmin");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute0.el", "${subject.name},${subject.id}");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute0.el", "${subject.name}");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.types.grouperLoader.wheelOnly", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.types.grouperGroupMembershipSettings.wheelOnly", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToMoveStem", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToRenameStem", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToCopyStem", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("member.search.defaultIndexOrder", "0");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("member.sort.defaultIndexOrder", "0");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.use", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.use", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.allPage.useThreadForkJoin", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.idOrIdentifier.useThreadForkJoin", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.group.useCreatorAndModifierAsSubjectAttributes", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.customizer.className", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.startRootSessionIfOneIsntStarted", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attribute.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attributeDef.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attributeDefName.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attributeAssign.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attributeAssignValue.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.group.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.lifecycle.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.membership.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.member.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.stem.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.composite.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.field.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.grouperSession.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.groupType.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.groupTypeTuple.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.loader.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.externalSubject.class", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.act.as.group", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.accessToApiInEl.group", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.act.as.cache.minutes", "30");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.customElClasses", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", null); 
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.emailTemplatesFolder", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.attribute.validator.attributeName.0", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.attribute.validator.regex.0", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.attribute.validator.vetoMessage.0", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.enabled", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.api.readonly", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("membershipUpdateLiteTypeAutoCreate", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.rootStem", "etc:attribute");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.loader.autoconfigure", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.builtin.createAs.public", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ddlutils.use.nestedTransactions", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.use.builtin.messaging", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.default.name.of.messaging.system", "grouperBuiltinMessaging");
+      
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.autoadd.typesAttributes", "true");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.sqlTable.likeString.removeGroupIfMemberOfAnotherGroup", "false");
+
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.changeLogTempToChangeLog.longRunning", "false");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.compositeMemberships.longRunning", "false");
+
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("default.subject.source.id", null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.system.groups", "true");
+      
+      //dont send emails
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("mail.smtp.server", "testing");
+
+      setupInitDb();
+
+      GrouperEmail.testingEmails().clear();
+      GrouperEmail.testingEmailCount = 0;
+      GrouperCacheUtils.clearAllCaches();
+      
+      
+      SyncToGrouper.reclaimMemory = false;
+
+      GrouperSession.startRootSession();
     }
     
-    //remove any settings in testconfig
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().clear();
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().clear();
-    GrouperWsConfigInApi.retrieveConfig().propertiesOverrideMap().clear();
-    GrouperUiConfigInApi.retrieveConfig().propertiesOverrideMap().clear();
-    SubjectConfig.retrieveConfig().propertiesOverrideMap().clear();
-    ConfigPropertiesCascadeBase.clearCache();
-
-    SourceManager.getInstance().reloadSource("personLdapSource");
-
-    SubjectFinder.internalClearSubjectCustomizerCache();
-
-    for (int i=0;i<20;i++) {
-      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.group.name." + i, null);
-      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.group.description." + i, null);
-      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.group.subjects." + i, null);
-    }
-
-    //set grouper.example.properties stuff...
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.admin", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.optin", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.optout", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.update", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "true");
-    
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.viewonly.use", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.viewonly.group", "$$grouper.rootStemForBuiltinObjects$$:sysadminViewersGroup");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.readonly.use", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.readonly.group", "$$grouper.rootStemForBuiltinObjects$$:sysadminReadersGroup");
-
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.create.grant.all.create", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.create.grant.all.stem", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrAdmin", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptin", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptout", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrUpdate", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("entities.create.grant.all.view", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", "etc:sysadmingroup");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subject.internal.grouperall.name", "EveryEntity");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subject.internal.groupersystem.name", "GrouperSysAdmin");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute0.el", "${subject.name},${subject.id}");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute0.el", "${subject.name}");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.types.grouperLoader.wheelOnly", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.types.grouperGroupMembershipSettings.wheelOnly", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToMoveStem", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToRenameStem", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToCopyStem", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("member.search.defaultIndexOrder", "0");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("member.sort.defaultIndexOrder", "0");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.use", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.use", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.allPage.useThreadForkJoin", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.idOrIdentifier.useThreadForkJoin", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.group.useCreatorAndModifierAsSubjectAttributes", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.customizer.className", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.startRootSessionIfOneIsntStarted", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attribute.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attributeDef.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attributeDefName.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attributeAssign.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attributeAssignValue.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.group.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.lifecycle.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.membership.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.member.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.stem.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.composite.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.field.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.grouperSession.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.groupType.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.groupTypeTuple.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.loader.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.externalSubject.class", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.act.as.group", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.accessToApiInEl.group", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.act.as.cache.minutes", "30");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.customElClasses", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", null); 
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.emailTemplatesFolder", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.attribute.validator.attributeName.0", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.attribute.validator.regex.0", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.attribute.validator.vetoMessage.0", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.enabled", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.api.readonly", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("membershipUpdateLiteTypeAutoCreate", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.rootStem", "etc:attribute");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.loader.autoconfigure", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.builtin.createAs.public", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ddlutils.use.nestedTransactions", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.use.builtin.messaging", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.default.name.of.messaging.system", "grouperBuiltinMessaging");
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.autoadd.typesAttributes", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.sqlTable.likeString.removeGroupIfMemberOfAnotherGroup", "false");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.changeLogTempToChangeLog.longRunning", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.compositeMemberships.longRunning", "false");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("default.subject.source.id", null);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.system.groups", "true");
-    
-    //dont send emails
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("mail.smtp.server", "testing");
-
-    setupInitDb();
-
-    GrouperEmail.testingEmails().clear();
-    GrouperEmail.testingEmailCount = 0;
-    GrouperCacheUtils.clearAllCaches();
-    
-    
-    SyncToGrouper.reclaimMemory = false;
-
-    GrouperSession.startRootSession();
   }
 
   protected void setupInitDb() {
