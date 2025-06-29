@@ -21,6 +21,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata.ColumnType;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncConfiguration.TableFromType;
 import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import org.apache.commons.logging.Log;
@@ -53,7 +54,7 @@ public enum GcTableSyncSubtype {
       
       captureCurrentMaxIncrementalIndexIfNeeded(debugMap, gcTableSync);
 
-      String sqlFrom = gcTableSync.getGcTableSyncConfiguration().getTableFrom().trim().contains(" ") ? 
+      String sqlFrom = gcTableSync.getGcTableSyncConfiguration().getTableFromType().equals(TableFromType.QUERY) ?
           gcTableSync.getGcTableSyncConfiguration().getTableFrom().trim() :
             ("select " + gcTableSync.getDataBeanFrom().getTableMetadata().columnListAllQuoted() + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName());
       
