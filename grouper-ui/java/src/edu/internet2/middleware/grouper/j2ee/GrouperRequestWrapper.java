@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.ServletRequest;
@@ -429,10 +430,14 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
     return this.parameterMap;
   }
 
+  private static String owaspCsrfTokenHeader = null;
+  
   @Override
   public String getHeader(String name) {
     
-    if (StringUtils.equals("OWASP_CSRFTOKEN", name)) {
+    // if the cached value is null then read it from the configs, first Owasp.CsrfGuard.overlay.properties, then the default: Owasp.CsrfGuard.properties
+    
+    if (StringUtils.equals(owaspCsrfTokenHeader(), name)) {
       String value = this.wrapped.getHeader(name);
       if (value != null && value.contains(",")) {
         return GrouperUtil.prefixOrSuffix(value, ",", true).trim();
@@ -440,6 +445,26 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
     }
 
     return this.wrapped.getHeader(name);
+  }
+
+  public String owaspCsrfTokenHeader() {
+    if (owaspCsrfTokenHeader == null) {
+      Properties properties = GrouperUtil.propertiesFromResourceName("Owasp.CsrfGuard.overlay.properties", false, false);
+      if (properties != null) {
+        owaspCsrfTokenHeader = properties.getProperty("org.owasp.csrfguard.TokenName");
+      }
+      if (StringUtils.isBlank(owaspCsrfTokenHeader)) {
+        properties = GrouperUtil.propertiesFromResourceName("Owasp.CsrfGuard.properties", false, false);
+        if (properties != null) {
+          owaspCsrfTokenHeader = properties.getProperty("org.owasp.csrfguard.TokenName");
+        }
+      }
+      if (StringUtils.isBlank(owaspCsrfTokenHeader)) {
+        // default value
+        owaspCsrfTokenHeader = "OWASPCSRFTOKEN";
+      }
+    }
+    return owaspCsrfTokenHeader;
   }
 
   /**
@@ -455,7 +480,7 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
   @Override
   public String getParameter(String name) {
 
-    if (StringUtils.equals("OWASP_CSRFTOKEN", name)) {
+    if (StringUtils.equals(owaspCsrfTokenHeader(), name)) {
       String value = this.wrapped.getParameter(name);
       if (value != null && value.contains(",")) {
         return GrouperUtil.prefixOrSuffix(value, ",", true).trim();
