@@ -102,10 +102,30 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       // If the GSH template should not redirect anywhere at the end, and stay on same screen, add this line in the script
       // #########
 
-      // the GSH template should not redirect anywhere, stay on same screen
+      // the GSH template should not redirect anywhere, stay on same screen, otherwise it will redirect to the group or folder that initiated the GSH template
       gsh_builtin_gshTemplateOutput.assignRedirectToGrouperOperation("NONE");
     }
 
+    REDIRECT_TO_GROUP: {
+      // #########
+      // If the GSH template should redirect to a group, add this line in the script
+      // #########
+
+      // the GSH template should redirect to a group, otherwise it will redirect to the group or folder that initiated the GSH template
+      String groupName = "test:testGroup"; // replace with the actual group name
+      gsh_builtin_gshTemplateOutput.assignRedirectToGrouperOperation("operation=UiV2Group.viewGroup&groupName=" + groupName);
+    }
+    
+    REDIRECT_TO_FOLDER: {
+      // #########
+      // If the GSH template should redirect to a folder, add this line in the script
+      // #########
+
+      // the GSH template should redirect to a group, otherwise it will redirect to the group or folder that initiated the GSH template
+      String stemName = "test:testFolder"; // replace with the actual folder name
+      gsh_builtin_gshTemplateOutput.assignRedirectToGrouperOperation("operation=UiV2Stem.viewStem&stemName=" + stemName);
+    }
+    
     CREATE_GROUP_WITH_DESCRIPTION: {
       // #########
       // Create a group for admins based on the input gsh_input_groupName in the folder a:b:c 
