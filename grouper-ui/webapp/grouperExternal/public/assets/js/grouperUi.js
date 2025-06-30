@@ -916,14 +916,12 @@ function ajax(theUrl, options) {
 
   
   //add owasp token
-  
-  
-  var owaspCsrfTokenName = 'OWASP_CSRFTOKEN';
+  var owaspTokenName = 'OWASPCSRFTOKEN';
   var owaspCsrfTokenHeader = {};
-  if (document.getElementsByName(owaspCsrfTokenName) != null
-      && document.getElementsByName(owaspCsrfTokenName).length > 0
-      && document.getElementsByName(owaspCsrfTokenName)[0] != null) {
-    owaspCsrfTokenHeader = {OWASP_CSRFTOKEN: document.getElementsByName(owaspCsrfTokenName)[0].value};
+  if (document.getElementsByName(owaspTokenName) != null
+      && document.getElementsByName(owaspTokenName).length > 0
+      && document.getElementsByName(owaspTokenName)[0] != null) {
+    owaspCsrfTokenHeader[owaspTokenName] = document.getElementsByName(owaspTokenName)[0].value;
   }
   
   //make sure combos have the right state
