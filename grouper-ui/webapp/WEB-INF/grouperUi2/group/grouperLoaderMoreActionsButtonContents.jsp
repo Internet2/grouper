@@ -21,19 +21,15 @@
                         </c:if>
                         
                         
-                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}" >
-                          <li><a href="../app/UiV2GrouperLoader.exportLoaderConfig?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}">${textContainer.text['exportLoaderConfig'] }</a></li>
-                        </c:if>
-                        
-                        <c:if test="${!grouperRequestContainer.grouperLoaderContainer.loaderGroup}" >
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.importLoaderConfig?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                            >${textContainer.text['importLoaderConfig'] }</a></li>
-                        </c:if>
-                        
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader or grouperRequestContainer.grouperLoaderContainer.canEditAbacLoader}" >
                           <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.editGrouperLoader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['grouperLoaderEditConfiguration'] }</a></li>
                         </c:if>
+                        
+                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}" >
+                          <li><a href="../app/UiV2GrouperLoader.exportLoaderConfig?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}">${textContainer.text['exportLoaderConfig'] }</a></li>
+                        </c:if>
+                        
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader && grouperRequestContainer.grouperLoaderContainer.failsafeIssue}" >
                           <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.failsafeApprove?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['grouperLoaderFailsafeApprove'] }</a></li>
@@ -46,6 +42,11 @@
                                   >${textContainer.text['adminDaemonJobsMoreActionsEnable'] }</a></li>
                             </c:if>
                           </c:if>
+                        </c:if>
+                        
+                         <c:if test="${!grouperRequestContainer.grouperLoaderContainer.loaderGroup}" >
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.importLoaderConfig?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['importLoaderConfig'] }</a></li>
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup && !grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader}" >
