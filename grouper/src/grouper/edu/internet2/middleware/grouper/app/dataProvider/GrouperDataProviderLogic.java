@@ -58,7 +58,6 @@ import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1639,16 +1638,22 @@ public class GrouperDataProviderLogic {
       
       if (isSubjectSource) {
         Map<Long, GrouperDataMemberWrapper> memberWrapperByInternalId = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId();
-        Set<String> subjectIdsToResolve = new LinkedHashSet<String>();
+        Map<String, Member> subjectIdsToResolve = new LinkedHashMap<>();
         for (long memberInternalId : batchOfMemberInternalIds) {
           GrouperDataMemberWrapper grouperDataMemberWrapper = memberWrapperByInternalId.get(memberInternalId);
           if (grouperDataMemberWrapper != null && grouperDataMemberWrapper.getMember() != null) {
-            String subjectId = grouperDataMemberWrapper.getMember().getSubjectId();
-            subjectIdsToResolve.add(subjectId);
+            Member member = grouperDataMemberWrapper.getMember();
+            String subjectId = member.getSubjectId();
+            subjectIdsToResolve.put(subjectId, member);
           }
         }
         
-        SubjectFinder.findByIds(subjectIdsToResolve, subjectSourceIdIfSubjectSource, false, true);
+        Map<String, Subject> subjectIdToSubjectMap = SubjectFinder.findByIds(subjectIdsToResolve.keySet(), subjectSourceIdIfSubjectSource, false, true);
+        for (String subjectId : subjectIdToSubjectMap.keySet()) {
+          Member member = subjectIdsToResolve.get(subjectId);
+          Subject subject = subjectIdToSubjectMap.get(subjectId);
+          member.updateMemberAttributes(subject, true);
+        }
       }
       
       GrouperDaemonUtils.stopProcessingIfJobPaused();
