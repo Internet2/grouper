@@ -1486,6 +1486,38 @@ public class GrouperDataProviderLogic {
       final int theBatchIndex = batchIndex;
       List<Long> batchOfMemberInternalIds = GrouperUtil.batchList(allMemberInternalIdsToUpdateList, batchSize, theBatchIndex);
       
+      Set<Member> batchOfMembersToAdd = new LinkedHashSet<>();
+      for (Long memberInternalId : batchOfMemberInternalIds) {
+        if (membersToAddByInternalId.containsKey(memberInternalId)) {
+          batchOfMembersToAdd.add(membersToAddByInternalId.get(memberInternalId));
+        }
+      }
+      
+      // TODO ok to use hibernate since the hooks should run?
+      if (batchOfMembersToAdd.size() > 0) {
+        try {
+          HibernateSession.byObjectStatic().saveBatch(batchOfMembersToAdd);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfMembersToAdd.size());
+        } catch (Exception e) {
+          // try each one individually
+          for (Member memberToAdd : batchOfMembersToAdd) {
+            try {
+              HibernateSession.byObjectStatic().save(memberToAdd);
+              grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(1);
+            } catch (Exception e2) {
+              LOG.error("Error adding member", e2);
+              
+              // remove from the batch - TODO need better error handling
+              batchOfMemberInternalIds.remove(memberToAdd.getInternalId());
+            }
+          }
+        }
+      }
+      
+      if (batchOfMemberInternalIds.size() == 0) {
+        continue;
+      }
+      
       new GcDbAccess().callbackTransaction(new GcTransactionCallback<Boolean>() {
         
         @Override
@@ -1508,13 +1540,8 @@ public class GrouperDataProviderLogic {
           Set<ChangeLogEntryTemp> batchOfChangeLogEntriesDataRowFieldAssignsToDelete = new LinkedHashSet<>();
           Set<ChangeLogEntryTemp> batchOfChangeLogEntriesDataRowAssignsToInsert = new LinkedHashSet<>();
           Set<ChangeLogEntryTemp> batchOfChangeLogEntriesDataRowAssignsToDelete = new LinkedHashSet<>();
-          
-          Set<Member> batchOfMembersToAdd = new LinkedHashSet<>();
-          
+                    
           for (Long memberInternalId : batchOfMemberInternalIds) {
-            if (membersToAddByInternalId.containsKey(memberInternalId)) {
-              batchOfMembersToAdd.add(membersToAddByInternalId.get(memberInternalId));
-            }
             
             for (Long fieldAssignInternalId : GrouperUtil.nonNull(memberInternalIdToFieldAssignInternalIds.get(memberInternalId))) {
               if (fieldAssignIdToGrouperDataFieldAssignHstsToInsert.containsKey(fieldAssignInternalId)) {
@@ -1583,12 +1610,6 @@ public class GrouperDataProviderLogic {
                 batchOfChangeLogEntriesDataRowFieldAssignsToInsert.addAll(rowAssignInternalIdToChangeLogEntriesDataRowFieldAssignsToInsert.get(rowAssignInternalId));
               }
             }
-          }
-          
-          // TODO ok to use hibernate since the hooks should run?
-          if (batchOfMembersToAdd.size() > 0) {
-            HibernateSession.byObjectStatic().saveBatch(batchOfMembersToAdd);
-            grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfMembersToAdd.size());
           }
           
           GrouperDataFieldAssignHstDao.store(batchOfGrouperDataFieldAssignHstsToInsert);
