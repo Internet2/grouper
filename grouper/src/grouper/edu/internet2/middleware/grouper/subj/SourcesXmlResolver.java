@@ -658,6 +658,11 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     //if not started, then maybe not initted...
     if (GrouperStartup.isFinishedStartupSuccessfully() && !"g:gsa".equals(subj.getSourceId()) && !UsduJob.isInUsduThread()) {
+      Source source = getSource(subj.getSourceId());
+      if (source instanceof GrouperDataFieldSourceAdapter) {
+        return;
+      }
+      
       // update member attributes
       Member member = MemberFinder.internal_findBySubject(subj, null, false);
   
@@ -675,21 +680,22 @@ public class SourcesXmlResolver implements SubjectResolver {
     //if not started, then maybe not initted...
     if (GrouperStartup.isFinishedStartupSuccessfully() && !UsduJob.isInUsduThread()) {
       
-      Map<MultiKey, Subject> nonGroupSubjects = new HashMap<MultiKey, Subject>();
+      Map<MultiKey, Subject> nonGroupNonDataFieldSubjects = new HashMap<MultiKey, Subject>();
       
       for (Subject subject : subjects) {
-        if (!"g:gsa".equals(subject.getSourceId())) {
+        Source source = getSource(subject.getSourceId());
+        if (!"g:gsa".equals(subject.getSourceId()) && !(source instanceof GrouperDataFieldSourceAdapter)) {
           MultiKey nonGroupSubjectMultiKey = new MultiKey(subject.getSourceId(), subject.getId());
-          nonGroupSubjects.put(nonGroupSubjectMultiKey, subject);
+          nonGroupNonDataFieldSubjects.put(nonGroupSubjectMultiKey, subject);
         }
       }
       
-      if (nonGroupSubjects.size() > 0) {
+      if (nonGroupNonDataFieldSubjects.size() > 0) {
         // update member attributes
-        Set<Member> members = MemberFinder.findBySubjects(nonGroupSubjects.values(), false);
+        Set<Member> members = MemberFinder.findBySubjects(nonGroupNonDataFieldSubjects.values(), false);
         for (Member member : members) {
           MultiKey key = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
-          Subject subject = nonGroupSubjects.get(key);
+          Subject subject = nonGroupNonDataFieldSubjects.get(key);
 
           if (subject != null) {
             member.updateMemberAttributes(subject, true);

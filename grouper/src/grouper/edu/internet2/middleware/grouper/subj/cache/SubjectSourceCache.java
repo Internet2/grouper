@@ -42,7 +42,8 @@ public class SubjectSourceCache {
   private static final Log LOG = GrouperUtil.getLog(SubjectSourceCache.class);
 
   /**
-   * 
+   * Note that this doesn't clear cache from the caching resolver.
+   * To clear both, use SubjectFinder.flushCache()
    */
   public static synchronized void clearCache() {
     statsCurrent = new SubjectSourceCacheStat();
