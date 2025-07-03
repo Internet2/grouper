@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.subj;
 
-import java.sql.Timestamp;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -15,6 +14,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.testing.GrouperTestBase;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.config.SubjectConfig;
@@ -27,7 +27,7 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDataFieldSourceAdapterTest("testGetSubject"));
+    TestRunner.run(new GrouperDataFieldSourceAdapterTest("testGetSubjectCache"));
   }
   
   public void testGetSubject() {
@@ -75,6 +75,21 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
         return null;
       }
     });
+    
+  }
+  
+  /**
+   * make sure subject source cache is not caching data field subjects
+   */
+  public void testGetSubjectCache() {
+    
+    setupData();
+    
+    GrouperSession.startRootSession();
+    assertEquals("my name is test.subject.6", SubjectFinder.findByIdAndSource("test.subject.6", "dataFieldSubjectSource", true).getAttributes().get("nameprivate").iterator().next());
+    
+    GrouperSession.start(SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true));
+    assertEquals(0, GrouperUtil.length(SubjectFinder.findByIdAndSource("test.subject.6", "dataFieldSubjectSource", true).getAttributes().get("nameprivate")));
     
   }
   

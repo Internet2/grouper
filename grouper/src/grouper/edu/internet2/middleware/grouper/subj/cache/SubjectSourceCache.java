@@ -17,17 +17,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.subj.GrouperDataFieldSourceAdapter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -1198,6 +1197,10 @@ public class SubjectSourceCache {
    */
   public static Subject getSubjectFromCacheOrSource(Source source, String id, boolean ignoreCachedSubjects, boolean exceptionIfNotFound) {
     
+    if (source instanceof GrouperDataFieldSourceAdapter) {
+      return source.getSubject(id, exceptionIfNotFound);
+    }
+    
     initCacheIfNotInitted();
 
     boolean cacheHit=false;
@@ -1332,6 +1335,14 @@ public class SubjectSourceCache {
    * @return subject
    */
   public static Map<String, Subject> getSubjectsByIdsFromCacheOrSource(Source source, Collection<String> ids, boolean ignoreCachedSubjects) {
+    
+    if (source instanceof GrouperDataFieldSourceAdapter) {
+      if (GrouperUtil.length(ids) == 0) {
+        return null;
+      }
+      
+      return source.getSubjectsByIds(ids);
+    }
     
     initCacheIfNotInitted();
 
@@ -1501,6 +1512,10 @@ public class SubjectSourceCache {
    */
   public static Subject getSubjectByIdentifierFromCacheOrSource(Source source, String identifier, boolean ignoreCachedSubjects, boolean exceptionIfNotFound) {
     
+    if (source instanceof GrouperDataFieldSourceAdapter) {
+      return source.getSubjectByIdentifier(identifier, exceptionIfNotFound);
+    }
+    
     initCacheIfNotInitted();
     
     Map<String, Object> debugMap = null;
@@ -1642,6 +1657,10 @@ public class SubjectSourceCache {
    * @return subject
    */
   public static Subject getSubjectByIdOrIdentifierFromCacheOrSource(Source source, String idOrIdentifier, boolean ignoreCachedSubjects, boolean exceptionIfNotFound) {
+    
+    if (source instanceof GrouperDataFieldSourceAdapter) {
+      return source.getSubjectByIdOrIdentifier(idOrIdentifier, exceptionIfNotFound);
+    }
     
     initCacheIfNotInitted();
 
@@ -1786,6 +1805,14 @@ public class SubjectSourceCache {
    * @return subject
    */
   public static Map<String, Subject> getSubjectsByIdentifiersFromCacheOrSource(Source source, Collection<String> identifiers) {
+    
+    if (source instanceof GrouperDataFieldSourceAdapter) {
+      if (GrouperUtil.length(identifiers) == 0) {
+        return null;
+      }
+      
+      return source.getSubjectsByIdentifiers(identifiers);
+    }
     
     initCacheIfNotInitted();
 
@@ -1961,6 +1988,14 @@ public class SubjectSourceCache {
    * @return subject
    */
   public static Map<String, Subject> getSubjectsByIdsOrIdentifiersFromCacheOrSource(Source source, Collection<String> idsOrIdentifiers) {
+    
+    if (source instanceof GrouperDataFieldSourceAdapter) {
+      if (GrouperUtil.length(idsOrIdentifiers) == 0) {
+        return null;
+      }
+      
+      return source.getSubjectsByIdsOrIdentifiers(idsOrIdentifiers);
+    }
     
     initCacheIfNotInitted();
 
