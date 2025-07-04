@@ -10890,12 +10890,23 @@ public class GrouperServiceLogic {
         userAuditQuery.setToDate(toDate);
       }
       
+      
       if (wsStemLookup != null) {
-        userAuditQuery.addAuditTypeFieldValue(AuditFieldType.AUDIT_TYPE_STEM_ID, wsStemLookup.getUuid());
+        wsStemLookup.retrieveStemIfNeeded(session, false);
+        Stem stem = wsStemLookup.retrieveStem();
+        if (stem == null) {
+         throw new RuntimeException("Could not resolve stem based on ownerStemLookup"); 
+        }
+
+        userAuditQuery.addAuditTypeFieldValue(AuditFieldType.AUDIT_TYPE_STEM_ID, stem.getUuid());
       }
       
       if (wsGroupLookup != null ) {
-        userAuditQuery.addAuditTypeFieldValue(AuditFieldType.AUDIT_TYPE_GROUP_ID, wsGroupLookup.getUuid());
+        final Group group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
+        if (group == null) {
+          throw new RuntimeException("Could not resolve group based on wsGroupLookup"); 
+        }
+        userAuditQuery.addAuditTypeFieldValue(AuditFieldType.AUDIT_TYPE_GROUP_ID, group.getUuid());
       }
       
       if (wsSubjectLookup != null) {
