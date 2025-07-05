@@ -1460,6 +1460,7 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
       eppnToPennid.put(eppn, subject.getId());
     }
 
+    // these are the roles they will get in bplogix, but not the group checked in grouper (which might be blank or not exist)
     String groupNameAllFac = "penn:isc:ait:apps:bplogix:service:policy:userFeedGroups:ALL.FAC";
     String gidAllFac = this.retrieveGidOrFromCache(groupNameAllFac);
     
@@ -1469,14 +1470,22 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
     String groupNameAllStu = "penn:isc:ait:apps:bplogix:service:policy:userFeedGroups:ALL.STU";    
     String gidAllStu = this.retrieveGidOrFromCache(groupNameAllStu);
     
-    String groupNameAllAlum = this.theState.isProd ? "penn:isc:ait:apps:bplogix:service:policy:userFeedGroups:ALL.ALUM" : null;
-    String gidAllAlum = this.theState.isProd ? this.retrieveGidOrFromCache(groupNameAllAlum) : null;
+    String groupNameAllAlum = "penn:isc:ait:apps:bplogix:service:policy:userFeedGroups:ALL.ALUM";
+    String gidAllAlum = this.retrieveGidOrFromCache(groupNameAllAlum);
     
     Collection<String> pennids = eppnToPennid.values();
-    Set<String> facPennids = groupHasPennids(groupNameAllFac, pennids);
-    Set<String> stfPennids = groupHasPennids(groupNameAllStf, pennids);
-    Set<String> stuPennids = groupHasPennids(groupNameAllStu, pennids);
-    Set<String> alumPennids = this.theState.isProd ? groupHasPennids(groupNameAllAlum, pennids) : null;
+    
+    // penn:isc:ait:apps:bplogix:service:ref:bplogixFaculty
+    Set<String> facPennids = groupHasPennids("penn:isc:ait:apps:bplogix:service:ref:bplogixFaculty", pennids);
+    
+    // penn:isc:ait:apps:bplogix:service:ref:bplogixStaff
+    Set<String> stfPennids = groupHasPennids("penn:isc:ait:apps:bplogix:service:ref:bplogixStaff", pennids);
+    
+    // penn:isc:ait:apps:bplogix:service:ref:bplogixStudent
+    Set<String> stuPennids = groupHasPennids("penn:isc:ait:apps:bplogix:service:ref:bplogixStudent", pennids);
+    
+    // penn:isc:ait:apps:bplogix:service:ref:bplogixAlum
+    Set<String> alumPennids = groupHasPennids("penn:isc:ait:apps:bplogix:service:ref:bplogixAlum", pennids);
     
     for (ProvisioningEntity targetEntity : targetDaoInsertEntitiesRequest.getTargetEntityInserts()) {
       
@@ -1646,7 +1655,7 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
       GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(),
           "bplogixAddMembershipsCount", 1);
     }
-    if (this.theState.isProd && alumPennids.contains(pennnid)) {
+    if (alumPennids.contains(pennnid)) {
       this.theState.bplogixCommands.addUserToGroup(bplogixUser.uid, gidAllAlum);
       GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(),
           "bplogixAddMembershipsCount", 1);
