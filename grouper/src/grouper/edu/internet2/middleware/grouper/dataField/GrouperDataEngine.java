@@ -12,28 +12,23 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableMetadata;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public class GrouperDataEngine {
 
   private Map<String, Object> debugMap = new LinkedHashMap<>();
   
-  private static final ExpirableCache<MultiKey, String> highestLevelAccessForPrivacyRealmSubject = new ExpirableCache<MultiKey, String>(2);
-  
-  
   protected static void clearHighestLevelCache() {
-    highestLevelAccessForPrivacyRealmSubject.clear();
+    sourceIdSubjectIdToIfHasUsedPrivacyRecently.clear();
+    sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccessCache.clear();
   }
   
   public Map<String, Object> getDebugMap() {
@@ -640,13 +635,209 @@ public class GrouperDataEngine {
     return queryConfigIdToTableMetadata;
   }
   
-  public static String calculateHighestLevelAccess(GrouperPrivacyRealmConfig grouperPrivacyRealmConfig, Subject subject) {
+  private static ExpirableCache<MultiKey, Boolean> sourceIdSubjectIdToIfHasUsedPrivacyRecently = new ExpirableCache<>(60); // 60 minutes
+  
+  private static ExpirableCache<Boolean, Map<MultiKey, Boolean>> sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccessCache = new ExpirableCache<>(2); // 2 minutes
+  
+  
+  
+  /**
+   * find all the privacy realm memberships for a subject and add them to the cache
+   * @param grouperPrivacyRealmConfig
+   * @param subject
+   * @return
+   */
+  private Map<MultiKey, Boolean> populatePrivacyCacheForUser(Set<MultiKey> sourceIdSubjectIdsSet, boolean replaceExisting) {
     
-    MultiKey multiKey = new MultiKey(grouperPrivacyRealmConfig.getConfigId(), subject.getId(), subject.getSourceId());
-    if (highestLevelAccessForPrivacyRealmSubject.get(multiKey) != null) {
-      return highestLevelAccessForPrivacyRealmSubject.get(multiKey);
+    Map<MultiKey, Boolean> sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess = new HashMap<MultiKey, Boolean>();
+    
+    if (GrouperUtil.length(sourceIdSubjectIdsSet) == 0) {
+      return sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess;
+    }
+
+    // get a list of all groups of all privacy realm configs
+    Set<String> groupNames = new HashSet<String>();
+    for (GrouperPrivacyRealmConfig grouperPrivacyRealmConfig : this.getPrivacyRealmConfigByConfigId().values()) {
+      
+      String viewersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmViewersGroupName();
+      String updatersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmUpdatersGroupName();
+      String readersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmReadersGroupName();
+      
+      if (StringUtils.isNotBlank(viewersGroupName)) {
+        groupNames.add(viewersGroupName);
+      }
+      
+      if (StringUtils.isNotBlank(updatersGroupName)) {
+        groupNames.add(updatersGroupName);
+      }
+      
+      if (StringUtils.isNotBlank(readersGroupName)) {
+        groupNames.add(readersGroupName);
+      }
+
     }
     
+    if (groupNames.isEmpty()) {
+      return sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess;
+    }
+    
+    List<MultiKey> sourceIdSubjectIds = new ArrayList<>(sourceIdSubjectIdsSet);
+    
+    //process sourceIdSubjectIds in batches of 500
+    int batchSize = 500;
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(sourceIdSubjectIds, batchSize, false);
+    
+    for (int i = 0; i < numberOfBatches; i++) {
+      
+      List<MultiKey> sourceIdSubjectIdsBatch = GrouperUtil.batchList(sourceIdSubjectIds, batchSize, i);
+      
+      StringBuilder sql = new StringBuilder("""
+          select gg.name, gm.subject_source, gm.subject_id
+            from grouper_groups gg,  grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm, grouper_members gm, grouper_fields gf 
+            where gg.internal_id  = gscg.group_internal_id 
+            and gscm.sql_cache_group_internal_id = gscg.internal_id
+            and gm.internal_id = gscm.member_internal_id  
+            and gf.internal_id =  gscg.field_internal_id  
+            and gf.name = 'members'
+            and gg.name in ( 
+          """);
+      
+      GrouperClientUtils.appendQuestions(sql, groupNames.size());
+      sql.append(") and (");
+      
+      GcDbAccess dbAccess = new GcDbAccess();
+      
+      for (String groupName : groupNames) {
+        dbAccess.addBindVar(groupName);
+      }
+      
+      boolean isFirst = true;
+      
+      for (MultiKey sourceIdSubjectId : sourceIdSubjectIdsBatch) {
+        if (isFirst) {
+          isFirst = false;
+        } else {
+          sql.append(" or ");
+        }
+        sql.append(" (gm.subject_source = ? and gm.subject_id = ?) ");
+        dbAccess.addBindVar(sourceIdSubjectId.getKey(0)) // sourceId
+          .addBindVar(sourceIdSubjectId.getKey(1)); // subjectId
+      }
+      sql.append(")");
+      
+      dbAccess.sql(sql.toString());
+      Set<Object[]> groupNamesSubjectSourceSubjectIdFromDb = new HashSet<Object[]>(dbAccess.selectList(Object[].class));
+      
+      //convert groupNamesSubjectSourceSubjectIdFromDb to multikey
+      Set<MultiKey> groupNamesSubjectSourceSubjectIdFromDbSet = new HashSet<MultiKey>();
+      for (Object[] row : groupNamesSubjectSourceSubjectIdFromDb) {
+        if (row.length == 3) {
+          String groupName = (String) row[0];
+          String sourceId = (String) row[1];
+          String subjectId = (String) row[2];
+          groupNamesSubjectSourceSubjectIdFromDbSet.add(new MultiKey(groupName, sourceId, subjectId));
+        }
+      }
+      
+      for (MultiKey sourceIdSubjectIdFromSingleBatch : sourceIdSubjectIdsBatch) {
+        
+        for (GrouperPrivacyRealmConfig grouperPrivacyRealmConfig : this.getPrivacyRealmConfigByConfigId().values()) {
+          
+          String viewersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmViewersGroupName();
+          String updatersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmUpdatersGroupName();
+          String readersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmReadersGroupName();
+          
+          String sourceId = (String)sourceIdSubjectIdFromSingleBatch.getKey(0);
+          String subjectId = (String)sourceIdSubjectIdFromSingleBatch.getKey(1);
+          
+          MultiKey viewersGroupNameSourceSubjectToLookup = new MultiKey(viewersGroupName, sourceId, subjectId);
+          
+          if (StringUtils.isNotBlank(viewersGroupName)) {
+            MultiKey multiKey = new MultiKey(sourceId, subjectId, grouperPrivacyRealmConfig.getConfigId(), "view");
+            if (groupNamesSubjectSourceSubjectIdFromDbSet.contains(viewersGroupNameSourceSubjectToLookup)) {
+              sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess.put(multiKey, Boolean.TRUE);
+              
+            } else {
+              sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess.put(multiKey, Boolean.FALSE);
+            }
+          }
+          
+          MultiKey updatersGroupNameSourceSubjectToLookup = new MultiKey(updatersGroupName, sourceId, subjectId);
+          if (StringUtils.isNotBlank(updatersGroupName)) {
+            MultiKey multiKey = new MultiKey(sourceId, subjectId,
+                grouperPrivacyRealmConfig.getConfigId(), "update");
+            if (groupNamesSubjectSourceSubjectIdFromDbSet.contains(updatersGroupNameSourceSubjectToLookup)) {
+              sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess.put(multiKey, Boolean.TRUE);
+            } else {
+              sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess.put(multiKey, Boolean.FALSE);
+            }
+          }
+          
+          MultiKey readersGroupNameSourceSubjectToLookup = new MultiKey(readersGroupName, sourceId, subjectId);
+          if (StringUtils.isNotBlank(readersGroupName)) {
+            MultiKey multiKey = new MultiKey(sourceId, subjectId, grouperPrivacyRealmConfig.getConfigId(), "read");
+            if (groupNamesSubjectSourceSubjectIdFromDbSet.contains(readersGroupNameSourceSubjectToLookup)) {
+              sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess.put(multiKey, Boolean.TRUE);
+            } else {
+              sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess.put(multiKey, Boolean.FALSE);
+            }
+          }
+        }
+      }
+      
+    }
+    
+    synchronized (sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccessCache) {
+      // if we are replacing existing cache, then replace it
+      if (replaceExisting) {
+        sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccessCache.put(Boolean.TRUE,
+            sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess);
+      } else {
+        // otherwise merge it with existing cache
+        Map<MultiKey, Boolean> existingCache = sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccessCache.get(Boolean.TRUE);
+        if (existingCache != null) {
+          existingCache.putAll(sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess);
+        } else {
+          sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccessCache.put(Boolean.TRUE, sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess);
+        }
+      }
+    }
+    
+    return sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess;
+    
+  }
+  
+  private static long lastTimeSourceIdSubjectIdCacheWasRefreshed = 0L;
+  
+  private void refreshSourceIdSubjectIdToIfHasUsedPrivacyRecentlyCacheIfNeeded() {
+    
+    //populate sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccessCache for every subject in sourceIdSubjectIdToIfHasUsedPrivacyRecently cache
+    long currentTime = System.currentTimeMillis();
+    // only refresh the cache every 2 minutes
+    if (currentTime - lastTimeSourceIdSubjectIdCacheWasRefreshed < 120000) {
+      return;
+    }
+    synchronized (sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccessCache) {
+      
+      if (currentTime - lastTimeSourceIdSubjectIdCacheWasRefreshed < 120000) {
+        return;
+      }
+      
+      lastTimeSourceIdSubjectIdCacheWasRefreshed = currentTime;
+      populatePrivacyCacheForUser(sourceIdSubjectIdToIfHasUsedPrivacyRecently.keySet(), true);
+    }
+   
+  }
+  
+  public String calculateHighestLevelAccess(GrouperPrivacyRealmConfig grouperPrivacyRealmConfig, Subject subject) {
+    
+    Map<MultiKey, Boolean> sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess = sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccessCache.get(Boolean.TRUE);
+    
+    MultiKey sourceIdSubjectId = new MultiKey(subject.getSourceId(), subject.getId());
+    sourceIdSubjectIdToIfHasUsedPrivacyRecently.put(sourceIdSubjectId, Boolean.TRUE);
+    
+    refreshSourceIdSubjectIdToIfHasUsedPrivacyRecentlyCacheIfNeeded();
+   
     String viewersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmViewersGroupName();
     String updatersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmUpdatersGroupName();
     String readersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmReadersGroupName();
@@ -668,43 +859,50 @@ public class GrouperDataEngine {
       // user already has the max access
       
       if (StringUtils.isNotBlank(updatersGroupName)) {
-        Group updaterGroup = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-          
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-            return GroupFinder.findByName(grouperSession, updatersGroupName, true);
-          }
-        });
         
-        if (updaterGroup.hasMember(subject)) {
+        MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId(), grouperPrivacyRealmConfig.getConfigId(), "update");
+        
+        Boolean hasAccess = sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess == null ? null : sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess.get(multiKey);
+        if (hasAccess == null) {
+          sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess = populatePrivacyCacheForUser(GrouperUtil.toSet(sourceIdSubjectId), false);
+          hasAccess = GrouperUtil.booleanValue(sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess.get(multiKey), false);
+        }
+        
+        if (hasAccess) {
           highestLevelAccess = "update";
         }
       }
       
       if ((highestLevelAccess.equals("") || highestLevelAccess.equals("view")) && StringUtils.isNotBlank(readersGroupName)) {
-        Group readerGroup = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-          
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-            return GroupFinder.findByName(grouperSession, readersGroupName, true);
-          }
-        });
-        
-        if (readerGroup.hasMember(subject)) {
+        MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId(),
+            grouperPrivacyRealmConfig.getConfigId(), "read");
+
+        Boolean hasAccess = sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess == null
+            ? null
+            : sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess.get(multiKey);
+        if (hasAccess == null) {
+          sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess = populatePrivacyCacheForUser(GrouperUtil.toSet(sourceIdSubjectId), false);
+          hasAccess = GrouperUtil.booleanValue(sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess.get(multiKey), false);
+        }
+
+        if (hasAccess) {
           highestLevelAccess = "read";
         }
       }
       
       if (highestLevelAccess.equals("") && StringUtils.isNotBlank(viewersGroupName)) {
-        Group viewerGroup = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-          
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-            return GroupFinder.findByName(grouperSession, viewersGroupName, true);
-          }
-        });
-        
-        if (viewerGroup.hasMember(subject)) {
+        MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId(),
+            grouperPrivacyRealmConfig.getConfigId(), "view");
+
+        Boolean hasAccess = sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess == null
+            ? null
+            : sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess.get(multiKey);
+        if (hasAccess == null) {
+          sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess = populatePrivacyCacheForUser(GrouperUtil.toSet(sourceIdSubjectId), false);
+          hasAccess = GrouperUtil.booleanValue(sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess.get(multiKey), false);
+        }
+
+        if (hasAccess) {
           highestLevelAccess = "view";
         }
       }
@@ -715,9 +913,9 @@ public class GrouperDataEngine {
       highestLevelAccess = "read";
     }
     
-    highestLevelAccessForPrivacyRealmSubject.put(multiKey, highestLevelAccess);
     return highestLevelAccess;
   }
+  
   
   public MultiKey retrieveGrouperDataFieldsForDataFieldAndDictionary(Subject subject, String fieldDataAssignableToArg) {
     
