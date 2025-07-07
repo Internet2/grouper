@@ -98,7 +98,6 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     
     Map<String, GrouperPrivacyRealmConfig> privacyRealmConfigByConfigId = dataFieldCache.dataEngine.getPrivacyRealmConfigByConfigId();
     
-    Set<String> groupsToLookup = new HashSet<String>();
     for (GrouperDataFieldConfig dataFieldConfig: dataFieldCache.allDataFieldConfigIds) {
       String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
       
@@ -113,66 +112,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
       if (StringUtils.equalsAny(highestLevelAccess, "update", "read")) {
         result.add(dataFieldConfig.getConfigId());
       }
-      
-//      String readersGroupName = privacyRealmConfig.getPrivacyRealmReadersGroupName();
-//      String updatersGroupName = privacyRealmConfig.getPrivacyRealmUpdatersGroupName();
-//      String viewersGroupName = privacyRealmConfig.getPrivacyRealmViewersGroupName();
-//      
-//      if (StringUtils.isNotBlank(readersGroupName)) {        
-//        groupsToLookup.add(readersGroupName);
-//      }
-//      if (StringUtils.isNotBlank(updatersGroupName)) {             
-//        groupsToLookup.add(updatersGroupName);
-//      }
-//      if (StringUtils.isNotBlank(viewersGroupName)) {             
-//        groupsToLookup.add(viewersGroupName);
-//      }
     }
-    
-//    String sql = """
-//        SELECT gg.name AS group_name
-//           FROM grouper_sql_cache_group gscg,
-//            grouper_sql_cache_mship gscm,
-//            grouper_fields gf,
-//            grouper_groups gg,
-//            grouper_members gm
-//          WHERE gscg.group_internal_id = gg.internal_id
-//          AND gscg.field_internal_id = gf.internal_id 
-//          AND gscm.sql_cache_group_internal_id = gscg.internal_id 
-//          AND gscm.member_internal_id = gm.internal_id
-//          and gf.name = 'members'
-//          and gm.subject_source = ?
-//          and gm.subject_id = ?
-//          and gg.name in (
-//        """ + GrouperClientUtils.appendQuestions(GrouperUtil.length(groupsToLookup)) + ")";
-//    
-//    GcDbAccess gcDbAccess = new GcDbAccess().sql(sql).addBindVar(subject.getSourceId()).addBindVar(subject.getId());
-//    
-//    for (String groupName: groupsToLookup) {
-//      gcDbAccess.addBindVar(groupName);
-//    }
-    
-//    Set<String> groupNamesSubjectSessionIsIn = new HashSet<String>(gcDbAccess.selectList(String.class));
-    
-//    for (GrouperDataFieldConfig dataFieldConfig: dataFieldConfigs) {
-//      String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
-//      
-//      GrouperPrivacyRealmConfig privacyRealmConfig = privacyRealmConfigByConfigId.get(grouperPrivacyRealmConfigId);
-//      
-//      String readersGroupName = privacyRealmConfig.getPrivacyRealmReadersGroupName();
-//      String updatersGroupName = privacyRealmConfig.getPrivacyRealmUpdatersGroupName();
-//      
-//      if (groupNamesSubjectSessionIsIn.contains(readersGroupName)) {
-//        result.add(dataFieldConfig.getConfigId());
-//        continue;
-//      }
-//      
-//      if (groupNamesSubjectSessionIsIn.contains(updatersGroupName)) {
-//        result.add(dataFieldConfig.getConfigId());
-//        continue;
-//      }
-//      
-//    }
     
     dataFieldCache.sourceIdSubjectIdToDataFieldConfigIds.put(sourceIdSubjectId, result);
     
@@ -185,8 +125,9 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
   @Override
   public Map<String, Subject> getSubjectsByIds(Collection<String> subjectIds) {
 
-    if (subjectIds == null) {
-      return null;
+    Map<String, Subject> results = new HashMap<String, Subject>();
+    if (GrouperUtil.length(subjectIds) == 0) {
+      return results;
     }
 
     DataFieldCache dataFieldCache = dataFieldCache();
@@ -195,16 +136,16 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     
     Subject subjectForSession = currentSession.getSubject();
     
-    //TODO return no subjects if not allowed to see?
     Set<String> fieldConfigs = retrieveDataFieldConfigsSubjectCanAccess(subjectForSession, dataFieldCache);
-    GrouperUtil.assertion(GrouperUtil.length(fieldConfigs) > 0, "No data field config ids!!");
     
-    Map<String, Subject> results = new HashMap<String, Subject>();
+    if (GrouperUtil.length(fieldConfigs) == 0) {
+      return results;
+    }
     
     if (subjectIds.size() > 0) {
       
       int batchSize = 800;
-      int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(subjectIds, batchSize);
+      int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(subjectIds, batchSize, false);
       
       List<String> idsList = new ArrayList<String>(subjectIds);
       
@@ -253,8 +194,10 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
   @Override
   public Map<String, Subject> getSubjectsByIdentifiers(Collection<String> identifiers) {
 
-    if (identifiers == null) {
-      return null;
+    Map<String, Subject> results = new HashMap<String, Subject>();
+    
+    if (GrouperUtil.length(identifiers) == 0) {
+      return results;
     }
     
     DataFieldCache dataFieldCache = dataFieldCache();
@@ -264,7 +207,6 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     
     Subject subjectForSession = currentSession.getSubject();
     
-    //TODO return no subjects if not allowed to see?
     Set<String> fieldConfigs = retrieveDataFieldConfigsSubjectCanAccess(subjectForSession, dataFieldCache);
     identifierDataFieldConfigIds.retainAll(fieldConfigs);
     
@@ -272,14 +214,14 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
       return getSubjectsByIds(identifiers);
     }
     
-    GrouperUtil.assertion(GrouperUtil.length(fieldConfigs) > 0, "No data field config ids!!");
-    
-    Map<String, Subject> results = new HashMap<String, Subject>();
+    if (GrouperUtil.length(fieldConfigs) == 0) {
+      return results;
+    }
     
     if (identifiers.size() > 0) {
       
       int batchSize = 800/identifierDataFieldConfigIds.size();
-      int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(identifiers, batchSize);
+      int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(identifiers, batchSize, false);
       
       List<String> identifiersList = new ArrayList<String>(identifiers);
       
@@ -533,7 +475,6 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           subjectResult.internalAssignAttribute(attributeName, values);
         }
         results.add(subjectResult);
-        //TODO add privacy
       }
       
       if (subjectResult == null && exceptionIfNull) {
@@ -591,21 +532,23 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
   public Set<Subject> search(String searchValue) {
     
     //make result
+    Set<Subject> subjects = new HashSet<Subject>();
+    
     if (StringUtils.isBlank(searchValue)) {
-      return new HashSet<Subject>();
+      return subjects;
     }
     
-    Set<Subject> subjects = new HashSet<Subject>();
     
     DataFieldCache dataFieldCache = dataFieldCache();
     GrouperSession currentSession = GrouperSession.staticGrouperSession();
     
     Subject subjectForSession = currentSession.getSubject();
     
-    //TODO return no subjects if not allowed to see?
     Set<String> fieldConfigs = retrieveDataFieldConfigsSubjectCanAccess(subjectForSession, dataFieldCache);
     
-    GrouperUtil.assertion(GrouperUtil.length(fieldConfigs) > 0, "No data field config ids!!");
+    if (GrouperUtil.length(fieldConfigs) == 0) {
+      return subjects;
+    }
     
     //lets split by any whitespace space
     String[] terms = searchValue.split("\\s+");
@@ -663,6 +606,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
 
   
   /** if there is a limit to the number of results */
+  //TODO: take these into account
   private Integer maxResults;
 
   private Integer maxPage;
@@ -676,8 +620,6 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     private GrouperConfig grouperConfig;
     
     private Set<GrouperDataFieldConfig> allDataFieldConfigIds = new LinkedHashSet<GrouperDataFieldConfig>();
-    
-    private Map<String, List<String>> dataFieldConfigIdToPrioritizedAttributeNames = new HashMap<String, List<String>>();
     
     private Set<String> dataFieldMultivaluedConfigIds = new HashSet<String>(); 
     
@@ -902,44 +844,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
       throw new SourceUnavailableException(
           "Unable to init subject.properties Datafield source, source: " + this.getId(), ex);
     }
-    
-//    GrouperDataEngine dataEngine = new GrouperDataEngine();
-//    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
-//    dataEngine.loadFieldsAndRows(grouperConfig);
-//    
-//    Map<String, GrouperDataFieldConfig> fieldConfigByConfigId = dataEngine.getFieldConfigByConfigId();
-//    
-//    String extraAttributesFromSource = "subjectApi.source."+this.getConfigId()+".extraAttributesFromSource";
-//    String extraAttributes = SubjectConfig.retrieveConfig().propertyValueString(extraAttributesFromSource);
-//    Set<String> dataFieldConfigIds = GrouperUtil.splitTrimToSet(extraAttributes, ",");
-//    
-//    String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
-//    if (StringUtils.isNotBlank(numberOfAttributes)) {
-//      
-//      int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-//      for (int i=0; i<numberOfAttrs; i++) {
-//        
-//        String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
-//        if (StringUtils.isBlank(sourceAttribute)) {
-//          continue;
-//        }
-//        
-//        dataFieldConfigIds.add(sourceAttribute);
-//        
-//      }
-//    }
-//    
-//    Set<GrouperDataFieldConfig> dataFieldConfigs = new HashSet<GrouperDataFieldConfig>();
-//    for (String fieldConfigId: dataFieldConfigIds) {
-//      if (fieldConfigByConfigId.containsKey(fieldConfigId)) {
-//        GrouperDataFieldConfig grouperDataFieldConfig = fieldConfigByConfigId.get(fieldConfigId);
-//        dataFieldConfigs.add(grouperDataFieldConfig);
-//      }
-//    }
-    
-//    dataFieldConfigIdToPrioritizedAttributeNames.put("name", );
-//    dataFieldConfigIdToPrioritizedAttributeNames.put("description", );
-    
+        
   }
   
 
