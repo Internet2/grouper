@@ -233,8 +233,18 @@ public class GrouperOidc {
    */
   public void setAccessToken(String accessToken) {
     this.accessToken = accessToken;
+    
+    this.accessTokenObject = new BearerAccessToken(accessToken);
+
   }
 
+  /**
+   * set access token object
+   */
+  public void setAccessTokenObject(AccessToken accessTokenObject) {
+    this.accessTokenObject = accessTokenObject;
+  }
+  
   private Map<String, String> userInfoAttributes;
   private Map<String, String> idTokenAttributes;
 
@@ -634,7 +644,7 @@ public class GrouperOidc {
   }
   
   public Subject findSubject() {
-    
+        
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override

@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper.ws.rest;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,9 +32,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuiltinTypes;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
@@ -46,6 +45,7 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta;
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestRequestContentType;
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestResponseContentType;
+import edu.internet2.middleware.grouper.ws.rest.json.DefaultJsonConverter;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
@@ -116,6 +116,11 @@ public class GrouperRestServlet extends HttpServlet {
     WsRestResponseContentType wsRestResponseContentType = WsRestResponseContentType.json;
 
     Map<String, String[]> parameterMap = null;
+    
+    // debug map
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    boolean logRestRequestDebugInfo = GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.logRestRequestDebugInfo", false);
 
     try {
       
@@ -135,6 +140,12 @@ public class GrouperRestServlet extends HttpServlet {
       //get the body and convert to an object
       String body = IOUtils.toString(request.getReader());
 
+      if (LOG.isDebugEnabled() && logRestRequestDebugInfo) {
+        debugMap.put("request", requestDebugInfo(request));
+        debugMap.put("contentType", contentType);
+        debugMap.put("requestBody", body);
+      }
+      
       //get the enum
       WsRestRequestContentType wsRestRequestContentType = WsRestRequestContentType
         .findByContentType(contentType, body);
@@ -273,6 +284,11 @@ public class GrouperRestServlet extends HttpServlet {
         
       }
       
+      if (LOG.isDebugEnabled() && logRestRequestDebugInfo) {
+        debugMap.put("responseCode", wsResponseBean.getResultMetadata().retrieveHttpStatusCode());
+        debugMap.put("resonseBody", new DefaultJsonConverter().convertToJson(wsResponseBean));
+      }
+
       wsRestResponseContentType.writeString(wsResponseBean, response.getWriter());
       
       if (wrapJsonResponse) {
@@ -284,6 +300,9 @@ public class GrouperRestServlet extends HttpServlet {
       LOG.error("Problem with request: " + requestDebugInfo(request), re);
     } finally {
 
+      if (LOG.isDebugEnabled() && logRestRequestDebugInfo) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
       IOUtils.closeQuietly(response.getWriter());
       GrouperWsVersionUtils.removeCurrentClientVersion();
       restRequest.set(null);
