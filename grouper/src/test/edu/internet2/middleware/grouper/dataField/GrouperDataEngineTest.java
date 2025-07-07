@@ -3,14 +3,11 @@ package edu.internet2.middleware.grouper.dataField;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.grouper.sqlCache.SqlCacheFullSyncDaemon;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import junit.textui.TestRunner;
 
 public class GrouperDataEngineTest extends GrouperTest {
@@ -44,12 +41,6 @@ public class GrouperDataEngineTest extends GrouperTest {
     GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
     grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
     
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    OtherJobInput otherJobInput = new OtherJobInput();
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    new SqlCacheFullSyncDaemon().run(otherJobInput);
-    GrouperUtil.sleep(1000);
-    
     String highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ0);
     
     assertEquals("", highestLevelAccess);
@@ -58,11 +49,9 @@ public class GrouperDataEngineTest extends GrouperTest {
     //now let's add test.subject.0 to viewersGroup
     viewersGroup.addMember(SubjectTestHelper.SUBJ0);
     
-    hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    otherJobInput = new OtherJobInput();
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    new SqlCacheFullSyncDaemon().run(otherJobInput);
-    GrouperUtil.sleep(1000);
+    //run change_log temp daemon
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperDataEngine.clearHighestLevelCache();
     
     highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ0);
     assertEquals("view", highestLevelAccess);
@@ -71,11 +60,9 @@ public class GrouperDataEngineTest extends GrouperTest {
     //now let's add test.subject.0 to readersGroup
     readersGroup.addMember(SubjectTestHelper.SUBJ0);
     
-    hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    otherJobInput = new OtherJobInput();
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    new SqlCacheFullSyncDaemon().run(otherJobInput);
-    GrouperUtil.sleep(1000);
+    //run change_log temp daemon
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperDataEngine.clearHighestLevelCache();
     
     highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ0);
     assertEquals("read", highestLevelAccess);
@@ -84,11 +71,9 @@ public class GrouperDataEngineTest extends GrouperTest {
     //now let's add test.subject.0 to updatersGroup
     updatersGroup.addMember(SubjectTestHelper.SUBJ0);
     
-    hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    otherJobInput = new OtherJobInput();
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    new SqlCacheFullSyncDaemon().run(otherJobInput);
-    GrouperUtil.sleep(1000);
+    //run change_log temp daemon
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperDataEngine.clearHighestLevelCache();
     
     highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ0);
     assertEquals("update", highestLevelAccess);
@@ -103,11 +88,9 @@ public class GrouperDataEngineTest extends GrouperTest {
     sysadminViewersGroup.addMember(SubjectTestHelper.SUBJ0);
     privacyRealmConfig.readFromConfig("configId");
     
-    hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    otherJobInput = new OtherJobInput();
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    new SqlCacheFullSyncDaemon().run(otherJobInput);
-    GrouperUtil.sleep(1000);
+    //run change_log temp daemon
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperDataEngine.clearHighestLevelCache();
     
     highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ0);
     assertEquals("update", highestLevelAccess); // highest level access should still be update because 
@@ -121,11 +104,9 @@ public class GrouperDataEngineTest extends GrouperTest {
     
     sysadminReadersGroup.addMember(SubjectTestHelper.SUBJ0);
     
-    hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    otherJobInput = new OtherJobInput();
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    new SqlCacheFullSyncDaemon().run(otherJobInput);
-    GrouperUtil.sleep(1000);
+    //run change_log temp daemon
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperDataEngine.clearHighestLevelCache();
     
     highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ0);
     assertEquals("update", highestLevelAccess); // highest level access should still be update
@@ -138,11 +119,9 @@ public class GrouperDataEngineTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", sysadminGroup.getName());
     sysadminGroup.addMember(SubjectTestHelper.SUBJ0);
     
-    hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    otherJobInput = new OtherJobInput();
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    new SqlCacheFullSyncDaemon().run(otherJobInput);
-    GrouperUtil.sleep(1000);
+    //run change_log temp daemon
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperDataEngine.clearHighestLevelCache();
     
     highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ0);
     assertEquals("update", highestLevelAccess); // highest level access should still be update
@@ -151,11 +130,9 @@ public class GrouperDataEngineTest extends GrouperTest {
     GrouperDataEngine.clearHighestLevelCache();
     sysadminViewersGroup.addMember(SubjectTestHelper.SUBJ1);
     
-    hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    otherJobInput = new OtherJobInput();
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    new SqlCacheFullSyncDaemon().run(otherJobInput);
-    GrouperUtil.sleep(1000);
+    //run change_log temp daemon
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperDataEngine.clearHighestLevelCache();
     
     highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ1);
     assertEquals("view", highestLevelAccess);
@@ -163,11 +140,9 @@ public class GrouperDataEngineTest extends GrouperTest {
     GrouperDataEngine.clearHighestLevelCache();
     sysadminReadersGroup.addMember(SubjectTestHelper.SUBJ1);
     
-    hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    otherJobInput = new OtherJobInput();
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    new SqlCacheFullSyncDaemon().run(otherJobInput);
-    GrouperUtil.sleep(1000);
+    //run change_log temp daemon
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperDataEngine.clearHighestLevelCache();
     
     highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ1);
     assertEquals("read", highestLevelAccess);
@@ -175,11 +150,9 @@ public class GrouperDataEngineTest extends GrouperTest {
     GrouperDataEngine.clearHighestLevelCache();
     sysadminGroup.addMember(SubjectTestHelper.SUBJ1);
     
-    hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    otherJobInput = new OtherJobInput();
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    new SqlCacheFullSyncDaemon().run(otherJobInput);
-    GrouperUtil.sleep(1000);
+    //run change_log temp daemon
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperDataEngine.clearHighestLevelCache();
     
     highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ1);
     assertEquals("update", highestLevelAccess);

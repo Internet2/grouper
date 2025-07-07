@@ -26,7 +26,7 @@ public class GrouperDataEngine {
 
   private Map<String, Object> debugMap = new LinkedHashMap<>();
   
-  protected static void clearHighestLevelCache() {
+  public static void clearHighestLevelCache() {
     sourceIdSubjectIdToIfHasUsedPrivacyRecently.clear();
     sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccessCache.clear();
   }

@@ -6,7 +6,9 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
+import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -27,7 +29,7 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDataFieldSourceAdapterTest("testGetSubjectCache"));
+    TestRunner.run(new GrouperDataFieldSourceAdapterTest("testGetSubject"));
   }
   
   public void testGetSubject() {
@@ -57,7 +59,10 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
         assertEquals("my name is test.subject.6", subject6.getName());
         
         String namePublic = subject6.getAttributeValue("namePublic");
-        assertEquals("my name is test.subject.6", namePublic);
+        assertNull(namePublic);
+        // should be able to see private name
+        String namePrivate = subject6.getAttributeValue("namePrivate");
+        assertEquals("my name is test.subject.6", namePrivate);
         return null;
       }
     });
@@ -72,6 +77,9 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
         
         String namePublic = subject6.getAttributeValue("namePublic");
         assertNull(namePublic);
+        // should not be able to see private name
+        String namePrivate = subject6.getAttributeValue("namePrivate");
+        assertNull(namePrivate);
         return null;
       }
     });
@@ -155,6 +163,10 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
         
         readersGroup.addMember(SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true));
         readersGroup.addMember(SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true));
+        
+        //rum change_log temp daemon
+        GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+        GrouperDataEngine.clearHighestLevelCache();
         
         new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.privateConfigId.privacyRealmName").value("privateConfigId").store();
         new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.privateConfigId.privacyRealmPublic").value("false").store();
