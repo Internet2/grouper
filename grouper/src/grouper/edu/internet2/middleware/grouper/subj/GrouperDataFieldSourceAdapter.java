@@ -109,7 +109,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         throw new RuntimeException(errorMessage);
       }
       
-      String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, subject);
+      String highestLevelAccess = dataFieldCache.dataEngine.calculateHighestLevelAccess(privacyRealmConfig, subject);
       if (StringUtils.equalsAny(highestLevelAccess, "update", "read")) {
         result.add(dataFieldConfig.getConfigId());
       }
