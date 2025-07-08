@@ -2174,7 +2174,7 @@ public class UiV2EntityDataFields {
         
         GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
         
-        String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+        String highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
         
         guiDataFieldRowDictionary.setDataFieldConfigId(dataFieldConfig.getConfigId());
         guiDataFieldRowDictionary.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
@@ -2243,7 +2243,7 @@ public class UiV2EntityDataFields {
           
           GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
           
-          String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+          String highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
           
           guiDataFieldRowDictionary.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
           guiDataFieldRowDictionary.setDataOwner(dataFieldConfig.getDataOwnerHtml());
@@ -2275,7 +2275,7 @@ public class UiV2EntityDataFields {
         
         GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
         
-        String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+        String highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
         
         guiDataFieldRowDictionary.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
         guiDataFieldRowDictionary.setDataOwner(dataFieldConfig.getDataOwnerHtml());
@@ -2313,7 +2313,7 @@ public class UiV2EntityDataFields {
         
         GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
         
-        String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+        String highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
         
         guiDataFieldRowDictionary.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
         guiDataFieldRowDictionary.setDataOwner(dataFieldConfig.getDataOwnerHtml());

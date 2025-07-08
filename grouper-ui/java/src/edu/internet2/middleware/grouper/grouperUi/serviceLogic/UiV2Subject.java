@@ -2567,7 +2567,7 @@ public class UiV2Subject {
         
         GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
         
-        String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+        String highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
         
         if (StringUtils.isBlank(highestLevelAccess) || StringUtils.equals("view", highestLevelAccess)) {
           continue;
