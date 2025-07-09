@@ -37,18 +37,14 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
     setupData();
     
     Subject subject = SubjectFinder.findByIdAndSource("test.subject.0", "dataFieldSubjectSource", true);
-    System.out.println("subject: "+subject);
+    assertEquals("my name is test.subject.0", subject.getName());
     
     subject = SubjectFinder.findByIdentifierAndSource("id.test.subject.0", "dataFieldSubjectSource", true);
-    System.out.println("subject: "+subject);
+    assertEquals("my name is test.subject.0", subject.getName());
     
     Set<Subject> subjects = SubjectFinder.findAll("test 0", "dataFieldSubjectSource");
-    
-    //verify subjects name is not null
-    for (Subject s : subjects) {
-      System.out.println("subject in loop: " + s);
-      assertNotNull(s.getName());
-    }
+    assertEquals(1, subjects.size());
+    assertEquals("my name is test.subject.0", subjects.iterator().next().getName());
     
     GrouperSession.callbackGrouperSessionBySubjectId("test.subject.1", "jdbc", new GrouperSessionHandler() {
       

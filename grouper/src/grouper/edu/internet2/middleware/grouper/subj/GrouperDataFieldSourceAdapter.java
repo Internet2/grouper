@@ -155,9 +155,23 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
 
         List<String> args = new ArrayList<String>();
        
-        //TODO make this a query and not a view
-        StringBuilder query = new StringBuilder("select gm.subject_id, gdfa.data_field_config_id, gdfa.value_text from grouper_members gm, grouper_data_field_assign_v gdfa where "
-            + "gm.id = gdfa.member_id and gdfa.subject_source_id = ? and ( ");
+        StringBuilder query = new StringBuilder("""
+            SELECT 
+              gm.subject_id, 
+              gdf.config_id AS data_field_config_id, 
+              gd.the_text AS value_text
+          FROM 
+              grouper_data_field gdf,
+              grouper_members gm,
+              grouper_data_field_assign gdfa 
+          LEFT JOIN 
+              grouper_dictionary gd 
+              ON gdfa.value_dictionary_internal_id = gd.internal_id
+          WHERE 
+              gdfa.member_internal_id = gm.internal_id
+              AND gdfa.data_field_internal_id = gdf.internal_id
+              AND gm.subject_source = ? and (
+            """);
         
         args.add(this.getId());
         
@@ -172,7 +186,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           
         }
         
-        query.append(" ) and gdfa.data_field_config_id in ("+ GrouperClientUtils.appendQuestions(GrouperUtil.length(fieldConfigs)) + ")");
+        query.append(" ) and gdf.config_id in ("+ GrouperClientUtils.appendQuestions(GrouperUtil.length(fieldConfigs)) + ")");
         
         for (String configId: fieldConfigs) {
           args.add(configId);
@@ -232,8 +246,24 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         List<String> identifierBatch = SubjectApiUtils.batchList(identifiersList, batchSize, i);        
         
         //retrieve all the member ids that match the identifiers
-        StringBuilder subjectIdsQuery = new StringBuilder("select gdfa.subject_id,  gdfa.data_field_config_id, gdfa.value_text from grouper_data_field_assign_v gdfa where "
-            + " gdfa.subject_source_id = ? and ( ");
+        StringBuilder subjectIdsQuery =  new StringBuilder("""
+            SELECT 
+                gm.subject_id, 
+                gdf.config_id AS data_field_config_id, 
+                gd.the_text AS value_text
+            FROM 
+                grouper_data_field gdf,
+                grouper_members gm,
+                grouper_data_field_assign gdfa 
+            LEFT JOIN 
+                grouper_dictionary gd 
+                ON gdfa.value_dictionary_internal_id = gd.internal_id
+            WHERE 
+                gdfa.member_internal_id = gm.internal_id
+                AND gdfa.data_field_internal_id = gdf.internal_id
+                AND gm.subject_source = ?
+                AND (
+            """);
         
         GcDbAccess gcDbAccess = new GcDbAccess();
         
@@ -249,7 +279,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
               subjectIdsQuery.append(" or ");
             } 
             first = false;
-            subjectIdsQuery.append(" (gdfa.data_field_config_id = ? and gdfa.value_text = ?) ");
+            subjectIdsQuery.append(" (gdf.config_id = ? and gd.the_text = ?) ");
             gcDbAccess.addBindVar(dataFieldConfigId);
             gcDbAccess.addBindVar(identifierBatch.get(j));
           }
@@ -287,11 +317,28 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         }
 
         List<String> args = new ArrayList<String>();
-       
-        //TODO make this a query and not a view
-        StringBuilder query = new StringBuilder("select gm.subject_id, gdfa.data_field_config_id, gdfa.value_text from grouper_members gm, grouper_data_field_assign_v gdfa where "
-            + "gm.id = gdfa.member_id and gdfa.subject_source_id = ? and ( ");
         
+        StringBuilder query = new StringBuilder("""
+            SELECT 
+                gm.subject_id, 
+                gdf.config_id AS data_field_config_id, 
+                gd.the_text AS value_text
+            FROM 
+                grouper_members gm,
+                grouper_data_field_assign gdfa
+            JOIN 
+                grouper_data_field gdf 
+                ON gdfa.data_field_internal_id = gdf.internal_id
+            LEFT JOIN 
+                grouper_dictionary gd 
+                ON gdfa.value_dictionary_internal_id = gd.internal_id
+            WHERE 
+                gdfa.member_internal_id = gm.internal_id
+                AND gm.subject_source = ?
+                AND (
+
+            """);
+       
         args.add(this.getId());
         
         // make a list of subject ids
@@ -307,7 +354,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           
         }
         
-        query.append(" ) and gdfa.data_field_config_id in ("+ GrouperClientUtils.appendQuestions(GrouperUtil.length(fieldConfigs)) + ")");
+        query.append(" ) and gdf.config_id in ("+ GrouperClientUtils.appendQuestions(GrouperUtil.length(fieldConfigs)) + ")");
         
         for (String configId: fieldConfigs) {
           args.add(configId);
@@ -576,9 +623,18 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         
     List<String> args = new ArrayList<String>();
        
-    //TODO make this a query and not a view
-    StringBuilder query = new StringBuilder("select gm.subject_id, gdfa.data_field_config_id, gdfa.value_text from grouper_members gm, grouper_data_field_assign_v gdfa where "
-        + "gm.id = gdfa.member_id and gdfa.subject_source_id = ? and ( ");
+    StringBuilder query = new StringBuilder("""
+        SELECT gm.subject_id, gdf.config_id AS data_field_config_id, gd.the_text AS value_text
+        FROM grouper_members gm,
+             grouper_data_field_assign gdfa
+        JOIN grouper_data_field gdf
+          ON gdfa.data_field_internal_id = gdf.internal_id
+        LEFT JOIN grouper_dictionary gd
+          ON gdfa.value_dictionary_internal_id = gd.internal_id
+        WHERE gdfa.member_internal_id = gm.internal_id
+          AND gm.subject_source = ?
+          AND (
+        """);
     
     args.add(this.getId());
     
@@ -594,7 +650,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
       
     }
     
-    query.append(" ) and gdfa.data_field_config_id in ("+ GrouperClientUtils.appendQuestions(GrouperUtil.length(fieldConfigs)) + ")");
+    query.append(" ) and gdf.config_id in ("+ GrouperClientUtils.appendQuestions(GrouperUtil.length(fieldConfigs)) + ")");
     
     for (String configId: fieldConfigs) {
       args.add(configId);
