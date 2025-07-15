@@ -110,26 +110,9 @@ function guiV2link(url, options) {
       url = "UiV2Main.indexCustomUi" + url;
       navigate = true;
     }
-  }  
-    
-  if (typeof options.optionalFormElementNamesToSend != 'undefined' && options.optionalFormElementNamesToSend != null) { 
-    
-    //add additional form element names to filter based on other things on the screen 
-    var additionalFormElementNamesArray = guiSplitTrim(options.optionalFormElementNamesToSend, ","); 
-    for (var i = 0; i<additionalFormElementNamesArray.length; i++) { 
-      var additionalFormElementName = additionalFormElementNamesArray[i]; 
+  }
 
-      //its ok if it is not there
-      if (document.getElementsByName(additionalFormElementName) != null
-          && document.getElementsByName(additionalFormElementName).length > 0
-          && document.getElementsByName(additionalFormElementName)[0] != null) {
-        url += url.indexOf("?") == -1 ? "?" : "&"; 
-        url += additionalFormElementName + "="; 
-        //this will work for simple elements 
-        url += encodeURIComponent(document.getElementsByName(additionalFormElementName)[0].value); 
-      }
-    } 
-  } 
+  url += _addUrlOptions(url, options);
 
   if (navigate) {
     window.location.href = url;
@@ -147,6 +130,36 @@ function guiV2link(url, options) {
 
   //return false so the browser navigate
   return false;
+}
+
+/* Used for button clicks, add extra parameters to the url */
+function _addUrlOptions(url, options) {
+  result = "";
+
+  if (typeof options == 'undefined') {
+    options = {};
+  }
+
+  if (typeof options.optionalFormElementNamesToSend != 'undefined' && options.optionalFormElementNamesToSend != null) {
+
+    //add additional form element names to filter based on other things on the screen
+    var additionalFormElementNamesArray = guiSplitTrim(options.optionalFormElementNamesToSend, ",");
+    for (var i = 0; i < additionalFormElementNamesArray.length; i++) {
+      var additionalFormElementName = additionalFormElementNamesArray[i];
+
+      //its ok if it is not there
+      if (document.getElementsByName(additionalFormElementName) != null
+          && document.getElementsByName(additionalFormElementName).length > 0
+          && document.getElementsByName(additionalFormElementName)[0] != null) {
+        result = url.indexOf("?") == -1 ? "?" : "&";
+        result += additionalFormElementName + "=";
+        //this will work for simple elements
+        result += encodeURIComponent(document.getElementsByName(additionalFormElementName)[0].value);
+      }
+    }
+  }
+  console.log("Extra options: " + result);
+  return result;
 }
 
 /**
@@ -2777,6 +2790,9 @@ function handleGuiV2LinkClick(event, url, options) {
     return guiV2link(url, options)
   } else {
     // right-click etc. goes to the url page without ajax
+    if (options !== null) {
+      event.currentTarget.href += _addUrlOptions(event.currentTarget.href, options);
+    }
     return true;
   }
 }

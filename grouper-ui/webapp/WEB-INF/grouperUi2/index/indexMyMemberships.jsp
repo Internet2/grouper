@@ -20,8 +20,8 @@
                       </c:otherwise>
                     </c:choose>
                     
-                    <p><strong><a href="#" 
-                  onclick="return guiV2link('operation=UiV2MyGroups.myGroupsMemberships');">${textContainer.text['indexMyMembershipsViewAllMyMemberships'] }</a></strong></p>
+                    <p><strong><a href="?operation=UiV2MyGroups.myGroupsMemberships"
+                  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2MyGroups.myGroupsMemberships');">${textContainer.text['indexMyMembershipsViewAllMyMemberships'] }</a></strong></p>
                     
                     <!-- end indexMyMemberships.jsp -->
                     

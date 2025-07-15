@@ -403,7 +403,7 @@ public abstract class GuiObjectBase {
     //GrouperUtil.xmlEscape(this.getPathColonSpaceSeparated(), true));
     
     StringBuilder result = new StringBuilder();
-    result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Main.indexMain');\">")
+    result.append("<li><a href=\"?operation=UiV2Main.indexMain\" onclick=\"return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');\">")
       .append(TextContainer.retrieveFromRequest().getText().get("guiBreadcrumbsHomeLabel"))
       .append(" </a><span class=\"divider\"><i class='fa fa-angle-right'></i></span></li>");
 
@@ -468,7 +468,9 @@ public abstract class GuiObjectBase {
             } else {
               if (this instanceof GuiGroup) {
                 
-                result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Group.viewGroup&groupName=")
+                result.append("<li><a href=\"?operation=UiV2Group.viewGroup&groupName=")
+                  .append(GrouperUtil.escapeUrlEncode(stemName))
+                  .append("\" onclick=\"return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupName=")
                   .append(GrouperUtil.escapeUrlEncode(stemName))
                   .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i))).append(" </a>");
                 if (this.showBreadcrumbLinkSeparator) {
@@ -478,7 +480,9 @@ public abstract class GuiObjectBase {
 
               } else if (this instanceof GuiAttributeDef) {
                 
-                result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2AttributeDef.viewAttributeDef&nameOfAttributeDef=")
+                result.append("<li><a href=\"?operation=UiV2AttributeDef.viewAttributeDef&nameOfAttributeDef=")
+                  .append(GrouperUtil.escapeUrlEncode(stemName))
+                  .append("\" onclick=\"return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDef.viewAttributeDef&nameOfAttributeDef=")
                   .append(GrouperUtil.escapeUrlEncode(stemName))
                   .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i))).append(" </a>");
                 if (this.showBreadcrumbLinkSeparator) {
@@ -488,7 +492,9 @@ public abstract class GuiObjectBase {
 
               } else if (this instanceof GuiStem) {
                 
-                result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Stem.viewStem&stemName=")
+                result.append("<li><a href=\"?operation=UiV2Stem.viewStem&stemName=")
+                  .append(GrouperUtil.escapeUrlEncode(stemName))
+                  .append("\" onclick=\"return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStem&stemName=")
                   .append(GrouperUtil.escapeUrlEncode(stemName))
                   .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i)))
                   .append(" </a>");
@@ -502,7 +508,9 @@ public abstract class GuiObjectBase {
               }
             }
           } else {
-            result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Stem.viewStem&stemName=")
+            result.append("<li><a href=\"?operation=UiV2Stem.viewStem&stemName=")
+              .append(GrouperUtil.escapeUrlEncode(stemName))
+              .append("\" onclick=\"return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStem&stemName=")
               .append(GrouperUtil.escapeUrlEncode(stemName))
               .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i)))
               .append(" </a><span class=\"divider\"><i class='fa fa-angle-right'></i></span></li>");
