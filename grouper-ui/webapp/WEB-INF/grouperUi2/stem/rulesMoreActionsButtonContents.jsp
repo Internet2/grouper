@@ -9,12 +9,12 @@
                       <ul class="dropdown-menu dropdown-menu-right" id="rules-more-options">
 
                         <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges && grouperRequestContainer.rulesContainer.canAddRule}" > 
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.addRuleOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                          <li><a href="?operation=UiV2Stem.addRuleOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.addRuleOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['rulesMoreActionsAddRule'] }</a></li>
                         </c:if>
                         
                         <c:if test="${grouperRequestContainer.stemContainer.canCreateGroups}" >
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.viewStemRules&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                          <li><a href="?operation=UiV2Stem.viewStemRules&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStemRules&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['rulesMoreActionsViewRule'] }</a></li>
                         </c:if>
 

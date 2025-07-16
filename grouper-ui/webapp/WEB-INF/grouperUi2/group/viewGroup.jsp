@@ -68,7 +68,7 @@ ${grouper:titleFromKeyAndText('groupPageTitle', grouperRequestContainer.groupCon
 				  <ul class="nav nav-tabs">
                     <li class="active"><a role="tab" aria-selected="true" href="#" onclick="return false;" >${textContainer.text['groupMembersTab'] }</a></li>
 		            <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
-		              <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
+		              <li><a role="tab" href="?operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
 		            </c:if>
                     <%@ include file="groupMoreTab.jsp" %>
                   </ul>

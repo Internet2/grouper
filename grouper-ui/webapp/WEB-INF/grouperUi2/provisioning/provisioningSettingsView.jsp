@@ -11,11 +11,11 @@
                       <h4>${textContainer.text['provisioningTargetNameLabel'] }: 
                       
                       <c:if test="${ObjectType == 'Folder' }">
-	                      <a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${grouperProvisioningAttributeValue.targetName}'); return false;"
+	                      <a href="?operation=UiV2Provisioning.viewProvisioningTargetDetailsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${grouperProvisioningAttributeValue.targetName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Provisioning.viewProvisioningTargetDetailsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${grouperProvisioningAttributeValue.targetName}'); return false;"
 	                              >${guiGrouperProvisioningAttributeValue.externalizedName}</a>
                       </c:if>
                       <c:if test="${ObjectType == 'Group' }">
-	                      <a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${grouperProvisioningAttributeValue.targetName}'); return false;"
+	                      <a href="?operation=UiV2Provisioning.viewProvisioningTargetDetailsOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${grouperProvisioningAttributeValue.targetName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Provisioning.viewProvisioningTargetDetailsOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${grouperProvisioningAttributeValue.targetName}'); return false;"
 	                              >${guiGrouperProvisioningAttributeValue.externalizedName}</a>
                       </c:if>
                       </h4>

@@ -5,7 +5,7 @@
 
             <div class="bread-header-container">
               <ul class="breadcrumb">
-                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myGroupsHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                <li><a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');">${textContainer.text['myGroupsHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">${textContainer.text['groupImportMembersBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">
@@ -31,15 +31,15 @@
                 ${grouperRequestContainer.groupImportContainer.report}
                 <c:choose>
                   <c:when test="${grouperRequestContainer.groupImportContainer.importFromSubject}">
-                    <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.groupImportContainer.subjectId}&sourceId=${grouperRequestContainer.groupImportContainer.sourceId}');"
+                    <a href="?operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.groupImportContainer.subjectId}&sourceId=${grouperRequestContainer.groupImportContainer.sourceId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.groupImportContainer.subjectId}&sourceId=${grouperRequestContainer.groupImportContainer.sourceId}');"
                        class="btn btn-primary pull-right">${textContainer.text['groupImportReportOkButton']}</a>
                   </c:when>
                   <c:when test="${grouperRequestContainer.groupImportContainer.importFromGroup}">
-                    <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupImportContainer.groupId}');"
+                    <a href="?operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupImportContainer.groupId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupImportContainer.groupId}');"
                        class="btn btn-primary pull-right">${textContainer.text['groupImportReportOkButton']}</a>
                   </c:when>
                   <c:otherwise>
-                    <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"
+                    <a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');"
                        class="btn btn-primary pull-right">${textContainer.text['groupImportReportOkButton']}</a>
                   </c:otherwise>
                 </c:choose>

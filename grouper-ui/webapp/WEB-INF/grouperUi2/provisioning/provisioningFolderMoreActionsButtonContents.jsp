@@ -9,12 +9,12 @@
                       <ul class="dropdown-menu dropdown-menu-right" id="provisioning-more-options">
 
                         <c:if test="${grouperRequestContainer.provisioningContainer.canAssignProvisioning}" >
-	                        <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.editProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+	                        <li><a href="?operation=UiV2Provisioning.editProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Provisioning.editProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
 	                            >${textContainer.text['provisioningMoreActionsEditSettings'] }</a></li>
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.provisioningContainer.canReadProvisioningForStem}" >
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                          <li><a href="?operation=UiV2Provisioning.viewProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Provisioning.viewProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['provisioningMoreActionsViewSettings'] }</a></li>
                         </c:if>
 

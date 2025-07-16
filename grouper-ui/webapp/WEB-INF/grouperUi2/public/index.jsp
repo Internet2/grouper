@@ -15,7 +15,7 @@
     <div class="top-container">
       <div class="navbar navbar-static-top">
         <div class="navbar-inner">
-          <div class="container-fluid"><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"><img class="brand" src="../../${mediaMap['image.organisation-logo']}" alt="Logo" /></a>
+          <div class="container-fluid"><a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');"><img class="brand" src="../../${mediaMap['image.organisation-logo']}" alt="Logo" /></a>
             <div class="pull-right">
             </div>
           </div>

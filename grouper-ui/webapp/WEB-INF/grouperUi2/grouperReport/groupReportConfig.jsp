@@ -13,9 +13,9 @@ ${grouper:titleFromKeyAndText('groupReportConfigPageTitle', grouperRequestContai
         
     <div class="tab-interface">
       <ul class="nav nav-tabs">
-        <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
+        <li><a role="tab" href="?operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
         <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
-          <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
+          <li><a role="tab" href="?operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
         </c:if>
         <%@ include file="../group/groupMoreTab.jsp" %>
       </ul>
@@ -52,7 +52,7 @@ ${grouper:titleFromKeyAndText('groupReportConfigPageTitle', grouperRequestContai
               
                 <tr>
                    <td style="white-space: nowrap;">
-                    <a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">
+                    <a href="?operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">
                     ${guiReportConfig.reportConfigBean.reportConfigName}</a>
                    </td>
                    <td style="white-space: nowrap;">
@@ -112,11 +112,11 @@ ${grouper:titleFromKeyAndText('groupReportConfigPageTitle', grouperRequestContai
                              
                              <c:if test="${not empty guiReportConfig.mostRecentReportInstance }">
                                <li><a href="../app/UiV2GrouperReport.downloadReportForGroup?attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}">${textContainer.text['grouperReportConfigTableReportActionsDownloadMostRecent'] }</a></li>
-                               <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsViewMostRecent'] }</a></li>
-                               <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsReportInstances'] }</a></li>
+                               <li><a href="?operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsViewMostRecent'] }</a></li>
+                               <li><a href="?operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsReportInstances'] }</a></li>
                                
                                <c:if test="${grouperRequestContainer.grouperReportContainer.canWriteGrouperReports}">                               
-                                 <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=grouper_report_${grouperRequestContainer.groupContainer.guiGroup.group.id}_${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}');">${textContainer.text['grouperReportConfigTableReportActionsReportLogs'] }</a></li>
+                                 <li><a href="?operation=UiV2Admin.viewLogs&jobName=grouper_report_${grouperRequestContainer.groupContainer.guiGroup.group.id}_${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewLogs&jobName=grouper_report_${grouperRequestContainer.groupContainer.guiGroup.group.id}_${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}');">${textContainer.text['grouperReportConfigTableReportActionsReportLogs'] }</a></li>
                                </c:if>
                                
                              </c:if>
@@ -126,13 +126,13 @@ ${grouper:titleFromKeyAndText('groupReportConfigPageTitle', grouperRequestContai
                              <c:if test="${grouperRequestContainer.grouperReportContainer.canWriteGrouperReports }">
                                <c:choose>
                                  <c:when test="${guiReportConfig.reportConfigBean.reportConfigEnabled}">
-                                   <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.changeReportConfigStatusForGroup&newStatus=disable&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsDisbleReportConfig'] }</a></li>
+                                   <li><a href="?operation=UiV2GrouperReport.changeReportConfigStatusForGroup&newStatus=disable&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.changeReportConfigStatusForGroup&newStatus=disable&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsDisbleReportConfig'] }</a></li>
                                  </c:when>
                                  <c:otherwise>
-                                   <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.changeReportConfigStatusForGroup&newStatus=enable&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsEnableReportConfig'] }</a></li>
+                                   <li><a href="?operation=UiV2GrouperReport.changeReportConfigStatusForGroup&newStatus=enable&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.changeReportConfigStatusForGroup&newStatus=enable&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsEnableReportConfig'] }</a></li>
                                  </c:otherwise>
                                </c:choose>
-                               <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.deleteReportConfigForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsDeleteReportConfig'] }</a></li>                             
+                               <li><a href="?operation=UiV2GrouperReport.deleteReportConfigForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.deleteReportConfigForGroup&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');">${textContainer.text['grouperReportConfigTableReportActionsDeleteReportConfig'] }</a></li>
                              </c:if>
                            </ul>
                          </div>

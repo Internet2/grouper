@@ -10,19 +10,19 @@
   
                       <ul class="dropdown-menu dropdown-menu-right" id="daemon-more-options">
 
-          					    <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.addDaemon'); return false;"
+          					    <li><a href="?operation=UiV2Admin.addDaemon" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.addDaemon'); return false;"
                             >${textContainer.text['daemonJobsAddDaemon'] }</a></li>
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.daemonJobs'); return false;"
+                        <li><a href="?operation=UiV2Admin.daemonJobs" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.daemonJobs'); return false;"
                             >${textContainer.text['daemonJobsButtonAllDaemonJobs'] }</a></li>
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.jobHistoryChart'); return false;"
+                        <li><a href="?operation=UiV2Admin.jobHistoryChart" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.jobHistoryChart'); return false;"
                             >${textContainer.text['adminJobHistoryChart'] }</a></li>
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loaderOverall'); return false;"
+                        <li><a href="?operation=UiV2GrouperLoader.loaderOverall" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.loaderOverall'); return false;"
                             >${textContainer.text['adminLoaderLink'] }</a></li>
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.daemonJobsSchedule'); return false;"
+                        <li><a href="?operation=UiV2Admin.daemonJobsSchedule" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.daemonJobsSchedule'); return false;"
                             >${textContainer.text['adminJobSchedule'] }</a></li>
 
                       </ul>

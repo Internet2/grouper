@@ -8,9 +8,9 @@
 <div class="row-fluid">
   <div class="span12 tab-interface">
     <ul class="nav nav-tabs">
-      <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
+      <li><a role="tab" href="?operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
       <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}">
-        <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
+        <li><a role="tab" href="?operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
       </c:if>
       <c:if test="${grouperRequestContainer.stemContainer.canReadPrivilegeInheritance}">
         <%@ include file="../stem/stemMoreTab.jsp" %>
@@ -102,7 +102,7 @@
                    <td style="white-space: nowrap;">${guiReportInstance.reportInstance.reportInstanceStatus}</td>
                    <td style="white-space: nowrap;">${guiReportInstance.reportInstance.reportInstanceSizeFriendly}</td>
                    <td>
-                     <a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportInstanceDetailsForFolder&attributeAssignId=${guiReportInstance.reportInstance.attributeAssignId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">
+                     <a href="?operation=UiV2GrouperReport.viewReportInstanceDetailsForFolder&attributeAssignId=${guiReportInstance.reportInstance.attributeAssignId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportInstanceDetailsForFolder&attributeAssignId=${guiReportInstance.reportInstance.attributeAssignId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">
                        ${textContainer.text['grouperReportConfigInstanceTableViewDetails']}
                      </a>
                    </td>

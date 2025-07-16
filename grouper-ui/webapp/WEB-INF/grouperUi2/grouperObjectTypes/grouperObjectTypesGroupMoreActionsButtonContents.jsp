@@ -11,12 +11,12 @@
                       <ul class="dropdown-menu dropdown-menu-right" id="grouperTypes-more-options">
 
                         <c:if test="${grouperRequestContainer.objectTypeContainer.canReadObjectType}" >
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="?operation=UiV2GrouperObjectTypes.viewObjectTypesOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperObjectTypes.viewObjectTypesOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['objectTypeMoreActionsViewSettings'] }</a></li>
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.objectTypeContainer.canWriteObjectType}" >
-	                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperObjectTypes.editObjectTypesOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+	                        <li><a href="?operation=UiV2GrouperObjectTypes.editObjectTypesOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperObjectTypes.editObjectTypesOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
 	                            >${textContainer.text['objectTypeMoreActionsEditSettings'] }</a></li>
                         </c:if>
 

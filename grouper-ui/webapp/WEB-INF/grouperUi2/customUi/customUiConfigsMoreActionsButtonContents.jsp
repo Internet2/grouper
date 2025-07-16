@@ -7,9 +7,9 @@
        ${textContainer.text['customUiMoreActionsButton'] } <span class="caret"></span></a>
 
    <ul class="dropdown-menu dropdown-menu-right" id="custom-ui-more-options">
-       <li><a href="#" onclick="return guiV2link('operation=UiV2CustomUiConfig.addCustomUiConfig'); return false;"
+       <li><a href="?operation=UiV2CustomUiConfig.addCustomUiConfig" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUiConfig.addCustomUiConfig'); return false;"
            >${textContainer.text['customUiMoreActionsAddButton'] }</a></li>
-    <li><a href="#" onclick="return guiV2link('operation=UiV2CustomUiConfig.viewCustomUiConfigs'); return false;"
+    <li><a href="?operation=UiV2CustomUiConfig.viewCustomUiConfigs" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUiConfig.viewCustomUiConfigs'); return false;"
            >${textContainer.text['customUiMoreActionsViewButton'] }</a></li>
    </ul>
 

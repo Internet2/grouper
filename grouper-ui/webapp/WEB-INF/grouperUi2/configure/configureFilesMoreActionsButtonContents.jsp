@@ -10,12 +10,12 @@
   
                       <ul class="dropdown-menu dropdown-menu-right" id="configure-files-more-options">
                         <%-- main link --%>
-                            <li><a href="#" 
-                            onclick="return guiV2link('operation=UiV2Configure.configure', {optionalFormElementNamesToSend: 'configFile'}); return false;" 
+                            <li><a href="?operation=UiV2Configure.configure"
+                            onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.configure', {optionalFormElementNamesToSend: 'configFile'}); return false;"
                             >${textContainer.text['configurationFilesMenuIndex'] }</a></li>
                             <li>
-                            <a href="#" 
-                            onclick="return guiV2link('operation=UiV2Configure.configurationFileAddConfig', {optionalFormElementNamesToSend: 'configFile'}); return false;" 
+                            <a href="?operation=UiV2Configure.configurationFileAddConfig"
+                            onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.configurationFileAddConfig', {optionalFormElementNamesToSend: 'configFile'}); return false;"
                             >${textContainer.text['configurationFilesMenuAddConfig'] }</a>
                             </li>
                             
@@ -24,18 +24,18 @@
 	                            	<li><a href="../app/UiV2Configure.configurationFileExport?configFile=${grouperRequestContainer.configurationContainer.configFileName}">${textContainer.text['configurationFilesMenuExport'] }</a></li>
 	                            </c:when>
 	                            <c:otherwise>
-		                            <li><a href="#"
-		                            onclick="return guiV2link('operation=UiV2Configure.configurationFileExport', {optionalFormElementNamesToSend: 'configFile'}); return false;" 
+		                            <li><a href="?operation=UiV2Configure.configurationFileExport"
+		                            onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.configurationFileExport', {optionalFormElementNamesToSend: 'configFile'}); return false;"
 		                            >${textContainer.text['configurationFilesMenuExport'] }</a>
 		                            </li>
 	                            </c:otherwise>
                             </c:choose>
-                            <li><a href="#" 
-                            onclick="return guiV2link('operation=UiV2Configure.configurationFileImport', {optionalFormElementNamesToSend: 'configFile'}); return false;" 
+                            <li><a href="?operation=UiV2Configure.configurationFileImport"
+                            onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.configurationFileImport', {optionalFormElementNamesToSend: 'configFile'}); return false;"
                             >${textContainer.text['configurationFilesMenuImport'] }</a></li>
                             <li>
-                            <a href="#"
-                            onclick="return guiV2link('operation=UiV2Configure.history'); return false;" 
+                            <a href="?operation=UiV2Configure.history"
+                            onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.history'); return false;"
                             >${textContainer.text['configurationFilesMenuHistory'] }</a>
                             </li>
 

@@ -8,15 +8,15 @@
 
                       <ul class="dropdown-menu dropdown-menu-right" id="grouper-report-more-options">
                         
-                         <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                         <li><a href="?operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                              >${textContainer.text['grouperReportMoreActionsStemViewReports'] }</a></li>
 
                         <c:if test="${grouperRequestContainer.grouperReportContainer.canWriteGrouperReports}" >
 	                            
-	                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.reportOnFolderAdd&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+	                        <li><a href="?operation=UiV2GrouperReport.reportOnFolderAdd&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.reportOnFolderAdd&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['grouperReportMoreActionsStemAddReport'] }</a></li>
                           
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.reportOnFolderEdit&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                          <li><a href="?operation=UiV2GrouperReport.reportOnFolderEdit&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.reportOnFolderEdit&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['grouperReportMoreActionsStemEditReports'] }</a></li>
                         </c:if>
 

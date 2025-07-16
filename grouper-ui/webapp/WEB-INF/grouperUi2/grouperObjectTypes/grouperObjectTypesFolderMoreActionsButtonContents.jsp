@@ -11,17 +11,17 @@
                       <ul class="dropdown-menu dropdown-menu-right" id="grouperTypes-more-options">
 
                         <c:if test="${grouperRequestContainer.objectTypeContainer.canReadObjectType}" >
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                          <li><a href="?operation=UiV2GrouperObjectTypes.viewObjectTypesOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperObjectTypes.viewObjectTypesOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['objectTypeMoreActionsViewSettings'] }</a></li>
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.objectTypeContainer.canWriteObjectType}" >
-	                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperObjectTypes.editObjectTypesOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+	                        <li><a href="?operation=UiV2GrouperObjectTypes.editObjectTypesOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperObjectTypes.editObjectTypesOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
 	                            >${textContainer.text['objectTypeMoreActionsEditSettings'] }</a></li>
                         </c:if>
                         
                         <c:if test="${grouperRequestContainer.objectTypeContainer.canWriteObjectType}" >
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperObjectTypes.findAutoAssignTypes&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                          <li><a href="?operation=UiV2GrouperObjectTypes.findAutoAssignTypes&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperObjectTypes.findAutoAssignTypes&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['objectTypeMoreActionsAutoAssignTypes'] }</a></li>
                         </c:if>
                         

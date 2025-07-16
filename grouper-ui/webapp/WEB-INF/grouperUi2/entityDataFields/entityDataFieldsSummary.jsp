@@ -2,9 +2,9 @@
 
 <div class="bread-header-container">
   <ul class="breadcrumb">
-    <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span
+    <li><a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span
       class="divider"><i class='fa fa-angle-right'></i></span></li>
-    <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span
+    <li><a href="?operation=UiV2Main.miscellaneous" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span
       class="divider"><i class='fa fa-angle-right'></i></span></li>
     <li class="active">${textContainer.text['miscellaneousEntityDataFieldsBreadcrumb'] }</li>
   </ul>
@@ -16,7 +16,7 @@
         <h4>${textContainer.text['miscellaneousEntityDataFieldsMainDescription'] }</h4>
       </div>
       <div class="span10 pull-left">
-        <a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewDataFieldAndRowDictionary');" style="white-space: nowrap;">${textContainer.text['miscAttestationDataFieldAndRowDictionaryLink'] }</a>
+        <a href="?operation=UiV2EntityDataFields.viewDataFieldAndRowDictionary" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewDataFieldAndRowDictionary');" style="white-space: nowrap;">${textContainer.text['miscAttestationDataFieldAndRowDictionaryLink'] }</a>
       </div>
       <%-- <div class="span2 pull-right">
         <%@ include file="externalSystemsMoreActionsButtonContents.jsp"%>
@@ -39,7 +39,7 @@
         
           <tr>
               <td style="white-space: nowrap;">
-                <a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewPrivacyRealmConfigs');" style="white-space: nowrap;"
+                <a href="?operation=UiV2EntityDataFields.viewPrivacyRealmConfigs" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewPrivacyRealmConfigs');" style="white-space: nowrap;"
                       >${textContainer.text['entityDataFieldsSummaryTablePrivacyRealms'] }</a>
               </td>
 
@@ -52,7 +52,7 @@
         
             <tr>
               <td style="white-space: nowrap;">
-                <a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewEntityDataFields');" style="white-space: nowrap;"
+                <a href="?operation=UiV2EntityDataFields.viewEntityDataFields" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewEntityDataFields');" style="white-space: nowrap;"
                       >${textContainer.text['entityDataFieldsSummaryTableDataFields'] }</a>
               </td>
 
@@ -64,7 +64,7 @@
               
               <tr>
               <td style="white-space: nowrap;">
-                <a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewEntityDataRows');" style="white-space: nowrap;"
+                <a href="?operation=UiV2EntityDataFields.viewEntityDataRows" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewEntityDataRows');" style="white-space: nowrap;"
                       >${textContainer.text['entityDataFieldsSummaryTableDataRows'] }</a>
               </td>
 
@@ -76,7 +76,7 @@
               
               <tr>
               <td style="white-space: nowrap;">
-                <a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewDataProviders');" style="white-space: nowrap;"
+                <a href="?operation=UiV2EntityDataFields.viewDataProviders" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewDataProviders');" style="white-space: nowrap;"
                       >${textContainer.text['entityDataFieldsSummaryTableDataProviders'] }</a>
               </td>
 
@@ -88,7 +88,7 @@
               
              <tr>
               <td style="white-space: nowrap;">
-                <a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewEntityDataProviderQueries');" style="white-space: nowrap;"
+                <a href="?operation=UiV2EntityDataFields.viewEntityDataProviderQueries" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewEntityDataProviderQueries');" style="white-space: nowrap;"
                       >${textContainer.text['entityDataFieldsSummaryTableDataProviderQueries'] }</a>
               </td>
 
@@ -99,7 +99,7 @@
              </tr>
              <tr>
               <td style="white-space: nowrap;">
-                <a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewEntityDataProviderChangeLogQueries');" style="white-space: nowrap;"
+                <a href="?operation=UiV2EntityDataFields.viewEntityDataProviderChangeLogQueries" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewEntityDataProviderChangeLogQueries');" style="white-space: nowrap;"
                       >${textContainer.text['entityDataFieldsSummaryTableDataProviderChangeLogQueries'] }</a>
               </td>
 

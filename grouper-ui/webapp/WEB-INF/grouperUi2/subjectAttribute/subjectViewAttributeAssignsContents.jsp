@@ -69,9 +69,9 @@
                           <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-	                        <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
-	                        <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectAttributeAssignment.assignmentMenuAddMetadataAssignment&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddMetadataAssignment'] }</a></li>
-	                        <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectAttributeAssignment.assignEdit&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
+	                        <li><a href="?operation=UiV2SubjectAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${attributeAssign.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
+	                        <li><a href="?operation=UiV2SubjectAttributeAssignment.assignmentMenuAddMetadataAssignment&attributeAssignId=${attributeAssign.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectAttributeAssignment.assignmentMenuAddMetadataAssignment&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddMetadataAssignment'] }</a></li>
+	                        <li><a href="?operation=UiV2SubjectAttributeAssignment.assignEdit&attributeAssignId=${attributeAssign.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectAttributeAssignment.assignEdit&attributeAssignId=${attributeAssign.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
 	                        <li><a href="#" onclick="ajax('../app/UiV2SubjectAttributeAssignment.assignDelete?attributeAssignId=${attributeAssign.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</a></li>
                         </ul>
                       </div>
@@ -117,8 +117,8 @@
 	                          <span class="caret"></span>
 	                        </a>
                         <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectAttributeAssignment.assignEdit&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
+                          <li><a href="?operation=UiV2SubjectAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectAttributeAssignment.assignmentMenuAddValue&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}');">${textContainer.text['simpleAttributeAssign.assignMenuAddValue'] }</a></li>
+                          <li><a href="?operation=UiV2SubjectAttributeAssignment.assignEdit&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectAttributeAssignment.assignEdit&attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}');">${textContainer.text['simpleAttributeUpdate.editAssignmentAlt'] }</a></li>
                           <li><a href="#" onclick="ajax('../app/UiV2SubjectAttributeAssignment.assignDelete?attributeAssignId=${guiAttributeAssignAssign.attributeAssign.id}'); return false;" >${textContainer.text['simpleAttributeUpdate.deleteAssignmentAlt'] }</a></li>
                         </ul>
                       </div>

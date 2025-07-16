@@ -2,15 +2,15 @@
 
    <div class="bread-header-container">
        <ul class="breadcrumb">
-          <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span
+          <li><a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span
             class="divider"><i class='fa fa-angle-right'></i></span></li>
-          <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span
+          <li><a href="?operation=UiV2Main.miscellaneous" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span
             class="divider"><i class='fa fa-angle-right'></i></span></li>
             
-            <li><a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewEntityDataFieldsSummary');">${textContainer.text['miscellaneousEntityDataFieldsBreadcrumb'] }</a><span
+            <li><a href="?operation=UiV2EntityDataFields.viewEntityDataFieldsSummary" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewEntityDataFieldsSummary');">${textContainer.text['miscellaneousEntityDataFieldsBreadcrumb'] }</a><span
       class="divider"><i class='fa fa-angle-right'></i></span></li>
             
-            <li><a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewEntityDataProviderQueries');">${textContainer.text['miscellaneousDataProviderQueriesBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+            <li><a href="?operation=UiV2EntityDataFields.viewEntityDataProviderQueries" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewEntityDataProviderQueries');">${textContainer.text['miscellaneousDataProviderQueriesBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
             
             <li class="active">${textContainer.text['miscellaneousDataProviderQueryAddBreadcrumb'] }</li> 
         </ul>

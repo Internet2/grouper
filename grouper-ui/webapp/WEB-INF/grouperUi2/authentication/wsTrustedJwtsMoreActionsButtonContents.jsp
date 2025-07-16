@@ -7,9 +7,9 @@
        ${textContainer.text['wsTrustedJwtsMoreActionsButton'] } <span class="caret"></span></a>
 
    <ul class="dropdown-menu dropdown-menu-right" id="jwt-more-options">
-       <li><a href="#" onclick="return guiV2link('operation=UiV2AuthenticationConfig.addWsTrustedJwt'); return false;"
+       <li><a href="?operation=UiV2AuthenticationConfig.addWsTrustedJwt" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AuthenticationConfig.addWsTrustedJwt'); return false;"
            >${textContainer.text['wsTrustedJwtsMoreActionsAddButton'] }</a></li>
-    <li><a href="#" onclick="return guiV2link('operation=UiV2AuthenticationConfig.viewWsTrustedJwts'); return false;"
+    <li><a href="?operation=UiV2AuthenticationConfig.viewWsTrustedJwts" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AuthenticationConfig.viewWsTrustedJwts'); return false;"
            >${textContainer.text['wsTrustedJwtsMoreActionsViewButton'] }</a></li>
    </ul>
 

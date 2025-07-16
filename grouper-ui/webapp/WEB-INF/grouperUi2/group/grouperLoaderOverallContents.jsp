@@ -55,19 +55,19 @@
 
                     <ul class="dropdown-menu dropdown-menu-right" id="grouper-loader-more-options">
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loader&groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
+                        <li><a href="?operation=UiV2GrouperLoader.loader&groupId=${guiGrouperLoaderJob.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.loader&groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
                         >${textContainer.text['grouperLoaderMoreActionsViewLoader'] }</a></li>
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.viewLogs&groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
+                        <li><a href="?operation=UiV2GrouperLoader.viewLogs&groupId=${guiGrouperLoaderJob.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.viewLogs&groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
                         >${textContainer.text['grouperLoaderMoreActionsViewLoaderLogs'] }</a></li>
 
                         <li><a href="#" onclick="ajax('../app/UiV2Group.updateLoaderGroup?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
                         >${textContainer.text['groupRunLoaderProcessButton'] }</a></li>
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loaderDiagnostics&groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
+                        <li><a href="?operation=UiV2GrouperLoader.loaderDiagnostics&groupId=${guiGrouperLoaderJob.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.loaderDiagnostics&groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
                         >${textContainer.text['grouperLoaderDiagnosticsButton'] }</a></li>
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.editGrouperLoader?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
+                        <li><a href="?operation=UiV2GrouperLoader.editGrouperLoader?groupId=${guiGrouperLoaderJob.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.editGrouperLoader?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
                         >${textContainer.text['grouperLoaderEditConfiguration'] }</a></li>
 
                         <li><a href="#" onclick="ajax('../app/UiV2Group.scheduleLoaderGroup?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"

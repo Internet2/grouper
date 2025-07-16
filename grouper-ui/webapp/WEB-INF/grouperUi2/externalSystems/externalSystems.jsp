@@ -4,9 +4,9 @@ ${grouper:title('externalSystemsPageTitle')}
 
 <div class="bread-header-container">
   <ul class="breadcrumb">
-    <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span
+    <li><a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span
       class="divider"><i class='fa fa-angle-right'></i></span></li>
-    <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span
+    <li><a href="?operation=UiV2Main.miscellaneous" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span
       class="divider"><i class='fa fa-angle-right'></i></span></li>
     <li class="active">${textContainer.text['miscellaneousGrouperExternalSystemsBreadcrumb'] }</li>
   </ul>
@@ -80,8 +80,8 @@ ${grouper:title('externalSystemsPageTitle')}
                         onclick="return ajax('../app/UiV2ExternalSystem.disableExternalSystem?externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableDisableActionOption'] }</a></li>
                     </c:if>
 
-                    <li><a href="#"
-                      onclick="return guiV2link('operation=UiV2ExternalSystem.editExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableEditDetailsActionOption'] }</a></li>
+                    <li><a href="?operation=UiV2ExternalSystem.editExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem["
+                      onclick="return handleGuiV2LinkClick(event, 'operation=UiV2ExternalSystem.editExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableEditDetailsActionOption'] }</a></li>
                     <c:if
                       test="${guiGrouperExternalSystem.grouperExternalSystem.enabled == false}">
                       <li><a href="#"
@@ -89,8 +89,8 @@ ${grouper:title('externalSystemsPageTitle')}
                     </c:if>
                     <li><a href="#"
                       onclick="return ajax('../app/UiV2ExternalSystem.testExternalSystemConfigDetails?externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableTestDetailsActionOption'] }</a></li>
-                    <li><a href="#"
-                      onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableViewDetailsActionOption'] }</a></li>
+                    <li><a href="?operation=UiV2ExternalSystem.viewExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem["
+                      onclick="return handleGuiV2LinkClick(event, 'operation=UiV2ExternalSystem.viewExternalSystemConfigDetails&externalSystemConfigId=${guiGrouperExternalSystem.grouperExternalSystem.configId}&externalSystemType=${guiGrouperExternalSystem.grouperExternalSystem['class'].name}');">${textContainer.text['grouperExternalSystemTableViewDetailsActionOption'] }</a></li>
 
                     <c:if test="${guiGrouperExternalSystem.grouperExternalSystem.canDelete}">
                       <li>&nbsp;</li>

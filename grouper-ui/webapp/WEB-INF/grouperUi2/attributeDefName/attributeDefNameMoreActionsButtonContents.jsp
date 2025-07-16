@@ -4,7 +4,7 @@
 
                     <%--
                     <c:if test="${grouperRequestContainer.attributeDefContainer.canAdmin }">
-                      <a href="#" onclick="return guiV2link('operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;" class="btn btn-medium btn-block btn-primary" role="button">${textContainer.text['attributeDefNameViewEditAttributeDefNameButton'] }</a>
+                      <a href="?operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;" class="btn btn-medium btn-block btn-primary" role="button">${textContainer.text['attributeDefNameViewEditAttributeDefNameButton'] }</a>
                     </c:if>
                     --%>
                     
@@ -28,16 +28,16 @@
                         </c:choose>
 
                         <c:if test="${grouperRequestContainer.attributeDefContainer.canAdmin}">
-                          <li><a href="#"
-                              onclick="return guiV2link('operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;">
+                          <li><a href="?operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}"
+                              onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;">
                             ${textContainer.text['attributeDefEditAttributeDefNameButton'] }</a>
                           </li>                                 
-                          <li><a href="#" 
-                            onclick="return guiV2link('operation=UiV2AttributeDefName.deleteAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;" class="actions-delete-attributeDef">
+                          <li><a href="?operation=UiV2AttributeDefName.deleteAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}"
+                            onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefName.deleteAttributeDefName&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;" class="actions-delete-attributeDef">
                             ${textContainer.text['attributeDefDeleteAttributeDefNameButton'] }</a></li>
                         </c:if>
-                        <li><a href="#"
-                              onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefNameAssignedOwners&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;">
+                        <li><a href="?operation=UiV2AttributeDefName.viewAttributeDefNameAssignedOwners&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}"
+                              onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefName.viewAttributeDefNameAssignedOwners&attributeDefNameId=${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.id}'); return false;">
                             ${textContainer.text['attributeDefViewAssignedEntitiesAttributeDefNameButton'] }</a>
                         </li>   
                       </ul>

@@ -8,12 +8,12 @@
 
                       <ul class="dropdown-menu dropdown-menu-right" id="grouper-workflow-more-options">
                         
-                         <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.viewForms&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                         <li><a href="?operation=UiV2GrouperWorkflow.viewForms&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.viewForms&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                              >${textContainer.text['grouperWorkflowMoreActionsViewForms'] }</a></li>
 
                         <c:if test="${grouperRequestContainer.workflowContainer.canConfigureWorkflow}" >
                               
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.formAdd&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="?operation=UiV2GrouperWorkflow.formAdd&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.formAdd&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['grouperWorkflowMoreActionsAddForm'] }</a></li>
                           
                         </c:if>

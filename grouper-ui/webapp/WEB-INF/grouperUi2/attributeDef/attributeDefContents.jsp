@@ -43,23 +43,23 @@
                           		${textContainer.text['attributeDefViewActionsButton'] } <span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options${i}">
                             
-                              <li><a href="#"
-                              	   onclick="return guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
+                              <li><a href="?operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}"
+                              	   onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
                               		${textContainer.text['attributeDefViewAttributeDefNameButton'] }
                               	</a>
                               </li>
                               <c:if test="${isAdmin}">
-                              	<li><a href="#"
-                              	 		onclick="return guiV2link('operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
+                              	<li><a href="?operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}"
+                              	 		onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefName.editAttributeDefName&attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
                               		${textContainer.text['attributeDefEditAttributeDefNameButton'] }</a>
                               	</li>
                               	<c:if test="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.attributeDefType == 'perm'}">
-                                  <li><a href="#" 
-                                    onclick="return guiV2link('operation=UiV2AttributeDefName.editAttributeDefNameInheritance?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
+                                  <li><a href="?operation=UiV2AttributeDefName.editAttributeDefNameInheritance?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}"
+                                    onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefName.editAttributeDefNameInheritance?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;">
                                   ${textContainer.text['attributeDefEditInheritanceAttributeDefNameButton'] }</a></li>                              	
                               	</c:if>
-                                <li><a href="#" 
-                                    onclick="return guiV2link('operation=UiV2AttributeDefName.deleteAttributeDefName?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;" class="actions-delete-attributeDef">
+                                <li><a href="?operation=UiV2AttributeDefName.deleteAttributeDefName?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}"
+                                    onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefName.deleteAttributeDefName?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}'); return false;" class="actions-delete-attributeDef">
                                   ${textContainer.text['attributeDefDeleteAttributeDefNameButton'] }</a></li>
                               </c:if>
                             </ul>

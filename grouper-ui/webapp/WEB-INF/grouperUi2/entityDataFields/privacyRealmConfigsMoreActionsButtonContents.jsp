@@ -7,9 +7,9 @@
        ${textContainer.text['privacyRealmMoreActionsButton'] } <span class="caret"></span></a>
 
    <ul class="dropdown-menu dropdown-menu-right" id="data-field-more-options">
-       <li><a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.addPrivacyRealmConfiguration'); return false;"
+       <li><a href="?operation=UiV2EntityDataFields.addPrivacyRealmConfiguration" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.addPrivacyRealmConfiguration'); return false;"
            >${textContainer.text['privacyRealmMoreActionsAddButton'] }</a></li>
-    <li><a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewPrivacyRealmConfigs'); return false;"
+    <li><a href="?operation=UiV2EntityDataFields.viewPrivacyRealmConfigs" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewPrivacyRealmConfigs'); return false;"
            >${textContainer.text['privacyRealmMoreActionsViewButton'] }</a></li>
    </ul>
 

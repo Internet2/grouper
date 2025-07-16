@@ -79,10 +79,10 @@
                               </a>
                               <ul class="dropdown-menu dropdown-menu-right" id="daemon-jobs-more-actions">
                                 <c:if test="${guiDaemonJob.loader == false && guiDaemonJob.editable }">
-	                                <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.editDaemon&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
+	                                <li><a href="?operation=UiV2Admin.editDaemon&jobName=${guiDaemonJob.jobName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.editDaemon&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
                                 </c:if>
                                 <c:if test="${guiDaemonJob.loader == true}">
-	                                <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.editGrouperLoader&${guiDaemonJob.editQueryParam}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
+	                                <li><a href="?operation=UiV2GrouperLoader.editGrouperLoader&${guiDaemonJob.editQueryParam}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.editGrouperLoader&${guiDaemonJob.editQueryParam}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
                                 </c:if>
                                 <c:if test="${guiDaemonJob.failsafeNeedsApproval}" >
                                   <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=failsafeApprove&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsFailsafeApprove'] }</a></li>
@@ -90,7 +90,7 @@
                                 <c:if test="${guiDaemonJob.showMoreActionsRunNow}" >
                                   <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=runNow&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsRunNow'] }</a></li>
                                 </c:if>
-                                <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsLogs'] }</a></li>
+                                <li><a href="?operation=UiV2Admin.viewLogs&jobName=${guiDaemonJob.jobName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewLogs&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsLogs'] }</a></li>
                                 <br />
                                 <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['adminDaemonJobsMoreActionsDelete']}</li>
                                 <c:if test="${guiDaemonJob.multiple && guiDaemonJob.editable}">                        

@@ -12,19 +12,19 @@
 
                         <c:if test="${grouperRequestContainer.subjectResolutionContainer.allowedToSubjectResolution}">
                           
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectResolution.subjectResolutionMain'); return false;"
+                          <li><a href="?operation=UiV2SubjectResolution.subjectResolutionMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectResolution.subjectResolutionMain'); return false;"
                               >${textContainer.text['subjectResolutionMainMoreActionsStats'] }</a></li>
                         
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectResolution.searchSubjects'); return false;"
+                          <li><a href="?operation=UiV2SubjectResolution.searchSubjects" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectResolution.searchSubjects'); return false;"
                               >${textContainer.text['subjectResolutionMainMoreActionsSearchSubjects'] }</a></li>
                               
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectResolution.viewUnresolvedSubjects'); return false;"
+                          <li><a href="?operation=UiV2SubjectResolution.viewUnresolvedSubjects" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectResolution.viewUnresolvedSubjects'); return false;"
                               >${textContainer.text['subjectResolutionMainMoreActionsViewUnresolved'] }</a></li>
                               
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectResolution.viewSubjectDeleteAudits'); return false;"
+                          <li><a href="?operation=UiV2SubjectResolution.viewSubjectDeleteAudits" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectResolution.viewSubjectDeleteAudits'); return false;"
                               >${textContainer.text['subjectResolutionMainMoreActionsViewAuditLogs'] }</a></li>  
                               
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.daemonJobs&daemonJobsFilter=usduDaemon'); return false;" style="white-space: nowrap;"
+                          <li><a href="?operation=UiV2Admin.daemonJobs&daemonJobsFilter=usduDaemon" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.daemonJobs&daemonJobsFilter=usduDaemon'); return false;" style="white-space: nowrap;"
                               >${textContainer.text['subjectResolutionMainMoreActionsViewDaemonLogs'] }</a></li>    
                               
                         </c:if>

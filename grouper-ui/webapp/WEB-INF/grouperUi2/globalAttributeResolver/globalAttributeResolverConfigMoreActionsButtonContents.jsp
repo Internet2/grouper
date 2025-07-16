@@ -7,9 +7,9 @@
        ${textContainer.text['wsTrustedJwtsMoreActionsButton'] } <span class="caret"></span></a>
 
    <ul class="dropdown-menu dropdown-menu-right" id="resolver-more-options">
-       <li><a href="#" onclick="return guiV2link('operation=UiV2GlobalAttributeResolverConfig.addGlobalAttributeResolverConfig'); return false;"
+       <li><a href="?operation=UiV2GlobalAttributeResolverConfig.addGlobalAttributeResolverConfig" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GlobalAttributeResolverConfig.addGlobalAttributeResolverConfig'); return false;"
            >${textContainer.text['globalAttributeResolverConfigsMoreActionsAddButton'] }</a></li>
-    <li><a href="#" onclick="return guiV2link('operation=UiV2GlobalAttributeResolverConfig.viewGlobalAttributeResolverConfigs'); return false;"
+    <li><a href="?operation=UiV2GlobalAttributeResolverConfig.viewGlobalAttributeResolverConfigs" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GlobalAttributeResolverConfig.viewGlobalAttributeResolverConfigs'); return false;"
            >${textContainer.text['globalAttributeResolverConfigsMoreActionsViewButton'] }</a></li>
    </ul>
 

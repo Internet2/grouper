@@ -12,8 +12,8 @@
                 <div class="navbar-text pull-right" style="white-space: normal;">${textContainer.text['indexLoggedInAs'] } 
                   ${guiSettings.loggedInSubject.screenLabelShort2noLink} 
                     &middot; 
-                    <a href="#"
-                          onclick="return guiV2link('operation=Logout.logout');" class="navbar-link">${textContainer.text['indexLogoutLink']}</a>
+                    <a href="?operation=Logout.logout"
+                          onclick="return handleGuiV2LinkClick(event, 'operation=Logout.logout');" class="navbar-link">${textContainer.text['indexLogoutLink']}</a>
                  </div>
               
               </div>
