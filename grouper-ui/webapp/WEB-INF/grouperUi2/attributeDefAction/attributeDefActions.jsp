@@ -42,12 +42,12 @@
                             <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options${i}">
                             
                               <c:if test="${isAdmin}">
-                              	<li><a href="#"
-                              	 		onclick="return guiV2link('operation=UiV2AttributeDefAction.editAttributeDefAction&attributeDefActionId=${attributeAssignAction.id}&attributeDefId=${attributeAssignAction.attributeDefId}'); return false;">
+                              	<li><a href="?operation=UiV2AttributeDefAction.editAttributeDefAction&attributeDefActionId=${attributeAssignAction.id}&attributeDefId=${attributeAssignAction.attributeDefId}"
+                              	 		onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefAction.editAttributeDefAction&attributeDefActionId=${attributeAssignAction.id}&attributeDefId=${attributeAssignAction.attributeDefId}'); return false;">
                               		${textContainer.text['attributeDefEditAttributeDefActionButton'] }</a>
                               	</li>                                	
-                                <li><a href="#"
-                                    onclick="return guiV2link('operation=UiV2AttributeDefAction.deleteAttributeDefAction&attributeDefActionId=${attributeAssignAction.id}&attributeDefId=${attributeAssignAction.attributeDefId}'); return false;" class="actions-delete-attributeDefAction">
+                                <li><a href="?operation=UiV2AttributeDefAction.deleteAttributeDefAction&attributeDefActionId=${attributeAssignAction.id}&attributeDefId=${attributeAssignAction.attributeDefId}"
+                                    onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefAction.deleteAttributeDefAction&attributeDefActionId=${attributeAssignAction.id}&attributeDefId=${attributeAssignAction.attributeDefId}'); return false;" class="actions-delete-attributeDefAction">
                                   ${textContainer.text['attributeDefDeleteAttributeDefActionButton'] }</a></li>
                               </c:if>
                             </ul>

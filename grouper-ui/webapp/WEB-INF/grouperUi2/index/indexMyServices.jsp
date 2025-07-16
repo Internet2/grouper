@@ -17,7 +17,7 @@
                       </c:otherwise>
                     </c:choose>
 
-                    <p><strong><a href="#" 
-                  onclick="return guiV2link('operation=UiV2Main.myServices');">${textContainer.text['indexMyServicesViewAllServices'] }</a></strong></p>
+                    <p><strong><a href="?operation=UiV2Main.myServices"
+                  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.myServices');">${textContainer.text['indexMyServicesViewAllServices'] }</a></strong></p>
                     <!-- start indexMyServices.jsp -->
                     

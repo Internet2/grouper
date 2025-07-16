@@ -7,9 +7,9 @@
        ${textContainer.text['dataFieldsMoreActionsButton'] } <span class="caret"></span></a>
 
    <ul class="dropdown-menu dropdown-menu-right" id="data-field-more-options">
-       <li><a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.addDataFieldConfiguration'); return false;"
+       <li><a href="?operation=UiV2EntityDataFields.addDataFieldConfiguration" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.addDataFieldConfiguration'); return false;"
            >${textContainer.text['dataFieldsMoreActionsAddButton'] }</a></li>
-    <li><a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewEntityDataFields'); return false;"
+    <li><a href="?operation=UiV2EntityDataFields.viewEntityDataFields" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewEntityDataFields'); return false;"
            >${textContainer.text['dataFieldsMoreActionsViewButton'] }</a></li>
    </ul>
 

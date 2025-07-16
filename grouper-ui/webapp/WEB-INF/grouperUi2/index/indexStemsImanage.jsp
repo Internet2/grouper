@@ -15,6 +15,6 @@
                       </c:forEach>
                     </ul>
 
-                    <p><strong><a href="#"
-                  onclick="return guiV2link('operation=UiV2MyStems.myStems');">${textContainer.text['indexMyStemsViewAllStems'] }</a>  </strong></p>
+                    <p><strong><a href="?operation=UiV2MyStems.myStems"
+                  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2MyStems.myStems');">${textContainer.text['indexMyStemsViewAllStems'] }</a>  </strong></p>
                     <!-- end indexStemsImanage.jsp -->

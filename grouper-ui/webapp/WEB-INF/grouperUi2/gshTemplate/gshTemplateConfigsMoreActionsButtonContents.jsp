@@ -7,9 +7,9 @@
        ${textContainer.text['gshTemplatesMoreActionsButton'] } <span class="caret"></span></a>
 
    <ul class="dropdown-menu dropdown-menu-right" id="gsh-template-more-options">
-       <li><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.addGshTemplate'); return false;"
+       <li><a href="?operation=UiV2GshTemplateConfig.addGshTemplate" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GshTemplateConfig.addGshTemplate'); return false;"
            >${textContainer.text['gshTemplatesMoreActionsAddButton'] }</a></li>
-    <li><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.viewGshTemplates'); return false;"
+    <li><a href="?operation=UiV2GshTemplateConfig.viewGshTemplates" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GshTemplateConfig.viewGshTemplates'); return false;"
            >${textContainer.text['gshTemplatesMoreActionsViewButton'] }</a></li>
    </ul>
 

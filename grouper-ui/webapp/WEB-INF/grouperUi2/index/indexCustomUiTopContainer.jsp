@@ -16,8 +16,8 @@
                   ${guiSettings.loggedInSubject.screenLabelShort2noLink} 
                   <c:if test="${mediaMap['logout.link.show']=='true'}">
                     &middot; 
-                    <a href="#"
-                          onclick="return guiV2link('operation=Logout.logout');" class="navbar-link">${textContainer.text['indexLogoutLink']}</a>
+                    <a href="?operation=Logout.logout"
+                          onclick="return handleGuiV2LinkClick(event, 'operation=Logout.logout');" class="navbar-link">${textContainer.text['indexLogoutLink']}</a>
                   </c:if>
                   &middot;   
                   <c:set var="theHelpLink" value="${grouperRequestContainer.customUiContainer.textTypeToText['helpLink']}"/>

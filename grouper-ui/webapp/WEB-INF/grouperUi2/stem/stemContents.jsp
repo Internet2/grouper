@@ -9,7 +9,7 @@
                   <tbody>
                     <c:if test="${ ! grouperRequestContainer.stemContainer.guiStem.stem.rootStem}">
                       <tr>
-                        <td><i class="fa fa-chevron-up"></i> <a href="#" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.parentUuid}');">${textContainer.text['stemUpOneFolder'] }</a></td>
+                        <td><i class="fa fa-chevron-up"></i> <a href="?operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.parentUuid}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.parentUuid}');">${textContainer.text['stemUpOneFolder'] }</a></td>
                       </tr>
                     </c:if>
                     <%--

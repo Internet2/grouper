@@ -28,7 +28,7 @@
                                 <c:set var="sourceId" value="${grouperRequestContainer.subjectResolutionContainer.guiSubjectResolutionSubject.guiSubject.subject.sourceId}" />
                               </c:otherwise>
                             </c:choose>
-                            <td><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(subjectId)}&sourceId=${grouper:escapeUrl(sourceId)}');"
+                            <td><a href="?operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(subjectId)}&sourceId=${grouper:escapeUrl(sourceId)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(subjectId)}&sourceId=${grouper:escapeUrl(sourceId)}');"
                               >${grouper:escapeHtml(subjectId)}</a>
                             </td>
                           </tr>

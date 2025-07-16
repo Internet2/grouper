@@ -2,8 +2,8 @@
 
             <div class="bread-header-container">
               <ul class="breadcrumb">
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                  <li><a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                  <li><a href="?operation=UiV2Main.miscellaneous" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                   <li class="active">${textContainer.text['miscellaneousWsTrustedJwtsOverallBreadcrumb'] }</li>
               </ul>
                
@@ -59,14 +59,14 @@
                                  <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                                    
                                    <c:if test="${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.enabled == true}">
-                                      <li><a href="#" onclick="return guiV2link('operation=UiV2AuthenticationConfig.disableWsTrustedJwtConfig&wsTrustedJwtConfigId=${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId}');">${textContainer.text['wsTrustedJwtTableDisableActionOption'] }</a></li>
+                                      <li><a href="?operation=UiV2AuthenticationConfig.disableWsTrustedJwtConfig&wsTrustedJwtConfigId=${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AuthenticationConfig.disableWsTrustedJwtConfig&wsTrustedJwtConfigId=${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId}');">${textContainer.text['wsTrustedJwtTableDisableActionOption'] }</a></li>
                                    </c:if>
                                
                                <c:if test="${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.enabled == false}">
-                                <li><a href="#" onclick="return guiV2link('operation=UiV2AuthenticationConfig.enableWsTrustedJwtConfig&wsTrustedJwtConfigId=${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId}');">${textContainer.text['wsTrustedJwtTableEnableActionOption'] }</a></li>
+                                <li><a href="?operation=UiV2AuthenticationConfig.enableWsTrustedJwtConfig&wsTrustedJwtConfigId=${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AuthenticationConfig.enableWsTrustedJwtConfig&wsTrustedJwtConfigId=${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId}');">${textContainer.text['wsTrustedJwtTableEnableActionOption'] }</a></li>
                                </c:if>
                                
-                               <li><a href="#" onclick="return guiV2link('operation=UiV2AuthenticationConfig.editWsTrustedJwtConfig&wsTrustedJwtConfigId=${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId}');">${textContainer.text['gshTemplatesTableEditDetailsActionOption'] }</a></li>
+                               <li><a href="?operation=UiV2AuthenticationConfig.editWsTrustedJwtConfig&wsTrustedJwtConfigId=${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AuthenticationConfig.editWsTrustedJwtConfig&wsTrustedJwtConfigId=${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId}');">${textContainer.text['gshTemplatesTableEditDetailsActionOption'] }</a></li>
                                
                                   <li>&nbsp;</li>                                  
                                    <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['wsTrustedJwtConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2AuthenticationConfig.deleteWsTrustedJwtConfig&wsTrustedJwtConfigId=${guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId}');}">${textContainer.text['wsTrustedJwtTableDeleteDetailsActionOption'] }</a></li>

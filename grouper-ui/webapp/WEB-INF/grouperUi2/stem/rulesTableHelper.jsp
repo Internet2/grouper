@@ -38,10 +38,10 @@
                          
                          
                          <c:if test="${ruleDefinition.attributeAssignType.ownerGroupId != null}">
-                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.editRuleOnGroup&groupId=${ruleDefinition.attributeAssignType.ownerGroupId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
+                           <li><a href="?operation=UiV2Group.editRuleOnGroup&groupId=${ruleDefinition.attributeAssignType.ownerGroupId}&ruleId=${ruleDefinition.attributeAssignType.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.editRuleOnGroup&groupId=${ruleDefinition.attributeAssignType.ownerGroupId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
                           </c:if>
                           <c:if test="${ruleDefinition.attributeAssignType.ownerStemId != null}">
-                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.editRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
+                           <li><a href="?operation=UiV2Stem.editRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.editRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
                           </c:if>
                           
                           
@@ -55,7 +55,7 @@
                             <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { return guiV2link('operation=UiV2Stem.deleteRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');}">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
                           </c:if>
                           
-                          <%-- <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.editRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
+                          <%-- <li><a href="?operation=UiV2Stem.editRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.editRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
                            <c:if test="${ruleDefinition.attributeAssignType.ownerStemId == grouperRequestContainer.stemContainer.guiStem.stem.id }">
                               <li><br/></li>
                               <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { return guiV2link('operation=UiV2Stem.deleteRuleOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&ruleId=${ruleDefinition.attributeAssignType.id}');}">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>

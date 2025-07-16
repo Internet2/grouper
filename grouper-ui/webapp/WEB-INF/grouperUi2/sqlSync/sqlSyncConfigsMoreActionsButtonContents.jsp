@@ -7,9 +7,9 @@
        ${textContainer.text['sqlSyncMoreActionsButton'] } <span class="caret"></span></a>
 
    <ul class="dropdown-menu dropdown-menu-right" id="sql-sync-more-options">
-       <li><a href="#" onclick="return guiV2link('operation=UiV2SqlSyncConfiguration.addSqlSyncConfiguration'); return false;"
+       <li><a href="?operation=UiV2SqlSyncConfiguration.addSqlSyncConfiguration" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SqlSyncConfiguration.addSqlSyncConfiguration'); return false;"
            >${textContainer.text['sqlSyncMoreActionsAddButton'] }</a></li>
-    <li><a href="#" onclick="return guiV2link('operation=UiV2SqlSyncConfiguration.viewSqlSyncConfigurations'); return false;"
+    <li><a href="?operation=UiV2SqlSyncConfiguration.viewSqlSyncConfigurations" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SqlSyncConfiguration.viewSqlSyncConfigurations'); return false;"
            >${textContainer.text['sqlSyncMoreActionsViewButton'] }</a></li>
    </ul>
 

@@ -63,22 +63,22 @@
      <c:if test="${grouperRequestContainer.subjectContainer.canSeeAudits}">
      
        <li class="divider"></li>
-       <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+       <li><a href="?operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
            >${textContainer.text['subjectViewMembershipAuditButton'] }</a></li>
        
-       <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&auditType=actions'); return false;"
+       <li><a href="?operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&auditType=actions" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&auditType=actions'); return false;"
            >${textContainer.text['subjectViewActionAuditButton'] }</a></li>
        
-       <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&auditType=privileges'); return false;"
+       <li><a href="?operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&auditType=privileges" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Subject.viewAudits&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&auditType=privileges'); return false;"
            >${textContainer.text['subjectViewPrivilegeAuditButton'] }</a></li>
            
      </c:if>
 
       <c:if test="${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId == 'grouperEntities' && grouperRequestContainer.groupContainer.canAdmin }">
        	<li class="divider"></li>
-        <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.localEntityEdit&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+        <li><a href="?operation=UiV2LocalEntity.localEntityEdit&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2LocalEntity.localEntityEdit&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
           >${textContainer.text['localEntityViewEditLocalEntityButton'] }</a></li>
-        <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.localEntityDelete&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+        <li><a href="?operation=UiV2LocalEntity.localEntityDelete&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2LocalEntity.localEntityDelete&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
           >${textContainer.text['localEntityViewDeleteLocalEntityButton'] }</a></li>
       </c:if>
 
@@ -96,7 +96,7 @@
      
      <c:if test="${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId == 'grouperEntities' && grouperRequestContainer.subjectContainer.canViewWsJwtKey }">
         <li class="divider"></li>
-        <li><a href="#" onclick="return guiV2link('operation=UiV2LocalEntity.viewLocalEntityWSJwtKeys&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
+        <li><a href="?operation=UiV2LocalEntity.viewLocalEntityWSJwtKeys&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2LocalEntity.viewLocalEntityWSJwtKeys&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}'); return false;"
           >${textContainer.text['localEntityWsJwtKeyLocalEntityButton'] }</a></li>
       </c:if>
 

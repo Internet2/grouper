@@ -9,7 +9,7 @@
                           <a id="show-add-block" href="#" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"><i class="fa fa-plus"></i> ${textContainer.text['attributeDefViewMoreActionsAddMembers'] }</a>
                         </c:when>
                         <c:otherwise>
-                          <a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.attributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;" class="btn btn-medium btn-block btn-primary" role="button">${textContainer.text['attributeDefViewEditAttributeDefButton'] }</a>
+                          <a href="?operation=UiV2AttributeDef.attributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDef.attributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;" class="btn btn-medium btn-block btn-primary" role="button">${textContainer.text['attributeDefViewEditAttributeDefButton'] }</a>
                         </c:otherwise>
                       </c:choose>
                     </c:if>
@@ -35,27 +35,27 @@
 
 
                         <c:if test="${grouperRequestContainer.attributeDefContainer.canAdmin }">
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.attributeDefDelete&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
+                          <li><a href="?operation=UiV2AttributeDef.attributeDefDelete&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDef.attributeDefDelete&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
                             >${textContainer.text['attributeDefViewDeleteAttributeDefButton'] }</a></li>
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.attributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
+                          <li><a href="?operation=UiV2AttributeDef.attributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDef.attributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
                             >${textContainer.text['attributeDefViewEditAttributeDefButton'] }</a></li>
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefName.newAttributeDefName&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
+                          <li><a href="?operation=UiV2AttributeDefName.newAttributeDefName&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefName.newAttributeDefName&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
                             >${textContainer.text['attributeDefViewNewAttributeDefNameButton'] }</a></li>
                             <c:if test="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.attributeDefTypeDb == 'perm'}">
-                              <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAction.newAttributeDefAction&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
+                              <li><a href="?operation=UiV2AttributeDefAction.newAttributeDefAction&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefAction.newAttributeDefAction&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
                                 >${textContainer.text['attributeDefViewNewAttributeDefActionButton'] }</a></li>
                             </c:if>
                         </c:if>
                         <c:if test="${grouperRequestContainer.attributeDefContainer.canRead }">
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
+                          <li><a href="?operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefAttributeAssignment.viewAttributeAssignments&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&objectStemId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}'); return false;"
                             >${textContainer.text['attributeDefViewAttributeAssignments'] }</a></li>
                         </c:if>
                         <c:if test="${grouperRequestContainer.deprovisioningContainer.canReadDeprovisioning}">
-                          <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningOnAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
+                          <li><a href="?operation=UiV2Deprovisioning.deprovisioningOnAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Deprovisioning.deprovisioningOnAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
                             >${textContainer.text['deprovisioningMoreActionsMenuLabel'] }</a></li>
                         </c:if>  
-                        <li><a href="#"
-                              onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDefAssignedOwners&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;">
+                        <li><a href="?operation=UiV2AttributeDef.viewAttributeDefAssignedOwners&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}"
+                              onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDef.viewAttributeDefAssignedOwners&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;">
                             ${textContainer.text['attributeDefViewAssignedEntitiesAttributeDefButton'] }</a>
                         </li>       
                         

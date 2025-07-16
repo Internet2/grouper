@@ -11,20 +11,20 @@
                       <ul class="dropdown-menu dropdown-menu-right" id="deprovisioning-more-options">
 
                         <c:if test="${grouperRequestContainer.deprovisioningContainer.canReadDeprovisioning}" >
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningOnAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
+                          <li><a href="?operation=UiV2Deprovisioning.deprovisioningOnAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Deprovisioning.deprovisioningOnAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
                               >${textContainer.text['deprovisioningMoreActionsAttributeDefSettings'] }</a></li>
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.deprovisioningContainer.canWriteDeprovisioning}" >
-	                        <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningOnAttributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
+	                        <li><a href="?operation=UiV2Deprovisioning.deprovisioningOnAttributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Deprovisioning.deprovisioningOnAttributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
 	                            >${textContainer.text['deprovisioningMoreActionsAttributeDefEditSettings'] }</a></li>
                         </c:if>
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningMain'); return false;"
+                        <li><a href="?operation=UiV2Deprovisioning.deprovisioningMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Deprovisioning.deprovisioningMain'); return false;"
                             >${textContainer.text['deprovisioningMoreActionsOverallDeprovision'] }</a></li>
 
                         <c:if test="${grouperRequestContainer.deprovisioningContainer.canWriteDeprovisioning}" >
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningOnAttributeDefReport&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
+                          <li><a href="?operation=UiV2Deprovisioning.deprovisioningOnAttributeDefReport&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Deprovisioning.deprovisioningOnAttributeDefReport&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
                               >${textContainer.text['deprovisioningMoreActionsDeprovisioningReport'] }</a></li>
                         </c:if>
 

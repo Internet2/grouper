@@ -4,8 +4,8 @@ ${grouper:title('provisionerConfigsPageTitle')}
 
             <div class="bread-header-container">
               <ul class="breadcrumb">
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                  <li><a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                  <li><a href="?operation=UiV2Main.miscellaneous" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                   <li class="active">${textContainer.text['miscellaneousProvisionerConfigurationsBreadcrumb'] }</li>
               </ul>
               
@@ -23,7 +23,7 @@ ${grouper:title('provisionerConfigsPageTitle')}
                           ${textContainer.text['provisionerConfigsMainScreenMoreActionsButton'] } <span class="caret"></span></a>
 
                       <ul class="dropdown-menu dropdown-menu-right" id="provisioner-configs-more-options">
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.addProvisionerConfiguration'); return false;"
+                        <li><a href="?operation=UiV2ProvisionerConfiguration.addProvisionerConfiguration" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2ProvisionerConfiguration.addProvisionerConfiguration'); return false;"
                               >${textContainer.text['provisionerConfigMoreActionsAddButton'] }</a></li>
                       </ul>
 
@@ -61,7 +61,7 @@ ${grouper:title('provisionerConfigsPageTitle')}
 			                <tr>
 			                   <td style="white-space: nowrap;">
 			                   
-			                   <a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigDetails&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">
+			                   <a href="?operation=UiV2ProvisionerConfiguration.viewProvisionerConfigDetails&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2ProvisionerConfiguration.viewProvisionerConfigDetails&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">
                     			${grouper:escapeHtml(guiProvisionerConfiguration.provisionerConfiguration.configId)}</a>
 			                   </td>
 			                   

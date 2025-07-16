@@ -111,13 +111,13 @@
                           		<span class="caret"></span>
                           	</a>
                             <ul class="dropdown-menu dropdown-menu-right" id="subject-group-priv-more-options${i}">
-                              <li><a href="#" onclick="return guiV2link('operation=UiV2Membership.editMembership&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members&backTo=subject');" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuEditMembershipsAndPrivileges'] }</a></li>
+                              <li><a href="?operation=UiV2Membership.editMembership&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members&backTo=subject" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Membership.editMembership&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members&backTo=subject');" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuEditMembershipsAndPrivileges'] }</a></li>
 
                               <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate}">
-                                <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceGroupPrivileges&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&backTo=subject'); return false;" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuTracePrivileges'] }</a></li>
+                                <li><a href="?operation=UiV2Membership.traceGroupPrivileges&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&backTo=subject"  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Membership.traceGroupPrivileges&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&backTo=subject'); return false;" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuTracePrivileges'] }</a></li>
                               </c:if>
 
-                              <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}');">${textContainer.text['thisSubjectsPrivilegesActionsMenuViewGroup']}</a></li>
+                              <li><a href="?operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}');">${textContainer.text['thisSubjectsPrivilegesActionsMenuViewGroup']}</a></li>
                             </ul>
                           </div>
                         </td>

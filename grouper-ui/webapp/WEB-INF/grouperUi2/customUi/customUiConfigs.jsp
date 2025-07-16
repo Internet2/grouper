@@ -4,8 +4,8 @@ ${grouper:title('customUiConfigsPageTitle')}
             <grouper:browserPage jspName="customUiConfigs" />
             <div class="bread-header-container">
               <ul class="breadcrumb">
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                  <li><a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                  <li><a href="?operation=UiV2Main.miscellaneous" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                   <li class="active">${textContainer.text['miscellaneousCustomUiOverallBreadcrumb'] }</li>
               </ul>
                
@@ -61,17 +61,17 @@ ${grouper:title('customUiConfigsPageTitle')}
                                  <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                                    
                                <c:if test="${guiCustomUiConfiguration.customUiConfiguration.enabled == true}">
-                                <li><a href="#" onclick="return guiV2link('operation=UiV2CustomUiConfig.disableCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');">${textContainer.text['customUiConfigsTableDisableActionOption'] }</a></li>
+                                <li><a href="?operation=UiV2CustomUiConfig.disableCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUiConfig.disableCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');">${textContainer.text['customUiConfigsTableDisableActionOption'] }</a></li>
                                </c:if>
                                
                                <c:if test="${guiCustomUiConfiguration.customUiConfiguration.enabled == false}">
-                                <li><a href="#" onclick="return guiV2link('operation=UiV2CustomUiConfig.enableCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');">${textContainer.text['customUiConfigsTableEnableActionOption'] }</a></li>
+                                <li><a href="?operation=UiV2CustomUiConfig.enableCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUiConfig.enableCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');">${textContainer.text['customUiConfigsTableEnableActionOption'] }</a></li>
                                </c:if>
                                
-                               <li><a href="#" onclick="return guiV2link('operation=UiV2CustomUiConfig.editCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');">${textContainer.text['customUiConfigsTableEditDetailsActionOption'] }</a></li>
+                               <li><a href="?operation=UiV2CustomUiConfig.editCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUiConfig.editCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');">${textContainer.text['customUiConfigsTableEditDetailsActionOption'] }</a></li>
                                
                                <c:if test="${guiCustomUiConfiguration.customUiConfiguration.enabled == true}">
-                                 <li><a href="#" id="run_${grouper:escapeHtml(guiCustomUiConfiguration.customUiConfiguration.configId)}_id" onclick="return guiV2link('operation=UiV2CustomUi.customUiGroup&groupId=${guiCustomUiConfiguration.customUiConfiguration.groupId}'); return false;">${textContainer.text['customUiConfigsTableRunActionOption'] }</a></li>
+                                 <li><a id="run_${grouper:escapeHtml(guiCustomUiConfiguration.customUiConfiguration.configId)}_id" href="?operation=UiV2CustomUi.customUiGroup&groupId=${guiCustomUiConfiguration.customUiConfiguration.groupId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUi.customUiGroup&groupId=${guiCustomUiConfiguration.customUiConfiguration.groupId}'); return false;">${textContainer.text['customUiConfigsTableRunActionOption'] }</a></li>
                                </c:if>
                            
                                <li>&nbsp;</li>                                  

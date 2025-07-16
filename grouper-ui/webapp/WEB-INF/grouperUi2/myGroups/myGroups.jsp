@@ -4,7 +4,7 @@ ${grouper:title('myGroupsPageTitle')}
             <grouper:browserPage jspName="myGroups" />
             <div class="bread-header-container">
               <ul class="breadcrumb">
-                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myGroupsHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                <li><a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');">${textContainer.text['myGroupsHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">${textContainer.text['myGroupsBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">
@@ -16,8 +16,8 @@ ${grouper:title('myGroupsPageTitle')}
               <div class="span12">
                 <ul class="nav nav-tabs">
                   <li class="active"><a role="tab" aria-selected="true" href="#" onclick="return false;">${textContainer.text['myGroupsTabMyGroups'] }</a></li>
-                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2MyGroups.myGroupsMemberships', {dontScrollTop: true});" >${textContainer.text['myGroupsTabMyMemberships'] }</a></li>
-                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2MyGroups.myGroupsJoin', {dontScrollTop: true});" >${textContainer.text['myGroupsTabGroupsCanJoin'] }</a></li>
+                  <li><a role="tab" href="?operation=UiV2MyGroups.myGroupsMemberships" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2MyGroups.myGroupsMemberships', {dontScrollTop: true});" >${textContainer.text['myGroupsTabMyMemberships'] }</a></li>
+                  <li><a role="tab" href="?operation=UiV2MyGroups.myGroupsJoin" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2MyGroups.myGroupsJoin', {dontScrollTop: true});" >${textContainer.text['myGroupsTabGroupsCanJoin'] }</a></li>
                 </ul>
                 <p class="lead">${textContainer.text['myGroupsDescription'] }</p>
                 <form class="form-inline form-filter" id="myGroupsForm"

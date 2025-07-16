@@ -9,10 +9,10 @@
   
                       <ul class="dropdown-menu dropdown-menu-right" id="overall-attestation-more-options">
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.attestationOverall'); return false;"
+                        <li><a href="?operation=UiV2Attestation.attestationOverall" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Attestation.attestationOverall'); return false;"
                             >${textContainer.text['miscellaneousAttestationOverallDecription'] }</a></li>
 
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.allSettings'); return false;"
+                        <li><a href="?operation=UiV2Attestation.allSettings" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Attestation.allSettings'); return false;"
                             >${textContainer.text['groupAttestationOverallMoreActionsAllSettings'] }</a></li>
 
                       </ul>

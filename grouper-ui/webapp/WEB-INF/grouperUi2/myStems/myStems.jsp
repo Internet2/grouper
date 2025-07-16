@@ -4,7 +4,7 @@ ${grouper:title('myStemsPageTitle')}
 
             <div class="bread-header-container">
               <ul class="breadcrumb">
-                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myStemsHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                <li><a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');">${textContainer.text['myStemsHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">${textContainer.text['myStemsBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">
@@ -16,8 +16,8 @@ ${grouper:title('myStemsPageTitle')}
               <div class="span12">
                 <ul class="nav nav-tabs">
                   <li class="active"><a role="tab" aria-selected="true" href="#" onclick="return false;">${textContainer.text['myStemsImanageTab'] }</a></li>
-                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2MyStems.myStemsContainingGroupsImanage', {dontScrollTop: true});" >${textContainer.text['myStemsContainingGroupsImanageTab'] }</a></li>
-                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2MyStems.myStemsContainingAttributesImanage', {dontScrollTop: true});" >${textContainer.text['myStemsContainingAttributesImanageTab'] }</a></li>
+                  <li><a role="tab" href="?operation=UiV2MyStems.myStemsContainingGroupsImanage" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2MyStems.myStemsContainingGroupsImanage', {dontScrollTop: true});" >${textContainer.text['myStemsContainingGroupsImanageTab'] }</a></li>
+                  <li><a role="tab" href="?operation=UiV2MyStems.myStemsContainingAttributesImanage" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2MyStems.myStemsContainingAttributesImanage', {dontScrollTop: true});" >${textContainer.text['myStemsContainingAttributesImanageTab'] }</a></li>
                 </ul>
                 <p class="lead">${textContainer.text['myStemsDescription'] }</p>
                 <form class="form-inline form-filter" id="myStemsForm"

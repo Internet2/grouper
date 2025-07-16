@@ -34,26 +34,26 @@
                          
                           <c:if test="${grouperProvisioningAttributeValue.directAssignment && guiGrouperProvisioningAttributeValue.provisionable && !guiGrouperProvisioningAttributeValue.parentWillMakeThisProvisionable}">
                              <c:if test="${guiGrouperProvisioningAttributeValue.canAssignProvisioning}">
-                              <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.removeProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsDoNotProvision'] }</a></li>
+                              <li><a href="?operation=UiV2Provisioning.removeProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Provisioning.removeProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsDoNotProvision'] }</a></li>
                              </c:if>
                            </c:if>
                            
                           <c:if test="${grouperProvisioningAttributeValue.directAssignment || guiGrouperProvisioningAttributeValue.provisionable }">
                             
                             <c:if test="${guiGrouperProvisioningAttributeValue.canAssignProvisioning}">        
-                             <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.editProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsEditProvisioning'] }</a></li>
+                             <li><a href="?operation=UiV2Provisioning.editProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Provisioning.editProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsEditProvisioning'] }</a></li>
                            </c:if>
                           </c:if>
                           
                           <c:if test="${grouperProvisioningAttributeValue.directAssignment == false && guiGrouperProvisioningAttributeValue.provisionable == false}">
                           
                            <c:if test="${guiGrouperProvisioningAttributeValue.canAssignProvisioning}">        
-                            <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.provisioningToOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsProvisionTo'] }</a></li>
+                            <li><a href="?operation=UiV2Provisioning.provisioningToOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Provisioning.provisioningToOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsProvisionTo'] }</a></li>
                            </c:if>
                           </c:if>
                           
                           <c:if test="${guiGrouperProvisioningAttributeValue.provisionable}">                          
-                            <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsViewDetails'] }</a></li>
+                            <li><a href="?operation=UiV2Provisioning.viewProvisioningTargetDetailsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Provisioning.viewProvisioningTargetDetailsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsViewDetails'] }</a></li>
                           </c:if>
                           
                          </ul>

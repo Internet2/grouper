@@ -4,8 +4,8 @@ ${grouper:title('instrumentationPageTitle')}
 
             <div class="bread-header-container">
               <ul class="breadcrumb">
-                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['adminInstrumentationHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                <li><a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');">${textContainer.text['adminInstrumentationHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                <li><a href="?operation=UiV2Main.miscellaneous" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">${textContainer.text['adminInstrumentationBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">
@@ -36,7 +36,7 @@ ${grouper:title('instrumentationPageTitle')}
                           var="guiInstance" >
 
                           <tr>
-                            <td class="expand foo-clicker"><a href="#" onclick="return guiV2link('operation=UiV2Admin.instrumentation&instanceId=${guiInstance.instrumentationDataInstance.uuid}');">${guiInstance.instrumentationDataInstance.uuid}</a></td>
+                            <td class="expand foo-clicker"><a href="?operation=UiV2Admin.instrumentation&instanceId=${guiInstance.instrumentationDataInstance.uuid}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.instrumentation&instanceId=${guiInstance.instrumentationDataInstance.uuid}');">${guiInstance.instrumentationDataInstance.uuid}</a></td>
                             <td class="expand foo-clicker">${grouper:escapeHtml(guiInstance.instrumentationDataInstance.engineName)}</td>
                             <td class="expand foo-clicker">${grouper:escapeHtml(guiInstance.instrumentationDataInstance.serverLabel)}</td>
                             <td class="expand foo-clicker">${guiInstance.instrumentationDataInstance.lastUpdate}</td>

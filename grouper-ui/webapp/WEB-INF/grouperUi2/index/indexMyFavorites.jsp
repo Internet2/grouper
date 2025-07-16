@@ -38,6 +38,6 @@
                       </c:forEach>
 
                     </ul>
-                    <p><strong><a href="#"
-                  onclick="return guiV2link('operation=UiV2Main.myFavorites');">${textContainer.text['indexMyFavoritesViewAllFavorites'] }</a></strong></p>
+                    <p><strong><a href="?operation=UiV2Main.myFavorites"
+                  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.myFavorites');">${textContainer.text['indexMyFavoritesViewAllFavorites'] }</a></strong></p>
                     <!-- start indexMyFavorites.jsp -->

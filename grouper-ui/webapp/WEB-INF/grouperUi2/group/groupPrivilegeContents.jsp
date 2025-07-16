@@ -109,10 +109,10 @@
                           	</a>
                             <ul class="dropdown-menu dropdown-menu-right" id="membership-more-options${i}">
                                                         
-                              <li><a href="#" onclick="return guiV2link('operation=UiV2Membership.editMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>
+                              <li><a href="?operation=UiV2Membership.editMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Membership.editMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>
                             
                               <c:if test="${guiMembershipSubjectContainer.membershipSubjectContainer.hasNonImmediate}">
-                                <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceGroupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}'); return false;" class="actions-revoke-membership">${textContainer.text['groupViewTracePrivilegeButton'] }</a></li>
+                                <li><a href="?operation=UiV2Membership.traceGroupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}"  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Membership.traceGroupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}'); return false;" class="actions-revoke-membership">${textContainer.text['groupViewTracePrivilegeButton'] }</a></li>
                               </c:if>
                             </ul>
                           </div>

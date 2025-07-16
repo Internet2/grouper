@@ -4,8 +4,8 @@ ${grouper:title('subjectSourcesPageTitle')}
 
             <div class="bread-header-container">
               <ul class="breadcrumb">
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                  <li><a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                  <li><a href="?operation=UiV2Main.miscellaneous" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                   <li class="active">${textContainer.text['miscellaneousSubjectSourcesOverallBreadcrumb'] }</li>
               </ul>
                             
@@ -76,21 +76,21 @@ ${grouper:title('subjectSourcesPageTitle')}
 			                             <span class="caret"></span>
 			                           </a>
 			                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-			                             <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.subjectApiDiagnosticsSourceIdChanged&subjectApiSourceIdName=${source.id}');">${textContainer.text['subjectSourcesDiagnosticsActionOption'] }</a></li>
+			                             <li><a href="?operation=UiV2Admin.subjectApiDiagnosticsSourceIdChanged&subjectApiSourceIdName=${source.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.subjectApiDiagnosticsSourceIdChanged&subjectApiSourceIdName=${source.id}');">${textContainer.text['subjectSourcesDiagnosticsActionOption'] }</a></li>
 			                             
 			                             <c:if test="${source.editable}">
-				                             <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectSource.editSubjectSource&subjectSourceId=${source.id}');">${textContainer.text['subjectSourcesEditActionOption'] }</a></li>
+				                             <li><a href="?operation=UiV2SubjectSource.editSubjectSource&subjectSourceId=${source.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectSource.editSubjectSource&subjectSourceId=${source.id}');">${textContainer.text['subjectSourcesEditActionOption'] }</a></li>
 			                             </c:if>
 			                             
 			                             
 			                             <c:if test="${source.editable}">
 			                             
 				                             <c:if test="${guiGrouperExternalSystem.grouperExternalSystem.enabled == true}">
-						                      <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectSource.disableSource&subjectSourceId=${sourceId}');">${textContainer.text['subjectSourcesDisableActionOption'] }</a></li>
+						                      <li><a href="?operation=UiV2SubjectSource.disableSource&subjectSourceId=${sourceId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectSource.disableSource&subjectSourceId=${sourceId}');">${textContainer.text['subjectSourcesDisableActionOption'] }</a></li>
 						                     </c:if>
 						                     
 						                     <c:if test="${guiGrouperExternalSystem.grouperExternalSystem.enabled == false}">
-						                      <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectSource.enableSource&subjectSourceId=${sourceId}');">${textContainer.text['subjectSourcesEnableActionOption'] }</a></li>
+						                      <li><a href="?operation=UiV2SubjectSource.enableSource&subjectSourceId=${sourceId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectSource.enableSource&subjectSourceId=${sourceId}');">${textContainer.text['subjectSourcesEnableActionOption'] }</a></li>
 						                     </c:if>
 			                             
 			                             </c:if>

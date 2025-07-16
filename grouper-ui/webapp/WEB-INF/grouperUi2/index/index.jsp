@@ -20,8 +20,8 @@
             <div class="pull-right">
 
               <form id="searchForm" action="#" onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" class="navbar-search">
-                <input type="text" name="searchQuery2" id="mainPageSearchInput" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" class="search-query"><a href="#" 
-                  onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" id="mainPageSearchButton"aria-label="${textContainer.text['ariaLabelGuiSearch']}"><i class="fa fa-search"></i></a>
+                <input type="text" name="searchQuery2" id="mainPageSearchInput" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" class="search-query"><a href="?operation=UiV2Main.searchSubmit"
+                  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" id="mainPageSearchButton"aria-label="${textContainer.text['ariaLabelGuiSearch']}"><i class="fa fa-search"></i></a>
               </form>
 
               <%-- GRP-2677: Have searchQuery submit query by URL (this is the POST option)
@@ -35,11 +35,11 @@
               ${guiSettings.loggedInSubject.shortLink} 
               <c:if test="${mediaMap['logout.link.show']=='true'}">
                 &middot; 
-                <a href="#"
-                      onclick="return guiV2link('operation=Logout.logout');" class="navbar-link">${textContainer.text['indexLogoutLink']}</a>
+                <a href="?operation=Logout.logout"
+                      onclick="return handleGuiV2LinkClick(event, 'operation=Logout.logout');" class="navbar-link">${textContainer.text['indexLogoutLink']}</a>
               </c:if>
-              &middot; <a href="#"
-                      onclick="return guiV2link('operation=UiV2Main.help');">${textContainer.text['grouper.help'] }</a>
+              &middot; <a href="?operation=UiV2Main.help"
+                      onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.help');">${textContainer.text['grouper.help'] }</a>
              </div>
           </div>
         </div>
@@ -51,8 +51,8 @@
         <div class="row-fluid">
           
           <div class="span3 left-column">
-            <div class="btn-group btn-group-create"><a id="homepageCreateGroupButton" href="#" 
-              onclick="return guiV2link('operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});"
+            <div class="btn-group btn-group-create"><a id="homepageCreateGroupButton" href="?operation=UiV2Group.newGroup"
+              onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});"
               class="btn btn-bigger btn-create" role="button"><i class="fa fa-plus"></i> ${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a>
               <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-bigger btn-create dropdown-toggle" 
               	aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#main-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#main-more-options li').first().focus();return true;});">
@@ -60,13 +60,13 @@
                 <span class="visually-hidden">${textContainer.text['ariaLabelGuiMoreOptions']}</span>
             </button>
               <ul class="dropdown-menu dropdown-menu-right" id="main-more-options">
-                <li><a href="#" 
-                  onclick="return guiV2link('operation=UiV2Stem.newStem', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['stemNewCreateNewStemMenuButton'] }</a></li>
-                <li><a href="#" 
-                  onclick="return guiV2link('operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a></li>
+                <li><a href="?operation=UiV2Stem.newStem"
+                  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.newStem', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['stemNewCreateNewStemMenuButton'] }</a></li>
+                <li><a href="?operation=UiV2Group.newGroup"
+                  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a></li>
                 <li class="divider"></li>
-                <li><a href="#" 
-                  onclick="return guiV2link('operation=UiV2GroupImport.groupImport', {optionalFormElementNamesToSend: 'groupId'});">${textContainer.text['groupImportAddMembersToGroupMenuLink'] }</a></li>
+                <li><a href="?operation=UiV2GroupImport.groupImport"
+                  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GroupImport.groupImport', {optionalFormElementNamesToSend: 'groupId'});">${textContainer.text['groupImportAddMembersToGroupMenuLink'] }</a></li>
               </ul>
             </div>
             <div class="leftnav-accordions">

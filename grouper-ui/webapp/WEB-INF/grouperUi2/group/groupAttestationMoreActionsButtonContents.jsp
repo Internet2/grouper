@@ -11,12 +11,12 @@
                       <ul class="dropdown-menu dropdown-menu-right" id="group-attestation-more-options">
 
                         <c:if test="${grouperRequestContainer.attestationContainer.canReadAttestation}" >
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.groupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="?operation=UiV2Attestation.groupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Attestation.groupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['groupAttestationMoreActionsViewAttestation'] }</a></li>
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.attestationContainer.canWriteAttestation}" >
-	                        <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.editGroupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+	                        <li><a href="?operation=UiV2Attestation.editGroupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Attestation.editGroupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
 	                            >${textContainer.text['groupAttestationMoreActionsEditAttestation'] }</a></li>
                         </c:if>
 
@@ -31,16 +31,16 @@
                         </c:if>
                         
                         <c:if test="${grouperRequestContainer.attestationContainer.canReadAncestorAttestation}" >
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.editStemAttestation&stemId=${grouperRequestContainer.attestationContainer.parentStemWithAttestation.id}'); return false;"
+                          <li><a href="?operation=UiV2Attestation.editStemAttestation&stemId=${grouperRequestContainer.attestationContainer.parentStemWithAttestation.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Attestation.editStemAttestation&stemId=${grouperRequestContainer.attestationContainer.parentStemWithAttestation.id}'); return false;"
                               >${textContainer.text['groupAttestationMoreActionsViewFolderAttestation'] }</a></li>
                         </c:if>
 
                         <c:if test="${grouperRequestContainer.attestationContainer.canReadAttestation}" >
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.viewGroupAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="?operation=UiV2Attestation.viewGroupAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Attestation.viewGroupAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['groupAttestationViewAuditButton'] }</a></li>
                         </c:if>
                           
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.attestationOverall'); return false;"
+                        <li><a href="?operation=UiV2Attestation.attestationOverall" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Attestation.attestationOverall'); return false;"
                             >${textContainer.text['groupAttestationViewAllButton'] }</a></li>
                           
                           

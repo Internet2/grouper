@@ -9,9 +9,9 @@ ${grouper:titleFromKeyAndText('stemAttestationPageTitle', grouperRequestContaine
             <div class="row-fluid">
               <div class="span12 tab-interface">
                 <ul class="nav nav-tabs">
-                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
+                  <li><a role="tab" href="?operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
                   <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}">
-                    <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
+                    <li><a role="tab" href="?operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
                   </c:if>
                   <%@ include file="stemMoreTab.jsp" %>
                 </ul>
@@ -77,7 +77,7 @@ ${grouper:titleFromKeyAndText('stemAttestationPageTitle', grouperRequestContaine
                               <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attestationReportConfigurationLabel']}</strong></td>
                               <td>
                                 <c:if test="${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration != null}">
-                                  <a href="#" onclick="return guiV2link('operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">${grouper:escapeHtml(grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.getReportConfigName())}</a>
+                                  <a href="?operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">${grouper:escapeHtml(grouperRequestContainer.attestationContainer.guiAttestation.grouperAttestationReportConfiguration.getReportConfigName())}</a>
                                 </c:if>
                                 <br />
                                 <span class="description">${textContainer.text['grouperAttestationReportConfigurationDescription']}</span>

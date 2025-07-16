@@ -2,9 +2,9 @@
 
    <div class="bread-header-container">
      <ul class="breadcrumb">
-       <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-       <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-       <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.forms');">${textContainer.text['workflowMiscFormsLink'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+       <li><a href="?operation=UiV2Main.indexMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+       <li><a href="?operation=UiV2Main.miscellaneous" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+       <li><a href="?operation=UiV2GrouperWorkflow.forms" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.forms');">${textContainer.text['workflowMiscFormsLink'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
        <li class="active">${textContainer.text['workflowMiscFormsWaitingForApprovalTitle'] }</li>
      </ul>
      
@@ -68,7 +68,7 @@
                     </a>
                       <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                       
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperWorkflow.viewInstance&attributeAssignId=${instance.attributeAssignId}');">${textContainer.text['workflowInstanceTableColumnHeaderInstanceActionsViewInstanceForm'] }</a></li>
+                        <li><a href="?operation=UiV2GrouperWorkflow.viewInstance&attributeAssignId=${instance.attributeAssignId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.viewInstance&attributeAssignId=${instance.attributeAssignId}');">${textContainer.text['workflowInstanceTableColumnHeaderInstanceActionsViewInstanceForm'] }</a></li>
                              
                       </ul>
                   </div>

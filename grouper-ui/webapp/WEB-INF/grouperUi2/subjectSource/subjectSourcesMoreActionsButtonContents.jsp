@@ -7,9 +7,9 @@
         ${textContainer.text['subjectSourcesMoreActionsButton'] } <span class="caret"></span></a>
 
     <ul class="dropdown-menu dropdown-menu-right" id="subject-source-more-options">
-    	<li><a href="#" onclick="return guiV2link('operation=UiV2SubjectSource.viewSubjectSources'); return false;"
+    	<li><a href="?operation=UiV2SubjectSource.viewSubjectSources" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectSource.viewSubjectSources'); return false;"
             >${textContainer.text['subjectSourcesMoreActionsViewButton'] }</a></li>
-        <li><a href="#" onclick="return guiV2link('operation=UiV2SubjectSource.addSubjectSource'); return false;"
+        <li><a href="?operation=UiV2SubjectSource.addSubjectSource" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectSource.addSubjectSource'); return false;"
             >${textContainer.text['subjectSourcesMoreActionsAddButton'] }</a></li>
     </ul>
 
