@@ -36,6 +36,7 @@ public class DuoRoleSyncObjectMetadata extends GrouperProvisioningObjectMetadata
       valuesAndLabels.add(new MultiKey("Administrator", GrouperTextContainer.textOrNull("config.duoRoleAdministrator")));
       valuesAndLabels.add(new MultiKey("Application Manager", GrouperTextContainer.textOrNull("config.duoRoleApplicationManager")));
       valuesAndLabels.add(new MultiKey("User Manager", GrouperTextContainer.textOrNull("config.duoRoleUserManager")));
+      valuesAndLabels.add(new MultiKey("Security Analyst", GrouperTextContainer.textOrNull("config.duoRoleSecurityAnalyst")));
       valuesAndLabels.add(new MultiKey("Help Desk", GrouperTextContainer.textOrNull("config.duoRoleHelpDesk")));
       valuesAndLabels.add(new MultiKey("Billing", GrouperTextContainer.textOrNull("config.duoRoleBilling")));
       //valuesAndLabels.add(new MultiKey("Phishing Manager", GrouperTextContainer.textOrNull("config.duoPhishingManager")));

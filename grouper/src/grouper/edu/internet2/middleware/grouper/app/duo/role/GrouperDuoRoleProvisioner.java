@@ -64,6 +64,8 @@ public class GrouperDuoRoleProvisioner extends GrouperProvisioner {
       return "Application Manager";
     } else if (roleNames.contains("User Manager")) {
       return "User Manager";
+    } else if (roleNames.contains("Security Analyst")) {
+      return "Security Analyst";
     } else if (roleNames.contains("Help Desk")) {
       return "Help Desk";
     } else if (roleNames.contains("Billing")) {
@@ -73,7 +75,7 @@ public class GrouperDuoRoleProvisioner extends GrouperProvisioner {
     } else if (roleNames.contains("Read-only")) {
       return "Read-only";
     }
-    
+        
     throw new RuntimeException("Invalid role names: " + GrouperUtil.toStringForLog(roleNames));
   }
   
