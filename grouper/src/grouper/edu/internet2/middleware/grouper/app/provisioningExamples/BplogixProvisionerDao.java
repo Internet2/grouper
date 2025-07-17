@@ -1522,6 +1522,10 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
   
                 addBplogixUserRow(eppn, false);
                 
+                //  Remove User from Groups
+                this.theState.bplogixCommands.removeBplogixUserFromAllGroups(bplogixUser.uid);
+                GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "bplogixRemoveMembershipsPreEnableCount", 1);
+
                 //  Iterate over User Groups and check that they are in the core groups
                 addUserToGroups(gidAllFac, gidAllStf, gidAllStu, gidAllAlum, facPennids,
                     stfPennids, stuPennids, alumPennids, pennnid, bplogixUser);
