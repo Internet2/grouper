@@ -17,9 +17,11 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.testing.GrouperTestBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.config.SubjectConfig;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import junit.textui.TestRunner;
 
 public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
@@ -384,6 +386,11 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
         
         // load data
         SubjectConfig.clearCache();
+        ConfigPropertiesCascadeBase.clearCache();
+
+        SourceManager.getInstance().reloadSource("dataFieldSubjectSource");
+        SourceManager.getInstance().loadSource(SubjectConfig.retrieveConfig().retrieveSourceConfigs().get("dataFieldSubjectSource"));
+
         GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataFieldSourceFull");
       }
     } catch (Exception e) {
