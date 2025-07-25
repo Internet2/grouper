@@ -299,6 +299,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
+  @JsonIgnore
   private ParameterHelper param = new ParameterHelper();
 
 
@@ -498,6 +499,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * this delegate works on attributes and values at the same time
    * @return the delegate
    */
+  @JsonIgnore
   public AttributeValueDelegate getAttributeValueDelegate() {
     if (this.attributeValueDelegate == null) {
       this.attributeValueDelegate = new AttributeValueDelegate(this.getAttributeDelegate());
@@ -757,6 +759,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return  Set of {@link Group} objects.
    * @see     Stem#getChildGroups(Scope)
    */
+  @JsonIgnore
   public Set getChildGroups() {
     return this.getChildGroups(Scope.ONE);
   }
@@ -907,6 +910,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return  Set of {@link Stem} objects.
    * @see     Stem#getChildStems(Scope)
    */
+  @JsonIgnore
   public Set<Stem> getChildStems() {
     return this.getChildStems(Scope.ONE);
   }
@@ -1000,6 +1004,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return  {@link Subject} that created this stem.
    * @throws  SubjectNotFoundException
    */
+  @JsonIgnore
   public Subject getCreateSubject() 
     throws  SubjectNotFoundException
   {
@@ -1038,6 +1043,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return  Set of {@link Subject} objects
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set getCreators() 
     throws  GrouperException
   {
@@ -1122,6 +1128,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return  {@link Subject} that last modified this stem.
    * @throws  SubjectNotFoundException
    */
+  @JsonIgnore
   public Subject getModifySubject() 
     throws  SubjectNotFoundException
   {
@@ -1177,6 +1184,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return  Parent {@link Stem}.
    * @throws StemNotFoundException if stem not found
    */
+  @JsonIgnore
   public Stem getParentStem() 
     throws StemNotFoundException
   {
@@ -1197,6 +1205,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return  Parent {@link Stem}.
    * @throws StemNotFoundException if stem not found
    */
+  @JsonIgnore
   public Stem getParentStemOrNull() 
   {
     String theParentUuid = this.getParentUuid();
@@ -1338,6 +1347,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @param   subj  Get privileges for this subject.
    * @return  Set of {@link NamingPrivilege} objects.
    */
+  @JsonIgnore
   public Set<NamingPrivilege> getPrivs(Subject subj) {
     return GrouperSession.staticGrouperSession().getNamingResolver().getPrivileges(this, subj);
   } 
@@ -1350,6 +1360,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return  Set of {@link Subject} objects
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set getStemmers() 
     throws  GrouperException
   {
@@ -1364,6 +1375,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return  Set of {@link Subject} objects
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set getStemAdmins() 
     throws  GrouperException
   {
@@ -1378,6 +1390,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return  Set of {@link Subject} objects
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set getStemAttrReaders() 
     throws  GrouperException
   {
@@ -1392,6 +1405,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return  Set of {@link Subject} objects
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set getStemAttrUpdaters() 
     throws  GrouperException
   {
@@ -1406,6 +1420,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return  Set of {@link Subject} objects
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set getStemViewers() 
     throws  GrouperException
   {

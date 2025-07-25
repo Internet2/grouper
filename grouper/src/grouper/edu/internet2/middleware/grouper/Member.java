@@ -183,6 +183,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * this delegate works on attributes and values at the same time
    * @return the delegate
    */
+  @JsonIgnore
   public AttributeValueDelegate getAttributeValueDelegate() {
     if (this.attributeValueDelegate == null) {
       this.attributeValueDelegate = new AttributeValueDelegate(this.getAttributeDelegate());
@@ -404,6 +405,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   @GrouperIgnoreFieldConstant 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreClone
+  @JsonIgnore
   private transient Group   g     = null;
 
   /**  */
@@ -1266,6 +1268,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * </pre>
    * @return  Set of {@link Group} objects.
    */
+  @JsonIgnore
   public Set<Group> getEffectiveGroups() {
     return this.getEffectiveGroups(Group.getDefaultList());
   } // public Set getEffectiveGroups()
@@ -1317,6 +1320,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * @return  Set of {@link Membership} objects.
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Membership> getEffectiveMemberships() 
     throws  GrouperException
   {
@@ -1374,6 +1378,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * </pre>
    * @return  Set of {@link Group} objects.
    */
+  @JsonIgnore
   public Set<Group> getGroups() {
     return this.getGroups(Group.getDefaultList());
   } // public Set getGroups()
@@ -1500,6 +1505,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * </pre>
    * @return  Set of {@link Group} objects.
    */
+  @JsonIgnore
   public Set<Group> getImmediateGroups() {
     return this.getImmediateGroups(Group.getDefaultList());
   } // public Set getImmediateGroups()
@@ -1520,6 +1526,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * </pre>
    * @return  Set of {@link Group} objects.
    */
+  @JsonIgnore
   public Set<Group> getNonImmediateGroups() {
     return this.getNonImmediateGroups(Group.getDefaultList());
   } // public Set getImmediateGroups()
@@ -1567,6 +1574,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * @return  Set of {@link Membership} objects.
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Membership> getImmediateMemberships() 
     throws  GrouperException
   {
@@ -1601,6 +1609,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * @return  Set of {@link Membership} objects.
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Membership> getNonImmediateMemberships() 
     throws  GrouperException
   {
@@ -1794,6 +1803,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * @return  A {@link Subject} object.
    * @throws  SubjectNotFoundException
    */ 
+  @JsonIgnore
   public Subject getSubject() 
     throws  SubjectNotFoundException
   {
@@ -1885,7 +1895,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   }
   
   /**
-   * id of the member as a unique integer
+   * id of the member as a unique integer 
    * @return id
    */
   public Long getIdIndex() {
