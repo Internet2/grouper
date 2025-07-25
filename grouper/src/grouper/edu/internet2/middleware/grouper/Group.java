@@ -325,6 +325,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @deprecated use the overload with boolean instead
    */
   @Deprecated
+  @JsonIgnore
   public Composite getComposite() throws CompositeNotFoundException {
     return this.getComposite(true);
   }
@@ -416,12 +417,14 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
+  @JsonIgnore
   private Member cachedMember  = null;
 
   /** */
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
+  @JsonIgnore
   private               HashMap<String, Subject>  subjectCache  = new HashMap<String, Subject>();
   // TODO 20070531 review lazy-loading to improve consistency + performance
 
@@ -429,6 +432,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
+  @JsonIgnore
   // caching legacy attributes with the group object like they were cached < 2.2
   // the key is the legacy attribute name.
   private Map<String, AttributeAssignValue>       attributes;
@@ -452,9 +456,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
+  @JsonIgnore
   private Map<String, AttributeDefName> types;
   
   /** cache type assignments as well for the same reason */
+  @JsonIgnore
   private Map<String, AttributeAssign> typeAssignments;
   
   /** */
@@ -2881,6 +2887,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with ADMIN
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Subject> getAdmins() 
     throws  GrouperException
   {
@@ -3139,6 +3146,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Member} objects.
    * @since   1.0
    */
+  @JsonIgnore
   public Set<Member> getCompositeMembers() {
     return this.getCompositeMembers(null);
   } // public Set getCompositeMembers()
@@ -3161,6 +3169,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Membership} objects.
    * @since   1.0
    */
+  @JsonIgnore
   public Set<Membership> getCompositeMemberships() {
     return MembershipFinder.internal_findAllByGroupOwnerAndFieldAndType(
       GrouperSession.staticGrouperSession(), this, Group.getDefaultList(), MembershipType.COMPOSITE.getTypeString()
@@ -3314,6 +3323,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Member} objects.
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Member> getEffectiveMembers() 
     throws  GrouperException
   {
@@ -3431,6 +3441,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Membership} objects.
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Membership> getEffectiveMemberships() 
     throws  GrouperException
   {
@@ -3509,6 +3520,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Member} objects.
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Member> getImmediateMembers() 
     throws  GrouperException
   {
@@ -3664,6 +3676,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Membership} objects.
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Membership> getImmediateMemberships() 
     throws  GrouperException
   {
@@ -3714,6 +3727,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Member} objects.
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Member> getMembers() 
     throws  GrouperException
   {
@@ -3786,6 +3800,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Membership} objects.
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Membership> getMemberships() 
     throws  GrouperException
   {
@@ -4112,6 +4127,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with OPTIN
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Subject> getOptins() 
     throws  GrouperException
   {
@@ -4126,6 +4142,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with OPTOUT
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Subject> getOptouts() 
     throws  GrouperException
   {
@@ -4140,6 +4157,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with GROUP_ATTR_READ
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Subject> getGroupAttrReaders() 
     throws  GrouperException
   {
@@ -4154,6 +4172,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with GROUP_ATTR_UPDATE
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Subject> getGroupAttrUpdaters() 
     throws  GrouperException
   {
@@ -4176,6 +4195,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Parent {@link Stem}.
    * @throws IllegalStateException 
    */
+  @JsonIgnore
   public Stem getParentStem() 
     throws  IllegalStateException
   {
@@ -4235,6 +4255,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with READ
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Subject> getReaders() 
     throws  GrouperException
   {
@@ -4250,6 +4271,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @since   1.0
    * @deprecated
    */
+  @JsonIgnore
   public Set<GroupType> getRemovableTypes() {
     Set<GroupType> types = new LinkedHashSet<GroupType>();
     // Must have ADMIN to remove types.
@@ -4272,6 +4294,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of group types.
    * @deprecated
    */
+  @JsonIgnore
   public Set<GroupType> getTypes() {
     return getTypes(true);
   }
@@ -4307,6 +4330,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return types
    * @deprecated
    */
+  @JsonIgnore
   public Set<GroupType> getTypesDb() {
     if (this.types == null) {
       this.typeAssignments = GrouperDAOFactory.getFactory().getAttributeAssign().findLegacyGroupTypeAssignmentsByGroupId(this.getUuid());
@@ -4337,6 +4361,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with UPDATE
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Subject> getUpdaters() 
     throws  GrouperException
   {
@@ -4351,6 +4376,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with VIEW
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Subject> getViewers() 
     throws  GrouperException
   {
@@ -7703,6 +7729,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * delegate calls to this class for role hierarchy stuff
    * @return the role inheritance hierarchy
    */
+  @JsonIgnore
   public RoleInheritanceDelegate getRoleInheritanceDelegate() {
     if (this.roleInheritanceDelegate == null) {
       this.roleInheritanceDelegate = new RoleInheritanceDelegate(this);
@@ -7719,6 +7746,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /**
    * @see edu.internet2.middleware.grouper.permissions.role.Role#getPermissionRoleDelegate()
    */
+  @JsonIgnore
   public PermissionRoleDelegate getPermissionRoleDelegate() {
     if (this.permissionRoleDelegate == null) {
       this.permissionRoleDelegate = new PermissionRoleDelegate(this);
@@ -7787,6 +7815,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Member} objects.
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Member> getNonImmediateMembers() 
     throws  GrouperException
   {
@@ -7893,6 +7922,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Membership} objects.
    * @throws  GrouperException
    */
+  @JsonIgnore
   public Set<Membership> getNonImmediateMemberships() 
     throws  GrouperException
   {
