@@ -344,8 +344,9 @@ public class UiV2Template {
       GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
       gshTemplateConfig.populateConfiguration();
       
+      int actionCount = GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions());
       Map<String, GshTemplateInputConfigAndValue> gshTemplateInputs = populateCustomTemplateInputs(request, templateType);
-      if (gshTemplateInputs == null || GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions()) > 0) {
+      if (gshTemplateInputs == null || actionCount != GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions())) {
         return;
       }
       
@@ -479,9 +480,10 @@ public class UiV2Template {
       GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
       gshTemplateConfig.populateConfiguration();
       
+      int actionCount = GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions());
       Map<String, GshTemplateInputConfigAndValue> gshTemplateInputs = populateCustomTemplateInputs(request, templateType);
       
-      if (gshTemplateInputs == null || GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions()) > 0) {
+      if (gshTemplateInputs == null || actionCount != GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions())) {
         return;
       }
       
@@ -1315,8 +1317,9 @@ public class UiV2Template {
         
         if (templateLogic == null) {
           // must be gsh custom template
+          int actionCount = GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions());
           Map<String, GshTemplateInputConfigAndValue> customTemplateInputs = populateCustomTemplateInputs(request, templateType);
-          if (customTemplateInputs == null || GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions()) > 0) {
+          if (customTemplateInputs == null || actionCount !=  GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions())) {
             return;
           }
           if (StringUtils.equals("V2", templateContainer.getGuiGshTemplateConfig().getGshTemplateConfig().getTemplateVersion())) {
@@ -1396,7 +1399,9 @@ public class UiV2Template {
               "/WEB-INF/grouperUi2/group/groupNewTemplate.jsp"));
         }
       }      
-      
+    } catch (Exception e) {
+      LOG.warn("Error in newTemplateHelper", e);
+      return;
     } finally {
       if (startedSession) {
         GrouperSession.stopQuietly(grouperSession);
