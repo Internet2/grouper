@@ -1349,11 +1349,27 @@ public enum RuleThenEnum {
         }
       }
       
-      toAddressesString = GrouperUtil.substituteExpressionLanguage(toAddressesString, variableMap);
+      try {
+        toAddressesString = GrouperUtil.substituteExpressionLanguage(toAddressesString, variableMap);
+      } catch (Exception e) {
+        LOG.error("Problem substituting EL in toAddressesString: " + toAddressesString, e);
+      }
 
-      String subject = GrouperUtil.substituteExpressionLanguage(subjectTemplate, variableMap);
+      // make this failsafe
+      String subject = subjectTemplate;
+      try {
+        subject = GrouperUtil.substituteExpressionLanguage(subjectTemplate, variableMap);
+      } catch (Exception e) {
+        LOG.error("Problem substituting EL in subjectTemplate: " + subjectTemplate, e);
+      }
       
-      String body = GrouperUtil.substituteExpressionLanguage(bodyTemplate, variableMap);
+      // make this failsafe      
+      String body = bodyTemplate;
+      try {
+        body = GrouperUtil.substituteExpressionLanguage(bodyTemplate, variableMap);
+      } catch (Exception e) {
+        LOG.error("Problem substituting EL in bodyTemplate: " + bodyTemplate, e);
+      }
 
       if (logDataForThisDefinition != null) {
         logDataForThisDefinition.append(", toAddressesString: ").append(toAddressesString);
@@ -1361,7 +1377,12 @@ public enum RuleThenEnum {
         logDataForThisDefinition.append(", body: ").append(body);
       }
       
-      new GrouperEmail().setTo(toAddressesString).setBody(body).setSubject(subject).send();
+      // make this failsafe
+      try {
+        new GrouperEmail().setTo(toAddressesString).setBody(body).setSubject(subject).send();
+      } catch (Exception e) {
+        LOG.error("Problem sending email to: " + toAddressesString + ", subject: " + subject, e);
+      }
       
       return true;
     }
