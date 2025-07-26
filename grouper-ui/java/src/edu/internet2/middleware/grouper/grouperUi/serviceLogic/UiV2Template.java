@@ -565,7 +565,8 @@ public class UiV2Template {
 
           newTemplateHelper(request, response, simplifiedUi, true, false);
         }
-
+        // TODO do we need this here?
+        //return;
       }
       // running...
       guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("stemTemplateCustomGshTemplateSubheading")));
