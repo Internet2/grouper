@@ -2530,6 +2530,8 @@ public enum RuleCheckType {
           group = GroupFinder.findByUuid(rootSession, ruleDefinition.getCheck().getCheckOwnerId(), false);
         } else if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
           group = GroupFinder.findByName(rootSession, ruleDefinition.getCheck().getCheckOwnerName(), false);
+        } else {
+          group = GroupFinder.findByUuid(rootSession, thisGroupId, false);
         }
 
         if (group == null) {
