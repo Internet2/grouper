@@ -2374,12 +2374,49 @@ public class GrouperProvisioningLogic {
       
       targetGroups = GrouperUtil.nonNull(targetDaoRetrieveGroupsResponse == null ? null : targetDaoRetrieveGroupsResponse.getTargetGroups());
       
+      boolean throwException = false;
       if (GrouperUtil.length(grouperTargetGroupsToInsert) != GrouperUtil.length(targetGroups)) {
-        // maybe this should be an exception???
-        throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetGroupsToInsert) + " but retrieved " + GrouperUtil.length(targetGroups) + " maybe a config is off?");
+        throwException = true;
       }
-      
       registerRetrievedGroups(grouperTargetGroupsToInsert, targetGroups);
+
+      // log which groups had issues
+      if (throwException) {
+
+        GrouperProvisioningConfigurationAttribute searchAttribute = null;
+
+        // TODO handle multiple search attributes
+        if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupSearchAttributes()) > 0) {
+          searchAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupSearchAttributes().get(0);
+        }
+
+        StringBuilder searchAttributeValuesAndObjects = new StringBuilder();
+        int errorCount = 0;
+
+        for (ProvisioningGroup grouperTargetGroupToInsert : GrouperUtil.nonNull(grouperTargetGroupsToInsert)) {
+
+          if (errorCount > 5) {
+            break;
+          }
+
+          ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroupToInsert.getProvisioningGroupWrapper();
+
+          if (provisioningGroupWrapper != null && provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+            Object searchAttributeValue = null;
+            if (searchAttribute != null) {
+              searchAttributeValue = grouperTargetGroupToInsert.retrieveAttributeValue(searchAttribute);  
+            }
+
+            if (searchAttributeValue != null) {
+              searchAttributeValuesAndObjects.append("searchAttribute: " + searchAttributeValue + ", provisioningGroupWrapper: " + provisioningGroupWrapper.toStringForError() + "\n");
+            }
+            errorCount++;
+          }
+        }
+
+        throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetGroupsToInsert) + " but retrieved " + GrouperUtil.length(targetGroups)
+          + " maybe a config is off?\n" + searchAttributeValuesAndObjects.toString());
+      }
       
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesGroups(targetGroups, false, true, false, false);
 
@@ -2683,12 +2720,52 @@ public class GrouperProvisioningLogic {
       
       targetEntities = GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponse == null ? null : targetDaoRetrieveEntitiesResponse.getTargetEntities());
       
+      boolean throwException = false;
       if (GrouperUtil.length(grouperTargetEntitiesToInsert) != GrouperUtil.length(targetEntities)) {
         // maybe this should be an exception???
-        throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetEntitiesToInsert) + " but retrieved " + GrouperUtil.length(targetEntities) + " maybe a config is off?");
+        throwException = true;
       }
 
       registerRetrievedEntities(grouperTargetEntitiesToInsert, targetEntities);
+
+      // log which entities had issues
+      if (throwException) {
+        
+        GrouperProvisioningConfigurationAttribute searchAttribute = null;
+        
+        // TODO handle multiple search attributes
+        if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchAttributes()) > 0) {
+          searchAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchAttributes().get(0);
+        }
+
+        StringBuilder searchAttributeValuesAndObjects = new StringBuilder();
+        int errorCount = 0;
+        
+        for (ProvisioningEntity grouperTargetEntityToInsert : GrouperUtil.nonNull(grouperTargetEntitiesToInsert)) {
+          
+          if (errorCount > 5) {
+            break;
+          }
+          
+          ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntityToInsert.getProvisioningEntityWrapper();
+          
+          if (provisioningEntityWrapper != null && provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+            Object searchAttributeValue = null;
+            if (searchAttribute != null) {
+              searchAttributeValue = grouperTargetEntityToInsert.retrieveAttributeValue(searchAttribute);  
+            }
+          
+            if (searchAttributeValue != null) {
+              searchAttributeValuesAndObjects.append("searchAttribute: " + searchAttributeValue + ", provisioningEntityWrapper: " + provisioningEntityWrapper.toStringForError() + "\n");
+            }
+            errorCount++;
+          }
+        }    
+
+        
+        throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetEntitiesToInsert) + " but retrieved " + GrouperUtil.length(targetEntities) 
+          + " maybe a config is off?\n" + searchAttributeValuesAndObjects.toString());
+      }
       
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesEntities(targetEntities, false, true, false, false);
 
