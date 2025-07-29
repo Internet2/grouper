@@ -111,15 +111,12 @@ public class OtherJobScript extends OtherJobBase {
       boolean lightWeight = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobName + ".lightWeight", false);
   
       File file = null;
-      String output = "scriptType: " + scriptType + "\n";
+      String output = "";
       if (!StringUtils.isBlank(fileName)) {
         file = new File(fileName);
         if (!file.exists() || !file.isFile()) {
           throw new RuntimeException("File doesnt exist! '" + file.getAbsolutePath() + "'");
         }
-        output += "fileName: " + fileName + "\n\n";
-      } else {
-        output += "scriptSource: " + GrouperUtil.abbreviate(scriptSource, 200) + "\n\n";
       }
       
   
@@ -154,7 +151,10 @@ public class OtherJobScript extends OtherJobBase {
           scriptSource = GrouperUtil.readFileIntoString(file);
         }
         
-        output += GrouperUtil.gshRunScript(scriptSource, lightWeight);  
+        String gshOutput = GrouperUtil.gshRunScript(scriptSource, lightWeight);
+        if (gshOutput != null) {
+          output += gshOutput;
+        }
         
       } else {
         throw new RuntimeException("Not expecting script type: '" + scriptType + "', expecting sql or gsh");
@@ -167,7 +167,7 @@ public class OtherJobScript extends OtherJobBase {
         message = "";
       }
       message += output;
-      otherJobInputParam.getHib3GrouperLoaderLog().setJobMessage(message);
+      otherJobInputParam.getHib3GrouperLoaderLog().setJobMessage(message.stripTrailing());
     } finally {
       threadLocalOtherJobScript.remove();
       if (originalOtherJobScript != null) {
