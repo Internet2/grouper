@@ -114,6 +114,12 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.vladsch.flexmark/flexmark -->
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-html2md-converter</artifactId>
+        </dependency>
+
         <dependency>
           <groupId>com.amazonaws</groupId>
           <artifactId>aws-java-sdk-s3</artifactId>
