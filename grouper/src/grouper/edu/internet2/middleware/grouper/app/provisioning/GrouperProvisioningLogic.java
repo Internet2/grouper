@@ -2437,8 +2437,9 @@ public class GrouperProvisioningLogic {
           }
         }
 
-        throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetGroupsToInsert) + " but retrieved " + GrouperUtil.length(targetGroups)
-          + " maybe a config is off?\n" + searchAttributeValuesAndObjects.toString());
+        throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetGroupsToInsert) + " groups after creating them, but retrieved " + GrouperUtil.length(grouperTargetGroupsToInsert)
+        + " maybe the server is caching results and is not returning the created group or a matching/searching config needs to be adjusted?  Here are examples that could not be found: \n" + searchAttributeValuesAndObjects.toString());
+
       }
       
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesGroups(targetGroups, false, true, false, false);
@@ -2786,9 +2787,9 @@ public class GrouperProvisioningLogic {
           }
         }    
 
-        
-        throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetEntitiesToInsert) + " but retrieved " + GrouperUtil.length(targetEntities) 
-          + " maybe a config is off?\n" + searchAttributeValuesAndObjects.toString());
+        throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetEntitiesToInsert) + " entities after creating them, but retrieved " + GrouperUtil.length(grouperTargetEntitiesToInsert)
+        + " maybe the server is caching results and is not returning the created entity or a matching/searching config needs to be adjusted?  Here are examples that could not be found: \n" + searchAttributeValuesAndObjects.toString());
+
       }
       
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesEntities(targetEntities, false, true, false, false);
