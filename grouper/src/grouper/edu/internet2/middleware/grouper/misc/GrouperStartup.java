@@ -878,6 +878,9 @@ public class GrouperStartup {
         throw new RuntimeException(error);
       }
     }
+    String upgradeInstruction = "Error: set this to false in grouper.hibernate.properties after your membership cache is populated and you are in version v5.19.0+: registry.checkMembershipCacheIsPopulated = false";
+    LOG.error(upgradeInstruction);
+    System.out.println(upgradeInstruction);
   }
 
   /** if we should run the boot strap from startup */
