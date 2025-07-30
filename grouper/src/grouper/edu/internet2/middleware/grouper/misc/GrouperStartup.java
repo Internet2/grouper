@@ -24,6 +24,8 @@ import static edu.internet2.middleware.grouper.util.GrouperUtil.isBlank;
 import java.io.File;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -34,7 +36,6 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystemConnectionRefresher;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
@@ -46,7 +47,6 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlEngine;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
@@ -328,6 +328,8 @@ public class GrouperStartup {
             if (!ignoreCheckConfig) {
               GrouperCheckConfig.checkGrouperDb();
             }
+            
+            ensureSqlMembershipCacheIsPopulated();
             
             if (!GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("registry.auto.ddl.ignoreAtStartup", false)) {
               // this prints the message about autoddl if not printed
@@ -760,6 +762,124 @@ public class GrouperStartup {
     FrameworkStarter.getInstance().start();
   }
   
+  public static void ensureSqlMembershipCacheIsPopulated() {
+
+    if (!GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("registry.checkMembershipCacheIsPopulated", true)) { 
+      return;
+    }
+      
+    int groupCountNotEtc = -1;
+    String rootStemForBuiltinObjects = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc");
+    String sqlCacheErrorMessage = "Problem checking if membership cache is populated.  %s  "
+        + "You need to run the SQL cache daemon in v4 to populate the sql cache tables before upgrading to v5.  If this is a false positive, "
+        + "you can set the grouper.hibernate.properties config to not check this anymore: registry.checkMembershipCacheIsPopulated = false";
+
+    try {
+      // get a count of groups from the database where stem is not from the grouper config grouper.rootStemForBuiltinObjects
+      
+      groupCountNotEtc = new GcDbAccess().sql("select count(*) from grouper_groups where name not like ?")
+          .addBindVar(rootStemForBuiltinObjects + ":%").select(int.class);
+      
+      // why would someone have so few groups?
+      if (groupCountNotEtc < 10) {
+        return;
+      }
+      
+    } catch (Exception e) {
+      // grouper_groups is not there so the registry is not initted
+      return;
+    }
+
+    long membersFieldInternalId = -1;
+    int groupCountInCache = -1;
+    try {
+      // how many groups are in cache?
+      String sql = """
+          SELECT count(1) 
+          FROM grouper_sql_cache_group gscg,
+              grouper_fields gf, grouper_groups gg
+          WHERE gscg.field_internal_id = gf.internal_id
+          and gscg.group_internal_id = gg.internal_id
+          and gf.name = 'members'
+          and gg.name not like 'etc:%'
+          """;
+      groupCountInCache = new GcDbAccess().sql(sql).select(int.class);
+      
+      membersFieldInternalId = new GcDbAccess()
+        .sql("select internal_id from grouper_fields where name = ?")
+        .addBindVar(GrouperConfig.LIST).select(long.class);
+    } catch (Exception e) {
+      // substitute "grouper_sql_cache_group table might not exist" for %s in error message
+      String error = String.format(sqlCacheErrorMessage, "grouper_sql_cache_group table might not exist.");
+      LOG.error(error, e);
+      System.out.println(error);
+      throw new RuntimeException(error , e);
+    }
+    if (groupCountInCache == 0) {
+      // substitute "grouper_sql_cache_group table is empty" for %s in error message
+      String error = String.format(sqlCacheErrorMessage, "grouper_sql_cache_group table is empty.");
+      LOG.error(error);
+      System.out.println(error);
+      throw new RuntimeException(error);
+    }
+    // should be within 5% use doubles to make sure exactly 0.05% difference
+    double percentDifference = Math.abs((groupCountInCache - groupCountNotEtc) / (double) groupCountNotEtc);
+    if (percentDifference > 0.05) {
+      // make a local error message
+      String error = String.format("There are %s groups in the database, but %s groups in the cache.  "
+          + "The difference is %.2f%%, which is more than 5%%.",
+          groupCountNotEtc, groupCountInCache, percentDifference * 100);
+      error = String.format(sqlCacheErrorMessage, error);
+      LOG.error(error);
+      System.out.println(error);
+      throw new RuntimeException(error);
+    }
+  
+    String sql = """
+        select gscg.internal_id, gg.id, gscg.membership_size, gg.name
+        from grouper_sql_cache_group gscg,
+        grouper_groups gg
+        where gg.internal_id = gscg.group_internal_id 
+        and gscg.field_internal_id = ?
+        order by gscg.membership_size desc
+        """;
+    sql = GrouperDdlUtils.sqlPageFirstGrouper(sql);
+    List<Object[]> results = new GcDbAccess().sql(sql).addBindVar(membersFieldInternalId).addBindVar(50).selectList(Object[].class);
+    Collections.reverse(results);
+    
+    // check 4 groups at top of list
+    for (int i = 0; i < 4; i++) {
+      Long internalId = GrouperUtil.longValue(results.get(i)[0]);
+      String groupId = (String)results.get(i)[1];
+      
+      // see the membership size in grouper
+      int membershipSizeInGrouper = new GcDbAccess()
+          .sql("select count(1) from grouper_memberships_lw_v gmlv where gmlv.group_id = ? and gmlv.list_name = 'members'")
+          .addBindVar(groupId).select(int.class);
+      
+      int membershipSizeInCache = GrouperUtil.intValue(results.get(i)[2]);
+      String groupName = (String)results.get(i)[3];
+      
+      if (membershipSizeInGrouper < 50) {
+        continue;
+      }
+      
+      // see if sizes are off by more than 5%
+      percentDifference = Math.abs((membershipSizeInGrouper - membershipSizeInCache) / (double) membershipSizeInCache);
+      
+      if (percentDifference > 0.05) {
+        // make a local error message
+        String error = String.format("Group %s has membership size in grouper of %s, "
+            + "but in the cache it is %s.  The difference is %.2f%%, which is more than 5%%.",
+            groupName, membershipSizeInGrouper, membershipSizeInCache, percentDifference * 100);
+        error = String.format(sqlCacheErrorMessage, error);
+        LOG.error(error);
+        System.out.println(error);
+        throw new RuntimeException(error);
+      }
+    }
+  }
+
   /** if we should run the boot strap from startup */
   public static boolean runDdlBootstrap = true;
   

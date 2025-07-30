@@ -129,6 +129,37 @@ public class GrouperDdlUtils {
   }
   
   /**
+   * get the first page of a query from the grouper database
+   * @param sql
+   * @param pageSize
+   * @return the new query, the page size will have a bind variable at end
+   */
+  public static String sqlPageFirstGrouper(String sql) {
+    if (StringUtils.isBlank(sql)) {
+      return sql;
+    }
+    if (isMysql()) {
+      return sql + " limit ?";
+    }
+    if (isPostgres()) {
+      return sql + " limit ?";
+    }
+    if (isOracle()) {
+      //  select *
+      //  from (
+      //    select gscg.internal_id, gg.id, gscg.membership_size
+      //    from grouper_sql_cache_group gscg,
+      //         grouper_groups gg
+      //    where gg.internal_id = gscg.group_internal_id 
+      //    order by gscg.membership_size desc
+      //  )
+      //  where rownum <= 50;
+      return "select * from ( " + sql + " ) where rownum <= ?";
+    }
+    throw new RuntimeException("Cannot find database type");
+  }
+  
+  /**
    * returns mysql, postgres, oracle, or exception
    * @return database type
    */
