@@ -15,6 +15,7 @@
  */
 package edu.internet2.middleware.grouper.tableIndex;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
@@ -43,6 +44,51 @@ public enum TableIndexType {
     public String getIncrementingColumn() {
       return "id_index";
     }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
+    }
+  },
+  
+  /** groupInternalId assigned to a group */
+  groupInternalId {
+
+    @Override
+    public String tableName() {
+      return Group.TABLE_GROUPER_GROUPS;
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
+    }
+  },
+  
+  /** index assigned to a field */
+  field {
+
+    @Override
+    public String tableName() {
+      return Field.TABLE_GROUPER_FIELDS;
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
+    }
+
+    
   },
   
   /** index assigned to a provisioning group group */
@@ -57,6 +103,11 @@ public enum TableIndexType {
     public String getIncrementingColumn() {
       return "id_index";
     }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
   },
   
   /** index assigned to a provisioning group group */
@@ -70,6 +121,11 @@ public enum TableIndexType {
     @Override
     public String getIncrementingColumn() {
       return "id_index";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
     }
   },
   
@@ -86,6 +142,30 @@ public enum TableIndexType {
     public String getIncrementingColumn() {
       return "id_index";
     }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
+    }
+  },
+  
+  /** index assigned to a member */
+  memberInternalId {
+
+    @Override
+    public String tableName() {
+      return Member.TABLE_GROUPER_MEMBERS;
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
+    }
   },
   
   /** index assigned to a stem */
@@ -100,6 +180,11 @@ public enum TableIndexType {
     public String getIncrementingColumn() {
       return "id_index";
     }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
+    }
   },
   
   /** index assigned to an attribute def */
@@ -113,6 +198,11 @@ public enum TableIndexType {
     @Override
     public String getIncrementingColumn() {
       return "id_index";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
     }
   },
   
@@ -129,6 +219,10 @@ public enum TableIndexType {
       return "id_index";
     }
 
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
+    }
   },
   
   /** index assigned to a membership require change */
@@ -142,6 +236,11 @@ public enum TableIndexType {
     @Override
     public String getIncrementingColumn() {
       return "id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
     }
   };
 
@@ -170,4 +269,17 @@ public enum TableIndexType {
    */
   public abstract String getIncrementingColumn();
 
+  /**
+   * does this index type table has the id column
+   * @return column name
+   */
+  public abstract boolean isHasIdColumn();
+
+  /**
+   * does this index type table has the id column
+   * @return column name
+   */
+  public String getIdColumnName() {
+    return "id";
+  };
 }
