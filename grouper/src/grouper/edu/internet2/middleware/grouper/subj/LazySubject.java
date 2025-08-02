@@ -306,7 +306,19 @@ public class LazySubject implements Subject {
      * @see edu.internet2.middleware.subject.SubjectType#getName()
      */
     public String getName() {
-      return member.getSubjectTypeId();
+      if (LazySubject.this.subject != null) {
+        return LazySubject.this.subject.getTypeName();
+      }
+      if (LazySubject.this.member != null) {
+        return LazySubject.this.member.getSubjectTypeId();
+      }
+      if (!StringUtils.isBlank(LazySubject.this.subjectId) 
+          && !StringUtils.isBlank(LazySubject.this.sourceId)) {
+  
+        LazySubject.this.subject = SubjectFinder.findByIdAndSource(LazySubject.this.subjectId, LazySubject.this.sourceId, true);
+        return LazySubject.this.subject.getTypeName();
+      }
+      throw new RuntimeException("Cannot determine the subject type! " + LazySubject.this.toString());
     }
   }
 
