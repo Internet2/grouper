@@ -642,7 +642,7 @@ public class GrouperLoaderDb {
     if (clientConfig) {
       return DatabaseConfigType.client;
     }
-    throw new RuntimeException("Shouldnt get here: '" + connectionName + "'");
+    throw new RuntimeException("Cannot find connection name: '" + connectionName + "', generally this should be a configId in a database (SQL/JDBC) external system");
   }
 
  
