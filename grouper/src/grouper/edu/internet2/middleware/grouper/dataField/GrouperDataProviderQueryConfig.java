@@ -94,6 +94,15 @@ public abstract class GrouperDataProviderQueryConfig {
     //  # grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySubjectSourceId = 
     this.providerQuerySubjectSourceId = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQuerySubjectSourceId");
 
+    
+    //  # which second subject source this is a subject id for
+    //  # {valueType: "boolean", defaultValue: "false", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySubjectSourceId2$"}
+    this.providerQuerySubjectSourceId2 = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQuerySubjectSourceId2");
+    
+    //  # which third subject source this is a subject id for
+    //  # {valueType: "boolean", defaultValue: "false", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySubjectSourceId3$"}
+    this.providerQuerySubjectSourceId3 = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQuerySubjectSourceId3");
+
     //  # number of fields in this row
     //  # {valueType: "string", required: true, regex: "^dataProviderQueryConfigId\\.[^.]+\\.rowNumberOfDataFields$", formElement: "dropdown", optionValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"]}
     //  # grouperDataProviderQuery.dataProviderQueryConfigId.providerQueryNumberOfDataFields = 
@@ -282,6 +291,63 @@ public abstract class GrouperDataProviderQueryConfig {
     this.providerQuerySubjectIdType = providerQuerySubjectIdType;
   }
 
+  /**
+   * which third subject source this is a subject id for
+   * {valueType: "boolean", defaultValue: "false", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySubjectSourceId3$"}
+   * grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySubjectSourceId3 = 
+   */
+  private String providerQuerySubjectSourceId3;
+  
+  /**
+   * which third subject source this is a subject id for
+   * {valueType: "boolean", defaultValue: "false", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySubjectSourceId3$"}
+   * grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySubjectSourceId3 = 
+   * @return
+   */
+  public String getProviderQuerySubjectSourceId3() {
+    return providerQuerySubjectSourceId3;
+  }
+  
+  
+  /**
+   * which third subject source this is a subject id for
+   * {valueType: "boolean", defaultValue: "false", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySubjectSourceId3$"}
+   * grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySubjectSourceId3 = 
+   * @param providerQuerySubjectSourceId3
+   */
+  public void setProviderQuerySubjectSourceId3(String providerQuerySubjectSourceId3) {
+    this.providerQuerySubjectSourceId3 = providerQuerySubjectSourceId3;
+  }
+
+  /**
+   * which second subject source this is a subject id for
+   * {valueType: "boolean", defaultValue: "false", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySubjectSourceId2$"}
+   * grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySubjectSourceId2 = 
+   */
+  private String providerQuerySubjectSourceId2;
+  
+  /**
+   * which second subject source this is a subject id for
+   * {valueType: "boolean", defaultValue: "false", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySubjectSourceId2$"}
+   * grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySubjectSourceId2 = 
+   * @return
+   */
+  public String getProviderQuerySubjectSourceId2() {
+    return providerQuerySubjectSourceId2;
+  }
+  
+  /**
+   * which second subject source this is a subject id for
+   * {valueType: "boolean", defaultValue: "false", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySubjectSourceId2$"}
+   * grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySubjectSourceId2 = 
+   * @param providerQuerySubjectSourceId2
+   */
+  public void setProviderQuerySubjectSourceId2(String providerQuerySubjectSourceId2) {
+    this.providerQuerySubjectSourceId2 = providerQuerySubjectSourceId2;
+  }
+  
+    
+  
   /**
    * which subject source this is a subject id for
    * {valueType: "boolean", defaultValue: "false", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySubjectSourceId$"}

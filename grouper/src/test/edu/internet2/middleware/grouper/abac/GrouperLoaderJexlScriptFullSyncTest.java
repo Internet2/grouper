@@ -1026,7 +1026,8 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.dataProviderConfigId").value("idm").store();
-
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.quartzCron").value("59 59 23 31 12 ? 2099").store();
+    
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
         

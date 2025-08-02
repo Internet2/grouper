@@ -620,7 +620,22 @@ public class GrouperDataProviderLogic {
       grouperDataProviderQueryToRows.put(grouperDataProviderQuery, rows);
       
       String subjectIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectIdAttribute().toLowerCase();
-      String sourceIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectSourceId();
+      String sourceIdAttribute1 = grouperDataProviderQueryConfig.getProviderQuerySubjectSourceId();
+      String sourceIdAttribute2 = grouperDataProviderQueryConfig.getProviderQuerySubjectSourceId2();
+      String sourceIdAttribute3 = grouperDataProviderQueryConfig.getProviderQuerySubjectSourceId3();
+      
+      Set<String> sourceIdAttributes = new HashSet<String>();
+      if (!StringUtils.isBlank(sourceIdAttribute1)) {
+        sourceIdAttributes.add(sourceIdAttribute1);
+      }
+      if (!StringUtils.isBlank(sourceIdAttribute2)) {
+        sourceIdAttributes.add(sourceIdAttribute2);
+      }
+      if (!StringUtils.isBlank(sourceIdAttribute3)) {
+        sourceIdAttributes.add(sourceIdAttribute3);
+      }
+      
+      
       String subjectIdType = grouperDataProviderQueryConfig.getProviderQuerySubjectIdType();
       Integer subjectIdZeroIndex = lowerColumnNameToZeroIndex.get(subjectIdAttribute);
       
@@ -639,27 +654,29 @@ public class GrouperDataProviderLogic {
         
         String subjectId = GrouperUtil.stringValue(row[subjectIdZeroIndex]);
 
-        if (StringUtils.isBlank(sourceIdAttribute)) {
+        if (GrouperUtil.length(sourceIdAttributes) == 0) {
           if (subjectIdType.equals("subjectId")) {
             subjectIds.add(subjectId);         
           } else {
             subjectIdentifiers.add(subjectId);         
           }
         } else {
-          if (subjectIdType.equals("subjectId")) {
-            Set<String> subjectIdsForSource = sourceToSubjectIds.get(sourceIdAttribute);
-            if (subjectIdsForSource == null) {
-              subjectIdsForSource = new HashSet<String>();
-              sourceToSubjectIds.put(sourceIdAttribute, subjectIdsForSource);
+          for (String sourceIdAttribute : sourceIdAttributes) {
+            if (subjectIdType.equals("subjectId")) {
+              Set<String> subjectIdsForSource = sourceToSubjectIds.get(sourceIdAttribute);
+              if (subjectIdsForSource == null) {
+                subjectIdsForSource = new HashSet<String>();
+                sourceToSubjectIds.put(sourceIdAttribute, subjectIdsForSource);
+              }
+              subjectIdsForSource.add(subjectId);
+            } else {
+              Set<String> subjectIdentifiersForSource = sourceToSubjectIdentifiers.get(sourceIdAttribute);
+              if (subjectIdentifiersForSource == null) {
+                subjectIdentifiersForSource = new HashSet<String>();
+                sourceToSubjectIdentifiers.put(sourceIdAttribute, subjectIdentifiersForSource);
+              }
+              subjectIdentifiersForSource.add(subjectId);
             }
-            subjectIdsForSource.add(subjectId);
-          } else {
-            Set<String> subjectIdentifiersForSource = sourceToSubjectIdentifiers.get(sourceIdAttribute);
-            if (subjectIdentifiersForSource == null) {
-              subjectIdentifiersForSource = new HashSet<String>();
-              sourceToSubjectIdentifiers.put(sourceIdAttribute, subjectIdentifiersForSource);
-            }
-            subjectIdentifiersForSource.add(subjectId);
           }
         }
       }
@@ -681,6 +698,7 @@ public class GrouperDataProviderLogic {
         subjectIdAttributeSubjectIdSourceIdToSubject.put(subjectIdAttributeSubjectIdSourceId, subject);
       }
     }
+    
     for (String sourceId : sourceToSubjectIds.keySet()) {
       Set<String> theSubjectIds = sourceToSubjectIds.get(sourceId);
       if (GrouperUtil.length(theSubjectIds) > 0) {
@@ -724,7 +742,36 @@ public class GrouperDataProviderLogic {
       List<Object[]> rows = grouperDataProviderQueryToRows.get(grouperDataProviderQuery);
 
       String subjectIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectIdAttribute().toLowerCase();
-      String sourceIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectSourceId();
+      String sourceIdAttribute1 = grouperDataProviderQueryConfig.getProviderQuerySubjectSourceId();
+      String sourceIdAttribute2 = grouperDataProviderQueryConfig.getProviderQuerySubjectSourceId2();
+      String sourceIdAttribute3 = grouperDataProviderQueryConfig.getProviderQuerySubjectSourceId3();
+      
+      Set<String> sourceIdAttributes = new HashSet<String>();
+      String sourceIdForLog = "";
+      if (!StringUtils.isBlank(sourceIdAttribute1)) {
+        sourceIdAttributes.add(sourceIdAttribute1);
+        sourceIdForLog = sourceIdAttribute1;
+      }
+      if (!StringUtils.isBlank(sourceIdAttribute2)) {
+        sourceIdAttributes.add(sourceIdAttribute2);
+        if (!StringUtils.isBlank(sourceIdForLog)) {
+          sourceIdForLog += ", ";
+        }
+        sourceIdForLog += sourceIdAttribute2;
+      }
+      if (!StringUtils.isBlank(sourceIdAttribute3)) {
+        sourceIdAttributes.add(sourceIdAttribute3);
+        if (!StringUtils.isBlank(sourceIdForLog)) {
+          sourceIdForLog += ", ";
+        }
+        sourceIdForLog += sourceIdAttribute3;
+      }
+      if (sourceIdAttributes.size() == 0) {
+        sourceIdAttributes.add(null);
+        sourceIdForLog = "no source id";
+      }
+
+
       String subjectIdType = grouperDataProviderQueryConfig.getProviderQuerySubjectIdType();
       Integer subjectIdZeroIndex = lowerColumnNameToZeroIndex.get(subjectIdAttribute);
       
@@ -732,9 +779,15 @@ public class GrouperDataProviderLogic {
         
         String subjectId = GrouperUtil.stringValue(row[subjectIdZeroIndex]);
         
-        MultiKey multiKey = new MultiKey(subjectIdType, subjectId, sourceIdAttribute);
-        
-        Subject subject = subjectIdAttributeSubjectIdSourceIdToSubject.get(multiKey);
+        Subject subject = null;
+        for (String sourceIdAttribute : sourceIdAttributes) {
+          MultiKey multiKey = new MultiKey(subjectIdType, subjectId, sourceIdAttribute);
+          
+          subject = subjectIdAttributeSubjectIdSourceIdToSubject.get(multiKey);
+          if (subject != null) {
+            break;
+          }
+        }
         Member member = subject == null ? null : subjectToMember.get(subject);
         
         if (member == null) {
@@ -744,13 +797,12 @@ public class GrouperDataProviderLogic {
               member = unresolvedSubjectsWithMembersBySubjectId.get(subjectId);
             }
           } else {
-            LOG.warn("Unable to resolve subject " + subjectId + ", " + sourceIdAttribute + ", " + subjectIdType);
+            LOG.warn("Unable to resolve subject " + subjectId + ", " + sourceIdForLog + ", " + subjectIdType);
             grouperDataProviderSync.getHib3GrouperLoaderLog().addUnresolvableSubjectCount(1);
             addUnresolvableSubjectToJobMessage(subjectId);
             continue; 
           }
         }
-          
 
         Long memberInternalId = member.getInternalId();
         
@@ -771,7 +823,6 @@ public class GrouperDataProviderLogic {
         
         userRowsforQuery.add(row);
       }
-      
     }
   }
   
