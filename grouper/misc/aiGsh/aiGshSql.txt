@@ -8,7 +8,7 @@ select gmlv.subject_id
 from grouper_memberships_lw_v gmlv
 where gmlv.group_name = 'test:testGroup'
 and gmlv.list_name = 'members'
-and gmlv.subject_source = 'schoolPerson';
+and gmlv.subject_source = 'schoolPerson'
 
 #########
 # SQL to select attribute assignments to a user
@@ -19,7 +19,7 @@ and gmlv.subject_source = 'schoolPerson';
 
 select attribute_def_name_name, value_string 
 from grouper_aval_asn_member_v gaamv
-where gaamv.subject_id = '12345678' and gaamv.source_id = 'schoolPerson';
+where gaamv.subject_id = '12345678' and gaamv.source_id = 'schoolPerson'
 
 #########
 # "Groups with attribute" on the Wiki
@@ -68,7 +68,8 @@ and gm.id = gpmlv.member_id
 # https://spaces.at.internet2.edu/x/UAj5AQ
 #########
 
-select distinct subject_id from grouper_memberships_lw_v where group_name='{path:to:group}' and subject_source='{people_subject_source}' and list_name ='members'
+select distinct subject_id from grouper_memberships_lw_v where group_name='{path:to:group}' 
+and subject_source='{people_subject_source}' and list_name ='members'
 
 #########
 # Given a group containing another group, return source and subjectIds of members of the larger group who will be removed if the smaller group is removed
@@ -164,7 +165,7 @@ where exists (select 1 from temp_provisioning_assigns tpa2
 where tpa.attribute_assign_id_marker = tpa2.attribute_assign_id_marker and tpa2.value_string = 'true'
 and tpa2.attribute_name = 'etc:provisioning:provisioningDirectAssign')
 and assign_type = 'stem'
-order by 2;
+order by 2
 
 #######
 # Return the list of people in a group and their start times
@@ -180,7 +181,7 @@ and gpmglv.field_name = 'members'
 and gpmglv.the_end_time is null
 )
 FROM grouper_memberships_lw_v gmlv
-WHERE group_name = 'test:testGroup' AND list_name = 'members' AND subject_source = 'schoolPerson';
+WHERE group_name = 'test:testGroup' AND list_name = 'members' AND subject_source = 'schoolPerson'
 
 
 #######
@@ -229,9 +230,31 @@ from(
 ) AS union_result   
       order by oDate desc
 
+########
+# SQL to find all immediate (only) memberships in a group by group name
+########
 
+select gg.name, gm.subject_id, gm.subject_source
+from grouper_memberships gmem, grouper_members gm, 
+grouper_fields gf, grouper_groups gg
+where gmem.member_id = gm.id 
+and gmem.field_id = gf.id and gf.name = 'members'
+and gmem.owner_group_id = gg.id and gg.name = 'test:GroupE_24'
+and gmem.enabled = 'T'
+and gmem.mship_type = 'immediate'
 
+########
+# SQL to find all immediate (only) memberships in a group by group id
+########
 
+select gg.name, gm.subject_id, gm.subject_source
+from grouper_memberships gmem, grouper_members gm, 
+grouper_fields gf, grouper_groups gg
+where gmem.member_id = gm.id 
+and gmem.field_id = gf.id and gf.name = 'members'
+and gmem.owner_group_id = gg.id and gg.id = 'abc123def456'
+and gmem.enabled = 'T'
+and gmem.mship_type = 'immediate'
 
 
 
