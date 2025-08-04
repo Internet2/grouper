@@ -242,7 +242,7 @@ public class UpgradeTaskV15 implements UpgradeTasksInterface {
         }
         
         if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle()) {
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_fields.internal_id IS 'internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'"); 
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_fields.internal_id IS 'internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'").executeSql(); 
         }
         
         if (otherJobInput != null) {
@@ -269,7 +269,7 @@ public class UpgradeTaskV15 implements UpgradeTasksInterface {
         }
         
         if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle()) {
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_groups.internal_id IS 'internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'");
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_groups.internal_id IS 'internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'").executeSql();
         }
         
         if (otherJobInput != null) {
@@ -335,15 +335,15 @@ public class UpgradeTaskV15 implements UpgradeTasksInterface {
         }
         
         if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle()) {
-          new GcDbAccess().sql("COMMENT ON TABLE grouper_sql_cache_group IS 'Holds groups that are cacheable in SQL'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.internal_id IS 'internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.group_internal_id IS 'internal integer id for gruops which are cacheable'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.field_internal_id IS 'internal integer id for the field which is the members or privilege which is cached'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.membership_size IS 'approximate number of members of this group, used primarily to optimize batching'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.membership_size_hst IS 'approximate number of rows of HST data for this group, used primarily to optimize batching'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.created_on IS 'when this row was created (i.e. when this group started to be cached)'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.enabled_on IS 'when this cache will be ready to use (do not use it while it is being populated)'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.disabled_on IS 'when this cache should stop being used'");
+          new GcDbAccess().sql("COMMENT ON TABLE grouper_sql_cache_group IS 'Holds groups that are cacheable in SQL'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.internal_id IS 'internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.group_internal_id IS 'internal integer id for gruops which are cacheable'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.field_internal_id IS 'internal integer id for the field which is the members or privilege which is cached'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.membership_size IS 'approximate number of members of this group, used primarily to optimize batching'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.membership_size_hst IS 'approximate number of rows of HST data for this group, used primarily to optimize batching'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.created_on IS 'when this row was created (i.e. when this group started to be cached)'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.enabled_on IS 'when this cache will be ready to use (do not use it while it is being populated)'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group.disabled_on IS 'when this cache should stop being used'").executeSql();
         }
         
         if (otherJobInput != null) {
@@ -397,12 +397,12 @@ public class UpgradeTaskV15 implements UpgradeTasksInterface {
         }
         
         if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle()) {
-          new GcDbAccess().sql("COMMENT ON TABLE grouper_sql_cache_mship IS 'Cached memberships based on group and list'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_mship.internal_id IS 'internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_mship.created_on IS 'when this cache row was created'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_mship.flattened_add_timestamp IS 'when this member was last added to this group after not being a member before.  How long this member has been in this group'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_mship.member_internal_id IS 'internal id of the member in this group'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_mship.sql_cache_group_internal_id IS 'internal id of the group/list that this member is in'");
+          new GcDbAccess().sql("COMMENT ON TABLE grouper_sql_cache_mship IS 'Cached memberships based on group and list'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_mship.internal_id IS 'internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_mship.created_on IS 'when this cache row was created'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_mship.flattened_add_timestamp IS 'when this member was last added to this group after not being a member before.  How long this member has been in this group'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_mship.member_internal_id IS 'internal id of the member in this group'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_mship.sql_cache_group_internal_id IS 'internal id of the group/list that this member is in'").executeSql();
         }
         
         if (otherJobInput != null) {
@@ -453,7 +453,7 @@ public class UpgradeTaskV15 implements UpgradeTasksInterface {
         }
         
         if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle()) {
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_pit_members.source_internal_id IS 'internal integer id from the grouper_members table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'");
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_pit_members.source_internal_id IS 'internal integer id from the grouper_members table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'").executeSql();
         }
         
         if (otherJobInput != null) {
@@ -470,7 +470,7 @@ public class UpgradeTaskV15 implements UpgradeTasksInterface {
         }
         
         if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle()) {
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_pit_fields.source_internal_id IS 'internal integer id from the grouper_fields table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'");
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_pit_fields.source_internal_id IS 'internal integer id from the grouper_fields table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'").executeSql();
         }
         
         if (otherJobInput != null) {
@@ -487,7 +487,7 @@ public class UpgradeTaskV15 implements UpgradeTasksInterface {
         }
         
         if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle()) {
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_pit_groups.source_internal_id IS 'internal integer id from the grouper_groups table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'");
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_pit_groups.source_internal_id IS 'internal integer id from the grouper_groups table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'").executeSql();
         }
         
         if (otherJobInput != null) {
@@ -526,18 +526,18 @@ public class UpgradeTaskV15 implements UpgradeTasksInterface {
         if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle()) {
           
           if (GrouperDdlUtils.isPostgres()) {
-            new GcDbAccess().sql("COMMENT ON VIEW grouper_sql_cache_group_v IS 'SQL cache group view'");
+            new GcDbAccess().sql("COMMENT ON VIEW grouper_sql_cache_group_v IS 'SQL cache group view'").executeSql();
           } else {
-            new GcDbAccess().sql("COMMENT ON TABLE grouper_sql_cache_group_v IS 'SQL cache group view'");
+            new GcDbAccess().sql("COMMENT ON TABLE grouper_sql_cache_group_v IS 'SQL cache group view'").executeSql();
           }
           
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.group_name IS 'group_name: name of group'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.list_name IS 'list_name: name of list: members or the privilege like admins'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.membership_size IS 'membership_size: approximate number of memberships in the group'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.group_id IS 'group_id: uuid of the group'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.field_id IS 'field_id: uuid of the field'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.group_internal_id IS 'group_internal_id: group internal id'");
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.field_internal_id IS 'field_internal_id: field internal id'");
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.group_name IS 'group_name: name of group'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.list_name IS 'list_name: name of list: members or the privilege like admins'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.membership_size IS 'membership_size: approximate number of memberships in the group'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.group_id IS 'group_id: uuid of the group'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.field_id IS 'field_id: uuid of the field'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.group_internal_id IS 'group_internal_id: group internal id'").executeSql();
+          new GcDbAccess().sql("COMMENT ON COLUMN grouper_sql_cache_group_v.field_internal_id IS 'field_internal_id: field internal id'").executeSql();
         }
         
         if (otherJobInput != null) {
