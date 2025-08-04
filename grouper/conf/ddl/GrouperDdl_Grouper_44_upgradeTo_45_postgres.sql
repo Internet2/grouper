@@ -1,9 +1,3 @@
-ALTER TABLE grouper_members ADD COLUMN internal_id BIGINT;
-
-CREATE UNIQUE INDEX grouper_mem_internal_id_idx ON grouper_members (internal_id);
-
-ALTER TABLE grouper_members ADD CONSTRAINT members_internal_id_unique UNIQUE USING INDEX grouper_mem_internal_id_idx;
-
 CREATE TABLE grouper_dictionary (
   internal_id BIGINT NOT NULL,
   created_on timestamp NOT NULL,

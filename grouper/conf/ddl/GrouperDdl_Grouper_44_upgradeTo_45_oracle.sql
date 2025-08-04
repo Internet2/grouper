@@ -1,9 +1,3 @@
-ALTER TABLE grouper_members ADD internal_id NUMBER(38);
-
-CREATE UNIQUE INDEX grouper_mem_internal_id_idx ON grouper_members (internal_id);
-
-ALTER TABLE grouper_members ADD CONSTRAINT members_internal_id_unique unique (internal_id);
-
 CREATE TABLE grouper_dictionary (
   internal_id NUMBER(38) NOT NULL,
   created_on DATE NOT NULL,
