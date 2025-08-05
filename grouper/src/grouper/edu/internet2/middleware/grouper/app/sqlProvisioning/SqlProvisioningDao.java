@@ -56,8 +56,12 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpda
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsResponse;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.SqlProvisioningCommandsLog;
 
 /**
  * 
@@ -65,6 +69,17 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
  *
  */
 public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
+
+
+  @Override
+  public boolean loggingStart() {
+    return GcDbAccess.logStart(new SqlProvisioningCommandsLog());
+  }
+
+  @Override
+  public String loggingStop() {
+    return GcDbAccess.logEnd();
+  }
 
   private boolean deletedOldData = false;
   

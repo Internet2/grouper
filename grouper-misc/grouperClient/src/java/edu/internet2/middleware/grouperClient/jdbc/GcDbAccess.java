@@ -62,6 +62,61 @@ import edu.internet2.middleware.morphString.Morph;
  */
 public class GcDbAccess {
 
+  private static ThreadLocal<SqlProvisioningCommandsLog> threadLocalLog = new InheritableThreadLocal<SqlProvisioningCommandsLog>();
+
+  /**
+   * start a static debug log
+   * log start
+   */
+  public static boolean logStart(SqlProvisioningCommandsLog sqlProvisioningCommandsLog) {
+    
+    if (threadLocalLog.get() != null ) {
+      return false;
+    }
+    threadLocalLog.set(sqlProvisioningCommandsLog);
+    return true;
+
+  }
+
+  /**
+   * get the current log
+   * log start
+   */
+  public static SqlProvisioningCommandsLog logCurrent() {
+    SqlProvisioningCommandsLog sqlProvisioningCommandsLog = threadLocalLog.get();
+    return sqlProvisioningCommandsLog;
+  }
+
+  /**
+   * cleanup logs
+   * @param logMessage
+   * @return the log message
+   */
+  public static String logCleanup(String logMessage) {
+    if (logMessage == null) {
+      return logMessage;
+    }
+    // loop through ten times and if has double newlines, clean it up
+    for (int i=0;i<10;i++) {
+      if (!logMessage.contains("\n\n")) {
+        break;
+      }
+      logMessage = StringUtils.replace(logMessage, "\n\n", "\n");
+    }
+    return logMessage;
+  }
+  
+  /**
+   * stop a debug log in a finally block
+   * @return the log message
+   */
+  public static String logEnd() {
+    SqlProvisioningCommandsLog sqlProvisioningCommandsLog = threadLocalLog.get();
+    StringBuilder log = sqlProvisioningCommandsLog == null ? null : sqlProvisioningCommandsLog.getLog();
+    threadLocalLog.remove();
+    return log == null ? null : log.toString();
+  }
+
   /**
    * if grouper started
    */
@@ -2680,6 +2735,8 @@ public class GcDbAccess {
 
     ConnectionBean connectionBean = null;
     
+    T t = null;
+    
     try{
 
       connectionBean = connection(false, true, this.connectionName, this.connectionProvided, this.connection);
@@ -2693,7 +2750,7 @@ public class GcDbAccess {
 
       // Execute sub logic.
       Long startTime = System.nanoTime();
-      T t = callableStatementCallback.callback(callableStatement);
+      t = callableStatementCallback.callback(callableStatement);
 
       this.addQueryToQueriesAndMillis(callableStatementCallback.getQuery(), startTime);
 
@@ -2710,7 +2767,26 @@ public class GcDbAccess {
         // Nothing to do here.
       }
       ConnectionBean.closeIfStarted(connectionBean);
-      GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+      long durationNanos = System.nanoTime()-startNanos;
+      GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, durationNanos);
+      try {
+        SqlProvisioningCommandsLog sqlProvisioningCommandsLog = logCurrent();
+        if (sqlProvisioningCommandsLog != null) {
+          StringBuilder theLog = new StringBuilder();
+          
+          theLog.append("SQL callable (conn: ").append(this.connectionName).append("): ")
+            .append(callableStatementCallback.getQuery()).append("\n");
+          theLog.append("Result (").append(durationNanos/1000).append(" micros): ").append(GrouperClientUtils.toStringForLog(t, 5000)).append("\n");
+
+          if (sqlProvisioningCommandsLog != null) {
+            sqlProvisioningCommandsLog.getLog().append(logCleanup(theLog.toString()));
+          }
+
+
+        }
+      } catch (Exception e) {
+        LOG.error("error in sql logging", e);
+      }
 
     }
 
@@ -2732,6 +2808,7 @@ public class GcDbAccess {
 
     ConnectionBean connectionBean = null;
     
+    T t = null;
     try{
 
       connectionBean = connection(false, true, this.connectionName, this.connectionProvided, this.connection);
@@ -2753,7 +2830,7 @@ public class GcDbAccess {
           i++;
         }
       }
-      T t = preparedStatementCallback.callback(preparedStatement);
+      t = preparedStatementCallback.callback(preparedStatement);
       this.addQueryToQueriesAndMillis(preparedStatementCallback.getQuery(), startTime);
 
       return t;
@@ -2769,7 +2846,31 @@ public class GcDbAccess {
         // Nothing to do here.
       }
       ConnectionBean.closeIfStarted(connectionBean);
-      GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+      long durationNanos = System.nanoTime()-startNanos;
+      GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, durationNanos);
+      try {
+        SqlProvisioningCommandsLog sqlProvisioningCommandsLog = logCurrent();
+        if (sqlProvisioningCommandsLog != null) {
+          StringBuilder theLog = new StringBuilder();
+          
+          theLog.append("SQL prepared (conn: ").append(this.connectionName).append("): ")
+            .append(preparedStatementCallback.getQuery()).append("\n");
+          // Add bind variables if we have them.
+          if (this.bindVars != null){
+            theLog.append("Bind vars: ").append(GrouperClientUtils.toStringForLog(this.bindVars, 5000)).append("\n");
+          }
+
+          theLog.append("Result (").append(durationNanos/1000).append(" micros): ").append(GrouperClientUtils.toStringForLog(t, 5000)).append("\n");
+          
+          if (sqlProvisioningCommandsLog != null) {
+            sqlProvisioningCommandsLog.getLog().append(logCleanup(theLog.toString()));
+          }
+
+
+        }
+      } catch (Exception e) {
+        LOG.error("error in sql logging", e);
+      }
 
     }
 
@@ -2837,6 +2938,7 @@ public class GcDbAccess {
 
     ConnectionBean connectionBean = null;
     
+    T t = null;
     try{
 
       connectionBean = connection(false, true, this.connectionName, this.connectionProvided, this.connection);
@@ -2896,7 +2998,8 @@ public class GcDbAccess {
       // Externally, it is used as a callback.
       ResultSet rs = preparedStatement.executeQuery();
       this.resultSetMetaData = rs.getMetaData();
-      return resultSetCallback.callback(rs);
+      t = resultSetCallback.callback(rs);
+      return t;
       
     } catch (Exception e){
       throw new RuntimeException("sql: " + this.sql + ", " + (GrouperClientUtils.length(this.bindVars) > 1 ? ("args: " + GrouperClientUtils.toStringForLog(this.bindVars)) : ""), e);
@@ -2911,7 +3014,37 @@ public class GcDbAccess {
         }
       }
       ConnectionBean.closeIfStarted(connectionBean);
-      GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+      long durationNanos = System.nanoTime()-startNanos;
+      GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, durationNanos);
+      try {
+        SqlProvisioningCommandsLog sqlProvisioningCommandsLog = logCurrent();
+        if (sqlProvisioningCommandsLog != null) {
+          StringBuilder theLog = new StringBuilder();
+          
+          theLog.append("SQL resultset (conn: ").append(this.connectionName).append("): ")
+            .append(this.sql).append("\n");
+          
+          // Add bind variables if we have them.
+          if (this.bindVars != null){
+            theLog.append("Bind vars: ").append(GrouperClientUtils.toStringForLog(this.bindVars, 5000)).append("\n");
+          }
+
+          // Add batch bind variables if we have them.
+          if (this.batchBindVars != null){
+            theLog.append("Batch bind vars: ").append(GrouperClientUtils.toStringForLog(this.batchBindVars, 5000)).append("\n");
+          }
+
+          theLog.append("Result (").append(durationNanos/1000).append(" micros): ").append(GrouperClientUtils.toStringForLog(t, 5000)).append("\n");
+
+          if (sqlProvisioningCommandsLog != null) {
+            sqlProvisioningCommandsLog.getLog().append(logCleanup(theLog.toString()));
+          }
+
+        }
+      } catch (Exception e) {
+        LOG.error("error in sql logging", e);
+      }
+
     }
   }
 
