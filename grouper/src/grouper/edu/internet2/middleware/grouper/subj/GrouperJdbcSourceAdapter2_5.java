@@ -31,11 +31,6 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
   }
   
   @Override
-  public boolean isEnabled() {
-    return SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source."+getConfigId()+".enabled", true);
-  }
-  
-  @Override
   public Map<Integer, String> getSortAttributes() {
     
     if (this.sortAttributes == null) {

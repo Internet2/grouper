@@ -49,11 +49,6 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
   }
   
   @Override
-  public boolean isEnabled() {
-    return SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source."+getConfigId()+".enabled", true);
-  }
-  
-  @Override
   public Map<Integer, String> getSortAttributes() {
     return this.sortAttributes;
   }

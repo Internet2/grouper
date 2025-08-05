@@ -80,12 +80,6 @@ public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
     
   }
   
-  @Override
-  public boolean isEnabled() {
-    return SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source."+getConfigId()+".enabled", true);
-  }
-  
-  
   /**
    * @param entry
    */

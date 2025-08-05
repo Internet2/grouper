@@ -487,7 +487,7 @@ public class SourcesXmlResolver implements SubjectResolver {
    * @since   1.2.1
    */
   public Set<Source> getSources() {
-    return new LinkedHashSet( SourceManager.getInstance().getSources() );
+    return new LinkedHashSet( SourceManager.getInstance().getSourcesEnabled() );
   }
 
   /**

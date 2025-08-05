@@ -39,6 +39,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.cache.GrouperCacheDatabase;
 import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClear;
 import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClearInput;
@@ -248,9 +250,11 @@ public class SourceManager {
   private static SourceManager manager;
 
   /** */
+  @JsonIgnore
   private Map<SubjectType, Set<Source>> source2TypeMap = new HashMap<SubjectType, Set<Source>>();
 
   /** */
+  @JsonIgnore
   Map<String, Source> sourceMap = new HashMap<String, Source>();
   
   private static Set<String> registeredDatabaseCacheNames = Collections.synchronizedSet(new HashSet<String>());
@@ -325,8 +329,24 @@ public class SourceManager {
    * Returns a Collection of Sources.
    * @return Collection
    */
+  @JsonIgnore
   public Collection<Source> getSources() {
     return new LinkedHashSet<Source>(this.sourceMap.values());
+  }
+
+  /**
+   * Returns a Collection of Sources.
+   * @return Collection
+   */
+  @JsonIgnore
+  public Collection<Source> getSourcesEnabled() {
+    Set<Source> sources = new LinkedHashSet<>();
+    for (Source source : this.sourceMap.values()) {
+      if (source.isEnabled()) {
+        sources.add(source);
+      }
+    }
+    return sources;
   }
 
   /**
