@@ -19,9 +19,13 @@ import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderJob;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITField;
 import edu.internet2.middleware.grouper.pit.PITMember;
@@ -51,6 +55,8 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
   
   private OtherJobInput theOtherJobInput = null;
   private Map<String, Object> debugMap = null;
+  
+  private static boolean minimalMode = false;
 
   @Override
   public OtherJobOutput run(final OtherJobInput theOtherJobInput) {
@@ -451,7 +457,7 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
         }
         
         // process more object/field pairs based on when it was last sync'ed for about an hour max
-        if (membershipSyncStartTimeMicros != null) {
+        if (membershipSyncStartTimeMicros != null && !minimalMode) {
           // stop after one hour
           long timeToStopMillis = System.currentTimeMillis() + 60*60*1000L;
           
@@ -834,6 +840,22 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
     }
     
     GrouperDaemonUtils.stopProcessingIfJobPaused();
+  }
+  
+  public static void runNowWithoutDaemon(boolean theMinimalMode) {
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+    hib3GrouperLoaderLog.setJobScheduleType("MANUAL_FROM_GSH");
+    hib3GrouperLoaderLog.setJobName("OTHER_JOB_sqlCacheFullSync");
+    
+    try {
+      if (theMinimalMode) {
+        minimalMode = true;
+      }
+      
+      GrouperLoaderJob.runJob(hib3GrouperLoaderLog, (Group)null, GrouperSession.staticGrouperSession());
+    } finally {
+      minimalMode = false;
+    }
   }
   
   private void incrementCountInDebugMap(String property, long count) {
