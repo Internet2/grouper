@@ -1218,7 +1218,17 @@ public class SubjectSourceCache {
     try {
         if (LOG.isDebugEnabled()) {
           debugMap.put("sourceId", source == null ? null : source.getId());
+          if (source != null && !source.isEnabled()) {
+            debugMap.put("enabled", false);
+          }
           debugMap.put("id", id);
+        }
+        
+        if (source != null && !source.isEnabled()) {
+          if (exceptionIfNotFound) {
+            throw new SubjectNotFoundException("Source disabled: '" + source.getId() + "', id: '" + id + "'");
+          }
+          return null;
         }
         
         if (source == null || StringUtils.isBlank(source.getId()) || StringUtils.isBlank(id)) {
@@ -1358,6 +1368,10 @@ public class SubjectSourceCache {
     try {
         if (LOG.isDebugEnabled()) {
           debugMap.put("sourceId", source == null ? null : source.getId());
+          if (source != null && !source.isEnabled()) {
+            debugMap.put("enabled", false);
+          }
+
           debugMap.put("idSize", GrouperUtil.length(ids));
           int idsPrinted = 0;
           Iterator<String> idIterator = GrouperUtil.nonNull(ids).iterator();
@@ -1366,6 +1380,10 @@ public class SubjectSourceCache {
             debugMap.put("id_" + idsPrinted, id);
             idsPrinted++;
           }
+        }
+        
+        if (source != null && !source.isEnabled()) {
+          return null;
         }
         
         if (source == null || StringUtils.isBlank(source.getId()) || GrouperUtil.length(ids) == 0) {
@@ -1532,9 +1550,18 @@ public class SubjectSourceCache {
     try {
         if (LOG.isDebugEnabled()) {
           debugMap.put("sourceId", source == null ? null : source.getId());
+          if (source != null && !source.isEnabled()) {
+            debugMap.put("enabled", false);
+          }
           debugMap.put("identifier", identifier);
         }
         
+        if (source != null && !source.isEnabled()) {
+          if (exceptionIfNotFound) {
+            throw new SubjectNotFoundException("Source disabled: '" + source.getId() + "', identifier: '" + identifier + "'");
+          }
+          return null;
+        }
         if (source == null || StringUtils.isBlank(source.getId()) || StringUtils.isBlank(identifier)) {
           if (LOG.isDebugEnabled()) {
             debugMap.put("invalidInputs", true);
@@ -1681,7 +1708,17 @@ public class SubjectSourceCache {
     try {
         if (LOG.isDebugEnabled()) {
           debugMap.put("sourceId", source == null ? null : source.getId());
+          if (source != null && !source.isEnabled()) {
+            debugMap.put("enabled", false);
+          }
           debugMap.put("identifier", idOrIdentifier);
+        }
+        
+        if (source != null && !source.isEnabled()) {
+          if (exceptionIfNotFound) {
+            throw new SubjectNotFoundException("Source disabled: '" + source.getId() + "', idOrIdentifier: '" + idOrIdentifier + "'");
+          }
+          return null;
         }
         
         if (source == null || StringUtils.isBlank(source.getId()) || StringUtils.isBlank(idOrIdentifier)) {
@@ -1828,6 +1865,9 @@ public class SubjectSourceCache {
     try {
         if (LOG.isDebugEnabled()) {
           debugMap.put("sourceId", source == null ? null : source.getId());
+          if (source != null && !source.isEnabled()) {
+            debugMap.put("enabled", false);
+          }
           debugMap.put("identifierSize", GrouperUtil.length(identifiers));
           int identifiersPrinted = 0;
           Iterator<String> idIterator = GrouperUtil.nonNull(identifiers).iterator();
@@ -1837,7 +1877,10 @@ public class SubjectSourceCache {
             identifiersPrinted++;
           }
         }
-        
+
+        if (source != null && !source.isEnabled()) {
+          return null;
+        }
         if (source == null || StringUtils.isBlank(source.getId()) || GrouperUtil.length(identifiers) == 0) {
           if (LOG.isDebugEnabled()) {
             debugMap.put("invalidInputs", true);
@@ -2012,6 +2055,9 @@ public class SubjectSourceCache {
     try {
         if (LOG.isDebugEnabled()) {
           debugMap.put("sourceId", source == null ? null : source.getId());
+          if (source != null && !source.isEnabled()) {
+            debugMap.put("enabled", false);
+          }
           debugMap.put("idsOrIdentifierSize", GrouperUtil.length(idsOrIdentifiers));
           int idsOrIdentifiersPrinted = 0;
           Iterator<String> idOrIdentifierIterator = GrouperUtil.nonNull(idsOrIdentifiers).iterator();
@@ -2020,6 +2066,10 @@ public class SubjectSourceCache {
             debugMap.put("idOrIdentifier_" + idsOrIdentifiersPrinted, idOrIdentifier);
             idsOrIdentifiersPrinted++;
           }
+        }
+        
+        if (source != null && !source.isEnabled()) {
+          return null;
         }
         
         if (source == null || StringUtils.isBlank(source.getId()) || GrouperUtil.length(idsOrIdentifiers) == 0) {
