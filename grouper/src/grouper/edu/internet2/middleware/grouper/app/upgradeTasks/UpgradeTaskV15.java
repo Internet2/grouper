@@ -86,14 +86,6 @@ public class UpgradeTaskV15 implements UpgradeTasksInterface {
         return true;
       }
       
-      if (!GrouperDdlUtils.assertIndexExists("grouper_sql_cache_mship", "grouper_sql_cache_mship1_idx")) {
-        return true;
-      }
-      
-      if (!GrouperDdlUtils.assertIndexExists("grouper_sql_cache_mship", "grouper_sql_cache_mship2_idx")) {
-        return true;
-      }
-      
       // TODO for oracle, this is added somewhere else??
       if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isMysql()) {
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_sql_cache_group", "grouper_sql_cache_group1_fk")) {
@@ -408,22 +400,6 @@ public class UpgradeTaskV15 implements UpgradeTasksInterface {
         if (otherJobInput != null) {
           otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
           otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added table grouper_sql_cache_mship");
-        }
-      }
-      
-      if (!GrouperDdlUtils.assertIndexExists("grouper_sql_cache_mship", "grouper_sql_cache_mship1_idx")) {
-        new GcDbAccess().sql("CREATE INDEX grouper_sql_cache_mship1_idx ON grouper_sql_cache_mship (sql_cache_group_internal_id, flattened_add_timestamp)").executeSql();
-        if (otherJobInput != null) {
-          otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-          otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_sql_cache_mship1_idx");
-        }
-      }
-      
-      if (!GrouperDdlUtils.assertIndexExists("grouper_sql_cache_mship", "grouper_sql_cache_mship2_idx")) {
-        new GcDbAccess().sql("CREATE INDEX grouper_sql_cache_mship2_idx ON grouper_sql_cache_mship (member_internal_id, sql_cache_group_internal_id)").executeSql();
-        if (otherJobInput != null) {
-          otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-          otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_sql_cache_mship2_idx");
         }
       }
       
