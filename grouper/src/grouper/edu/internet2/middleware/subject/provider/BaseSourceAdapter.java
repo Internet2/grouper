@@ -1068,7 +1068,7 @@ public abstract class BaseSourceAdapter implements Source {
 
   @Override
   public boolean isEnabled() {
-    return true;
+    return SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source."+getConfigId()+".enabled", true);
   }
   
   /**
