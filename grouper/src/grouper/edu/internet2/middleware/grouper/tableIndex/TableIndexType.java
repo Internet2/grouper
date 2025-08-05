@@ -242,6 +242,25 @@ public enum TableIndexType {
     public boolean isHasIdColumn() {
       return false;
     }
+  },
+  
+  /** index assigned to a sql group cache entry */
+  sqlGroupCache{
+  
+    @Override
+    public String tableName() {
+      return "grouper_sql_cache_group";
+    }
+  
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
   };
 
   /**
