@@ -409,7 +409,7 @@ public class GrouperOidcConfig {
     grouperOidcConfig.proxyType = GrouperProxyType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".proxyType"), false);
     
     // # config id of the external system
-    if(GrouperConfig.retrieveConfig().propertyValueBooleanRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".useConfigurationMetadata")) {
+    if(GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem." + externalSystemConfigId + ".useConfigurationMetadata", false)) {
       grouperOidcConfig.configurationMetadataUri = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".configurationMetadataUri");
       grouperOidcConfig.retrieveMetadata();
       
