@@ -2,6 +2,8 @@ package edu.internet2.middleware.grouper.authentication;
 
 import java.sql.Timestamp;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+
 public class GrouperAuthnResult {
 
   public GrouperAuthnResult() {
@@ -64,11 +66,17 @@ public class GrouperAuthnResult {
     if (!this.authenticated) {
       return false;
     }
-    GrouperOidcConfig grouperOidcConfig = GrouperOidcConfig.retrieveFromConfigOrCache(this.configId);
-    if (grouperOidcConfig == null) {
+    
+    boolean enabled = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem." 
+        + this.configId + ".enabled", true);
+    
+    if (!enabled) {
       return false;
     }
-    int authnTimeoutSeconds = grouperOidcConfig.getAuthnTimeoutSeconds();
+    
+    int authnTimeoutSeconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.oidcExternalSystem." 
+        + this.configId + ".authnTimeoutSeconds", -1);
+    
     if (authnTimeoutSeconds < 0) {
       return true;
     }

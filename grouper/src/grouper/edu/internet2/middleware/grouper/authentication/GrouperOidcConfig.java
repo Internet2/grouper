@@ -157,6 +157,12 @@ public class GrouperOidcConfig {
   
   private String redirectUriContext;
   
+  public static String redirectUriContext(String redirectUri) {
+    Matcher matcher = oidcRedirectPattern.matcher(redirectUri);
+    GrouperUtil.assertion(matcher.matches(), "Invalid redirect uri: '"+redirectUri + "', should be similar to: https://grouper.school.edu/grouper/grouperUi/app/UiV2Main.oidc");
+    return matcher.group(1);
+  }
+  
   /**
    * will match everything after the domain slash including that slash
    * e.g. for https://grouper.school.edu/grouper/grouperUi/app/UiV2Main.oidc
@@ -165,9 +171,8 @@ public class GrouperOidcConfig {
    */
   public String getRedirectUriContext() {
     if (this.redirectUriContext == null) {
-      Matcher matcher = oidcRedirectPattern.matcher(this.getRedirectUri());
-      GrouperUtil.assertion(matcher.matches(), "Invalid redirect uri: '"+this.getRedirectUri() + "', should be similar to: https://grouper.school.edu/grouper/grouperUi/app/UiV2Main.oidc");
-      this.redirectUriContext = matcher.group(1);
+      GrouperUtil.assertion(!StringUtils.isBlank(this.redirectUri), "redirectUri is required");
+      this.redirectUriContext = redirectUriContext(this.redirectUri);
     }
     return redirectUriContext;
   }
@@ -497,16 +502,7 @@ public class GrouperOidcConfig {
     //  # If there are no regexes then this is the default OIDC for the UI
     //  # {valueType: "string", order: 16050, showEl: "${useForUi}" }
     //  # grouper.oidcExternalSystem.myOidcConfigId.uiPathRegexes =
-    String uiPathRegexesString = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".uiPathRegexes");
-    if (!StringUtils.isBlank(uiPathRegexesString)) {
-      List<String> uiPathRegexesList = GrouperUtil.splitTrimToList(uiPathRegexesString, ",");
-      for (int i=0;i<uiPathRegexesList.size();i++) {
-        String uiPathRegex = uiPathRegexesList.get(i);
-        uiPathRegex = StringUtils.replace(uiPathRegex, "&#x2c;", ",");
-        uiPathRegexesList.set(i, uiPathRegex);
-      }
-      grouperOidcConfig.uiPathRegexes = uiPathRegexesList;
-    }
+    grouperOidcConfig.uiPathRegexes = uiPathRegexesForConfigId(externalSystemConfigId);
 
     //  # When the authentication times out
     //  # {valueType: "integer", order: 16051, showEl: "${useForUi}" }
@@ -519,6 +515,24 @@ public class GrouperOidcConfig {
     grouperOidcConfig.extraAuthorizeParams = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".extraAuthorizeParams");
             
     return grouperOidcConfig;
+  }
+  
+  public static List<String> uiPathRegexesForConfigId(String configId) {
+    //  # Comma separated list of path regexes to match the UI path to use for this external system. Escape commas with &#x2c;
+    //  # If there are no regexes then this is the default OIDC for the UI
+    //  # {valueType: "string", order: 16050, showEl: "${useForUi}" }
+    //  # grouper.oidcExternalSystem.myOidcConfigId.uiPathRegexes =
+    String uiPathRegexesString = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + configId + ".uiPathRegexes");
+    if (!StringUtils.isBlank(uiPathRegexesString)) {
+      List<String> uiPathRegexesList = GrouperUtil.splitTrimToList(uiPathRegexesString, ",");
+      for (int i=0;i<uiPathRegexesList.size();i++) {
+        String uiPathRegex = uiPathRegexesList.get(i);
+        uiPathRegex = StringUtils.replace(uiPathRegex, "&#x2c;", ",");
+        uiPathRegexesList.set(i, uiPathRegex);
+      }
+      return uiPathRegexesList;
+    }
+    return new ArrayList<String>();
   }
 
    /**

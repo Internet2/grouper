@@ -77,15 +77,22 @@ public class GrouperOidc {
     
     OUTER: for (String configId: GrouperUtil.nonNull(configIds)) {
       
-      GrouperOidcConfig grouperOidcConfig = GrouperOidcConfig.retrieveFromConfigOrCache(configId);
+      boolean enabled = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem." 
+          + configId + ".enabled", true);
       
-      if (grouperOidcConfig.isUseForUi() && grouperOidcConfig.isEnabled()) {
+      boolean useForUi = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem." 
+          + configId + ".useForUi", false);
+      
+      if (useForUi && enabled) {
 
         // https://grouper.apps.upenn.edu/grouper/grouperUi/app/UiV2Main.oidc
         // if this is the oidc redirect from the idp then check the url
         if (uriContext.contains(".oidc?")) {
           
-          String context = grouperOidcConfig.getRedirectUriContext();
+          String redirectUri = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + configId + ".redirectUri");
+          
+          String context = GrouperOidcConfig.redirectUriContext(redirectUri);
+
           if (!StringUtils.isBlank(context) && uriContext.startsWith(context)) {
             GrouperUtil.assertion(StringUtils.isBlank(externalSystemConfigIdForUi), "Multiple OIDC external systems cannot be enabled for UI at the same time: "+externalSystemConfigIdForUi +" ,"+configId);
             externalSystemConfigIdForUi = configId;
@@ -93,7 +100,7 @@ public class GrouperOidc {
           continue OUTER;
         }
         
-        List<String> uiPathRegexesList = grouperOidcConfig.getUiPathRegexes();
+        List<String> uiPathRegexesList = GrouperOidcConfig.uiPathRegexesForConfigId(configId);
         
         if (GrouperUtil.length(uiPathRegexesList) == 0) {
           GrouperUtil.assertion(StringUtils.isBlank(defaultExternalSystemConfigIdForUi), "Multiple OIDC external systems cannot be enabled for UI at the same time: "+defaultExternalSystemConfigIdForUi +" ,"+configId);
