@@ -2,7 +2,10 @@ package edu.internet2.middleware.grouper.authentication;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -309,24 +312,84 @@ public class GrouperOidcConfig {
     this.uiPathRegexes = uiPathRegexes;
   }
 
+  /**
+   * dont hit it every single time
+   */
+  private static ExpirableCache<String, String> configIdToMetadataResponseBodyExpirable = new ExpirableCache<String, String>(1);
+
+  private static Map<String, String> configIdToMetadataResponseBodyFailsafe = Collections.synchronizedMap(new HashMap<String, String>());
+
+  private static final java.util.concurrent.ConcurrentHashMap<String,Object> metadataLocks = new java.util.concurrent.ConcurrentHashMap<>();
 
   private void retrieveMetadata() {
+      
+    String metadataBody = configIdToMetadataResponseBodyExpirable.get(this.getClientConfigId());
+    
+    boolean retrievedNew = false;
+
+    if (StringUtils.isBlank(metadataBody)) {
+      
+      GrouperUtil.assertion(!StringUtils.isBlank(this.getClientConfigId()), "Client config id cannot be blank for oidc config");
+      
+      Object lock = metadataLocks.computeIfAbsent(this.getClientConfigId(), k -> new Object());
+      
+      synchronized (lock) {
+        
+        metadataBody = configIdToMetadataResponseBodyExpirable.get(this.getClientConfigId());
+  
+        if (StringUtils.isBlank(metadataBody)) {
+
+          try {
+
+            GrouperHttpClient request = new GrouperHttpClient()
+                .assignProxyUrl(this.proxyUrl)
+                .assignProxyType(this.proxyType)
+                .assignUrl(this.configurationMetadataUri)
+                .assignGrouperHttpMethod(GrouperHttpMethod.get)
+                .executeRequest();
+              
+            GrouperUtil.assertion(request.getResponseCode() == 200, "Invalid oidc well known url: "+this.configurationMetadataUri+ ", response code: "+request.getResponseCode());
+            
+            metadataBody = request.getResponseBody();
+            
+            retrievedNew = true;
+
+          } catch (RuntimeException re) {
+            
+            metadataBody = configIdToMetadataResponseBodyFailsafe.get(this.getClientConfigId());
+            
+            String error = "Error getting OIDC metadata for config '" + this.getClientConfigId()
+              + "' from " + this.configurationMetadataUri;
+            
+            if (StringUtils.isBlank(metadataBody)) {
+              GrouperUtil.injectInException(re, error);
+              throw re;
+            }
+            
+            LOG.error(error, re);
+            
+          }
+          
+        }
+
+      }  
+    }
+    
+    
     try {
-      
-      GrouperHttpClient request = new GrouperHttpClient()
-        .assignProxyUrl(this.proxyUrl)
-        .assignProxyType(this.proxyType)
-        .assignUrl(this.configurationMetadataUri)
-        .assignGrouperHttpMethod(GrouperHttpMethod.get)
-        .executeRequest();
-      
-      GrouperUtil.assertion(request.getResponseCode() == 200, "Invalid oidc well known url: "+this.configurationMetadataUri+ ", response code: "+request.getResponseCode());
-      
-      OIDCProviderMetadata providerMetadata = OIDCProviderMetadata.parse(request.getResponseBody());
+      OIDCProviderMetadata providerMetadata = OIDCProviderMetadata.parse(metadataBody);
       this.oidcProviderMetadata = providerMetadata;
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      String error = "Error getting metadata for oidc config: '" + this.getClientConfigId() + "'";
+      throw new RuntimeException(error, e);
     }
+    
+    if (!StringUtils.isBlank(metadataBody) && retrievedNew) {
+      configIdToMetadataResponseBodyExpirable.put(this.getClientConfigId(), metadataBody);
+      configIdToMetadataResponseBodyFailsafe.put(this.getClientConfigId(), metadataBody);
+    }
+    
+
  
   }
   
@@ -339,6 +402,7 @@ public class GrouperOidcConfig {
 
     GrouperOidcConfig grouperOidcConfig = new GrouperOidcConfig();
   
+    grouperOidcConfig.clientConfigId = externalSystemConfigId;
     grouperOidcConfig.claimSource = GrouperOIDCClaimSource.valueOf(GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".claimSource", "userInfoEndpoint"));
     
     grouperOidcConfig.proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".proxyUrl");
