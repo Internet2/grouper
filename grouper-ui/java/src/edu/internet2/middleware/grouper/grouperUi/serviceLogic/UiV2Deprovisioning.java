@@ -1059,10 +1059,14 @@ public class UiV2Deprovisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      deprovisioningContainer.assertDeprovisioningEnabledAndAllowed();
-      
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-            
+
+      if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNotConfigured")));
+        return;
+      }
+
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/deprovisioning/deprovisioningMain.jsp"));
       
@@ -1292,10 +1296,14 @@ public class UiV2Deprovisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      deprovisioningContainer.assertDeprovisioningEnabledAndAllowed();
-      
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
+
+      if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNotConfigured")));
+        return;
+      }
+
       String subjectString = request.getParameter("groupAddMemberComboName");
       
       if (StringUtils.isBlank(subjectString)) {
@@ -1404,7 +1412,13 @@ public class UiV2Deprovisioning {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      deprovisioningContainer.assertDeprovisioningEnabledAndAllowed();
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNotConfigured")));
+        return;
+      }
       
       GrouperDeprovisioningAffiliation deprovisioningAffiliation = retrieveAffiliation(request, loggedInSubject, true);
       
@@ -1423,8 +1437,6 @@ public class UiV2Deprovisioning {
       
       //String reason = 
 
-      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
       int failures = 0;
       
       Set<Membership> membershipsDeprovisionedSuccessfully = new HashSet<Membership>();
@@ -1566,10 +1578,14 @@ public class UiV2Deprovisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      deprovisioningContainer.assertDeprovisioningEnabledAndAllowed();
-      
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
+      if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNotConfigured")));
+        return;
+      }
+
       GrouperDeprovisioningAffiliation  deprovisioningAffiliation = retrieveAffiliation(request, loggedInSubject, false);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -1675,6 +1691,12 @@ public class UiV2Deprovisioning {
 
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();      
 
+      if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNotConfigured")));
+        return;
+      }
+
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
@@ -1682,10 +1704,6 @@ public class UiV2Deprovisioning {
           final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
           final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
           
-          if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
-            throw new RuntimeException("Deprovisioning is disabled");
-          }
-
           //get all the users who are deprovisioned
           Set<DeprovisionedSubject> subjectsWhoAreDeprovisioned = GrouperDeprovisioningLogic.subjectsWhoAreDeprovisionedInRelationToOwnerWithAffiliations(GROUP, false);
           
@@ -2525,10 +2543,17 @@ public class UiV2Deprovisioning {
         return;
       }
 
+      
       final Stem STEM = stem;
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();      
-  
+
+      if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNotConfigured")));
+        return;
+      }
+
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
@@ -2536,10 +2561,6 @@ public class UiV2Deprovisioning {
           final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
           final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
           
-          if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
-            throw new RuntimeException("Deprovisioning is disabled");
-          }
-  
           //get all the users who are deprovisioned
           Set<DeprovisionedSubject> subjectsWhoAreDeprovisioned = GrouperDeprovisioningLogic.subjectsWhoAreDeprovisionedInRelationToOwnerWithAffiliations(STEM, false);
           
@@ -2685,6 +2706,12 @@ public class UiV2Deprovisioning {
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
+      if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("deprovisioningNotConfigured")));
+        return;
+      }
+
       final AttributeDef ATTRIBUTE_DEF = attributeDef;
   
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -2694,10 +2721,6 @@ public class UiV2Deprovisioning {
           final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
           final DeprovisioningContainer deprovisioningContainer = grouperRequestContainer.getDeprovisioningContainer();
           
-          if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
-            throw new RuntimeException("Deprovisioning is disabled");
-          }
-  
           //get all the users who are deprovisioned
           Set<DeprovisionedSubject> subjectsWhoAreDeprovisioned = GrouperDeprovisioningLogic.subjectsWhoAreDeprovisionedInRelationToOwnerWithAffiliations(ATTRIBUTE_DEF, false);
           
