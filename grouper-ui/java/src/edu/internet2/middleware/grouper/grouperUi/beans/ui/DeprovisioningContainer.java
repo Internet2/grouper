@@ -277,20 +277,6 @@ public class DeprovisioningContainer {
   }
 
   /**
-   * make sure deprovisioning is enabled and allowed
-   */
-  public void assertDeprovisioningEnabledAndAllowed() {
-    if (!GrouperDeprovisioningSettings.deprovisioningEnabled()) {
-      throw new RuntimeException("Deprovisioning is disabled");
-    }
-    
-    if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getDeprovisioningContainer().isAllowedToDeprovision()) {
-      throw new RuntimeException("Not allowed to deprovision");
-    }
-
-  }
-  
-  /**
    * if deprovisioning is even enabled in the config
    * @return true if enabled
    */
