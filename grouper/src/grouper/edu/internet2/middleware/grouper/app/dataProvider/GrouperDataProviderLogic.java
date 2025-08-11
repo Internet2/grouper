@@ -258,7 +258,7 @@ public class GrouperDataProviderLogic {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       if (rows.size() == 0) {
-        return;
+        continue;
       }
       
       String subjectIdAttribute = grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySubjectIdAttribute().toLowerCase();
@@ -330,6 +330,10 @@ public class GrouperDataProviderLogic {
         Map<String, Subject> subjectsByIdentitifers = SubjectFinder.findByIdentifiers(theSubjectIdentifiers, sourceId);
         allSubjects.addAll(subjectsByIdentitifers.values());
       }
+    }
+    
+    if (allSubjects.size() == 0) {
+      return;
     }
     
     Set<Member> members = MemberFinder.findBySubjects(allSubjects, true);
