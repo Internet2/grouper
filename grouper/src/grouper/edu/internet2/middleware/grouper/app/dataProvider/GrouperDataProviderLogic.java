@@ -1043,7 +1043,7 @@ public class GrouperDataProviderLogic {
 
       {
         // this is slow when not passing in a set here
-        needsDictionaryText.removeAll(new HashSet<String>(dataEngine.getGrouperDataProviderIndex().getDictionaryTextByInternalId().values()));
+        needsDictionaryText.removeAll(dataEngine.getGrouperDataProviderIndex().getDictionaryTextByString().keySet());
         
         if (needsDictionaryText.size() > 0) {
           Map<String, Long> dictionaryTextToInternalId = GrouperDictionaryDao.findOrAdd(needsDictionaryText);
