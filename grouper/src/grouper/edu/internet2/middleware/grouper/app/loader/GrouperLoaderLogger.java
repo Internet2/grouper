@@ -299,6 +299,10 @@ public class GrouperLoaderLogger {
     //init
     Map<String, Object> logMap = retrieveMap(label);
     
+    if (logMap == null) {
+      return;
+    }
+    
     if (LOG.isDebugEnabled()) {
       LOG.debug(Thread.currentThread().getId() + ", do logging '" + label + "', logId: " + GrouperUtil.nonNull(retrieveUberMap().get(label)).get("logId"));
     }
