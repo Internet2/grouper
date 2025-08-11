@@ -430,8 +430,9 @@ public class GrouperDataProviderLogic {
       if (grouperDataFieldAssign.getValueDictionaryInternalId() != null) {
         // TODO fix race conditions here
         String textValue = dataEngine.getGrouperDataProviderIndex().getDictionaryTextByInternalId().get(grouperDataFieldAssign.getValueDictionaryInternalId());
+        
         GrouperUtil.assertion(!StringUtils.isBlank(textValue) 
-            && !dataEngine.getGrouperDataProviderIndex().getDictionaryTextByInternalId().containsKey(grouperDataFieldAssign.getValueDictionaryInternalId()), 
+            && dataEngine.getGrouperDataProviderIndex().getDictionaryTextByInternalId().containsKey(grouperDataFieldAssign.getValueDictionaryInternalId()), 
             "Cant find text: " + grouperDataFieldAssign.getValueDictionaryInternalId());
         grouperDataFieldAssignWrapper.setTextValue(textValue);
       }
