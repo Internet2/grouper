@@ -33,9 +33,7 @@ public class GrouperSqlDataProviderQueryTargetDao extends GrouperDataProviderQue
 
     List<Object[]> rows = new ArrayList<Object[]>();
     
-    if (members.size() > 0) {
-      GcDbAccess gcDbAccess = new GcDbAccess().connectionName(grouperDataProviderQueryConfig.getProviderQuerySqlConfigId());
-      
+    if (members.size() > 0) {      
       int batchSize = 200;
       List<Member> membersList = new ArrayList<Member>(members);
       
@@ -48,6 +46,8 @@ public class GrouperSqlDataProviderQueryTargetDao extends GrouperDataProviderQue
         GrouperClientUtils.appendQuestions(sql, GrouperUtil.length(batchMembers));
         sql.append(")");
         
+        GcDbAccess gcDbAccess = new GcDbAccess().connectionName(grouperDataProviderQueryConfig.getProviderQuerySqlConfigId());
+
         for (Member member : batchMembers) {
           if ("subjectIdentifier".equals(grouperDataProviderQueryConfig.getProviderQuerySubjectIdType())) {
             // we probably shouldn't assume this is subjectIdentifier0???
