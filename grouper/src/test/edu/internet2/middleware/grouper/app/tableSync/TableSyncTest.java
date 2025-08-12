@@ -61,7 +61,7 @@ public class TableSyncTest extends GrouperTest {
     
     
 //    TestRunner.run(new TableSyncTest("testTableSyncMetadata"));
-    TestRunner.run(new TableSyncTest("testPersonSyncFull"));
+    TestRunner.run(new TableSyncTest("testPersonSyncFullMinRecords"));
     
 //    BigDecimal a = new BigDecimal(1);
 //    BigDecimal b = new BigDecimal(1.000);
@@ -874,6 +874,113 @@ public class TableSyncTest extends GrouperTest {
       
       GrouperLoader.runOnceByJobName(this.grouperSession, "OTHER_JOB_person_source_test_full");
 
+
+    }
+
+    /**
+     * 
+     */
+    public void testPersonSyncFullMinRecords() {
+      
+      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseFrom", "grouper");
+      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableFrom", "testgrouper_sync_subject_from");
+      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseTo", "grouper");
+      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableTo", "testgrouper_sync_subject_to");
+      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.columns", "*");
+      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.minimumResultsExpected", "1");
+      GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.primaryKeyColumns", "person_id");
+      
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.person_source_test_full.class", "edu.internet2.middleware.grouper.app.tableSync.TableSyncOtherJob");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.person_source_test_full.quartzCron", "0 0 2 * * ?");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.person_source_test_full.grouperClientTableSyncConfigKey", "personSourceTest");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.person_source_test_full.syncType", "fullSyncFull");
+      
+      int countFrom = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_from");
+      
+      assertEquals(0, countFrom);
+  
+      int countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
+      
+      assertEquals(0, countTo);
+  
+      List<TestgrouperSyncSubjectFrom> testgrouperSyncSubjectFroms = new ArrayList<TestgrouperSyncSubjectFrom>();
+      
+      long now = System.currentTimeMillis();
+      Calendar date = new GregorianCalendar();
+      date.setTimeInMillis(now);
+      date.set(Calendar.HOUR_OF_DAY, 0);
+      date.set(Calendar.MINUTE, 0);
+      date.set(Calendar.MILLISECOND, 0);
+      date.set(Calendar.SECOND, 0);
+  
+      Calendar timestamp = new GregorianCalendar();
+      timestamp.setTimeInMillis(now);
+      timestamp.set(Calendar.MILLISECOND, 0);
+      timestamp.add(Calendar.HOUR_OF_DAY, 1);
+      timestamp.add(Calendar.MINUTE, 1);
+      
+      int recordsSize = 25000;
+      
+      for (int i=0;i<recordsSize;i++) {
+        TestgrouperSyncSubjectFrom testgrouperSyncSubjectFrom = new TestgrouperSyncSubjectFrom();
+        testgrouperSyncSubjectFrom.setPersonId(i);
+        testgrouperSyncSubjectFrom.setNetId("netId_" + i);
+        testgrouperSyncSubjectFrom.setSomeInt(1+i);
+        
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(date.getTimeInMillis());
+        calendar.add(Calendar.DAY_OF_YEAR, i);
+  
+        testgrouperSyncSubjectFrom.setSomeDate(calendar.getTime()); // yyyy/mm/dd
+        testgrouperSyncSubjectFrom.setSomeFloat(1.1d + i);
+        
+        calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(timestamp.getTimeInMillis());
+        calendar.add(Calendar.DAY_OF_YEAR, i);
+        
+        testgrouperSyncSubjectFrom.setSomeTimestamp(new Timestamp(calendar.getTimeInMillis()));
+        testgrouperSyncSubjectFroms.add(testgrouperSyncSubjectFrom);
+        
+        if (testgrouperSyncSubjectFroms.size() == 1000) {
+          HibernateSession.byObjectStatic().saveBatch(testgrouperSyncSubjectFroms);
+          testgrouperSyncSubjectFroms.clear();
+        }
+        
+      }
+      if (testgrouperSyncSubjectFroms.size() > 0) {
+        HibernateSession.byObjectStatic().saveBatch(testgrouperSyncSubjectFroms);
+      }
+  
+      //lets sync these over
+      
+      GcTableSync gcTableSync = new GcTableSync(); 
+      GcTableSyncOutput gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.fullSyncFull); 
+  
+      assertEquals(0, gcTableSyncOutput.getDelete());
+      assertEquals(0, gcTableSyncOutput.getUpdate());
+      assertEquals(recordsSize, gcTableSyncOutput.getRowsSelectedFrom());
+      assertEquals(recordsSize, gcTableSyncOutput.getInsert());
+      assertEquals(recordsSize, gcTableSync.getGcGrouperSync().getRecordsCount().intValue());
+  
+      countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
+  
+      assertEquals(recordsSize, countTo);
+
+      // delete all from the from table
+      HibernateSession.bySqlStatic().executeSql("delete from testgrouper_sync_subject_from");
+      
+      // do it again should do nothing
+      gcTableSync = new GcTableSync();
+      gcTableSyncOutput = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.fullSyncFull);
+      assertEquals(0, gcTableSyncOutput.getDelete());
+      assertEquals(0, gcTableSyncOutput.getUpdate());
+      assertEquals(0, gcTableSyncOutput.getRowsSelectedFrom());
+      assertEquals(0, gcTableSyncOutput.getInsert());
+      countFrom = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_from");
+      assertEquals(0, countFrom);
+      countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
+      assertEquals(recordsSize, countTo);
+      
 
     }
 

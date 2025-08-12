@@ -389,6 +389,17 @@ public class GcTableSync {
         debugMap.put("state", "formatData");
         this.gcTableSyncConfiguration.getGcTableSyncSubtype().formatData(debugMap, this);
 
+        // check to see if there is minimal data to sync
+        if (this.gcTableSyncConfiguration.getGcTableSyncSubtype().isFullSync() && this.gcTableSyncConfiguration.getMinimumResultsExpected() > -1) {
+          debugMap.put("minimumResultsExpected", this.gcTableSyncConfiguration.getMinimumResultsExpected());
+          if (this.gcTableSyncOutput.getRowsSelectedFrom() < this.gcTableSyncConfiguration.getMinimumResultsExpected()) {
+            debugMap.put("minimumResultsNotMet", true);
+            debugMap.put("state", "done");
+            gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR_FAILSAFE);
+            return this.gcTableSyncOutput;
+          }
+        }
+        
         // step 3
         debugMap.put("state", "syncData");
         {

@@ -133,6 +133,28 @@ public class GcTableSyncConfiguration {
    */
   private int maxBindVarsInSelect = 900;
 
+  /**
+   * minimum results expected, if this is set to -1, then it will not check
+   */
+  private int minimumResultsExpected = -1;
+  
+  
+  /**
+   * minimum results expected, if this is set to -1, then it will not check
+   * @return the minimumResultsExpected
+   */
+  public int getMinimumResultsExpected() {
+    return this.minimumResultsExpected;
+  }
+  
+  
+  /**
+   * minimum results expected, if this is set to -1, then it will not check
+   * @param minimumResultsExpected1 the minimumResultsExpected to set
+   */
+  public void setMinimumResultsExpected(int minimumResultsExpected1) {
+    this.minimumResultsExpected = minimumResultsExpected1;
+  }
   
   /**
    * number of bind vars in select
@@ -579,6 +601,10 @@ public class GcTableSyncConfiguration {
       if (this.batchSize != defaultBatchSize) {
         debugMap.put("configBatchSize", this.batchSize);
       }
+      
+      // grouperClient.syncTable.personSource.minimumResultsExpected = 1000
+      // if this is set to -1, then it will not check
+      this.minimumResultsExpected = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt( "minimumResultsExpected" , false), defaultBatchSize);
       
       boolean defaultRemoveNullCharactersFromStrings = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.syncTableDefault.removeNullCharactersFromStrings", false);
       // grouperClient.syncTable.personSource.removeNullCharactersFromStrings = true
