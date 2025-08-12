@@ -151,14 +151,14 @@ function _addUrlOptions(url, options) {
       if (document.getElementsByName(additionalFormElementName) != null
           && document.getElementsByName(additionalFormElementName).length > 0
           && document.getElementsByName(additionalFormElementName)[0] != null) {
-        result = url.indexOf("?") == -1 ? "?" : "&";
+        result += url.indexOf("?") == -1 ? "?" : "&";
         result += additionalFormElementName + "=";
         //this will work for simple elements
         result += encodeURIComponent(document.getElementsByName(additionalFormElementName)[0].value);
       }
     }
   }
-  console.log("Extra options: " + result);
+  //console.log("Extra options: " + result);
   return result;
 }
 
