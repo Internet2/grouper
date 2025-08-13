@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefScope;
@@ -61,6 +62,7 @@ import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.export.XmlExportMain;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -73,7 +75,7 @@ public class XmlImportMainTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new XmlImportMainTest("testImport_v1_6_0"));
+    TestRunner.run(new XmlImportMainTest("testMembershipAssignments"));
   }
 
   /**
@@ -277,9 +279,14 @@ public class XmlImportMainTest extends GrouperTest {
 
     Stem stem = StemFinder.findByName(grouperSession, "etc", true);
 
+    Group groupB = stem.addChildGroup("groupB", "groupB");
+    groupB.addMember(SubjectTestHelper.SUBJ1);
+    
     Group groupA = stem.addChildGroup("groupA", "groupA");
     groupA.addMember(SubjectTestHelper.SUBJ0);
 
+    groupA.addMember(groupB.toSubject());
+    
     AttributeDef attributeDef = stem.addChildAttributeDef("attributeDef", AttributeDefType.attr);
     attributeDef.setAssignToStem(true);
     attributeDef.setAssignToImmMembership(true);
@@ -298,6 +305,7 @@ public class XmlImportMainTest extends GrouperTest {
     XmlExportMain xmlExportMain = new XmlExportMain();
     xmlExportMain.writeAllTables(w, "a string");
     String xml = w.toString();
+    System.out.println(xml);
     
     RegistryReset.reset();
     GrouperTest.initGroupsAndAttributes();
@@ -310,6 +318,11 @@ public class XmlImportMainTest extends GrouperTest {
     immediateMembership = MembershipFinder.findImmediateMembership(grouperSession, groupA, SubjectTestHelper.SUBJ0, Group.getDefaultList(), true);
     assertEquals("value1", immediateMembership.getAttributeValueDelegate().retrieveValueString(attributeDefName.getName()));
     assertEquals("value2", immediateMembership.getAttributeDelegate().retrieveAssignments().iterator().next().getAttributeValueDelegate().retrieveValueString(attributeDefName.getName()));
+
+    Subject subject1 = SubjectFinder.findById(SubjectTestHelper.SUBJ1.getId(), true);
+
+    assertTrue(groupA.hasMember(subject1));
+    
   }
   
 }

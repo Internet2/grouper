@@ -1765,9 +1765,9 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
       Stem parent = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.stemId, true);
       existingRecord = parent.internal_addChildAttributeDef(GrouperSession.staticGrouperSession(), 
           this.extension, this.id, this.attributeDefType, this.description);
-      if (this.idIndex != null) {
-        existingRecord.assignIdIndex(this.idIndex);
-      }
+//      if (this.idIndex != null) {
+//        existingRecord.assignIdIndex(this.idIndex);
+//      }
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
