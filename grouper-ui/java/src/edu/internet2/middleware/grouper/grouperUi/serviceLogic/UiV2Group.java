@@ -28,9 +28,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -68,13 +70,27 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceAttributeNames;
+import edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -98,6 +114,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPITMembershipView
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGrouperObjectTypesAttributeValue;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning.GuiGrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
@@ -106,6 +123,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupSummaryContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupTypeForEdit;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
@@ -116,6 +134,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
@@ -329,6 +348,381 @@ public class UiV2Group {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/viewGroup.jsp"));
+
+      if (GrouperUiUtils.isMenuRefreshOnView()) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("openFolderTreePathToObject(" + GrouperUiUtils.pathArrayToCurrentObject(grouperSession, group) + ")"));
+      }
+      
+      GroupSummaryContainer groupSummaryContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupSummaryContainer();
+      
+      //types section
+      {
+        List<GrouperObjectTypesAttributeValue> attributeValuesForGroup = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(group);
+        GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValuesForGroup);
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getObjectTypeContainer().setGuiConfiguredGrouperObjectTypesAttributeValues(GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValuesForGroup));
+        System.out.println("attributeValuesForGroup = "+attributeValuesForGroup.size());
+      }
+      
+      //memberships section
+      {
+        Collection<Source> sources = SourceManager.getInstance().getSources();
+        Iterator<Source> iterator = sources.iterator();
+        while (iterator.hasNext()) {
+          Source source = iterator.next();
+          if (source.getId().equals("g:gsa")) {
+            //This is to filter group type members
+            iterator.remove();
+          }
+        }
+        
+        // get not-group members count
+        QueryOptions queryOptions = new QueryOptions();
+        queryOptions.retrieveCount(true);
+        queryOptions.retrieveResults(false);
+        new MembershipFinder().addField(Group.getDefaultList())
+        .addGroup(group).assignQueryOptionsForMember(queryOptions)
+        .assignSources(new HashSet<Source>(sources))
+//        .assignMembershipType(MembershipType.IMMEDIATE)
+        .findMembershipResult();
+          
+         int directNotGroupMembersCount = queryOptions.getCount().intValue();
+         groupSummaryContainer.setNotGroupMembersCount(directNotGroupMembersCount); // members that are non-groups
+         
+         //get total members count (direct + indirect and subjects + groups)
+         queryOptions = new QueryOptions();
+         queryOptions.retrieveCount(true);
+         queryOptions.retrieveResults(false);
+         new MembershipFinder().addField(Group.getDefaultList())
+            .addGroup(group).assignQueryOptionsForMember(queryOptions)
+            .findMembershipResult();
+         
+         int totalMembersCount = queryOptions.getCount().intValue();
+         groupSummaryContainer.setTotalMembersCount(totalMembersCount);
+         
+         
+         //get total direct members count 
+         queryOptions = new QueryOptions();
+         queryOptions.retrieveCount(true);
+         queryOptions.retrieveResults(false);
+         new MembershipFinder().addField(Group.getDefaultList())
+            .addGroup(group).assignQueryOptionsForMember(queryOptions)
+            .assignMembershipType(MembershipType.IMMEDIATE)
+            .findMembershipResult();
+        
+        int directMembersCount = queryOptions.getCount().intValue();
+        groupSummaryContainer.setDirectMembersCount(directMembersCount); // members that are direct and subjects + groups
+        
+        // get direct group members count
+        queryOptions = new QueryOptions();
+        queryOptions.retrieveCount(true);
+        queryOptions.retrieveResults(false);
+        
+        new MembershipFinder().addField(Group.getDefaultList())
+        .addGroup(group).assignQueryOptionsForMember(queryOptions)
+        .addSourceId("g:gsa")
+        .assignMembershipType(MembershipType.IMMEDIATE)
+        .findMembershipResult();
+        
+        int directGroupMembersCount = queryOptions.getCount().intValue();
+        groupSummaryContainer.setDirectGroupMembersCount(directGroupMembersCount);
+        
+        if (directGroupMembersCount < 5) {
+          
+          MembershipResult membershipResult = new MembershipFinder()
+          .addField(Group.getDefaultList())
+          .addGroup(group)
+          .addSourceId("g:gsa")
+          .assignMembershipType(MembershipType.IMMEDIATE)
+          .findMembershipResult();
+          
+          Set<Member> directGroupMembers = membershipResult.members();
+          groupSummaryContainer.setDirectGroupMembers(directGroupMembers);
+        }
+        
+        // find the number of groups where this group is being used as a member
+        Member member = MemberFinder.findBySubject(grouperSession, group.toSubject(), false);
+        if (member != null) {
+          queryOptions = new QueryOptions();
+          queryOptions.retrieveCount(true);
+          queryOptions.retrieveResults(false);
+          new MembershipFinder()
+          .addField(Group.getDefaultList())
+          .addMemberId(member.getId())
+          .assignQueryOptionsForMember(queryOptions)
+          .findMembershipResult();
+          
+          int countWhereTheGroupIsMember = queryOptions.getCount().intValue();
+          groupSummaryContainer.setGroupAsMemberCount(countWhereTheGroupIsMember);
+          
+          
+          if (countWhereTheGroupIsMember < 5) {
+            //show the actual groups now
+            MembershipResult membershipResult = new MembershipFinder()
+            .addField(Group.getDefaultList())
+            .addMemberId(member.getId())
+            .findMembershipResult();
+            
+            Set<Group> groupsWhereTheCurrentGroupIsMemberOf = membershipResult.groups();
+            groupSummaryContainer.setGroupsWhereTheCurrentGroupIsMemberOf(groupsWhereTheCurrentGroupIsMemberOf);
+          }
+          
+        }
+      }
+      
+      //loader section
+      {
+        
+      }
+      
+      //composite section
+      {
+        Composite composite = group.getComposite(false);
+        if (composite != null) {
+          groupSummaryContainer.setComposite(true);
+          Group leftGroup = composite.getLeftGroup();
+          groupSummaryContainer.setCompositeLeftGroup(leftGroup);
+          Group rightGroup = composite.getRightGroup();
+          groupSummaryContainer.setCompositeRightGroup(rightGroup);
+          CompositeType compositeType = composite.getType();
+          groupSummaryContainer.setCompositeType(compositeType);
+        }
+        
+        //get the composites
+        Set<Composite> composites = CompositeFinder.findAsFactor(group);
+        groupSummaryContainer.setCompositeSize(composites.size());
+        //if composites size is less than 5, then show the factors otherwise just show the count
+        if (composites.size() < 5) {
+          groupSummaryContainer.setComposites(composites);
+        }
+        
+      }
+      
+      //provisioning section
+      {
+        List<GrouperProvisioningAttributeValue> provisioningAttributeValues = GrouperProvisioningService.getProvisioningAttributeValues(group);
+        
+        groupSummaryContainer.setProvisioningAssignmentCount(provisioningAttributeValues.size());
+        
+        if (provisioningAttributeValues.size() < 10) {
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          List<GrouperProvisioningAttributeValue> provisioningAttributeValuesViewable = new ArrayList<GrouperProvisioningAttributeValue>();
+          Set<String> targetNamesAlreadyAdded = new HashSet<>();
+          for (GrouperProvisioningAttributeValue grouperProvisioningAttributeValue: provisioningAttributeValues) {
+            
+            String localTargetName = grouperProvisioningAttributeValue.getTargetName();
+            GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(localTargetName);
+            if (grouperProvisioningTarget != null && GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, group)) {
+              provisioningAttributeValuesViewable.add(grouperProvisioningAttributeValue);
+              targetNamesAlreadyAdded.add(grouperProvisioningAttributeValue.getTargetName());
+            }
+          }
+          
+          // convert from raw to gui
+          List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(provisioningAttributeValuesViewable, group);
+          
+          Collections.sort(guiGrouperProvisioningAttributeValues, new Comparator<GuiGrouperProvisioningAttributeValue>() {
+
+            @Override
+            public int compare(GuiGrouperProvisioningAttributeValue o1,
+                GuiGrouperProvisioningAttributeValue o2) {
+              return o1.getExternalizedName().compareTo(o2.getExternalizedName());
+            }
+          });
+          
+          groupSummaryContainer.setGuiGrouperProvisioningAttributeValues(guiGrouperProvisioningAttributeValues);
+          
+        }
+      }
+      
+      //attestation section
+      {
+        AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, 
+            GrouperAttestationJob.retrieveAttributeDefNameValueDef(), true, false);
+        if (attributeAssign != null) {
+          //attestation configured
+          groupSummaryContainer.setAttestation(true);
+          
+          AttributeDefName attributeDefNameDateCertified = GrouperAttestationJob.retrieveAttributeDefNameDateCertified();
+          String attestationDateCertified = attributeAssign.getAttributeValueDelegate().retrieveValueString(attributeDefNameDateCertified.getName());
+          groupSummaryContainer.setAttestationDateCertified(attestationDateCertified);
+        } 
+      }
+      
+      //attributes section
+      {
+        //TODO optimize to get the count only
+        Set<AttributeDefName> builtInAttributeDefNames = new HashSet<AttributeDefName>();
+        
+        AttributeDefName rulesAttributeDefName = AttributeDefNameFinder.findByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:rules:rule", false);
+        if (rulesAttributeDefName != null) {
+          builtInAttributeDefNames.add(rulesAttributeDefName);
+        }
+        
+        AttributeDefName objectTypesAttributeDefNameBase = GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase();
+        builtInAttributeDefNames.add(objectTypesAttributeDefNameBase);
+        
+        AttributeDefName deprovisioningAttributeDefNameBase = GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase();
+        builtInAttributeDefNames.add(deprovisioningAttributeDefNameBase);
+        
+        AttributeDefName provisioningAttributeDefNameBase = GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase();
+        builtInAttributeDefNames.add(provisioningAttributeDefNameBase);
+        
+        AttributeDefName reportConfigAttributeDefNameBase = GrouperReportConfigAttributeNames.retrieveAttributeDefNameBase();
+        builtInAttributeDefNames.add(reportConfigAttributeDefNameBase);
+        
+        AttributeDefName reportInstanceAttributeDefNameBase = GrouperReportInstanceAttributeNames.retrieveAttributeDefNameBase();
+        builtInAttributeDefNames.add(reportInstanceAttributeDefNameBase);
+        
+        AttributeDefName workflowConfigAttributeDefNameBase = GrouperWorkflowConfigAttributeNames.retrieveAttributeDefNameBase();
+        builtInAttributeDefNames.add(workflowConfigAttributeDefNameBase);
+        
+        AttributeDefName workflowInstanceAttributeDefNameBase = GrouperWorkflowInstanceAttributeNames.retrieveAttributeDefNameBase();
+        builtInAttributeDefNames.add(workflowInstanceAttributeDefNameBase);
+        
+        AttributeDefName usduAttributeDefNameBase = UsduAttributeNames.retrieveAttributeDefNameBase();
+        builtInAttributeDefNames.add(usduAttributeDefNameBase);
+        
+        AttributeDefName attestationAttributeDefName = GrouperAttestationJob.retrieveAttributeDefNameValueDef();
+        builtInAttributeDefNames.add(attestationAttributeDefName);
+        
+        Set<AttributeAssign> assignments = group.getAttributeDelegate().retrieveAssignments();
+        //filter the built-in attributes like provisioning, attestation, etc
+        Set<AttributeAssign> filteredAssignments = new HashSet<AttributeAssign>();
+        for (AttributeAssign attributeAssign : GrouperUtil.nonNull(assignments)) {
+          if (!builtInAttributeDefNames.contains(attributeAssign.getAttributeDefName())) {
+            filteredAssignments.add(attributeAssign);
+          }
+          
+        }
+        groupSummaryContainer.setAttributeAssignmentsCount(filteredAssignments.size());
+      }
+      
+      //rules section
+      {
+        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:rules:rule", false);
+        if (attributeDefName != null) {
+          Set<AttributeAssign> ruleAssignments = group.getAttributeDelegate().retrieveAssignments(attributeDefName);
+          if (GrouperUtil.length(ruleAssignments) > 0 ) {
+            groupSummaryContainer.setRulesCount(ruleAssignments.size());
+          }
+        }
+        
+        //now show how many other groups/folders reference this group in a rule
+        Set<RuleDefinition> ruleDefinitions = RuleFinder.retrieveRuleDefinitionsForGrouperObject(group);
+        if (GrouperUtil.length(ruleDefinitions) > 0) {          
+          groupSummaryContainer.setRulesCountWhereGroupIsUsed(ruleDefinitions.size());
+        }
+      }
+      
+      //recent memberships changes section
+      {
+        QueryOptions queryOptions = new QueryOptions();
+        queryOptions.retrieveCount(true);
+        queryOptions.retrieveResults(false);
+        
+        Timestamp membershipPITFromDate = new Timestamp(System.currentTimeMillis() - 30 * 24 * 60 * 60 * 1000L); //30 days ago
+        Timestamp membershipPITToDate = new Timestamp(System.currentTimeMillis());
+        
+        MembershipFinder membershipFinder = new MembershipFinder()
+            .addGroupId(group.getId())
+            .assignHasFieldForMember(true)
+            .assignPointInTimeFrom(membershipPITFromDate)
+            .assignPointInTimeTo(membershipPITToDate)
+            .assignEnabled(true)
+            .assignQueryOptionsForMember(queryOptions);
+            
+       membershipFinder.findPITMembershipsMembers();
+            
+       int newMembershipsInTheLastMonth = queryOptions.getCount().intValue();
+       groupSummaryContainer.setNewMembershipsInTheLastMonth(newMembershipsInTheLastMonth);
+       
+       queryOptions = new QueryOptions();
+       queryOptions.retrieveCount(true);
+       queryOptions.retrieveResults(false);
+       membershipFinder = new MembershipFinder()
+           .addGroupId(group.getId())
+           .assignHasFieldForMember(true)
+           .assignPointInTimeFrom(membershipPITFromDate)
+           .assignPointInTimeTo(membershipPITToDate)
+           .assignHasDisabledDate(true) //TODO confirm with Chris
+           .assignEnabled(false)
+           .assignQueryOptionsForMember(queryOptions);
+       
+       int membershipsRemovedInTheLastMonth = queryOptions.getCount() == null ? 0: queryOptions.getCount().intValue();
+       groupSummaryContainer.setMembershipsRemovedInTheLastMonth(membershipsRemovedInTheLastMonth);
+      
+      }
+      
+      //recent audits section
+      {
+        Timestamp fromDate = new Timestamp(System.currentTimeMillis() - 30 * 24 * 60 * 60 * 1000L); //30 days ago
+        Timestamp toDate = new Timestamp(System.currentTimeMillis());
+        
+        QueryOptions queryOptions = new QueryOptions();
+        queryOptions.retrieveCount(true);
+        queryOptions.retrieveResults(false);
+        
+        UserAuditQuery query = new UserAuditQuery();
+        query.setFromDate(fromDate);
+        query.setToDate(toDate);
+        query.setQueryOptions(queryOptions);
+        query.addAuditTypeFieldValue("groupId", group.getId());
+        
+        query.execute();
+        
+        int auditsInTheLastMonth = queryOptions.getCount().intValue();
+        groupSummaryContainer.setAuditsInTheLastMonth(auditsInTheLastMonth);
+      }
+      
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupFilterResultsId", 
+          "/WEB-INF/grouperUi2/group/groupSummary.jsp"));
+      
+//      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanRead()) {
+//        filterHelper(request, response, group);
+//      }
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * view group
+   * @param request
+   * @param response
+   */
+  public void viewGroupMembers(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      if (group.getTypeOfGroup() == TypeOfGroup.entity) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=" + group.getId() + "')"));
+        return;
+      }
+      
+      if (retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup() != null) {
+        UiV2Attestation.setupAttestation(group);            
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/group/viewGroupMembers.jsp"));
 
       if (GrouperUiUtils.isMenuRefreshOnView()) {
         guiResponseJs.addAction(GuiScreenAction.newScript("openFolderTreePathToObject(" + GrouperUiUtils.pathArrayToCurrentObject(grouperSession, group) + ")"));

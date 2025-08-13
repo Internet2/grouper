@@ -17,7 +17,8 @@ ${grouper:titleFromKeyAndText('groupPrivilegesPageTitle', grouperRequestContaine
               <div class="span12 tab-interface">
 
                 <ul class="nav nav-tabs">
-                  <li><a role="tab" href="?operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
+                  <li><a role="tab" href="?operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});">${textContainer.text['groupSummaryTab'] }</a></li>
+                  <li><a role="tab" href="?operation=UiV2Group.viewGroupMembers&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return guiV2link('operation=UiV2Group.viewGroupMembers&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
                   <li class="active"><a role="tab"  aria-selected="true" href="#" onclick="return false;" >${textContainer.text['groupPrivilegesTab'] }</a></li>
                   <%@ include file="groupMoreTab.jsp" %>
                 </ul>
