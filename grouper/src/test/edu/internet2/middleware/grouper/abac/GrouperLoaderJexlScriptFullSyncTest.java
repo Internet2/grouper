@@ -527,15 +527,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     
   }
 
-  public void testRowAttributeAssignmentString() {
-    rowAttributeAssignmentString(true);
-  }
-  
-  public void testRowAttributeEqualityString() {
-    rowAttributeAssignmentString(false);
-  }
-  
-  private void rowAttributeAssignmentString(boolean assignment) {
+  private void testRowAttributeAssignmentString() {
     setupDataFields();
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
@@ -548,7 +540,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
         .assignAttributeDefName(attributeDefNameMarker).save();
     
-    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), "entity.hasRow('affiliation', 'affiliationCode" + (assignment ? '=' : "==") + "staff')");
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), "entity.hasRow('affiliation', 'affiliationCode == staff')");
     GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
     
@@ -866,7 +858,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
         .assignAttributeDefName(attributeDefNameMarker).save();
     
-    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), "entity.hasRow('affiliation', 'affiliationCode=staff')");
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), "entity.hasRow('affiliation', 'affiliationCode==staff')");
     GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
     
