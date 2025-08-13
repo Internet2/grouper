@@ -24,6 +24,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Element;
@@ -54,9 +55,9 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -228,6 +229,7 @@ public class XmlExportUtils {
       
     }); 
 
+    registeredClasses.clear();
     registerClass(xStream, XmlExportAttributeAssign.class);
     registerClass(xStream, XmlExportAttributeAssignAction.class);
     registerClass(xStream, XmlExportAttributeAssignActionSet.class);
@@ -245,6 +247,7 @@ public class XmlExportUtils {
     registerClass(xStream, XmlExportMembership.class);
     registerClass(xStream, XmlExportStem.class);
     registerClass(xStream, XmlExportRoleSet.class);
+    xStream.allowTypes(GrouperUtil.toArray(registeredClasses, Class.class));
     return xStream;
   }
 
@@ -754,6 +757,8 @@ public class XmlExportUtils {
     }
   }  
   
+  private static Set<Class<?>> registeredClasses = new java.util.HashSet<Class<?>>();
+  
   /**
    * 
    * @param xStream
@@ -761,6 +766,7 @@ public class XmlExportUtils {
    */
   private static void registerClass(XStream xStream, Class<?> theClass) {
     xStream.alias(theClass.getSimpleName(), theClass);
+    registeredClasses.add(theClass);
   }
 
   /**

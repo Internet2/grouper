@@ -4303,11 +4303,13 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     //if its an insert, call the business method
     if (existingRecord == null) {
       existingRecord = this.clone();
+      existingRecord.setIdIndex(null);
+      existingRecord.setInternalId(null);
       GrouperDAOFactory.getFactory().getMember().create(existingRecord);
       
-      if (this.idIndex != null) {
-        existingRecord.assignIdIndex(this.idIndex);
-      }
+//      if (this.idIndex != null) {
+//        existingRecord.assignIdIndex(this.idIndex);
+//      }
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields

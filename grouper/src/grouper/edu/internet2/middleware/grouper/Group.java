@@ -8215,9 +8215,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       } else {
         throw new RuntimeException("Not expecting type of group: " + this.getTypeOfGroup());
       }
-      if (this.idIndex != null) {
-        existingRecord.assignIdIndex(this.idIndex);
-      }
+//      if (this.idIndex != null) {
+//        existingRecord.assignIdIndex(this.idIndex);
+//      }
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields

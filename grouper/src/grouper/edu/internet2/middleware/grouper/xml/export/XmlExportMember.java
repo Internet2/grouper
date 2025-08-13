@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
@@ -173,7 +173,7 @@ public class XmlExportMember {
               final Member member = (Member)object;
               
               //comments to dereference the foreign keys
-              if (xmlExportMain.isIncludeComments() && StringUtils.equals("g:gsa", member.getSubjectSourceId())) {
+              if (xmlExportMain.isIncludeComments() && Strings.CS.equals("g:gsa", member.getSubjectSourceId())) {
                 HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
                   
                   public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -843,7 +843,13 @@ public class XmlExportMember {
                 
                 Member member = xmlExportMemberFromFile.toMember();
                 
-                XmlExportUtils.syncImportable(member, xmlImportMain);
+                // if this is a group or system or grouper all, then do not import
+                if (member == null || !Strings.CS.containsAny(member.getSubjectSourceId(), "g:gsa", "g:isa")) {
+                  XmlExportUtils.syncImportable(member, xmlImportMain);
+                } else {
+                  xmlImportMain.getMemberIdToIdentifierTranslation().put(member.getUuid(), member.getSubjectIdentifier0());
+                }
+                
                 
                 xmlImportMain.incrementCurrentCount();
               } catch (RuntimeException re) {

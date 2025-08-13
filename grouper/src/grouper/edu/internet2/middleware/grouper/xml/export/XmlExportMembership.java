@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
@@ -54,6 +55,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 
 /**
@@ -657,6 +659,31 @@ public class XmlExportMembership {
                 XmlExportMembership xmlExportMembershipFromFile = (XmlExportMembership)xmlImportMain.getXstream().unmarshal(new Dom4JReader(row));
                 
                 Membership membership = xmlExportMembershipFromFile.toMembership();
+                
+                // see if this is translated
+                String newMemberId = xmlImportMain.getUuidTranslation().get(membership.getMemberUuid());
+                
+                String subjectIdentifier = xmlImportMain.getMemberIdToIdentifierTranslation().get(membership.getMemberUuid());
+                if (!StringUtils.isBlank(subjectIdentifier) && StringUtils.isBlank(newMemberId)) {
+                  if (Strings.CS.equals("GrouperAll", subjectIdentifier) || Strings.CS.equals("GrouperSystem", subjectIdentifier)) {
+                    // get the member id
+                    newMemberId = new GcDbAccess().sql("select id from grouper_members where subject_identifier0 = ? and subject_source = 'g:isa'")
+                        .addBindVar(subjectIdentifier).select(String.class);
+                    GrouperUtil.assertion(!StringUtils.isBlank(newMemberId), "Cannot find memberId for: " + subjectIdentifier);
+                    xmlImportMain.getUuidTranslation().put(membership.getMemberUuid(), newMemberId);
+                  } else {
+                    // get the group by group name
+                    newMemberId = new GcDbAccess().sql("select id from grouper_members where subject_identifier0 = ? and subject_source = 'g:gsa'")
+                        .addBindVar(subjectIdentifier).select(String.class);
+                    GrouperUtil.assertion(!StringUtils.isBlank(newMemberId), "Cannot find memberId for: " + subjectIdentifier);
+                    xmlImportMain.getUuidTranslation().put(membership.getMemberUuid(), newMemberId);
+                  }
+                  
+                }        
+                
+                if (!StringUtils.isBlank(newMemberId)) {
+                  membership.setMemberUuid(newMemberId);
+                }
                 
                 XmlExportUtils.syncImportable(membership, xmlImportMain);
                 

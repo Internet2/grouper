@@ -4741,9 +4741,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       Stem parent = this.getParentStem();
       existingRecord = parent.internal_addChildStem(GrouperSession.staticGrouperSession(), this.extension, this.displayExtension, this.uuid, false, true);
 
-      if (this.idIndex != null) {
-        existingRecord.assignIdIndex(this.idIndex);
-      }
+//      if (this.idIndex != null) {
+//        existingRecord.assignIdIndex(this.idIndex);
+//      }
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields

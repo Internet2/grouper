@@ -119,6 +119,17 @@ public class XmlImportMain {
     return this.uuidTranslation;
   }
 
+  /** map from member id to identifier if it is group or internal subject */
+  private Map<String, String> memberIdToIdentifierTranslation = new HashMap<String, String>();
+
+  /**
+   * map from member id to identifier if it is group or internal subject
+   * @return the memberIdToIdentifierTranslation
+   */
+  public Map<String, String> getMemberIdToIdentifierTranslation() {
+    return this.memberIdToIdentifierTranslation;
+  }
+
   /** count of objects in the db */
   private long originalDbCount = 0;
   
