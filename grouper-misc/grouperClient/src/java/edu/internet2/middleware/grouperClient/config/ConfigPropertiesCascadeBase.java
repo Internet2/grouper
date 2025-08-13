@@ -131,7 +131,7 @@ public abstract class ConfigPropertiesCascadeBase {
         
       }
     }
-    synchronized (configCache) {
+    synchronized (ConfigDatabaseLogic.class) {
 
       // we werent synchronized before, so lets check again to see if another thread figured this out and cached it
       // get the cache
@@ -933,7 +933,7 @@ public abstract class ConfigPropertiesCascadeBase {
     //cache this statically and never re-read this setting.  need to bounce if reset
     if (encoding == null) {
 
-      synchronized (ConfigPropertiesCascadeBase.class) {
+      synchronized (ConfigDatabaseLogic.class) {
       
         if (encoding == null) {
           String configEncodingKey = "grouperClient.config.encoding";
