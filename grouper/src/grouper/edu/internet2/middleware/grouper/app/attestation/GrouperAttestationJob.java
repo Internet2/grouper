@@ -1590,7 +1590,7 @@ public class GrouperAttestationJob extends OtherJobBase {
        emailBody.append("\n");
        emailBody.append(uiUrl);
        if (emailObject.getGroupId() != null) {
-         emailBody.append("grouperUi/app/UiV2Main.index?operation=UiV2Group.viewGroup&groupId="+emailObject.getGroupId());
+         emailBody.append("grouperUi/app/UiV2Main.index?operation=UiV2Group.viewGroupMembers&groupId="+emailObject.getGroupId());
        } else {
          emailBody.append("grouperUi/app/UiV2Main.index?operation=UiV2Stem.viewStem&stemId="+emailObject.getStemId());
        }

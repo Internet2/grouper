@@ -1,28 +1,13 @@
 
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
-<!-- Optional: reuse your existing CSS; these are only helpers -->
-<style>
-  .grouper-summary h3 { margin:18px 0 6px; font-size:14px; font-weight:600; }
-  .summary-table { width:100%; border-collapse:collapse; margin-bottom:10px; }
-  .summary-table th { text-align:left; padding:8px 10px; font-weight:600; background:#f7f9fb; }
-  .summary-table td { padding:8px 10px; }
-  .summary-table tr + tr th, .summary-table tr + tr td { border-top:1px solid #e7edf3; }
-  .num { text-align:right; font-variant-numeric: tabular-nums; }
-  .hint { font-size:11px; color:#6b7280; font-weight:400; }
-  .muted { color:#6b7280; }
-  .help { font-size:12px; color:#64748b; cursor:help; margin-left:4px; }
-  .status { font-weight:600; }
-  .status-ok { color:#0f766e; }
-  .status-none { color:#6b7280; }
-  .inline-list a { display:inline-block; margin-right:8px; }
-</style>
 
 <section class="grouper-summary">
   
   <!-- Types -->
   <c:if test="${not empty grouperRequestContainer.objectTypeContainer.guiConfiguredGrouperObjectTypesAttributeValues}">
   <h3>
-    Types
+    <a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['objectTypeMoreActionsMenuLabel'] }</a>
   </h3>
   <ul>
   
@@ -40,7 +25,8 @@
   
   <!-- MEMBERSHIP -->
   <h3>
-    Memberships
+    <a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Group.viewGroupMembers&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['subjectMembershipsTab'] }</a>
   </h3>
   <ul>
   <c:choose>
@@ -76,7 +62,52 @@
        </li>
     </c:when>
     <c:otherwise>
-      <li>This group is not used in any other groups</li>
+      <li>Not a member of any other groups</li>
+    </c:otherwise>
+  </c:choose>
+  
+  </ul>
+  
+  <!-- PRIVILEGES -->
+  <h3>
+    <a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['groupPrivilegesTab'] }</a>
+  </h3>
+  <ul>
+  <c:choose>
+    
+    <c:when test="${grouperRequestContainer.groupSummaryContainer.notGroupMembersCount > 0 or 
+      grouperRequestContainer.groupSummaryContainer.totalMembersCount > 0 or
+      grouperRequestContainer.groupSummaryContainer.directMembersCount > 0
+     }">
+       <li>${grouperRequestContainer.groupSummaryContainer.notGroupMembersCount} non-group members</li>
+       <li>${grouperRequestContainer.groupSummaryContainer.totalMembersCount} total members</li>
+       <li>${grouperRequestContainer.groupSummaryContainer.directMembersCount} direct members</li>
+       <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.directGroupMembers}">
+          <li>Direct group members: 
+            <c:forEach var="directGroupMember" items="${grouperRequestContainer.groupSummaryContainer.directGroupMembers}">
+              ${directGroupMember.name},
+            </c:forEach>
+          </li>
+       </c:if>
+    </c:when>
+    <c:otherwise>
+      <li>none</li>
+    </c:otherwise>
+  </c:choose>
+  <c:choose>
+    
+    <c:when test="${grouperRequestContainer.groupSummaryContainer.groupAsMemberCount > 0}">
+       <li>This group is used in ${grouperRequestContainer.groupSummaryContainer.groupAsMemberCount} other groups
+       <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.groupsWhereTheCurrentGroupIsMemberOf}"> 
+            <c:forEach var="groupWhereTheCurrentGroupIsMemberOf" items="${grouperRequestContainer.groupSummaryContainer.groupsWhereTheCurrentGroupIsMemberOf}">
+              ${groupWhereTheCurrentGroupIsMemberOf.name},
+            </c:forEach>
+       </c:if>
+       </li>
+    </c:when>
+    <c:otherwise>
+      <li>Not a member of any other groups</li>
     </c:otherwise>
   </c:choose>
   
@@ -85,23 +116,53 @@
 <!--  LOADER -->
 <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}">
   <h3>
-    Loader
+    <a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GrouperLoader.loader&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['grouperMenuItemLoader'] }</a>
   </h3>
   <ul>
       <c:if test="${grouperRequestContainer.grouperLoaderContainer.grouperSqlLoader}">
-        <li>This is a SQL loaded group</li>
-        <li> This is a ${grouperRequestContainer.grouperLoaderContainer.sqlLoaderType} loader</li>
+        <li>SQL loaded group</li>
+        <li>${grouperRequestContainer.grouperLoaderContainer.sqlLoaderType} loader</li>
+        <li>
+        <c:if test="${!grouper.isBlank(grouperRequestContainer.grouperLoaderContainer.sqlQuery)}">
+          <pre>${grouperRequestContainer.grouperLoaderContainer.sqlQuery}</pre>
+        </c:if>
+        </li>
       </c:if>
       <c:if test="${grouperRequestContainer.grouperLoaderContainer.grouperLdapLoader}">
-        <li>This is a LDAP loaded group</li>
-        <li> This is a ${grouperRequestContainer.grouperLoaderContainer.ldapLoaderType} loader</li>
+        <li>LDAP loaded group</li>
+        <li>${grouperRequestContainer.grouperLoaderContainer.ldapLoaderType} loader</li>
+        <c:if test="${!grouper.isBlank(grouperRequestContainer.grouperLoaderContainer.ldapLoaderFilter)}">
+          <pre>${grouperRequestContainer.grouperLoaderContainer.ldapLoaderFilter}</pre>
+        </c:if> 
       </c:if>
       <c:if test="${grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptLoader}">
-        <li>This is a Jexl scripted loaded group</li>
+        <li>Jexl scripted loaded group</li>
+        <c:if test="${!grouper.isBlank(grouperRequestContainer.grouperLoaderContainer.jexlScriptJexlScript)}">
+          <pre>${grouperRequestContainer.grouperLoaderContainer.jexlScriptJexlScript}</pre>
+        </c:if> 
       </c:if>
       <c:if test="${grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader}">
-        <li>This is a recent memberships loaded group</li>
+        <li>Recent memberships loaded group</li>
       </c:if>
+  </ul>
+</c:if>
+
+<!--  ABAC SCRIPTED GROUP SECTION -->
+<c:if test="${grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependenciesCount > 0}">
+  <h3>
+    ABAC scripted group
+    <%-- <a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GrouperLoader.loader&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['grouperMenuItemLoader'] }</a> --%>
+  </h3>
+  <ul>
+      <li>Used in ${grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependenciesCount} groups 
+      <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependencies}"> 
+          <c:forEach var="abacScriptedGroupDependency" items="${grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependencies}">
+            ${abacScriptedGroupDependency.name},
+          </c:forEach>
+      </c:if>
+      </li>
   </ul>
 </c:if>
 
@@ -109,6 +170,8 @@
   <c:if test="${grouperRequestContainer.groupSummaryContainer.composite or grouperRequestContainer.groupSummaryContainer.compositeSize > 0}">
   <h3>
     Composites
+    <%-- <a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GrouperLoader.loader&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+      >${textContainer.text['grouperMenuItemLoader'] }</a> --%>
   </h3>
   <ul>
   
@@ -136,7 +199,8 @@
   <!-- PROVISIONING -->
  <c:if test="${grouperRequestContainer.groupSummaryContainer.provisioningAssignmentCount > 0}">
   <h3>
-    Provisioning
+    <a href="javascript:void(0)" id="groupMoreActionsProvisioningButtonId" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['provisioningMoreActionsMenuLabel'] }</a>
   </h3>
   <ul>
   
@@ -160,7 +224,8 @@
  <!-- ATTESTATION -->
  <c:if test="${grouperRequestContainer.groupSummaryContainer.attestation}">
   <h3>
-    Attestation
+    <a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Attestation.groupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['attestationButton'] }</a>
   </h3>
   <ul>
   <li>
@@ -172,7 +237,8 @@
 <!-- ATTRIBUTES -->
  <c:if test="${grouperRequestContainer.groupSummaryContainer.attributeAssignmentsCount > 0}">
   <h3>
-    Attributes
+    <a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GroupAttributeAssignment.viewAttributeAssignments&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+       >${textContainer.text['subjectAttributeAssignmentsButton'] }</a>
   </h3>
   <ul>
   <li>
@@ -184,7 +250,8 @@
 <!-- RULES -->
  <c:if test="${grouperRequestContainer.groupSummaryContainer.rulesCount > 0 or grouperRequestContainer.groupSummaryContainer.rulesCountWhereGroupIsUsed > 0}">
   <h3>
-    Rules
+    <a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Group.viewGroupRules&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+       >${textContainer.text['stemViewRulesButton'] }</a>
   </h3>
   <ul>
   
@@ -237,5 +304,75 @@
       </c:otherwise>
     </c:choose>
   </ul>
+  
+  <!-- FIELDS -->
+  <h3>
+  Fields
+  </h3>
+  <div id="groupDetailsId">
+    <table class="table table-condensed table-striped">
+      <tbody>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelName']}</strong></td>
+          <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelPath']}</strong></td>
+          <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayName)}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelIdPath']}</strong></td>
+          <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.name)}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelAlternateIdPath']}</strong></td>
+          <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.alternateName)}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelId']}</strong></td>
+          <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.extension)}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelCreated'] }</strong></td>
+          <td>${grouperRequestContainer.groupContainer.guiGroup.createdString }</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelCreator'] }</strong></td>
+          <td>${grouper:subjectStringLabelShort2fromMemberId(grouperRequestContainer.groupContainer.guiGroup.group.creatorUuid)}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelLastEdited']}</strong></td>
+          <td>${grouperRequestContainer.groupContainer.guiGroup.lastEditedString}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelLastEditedBy']}</strong></td>
+          <td>${grouper:subjectStringLabelShort2fromMemberId(grouperRequestContainer.groupContainer.guiGroup.group.modifierUuid)}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelTypeLabel']}</strong></td>
+          <td>${textContainer.text[grouper:concat2('groupLabelType_',grouperRequestContainer.groupContainer.guiGroup.group.typeOfGroup)]}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelIdIndex']}</strong></td>
+          <td>${grouperRequestContainer.groupContainer.guiGroup.group.idIndex}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelUuid']}</strong></td>
+          <td>${grouperRequestContainer.groupContainer.guiGroup.group.uuid}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- CONFIGURATION -->
+  <c:if test="${grouperRequestContainer.groupSummaryContainer.configurationUsedCount > 0}">
+  <h3>Configuration</h3>
+  <ul>
+   <li>
+    Used in ${grouperRequestContainer.groupSummaryContainer.configurationUsedCount} configurations 
+   </li>
+  </ul>
+  </c:if>
+  
   
 </section>

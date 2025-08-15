@@ -4,10 +4,12 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -23,6 +25,29 @@ public class SqlCacheDependencyDao {
 
 
   public SqlCacheDependencyDao() {
+  }
+  
+  public static int countGroupUsage(Group group) {
+    
+    Long groupInternalId = group.getInternalId();
+    int groupDependencies = new GcDbAccess()
+        .sql("select count(*) from grouper_sql_cache_dependency gscd, grouper_sql_cache_group gscg where gscd.dependent_internal_id = gscg.internal_id and "
+            + " gscg.group_internal_id = ?").addBindVar(groupInternalId).select(int.class);
+    return groupDependencies;
+  }
+  
+  
+  public static Set<String> retrieveGroupIdsForDependentGroupUsage(Group group) {
+    Long groupInternalId = group.getInternalId();
+    StringBuilder query = new StringBuilder("""
+              select gg.id from grouper_sql_cache_dependency gscd, grouper_sql_cache_group gscg, grouper_sql_cache_group gscg2, grouper_groups gg  where
+          gscd.dependent_internal_id = gscg.internal_id 
+           and gscg2.internal_id  = gscd.owner_internal_id 
+           and gscg2.group_internal_id = gg.internal_id 
+          and gscg.group_internal_id  = ?;
+        """);
+    List<String> groupIds = new GcDbAccess().sql(query.toString()).addBindVar(groupInternalId).selectList(String.class);
+    return new HashSet<String>(groupIds);
   }
 
   /**

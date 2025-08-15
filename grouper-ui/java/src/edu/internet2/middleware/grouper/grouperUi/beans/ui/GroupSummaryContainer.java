@@ -58,6 +58,12 @@ public class GroupSummaryContainer {
 
   private int auditsInTheLastMonth;
 
+  private int configurationUsedCount;
+
+  private int abacScriptedGroupDependenciesCount;
+
+  private Set<Group> abacScriptedGroupDependencies;
+
   
   public int getDirectMembersCount() {
     return directMembersCount;
@@ -290,5 +296,31 @@ public class GroupSummaryContainer {
   public int getAuditsInTheLastMonth() {
     return auditsInTheLastMonth;
   }
-  
+
+
+  public void setConfigurationUsedCount(int configurationUsedCount) {
+    this.configurationUsedCount = configurationUsedCount;
+  }
+
+  public int getConfigurationUsedCount() {
+    return configurationUsedCount;
+  }
+
+
+  public void setAbacScriptedGroupDependenciesCount(int abacScriptedGroupDependenciesCount) {
+    this.abacScriptedGroupDependenciesCount = abacScriptedGroupDependenciesCount;
+  }
+
+  public int getAbacScriptedGroupDependenciesCount() {
+    return abacScriptedGroupDependenciesCount;
+  }
+
+
+  public void setAbacScriptedGroupDependencies(Set<Group> abacScriptedGroupDependencies) {
+    this.abacScriptedGroupDependencies = abacScriptedGroupDependencies;
+  }
+
+  public Set<Group> getAbacScriptedGroupDependencies() {
+    return abacScriptedGroupDependencies;
+  }
 }

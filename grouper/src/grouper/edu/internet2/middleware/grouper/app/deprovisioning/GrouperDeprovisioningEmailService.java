@@ -423,7 +423,7 @@ public class GrouperDeprovisioningEmailService {
     String uiUrl = GrouperConfig.getGrouperUiUrl(false);
     if (StringUtils.isNotBlank(uiUrl)) {
       if (grouperObject instanceof Group) {
-        result = result.replace("$$objectDeprovisioningUrl$$", uiUrl+"grouperUi/app/UiV2Main.index?operation=UiV2Group.viewGroup&groupId="+grouperObject.getId());
+        result = result.replace("$$objectDeprovisioningUrl$$", uiUrl+"grouperUi/app/UiV2Main.index?operation=UiV2Group.viewGroupMembers&groupId="+grouperObject.getId());
       }
       if (grouperObject instanceof Stem) {
         result = result.replace("$$objectDeprovisioningUrl$$", uiUrl+"grouperUi/app/UiV2Main.index?operation=UiV2Stem.viewStem&stemId="+grouperObject.getId());
