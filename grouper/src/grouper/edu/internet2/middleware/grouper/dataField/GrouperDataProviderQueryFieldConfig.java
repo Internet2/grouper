@@ -31,8 +31,8 @@ public class GrouperDataProviderQueryFieldConfig {
     //  # mapping type for this data field
     //  # {valueType: "string", required: true, regex: "^dataProviderQueryConfigId\\.[^.]+\\.providerQueryDataField\\.[0-9]+\\.providerDataFieldAttribute$", showEl: "${providerQueryDataField.$i$.providerDataFieldMappingType == 'attribute'}"}
     //  # grouperDataProviderQuery.dataProviderQueryConfigId.providerQueryDataField.$i$.providerDataFieldAttribute = 
-    this.providerDataFieldAttribute = GrouperConfig.retrieveConfig().propertyValueString(
-        "grouperDataProviderQuery." + configId + ".providerQueryDataField." + index + ".providerDataFieldAttribute");
+    this.setProviderDataFieldAttribute(GrouperConfig.retrieveConfig().propertyValueString(
+        "grouperDataProviderQuery." + configId + ".providerQueryDataField." + index + ".providerDataFieldAttribute"));
     
   }  
 
@@ -52,6 +52,19 @@ public class GrouperDataProviderQueryFieldConfig {
    * grouperDataProviderQuery.dataProviderQueryConfigId.providerQueryDataField.$i$.providerDataFieldMappingType = 
    */
   private GrouperDataProviderQueryFieldMappingType providerDataFieldMappingType;
+  
+  /**
+   * performance issue with lower case attributes
+   */
+  private String providerDataFieldAttributeLowerCase;
+  
+  /**
+   * performance issue with lower case attributes
+   * @return
+   */
+  public String getProviderDataFieldAttributeLowerCase() {
+    return this.providerDataFieldAttributeLowerCase;
+  }
   
   /**
    * mapping type for this data field
@@ -118,6 +131,12 @@ public class GrouperDataProviderQueryFieldConfig {
    */
   public void setProviderDataFieldAttribute(String providerDataFieldAttribute) {
     this.providerDataFieldAttribute = providerDataFieldAttribute;
+    // set lower case or null
+    if (providerDataFieldAttribute != null) {
+      this.providerDataFieldAttributeLowerCase = providerDataFieldAttribute.toLowerCase();
+    } else {
+      this.providerDataFieldAttributeLowerCase = null;
+    }
   }
   
   

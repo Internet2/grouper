@@ -968,16 +968,16 @@ public class GrouperDataProviderLogic {
             // this is really the only option right now
             if (providerDataFieldMappingType == GrouperDataProviderQueryFieldMappingType.attribute) {
               
-              String columnName = grouperDataProviderQueryFieldConfig.getProviderDataFieldAttribute();
+              String columnNameLowerCase = grouperDataProviderQueryFieldConfig.getProviderDataFieldAttributeLowerCase();
               String dataFieldConfigId = grouperDataProviderQueryFieldConfig.getProviderDataFieldConfigId();
   
               GrouperDataFieldConfig grouperDataFieldConfig = dataEngine.getFieldConfigByConfigId().get(dataFieldConfigId);
               
               GrouperDataFieldWrapper grouperDataFieldWrapper = dataEngine.getGrouperDataProviderIndex().getFieldWrapperByConfigId().get(dataFieldConfigId);
                 
-              Integer rowIndex = queryConfigIdToLowerColumnNameToZeroIndex.get(grouperDataProviderQueryConfig.getConfigId()).get(columnName.toLowerCase());
+              Integer rowIndex = queryConfigIdToLowerColumnNameToZeroIndex.get(grouperDataProviderQueryConfig.getConfigId()).get(columnNameLowerCase);
               if (rowIndex == null) {
-                throw new RuntimeException("Unable to find index for configId=" + grouperDataProviderQueryConfig.getConfigId() + ", columnName=" + columnName.toLowerCase());
+                throw new RuntimeException("Unable to find index for configId=" + grouperDataProviderQueryConfig.getConfigId() + ", columnName=" + columnNameLowerCase);
               }
               
               Object value = row[rowIndex];
