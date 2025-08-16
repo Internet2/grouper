@@ -64,6 +64,20 @@ public class GroupSummaryContainer {
 
   private Set<Group> abacScriptedGroupDependencies;
 
+  private int nonGroupTotalPrivilegesCount;
+
+  private int totalPrivilegesCount;
+
+  private int directPrivilegesCount;
+
+  private int directGroupPrivilegesCount;
+
+  private Set<Group> directGroupPrivilegesGroups;
+
+  private int countOfWhereGroupIsBeingUsedInPrivileges;
+
+  private Set<Group> groupsWhereGroupIsBeingUsedInPrivileges;
+
   
   public int getDirectMembersCount() {
     return directMembersCount;
@@ -323,4 +337,79 @@ public class GroupSummaryContainer {
   public Set<Group> getAbacScriptedGroupDependencies() {
     return abacScriptedGroupDependencies;
   }
+
+
+  public void setNonGroupTotalPrivilegesCount(int nonGroupTotalPrivilegesCount) {
+    this.nonGroupTotalPrivilegesCount = nonGroupTotalPrivilegesCount;
+  }
+
+  public int getNonGroupTotalPrivilegesCount() {
+    return nonGroupTotalPrivilegesCount;
+  }
+
+
+  public void setTotalPrivilegesCount(int totalPrivilegesCount) {
+    this.totalPrivilegesCount = totalPrivilegesCount;
+  }
+
+
+  
+  public int getTotalPrivilegesCount() {
+    return totalPrivilegesCount;
+  }
+
+
+  public void setDirectPrivilegesCount(int directPrivilegesCount) {
+    this.directPrivilegesCount = directPrivilegesCount;
+  }
+
+  public int getDirectPrivilegesCount() {
+    return directPrivilegesCount;
+  }
+
+
+  public void setDirectGroupPrivilegesCount(int directGroupPrivilegesCount) {
+    this.directGroupPrivilegesCount = directGroupPrivilegesCount;
+  }
+
+
+  
+  public int getDirectGroupPrivilegesCount() {
+    return directGroupPrivilegesCount;
+  }
+
+  public Set<Group> getDirectGroupPrivilegesGroups() {
+    return directGroupPrivilegesGroups;
+  }
+  
+  public void setDirectGroupPrivilegesGroups(Set<Group> directGroupPrivilegesGroups) {
+    this.directGroupPrivilegesGroups = directGroupPrivilegesGroups;
+  }
+
+
+  public void setCountOfWhereGroupIsBeingUsedInPrivileges(int countOfWhereGroupIsBeingUsedInPrivileges) {
+    this.countOfWhereGroupIsBeingUsedInPrivileges = countOfWhereGroupIsBeingUsedInPrivileges;
+  }
+
+
+  
+  public int getCountOfWhereGroupIsBeingUsedInPrivileges() {
+    return countOfWhereGroupIsBeingUsedInPrivileges;
+  }
+
+
+  
+  public Set<Group> getGroupsWhereGroupIsBeingUsedInPrivileges() {
+    return groupsWhereGroupIsBeingUsedInPrivileges;
+  }
+
+
+  
+  public void setGroupsWhereGroupIsBeingUsedInPrivileges(
+      Set<Group> groupsWhereGroupIsBeingUsedInPrivileges) {
+    this.groupsWhereGroupIsBeingUsedInPrivileges = groupsWhereGroupIsBeingUsedInPrivileges;
+  }
+
+  
+  
 }

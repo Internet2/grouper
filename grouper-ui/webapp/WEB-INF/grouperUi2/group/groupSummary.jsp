@@ -2,6 +2,74 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 <section class="grouper-summary">
+
+  
+  <div id="groupDetailsId">
+    <table class="table table-condensed table-striped">
+      <tbody>
+        <tr>
+          <td><strong><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['objectTypeMoreActionsMenuLabel'] }</a></strong></td>
+          <td>
+            <ul>
+              <c:forEach var="guiConfiguredGrouperObjectTypesAttributeValue" items="${grouperRequestContainer.objectTypeContainer.guiConfiguredGrouperObjectTypesAttributeValues}">
+                <c:set var="objectType" value="${guiConfiguredGrouperObjectTypesAttributeValue.grouperObjectTypesAttributeValue.objectTypeName}" />
+                <li>
+                  ${textContainer.text[grouper:concat2('objectTypeOption_',objectType)] }
+                </li>
+              </c:forEach>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelPath']}</strong></td>
+          <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayName)}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelIdPath']}</strong></td>
+          <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.name)}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelAlternateIdPath']}</strong></td>
+          <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.alternateName)}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelId']}</strong></td>
+          <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.extension)}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelCreated'] }</strong></td>
+          <td>${grouperRequestContainer.groupContainer.guiGroup.createdString }</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelCreator'] }</strong></td>
+          <td>${grouper:subjectStringLabelShort2fromMemberId(grouperRequestContainer.groupContainer.guiGroup.group.creatorUuid)}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelLastEdited']}</strong></td>
+          <td>${grouperRequestContainer.groupContainer.guiGroup.lastEditedString}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelLastEditedBy']}</strong></td>
+          <td>${grouper:subjectStringLabelShort2fromMemberId(grouperRequestContainer.groupContainer.guiGroup.group.modifierUuid)}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelTypeLabel']}</strong></td>
+          <td>${textContainer.text[grouper:concat2('groupLabelType_',grouperRequestContainer.groupContainer.guiGroup.group.typeOfGroup)]}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelIdIndex']}</strong></td>
+          <td>${grouperRequestContainer.groupContainer.guiGroup.group.idIndex}</td>
+        </tr>
+        <tr>
+          <td><strong>${textContainer.text['groupLabelUuid']}</strong></td>
+          <td>${grouperRequestContainer.groupContainer.guiGroup.group.uuid}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
   
   <!-- Types -->
   <c:if test="${not empty grouperRequestContainer.objectTypeContainer.guiConfiguredGrouperObjectTypesAttributeValues}">
@@ -75,18 +143,17 @@
   </h3>
   <ul>
   <c:choose>
-    
-    <c:when test="${grouperRequestContainer.groupSummaryContainer.notGroupMembersCount > 0 or 
-      grouperRequestContainer.groupSummaryContainer.totalMembersCount > 0 or
-      grouperRequestContainer.groupSummaryContainer.directMembersCount > 0
+    <c:when test="${grouperRequestContainer.groupSummaryContainer.nonGroupTotalPrivilegesCount > 0 or 
+      grouperRequestContainer.groupSummaryContainer.totalPrivilegesCount > 0 or
+      grouperRequestContainer.groupSummaryContainer.directPrivilegesCount > 0
      }">
-       <li>${grouperRequestContainer.groupSummaryContainer.notGroupMembersCount} non-group members</li>
-       <li>${grouperRequestContainer.groupSummaryContainer.totalMembersCount} total members</li>
-       <li>${grouperRequestContainer.groupSummaryContainer.directMembersCount} direct members</li>
-       <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.directGroupMembers}">
-          <li>Direct group members: 
-            <c:forEach var="directGroupMember" items="${grouperRequestContainer.groupSummaryContainer.directGroupMembers}">
-              ${directGroupMember.name},
+       <li>${grouperRequestContainer.groupSummaryContainer.nonGroupTotalPrivilegesCount} non-group privileges</li>
+       <li>${grouperRequestContainer.groupSummaryContainer.totalPrivilegesCount} total privileges</li>
+       <li>${grouperRequestContainer.groupSummaryContainer.directPrivilegesCount} direct privileges</li>
+       <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.directGroupPrivilegesGroups}">
+          <li>Direct group privileges: 
+            <c:forEach var="directGroupPrivilegesGroup" items="${grouperRequestContainer.groupSummaryContainer.directGroupPrivilegesGroups}">
+              ${directGroupPrivilegesGroup.name},
             </c:forEach>
           </li>
        </c:if>
@@ -97,17 +164,17 @@
   </c:choose>
   <c:choose>
     
-    <c:when test="${grouperRequestContainer.groupSummaryContainer.groupAsMemberCount > 0}">
-       <li>This group is used in ${grouperRequestContainer.groupSummaryContainer.groupAsMemberCount} other groups
-       <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.groupsWhereTheCurrentGroupIsMemberOf}"> 
-            <c:forEach var="groupWhereTheCurrentGroupIsMemberOf" items="${grouperRequestContainer.groupSummaryContainer.groupsWhereTheCurrentGroupIsMemberOf}">
-              ${groupWhereTheCurrentGroupIsMemberOf.name},
+    <c:when test="${grouperRequestContainer.groupSummaryContainer.countOfWhereGroupIsBeingUsedInPrivileges > 0}">
+       <li>This group is used in ${grouperRequestContainer.groupSummaryContainer.countOfWhereGroupIsBeingUsedInPrivileges} other groups
+       <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.groupsWhereGroupIsBeingUsedInPrivileges}"> 
+            <c:forEach var="groupWhereGroupIsBeingUsedInPrivileges" items="${grouperRequestContainer.groupSummaryContainer.groupsWhereGroupIsBeingUsedInPrivileges}">
+              ${groupWhereGroupIsBeingUsedInPrivileges.name},
             </c:forEach>
        </c:if>
        </li>
     </c:when>
     <c:otherwise>
-      <li>Not a member of any other groups</li>
+      <li>Not in privileges of any other groups</li>
     </c:otherwise>
   </c:choose>
   

@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -148,6 +149,140 @@ public class MembershipFinder {
     }
     return hasMember;
     
+  }
+  
+  /**
+   * retrieve non-group total privileges count
+   * @param groupId
+   * @return
+   */
+  public static int retrieveNonGroupTotalPrivilegesCount(String groupId) {
+    
+    String sql = """
+        select count(distinct m.id) from grouper_members m, grouper_memberships_all_v ms, grouper_groups g, grouper_fields f
+         where 
+         ms.owner_group_id = g.id 
+         and ms.member_id = m.id 
+         and ms.field_id = f.id
+         and f.type = 'access'
+         and  m.subject_type != 'group' 
+         and ms.owner_group_id = ?
+        """;
+    int rows = new GcDbAccess().sql(sql).addBindVar(groupId).select(int.class);
+    return rows;
+  }
+  
+  /**
+   * retrieve total privileges count
+   * @param groupId
+   * @return
+   */
+  public static int retrieveTotalPrivilegesCount(String groupId) {
+    
+    String sql = """
+        select count(distinct m.id) from grouper_members m, grouper_memberships_all_v ms, grouper_groups g, grouper_fields f
+         where 
+         ms.owner_group_id = g.id 
+         and ms.member_id = m.id 
+         and ms.field_id = f.id
+         and f.type = 'access'
+         and ms.owner_group_id = ?;
+        """;
+    int rows = new GcDbAccess().sql(sql).addBindVar(groupId).select(int.class);
+    return rows;
+  }
+  
+  /**
+   * retrieve direct privileges count
+   * @param groupId
+   * @return
+   */
+  public static int retrieveDirectPrivilegesCount(String groupId) {
+    
+    String sql = """
+        select count(distinct gm.member_id) from grouper_memberships gm, grouper_fields gf 
+        where gf.id = gm.field_id
+        and gf.type = 'access' 
+        and owner_group_id = ?;
+        """;
+    int rows = new GcDbAccess().sql(sql).addBindVar(groupId).select(int.class);
+    return rows;
+  }
+  
+  /**
+   * retrieve direct group privileges count
+   * @param groupId
+   * @return
+   */
+  public static int retrieveDirectGroupPrivilegesCount(String groupId) {
+    
+    String sql = """
+        select count (distinct gm2.*) from grouper_memberships gm, grouper_fields gf, grouper_members gm2 
+        where gf.id = gm.field_id 
+        and gf.type = 'access' and 
+        gm.member_id = gm2.id and 
+        gm2.subject_type = 'group' and
+        owner_group_id = ?;
+        """;
+    int rows = new GcDbAccess().sql(sql).addBindVar(groupId).select(int.class);
+    return rows;
+  }
+  
+  /**
+   * retrieve direct group privileges count
+   * @param groupId
+   * @return
+   */
+  public static Set<String> retrieveDirectGroupPrivileges(String groupId) {
+    
+    String sql = """
+        select distinct gm2.subject_id from grouper_memberships gm, grouper_fields gf, grouper_members gm2 
+        where gf.id = gm.field_id 
+        and gf.type = 'access' and 
+        gm.member_id = gm2.id and 
+        gm2.subject_type = 'group' and
+        owner_group_id = ?;
+        """;
+    List<String> groupIds = new GcDbAccess().sql(sql).addBindVar(groupId).selectList(String.class);
+    return new HashSet<String>(groupIds);
+  }
+
+  /**
+   * retrieve count of where this group is being used in privileges 
+   * @param groupId
+   * @return
+   */
+  public static int retrieveCountOfWhereGroupIsBeingUsedInPrivileges(String groupId) {
+    
+    String sql = """
+        select count(distinct gm.owner_group_id) from grouper_memberships gm, grouper_fields gf, grouper_members gm2 
+        where gf.id = gm.field_id 
+        and gf.type = 'access' and 
+        gm.member_id = gm2.id and 
+        gm2.subject_type = 'group' and
+        gm2.subject_id = ?;
+        """;
+    int rows = new GcDbAccess().sql(sql).addBindVar(groupId).select(int.class);
+    return rows;
+  }
+  
+  /**
+   * retrieve group ids where this group is being used in privileges 
+   * @param groupId
+   * @return
+   */
+  public static Set<String> retrieveGroupIdsWhereGroupIsBeingUsedInPrivileges(String groupId) {
+    
+    String sql = """
+        select distinct gm.owner_group_id from grouper_memberships gm, grouper_fields gf, grouper_members gm2 
+        where gf.id = gm.field_id 
+        and gf.type = 'access' and 
+        gm.member_id = gm2.id and 
+        gm2.subject_type = 'group' and
+        gm2.subject_id = ?;
+        """;
+    List<String> groupIds = new GcDbAccess().sql(sql).addBindVar(groupId).selectList(String.class);
+    return new HashSet<String>(groupIds);
   }
   
   /**

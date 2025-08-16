@@ -72,7 +72,6 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
@@ -101,7 +100,6 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
@@ -477,27 +475,28 @@ public class UiV2Group {
       //privileges section
       {
         if (group.hasRead(loggedInSubject) || group.hasAdmin(loggedInSubject)) {
-          QueryOptions queryOptions = new QueryOptions();
-          queryOptions.retrieveCount(true);
-          queryOptions.retrieveResults(true);
-          //get non-group privileges count
-          MembershipFinder membershipFinder = new MembershipFinder()
-              .addGroupId(group.getId()).assignCheckSecurity(true)
-              .assignFieldType(FieldType.ACCESS)
-              .assignEnabled(true)
-              .assignHasFieldForMember(true)
-              .assignHasMembershipTypeForMember(true)
-              .assignQueryOptionsForMember(queryOptions)
-              .assignSplitScopeForMember(true);
-
-            //set of subjects, and what privs each subject has
-            Set<MembershipSubjectContainer> results = membershipFinder
-                .findMembershipResult().getMembershipSubjectContainers();
-            
-            System.out.println("privileges count "+queryOptions.getCount().intValue());
-            
-            //inherit from grouperAll or Groupersystem or privilege inheritance
-            MembershipSubjectContainer.considerAccessPrivilegeInheritance(results);
+          
+          int nonGroupTotalPrivilegesCount = MembershipFinder.retrieveNonGroupTotalPrivilegesCount(group.getId());
+          groupSummaryContainer.setNonGroupTotalPrivilegesCount(nonGroupTotalPrivilegesCount);
+          int totalPrivilegesCount = MembershipFinder.retrieveTotalPrivilegesCount(group.getId());
+          groupSummaryContainer.setTotalPrivilegesCount(totalPrivilegesCount);
+          int directPrivilegesCount = MembershipFinder.retrieveDirectPrivilegesCount(group.getId());
+          groupSummaryContainer.setDirectPrivilegesCount(directPrivilegesCount);
+          int directGroupPrivilegesCount = MembershipFinder.retrieveDirectGroupPrivilegesCount(group.getId());
+          groupSummaryContainer.setDirectGroupPrivilegesCount(directGroupPrivilegesCount);
+          if (directGroupPrivilegesCount > 0 && directGroupPrivilegesCount < 5) {
+            Set<String> directGroupPrivileges = MembershipFinder.retrieveDirectGroupPrivileges(group.getId());
+            Set<Group> directGroupPrivilgesGroups = new GroupFinder().assignGroupIds(directGroupPrivileges).findGroups();
+            groupSummaryContainer.setDirectGroupPrivilegesGroups(directGroupPrivilgesGroups);
+          }
+          int countOfWhereGroupIsBeingUsedInPrivileges = MembershipFinder.retrieveCountOfWhereGroupIsBeingUsedInPrivileges(group.getId());
+          groupSummaryContainer.setCountOfWhereGroupIsBeingUsedInPrivileges(countOfWhereGroupIsBeingUsedInPrivileges);
+          if (countOfWhereGroupIsBeingUsedInPrivileges > 0 && countOfWhereGroupIsBeingUsedInPrivileges < 5) {
+            Set<String> groupIdsWhereGroupIsBeingUsedInPrivileges = MembershipFinder.retrieveGroupIdsWhereGroupIsBeingUsedInPrivileges(group.getId());
+            Set<Group> groupsWhereGroupIsBeingUsedInPrivileges = new GroupFinder().assignGroupIds(groupIdsWhereGroupIsBeingUsedInPrivileges).findGroups();
+            groupSummaryContainer.setGroupsWhereGroupIsBeingUsedInPrivileges(groupsWhereGroupIsBeingUsedInPrivileges);
+          }
+          
         }
       }
       
