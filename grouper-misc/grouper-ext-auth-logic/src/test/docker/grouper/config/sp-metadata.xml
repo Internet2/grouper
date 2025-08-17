@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" ID="_ae7b3c2e0b244c13b2ee20f7be484aab4d2de68" entityID="http://localhost:8080/grouper" validUntil="2042-10-11T21:25:26.707Z">
+    <md:Extensions xmlns:alg="urn:oasis:names:tc:SAML:metadata:algsupport">
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha384"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha384"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha512"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2000/09/xmldsig#dsa-sha1"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#hmac-sha256"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#hmac-sha384"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#hmac-sha512"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2000/09/xmldsig#hmac-sha1"/>
+        <alg:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+        <alg:DigestMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#sha384"/>
+        <alg:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </md:Extensions>
+    <md:SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol urn:oasis:names:tc:SAML:1.0:protocol urn:oasis:names:tc:SAML:1.1:protocol">
+        <md:Extensions xmlns:init="urn:oasis:names:tc:SAML:profiles:SSO:request-init">
+            <init:RequestInitiator Binding="urn:oasis:names:tc:SAML:profiles:SSO:request-init" Location="https://grouper-ui.unicon.local/grouper/callback?client_name=client"/>
+        </md:Extensions>
+        <md:KeyDescriptor use="signing">
+            <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                <ds:X509Data>
+                    <ds:X509Certificate>MIICpzCCAY+gAwIBAgIBATANBgkqhkiG9w0BAQUFADAXMRUwEwYDVQQDDAw3ZjQ2MDUyOGJmNDMw
+HhcNMjIxMDExMjEyNTI1WhcNNDIxMDA2MjEyNTI2WjAXMRUwEwYDVQQDDAw3ZjQ2MDUyOGJmNDMw
+ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCEDAR6ciBbe1LyWi0jsP6VdispOJ0pVgLn
+fVjjHracpI/zrfGcbagYXv/ysYOaPGQXYekyPcblHyoxVZO0MrfkWuLs/NPTdg95UWIielbImlA4
+LvFoqtJ07K9XeKBZaX5HW5xArSD/qqQtRtCcyLCTUdM/SXWDn7yyvhpNqHsKzX7FxuXc4BjviWq8
+wjMAZ+S56/w1NxZsADce1ijbVi6MewdEM3zRxg4O3IDPLdFwVxDH75xxD5IY6WPjEZ1CuxpaLD0Z
+1NvWYfBBzYVmG8YgBKjPdyNSnaw2gSKMsIjfkgwLTHYmy9Z+H42PdvZV81c6GH2HXzZzNkSYQl2R
+c0BLAgMBAAEwDQYJKoZIhvcNAQEFBQADggEBABWWxmja8ueZ0VnMqBYqoWFZRnjT/imasJS/Hnmb
+XKtATfn3aYe/Q4eIKcbodFLeEWG2SJqOiOjErRgg3tf0JabIPJqEgVT2M0LrIwsPekj2jK9LKJns
+kCQJtjglAXlJYDuuXvmwSIPjfrWLrPDtM9zpjmNlMQ30r47sp7zS4r4Vhl7Tc5EUxntvowuhdqRm
+dIBeKQ7bL7vZTRV26C8+Mv+kjejZuv0HDbrh1sLtuhfGtd1NnzROJrUAjpTJve+8ZOPF6W0KB9WZ
+m4MfW8ZoAwN+fq7pXVEVzwYZGFZBb1IE0Llhs1k9BfAoLhE4+HT17VOEnyG/TCPBPFyXQKh9TYo=</ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </md:KeyDescriptor>
+        <!--
+        <md:KeyDescriptor use="encryption">
+            <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                <ds:X509Data>
+                    <ds:X509Certificate>MIICpzCCAY+gAwIBAgIBATANBgkqhkiG9w0BAQUFADAXMRUwEwYDVQQDDAw3ZjQ2MDUyOGJmNDMw
+HhcNMjIxMDExMjEyNTI1WhcNNDIxMDA2MjEyNTI2WjAXMRUwEwYDVQQDDAw3ZjQ2MDUyOGJmNDMw
+ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCEDAR6ciBbe1LyWi0jsP6VdispOJ0pVgLn
+fVjjHracpI/zrfGcbagYXv/ysYOaPGQXYekyPcblHyoxVZO0MrfkWuLs/NPTdg95UWIielbImlA4
+LvFoqtJ07K9XeKBZaX5HW5xArSD/qqQtRtCcyLCTUdM/SXWDn7yyvhpNqHsKzX7FxuXc4BjviWq8
+wjMAZ+S56/w1NxZsADce1ijbVi6MewdEM3zRxg4O3IDPLdFwVxDH75xxD5IY6WPjEZ1CuxpaLD0Z
+1NvWYfBBzYVmG8YgBKjPdyNSnaw2gSKMsIjfkgwLTHYmy9Z+H42PdvZV81c6GH2HXzZzNkSYQl2R
+c0BLAgMBAAEwDQYJKoZIhvcNAQEFBQADggEBABWWxmja8ueZ0VnMqBYqoWFZRnjT/imasJS/Hnmb
+XKtATfn3aYe/Q4eIKcbodFLeEWG2SJqOiOjErRgg3tf0JabIPJqEgVT2M0LrIwsPekj2jK9LKJns
+kCQJtjglAXlJYDuuXvmwSIPjfrWLrPDtM9zpjmNlMQ30r47sp7zS4r4Vhl7Tc5EUxntvowuhdqRm
+dIBeKQ7bL7vZTRV26C8+Mv+kjejZuv0HDbrh1sLtuhfGtd1NnzROJrUAjpTJve+8ZOPF6W0KB9WZ
+m4MfW8ZoAwN+fq7pXVEVzwYZGFZBb1IE0Llhs1k9BfAoLhE4+HT17VOEnyG/TCPBPFyXQKh9TYo=</ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </md:KeyDescriptor>
+        -->
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://grouper-ui.unicon.local/grouper/callback?client_name=client&amp;logoutendpoint=true"/>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://grouper-ui.unicon.local/grouper/callback?client_name=client&amp;logoutendpoint=true"/>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://grouper-ui.unicon.local/grouper/callback?client_name=client&amp;logoutendpoint=true"/>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://grouper-ui.unicon.local/grouper/callback?client_name=client&amp;logoutendpoint=true"/>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
+        <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://grouper-ui.unicon.local/grouper/callback?client_name=client" index="0"/>
+    </md:SPSSODescriptor>
+</md:EntityDescriptor>

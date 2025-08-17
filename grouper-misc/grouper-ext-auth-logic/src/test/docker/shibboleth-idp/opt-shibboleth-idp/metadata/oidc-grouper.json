@@ -1,0 +1,7 @@
+{
+  "client_id": "grouper",
+  "client_secret": "thisisverysecret",
+  "response_types": ["code"],
+  "scope": "openid info profile email address phone",
+  "redirect_uris": ["https://grouper-ui.unicon.local/grouper/callback?client_name=client"]
+}

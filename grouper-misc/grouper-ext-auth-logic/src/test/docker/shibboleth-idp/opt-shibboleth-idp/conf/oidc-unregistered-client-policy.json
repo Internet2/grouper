@@ -1,0 +1,14 @@
+{
+    "client_id": {
+        "one_of": ["policyAcceptedClientID1", "policyAcceptedClientID2"]
+    },
+    "scope": {
+        "value": "openid"
+    },
+    "redirect_uri": {
+        "regexp": "^https:\/\/(?:([^.]+).)?example.org\/(.*)"
+    },
+    "response_type": {
+        "one_of": ["code"]
+    }
+}

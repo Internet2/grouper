@@ -1,0 +1,12 @@
+grouper.is.extAuth.enabled = true
+external.authentication.grouperContextUrl = https://grouper-ui.unicon.local/grouper
+
+external.authentication.provider = saml
+external.authentication.saml.identityProviderEntityId = https://idp.unicon.local/idp/shibboleth
+external.authentication.saml.serviceProviderEntityId = http://localhost:8080/grouper
+external.authentication.saml.serviceProviderMetadataPath = file:/opt/grouper/sp-metadata.xml
+external.authentication.saml.identityProviderMetadataPath = file:/opt/grouper/idp-metadata.xml
+external.authentication.saml.keystorePath = file:/opt/grouper/here.key
+external.authentication.saml.keystorePassword = testme
+external.authentication.saml.privateKeyPassword = testme
+external.authentication.saml.attributeAsId = urn:oid:0.9.2342.19200300.100.1.1

@@ -1,0 +1,21 @@
+= Integration example
+
+This directory contains sample configuration for integrating Grouper external authentication. Integration is provided primarily through the Shibboleth IdP.
+
+*!!!WARNING!!!* This is a full integration example that should be able to be run with minimal effort. As such, there are private keys included that should be replaced if used in any way outside of testing.
+
+== Setup
+
+The example relies on DNS aliases for localhost in order for the included reverse proxy container to redirect network traffic to the correct container. Edit your hosts file (e.g. `/etc/hosts`) to add these entries pointing to localhost:
+
+----
+127.0.0.1       idp.unicon.local grouper-ui.unicon.local cas.unicon.local
+----
+
+== Usage
+
+The included IDP server has been configured to authenticate an example OIDC, SAML2, and CAS relying party. The Grouper configuration includes sample settings for using pac4j authentication with each. To change the authentication method, change the commented methods in the grouper-ui service in docker-compose.yml, and restart the grouper-ui container.
+
+
+To log into the Grouper application, open URL https://grouper-ui.unicon.local/grouper/[].
+

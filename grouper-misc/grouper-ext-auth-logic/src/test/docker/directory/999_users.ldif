@@ -1,0 +1,109 @@
+dn: ou=People,dc=unicon,dc=local
+objectClass: organizationalUnit
+ou: People
+description: People
+
+dn: ou=Groups,dc=unicon,dc=local
+objectClass: organizationalUnit
+ou: Groups
+description: Groups
+
+dn: ou=Grouper, ou=Groups,dc=unicon,dc=local
+objectClass: organizationalUnit
+ou: Grouper
+description: Grouper Groups
+
+dn: uid=GrouperSystem,ou=People,dc=unicon,dc=local
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+givenName: Grouper
+uid: GrouperSystem
+sn: System
+cn: Grouper System
+userPassword: password
+
+dn: uid=jsmith,ou=People,dc=unicon,dc=local
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+givenName: Joe
+uid: jsmith
+sn: Smith
+cn: John Smith
+userPassword: password
+
+dn: uid=banderson,ou=People,dc=unicon,dc=local
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+givenName: Bob
+uid: banderson
+sn: Anderson
+cn: Bob Anderson
+userPassword: password
+
+dn: uid=kwhite,ou=People,dc=unicon,dc=local
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: eduPerson
+surname: White
+givenName: Karl
+cn: Karl White
+uid: kwhite
+mail: kwhite@unicon.local
+businessCategory:Law
+userPassword: password
+eduPersonAffiliation: member
+eduPersonAffiliation: student
+
+dn: uid=whenderson,ou=People,dc=unicon,dc=local
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: eduPerson
+surname: Henderson
+givenName: William
+cn: William Henderson
+uid: whenderson
+mail: whenderson@unicon.local
+businessCategory:Advising
+userPassword: password
+eduPersonAffiliation: community
+
+dn: uid=ddavis,ou=People,dc=unicon,dc=local
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: eduPerson
+surname: Davis
+givenName: David
+cn: David Davis
+uid: ddavis
+mail: ddavis@unicon.local
+businessCategory:Computer Science
+userPassword: password
+eduPersonAffiliation: staff
+
+dn: uid=cmorrison,ou=People,dc=unicon,dc=local
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: eduPerson
+surname: Morrison
+givenName: Colin
+cn: Colin Morrison
+uid: cmorrison
+mail: cmorrison@unicon.local
+businessCategory:Financial Aid
+userPassword: password
+eduPersonAffiliation: member
+eduPersonAffiliation: faculty

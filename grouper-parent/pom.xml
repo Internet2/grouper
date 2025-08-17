@@ -37,6 +37,7 @@
         <module>../grouper-ui</module>
         <module>../grouper-ws</module>
         <module>../grouper-misc/grouper-installer</module>
+        <module>../grouper-misc/grouper-ext-auth-logic</module>
         <!-- module>../grouper-misc/grouper-ext-auth</module -->
     </modules>
 
@@ -198,6 +199,10 @@
         <!-- ddl utils -->
         <oro.version>2.0.8</oro.version>
         <dbcp.version>1.4</dbcp.version>
+        
+        <pac4j.version>6.1.2</pac4j.version>
+        <javaee-pac4j.version>8.0.1</javaee-pac4j.version>
+        <slf4j2.version>2.0.13</slf4j2.version>
     </properties>
 
     <repositories>
