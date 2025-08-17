@@ -4240,7 +4240,6 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     if (existingRecord == null) {
       existingRecord = this.clone();
       existingRecord.setIdIndex(null);
-      existingRecord.setInternalId(null);
       GrouperDAOFactory.getFactory().getMember().create(existingRecord);
       
 //      if (this.idIndex != null) {
