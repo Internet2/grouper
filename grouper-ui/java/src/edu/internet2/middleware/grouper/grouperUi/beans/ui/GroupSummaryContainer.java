@@ -6,7 +6,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning.GuiGrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 
@@ -22,9 +22,9 @@ public class GroupSummaryContainer {
 
   private int groupAsMemberCount;
   
-  private Set<Member> directGroupMembers = new HashSet<Member>(); 
+  private Set<GuiGroup> directGroupMembers = new HashSet<>(); 
 
-  private Set<Group> groupsWhereTheCurrentGroupIsMemberOf = new HashSet<Group>(); 
+  private Set<GuiGroup> groupsWhereTheCurrentGroupIsMemberOf = new HashSet<>(); 
   
   private boolean isAttestation;
   
@@ -32,15 +32,15 @@ public class GroupSummaryContainer {
   
   private int compositeSize;
   
-  private Set<Composite> composites = new HashSet<Composite>();
+  private Set<GuiGroup> composites = new HashSet<>();
   
   private int provisioningAssignmentCount;
 
   private List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues;
 
-  private Group compositeLeftGroup;
+  private GuiGroup compositeLeftGroup;
 
-  private Group compositeRightGroup;
+  private GuiGroup compositeRightGroup;
 
   private CompositeType compositeType;
 
@@ -62,7 +62,7 @@ public class GroupSummaryContainer {
 
   private int abacScriptedGroupDependenciesCount;
 
-  private Set<Group> abacScriptedGroupDependencies;
+  private Set<GuiGroup> abacScriptedGroupDependencies;
 
   private int nonGroupTotalPrivilegesCount;
 
@@ -72,11 +72,11 @@ public class GroupSummaryContainer {
 
   private int directGroupPrivilegesCount;
 
-  private Set<Group> directGroupPrivilegesGroups;
+  private Set<GuiGroup> directGroupPrivilegesGroups;
 
   private int countOfWhereGroupIsBeingUsedInPrivileges;
 
-  private Set<Group> groupsWhereGroupIsBeingUsedInPrivileges;
+  private Set<GuiGroup> groupsWhereGroupIsBeingUsedInPrivileges;
 
   
   public int getDirectMembersCount() {
@@ -102,14 +102,13 @@ public class GroupSummaryContainer {
   
   
   
-  public Set<Group> getGroupsWhereTheCurrentGroupIsMemberOf() {
+  public Set<GuiGroup> getGroupsWhereTheCurrentGroupIsMemberOf() {
     return groupsWhereTheCurrentGroupIsMemberOf;
   }
 
 
   
-  public void setGroupsWhereTheCurrentGroupIsMemberOf(
-      Set<Group> groupsWhereTheCurrentGroupIsMemberOf) {
+  public void setGroupsWhereTheCurrentGroupIsMemberOf(Set<GuiGroup> groupsWhereTheCurrentGroupIsMemberOf) {
     this.groupsWhereTheCurrentGroupIsMemberOf = groupsWhereTheCurrentGroupIsMemberOf;
   }
 
@@ -136,17 +135,14 @@ public class GroupSummaryContainer {
   }
 
   
-  public Set<Member> getDirectGroupMembers() {
+  public Set<GuiGroup> getDirectGroupMembers() {
     return directGroupMembers;
   }
 
   
-  public void setDirectGroupMembers(Set<Member> directGroupMembers) {
+  public void setDirectGroupMembers(Set<GuiGroup> directGroupMembers) {
     this.directGroupMembers = directGroupMembers;
   }
-  
-  
-
   
   
   public int getGroupAsMemberCount() {
@@ -190,12 +186,12 @@ public class GroupSummaryContainer {
   }
 
   
-  public Set<Composite> getComposites() {
+  public Set<GuiGroup> getComposites() {
     return composites;
   }
 
   
-  public void setComposites(Set<Composite> composites) {
+  public void setComposites(Set<GuiGroup> composites) {
     this.composites = composites;
   }
 
@@ -219,21 +215,21 @@ public class GroupSummaryContainer {
   }
 
 
-  public void setCompositeLeftGroup(Group leftGroup) {
+  public void setCompositeLeftGroup(GuiGroup leftGroup) {
     this.compositeLeftGroup = leftGroup;
   }
 
   
-  public Group getCompositeLeftGroup() {
+  public GuiGroup getCompositeLeftGroup() {
     return compositeLeftGroup;
   }
   
-  public void setCompositeRightGroup(Group rightGroup) {
+  public void setCompositeRightGroup(GuiGroup rightGroup) {
     this.compositeRightGroup = rightGroup;
   }
 
   
-  public Group getCompositeRightGroup() {
+  public GuiGroup getCompositeRightGroup() {
     return compositeRightGroup;
   }
 
@@ -330,11 +326,11 @@ public class GroupSummaryContainer {
   }
 
 
-  public void setAbacScriptedGroupDependencies(Set<Group> abacScriptedGroupDependencies) {
+  public void setAbacScriptedGroupDependencies(Set<GuiGroup> abacScriptedGroupDependencies) {
     this.abacScriptedGroupDependencies = abacScriptedGroupDependencies;
   }
 
-  public Set<Group> getAbacScriptedGroupDependencies() {
+  public Set<GuiGroup> getAbacScriptedGroupDependencies() {
     return abacScriptedGroupDependencies;
   }
 
@@ -378,11 +374,11 @@ public class GroupSummaryContainer {
     return directGroupPrivilegesCount;
   }
 
-  public Set<Group> getDirectGroupPrivilegesGroups() {
+  public Set<GuiGroup> getDirectGroupPrivilegesGroups() {
     return directGroupPrivilegesGroups;
   }
   
-  public void setDirectGroupPrivilegesGroups(Set<Group> directGroupPrivilegesGroups) {
+  public void setDirectGroupPrivilegesGroups(Set<GuiGroup> directGroupPrivilegesGroups) {
     this.directGroupPrivilegesGroups = directGroupPrivilegesGroups;
   }
 
@@ -399,14 +395,13 @@ public class GroupSummaryContainer {
 
 
   
-  public Set<Group> getGroupsWhereGroupIsBeingUsedInPrivileges() {
+  public Set<GuiGroup> getGroupsWhereGroupIsBeingUsedInPrivileges() {
     return groupsWhereGroupIsBeingUsedInPrivileges;
   }
 
 
   
-  public void setGroupsWhereGroupIsBeingUsedInPrivileges(
-      Set<Group> groupsWhereGroupIsBeingUsedInPrivileges) {
+  public void setGroupsWhereGroupIsBeingUsedInPrivileges(Set<GuiGroup> groupsWhereGroupIsBeingUsedInPrivileges) {
     this.groupsWhereGroupIsBeingUsedInPrivileges = groupsWhereGroupIsBeingUsedInPrivileges;
   }
 

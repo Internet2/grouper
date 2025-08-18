@@ -361,7 +361,6 @@ public class UiV2Group {
         List<GrouperObjectTypesAttributeValue> attributeValuesForGroup = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(group);
         GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValuesForGroup);
         GrouperRequestContainer.retrieveFromRequestOrCreate().getObjectTypeContainer().setGuiConfiguredGrouperObjectTypesAttributeValues(GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValuesForGroup));
-        System.out.println("attributeValuesForGroup = "+attributeValuesForGroup.size());
       }
       
       //memberships section
@@ -438,7 +437,13 @@ public class UiV2Group {
             .findMembershipResult();
             
             Set<Member> directGroupMembers = membershipResult.members();
-            groupSummaryContainer.setDirectGroupMembers(directGroupMembers);
+            Set<String> groupIds = new HashSet<String>();
+            for (Member member: directGroupMembers) {
+              groupIds.add(member.getSubjectId());
+            }
+            Set<Group> directGroups = new GroupFinder().assignGroupIds(groupIds).findGroups();
+            Set<GuiGroup> directGuiGroups = GuiGroup.convertFromGroups(directGroups);
+            groupSummaryContainer.setDirectGroupMembers(directGuiGroups);
           }
           
           // find the number of groups where this group is being used as a member
@@ -465,7 +470,8 @@ public class UiV2Group {
               .findMembershipResult();
               
               Set<Group> groupsWhereTheCurrentGroupIsMemberOf = membershipResult.groups();
-              groupSummaryContainer.setGroupsWhereTheCurrentGroupIsMemberOf(groupsWhereTheCurrentGroupIsMemberOf);
+              Set<GuiGroup> guiGroupsWhereTheCurrentGroupIsMemberOf = GuiGroup.convertFromGroups(groupsWhereTheCurrentGroupIsMemberOf);
+              groupSummaryContainer.setGroupsWhereTheCurrentGroupIsMemberOf(guiGroupsWhereTheCurrentGroupIsMemberOf);
             }
             
           }
@@ -487,14 +493,18 @@ public class UiV2Group {
           if (directGroupPrivilegesCount > 0 && directGroupPrivilegesCount < 5) {
             Set<String> directGroupPrivileges = MembershipFinder.retrieveDirectGroupPrivileges(group.getId());
             Set<Group> directGroupPrivilgesGroups = new GroupFinder().assignGroupIds(directGroupPrivileges).findGroups();
-            groupSummaryContainer.setDirectGroupPrivilegesGroups(directGroupPrivilgesGroups);
+            
+            Set<GuiGroup> directGuiGroupPrivilgesGroups = GuiGroup.convertFromGroups(directGroupPrivilgesGroups);
+            
+            groupSummaryContainer.setDirectGroupPrivilegesGroups(directGuiGroupPrivilgesGroups);
           }
           int countOfWhereGroupIsBeingUsedInPrivileges = MembershipFinder.retrieveCountOfWhereGroupIsBeingUsedInPrivileges(group.getId());
           groupSummaryContainer.setCountOfWhereGroupIsBeingUsedInPrivileges(countOfWhereGroupIsBeingUsedInPrivileges);
           if (countOfWhereGroupIsBeingUsedInPrivileges > 0 && countOfWhereGroupIsBeingUsedInPrivileges < 5) {
             Set<String> groupIdsWhereGroupIsBeingUsedInPrivileges = MembershipFinder.retrieveGroupIdsWhereGroupIsBeingUsedInPrivileges(group.getId());
             Set<Group> groupsWhereGroupIsBeingUsedInPrivileges = new GroupFinder().assignGroupIds(groupIdsWhereGroupIsBeingUsedInPrivileges).findGroups();
-            groupSummaryContainer.setGroupsWhereGroupIsBeingUsedInPrivileges(groupsWhereGroupIsBeingUsedInPrivileges);
+            Set<GuiGroup> guiGroupsWhereGroupIsBeingUsedInPrivileges = GuiGroup.convertFromGroups(groupsWhereGroupIsBeingUsedInPrivileges);
+            groupSummaryContainer.setGroupsWhereGroupIsBeingUsedInPrivileges(guiGroupsWhereGroupIsBeingUsedInPrivileges);
           }
           
         }
@@ -517,7 +527,8 @@ public class UiV2Group {
             groupFinder.addGroupId(groupId);
           }
           Set<Group> groups = groupFinder.findGroups();
-          groupSummaryContainer.setAbacScriptedGroupDependencies(groups);
+          Set<GuiGroup> guiAbacScriptedGroupDependencies = GuiGroup.convertFromGroups(groups);
+          groupSummaryContainer.setAbacScriptedGroupDependencies(guiAbacScriptedGroupDependencies);
         }
       }
       
@@ -528,9 +539,11 @@ public class UiV2Group {
           if (composite != null) {
             groupSummaryContainer.setComposite(true);
             Group leftGroup = composite.getLeftGroup();
-            groupSummaryContainer.setCompositeLeftGroup(leftGroup);
+            GuiGroup guiLeftGroup = new GuiGroup(leftGroup);
+            groupSummaryContainer.setCompositeLeftGroup(guiLeftGroup);
             Group rightGroup = composite.getRightGroup();
-            groupSummaryContainer.setCompositeRightGroup(rightGroup);
+            GuiGroup guiRightGroup = new GuiGroup(rightGroup);
+            groupSummaryContainer.setCompositeRightGroup(guiRightGroup);
             CompositeType compositeType = composite.getType();
             groupSummaryContainer.setCompositeType(compositeType);
           }
@@ -540,7 +553,11 @@ public class UiV2Group {
           groupSummaryContainer.setCompositeSize(composites.size());
           //if composites size is less than 5, then show the factors otherwise just show the count
           if (composites.size() < 5) {
-            groupSummaryContainer.setComposites(composites);
+            Set<GuiGroup> compositeOwners = new HashSet<GuiGroup>();
+            for (Composite composie: composites) {
+              compositeOwners.add(new GuiGroup(composie.getOwnerGroup()));
+            }
+            groupSummaryContainer.setComposites(compositeOwners);
           }
         }
       }

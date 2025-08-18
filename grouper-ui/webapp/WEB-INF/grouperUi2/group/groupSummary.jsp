@@ -14,7 +14,7 @@
                               >${textContainer.text['objectTypeMoreActionsMenuLabel'] }</a></strong></td>
             <td>
               <ul>
-                <c:forEach var="guiConfiguredGrouperObjectTypesAttributeValue" items="${grouperRequestContainer.objectTypeContainer.guiConfiguredGrouperObjectTypesAttributeValues}">
+                <c:forEach var="guiConfiguredGrouperObjectTypesAttributeValue" varStatus="status" items="${grouperRequestContainer.objectTypeContainer.guiConfiguredGrouperObjectTypesAttributeValues}">
                   <c:set var="objectType" value="${guiConfiguredGrouperObjectTypesAttributeValue.grouperObjectTypesAttributeValue.objectTypeName}" />
                   <li>
                     ${textContainer.text[grouper:concat2('objectTypeOption_',objectType)] }
@@ -41,8 +41,9 @@
                    <li>${grouperRequestContainer.groupSummaryContainer.directMembersCount} direct members</li>
                    <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.directGroupMembers}">
                       <li>Direct group members: 
-                        <c:forEach var="directGroupMember" items="${grouperRequestContainer.groupSummaryContainer.directGroupMembers}">
-                          ${directGroupMember.name},
+                        <c:forEach var="directGroupMember" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.directGroupMembers}">
+                          ${directGroupMember.shortLinkWithIcon}
+                          <c:if test="${!status.last}">,</c:if>
                         </c:forEach>
                       </li>
                    </c:if>
@@ -56,8 +57,9 @@
                 <c:when test="${grouperRequestContainer.groupSummaryContainer.groupAsMemberCount > 0}">
                    <li>This group is used in ${grouperRequestContainer.groupSummaryContainer.groupAsMemberCount} other groups
                    <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.groupsWhereTheCurrentGroupIsMemberOf}"> 
-                        <c:forEach var="groupWhereTheCurrentGroupIsMemberOf" items="${grouperRequestContainer.groupSummaryContainer.groupsWhereTheCurrentGroupIsMemberOf}">
-                          ${groupWhereTheCurrentGroupIsMemberOf.name},
+                        <c:forEach var="groupWhereTheCurrentGroupIsMemberOf" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.groupsWhereTheCurrentGroupIsMemberOf}">
+                          ${groupWhereTheCurrentGroupIsMemberOf.shortLinkWithIcon}
+                          <c:if test="${!status.last}">,</c:if>
                         </c:forEach>
                    </c:if>
                    </li>
@@ -85,8 +87,9 @@
                    <li>${grouperRequestContainer.groupSummaryContainer.directPrivilegesCount} direct privileges</li>
                    <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.directGroupPrivilegesGroups}">
                       <li>Direct group privileges: 
-                        <c:forEach var="directGroupPrivilegesGroup" items="${grouperRequestContainer.groupSummaryContainer.directGroupPrivilegesGroups}">
-                          ${directGroupPrivilegesGroup.name},
+                        <c:forEach var="directGroupPrivilegesGroup" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.directGroupPrivilegesGroups}">
+                          ${directGroupPrivilegesGroup.shortLinkWithIcon}
+                          <c:if test="${!status.last}">,</c:if>
                         </c:forEach>
                       </li>
                    </c:if>
@@ -100,8 +103,9 @@
                 <c:when test="${grouperRequestContainer.groupSummaryContainer.countOfWhereGroupIsBeingUsedInPrivileges > 0}">
                    <li>This group is used in ${grouperRequestContainer.groupSummaryContainer.countOfWhereGroupIsBeingUsedInPrivileges} other groups
                    <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.groupsWhereGroupIsBeingUsedInPrivileges}"> 
-                        <c:forEach var="groupWhereGroupIsBeingUsedInPrivileges" items="${grouperRequestContainer.groupSummaryContainer.groupsWhereGroupIsBeingUsedInPrivileges}">
-                          ${groupWhereGroupIsBeingUsedInPrivileges.name},
+                        <c:forEach var="groupWhereGroupIsBeingUsedInPrivileges" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.groupsWhereGroupIsBeingUsedInPrivileges}">
+                          ${groupWhereGroupIsBeingUsedInPrivileges.shortLinkWithIcon}
+                          <c:if test="${!status.last}">,</c:if>
                         </c:forEach>
                    </c:if>
                    </li>
@@ -159,8 +163,9 @@
               <ul>
                   <li>Used in ${grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependenciesCount} groups 
                   <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependencies}"> 
-                      <c:forEach var="abacScriptedGroupDependency" items="${grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependencies}">
-                        ${abacScriptedGroupDependency.name},
+                      <c:forEach var="abacScriptedGroupDependency" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependencies}">
+                        ${abacScriptedGroupDependency.shortLinkWithIcon}
+                        <c:if test="${!status.last}">,</c:if>
                       </c:forEach>
                   </c:if>
                   </li>
@@ -176,7 +181,7 @@
              <ul>
               <c:if test="${grouperRequestContainer.groupSummaryContainer.composite}">
                <li>
-                This group is a composite owner of ${grouperRequestContainer.groupSummaryContainer.compositeLeftGroup.name} {grouperRequestContainer.groupSummaryContainer.compositeType} {grouperRequestContainer.groupSummaryContainer.compositeRightGroup.name}
+                This group is a composite owner of ${grouperRequestContainer.groupSummaryContainer.compositeLeftGroup.shortLinkWithIcon} {grouperRequestContainer.groupSummaryContainer.compositeType} {grouperRequestContainer.groupSummaryContainer.compositeRightGroup.shortLinkWithIcon}
                 </li>
               </c:if>
               
@@ -184,8 +189,9 @@
                <li>
                 This group is a composite factor in ${grouperRequestContainer.groupSummaryContainer.compositeSize} other groups
                 <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.composites}"> 
-                    <c:forEach var="composite" items="${grouperRequestContainer.groupSummaryContainer.composites}">
-                      ${composite.ownerGroup.name},
+                    <c:forEach var="composite" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.composites}">
+                      ${composite.shortLinkWithIcon}
+                      <c:if test="${!status.last}">,</c:if>
                     </c:forEach>
                 </c:if>
                </li>
@@ -206,8 +212,9 @@
                   <c:if test="${grouperRequestContainer.groupSummaryContainer.compositeSize > 0}">
                   This group is a composite factor in ${grouperRequestContainer.groupSummaryContainer.compositeSize} other groups
                   <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.guiGrouperProvisioningAttributeValues}"> 
-                      <c:forEach var="guiGrouperProvisioningAttributeValue" items="${grouperRequestContainer.groupSummaryContainer.guiGrouperProvisioningAttributeValues}">
-                        ${guiGrouperProvisioningAttributeValue.externalizedName},
+                      <c:forEach var="guiGrouperProvisioningAttributeValue" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.guiGrouperProvisioningAttributeValues}">
+                        ${guiGrouperProvisioningAttributeValue.externalizedName}
+                        <c:if test="${!status.last}">,</c:if>
                       </c:forEach>
                   </c:if>
                 </c:if>
