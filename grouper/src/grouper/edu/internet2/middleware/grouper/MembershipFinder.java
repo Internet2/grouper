@@ -165,7 +165,7 @@ public class MembershipFinder {
          and ms.member_id = m.id 
          and ms.field_id = f.id
          and f.type = 'access'
-         and  m.subject_type != 'group' 
+         and  m.subject_source != 'g:gsa' 
          and ms.owner_group_id = ?
         """;
     int rows = new GcDbAccess().sql(sql).addBindVar(groupId).select(int.class);
@@ -221,7 +221,7 @@ public class MembershipFinder {
         where gf.id = gm.field_id 
         and gf.type = 'access' and 
         gm.member_id = gm2.id and 
-        gm2.subject_type = 'group' and
+        gm2.subject_source = 'g:gsa' and
         owner_group_id = ?;
         """;
     int rows = new GcDbAccess().sql(sql).addBindVar(groupId).select(int.class);
@@ -240,7 +240,7 @@ public class MembershipFinder {
         where gf.id = gm.field_id 
         and gf.type = 'access' and 
         gm.member_id = gm2.id and 
-        gm2.subject_type = 'group' and
+        gm2.subject_source = 'g:gsa' and
         owner_group_id = ?;
         """;
     List<String> groupIds = new GcDbAccess().sql(sql).addBindVar(groupId).selectList(String.class);
@@ -259,7 +259,7 @@ public class MembershipFinder {
         where gf.id = gm.field_id 
         and gf.type = 'access' and 
         gm.member_id = gm2.id and 
-        gm2.subject_type = 'group' and
+        gm2.subject_source = 'g:gsa' and
         gm2.subject_id = ?;
         """;
     int rows = new GcDbAccess().sql(sql).addBindVar(groupId).select(int.class);
@@ -278,7 +278,7 @@ public class MembershipFinder {
         where gf.id = gm.field_id 
         and gf.type = 'access' and 
         gm.member_id = gm2.id and 
-        gm2.subject_type = 'group' and
+        gm2.subject_source = 'g:gsa' and
         gm2.subject_id = ?;
         """;
     List<String> groupIds = new GcDbAccess().sql(sql).addBindVar(groupId).selectList(String.class);

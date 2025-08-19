@@ -31,8 +31,13 @@ public class SqlCacheDependencyDao {
     
     Long groupInternalId = group.getInternalId();
     int groupDependencies = new GcDbAccess()
-        .sql("select count(*) from grouper_sql_cache_dependency gscd, grouper_sql_cache_group gscg where gscd.dependent_internal_id = gscg.internal_id and "
-            + " gscg.group_internal_id = ?").addBindVar(groupInternalId).select(int.class);
+        .sql("""
+            select count(*) from grouper_sql_cache_dependency gscd, grouper_sql_cache_group gscg, grouper_fields gf
+            where gscd.dependent_internal_id = gscg.internal_id
+            and gf.internal_id = gscg.field_internal_id
+            and gf.name = 'members'
+            and gscg.group_internal_id = ?
+            """).addBindVar(groupInternalId).select(int.class);
     return groupDependencies;
   }
   
@@ -40,11 +45,13 @@ public class SqlCacheDependencyDao {
   public static Set<String> retrieveGroupIdsForDependentGroupUsage(Group group) {
     Long groupInternalId = group.getInternalId();
     StringBuilder query = new StringBuilder("""
-              select gg.id from grouper_sql_cache_dependency gscd, grouper_sql_cache_group gscg, grouper_sql_cache_group gscg2, grouper_groups gg  where
-          gscd.dependent_internal_id = gscg.internal_id 
-           and gscg2.internal_id  = gscd.owner_internal_id 
-           and gscg2.group_internal_id = gg.internal_id 
-          and gscg.group_internal_id  = ?;
+              select gg.id from grouper_sql_cache_dependency gscd, grouper_sql_cache_group gscg_dependent, grouper_sql_cache_group gscg_owner, grouper_fields gf, grouper_groups gg  where
+          gscd.dependent_internal_id = gscg_dependent.internal_id 
+           and gscg_owner.internal_id  = gscd.owner_internal_id 
+           and gscg_owner.group_internal_id = gg.internal_id 
+           and gf.internal_id = gscg_dependent.field_internal_id
+           and gf.name = 'members'
+          and gscg_dependent.group_internal_id  = ?;
         """);
     List<String> groupIds = new GcDbAccess().sql(query.toString()).addBindVar(groupInternalId).selectList(String.class);
     return new HashSet<String>(groupIds);

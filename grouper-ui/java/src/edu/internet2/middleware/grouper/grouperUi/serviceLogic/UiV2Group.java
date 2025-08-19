@@ -365,7 +365,7 @@ public class UiV2Group {
       
       //memberships section
       {
-        if (group.hasRead(loggedInSubject) || group.hasAdmin(loggedInSubject)) {
+        if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
           Collection<Source> sources = SourceManager.getInstance().getSources();
           Iterator<Source> iterator = sources.iterator();
           while (iterator.hasNext()) {
@@ -383,7 +383,6 @@ public class UiV2Group {
           new MembershipFinder().addField(Group.getDefaultList())
           .addGroup(group).assignQueryOptionsForMember(queryOptions)
           .assignSources(new HashSet<Source>(sources))
-//          .assignMembershipType(MembershipType.IMMEDIATE)
           .findMembershipResult();
             
            int directNotGroupMembersCount = queryOptions.getCount().intValue();
@@ -480,7 +479,7 @@ public class UiV2Group {
       
       //privileges section
       {
-        if (group.hasRead(loggedInSubject) || group.hasAdmin(loggedInSubject)) {
+        if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
           
           int nonGroupTotalPrivilegesCount = MembershipFinder.retrieveNonGroupTotalPrivilegesCount(group.getId());
           groupSummaryContainer.setNonGroupTotalPrivilegesCount(nonGroupTotalPrivilegesCount);
@@ -517,24 +516,26 @@ public class UiV2Group {
       
       //ABAC scripted section
       {
-        int countGroupUsage = SqlCacheDependencyDao.countGroupUsage(group);
-        groupSummaryContainer.setAbacScriptedGroupDependenciesCount(countGroupUsage);
-        if (countGroupUsage > 0 && countGroupUsage < 5) {
-          
-          Set<String> groupIdsForDependentGroupUsage = SqlCacheDependencyDao.retrieveGroupIdsForDependentGroupUsage(group);
-          GroupFinder groupFinder = new GroupFinder();
-          for (String groupId: groupIdsForDependentGroupUsage) {            
-            groupFinder.addGroupId(groupId);
+        if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false)) {
+          int countGroupUsage = SqlCacheDependencyDao.countGroupUsage(group);
+          groupSummaryContainer.setAbacScriptedGroupDependenciesCount(countGroupUsage);
+          if (countGroupUsage > 0 && countGroupUsage < 5) {
+            
+            Set<String> groupIdsForDependentGroupUsage = SqlCacheDependencyDao.retrieveGroupIdsForDependentGroupUsage(group);
+            GroupFinder groupFinder = new GroupFinder();
+            for (String groupId: groupIdsForDependentGroupUsage) {            
+              groupFinder.addGroupId(groupId);
+            }
+            Set<Group> groups = groupFinder.findGroups();
+            Set<GuiGroup> guiAbacScriptedGroupDependencies = GuiGroup.convertFromGroups(groups);
+            groupSummaryContainer.setAbacScriptedGroupDependencies(guiAbacScriptedGroupDependencies);
           }
-          Set<Group> groups = groupFinder.findGroups();
-          Set<GuiGroup> guiAbacScriptedGroupDependencies = GuiGroup.convertFromGroups(groups);
-          groupSummaryContainer.setAbacScriptedGroupDependencies(guiAbacScriptedGroupDependencies);
         }
       }
       
       //composite section
       {
-        if (group.hasRead(loggedInSubject) || group.hasAdmin(loggedInSubject)) {
+        if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
           Composite composite = group.getComposite(false);
           if (composite != null) {
             groupSummaryContainer.setComposite(true);
@@ -565,7 +566,7 @@ public class UiV2Group {
       //provisioning section
       {
         
-        if (group.hasRead(loggedInSubject) || group.hasAdmin(loggedInSubject)) {
+        if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false)) {
           List<GrouperProvisioningAttributeValue> provisioningAttributeValues = GrouperProvisioningService.getProvisioningAttributeValues(group);
           
           groupSummaryContainer.setProvisioningAssignmentCount(provisioningAttributeValues.size());
@@ -604,18 +605,25 @@ public class UiV2Group {
       
       //attestation section
       {
-        
-        if (group.hasUpdate(loggedInSubject) || group.hasAdmin(loggedInSubject)) {
-          AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, 
-              GrouperAttestationJob.retrieveAttributeDefNameValueDef(), true, false);
-          if (attributeAssign != null) {
-            //attestation configured
-            groupSummaryContainer.setAttestation(true);
+        if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false)) {
+          
+          try {            
+            group.getAttributeDelegate().assertCanReadAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameValueDef());
+            AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, 
+                GrouperAttestationJob.retrieveAttributeDefNameValueDef(), true, false);
             
-            AttributeDefName attributeDefNameDateCertified = GrouperAttestationJob.retrieveAttributeDefNameDateCertified();
-            String attestationDateCertified = attributeAssign.getAttributeValueDelegate().retrieveValueString(attributeDefNameDateCertified.getName());
-            groupSummaryContainer.setAttestationDateCertified(attestationDateCertified);
-          } 
+            if (attributeAssign != null) {
+              //attestation configured
+              groupSummaryContainer.setAttestation(true);
+              
+              AttributeDefName attributeDefNameDateCertified = GrouperAttestationJob.retrieveAttributeDefNameDateCertified();
+              String attestationDateCertified = attributeAssign.getAttributeValueDelegate().retrieveValueString(attributeDefNameDateCertified.getName());
+              groupSummaryContainer.setAttestationDateCertified(attestationDateCertified);
+            } 
+          } catch (Exception e) {
+            //keep going
+          }
+          
         }
         
       }
@@ -623,8 +631,8 @@ public class UiV2Group {
       //attributes section
       {
         
-        if (group.hasGroupAttrRead(loggedInSubject) || group.hasAdmin(loggedInSubject)) {
-        //TODO optimize to get the count only
+        if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.GROUP_ATTR_READ.getName(), false)) {
+          //TODO optimize to get the count only
           Set<AttributeDefName> builtInAttributeDefNames = new HashSet<AttributeDefName>();
           
           AttributeDefName rulesAttributeDefName = AttributeDefNameFinder.findByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:rules:rule", false);
@@ -659,7 +667,7 @@ public class UiV2Group {
           AttributeDefName attestationAttributeDefName = GrouperAttestationJob.retrieveAttributeDefNameValueDef();
           builtInAttributeDefNames.add(attestationAttributeDefName);
           
-          Set<AttributeAssign> assignments = group.getAttributeDelegate().retrieveAssignments();
+          Set<AttributeAssign> assignments = group.getAttributeDelegate().retrieveAssignments(); // make a custom sql query for this that will only return the count of non-built-in attributes
           //filter the built-in attributes like provisioning, attestation, etc
           Set<AttributeAssign> filteredAssignments = new HashSet<AttributeAssign>();
           for (AttributeAssign attributeAssign : GrouperUtil.nonNull(assignments)) {
