@@ -42,6 +42,8 @@ import org.hibernate.criterion.Restrictions;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -938,8 +940,13 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacLoader();
-
+      //SQL and LDAP loaders can only be edited by the GrouperSysAdmins or subjects in the uiV2.loader.edit.if.in.group
+      if ((grouperLoaderContainer.isGrouperSqlLoader() || grouperLoaderContainer.isGrouperLdapLoader()) && !grouperLoaderContainer.isCanEditLoader()) {
+        return;
+      }
+      
+      boolean canEditLoader = grouperLoaderContainer.isCanEditAbacLoader();
+      
       if (!canEditLoader) {
         return;
       }
@@ -5543,6 +5550,12 @@ public class UiV2GrouperLoader {
         throw new RuntimeException("Missing format!!");
       }
       
+      String privilgesError = validatePrivilegesForImport(contentsToImport);
+      if (StringUtils.isNotBlank(privilgesError)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, privilgesError));
+        return;
+      }
+      
       List<String> errors = GrouperLoaderImportExport.importLoaderConfig(contentsToImport, group);
       if (errors.size() > 0) {
         for (String error: errors) {
@@ -5557,6 +5570,21 @@ public class UiV2GrouperLoader {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
-
+  
+  private String validatePrivilegesForImport(String contentsToImport) {
+    try {
+      JsonNode jsonNode = GrouperUtil.jsonJacksonNode(contentsToImport);
+      String loaderType = GrouperUtil.jsonJacksonGetString(jsonNode, "loaderType");
+      if (StringUtils.equals(loaderType, "SQL") || StringUtils.equals(loaderType, "LDAP")) {
+        GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+        if (!grouperLoaderContainer.isCanEditLoader()) {
+          return "User is not authorized to import SQL or LDAP type loader configs.";
+        }
+      }
+    } catch (Exception e) {
+      return "Invalid json input";
+    }
+    return null;
+  }
 
 }

@@ -164,8 +164,10 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                                 onchange="ajax('../app/UiV2GrouperLoader.editGrouperLoader', {formIds: 'editLoaderFormId'}); return false;">
                                 <option value="" ></option>
                                 <option value="JEXL_SCRIPT" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'JEXL_SCRIPT' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderJexlScript']}</option>
-                                <option value="LDAP" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'LDAP' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderLdap']}</option>
-                                <option value="SQL" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'SQL' ? 'selected="selected"' : '' } >${textContainer.textEscapeXml['grouperLoaderSql']}</option>
+                                <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader}">
+                                  <option value="LDAP" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'LDAP' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderLdap']}</option>
+                                  <option value="SQL" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'SQL' ? 'selected="selected"' : '' } >${textContainer.textEscapeXml['grouperLoaderSql']}</option>
+                                </c:if>
                                 <option value="RECENT_MEMBERSHIPS" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'RECENT_MEMBERSHIPS' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderRecentMemberships']}</option>
                               </select>
                               <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
