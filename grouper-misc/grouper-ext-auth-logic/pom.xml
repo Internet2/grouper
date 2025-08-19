@@ -193,7 +193,6 @@
                             <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
                             <Implementation-Title>${project.artifactId}</Implementation-Title>
                             <Implementation-Version>${project.version}</Implementation-Version>
-                            <Implementation-URL>${project.url}</Implementation-URL>
                             <Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
                         </manifestEntries>
                     </archive>
