@@ -2579,6 +2579,23 @@ public class GrouperLoaderContainer {
     
   }
   
+  public boolean isCanEditAbacOrRecentMembershipsLoader() {
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return true;
+    }
+    
+    // it's either jexl/recent_memberships or not set
+    if (!isGrouperSqlLoader() && !isGrouperLdapLoader() && 
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
+      return true;
+    }
+    
+    return false;
+    
+  }
+  
   /**
    * if on edit screen this is a loader group
    */

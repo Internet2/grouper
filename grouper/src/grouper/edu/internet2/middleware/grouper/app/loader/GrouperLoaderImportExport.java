@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
@@ -18,8 +19,12 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperLoaderImportExport {
@@ -142,42 +147,51 @@ public class GrouperLoaderImportExport {
   
   private static boolean isLoaderAlreadyAssignedOnGroup(Group group) {
     
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", true);
-    
-    AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+    boolean loaderAlreadyConfigured = (boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    if (attributeAssign != null) {
-      return true;
-    }
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
+            .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", true);
+        
+        AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+
+        if (attributeAssign != null) {
+          return true;
+        }
+        
+        attributeDefName = AttributeDefNameFinder.findByName(
+            GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, true);
+        
+        attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+        
+        if (attributeAssign != null) {
+          return true;
+        }
+        
+        attributeDefName = AttributeDefNameFinder.findByName(
+            GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
+        
+        attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+        
+        if (attributeAssign != null) {
+          return true;
+        }
+        
+        attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), true);
+        
+        attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+        
+        if (attributeAssign != null) {
+          return true;
+        }
+        
+        return false;
+      }
+    });
     
-    attributeDefName = AttributeDefNameFinder.findByName(
-        GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, true);
+    return loaderAlreadyConfigured;
     
-    attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-    
-    if (attributeAssign != null) {
-      return true;
-    }
-    
-    attributeDefName = AttributeDefNameFinder.findByName(
-        GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
-    
-    attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-    
-    if (attributeAssign != null) {
-      return true;
-    }
-    
-    attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), true);
-    
-    attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
-    
-    if (attributeAssign != null) {
-      return true;
-    }
-    
-    return false;
   }
 
   public static List<String> importLoaderConfig(String json, Group group) {
@@ -198,47 +212,56 @@ public class GrouperLoaderImportExport {
       JsonNode jsonNode = GrouperUtil.jsonJacksonNode(json);
       String loaderType = GrouperUtil.jsonJacksonGetString(jsonNode, "loaderType");
       
-      AttributeDefName attributeDefName  = null;
-      
-      if (StringUtils.equals(loaderType, "SQL")) {
-        
-        attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
-            .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", true);
-        
-      } else if ( StringUtils.equals(loaderType, "JEXL_SCRIPT")) {
-        
-        attributeDefName = AttributeDefNameFinder.findByName(
-            GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, true);
-        
-      } else if ( StringUtils.equals(loaderType, "RECENT_MEMBERSHIPS")) {
-        
-        attributeDefName = AttributeDefNameFinder.findByName(
-            GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
-        
-      } else if ( StringUtils.equals(loaderType, "LDAP")) {
-        attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), true);
-      } else {
-        errors.add("Invalid json");
-        return errors;
-      }
-      
-      AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      if (attributeAssign != null) {
-        errors.add("Loader is already configured on the group");
-        return errors;
-      }
-      
-      attributeAssign = group.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
-      
-      ArrayNode attributesArray = GrouperUtil.jsonJacksonGetArrayNode(jsonNode, "attributes");
-      
-      for (int index=0; index<attributesArray.size(); index++) {
-        JsonNode singleAttributeNode = attributesArray.get(index);
-        String attributeName = GrouperUtil.jsonJacksonGetString(singleAttributeNode, "attributeName");
-        String attributeValue = GrouperUtil.jsonJacksonGetString(singleAttributeNode, "attributeValue");
-        attributeAssign.getAttributeValueDelegate().assignValue(attributeName, attributeValue);
-      }
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          AttributeDefName attributeDefName  = null;
+          
+          if (StringUtils.equals(loaderType, "SQL")) {
+            
+            attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
+                .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", true);
+            
+          } else if ( StringUtils.equals(loaderType, "JEXL_SCRIPT")) {
+            
+            attributeDefName = AttributeDefNameFinder.findByName(
+                GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, true);
+            
+          } else if ( StringUtils.equals(loaderType, "RECENT_MEMBERSHIPS")) {
+            
+            attributeDefName = AttributeDefNameFinder.findByName(
+                GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, true);
+            
+          } else if ( StringUtils.equals(loaderType, "LDAP")) {
+            attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), true);
+          } else {
+            errors.add("Invalid json");
+            return errors;
+          }
+          
+          AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+
+          if (attributeAssign != null) {
+            errors.add("Loader is already configured on the group");
+            return errors;
+          }
+          
+          attributeAssign = group.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+          
+          ArrayNode attributesArray = GrouperUtil.jsonJacksonGetArrayNode(jsonNode, "attributes");
+          
+          for (int index=0; index<attributesArray.size(); index++) {
+            JsonNode singleAttributeNode = attributesArray.get(index);
+            String attributeName = GrouperUtil.jsonJacksonGetString(singleAttributeNode, "attributeName");
+            String attributeValue = GrouperUtil.jsonJacksonGetString(singleAttributeNode, "attributeValue");
+            attributeAssign.getAttributeValueDelegate().assignValue(attributeName, attributeValue);
+          }
+          
+          return null;
+        }
+      });
       
     } catch (Exception e) {
       errors.add("Invalid json");

@@ -940,17 +940,6 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      //SQL and LDAP loaders can only be edited by the GrouperSysAdmins or subjects in the uiV2.loader.edit.if.in.group
-      if ((grouperLoaderContainer.isGrouperSqlLoader() || grouperLoaderContainer.isGrouperLdapLoader()) && !grouperLoaderContainer.isCanEditLoader()) {
-        return;
-      }
-      
-      boolean canEditLoader = grouperLoaderContainer.isCanEditAbacLoader();
-      
-      if (!canEditLoader) {
-        return;
-      }
-      
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         @Override
@@ -960,7 +949,12 @@ public class UiV2GrouperLoader {
       boolean hasError = false;
       
       if (!grouperLoaderContainer.isEditLoaderIsLoader()) {
+        // user is trying to delete the existing loader configuration
         if (grouperLoaderContainer.isGrouperLdapLoader()) {
+          
+          if (!grouperLoaderContainer.isCanEditLoader()) {
+            throw new RuntimeException("Not enough privileges");
+          }
           
           //first, get the attribute def name
           AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName()
@@ -972,6 +966,10 @@ public class UiV2GrouperLoader {
 
         }
         if (grouperLoaderContainer.isGrouperJexlScriptLoader()) {
+          
+          if (!grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader()) {
+            throw new RuntimeException("Not enough privileges");
+          }
           
           AttributeDefName grouperJexlScript = GrouperDAOFactory.getFactory().getAttributeDefName()
               .findByNameSecure(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, false);
@@ -985,6 +983,11 @@ public class UiV2GrouperLoader {
 
         }
         if (grouperLoaderContainer.isGrouperSqlLoader()) {
+          
+          if (!grouperLoaderContainer.isCanEditLoader()) {
+            throw new RuntimeException("Not enough privileges");
+          }
+          
           //first, get the attribute def name
           AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
               .findByNameSecure(nameOfLoaderAttributeDefName, false);
@@ -1000,6 +1003,11 @@ public class UiV2GrouperLoader {
 
         }
         if (grouperLoaderContainer.isGrouperRecentMembershipsLoader()) {
+          
+          if (!grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader()) {
+            throw new RuntimeException("Not enough privileges");
+          }
+          
           //first, get the attribute def name
           AttributeDefName grouperRecentMemberships = GrouperDAOFactory.getFactory().getAttributeDefName()
               .findByNameSecure(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER, false);
@@ -1025,6 +1033,11 @@ public class UiV2GrouperLoader {
       }
 
       if (StringUtils.equals("RECENT_MEMBERSHIPS", grouperLoaderContainer.getEditLoaderType())) {
+        
+        if (!grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader()) {
+          throw new RuntimeException("Not enough privileges");
+        }
+        
         if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderRecentGroupUuidFrom())) {
           
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
@@ -1088,6 +1101,10 @@ public class UiV2GrouperLoader {
         }
 
       } else if (StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType())) {
+        
+        if (!grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader()) {
+          throw new RuntimeException("Not enough privileges");
+        }
         
         final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
@@ -1203,6 +1220,11 @@ public class UiV2GrouperLoader {
         }
 
       } else if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType())) {
+        
+        if (!grouperLoaderContainer.isCanEditLoader()) {
+          throw new RuntimeException("Not enough privileges");
+        }
+        
         if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderSqlType())) {
 
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
@@ -1345,6 +1367,10 @@ public class UiV2GrouperLoader {
         }
         
       } else if (StringUtils.equals("LDAP", grouperLoaderContainer.getEditLoaderType())) {
+        
+        if (!grouperLoaderContainer.isCanEditLoader()) {
+          throw new RuntimeException("Not enough privileges");
+        }
 
         if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderLdapType())) {
           
@@ -1906,7 +1932,7 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacLoader();
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader();
 
       if (!canEditLoader) {
         return;
@@ -2127,7 +2153,7 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacLoader();
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader();
           
       if (!canEditLoader) {
         return;
@@ -5417,7 +5443,7 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacLoader();
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader();
           
       if (!canEditLoader) {
         return;
@@ -5461,7 +5487,7 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacLoader();
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader();
           
       if (!canEditLoader) {
         return;
@@ -5500,7 +5526,7 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacLoader();
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader();
           
       if (!canEditLoader) {
         return;

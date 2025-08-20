@@ -21,7 +21,7 @@
                         </c:if>
                         
                         
-                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader or grouperRequestContainer.grouperLoaderContainer.canEditAbacLoader}" >
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader or grouperRequestContainer.grouperLoaderContainer.canEditAbacOrRecentMembershipsLoader}" >
                           <li><a href="?operation=UiV2GrouperLoader.editGrouperLoader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.editGrouperLoader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['grouperLoaderEditConfiguration'] }</a></li>
                         </c:if>
