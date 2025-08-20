@@ -604,7 +604,7 @@ public class GcTableSyncConfiguration {
       
       // grouperClient.syncTable.personSource.minimumResultsExpected = 1000
       // if this is set to -1, then it will not check
-      this.minimumResultsExpected = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt( "minimumResultsExpected" , false), defaultBatchSize);
+      this.minimumResultsExpected = GrouperClientUtils.defaultIfNull(this.retrieveConfigInt( "minimumResultsExpected" , false), -1);
       
       boolean defaultRemoveNullCharactersFromStrings = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.syncTableDefault.removeNullCharactersFromStrings", false);
       // grouperClient.syncTable.personSource.removeNullCharactersFromStrings = true
