@@ -58,8 +58,19 @@ public class Hib3ConfigDAO extends Hib3DAO implements ConfigDAO {
     
   }
 
-  
-  
+  public Set<GrouperConfigHibernate> findByValue(String value) {
+    GrouperUtil.assertion(StringUtils.isNotBlank(value), "value cannot be blank/null");
+    StringBuilder query = new StringBuilder();
+    query.append("from GrouperConfigHibernate gch where configValueDb = :theConfigValue");
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    byHqlStatic.setString("theConfigValue", value);
+    
+    Set<GrouperConfigHibernate> configs = byHqlStatic
+        .createQuery(query.toString())
+        .listSet(GrouperConfigHibernate.class);
+    return new TreeSet<GrouperConfigHibernate>(configs);
+  }
   
   
   /**

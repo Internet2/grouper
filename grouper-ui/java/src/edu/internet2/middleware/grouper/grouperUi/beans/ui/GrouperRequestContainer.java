@@ -609,6 +609,30 @@ public class GrouperRequestContainer {
   }
   
   /**
+   * container for group summary screen
+   */
+  private GroupSummaryContainer groupSummaryContainer;
+  
+  /**
+   * container for group summary screen
+   * @return container for group summary screen
+   */
+  public GroupSummaryContainer getGroupSummaryContainer() {
+    if (this.groupSummaryContainer == null) {
+      this.groupSummaryContainer = new GroupSummaryContainer();
+    }
+    return this.groupSummaryContainer;
+  }
+  
+  /**
+   * container for group summary screen
+   * @param theGroupSummaryContainer
+   */
+  public void setGroupSummaryContainer(GroupSummaryContainer theGroupSummaryContainer) {
+    this.groupSummaryContainer = theGroupSummaryContainer;
+  }
+  
+  /**
    * container for stem screens
    */
   private StemContainer stemContainer;

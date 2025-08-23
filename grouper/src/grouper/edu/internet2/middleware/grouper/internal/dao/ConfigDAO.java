@@ -66,6 +66,13 @@ public interface ConfigDAO extends GrouperDAO {
    * @return the configs
    */
   public Map<String, Set<GrouperConfigHibernate>> findByFileAndKey(Collection<MultiKey> configFileNameAndKeys);
+  
+  /**
+   * find all the configs by value
+   * @param value
+   * @return the configs
+   */
+  public Set<GrouperConfigHibernate> findByValue(String value);
 
 } 
 
