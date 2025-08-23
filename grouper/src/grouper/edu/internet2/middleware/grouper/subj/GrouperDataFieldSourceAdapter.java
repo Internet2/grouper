@@ -500,6 +500,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         
         subjectResult = (SubjectImpl) createSubject(sourceAttributesToValues, subjectId);
         subjectResult.setResolvedFromSource(true);
+        subjectResult.getTranslationMap().put("subjectid", subjectId);
         // loop through the privacy priority map and set the subject attribute for each key in the map to be the highest priority value that's not blank
         for (String attributeName : dataFieldCache.attributeNameToListOfPrioritizedPrivacyAttributeNames.keySet()) {
           List<String> privacyAttributeNames = dataFieldCache.attributeNameToListOfPrioritizedPrivacyAttributeNames.get(attributeName);

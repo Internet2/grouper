@@ -1549,7 +1549,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
         """
         (entity.memberOf('test:GroupC') && !entity.memberOf('test:GroupB'))
         || entity.hasRow('affiliation', 'affiliationDeptNumber<300')
-        || entity.hasRow('affiliation', 'affiliationCode=staff')
+        || entity.hasRow('affiliation', 'affiliationCode==staff')
         || entity.hasAttributeAny('jobNumber', [123, 234])
         || entity.hasAttributeLike(org, '%2%')
         """);
@@ -1645,7 +1645,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
         """
         (entity.memberOf('test:GroupC') && !entity.memberOf('test:GroupB'))
         || entity.hasRow('affiliation', 'affiliationDeptNumber<300')
-        || entity.hasRow('affiliation', 'affiliationCode=staff')
+        || entity.hasRow('affiliation', 'affiliationCode==staff')
         || entity.hasAttributeAny('jobNumber', [123, 234])
         || entity.hasAttributeLike(org, '%2%')
         """);
@@ -1743,7 +1743,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
         """
         (entity.memberOf('test:GroupC') && !entity.memberOf('test:GroupB'))
         || entity.hasRow('affiliation', 'affiliationDeptNumber<300')
-        || entity.hasRow('affiliation', 'affiliationCode=staff')
+        || entity.hasRow('affiliation', 'affiliationCode==staff')
         || entity.hasAttributeAny('jobNumber', [123, 234])
         || entity.hasAttributeLike(org, '%2%')
         """);
@@ -1854,7 +1854,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
           """
           (entity.memberOf('test:GroupC') && !entity.memberOf('test:GroupB'))
           || entity.hasRow('affiliation', 'affiliationDeptNumber<300')
-          || entity.hasRow('affiliation', 'affiliationCode=staff')
+          || entity.hasRow('affiliation', 'affiliationCode==staff')
           || entity.hasAttributeAny('jobNumber', [123, 234])
           || entity.hasAttributeLike(org, '%2%')
           """);

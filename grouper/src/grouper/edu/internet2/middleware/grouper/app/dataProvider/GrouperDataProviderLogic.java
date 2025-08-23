@@ -241,6 +241,11 @@ public class GrouperDataProviderLogic {
       }
     }
     
+    if (changesFromTimestamp != null) {
+      // subtract 100ms just in case there are small commit delays
+      changesFromTimestamp = new Timestamp(changesFromTimestamp.getTime() - 100);
+    }
+    
     Map<String, Map<String, Integer>> changeLogQueryConfigIdToLowerColumnNameToZeroIndex = new HashMap<String, Map<String, Integer>>();
 
     Map<String, Set<String>> sourceToSubjectIds = new HashMap<String, Set<String>>();
@@ -1000,6 +1005,13 @@ public class GrouperDataProviderLogic {
                   
                   for (Object currentValue : (Set)value) {
                     currentValue = grouperDataFieldConfig.getFieldDataType().convertValue(currentValue);
+                    
+                    if (!grouperDataProviderQueryConfig.isStoreNulls()) {
+                      if (grouperDataFieldConfig.getFieldDataType() == GrouperDataFieldType.string && currentValue instanceof String && ((String)currentValue).isBlank()) {
+                        continue;
+                      }
+                    }
+                    
                     if (currentValue != null && currentValue != Void.TYPE && grouperDataFieldConfig.getFieldDataType() == GrouperDataFieldType.string) {
                       needsDictionaryText.add((String)currentValue);
                     }
@@ -1014,6 +1026,13 @@ public class GrouperDataProviderLogic {
                   }
                 }
                 value = grouperDataFieldConfig.getFieldDataType().convertValue(value);
+                
+                if (!grouperDataProviderQueryConfig.isStoreNulls()) {
+                  if (grouperDataFieldConfig.getFieldDataType() == GrouperDataFieldType.string && value instanceof String && ((String)value).isBlank()) {
+                    continue;
+                  }
+                }
+                
                 if (value != null && value != Void.TYPE && grouperDataFieldConfig.getFieldDataType() == GrouperDataFieldType.string) {
                   needsDictionaryText.add((String)value);
                 }

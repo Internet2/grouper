@@ -307,6 +307,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     
     batchBindVars.add(GrouperUtil.toList("test.subject.0", "123"));
     batchBindVars.add(GrouperUtil.toList("test.subject.0", "234"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", " "));
     batchBindVars.add(GrouperUtil.toList("test.subject.1", "123"));
     batchBindVars.add(GrouperUtil.toList("test.subject.1", "456"));
     batchBindVars.add(GrouperUtil.toList("test.subject.2", "234"));
@@ -838,6 +839,25 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertNull(grouperDataRowFieldAssignHst3.getValueDictionaryInternalId());
     assertEquals(1, grouperDataRowFieldAssignHst3.getValueInteger().longValue());
     
+    // using a blank value doesn't change anything
+    new GcDbAccess().sql("update testgrouper_field_row_affil set org=' ' where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
+    
+    if (syncType == GrouperDataProviderSyncType.incrementalSyncChangeLog) {
+      new GcDbAccess().sql("delete from testgrouper_dp_changelog").executeSql();
+
+      List<List<Object>> batchBindVarsChangeLog = new ArrayList<List<Object>>();
+      batchBindVarsChangeLog.add(GrouperUtil.toList(1, "test.subject.0", new Date()));      
+      new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
+    }
+        
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
+    
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
     
     // make some updates in db - bring value back from null
     new GcDbAccess().sql("update testgrouper_field_row_affil set org='english' where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
