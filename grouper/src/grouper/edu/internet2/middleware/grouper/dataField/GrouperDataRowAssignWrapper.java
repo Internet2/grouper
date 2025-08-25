@@ -94,22 +94,36 @@ public class GrouperDataRowAssignWrapper {
       }
       Object[] keyValues = new Object[rowKeyFieldConfigIds.size()];
       int i = 0;
+      boolean foundNotNullKey = false;
+
       for (String rowKeyFieldConfigId : rowKeyFieldConfigIds) {
         GrouperDataFieldConfig grouperDataFieldConfig = this.grouperDataEngine.getFieldConfigByConfigId().get(rowKeyFieldConfigId);
         GrouperDataField grouperDataField = this.grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByConfigId().get(rowKeyFieldConfigId).getGrouperDataField();
         List<GrouperDataRowFieldAssignWrapper> grouperDataRowFieldAssignWrappers = this.rowFieldAssignWrappersByFieldInternalId.get(grouperDataField.getInternalId());
-        GrouperUtil.assertion(GrouperUtil.length(grouperDataRowFieldAssignWrappers) == 1, 
+        GrouperUtil.assertion(GrouperUtil.length(grouperDataRowFieldAssignWrappers) <= 1, 
             "Data row field key must have one value: " + grouperDataRowConfig.getConfigId() 
             + ", rowAssignId: " + this.grouperDataRowAssign.getInternalId() + ", field: " + grouperDataFieldConfig.getConfigId());
-        if (grouperDataFieldConfig.getFieldDataType() == GrouperDataFieldType.string) {
-          keyValues[i] = grouperDataRowFieldAssignWrappers.get(0).getTextValue();
+        
+        if (GrouperUtil.length(grouperDataRowFieldAssignWrappers) == 1) {
+          foundNotNullKey = true;
+          
+          if (grouperDataFieldConfig.getFieldDataType() == GrouperDataFieldType.string) {
+            keyValues[i] = grouperDataRowFieldAssignWrappers.get(0).getTextValue();
+          } else {
+            keyValues[i] = grouperDataRowFieldAssignWrappers.get(0).getGrouperDataRowFieldAssign().getValueInteger();
+          }
         } else {
-          keyValues[i] = grouperDataRowFieldAssignWrappers.get(0).getGrouperDataRowFieldAssign().getValueInteger();
+          keyValues[i] = null;
         }
 //        GrouperUtil.assertion(keyValues[i] != null, 
 //            "Data row field key must not have a null value: " + grouperDataRowConfig.getConfigId() 
 //            + ", rowAssignId: " + this.grouperDataRowAssign.getInternalId() + ", field: " + grouperDataFieldConfig.getConfigId());
         i++;
+      }
+      
+      if (!foundNotNullKey) {
+        // what should we do here?
+        throw new RuntimeException("Data row field key has no values for any keys: " + grouperDataRowConfig.getConfigId() + ", rowAssignId: " + this.grouperDataRowAssign.getInternalId());
       }
       
       this.rowKey = new MultiKey(keyValues);
