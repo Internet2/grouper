@@ -76,7 +76,7 @@ public class ConfigUtils {
                 .toList()) {
             // map name to realname if needed (e.g., changing case)
             String realName = ConfigUtils.propertyNameRename(name);
-            String fieldName = realName.substring(name.lastIndexOf('.') + 1);
+            String fieldName = realName.substring(realName.lastIndexOf('.') + 1);
             try {
                 Method method = getSetter(clazz, getMethodNameFromFieldName(fieldName));
                 method.invoke(configuration, getProperty(grouperConfig, method.getParameterTypes()[0], name));
@@ -108,7 +108,12 @@ public class ConfigUtils {
      * @return
      */
     private static String propertyNameRename(String propertyName) {
-        return PROPERTY_RENAMES.getOrDefault(propertyName, propertyName);
+        for (Map.Entry<String, String> rename: PROPERTY_RENAMES.entrySet()) {
+            if(rename.getValue() != null && rename.getValue().equals(propertyName)) {
+                return rename.getKey();
+            }
+        }
+        return propertyName;
     }
 
     private static String getMethodNameFromFieldName(String fieldName) {
