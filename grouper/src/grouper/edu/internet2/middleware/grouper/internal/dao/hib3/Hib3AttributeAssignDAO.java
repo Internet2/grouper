@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -38,6 +37,24 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.abac.GrouperAbac;
+import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
+import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceAttributeNames;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
+import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
+import edu.internet2.middleware.grouper.app.usdu.UsduAttributeNames;
+import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowInstanceAttributeNames;
+import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -61,8 +78,10 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -7785,6 +7804,45 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
         attributeDefType, attributeDefValueType, theValue, attributeCheckReadOnAttributeDef, idOfAttributeDefNameOnAssignment, attributeValuesOnAssignment,
         idOfAttributeDefNameOnAssignment2, attributeValuesOnAssignment2);
 
+  }
+  
+  public static int countOfNonBuiltInAttributes(String groupId) {
+    
+    Set<String> builtInAttributes = new HashSet<String>();
+    
+    builtInAttributes.add(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_ATTRIBUTE_NAME);
+    builtInAttributes.add(GrouperDeprovisioningSettings.deprovisioningStemName() + ":" + GrouperDeprovisioningAttributeNames.DEPROVISIONING_BASE);
+    builtInAttributes.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    builtInAttributes.add(GrouperReportSettings.reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_ATTRIBUTE_NAME);
+    builtInAttributes.add(GrouperReportSettings.reportConfigStemName()+":"+GrouperReportInstanceAttributeNames.GROUPER_REPORT_INSTANCE_ATTRIBUTE_NAME);
+    builtInAttributes.add(GrouperWorkflowSettings.workflowStemName()+":"+ GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_ATTRIBUTE_NAME);
+    builtInAttributes.add(GrouperWorkflowSettings.workflowStemName()+":"+ GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_ATTRIBUTE_NAME);
+    builtInAttributes.add(UsduSettings.usduStemName()+":"+UsduAttributeNames.SUBJECT_RESOLUTION_NAME);
+    builtInAttributes.add(GrouperAttestationJob.attestationStemName() + ":" + GrouperAttestationJob.ATTESTATION_VALUE_DEF);
+    builtInAttributes.add(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER);
+    builtInAttributes.add(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader");
+    builtInAttributes.add(GrouperRecentMemberships.recentMembershipsStemName() + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER);
+    builtInAttributes.add(LoaderLdapUtils.grouperLoaderLdapName());
+    builtInAttributes.add(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:rules:rule");
+    
+    StringBuilder sql = new StringBuilder("""
+        select count(*) from grouper_attribute_assign gaa, grouper_attribute_def_name gadn 
+        where gaa.owner_group_id = ? and
+        gadn.id = gaa.attribute_def_name_id and gadn.name not in (
+        """);
+    
+    sql.append(GrouperClientUtils.appendQuestions(builtInAttributes.size()));
+    sql.append(")");
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().sql(sql.toString());
+    gcDbAccess.addBindVar(groupId);
+    for (String builtInAttributeName : builtInAttributes) {
+      gcDbAccess.addBindVar(builtInAttributeName);
+    }
+    
+    int count = gcDbAccess.select(int.class);
+    
+    return count;
   }
 
   /**
