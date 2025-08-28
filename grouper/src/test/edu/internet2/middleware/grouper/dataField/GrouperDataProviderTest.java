@@ -56,7 +56,7 @@ public class GrouperDataProviderTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDataProviderTest("testSqlProviderFull"));
+    TestRunner.run(new GrouperDataProviderTest("testSqlProviderOneRowPerSubjectFull"));
   }
 
   public void setUp() {
@@ -98,6 +98,20 @@ public class GrouperDataProviderTest extends GrouperTest {
    */
   public void testSqlProviderIncremental() {
     internal_testSqlProvider(GrouperDataProviderSyncType.incrementalSyncChangeLog);
+  }
+  
+  /**
+   * 
+   */
+  public void testSqlProviderOneRowPerSubjectFull() {
+    internal_testSqlProviderOneRowPerSubject(GrouperDataProviderSyncType.fullSyncFull);
+  }
+  
+  /**
+   * 
+   */
+  public void testSqlProviderOneRowPerSubjectIncremental() {
+    internal_testSqlProviderOneRowPerSubject(GrouperDataProviderSyncType.incrementalSyncChangeLog);
   }
   
   /**
@@ -1249,6 +1263,397 @@ public class GrouperDataProviderTest extends GrouperTest {
     // we shouldn't have foreign key errors deleting the fields/rows
     GrouperDataFieldDao.delete(jobNumberDataField);
     GrouperDataRowDao.delete(affiliationDataRow);
+  }
+  
+  /**
+   * 
+   */
+  private void internal_testSqlProviderOneRowPerSubject(GrouperDataProviderSyncType syncType) {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+
+    List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+    
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "123"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "234"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", " "));
+    batchBindVars.add(GrouperUtil.toList("test.subject.1", "123"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.1", "456"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.2", "234"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.3", "789"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.3", "456"));
+    
+    // bad subject shouldn't cause the load to fail
+    batchBindVars.add(GrouperUtil.toList("test.subject.bogus", "456"));
+
+    new GcDbAccess().sql("insert into testgrouper_field_attr_multi (subject_id, attribute_value) values (?, ?)")
+      .batchBindVars(batchBindVars).executeBatchSql();
+
+    batchBindVars.clear();
+    
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "staff", "T", "engl"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.1", "stu", "F", " "));
+    batchBindVars.add(GrouperUtil.toList("test.subject.2", "staff", "F", "span"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.3", "fac", "T", "engl"));
+    
+    // bad subject shouldn't cause the load to fail
+    batchBindVars.add(GrouperUtil.toList("test.subject.bogus", "emer", "T", "math"));
+
+    new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org) values (?, ?, ?, ?)")
+      .batchBindVars(batchBindVars).executeBatchSql();
+
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
+    } else {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderIncrementalSyncJob").store();
+    }
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.dataProviderConfigId").value("idm").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.jobNumber.fieldAliases").value("jobNumber").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.jobNumber.fieldDataType").value("integer").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.jobNumber.fieldDataStorePit").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.jobNumber.fieldMultiValued").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.jobNumber.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.jobNumber.descriptionHtml").value("<b>description html </b>").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.fieldAliases").value("affiliationCode").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.descriptionHtml").value("<b>description html </b>").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldAliases").value("affiliationActive").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.descriptionHtml").value("<b>description html </b>").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.fieldAliases").value("affiliationOrg").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.descriptionHtml").value("<b>description html </b>").store();
+
+    
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowAliases").value("affiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.oneRowPerSubject").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowNumberOfDataFields").value("4").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.0.colDataFieldConfigId").value("affiliationCode").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.1.colDataFieldConfigId").value("affiliationActive").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.2.colDataFieldConfigId").value("affiliationOrg").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.3.colDataFieldConfigId").value("jobNumber").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.descriptionHtml").value("<b>description html </b>").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataStorePit").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataStorePitDays").value("800").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.name").value("idm").store();
+
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttrMulti.providerConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttrMulti.providerQueryType").value("sql").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttrMulti.providerQuerySqlConfigId").value("grouper").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttrMulti.providerQuerySqlQuery").value("select subject_id, attribute_value as job_number from testgrouper_field_attr_multi").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttrMulti.providerQueryDataStructure").value("row").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttrMulti.providerQueryRowConfigId").value("affiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttrMulti.providerQuerySubjectIdAttribute").value("subject_id").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttrMulti.providerQuerySubjectIdType").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttrMulti.providerQuerySubjectSourceId").value("jdbc").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttrMulti.providerQueryNumberOfDataFields").value("1").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttrMulti.providerQueryDataField.0.providerDataFieldConfigId").value("jobNumber").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttrMulti.providerQueryDataField.0.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttrMulti.providerQueryDataField.0.providerDataFieldAttribute").value("job_number").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryType").value("sql").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySqlConfigId").value("grouper").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySqlQuery").value("select subject_id, affiliation_code, active, org from testgrouper_field_row_affil").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataStructure").value("row").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryRowConfigId").value("affiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectIdAttribute").value("subject_id").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectIdType").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectSourceId").value("jdbc").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryNumberOfDataFields").value("3").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldConfigId").value("affiliationCode").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldAttribute").value("affiliation_code").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.1.providerDataFieldConfigId").value("affiliationActive").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.1.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.1.providerDataFieldAttribute").value("active").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldConfigId").value("affiliationOrg").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldAttribute").value("org").store();
+        
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQueryType").value("sql").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySqlConfigId").value("grouper").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySqlQuery").value("select id, subject_id, create_timestamp1 from testgrouper_dp_changelog").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQueryPrimaryKeyAttribute").value("id").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQueryTimestampAttribute").value("create_timestamp1").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySubjectIdAttribute").value("subject_id").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySubjectIdType").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySubjectSourceId").value("jdbc").store();
+        
+    // load data
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
+    
+    assertEquals(4, new GcDbAccess().sql("select count(1) from grouper_data_field").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row").select(int.class).intValue());
+
+    
+    if (syncType == GrouperDataProviderSyncType.incrementalSyncChangeLog) {
+      // nothing would have happened since the change log wasn't populated
+      assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v").select(int.class).intValue());
+      assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v").select(int.class).intValue());
+      assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v").select(int.class).intValue());
+      
+      List<List<Object>> batchBindVarsChangeLog = new ArrayList<List<Object>>();
+
+      batchBindVarsChangeLog.add(GrouperUtil.toList(1, "test.subject.0", new Date()));
+      batchBindVarsChangeLog.add(GrouperUtil.toList(2, "test.subject.1", new Date()));
+      batchBindVarsChangeLog.add(GrouperUtil.toList(3, "test.subject.2", new Date()));
+      batchBindVarsChangeLog.add(GrouperUtil.toList(4, "test.subject.3", new Date()));
+      
+      // bad subject shouldn't cause the load to fail
+      batchBindVarsChangeLog.add(GrouperUtil.toList(5, "test.subject.bogus", new Date()));
+
+      new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();
+      
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");  
+    }
+        
+    // check synced data
+    
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    assertEquals(4, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(18, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v").select(int.class).intValue());
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    long rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'staff'").select(long.class);
+
+    assertEquals("engl", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+    List<Integer> jobNumbers = new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber'").selectList(Integer.class);
+    assertEquals(2, jobNumbers.size());
+    assertTrue(jobNumbers.contains(123));
+    assertTrue(jobNumbers.contains(234));
+    
+    // make some updates in db
+    new GcDbAccess().sql("update testgrouper_field_attr_multi set attribute_value='999' where subject_id='test.subject.0' and attribute_value='234'").executeBatchSql();
+    
+    if (syncType == GrouperDataProviderSyncType.incrementalSyncChangeLog) {
+      new GcDbAccess().sql("delete from testgrouper_dp_changelog").executeSql();
+
+      List<List<Object>> batchBindVarsChangeLog = new ArrayList<List<Object>>();
+      batchBindVarsChangeLog.add(GrouperUtil.toList(1, "test.subject.0", new Date()));      
+      new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
+    }
+    
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
+    
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    assertEquals(4, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(18, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v").select(int.class).intValue());
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'staff'").select(long.class);
+
+    assertEquals("engl", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+    jobNumbers = new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber'").selectList(Integer.class);
+    assertEquals(2, jobNumbers.size());
+    assertTrue(jobNumbers.contains(123));
+    assertTrue(jobNumbers.contains(999));
+    
+    // make some updates in db - update another field in row data
+    new GcDbAccess().sql("update testgrouper_field_row_affil set org='english' where subject_id='test.subject.0'").executeBatchSql();
+    
+    if (syncType == GrouperDataProviderSyncType.incrementalSyncChangeLog) {
+      new GcDbAccess().sql("delete from testgrouper_dp_changelog").executeSql();
+
+      List<List<Object>> batchBindVarsChangeLog = new ArrayList<List<Object>>();
+      batchBindVarsChangeLog.add(GrouperUtil.toList(1, "test.subject.0", new Date()));      
+      new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
+    }
+    
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
+    
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    assertEquals(4, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(18, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v").select(int.class).intValue());
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'staff'").select(long.class);
+
+    assertEquals("english", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+    jobNumbers = new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber'").selectList(Integer.class);
+    assertEquals(2, jobNumbers.size());
+    assertTrue(jobNumbers.contains(123));
+    assertTrue(jobNumbers.contains(999));
+    
+    // remove the multi valued attribute
+    new GcDbAccess().sql("delete from testgrouper_field_attr_multi where subject_id='test.subject.0'").executeBatchSql();
+    
+    if (syncType == GrouperDataProviderSyncType.incrementalSyncChangeLog) {
+      new GcDbAccess().sql("delete from testgrouper_dp_changelog").executeSql();
+
+      List<List<Object>> batchBindVarsChangeLog = new ArrayList<List<Object>>();
+      batchBindVarsChangeLog.add(GrouperUtil.toList(1, "test.subject.0", new Date()));      
+      new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
+    }
+    
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
+    
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    assertEquals(4, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(16, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'staff'").select(long.class);
+
+    assertEquals("english", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+    jobNumbers = new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber'").selectList(Integer.class);
+    assertEquals(0, jobNumbers.size());
+    
+    // add it back
+    new GcDbAccess().sql("insert into testgrouper_field_attr_multi (subject_id, attribute_value) values ('test.subject.0', '123')").executeSql();
+    new GcDbAccess().sql("insert into testgrouper_field_attr_multi (subject_id, attribute_value) values ('test.subject.0', '999')").executeSql();
+    
+    if (syncType == GrouperDataProviderSyncType.incrementalSyncChangeLog) {
+      new GcDbAccess().sql("delete from testgrouper_dp_changelog").executeSql();
+
+      List<List<Object>> batchBindVarsChangeLog = new ArrayList<List<Object>>();
+      batchBindVarsChangeLog.add(GrouperUtil.toList(1, "test.subject.0", new Date()));      
+      new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
+    }
+    
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
+    
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    assertEquals(4, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(18, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v").select(int.class).intValue());
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'staff'").select(long.class);
+
+    assertEquals("english", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+    jobNumbers = new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber'").selectList(Integer.class);
+    assertEquals(2, jobNumbers.size());
+    assertTrue(jobNumbers.contains(123));
+    assertTrue(jobNumbers.contains(999));
+    
+    // delete a row
+    new GcDbAccess().sql("delete from testgrouper_field_attr_multi where subject_id='test.subject.0'").executeBatchSql();
+    new GcDbAccess().sql("delete from testgrouper_field_row_affil where subject_id='test.subject.0'").executeBatchSql();
+    
+    if (syncType == GrouperDataProviderSyncType.incrementalSyncChangeLog) {
+      new GcDbAccess().sql("delete from testgrouper_dp_changelog").executeSql();
+
+      List<List<Object>> batchBindVarsChangeLog = new ArrayList<List<Object>>();
+      batchBindVarsChangeLog.add(GrouperUtil.toList(1, "test.subject.0", new Date()));      
+      new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
+    }
+    
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
+    
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v").select(int.class).intValue());
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(13, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v").select(int.class).intValue());
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    // add row back
+    new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org) values('test.subject.0', 'staff', 'T', 'english')").executeBatchSql();
+    
+    if (syncType == GrouperDataProviderSyncType.incrementalSyncChangeLog) {
+      new GcDbAccess().sql("delete from testgrouper_dp_changelog").executeSql();
+
+      List<List<Object>> batchBindVarsChangeLog = new ArrayList<List<Object>>();
+      batchBindVarsChangeLog.add(GrouperUtil.toList(1, "test.subject.0", new Date()));      
+      new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
+    }
+    
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
+
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    assertEquals(4, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(16, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'staff'").select(long.class);
+
+    assertEquals("english", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+    jobNumbers = new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber'").selectList(Integer.class);
+    assertEquals(0, jobNumbers.size());
   }
 
   /**

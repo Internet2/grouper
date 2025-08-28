@@ -1016,7 +1016,7 @@ public class GrouperDataProviderLogic {
                     currentValue = grouperDataFieldConfig.getFieldDataType().convertValue(currentValue);
                     
                     if (!grouperDataProviderQueryConfig.isStoreNulls()) {
-                      if (grouperDataFieldConfig.getFieldDataType() == GrouperDataFieldType.string && currentValue instanceof String && ((String)currentValue).isBlank()) {
+                      if (currentValue == Void.TYPE || (grouperDataFieldConfig.getFieldDataType() == GrouperDataFieldType.string && currentValue instanceof String && ((String)currentValue).isBlank())) {
                         continue;
                       }
                     }
@@ -1034,10 +1034,11 @@ public class GrouperDataProviderLogic {
                     continue;
                   }
                 }
+
                 value = grouperDataFieldConfig.getFieldDataType().convertValue(value);
                 
                 if (!grouperDataProviderQueryConfig.isStoreNulls()) {
-                  if (grouperDataFieldConfig.getFieldDataType() == GrouperDataFieldType.string && value instanceof String && ((String)value).isBlank()) {
+                  if (value == Void.TYPE || (grouperDataFieldConfig.getFieldDataType() == GrouperDataFieldType.string && value instanceof String && ((String)value).isBlank())) {
                     continue;
                   }
                 }
