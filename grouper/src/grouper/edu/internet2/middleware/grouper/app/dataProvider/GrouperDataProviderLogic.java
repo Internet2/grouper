@@ -956,8 +956,17 @@ public class GrouperDataProviderLogic {
           Map<Long, List<Object>> rowDataFieldInternalIdToValues = null;
           
           if (!StringUtils.isBlank(rowConfigId)) {
-            rowDataFieldInternalIdToValues = new HashMap<>();
-            rowsOfFieldInternalIdToValues.add(rowDataFieldInternalIdToValues);
+            if (dataEngine.getRowConfigByConfigId().get(rowConfigId).isOneRowPerSubject()) {
+                            
+              if (rowsOfFieldInternalIdToValues.size() == 0) {
+                rowsOfFieldInternalIdToValues.add(new HashMap<Long, List<Object>>());
+              }
+              
+              rowDataFieldInternalIdToValues = rowsOfFieldInternalIdToValues.get(0);
+            } else {
+              rowDataFieldInternalIdToValues = new HashMap<>();
+              rowsOfFieldInternalIdToValues.add(rowDataFieldInternalIdToValues);
+            }
           }
 
           for (GrouperDataProviderQueryFieldConfig grouperDataProviderQueryFieldConfig : GrouperUtil.nonNull(grouperDataProviderQueryFieldConfigs)) {
@@ -1158,47 +1167,56 @@ public class GrouperDataProviderLogic {
           
           GrouperDataRow grouperDataRow = dataEngine.getGrouperDataProviderIndex().getRowWrapperByInternalId().get(dataRowInternalId).getGrouperDataRow();
           GrouperDataRowConfig grouperDataRowConfig = dataEngine.getRowConfigByConfigId().get(grouperDataRow.getConfigId());
+          boolean isOneRowPerSubject = grouperDataRowConfig.isOneRowPerSubject();
           List<GrouperDataRowAssignWrapper> grouperDataRowAssignWrappers = GrouperUtil.nonNull(rowAssignWrappersByRowInternalId.get(dataRowInternalId));
           Map<MultiKey, GrouperDataRowAssignWrapper> grouperDataRowKeyToRowAssignWrapper = new HashMap<>();
           for (GrouperDataRowAssignWrapper grouperDataRowAssignWrapper : GrouperUtil.nonNull(grouperDataRowAssignWrappers)) {
-            MultiKey rowKey = grouperDataRowAssignWrapper.rowKey();
+            // what happens if the existing grouper data has duplicate keys?
+            MultiKey rowKey = isOneRowPerSubject ? new MultiKey(new Object[] { grouperDataMemberWrapper.getInternalId() }) : grouperDataRowAssignWrapper.rowKey();
             grouperDataRowKeyToRowAssignWrapper.put(rowKey, grouperDataRowAssignWrapper);
           }
           
           List<Map<Long, List<Object>>> providerRowsOfDataFieldInternalIdToListOfValues = GrouperUtil.nonNull(grouperDataMemberWrapper.getDataProviderDataByDataRowInternalId().get(dataRowInternalId));
           Map<MultiKey, Map<Long, List<Object>>> providerDataRowKeyToDataFieldInternalIdsAndValues = new HashMap<>();
-          for (Map<Long, List<Object>> providerDataFieldInternalIdToValues : GrouperUtil.nonNull(providerRowsOfDataFieldInternalIdToListOfValues)) {
-            Object[] keyValues = new Object[GrouperUtil.length(grouperDataRowConfig.getRowKeyFieldConfigIds())];
-            int i = 0;
-            boolean foundNotNullKey = false;
 
-            for (String rowKeyFieldConfigId : grouperDataRowConfig.getRowKeyFieldConfigIds()) {
-
-              GrouperDataFieldConfig grouperDataFieldConfig = dataEngine.getFieldConfigByConfigId().get(rowKeyFieldConfigId);
-              GrouperDataField grouperDataField = dataEngine.getGrouperDataProviderIndex().getFieldWrapperByConfigId().get(rowKeyFieldConfigId).getGrouperDataField();
-              List<Object> values = providerDataFieldInternalIdToValues.get(grouperDataField.getInternalId());
-
-              if (GrouperUtil.length(values) > 1) {
-                throw new RuntimeException("Provider row field key must not have more than one value: " + grouperDataRowConfig.getConfigId() 
-                + ", field: " + grouperDataFieldConfig.getConfigId() + ", " + GrouperUtil.stringValue(values));
-              } else if (GrouperUtil.length(values) == 1) {
-                keyValues[i] = grouperDataFieldConfig.getFieldDataType().convertValue(values.iterator().next());
-                foundNotNullKey = true;
-              } else {
-                keyValues[i] = null;
-              }
-
-//              GrouperUtil.assertion(keyValues[i] != null && keyValues[i] != Void.TYPE, 
-//                  "Data row field key must not have a null value: " + grouperDataRowConfig.getConfigId() 
-//                  + ", rowAssignId: " + grouperDataRow.getInternalId() + ", field: " + grouperDataFieldConfig.getConfigId());
-              i++;
+          if (isOneRowPerSubject) {
+            if (GrouperUtil.length(providerRowsOfDataFieldInternalIdToListOfValues) == 1) {
+              providerDataRowKeyToDataFieldInternalIdsAndValues.put(new MultiKey(new Object[] { grouperDataMemberWrapper.getInternalId() }), providerRowsOfDataFieldInternalIdToListOfValues.get(0));
             }
-            
-            if (foundNotNullKey) {
-              MultiKey rowKey = new MultiKey(keyValues);
-              providerDataRowKeyToDataFieldInternalIdsAndValues.put(rowKey, providerDataFieldInternalIdToValues);
-            } else {
-              LOG.warn("Skipping provider row with all null keys: " + grouperDataRowConfig.getConfigId());
+          } else {
+            for (Map<Long, List<Object>> providerDataFieldInternalIdToValues : GrouperUtil.nonNull(providerRowsOfDataFieldInternalIdToListOfValues)) {
+              Object[] keyValues = new Object[GrouperUtil.length(grouperDataRowConfig.getRowKeyFieldConfigIds())];
+              int i = 0;
+              boolean foundNotNullKey = false;
+  
+              for (String rowKeyFieldConfigId : grouperDataRowConfig.getRowKeyFieldConfigIds()) {
+  
+                GrouperDataFieldConfig grouperDataFieldConfig = dataEngine.getFieldConfigByConfigId().get(rowKeyFieldConfigId);
+                GrouperDataField grouperDataField = dataEngine.getGrouperDataProviderIndex().getFieldWrapperByConfigId().get(rowKeyFieldConfigId).getGrouperDataField();
+                List<Object> values = providerDataFieldInternalIdToValues.get(grouperDataField.getInternalId());
+  
+                if (GrouperUtil.length(values) > 1) {
+                  throw new RuntimeException("Provider row field key must not have more than one value: " + grouperDataRowConfig.getConfigId() 
+                  + ", field: " + grouperDataFieldConfig.getConfigId() + ", " + GrouperUtil.stringValue(values));
+                } else if (GrouperUtil.length(values) == 1) {
+                  keyValues[i] = grouperDataFieldConfig.getFieldDataType().convertValue(values.iterator().next());
+                  foundNotNullKey = true;
+                } else {
+                  keyValues[i] = null;
+                }
+  
+  //              GrouperUtil.assertion(keyValues[i] != null && keyValues[i] != Void.TYPE, 
+  //                  "Data row field key must not have a null value: " + grouperDataRowConfig.getConfigId() 
+  //                  + ", rowAssignId: " + grouperDataRow.getInternalId() + ", field: " + grouperDataFieldConfig.getConfigId());
+                i++;
+              }
+              
+              if (foundNotNullKey) {
+                MultiKey rowKey = new MultiKey(keyValues);
+                providerDataRowKeyToDataFieldInternalIdsAndValues.put(rowKey, providerDataFieldInternalIdToValues);
+              } else {
+                LOG.warn("Skipping provider row with all null keys: " + grouperDataRowConfig.getConfigId());
+              }
             }
           }
 

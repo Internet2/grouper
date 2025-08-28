@@ -87,6 +87,11 @@ public class GrouperDataRowAssignWrapper {
 
     if (rowKey == null) {
       GrouperDataRowConfig grouperDataRowConfig = this.grouperDataRowWrapper.getGrouperDataRowConfig();
+      
+      if (grouperDataRowConfig.isOneRowPerSubject()) {
+        return null;
+      }
+      
       Set<String> rowKeyFieldConfigIds = grouperDataRowConfig.getRowKeyFieldConfigIds();
       
       if (GrouperUtil.length(rowKeyFieldConfigIds) == 0) {

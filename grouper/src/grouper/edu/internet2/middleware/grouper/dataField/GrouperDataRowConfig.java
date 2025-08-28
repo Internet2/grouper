@@ -40,6 +40,8 @@ public class GrouperDataRowConfig {
     String rowPrivacyRealmString = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperDataRow." + configId + ".rowPrivacyRealm");
     this.privacyRealmName = rowPrivacyRealmString;
     
+    this.oneRowPerSubject = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDataRow." + configId + ".oneRowPerSubject", false);
+
     this.rowDataStorePit = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDataRow." + configId + ".rowDataStorePit", false);
     
     if (this.rowDataStorePit) {
@@ -171,6 +173,8 @@ public class GrouperDataRowConfig {
    */
   private String zeroToManyExamplesHtml;
   
+  private boolean oneRowPerSubject = false;
+
   private boolean rowDataStorePit = false;
   
   private int rowDataStorePitDays = -1;
@@ -270,8 +274,17 @@ public class GrouperDataRowConfig {
     return rowDataStorePitDays;
   }
 
-  
   public void setRowDataStorePitDays(int rowDataStorePitDays) {
     this.rowDataStorePitDays = rowDataStorePitDays;
+  }
+
+  
+  public boolean isOneRowPerSubject() {
+    return oneRowPerSubject;
+  }
+
+  
+  public void setOneRowPerSubject(boolean oneRowPerSubject) {
+    this.oneRowPerSubject = oneRowPerSubject;
   }
 }
