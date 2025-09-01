@@ -3030,7 +3030,7 @@ public class GrouperUtil {
   }
 
   /**
-   * convert a json node to acutal json
+   * convert a json node to actual json
    * @param jsonNode
    * @return
    */

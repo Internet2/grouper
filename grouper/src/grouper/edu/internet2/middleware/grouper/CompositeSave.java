@@ -83,11 +83,6 @@ public class CompositeSave {
   }
 
   /**
-   * type is intersection or complement
-   */
-  private String type;
-
-  /**
    * uuid of composite on insert
    */
   private String id;
@@ -108,7 +103,11 @@ public class CompositeSave {
    * @return this for chaining
    */
   public CompositeSave assignType(String theType) {
-    this.type = theType;
+    if (StringUtils.isBlank(theType)) {
+      this.compositeType = null;
+    } else {
+      this.compositeType = CompositeType.valueOfIgnoreCase(theType);
+    }
     return this;
   }
   
@@ -330,10 +329,6 @@ public class CompositeSave {
     } else {
       throw new RuntimeException("rightFactorGroup is required");
     }
-
-    if (this.compositeType == null) {
-      this.compositeType = CompositeType.valueOfIgnoreCase(this.type);
-    }
     
     //default to insert or update
     this.saveMode = (SaveMode)ObjectUtils.defaultIfNull(this.saveMode, SaveMode.INSERT_OR_UPDATE);
@@ -454,7 +449,7 @@ public class CompositeSave {
     saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
 
     if (saveMode != SaveMode.DELETE) {
-      GrouperUtil.assertion(!StringUtils.isBlank(this.type), "type is required");
+      GrouperUtil.assertion(this.compositeType != null, "type is required");
     }
     
     if (this.grouperSession == null) {
