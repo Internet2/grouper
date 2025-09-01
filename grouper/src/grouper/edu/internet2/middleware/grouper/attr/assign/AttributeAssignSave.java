@@ -118,6 +118,10 @@ public class AttributeAssignSave {
     return theBoolean == null ? false : theBoolean.booleanValue();
   }
   
+  public AttributeAssignSave() {
+    this.grouperSession = GrouperSession.staticGrouperSession();
+  }
+  
   /**
    * create a new attribute assign save
    * @param theGrouperSession
