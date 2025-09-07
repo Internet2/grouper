@@ -527,7 +527,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     
   }
 
-  private void testRowAttributeAssignmentString() {
+  public void testRowAttributeAssignmentString() {
     setupDataFields();
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
