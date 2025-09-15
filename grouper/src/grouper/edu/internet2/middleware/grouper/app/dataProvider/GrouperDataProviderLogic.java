@@ -179,7 +179,7 @@ public class GrouperDataProviderLogic {
     
     retrieveSourceData(queryConfigIdToLowerColumnNameToZeroIndex, true);
     
-    calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex);
+    calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex, true);
     
     // TODO should this be a separate daemon or handled somewhere else?  It would do the same thing for every provider full sync.
     deleteOldHistory();
@@ -402,7 +402,7 @@ public class GrouperDataProviderLogic {
     
     retrieveSourceData(queryConfigIdToLowerColumnNameToZeroIndex, false);
     
-    calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex);    
+    calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex, false);    
   }
   
   private void addUnresolvableSubjectToJobMessage(String subjectIdValue) {
@@ -887,7 +887,7 @@ public class GrouperDataProviderLogic {
     }    
   }
 
-  private void calculateAndStoreChanges(Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex) {
+  private void calculateAndStoreChanges(Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex, boolean isFullSync) {
     GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
 
     Map<Long, GrouperDataFieldAssign> fieldAssignIdToGrouperDataFieldAssignsToDelete = new LinkedHashMap<>();
@@ -914,7 +914,9 @@ public class GrouperDataProviderLogic {
     Map<Long, Long> rowAssignInternalIdToMemberInternalId = new LinkedHashMap<>();
 
     Set<String> needsDictionaryText = new HashSet<String>();
-        
+    
+    long totalFieldAssignsInGrouper = 0;
+    
     // go through each user, index and convert the data
     for (GrouperDataMemberWrapper grouperDataMemberWrapper : dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().values()) {
       
@@ -1112,7 +1114,9 @@ public class GrouperDataProviderLogic {
             
             Set<Object> dataFromProvider = new HashSet<>(GrouperUtil.nonNull(grouperDataMemberWrapper.getDataProviderDataByDataFieldIternalId().get(dataFieldInternalId)));
             Set<Object> dataFromGrouper = new HashSet<>(GrouperUtil.nonNull(grouperDataMemberWrapper.getFieldIdToValues().get(dataFieldInternalId)));
-                        
+            
+            totalFieldAssignsInGrouper += dataFromGrouper.size();
+            
             if (dataFromProvider.size() > 1 && !grouperDataFieldConfig.isFieldMultiValued()) {
               throw new RuntimeException("Found multiple values from provider for field with configId=" + grouperDataFieldConfig.getConfigId() + " and memberInternalId=" + grouperDataMemberWrapper.getInternalId());
             }
@@ -1235,6 +1239,7 @@ public class GrouperDataProviderLogic {
 
             for (List<GrouperDataRowFieldAssignWrapper> grouperDataRowFieldAssignWrappers : grouperDataRowAssignWrapper.getRowFieldAssignWrappersByFieldInternalId().values()) {
               
+              totalFieldAssignsInGrouper += grouperDataRowFieldAssignWrappers.size();
               for (GrouperDataRowFieldAssignWrapper grouperDataRowFieldAssignWrapper : grouperDataRowFieldAssignWrappers) {
                 
                 GrouperDataRowFieldAssign grouperDataRowFieldAssign = grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign();
@@ -1344,6 +1349,7 @@ public class GrouperDataProviderLogic {
                 }
                 
                 List<GrouperDataRowFieldAssignWrapper> grouperDataRowFieldAssignWrappers = GrouperUtil.nonNull(grouperDataRowAssignWrapper.getRowFieldAssignWrappersByFieldInternalId().get(dataFieldInternalId));
+                totalFieldAssignsInGrouper += grouperDataRowFieldAssignWrappers.size();
                 
                 for (GrouperDataRowFieldAssignWrapper grouperDataRowFieldAssignWrapper : grouperDataRowFieldAssignWrappers) {
                   GrouperDataRowFieldAssign grouperDataRowFieldAssign = grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign();
@@ -1405,7 +1411,31 @@ public class GrouperDataProviderLogic {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     }
-        
+    
+    // check failsafe for full syncs
+    if (isFullSync && totalFieldAssignsInGrouper > 0 && grouperDataProviderSync.getFailsafeMaxOverallPercentFieldAssignRemove() != null && grouperDataProviderSync.getFailsafeMaxOverallPercentFieldAssignRemove() >= 0) {
+      long totalFieldAssignsToRemove = fieldAssignIdToGrouperDataFieldAssignsToDelete.size();
+      for (Long rowAssignInternalId : rowAssignInternalIdToGrouperDataRowFieldAssignsToDelete.keySet()) {
+        totalFieldAssignsToRemove += rowAssignInternalIdToGrouperDataRowFieldAssignsToDelete.get(rowAssignInternalId).size();
+      }
+
+      Map<String, Object> failsafeDebug = new LinkedHashMap<String, Object>();
+      
+      failsafeDebug.put("totalFieldAssignsInGrouper", totalFieldAssignsInGrouper);
+      failsafeDebug.put("totalFieldAssignsToRemove", totalFieldAssignsToRemove);
+      failsafeDebug.put("percentFieldAssignsAllowedToBeRemoved", grouperDataProviderSync.getFailsafeMaxOverallPercentFieldAssignRemove());
+
+      double percentFieldAssignsToRemove = (100.0 * totalFieldAssignsToRemove)/totalFieldAssignsInGrouper;
+
+      failsafeDebug.put("percentFieldAssignsToRemove", String.format("%.2f", percentFieldAssignsToRemove));
+
+      grouperDataProviderSync.getDebugMap().putAll(failsafeDebug);
+      
+      if (percentFieldAssignsToRemove > grouperDataProviderSync.getFailsafeMaxOverallPercentFieldAssignRemove()) {
+        throw new RuntimeException("Aborting due to too many field assigns being removed: " + failsafeDebug);
+      }
+    }
+    
     // generate internal ids for any field assigns if needed and add to maps
     GrouperDataFieldAssignDao.generateInternalIdsIfNeeded(grouperDataFieldAssignsToInsert);
     Map<Long, GrouperDataFieldAssign> fieldAssignIdToGrouperDataFieldAssignsToInsert = new LinkedHashMap<>();

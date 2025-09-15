@@ -45,6 +45,11 @@ public class GrouperDataProviderSync {
   
   private GcGrouperSyncJob gcGrouperSyncJob;
   
+  /**
+   * failsafe for full syncs
+   */
+  private Integer failsafeMaxOverallPercentFieldAssignRemove;
+  
   
   /**
    * loader log
@@ -228,5 +233,15 @@ public class GrouperDataProviderSync {
   
   public void setGcGrouperSyncJob(GcGrouperSyncJob gcGrouperSyncJob) {
     this.gcGrouperSyncJob = gcGrouperSyncJob;
+  }
+
+  
+  public Integer getFailsafeMaxOverallPercentFieldAssignRemove() {
+    return failsafeMaxOverallPercentFieldAssignRemove;
+  }
+  
+  public void setFailsafeMaxOverallPercentFieldAssignRemove(
+      Integer failsafeMaxOverallPercentFieldAssignRemove) {
+    this.failsafeMaxOverallPercentFieldAssignRemove = failsafeMaxOverallPercentFieldAssignRemove;
   }
 }
