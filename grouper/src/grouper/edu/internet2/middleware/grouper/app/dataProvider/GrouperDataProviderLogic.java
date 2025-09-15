@@ -570,11 +570,12 @@ public class GrouperDataProviderLogic {
             continue;
           }
           
-          if (!grouperDataFieldConfig.isFieldMultiValued() && valueToFieldAssignWrapper.size() >= 1) {
-            GrouperDataFieldAssignDao.delete(dataFieldAssignWrapper.getGrouperDataFieldAssign());
-            grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(1);
-            continue;
-          }
+          // don't delete this here since it wouldn't take into account fail safe
+          //if (!grouperDataFieldConfig.isFieldMultiValued() && valueToFieldAssignWrapper.size() >= 1) {
+          //  GrouperDataFieldAssignDao.delete(dataFieldAssignWrapper.getGrouperDataFieldAssign());
+          //  grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(1);
+          //  continue;
+          //}
           values.add(value);
           valueToFieldAssignWrapper.put(value, dataFieldAssignWrapper);
         }
@@ -913,7 +914,7 @@ public class GrouperDataProviderLogic {
     Map<Long, Long> rowAssignInternalIdToMemberInternalId = new LinkedHashMap<>();
 
     Set<String> needsDictionaryText = new HashSet<String>();
-    
+        
     // go through each user, index and convert the data
     for (GrouperDataMemberWrapper grouperDataMemberWrapper : dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().values()) {
       
@@ -1111,6 +1112,10 @@ public class GrouperDataProviderLogic {
             
             Set<Object> dataFromProvider = new HashSet<>(GrouperUtil.nonNull(grouperDataMemberWrapper.getDataProviderDataByDataFieldIternalId().get(dataFieldInternalId)));
             Set<Object> dataFromGrouper = new HashSet<>(GrouperUtil.nonNull(grouperDataMemberWrapper.getFieldIdToValues().get(dataFieldInternalId)));
+                        
+            if (dataFromProvider.size() > 1 && !grouperDataFieldConfig.isFieldMultiValued()) {
+              throw new RuntimeException("Found multiple values from provider for field with configId=" + grouperDataFieldConfig.getConfigId() + " and memberInternalId=" + grouperDataMemberWrapper.getInternalId());
+            }
             
             Set<Object> dataToDelete = new HashSet<>(dataFromGrouper);
             dataToDelete.removeAll(dataFromProvider);
@@ -1220,7 +1225,7 @@ public class GrouperDataProviderLogic {
               }
             }
           }
-
+          
           Set<MultiKey> rowKeyFieldsToDeletes = new HashSet<>(grouperDataRowKeyToRowAssignWrapper.keySet());
           rowKeyFieldsToDeletes.removeAll(providerDataRowKeyToDataFieldInternalIdsAndValues.keySet());
 
@@ -1297,6 +1302,11 @@ public class GrouperDataProviderLogic {
               GrouperDataFieldConfig grouperDataFieldConfig = dataEngine.getFieldConfigByConfigId().get(grouperDataField.getConfigId());
 
               List<Object> values = dataFieldInternalIdToValues.get(dataFieldInternalId);
+              
+              if (values.size() > 1 && !grouperDataFieldConfig.isFieldMultiValued()) {
+                throw new RuntimeException("Found multiple values from provider for field with configId=" + grouperDataFieldConfig.getConfigId() + " and memberInternalId=" + grouperDataMemberWrapper.getInternalId());
+              }
+              
               for (Object value : values) {
                 // TODO This is Void.TYPE, not null
                 GrouperDataRowFieldAssign grouperDataRowFieldAssign = new GrouperDataRowFieldAssign();
@@ -1328,7 +1338,13 @@ public class GrouperDataProviderLogic {
 
                 List<Object> providerValues = GrouperUtil.nonNull(providerDataFieldInternalIdsAndValues.get(dataFieldInternalId));
                 List<Object> grouperValuesConverted = new ArrayList<Object>();
+                
+                if (providerValues.size() > 1 && !grouperDataFieldConfig.isFieldMultiValued()) {
+                  throw new RuntimeException("Found multiple values from provider for field with configId=" + grouperDataFieldConfig.getConfigId() + " and memberInternalId=" + grouperDataMemberWrapper.getInternalId());
+                }
+                
                 List<GrouperDataRowFieldAssignWrapper> grouperDataRowFieldAssignWrappers = GrouperUtil.nonNull(grouperDataRowAssignWrapper.getRowFieldAssignWrappersByFieldInternalId().get(dataFieldInternalId));
+                
                 for (GrouperDataRowFieldAssignWrapper grouperDataRowFieldAssignWrapper : grouperDataRowFieldAssignWrappers) {
                   GrouperDataRowFieldAssign grouperDataRowFieldAssign = grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign();
                   
@@ -1389,7 +1405,7 @@ public class GrouperDataProviderLogic {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     }
-    
+        
     // generate internal ids for any field assigns if needed and add to maps
     GrouperDataFieldAssignDao.generateInternalIdsIfNeeded(grouperDataFieldAssignsToInsert);
     Map<Long, GrouperDataFieldAssign> fieldAssignIdToGrouperDataFieldAssignsToInsert = new LinkedHashMap<>();
