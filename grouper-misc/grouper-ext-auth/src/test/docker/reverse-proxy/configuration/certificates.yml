@@ -1,9 +1,0 @@
-tls:
-  certificates:
-    - certFile: /certs/star.unicon.local.crt
-      keyFile: /certs/star.unicon.local.key
-  stores:
-    default:
-      defaultCertificate:
-        certFile: /certs/star.unicon.local.crt
-        keyFile: /certs/star.unicon.local.key

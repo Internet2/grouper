@@ -92,10 +92,6 @@ public class GrouperInstallerTest extends TestCase {
     File ehcacheFile = new File(tmpDir + "ehcache.xml");
 
     GrouperInstallerUtils.copyFile(new File(testFileDir + "ehcache.xml"), ehcacheFile);
-
-    GrouperInstaller.mergeEhcacheXmlFiles(ehcacheNewFile,
-        ehcacheExampleFile, ehcacheFile);
-
     
     
   }

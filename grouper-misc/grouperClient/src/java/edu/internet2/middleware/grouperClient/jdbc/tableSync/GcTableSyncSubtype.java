@@ -12,8 +12,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1670,7 +1668,7 @@ public enum GcTableSyncSubtype {
     // delete ones which arent there
     int deletes = -1;
     {
-      Set<MultiKey> primaryKeysToDelete = new LinkedHashSet<MultiKey>(gcTableSyncTableDataTo.allPrimaryKeys());
+      Set<MultiKey> primaryKeysToDelete = new HashSet<MultiKey>(gcTableSyncTableDataTo.allPrimaryKeys());
       primaryKeysToDelete.removeAll(gcTableSyncTableDataFrom.allPrimaryKeys());
       
       deletes = runDeletes(debugMap, gcTableSync.getDataBeanTo(), primaryKeysToDelete, "deletes");
@@ -1678,7 +1676,7 @@ public enum GcTableSyncSubtype {
     
     int inserts = -1;
     {
-      Set<MultiKey> primaryKeysToInsert = new LinkedHashSet<MultiKey>(gcTableSyncTableDataFrom.allPrimaryKeys());
+      Set<MultiKey> primaryKeysToInsert = new HashSet<MultiKey>(gcTableSyncTableDataFrom.allPrimaryKeys());
       primaryKeysToInsert.removeAll(gcTableSyncTableDataTo.allPrimaryKeys());
       
       // get data for from
@@ -1693,7 +1691,7 @@ public enum GcTableSyncSubtype {
     
     int updates = -1;
     {
-      Set<MultiKey> primaryKeysToUpdate = new LinkedHashSet<MultiKey>();
+      Set<MultiKey> primaryKeysToUpdate = new HashSet<MultiKey>();
       
       for (MultiKey multiKey : gcTableSyncTableDataFrom.allPrimaryKeys()) {
         
@@ -1744,7 +1742,7 @@ public enum GcTableSyncSubtype {
     // delete ones which arent there
     int deletes = -1;
     {
-      Set<MultiKey> primaryKeysToDelete = new LinkedHashSet<MultiKey>(gcTableSyncTableDataTo.allPrimaryKeys());
+      Set<MultiKey> primaryKeysToDelete = new HashSet<MultiKey>(gcTableSyncTableDataTo.allPrimaryKeys());
       primaryKeysToDelete.removeAll(gcTableSyncTableDataFrom.allPrimaryKeys());
       if (GrouperClientUtils.length(primaryKeysToDelete) > 0) {
         int count=0;
@@ -1761,7 +1759,7 @@ public enum GcTableSyncSubtype {
     
     int inserts = -1;
     {
-      Set<MultiKey> primaryKeysToInsert = new LinkedHashSet<MultiKey>(gcTableSyncTableDataFrom.allPrimaryKeys());
+      Set<MultiKey> primaryKeysToInsert = new HashSet<MultiKey>(gcTableSyncTableDataFrom.allPrimaryKeys());
       primaryKeysToInsert.removeAll(gcTableSyncTableDataTo.allPrimaryKeys());
       
       if (GrouperClientUtils.length(primaryKeysToInsert) > 0) {
@@ -1781,7 +1779,7 @@ public enum GcTableSyncSubtype {
     
     int updates = -1;
     {
-      Set<MultiKey> primaryKeysToUpdate = new LinkedHashSet<MultiKey>();
+      Set<MultiKey> primaryKeysToUpdate = new HashSet<MultiKey>();
       for (MultiKey multiKey : gcTableSyncTableDataFrom.allPrimaryKeys()) {
         GcTableSyncRowData gcTableSyncRowData = gcTableSyncTableDataTo.allIndexByPrimaryKey().get(multiKey);
         
@@ -2001,7 +1999,7 @@ public enum GcTableSyncSubtype {
             gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll(), 
             "retrieveData", new Object[] {groupingsBatch.get(0), groupingsBatch.get(groupingsBatch.size()-1)}, true);
         
-        Set<MultiKey> primaryKeysToInsert = new LinkedHashSet<MultiKey>(gcTableSyncTableDataFrom.allPrimaryKeys());
+        Set<MultiKey> primaryKeysToInsert = new HashSet<MultiKey>(gcTableSyncTableDataFrom.allPrimaryKeys());
         
         inserts += runInserts(debugMap, gcTableSync.getDataBeanTo(), primaryKeysToInsert, 
             gcTableSyncTableDataFrom.allIndexByPrimaryKey(), "inserts");
@@ -2024,7 +2022,7 @@ public enum GcTableSyncSubtype {
       GcTableSyncTableBean gcTableSyncTableBean, 
       Set<MultiKey> primaryKeys, boolean isFrom) {
 
-    Map<MultiKey, GcTableSyncRowData> results = new LinkedHashMap<MultiKey, GcTableSyncRowData>();
+    Map<MultiKey, GcTableSyncRowData> results = new HashMap<MultiKey, GcTableSyncRowData>();
     int numberOfRecordsToSelect = GrouperClientUtils.length(primaryKeys);
     
     if (numberOfRecordsToSelect > 0) {
