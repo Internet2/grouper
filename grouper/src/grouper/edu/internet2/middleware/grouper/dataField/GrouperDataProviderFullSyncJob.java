@@ -43,7 +43,7 @@ public class GrouperDataProviderFullSyncJob extends OtherJobBase {
         String dataProviderConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(key);
         
         try {
-          Map<String, Object> debugMap = loadFull(dataProviderConfigId, otherJobInput.getHib3GrouperLoaderLog());
+          Map<String, Object> debugMap = loadFull(daemonName, dataProviderConfigId, otherJobInput.getHib3GrouperLoaderLog());
           otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running full sync for dataProviderConfigId=" + dataProviderConfigId + "\n" + GrouperUtil.mapToString(debugMap));
         } catch (Exception e) {
           LOG.warn("Error while running full sync for dataProviderConfigId=" + dataProviderConfigId, e);
@@ -65,10 +65,13 @@ public class GrouperDataProviderFullSyncJob extends OtherJobBase {
    * @param dataProviderConfigId
    * @param hib3GrouperLoaderLog
    */
-  private Map<String, Object> loadFull(String dataProviderConfigId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+  private Map<String, Object> loadFull(String daemonName, String dataProviderConfigId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
 
     final GrouperDataProviderSync grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync(dataProviderConfigId);
     grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+    
+    Integer failsafeMaxOverallPercentFieldAssignRemove = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob." + daemonName + ".failsafeMaxOverallPercentFieldAssignRemove");
+    grouperDataProviderSync.setFailsafeMaxOverallPercentFieldAssignRemove(failsafeMaxOverallPercentFieldAssignRemove);
     
     GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
     grouperDataEngine.setDebugMap(grouperDataProviderSync.getDebugMap());

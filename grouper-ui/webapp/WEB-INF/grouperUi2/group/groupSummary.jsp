@@ -36,11 +36,11 @@
                   grouperRequestContainer.groupSummaryContainer.totalMembersCount > 0 or
                   grouperRequestContainer.groupSummaryContainer.directMembersCount > 0
                  }">
-                   <li>${grouperRequestContainer.groupSummaryContainer.notGroupMembersCount} non-group members</li>
-                   <li>${grouperRequestContainer.groupSummaryContainer.totalMembersCount} total members</li>
-                   <li>${grouperRequestContainer.groupSummaryContainer.directMembersCount} direct members</li>
+                   <li>${grouperRequestContainer.groupSummaryContainer.notGroupMembersCount} ${textContainer.text['groupSummaryPageMembershipsNonGroupMembers'] }</li>
+                   <li>${grouperRequestContainer.groupSummaryContainer.totalMembersCount} ${textContainer.text['groupSummaryPageMembershipsTotalMembers'] }</li>
+                   <li>${grouperRequestContainer.groupSummaryContainer.directMembersCount} ${textContainer.text['groupSummaryPageMembershipsDirectMembers'] }</li>
                    <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.directGroupMembers}">
-                      <li>Direct group members: 
+                      <li>${textContainer.text['groupSummaryPageMembershipsDirectGroupMembers']} 
                         <c:forEach var="directGroupMember" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.directGroupMembers}">
                           ${directGroupMember.shortLinkWithIcon}
                           <c:if test="${!status.last}">,</c:if>
@@ -49,13 +49,13 @@
                    </c:if>
                 </c:when>
                 <c:otherwise>
-                  <li>none</li>
+                  <li>${textContainer.text['groupSummaryPageMembershipsNone'] }</li>
                 </c:otherwise>
               </c:choose>
               <c:choose>
                 
                 <c:when test="${grouperRequestContainer.groupSummaryContainer.groupAsMemberCount > 0}">
-                   <li>This group is used in ${grouperRequestContainer.groupSummaryContainer.groupAsMemberCount} other groups
+                   <li>${textContainer.text['groupSummaryPageMembershipsGroupUsedCountMessage'] }
                    <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.groupsWhereTheCurrentGroupIsMemberOf}"> 
                         <c:forEach var="groupWhereTheCurrentGroupIsMemberOf" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.groupsWhereTheCurrentGroupIsMemberOf}">
                           ${groupWhereTheCurrentGroupIsMemberOf.shortLinkWithIcon}
@@ -65,7 +65,7 @@
                    </li>
                 </c:when>
                 <c:otherwise>
-                  <li>Not a member of any other groups</li>
+                  <li>${textContainer.text['groupSummaryPageMembershipsGroupNotUsedMessage'] }</li>
                 </c:otherwise>
               </c:choose>
             </ul>
@@ -82,11 +82,11 @@
                   grouperRequestContainer.groupSummaryContainer.totalPrivilegesCount > 0 or
                   grouperRequestContainer.groupSummaryContainer.directPrivilegesCount > 0
                  }">
-                   <li>${grouperRequestContainer.groupSummaryContainer.nonGroupTotalPrivilegesCount} non-group privileges</li>
-                   <li>${grouperRequestContainer.groupSummaryContainer.totalPrivilegesCount} total privileges</li>
-                   <li>${grouperRequestContainer.groupSummaryContainer.directPrivilegesCount} direct privileges</li>
+                   <li>${textContainer.text['groupSummaryPagePrivilegesNotGroupPrivilegesUsedCountMessage']}</li>
+                   <li>${textContainer.text['groupSummaryPagePrivilegesTotalGroupPrivilegesUsedCountMessage']}</li>
+                   <li>${textContainer.text['groupSummaryPagePrivilegesDirectGroupPrivilegesUsedCountMessage']}</li>
                    <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.directGroupPrivilegesGroups}">
-                      <li>Direct group privileges: 
+                      <li>${textContainer.text['groupSummaryPagePrivilegesDirectGroupPrivileges']} 
                         <c:forEach var="directGroupPrivilegesGroup" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.directGroupPrivilegesGroups}">
                           ${directGroupPrivilegesGroup.shortLinkWithIcon}
                           <c:if test="${!status.last}">,</c:if>
@@ -95,13 +95,13 @@
                    </c:if>
                 </c:when>
                 <c:otherwise>
-                  <li>none</li>
+                  <li>${textContainer.text['groupSummaryPageMembershipsGroupNotUsedMessage'] }</li>
                 </c:otherwise>
               </c:choose>
               
               <c:choose>
                 <c:when test="${grouperRequestContainer.groupSummaryContainer.countOfWhereGroupIsBeingUsedInPrivileges > 0}">
-                   <li>This group is used in ${grouperRequestContainer.groupSummaryContainer.countOfWhereGroupIsBeingUsedInPrivileges} other groups
+                   <li>${textContainer.text['groupSummaryPagePrivilegesGroupUsedInOtherGroupsPrivileges']}
                    <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.groupsWhereGroupIsBeingUsedInPrivileges}"> 
                         <c:forEach var="groupWhereGroupIsBeingUsedInPrivileges" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.groupsWhereGroupIsBeingUsedInPrivileges}">
                           ${groupWhereGroupIsBeingUsedInPrivileges.shortLinkWithIcon}
@@ -111,7 +111,7 @@
                    </li>
                 </c:when>
                 <c:otherwise>
-                  <li>Not in privileges of any other groups</li>
+                  <li>${textContainer.text['groupSummaryPagePrivilegesGroupNotUsedMessage']}</li>
                 </c:otherwise>
               </c:choose>
             </ul>
@@ -127,7 +127,7 @@
             <td>
               <ul>
                 <c:if test="${grouperRequestContainer.grouperLoaderContainer.grouperSqlLoader}">
-                  <li>SQL loaded group</li>
+                  <li>${textContainer.text['groupSummaryPageSqlLoadedGroup']}</li>
                   <li>${grouperRequestContainer.grouperLoaderContainer.sqlLoaderType} loader</li>
                   <li>
                   <c:if test="${!grouper.isBlank(grouperRequestContainer.grouperLoaderContainer.sqlQuery)}">
@@ -136,20 +136,20 @@
                   </li>
                 </c:if>
                 <c:if test="${grouperRequestContainer.grouperLoaderContainer.grouperLdapLoader}">
-                  <li>LDAP loaded group</li>
+                  <li>${textContainer.text['groupSummaryPageLdapLoadedGroup']}</li>
                   <li>${grouperRequestContainer.grouperLoaderContainer.ldapLoaderType} loader</li>
                   <c:if test="${!grouper.isBlank(grouperRequestContainer.grouperLoaderContainer.ldapLoaderFilter)}">
                     <pre>${grouperRequestContainer.grouperLoaderContainer.ldapLoaderFilter}</pre>
                   </c:if> 
                 </c:if>
                 <c:if test="${grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptLoader}">
-                  <li>Jexl scripted loaded group</li>
+                  <li>${textContainer.text['groupSummaryPageJexlLoadedGroup']}</li>
                   <c:if test="${!grouper.isBlank(grouperRequestContainer.grouperLoaderContainer.jexlScriptJexlScript)}">
                     <pre>${grouperRequestContainer.grouperLoaderContainer.jexlScriptJexlScript}</pre>
                   </c:if> 
                 </c:if>
                 <c:if test="${grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader}">
-                  <li>Recent memberships loaded group</li>
+                  <li>${textContainer.text['groupSummaryPageRecentMembershipsLoadedGroup']}</li>
                 </c:if>
               </ul>
             </td>
@@ -158,10 +158,10 @@
         <c:if test="${grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependenciesCount > 0}">
           <!--  ABAC SCRIPTED GROUP SECTION -->
           <tr>
-            <td><strong>ABAC scripted group</strong></td>
+            <td><strong>${textContainer.text['groupSummaryPageAbacScriptedGroup']}</strong></td>
             <td>
               <ul>
-                  <li>Used in ${grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependenciesCount} groups 
+                  <li>${textContainer.text['groupSummaryPageAbacScriptedGroupDependenciesCountMessage']} 
                   <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependencies}"> 
                       <c:forEach var="abacScriptedGroupDependency" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependencies}">
                         ${abacScriptedGroupDependency.shortLinkWithIcon}
@@ -176,18 +176,18 @@
         <c:if test="${grouperRequestContainer.groupSummaryContainer.composite or grouperRequestContainer.groupSummaryContainer.compositeSize > 0}">
           <!-- COMPOSITES -->
           <tr>
-            <td><strong>Composites</strong></td>
+            <td><strong>${textContainer.text['groupComposites']}</strong></td>
             <td>
              <ul>
               <c:if test="${grouperRequestContainer.groupSummaryContainer.composite}">
                <li>
-                This group is a composite owner of ${grouperRequestContainer.groupSummaryContainer.compositeLeftGroup.shortLinkWithIcon} {grouperRequestContainer.groupSummaryContainer.compositeType} {grouperRequestContainer.groupSummaryContainer.compositeRightGroup.shortLinkWithIcon}
+                ${textContainer.text['groupSummaryPageCompositeGroupMessage']}
                 </li>
               </c:if>
               
               <c:if test="${grouperRequestContainer.groupSummaryContainer.compositeSize > 0}">
                <li>
-                This group is a composite factor in ${grouperRequestContainer.groupSummaryContainer.compositeSize} other groups
+                ${textContainer.text['groupSummaryPageCompositeFactorMessage']}
                 <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.composites}"> 
                     <c:forEach var="composite" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.composites}">
                       ${composite.shortLinkWithIcon}
@@ -208,16 +208,13 @@
             <td>
               <ul>
                 <li>
-                  This group is provisioned to ${grouperRequestContainer.groupSummaryContainer.provisioningAssignmentCount} targets
-                  <c:if test="${grouperRequestContainer.groupSummaryContainer.compositeSize > 0}">
-                  This group is a composite factor in ${grouperRequestContainer.groupSummaryContainer.compositeSize} other groups
+                  ${textContainer.text['groupSummaryPageProvisionedTargetMessage']}
                   <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.guiGrouperProvisioningAttributeValues}"> 
-                      <c:forEach var="guiGrouperProvisioningAttributeValue" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.guiGrouperProvisioningAttributeValues}">
-                        ${guiGrouperProvisioningAttributeValue.externalizedName}
-                        <c:if test="${!status.last}">,</c:if>
-                      </c:forEach>
+                    <c:forEach var="guiGrouperProvisioningAttributeValue" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.guiGrouperProvisioningAttributeValues}">
+                      ${guiGrouperProvisioningAttributeValue.externalizedName}
+                      <c:if test="${!status.last}">,</c:if>
+                    </c:forEach>
                   </c:if>
-                </c:if>
                 </li>
               </ul>
             </td>
@@ -231,7 +228,7 @@
             <td>
             <ul>
               <li>
-                Attestation is assigned on this group, last attested on ${grouperRequestContainer.groupSummaryContainer.attestationDateCertified}
+                ${textContainer.text['groupSummaryPageGroupAttestationMessage']}
               </li>
             </ul>
             </td>
@@ -245,7 +242,7 @@
             <td>
               <ul>
                 <li>
-                  There are ${grouperRequestContainer.groupSummaryContainer.attributeAssignmentsCount} attributes assigned to this group
+                  ${textContainer.text['groupSummaryPageCustomAttributesAssignedMessage']}
                 </li>
               </ul>
             </td>
@@ -261,13 +258,13 @@
               <ul>
                 <c:if test="${grouperRequestContainer.groupSummaryContainer.rulesCount > 0}">
                  <li>
-                  There are ${grouperRequestContainer.groupSummaryContainer.rulesCount} rules assigned to this group
+                  ${textContainer.text['groupSummaryPageRulesAssignedMessage']}
                   </li>
                 </c:if>
                 
                 <c:if test="${grouperRequestContainer.groupSummaryContainer.rulesCountWhereGroupIsUsed > 0}">
                  <li>
-                  This group is used in ${grouperRequestContainer.groupSummaryContainer.rulesCountWhereGroupIsUsed} rules assigned to other groups/folders
+                  ${textContainer.text['groupSummaryPageGroupUsedInRulesMessage']}
                  </li>
                 </c:if>
               </ul>
@@ -276,17 +273,17 @@
         </c:if>
         <tr>
           <!-- RECENT MEMBERSHIP CHANGES -->
-          <td><strong>Recent membership changes</strong></td>
+          <td><strong>${textContainer.text['groupSummaryPageRecentMembershipChangesLabel']}</strong></td>
           <td>
            <ul>
               <c:choose>
                 <c:when test="${grouperRequestContainer.groupSummaryContainer.newMembershipsInTheLastMonth > 0 or grouperRequestContainer.groupSummaryContainer.membershipsRemovedInTheLastMonth > 0}">
                   <li>
-                  There are ${grouperRequestContainer.groupSummaryContainer.newMembershipsInTheLastMonth} new memberships and ${grouperRequestContainer.groupSummaryContainer.membershipsRemovedInTheLastMonth} removed memberships in the last month
+                  ${textContainer.text['groupSummaryPageRecentMembershipChangesMessage']}
                   </li>
                 </c:when>
                 <c:otherwise>
-                  <li>There are no recent membership changes to this group</li>
+                  <li>${textContainer.text['groupSummaryPageNoRecentMembershipChangesMessage']}</li>
                 </c:otherwise>
               </c:choose>
             </ul>
@@ -294,17 +291,17 @@
         </tr>
         <tr>
           <!-- RECENT AUDITS -->
-          <td><strong>Recent audits</strong></td>
+          <td><strong>${textContainer.text['groupSummaryPageRecentAuditsLabel']}</strong></td>
           <td>
             <ul>
               <c:choose>
                 <c:when test="${grouperRequestContainer.groupSummaryContainer.auditsInTheLastMonth > 0}">
                   <li>
-                  There are ${grouperRequestContainer.groupSummaryContainer.auditsInTheLastMonth} audit entries for this group in the last month
+                  ${textContainer.text['groupSummaryPageRecentAuditsMessage']}
                   </li>
                 </c:when>
                 <c:otherwise>
-                  <li>There are no recent audits to this group</li>
+                  <li>${textContainer.text['groupSummaryPageNoRecentAuditsMessage']}</li>
                 </c:otherwise>
               </c:choose>
             </ul>
@@ -313,11 +310,11 @@
         <c:if test="${grouperRequestContainer.groupSummaryContainer.configurationUsedCount > 0}">
         <tr>
           <!-- CONFIGURATION -->
-          <td><strong>Configuration</strong></td>
+          <td><strong>${textContainer.text['groupSummaryPageConfigurationLabel']}</strong></td>
           <td>
             <ul>
              <li>
-              Used in ${grouperRequestContainer.groupSummaryContainer.configurationUsedCount} configurations 
+              ${textContainer.text['groupSummaryPageConfigurationMessage']} 
              </li>
             </ul>
           </td>
