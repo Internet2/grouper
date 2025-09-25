@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
@@ -43,7 +44,7 @@ public class GrouperDataProviderFullSyncJob extends OtherJobBase {
         String dataProviderConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(key);
         
         try {
-          Map<String, Object> debugMap = loadFull(daemonName, dataProviderConfigId, otherJobInput.getHib3GrouperLoaderLog());
+          Map<String, Object> debugMap = loadFull(jobName, daemonName, dataProviderConfigId, otherJobInput.getHib3GrouperLoaderLog());
           otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running full sync for dataProviderConfigId=" + dataProviderConfigId + "\n" + GrouperUtil.mapToString(debugMap));
         } catch (Exception e) {
           LOG.warn("Error while running full sync for dataProviderConfigId=" + dataProviderConfigId, e);
@@ -65,9 +66,10 @@ public class GrouperDataProviderFullSyncJob extends OtherJobBase {
    * @param dataProviderConfigId
    * @param hib3GrouperLoaderLog
    */
-  private Map<String, Object> loadFull(String daemonName, String dataProviderConfigId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+  private Map<String, Object> loadFull(String jobName, String daemonName, String dataProviderConfigId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
 
     final GrouperDataProviderSync grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync(dataProviderConfigId);
+    grouperDataProviderSync.setJobName(jobName);
     grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
     
     Integer failsafeMaxOverallPercentFieldAssignRemove = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob." + daemonName + ".failsafeMaxOverallPercentFieldAssignRemove");
@@ -106,6 +108,8 @@ public class GrouperDataProviderFullSyncJob extends OtherJobBase {
 
     try {
       grouperDataProviderSync.runSync(GrouperDataProviderSyncType.fullSyncFull);
+      
+      GrouperFailsafe.assignSuccess(jobName);
       
       // set only if success - used by incremental to determine where the next run should start
       gcGrouperSyncJob.setLastSyncTimestamp(gcGrouperSyncJob.getLastSyncStart());

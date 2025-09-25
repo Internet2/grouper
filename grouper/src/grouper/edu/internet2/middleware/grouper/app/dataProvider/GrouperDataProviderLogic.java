@@ -18,6 +18,8 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.OtherJobException;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntryTemp;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntryTempDao;
@@ -58,6 +60,7 @@ import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1432,7 +1435,12 @@ public class GrouperDataProviderLogic {
       grouperDataProviderSync.getDebugMap().putAll(failsafeDebug);
       
       if (percentFieldAssignsToRemove > grouperDataProviderSync.getFailsafeMaxOverallPercentFieldAssignRemove()) {
-        throw new RuntimeException("Aborting due to too many field assigns being removed: " + failsafeDebug);
+        boolean isFailsafeApproved = GrouperFailsafe.isApproved(grouperDataProviderSync.getJobName());
+        
+        if (!isFailsafeApproved) {
+          GrouperFailsafe.assignFailed(grouperDataProviderSync.getJobName());
+          throw new OtherJobException(GrouperLoaderStatus.ERROR_FAILSAFE, "Aborting due to too many field assigns being removed: " + failsafeDebug);
+        }
       }
     }
     

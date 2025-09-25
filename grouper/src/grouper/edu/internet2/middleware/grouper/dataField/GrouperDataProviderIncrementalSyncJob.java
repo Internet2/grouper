@@ -43,7 +43,7 @@ public class GrouperDataProviderIncrementalSyncJob extends OtherJobBase {
         String dataProviderConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(key);
         
         try {
-          Map<String, Object> debugMap = loadIncremental(dataProviderConfigId, otherJobInput.getHib3GrouperLoaderLog());
+          Map<String, Object> debugMap = loadIncremental(jobName, dataProviderConfigId, otherJobInput.getHib3GrouperLoaderLog());
           otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running incremental for dataProviderConfigId=" + dataProviderConfigId + "\n" + GrouperUtil.mapToString(debugMap));
         } catch (Exception e) {
           LOG.warn("Error while running incremental for dataProviderConfigId=" + dataProviderConfigId, e);
@@ -65,9 +65,10 @@ public class GrouperDataProviderIncrementalSyncJob extends OtherJobBase {
    * @param dataProviderConfigId
    * @param hib3GrouperLoaderLog
    */
-  private Map<String, Object> loadIncremental(String dataProviderConfigId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+  private Map<String, Object> loadIncremental(String jobName, String dataProviderConfigId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
 
     final GrouperDataProviderSync grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync(dataProviderConfigId);
+    grouperDataProviderSync.setJobName(jobName);
     grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
     
     GrouperDataEngine grouperDataEngine = new GrouperDataEngine();

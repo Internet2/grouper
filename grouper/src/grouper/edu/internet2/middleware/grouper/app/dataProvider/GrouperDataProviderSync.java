@@ -50,6 +50,7 @@ public class GrouperDataProviderSync {
    */
   private Integer failsafeMaxOverallPercentFieldAssignRemove;
   
+  private String jobName;
   
   /**
    * loader log
@@ -243,5 +244,14 @@ public class GrouperDataProviderSync {
   public void setFailsafeMaxOverallPercentFieldAssignRemove(
       Integer failsafeMaxOverallPercentFieldAssignRemove) {
     this.failsafeMaxOverallPercentFieldAssignRemove = failsafeMaxOverallPercentFieldAssignRemove;
+  }
+  
+  public String getJobName() {
+    return jobName;
+  }
+
+  
+  public void setJobName(String jobName) {
+    this.jobName = jobName;
   }
 }
