@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -507,6 +508,10 @@ public class GcDbAccess {
     return this;
   }
 
+  /**
+   * If you are executing sql as a batch statement, set the batch bind variables here.
+   */
+  private String schema;
 
   /**
    * If you are executing sql as a batch statement, set the batch bind variables here.
@@ -515,6 +520,16 @@ public class GcDbAccess {
    */
   public GcDbAccess batchBindVars(List<List<Object>> _batchBindVars){
     this.batchBindVars = _batchBindVars;
+    return this;
+  }
+
+  /**
+   * In snowflake if you are specifying a schema, that is different from the connection default schema (e.g. for temporary tables)
+   * @param _schema are the variables to set.
+   * @return this.
+   */
+  public GcDbAccess schema(String _schema){
+    this.schema = _schema;
     return this;
   }
 
@@ -2312,6 +2327,151 @@ public class GcDbAccess {
   }
 
   /**
+   * insert into a temp table then delete from real table.  you must set tableName and batchBindVars
+   * you can set the schema if there is a different schema for the temp table than the connection default
+   * batchSize is ignored, it will be determined by the batchBindVars size
+   * @param primaryKeyColumns in the same order as the batchBindVars.  The number of primary key columns must match the number of bind vars in each row
+   * @return the executeUpdate count
+   */
+  public int snowflakeDelete(List<String> primaryKeyColumns) {
+
+    // throw exception if tableName is not set
+    if (GrouperClientUtils.isBlank(this.tableName)) {
+      throw new RuntimeException("tableName must be set!");
+    }
+    
+    // throw exception if primary keys are not set
+    if (primaryKeyColumns == null || primaryKeyColumns.size() == 0) {
+      throw new RuntimeException("primaryKeyColumns must be set!");
+    }
+    
+    // batch bind vars must be set
+    if (this.batchBindVars == null || this.batchBindVars.size() == 0) {
+      throw new RuntimeException("batchBindVars must be set!");
+    }
+    
+    return callbackConnection(new GcConnectionCallback<Integer>() {
+
+      @Override
+      public Integer callback(Connection connection) {
+
+        String tempTableName = GrouperClientUtils.isBlank(GcDbAccess.this.schema) ? "" : (GcDbAccess.this.schema + ".");
+        tempTableName += "TEMP_TABLE_" + GrouperClientUtils.uniqueId() + "_" + System.currentTimeMillis();
+        RuntimeException runtimeException = null;
+        
+        PreparedStatement preparedStatement = null;
+
+        try {
+          
+          // create temporary table
+          try {
+            preparedStatement = connection.prepareStatement("CREATE TEMPORARY TABLE " + tempTableName + " LIKE " + GcDbAccess.this.tableName);
+            preparedStatement.executeUpdate();
+          } finally {
+            GrouperClientUtils.closeQuietly(preparedStatement);
+          }
+          
+          StringBuilder insertSql = new StringBuilder("insert into " + tempTableName + " (");
+          
+          // append key columns with a comma after each one except the last
+          for (int i=0;i<primaryKeyColumns.size();i++) {
+            insertSql.append(primaryKeyColumns.get(i));
+            if (i<primaryKeyColumns.size()-1) {
+              insertSql.append(", ");
+            }
+          }
+          insertSql.append(") values (");
+          
+          // append question marks with a comma after each one except the last
+          for (int i=0;i<primaryKeyColumns.size();i++) {
+            insertSql.append("?");
+            if (i<primaryKeyColumns.size()-1) {
+              insertSql.append(", ");
+            }
+          }
+          insertSql.append(")");
+          
+          String sqlToRecord = insertSql.toString();
+
+          try {
+
+            preparedStatement = connection.prepareStatement(sqlToRecord);
+
+            // Set the query timeout if there is one.
+            if (GcDbAccess.this.queryTimeoutSeconds != null){
+              preparedStatement.setQueryTimeout(GcDbAccess.this.queryTimeoutSeconds);
+            }
+  
+            // Add batch bind variables if we have them.
+            for (List<Object> theBindVars : GcDbAccess.this.batchBindVars){
+              int i = 1;
+              for (Object bindVar : theBindVars){
+                boundDataConversion.addBindVariableToStatement(preparedStatement, bindVar, i);
+                i++;
+              }
+              preparedStatement.addBatch();
+            }
+  
+            // Add batch bind variables if we have them.
+            Long startTime = System.nanoTime();
+            preparedStatement.executeBatch();
+            GcDbAccess.this.addQueryToQueriesAndMillis(sqlToRecord, startTime);
+          } finally {
+            GrouperClientUtils.closeQuietly(preparedStatement);
+          }
+          
+          // run the delete statement
+          try {
+            preparedStatement = connection.prepareStatement("DELETE FROM " + GcDbAccess.this.tableName + " t USING " + tempTableName + " d WHERE t.temp_col1 = d.temp_col1");
+            return preparedStatement.executeUpdate();
+          } finally {
+            GrouperClientUtils.closeQuietly(preparedStatement);
+          }
+
+        } catch (Exception e) {
+          if (runtimeException == null) {
+            if (e instanceof RuntimeException) {
+              runtimeException = (RuntimeException)e;
+            } else {
+              runtimeException = new RuntimeException(e);
+            }
+          } else {
+            runtimeException.addSuppressed(e);
+          }
+        } finally {
+          
+          // delete the temp table
+          try {
+            preparedStatement = connection.prepareStatement("DROP TABLE IF EXISTS " + tempTableName);
+            preparedStatement.executeUpdate();
+            
+          } catch (Exception e) {
+            if (runtimeException == null) {
+              if (e instanceof RuntimeException) {
+                runtimeException = (RuntimeException)e;
+              } else {
+                runtimeException = new RuntimeException(e);
+              }
+            } else {
+              runtimeException.addSuppressed(e);
+            }
+          } finally {
+            GrouperClientUtils.closeQuietly(preparedStatement);
+          }
+
+          if (runtimeException != null) {
+            throw runtimeException;
+          }
+        }
+
+        return null;
+      }
+      
+    });
+    
+  }
+  
+  /**
    * returned from connection call
    */
   public static class ConnectionBean {
@@ -2655,6 +2815,36 @@ public class GcDbAccess {
     return connection;
   }
 
+  /**
+   * keep a static map of connection names and if snowflake
+   */
+  private static Map<String, Boolean> connectionNameToIsSnowflake = new HashMap<String, Boolean>();
+
+  /**
+   * see if this connection is to snowflake
+   */
+  private static boolean connectionIsSnowflake(String connectionName) {
+
+    if (connectionNameToIsSnowflake.containsKey(connectionName)) {
+      return connectionNameToIsSnowflake.get(connectionName);
+    }
+    
+    try {
+      Object grouperLoaderDbInstance = grouperLoaderDbInstance(connectionName);
+      GrouperClientUtils.callMethod(grouperLoaderDbInstance, "initProperties");
+      String url = (String)GrouperClientUtils.callMethod(grouperLoaderDbInstance, "getUrl");
+      boolean isSnowflake = url.contains(":snowflake:");
+      connectionNameToIsSnowflake.put(connectionName, isSnowflake);
+      return isSnowflake;
+    } catch (Exception e) {
+      LOG.debug("Error calling constructor, initProperties, and getUrl on " + GROUPER_LOADER_DB_CLASSNAME, e);
+      // lets ignore this
+      connectionNameToIsSnowflake.put(connectionName, false);
+    }
+    return false;
+  }
+      
+  
   /**
    * get a connection from a grouper pool
    * @param connectionName
@@ -3072,19 +3262,41 @@ public class GcDbAccess {
    * @return anything return from the callback object.
    */
   public int[] executeBatchSql(){
-    
-    if (this.batchSize <= 0 || GrouperClientUtils.length(this.batchBindVars) <= this.batchSize) {
+
+    boolean isSnowflake = connectionIsSnowflake(this.connectionName);
+
+    if (isSnowflake || this.batchSize <= 0 || GrouperClientUtils.length(this.batchBindVars) <= this.batchSize) {
       
       if (this.bindVars != null){
         throw new RuntimeException("Use batchBindVars with executeBatchSql(), not bindVars!");
       }
-      callbackResultSet(null);
-      return this.numberOfBatchRowsAffected;
+      // if not snowflake or this is an insert, then just do it the normal way
+      if (!isSnowflake || this.sql.toLowerCase().trim().startsWith("insert")) {
+        callbackResultSet(null);
+        return this.numberOfBatchRowsAffected;
+      }
 
+      // this is a snowflake update or delete, which snowflake doesnt not support.
+      // we need to find the table name from the SQL
+      boolean isUpdate = this.sql.toLowerCase().trim().startsWith("update");
+      boolean isDelete = this.sql.toLowerCase().trim().startsWith("delete");      
+      
+      if (isUpdate) {
+        int[] batchResult = snowflakeUpdateBatchFromSql();
+        return batchResult;
+        
+      } else if (isDelete) {
+        int[] batchResult = snowflakeDeleteBatchFromSql();
+        return batchResult;
+      } else {
+        // if not update or delete, this is a problem
+        throw new RuntimeException("Expecting a snowflake update or delete statement! '" + this.sql + "'");
+      }
+      
     }
     
     // we are batching
-    int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(this.batchBindVars, this.batchSize);
+    int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(this.batchBindVars, this.batchSize, false);
     int[] result = new int[GrouperClientUtils.length(this.batchBindVars)];
     for (int i=0;i<numberOfBatches;i++) {
       
@@ -3097,6 +3309,164 @@ public class GcDbAccess {
       
     }
     return result;
+  }
+
+  /**
+   * delete from snowflake in an efficient way
+   * @return
+   */
+  private int[] snowflakeDeleteBatchFromSql() {
+    // sample delete statement:
+    // delete from my_table where key_col1 = ? and key_col2 = ?
+    if (sql == null) {
+      throw new RuntimeException("SQL must not be null");
+    }
+    // Unquoted identifier
+    String ident = "[A-Za-z_][A-Za-z0-9_]*";
+
+    // Column identifier: allow quoted or unquoted
+    String columnIdent = "(?:\\\"[^\\\"]+\\\"|" + ident + ")";
+
+    // DELETE FROM <schema?.>table [AS? alias] ...
+    Pattern tablePattern = Pattern.compile(
+        "DELETE\\s+FROM\\s+(?<table>" + ident + "(?:\\." + ident + ")*)"
+            + "(?:\\s+(?:AS\\s+)?" + ident + ")?",   // optional alias (not captured)
+            Pattern.CASE_INSENSITIVE);
+
+    // WHERE ... (capture tail)
+    Pattern whereClausePattern = Pattern.compile(
+        "\\bWHERE\\b(.*)$",
+        Pattern.CASE_INSENSITIVE);
+
+    // Match "col = ?" or "alias.col = ?" inside where (col may be quoted)
+    Pattern eqParamPattern = Pattern.compile(
+        "(?:" + ident + "\\.)?(?<col>" + columnIdent + ")\\s*=\\s*\\?",
+        Pattern.CASE_INSENSITIVE);
+
+    // --- Table name ---
+    Matcher tableMatch = tablePattern.matcher(sql);
+    if (!tableMatch.find()) {
+      throw new RuntimeException("Could not find table name in DELETE SQL: " + sql);
+    }
+    String theTableName = tableMatch.group("table");
+
+    // --- WHERE PK columns ---
+    Matcher whereMatch = whereClausePattern.matcher(sql);
+    if (!whereMatch.find()) {
+      throw new RuntimeException("No WHERE clause found in DELETE SQL: " + sql);
+    }
+    String where = whereMatch.group(1);
+
+    List<String> pkCols = new ArrayList<>();
+    Matcher m = eqParamPattern.matcher(where);
+    while (m.find()) {
+      pkCols.add(m.group("col"));
+    }
+    if (pkCols.isEmpty()) {
+      throw new RuntimeException("No key columns found in WHERE clause: " + sql);
+    }
+    GcDbAccess gcDbAccess = this.cloneDbAccess();
+    gcDbAccess.tableName(theTableName);
+
+    // set batch size as number of rows
+    gcDbAccess.batchSize(this.batchBindVars.size());
+
+    int rowsAffected = gcDbAccess.snowflakeDelete(pkCols);
+    int[] batchResult = new int[this.batchBindVars.size()];
+    // if not then we dont really know what happened
+    if (rowsAffected == this.batchBindVars.size()) {
+      for (int i=0;i<this.batchBindVars.size();i++) {
+        batchResult[i] = 1;
+      }
+    }
+    return batchResult;
+  }
+
+  /**
+   * update from snowflake in an efficient way
+   * assume non complex deletes
+   * @return
+   */
+  private int[] snowflakeUpdateBatchFromSql() {
+    // sample update statement:
+    // update my_table set col1 = ?, col2 = ? where key_col1 = ? and key_col2 = ?
+    // get the table name with regex
+    String theTableName = null;
+    
+    // Simple identifier (unquoted): starts with letter/underscore; then letters/digits/underscores
+    String ident = "[A-Za-z_][A-Za-z0-9_]*";
+    
+    // Column identifier: allow quoted or unquoted
+    String columnIdent = "(?:\\\"[^\\\"]+\\\"|" + ident + ")";
+
+    // Qualified name: table, schema.table, or db.schema.table (up to 3 parts)
+    String qualified = ident + "(?:\\s*\\.\\s*" + ident + "){0,2}";
+    
+    // UPDATE <qualifiedTable> [alias] SET
+    Pattern tablePattern = Pattern.compile(
+        "^\\s*UPDATE\\s+(?<table>" + qualified + ")(?:\\s+" + ident + ")?\\s+SET\\b",
+        Pattern.CASE_INSENSITIVE);
+    
+    Pattern setColPattern = Pattern.compile(
+        "(?<col>" + columnIdent + ")\\s*=\\s*\\?",
+        Pattern.CASE_INSENSITIVE);
+    
+    Pattern whereClausePattern = Pattern.compile(
+        "\\bWHERE\\b(.*)$",
+        Pattern.CASE_INSENSITIVE);
+    
+    
+    Pattern eqParamPattern = Pattern.compile(
+        "(?:" + ident + "\\.)?(?<col>" + columnIdent + ")\\s*=\\s*\\?",
+        Pattern.CASE_INSENSITIVE);
+    
+    // --- Table name ---
+    Matcher tableMatch = tablePattern.matcher(sql);
+    if (!tableMatch.find()) {
+        throw new RuntimeException("Could not find table name in SQL: " + sql);
+    }
+    theTableName = tableMatch.group("table");
+
+    // --- SET columns ---
+    String setSection = sql.substring(tableMatch.end());
+    int whereIdx = setSection.toLowerCase().indexOf("where");
+    if (whereIdx != -1) {
+      setSection = setSection.substring(0, whereIdx);
+    }
+    List<String> setCols = new ArrayList<>();
+    Matcher setMatcher = setColPattern.matcher(setSection);
+    while (setMatcher.find()) {
+      setCols.add(setMatcher.group("col"));
+    }
+
+    // --- WHERE PK columns ---
+    List<String> pkCols = new ArrayList<>();
+    Matcher whereMatch = whereClausePattern.matcher(sql);
+    if (whereMatch.find()) {
+      String where = whereMatch.group(1);
+      Matcher m = eqParamPattern.matcher(where);
+      while (m.find()) {
+        pkCols.add(m.group("col"));
+      }
+    }
+    if (pkCols.isEmpty()) {
+      throw new RuntimeException("No key columns found in WHERE clause: " + sql);
+    }
+
+    GcDbAccess gcDbAccess = this.cloneDbAccess();
+    // assign the table name
+    gcDbAccess.tableName(theTableName);
+    // set batch size as number of rows
+    gcDbAccess.batchSize(this.batchBindVars.size());
+    int rowsAffected = gcDbAccess.snowflakeUpdate(setCols, pkCols);
+    int[] batchResult = new int[this.batchBindVars.size()];
+    // if not then we dont really know what happened
+    if (rowsAffected == this.batchBindVars.size()) {
+      for (int i=0;i<this.batchBindVars.size();i++) {
+        batchResult[i] = 1;
+      }
+    }
+    return batchResult;
   }
 
 
@@ -3469,5 +3839,187 @@ public class GcDbAccess {
     }
     
     return this;
+  }
+
+  /**
+   * insert into a temp table then delete from real table.  you must set tableName and batchBindVars (first things setting, then primary keys)
+   * you can set the schema if there is a different schema for the temp table than the connection default
+   * batchSize is ignored, it will be determined by the batchBindVars size
+   * @param nonPrimaryKeyColumns is in the same order as the last batchBindVars.  
+   * @param primaryKeyColumns in the same order as the first batchBindVars.  
+   * The number of primary key columns plus the nonPrimaryKeyColumns must match the number of bind vars in each row
+   * @return the executeUpdate result
+   */
+  public int snowflakeUpdate(List<String> nonPrimaryKeyColumns, List<String> primaryKeyColumns) {
+  
+    // throw exception if tableName is not set
+    if (GrouperClientUtils.isBlank(this.tableName)) {
+      throw new RuntimeException("tableName must be set!");
+    }
+    
+    // throw exception if primary keys are not set
+    if (primaryKeyColumns == null || primaryKeyColumns.size() == 0) {
+      throw new RuntimeException("primaryKeyColumns must be set!");
+    }
+    
+    // throw exception if nonPrimaryKeyColumns are not set
+    if (nonPrimaryKeyColumns == null || nonPrimaryKeyColumns.size() == 0) {
+      throw new RuntimeException("nonPrimaryKeyColumns must be set!");
+    }
+    
+    // batch bind vars must be set
+    if (this.batchBindVars == null || this.batchBindVars.size() == 0) {
+      throw new RuntimeException("batchBindVars must be set!");
+    }
+    
+    return callbackConnection(new GcConnectionCallback<Integer>() {
+  
+      @Override
+      public Integer callback(Connection connection) {
+  
+        String tempTableName = GrouperClientUtils.isBlank(GcDbAccess.this.schema) ? "" : (GcDbAccess.this.schema + ".");
+        tempTableName += "TEMP_TABLE_" + GrouperClientUtils.uniqueId() + "_" + System.currentTimeMillis();
+        RuntimeException runtimeException = null;
+        
+        PreparedStatement preparedStatement = null;
+  
+        try {
+          
+          // create temporary table
+          try {
+            preparedStatement = connection.prepareStatement("CREATE TEMPORARY TABLE " + tempTableName + " LIKE " + GcDbAccess.this.tableName);
+            preparedStatement.executeUpdate();
+          } finally {
+            GrouperClientUtils.closeQuietly(preparedStatement);
+          }
+          
+          StringBuilder insertSql = new StringBuilder("insert into " + tempTableName + " (");
+          
+          // append key columns with a comma after each one except the last
+          for (int i=0;i<nonPrimaryKeyColumns.size();i++) {
+            insertSql.append(nonPrimaryKeyColumns.get(i));
+            insertSql.append(", ");
+          }
+          // append non key columns with a comma after each one except the last
+          for (int i=0;i<primaryKeyColumns.size();i++) {
+            insertSql.append(primaryKeyColumns.get(i));
+            if (i<primaryKeyColumns.size()-1) {
+              insertSql.append(", ");
+            }
+          }
+          insertSql.append(") values (");
+          
+          // append question marks with a comma after each one except the last
+          for (int i=0;i<nonPrimaryKeyColumns.size();i++) {
+            insertSql.append("?");
+            insertSql.append(", ");
+          }
+          for (int i=0;i<primaryKeyColumns.size();i++) {
+            insertSql.append("?");
+            if (i<primaryKeyColumns.size()-1) {
+              insertSql.append(", ");
+            }
+          }
+          insertSql.append(")");
+          
+          String sqlToRecord = insertSql.toString();
+  
+          try {
+  
+            preparedStatement = connection.prepareStatement(sqlToRecord);
+  
+            // Set the query timeout if there is one.
+            if (GcDbAccess.this.queryTimeoutSeconds != null){
+              preparedStatement.setQueryTimeout(GcDbAccess.this.queryTimeoutSeconds);
+            }
+  
+            // Add batch bind variables if we have them.
+            for (List<Object> theBindVars : GcDbAccess.this.batchBindVars){
+              int i = 1;
+              for (Object bindVar : theBindVars){
+                boundDataConversion.addBindVariableToStatement(preparedStatement, bindVar, i);
+                i++;
+              }
+              preparedStatement.addBatch();
+            }
+  
+            // Add batch bind variables if we have them.
+            Long startTime = System.nanoTime();
+            preparedStatement.executeBatch();
+            GcDbAccess.this.addQueryToQueriesAndMillis(sqlToRecord, startTime);
+          } finally {
+            GrouperClientUtils.closeQuietly(preparedStatement);
+          }
+
+          // example merge statement
+          //  "MERGE INTO temp_table AS target USING " + tempTableName + " AS source ON target.temp_col1 = source.temp_col1 "
+          //  + " WHEN MATCHED THEN UPDATE SET target.temp_col2 = source.temp_col2 "
+
+          StringBuilder mergeSql = new StringBuilder("MERGE INTO " + GcDbAccess.this.tableName + " AS target USING " + tempTableName + " AS source ON ");
+          // append key columns with AND after each one except the last
+          for (int i=0;i<primaryKeyColumns.size();i++) {
+            mergeSql.append("target.").append(primaryKeyColumns.get(i)).append(" = source.").append(primaryKeyColumns.get(i));
+            if (i<primaryKeyColumns.size()-1) {
+              mergeSql.append(" AND ");
+            }
+          }
+          mergeSql.append(" WHEN MATCHED THEN UPDATE SET ");
+          // append non key columns with commans after each one except the last
+          for (int i=0;i<nonPrimaryKeyColumns.size();i++) {
+            mergeSql.append("target.").append(nonPrimaryKeyColumns.get(i)).append(" = source.").append(nonPrimaryKeyColumns.get(i));
+            if (i<nonPrimaryKeyColumns.size()-1) {
+              mergeSql.append(", ");
+            }
+          }
+          
+          // run the merge statement
+          try {
+            preparedStatement = connection.prepareStatement(mergeSql.toString());
+            return preparedStatement.executeUpdate();
+          } finally {
+            GrouperClientUtils.closeQuietly(preparedStatement);
+          }
+  
+        } catch (Exception e) {
+          if (runtimeException == null) {
+            if (e instanceof RuntimeException) {
+              runtimeException = (RuntimeException)e;
+            } else {
+              runtimeException = new RuntimeException(e);
+            }
+          } else {
+            runtimeException.addSuppressed(e);
+          }
+        } finally {
+          
+          // delete the temp table
+          try {
+            preparedStatement = connection.prepareStatement("DROP TABLE IF EXISTS " + tempTableName);
+            preparedStatement.executeUpdate();
+            
+          } catch (Exception e) {
+            if (runtimeException == null) {
+              if (e instanceof RuntimeException) {
+                runtimeException = (RuntimeException)e;
+              } else {
+                runtimeException = new RuntimeException(e);
+              }
+            } else {
+              runtimeException.addSuppressed(e);
+            }
+          } finally {
+            GrouperClientUtils.closeQuietly(preparedStatement);
+          }
+  
+          if (runtimeException != null) {
+            throw runtimeException;
+          }
+        }
+  
+        return null;
+      }
+      
+    });
+    
   }
 }
