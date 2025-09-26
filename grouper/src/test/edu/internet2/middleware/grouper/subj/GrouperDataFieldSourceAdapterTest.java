@@ -1,15 +1,21 @@
 package edu.internet2.middleware.grouper.subj;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderSyncType;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob;
+import edu.internet2.middleware.grouper.dataField.GrouperDataProviderIncrementalSyncJob;
+import edu.internet2.middleware.grouper.dataField.GrouperDataProviderTest;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -31,12 +37,20 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDataFieldSourceAdapterTest("testGetSubject"));
+    TestRunner.run(new GrouperDataFieldSourceAdapterTest("testGetSubjectIncremental"));
   }
   
-  public void testGetSubject() {
+  public void testGetSubjectFull() {
+    internal_testGetSubject(GrouperDataProviderSyncType.fullSyncFull);
+  }
+  
+  public void testGetSubjectIncremental() {
+    internal_testGetSubject(GrouperDataProviderSyncType.incrementalSyncChangeLog);
+  }
+  
+  private void internal_testGetSubject(GrouperDataProviderSyncType syncType) {
     
-    setupData();
+    setupData(syncType);
     
     Subject subject = SubjectFinder.findByIdAndSource("test.subject.0", "dataFieldSubjectSource", true);
     assertEquals("my name is test.subject.0", subject.getName());
@@ -89,7 +103,7 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
    */
   public void testGetSubjectCache() {
     
-    setupData();
+    setupData(GrouperDataProviderSyncType.fullSyncFull);
     
     GrouperSession.startRootSession();
     assertEquals("my name is test.subject.6", SubjectFinder.findByIdAndSource("test.subject.6", "dataFieldSubjectSource", true).getAttributes().get("nameprivate").iterator().next());
@@ -99,7 +113,7 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
     
   }
   
-  public void setupData() {
+  public void setupData(GrouperDataProviderSyncType syncType) {
     
     try {      
       synchronized (GrouperTestBase.class) {
@@ -144,6 +158,8 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
               from subject_base_v sbv
               """).executeSql();
         }
+        
+        GrouperDataProviderTest.createTableChangeLog();
         
         //TODO: take the following sql out once Shilen's code is in
         
@@ -270,6 +286,16 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
         new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.dataFieldSourceQuery.providerQueryDataField.9.providerDataFieldAttribute").value("description_private").store();
         
         
+        new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerConfigId").value("dataFieldSource").store();
+        new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQueryType").value("sql").store();
+        new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySqlConfigId").value("grouper").store();
+        new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySqlQuery").value("select id, subject_id, create_timestamp1 from testgrouper_dp_changelog").store();
+        new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQueryPrimaryKeyAttribute").value("id").store();
+        new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQueryTimestampAttribute").value("create_timestamp1").store();
+        new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySubjectIdAttribute").value("subject_id").store();
+        new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySubjectIdType").value("subjectId").store();
+        new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySubjectSourceId").value("dataFieldSubjectSource").store();
+        
         new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.adapterClass").value("edu.internet2.middleware.grouper.subj.GrouperDataFieldSourceAdapter").store();;
         new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.0.name").value("name").store();
         new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.attribute.0.translationType").value("dataFieldPrivacyTarget").store();
@@ -379,10 +405,15 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
 
         new GrouperDbConfig().configFileName("grouper-ui.properties").propertyName("grouper.ui.authentication.sourceIds").value("jdbc,g:isa").store();
 
-        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataFieldSourceFull.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
-        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataFieldSourceFull.dataProviderConfigId").value("dataFieldSource").store();
-        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataFieldSourceFull.quartzCron").value("0 0 5 * * ?").store();
-
+        if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+          new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataFieldSourceFull.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
+          new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataFieldSourceFull.dataProviderConfigId").value("dataFieldSource").store();
+          new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataFieldSourceFull.quartzCron").value("0 0 5 * * ?").store();
+        } else {
+          new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataFieldSourceIncremental.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderIncrementalSyncJob").store();
+          new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataFieldSourceIncremental.dataProviderConfigId").value("dataFieldSource").store();
+          new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataFieldSourceIncremental.quartzCron").value("0 0 5 * * ?").store();
+        }
         
         // load data
         SubjectConfig.clearCache();
@@ -391,7 +422,28 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
         SourceManager.getInstance().reloadSource("dataFieldSubjectSource");
         SourceManager.getInstance().loadSource(SubjectConfig.retrieveConfig().retrieveSourceConfigs().get("dataFieldSubjectSource"));
 
-        GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataFieldSourceFull");
+        if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+          GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataFieldSourceFull");
+        } else {
+          GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataFieldSourceIncremental");
+
+          List<List<Object>> batchBindVarsChangeLog = new ArrayList<List<Object>>();
+
+          batchBindVarsChangeLog.add(GrouperUtil.toList(1, "test.subject.0", new Date()));
+          batchBindVarsChangeLog.add(GrouperUtil.toList(2, "test.subject.1", new Date()));
+          batchBindVarsChangeLog.add(GrouperUtil.toList(3, "test.subject.2", new Date()));
+          batchBindVarsChangeLog.add(GrouperUtil.toList(4, "test.subject.3", new Date()));
+          batchBindVarsChangeLog.add(GrouperUtil.toList(5, "test.subject.4", new Date()));
+          batchBindVarsChangeLog.add(GrouperUtil.toList(6, "test.subject.5", new Date()));
+          batchBindVarsChangeLog.add(GrouperUtil.toList(7, "test.subject.6", new Date()));
+          batchBindVarsChangeLog.add(GrouperUtil.toList(8, "test.subject.7", new Date()));
+          batchBindVarsChangeLog.add(GrouperUtil.toList(9, "test.subject.8", new Date()));
+          batchBindVarsChangeLog.add(GrouperUtil.toList(10, "test.subject.9", new Date()));
+
+          new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();
+          
+          GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataFieldSourceIncremental");
+        }
       }
     } catch (Exception e) {
       System.out.println("error: " + e);

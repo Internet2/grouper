@@ -2726,7 +2726,7 @@ public class GrouperDataProviderTest extends GrouperTest {
 
   }
   
-  private static void createTableChangeLog() {
+  public static void createTableChangeLog() {
     
     String tableName = "testgrouper_dp_changelog";
     

@@ -341,10 +341,19 @@ public class GrouperDataProviderLogic {
     }
     
     if (allSubjects.size() == 0) {
-      return;
+      if (isSubjectSource) {
+        if (GrouperUtil.length(subjectIds) == 0 && GrouperUtil.length(sourceToSubjectIds.get(subjectSourceIdIfSubjectSource)) == 0) {
+          return;
+        }
+      } else {
+        return;
+      }
     }
     
-    Set<Member> members = MemberFinder.findBySubjects(allSubjects, true);
+    Set<Member> members = new HashSet<>();
+    if (!allSubjects.isEmpty()) {
+      members = MemberFinder.findBySubjects(allSubjects, true);
+    }
 
     if (isSubjectSource) {
       createMemberObjects(subjectIds, sourceToSubjectIds.get(subjectSourceIdIfSubjectSource), members);
