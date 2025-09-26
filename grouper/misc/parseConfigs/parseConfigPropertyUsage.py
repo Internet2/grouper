@@ -4,19 +4,25 @@ Looks in source code for lines similar to xxxConfig.retrieveConfig().propertyVal
 all the base files corresponding to the xxxConfig classes, read in all the properties. Then, diff the lists in each.
 """
 
+import argparse
 import glob
 import os.path
 import re
 import sys
 import datetime
 
-if len(sys.argv) != 2:
-    print("Syntax: python3 parseConfigPropertyUsage.py <grouper base directory>")
-    sys.exit(1)
+parser = argparse.ArgumentParser(description='Reports on what config properties are referenced in Java that don\'t exist in the config base file, and vice versa.')
+parser.add_argument('--directory', '-d',
+                    default='../../..',
+                    help='Grouper base directory (default: ../../..)')
+parser.add_argument('--skip-tests', action='store_true',
+                    default=False,
+                    help='Skip processing test directories')
 
-baseDir = sys.argv[1]
+args = parser.parse_args()
+baseDir = args.directory
 
-if (not os.path.isdir(baseDir)):
+if not os.path.isdir(baseDir):
     print("Grouper base %s is invalid directory" % baseDir)
     sys.exit(2)
 
@@ -27,7 +33,7 @@ print("Started: %s" % datetime.datetime.now())
 classBasePropertyMap = {
     'ConfigPropertiesOriginalHasHierarchy': 'grouper-misc/grouperClient/src/test/resources/testCascadeConfig-example2.properties',
     'ConfigPropertiesOverrideHasHierarchy': 'grouper-misc/grouperClient/src/test/resources/testCascadeConfig-example.properties',
-    'GrouperActivemqConfig': 'grouper-misc/grouperActivemq/conf/grouper.activemq.base.properties',
+    #'GrouperActivemqConfig': 'grouper-misc/grouperActivemq/conf/grouper.activemq.base.properties',
     'GrouperClientConfig': 'grouper-misc/grouperClient/conf/grouper.client.base.properties',
     'GrouperConfig': 'grouper/conf/grouper.base.properties',
     'GrouperDbConfigTestConfig': 'grouper/src/test/edu/internet2/middleware/grouper/cfg/dbConfig/grouper.dbConfigTest.base.properties',
@@ -56,11 +62,16 @@ projects = [
     'grouper-misc/grouper-messaging-aws',
     'grouper-misc/grouper-messaging-rabbitmq',
     'grouper-misc/grouperActivemq',
+    'grouper-misc/grouperScim',
+    'grouper-misc/grouper-ext-auth-logic',
 ]
 
 class PropertyReference:
     deprecatedClassMap = {
         'GrouperClientUtils' : 'GrouperClientConfig',
+        'GrouperUiFilter'    : 'GrouperUiConfig',
+        'GrouperUiConfigInApi' : 'GrouperUiConfig',
+        'GrouperWsConfigInApi'    : 'GrouperWsConfig',
     }
 
     def __init__(self, file, configClass, propertyType, propertyName):
@@ -80,20 +91,41 @@ configRefs = dict()
 
 # Given a directory, find all code that looks like a call to a config class retrieveConfig()
 def searchDir(dirname):
-    pattern = re.compile('(\w+)\.retrieveConfig\(\)\.(\w+)\("([^"]+)')
-    pattern2 = re.compile('(GrouperClientUtils)\.(propertiesValue)\("([^"]+)')
-    patternComment = re.compile('^\s*//')
+    # Multi-line patterns that can span across lines
+    patternConfig = re.compile(r'(\w+)\.retrieveConfig\(\)\s*\.\s*(\w+)\s*\(\s*"([^"]+)', re.MULTILINE | re.DOTALL)
+    patternMedia = re.compile(r'(media)\s*\.\s*(getString)\s*\(\s*"([^"]+)', re.MULTILINE | re.DOTALL)
+    pattern2 = re.compile(r'(GrouperClientUtils)\s*\.\s*(propertiesValue)\s*\(\s*"([^"]+)', re.MULTILINE | re.DOTALL)
+    pattern3 = re.compile(r'(GrouperUiFilter)\s*\.\s*(retrieveSessionMediaResourceBundle)\s*\(\s*\)\s*\.\s*getString\s*\(\s*"([^"]+)', re.MULTILINE | re.DOTALL)
+
     files = glob.glob('%s/**/*.java' % dirname, recursive=True)
+
+    # Filter out test files if --skip-tests is specified
+    if args.skip_tests:
+        files = [f for f in files if not f.endswith('Test.java')]
     for file in files:
-        for line in open(file, 'r'):
-            if re.search(patternComment, line):
-                continue
-            match = re.search(pattern, line)
-            if match == None:
-                match = re.search(pattern2, line)
-                if match != None:
-                    print("*Reference to deprecated method: (%s) %s" % (file, line))
-            if match:
+        try:
+            with open(file, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+
+            # Remove comments to avoid false matches
+            # Remove single-line comments
+            content = re.sub(r'//.*$', '', content, flags=re.MULTILINE)
+            # Remove multi-line comments
+            content = re.sub(r'/\*.*?\*/', '', content, flags=re.DOTALL)
+
+            # Find all matches using the multi-line patterns
+            for pattern in [patternConfig, patternMedia]:
+                for match in re.finditer(pattern, content):
+                    propRef = PropertyReference(file=file, configClass=match.group(1), propertyType=match.group(2), propertyName=match.group(3))
+                    if propRef.configClass not in configRefs:
+                        configRefs[propRef.configClass] = dict()
+                    propertyKeys = configRefs[propRef.configClass]
+                    if propRef.propertyName not in propertyKeys:
+                        propertyKeys[propRef.propertyName] = list()
+                    propertyKeys[propRef.propertyName].append(propRef)
+
+            for match in re.finditer(pattern2, content):
+                print("*Reference to deprecated method: (%s)" % file)
                 propRef = PropertyReference(file=file, configClass=match.group(1), propertyType=match.group(2), propertyName=match.group(3))
                 if propRef.configClass not in configRefs:
                     configRefs[propRef.configClass] = dict()
@@ -102,14 +134,40 @@ def searchDir(dirname):
                     propertyKeys[propRef.propertyName] = list()
                 propertyKeys[propRef.propertyName].append(propRef)
 
+            for match in re.finditer(pattern3, content):
+                print("*Reference to GrouperUiFilter.retrieveSessionMediaResourceBundle: (%s)" % file)
+                propRef = PropertyReference(file=file, configClass=match.group(1), propertyType=match.group(2), propertyName=match.group(3))
+                if propRef.configClass not in configRefs:
+                    configRefs[propRef.configClass] = dict()
+                propertyKeys = configRefs[propRef.configClass]
+                if propRef.propertyName not in propertyKeys:
+                    propertyKeys[propRef.propertyName] = list()
+                propertyKeys[propRef.propertyName].append(propRef)
+
+        except Exception as e:
+            print(f"Error processing file {file}: {e}")
+            continue
+
 # load properties from the specified base properties file
 def importProperties(file):
-    pattern = re.compile('^([^#][^\s=]+)\s*=')
+    # Pattern to match commented lines (# followed by whitespace)
+    comment_pattern = re.compile(r'^#\s')
+    # Pattern to match property lines (including #alphanumeric properties)
+    property_pattern = re.compile(r'^#?(\w[^\s=]*)\s*=')
+
     ret = list()
     for line in open(file, 'r'):
-        match = re.search(pattern, line)
+        # Skip lines that are comments (# followed by whitespace)
+        if re.match(comment_pattern, line):
+            continue
+
+        # Try to match property lines
+        match = re.search(property_pattern, line)
         if match:
-            ret.append(match.group(1))
+            propertyName = match.group(1)
+            if propertyName.endswith('.elConfig'):
+                propertyName = propertyName[:-9]  # Remove last 9 characters
+            ret.append(propertyName)
     return ret
 
 

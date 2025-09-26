@@ -16,7 +16,6 @@
         <label class="control-label no-padding">${textContainer.text['simplePermissionUpdate.addLimitRole'] }</label>
         <div class="controls">
           ${permissionUpdateRequestContainer.guiPermissionEntry.guiRole.shortLinkWithIcon}
-          <%-- <span class="help-block">${grouper:escapeHtml(permissionUpdateRequestContainer.guiPermissionEntry.screenLabelLongIfDifferent}</span> --%>
         </div>
       </div>
       
@@ -24,7 +23,6 @@
         <label class="control-label no-padding">${textContainer.text['simplePermissionUpdate.addLimitPermissionName'] }</label>
         <div class="controls">
           ${permissionUpdateRequestContainer.guiPermissionEntry.guiAttributeDefName.shortLinkWithIcon}
-          <%-- <span class="help-block">${textContainer.text['grouper:escapeHtml(permissionUpdateRequestContainer.guiPermissionEntry.screenLabelLongIfDifferent'] }</span> --%>
         </div>
       </div>
       
@@ -32,7 +30,6 @@
         <label class="control-label no-padding">${textContainer.text['simplePermissionUpdate.addLimitPermissionAction'] }</label>
         <div class="controls">
           ${grouper:escapeHtml(permissionUpdateRequestContainer.guiPermissionEntry.permissionEntry.action)}
-          <%-- <span class="help-block">${textContainer.text['grouper:escapeHtml(permissionUpdateRequestContainer.guiPermissionEntry.screenLabelLongIfDifferent'] }</span> --%>
         </div>
       </div>
       

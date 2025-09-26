@@ -44,7 +44,6 @@
 			              <th>${textContainer.text['provisionerLogsTableHeaderJobTookMillis']}</th>
 			              <th>${textContainer.text['provisionerLogsTableHeaderServer']}</th>
 			              <th>${textContainer.text['provisionerLogsTableHeaderDescription']}</th>
-			              <%-- <th>${textContainer.text['provisionerLogsTableHeaderActions']}</th> --%>
 			            </tr>
 			            </thead>
 			            <tbody>
