@@ -31,7 +31,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -209,20 +208,6 @@ public class GuiMember implements Serializable {
     }
     return guiSubject.getShortLink();
     
-  }
-
-  /**
-   * 
-   * @return the disabled date
-   */
-  public String getDisabledDateString() {
-    String format = this.getDisabledDate();
-    if (format == null) {
-      return null;
-    }
-    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
-    return "("+ simpleMembershipUpdateContainer.getText().getDisabledPrefix() 
-      + ": " + format + ")";
   }
 
   /**

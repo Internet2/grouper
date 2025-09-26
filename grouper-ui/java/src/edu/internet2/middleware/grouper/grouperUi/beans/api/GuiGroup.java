@@ -472,37 +472,6 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   private Boolean hasMembershipConfigUrl = null;
 
   private int rulesDeleteCount;
-  
-  /**
-   * config url if set
-   * @return the config url if set
-   */
-  public String getMembershipConfigUrl() {
-    
-    if (this.hasMembershipConfigUrl == null) {
-      
-      if (this.group == null) {
-
-        //sidestep
-        return null;
-      }
-
-      //default to false
-      this.hasMembershipConfigUrl = false;
-      
-      if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("simpleMembershipUpdate.allowExternalUrlProperties", false)) {
-        
-        final GroupType groupType = GroupTypeFinder.find("grouperGroupMembershipSettings", false);
-        
-        if (groupType != null && GuiGroup.this.group.hasType(groupType)) {
-          this.configUrl = GuiGroup.this.group.getAttributeOrFieldValue("grouperGroupMshipSettingsUrl", false, false);
-          this.hasMembershipConfigUrl = !StringUtils.isBlank(this.configUrl);
-        }
-      }
-    }
-    
-    return this.hasMembershipConfigUrl ? this.configUrl : null;
-  }
 
   /**
    * return the group

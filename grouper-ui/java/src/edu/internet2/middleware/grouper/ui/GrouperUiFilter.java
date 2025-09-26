@@ -1124,28 +1124,12 @@ public class GrouperUiFilter implements Filter {
           //  require.group.for.membershipUpdateLite.logins=
           initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("require.group.for.membershipUpdateLite.logins"));
 
-          //  #users must be in this group to be able to login to the subjectPicker UI (if not in require.group.for.logins or require.group.for.membershipUpdateLite.logins)
-          //  require.group.for.subjectPicker.logins=
-          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("require.group.for.subjectPicker.logins"));
-
           //  #users must be in this group to invite external users to grouper
           //  require.group.for.inviteExternalSubjects.logins=
           initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("require.group.for.inviteExternalSubjects.logins"));
 
-          //  #users must be in this group to assign/create/etc attributes in the UI (new attribute framework) (if not in require.group.for.logins)
-          //  require.group.for.attributeUpdateLite.logins=
-          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("require.group.for.attributeUpdateLite.logins"));
-
           //  grouperUi.autoCreateUserFolderName=
           initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.autoCreateUserFolderName"));
-
-          //  #if results must be in a certain group, or blank for no check.  e.g. must be in employee group
-          //  simpleMembershipUpdate.subjectSearchRequireGroup = 
-          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("simpleMembershipUpdate.subjectSearchRequireGroup"));
-
-          //  #if results must be in group, or blank for no check.  e.g. put your active employee group here
-          //  subjectPicker.defaultSettings.resultsMustBeInGroup = 
-          initGroup(GrouperUiConfig.retrieveConfig().propertyValueString("subjectPicker.defaultSettings.resultsMustBeInGroup"));
 
           //  # require admin (GrouperSysAdmin or wheel group) to update inherited privileges
           //  uiV2.privilegeInheritanceUpdateRequireGroup = 
