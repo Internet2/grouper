@@ -1,6 +1,6 @@
 = Grouper External Authentication Plugin
 
-Grouper plugin that provides configurable authentication. The plugin uses version 5.7.2 of pac4j, a standalone
+Grouper plugin that provides configurable authentication. The plugin uses version 6.1.2 of pac4j, a standalone
 authentication library. Features include:
 
 * Authentication for UI, without requiring a separate process or container
@@ -11,12 +11,15 @@ authentication library. Features include:
 == Setup for Grouper
 
 NOTE: For a fully integrated sample configuration, see the docker-compose setup in the `src/test/docker` folder of the Git
-repository. The environment includes sample Grouper configurations for SAML2, OIDC, or CAS, along with a Shibboleth IDP
+repository, in the grouper-misc/grouper-ext-auth-logic module. The environment includes sample Grouper configurations for SAML2, OIDC, or CAS, along with a Shibboleth IDP
 that can authenticate Grouper using any of these methods.
 
 === Adding the plugin jar to the image
 
-The latest version of the pac4j plugin jar can be downloaded from https://repo1.maven.org/maven2/edu/internet2/middleware/grouper/grouper-ext-auth/[the Maven repository]
+Since Grouper v5.20.6 the plugin is include in the image, in file /opt/grouper/plugins/grouper-authentication-plugin.jar. The version number is left out of
+the filename, but the underlying version is the same as the rest of Grouper.
+
+In previous versions, the latest version of the pac4j plugin jar can be downloaded from https://repo1.maven.org/maven2/edu/internet2/middleware/grouper/grouper-ext-auth/[the Maven repository]
 (if available), or https://github.internet2.edu/internet2/grouper-ext-auth/releases[]). The downloaded file can have the
 version number in the file name, but it is  recommended to leave it out of the name when copied into the container. This
 way, the configuration does not need to  be changed every time the version changes. For example:

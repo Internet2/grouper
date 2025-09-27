@@ -1,18 +1,45 @@
-FROM tier/shib-idp:4.3.1_20231218
+FROM i2incommon/shib-idp:4.3.3_20240415
 
 WORKDIR /opt/shibboleth-idp
 
-COPY plugin-truststore/net.shibboleth.oidc.common/truststore.asc /opt/shibboleth-idp/credentials/net.shibboleth.oidc.common/
-COPY plugin-truststore/net.shibboleth.idp.plugin.oidc.config/truststore.asc /opt/shibboleth-idp/credentials/net.shibboleth.idp.plugin.oidc.config/
-COPY plugin-truststore/net.shibboleth.idp.plugin.oidc.op/truststore.asc /opt/shibboleth-idp/credentials/net.shibboleth.idp.plugin.oidc.op/
+#COPY plugin-truststore/net.shibboleth.oidc.common/truststore.asc /opt/shibboleth-idp/credentials/net.shibboleth.oidc.common/
+#COPY plugin-truststore/net.shibboleth.idp.plugin.oidc.config/truststore.asc /opt/shibboleth-idp/credentials/net.shibboleth.idp.plugin.oidc.config/
+#COPY plugin-truststore/net.shibboleth.idp.plugin.oidc.op/truststore.asc /opt/shibboleth-idp/credentials/net.shibboleth.idp.plugin.oidc.op/
 
-RUN bin/plugin.sh --noPrompt -I net.shibboleth.oidc.common \
-    && bin/plugin.sh --noPrompt -I net.shibboleth.idp.plugin.oidc.config \
-    && bin/plugin.sh --noPrompt -I net.shibboleth.idp.plugin.oidc.op
+#RUN bin/plugin.sh --noPrompt -I net.shibboleth.oidc.common --noRebuild \
+#    && bin/plugin.sh --noPrompt -I net.shibboleth.idp.plugin.oidc.config --noRebuild \
+#    && bin/plugin.sh --noPrompt -I net.shibboleth.idp.plugin.oidc.op --noRebuild
+
+# Can't use the above since it refuses to install insecure net.shibboleth.idp.plugin.oidc.op
+
+#for y in net.shibboleth.idp.plugin.authn.duo.nimbus net.shibboleth.idp.plugin.oidc.op net.shibboleth.oidc.common; do
+#  mkdir -p plugins/$y
+#done
+#
+#wget https://shibboleth.net/downloads/identity-provider/plugins/duo-oidc/1.3.0/idp-plugin-duo-nimbus-dist-1.3.0.tar.gz -O plugins/net.shibboleth.idp.plugin.authn.duo.nimbus/idp-plugin-duo-nimbus-dist-1.3.0.tar.gz
+#wget https://shibboleth.net/downloads/identity-provider/plugins/duo-oidc/1.3.0/idp-plugin-duo-nimbus-dist-1.3.0.tar.gz.asc -O plugins/net.shibboleth.idp.plugin.authn.duo.nimbus/idp-plugin-duo-nimbus-dist-1.3.0.tar.gz.asc
+#
+#wget https://shibboleth.net/downloads/identity-provider/plugins/oidc-op/3.3.0/idp-plugin-oidc-op-distribution-3.3.0.tar.gz -O plugins/net.shibboleth.idp.plugin.oidc.op/idp-plugin-oidc-op-distribution-3.3.0.tar.gz
+#wget https://shibboleth.net/downloads/identity-provider/plugins/oidc-op/3.3.0/idp-plugin-oidc-op-distribution-3.3.0.tar.gz.asc -O plugins/net.shibboleth.idp.plugin.oidc.op/idp-plugin-oidc-op-distribution-3.3.0.tar.gz.asc
+#
+#wget https://shibboleth.net/downloads/identity-provider/plugins/oidc-common/2.1.0/oidc-common-dist-2.1.0.tar.gz -O plugins/net.shibboleth.oidc.common/oidc-common-dist-2.1.0.tar.gz
+#wget https://shibboleth.net/downloads/identity-provider/plugins/oidc-common/2.1.0/oidc-common-dist-2.1.0.tar.gz.asc -O plugins/net.shibboleth.oidc.common/oidc-common-dist-2.1.0.tar.gz.asc
+
+COPY keys /opt/shibboleth-idp/credentials
+#RUN gpg --import /tmp/keys/SHIB_PGP_KEYS
+
+COPY plugins /tmp/plugins
+
+RUN bin/plugin.sh --noPrompt -i /tmp/plugins/net.shibboleth.oidc.common/oidc-common-dist-2.1.0.tar.gz --truststore /opt/shibboleth-idp/credentials/SHIB_PGP_KEYS --noRebuild \
+    && bin/plugin.sh --noPrompt -i /tmp/plugins/net.shibboleth.idp.plugin.oidc.op/idp-plugin-oidc-op-distribution-3.3.0.tar.gz --truststore /opt/shibboleth-idp/credentials/SHIB_PGP_KEYS --noRebuild \
+    && bin/plugin.sh --noPrompt -i /tmp/plugins/net.shibboleth.idp.plugin.authn.duo.nimbus/idp-plugin-duo-nimbus-dist-1.3.0.tar.gz --truststore /opt/shibboleth-idp/credentials/SHIB_PGP_KEYS --noRebuild
 
 COPY tomcat/server.xml /usr/local/tomcat/conf/
 
-COPY opt-shibboleth-idp/ /opt/shibboleth-idp/
+#COPY opt-shibboleth-idp/ /opt/shibboleth-idp/
+COPY files-local /opt/shibboleth-idp/
+
+RUN /opt/shibboleth-idp/bin/build.sh -Didp.target.dir=/opt/shibboleth-idp
 
 EXPOSE 8080
 
