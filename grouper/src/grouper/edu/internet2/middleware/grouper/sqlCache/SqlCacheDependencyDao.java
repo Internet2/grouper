@@ -27,13 +27,13 @@ public class SqlCacheDependencyDao {
   public SqlCacheDependencyDao() {
   }
   
-  public static int countGroupUsage(Group group) {
+  public static int countGroupUsageInOtherAbacs(Group group) {
     
     Long groupInternalId = group.getInternalId();
     int groupDependencies = new GcDbAccess()
         .sql("""
             select count(*) from grouper_sql_cache_dependency gscd, grouper_sql_cache_group gscg, grouper_fields gf
-            where gscd.dependent_internal_id = gscg.internal_id
+            where gscd.owner_internal_id = gscg.internal_id
             and gf.internal_id = gscg.field_internal_id
             and gf.name = 'members'
             and gscg.group_internal_id = ?

@@ -510,9 +510,9 @@ public class UiV2Group {
       //ABAC scripted section
       {
         if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false)) {
-          int countGroupUsage = SqlCacheDependencyDao.countGroupUsage(group);
+          int countGroupUsage = SqlCacheDependencyDao.countGroupUsageInOtherAbacs(group);
           groupSummaryContainer.setAbacScriptedGroupDependenciesCount(countGroupUsage);
-          if (countGroupUsage > 0 && countGroupUsage < 5) {
+          if (countGroupUsage > 0 && countGroupUsage <= 5) {
             
             Set<String> groupIdsForDependentGroupUsage = SqlCacheDependencyDao.retrieveGroupIdsForDependentGroupUsage(group);
             GroupFinder groupFinder = new GroupFinder();
@@ -652,39 +652,36 @@ public class UiV2Group {
       //recent memberships changes section
       {
         if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
-          QueryOptions queryOptions = new QueryOptions();
-          queryOptions.retrieveCount(true);
-          queryOptions.retrieveResults(false);
           
-          Timestamp membershipPITFromDate = new Timestamp(System.currentTimeMillis() - 30 * 24 * 60 * 60 * 1000L); //30 days ago
-          Timestamp membershipPITToDate = new Timestamp(System.currentTimeMillis());
+          String sql = """
+             select count(*) as added_membership_count
+             from grouper_pit_memberships pitm
+             join grouper_pit_groups pitg 
+               on pitm.owner_group_id = pitg.id
+             where pitg.source_id = ?
+               and to_timestamp(pitm.start_time / 1000000) >= (now() - interval '1 month')
+               and to_timestamp(pitm.start_time / 1000000) < now()
+                    """;
           
-          MembershipFinder membershipFinder = new MembershipFinder()
-              .addGroupId(group.getId())
-              .assignHasFieldForMember(true)
-              .assignPointInTimeFrom(membershipPITFromDate)
-              .assignPointInTimeTo(membershipPITToDate)
-              .assignEnabled(true)
-              .assignQueryOptionsForMember(queryOptions);
-              
-         membershipFinder.findPITMembershipsMembers();
-              
-         int newMembershipsInTheLastMonth = queryOptions.getCount().intValue();
+         int newMembershipsInTheLastMonth = new GcDbAccess().sql(sql)
+           .addBindVar("ec10ae414eca458f92b4946fb131b8d6")
+           .select(int.class);
          groupSummaryContainer.setNewMembershipsInTheLastMonth(newMembershipsInTheLastMonth);
          
-         queryOptions = new QueryOptions();
-         queryOptions.retrieveCount(true);
-         queryOptions.retrieveResults(false);
-         membershipFinder = new MembershipFinder()
-             .addGroupId(group.getId())
-             .assignHasFieldForMember(true)
-             .assignPointInTimeFrom(membershipPITFromDate)
-             .assignPointInTimeTo(membershipPITToDate)
-             .assignHasDisabledDate(true) //TODO confirm with Chris
-             .assignEnabled(false)
-             .assignQueryOptionsForMember(queryOptions);
+         sql = """
+              select count(*) as removed_membership_count
+              from grouper_pit_memberships pitm
+              join grouper_pit_groups pitg 
+                on pitm.owner_group_id = pitg.id
+              where pitg.source_id = ?
+                and pitm.end_time is not null
+                and to_timestamp(pitm.end_time / 1000000) >= (now() - interval '1 month')
+                and to_timestamp(pitm.end_time / 1000000) < now()
+                   """;
          
-         int membershipsRemovedInTheLastMonth = queryOptions.getCount() == null ? 0: queryOptions.getCount().intValue();
+         int membershipsRemovedInTheLastMonth = new GcDbAccess().sql(sql)
+             .addBindVar("ec10ae414eca458f92b4946fb131b8d6")
+             .select(int.class);
          groupSummaryContainer.setMembershipsRemovedInTheLastMonth(membershipsRemovedInTheLastMonth);
         }
       }
