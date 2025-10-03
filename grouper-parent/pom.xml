@@ -36,7 +36,6 @@
         <module>../grouper-misc/grouperScim</module>
         <module>../grouper-ui</module>
         <module>../grouper-ws</module>
-        <module>../grouper-misc/grouper-installer</module>
         <module>../grouper-misc/grouper-ext-auth-logic</module>
         <!-- module>../grouper-misc/grouper-ext-auth</module -->
     </modules>

@@ -52,7 +52,6 @@ projects = [
     'grouper-misc/grouper-azure',
     'grouper-misc/grouper-box',
     'grouper-misc/grouper-duo',
-    'grouper-misc/grouper-installer',
     'grouper-misc/grouper-messaging-activemq',
     'grouper-misc/grouper-messaging-aws',
     'grouper-misc/grouper-messaging-rabbitmq',
