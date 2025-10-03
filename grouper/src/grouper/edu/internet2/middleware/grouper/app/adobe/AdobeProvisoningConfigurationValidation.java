@@ -25,7 +25,7 @@ public class AdobeProvisoningConfigurationValidation extends GrouperProvisioning
 
   @Override
   public Collection<String> validateEntityAttributeNamesAllowed() {
-    return GrouperUtil.toSet("id", "email", "firstname", "lastname", "type", "country");
+    return GrouperUtil.toSet("id", "email", "firstname", "lastname", "type", "country", "userName");
   }
 
   @Override

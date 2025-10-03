@@ -21,14 +21,15 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDele
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntitiesRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
@@ -314,67 +315,148 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
-  public TargetDaoInsertMembershipResponse insertMembership(TargetDaoInsertMembershipRequest targetDaoInsertMembershipRequest) {
+  public TargetDaoInsertMembershipsResponse insertMemberships(TargetDaoInsertMembershipsRequest targetDaoInsertMembershipsRequest) {
     long startNanos = System.nanoTime();
-    ProvisioningMembership targetMembership = targetDaoInsertMembershipRequest.getTargetMembership();
+    List<ProvisioningMembership> targetMemberships = targetDaoInsertMembershipsRequest.getTargetMemberships();
     
-
     try {
-      String email = targetMembership.getProvisioningEntity().getEmail();
-      String groupName = targetMembership.getProvisioningGroup().getName();
+
+      // loop through memberships and make a map for group names to lists of emails
+      Map<String, Set<String>> groupNameToEmails = new HashMap<String, Set<String>>();
+      
+      // keep a list of memberships for each group name
+      Map<String, List<ProvisioningMembership>> groupNameToMemberships = new HashMap<String, List<ProvisioningMembership>>();
+      
+      for (ProvisioningMembership currentMembership: GrouperUtil.nonNull(targetMemberships)) {
+        
+        String email = currentMembership.getProvisioningEntity().getEmail();
+        String groupName = currentMembership.getProvisioningGroup().getName();
+        if (!StringUtils.isBlank(email) && !StringUtils.isBlank(groupName)) {
+          Set<String> emails = groupNameToEmails.get(groupName);
+          if (emails == null) {
+            emails = new HashSet<String>();
+            groupNameToEmails.put(groupName, emails);
+          }
+          emails.add(email);
+          
+          List<ProvisioningMembership> memberships = groupNameToMemberships.get(groupName);
+          if (memberships == null) {
+            memberships = new ArrayList<ProvisioningMembership>();
+            groupNameToMemberships.put(groupName, memberships);
+          }
+          memberships.add(currentMembership);
+          
+        }
+      }
       
       GrouperAdobeConfiguration adobeConfiguration = (GrouperAdobeConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String orgId = adobeConfiguration.getOrgId();
 
-      GrouperAdobeApiCommands.associateUserToGroup(adobeConfiguration.getAdobeExternalSystemConfigId(), email, groupName, orgId);
+      for (String groupName: groupNameToEmails.keySet()) {
+        Set<String> emails = groupNameToEmails.get(groupName);
 
-      targetMembership.setProvisioned(true);
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
-        provisioningObjectChange.setProvisioned(true);
-      }
+        // get the list of memberships for this group name
+        List<ProvisioningMembership> memberships = groupNameToMemberships.get(groupName);
+        
 
-      return new TargetDaoInsertMembershipResponse();
-    } catch (Exception e) {
-      targetMembership.setProvisioned(false);
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
-        provisioningObjectChange.setProvisioned(false);
+        try {
+          GrouperAdobeApiCommands.associateUsersToGroup(adobeConfiguration.getAdobeExternalSystemConfigId(), new ArrayList<String>(emails), groupName, orgId);
+
+          for (ProvisioningMembership currentMembership: GrouperUtil.nonNull(memberships)) {
+            currentMembership.setProvisioned(true);
+            for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(currentMembership.getInternal_objectChanges())) {
+              provisioningObjectChange.setProvisioned(true);
+            }
+          }
+          
+        } catch (Exception e) {
+
+          for (ProvisioningMembership currentMembership: GrouperUtil.nonNull(memberships)) {
+            currentMembership.setProvisioned(false);
+            for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(currentMembership.getInternal_objectChanges())) {
+              provisioningObjectChange.setProvisioned(false);
+              provisioningObjectChange.setException(e);
+            }
+          }
+        }
       }
       
-      throw e;
+      return new TargetDaoInsertMembershipsResponse();
     } finally {
-      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertMembership", startNanos));
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertMemberships", startNanos));
     }
   }
 
 
-  public TargetDaoDeleteMembershipResponse deleteMembership(TargetDaoDeleteMembershipRequest targetDaoDeleteMembershipRequest) {
+  public TargetDaoDeleteMembershipsResponse deleteMemberships(TargetDaoDeleteMembershipsRequest targetDaoDeleteMembershipsRequest) {
     long startNanos = System.nanoTime();
-    ProvisioningMembership targetMembership = targetDaoDeleteMembershipRequest.getTargetMembership();
+    List<ProvisioningMembership> targetMemberships = targetDaoDeleteMembershipsRequest.getTargetMemberships();
 
     try {
       
-      String email = targetMembership.getProvisioningEntity().getEmail();
-      String groupName = targetMembership.getProvisioningGroup().getName();
+      // loop through memberships and make a map for group names to lists of emails
+      Map<String, Set<String>> groupNameToEmails = new HashMap<String, Set<String>>();
+      
+      // keep a list of memberships for each group name
+      Map<String, List<ProvisioningMembership>> groupNameToMemberships = new HashMap<String, List<ProvisioningMembership>>();
+      
+      for (ProvisioningMembership currentMembership: GrouperUtil.nonNull(targetMemberships)) {
+        
+        String email = currentMembership.getProvisioningEntity().getEmail();
+        String groupName = currentMembership.getProvisioningGroup().getName();
+        if (!StringUtils.isBlank(email) && !StringUtils.isBlank(groupName)) {
+          Set<String> emails = groupNameToEmails.get(groupName);
+          if (emails == null) {
+            emails = new HashSet<String>();
+            groupNameToEmails.put(groupName, emails);
+          }
+          emails.add(email);
+          
+          List<ProvisioningMembership> memberships = groupNameToMemberships.get(groupName);
+          if (memberships == null) {
+            memberships = new ArrayList<ProvisioningMembership>();
+            groupNameToMemberships.put(groupName, memberships);
+          }
+          memberships.add(currentMembership);
+          
+        }
+      }
       
       GrouperAdobeConfiguration adobeConfiguration = (GrouperAdobeConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String orgId = adobeConfiguration.getOrgId();
 
-      GrouperAdobeApiCommands.disassociateUserFromGroup(adobeConfiguration.getAdobeExternalSystemConfigId(), email, groupName, orgId);
+      for (String groupName: groupNameToEmails.keySet()) {
+        Set<String> emails = groupNameToEmails.get(groupName);
 
-      targetMembership.setProvisioned(true);
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
-        provisioningObjectChange.setProvisioned(true);
+        // get the list of memberships for this group name
+        List<ProvisioningMembership> memberships = groupNameToMemberships.get(groupName);
+        
+
+        try {
+          GrouperAdobeApiCommands.disassociateUsersFromGroup(adobeConfiguration.getAdobeExternalSystemConfigId(), new ArrayList<String>(emails), groupName, orgId);
+
+          for (ProvisioningMembership currentMembership: GrouperUtil.nonNull(memberships)) {
+            currentMembership.setProvisioned(true);
+            for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(currentMembership.getInternal_objectChanges())) {
+              provisioningObjectChange.setProvisioned(true);
+            }
+          }
+          
+        } catch (Exception e) {
+
+          for (ProvisioningMembership currentMembership: GrouperUtil.nonNull(memberships)) {
+            currentMembership.setProvisioned(false);
+            for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(currentMembership.getInternal_objectChanges())) {
+              provisioningObjectChange.setProvisioned(false);
+              provisioningObjectChange.setException(e);
+            }
+          }
+        }
       }
 
-      return new TargetDaoDeleteMembershipResponse();
-    } catch (Exception e) {
-      targetMembership.setProvisioned(false);
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
-        provisioningObjectChange.setProvisioned(false);
-      }
-      throw new RuntimeException("Failed to delete Adobe group member (groupId '" + targetMembership.getProvisioningGroupId() + "', member '" + targetMembership.getProvisioningEntityId() + "'", e);
+      return new TargetDaoDeleteMembershipsResponse();
     } finally {
-      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteMembership", startNanos));
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteMemberships", startNanos));
     }
   }
 
@@ -678,9 +760,9 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
-  public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
+  public TargetDaoInsertEntitiesResponse insertEntities(TargetDaoInsertEntitiesRequest targetDaoInsertEntitiesRequest) {
     long startNanos = System.nanoTime();
-    ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
+    List<ProvisioningEntity> targetEntities = targetDaoInsertEntitiesRequest.getTargetEntityInserts();
 
     try {
       GrouperAdobeConfiguration adobeConfiguration = (GrouperAdobeConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
@@ -688,33 +770,47 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       String orgId = adobeConfiguration.getOrgId();
       String userTypeOnCreate = adobeConfiguration.getUserTypeOnCreate();
       
-      GrouperAdobeUser grouperAdobeUser = GrouperAdobeUser.fromProvisioningEntity(targetEntity, null);
-      
-      GrouperAdobeUser createdAdobeUser = GrouperAdobeApiCommands.createAdobeUser(adobeConfiguration.getAdobeExternalSystemConfigId(), grouperAdobeUser, userTypeOnCreate, orgId);
-
-      if (createdAdobeUser != null) {
-        targetEntity.setId(createdAdobeUser.getId());
-        targetEntity.setProvisioned(true);
-  
-        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
-          provisioningObjectChange.setProvisioned(true);
-        }
-      } else {
-        
-        throw new RuntimeException("Cannot create entity!");
-
+      List<GrouperAdobeUser> grouperAdobeUsers = new ArrayList<GrouperAdobeUser>();
+      for (ProvisioningEntity targetEntity: targetEntities) {
+        GrouperAdobeUser grouperAdobeUser = GrouperAdobeUser.fromProvisioningEntity(targetEntity, null);
+        grouperAdobeUsers.add(grouperAdobeUser);
       }
+      
+      Map<String, GrouperAdobeUser> createdAdobeUsers = GrouperAdobeApiCommands.createAdobeUsers(adobeConfiguration.getAdobeExternalSystemConfigId(), grouperAdobeUsers, userTypeOnCreate, orgId);
 
-      return new TargetDaoInsertEntityResponse();
+      TargetDaoInsertEntitiesResponse response = new TargetDaoInsertEntitiesResponse();
+      for (ProvisioningEntity targetEntity: targetEntities) {
+        GrouperAdobeUser createdAdobeUser = createdAdobeUsers.get(targetEntity.getEmail());
+        
+        if (createdAdobeUser == null) {
+          targetEntity.setProvisioned(false);
+          for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+            provisioningObjectChange.setProvisioned(false);
+          }
+        } else {
+          targetEntity.setId(createdAdobeUser.getId());
+          targetEntity.setProvisioned(true);
+    
+          for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+            provisioningObjectChange.setProvisioned(true);
+          }
+        }
+      }
+      return response;
     } catch (Exception e) {
-      targetEntity.setProvisioned(false);
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
-        provisioningObjectChange.setProvisioned(false);
+      
+      
+      for (ProvisioningEntity targetEntity: targetEntities) {
+        targetEntity.setProvisioned(false);
+        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+          provisioningObjectChange.setProvisioned(false);
+        }
+        
       }
       
       throw e;
     } finally {
-      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertEntity", startNanos));
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertEntities", startNanos));
     }
   }
   
@@ -826,10 +922,10 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
     
     grouperProvisionerDaoCapabilities.setCanDeleteEntity(true);
     grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
-    grouperProvisionerDaoCapabilities.setCanDeleteMembership(true);
-    grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
+    grouperProvisionerDaoCapabilities.setCanDeleteMemberships(true);
+    grouperProvisionerDaoCapabilities.setCanInsertEntities(true);
     grouperProvisionerDaoCapabilities.setCanInsertGroups(true);
-    grouperProvisionerDaoCapabilities.setCanInsertMembership(true);
+    grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllData(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
@@ -838,6 +934,7 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+    grouperProvisionerDaoCapabilities.setDefaultBatchSize(1000);
     
   }
 
