@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.adobe;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +47,11 @@ public class GrouperAdobeApiCommands {
     
 //    associateUserToGroup("adobe1", "DUP0LW3MHLGSFMGGQAV3", "DGCXPKWT7MJ7WLQT7CMQ");
     
-    GrouperAdobeUser grouperAdobeUser = retrieveAdobeUser("adobe", "hyzer38@upenn.edu", false, "whatever@AdobeOrg");
-    System.out.println(grouperAdobeUser);
+//    GrouperAdobeUser grouperAdobeUser = retrieveAdobeUser("adobe", "mplatt@pennmedicine.upenn.edu", false, "5DE9B008561EC4997F000101@AdobeOrg");
+//    System.out.println(grouperAdobeUser);
+
+    
+    System.exit(0);
         
   }
 
@@ -558,8 +562,8 @@ public class GrouperAdobeApiCommands {
    * @param grouperAdobeUser
    * @return the result
    */
-  public static GrouperAdobeUser createAdobeUser(String configId,
-      GrouperAdobeUser grouperAdobeUser, String userTypeOnCreate, String orgId) {
+  public static Map<String, GrouperAdobeUser> createAdobeUsers(String configId,
+      List<GrouperAdobeUser> grouperAdobeUsers, String userTypeOnCreate, String orgId) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -586,38 +590,108 @@ public class GrouperAdobeApiCommands {
         }
       ]
       */
+
+      String errorMessage = null;
       
-      ObjectNode userNode = grouperAdobeUser.toJson(null);
-      
-      ObjectNode objectNode = GrouperUtil.jsonJacksonNode();
-      
-      if (StringUtils.equals(userTypeOnCreate, "AdobeID")) {
-        objectNode.set("addAdobeID", userNode);
-      } else if (StringUtils.equals(userTypeOnCreate, "EnterpriseID")) {
-        objectNode.set("createEnterpriseID", userNode);
-      } else if (StringUtils.equals(userTypeOnCreate, "FederatedID")) {
-        objectNode.set("createFederatedID", userNode);
+      int batchSize = 10;
+      Map<String, GrouperAdobeUser> resultsEmailToUser = new HashMap<String, GrouperAdobeUser>();
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(grouperAdobeUsers, batchSize, false);
+      for (int i=0;i<numberOfBatches;i++) {
+        
+        List<GrouperAdobeUser> grouperAdobeUsersBatch = GrouperUtil.batchList(grouperAdobeUsers, batchSize, i);
+
+        ArrayNode arrayNodeToSend = GrouperUtil.jsonJacksonArrayNode();
+
+        for (GrouperAdobeUser grouperAdobeUser: grouperAdobeUsersBatch) {
+          
+          // if email is blank in user object, use userName
+          if (StringUtils.isBlank(grouperAdobeUser.getEmail())) {
+            grouperAdobeUser.setEmail(grouperAdobeUser.getUserName());
+          }
+
+          ObjectNode userNode = grouperAdobeUser.toJson(GrouperUtil.toSet("email", "country", "firstname", "lastname"));
+          
+          ObjectNode objectNode = GrouperUtil.jsonJacksonNode();
+          
+          if (StringUtils.equals(userTypeOnCreate, "AdobeID")) {
+            objectNode.set("addAdobeID", userNode);
+          } else if (StringUtils.equals(userTypeOnCreate, "EnterpriseID")) {
+            objectNode.set("createEnterpriseID", userNode);
+          } else if (StringUtils.equals(userTypeOnCreate, "FederatedID")) {
+            objectNode.set("createFederatedID", userNode);
+          }
+          
+          ArrayNode doArrayNode = GrouperUtil.jsonJacksonArrayNode();
+          doArrayNode.add(objectNode);
+          
+          ObjectNode objectNodeOuter = GrouperUtil.jsonJacksonNode();
+          objectNodeOuter.set("do", doArrayNode);
+          
+          String userName = GrouperUtil.defaultIfBlank(grouperAdobeUser.getUserName(), grouperAdobeUser.getEmail());
+          
+          
+          GrouperUtil.jsonJacksonAssignString(objectNodeOuter, "user", userName);
+          
+          
+          arrayNodeToSend.add(objectNodeOuter);
+
+          
+        }
+        
+        String jsonStringToSend = GrouperUtil.jsonJacksonToString(arrayNodeToSend);
+
+        JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/action/"+orgId,
+            GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend, null);
+        
+        // {"completed":0,"notCompleted":1,"completedInTestMode":0,"result":"error","errors":[{"index":0,"step":0,"message":"Domain for email is not claimed","errorCode":"error.domain.trust.nonexistent","user":"pgtest1@upenn.edu"}]}
+        
+        int completed = GrouperUtil.jsonJacksonGetInteger(jsonNode, "completed");
+        
+        // if we have mor than 1 created then thats ok i guess
+        if (completed == 0) {
+          errorMessage = GrouperUtil.jsonJacksonToString(jsonNode);
+        }
+        
+        if (grouperAdobeUsers.size() < 200) {
+          // retrieve from server
+          for (GrouperAdobeUser grouperAdobeUser: grouperAdobeUsersBatch) {
+            GrouperAdobeUser adobeUserAfterInsert = retrieveAdobeUser(configId, grouperAdobeUser.getEmail(), true, orgId);
+            // add if not null
+            if (adobeUserAfterInsert != null) {
+              resultsEmailToUser.put(adobeUserAfterInsert.getEmail(), adobeUserAfterInsert);
+            }
+          }
+        }        
       }
       
-      ArrayNode doArrayNode = GrouperUtil.jsonJacksonArrayNode();
-      doArrayNode.add(objectNode);
-      
-      ObjectNode objectNodeOuter = GrouperUtil.jsonJacksonNode();
-      objectNodeOuter.set("do", doArrayNode);
-      GrouperUtil.jsonJacksonAssignString(objectNodeOuter, "user", grouperAdobeUser.getEmail());
-      
-      
-      ArrayNode arrayNodeToSend = GrouperUtil.jsonJacksonArrayNode();
-      arrayNodeToSend.add(objectNodeOuter);
-      
-      String jsonStringToSend = GrouperUtil.jsonJacksonToString(arrayNodeToSend);
+      // if we have more than 200, then retrieve all and match up
+      if (grouperAdobeUsers.size() >= 200) {
+        
+        // retrieve all from server
+        List<GrouperAdobeUser> allGrouperAdobeUsers = retrieveAdobeUsers(configId, true, orgId);
+        Map<String, GrouperAdobeUser> emailToGrouperAdobeUser = new HashMap<String, GrouperAdobeUser>();
+        
+        // map by email
+        for (GrouperAdobeUser grouperAdobeUser : allGrouperAdobeUsers) {
+          emailToGrouperAdobeUser.put(grouperAdobeUser.getEmail(), grouperAdobeUser);
+        }
+        
+        // go through the ones we inserted
+        for (GrouperAdobeUser grouperAdobeUser: grouperAdobeUsers) {
+          GrouperAdobeUser adobeUserAfterInsert = emailToGrouperAdobeUser.get(grouperAdobeUser.getEmail());
+          // add if not null
+          if (adobeUserAfterInsert != null) {
+            resultsEmailToUser.put(adobeUserAfterInsert.getEmail(), adobeUserAfterInsert);
+          }
+        }
+        
+      }
 
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/action/"+orgId,
-          GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend, null);
-      
-      GrouperAdobeUser adobeUserAfterInsert = retrieveAdobeUser(configId, grouperAdobeUser.getEmail(), true, orgId);
+      if (resultsEmailToUser.size() == 0 && !StringUtils.isBlank(errorMessage)) {
+        throw new RuntimeException("Did not create any users, here is a sample error message: " + errorMessage);
+      }
 
-      return adobeUserAfterInsert;
+      return resultsEmailToUser;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -688,6 +762,9 @@ public class GrouperAdobeApiCommands {
       ObjectNode objectNode = GrouperUtil.jsonJacksonNode();
       
       ObjectNode valuesThatNeedUpdates = GrouperUtil.jsonConvertFromObjectToObjectNode(params);
+      
+      // add attribute:  "option": "ignoreIfAlreadyExists"
+      GrouperUtil.jsonJacksonAssignString(valuesThatNeedUpdates, "option", "ignoreIfAlreadyExists");
       
       objectNode.set("update", valuesThatNeedUpdates);
       
@@ -916,19 +993,18 @@ public class GrouperAdobeApiCommands {
     }
   }
   
-  public static void associateUserToGroup(String configId, String email, String groupName, String orgId) {
+  public static void associateUsersToGroup(String configId, List<String> emails, String groupName, String orgId) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "associateUserToGroup");
+    debugMap.put("method", "associateUsersToGroup");
 
     long startTime = System.nanoTime();
 
     try {
-      
-      Map<String, String> params = GrouperUtil.toMap("group_id", StringUtils.defaultString(groupName));
-      
+            
       /**
+       * used to be single
        * [
           {
             "user": "abc@upenn.edu",
@@ -944,32 +1020,78 @@ public class GrouperAdobeApiCommands {
           }
         ]
        */
-      
-      ArrayNode groupsArray = GrouperUtil.jsonJacksonArrayNode();
-      groupsArray.add(groupName);
-      
-      ObjectNode groupObjectNode = GrouperUtil.jsonJacksonNode();
-      groupObjectNode.set("group", groupsArray);
-      
-      ObjectNode addObjectNode = GrouperUtil.jsonJacksonNode();
-      addObjectNode.set("add", groupObjectNode);
-      
-      ArrayNode doArray = GrouperUtil.jsonJacksonArrayNode();
-      doArray.add(addObjectNode);
-      
-      ObjectNode outerObjectNode = GrouperUtil.jsonJacksonNode();
-      outerObjectNode.set("do", doArray);
-      outerObjectNode.put("user", email);
-      
-      ArrayNode arrayNodeToSend = GrouperUtil.jsonJacksonArrayNode();
-      arrayNodeToSend.add(outerObjectNode);
-      
-      String jsonStringToSend = GrouperUtil.jsonJacksonToString(arrayNodeToSend);
 
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/action/"+orgId,
-          GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend, null);
+      /**
+       * now is multiples
+       * [{
+            "user": "jdoe@claimed-domain1.com",
+            "requestID": "action_1",
+            "do": [{
+              "add": {
+                "group": [ 
+                  "group_name1"
+                ]
+              }
+            }]
+          }]
+       */
 
-      // {"code": 40004, "message": "Operation failed", "message_detail": "User is already a member of the specified group", "stat": "FAIL"}
+      // batch up usernames with max batch size 10
+      int batchSize = 10;
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(emails, batchSize, false);
+      
+      boolean success = true;
+      String exampleErrorMessage = null;
+      
+      for (int i=0;i<numberOfBatches;i++) {
+        
+        List<String> emailsBatch = GrouperUtil.batchList(emails, batchSize, i);
+        
+        ArrayNode arrayNodeToSend = GrouperUtil.jsonJacksonArrayNode();
+        int indexInBatch = 0;
+        for (String email: emailsBatch) {
+          
+          ArrayNode groupsArray = GrouperUtil.jsonJacksonArrayNode();
+          groupsArray.add(groupName);
+          
+          ObjectNode addNode = GrouperUtil.jsonJacksonNode();
+          addNode.set("group", groupsArray);
+          
+          ObjectNode doActionItemNode = GrouperUtil.jsonJacksonNode();
+          doActionItemNode.set("add", addNode);
+          
+          ArrayNode doArray = GrouperUtil.jsonJacksonArrayNode();
+          doArray.add(doActionItemNode);
+          
+          ObjectNode outerObjectNode = GrouperUtil.jsonJacksonNode();
+          outerObjectNode.set("do", doArray);
+          outerObjectNode.put("user", email);
+          outerObjectNode.put("requestID", "action_" + indexInBatch);
+          
+          arrayNodeToSend.add(outerObjectNode);
+          
+          indexInBatch++;
+        }
+        
+        String jsonStringToSend = GrouperUtil.jsonJacksonToString(arrayNodeToSend);
+
+        JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/action/"+orgId,
+            GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend, null);
+
+        // {"completed":1,"notCompleted":0,"completedInTestMode":0,"result":"error","errors":[{"index":0,"step":0,"message":"User is already a member of the specified group","errorCode":"error.usergroup.user.alreadyMember","user":"
+        int notCompleted = GrouperUtil.jsonJacksonGetInteger(jsonNode, "notCompleted");
+        // should not have any events not completed
+        if (notCompleted != 0) {
+          success = false;
+          exampleErrorMessage = GrouperUtil.jsonJacksonToString(jsonNode);
+        }
+        // {"code": 40004, "message": "Operation failed", "message_detail": "User is already a member of the specified group", "stat": "FAIL"}
+        
+      }
+
+      if (!success) {
+        throw new RuntimeException("Did not add all users to group, see a sample error message: " + exampleErrorMessage);
+      }
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -979,46 +1101,98 @@ public class GrouperAdobeApiCommands {
 
   }
   
-  public static void disassociateUserFromGroup(String configId, String email, String groupName, String orgId) {
+  public static void disassociateUsersFromGroup(String configId, List<String> emails, String groupName, String orgId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "disassociateUserFromGroup");
+    debugMap.put("method", "disassociateUsersFromGroup");
 
     long startTime = System.nanoTime();
 
     try {
     
-      if (StringUtils.isBlank(email)) {
-        throw new RuntimeException("email is blank/null");
+      if (GrouperUtil.length(emails) == 0) {
+        throw new RuntimeException("emails are required");
       }
       
       if (StringUtils.isBlank(groupName)) {
         throw new RuntimeException("groupName is blank/null");
       }
-    
-      ArrayNode groupsArray = GrouperUtil.jsonJacksonArrayNode();
-      groupsArray.add(groupName);
-      
-      ObjectNode groupObjectNode = GrouperUtil.jsonJacksonNode();
-      groupObjectNode.set("group", groupsArray);
-      
-      ObjectNode addObjectNode = GrouperUtil.jsonJacksonNode();
-      addObjectNode.set("remove", groupObjectNode);
-      
-      ArrayNode doArray = GrouperUtil.jsonJacksonArrayNode();
-      doArray.add(addObjectNode);
-      
-      ObjectNode outerObjectNode = GrouperUtil.jsonJacksonNode();
-      outerObjectNode.set("do", doArray);
-      outerObjectNode.put("user", email);
-      
-      ArrayNode arrayNodeToSend = GrouperUtil.jsonJacksonArrayNode();
-      arrayNodeToSend.add(outerObjectNode);
-      
-      String jsonStringToSend = GrouperUtil.jsonJacksonToString(arrayNodeToSend);
 
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/action/"+orgId,
-          GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend, null);
+      boolean success = true;
+      String exampleErrorMessage = null;
+
+      // batch up usernames with max batch size 10
+      int batchSize = 10;
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(emails, batchSize, false);
+      for (int i=0;i<numberOfBatches;i++) {
+        
+        List<String> emailsBatch = GrouperUtil.batchList(emails, batchSize, i);
+
+        
+        /**
+         * now is
+         * [{
+              "user": "jdoe@claimed-domain1.com",
+              "requestID": "action_1",
+              "do": [{
+                "remove": {
+                  "group": [ 
+                    "group_name1"
+                  ]
+                }
+              }]
+            }]
+         */
+        
+        ArrayNode arrayNodeToSend = GrouperUtil.jsonJacksonArrayNode();
+        
+        
+        int indexInBatch = 0;
+        
+        for (String email: emailsBatch) {
+          
+          ArrayNode groupsArray = GrouperUtil.jsonJacksonArrayNode();
+          groupsArray.add(groupName);
+          
+          ObjectNode removeNode = GrouperUtil.jsonJacksonNode();
+          removeNode.set("group", groupsArray);
+          
+          ObjectNode doActionItemNode = GrouperUtil.jsonJacksonNode();
+          doActionItemNode.set("remove", removeNode);
+          
+          ArrayNode doArray = GrouperUtil.jsonJacksonArrayNode();
+          doArray.add(doActionItemNode);
+          
+          ObjectNode outerObjectNode = GrouperUtil.jsonJacksonNode();
+          outerObjectNode.set("do", doArray);
+          outerObjectNode.put("user", email);
+          outerObjectNode.put("requestID", "action_" + indexInBatch);
+          
+          arrayNodeToSend.add(outerObjectNode);
+          
+          indexInBatch++;
+        }
+        
+        
+        String jsonStringToSend = GrouperUtil.jsonJacksonToString(arrayNodeToSend);
+  
+        JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/action/"+orgId,
+            GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend, null);
+        
+        // {"completed":1,"notCompleted":0,"completedInTestMode":0,"result":"error","errors":[{"index":0,"step":0,"message":"User is already a member of the specified group","errorCode":"error.usergroup.user.alreadyMember","user":"
+        int notCompleted = GrouperUtil.jsonJacksonGetInteger(jsonNode, "notCompleted");
+        // should not have any events not completed
+        if (notCompleted != 0) {
+          success = false;
+          exampleErrorMessage = GrouperUtil.jsonJacksonToString(jsonNode);
+        }
+        // {"code": 40004, "message": "Operation failed", "message_detail": "User is already a member of the specified group", "stat": "FAIL"}
+        
+      }
+
+      if (!success) {
+        throw new RuntimeException("Did not add all users to group, see a sample error message: " + exampleErrorMessage);
+      }
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));

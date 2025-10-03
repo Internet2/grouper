@@ -141,9 +141,10 @@ public class GrouperAdobeUser {
     grouperAdobeUser.country = GrouperUtil.jsonJacksonGetString(entityNode, "country");
   
     grouperAdobeUser.groups = GrouperUtil.jsonJacksonGetStringSet(entityNode, "groups");
+    grouperAdobeUser.userName = GrouperUtil.jsonJacksonGetString(entityNode, "username");
+
     if (includeLoadedFields) {
       
-      grouperAdobeUser.userName = GrouperUtil.jsonJacksonGetString(entityNode, "username");
       grouperAdobeUser.domain = GrouperUtil.jsonJacksonGetString(entityNode, "domain");
       grouperAdobeUser.status = GrouperUtil.jsonJacksonGetString(entityNode, "status");
       
