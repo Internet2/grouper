@@ -217,7 +217,7 @@ public class MembershipFinder {
   public static int retrieveDirectGroupPrivilegesCount(String groupId) {
     
     String sql = """
-        select count (distinct gm2.*) from grouper_memberships gm, grouper_fields gf, grouper_members gm2 
+        select count (distinct gm2.id) from grouper_memberships gm, grouper_fields gf, grouper_members gm2 
         where gf.id = gm.field_id 
         and gf.type = 'access' and 
         gm.member_id = gm2.id and 
