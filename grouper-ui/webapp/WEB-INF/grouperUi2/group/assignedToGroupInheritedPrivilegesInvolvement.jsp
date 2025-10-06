@@ -11,14 +11,8 @@ ${grouper:titleFromKeyAndText('groupPrivilegesAssignedToMembersOfThisGroupPageTi
 
             <div class="row-fluid">
               <div class="span12">
-                <ul class="nav nav-tabs">
-                  <li><a role="tab" href="?operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});">${textContainer.text['groupSummaryTab'] }</a></li>
-                  <li><a role="tab" href="?operation=UiV2Group.viewGroupMembers&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return guiV2link('operation=UiV2Group.viewGroupMembers&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
-                  <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
-                    <li><a role="tab" href="?operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
-                  </c:if>
-                  <%@ include file="groupMoreTab.jsp" %>
-                </ul>
+                <c:set var="grouperCurrentTab" value="none" />
+                <%@ include file="../group/groupTabs.jsp" %>
                 <p class="lead">${textContainer.text['assignedToGroupPrivilegesInheritedFromFoldersDecription'] }</p>
                 <c:choose>
                   <c:when test="${fn:length(grouperRequestContainer.rulesContainer.guiRuleDefinitions) == 0}">

@@ -12,6 +12,16 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 
 public class GroupSummaryContainer {
   
+  private boolean moreDetails = false;
+  
+  public boolean isMoreDetails() {
+    return moreDetails;
+  }
+  
+  public void setMoreDetails(boolean moreDetails) {
+    this.moreDetails = moreDetails;
+  }
+  
   private boolean canRead = false;
   
   

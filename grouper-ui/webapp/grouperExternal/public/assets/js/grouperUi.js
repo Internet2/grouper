@@ -71,7 +71,21 @@ $(document).ready(function(){
   
 });
 
-
+/**
+ * alternate background colors of visible rows of a table
+ */
+function guiStripeTable(jquerySelectorOfTable) {
+  
+  var rowIndex = 0;
+  $(jquerySelectorOfTable + " tr:visible").each(function() {
+    if (rowIndex % 2 == 1) {
+      $(this).removeClass('grouperTableRowOdd').addClass('grouperTableRowEven');
+    } else {
+      $(this).removeClass('grouperTableRowEven').addClass('grouperTableRowOdd');
+    }
+    rowIndex++;
+  });
+}
 /**
  * go to a url, e.g. operation=UiV2Group.viewGroup&groupId=abc123
  * @param url

@@ -89,7 +89,7 @@ table.attributeDefAssignToTable td {
   margin: auto;
   padding: 0;
   width: 95%;
-  // max-width: 1200px;
+  /* max-width: 1200px; */
 }
 
 .vis-fullscreen-close {
@@ -112,7 +112,12 @@ table.attributeDefAssignToTable td {
 div.visualization-text-node {
 	margin-bottom: 10px;
 }
-
+.grouperTableRowOdd {
+  background-color: #f5f5f5;
+}
+.grouperTableRowEven {
+  background-color: #ffffff;
+}
 /*
 .table-striped4 tbody > tr:nth-child(odd) > td,
 .table-striped4 tbody > tr:nth-child(odd) > th {

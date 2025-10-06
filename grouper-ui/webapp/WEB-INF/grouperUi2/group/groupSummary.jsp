@@ -5,14 +5,14 @@
 &nbsp;
 <span id="groupSummaryMoreId" style="font-size: 0.7em; font-weight: 400"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupDetails']}"
    onclick="$('#groupSummaryMoreId').hide('slow'); ajax('../app/UiV2Group.viewGroupSummaryMore?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-   >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></span>
+   >${textContainer.text['guiGroupSummaryMore']} <i class="fa fa-angle-down"></i></a></span>
 </p>
 
 <section class="grouper-summary">
 
   
   <div id="groupDetailsId">
-    <table class="table table-condensed table-striped">
+    <table class="table table-condensed" id="groupDetailsTableId">
       <tbody>
         <c:if test="${not empty grouperRequestContainer.objectTypeContainer.guiConfiguredGrouperObjectTypesAttributeValues}">
           <!-- Types -->
@@ -21,8 +21,10 @@
                               >${textContainer.text['objectTypeMoreActionsMenuLabel'] }</a></strong></td>
             <td style="padding-left: 0px;">
               <c:forEach var="guiConfiguredGrouperObjectTypesAttributeValue" varStatus="status" items="${grouperRequestContainer.objectTypeContainer.guiConfiguredGrouperObjectTypesAttributeValues}">
+                <c:if test="${fn:length(grouperRequestContainer.objectTypeContainer.guiConfiguredGrouperObjectTypesAttributeValues) > 1}"><li style="margin-left: 12px;"></c:if>
                 <c:set var="objectType" value="${guiConfiguredGrouperObjectTypesAttributeValue.grouperObjectTypesAttributeValue.objectTypeName}" />
                 ${textContainer.text[grouper:concat2('objectTypeOptionBold_',objectType)] }
+                <c:if test="${fn:length(grouperRequestContainer.objectTypeContainer.guiConfiguredGrouperObjectTypesAttributeValues) > 1}"></li></c:if>
               </c:forEach>
             </td>
           </tr>
@@ -38,48 +40,11 @@
             </td>
           </tr>
         </c:if>
-        <tr>
+        <tr style="display: none" id="groupPrivilegeSummaryRowId">
           <!-- PRIVILEGES -->
           <td style="vertical-align: top;"><strong><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['groupPrivilegesTab'] }</a></strong></td>
-          <td style="padding-left: 0px;">
-            <c:choose>
-              <c:when test="${grouperRequestContainer.groupSummaryContainer.nonGroupTotalPrivilegesCount > 0 or 
-                grouperRequestContainer.groupSummaryContainer.totalPrivilegesCount > 0 or
-                grouperRequestContainer.groupSummaryContainer.directPrivilegesCount > 0
-               }">
-                 <li style="margin-left: 12px;">${textContainer.text['groupSummaryPagePrivilegesNotGroupPrivilegesUsedCountMessage']}</li>
-                 <li style="margin-left: 12px;">${textContainer.text['groupSummaryPagePrivilegesTotalGroupPrivilegesUsedCountMessage']}</li>
-                 <li style="margin-left: 12px;">${textContainer.text['groupSummaryPagePrivilegesDirectGroupPrivilegesUsedCountMessage']}</li>
-                 <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.directGroupPrivilegesGroups}">
-                    <li style="margin-left: 12px;">${textContainer.text['groupSummaryPagePrivilegesDirectGroupPrivileges']} 
-                      <c:forEach var="directGroupPrivilegesGroup" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.directGroupPrivilegesGroups}">
-                        ${directGroupPrivilegesGroup.shortLinkWithIcon}
-                        <c:if test="${!status.last}">,</c:if>
-                      </c:forEach>
-                    </li>
-                 </c:if>
-              </c:when>
-              <c:otherwise>
-                <li style="margin-left: 12px;">${textContainer.text['groupSummaryPageMembershipsGroupNotUsedMessage'] }</li>
-              </c:otherwise>
-            </c:choose>
-            
-            <c:choose>
-              <c:when test="${grouperRequestContainer.groupSummaryContainer.countOfWhereGroupIsBeingUsedInPrivileges > 0}">
-                 <li style="margin-left: 12px;">${textContainer.text['groupSummaryPagePrivilegesGroupUsedInOtherGroupsPrivileges']}
-                 <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.groupsWhereGroupIsBeingUsedInPrivileges}"> 
-                      <c:forEach var="groupWhereGroupIsBeingUsedInPrivileges" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.groupsWhereGroupIsBeingUsedInPrivileges}">
-                        ${groupWhereGroupIsBeingUsedInPrivileges.shortLinkWithIcon}
-                        <c:if test="${!status.last}">,</c:if>
-                      </c:forEach>
-                 </c:if>
-                 </li>
-              </c:when>
-              <c:otherwise>
-                <li style="margin-left: 12px;">${textContainer.text['groupSummaryPagePrivilegesGroupNotUsedMessage']}</li>
-              </c:otherwise>
-            </c:choose>
+          <td style="padding-left: 0px;" id="groupPrivilegeSummaryCellId">
           </td>
         </tr>
         <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}">
