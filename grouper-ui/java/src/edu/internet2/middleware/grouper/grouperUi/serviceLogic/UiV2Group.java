@@ -141,6 +141,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleConfig;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
@@ -582,7 +583,7 @@ public class UiV2Group {
       
       //configuration section
       {
-        if (isAdmin) {          
+        if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {          
           Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findByValue(group.getUuid());
           grouperConfigHibernates.addAll(GrouperDAOFactory.getFactory().getConfig().findByValue(group.getName()));
           if (grouperConfigHibernates.size() > 0) {
@@ -596,9 +597,6 @@ public class UiV2Group {
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiStripeTable('#groupDetailsTableId');"));
 
-//      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanRead()) {
-//        filterHelper(request, response, group);
-//      }
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

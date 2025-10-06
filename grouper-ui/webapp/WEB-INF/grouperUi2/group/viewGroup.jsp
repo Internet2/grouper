@@ -70,13 +70,13 @@ ${grouper:titleFromKeyAndText('groupPageTitle', grouperRequestContainer.groupCon
         				</div>
                 
 
+                <c:if test="${!grouperRequestContainer.groupContainer.guiGroup.group.isEnabled()}">
+                  <p class="lead" style="color: red">${textContainer.text['groupViewGroupDisabled'] }
+                </c:if>
+                
                 <c:choose>
                   <c:when test="${grouperRequestContainer.groupContainer.canRead}">
 
-                    <c:if test="${!grouperRequestContainer.groupContainer.guiGroup.group.isEnabled()}">
-                      <p class="lead" style="color: red">${textContainer.text['groupViewGroupDisabled'] }
-                    </c:if>
-                    
                     <c:if test="${grouperRequestContainer.attestationContainer.hasAttestationConfigured && grouperRequestContainer.attestationContainer.canWriteAttestation}" >
                       <c:choose>
                         <c:when test="${grouperRequestContainer.attestationContainer.guiAttestation.needsRecertify}">
@@ -106,22 +106,17 @@ ${grouper:titleFromKeyAndText('groupPageTitle', grouperRequestContainer.groupCon
                       
                     </c:if>
                     
-                    <script>
-                      //set this flag so we get one confirm message on this screen
-                      confirmedChanges = false;
-                    </script>
-                    <div id="groupFilterResultsId" role="region" aria-live="polite">
-                    </div>                
                   
                   </c:when>
                 
-                  <c:otherwise>
-
-                    <p class="lead">${textContainer.text['groupViewMembersCantReadDescription']}</p>
-                  
-                  </c:otherwise>
                 </c:choose>
                 
+                <script>
+                  //set this flag so we get one confirm message on this screen
+                  confirmedChanges = false;
+                </script>
+                <div id="groupFilterResultsId" role="region" aria-live="polite">
+                </div>                
 
               </div>
             </div>

@@ -609,6 +609,18 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   }
   
   /**
+   * if the logged in user can admin (or inherit), dont check security
+   * @return true
+   */
+  public boolean isCanAdmin() {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    return this.group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false);
+
+  }
+  
+  /**
    * if the logged in user can read (or inherit), dont check security
    * @return true
    */

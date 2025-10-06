@@ -77,7 +77,7 @@ $(document).ready(function(){
 function guiStripeTable(jquerySelectorOfTable) {
   
   var rowIndex = 0;
-  $(jquerySelectorOfTable + " tr:visible").each(function() {
+  $(jquerySelectorOfTable + " tr:visible").not(".grouperIgnoreStripe").each(function() {
     if (rowIndex % 2 == 1) {
       $(this).removeClass('grouperTableRowOdd').addClass('grouperTableRowEven');
     } else {
