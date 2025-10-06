@@ -3,7 +3,7 @@
 
 <p class="lead">${textContainer.text['groupSummaryDecription'] }
 &nbsp;
-<span id="groupSummaryMoreId" style="font-size: 0.7em; font-weight: 400"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupDetails']}"
+<span id="groupSummaryMoreId" style="font-size: 0.65em; font-weight: 400"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupDetails']}"
    onclick="$('#groupSummaryMoreId').hide('slow'); ajax('../app/UiV2Group.viewGroupSummaryMore?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
    >${textContainer.text['guiGroupSummaryMore']} <i class="fa fa-angle-down"></i></a></span>
 </p>
