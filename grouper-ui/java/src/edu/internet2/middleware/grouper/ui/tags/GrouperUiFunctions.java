@@ -430,6 +430,35 @@ public class GrouperUiFunctions {
   }
 
   /**
+   * get a subject string label short with icon from member id
+   * @param memberId
+   * @return the subject string label
+   */
+  public static String subjectStringLabelShortWithIconFromMemberId(String memberId) {
+    
+    if (StringUtils.isBlank(memberId)) {
+      return "";
+    }
+    String subjectId = null;
+    try {
+      Member member = MemberFinder.findByUuid( GrouperSession.staticGrouperSession(), 
+          memberId, true );
+      subjectId = member.getSubjectId();
+      Subject subject = member.getSubject();
+
+      return new GuiSubject(subject).getShortLinkWithIcon();
+    } catch (SubjectNotFoundException snfe) {
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setSubjectId(subjectId);
+      try {
+        return TextContainer.retrieveFromRequest().getText().get("guiSubjectNotFound");
+      } finally {
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setSubjectId(null);
+      }
+    }
+
+  }
+
+  /**
    * convert a date long to a string based on the user's locale
    * @param dateLong
    * @return the date string for the user's locale

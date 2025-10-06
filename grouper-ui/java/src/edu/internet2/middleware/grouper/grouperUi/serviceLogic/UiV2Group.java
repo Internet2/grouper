@@ -148,6 +148,8 @@ import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.rules.RulePattern;
 import edu.internet2.middleware.grouper.rules.RuleService;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyDao;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -359,148 +361,15 @@ public class UiV2Group {
       //memberships section
       {
         if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
-          Collection<Source> sources = SourceManager.getInstance().getSources();
-          Iterator<Source> iterator = sources.iterator();
-          while (iterator.hasNext()) {
-            Source source = iterator.next();
-            if (source.getId().equals("g:gsa")) {
-              //This is to filter group type members
-              iterator.remove();
-            }
-          }
           
-          // get not-group members count
-          QueryOptions queryOptions = new QueryOptions();
-          queryOptions.retrieveCount(true);
-          queryOptions.retrieveResults(false);
-          new MembershipFinder().addField(Group.getDefaultList())
-          .addGroup(group).assignQueryOptionsForMember(queryOptions)
-          .assignSources(new HashSet<Source>(sources))
-          .findMembershipResult();
-            
-           int directNotGroupMembersCount = queryOptions.getCount().intValue();
-           groupSummaryContainer.setNotGroupMembersCount(directNotGroupMembersCount); // members that are non-groups
-           
-           //get total members count (direct + indirect and subjects + groups)
-           queryOptions = new QueryOptions();
-           queryOptions.retrieveCount(true);
-           queryOptions.retrieveResults(false);
-           new MembershipFinder().addField(Group.getDefaultList())
-              .addGroup(group).assignQueryOptionsForMember(queryOptions)
-              .findMembershipResult();
-           
-           int totalMembersCount = queryOptions.getCount().intValue();
-           groupSummaryContainer.setTotalMembersCount(totalMembersCount);
-           
-           
-           //get total direct members count 
-           queryOptions = new QueryOptions();
-           queryOptions.retrieveCount(true);
-           queryOptions.retrieveResults(false);
-           new MembershipFinder().addField(Group.getDefaultList())
-              .addGroup(group).assignQueryOptionsForMember(queryOptions)
-              .assignMembershipType(MembershipType.IMMEDIATE)
-              .findMembershipResult();
+          // set can read
+          groupSummaryContainer.setCanRead(true);
           
-          int directMembersCount = queryOptions.getCount().intValue();
-          groupSummaryContainer.setDirectMembersCount(directMembersCount); // members that are direct and subjects + groups
-          
-          // get direct group members count
-          queryOptions = new QueryOptions();
-          queryOptions.retrieveCount(true);
-          queryOptions.retrieveResults(false);
-          
-          new MembershipFinder().addField(Group.getDefaultList())
-          .addGroup(group).assignQueryOptionsForMember(queryOptions)
-          .addSourceId("g:gsa")
-          .assignMembershipType(MembershipType.IMMEDIATE)
-          .findMembershipResult();
-          
-          int directGroupMembersCount = queryOptions.getCount().intValue();
-          groupSummaryContainer.setDirectGroupMembersCount(directGroupMembersCount);
-          
-          if (directGroupMembersCount < 5) {
-            
-            MembershipResult membershipResult = new MembershipFinder()
-            .addField(Group.getDefaultList())
-            .addGroup(group)
-            .addSourceId("g:gsa")
-            .assignMembershipType(MembershipType.IMMEDIATE)
-            .findMembershipResult();
-            
-            Set<Member> directGroupMembers = membershipResult.members();
-            Set<String> groupIds = new HashSet<String>();
-            for (Member member: directGroupMembers) {
-              groupIds.add(member.getSubjectId());
-            }
-            Set<Group> directGroups = new GroupFinder().assignGroupIds(groupIds).findGroups();
-            Set<GuiGroup> directGuiGroups = GuiGroup.convertFromGroups(directGroups);
-            groupSummaryContainer.setDirectGroupMembers(directGuiGroups);
-          }
-          
-          // find the number of groups where this group is being used as a member
-          Member member = MemberFinder.findBySubject(grouperSession, group.toSubject(), false);
-          if (member != null) {
-            queryOptions = new QueryOptions();
-            queryOptions.retrieveCount(true);
-            queryOptions.retrieveResults(false);
-            new MembershipFinder()
-            .addField(Group.getDefaultList())
-            .addMemberId(member.getId())
-            .assignQueryOptionsForMember(queryOptions)
-            .findMembershipResult();
-            
-            int countWhereTheGroupIsMember = queryOptions.getCount().intValue();
-            groupSummaryContainer.setGroupAsMemberCount(countWhereTheGroupIsMember);
-            
-            
-            if (countWhereTheGroupIsMember < 5) {
-              //show the actual groups now
-              MembershipResult membershipResult = new MembershipFinder()
-              .addField(Group.getDefaultList())
-              .addMemberId(member.getId())
-              .findMembershipResult();
-              
-              Set<Group> groupsWhereTheCurrentGroupIsMemberOf = membershipResult.groups();
-              Set<GuiGroup> guiGroupsWhereTheCurrentGroupIsMemberOf = GuiGroup.convertFromGroups(groupsWhereTheCurrentGroupIsMemberOf);
-              groupSummaryContainer.setGroupsWhereTheCurrentGroupIsMemberOf(guiGroupsWhereTheCurrentGroupIsMemberOf);
-            }
-            
-          }
+          SqlCacheGroup sqlCacheGroup = SqlCacheGroupDao.retrieveByGroupInternalIdFieldInternalId(group.getInternalId(), Group.getDefaultList().getInternalId(), null);
+          groupSummaryContainer.setTotalMembersCount((int)(sqlCacheGroup == null ? 0 : sqlCacheGroup.getMembershipSize()));
         }
       }
       
-      //privileges section
-      {
-        if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
-          
-          int nonGroupTotalPrivilegesCount = MembershipFinder.retrieveNonGroupTotalPrivilegesCount(group.getId());
-          groupSummaryContainer.setNonGroupTotalPrivilegesCount(nonGroupTotalPrivilegesCount);
-          int totalPrivilegesCount = MembershipFinder.retrieveTotalPrivilegesCount(group.getId());
-          groupSummaryContainer.setTotalPrivilegesCount(totalPrivilegesCount);
-          int directPrivilegesCount = MembershipFinder.retrieveDirectPrivilegesCount(group.getId());
-          groupSummaryContainer.setDirectPrivilegesCount(directPrivilegesCount);
-          int directGroupPrivilegesCount = MembershipFinder.retrieveDirectGroupPrivilegesCount(group.getId());
-          groupSummaryContainer.setDirectGroupPrivilegesCount(directGroupPrivilegesCount);
-          if (directGroupPrivilegesCount > 0 && directGroupPrivilegesCount < 5) {
-            Set<String> directGroupPrivileges = MembershipFinder.retrieveDirectGroupPrivileges(group.getId());
-            Set<Group> directGroupPrivilgesGroups = new GroupFinder().assignGroupIds(directGroupPrivileges).findGroups();
-            
-            Set<GuiGroup> directGuiGroupPrivilgesGroups = GuiGroup.convertFromGroups(directGroupPrivilgesGroups);
-            
-            groupSummaryContainer.setDirectGroupPrivilegesGroups(directGuiGroupPrivilgesGroups);
-          }
-          int countOfWhereGroupIsBeingUsedInPrivileges = MembershipFinder.retrieveCountOfWhereGroupIsBeingUsedInPrivileges(group.getId());
-          groupSummaryContainer.setCountOfWhereGroupIsBeingUsedInPrivileges(countOfWhereGroupIsBeingUsedInPrivileges);
-          if (countOfWhereGroupIsBeingUsedInPrivileges > 0 && countOfWhereGroupIsBeingUsedInPrivileges < 5) {
-            Set<String> groupIdsWhereGroupIsBeingUsedInPrivileges = MembershipFinder.retrieveGroupIdsWhereGroupIsBeingUsedInPrivileges(group.getId());
-            Set<Group> groupsWhereGroupIsBeingUsedInPrivileges = new GroupFinder().assignGroupIds(groupIdsWhereGroupIsBeingUsedInPrivileges).findGroups();
-            Set<GuiGroup> guiGroupsWhereGroupIsBeingUsedInPrivileges = GuiGroup.convertFromGroups(groupsWhereGroupIsBeingUsedInPrivileges);
-            groupSummaryContainer.setGroupsWhereGroupIsBeingUsedInPrivileges(guiGroupsWhereGroupIsBeingUsedInPrivileges);
-          }
-          
-        }
-      }
       
       //Loader section
       {
@@ -6659,6 +6528,385 @@ public class UiV2Group {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+
+  /**
+     * view group
+     * @param request
+     * @param response
+     */
+    public void viewGroupSummaryMore(HttpServletRequest request, HttpServletResponse response) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      GrouperSession grouperSession = null;
+    
+      Group group = null;
+    
+      try {
+    
+        grouperSession = GrouperSession.start(loggedInSubject);
+    
+        group = retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+        
+        if (group == null) {
+          return;
+        }
+  
+        GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+        
+        GroupSummaryContainer groupSummaryContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupSummaryContainer();
+        
+        //memberships section
+        {
+          if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+            Collection<Source> sources = SourceManager.getInstance().getSources();
+            Iterator<Source> iterator = sources.iterator();
+            while (iterator.hasNext()) {
+              Source source = iterator.next();
+              if (source.getId().equals("g:gsa")) {
+                //This is to filter group type members
+                iterator.remove();
+              }
+            }
+            
+            // get not-group members count
+            QueryOptions queryOptions = new QueryOptions();
+            queryOptions.retrieveCount(true);
+            queryOptions.retrieveResults(false);
+            new MembershipFinder().addField(Group.getDefaultList())
+            .addGroup(group).assignQueryOptionsForMember(queryOptions)
+            .assignSources(new HashSet<Source>(sources))
+            .findMembershipResult();
+              
+             int directNotGroupMembersCount = queryOptions.getCount().intValue();
+             groupSummaryContainer.setNotGroupMembersCount(directNotGroupMembersCount); // members that are non-groups
+             
+             //get total members count (direct + indirect and subjects + groups)
+             queryOptions = new QueryOptions();
+             queryOptions.retrieveCount(true);
+             queryOptions.retrieveResults(false);
+             new MembershipFinder().addField(Group.getDefaultList())
+                .addGroup(group).assignQueryOptionsForMember(queryOptions)
+                .findMembershipResult();
+             
+             int totalMembersCount = queryOptions.getCount().intValue();
+             groupSummaryContainer.setTotalMembersCount(totalMembersCount);
+             
+             
+             //get total direct members count 
+             queryOptions = new QueryOptions();
+             queryOptions.retrieveCount(true);
+             queryOptions.retrieveResults(false);
+             new MembershipFinder().addField(Group.getDefaultList())
+                .addGroup(group).assignQueryOptionsForMember(queryOptions)
+                .assignMembershipType(MembershipType.IMMEDIATE)
+                .findMembershipResult();
+            
+            int directMembersCount = queryOptions.getCount().intValue();
+            groupSummaryContainer.setDirectMembersCount(directMembersCount); // members that are direct and subjects + groups
+            
+            // get direct group members count
+            queryOptions = new QueryOptions();
+            queryOptions.retrieveCount(true);
+            queryOptions.retrieveResults(false);
+            
+            new MembershipFinder().addField(Group.getDefaultList())
+            .addGroup(group).assignQueryOptionsForMember(queryOptions)
+            .addSourceId("g:gsa")
+            .assignMembershipType(MembershipType.IMMEDIATE)
+            .findMembershipResult();
+            
+            int directGroupMembersCount = queryOptions.getCount().intValue();
+            groupSummaryContainer.setDirectGroupMembersCount(directGroupMembersCount);
+            
+            if (directGroupMembersCount < 5) {
+              
+              MembershipResult membershipResult = new MembershipFinder()
+              .addField(Group.getDefaultList())
+              .addGroup(group)
+              .addSourceId("g:gsa")
+              .assignMembershipType(MembershipType.IMMEDIATE)
+              .findMembershipResult();
+              
+              Set<Member> directGroupMembers = membershipResult.members();
+              Set<String> groupIds = new HashSet<String>();
+              for (Member member: directGroupMembers) {
+                groupIds.add(member.getSubjectId());
+              }
+              Set<Group> directGroups = new GroupFinder().assignGroupIds(groupIds).findGroups();
+              Set<GuiGroup> directGuiGroups = GuiGroup.convertFromGroups(directGroups);
+              groupSummaryContainer.setDirectGroupMembers(directGuiGroups);
+            }
+            
+            // find the number of groups where this group is being used as a member
+            Member member = MemberFinder.findBySubject(grouperSession, group.toSubject(), false);
+            if (member != null) {
+              queryOptions = new QueryOptions();
+              queryOptions.retrieveCount(true);
+              queryOptions.retrieveResults(false);
+              new MembershipFinder()
+              .addField(Group.getDefaultList())
+              .addMemberId(member.getId())
+              .assignQueryOptionsForMember(queryOptions)
+              .findMembershipResult();
+              
+              int countWhereTheGroupIsMember = queryOptions.getCount().intValue();
+              groupSummaryContainer.setGroupAsMemberCount(countWhereTheGroupIsMember);
+              
+              
+              if (countWhereTheGroupIsMember < 5) {
+                //show the actual groups now
+                MembershipResult membershipResult = new MembershipFinder()
+                .addField(Group.getDefaultList())
+                .addMemberId(member.getId())
+                .findMembershipResult();
+                
+                Set<Group> groupsWhereTheCurrentGroupIsMemberOf = membershipResult.groups();
+                Set<GuiGroup> guiGroupsWhereTheCurrentGroupIsMemberOf = GuiGroup.convertFromGroups(groupsWhereTheCurrentGroupIsMemberOf);
+                groupSummaryContainer.setGroupsWhereTheCurrentGroupIsMemberOf(guiGroupsWhereTheCurrentGroupIsMemberOf);
+              }
+              
+            }
+          }
+        }
+        
+        //privileges section
+        {
+          if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false)) {
+            
+            int nonGroupTotalPrivilegesCount = MembershipFinder.retrieveNonGroupTotalPrivilegesCount(group.getId());
+            groupSummaryContainer.setNonGroupTotalPrivilegesCount(nonGroupTotalPrivilegesCount);
+            int totalPrivilegesCount = MembershipFinder.retrieveTotalPrivilegesCount(group.getId());
+            groupSummaryContainer.setTotalPrivilegesCount(totalPrivilegesCount);
+            int directPrivilegesCount = MembershipFinder.retrieveDirectPrivilegesCount(group.getId());
+            groupSummaryContainer.setDirectPrivilegesCount(directPrivilegesCount);
+            int directGroupPrivilegesCount = MembershipFinder.retrieveDirectGroupPrivilegesCount(group.getId());
+            groupSummaryContainer.setDirectGroupPrivilegesCount(directGroupPrivilegesCount);
+            if (directGroupPrivilegesCount > 0 && directGroupPrivilegesCount < 5) {
+              Set<String> directGroupPrivileges = MembershipFinder.retrieveDirectGroupPrivileges(group.getId());
+              Set<Group> directGroupPrivilgesGroups = new GroupFinder().assignGroupIds(directGroupPrivileges).findGroups();
+              
+              Set<GuiGroup> directGuiGroupPrivilgesGroups = GuiGroup.convertFromGroups(directGroupPrivilgesGroups);
+              
+              groupSummaryContainer.setDirectGroupPrivilegesGroups(directGuiGroupPrivilgesGroups);
+            }
+            int countOfWhereGroupIsBeingUsedInPrivileges = MembershipFinder.retrieveCountOfWhereGroupIsBeingUsedInPrivileges(group.getId());
+            groupSummaryContainer.setCountOfWhereGroupIsBeingUsedInPrivileges(countOfWhereGroupIsBeingUsedInPrivileges);
+            if (countOfWhereGroupIsBeingUsedInPrivileges > 0 && countOfWhereGroupIsBeingUsedInPrivileges < 5) {
+              Set<String> groupIdsWhereGroupIsBeingUsedInPrivileges = MembershipFinder.retrieveGroupIdsWhereGroupIsBeingUsedInPrivileges(group.getId());
+              Set<Group> groupsWhereGroupIsBeingUsedInPrivileges = new GroupFinder().assignGroupIds(groupIdsWhereGroupIsBeingUsedInPrivileges).findGroups();
+              Set<GuiGroup> guiGroupsWhereGroupIsBeingUsedInPrivileges = GuiGroup.convertFromGroups(groupsWhereGroupIsBeingUsedInPrivileges);
+              groupSummaryContainer.setGroupsWhereGroupIsBeingUsedInPrivileges(guiGroupsWhereGroupIsBeingUsedInPrivileges);
+            }
+            
+          }
+        }
+        
+        //composite section
+        {
+          if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+            Composite composite = group.getComposite(false);
+            if (composite != null) {
+              groupSummaryContainer.setComposite(true);
+              Group leftGroup = composite.getLeftGroup();
+              GuiGroup guiLeftGroup = new GuiGroup(leftGroup);
+              groupSummaryContainer.setCompositeLeftGroup(guiLeftGroup);
+              Group rightGroup = composite.getRightGroup();
+              GuiGroup guiRightGroup = new GuiGroup(rightGroup);
+              groupSummaryContainer.setCompositeRightGroup(guiRightGroup);
+              CompositeType compositeType = composite.getType();
+              groupSummaryContainer.setCompositeType(compositeType);
+            }
+            
+            //get the composites
+            Set<Composite> composites = CompositeFinder.findAsFactor(group);
+            groupSummaryContainer.setCompositeSize(composites.size());
+            //if composites size is less than 5, then show the factors otherwise just show the count
+            if (composites.size() < 5) {
+              Set<GuiGroup> compositeOwners = new HashSet<GuiGroup>();
+              for (Composite composie: composites) {
+                compositeOwners.add(new GuiGroup(composie.getOwnerGroup()));
+              }
+              groupSummaryContainer.setComposites(compositeOwners);
+            }
+          }
+        }
+        
+        //provisioning section
+        {
+          
+          if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false)) {
+            List<GrouperProvisioningAttributeValue> provisioningAttributeValues = GrouperProvisioningService.getProvisioningAttributeValues(group);
+            
+            groupSummaryContainer.setProvisioningAssignmentCount(provisioningAttributeValues.size());
+            
+            if (provisioningAttributeValues.size() < 10) {
+              Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+              List<GrouperProvisioningAttributeValue> provisioningAttributeValuesViewable = new ArrayList<GrouperProvisioningAttributeValue>();
+              Set<String> targetNamesAlreadyAdded = new HashSet<>();
+              for (GrouperProvisioningAttributeValue grouperProvisioningAttributeValue: provisioningAttributeValues) {
+                
+                String localTargetName = grouperProvisioningAttributeValue.getTargetName();
+                GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(localTargetName);
+                if (grouperProvisioningTarget != null && GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, group)) {
+                  provisioningAttributeValuesViewable.add(grouperProvisioningAttributeValue);
+                  targetNamesAlreadyAdded.add(grouperProvisioningAttributeValue.getTargetName());
+                }
+              }
+              
+              // convert from raw to gui
+              List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(provisioningAttributeValuesViewable, group);
+              
+              Collections.sort(guiGrouperProvisioningAttributeValues, new Comparator<GuiGrouperProvisioningAttributeValue>() {
+  
+                @Override
+                public int compare(GuiGrouperProvisioningAttributeValue o1,
+                    GuiGrouperProvisioningAttributeValue o2) {
+                  return o1.getExternalizedName().compareTo(o2.getExternalizedName());
+                }
+              });
+              
+              groupSummaryContainer.setGuiGrouperProvisioningAttributeValues(guiGrouperProvisioningAttributeValues);
+              
+            }
+          }
+        }
+        
+        //attestation section
+        {
+          if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false)) {
+            
+            try {            
+              group.getAttributeDelegate().assertCanReadAttributeDefName(GrouperAttestationJob.retrieveAttributeDefNameValueDef());
+              AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, 
+                  GrouperAttestationJob.retrieveAttributeDefNameValueDef(), true, false);
+              
+              if (attributeAssign != null) {
+                //attestation configured
+                groupSummaryContainer.setAttestation(true);
+                
+                AttributeDefName attributeDefNameDateCertified = GrouperAttestationJob.retrieveAttributeDefNameDateCertified();
+                String attestationDateCertified = attributeAssign.getAttributeValueDelegate().retrieveValueString(attributeDefNameDateCertified.getName());
+                groupSummaryContainer.setAttestationDateCertified(attestationDateCertified);
+              } 
+            } catch (Exception e) {
+              //keep going
+            }
+            
+          }
+          
+        }
+        
+        //attributes section
+        {
+          
+          if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.GROUP_ATTR_READ.getName(), false)) {
+            int countOfNonBuiltInAttributes = Hib3AttributeAssignDAO.countOfNonBuiltInAttributes(group.getId());
+            groupSummaryContainer.setAttributeAssignmentsCount(countOfNonBuiltInAttributes);
+          }
+        }
+        
+        //rules section
+        {
+          if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+            AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:rules:rule", false);
+            if (attributeDefName != null) {
+              Set<AttributeAssign> ruleAssignments = group.getAttributeDelegate().retrieveAssignments(attributeDefName);
+              if (GrouperUtil.length(ruleAssignments) > 0 ) {
+                groupSummaryContainer.setRulesCount(ruleAssignments.size());
+              }
+            }
+            
+            //now show how many other groups/folders reference this group in a rule
+            Set<RuleDefinition> ruleDefinitions = RuleFinder.retrieveRuleDefinitionsForGrouperObject(group);
+            if (GrouperUtil.length(ruleDefinitions) > 0) {          
+              groupSummaryContainer.setRulesCountWhereGroupIsUsed(ruleDefinitions.size());
+            }
+          }
+        }
+        
+        //recent memberships changes section
+        {
+          if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+            
+            String sql = """
+               select count(*) as added_membership_count
+               from grouper_pit_memberships pitm
+               join grouper_pit_groups pitg 
+                 on pitm.owner_group_id = pitg.id
+               where pitg.source_id = ?
+                 and to_timestamp(pitm.start_time / 1000000) >= (now() - interval '1 month')
+                 and to_timestamp(pitm.start_time / 1000000) < now()
+                      """;
+            
+           int newMembershipsInTheLastMonth = new GcDbAccess().sql(sql)
+             .addBindVar("ec10ae414eca458f92b4946fb131b8d6")
+             .select(int.class);
+           groupSummaryContainer.setNewMembershipsInTheLastMonth(newMembershipsInTheLastMonth);
+           
+           sql = """
+                select count(*) as removed_membership_count
+                from grouper_pit_memberships pitm
+                join grouper_pit_groups pitg 
+                  on pitm.owner_group_id = pitg.id
+                where pitg.source_id = ?
+                  and pitm.end_time is not null
+                  and to_timestamp(pitm.end_time / 1000000) >= (now() - interval '1 month')
+                  and to_timestamp(pitm.end_time / 1000000) < now()
+                     """;
+           
+           int membershipsRemovedInTheLastMonth = new GcDbAccess().sql(sql)
+               .addBindVar("ec10ae414eca458f92b4946fb131b8d6")
+               .select(int.class);
+           groupSummaryContainer.setMembershipsRemovedInTheLastMonth(membershipsRemovedInTheLastMonth);
+          }
+        }
+        
+        //recent audits section
+        {
+          if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+            Timestamp fromDate = new Timestamp(System.currentTimeMillis() - 30 * 24 * 60 * 60 * 1000L); //30 days ago
+            Timestamp toDate = new Timestamp(System.currentTimeMillis());
+            
+            QueryOptions queryOptions = new QueryOptions();
+            queryOptions.retrieveCount(true);
+            queryOptions.retrieveResults(false);
+            
+            UserAuditQuery query = new UserAuditQuery();
+            query.setFromDate(fromDate);
+            query.setToDate(toDate);
+            query.setQueryOptions(queryOptions);
+            query.addAuditTypeFieldValue("groupId", group.getId());
+            
+            query.execute();
+            
+            int auditsInTheLastMonth = queryOptions.getCount().intValue();
+            groupSummaryContainer.setAuditsInTheLastMonth(auditsInTheLastMonth);
+          }
+        }
+        
+        //configuration section
+        {
+          if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false)) {          
+            Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findByValue(group.getUuid());
+            grouperConfigHibernates.addAll(GrouperDAOFactory.getFactory().getConfig().findByValue(group.getName()));
+            if (grouperConfigHibernates.size() > 0) {
+              groupSummaryContainer.setConfigurationUsedCount(grouperConfigHibernates.size());
+            }
+          }
+        }
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMembershipSummaryCellId", 
+            "/WEB-INF/grouperUi2/group/groupSummaryMoreMemberships.jsp"));
+        
+  //      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanRead()) {
+  //        filterHelper(request, response, group);
+  //      }
+      } finally {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+      
+    }
 
   /**
    *

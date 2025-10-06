@@ -1101,6 +1101,19 @@
   </function>
   <function>
     <description>
+      Take in a member id, and return the gui subject short link with icon format for the subject
+    </description>
+    <name>subjectStringLabelShortWithIconFromMemberId</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String subjectStringLabelShortWithIconFromMemberId(java.lang.String)
+    </function-signature>
+    <example>
+      ${grouper:subjectStringLabelShortWithIconFromMemberId(group.creatorUuid)}
+    </example>
+  </function>
+  <function>
+    <description>
       Take a string that has parts that we zipped and base64, and unbase 64 and un-gzip
     </description>
     <name>zipUnBase64UnGzip</name>

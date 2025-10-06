@@ -12,6 +12,16 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 
 public class GroupSummaryContainer {
   
+  private boolean canRead = false;
+  
+  
+  public boolean isCanRead() {
+    return canRead;
+  }
+  
+  public void setCanRead(boolean canRead) {
+    this.canRead = canRead;
+  }
   private int directMembersCount;
   
   private int totalMembersCount;
