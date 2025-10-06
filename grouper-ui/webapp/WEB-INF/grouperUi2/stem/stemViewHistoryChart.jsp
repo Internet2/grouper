@@ -13,12 +13,9 @@ ${grouper:titleFromKeyAndText('groupHistoryChartPageTitle', grouperRequestContai
 
             <div class="row-fluid">
               <div class="span12 tab-interface">
-                <ul class="nav nav-tabs">
-                  <li><a role="tab" href="?operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
-                  <li class="active"><a role="tab"  aria-selected="true" href="#" onclick="return false;" >${textContainer.text['stemPrivileges'] }</a></li>
-                  <%@ include file="stemMoreTab.jsp" %>
-                </ul>
-				</div>
+                <c:set var="grouperCurrentTab" value="none" />
+                <%@ include file="../stem/stemTabs.jsp" %>
+      				</div>
 
                 <p class="lead">${textContainer.text['groupHistoryChartFolderDescription'] }</p>
 

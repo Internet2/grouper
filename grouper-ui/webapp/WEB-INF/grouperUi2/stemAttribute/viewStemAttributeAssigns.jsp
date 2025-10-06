@@ -10,12 +10,8 @@ ${grouper:titleFromKeyAndText('stemAttributeAssignmentsPageTitle', grouperReques
               <div class="span12">
                 <div id="messages"></div>
 
-                <ul class="nav nav-tabs">
-                  <li><a role="tab" href="?operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
-                  <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}">
-                    <li><a role="tab" href="?operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
-                  </c:if>
-                </ul>
+                <c:set var="grouperCurrentTab" value="none" />
+                <%@ include file="../stem/stemTabs.jsp" %>
                 
                 <div id="stemAttributeAssignments">
                   <%@ include file="stemAttributeAssignmentSection.jsp"%>

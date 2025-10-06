@@ -7,15 +7,8 @@
 
             <div class="row-fluid">
               <div class="span12 tab-interface">
-                <ul class="nav nav-tabs">
-                  <li><a role="tab" href="?operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
-                  <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}">
-                    <li><a role="tab" href="?operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
-                  </c:if>
-                  <c:if test="${grouperRequestContainer.stemContainer.canReadPrivilegeInheritance}">
-                    <%@ include file="../stem/stemMoreTab.jsp" %>
-                  </c:if>
-                </ul>
+                <c:set var="grouperCurrentTab" value="none" />
+                <%@ include file="../stem/stemTabs.jsp" %>
                 
                 <div class="row-fluid">
                     <div class="lead span9">${textContainer.text['provisioningFolderSettingsTitle'] }</div>
