@@ -11,18 +11,8 @@ ${grouper:titleFromKeyAndText('viewAttributeDefPageTitle', grouperRequestContain
               <div class="span12">
                 <div id="messages"></div>
 
-                <ul class="nav nav-tabs">
-                  <li class="active"><a role="tab"  aria-selected="true" href="#" onclick="return false;" >${textContainer.text['attributeDefAttributeDefNameTab'] }</a></li>
-                  <c:if test="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.attributeDefTypeDb == 'perm'}">
-                    <li><a role="tab" href="?operation=UiV2AttributeDefAction.attributeDefActions&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefAction.attributeDefActions&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {dontScrollTop: true});">${textContainer.text['attributeDefAttributeDefActionTab'] }</a></li>
-                  </c:if>
-                  <c:if test="${grouperRequestContainer.attributeDefContainer.canAdmin}">
-                    <li><a role="tab" href="?operation=UiV2AttributeDef.attributeDefPrivileges&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDef.attributeDefPrivileges&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {dontScrollTop: true});" >${textContainer.text['attributeDefPrivilegesTab'] }</a></li>
-                  </c:if>
-                  <c:if test="${grouperRequestContainer.attributeDefContainer.canReadPrivilegeInheritance}">
-                    <%@ include file="attributeDefMoreTab.jsp" %>
-                  </c:if>
-                </ul>
+                <c:set var="grouperCurrentTab" value="attributeNames" />
+                <%@ include file="../attributeDef/attributeDefTabs.jsp" %>
 
                 <p class="lead">${textContainer.text['attributeDefViewAttributeDefNamesDescription'] }</p>
                 <form class="form-inline form-small form-filter" id="attributeDefFilterFormId">

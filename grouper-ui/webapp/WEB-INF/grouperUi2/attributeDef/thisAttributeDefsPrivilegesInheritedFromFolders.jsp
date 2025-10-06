@@ -7,18 +7,11 @@
 
             <div class="row-fluid">
               <div class="span12">
-                <ul class="nav nav-tabs">
-                  <li><a role="tab" href="?operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {dontScrollTop: true});" >${textContainer.text['attributeDefAttributeDefNameTab'] }</a></li>
-                  <c:if test="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.attributeDefTypeDb == 'perm'}">
-                    <li><a role="tab" href="?operation=UiV2AttributeDefAction.attributeDefActions&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDefAction.attributeDefActions&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {dontScrollTop: true});">${textContainer.text['attributeDefAttributeDefActionTab'] }</a></li>
-                  </c:if>
-                  <c:if test="${grouperRequestContainer.attributeDefContainer.canAdmin}">
-                    <li><a role="tab" href="?operation=UiV2AttributeDef.attributeDefPrivileges&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDef.attributeDefPrivileges&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {dontScrollTop: true});" >${textContainer.text['attributeDefPrivilegesTab'] }</a></li>
-                  </c:if>
-                  <c:if test="${grouperRequestContainer.attributeDefContainer.canReadPrivilegeInheritance}">
-                    <%@ include file="attributeDefMoreTab.jsp" %>
-                  </c:if>
-                </ul>
+                <c:set var="grouperCurrentTab" value="none" />
+                
+                <%-- include the attributeDefTabs.jsp --%>
+                <%@ include file="../attributeDef/attributeDefTabs.jsp" %>
+                
                 <p class="lead">${textContainer.text['attributeDefPrivilegesInheritedFromFoldersDecription'] }</p>
                 <c:choose>
                   <c:when test="${fn:length(grouperRequestContainer.rulesContainer.guiRuleDefinitions) == 0}">
