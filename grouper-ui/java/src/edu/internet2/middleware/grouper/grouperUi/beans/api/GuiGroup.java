@@ -633,6 +633,18 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   }
 
   /**
+   * if the logged in user can group attr read (or inherit), dont check security
+   * @return true
+   */
+  public boolean isCanGroupAttrRead() {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    return this.group.canHavePrivilege(loggedInSubject, AccessPrivilege.GROUP_ATTR_READ.getName(), false);
+
+  }
+
+  /**
    * if the logged in user has update
    * @return true
    * @deprecated use isCanUpdate instead probably

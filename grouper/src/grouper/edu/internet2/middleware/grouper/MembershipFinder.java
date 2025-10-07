@@ -217,12 +217,12 @@ public class MembershipFinder {
   public static int retrieveDirectGroupPrivilegesCount(String groupId) {
     
     String sql = """
-        select count (distinct gm2.id) from grouper_memberships gm, grouper_fields gf, grouper_members gm2 
+        select count(distinct gm2.id) from grouper_memberships gm, grouper_fields gf, grouper_members gm2 
         where gf.id = gm.field_id 
         and gf.type = 'access' and 
         gm.member_id = gm2.id and 
         gm2.subject_source = 'g:gsa' and
-        owner_group_id = ?;
+        owner_group_id = ?
         """;
     int rows = new GcDbAccess().sql(sql).addBindVar(groupId).select(int.class);
     return rows;
@@ -241,7 +241,7 @@ public class MembershipFinder {
         and gf.type = 'access' and 
         gm.member_id = gm2.id and 
         gm2.subject_source = 'g:gsa' and
-        owner_group_id = ?;
+        owner_group_id = ?
         """;
     List<String> groupIds = new GcDbAccess().sql(sql).addBindVar(groupId).selectList(String.class);
     return new HashSet<String>(groupIds);
@@ -260,7 +260,7 @@ public class MembershipFinder {
         and gf.type = 'access' and 
         gm.member_id = gm2.id and 
         gm2.subject_source = 'g:gsa' and
-        gm2.subject_id = ?;
+        gm2.subject_id = ?
         """;
     int rows = new GcDbAccess().sql(sql).addBindVar(groupId).select(int.class);
     return rows;
@@ -279,7 +279,7 @@ public class MembershipFinder {
         and gf.type = 'access' and 
         gm.member_id = gm2.id and 
         gm2.subject_source = 'g:gsa' and
-        gm2.subject_id = ?;
+        gm2.subject_id = ?
         """;
     List<String> groupIds = new GcDbAccess().sql(sql).addBindVar(groupId).selectList(String.class);
     return new HashSet<String>(groupIds);

@@ -5,8 +5,8 @@
                 grouperRequestContainer.groupSummaryContainer.totalPrivilegesCount > 0 or
                 grouperRequestContainer.groupSummaryContainer.directPrivilegesCount > 0
                }">
-                 <li style="margin-left: 12px;">${textContainer.text['groupSummaryPagePrivilegesNotGroupPrivilegesUsedCountMessage']}</li>
                  <li style="margin-left: 12px;">${textContainer.text['groupSummaryPagePrivilegesTotalGroupPrivilegesUsedCountMessage']}</li>
+                 <li style="margin-left: 12px;">${textContainer.text['groupSummaryPagePrivilegesNotGroupPrivilegesUsedCountMessage']}</li>
                  <li style="margin-left: 12px;">${textContainer.text['groupSummaryPagePrivilegesDirectGroupPrivilegesUsedCountMessage']}</li>
                  <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.directGroupPrivilegesGroups}">
                     <li style="margin-left: 12px;">${textContainer.text['groupSummaryPagePrivilegesDirectGroupPrivileges']} 

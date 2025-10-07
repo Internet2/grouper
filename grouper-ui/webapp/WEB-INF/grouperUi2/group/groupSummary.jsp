@@ -167,24 +167,23 @@
             </tr>
           </c:if>
         </c:if>
+        <c:if test="${grouperRequestContainer.groupContainer.guiGroup.canGroupAttrRead}">
+          <!-- ATTRIBUTES -->
+          <tr style="display: none" id="groupAttributesSummaryRowId">
+            <td style="vertical-align: top;"><strong><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GroupAttributeAssignment.viewAttributeAssignments&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                >${textContainer.text['subjectAttributeAssignmentsButton'] }</a></strong></td>
+            <td style="padding-left: 0px;" id="groupAttributesSummaryCellId">
+            </td>
+          </tr>
+        </c:if>
         <c:if test="${grouperRequestContainer.groupContainer.guiGroup.canAdmin}">
-          <c:if test="${grouperRequestContainer.groupSummaryContainer.attributeAssignmentsCount > 0}">
-            <!-- ATTRIBUTES -->
-            <tr>
-              <td style="vertical-align: top;"><strong><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GroupAttributeAssignment.viewAttributeAssignments&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                  >${textContainer.text['subjectAttributeAssignmentsButton'] }</a></strong></td>
-              <td style="padding-left: 0px;">
-                ${textContainer.text['groupSummaryPageCustomAttributesAssignedMessage']}
-              </td>
-            </tr>
-          </c:if>
           <c:if test="${grouperRequestContainer.groupSummaryContainer.rulesCount > 0 or grouperRequestContainer.groupSummaryContainer.rulesCountWhereGroupIsUsed > 0}">
             <!-- RULES -->
             <tr>
               <td style="vertical-align: top;"><strong>
               <a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Group.viewGroupRules&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                 >${textContainer.text['stemViewRulesButton'] }</a></strong></td>
-              <td>
+              <td style="padding-left: 0px;">
                 <c:if test="${grouperRequestContainer.groupSummaryContainer.rulesCount > 0}">
                   ${textContainer.text['groupSummaryPageRulesAssignedMessage']}
                 </c:if>
@@ -197,47 +196,29 @@
           </c:if>
         </c:if>
         <c:if test="${grouperRequestContainer.groupContainer.guiGroup.canRead}">
-          <tr>
+          <tr style="display: none" id="groupRecentMembershipsSummaryRowId">
             <!-- RECENT MEMBERSHIP CHANGES -->
             <td style="vertical-align: top;"><strong>${textContainer.text['groupSummaryPageRecentMembershipChangesLabel']}</strong></td>
-            <td style="padding-left: 0px;">
-              <c:choose>
-                <c:when test="${grouperRequestContainer.groupSummaryContainer.newMembershipsInTheLastMonth > 0 or grouperRequestContainer.groupSummaryContainer.membershipsRemovedInTheLastMonth > 0}">
-                  ${textContainer.text['groupSummaryPageRecentMembershipChangesMessage']}
-                </c:when>
-                <c:otherwise>
-                  ${textContainer.text['groupSummaryPageNoRecentMembershipChangesMessage']}
-                </c:otherwise>
-              </c:choose>
+            <td style="padding-left: 0px;" id="groupRecentMembershipsSummaryCellId">
             </td>
           </tr>
         </c:if>
         <c:if test="${grouperRequestContainer.groupContainer.guiGroup.canAdmin}">
-          <tr>
+          <tr style="display: none" id="groupAuditsSummaryRowId">
             <!-- RECENT AUDITS -->
             <td style="vertical-align: top;"><strong><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&auditType=group'); return false;"
                               >${textContainer.text['groupSummaryPageRecentAuditsLabel']}</a></strong></td>
-            <td style="padding-left: 0px;">
-              <c:choose>
-                <c:when test="${grouperRequestContainer.groupSummaryContainer.auditsInTheLastMonth > 0}">
-                  ${textContainer.text['groupSummaryPageRecentAuditsMessage']}
-                </c:when>
-                <c:otherwise>
-                  ${textContainer.text['groupSummaryPageNoRecentAuditsMessage']}
-                </c:otherwise>
-              </c:choose>
+            <td style="padding-left: 0px;" id="groupAuditsSummaryCellId">
             </td>
           </tr>
         </c:if>
-        <c:if test="${grouperRequestContainer.groupSummaryContainer.configurationUsedCount > 0}">
-        <tr>
+        <tr style="display: none" id="groupConfigurationSummaryRowId">
           <!-- CONFIGURATION -->
           <td style="vertical-align: top;"><strong>${textContainer.text['groupSummaryPageConfigurationLabel']}</strong></td>
-          <td style="padding-left: 0px;">
-              ${textContainer.text['groupSummaryPageConfigurationMessage']} 
+          <td style="padding-left: 0px;" id="groupConfigurationSummaryCellId">
+              
           </td>
         </tr>
-        </c:if>
         <!-- colspan across for next title -->
         <tr class="grouperIgnoreStripe"><td colspan="2" style="background-color: white"><p style="display: block; margin-top: 0;" /><h3><p 
           class="lead">${textContainer.text['groupSummaryFields'] }</p></h3><p style="display: block; margin-top: 0;" /></td></tr>
