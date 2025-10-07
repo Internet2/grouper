@@ -186,7 +186,7 @@ public class MembershipFinder {
          and ms.member_id = m.id 
          and ms.field_id = f.id
          and f.type = 'access'
-         and ms.owner_group_id = ?;
+         and ms.owner_group_id = ?
         """;
     int rows = new GcDbAccess().sql(sql).addBindVar(groupId).select(int.class);
     return rows;
@@ -203,7 +203,7 @@ public class MembershipFinder {
         select count(distinct gm.member_id) from grouper_memberships gm, grouper_fields gf 
         where gf.id = gm.field_id
         and gf.type = 'access' 
-        and owner_group_id = ?;
+        and owner_group_id = ?
         """;
     int rows = new GcDbAccess().sql(sql).addBindVar(groupId).select(int.class);
     return rows;
