@@ -53,6 +53,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveLiteRe
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDataProviderSubjectListSyncResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectDeleteResults;
@@ -117,6 +118,7 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssi
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.audit.WsRestGetAuditEntriesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.audit.WsRestGetAuditEntriesRequest;
+import edu.internet2.middleware.grouper.ws.rest.dataProvider.WsRestDataProviderSubjectListSyncRequest;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestFindExternalSubjectsRequest;
@@ -3124,5 +3126,35 @@ public class GrouperServiceRest {
   
   }
 
+  /**
+   * <pre>
+   * based on a submitted object of type WsRestDataProviderSubjectListSyncRequest, Data provider subject list sync
+   * /v1_3_000/dataProviderSubjectListSync
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestDataProviderSubjectListSyncRequest is the request body converted to an object
+   * @return the result
+   */
+  @POST
+  @Path("/grouper-ws/servicesRest/vD_P_SLS")
+  @ApiOperation(httpMethod = "POST", value = "Data Provider Subject List Sync", nickname = "dataProviderSubjectListSync",
+      notes = "<b>Description</b>: Data provider subject list sync.") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, dataType = "edu.internet2.middleware.grouper.ws.rest.dataProvider.WsRestDataProviderSubjectListSyncRequestWrapper", paramType = "body")})
+  public static WsDataProviderSubjectListSyncResult dataProviderSubjectListSync(GrouperVersion clientVersion,
+      WsRestDataProviderSubjectListSyncRequest wsRestDataProviderSubjectListSyncRequest) {
+  
+    //cant be null
+    GrouperUtil.assertion(wsRestDataProviderSubjectListSyncRequest != null,
+        "Body of request must contain an instance of "
+            + WsRestDataProviderSubjectListSyncRequest.class.getSimpleName() + " in json");
+  
+    WsDataProviderSubjectListSyncResult wsDataProviderSubjectListSyncResult = GrouperServiceLogic.dataProviderSubjectListSync(clientVersion, wsRestDataProviderSubjectListSyncRequest.getDataProviderConfigId(),
+        wsRestDataProviderSubjectListSyncRequest.getSubjectLookups(), wsRestDataProviderSubjectListSyncRequest.getActAsSubjectLookup());
 
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsDataProviderSubjectListSyncResult.getResultMetadata(), false);
+    
+    return wsDataProviderSubjectListSyncResult;
+  }
 }

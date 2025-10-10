@@ -52,6 +52,11 @@ public class GrouperDataProviderSync {
   
   private String jobName;
   
+  private Set<String> syncSubjectsSubjectIds;
+  private Set<String> syncSubjectsSubjectIdentifiers;
+  private Map<String, Set<String>> syncSubjectsSourceToSubjectIds;
+  private Map<String, Set<String>> syncSubjectsSourceToSubjectIdentifiers;
+  
   /**
    * loader log
    * @return log
@@ -253,5 +258,48 @@ public class GrouperDataProviderSync {
   
   public void setJobName(String jobName) {
     this.jobName = jobName;
+  }
+
+  
+  public Set<String> getSyncSubjectsSubjectIds() {
+    return syncSubjectsSubjectIds;
+  }
+
+  
+  public void setSyncSubjectsSubjectIds(Set<String> syncSubjectsSubjectIds) {
+    this.syncSubjectsSubjectIds = syncSubjectsSubjectIds;
+  }
+
+  
+  public Set<String> getSyncSubjectsSubjectIdentifiers() {
+    return syncSubjectsSubjectIdentifiers;
+  }
+
+  
+  public void setSyncSubjectsSubjectIdentifiers(
+      Set<String> syncSubjectsSubjectIdentifiers) {
+    this.syncSubjectsSubjectIdentifiers = syncSubjectsSubjectIdentifiers;
+  }
+
+  
+  public Map<String, Set<String>> getSyncSubjectsSourceToSubjectIds() {
+    return syncSubjectsSourceToSubjectIds;
+  }
+
+  
+  public void setSyncSubjectsSourceToSubjectIds(
+      Map<String, Set<String>> syncSubjectsSourceToSubjectIds) {
+    this.syncSubjectsSourceToSubjectIds = syncSubjectsSourceToSubjectIds;
+  }
+
+  
+  public Map<String, Set<String>> getSyncSubjectsSourceToSubjectIdentifiers() {
+    return syncSubjectsSourceToSubjectIdentifiers;
+  }
+
+  
+  public void setSyncSubjectsSourceToSubjectIdentifiers(
+      Map<String, Set<String>> syncSubjectsSourceToSubjectIdentifiers) {
+    this.syncSubjectsSourceToSubjectIdentifiers = syncSubjectsSourceToSubjectIdentifiers;
   }
 }

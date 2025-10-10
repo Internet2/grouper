@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -92,6 +93,20 @@ public class GrouperDataProviderLogic {
     this.grouperDataProvider = grouperDataProvider;
   }
 
+  /**
+   * @return the stem name
+   */
+  public static String dataProviderStemName() {
+    return GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":dataProvider";
+  }
+  
+  /**
+   * @return the group name
+   */
+  public static String dataProviderSubjectListSyncAllowedGroupName() {
+    return dataProviderStemName() + ":" + "subjectListSyncAllowedGroup";
+  }
+  
   /**
    * 
    */
@@ -315,6 +330,54 @@ public class GrouperDataProviderLogic {
         
     }
     
+    syncIncremental(subjectIds, subjectIdentifiers, sourceToSubjectIds, sourceToSubjectIdentifiers);
+  }
+  
+  public void syncSubjects(Set<String> subjectIds, Set<String> subjectIdentifiers, Map<String, Set<String>> sourceToSubjectIds, Map<String, Set<String>> sourceToSubjectIdentifiers) {
+    
+    String dataProviderConfigId = grouperDataProviderSync.getConfigId();
+    
+    if (grouperDataProviderSync.getGrouperDataEngine() == null) {
+      grouperDataProviderSync.setGrouperDataEngine(new GrouperDataEngine());
+    }
+    
+    GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
+    
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+
+    GrouperDataProvider grouperDataProvider = GrouperDataProviderDao.selectByText(dataProviderConfigId);
+    
+    // what are the cases where we'd want to refresh this?
+    if (grouperDataProvider == null) {
+      throw new RuntimeException("Unable to find data provider: " + dataProviderConfigId);
+    }
+    
+    setGrouperDataProvider(grouperDataProvider);
+
+    dataEngine.loadFieldsAndRows(grouperConfig);
+
+    // maybe things in DB arent in sync with the config yet
+    if (!dataEngine.getProviderConfigByConfigId().containsKey(dataProviderConfigId)) {
+      throw new RuntimeException("dataProviderConfigNotFound: " + dataProviderConfigId);
+    }
+    
+    boolean isSubjectSource = dataEngine.getProviderConfigByConfigId().get(dataProviderConfigId).isSubjectSource();
+    String subjectSourceIdIfSubjectSource = dataEngine.getProviderConfigByConfigId().get(dataProviderConfigId).getSubjectSourceId();
+    
+    if (isSubjectSource && StringUtils.isBlank(subjectSourceIdIfSubjectSource)) {
+      throw new RuntimeException("subjectSourceId is not specified for " + grouperDataProviderSync.getConfigId());
+    }
+    
+    syncIncremental(subjectIds, subjectIdentifiers, sourceToSubjectIds, sourceToSubjectIdentifiers);
+  }
+  
+  private void syncIncremental(Set<String> subjectIds, Set<String> subjectIdentifiers, Map<String, Set<String>> sourceToSubjectIds, Map<String, Set<String>> sourceToSubjectIdentifiers) {
+    GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
+    String dataProviderConfigId = grouperDataProviderSync.getConfigId();
+
+    boolean isSubjectSource = dataEngine.getProviderConfigByConfigId().get(dataProviderConfigId).isSubjectSource();
+    String subjectSourceIdIfSubjectSource = dataEngine.getProviderConfigByConfigId().get(dataProviderConfigId).getSubjectSourceId();
+    
     // resolve the subjects
     Set<Subject> allSubjects = new LinkedHashSet<Subject>();
     if (GrouperUtil.length(subjectIds) > 0) {
@@ -325,24 +388,28 @@ public class GrouperDataProviderLogic {
       Map<String, Subject> subjectsByIdentifiers = SubjectFinder.findByIdentifiers(subjectIdentifiers);
       allSubjects.addAll(subjectsByIdentifiers.values());
     }
-    for (String sourceId : sourceToSubjectIds.keySet()) {
-      Set<String> theSubjectIds = sourceToSubjectIds.get(sourceId);
-      if (GrouperUtil.length(theSubjectIds) > 0) {
-        Map<String, Subject> subjectsByIds = SubjectFinder.findByIds(theSubjectIds, sourceId, true);
-        allSubjects.addAll(subjectsByIds.values());
+    if (GrouperUtil.length(sourceToSubjectIds) > 0) {
+      for (String sourceId : sourceToSubjectIds.keySet()) {
+        Set<String> theSubjectIds = sourceToSubjectIds.get(sourceId);
+        if (GrouperUtil.length(theSubjectIds) > 0) {
+          Map<String, Subject> subjectsByIds = SubjectFinder.findByIds(theSubjectIds, sourceId, true);
+          allSubjects.addAll(subjectsByIds.values());
+        }
       }
     }
-    for (String sourceId : sourceToSubjectIdentifiers.keySet()) {
-      Set<String> theSubjectIdentifiers = sourceToSubjectIdentifiers.get(sourceId);
-      if (GrouperUtil.length(theSubjectIdentifiers) > 0) {
-        Map<String, Subject> subjectsByIdentitifers = SubjectFinder.findByIdentifiers(theSubjectIdentifiers, sourceId);
-        allSubjects.addAll(subjectsByIdentitifers.values());
+    if (GrouperUtil.length(sourceToSubjectIdentifiers) > 0) {
+      for (String sourceId : sourceToSubjectIdentifiers.keySet()) {
+        Set<String> theSubjectIdentifiers = sourceToSubjectIdentifiers.get(sourceId);
+        if (GrouperUtil.length(theSubjectIdentifiers) > 0) {
+          Map<String, Subject> subjectsByIdentitifers = SubjectFinder.findByIdentifiers(theSubjectIdentifiers, sourceId);
+          allSubjects.addAll(subjectsByIdentitifers.values());
+        }
       }
     }
     
     if (allSubjects.size() == 0) {
       if (isSubjectSource) {
-        if (GrouperUtil.length(subjectIds) == 0 && GrouperUtil.length(sourceToSubjectIds.get(subjectSourceIdIfSubjectSource)) == 0) {
+        if (GrouperUtil.length(subjectIds) == 0 && (GrouperUtil.length(sourceToSubjectIds) == 0 || GrouperUtil.length(sourceToSubjectIds.get(subjectSourceIdIfSubjectSource)) == 0)) {
           return;
         }
       } else {
@@ -356,7 +423,7 @@ public class GrouperDataProviderLogic {
     }
 
     if (isSubjectSource) {
-      createMemberObjects(subjectIds, sourceToSubjectIds.get(subjectSourceIdIfSubjectSource), members);
+      createMemberObjects(subjectIds, sourceToSubjectIds == null ? null : sourceToSubjectIds.get(subjectSourceIdIfSubjectSource), members);
       members.addAll(membersToAddBySubjectId.values());
       members.addAll(unresolvedSubjectsWithMembersBySubjectId.values());
     }
@@ -414,7 +481,7 @@ public class GrouperDataProviderLogic {
     
     retrieveSourceData(queryConfigIdToLowerColumnNameToZeroIndex, false);
     
-    calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex, false);    
+    calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex, false);
   }
   
   private void addUnresolvableSubjectToJobMessage(String subjectIdValue) {
@@ -578,7 +645,9 @@ public class GrouperDataProviderLogic {
           // cant have same value
           if (valueToFieldAssignWrapper.containsKey(value)) {
             GrouperDataFieldAssignDao.delete(dataFieldAssignWrapper.getGrouperDataFieldAssign());
-            grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(1);
+            if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+              grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(1);
+            }
             continue;
           }
           
@@ -755,6 +824,8 @@ public class GrouperDataProviderLogic {
       createMemberObjects(subjectIds, sourceToSubjectIds.get(subjectSourceIdIfSubjectSource), subjectToMember.values());
     }
     
+    Set<Long> memberInternalIdsWithSourceRows = new LinkedHashSet<>();
+    
     // pass two, assign the data to the members
     for (GrouperDataProviderQuery grouperDataProviderQuery : grouperDataProviderSync.retrieveGrouperDataProviderQueries()) {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
@@ -822,7 +893,9 @@ public class GrouperDataProviderLogic {
             }
           } else {
             LOG.warn("Unable to resolve subject " + subjectId + ", " + sourceIdForLog + ", " + subjectIdType);
-            grouperDataProviderSync.getHib3GrouperLoaderLog().addUnresolvableSubjectCount(1);
+            if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+              grouperDataProviderSync.getHib3GrouperLoaderLog().addUnresolvableSubjectCount(1);
+            }
             addUnresolvableSubjectToJobMessage(subjectId);
             continue; 
           }
@@ -846,7 +919,20 @@ public class GrouperDataProviderLogic {
         }
         
         userRowsforQuery.add(row);
+        memberInternalIdsWithSourceRows.add(memberInternalId);
       }
+    }
+
+    if (isSubjectSource && !isFullSync) {
+      // potentially remove members that we would have added if there wasn't any data
+      Iterator<Map.Entry<String, Member>> it = membersToAddBySubjectId.entrySet().iterator();
+      while (it.hasNext()) {
+        Map.Entry<String, Member> entry = it.next();
+        Long internalId = entry.getValue().getInternalId();
+        if (!memberInternalIdsWithSourceRows.contains(internalId)) {
+          it.remove();
+        }
+      }      
     }
   }
   
@@ -939,7 +1025,9 @@ public class GrouperDataProviderLogic {
         String queryConfigId = grouperDataProviderQueryConfig.getConfigId();
         
         List<Object[]> providerRows = GrouperUtil.nonNull(grouperDataMemberWrapper.getQueryConfigIdToRowData().get(queryConfigId));
-        grouperDataProviderSync.getHib3GrouperLoaderLog().addTotalCount(GrouperUtil.length(providerRows));
+        if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addTotalCount(GrouperUtil.length(providerRows));
+        }
         
         String rowConfigId = grouperDataProviderQueryConfig.getProviderQueryRowConfigId();
 
@@ -1665,13 +1753,17 @@ public class GrouperDataProviderLogic {
       if (batchOfMembersToAdd.size() > 0) {
         try {
           HibernateSession.byObjectStatic().saveBatch(batchOfMembersToAdd);
-          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfMembersToAdd.size());
+          if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfMembersToAdd.size());
+          }
         } catch (Exception e) {
           // try each one individually
           for (Member memberToAdd : batchOfMembersToAdd) {
             try {
               HibernateSession.byObjectStatic().save(memberToAdd);
-              grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(1);
+              if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+                grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(1);
+              }
             } catch (Exception e2) {
               LOG.error("Error adding member", e2);
               
@@ -1781,41 +1873,68 @@ public class GrouperDataProviderLogic {
           }
           
           GrouperDataFieldAssignHstDao.store(batchOfGrouperDataFieldAssignHstsToInsert);
-          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataFieldAssignHstsToInsert.size());
+          if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataFieldAssignHstsToInsert.size());
+          }
           
           GrouperDataFieldAssignDao.delete(batchOfGrouperDataFieldAssignsToDelete);
           ChangeLogEntryTempDao.store(batchOfChangeLogEntriesDataFieldAssignsToDelete);
-          grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(batchOfGrouperDataFieldAssignsToDelete.size());
-
+          
+          if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(batchOfGrouperDataFieldAssignsToDelete.size());
+          }
+          
           GrouperDataFieldAssignDao.store(batchOfGrouperDataFieldAssignsToInsert);
           ChangeLogEntryTempDao.store(batchOfChangeLogEntriesDataFieldAssignsToInsert);
-          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataFieldAssignsToInsert.size());
+          
+          if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataFieldAssignsToInsert.size());
+          }
           
           GrouperDataRowAssignHstDao.store(batchOfGrouperDataRowAssignHstsToInsert);
-          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataRowAssignHstsToInsert.size());
+          
+          if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataRowAssignHstsToInsert.size());
+          }
           
           GrouperDataRowFieldAssignHstDao.store(batchOfGrouperDataRowFieldAssignHstsToInsert);
-          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataRowFieldAssignHstsToInsert.size());
+          
+          if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataRowFieldAssignHstsToInsert.size());
+          }
           
           GrouperDataRowFieldAssignDao.delete(batchOfGrouperDataRowFieldAssignsToDelete);
           ChangeLogEntryTempDao.store(batchOfChangeLogEntriesDataRowFieldAssignsToDelete);
-          grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(batchOfChangeLogEntriesDataRowFieldAssignsToDelete.size());
+          
+          if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(batchOfChangeLogEntriesDataRowFieldAssignsToDelete.size());
+          }
           
           GrouperDataRowAssignDao.delete(batchOfGrouperDataRowAssignsToDelete);
           ChangeLogEntryTempDao.store(batchOfChangeLogEntriesDataRowAssignsToDelete);
-          grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(batchOfChangeLogEntriesDataRowAssignsToDelete.size());
+          
+          if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(batchOfChangeLogEntriesDataRowAssignsToDelete.size());
+          }
           
           GrouperDataRowAssignDao.store(batchOfGrouperDataRowAssignsToInsert);
           ChangeLogEntryTempDao.store(batchOfChangeLogEntriesDataRowAssignsToInsert);
-          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfChangeLogEntriesDataRowAssignsToInsert.size());
-
+          
+          if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfChangeLogEntriesDataRowAssignsToInsert.size());
+          }
+          
           GrouperDataRowFieldAssignDao.store(batchOfGrouperDataRowFieldAssignsToInsert);
           ChangeLogEntryTempDao.store(batchOfChangeLogEntriesDataRowFieldAssignsToInsert);
-          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfChangeLogEntriesDataRowFieldAssignsToInsert.size());
+          
+          if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfChangeLogEntriesDataRowFieldAssignsToInsert.size());
+          }
           
           GrouperDataRowAssignDao.store(batchOfGrouperDataRowAssignsToUpdate);
-          grouperDataProviderSync.getHib3GrouperLoaderLog().addUpdateCount(batchOfGrouperDataRowAssignsToUpdate.size());
-          
+          if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addUpdateCount(batchOfGrouperDataRowAssignsToUpdate.size());
+          }
           
           return null;
         }
@@ -1896,7 +2015,10 @@ public class GrouperDataProviderLogic {
     
     if (grouperDataFieldAssignHstsToDelete.size() > 0) {
       GrouperDataFieldAssignHstDao.delete(grouperDataFieldAssignHstsToDelete);
-      grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(grouperDataFieldAssignHstsToDelete.size());
+      
+      if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+        grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(grouperDataFieldAssignHstsToDelete.size());
+      }
       GrouperDaemonUtils.stopProcessingIfJobPaused();
     }
     
@@ -1909,11 +2031,17 @@ public class GrouperDataProviderLogic {
       List<GrouperDataRowFieldAssignHst> grouperDataRowFieldAssignHstsToDelete = GrouperDataRowFieldAssignHstDao.selectByDataRowAssignHstInternalIds(grouperDataRowAssignHstInternalIds);
       
       GrouperDataRowFieldAssignHstDao.delete(grouperDataRowFieldAssignHstsToDelete);
-      grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(grouperDataRowFieldAssignHstsToDelete.size());
+      
+      if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+        grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(grouperDataRowFieldAssignHstsToDelete.size());
+      }
       GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       GrouperDataRowAssignHstDao.delete(grouperDataRowAssignHstsToDelete);
-      grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(grouperDataRowAssignHstsToDelete.size());
+      
+      if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+        grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(grouperDataRowAssignHstsToDelete.size());
+      }
       GrouperDaemonUtils.stopProcessingIfJobPaused();
     }
   }

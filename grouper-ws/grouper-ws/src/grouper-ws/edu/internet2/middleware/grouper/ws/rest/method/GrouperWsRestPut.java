@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefName
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefSaveRequest;
+import edu.internet2.middleware.grouper.ws.rest.dataProvider.WsRestDataProviderSubjectListSyncRequest;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest;
@@ -562,6 +563,25 @@ public enum GrouperWsRestPut {
       }
   
       throw new RuntimeException("Invalid REST PUT gshTemplateExec request: " + clientVersion + " , " + identifier
+          + ", " + GrouperUtil.toStringForLog(urlStrings));
+    }
+  },
+  
+  /** data provider sync requests **/
+  dataProviderSubjectListSync {
+
+    @Override
+    public WsResponseBean service(GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+      
+      //url should be: /v1_3_000/dataProviderSubjectListSync
+      String identifier = GrouperServiceUtils.popUrlString(urlStrings);
+  
+      if (requestObject instanceof WsRestDataProviderSubjectListSyncRequest) {
+        return GrouperServiceRest.dataProviderSubjectListSync(clientVersion, (WsRestDataProviderSubjectListSyncRequest)requestObject);
+      }
+  
+      throw new RuntimeException("Invalid REST PUT dataProviderSubjectListSync request: " + clientVersion + " , " + identifier
           + ", " + GrouperUtil.toStringForLog(urlStrings));
     }
   };

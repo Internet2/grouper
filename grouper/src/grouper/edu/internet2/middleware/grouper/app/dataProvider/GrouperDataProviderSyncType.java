@@ -54,6 +54,27 @@ public enum GrouperDataProviderSyncType {
       
     }
 
+  },
+  syncSubjects {
+
+    @Override
+    public boolean isFullSync() {
+      return false;
+    }
+
+    @Override
+    public boolean isIncrementalSync() {
+      return false;
+    }
+
+    @Override
+    protected void sync(GrouperDataProviderSync grouperDataProviderSync) {
+      grouperDataProviderSync.retrieveGrouperDataProviderLogic().syncSubjects(
+          grouperDataProviderSync.getSyncSubjectsSubjectIds(), grouperDataProviderSync.getSyncSubjectsSubjectIdentifiers(),
+          grouperDataProviderSync.getSyncSubjectsSourceToSubjectIds(), grouperDataProviderSync.getSyncSubjectsSourceToSubjectIdentifiers());
+      
+    }
+
   };
 
   /**

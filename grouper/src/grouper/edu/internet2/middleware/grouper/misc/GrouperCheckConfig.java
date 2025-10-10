@@ -70,6 +70,7 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
+import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderLogic;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeValue;
@@ -847,6 +848,13 @@ public class GrouperCheckConfig {
           }
           
           {
+            String dataProviderRootStemName = GrouperDataProviderLogic.dataProviderStemName();
+
+            stemSaves.add(new StemSave().assignCreateParentStemsIfNotExist(true)
+                .assignDescription("folder for data provider objects").assignName(dataProviderRootStemName));
+          }
+          
+          {
 
             String cannotAddSelfRootStemName = MembershipCannotAddSelfToGroupHook.cannotAddSelfStemName();
           
@@ -1323,7 +1331,14 @@ public class GrouperCheckConfig {
             groupSaves.add(new GroupSave().assignName(deprovisioningAdminGroupName).assignDescription(
                 "deprovisioning admin group can deprovision from all groups/objects in Grouper even if the user is not a Grouper overall SysAdmin").assignCreateParentStemsIfNotExist(true));
           }
-        }        
+        }    
+        
+        {
+          {
+            String dataProviderSubjectListSyncAllowedGroupName = GrouperDataProviderLogic.dataProviderSubjectListSyncAllowedGroupName();
+            groupSaves.add(new GroupSave().assignName(dataProviderSubjectListSyncAllowedGroupName).assignDescription("users who can sync a list of subjects from a data provider").assignCreateParentStemsIfNotExist(true));
+          }        
+        }
         
         // group that users who are allowed to deprovision other users are in
         for (String affiliation : GrouperDeprovisioningAffiliation.retrieveDeprovisioningAffiliations()) {

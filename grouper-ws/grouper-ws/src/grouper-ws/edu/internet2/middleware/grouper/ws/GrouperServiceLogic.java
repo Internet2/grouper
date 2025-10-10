@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +76,7 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditFieldType;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
+import edu.internet2.middleware.grouper.dataField.GrouperDataProviderSubjectListSyncJob;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -137,6 +139,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResu
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup.AttributeDefNameFindResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult.WsAttributeDefNameSaveResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResult.WsAttributeDefSaveResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDataProviderSubjectListSyncResult.WsDataProviderSubjectListSyncResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult.WsDeleteMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectDeleteResult.WsExternalSubjectDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectLookup.ExternalSubjectFindResult;
@@ -11150,6 +11153,99 @@ public class GrouperServiceLogic {
     }
   
     return wsGshTemplateExecResult;
+  }
+  
+  /**
+   * data provider subject list sync
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param dataProviderConfigId configId of the data provider
+   * @param subjectLookups subjects to sync
+   * @param actAsSubjectLookup
+   * @return the result
+   */
+  public static WsDataProviderSubjectListSyncResult dataProviderSubjectListSync(final GrouperVersion clientVersion,
+      String dataProviderConfigId, final WsSubjectLookup[] subjectLookups,
+      final WsSubjectLookup actAsSubjectLookup) {
+
+    Map<String, Object> debugMap = GrouperServiceJ2ee.retrieveDebugMap();
+
+    final WsDataProviderSubjectListSyncResult wsDataProviderSubjectListSyncResult = new WsDataProviderSubjectListSyncResult();
+  
+    GrouperSession session = null;
+    String theSummary = null;
+
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsDataProviderSubjectListSyncResult.getResponseMetadata().warnings());
+
+      theSummary = "clientVersion: " + clientVersion + ", dataProviderConfigId: " + dataProviderConfigId
+          + ", subjectLookups: "
+          + GrouperUtil.toStringForLog(subjectLookups, 100) + "\n, actAsSubject: "
+          + actAsSubjectLookup;
+  
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "method", "dataProviderSubjectListSync");
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "clientVersion", clientVersion);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "dataProviderConfigId", dataProviderConfigId);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "subjectLookups", subjectLookups);
+      
+      if (StringUtils.isBlank(dataProviderConfigId)) {
+        throw new WsInvalidQueryException("dataProviderConfigId must be specified");
+      }
+      
+      if (GrouperUtil.length(subjectLookups) == 0) {
+        throw new WsInvalidQueryException("No subjects provided");
+      }
+      
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      Set<String> subjectIds = new LinkedHashSet<>();
+      Set<String> subjectIdentifiers = new LinkedHashSet<>();
+      Map<String, Set<String>> sourceToSubjectIds = new LinkedHashMap<>();
+      Map<String, Set<String>> sourceToSubjectIdentifiers = new LinkedHashMap<>();
+      
+      for (WsSubjectLookup subjectLookup : subjectLookups) {
+        boolean hasSubjectId = !StringUtils.isBlank(subjectLookup.getSubjectId());
+        boolean hasSubjectIdentifier = !StringUtils.isBlank(subjectLookup.getSubjectIdentifier());
+        boolean hasSubjectSource = !StringUtils.isBlank(subjectLookup.getSubjectSourceId());
+        
+        if (hasSubjectId) {
+          if (hasSubjectSource) {
+            if (sourceToSubjectIds.get(subjectLookup.getSubjectSourceId()) == null) {
+              sourceToSubjectIds.put(subjectLookup.getSubjectSourceId(), new LinkedHashSet<>());
+            }
+            sourceToSubjectIds.get(subjectLookup.getSubjectSourceId()).add(subjectLookup.getSubjectId());
+          } else {
+            subjectIds.add(subjectLookup.getSubjectId());
+          }
+        } else if (hasSubjectIdentifier) {
+          if (hasSubjectSource) {
+            if (sourceToSubjectIdentifiers.get(subjectLookup.getSubjectSourceId()) == null) {
+              sourceToSubjectIdentifiers.put(subjectLookup.getSubjectSourceId(), new LinkedHashSet<>());
+            }
+            sourceToSubjectIdentifiers.get(subjectLookup.getSubjectSourceId()).add(subjectLookup.getSubjectIdentifier());
+          } else {
+            subjectIdentifiers.add(subjectLookup.getSubjectIdentifier());
+          }
+        }
+      }
+      
+      GrouperDataProviderSubjectListSyncJob.syncSubjects(dataProviderConfigId, subjectIds, subjectIdentifiers, sourceToSubjectIds, sourceToSubjectIdentifiers);
+      
+      wsDataProviderSubjectListSyncResult.assignResultCode(WsDataProviderSubjectListSyncResultCode.SUCCESS);
+      wsDataProviderSubjectListSyncResult.getResultMetadata().appendResultMessage("Success for: " + theSummary);
+    } catch (Exception e) {
+      wsDataProviderSubjectListSyncResult.assignResultCodeException(theSummary, e);
+      wsDataProviderSubjectListSyncResult.getResultMetadata().appendResultMessage("Error for: " + theSummary);
+      GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+      GrouperWsLog.addToLog(debugMap, wsDataProviderSubjectListSyncResult);
+    }
+  
+    return wsDataProviderSubjectListSyncResult;
   }
   
   /**

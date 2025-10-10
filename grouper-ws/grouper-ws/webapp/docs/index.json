@@ -2037,6 +2037,30 @@
         }
       }
     },
+    "/grouper-ws/servicesRest/vD_P_SLS" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Data Provider Subject List Sync",
+        "description" : "<b>Description</b>: Data provider subject list sync.",
+        "operationId" : "dataProviderSubjectListSync",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestDataProviderSubjectListSyncRequestWrapper"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsDataProviderSubjectListSyncResult"
+            }
+          }
+        }
+      }
+    },
     "/grouper-ws/servicesRest/vE_G_TEM" : {
       "post" : {
         "tags" : [ "Grouper" ],
@@ -7395,6 +7419,17 @@
         }
       }
     },
+    "WsDataProviderSubjectListSyncResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
     "WsDeleteMemberLiteResult" : {
       "type" : "object",
       "properties" : {
@@ -9903,6 +9938,41 @@
         }
       },
       "description" : "Request body to save attribute defs"
+    },
+    "WsRestDataProviderSubjectListSyncRequest" : {
+      "type" : "object",
+      "properties" : {
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "dataProviderConfigId" : {
+          "type" : "string",
+          "example" : "myConfigId",
+          "description" : "config id for the data provider"
+        },
+        "subjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubjectLookup"
+          }
+        }
+      },
+      "description" : "bean that will be the data from rest request for executing a data provider sync based on a list of subjects<br /><br /><b>dataProviderConfigId</b>: The config id for the data provider<br /><br /><br /><b>subjectLookups</b>: subjects to sync<br />"
+    },
+    "WsRestDataProviderSubjectListSyncRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestDataProviderSubjectListSyncRequest" : {
+          "description" : "Identifies the request as an execute data provider sync request",
+          "$ref" : "#/definitions/WsRestDataProviderSubjectListSyncRequest"
+        }
+      },
+      "description" : "Request body to execute a data provider sync based on a list of subjects"
     },
     "WsRestDeleteMemberRequest" : {
       "type" : "object",
