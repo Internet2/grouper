@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouperClient.api.GcAttributeDefDelete;
 import edu.internet2.middleware.grouperClient.api.GcAttributeDefNameDelete;
 import edu.internet2.middleware.grouperClient.api.GcAttributeDefNameSave;
 import edu.internet2.middleware.grouperClient.api.GcAttributeDefSave;
+import edu.internet2.middleware.grouperClient.api.GcDataProviderSubjectListSync;
 import edu.internet2.middleware.grouperClient.api.GcDeleteMember;
 import edu.internet2.middleware.grouperClient.api.GcExternalSubjectDelete;
 import edu.internet2.middleware.grouperClient.api.GcExternalSubjectSave;
@@ -112,6 +113,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefSaveResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefSaveResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAuditEntry;
+import edu.internet2.middleware.grouperClient.ws.beans.WsDataProviderSubjectListSyncResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsExternalSubject;
@@ -507,6 +509,8 @@ public class GrouperClient {
           
       } else if (GrouperClientUtils.equals(operation, "getAuditEntriesWs")) {
         result = getAuditEntries(argMap, argMapNotUsed);
+      } else if (GrouperClientUtils.equals(operation, "dataProviderSubjectListSyncWs")) {
+        result = dataProviderSubjectListSyncWs(argMap, argMapNotUsed);
       } else {
         System.err.println("Error: invalid operation: '" + operation + "', for usage help, run: java -jar grouperClient.jar" );
         if (exitOnError) {
@@ -936,6 +940,108 @@ public class GrouperClient {
       
       index++;
     }
+    
+    return result.toString();
+  }
+  
+  /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String dataProviderSubjectListSyncWs(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    GcDataProviderSubjectListSync gcDataProviderSubjectListSync = new GcDataProviderSubjectListSync();        
+  
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    gcDataProviderSubjectListSync.assignClientVersion(clientVersion);
+    
+    String dataProviderConfigId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "dataProviderConfigId", false);
+    gcDataProviderSubjectListSync.assignDataProviderConfigId(dataProviderConfigId);
+ 
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    gcDataProviderSubjectListSync.assignActAsSubject(actAsSubject);
+    
+    List<WsSubjectLookup> wsSubjectLookupList = retrieveSubjectsFromArgs(argMap,
+        argMapNotUsed, true);
+    
+    for (WsSubjectLookup wsSubjectLookup : wsSubjectLookupList) {
+      gcDataProviderSubjectListSync.addSubjectLookup(wsSubjectLookup);
+    }
+    
+    {
+      String wsEndpoint = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsEndpoint", false);
+      if (!StringUtils.isBlank(wsEndpoint)) {
+        gcDataProviderSubjectListSync.assignWsEndpoint(wsEndpoint);
+      }
+    }
+
+    {
+      String wsUser = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsUser", false);
+      if (!StringUtils.isBlank(wsUser)) {
+        gcDataProviderSubjectListSync.assignWsUser(wsUser);
+      }
+    }
+
+    {
+      String wsPass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPass", false);
+      if (!StringUtils.isBlank(wsPass)) {
+        gcDataProviderSubjectListSync.assignWsPass(wsPass);
+      }
+    }
+
+    {
+      String wsPassEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassEncrypted", false);
+      if (!StringUtils.isBlank(wsPassEncrypted)) {
+        gcDataProviderSubjectListSync.assignWsPassEncrypted(wsPassEncrypted);
+      }
+    }
+
+    {
+      String wsPassFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFile", false);
+      if (!StringUtils.isBlank(wsPassFile)) {
+        gcDataProviderSubjectListSync.assignWsPassFile(new File(wsPassFile));
+      }
+    }
+
+    {
+      String wsPassFileEncrypted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "wsPassFileEncrypted", false);
+      if (!StringUtils.isBlank(wsPassFileEncrypted)) {
+        gcDataProviderSubjectListSync.assignWsPassFileEncrypted(new File(wsPassFileEncrypted));
+      }
+    }
+
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsDataProviderSubjectListSyncResult wsDataProviderSubjectListSyncResult = gcDataProviderSubjectListSync.execute();
+    
+    StringBuilder result = new StringBuilder();
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsDataProviderSubjectListSyncResult", wsDataProviderSubjectListSyncResult);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.dataProviderSubjectListSync.output");
+    }
+    if (GrouperClientLog.debugToConsoleByFlag()) {
+      System.err.println("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsDataProviderSubjectListSyncResult, " +
+          "grouperClientUtils, resultMetadata");
+    }
+    
+    substituteMap.put("resultMetadata", wsDataProviderSubjectListSyncResult.getResultMetadata());
+    
+    String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+    result.append(output);
     
     return result.toString();
   }

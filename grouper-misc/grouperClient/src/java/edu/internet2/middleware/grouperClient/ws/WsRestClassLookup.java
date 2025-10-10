@@ -214,6 +214,8 @@ public class WsRestClassLookup {
     addAliasClass(WsAuditEntryColumn.class);
     addAliasClass(WsGetAuditEntriesResults.class);
 
+    addAliasClass(WsRestDataProviderSubjectListSyncRequest.class);
+    addAliasClass(WsDataProviderSubjectListSyncResult.class);
   }
   
   /**
