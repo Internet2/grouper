@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
@@ -209,6 +210,8 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
 
+  private Set<String> entitySearchAttributesCache = null;
+  
   public GrouperScim2User retrieveEntityHelper(
       GrouperScim2ProvisionerConfiguration scimConfiguration,
       ProvisioningEntity grouperTargetEntity, boolean filterInactive) {
@@ -230,6 +233,10 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
 
     }
 
+    if (grouperScim2User != null) {
+      return grouperScim2User;
+    }
+    
     String userName = grouperTargetEntity
         .retrieveAttributeValueString("userName");
     if (grouperScim2User == null && !StringUtils.isBlank(userName)) {
@@ -239,6 +246,30 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
         grouperScim2User = null;
       }
     }
+
+    if (grouperScim2User != null) {
+      return grouperScim2User;
+    }
+
+    if (entitySearchAttributesCache == null) {
+      this.entitySearchAttributesCache = new HashSet<String>();
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : GrouperUtil.nonNull(scimConfiguration.getEntitySearchAttributes())) {
+        this.entitySearchAttributesCache.add(grouperProvisioningConfigurationAttribute.getName());
+      }
+    }
+    
+    if (entitySearchAttributesCache.contains("emailValue")) {
+      String email = grouperTargetEntity
+          .retrieveAttributeValueString("emailValue");
+      if (grouperScim2User == null && !StringUtils.isBlank(email)) {
+        grouperScim2User = GrouperScim2ApiCommands.retrieveScimUser(
+            scimConfiguration.getBearerTokenExternalSystemConfigId(), "email", email, grouperScim2MembershipCache, scimSettings);
+        if (filterInactive && grouperScim2User != null && !GrouperUtil.booleanValue(grouperScim2User.getActive(), true)) {
+          grouperScim2User = null;
+        }
+      }
+    }
+
     return grouperScim2User;
   }
 
