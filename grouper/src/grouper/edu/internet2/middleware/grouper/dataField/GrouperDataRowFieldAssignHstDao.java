@@ -46,6 +46,13 @@ public class GrouperDataRowFieldAssignHstDao {
         .selectList(GrouperDataRowFieldAssignHst.class);
   }
   
+  public static List<GrouperDataRowFieldAssignHst> selectByDataFieldInternalIdAndEndTimeBefore(long dataFieldInternalId, long endTimeBeforeMicros) {
+    return new GcDbAccess().sql("select * from grouper_data_row_field_asn_hst where data_field_internal_id = ? and end_time < ?")
+        .addBindVar(dataFieldInternalId)
+        .addBindVar(endTimeBeforeMicros)
+        .selectList(GrouperDataRowFieldAssignHst.class);
+  }
+  
   public static List<GrouperDataRowFieldAssignHst> selectByDataRowInternalIds(Set<Long> dataRowInternalIds) {
     if (dataRowInternalIds == null || dataRowInternalIds.size() == 0) {
       return new ArrayList<>();

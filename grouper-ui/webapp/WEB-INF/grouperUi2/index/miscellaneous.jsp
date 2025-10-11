@@ -43,6 +43,9 @@
                       >${textContainer.text['adminInstrumentationLink'] }</a>
                     </c:if>
                     
+                    <br /><br /><a id="miscellaneousGlobalLifecycleEventsLink" href="?operation=UiV2UserLifecycle.viewUserLifecycleSummary" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2UserLifecycle.viewUserLifecycleSummary');" style="white-space: nowrap;"
+                    >${textContainer.text['miscellaneousGlobalMemberhsipLifecycle'] }</a>
+                    
                     <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canViewProvisionerConfiguration}">
                       <br /><br /><a id="miscProvisioningLink"href="?operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations');" style="white-space: nowrap;">
                         ${textContainer.text['adminProvisionerConfigurationsLink'] }</a>

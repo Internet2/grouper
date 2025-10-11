@@ -714,6 +714,11 @@ public class GrouperRequestContainer {
    * container for entity data fields
    */
   private EntityDataFieldsContainer entityDataFieldsContainer;
+
+  /**
+   * container for user lifecycle related data
+   */
+  private UserLifecycleContainer userLifecycleContainer;
   
   
   /**
@@ -885,6 +890,17 @@ public class GrouperRequestContainer {
       this.entityDataFieldsContainer = new EntityDataFieldsContainer();
     }
     return this.entityDataFieldsContainer;
+  }
+  
+  /**
+   * lazy load the user lifecycle container
+   * @return the user lifecycle container
+   */
+  public UserLifecycleContainer getUserLifecycleContainer() {
+    if (this.userLifecycleContainer == null) {
+      this.userLifecycleContainer = new UserLifecycleContainer();
+    }
+    return this.userLifecycleContainer;
   }
 
   /** lazy load the grouper report container

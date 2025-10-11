@@ -70,6 +70,44 @@ public enum TableIndexType {
     }
   },
   
+  /** index assigned to a grouper lifecycle event config */
+  lifecycleEventConfig {
+
+    @Override
+    public String tableName() {
+      return "grouper_lifecycle_event_config";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  
+  /** index assigned to a grouper lifecycle event */
+  lifecycleEvent {
+
+    @Override
+    public String tableName() {
+      return "grouper_lifecycle_event";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  
   /** index assigned to a field */
   field {
 

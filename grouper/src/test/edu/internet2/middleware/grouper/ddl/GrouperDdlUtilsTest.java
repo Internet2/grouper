@@ -74,7 +74,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom5_12_0To5_13_0ddlUtils"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom5_13_0To5_22_0ddlUtils"));
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
     //TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
@@ -2578,6 +2578,68 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_adobe_membership"));
   
     scriptToGetTo5_0_4.delete();
+
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getResult() + " " + 
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    
+    
+    
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  }
+  
+  /**
+   * 
+   */
+  public void testUpgradeFrom5_13_0To5_22_0ddlUtils() {
+    
+    //lets make sure everything is there on install
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event_config"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event"));
+  
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_5_51_postgres.sql
+    // get to 5.0.4
+    File scriptToGetTo5_13_0 = retrieveScriptFile("GrouperDdl_5_13_0_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo5_13_0, true, true);
+  
+    // stuff gone
+    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event_config"));
+    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event"));
+  
+    UpgradeTasks.V36.upgradeTask().updateVersionFromPrevious(null);
+  
+    //lets make sure everything is there on upgrade
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event_config"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event"));
+  
+    scriptToGetTo5_13_0.delete();
 
     grouperDdlEngine = new GrouperDdlEngine();
     grouperDdlEngine.assignFromUnitTest(true)

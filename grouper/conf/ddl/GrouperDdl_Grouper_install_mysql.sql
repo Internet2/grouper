@@ -2356,6 +2356,39 @@ ALTER TABLE grouper_data_global_assign ADD CONSTRAINT grouper_data_global_assign
 ALTER TABLE grouper_data_global_assign ADD CONSTRAINT grouper_data_global_diction_fk FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id);
 ALTER TABLE grouper_data_global_assign ADD CONSTRAINT grouper_data_global_prov_fk FOREIGN KEY (data_provider_internal_id) REFERENCES grouper_data_provider(internal_id);
 
+CREATE TABLE grouper_lifecycle_event_config (
+  internal_id BIGINT NOT NULL,
+  config_id varchar(100) NOT NULL,
+  group_internal_id BIGINT,
+  stem_id_index BIGINT,
+  data_field_internal_id BIGINT,
+  data_row_internal_id BIGINT,
+  created_on_micros BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_lcycle_evnt_cnfg_idx ON grouper_lifecycle_event_config (config_id);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT group_internal_id_fk FOREIGN KEY (group_internal_id) REFERENCES  grouper_groups(internal_id);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT stem_id_index_fk FOREIGN KEY (stem_id_index) REFERENCES  grouper_stems(id_index);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_field_internal_id_fk FOREIGN KEY (data_field_internal_id) REFERENCES  grouper_data_field(internal_id);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_row_internal_id_fk FOREIGN KEY (data_row_internal_id) REFERENCES  grouper_data_row(internal_id);
+
+
+CREATE TABLE grouper_lifecycle_event (
+  internal_id BIGINT NOT NULL,
+  grpr_lcycl_evnt_cnfg_intrnl_id BIGINT NOT NULL,
+  member_internal_id BIGINT NOT NULL,
+  event_micros BIGINT NOT NULL,
+  ntrl_lng_priv_dic_intrnl_id BIGINT,
+  ntrl_lng_unpriv_dic_intrnl_id BIGINT,
+  PRIMARY KEY (internal_id)
+);
+
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lcycl_evnt_cnfg_intrnl_id_fk FOREIGN KEY (grpr_lcycl_evnt_cnfg_intrnl_id) REFERENCES  grouper_lifecycle_event_config(internal_id);
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT member_internal_id_fk FOREIGN KEY (member_internal_id) REFERENCES  grouper_members(internal_id);
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_priv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_priv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id);
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_unpriv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_unpriv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id);
+
 ALTER TABLE grouper_composites
     ADD CONSTRAINT fk_composites_owner FOREIGN KEY (owner) REFERENCES grouper_groups (id);
 
@@ -2999,6 +3032,6 @@ create view grouper_sql_dependency_attr_v (dependency_type_name, dependency_type
 create view grouper_sql_dependency_row_v (dependency_type_name, dependency_type_category,  dependency_type_internal_id, dependency_internal_id, owner_data_row_internal_id,  owner_data_row_config_id, owner_data_alias_name, owner_data_alias_lower_name,  owner_data_alias_internal_id, depen_cache_group_internal_id, depen_group_name,  depen_group_id, depen_group_internal_id, depen_group_id_index, depen_field_name,  depen_field_type, depen_field_internal_id ) as select gscdt.name as dependency_type_name, gscdt.dependency_category as dependency_type_category, gscdt.internal_id as dependency_type_internal_id, gscd.internal_id as dependency_internal_id, dtr_owner.internal_id as owner_data_row_internal_id, dtr_owner.config_id  as owner_data_row_config_id, gda_owner.name as owner_data_alias_name, gda_owner.lower_name as owner_data_alias_lower_name, gda_owner.internal_id as owner_data_alias_internal_id, gscg_dependent.internal_id as depen_cache_group_internal_id, gg_dependent.name as depen_group_name, gg_dependent.id as depen_group_id, gg_dependent.internal_id as depen_group_internal_id, gg_dependent.id_index as depen_group_id_index, gf_dependent.name as depen_field_name, gf_dependent.type as depen_field_type, gf_dependent.internal_id as depen_field_internal_id from  grouper_sql_cache_depend_type gscdt, grouper_sql_cache_dependency gscd left join grouper_data_row dtr_owner on gscd.owner_internal_id = dtr_owner.internal_id left join grouper_data_alias gda_owner on gda_owner.data_row_internal_id = dtr_owner.internal_id left join grouper_sql_cache_group gscg_dependent on gscd.dependent_internal_id = gscg_dependent.internal_id left join grouper_groups gg_dependent on gg_dependent.internal_id = gscg_dependent.group_internal_id left join grouper_fields gf_dependent on gscg_dependent.field_internal_id = gf_dependent.internal_id  where gscdt.name in ('abac_row')  and gscd.dep_type_internal_id = gscdt.internal_id;
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
-concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V47, '));
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 48, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
+concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V48, '));
 commit;

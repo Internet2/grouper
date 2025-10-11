@@ -2815,6 +2815,39 @@ alter table grouper_sync_dep_group_group
   
 alter table grouper_sync_dep_group_group
     add CONSTRAINT grouper_sync_dep_grp_grp_fk_3 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id);
+    
+CREATE TABLE grouper_lifecycle_event_config (
+  internal_id NUMBER(38) NOT NULL,
+  config_id varchar2(100) NOT NULL,
+  group_internal_id NUMBER(38),
+  stem_id_index NUMBER(38),
+  data_field_internal_id NUMBER(38),
+  data_row_internal_id NUMBER(38),
+  created_on_micros NUMBER(38) NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_lcycle_evnt_cnfg_idx ON grouper_lifecycle_event_config (config_id);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT group_internal_id_fk FOREIGN KEY (group_internal_id) REFERENCES  grouper_groups(internal_id);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT stem_id_index_fk FOREIGN KEY (stem_id_index) REFERENCES  grouper_stems(id_index);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_field_internal_id_fk FOREIGN KEY (data_field_internal_id) REFERENCES  grouper_data_field(internal_id);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_row_internal_id_fk FOREIGN KEY (data_row_internal_id) REFERENCES  grouper_data_row(internal_id);
+
+
+CREATE TABLE grouper_lifecycle_event (
+  internal_id NUMBER(38) NOT NULL,
+  grpr_lcycl_evnt_cnfg_intrnl_id NUMBER(38) NOT NULL,
+  member_internal_id NUMBER(38) NOT NULL,
+  event_micros NUMBER(38) NOT NULL,
+  ntrl_lng_priv_dic_intrnl_id NUMBER(38),
+  ntrl_lng_unpriv_dic_intrnl_id NUMBER(38),
+  PRIMARY KEY (internal_id)
+);
+
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lcycl_evnt_cnfg_intrnl_id_fk FOREIGN KEY (grpr_lcycl_evnt_cnfg_intrnl_id) REFERENCES  grouper_lifecycle_event_config(internal_id);
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT member_internal_id_fk FOREIGN KEY (member_internal_id) REFERENCES  grouper_members(internal_id);
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_priv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_priv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id);
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_unpriv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_unpriv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id);
 
 COMMENT ON COLUMN grouper_members.subject_identifier0 IS 'subject identifier of the subject';
 
@@ -8019,7 +8052,26 @@ COMMENT ON COLUMN grouper_sql_dependency_row_v.depen_field_name IS 'field name e
 COMMENT ON COLUMN grouper_sql_dependency_row_v.depen_field_type IS 'field type e.g. access of the dependent group of the dependency';
 COMMENT ON COLUMN grouper_sql_dependency_row_v.depen_field_internal_id IS 'field internal id of the dependent group of the dependency';
 
+COMMENT ON TABLE grouper_lifecycle_event_config IS 'table to store user lifecycle event configs';
+
+COMMENT ON COLUMN grouper_lifecycle_event_config.internal_id IS 'integer id for this table';
+COMMENT ON COLUMN grouper_lifecycle_event_config.config_id IS 'unique user friendly id for the config';
+COMMENT ON COLUMN grouper_lifecycle_event_config.group_internal_id IS 'group internal id';
+COMMENT ON COLUMN grouper_lifecycle_event_config.stem_id_index IS 'folder id index';
+COMMENT ON COLUMN grouper_lifecycle_event_config.data_field_internal_id IS 'data field internal id';
+COMMENT ON COLUMN grouper_lifecycle_event_config.data_row_internal_id IS 'data row internal id';
+
+
+COMMENT ON TABLE grouper_lifecycle_event IS 'table to store user lifecycle event configs';
+
+COMMENT ON COLUMN grouper_lifecycle_event.internal_id IS 'integer id for this table';
+COMMENT ON COLUMN grouper_lifecycle_event.grpr_lcycl_evnt_cnfg_intrnl_id IS 'internal id of the grouper lifecycle config table';
+COMMENT ON COLUMN grouper_lifecycle_event.member_internal_id IS 'member internal id';
+COMMENT ON COLUMN grouper_lifecycle_event.event_micros IS 'when the event occurred';
+COMMENT ON COLUMN grouper_lifecycle_event.ntrl_lng_priv_dic_intrnl_id IS 'dictionary table internal id';
+COMMENT ON COLUMN grouper_lifecycle_event.ntrl_lng_unpriv_dic_intrnl_id IS 'dictionary table internal id';
+
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V47, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 48, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V48, ');
 commit;

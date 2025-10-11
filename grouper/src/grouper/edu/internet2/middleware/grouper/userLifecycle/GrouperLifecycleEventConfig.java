@@ -1,0 +1,298 @@
+package edu.internet2.middleware.grouper.userLifecycle;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
+import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+
+
+@GcPersistableClass(tableName="grouper_lifecycle_event_config", defaultFieldPersist=GcPersist.doPersist)
+public class GrouperLifecycleEventConfig implements GcSqlAssignPrimaryKey, GcDbVersionable, OptionValueDriver {
+  
+  
+  /**
+   * some required config to see what the fields are
+   */
+  public static final Pattern lifecycleEventConfigIds = Pattern.compile("^grouperUserLifecycleEvent\\.([^.]+)\\.name$");
+  
+  @Override
+  public List<MultiKey> retrieveKeysAndLabels() {
+        
+    Set<String> configIds = GrouperConfig.retrieveConfig().propertyConfigIds(lifecycleEventConfigIds);
+    List<MultiKey> results = new ArrayList<>();
+    for (String theConfigId : GrouperUtil.nonNull(configIds)) {
+      results.add(new MultiKey(theConfigId, theConfigId));
+    }
+    return results;
+  }
+
+  @GcPersistableField(primaryKey=true, primaryKeyManuallyAssigned=true)
+  private long internalId = -1;
+  
+  private String configId;
+  
+  @GcPersistableField(columnName = "created_on_micros")
+  private Long createdOnMicros = null;
+  
+  @GcPersistableField(columnName = "group_internal_id")
+  private Long groupInternalId;
+
+  @GcPersistableField(columnName = "stem_id_index")
+  private Long stemIdIndex;
+
+  @GcPersistableField(columnName = "data_field_internal_id")
+  private Long dataFieldInternalId;
+  
+  @GcPersistableField(columnName = "data_row_internal_id")
+  private Long dataRowInternalId;
+  
+  
+  public Long getGroupInternalId() {
+    return groupInternalId;
+  }
+
+  
+  public void setGroupInternalId(Long groupInternalId) {
+    this.groupInternalId = groupInternalId;
+  }
+
+  
+  
+  public Long getStemIdIndex() {
+    return stemIdIndex;
+  }
+
+
+  
+  public void setStemIdIndex(Long stemIdIndex) {
+    this.stemIdIndex = stemIdIndex;
+  }
+
+
+  public Long getDataFieldInternalId() {
+    return dataFieldInternalId;
+  }
+
+  
+  public void setDataFieldInternalId(Long dataFieldInternalId) {
+    this.dataFieldInternalId = dataFieldInternalId;
+  }
+
+  
+  public Long getDataRowInternalId() {
+    return dataRowInternalId;
+  }
+
+  
+  public void setDataRowInternalId(Long dataRowInternalId) {
+    this.dataRowInternalId = dataRowInternalId;
+  }
+
+  /**
+   * version from db
+   */
+  @GcPersistableField(persist = GcPersist.dontPersist)
+  private GrouperLifecycleEventConfig dbVersion;
+  
+  /**
+   * store the internal id to use when the db access stores the object
+   */
+  @GcPersistableField(persist = GcPersist.dontPersist)
+  private Long tempInternalIdOnDeck = null;
+
+  /**
+   * store the internal id to use when the db access stores the object
+   * @return
+   */
+  public Long getTempInternalIdOnDeck() {
+    return tempInternalIdOnDeck;
+  }
+
+  /**
+   * store the internal id to use when the db access stores the object
+   * @param tempInternalIdOnDeck
+   */
+  public void setTempInternalIdOnDeck(Long tempInternalIdOnDeck) {
+    this.tempInternalIdOnDeck = tempInternalIdOnDeck;
+  }
+
+  
+  public long getInternalId() {
+    return internalId;
+  }
+
+  
+  public void setInternalId(long internalId) {
+    this.internalId = internalId;
+  }
+
+  
+  public String getConfigId() {
+    return configId;
+  }
+
+  
+  public void setConfigId(String configId) {
+    this.configId = configId;
+  }
+
+  
+  
+  
+  public Long getCreatedOnMicros() {
+    return createdOnMicros;
+  }
+
+  
+  public void setCreatedOnMicros(Long createdOnMicros) {
+    this.createdOnMicros = createdOnMicros;
+  }
+
+  /**
+   * 
+   */
+  @Override
+  public boolean gcSqlAssignNewPrimaryKeyForInsert() {
+    if (this.internalId != -1) {
+      return false;
+    }
+    if (this.tempInternalIdOnDeck != null) {
+      this.internalId = this.tempInternalIdOnDeck;
+    } else {
+      this.internalId = TableIndex.reserveId(TableIndexType.lifecycleEventConfig);
+    }
+    return true;
+  }
+
+
+  //########## END GENERATED BY GcDbVersionableGenerate.java ###########
+  
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public GrouperLifecycleEventConfig clone() {
+  
+    GrouperLifecycleEventConfig grouperLifecycleEventConfig = new GrouperLifecycleEventConfig();
+  
+    //dbVersion  DONT CLONE
+  
+    grouperLifecycleEventConfig.configId = this.configId;
+    grouperLifecycleEventConfig.createdOnMicros = this.createdOnMicros;
+    grouperLifecycleEventConfig.internalId = this.internalId;
+    grouperLifecycleEventConfig.groupInternalId = this.groupInternalId;
+    grouperLifecycleEventConfig.stemIdIndex = this.stemIdIndex;
+    grouperLifecycleEventConfig.dataFieldInternalId = this.dataFieldInternalId;
+    grouperLifecycleEventConfig.dataRowInternalId = this.dataRowInternalId;
+  
+    return grouperLifecycleEventConfig;
+  }
+
+
+  /**
+   * db version
+   */
+  @Override
+  public void dbVersionDelete() {
+    this.dbVersion = null;
+  }
+
+
+  /**
+   * if we need to update this object
+   * @return if needs to update this object
+   */
+  @Override
+  public boolean dbVersionDifferent() {
+    return !this.equalsDeep(this.dbVersion);
+  }
+
+
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = this.clone();
+  }
+
+
+  /**
+   *
+   */
+  public boolean equalsDeep(Object obj) {
+    if (this==obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof GrouperLifecycleEventConfig)) {
+      return false;
+    }
+    GrouperLifecycleEventConfig other = (GrouperLifecycleEventConfig) obj;
+  
+    return new EqualsBuilder()
+  
+  
+      //dbVersion  DONT EQUALS
+      .append(this.createdOnMicros, other.createdOnMicros)
+      .append(this.internalId, other.internalId)
+      .append(this.configId, other.configId)
+      .append(this.groupInternalId, other.groupInternalId)
+      .append(this.stemIdIndex, other.stemIdIndex)
+      .append(this.dataFieldInternalId, other.dataFieldInternalId)
+      .append(this.dataRowInternalId, other.dataRowInternalId)
+        .isEquals();
+  
+  }
+
+
+  public void storePrepare() {
+    if (this.createdOnMicros == null) {
+      this.createdOnMicros = System.currentTimeMillis() * 1000;
+      
+    }
+  }
+
+
+  /**
+   * 
+   */
+  @Override
+  public String toString() {
+    return GrouperClientUtils.toStringReflection(this, null);
+  }
+
+
+  /**
+   * delete all data if table is here
+   */
+  public static void reset() {
+    
+    new GcDbAccess().connectionName("grouper").sql("delete from " + GcPersistableHelper.tableName(GrouperLifecycleEventConfig.class)).executeSql();
+  }
+
+  public GrouperLifecycleEventConfig getDbVersion() {
+    return this.dbVersion;
+  }
+
+}
