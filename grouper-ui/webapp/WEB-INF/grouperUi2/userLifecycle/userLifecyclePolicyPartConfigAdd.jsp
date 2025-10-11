@@ -10,7 +10,7 @@
             <li><a href="?operation=UiV2UserLifecycle.viewUserLifecycleSummary" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2UserLifecycle.viewUserLifecycleSummary');">${textContainer.text['miscellaneousUserLifecycleBreadcrumb'] }</a><span
       class="divider"><i class='fa fa-angle-right'></i></span></li>
             
-            <li><a href="?operation=UiV2UserLifecycle.viewUserLifecyclePolicyParts" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2UserLifecycle.viewUserLifecyclePolicies');">${textContainer.text['miscellaneousUserLifecyclePoliciesBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+            <li><a href="?operation=UiV2UserLifecycle.viewUserLifecyclePolicyParts" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2UserLifecycle.viewUserLifecyclePolicies');">${textContainer.text['miscellaneousUserLifecyclePolicyPartsBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
             
             <li class="active">${textContainer.text['miscellaneousUserLifecyclePolicyPartsAddBreadcrumb'] }</li> 
         </ul>

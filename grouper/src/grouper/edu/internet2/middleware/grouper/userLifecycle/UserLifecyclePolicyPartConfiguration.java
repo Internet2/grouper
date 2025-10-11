@@ -16,7 +16,7 @@ public class UserLifecyclePolicyPartConfiguration extends GrouperConfigurationMo
   /**
    * some required config to see what the fields are
    */
-  public static final Pattern lifecyclePolicyPartConfigIds = Pattern.compile("^grouperUserLifecyclePolicyPart\\.([^.]+)\\.name$");
+  public static final Pattern lifecyclePolicyPartConfigIds = Pattern.compile("^grouperUserLifecyclePolicyPart\\.([^.]+)\\.policy$");
   
   @Override
   public ConfigFileName getConfigFileName() {
