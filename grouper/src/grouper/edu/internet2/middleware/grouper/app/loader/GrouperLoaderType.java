@@ -1820,7 +1820,7 @@ public enum GrouperLoaderType {
       final String OVERALL_LOGGER_ID = GrouperLoaderLogger.retrieveOverallId();
 
       syncFolderList(groupNamesToSync, groupNameToDisplayName, grouperLoaderDisplayNameSyncType, displayNameSyncBaseFolderName,
-          displayNameSyncLevels);
+          displayNameSyncLevels, hib3GrouploaderLogOverall, statusOverall);
       
       final boolean approved = grouperFailsafeBean == null ? false : GrouperFailsafe.isApproved(grouperFailsafeBean.getJobName());
       
@@ -1954,7 +1954,7 @@ public enum GrouperLoaderType {
    */
   protected static void syncFolderList(Set<String> groupNamesToSync, Map<String, String> groupNameToDisplayName, 
       final GrouperLoaderDisplayNameSyncType grouperLoaderDisplayNameSyncType,  final String displayNameSyncBaseFolderName,
-      final Integer displayNameSyncLevels) {
+      final Integer displayNameSyncLevels, final Hib3GrouperLoaderLog hib3GrouploaderLogOverall, final GrouperLoaderStatus[] statusOverall) {
     
     if (!GrouperConfig.retrieveConfig().propertyValueBoolean("loader.preCreateFolders", true)) {
       return;
@@ -1962,6 +1962,8 @@ public enum GrouperLoaderType {
     groupNameToDisplayName = GrouperUtil.nonNull(groupNameToDisplayName);
     
     Map<String, String> folderNameToDisplayName = new LinkedHashMap<String, String>();
+    Map<String, String> folderNameToGroupNameAdded = new LinkedHashMap<String, String>();
+    Map<String, String> folderNameToGroupDisplayNameAdded = new LinkedHashMap<String, String>();
     
     for (String groupName : GrouperUtil.nonNull(groupNamesToSync)) {
       
@@ -1980,19 +1982,40 @@ public enum GrouperLoaderType {
       if (folderNameToDisplayName.containsKey(folderName)) {
         
         if (!StringUtils.equals(folderNameToDisplayName.get(folderName), folderDisplayName)) {
-        
-          LOG.error("How can the same stem: '"+folderName+"' have more than one display name in the same loader run: '"+folderNameToDisplayName.get(folderName) 
-          +"' and '"+folderDisplayName+"'"); 
+          String errorMessage = "How can the same stem: '"+folderName
+            +"' have more than one display name in the same loader run: '"+folderNameToDisplayName.get(folderName) 
+            +"' and '"+folderDisplayName+"', for groupName: '"+groupName+"' and display name: '"+groupDisplayName
+            +"', vs previous groupName: " + folderNameToGroupNameAdded.get(folderName) 
+            + " and display name: '" + folderNameToGroupDisplayNameAdded.get(folderName) + "'";
+          GrouperLoaderLogger.addLogEntry("overallLog", "stemDisplayNameProblem", errorMessage);
+
+          LOG.error(hib3GrouploaderLogOverall.getJobName() + ": " + errorMessage ); 
+          hib3GrouploaderLogOverall.appendJobMessage(errorMessage);
+          if (statusOverall[0] == null || !statusOverall[0].isError()) {
+            statusOverall[0] = GrouperLoaderStatus.WARNING;
+          }
         }        
         continue;
       }
       
       if (StringUtils.isBlank(folderDisplayName)) {
-        LOG.error("How can a group have a blank folder display name?: '"+folderName+"', '"+folderDisplayName+"'"); 
+        String errorMessage = "How can a group have a blank folder display name?: '"+folderName+"', '"
+            +folderDisplayName+"', for groupName: '"+groupName+"' and display name: '"+groupDisplayName
+            +"', vs previous groupName: " + folderNameToGroupNameAdded.get(folderName) 
+            + " and display name: '" + folderNameToGroupDisplayNameAdded.get(folderName) + "'";
+        GrouperLoaderLogger.addLogEntry("overallLog", "stemDisplayNameBlank", errorMessage);
+
+        LOG.error(hib3GrouploaderLogOverall.getJobName() + ": " + errorMessage); 
+        hib3GrouploaderLogOverall.appendJobMessage(errorMessage);
+        if (statusOverall[0] == null || !statusOverall[0].isError()) {
+          statusOverall[0] = GrouperLoaderStatus.WARNING;
+        }
         continue;
       }
       
       folderNameToDisplayName.put(folderName, folderDisplayName);
+      folderNameToGroupNameAdded.put(folderName, groupName);
+      folderNameToGroupDisplayNameAdded.put(folderName, groupDisplayName);
       
     }
 
