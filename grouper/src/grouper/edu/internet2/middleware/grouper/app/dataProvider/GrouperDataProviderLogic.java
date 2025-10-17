@@ -381,7 +381,7 @@ public class GrouperDataProviderLogic {
     // resolve the subjects
     Set<Subject> allSubjects = new LinkedHashSet<Subject>();
     if (GrouperUtil.length(subjectIds) > 0) {
-      Map<String, Subject> subjectsByIds = SubjectFinder.findByIds(subjectIds, null, true);
+      Map<String, Subject> subjectsByIds = SubjectFinder.findByIds(subjectIds);
       allSubjects.addAll(subjectsByIds.values());
     }
     if (GrouperUtil.length(subjectIdentifiers) > 0) {
@@ -776,7 +776,7 @@ public class GrouperDataProviderLogic {
     }
     // resolve all the subjects at once depending on the source and type
     if (GrouperUtil.length(subjectIds) > 0) {
-      Map<String, Subject> subjectsByIds = SubjectFinder.findByIds(subjectIds, null, true);
+      Map<String, Subject> subjectsByIds = SubjectFinder.findByIds(subjectIds);
       for (String subjectId : subjectsByIds.keySet()) {
         Subject subject = subjectsByIds.get(subjectId);
         MultiKey subjectIdAttributeSubjectIdSourceId = new MultiKey("subjectId", subjectId, null);

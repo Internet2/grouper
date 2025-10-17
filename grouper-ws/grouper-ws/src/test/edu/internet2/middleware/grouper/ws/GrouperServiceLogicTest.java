@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.ws;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +32,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -41,6 +43,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderLogic;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -63,7 +66,10 @@ import edu.internet2.middleware.grouper.attr.value.AttributeValueResult;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob;
+import edu.internet2.middleware.grouper.dataField.GrouperDataProviderTest;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
@@ -121,6 +127,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResults.WsAttributeDefSaveResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefToSave;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDataProviderSubjectListSyncResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult.WsDeleteMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults.WsDeleteMemberResultsCode;
@@ -185,6 +192,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
@@ -223,7 +231,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testFindStemsWhenNotExist"));
+    TestRunner.run(new GrouperServiceLogicTest("testDataProviderSubjectListSync"));
   }
 
   /**
@@ -11002,5 +11010,114 @@ public class GrouperServiceLogicTest extends GrouperTest {
     
   }
     
+
+  public void testDataProviderSubjectListSync() {
+
+    GrouperDataProviderTest.createTableAttributes();
     
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
+        
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldAliases").value("active").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldDataStorePit").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.descriptionHtml").value("<b>description html </b>").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldAliases").value("twoStepEnrolled, hasTwoStep").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldDataStorePit").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.descriptionHtml").value("<b>description html </b>").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldAliases").value("employee").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldDataStorePit").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.descriptionHtml").value("<b>description html </b>").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.name").value("idm").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryType").value("sql").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySqlConfigId").value("grouper").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySqlQuery").value("select subject_id, active, two_step_enrolled, employee from testgrouper_field_attr").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataStructure").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySubjectIdAttribute").value("subject_id").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySubjectIdType").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySubjectSourceId").value("jdbc").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryNumberOfDataFields").value("3").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.0.providerDataFieldConfigId").value("isActive").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.0.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.0.providerDataFieldAttribute").value("active").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.1.providerDataFieldConfigId").value("twoStep").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.1.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.1.providerDataFieldAttribute").value("two_step_enrolled").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.2.providerDataFieldConfigId").value("employee").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.2.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.2.providerDataFieldAttribute").value("employee").store();
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    // get initial data there
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.dataProviderConfigId").value("idm").store();
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+
+    WsSubjectLookup[] wsSubjectLookups = new WsSubjectLookup[] {new WsSubjectLookup("test.subject.0", "jdbc", null), new WsSubjectLookup("test.subject.1", null, null)};
+
+    WsDataProviderSubjectListSyncResult wsDataProviderSubjectListSyncResult = GrouperServiceLogic.dataProviderSubjectListSync(GROUPER_VERSION, null, wsSubjectLookups, null);
+    assertEquals("INVALID_QUERY",  wsDataProviderSubjectListSyncResult.getResultMetadata().getResultCode());
+    assertEquals(400, wsDataProviderSubjectListSyncResult.getResultMetadata().retrieveHttpStatusCode());
+    
+    wsDataProviderSubjectListSyncResult = GrouperServiceLogic.dataProviderSubjectListSync(GROUPER_VERSION, "idm", null, null);
+    assertEquals("INVALID_QUERY",  wsDataProviderSubjectListSyncResult.getResultMetadata().getResultCode());
+    assertEquals(400, wsDataProviderSubjectListSyncResult.getResultMetadata().retrieveHttpStatusCode());
+    
+    wsDataProviderSubjectListSyncResult = GrouperServiceLogic.dataProviderSubjectListSync(GROUPER_VERSION, "idm", wsSubjectLookups, null);
+    assertEquals("SUCCESS",  wsDataProviderSubjectListSyncResult.getResultMetadata().getResultCode());
+    assertEquals(200, wsDataProviderSubjectListSyncResult.getResultMetadata().retrieveHttpStatusCode());
+
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v").select(int.class).intValue());
+
+    List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "T", "F", "T"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.1", "F", "T", "F"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.2", "T", "T", "T"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.3", "F", "F", "F"));
+
+    // bad subject shouldn't cause the load to fail
+    batchBindVars.add(GrouperUtil.toList("test.subject.bogus", "F", "F", "F"));
+
+    new GcDbAccess().sql("insert into testgrouper_field_attr (subject_id, active, two_step_enrolled, employee) values (?, ?, ?, ?)").batchBindVars(batchBindVars).executeBatchSql();
+    
+    wsDataProviderSubjectListSyncResult = GrouperServiceLogic.dataProviderSubjectListSync(GROUPER_VERSION, "idm", wsSubjectLookups, null);
+    assertEquals("SUCCESS",  wsDataProviderSubjectListSyncResult.getResultMetadata().getResultCode());
+    assertEquals(200, wsDataProviderSubjectListSyncResult.getResultMetadata().retrieveHttpStatusCode());
+    
+    assertEquals(6, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v").select(int.class).intValue());
+
+    // test authorization
+    wsSubjectLookups = new WsSubjectLookup[] {new WsSubjectLookup("test.subject.2", "jdbc", null), new WsSubjectLookup("test.subject.3", null, null)};
+
+    Subject subj0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Subject subj1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    GroupFinder.findByName(GrouperSession.staticGrouperSession(), GrouperDataProviderLogic.dataProviderSubjectListSyncAllowedGroupName(), true).addMember(subj1);
+    GrouperSession.start(subj0);
+    
+    wsDataProviderSubjectListSyncResult = GrouperServiceLogic.dataProviderSubjectListSync(GROUPER_VERSION, "idm", wsSubjectLookups, null);
+    assertEquals("EXCEPTION",  wsDataProviderSubjectListSyncResult.getResultMetadata().getResultCode());
+    assertEquals(500, wsDataProviderSubjectListSyncResult.getResultMetadata().retrieveHttpStatusCode());
+    
+    assertEquals(6, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v").select(int.class).intValue());
+
+    GrouperSession.start(subj1);
+
+    wsDataProviderSubjectListSyncResult = GrouperServiceLogic.dataProviderSubjectListSync(GROUPER_VERSION, "idm", wsSubjectLookups, null);
+    assertEquals("SUCCESS",  wsDataProviderSubjectListSyncResult.getResultMetadata().getResultCode());
+    assertEquals(200, wsDataProviderSubjectListSyncResult.getResultMetadata().retrieveHttpStatusCode());
+    
+    assertEquals(12, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v").select(int.class).intValue());
+  }
 }
