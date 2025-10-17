@@ -101,6 +101,36 @@ public class GrouperCsvReportJob extends OtherJobBase {
       List<String> headers = retrieveHeaders(query, removeUnderscoresAndCapitalizeHeaders);
       debugMap.put("columnsSize", GrouperUtil.length(headers));
       
+      //  # edu.internet2.middleware.grouper.app.reports.GrouperCsvReportJob
+      //  
+      //  # keep doublequotes in column headers from query default.  this will affect all csv reports
+      //  # {valueType: "boolean", defaultValue: "false"}
+      //  keepDoublequotesInColumnHeadersDefault = false
+      //
+      //  # keep doublequotes in column headers from query.  
+      //  # dsdefaults to the grouper-loader.properties value keepDoublequotesInColumnHeadersDefault which defaults to false
+      //  # {valueType: "string", regex: "^otherJob\\.([^.]+)\\.csvReport\\.keepDoublequotesInColumnHeaders$"}
+      //  # otherJob.csvJobId.csvReport.keepDoublequotesInColumnHeaders = false
+      Boolean keepDoublequotesInColumnHeaders = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobName + ".csvReport.keepDoublequotesInColumnHeaders");
+      
+      if (keepDoublequotesInColumnHeaders == null) {
+        keepDoublequotesInColumnHeaders = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("keepDoublequotesInColumnHeadersDefault", false);
+        keepDoublequotesInColumnHeaders = keepDoublequotesInColumnHeaders == null ? false : keepDoublequotesInColumnHeaders;
+      }
+      
+      if (!keepDoublequotesInColumnHeaders) {
+        // remove double quotes from headers
+        List<String> headersNoQuotes = new ArrayList<String>();
+        for (String header : headers) {
+          // replace starting and ending quotes only
+          if (header.startsWith("\"") && header.endsWith("\"")) {
+            header = header.substring(1, header.length()-1);
+          }
+          headersNoQuotes.add(header);
+        }
+        headers = headersNoQuotes;
+      }
+      
       List<String[]> data = retrieveData(database, query);
       debugMap.put("rowsSize", GrouperUtil.length(data));
       hib3GrouperLoaderLog.setTotalCount(GrouperUtil.length(data));
