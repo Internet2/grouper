@@ -1015,6 +1015,8 @@ public class GrouperDataProviderLogic {
     
     long totalFieldAssignsInGrouper = 0;
     
+    int numberOfDuplicateRowKeysFoundInSource = 0;
+    
     // go through each user, index and convert the data
     for (GrouperDataMemberWrapper grouperDataMemberWrapper : dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().values()) {
       
@@ -1323,7 +1325,11 @@ public class GrouperDataProviderLogic {
               
               if (foundNotNullKey) {
                 MultiKey rowKey = new MultiKey(keyValues);
-                providerDataRowKeyToDataFieldInternalIdsAndValues.put(rowKey, providerDataFieldInternalIdToValues);
+                Map<Long, List<Object>> existingValue = providerDataRowKeyToDataFieldInternalIdsAndValues.put(rowKey, providerDataFieldInternalIdToValues);
+                if (existingValue != null) {
+                  LOG.warn("Found duplicate keys for member internal id: " + grouperDataMemberWrapper.getInternalId());
+                  numberOfDuplicateRowKeysFoundInSource++;
+                }
               } else {
                 LOG.warn("Skipping provider row with all null keys: " + grouperDataRowConfig.getConfigId());
               }
@@ -1510,6 +1516,17 @@ public class GrouperDataProviderLogic {
       }
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
+    }
+    
+    // note if there are duplicate keys
+    if (numberOfDuplicateRowKeysFoundInSource > 0) {
+      if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+        grouperDataProviderSync.getHib3GrouperLoaderLog().setStatus(GrouperLoaderStatus.WARNING.name());
+      }
+      
+      if (grouperDataProviderSync.getDebugMap() != null) {
+        grouperDataProviderSync.getDebugMap().put("numberOfDuplicateRowKeysFoundInSource", numberOfDuplicateRowKeysFoundInSource);
+      }
     }
     
     // check failsafe for full syncs
