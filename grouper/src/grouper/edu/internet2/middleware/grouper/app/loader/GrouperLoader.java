@@ -1759,6 +1759,22 @@ public class GrouperLoader {
     return runOnceByJobName(grouperSession, jobName, false);
   }
   
+  public static String runOnceByJobNameLocallyAndAssertSuccess(String jobName) {
+    long startMillis = System.currentTimeMillis();
+    // give a tad of time for contention
+    GrouperUtil.sleep(35);
+
+    // run job
+    String result = runOnceByJobName(GrouperSession.staticGrouperSession(), jobName, false);
+    
+    // get the most recent loader log for job
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+
+    GrouperUtil.assertion(hib3GrouperLoaderLog.getLastUpdated().getTime() > startMillis, "Cant find job log for job: " + jobName);
+    GrouperUtil.assertion("SUCCESS".equals(hib3GrouperLoaderLog.getStatus()), "Job: " + jobName + " not SUCCESS!");
+    return result;
+    
+  }
   
   /**
    * @param grouperSession
