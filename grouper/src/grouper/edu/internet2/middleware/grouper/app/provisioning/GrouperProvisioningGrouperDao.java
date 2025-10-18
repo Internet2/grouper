@@ -1005,7 +1005,7 @@ public class GrouperProvisioningGrouperDao {
       }
       
       for (GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem : GrouperUtil.nonNull(grouperProvisioningObjectMetadataItems)) {
-        if (grouperProvisioningObjectMetadataItem.isShowForGroup()) {
+        if (grouperProvisioningObjectMetadataItem.isShowForGroup() || grouperProvisioningObjectMetadataItem.isShowForFolder()) {
           
           String metadataItemName = grouperProvisioningObjectMetadataItem.getName();
           if (metadataItemName.startsWith("md_")) {
