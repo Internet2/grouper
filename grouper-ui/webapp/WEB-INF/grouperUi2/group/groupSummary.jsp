@@ -135,26 +135,14 @@
             </tr>
           </c:if>
         </c:if>
-        <c:if test="${grouperRequestContainer.groupContainer.guiGroup.canAdmin}">
-          <c:if test="${grouperRequestContainer.groupSummaryContainer.provisioningAssignmentCount > 0}">
-            <!-- PROVISIONING -->
-            <tr>
-              <td style="vertical-align: top;"><strong><a href="javascript:void(0)" id="groupMoreActionsProvisioningButtonId" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                              >${textContainer.text['provisioningMoreActionsMenuLabel'] }</a></strong></td>
-              <td style="padding-left: 0px;">
-                <li style="margin-left: 12px;">
-                  ${textContainer.text['groupSummaryPageProvisionedTargetMessage']}
-                  <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.guiGrouperProvisioningAttributeValues}"> 
-                    <c:forEach var="guiGrouperProvisioningAttributeValue" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.guiGrouperProvisioningAttributeValues}">
-                      ${guiGrouperProvisioningAttributeValue.externalizedName}
-                      <c:if test="${!status.last}">,</c:if>
-                    </c:forEach>
-                  </c:if>
-                </li>
-              </td>
-            </tr>
-          </c:if>
-        </c:if>
+        <!-- PROVISIONING -->
+        <tr style="display: none" id="groupConfigurationProvisioningRowId">
+          <td style="vertical-align: top;"><strong><a href="javascript:void(0)" id="groupMoreActionsProvisioningButtonId" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          >${textContainer.text['provisioningMoreActionsMenuLabel'] }</a></strong></td>
+          <td style="padding-left: 0px;" id="groupProvisioningSummaryCellId">
+
+          </td>
+        </tr>
         <c:if test="${grouperRequestContainer.groupContainer.guiGroup.canUpdate}">
           <c:if test="${grouperRequestContainer.groupSummaryContainer.attestation}">
             <!-- ATTESTATION -->

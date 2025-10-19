@@ -429,46 +429,6 @@ public class UiV2Group {
         }
       }
       
-      //provisioning section
-      {
-        
-        if (isAdmin) {
-          List<GrouperProvisioningAttributeValue> provisioningAttributeValues = GrouperProvisioningService.getProvisioningAttributeValues(group);
-          
-          groupSummaryContainer.setProvisioningAssignmentCount(provisioningAttributeValues.size());
-          
-          if (provisioningAttributeValues.size() < 10) {
-            Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
-            List<GrouperProvisioningAttributeValue> provisioningAttributeValuesViewable = new ArrayList<GrouperProvisioningAttributeValue>();
-            Set<String> targetNamesAlreadyAdded = new HashSet<>();
-            for (GrouperProvisioningAttributeValue grouperProvisioningAttributeValue: provisioningAttributeValues) {
-              
-              String localTargetName = grouperProvisioningAttributeValue.getTargetName();
-              GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(localTargetName);
-              if (grouperProvisioningTarget != null && GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, group)) {
-                provisioningAttributeValuesViewable.add(grouperProvisioningAttributeValue);
-                targetNamesAlreadyAdded.add(grouperProvisioningAttributeValue.getTargetName());
-              }
-            }
-            
-            // convert from raw to gui
-            List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(provisioningAttributeValuesViewable, group);
-            
-            Collections.sort(guiGrouperProvisioningAttributeValues, new Comparator<GuiGrouperProvisioningAttributeValue>() {
-
-              @Override
-              public int compare(GuiGrouperProvisioningAttributeValue o1,
-                  GuiGrouperProvisioningAttributeValue o2) {
-                return o1.getExternalizedName().compareTo(o2.getExternalizedName());
-              }
-            });
-            
-            groupSummaryContainer.setGuiGrouperProvisioningAttributeValues(guiGrouperProvisioningAttributeValues);
-            
-          }
-        }
-      }
-      
       //attestation section
       {
         if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false)) {
@@ -6684,6 +6644,51 @@ public class UiV2Group {
               "/WEB-INF/grouperUi2/group/groupSummaryMoreAttributes.jsp"));
 
           guiResponseJs.addAction(GuiScreenAction.newScript("$('#groupAttributesSummaryRowId').show('slow');"));
+        }
+      }
+      
+      //provisioning section
+      {
+        
+        if (isAdmin) {
+          List<GrouperProvisioningAttributeValue> provisioningAttributeValues = GrouperProvisioningService.getProvisioningAttributeValues(group);
+          
+          groupSummaryContainer.setProvisioningAssignmentCount(provisioningAttributeValues.size());
+          
+          if (provisioningAttributeValues.size() < 10) {
+            Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+            List<GrouperProvisioningAttributeValue> provisioningAttributeValuesViewable = new ArrayList<GrouperProvisioningAttributeValue>();
+            Set<String> targetNamesAlreadyAdded = new HashSet<>();
+            for (GrouperProvisioningAttributeValue grouperProvisioningAttributeValue: provisioningAttributeValues) {
+              
+              String localTargetName = grouperProvisioningAttributeValue.getTargetName();
+              GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(localTargetName);
+              if (grouperProvisioningTarget != null && GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, group)) {
+                provisioningAttributeValuesViewable.add(grouperProvisioningAttributeValue);
+                targetNamesAlreadyAdded.add(grouperProvisioningAttributeValue.getTargetName());
+              }
+            }
+            
+            // convert from raw to gui
+            List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(provisioningAttributeValuesViewable, group);
+            
+            Collections.sort(guiGrouperProvisioningAttributeValues, new Comparator<GuiGrouperProvisioningAttributeValue>() {
+
+              @Override
+              public int compare(GuiGrouperProvisioningAttributeValue o1,
+                  GuiGrouperProvisioningAttributeValue o2) {
+                return o1.getExternalizedName().compareTo(o2.getExternalizedName());
+              }
+            });
+            
+            groupSummaryContainer.setGuiGrouperProvisioningAttributeValues(guiGrouperProvisioningAttributeValues);
+            
+          }
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupProvisioningSummaryCellId", 
+              "/WEB-INF/grouperUi2/group/groupSummaryMoreProvisioning.jsp"));
+
+          guiResponseJs.addAction(GuiScreenAction.newScript("$('#groupConfigurationProvisioningRowId').show('slow');"));
+          
         }
       }
       
