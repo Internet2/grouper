@@ -5,7 +5,12 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -20,6 +25,7 @@ import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBe
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstance;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstanceService;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -30,6 +36,9 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -1287,10 +1296,180 @@ public class AttestationContainer {
   }
   
   /**
+   * cache if grouper object has attestation
+   */
+  private static ExpirableCache<MultiKey, HasAttestationState> grouperObjectHasAttestationCache = new ExpirableCache<MultiKey, HasAttestationState>(1);
+
+  /**
+   * clear the cache
+   */
+  public static void clearGrouperObjectHasAttestationCache() {
+    grouperObjectHasAttestationCache.clear();
+  }
+  
+  /**
+   * enum with three states
+   */
+  public enum HasAttestationState {
+    /** has attestation */
+    HAS_ATTESTATION,
+    /** does not have attestation */
+    DOES_NOT_HAVE_ATTESTATION,
+    /** not assigned */
+    ATTESTATION_NOT_ASSIGNED
+  }
+  
+  /**
    * if has attestation
    * @return true if has
    */
   public boolean isHasAttestationConfigured() {
+    if (!this.isCanReadAttestation() )  {
+      return false;
+    }
+
+    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+    
+    // if this is a group
+    if (guiGroup != null) {
+      // multikey
+      MultiKey multiKey = new MultiKey("group", guiGroup.getGroup().getName());
+      
+      HasAttestationState hasAttestation = grouperObjectHasAttestationCache.get(multiKey);
+      if (hasAttestation == null) {
+        
+        AttributeDefName hasAttestationAttributeDefName = GrouperAttestationJob.retrieveAttributeDefNameHasAttestation();
+        
+        // run query
+        List<Object[]> selectList = new GcDbAccess().sql("""
+            select group_name, gaaagv.value_string from grouper_aval_asn_asn_group_v gaaagv where
+            gaaagv.attribute_def_name_id2 = ?
+            and gaaagv.group_name = ?
+            """).addBindVar(hasAttestationAttributeDefName.getId()).addBindVar(guiGroup.getGroup().getName()).selectList(Object[].class);
+        
+        //loop through
+        hasAttestation = HasAttestationState.DOES_NOT_HAVE_ATTESTATION;
+        for (Object[] row : selectList) {
+          String valueString = (String)row[1];
+          if (GrouperUtil.booleanValue(valueString, false)) {
+            hasAttestation = HasAttestationState.HAS_ATTESTATION;
+            break;
+          }
+        }
+        
+        grouperObjectHasAttestationCache.put(multiKey, hasAttestation);
+      }
+      return hasAttestation == HasAttestationState.HAS_ATTESTATION;
+    }
+    
+    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+    // if this is a stem
+    if (guiStem != null) {
+      // multikey
+      MultiKey multiKey = new MultiKey("stem", guiStem.getStem().getName());
+      
+      HasAttestationState hasAttestation = grouperObjectHasAttestationCache.get(multiKey);
+      if (hasAttestation == null || hasAttestation == HasAttestationState.ATTESTATION_NOT_ASSIGNED) {
+        
+        // get all the parent stems
+        // if the groups are: a:b:c:d, then return the strings:
+        // * :, a, a:b, a:b:c
+        Set<String> stemNames = GrouperUtil.findParentStemNames(guiStem.getStem().getName());
+        
+        // add stem
+        stemNames.add(guiStem.getStem().getName());
+        
+        // make a map of results
+        Map<String, HasAttestationState> stemNameToHasAttestation = new HashMap<String, HasAttestationState>();
+
+        // keep track of which ones we need to query
+        Set<String> stemNamesToQuery = new HashSet<String>();
+        
+        // keep track of stem name to multiKey
+        Map<String, MultiKey> stemNameToMultiKey = new HashMap<String, MultiKey>();
+        
+        // see if each already in cache
+        for (String stemName : stemNames) {
+          MultiKey parentMultiKey = new MultiKey("stem", stemName);
+          HasAttestationState parentHasAttestation = grouperObjectHasAttestationCache.get(parentMultiKey);
+          if (parentHasAttestation != null) {
+            stemNameToHasAttestation.put(stemName, parentHasAttestation);
+            continue;
+          }
+          stemNamesToQuery.add(stemName);
+          stemNameToMultiKey.put(stemName, parentMultiKey);
+        }
+        
+        // are there any to query?
+        if (stemNamesToQuery.size() > 0) {
+
+          AttributeDefName hasAttestationAttributeDefName = GrouperAttestationJob.retrieveAttributeDefNameHasAttestation();
+
+          // run query
+          GcDbAccess gcDbAccess = new GcDbAccess().sql("""
+              select stem_name, gsaaav.value_string from grouper_aval_asn_asn_stem_v gsaaav where
+              gsaaav.attribute_def_name_id2 = '%s'
+              """.formatted(hasAttestationAttributeDefName.getId()))
+              .selectMultipleColumnName("stem_name").batchSize(100);
+          
+          for (String stemNameToQuery : stemNamesToQuery) {
+            gcDbAccess.addBindVar(stemNameToQuery);
+          }
+          
+          List<Object[]> selectList = gcDbAccess.selectList(Object[].class);
+          
+          // cache these
+          Map<String, HasAttestationState> stemNameToQueriedHasAttestation = new HashMap<String, HasAttestationState>();
+          
+          //loop through
+          for (Object[] row : selectList) {
+            String stemName = (String)row[0];
+            String valueString = (String)row[1];
+            HasAttestationState stemHasAttestation = HasAttestationState.DOES_NOT_HAVE_ATTESTATION;
+            if (!StringUtils.isBlank(valueString)) {
+              if (GrouperUtil.booleanValue(valueString, false)) {
+                stemHasAttestation = HasAttestationState.HAS_ATTESTATION;
+              } else {
+                stemHasAttestation = HasAttestationState.DOES_NOT_HAVE_ATTESTATION;
+              }
+            }
+            stemNameToQueriedHasAttestation.put(stemName, stemHasAttestation);
+          }
+          
+          // go through queries stems and put in cache
+          for (String stemNameToQuery : stemNamesToQuery) {
+            HasAttestationState stemHasAttestation = stemNameToQueriedHasAttestation.get(stemNameToQuery);
+            if (stemHasAttestation == null) {
+              stemHasAttestation = HasAttestationState.ATTESTATION_NOT_ASSIGNED;
+            }
+            stemNameToHasAttestation.put(stemNameToQuery, stemHasAttestation);
+            MultiKey stemMultiKey = stemNameToMultiKey.get(stemNameToQuery);
+            grouperObjectHasAttestationCache.put(stemMultiKey, stemHasAttestation);
+          }
+          
+        }
+        // go through the stems backwards and look for an answer
+        hasAttestation = HasAttestationState.DOES_NOT_HAVE_ATTESTATION;
+        List<String> stemNamesList = new ArrayList<String>(stemNames);
+        Collections.reverse(stemNamesList);
+        for (String stemName : stemNamesList) {
+          HasAttestationState stemHasAttestation = stemNameToHasAttestation.get(stemName);
+          if (stemHasAttestation != null && stemHasAttestation != HasAttestationState.ATTESTATION_NOT_ASSIGNED) {
+            hasAttestation = stemHasAttestation;
+            break;
+          }
+        }
+      }
+      return hasAttestation == HasAttestationState.HAS_ATTESTATION;
+    }
+    return false;
+  }
+
+  /**
+   * if has attestation
+   * @return true if has
+   */
+  public boolean isHasAttestationConfiguredNoCache() {
     this.attributeAssignableHelper();
     return this.hasAttestationConfigured;
   }
