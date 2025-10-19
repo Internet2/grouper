@@ -482,6 +482,9 @@ public class UiV2GrouperObjectTypes {
         .assignReplaceAllSettings(true).assignGroup(GROUP).assignType(objectTypeName)
         .save();
         
+      // clear cache on types
+      GrouperObjectTypesConfiguration.clearCache();
+
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnGroup&groupId=" + group.getId() + "')"));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("objectTypeEditSaveSuccess")));
@@ -548,6 +551,9 @@ public class UiV2GrouperObjectTypes {
         .assignReplaceAllSettings(true).assignStem(STEM).assignType(objectTypeName)
         .save();
           
+      // clear cache on types
+      GrouperObjectTypesConfiguration.clearCache();
+      
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnFolder&stemId=" + stem.getId() + "')"));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("objectTypeEditSaveSuccess")));
@@ -631,6 +637,9 @@ public class UiV2GrouperObjectTypes {
         }
       });
       
+      // clear cache on types
+      GrouperObjectTypesConfiguration.clearCache();
+
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnFolder&stemId=" + stem.getId() + "')"));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("objectTypeEditSaveSuccess")));
@@ -712,6 +721,9 @@ public class UiV2GrouperObjectTypes {
         }
       });
       
+      // clear cache on types
+      GrouperObjectTypesConfiguration.clearCache();
+
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnGroup&groupId=" + group.getId() + "')"));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("objectTypeEditSaveSuccess")));
