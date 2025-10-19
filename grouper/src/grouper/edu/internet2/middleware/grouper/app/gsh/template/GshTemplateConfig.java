@@ -1,8 +1,11 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,14 +15,17 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 
 public class GshTemplateConfig {
@@ -361,7 +367,254 @@ public class GshTemplateConfig {
     return displayErrorOutput;
   }
 
+  /**
+   * cache the groups and stems
+   * first key is group or stem
+   * second key is id or name
+   * value is the grouper object or Void if not found
+   */
+  private static ExpirableCache<MultiKey, Object> grouperObjectTypeIdOrNameToGrouperObjectCache = new ExpirableCache<MultiKey, Object>(5);
+  
+  /**
+   * clear cache
+   */
+  public static void clearGrouperObjectTypeIdOrNameToGrouperObjectCache() {
+    grouperObjectTypeIdOrNameToGrouperObjectCache.clear();
+  }
+  
+  public static Map<MultiKey, GrouperObject> gshTemplateObjectCache() {
+
+    List<GshTemplateConfiguration> gshTemplateConfigs = GshTemplateConfiguration.retrieveAllGshTemplateConfigs();
+    
+    // resolve all the stems and groups here to avoid doing it in the loop
+    Map<MultiKey, GrouperObject> grouperObjectTypeIdOrNameToGrouperObject = new HashMap<MultiKey, GrouperObject>();
+
+    final Set<String> groupIdsToFind = new HashSet<>();
+    final Set<String> groupNamesToFind = new HashSet<>();
+    final Set<String> stemIdsToFind = new HashSet<>();
+    final Set<String> stemNamesToFind = new HashSet<>();
+    
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+    
+    for (GshTemplateConfiguration gshTemplateConfiguration: gshTemplateConfigs) {
+      if (!gshTemplateConfiguration.isEnabled()) {
+        continue;
+      }
+
+      String configPrefix = "grouperGshTemplate."+gshTemplateConfiguration.getConfigId()+".";
+
+      // multiple
+      String groupUuidsToShow = grouperConfig.propertyValueString(configPrefix+"groupUuidsToShow");
+      
+      if (!StringUtils.isBlank(groupUuidsToShow)) {
+        String[] groupUuidsOrNames = GrouperUtil.splitTrim(groupUuidsToShow, ",");
+        for (String groupUuidOrName: groupUuidsOrNames) {
+          if (groupUuidOrName.contains(":")) {
+            groupNamesToFind.add(groupUuidOrName);
+          } else {
+            groupIdsToFind.add(groupUuidOrName);
+          }
+        }
+      }
+
+      String folderUuidForGroupsInFolder = grouperConfig.propertyValueString(configPrefix+"folderUuidForGroupsInFolder");
+      
+      if (!StringUtils.isBlank(folderUuidForGroupsInFolder)) {
+        String[] folderUuidsOrNames = GrouperUtil.splitTrim(folderUuidForGroupsInFolder, ",");
+        for (String folderUuidOrName: folderUuidsOrNames) {
+          stemNamesToFind.add(folderUuidOrName);
+          stemIdsToFind.add(folderUuidOrName);
+        }
+      }
+
+      // multiple
+      String folderUuidsOrNamesToShow = grouperConfig.propertyValueString(configPrefix+"folderUuidToShow");
+      
+      if (!StringUtils.isBlank(folderUuidsOrNamesToShow)) {
+        String[] folderUuidsOrNames = GrouperUtil.splitTrim(folderUuidsOrNamesToShow, ",");
+        for (String folderUuidOrName: folderUuidsOrNames) {
+          stemNamesToFind.add(folderUuidOrName);
+          if (!folderUuidOrName.contains(":")) {
+            stemIdsToFind.add(folderUuidOrName);
+          }
+        }
+      }
+
+      String groupUuidOrNameCanRun = grouperConfig.propertyValueString(configPrefix+"groupUuidCanRun");
+
+      if (!StringUtils.isBlank(groupUuidOrNameCanRun)) {
+        if (groupUuidOrNameCanRun.contains(":")) {
+          groupNamesToFind.add(groupUuidOrNameCanRun);
+        } else {
+          groupIdsToFind.add(groupUuidOrNameCanRun);
+        }
+      }
+      
+    }
+    
+    Iterator<String> groupIdIterator = groupIdsToFind.iterator();
+    while (groupIdIterator.hasNext()) {
+      String groupId = groupIdIterator.next();
+      MultiKey multiKey = new MultiKey("group", groupId);
+      Object object = grouperObjectTypeIdOrNameToGrouperObjectCache.get(multiKey);
+      if (object == null) {
+        continue;
+      }
+      if (object == Void.TYPE) {
+        if (!grouperObjectTypeIdOrNameToGrouperObject.containsKey(multiKey)) {
+          grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, null);
+        }
+      } else {
+        grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, (GrouperObject)object);
+      }
+    }
+    
+    Iterator<String> groupNameIterator = groupNamesToFind.iterator();
+    while (groupNameIterator.hasNext()) {
+      String groupName = groupNameIterator.next();
+      MultiKey multiKey = new MultiKey("group", groupName);
+      Object object = grouperObjectTypeIdOrNameToGrouperObjectCache.get(multiKey);
+      if (object == null) {
+        continue;
+      }
+      if (object == Void.TYPE) {
+        if (!grouperObjectTypeIdOrNameToGrouperObject.containsKey(multiKey)) {
+          grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, null);
+        }
+      } else {
+        grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, (GrouperObject)object);
+      }
+    }
+    
+    Iterator<String> stemIdIterator = stemIdsToFind.iterator();
+    while (stemIdIterator.hasNext()) {
+      String stemId = stemIdIterator.next();
+      MultiKey multiKey = new MultiKey("stem", stemId);
+      Object object = grouperObjectTypeIdOrNameToGrouperObjectCache.get(multiKey);
+      if (object == null) {
+        continue;
+      }
+      if (object == Void.TYPE) {
+        if (!grouperObjectTypeIdOrNameToGrouperObject.containsKey(multiKey)) {
+          grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, null);
+        }
+      } else {
+        grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, (GrouperObject)object);
+      }
+    }
+    
+    Iterator<String> stemNameIterator = stemNamesToFind.iterator();
+    while (stemNameIterator.hasNext()) {
+      String stemName = stemNameIterator.next();
+      MultiKey multiKey = new MultiKey("stem", stemName);
+      Object object = grouperObjectTypeIdOrNameToGrouperObjectCache.get(multiKey);
+      if (object == null) {
+        continue;
+      }
+      if (object == Void.TYPE) {
+        if (!grouperObjectTypeIdOrNameToGrouperObject.containsKey(multiKey)) {
+          grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, null);
+        }
+      } else {
+        grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, (GrouperObject)object);
+      }
+    }
+
+    // if there are ids or names of groups or stems to find, find them now
+    if (stemIdsToFind.size() > 0 || stemNamesToFind.size() > 0 || groupIdsToFind.size() > 0 || groupNamesToFind.size() > 0) {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          // find groups by id
+          if (groupIdsToFind.size() > 0) {
+            Set<Group> groups = new GroupFinder().assignGroupIds(groupIdsToFind).findGroups();
+            for (Group theGroup : groups) {
+              MultiKey multiKey = new MultiKey("group", theGroup.getUuid());
+              grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, theGroup);
+              grouperObjectTypeIdOrNameToGrouperObjectCache.put(multiKey, theGroup);
+              groupIdsToFind.remove(theGroup.getUuid());
+            }
+            // not found
+            for (String groupIdNotFound : groupIdsToFind) {
+              MultiKey multiKey = new MultiKey("group", groupIdNotFound);
+              if (!grouperObjectTypeIdOrNameToGrouperObject.containsKey(multiKey)) {
+                grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, null);
+                grouperObjectTypeIdOrNameToGrouperObjectCache.put(multiKey, Void.TYPE);
+              }
+            }
+          }
+          
+          // find groups by name
+          if (groupNamesToFind.size() > 0) {
+            Set<Group> groups = new GroupFinder().assignGroupNames(groupNamesToFind).findGroups();
+            for (Group theGroup : groups) {
+              MultiKey multiKey = new MultiKey("group", theGroup.getName());
+              grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, theGroup);
+              grouperObjectTypeIdOrNameToGrouperObjectCache.put(multiKey, theGroup);
+              groupNamesToFind.remove(theGroup.getName());
+            }
+            // not found
+            for (String groupNameNotFound : groupNamesToFind) {
+              MultiKey multiKey = new MultiKey("group", groupNameNotFound);
+              if (!grouperObjectTypeIdOrNameToGrouperObject.containsKey(multiKey)) {
+                grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, null);
+                grouperObjectTypeIdOrNameToGrouperObjectCache.put(multiKey, Void.TYPE);
+              }
+            }
+          }
+          
+          // find stems by id
+          if (stemIdsToFind.size() > 0) {
+            Set<Stem> stems = new StemFinder().assignStemIds(stemIdsToFind).findStems();
+            for (Stem theStem : stems) {
+              MultiKey multiKey = new MultiKey("stem", theStem.getUuid());
+              grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, theStem);
+              grouperObjectTypeIdOrNameToGrouperObjectCache.put(multiKey, theStem);
+              stemIdsToFind.remove(theStem.getUuid());
+            }
+            // not found
+            for (String stemIdNotFound : stemIdsToFind) {
+              MultiKey multiKey = new MultiKey("stem", stemIdNotFound);
+              if (!grouperObjectTypeIdOrNameToGrouperObject.containsKey(multiKey)) {
+                grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, null);
+                grouperObjectTypeIdOrNameToGrouperObjectCache.put(multiKey, Void.TYPE);
+              }
+            }
+          }
+          
+          // find stems by name
+          if (stemNamesToFind.size() > 0) {
+            Set<Stem> stems = new StemFinder().assignStemNames(stemNamesToFind).findStems();
+            for (Stem theStem : stems) {
+              MultiKey multiKey = new MultiKey("stem", theStem.getName());
+              grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, theStem);
+              grouperObjectTypeIdOrNameToGrouperObjectCache.put(multiKey, theStem);
+              stemNamesToFind.remove(theStem.getName());
+            }
+            // not found
+            for (String stemNameNotFound : stemNamesToFind) {
+              MultiKey multiKey = new MultiKey("stem", stemNameNotFound);
+              if (!grouperObjectTypeIdOrNameToGrouperObject.containsKey(multiKey)) {
+                grouperObjectTypeIdOrNameToGrouperObject.put(multiKey, null);
+                grouperObjectTypeIdOrNameToGrouperObjectCache.put(multiKey, Void.TYPE);
+              }
+            }
+          }
+          
+          return null;
+        }
+      });
+    }
+    return grouperObjectTypeIdOrNameToGrouperObject;
+  }
+  
   public void populateConfiguration() {
+    populateConfiguration(null);
+  }
+  
+  public void populateConfiguration(Map<MultiKey, GrouperObject> grouperObjectTypeIdOrNameToGrouperObject) {
     
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
@@ -427,9 +680,15 @@ public class GshTemplateConfig {
             
             String[] groupUuidsOrNames = GrouperUtil.splitTrim(groupUuidsToShow, ",");
             for (String groupUuidOrName: groupUuidsOrNames) {
-              Group groupToShow = GroupFinder.findByUuid(grouperSession, groupUuidOrName, false);
-              if (groupToShow == null) {
-                groupToShow = GroupFinder.findByName(grouperSession, groupUuidOrName, false);
+              Group groupToShow = null;
+              if (grouperObjectTypeIdOrNameToGrouperObject != null) {
+                MultiKey multiKeyUuid = new MultiKey("group", groupUuidOrName);
+                groupToShow = (Group)grouperObjectTypeIdOrNameToGrouperObject.get(multiKeyUuid);
+              } else {
+                groupToShow = GroupFinder.findByUuid(grouperSession, groupUuidOrName, false);
+                if (groupToShow == null) {
+                  groupToShow = GroupFinder.findByName(grouperSession, groupUuidOrName, false);
+                }
               }
               GrouperUtil.assertion(groupToShow != null, "could not find group for groupUuidOrName: "+groupUuidOrName);
               groupsToShow.add(groupToShow);
@@ -438,9 +697,15 @@ public class GshTemplateConfig {
           } else if (gshTemplateGroupShowType == GshTemplateGroupShowType.groupsInFolder) {
             
             String folderUuidForGroupsInFolder = grouperConfig.propertyValueStringRequired(configPrefix+"folderUuidForGroupsInFolder");
-            folderForGroupsInFolder = StemFinder.findByUuid(grouperSession, folderUuidForGroupsInFolder, false);
-            if (folderForGroupsInFolder == null) {
-              folderForGroupsInFolder = StemFinder.findByName(grouperSession, folderUuidForGroupsInFolder, false);
+            folderForGroupsInFolder = null;
+            if (grouperObjectTypeIdOrNameToGrouperObject != null) {
+              MultiKey multiKeyUuid = new MultiKey("stem", folderUuidForGroupsInFolder);
+              folderForGroupsInFolder = (Stem)grouperObjectTypeIdOrNameToGrouperObject.get(multiKeyUuid);
+            } else {
+              folderForGroupsInFolder = StemFinder.findByUuid(grouperSession, folderUuidForGroupsInFolder, false);
+              if (folderForGroupsInFolder == null) {
+                folderForGroupsInFolder = StemFinder.findByName(grouperSession, folderUuidForGroupsInFolder, false);
+              }
             }
             GrouperUtil.assertion(folderForGroupsInFolder != null, "could not find folder for folderUuidForGroupsInFolder: "+folderUuidForGroupsInFolder);
             gshTemplateGroupShowOnDescendants = GshTemplateGroupShowOnDescendants.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"groupShowOnDescendants"), true);
@@ -464,9 +729,15 @@ public class GshTemplateConfig {
             
             String[] folderUuidsOrNames = GrouperUtil.splitTrim(folderUuidsOrNamesToShow, ",");
             for (String folderUuidOrName: folderUuidsOrNames) {
-              Stem folderToShow = StemFinder.findByUuid(grouperSession, folderUuidOrName, false);
-              if (folderToShow == null) {
-                folderToShow = StemFinder.findByName(grouperSession, folderUuidOrName, false);
+              Stem folderToShow = null;
+              if (grouperObjectTypeIdOrNameToGrouperObject != null) {
+                MultiKey multiKeyUuid = new MultiKey("stem", folderUuidOrName);
+                folderToShow = (Stem)grouperObjectTypeIdOrNameToGrouperObject.get(multiKeyUuid);
+              } else {
+                folderToShow = StemFinder.findByUuid(grouperSession, folderUuidOrName, false);
+                if (folderToShow == null) {
+                  folderToShow = StemFinder.findByName(grouperSession, folderUuidOrName, false);
+                }
               }
               GrouperUtil.assertion(folderToShow != null, "could not find folder for folderUuidToShow: "+folderUuidOrName);
               foldersToShow.add(folderToShow);
@@ -483,9 +754,14 @@ public class GshTemplateConfig {
         
         if (gshTemplateSecurityRunType == GshTemplateSecurityRunType.specifiedGroup) {
           String groupUuidOrNameCanRun = grouperConfig.propertyValueStringRequired(configPrefix+"groupUuidCanRun");
-          groupThatCanRun = GroupFinder.findByUuid(grouperSession, groupUuidOrNameCanRun, false);
-          if (groupThatCanRun == null) {
-            groupThatCanRun = GroupFinder.findByName(grouperSession, groupUuidOrNameCanRun, false);
+          if (grouperObjectTypeIdOrNameToGrouperObject != null) {
+            MultiKey multiKeyUuid = new MultiKey("group", groupUuidOrNameCanRun);
+            groupThatCanRun = (Group)grouperObjectTypeIdOrNameToGrouperObject.get(multiKeyUuid);
+          } else {
+            groupThatCanRun = GroupFinder.findByUuid(grouperSession, groupUuidOrNameCanRun, false);
+            if (groupThatCanRun == null) {
+              groupThatCanRun = GroupFinder.findByName(grouperSession, groupUuidOrNameCanRun, false);
+            }
           }
           GrouperUtil.assertion(groupThatCanRun != null, "could not find group for groupUuidOrNameCanRun: "+groupUuidOrNameCanRun);
         }
