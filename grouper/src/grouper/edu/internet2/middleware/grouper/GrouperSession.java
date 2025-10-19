@@ -894,7 +894,7 @@ public class GrouperSession implements Serializable {
     // TODO 20070417 deprecate if possible
     if (this.rootSession == null) {
       
-      if (PrivilegeHelper.isWheelOrRoot( this.getSubject())) {
+      if (PrivilegeHelper.isSystemSubject(this.getSubject())) {
         this.rootSession = this;
       } else {
 
@@ -906,7 +906,7 @@ public class GrouperSession implements Serializable {
         this.rootSession = rs;
         rs.rootSessionParent = this;
       }
-    }
+    } 
     return this.rootSession;
   } 
 
