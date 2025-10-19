@@ -553,7 +553,7 @@ public class GrouperServiceJ2ee implements Filter {
   private static GrouperCache<MultiKey, Boolean> subjectAllowedCache() {
     if (subjectAllowedCache == null) {
       int subjectAllowedTimeoutMinutes = GrouperWsConfig.retrieveConfig().propertyValueInt(
-          GrouperWsConfig.WS_CLIENT_USER_GROUP_CACHE_MINUTES, 5);
+          GrouperWsConfig.WS_CLIENT_USER_GROUP_CACHE_MINUTES, 2);
       
       synchronized(GrouperServiceJ2ee.class) {
         if (subjectAllowedCache == null) {
