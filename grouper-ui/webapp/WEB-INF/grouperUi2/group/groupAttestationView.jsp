@@ -23,7 +23,7 @@
                                     
                 </c:choose>
 
-                  <c:if test="${grouperRequestContainer.attestationContainer.hasAttestationConfigured}">
+                  <c:if test="${grouperRequestContainer.attestationContainer.hasAttestationConfiguredNoCache}">
                     
                     <table class="table table-condensed table-striped">
                       <tbody>
