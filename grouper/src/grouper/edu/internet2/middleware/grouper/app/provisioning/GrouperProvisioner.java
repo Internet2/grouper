@@ -877,7 +877,8 @@ public abstract class GrouperProvisioner {
       debugMap.put("provisionerClass", this.getClass().getSimpleName());
       debugMap.put("configId", this.getConfigId());
       debugMap.put("provisioningType", grouperProvisioningType1);
-    
+      debugMap.put("instanceId", this.getInstanceId());
+
       this.retrieveGrouperProvisioningLogic().provision();
       
       // assign a success, and if this is a full, then remove failures from incremental if they are there
