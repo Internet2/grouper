@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
@@ -31,6 +32,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -40,6 +42,81 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class IndexContainer {
+
+  public String getEnvironmentHeaderText() {
+    
+    boolean hasConfig = !StringUtils.isBlank(GrouperUiApiTextConfig.retrieveTextConfig().propertyValueString("banner.environment.header.text"));
+    boolean hasDefaultConfig = !StringUtils.isBlank(GrouperUiApiTextConfig.retrieveTextConfig().propertyValueString("banner.environment.header.text.default")) 
+        && !StringUtils.equalsIgnoreCase(GrouperUiApiTextConfig.retrieveTextConfig().propertyValueString("banner.environment.header.text.default").trim(), "&nbsp;");
+    
+    if (!hasConfig && !hasDefaultConfig) {
+      return null;
+    }
+    
+    if (!hasConfig) {
+      String environmentName = GrouperConfig.retrieveConfig().propertyValueString("grouper.env.name");
+      if (StringUtils.isBlank(environmentName) || StringUtils.equals("production", environmentName) || StringUtils.equals("prod", environmentName)) {
+        return null;
+      }
+      return TextContainer.retrieveFromRequest().getText().get("banner.environment.header.text.default");
+          
+    }
+    
+    return TextContainer.retrieveFromRequest().getText().get("banner.environment.header.text");
+  }
+
+  public String getAnnounceHeaderText() {
+    
+    boolean hasConfig = !StringUtils.isBlank(GrouperUiApiTextConfig.retrieveTextConfig().propertyValueString("banner.announce.header.text"));
+    
+    if (!hasConfig) {
+      return null;
+    }
+    return TextContainer.retrieveFromRequest().getText().get("banner.announce.header.text");
+  }
+  
+
+  public String getEnvironmentName() {
+
+    String environmentName = GrouperConfig.retrieveConfig().propertyValueString("grouper.env.name");
+    if (StringUtils.isBlank(environmentName)) {
+      return environmentName;
+    }
+    return environmentName;
+    
+  }
+  public String getEnvironmentNameCap() {
+
+    String environmentName = GrouperConfig.retrieveConfig().propertyValueString("grouper.env.name");
+    if (StringUtils.isBlank(environmentName)) {
+      return environmentName;
+    }
+    return environmentName.toUpperCase();
+    
+  }
+  
+  public boolean isShowAnnounceHeader() {
+    
+    // nothing to show
+    if (StringUtils.isBlank(getAnnounceHeaderText())) {
+      return false;
+    }
+    return true;
+  }
+
+  public boolean isShowEnvironmentHeader() {
+    
+    String environmentName = GrouperConfig.retrieveConfig().propertyValueString("grouper.env.name");
+    // nothing to show
+    if (StringUtils.isBlank(getEnvironmentHeaderText())) {
+      return false;
+    }
+    boolean defaultShowEnvironmentHeader = true;
+    if (StringUtils.isBlank(environmentName) || StringUtils.equals("production", environmentName) || StringUtils.equals("prod", environmentName)) {
+      defaultShowEnvironmentHeader = false;
+    }
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.show.environment.header", defaultShowEnvironmentHeader);
+  }
 
   public String getContainerFluidMaxWidth() {
     return StringUtils.defaultIfBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.containerFluidMaxWidth"), "95%");

@@ -13,6 +13,9 @@
       <h3 style="color: #990000">${textContainer.text['indexNoJavascript'] }</h3>    
     </noscript>
     <div class="top-container" id="theTopContainer">
+      <%@ include file="../assetsJsp/environmentHeader.jsp"%>
+      <%@ include file="../assetsJsp/announceHeader.jsp"%>
+      <%@ include file="../assetsJsp/customHeader.jsp"%>
       <div class="navbar navbar-static-top">
         <div class="navbar-inner">
           <div class="container-fluid">

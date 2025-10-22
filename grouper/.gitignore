@@ -36,3 +36,5 @@ src/grouper/*Test.java
 felix-cache
 /confLocal/
 /trace.zip
+/.apt_generated/
+/.apt_generated_tests/

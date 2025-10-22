@@ -82,6 +82,8 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.customizeUi.IndexMainLogicInput;
+import edu.internet2.middleware.grouper.ui.customizeUi.JavaUiCustomizer;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -807,6 +809,9 @@ public class UiV2Main extends UiServiceLogicBase {
 
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
+      
+      // if the user has customized something
+      JavaUiCustomizer.retrieveInstance().indexMainLogic(new IndexMainLogicInput(request, response));
 
       //just show a jsp
       showJsp("/WEB-INF/grouperUi2/index/index.jsp");

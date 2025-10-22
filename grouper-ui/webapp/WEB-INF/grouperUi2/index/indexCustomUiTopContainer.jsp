@@ -1,6 +1,8 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
     <div class="top-container" id="theTopContainer">
+      <%@ include file="../assetsJsp/environmentHeader.jsp"%>
+    
       <div class="container-fluid">
         <div id="messaging1" class="row-fluid">
         </div>
