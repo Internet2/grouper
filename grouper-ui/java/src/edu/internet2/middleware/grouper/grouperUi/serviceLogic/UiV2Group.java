@@ -156,6 +156,8 @@ import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.customizeUi.GroupViewLogicInput;
+import edu.internet2.middleware.grouper.ui.customizeUi.JavaUiCustomizer;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -333,6 +335,9 @@ public class UiV2Group {
       }
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      // if the user has customized something
+      JavaUiCustomizer.retrieveInstance().groupViewLogic(new GroupViewLogicInput(request, response));
       
       if (group.getTypeOfGroup() == TypeOfGroup.entity) {
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=" + group.getId() + "')"));

@@ -14,5 +14,14 @@ public class ExampleJavaUiCustomizer extends JavaUiCustomizer {
     indexMainLogicInput.getRequest().setAttribute("myGroupCount", myGroupCount);
   }
 
+  @Override
+  public void groupViewLogic(GroupViewLogicInput groupViewLogicInput) {
+    // count the number of stem
+    int myStemCount = new GcDbAccess().sql("select count(1) from grouper_stems").select(int.class);
+    
+    // use a name that is unlikely to collide with others
+    groupViewLogicInput.getRequest().setAttribute("myStemCount", myStemCount);
+  }
+
 
 }

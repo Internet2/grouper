@@ -21,6 +21,8 @@
         
         <p style="display: block; margin-top: 0;" /></td></tr>
       
+        <%@ include file="../group/groupSummaryCustom.jsp"%>
+      
         <c:if test="${not empty grouperRequestContainer.objectTypeContainer.guiConfiguredGrouperObjectTypesAttributeValues}">
           <!-- Types -->
           <tr>

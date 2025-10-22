@@ -22,4 +22,8 @@ public class JavaUiCustomizer {
     
   }
   
+  public void groupViewLogic(GroupViewLogicInput groupViewLogicInput) {
+    
+  }
+  
 }
