@@ -51,7 +51,7 @@ public class SqlCacheDependencyDao {
            and gscg_owner.group_internal_id = gg.internal_id 
            and gf.internal_id = gscg_dependent.field_internal_id
            and gf.name = 'members'
-          and gscg_dependent.group_internal_id  = ?;
+          and gscg_dependent.group_internal_id  = ?
         """);
     List<String> groupIds = new GcDbAccess().sql(query.toString()).addBindVar(groupInternalId).selectList(String.class);
     return new HashSet<String>(groupIds);
