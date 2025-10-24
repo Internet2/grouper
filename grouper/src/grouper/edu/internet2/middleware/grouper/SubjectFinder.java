@@ -1308,6 +1308,17 @@ public class SubjectFinder implements CheckboxValueDriver {
   }
   
   /**
+   * <pre class="eg">
+   * Set sources = SubjectFinder.getSources(true);
+   * </pre>
+   * @param   enabledOnly
+   * @return  Set of all {@link Source} adapters.
+   */
+  public static Set<Source> getSources(boolean enabledOnly) {
+    return getResolver().getSources(enabledOnly);
+  }
+  
+  /**
    * see {@link CheckboxValueDriver#retrieveCheckboxAttributes()}
    */
   @Override

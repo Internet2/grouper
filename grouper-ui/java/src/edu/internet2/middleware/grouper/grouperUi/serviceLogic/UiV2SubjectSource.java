@@ -62,7 +62,7 @@ public class UiV2SubjectSource {
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
-          List<Source> sortedSources = new ArrayList<Source>(SubjectFinder.getSources());
+          List<Source> sortedSources = new ArrayList<Source>(SubjectFinder.getSources(false));
           
           Collections.sort(sortedSources, new Comparator<Source>() {
 

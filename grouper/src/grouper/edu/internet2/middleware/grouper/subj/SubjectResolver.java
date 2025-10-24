@@ -250,6 +250,12 @@ public interface SubjectResolver {
    * @since   1.2.1
    */
   Set<Source> getSources();
+  
+  /**
+   * @param   enabledOnly
+   * @return  All Subject sources.
+   */
+  Set<Source> getSources(boolean enabledOnly);
 
   /**
    * @return  Subject matching search parameters.
