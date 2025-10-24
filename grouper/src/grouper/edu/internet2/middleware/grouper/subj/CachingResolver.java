@@ -342,6 +342,13 @@ public class CachingResolver extends SubjectResolverDecorator {
   public Set<Source> getSources() {
     return super.getDecoratedResolver().getSources();
   }
+  
+  /**
+   * @see     SubjectResolver#getSources(boolean)
+   */
+  public Set<Source> getSources(boolean enabledOnly) {
+    return super.getDecoratedResolver().getSources(enabledOnly);
+  }
 
   /**
    * Put set of subjects into cache for <code>findAll(...)</code>.

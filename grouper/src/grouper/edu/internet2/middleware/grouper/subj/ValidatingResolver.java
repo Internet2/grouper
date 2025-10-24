@@ -240,6 +240,14 @@ public class ValidatingResolver extends SubjectResolverDecorator {
   public Set<Source> getSources() {
     return super.getDecoratedResolver().getSources();
   }
+  
+  /**
+   * @see     SubjectResolver#getSources(boolean)
+   * @since   1.2.1
+   */
+  public Set<Source> getSources(boolean enabledOnly) {
+    return super.getDecoratedResolver().getSources(enabledOnly);
+  }
 
   /**
    * @see SubjectResolver#findByIdOrIdentifier(String)
