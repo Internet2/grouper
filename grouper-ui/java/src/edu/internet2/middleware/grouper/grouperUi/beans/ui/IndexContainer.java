@@ -112,7 +112,7 @@ public class IndexContainer {
       return false;
     }
     boolean defaultShowEnvironmentHeader = true;
-    if (StringUtils.isBlank(environmentName) || StringUtils.equals("production", environmentName) || StringUtils.equals("prod", environmentName)) {
+    if (StringUtils.isBlank(environmentName) || StringUtils.equalsIgnoreCase("production", environmentName) || StringUtils.equalsIgnoreCase("prod", environmentName)) {
       defaultShowEnvironmentHeader = false;
     }
     return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.show.environment.header", defaultShowEnvironmentHeader);
