@@ -337,7 +337,10 @@ public class UiV2Group {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       // if the user has customized something
-      JavaUiCustomizer.retrieveInstance().groupViewLogic(new GroupViewLogicInput(request, response));
+      GroupViewLogicInput groupViewLogicInput = new GroupViewLogicInput(request, response);
+      //add the group
+      groupViewLogicInput.setGroup(group);
+      JavaUiCustomizer.retrieveInstance().groupViewLogic(groupViewLogicInput);
       
       if (group.getTypeOfGroup() == TypeOfGroup.entity) {
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=" + group.getId() + "')"));
