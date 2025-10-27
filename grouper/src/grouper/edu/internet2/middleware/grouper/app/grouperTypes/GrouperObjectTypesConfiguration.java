@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.grouperTypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +25,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
@@ -58,26 +60,38 @@ public class GrouperObjectTypesConfiguration {
   /**
    * cache the type: group or stem, object id, list of types
    */
-  private static ExpirableCache<MultiKey, List<GrouperObjectTypesAttributeValue>> grouperObjectTypesAttributeValuesCache = 
-      new ExpirableCache<MultiKey, List<GrouperObjectTypesAttributeValue>>(ExpirableCacheUnit.SECOND, 20);
+  private static ExpirableCache<MultiKey, List<GrouperObjectTypesAttributeValue>> grouperObjectTypesAttributeValuesCache = null;
 
+  /**
+   * get the cache and init the time for cache
+   */
+  public static ExpirableCache<MultiKey, List<GrouperObjectTypesAttributeValue>> grouperObjectTypesAttributeValuesCache() {
+    if (grouperObjectTypesAttributeValuesCache == null) {
+      grouperObjectTypesAttributeValuesCache = 
+          new ExpirableCache<MultiKey, List<GrouperObjectTypesAttributeValue>>(ExpirableCacheUnit.SECOND, 
+              GrouperConfig.retrieveConfig().propertyValueInt("grouperObjectTypesAttributeValuesCacheSeconds", 60));
+    }
+    return grouperObjectTypesAttributeValuesCache;
+  }
+  
   /**
    * clear cache
    */
   public static void clearCache() {
-    grouperObjectTypesAttributeValuesCache.clear();
+    grouperObjectTypesAttributeValuesCache().clear();
   }
-  
+    
   /**
    * retrieve all the configured type settings for a given grouper object (group/stem)
    * @param grouperObjects to get from db
    * @return the map of types
    */
-  public static Map<GrouperObject, List<GrouperObjectTypesAttributeValue>> getGrouperObjectTypesAttributeValues(Collection<GrouperObject> grouperObjects) {
+  public static Map<GrouperObject, List<GrouperObjectTypesAttributeValue>> getGrouperObjectTypesAttributeValues(Collection<?> grouperObjects) {
     
     if (grouperObjects == null || grouperObjects.size() == 0) {
       return new HashMap<>();
     }
+    Collection<GrouperObject> theGrouperObjects = (Collection<GrouperObject>)(Object)grouperObjects;
     
     Map<GrouperObject, List<GrouperObjectTypesAttributeValue>> results = new HashMap<>();
     
@@ -85,7 +99,7 @@ public class GrouperObjectTypesConfiguration {
     Set<Group> groupObjectsToRetrieveFromDb = new HashSet<>();
     Set<Stem> stemObjectsToRetrieveFromDb = new HashSet<>();
     
-    for (GrouperObject grouperObject: grouperObjects) {
+    for (GrouperObject grouperObject: theGrouperObjects) {
       
       if (grouperObject == null) {
         // put null key with empty value
@@ -107,7 +121,7 @@ public class GrouperObjectTypesConfiguration {
       // if in cache use it
       MultiKey multiKey = new MultiKey(grouperObject.getClass().getSimpleName(), grouperObject.getId());
       
-      List<GrouperObjectTypesAttributeValue> result = grouperObjectTypesAttributeValuesCache.get(multiKey);
+      List<GrouperObjectTypesAttributeValue> result = grouperObjectTypesAttributeValuesCache().get(multiKey);
       
       if (result != null) {
         results.put(grouperObject, result);
@@ -182,7 +196,7 @@ public class GrouperObjectTypesConfiguration {
         // if there is nothing, just put empty list
         Map<String, Map<String, String>> assignIdToAttributeDefNameValues = groupIdToAssignIdToAttributeDefNameValues.get(group.getId());
         if (assignIdToAttributeDefNameValues == null) {
-          grouperObjectTypesAttributeValuesCache.put(multiKey, new ArrayList<>());
+          grouperObjectTypesAttributeValuesCache().put(multiKey, new ArrayList<>());
           results.put(group, new ArrayList<>());
           continue;
         }
@@ -208,7 +222,7 @@ public class GrouperObjectTypesConfiguration {
           attributeValues.add(grouperObjectTypesAttributeValue);
         }
         
-        grouperObjectTypesAttributeValuesCache.put(multiKey, attributeValues);
+        grouperObjectTypesAttributeValuesCache().put(multiKey, attributeValues);
         results.put(group, attributeValues);
         
       }
@@ -267,7 +281,7 @@ public class GrouperObjectTypesConfiguration {
         // if there is nothing, just put empty list
         Map<String, Map<String, String>> assignIdToAttributeDefNameValues = stemIdToAssignIdToAttributeDefNameValues.get(stem.getId());
         if (assignIdToAttributeDefNameValues == null) {
-          grouperObjectTypesAttributeValuesCache.put(multiKey, new ArrayList<>());
+          grouperObjectTypesAttributeValuesCache().put(multiKey, new ArrayList<>());
           results.put(stem, new ArrayList<>());
           continue;
         }
@@ -292,7 +306,7 @@ public class GrouperObjectTypesConfiguration {
           
           attributeValues.add(grouperObjectTypesAttributeValue);
         }
-        grouperObjectTypesAttributeValuesCache.put(multiKey, attributeValues);
+        grouperObjectTypesAttributeValuesCache().put(multiKey, attributeValues);
         results.put(stem, attributeValues);
       }        
     }
