@@ -201,7 +201,7 @@ public class GroupContainer {
               String label = StringUtils.defaultIfBlank(properties.get("groupScreen.attribute." + configId + ".label"), attributeName);
               String description = properties.get("groupScreen.attribute." + configId + ".description");
               int index = GrouperUtil.intValue(properties.get("groupScreen.attribute." + configId + ".index"), 100);
-              
+              // TODO 20251025 extract these to do one query
               AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeName, false);
               if (attributeDefName == null) {
                 LOG.warn(attributeName + " is configured for groupScreen.attribute but it couldn't be found.");
