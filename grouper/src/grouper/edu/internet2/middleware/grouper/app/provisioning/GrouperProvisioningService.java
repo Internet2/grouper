@@ -447,7 +447,46 @@ public class GrouperProvisioningService {
         
         Map<String, GrouperProvisioningTarget> targetNames = GrouperProvisioningSettings.getTargets(true);
         
-        for (String targetName: targetNames.keySet()) {
+        Set<String> targetsOfInterest = new HashSet<String>();
+        
+        String attributeDefNameProvisioningDoProvision = GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION;
+        
+        Set<String> stemNamesToCheck = new HashSet<String>();
+        
+        // lets see for this object and parent stems
+        if (grouperObject instanceof Group) {
+          
+          // get the attribute aval assign
+          Group group = (Group)grouperObject;
+          List<String> targetsForGroup = new GcDbAccess().sql("select distinct value_string from grouper_aval_asn_asn_group_v where group_id = ? and attribute_def_name_name2 = ?")
+            .addBindVar(group.getId())
+            .addBindVar(attributeDefNameProvisioningDoProvision)
+            .selectList(String.class);
+          
+          targetsOfInterest.addAll(targetsForGroup);
+          
+          stemNamesToCheck.addAll(GrouperUtil.findParentStemNames(group.getName()));
+          
+        } else if (grouperObject instanceof Stem) {
+          Stem stem = (Stem)grouperObject;
+          stemNamesToCheck.add(stem.getName());
+          // add all parent stems
+          stemNamesToCheck.addAll(GrouperUtil.findParentStemNames(stem.getName()));
+        }
+        
+        List<String> targetsForStem = new GcDbAccess().sql(
+            "select distinct value_string from grouper_aval_asn_asn_stem_v where attribute_def_name_name2 = '" + attributeDefNameProvisioningDoProvision + "'")
+          .addBindVar(attributeDefNameProvisioningDoProvision)
+          .selectMultipleColumnName("stem_name")
+          .addBindVars(stemNamesToCheck).selectList(String.class);
+          
+        targetsOfInterest.addAll(targetsForStem);
+
+        for (String targetName: targetsOfInterest) {
+          if (!targetNames.containsKey(targetName)) {
+            // not a valid target
+            continue;
+          }
           GrouperProvisioningAttributeValue value = getProvisioningAttributeValue(grouperObject, targetName);
           if (value != null) {
             result.add(value);
