@@ -310,13 +310,32 @@ public class UiV2Group {
     
   }
 
- 
+  
   /**
    * view group
    * @param request
    * @param response
    */
   public void viewGroup(HttpServletRequest request, HttpServletResponse response) {
+    
+    // see if we are defaulting to the summary tab
+    boolean defaultToSummaryTab = GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.group.viewGroupDefaultToSummaryTab", true);
+    
+    if (defaultToSummaryTab) {
+      viewGroupSummary(request, response);
+    } else {
+      viewGroupMembers(request, response);
+    }
+    
+  }
+
+ 
+  /**
+   * view group
+   * @param request
+   * @param response
+   */
+  public void viewGroupSummary(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -1379,9 +1398,12 @@ public class UiV2Group {
           //doesnt affect
         } else if (StringUtils.equals(groupRefreshPart, "thisGroupsMemberships")) {
           //doesnt affect
+        } else if (StringUtils.equals(groupRefreshPart, "members")) {
+          filterHelper(request, response, group);
+        } else if (StringUtils.equals(groupRefreshPart, "summary")) {
+          //doesnt affect
         } else {
-//          filterHelper(request, response, group);
-          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));
+          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroupMembers&groupId=" + group.getId() + "')"));
         }
 
       } else {
@@ -4719,7 +4741,7 @@ public class UiV2Group {
       }
       
       //go to the view group screen
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroupMembers&groupId=" + group.getId() + "')"));
   
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 

@@ -4,6 +4,13 @@ ${grouper:titleFromKeyAndText('groupPageTitle', grouperRequestContainer.groupCon
             <%-- for the new group or new stem button --%>
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
             <grouper:browserPage jspName="viewGroup" />
+            
+  <%-- tell add member to refresh audits --%>
+  <form id="groupRefreshPartFormId">
+    <input type="hidden" name="groupRefreshPart" value="members" /> 
+  </form> 
+            
+            
             <%@ include file="groupHeader.jsp" %>
 
             <script language="javascript">

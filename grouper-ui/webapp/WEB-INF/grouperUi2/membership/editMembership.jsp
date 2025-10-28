@@ -139,7 +139,7 @@
                            class="btn">${textContainer.text['membershipEditCancelButton']}</a>
                       </c:when>
                       <c:otherwise>
-                        <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
+                        <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroupMembers&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
                            class="btn">${textContainer.text['membershipEditCancelButton']}</a>
                       </c:otherwise>
                     </c:choose>

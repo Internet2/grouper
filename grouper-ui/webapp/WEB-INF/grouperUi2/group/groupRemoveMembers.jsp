@@ -17,6 +17,6 @@ ${grouper:titleFromKeyAndText('groupRemoveAllMembersPageTitle', grouperRequestCo
                 <p>${textContainer.text['groupRemoveMembersConfirmText'] }
                 </p>
                 <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Group.groupRemoveAllMembersSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupRemoveMembersRemoveButton'] }</a> 
-                <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['groupRemoveMembersCancelButton'] }</a></div>
+                <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Group.viewGroupMembers&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['groupRemoveMembersCancelButton'] }</a></div>
               </div>
             </div>

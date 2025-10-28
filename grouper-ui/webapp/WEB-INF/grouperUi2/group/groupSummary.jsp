@@ -3,13 +3,17 @@
 
 <section class="grouper-summary">
 
+  <%-- tell add member to refresh audits --%>
+  <form id="groupRefreshPartFormId">
+    <input type="hidden" name="groupRefreshPart" value="summary" /> 
+  </form> 
   
   <div id="groupDetailsId">
     <table class="table table-condensed" id="groupDetailsTableId">
       <tbody>
         <!-- colspan across for next title -->
         <tr class="grouperIgnoreStripe"><td colspan="2" style="background-color: white"><p style="display: block; margin-top: 0;" />
-        <h3><p class="lead">${textContainer.text['groupSummaryDecription'] }
+        <h3 style="margin-bottom: 0px; padding-bottom: 0px"><p class="lead" style="margin-bottom: 0px; padding-bottom: 0px">${textContainer.text['groupSummaryDecription'] }
           <c:if test="${grouperRequestContainer.groupContainer.guiGroup.canRead or grouperRequestContainer.groupContainer.guiGroup.canUpdate}">
             &nbsp;
             <span id="groupSummaryMoreId" style="font-size: 0.65em; font-weight: 400"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupDetails']}"
@@ -17,7 +21,8 @@
                >${textContainer.text['guiGroupSummaryMore']} <i class="fa fa-angle-down"></i></a></span>
           </c:if>
         </p></h3>
-
+        
+        <span style="font-size: 0.8em">${textContainer.text['guiGroupSummaryDisclaimer']}</span>
         
         <p style="display: block; margin-top: 0;" /></td></tr>
       

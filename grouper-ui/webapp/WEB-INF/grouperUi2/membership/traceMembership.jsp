@@ -102,7 +102,7 @@
                        class="pull-right btn btn-primary btn-cancel">${textContainer.text['membershipTraceBackToMembershipButton']}</a>
                   </c:when>
                   <c:otherwise>
-                    <a href="?operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
+                    <a href="?operation=UiV2Group.viewGroupMembers&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
                        class="pull-right btn btn-primary btn-cancel">${textContainer.text['membershipTraceBackToGroupButton']}</a>
                   </c:otherwise>
                 </c:choose>
