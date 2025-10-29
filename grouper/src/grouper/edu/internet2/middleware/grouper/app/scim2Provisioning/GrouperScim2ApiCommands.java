@@ -928,8 +928,9 @@ public class GrouperScim2ApiCommands {
      
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
+      // robin returns 200 on create for some bad reason
       JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.post, configId, "/Users",
-          GrouperUtil.toSet(201), new int[] { -1 }, jsonStringToSend, scimSettings);
+          GrouperUtil.toSet(200, 201), new int[] { -1 }, jsonStringToSend, scimSettings);
 
       GrouperScim2User grouperScimUserResult = GrouperScim2User.fromJson(jsonNode);
 
@@ -1234,8 +1235,9 @@ public class GrouperScim2ApiCommands {
 
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
+      // robin returns 200 on create for some bad reason
       JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.post, configId, "/Groups",
-          GrouperUtil.toSet(201), new int[] { -1 }, jsonStringToSend, scimSettings);
+          GrouperUtil.toSet(201, 200), new int[] { -1 }, jsonStringToSend, scimSettings);
   
       GrouperScim2Group grouperScimGroupResult = GrouperScim2Group.fromJson(jsonNode);
 
