@@ -203,6 +203,10 @@ public class GrouperTest extends GrouperTestBase {
         GrouperUtil.promptUserAboutDbChanges("delete all data in the database to run junit test(s)", true);
       }
       
+      GrouperUtil.assertion(!GrouperConfig.retrieveConfig()
+          .propertyValueString("grouper.env.name", "default").toLowerCase().startsWith("prod"), 
+          "Cannot run junit tests against prod!");
+      
       //remove any settings in testconfig
       GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().clear();
