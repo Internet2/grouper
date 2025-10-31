@@ -13064,7 +13064,8 @@ public class GrouperInstaller {
   }
   
   private void downloadGrouperJarsIntoLibDirectory(File webInfDir) {
-    String basePath = "https://oss.sonatype.org/content/repositories/releases/edu/internet2/middleware/grouper/";
+    //String basePath = "https://oss.sonatype.org/content/repositories/releases/edu/internet2/middleware/grouper/";
+    String basePath = "https://repo1.maven.org/maven2/edu/internet2/middleware/grouper/";
     
     {
       File libDir = new File(webInfDir+File.separator+"lib");
@@ -13104,7 +13105,8 @@ public class GrouperInstaller {
   }
 
   private void downloadGrouperPluginJarsIntoPluginDirectory(File pluginDir) {
-    String basePath = "https://oss.sonatype.org/content/repositories/releases/edu/internet2/middleware/grouper/";
+    //String basePath = "https://oss.sonatype.org/content/repositories/releases/edu/internet2/middleware/grouper/";
+    String basePath = "https://repo1.maven.org/maven2/edu/internet2/middleware/grouper/";
 
     List<String> urlsToDownload = new ArrayList<String>();
     urlsToDownload.add(basePath+"grouper-authentication-plugin/"+this.version+"/grouper-authentication-plugin.jar");
