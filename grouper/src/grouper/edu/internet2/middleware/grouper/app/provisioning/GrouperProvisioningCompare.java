@@ -2070,7 +2070,9 @@ public class GrouperProvisioningCompare {
         if (!grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isSelectResultProcessed()) {
           if  (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()
                   && (grouperTargetMembership.getProvisioningMembershipWrapper().getTargetProvisioningMembership() != null 
-                  || grouperTargetMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership().isInTarget() )) {
+                  || grouperTargetMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership().isInTarget()
+                  || (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsInGeneral()
+                      && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isReplaceMemberships()))) {
             groupIdEntityIdsToDelete.add(key);
           }
         }
