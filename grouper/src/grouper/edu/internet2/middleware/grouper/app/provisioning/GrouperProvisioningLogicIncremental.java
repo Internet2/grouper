@@ -1921,7 +1921,9 @@ public class GrouperProvisioningLogicIncremental {
         switch (provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction()) {
           case delete:
             
-            if (!hasGrouperMembership && gcGrouperSyncMembership != null && !gcGrouperSyncMembership.isInTarget()) {
+            if (!hasGrouperMembership && gcGrouperSyncMembership != null && !gcGrouperSyncMembership.isInTarget()
+                && (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsInGeneral()
+                    || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isReplaceMemberships())) {
               shouldRemoveMembershipAction = true;
             }
             

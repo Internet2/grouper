@@ -4378,7 +4378,8 @@ public class GrouperProvisioningLogic {
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
         
         // Caused an issue with over inserting...
-        if (GrouperUtil.booleanValue(gcGrouperSyncMembership.getInTarget(), false)) {        	
+        if (GrouperUtil.booleanValue(gcGrouperSyncMembership.getInTarget(), false) || (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsInGeneral()
+            && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isReplaceMemberships())) {        	
         	provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(true);
         }
         
