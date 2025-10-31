@@ -341,7 +341,7 @@ public class GrouperInstaller {
     final File localFile = new File(localFileName);
 
     HttpClient httpClient = new HttpClient();
-
+    
     String proxyServer = GrouperInstallerUtils.propertiesValue("download.server.proxyServer", false); 
     
     if (!GrouperInstallerUtils.isBlank(proxyServer)) {
@@ -406,6 +406,9 @@ public class GrouperInstaller {
     try {
       
       getMethod = new GetMethod(url);
+      
+      // maven central gives a 403 if doesnt look like a browser
+      getMethod.addRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36");
       
       int result = httpClient.executeMethod(getMethod);
       
@@ -613,6 +616,7 @@ public class GrouperInstaller {
 //    String str = new Crypto("Urg4lyLGawLdwEvByGmf").decrypt("Y8iDZWF8RdowIiCgVKNg9Q==");
 //    System.out.println(str);
 
+//    downloadFileHelper("https://oss.sonatype.org/content/repositories/releases/edu/internet2/middleware/grouper/grouper/4.20.1/grouper-4.20.1.jar", "/tmp/grouper-4.20.1.jar", false, "", "");
      grouperInstaller.mainLogic();
 
 //    grouperInstaller.upgradeExistingApplicationDirectoryString = "D:\\temp\\temp\\grouperJarCopyDest\\";
