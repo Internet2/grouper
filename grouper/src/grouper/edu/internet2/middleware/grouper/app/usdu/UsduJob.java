@@ -158,7 +158,8 @@ public class UsduJob extends OtherJobBase {
           
           AttributeDefName resolvableMembersAttr = AttributeDefNameFinder.findByName(UsduSettings.usduStemName() + ":subjectResolutionResolvable", false);
           if (resolvableMembersAttr != null) {
-            if (UpgradeTasksJob.getDBVersion() < 2) {
+            Set<Integer> dbVersions = UpgradeTasksJob.getDBVersions();
+            if (!dbVersions.contains(1) && !dbVersions.contains(2)) {
               // flag for resolvable and deleted moving from attributes to member table.  if this isn't done yet, don't proceed.
               throw new RuntimeException("Migration for subjectResolutionResolvable and subjectResolutionDeleted has not completed.  USDU will not run until that's done.  That migration is done automatically by the job OTHER_JOB_upgradeTasks.");
             }
