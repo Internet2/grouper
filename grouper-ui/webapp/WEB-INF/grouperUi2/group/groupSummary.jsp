@@ -104,11 +104,10 @@
             <tr>
               <td style="vertical-align: top;"><strong>${textContainer.text['groupSummaryPageAbacScriptedGroup']}</strong></td>
               <td style="padding-left: 0px;">
-                ${textContainer.text['groupSummaryPageAbacScriptedGroupDependenciesCountMessage']} <br /><br />
+                ${textContainer.text['groupSummaryPageAbacScriptedGroupDependenciesCountMessage']}:
                 <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependencies}"> 
                     <c:forEach var="abacScriptedGroupDependency" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependencies}">
-                      <li style="margin-left: 12px;">${abacScriptedGroupDependency.shortLinkWithIcon}
-                      <c:if test="${!status.last}">,</c:if></li>
+                      ${abacScriptedGroupDependency.shortLinkWithIcon}<c:if test="${!status.last}">,</c:if>
                     </c:forEach>
                 </c:if>
               </td>
@@ -122,13 +121,10 @@
               <td style="vertical-align: top;"><strong>${textContainer.text['groupComposites']}</strong></td>
               <td style="padding-left: 0px;">
                 <c:if test="${grouperRequestContainer.groupSummaryContainer.composite}">
-                 <li style="margin-left: 12px;">
                   ${textContainer.text['groupSummaryPageCompositeGroupMessage']}
-                  </li>
                 </c:if>
                 
                 <c:if test="${grouperRequestContainer.groupSummaryContainer.compositeSize > 0}">
-                 <li style="margin-left: 12px;">
                   ${textContainer.text['groupSummaryPageCompositeFactorMessage']}
                   <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.composites}"> 
                       <c:forEach var="composite" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.composites}">
@@ -136,7 +132,6 @@
                         <c:if test="${!status.last}">,</c:if>
                       </c:forEach>
                   </c:if>
-                 </li>
                 </c:if>
               </td>
             </tr>

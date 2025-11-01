@@ -415,13 +415,15 @@ public class UiV2Group {
           if (countGroupUsage > 0 && countGroupUsage <= 5) {
             
             Set<String> groupIdsForDependentGroupUsage = SqlCacheDependencyDao.retrieveGroupIdsForDependentGroupUsage(group);
-            GroupFinder groupFinder = new GroupFinder();
-            for (String groupId: groupIdsForDependentGroupUsage) {            
-              groupFinder.addGroupId(groupId);
+            if (GrouperUtil.length(groupIdsForDependentGroupUsage) > 0) {
+              GroupFinder groupFinder = new GroupFinder();
+              for (String groupId: groupIdsForDependentGroupUsage) {            
+                groupFinder.addGroupId(groupId);
+              }
+              Set<Group> groups = groupFinder.findGroups();
+              Set<GuiGroup> guiAbacScriptedGroupDependencies = GuiGroup.convertFromGroups(groups);
+              groupSummaryContainer.setAbacScriptedGroupDependencies(guiAbacScriptedGroupDependencies);
             }
-            Set<Group> groups = groupFinder.findGroups();
-            Set<GuiGroup> guiAbacScriptedGroupDependencies = GuiGroup.convertFromGroups(groups);
-            groupSummaryContainer.setAbacScriptedGroupDependencies(guiAbacScriptedGroupDependencies);
           }
         }
       }
