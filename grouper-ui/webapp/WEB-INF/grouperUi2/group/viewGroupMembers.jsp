@@ -6,7 +6,7 @@ ${grouper:titleFromKeyAndText('groupPageTitle', grouperRequestContainer.groupCon
             <grouper:browserPage jspName="viewGroup" />
             
   <%-- tell add member to refresh audits --%>
-  <form id="groupRefreshPartFormId">
+  <form id="groupRefreshPartFormId" style="display: none;">
     <input type="hidden" name="groupRefreshPart" value="members" /> 
   </form> 
             
