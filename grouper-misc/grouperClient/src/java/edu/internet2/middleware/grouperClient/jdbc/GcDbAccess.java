@@ -2363,9 +2363,17 @@ public class GcDbAccess {
 
         try {
           
-          // create temporary table
+          // create temporary table using select of primary key columns from source table with no data
           try {
-            preparedStatement = connection.prepareStatement("CREATE TEMPORARY TABLE " + tempTableName + " LIKE " + GcDbAccess.this.tableName);
+            StringBuilder createSql = new StringBuilder("CREATE TEMPORARY TABLE " + tempTableName + " AS SELECT ");
+            for (int i = 0; i < primaryKeyColumns.size(); i++) {
+              createSql.append(primaryKeyColumns.get(i));
+              if (i < primaryKeyColumns.size() - 1) {
+                createSql.append(", ");
+              }
+            }
+            createSql.append(" FROM " + GcDbAccess.this.tableName + " WHERE 1 = 0");
+            preparedStatement = connection.prepareStatement(createSql.toString());
             preparedStatement.executeUpdate();
           } finally {
             GrouperClientUtils.closeQuietly(preparedStatement);
