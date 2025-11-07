@@ -4878,6 +4878,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
 
   private boolean internal_updateMemberAttributes(Subject subject, boolean storeChanges) {
     
+    // NOTE that any changes to what's saved in the grouper_members table should be reflected in the comparison in UiV2SubjectSource as well.
+    
     this.subjectIdentifier0 = null;
     this.subjectIdentifier1 = null;
     this.subjectIdentifier2 = null;
