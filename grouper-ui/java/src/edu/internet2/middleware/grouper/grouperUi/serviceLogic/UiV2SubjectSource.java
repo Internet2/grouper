@@ -342,8 +342,8 @@ public class UiV2SubjectSource {
         report.append("<font color='blue'>No subject search strings provided</font>\n");
       } else {
         for (String subjectSearchString : subjectSearchStringsList) {
-          Set<Subject> enabledSubjects = enabledSourceFindAll.get(subjectSearchString);
-          Set<Subject> disabledSubjects = disabledSourceFindAll.get(subjectSearchString);
+          Set<Subject> enabledSubjects = GrouperUtil.nonNull(enabledSourceFindAll.get(subjectSearchString));
+          Set<Subject> disabledSubjects = GrouperUtil.nonNull(disabledSourceFindAll.get(subjectSearchString));
           report.append("<h5>Results for search string: " + GrouperUtil.xmlEscape(subjectSearchString) + "</h5>\n");
           if (enabledSubjects.size() == 0 && disabledSubjects.size() == 0) {
             report.append("<font color='green'>SUCCESS:</font> No results found in either source\n");
