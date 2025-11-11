@@ -83,6 +83,36 @@ ${grouper:titleFromKeyAndText('groupEditPageTitle', grouperRequestContainer.grou
                     </div>
                   </div>
                   
+                  <!-- user lifecycle policies section -->
+                  <div class="control-group">
+                    <label class="control-label">${textContainer.text['userLifeycyclePolicyLabel']}</label>
+                    <div class="controls">
+                    <c:forEach items="${grouperRequestContainer.groupContainer.userLifecyclePolicies}" var="userLifecyclePolicy" varStatus="st">
+                      <input type="radio"
+                             id="ulp_${st.index}"
+                             name="userLifecyclePolicy"
+                             value="${userLifecyclePolicy.configId}"
+                             <c:if test="${grouperRequestContainer.groupContainer.selectedUserLifeycyclePolicyConfigId == userLifecyclePolicy.configId}">checked</c:if> 
+                      />
+                      <span for="ulp_${st.index}">
+                        - ${grouper:escapeHtml(userLifecyclePolicy.policyName)} - ${userLifecyclePolicy.description}
+                      </span>
+                      </br>
+                    
+                    
+                    </c:forEach>
+                    
+                    <!-- Hardcoded 'None' option -->
+                      <input type="radio"
+                             id="ulp_none"
+                             name="userLifecyclePolicy"
+                             value=""
+                             <c:if test="${empty grouperRequestContainer.groupContainer.selectedUserLifeycyclePolicyConfigId}">checked</c:if> 
+                      />
+                      <span for="ulp_none"> - None</span>
+                    </div>
+                  </div>
+                  
                   <c:forEach items="${grouperRequestContainer.groupContainer.groupTypesForEdit}" var="groupTypeForEdit">
                   
                     <div class="control-group ${groupTypeForEdit.markerAttributeDefName.id}__class" 

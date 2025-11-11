@@ -164,6 +164,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
+import edu.internet2.middleware.grouper.userLifecycle.UserLifecycleService;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -2674,6 +2675,11 @@ public class UiV2Group {
             madeChange = true;
           }
         }
+        
+        
+        //set user lifecycle policy if it was submitted from the ui
+        String newPolicyConfigId = request.getParameter("userLifecyclePolicy");
+        UserLifecycleService.savePolicyConfigOnGroup(group, newPolicyConfigId, loggedInSubject);
         
         //set group types to edit
         List<GroupTypeForEdit> typesForEdit = groupContainer.getGroupTypesForEdit();

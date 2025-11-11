@@ -62,7 +62,6 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
-import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -121,7 +120,6 @@ import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
-import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttrFramework;
 import edu.internet2.middleware.grouper.group.GroupSaveBatch;
@@ -171,6 +169,7 @@ import edu.internet2.middleware.grouper.stem.StemViewPrivilegeLogic;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiAttributeNames;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
+import edu.internet2.middleware.grouper.userLifecycle.UserLifecycleAttributeNames;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -943,6 +942,13 @@ public class GrouperCheckConfig {
             
             stemSaves.add(new StemSave().assignCreateParentStemsIfNotExist(true)
                 .assignDescription("folder for Grouper custom UI attributes").assignName(customUiRootStemName));
+          }
+          
+          {
+            String userLifecycleAttributeRootStemName = UserLifecycleAttributeNames.userLifecycleStemName();
+            
+            stemSaves.add(new StemSave().assignCreateParentStemsIfNotExist(true)
+                .assignDescription("folder for Grouper user lifecycle attributes").assignName(userLifecycleAttributeRootStemName));
           }
           
           {
@@ -2870,6 +2876,68 @@ public class GrouperCheckConfig {
           }
           
           {
+            
+            String rootStemName = UserLifecycleAttributeNames.userLifecycleStemName();
+            
+            //see if attributeDef is there
+            String userLifecyclePolicyGroupTypeDefName = rootStemName + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_POLICY_GROUP_MARKER_DEF;
+            
+            attributeDefSaves.add(new AttributeDefSave().assignName(userLifecyclePolicyGroupTypeDefName)
+                .assignAttributeDefType(AttributeDefType.type)
+                .assignToGroup(true)
+                .assignMultiAssignable(false)
+                .assignValueType(AttributeDefValueType.marker));
+                        
+            //lets add some attributes
+            String userLifecyclePolicyAttrDefName = rootStemName + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_POLICY_GROUP_VALUE_DEF;
+
+            attributeDefSaves.add(new AttributeDefSave().assignName(userLifecyclePolicyAttrDefName)
+                .assignAttributeDefType(AttributeDefType.attr)
+                .assignToGroupAssn(true)
+                .assignMultiAssignable(false)
+                .assignValueType(AttributeDefValueType.string));
+            
+            
+            //see if attributeDef is there
+            String userLifecycleMshipInFlightMarkerDefName = rootStemName + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_MARKER_DEF;
+            
+            attributeDefSaves.add(new AttributeDefSave().assignName(userLifecycleMshipInFlightMarkerDefName)
+                .assignAttributeDefType(AttributeDefType.type)
+                .assignToImmMembership(true)
+                .assignMultiAssignable(true)
+                .assignValueType(AttributeDefValueType.marker));
+                        
+            //lets add some attributes
+            String userLifecycleMshipInFlightValueDefName = rootStemName + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_VALUE_DEF;
+
+            attributeDefSaves.add(new AttributeDefSave().assignName(userLifecycleMshipInFlightValueDefName)
+                .assignAttributeDefType(AttributeDefType.attr)
+                .assignToImmMembershipAssn(true)
+                .assignMultiAssignable(false)
+                .assignValueType(AttributeDefValueType.integer));
+            
+            
+            //see if attributeDef is there
+            String userLifecycleMshipHistoryMarkerDefName = rootStemName + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_MARKER_DEF;
+            
+            attributeDefSaves.add(new AttributeDefSave().assignName(userLifecycleMshipHistoryMarkerDefName)
+                .assignAttributeDefType(AttributeDefType.type)
+                .assignToImmMembership(true)
+                .assignMultiAssignable(true)
+                .assignValueType(AttributeDefValueType.marker));
+                        
+            //lets add some attributes
+            String userLifecycleMshipHistoryValueDefName = rootStemName + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_VALUE_DEF;
+
+            attributeDefSaves.add(new AttributeDefSave().assignName(userLifecycleMshipHistoryValueDefName)
+                .assignAttributeDefType(AttributeDefType.attr)
+                .assignToImmMembershipAssn(true)
+                .assignMultiAssignable(false)
+                .assignValueType(AttributeDefValueType.integer));
+
+          }
+          
+          {
             String customUiRootStemName = CustomUiAttributeNames.customUiStemName();
             
             //see if attributeDef is there
@@ -3774,6 +3842,77 @@ public class GrouperCheckConfig {
                 "The authorized group associated with this attestation if any", attributeDefNameSaves);
             checkAttribute(attestationStem, attestationAttrType, GrouperAttestationJob.ATTESTATION_EMAIL_GROUP_ID,
                 "Email attestation reminders for group attestation to this group", attributeDefNameSaves);
+          }
+          
+          AttributeDefNameSave userLifecyclePolicyGroupTypeSave = null;
+          AttributeDefNameSave userLifecycleMshipInFlightTypeSave = null;
+          AttributeDefNameSave userLifecycleMshipHistoryTypeSave = null;
+          {
+            
+            String userLifeycleAttributesRootStemName = UserLifecycleAttributeNames.userLifecycleStemName();
+            
+            Stem userLifecycleAttributesRootStem = stemNameToStem.get(userLifeycleAttributesRootStemName);
+
+            //see if attributeDef is there
+            String userLifecyclePolicyGroupTypeDefName = userLifeycleAttributesRootStemName + ":"+ UserLifecycleAttributeNames.USER_LIFECYCLE_POLICY_GROUP_MARKER_DEF;
+            AttributeDef userLifecycleGroupType = nameOfAttributeDefToAttributeDef.get(userLifecyclePolicyGroupTypeDefName); 
+                            
+            //add a name
+            userLifecyclePolicyGroupTypeSave = checkAttribute(userLifecycleAttributesRootStem, userLifecycleGroupType, UserLifecycleAttributeNames.USER_LIFECYCLE_POLICY_GROUP_MARKER, "has user lifecycle policy group attributes", attributeDefNameSaves);
+            
+            //lets add some attributes
+            String userLifecyclePolicyGroupAttrDefName = userLifeycleAttributesRootStemName + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_POLICY_GROUP_VALUE_DEF;
+            AttributeDef userLifecyclePolicyGroupAttrType = nameOfAttributeDefToAttributeDef.get(userLifecyclePolicyGroupAttrDefName); 
+                
+            //add some names
+            checkAttribute(userLifecycleAttributesRootStem, userLifecyclePolicyGroupAttrType, UserLifecycleAttributeNames.USER_LIFECYCLE_POLICY_GROUP_VALUE_CONFIG_ID, 
+                "Config id of the user policy", attributeDefNameSaves);
+            
+            
+            
+            
+            //see if attributeDef is there
+            String userLifecycleMshipInFlightDefName = userLifeycleAttributesRootStemName + ":"+ UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_MARKER_DEF;
+            AttributeDef userLifecycleMshipInFlightDef = nameOfAttributeDefToAttributeDef.get(userLifecycleMshipInFlightDefName); 
+                            
+            //add a name
+            userLifecycleMshipInFlightTypeSave = checkAttribute(userLifecycleAttributesRootStem, userLifecycleMshipInFlightDef, UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_MARKER, "has user lifecycle membership in flight attributes", attributeDefNameSaves);
+            
+            //lets add some attributes
+            String userLifecycleMshipInFlightAttrDefName = userLifeycleAttributesRootStemName + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_VALUE_DEF;
+            AttributeDef userLifecycleMshipInFlightAttrType = nameOfAttributeDefToAttributeDef.get(userLifecycleMshipInFlightAttrDefName); 
+                
+            //add some names
+            checkAttribute(userLifecycleAttributesRootStem, userLifecycleMshipInFlightAttrType, UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_LIFECYCLE_EVENT_ID, 
+                "Lifecycle event id", attributeDefNameSaves);
+            
+            checkAttribute(userLifecycleAttributesRootStem, userLifecycleMshipInFlightAttrType, UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_ADDED_MICROS, 
+                "Micros when the lifecycle event occurred", attributeDefNameSaves);
+            
+            
+            
+            
+            //see if attributeDef is there
+            String userLifecycleMshipHistoryDefName = userLifeycleAttributesRootStemName + ":"+ UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_MARKER_DEF;
+            AttributeDef userLifecycleMshipHistoryDef = nameOfAttributeDefToAttributeDef.get(userLifecycleMshipHistoryDefName); 
+                            
+            //add a name
+            userLifecycleMshipHistoryTypeSave = checkAttribute(userLifecycleAttributesRootStem, userLifecycleMshipHistoryDef, UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_MARKER, "has user lifecycle membership in flight attributes", attributeDefNameSaves);
+            
+            //lets add some attributes
+            String userLifecycleMshipHistoryAttrDefName = userLifeycleAttributesRootStemName + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_VALUE_DEF;
+            AttributeDef userLifecycleMshipHistoryAttrType = nameOfAttributeDefToAttributeDef.get(userLifecycleMshipHistoryAttrDefName); 
+                
+            //add some names
+            checkAttribute(userLifecycleAttributesRootStem, userLifecycleMshipHistoryAttrType, UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_LIFECYCLE_EVENT_ID, 
+                "Lifecycle event id", attributeDefNameSaves);
+            
+            checkAttribute(userLifecycleAttributesRootStem, userLifecycleMshipHistoryAttrType, UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_ADDED_MICROS, 
+                "Micros when the lifecycle event occurred", attributeDefNameSaves);
+
+            checkAttribute(userLifecycleAttributesRootStem, userLifecycleMshipHistoryAttrType, UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_APPROVED_BY, 
+                "Approved by - member internal id", attributeDefNameSaves);
+            
           }
 
           AttributeDefNameSave customUiTypeSave = null;
@@ -5036,6 +5175,45 @@ public class GrouperCheckConfig {
             //the attributes can only be assigned to the type def
             // try an attribute def dependent on an attribute def name
             attestationAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(attestationTypeSave.getName());
+          }
+          
+          if (userLifecyclePolicyGroupTypeSave.getSaveResultType() == SaveResultType.INSERT) {
+            
+            String userLifecycleRootStemName = UserLifecycleAttributeNames.userLifecycleStemName();
+            
+            //lets add some rule attributes
+            String userLifecycleiAttrDefName = userLifecycleRootStemName + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_POLICY_GROUP_VALUE_DEF;
+            AttributeDef userLifecycleAttrType = nameOfAttributeDefToAttributeDef.get(userLifecycleiAttrDefName); 
+                
+            //the attributes can only be assigned to the type def
+            // try an attribute def dependent on an attribute def name
+            userLifecycleAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(userLifecyclePolicyGroupTypeSave.getName());
+          }
+          
+          if (userLifecycleMshipInFlightTypeSave.getSaveResultType() == SaveResultType.INSERT) {
+            
+            String userLifecycleRootStemName = UserLifecycleAttributeNames.userLifecycleStemName();
+            
+            //lets add some rule attributes
+            String userLifecycleiAttrDefName = userLifecycleRootStemName + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_VALUE_DEF;
+            AttributeDef userLifecycleAttrType = nameOfAttributeDefToAttributeDef.get(userLifecycleiAttrDefName); 
+                
+            //the attributes can only be assigned to the type def
+            // try an attribute def dependent on an attribute def name
+            userLifecycleAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(userLifecycleMshipInFlightTypeSave.getName());
+          }
+          
+          if (userLifecycleMshipHistoryTypeSave.getSaveResultType() == SaveResultType.INSERT) {
+            
+            String userLifecycleRootStemName = UserLifecycleAttributeNames.userLifecycleStemName();
+            
+            //lets add some rule attributes
+            String userLifecycleiAttrDefName = userLifecycleRootStemName + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_VALUE_DEF;
+            AttributeDef userLifecycleAttrType = nameOfAttributeDefToAttributeDef.get(userLifecycleiAttrDefName); 
+                
+            //the attributes can only be assigned to the type def
+            // try an attribute def dependent on an attribute def name
+            userLifecycleAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(userLifecycleMshipHistoryTypeSave.getName());
           }
           
           if (customUiTypeSave.getSaveResultType() == SaveResultType.INSERT) {
