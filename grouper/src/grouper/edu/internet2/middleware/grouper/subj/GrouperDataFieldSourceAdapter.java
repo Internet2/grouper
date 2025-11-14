@@ -75,8 +75,8 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
 
   @Override
   public String printConfig() {
-    // TODO Auto-generated method stub
-    return null;
+    String message = "subject.properties data field source id: " + this.getId();
+    return message;
   }
   
   
