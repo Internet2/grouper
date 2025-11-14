@@ -326,7 +326,7 @@ public class SourceManager {
   }
 
   /**
-   * Returns a Collection of Sources.
+   * Returns a Collection of Sources.  Generally this shouldn't be called.  Call getSourcesEnabled() instead.
    * @return Collection
    */
   @JsonIgnore
@@ -335,7 +335,7 @@ public class SourceManager {
   }
 
   /**
-   * Returns a Collection of Sources.
+   * Returns a Collection of Sources.  This includes enabled sources only.
    * @return Collection
    */
   @JsonIgnore
@@ -442,7 +442,13 @@ public class SourceManager {
    * @throws SAXException 
    */
   private void parseConfig() throws IOException, SAXException {
+    Set<String> sourceIds = new HashSet<>();
     for (Source source : SubjectConfig.retrieveConfig().retrieveSourceConfigs().values()) {
+      if (sourceIds.contains(source.getId())) {
+        throw new RuntimeException("Found multiple instances of source id: " + source.getId());
+      }
+      
+      sourceIds.add(source.getId());
       loadSource(source);
     }
   }
