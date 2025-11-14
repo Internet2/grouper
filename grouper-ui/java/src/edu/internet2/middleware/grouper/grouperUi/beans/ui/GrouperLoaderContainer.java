@@ -501,7 +501,7 @@ public class GrouperLoaderContainer {
   public List<ConfigName> getSources() {
     Set<ConfigName> result = new TreeSet<ConfigName>();
 
-    Collection<Source> sources = SourceManager.getInstance().getSources();
+    Collection<Source> sources = SourceManager.getInstance().getSourcesEnabled();
 
     for (Source source : sources) {
       result.add(new ConfigName(source.getId(), source.getId() + " - " + source.getName()));

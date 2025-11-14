@@ -274,7 +274,7 @@ public class SubjectHelper {
    */
   public static Set<Source> nonGroupSources() {
     Set<Source> result = new HashSet<Source>();
-    for (Source source : SourceManager.getInstance().getSources()) {
+    for (Source source : SourceManager.getInstance().getSourcesEnabled()) {
       if (!StringUtils.equals(source.getId(), GrouperSourceAdapter.groupSourceId())) {
         result.add(source);
       }

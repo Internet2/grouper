@@ -88,7 +88,7 @@ public class SubjectCheckConfig {
     boolean exceptionIfProblem = GrouperShell.runFromGsh && GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnSubjectCheckConfigProblem", true);
     
     try {
-      sources = SourceManager.getInstance().getSources();
+      sources = SourceManager.getInstance().getSourcesEnabled();
     } catch (Exception e) {
       String error = "problem initting sources from subject.properties";
       System.err.println("Subject API error: " + error + ", " + ExceptionUtils.getFullStackTrace(e));

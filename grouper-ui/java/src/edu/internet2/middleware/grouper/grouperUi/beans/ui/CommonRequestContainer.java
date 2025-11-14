@@ -87,7 +87,7 @@ public class CommonRequestContainer {
    * @return set of sources
    */
   public Collection<Source> getSources() {
-    return SourceManager.getInstance().getSources();
+    return SourceManager.getInstance().getSourcesEnabled();
   }
   
   /**

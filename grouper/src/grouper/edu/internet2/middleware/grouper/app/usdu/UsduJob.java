@@ -100,7 +100,7 @@ public class UsduJob extends OtherJobBase {
     
     Pattern usduSourceIdKey = Pattern.compile("^usdu\\.source\\.([\\w-]+)\\.sourceId$");
     
-    SourceManager.getInstance().getSources();
+    SourceManager.getInstance().getSourcesEnabled();
     
     Map<String, String> propertiesMap = GrouperConfig.retrieveConfig().propertiesMap(usduSourceIdKey);
     

@@ -243,7 +243,7 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
           //pick one at random?
           String theSourceId = "g:gsa";
           
-          for (Source source : SourceManager.getInstance().getSources()) {
+          for (Source source : SourceManager.getInstance().getSourcesEnabled()) {
             if (!"g:gsa".equals(source.getId())
                 && !"grouperEntities".equals(source.getId())
                 && !"grouperExternal".equals(source.getId())

@@ -60,7 +60,7 @@ public class TestWebappSources {
 		SourceManager sm = SourceManager.getInstance();
 		BaseSourceAdapter isa = InternalSourceAdapter.instance();
 		      sm.loadSource(isa);
-		Collection sources = new ArrayList(sm.getSources());
+		Collection sources = new ArrayList(sm.getSourcesEnabled());
 		Iterator it = sources.iterator();
 		Source source;
 		Subject subj=null;

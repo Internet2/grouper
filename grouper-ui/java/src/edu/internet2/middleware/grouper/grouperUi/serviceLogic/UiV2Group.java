@@ -6507,6 +6507,7 @@ public class UiV2Group {
       //memberships section
       {
         if (isReader) {
+          // ok to include disabled sources so the summary isn't hiding that data?
           Collection<Source> sources = SourceManager.getInstance().getSources();
           Iterator<Source> iterator = sources.iterator();
           while (iterator.hasNext()) {

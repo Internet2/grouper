@@ -814,7 +814,7 @@ public class SourcesXmlResolver implements SubjectResolver {
    */
   public SearchPageResult findPageInStem(String stemName, String query)
       throws IllegalArgumentException {
-    Set<Source> sources = new LinkedHashSet<Source>(SourceManager.getInstance().getSources());
+    Set<Source> sources = new LinkedHashSet<Source>(SourceManager.getInstance().getSourcesEnabled());
     return findPageInStem(stemName, query, sources);
   }
 
