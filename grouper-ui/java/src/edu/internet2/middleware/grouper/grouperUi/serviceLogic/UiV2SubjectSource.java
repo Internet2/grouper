@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
@@ -198,6 +199,9 @@ public class UiV2SubjectSource {
       if (!subjectSourceContainer.isCanViewSubjectSources()) {
         throw new RuntimeException("Not allowed!!!!!");
       }
+      
+      // want to make sure we're not using old cached data (e.g. virtual attribute config)
+      ExpirableCache.clearAll();
       
       String sourceId1 = StringUtils.trim(request.getParameter("subjectApiSourceIdName"));
       String sourceId2 = StringUtils.trim(request.getParameter("otherSubjectApiSourceIdId"));
@@ -991,6 +995,8 @@ public class UiV2SubjectSource {
         return;
 
       }
+      
+      ExpirableCache.clearAll();
       
       SourceManager.getInstance().reloadSource(subjectSourceConfiguration.retrieveAttributes().get("id").getValueOrExpressionEvaluationValue());
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2SubjectSource.viewSubjectSources')"));
