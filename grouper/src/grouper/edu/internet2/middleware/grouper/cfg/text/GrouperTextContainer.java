@@ -135,6 +135,7 @@ public class GrouperTextContainer {
         textContainer = (GrouperTextContainer)servletRequest.getAttribute("textContainer");
       } catch (RuntimeException re) {
         servletRequestThreadLocal.remove();
+        servletRequest = null;
         
         //  grouper;grouper_error.log;${ENV};${USERTOKEN};2025-11-19T20:19:07,353: [pool-3-thread-131] ERROR UiV2Visualization$1.callLogic(624) - [] - error
         //  java.lang.IllegalStateException: The request object has been recycled and is no longer associated with this facade
@@ -151,8 +152,21 @@ public class GrouperTextContainer {
     if (textContainer == null) {
       textContainer = new GrouperTextContainer();
       if (servletRequest != null) {
-        servletRequest.setAttribute(
-            "textContainer", textContainer);
+        try {
+          servletRequest.setAttribute(
+              "textContainer", textContainer);
+        } catch (RuntimeException re) {
+          servletRequestThreadLocal.remove();
+          servletRequest = null;
+          
+          //  java.lang.IllegalStateException: The request object has been recycled and is no longer associated with this facade
+          //  at org.apache.catalina.connector.RequestFacade.checkFacade(RequestFacade.java:856) ~[catalina.jar:9.0.108]
+          //  at org.apache.catalina.connector.RequestFacade.setAttribute(RequestFacade.java:412) ~[catalina.jar:9.0.108]
+          //  at javax.servlet.ServletRequestWrapper.setAttribute(ServletRequestWrapper.java:238) ~[servlet-api.jar:4.0.FR]
+          //  at edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer.retrieveFromRequest(GrouperTextContainer.java:154) ~[classes/:?]
+          //  at edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer.retrieveFromRequest(TextContainer.java:37) ~[grouper-ui-5.20.5.jar:5.20.5]
+              
+        }
       }
     }
   
