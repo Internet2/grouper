@@ -14,9 +14,7 @@ import javax.servlet.ServletRequest;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.ui.customUi.CustomUiEngine;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
 
@@ -130,9 +128,26 @@ public class GrouperTextContainer {
   public static GrouperTextContainer retrieveFromRequest() {
     
     ServletRequest servletRequest = servletRequestThreadLocal.get();
-    GrouperTextContainer textContainer = servletRequest == null ? null : 
-        (GrouperTextContainer)servletRequest.getAttribute("textContainer");
+    GrouperTextContainer textContainer = null;
     
+    if (servletRequest != null) {
+      try {
+        textContainer = (GrouperTextContainer)servletRequest.getAttribute("textContainer");
+      } catch (RuntimeException re) {
+        servletRequestThreadLocal.remove();
+        
+        //  grouper;grouper_error.log;${ENV};${USERTOKEN};2025-11-19T20:19:07,353: [pool-3-thread-131] ERROR UiV2Visualization$1.callLogic(624) - [] - error
+        //  java.lang.IllegalStateException: The request object has been recycled and is no longer associated with this facade
+        //    at org.apache.catalina.connector.RequestFacade.checkFacade(RequestFacade.java:856) ~[catalina.jar:9.0.108]
+        //    at org.apache.catalina.connector.RequestFacade.getAttribute(RequestFacade.java:245) ~[catalina.jar:9.0.108]
+        //    at javax.servlet.ServletRequestWrapper.getAttribute(ServletRequestWrapper.java:83) ~[servlet-api.jar:4.0.FR]
+        //    at edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper.getAttribute(GrouperRequestWrapper.java:118) ~[grouper-ui-5.20.5.jar:5.20.5]
+        //    at edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer.retrieveFromRequest(GrouperTextContainer.java:134) ~[grouper-5.20.5.jar:5.20.5]
+        //    at edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer.retrieveFromRequest(TextContainer.java:37) ~[grouper-ui-5.20.5.jar:5.20.5]
+        //    at edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Visualization.buildToJsonD3(UiV2Visualization.java:895) ~[grouper-ui-5.20.5.jar:5.20.5]
+        
+      }
+    }
     if (textContainer == null) {
       textContainer = new GrouperTextContainer();
       if (servletRequest != null) {
