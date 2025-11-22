@@ -60,6 +60,11 @@ public class UserLifecycleAttributeNames {
   public static final String USER_LIFECYCLE_MSHIP_IN_FLIGHT_LIFECYCLE_EVENT_ID = "userLifecycleMshipInFlightLifecycleEventId";
 
   public static final String USER_LIFECYCLE_MSHIP_IN_FLIGHT_ADDED_MICROS = "userLifecycleMshipInFlightAddedMicros";
+
+  /**
+   * value of this is going to be in the future from 1970 when the membership should expire
+   */
+  public static final String USER_LIFECYCLE_MSHIP_IN_FLIGHT_MICROS_EXPIRE = "userLifecycleMshipInFlightMicrosExpire"; 
   
   
   

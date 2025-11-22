@@ -3888,6 +3888,9 @@ public class GrouperCheckConfig {
             
             checkAttribute(userLifecycleAttributesRootStem, userLifecycleMshipInFlightAttrType, UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_ADDED_MICROS, 
                 "Micros when the lifecycle event occurred", attributeDefNameSaves);
+
+            checkAttribute(userLifecycleAttributesRootStem, userLifecycleMshipInFlightAttrType, UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_MICROS_EXPIRE, 
+                "Micros from 1970 when the membership should expire", attributeDefNameSaves);
             
             
             
