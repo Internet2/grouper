@@ -8072,6 +8072,6 @@ COMMENT ON COLUMN grouper_lifecycle_event.ntrl_lng_priv_dic_intrnl_id IS 'dictio
 COMMENT ON COLUMN grouper_lifecycle_event.ntrl_lng_unpriv_dic_intrnl_id IS 'dictionary table internal id';
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 48, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V48, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V47, ');
 commit;
