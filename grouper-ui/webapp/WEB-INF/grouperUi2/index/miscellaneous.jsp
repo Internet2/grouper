@@ -43,9 +43,6 @@
                       >${textContainer.text['adminInstrumentationLink'] }</a>
                     </c:if>
                     
-                    <br /><br /><a id="miscellaneousGlobalLifecycleEventsLink" href="?operation=UiV2UserLifecycle.viewUserLifecycleSummary" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2UserLifecycle.viewUserLifecycleSummary');" style="white-space: nowrap;"
-                    >${textContainer.text['miscellaneousGlobalMemberhsipLifecycle'] }</a>
-                    
                     <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canViewProvisionerConfiguration}">
                       <br /><br /><a id="miscProvisioningLink"href="?operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations');" style="white-space: nowrap;">
                         ${textContainer.text['adminProvisionerConfigurationsLink'] }</a>
@@ -127,6 +124,9 @@
                       <br /><br /><a id="miscUnresolvableSubjectsLink" href="?operation=UiV2SubjectResolution.subjectResolutionMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectResolution.subjectResolutionMain');" style="white-space: nowrap;"
                       >${textContainer.text['subjectResolutionMainLink'] }</a>
                     </c:if>
+                    
+                    <br /><br /><a id="miscellaneousGlobalLifecycleEventsLink" href="?operation=UiV2UserLifecycle.viewUserLifecycleSummary" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2UserLifecycle.viewUserLifecycleSummary');" style="white-space: nowrap;"
+                    >${textContainer.text['miscellaneousGlobalMemberhsipLifecycle'] }</a>
                     
                     </div>
                     
