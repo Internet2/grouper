@@ -2932,6 +2932,33 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .listSet(Object[].class);
     return _getMembershipsFromMembershipAndMemberQuery(mships);
   }
+  
+  public static Set<Membership> findAllMemberships(List<String> groupIds, List<String> memberIds) throws GrouperDAOException {
+   
+    StringBuilder hql = new StringBuilder(
+        "select m " +
+        "from ImmediateMembershipEntry m " +
+        "where "
+    );
+
+    for (int i = 0; i < groupIds.size(); i++) {
+        if (i > 0) {
+            hql.append(" or ");
+        }
+        hql.append("(m.ownerGroupId = :g").append(i)
+           .append(" and m.memberUuid = :m").append(i)
+           .append(")");
+    }
+
+    ByHqlStatic query = HibernateSession.byHqlStatic().createQuery(hql.toString());
+
+    for (int i = 0; i < groupIds.size(); i++) {
+      query.setString("g" + i, groupIds.get(i));
+      query.setString("m" + i, memberIds.get(i));
+    }
+
+    return query.listSet(Membership.class);
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllNonImmediateByMemberAndFieldType(java.lang.String, java.lang.String, boolean)

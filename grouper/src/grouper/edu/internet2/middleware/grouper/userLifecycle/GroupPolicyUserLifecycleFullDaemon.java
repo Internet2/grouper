@@ -1,8 +1,5 @@
 package edu.internet2.middleware.grouper.userLifecycle;
 
-import static edu.internet2.middleware.grouper.userLifecycle.UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_LIFECYCLE_EVENT_ID;
-import static edu.internet2.middleware.grouper.userLifecycle.UserLifecycleAttributeNames.userLifecycleStemName;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -12,26 +9,29 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperIncrementalDataItem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
-import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MembershipDAO;
+import edu.internet2.middleware.grouper.subj.SafeSubject;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -76,11 +76,11 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
    * @param groupIds - group ids that have a lifecycle policy attached
    * @return - set of group id + member id + lifecycle event id
    */
-  private Set<MultiKey> retrieveLifecycleEvents(Collection<String> groupIds) {
+  private List<GroupMemberEventRef> retrieveLifecycleEvents(Collection<String> groupIds) {
     Timestamp lastFullSyncSuccessStartTimestamp = new GcDbAccess().sql("select max(started_time) from grouper_loader_log where job_name = 'OTHER_JOB_groupPolicyUserLifecycleFullDaemon' and status = 'SUCCESS' ").select(Timestamp.class);
     lastFullSyncSuccessStartTimestamp = null;
-    if (lastFullSyncSuccessStartTimestamp == null) { 
-      Instant fiftyDaysAgo = Instant.now().minus(50, ChronoUnit.DAYS); // TODO remove 50 after testing. 
+    if (lastFullSyncSuccessStartTimestamp == null) {
+      Instant fiftyDaysAgo = Instant.now().minus(1, ChronoUnit.DAYS);
       lastFullSyncSuccessStartTimestamp = Timestamp.from(fiftyDaysAgo);
 //      lastFullSyncSuccessStartTimestamp = new Timestamp(System.currentTimeMillis() - (5010*24*60*60*1000)); // work on all events that happened after yesterday.
     }
@@ -98,72 +98,103 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
     
     List<Object[]> lifecycleEvents = dbAccess.selectList(Object[].class);
     
-    Set<MultiKey> groupIdsMemberIdsLifecycleEventIds = new HashSet<MultiKey>();
+    Set<GroupMemberEventRef> groupIdsMemberIdsLifecycleEventIds = new HashSet<>();
     for (Object[] lifecycleEvent: lifecycleEvents) {
       Long lifecycleEventInternalId = GrouperUtil.longValue(lifecycleEvent[0]);
       String groupId = GrouperUtil.stringValue(lifecycleEvent[2]);
       String memberId = GrouperUtil.stringValue(lifecycleEvent[3]);
-      MultiKey groupIdMemberIdLifecycleEventId = new MultiKey(groupId, memberId, lifecycleEventInternalId);
+      GroupMemberEventRef groupIdMemberIdLifecycleEventId = new GroupMemberEventRef(groupId, memberId, lifecycleEventInternalId);
       groupIdsMemberIdsLifecycleEventIds.add(groupIdMemberIdLifecycleEventId);
     }
     
-    return groupIdsMemberIdsLifecycleEventIds;
+    return new ArrayList<GroupPolicyUserLifecycleFullDaemon.GroupMemberEventRef>(groupIdsMemberIdsLifecycleEventIds);
+  }
+  
+  private Map<MultiKey, Membership> retrieveMembershipsFromGroupIdsMemberIds(List<GroupMemberEventRef> groupMemberEventRefs) {
+    
+    List<String> groupIds = new ArrayList<String>();
+    List<String> memberIds = new ArrayList<String>();
+    for (GroupMemberEventRef groupMemberEventRef: groupMemberEventRefs) {
+      groupIds.add(groupMemberEventRef.groupId);
+      memberIds.add(groupMemberEventRef.memberId);
+    }
+    Set<Membership> allMemberships = Hib3MembershipDAO.findAllMemberships(groupIds, memberIds);
+    
+    Map<MultiKey, Membership> groupIdMemberIdToMembership = new HashMap<MultiKey, Membership>();
+    for (Membership membership: allMemberships) {
+      groupIdMemberIdToMembership.put(new MultiKey(membership.getOwnerGroupId(), membership.getMemberUuid()), membership);
+    }
+    return groupIdMemberIdToMembership;
   }
   
   
-  private void retrieveInFlightAttributesForMemberships() {
+  /**
+   * From the database, retrieve memberships where they already have in flight attributes assigned. call it alreadyHavingInFlightAttributes
+   * Assign in flight attributes to the remaining ones. Assign in flight micros expire at the same time 
+   * @param groupMemberEventRefs - memberships with the lifecycle event internal id that took place since the last run
+   * @param policyConfigIdToPolicyBeans - policy config id to set of policy parts. one group can have one policy attached and the same policy can be in multiple policy parts. 
+   * @param actionConfigIdToActionDetails - action config id to action details map so that we can easily look up action type 
+   * @param lifecycleEventIdToLifecycleEventConfigId - lifecycle event internal id to lifecycle event config id. it's passed to reduce individual look ups
+   * @param groupIdToPolicyConfigId - group id to policy config id map. each group can have at most one policy attached.
+   * @param membershipsFromGroupIdsMemberIds - memberships look up based on group id/member id
+   */
+  private void workOnActionTypeAddEndDateOnMembership(List<GroupMemberEventRef> groupMemberEventRefs, 
+      Map<String, Set<PolicyBean>> policyConfigIdToPolicyBeans, Map<String, ActionBean> actionConfigIdToActionDetails,
+      Map<Long, String> lifecycleEventIdToLifecycleEventConfigId, Map<String, String> groupIdToPolicyConfigId,
+      Map<MultiKey, Membership> membershipsFromGroupIdsMemberIds) {
     
-  }
-  
-  
-  
-  @Override
-  public OtherJobOutput run(OtherJobInput otherJobInput) {
+    List<GroupMemberEventRef> refsWithAddEndDateOnMembershipAction = new ArrayList<>();
     
+    Map<GroupMemberEventRef, ActionBean> groupMemberEventRefToActionBean = new HashMap<>();//we're going to use it later when populating micros expire attribute value
     
-    AttributeDef attributeDef = UserLifecycleAttributeNames.retrieveAttributeDefBaseDef();
-    if (attributeDef == null) {
-      LOG.error(UserLifecycleAttributeNames.userLifecycleStemName() + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_POLICY_GROUP_MARKER_DEF + " attribute def doesn't exist. Job will not proceed.");
-      return null;
+    for (GroupMemberEventRef groupMemberEventRef: groupMemberEventRefs) {
+      
+      String lifecycleEventConfig = lifecycleEventIdToLifecycleEventConfigId.get(groupMemberEventRef.lifecycleEventInternalId);
+      String policyConfigId = groupIdToPolicyConfigId.get(groupMemberEventRef.groupId);
+      
+      if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
+        
+        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
+        
+        for (PolicyBean policyBean: policyBeans) {
+          if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
+            //this is the policy part where the lifecycle config is used and now we need to perform all the actions
+            
+            for (String lifecycleActionConfigId : policyBean.lifecycleActionConfigIds) {
+              //now get the action details and perform the action
+              
+              ActionBean actionBean = actionConfigIdToActionDetails.get(lifecycleActionConfigId);
+              if (actionBean != null && Strings.CS.equals(actionBean.actionType, "addEndDateOnMembership")) {
+                groupMemberEventRefToActionBean.put(groupMemberEventRef, actionBean);
+                refsWithAddEndDateOnMembershipAction.add(groupMemberEventRef);
+              }
+            }
+          }
+        }
+      }
+      
     }
     
-    //Step 1 - retrieve list of groups that have lifecycle policies attached to them.
-    Map<String, String> groupIdToPolicyConfigId = retrieveGroupsWithPolicies();
-    
-    
-    //Step 2 - retrieve lifecycle events for groups that have policies attached to them and only retrieve events that took place after the most recent full sync
-    Set<MultiKey> groupIdsMemberIdsLifecycleEventIds = retrieveLifecycleEvents(groupIdToPolicyConfigId.keySet());
-    
-    //groupIdsMemberIdsLifecycleEventIds is all the group id member ids that need to have In Flight attributes. Some of them might already have them so let's try to retrieve them
-    // whatever does not have the In 
-    
-    
-    //Step 3 - We have group id, member id, and lifecycle event id from above. Now let's retrieve the in flight attributes assigned to these memberships (group id plus member id basically from above)
-    // the idea is that we want to perform lifecycle actions (e.g send email, add expiration date, etc) for these memberships
-    // the ones that already don't have the attributes; we need to assign to them in the next step
-    
     int batchSize = 50;
-    int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupIdsMemberIdsLifecycleEventIds, batchSize, false);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(refsWithAddEndDateOnMembershipAction, batchSize, false);
     
-    List<MultiKey> groupIdsMemberIdsLifecycleEventIdsList = new ArrayList<MultiKey>(groupIdsMemberIdsLifecycleEventIds);
-    
-    //retrieve membership attributes for groups and their members that have lifecycle events
+    //retrieve in flight membership attributes 
     List<Object[]> membershipAttributes = new ArrayList<Object[]>();
     for (int i=0; i<numberOfBatches; i++) {
       
-      List<MultiKey> oneBatchOfGroupIdsMemberIds = GrouperUtil.batchList(groupIdsMemberIdsLifecycleEventIdsList, batchSize, i);
+      List<GroupMemberEventRef> oneBatchOfGroupIdsMemberIds = GrouperUtil.batchList(refsWithAddEndDateOnMembershipAction, batchSize, i);
       GcDbAccess gcDbAccess = new GcDbAccess();
       StringBuilder sqlBuilder = new StringBuilder("select gaaamv.attribute_def_name_name2, gaaamv.value_integer, gaaamv.group_id, gaaamv.member_id from grouper_aval_asn_asn_mship_v gaaamv where gaaamv.attribute_def_name_name1 = ? and ( ");
       gcDbAccess.addBindVar(UserLifecycleAttributeNames.userLifecycleStemName() +":"+ UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_MARKER);
       boolean first = true;
-      for (MultiKey groupIdMemberIdLifecycleEventId: oneBatchOfGroupIdsMemberIds) {
+      for (GroupMemberEventRef groupIdMemberIdLifecycleEventId: oneBatchOfGroupIdsMemberIds) {
         if (!first) {
           sqlBuilder.append(" or ");
         }
         sqlBuilder.append(" (gaaamv.group_id = ? and gaaamv.member_id = ?) ");
         first = false;
         
-        gcDbAccess.addBindVar(groupIdMemberIdLifecycleEventId.getKey(0)).addBindVar(groupIdMemberIdLifecycleEventId.getKey(1));
+        gcDbAccess.addBindVar(groupIdMemberIdLifecycleEventId.groupId).addBindVar(groupIdMemberIdLifecycleEventId.memberId);
       }
       
       sqlBuilder.append(" ) ");
@@ -172,15 +203,9 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
       
     }
     
-   
-    //Step 4 - now we need to assign in flight attributes to those memberships that were fetched in step 2 and they didn't have the attributes assigned.
+    List<GroupMemberEventRef> alreadyHavingInFlightAttributes = new ArrayList<>();
     
-    Set<Long> lifecycleEventIds = new HashSet<Long>(); // these are the lifecycle event ids for which we need to retrieve lifecycle event config ids 
-    
-    Set<MultiKey> groupIdsMemberIdsLifecycleEventIdsListFromMembershipAttributes = new HashSet<MultiKey>();
-    
-    //the set below will be used in step 5
-    Set<MultiKey> groupIdsMemberIdsLifecycleEventIdsOnWhichToPeformActions = new HashSet<MultiKey>();
+//    Set<MultiKey> groupIdsMemberIdsLifecycleEventIdsOnWhichToPeformActions = new HashSet<MultiKey>();
     
     for (Object[] membershipAttribute: membershipAttributes) {
       String attributeDefName = GrouperUtil.stringValue(membershipAttribute[0]);
@@ -193,64 +218,510 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
         continue;
       }
       
-      MultiKey groupIdMemberIdLifecycleEventId = new MultiKey(groupId, memberId, value);
-      groupIdsMemberIdsLifecycleEventIdsListFromMembershipAttributes.add(groupIdMemberIdLifecycleEventId);
-      groupIdsMemberIdsLifecycleEventIdsOnWhichToPeformActions.add(groupIdMemberIdLifecycleEventId);
-      lifecycleEventIds.add(value);
+      GroupMemberEventRef groupIdMemberIdLifecycleEventId = new GroupMemberEventRef(groupId, memberId, value);
+      alreadyHavingInFlightAttributes.add(groupIdMemberIdLifecycleEventId);
+//      groupIdsMemberIdsLifecycleEventIdsOnWhichToPeformActions.add(groupIdMemberIdLifecycleEventId);
     }
     
-    //it's like cache to reduce the number of membership look ups
-    Map<MultiKey, Membership> groupIdMemberIdToMembership = new HashMap<MultiKey, Membership>(); 
+    // now the remaining ones are where we actually need to assign in flight attributes
+    refsWithAddEndDateOnMembershipAction.removeAll(alreadyHavingInFlightAttributes);
     
-    //we need to populate in flight lifecycle attributes for the members who already don't 
-    for (MultiKey groupIdMemberIdLifecycleEventId : groupIdsMemberIdsLifecycleEventIdsList) {
+    for (GroupMemberEventRef groupMemberEventRef: refsWithAddEndDateOnMembershipAction) {
       
-      if (!groupIdsMemberIdsLifecycleEventIdsListFromMembershipAttributes.contains(groupIdMemberIdLifecycleEventId)) {
-        // assign in flight attribute to that internal id of the user lifecycle event
-        
-        String groupId = GrouperUtil.stringValue(groupIdMemberIdLifecycleEventId.getKey(0));
-        String memberId = GrouperUtil.stringValue(groupIdMemberIdLifecycleEventId.getKey(1));
-        Long lifecycleEventId = GrouperUtil.longValue(groupIdMemberIdLifecycleEventId.getKey(2));
-        
-        MultiKey groupIdMemberId = new MultiKey(groupId, memberId);
-        
-        Membership membership = null;
-        if (groupIdMemberIdToMembership.containsKey(groupIdMemberId)) {
-          membership = groupIdMemberIdToMembership.get(groupIdMemberId);
-        } else {
-          membership = new MembershipFinder().addGroupId(groupId).addMemberId(memberId).assignMembershipType(MembershipType.IMMEDIATE).findMembership(false);
-          groupIdMemberIdToMembership.put(groupIdMemberId, membership);
-        }
-        
-//        groupIdMemberIdForMembershipFinder.add(groupIdMemberIdLifecycleEventId);
-        
+      ActionBean actionBean = groupMemberEventRefToActionBean.get(groupMemberEventRef);
+      
+      MultiKey groupIdMemberId = new MultiKey(groupMemberEventRef.groupId, groupMemberEventRef.memberId);
+      if (membershipsFromGroupIdsMemberIds.containsKey(groupIdMemberId)) {
+        Membership membership = membershipsFromGroupIdsMemberIds.get(groupIdMemberId);
         if (membership != null) {
-//          AttributeAssign attributeAssign = membership.getAttributeDelegate().retrieveAssignment("assign", UserLifecycleAttributeNames.retrieveInFlightAttributeDefNameMarker(), false, false);
-//          if (attributeAssign == null) {
-//          }
-//          AttributeAssign attributeAssign = membership.getAttributeDelegate().assignAttribute(UserLifecycleAttributeNames.retrieveInFlightAttributeDefNameMarker()).getAttributeAssign();
           AttributeAssign attributeAssign = membership.getAttributeDelegate().addAttribute(UserLifecycleAttributeNames.retrieveInFlightAttributeDefNameMarker()).getAttributeAssign();
           AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(UserLifecycleAttributeNames.userLifecycleStemName()+":"+UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_LIFECYCLE_EVENT_ID, true);
-          attributeAssign.getAttributeValueDelegate().assignValueInteger(attributeDefName.getName(), lifecycleEventId);
+          attributeAssign.getAttributeValueDelegate().assignValueInteger(attributeDefName.getName(), groupMemberEventRef.lifecycleEventInternalId);
           
           attributeDefName = AttributeDefNameFinder.findByName(UserLifecycleAttributeNames.userLifecycleStemName()+":"+UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_ADDED_MICROS, true);
           attributeAssign.getAttributeValueDelegate().assignValueInteger(attributeDefName.getName(), System.currentTimeMillis() * 1000);
           
-          attributeAssign.saveOrUpdate();
+          Instant instant = Instant.now().plus(actionBean.numberOfDaysInTheFuture, ChronoUnit.DAYS);
+          long microsInFuture = instant.getEpochSecond() * 1000L * 1000L;
           
-          lifecycleEventIds.add(lifecycleEventId);
-          groupIdsMemberIdsLifecycleEventIdsOnWhichToPeformActions.add(groupIdMemberIdLifecycleEventId);
+          attributeDefName = AttributeDefNameFinder.findByName(UserLifecycleAttributeNames.userLifecycleStemName()+":"+UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_MICROS_EXPIRE, true);
+          attributeAssign.getAttributeValueDelegate().assignValueInteger(attributeDefName.getName(), microsInFuture);
+          
+          attributeAssign.saveOrUpdate();
         }
+      }
+    }
+    
+    
+  }
+  
+  /**
+   * From the database, retrieve memberships where they already have in flight attributes assigned. call it alreadyHavingInFlightAttributes
+   * Assign in flight attributes to the remaining ones. Assign in flight micros expire at the same time 
+   * @param groupMemberEventRefs - memberships with the lifecycle event internal id that took place since the last run
+   * @param policyConfigIdToPolicyBeans - policy config id to set of policy parts. one group can have one policy attached and the same policy can be in multiple policy parts. 
+   * @param actionConfigIdToActionDetails - action config id to action details map so that we can easily look up action type 
+   * @param lifecycleEventIdToLifecycleEventConfigId - lifecycle event internal id to lifecycle event config id. it's passed to reduce individual look ups
+   * @param groupIdToPolicyConfigId - group id to policy config id map. each group can have at most one policy attached.
+   * @param membershipsFromGroupIdsMemberIds - memberships look up based on group id/member id
+   */
+  private void workOnActionTypeRemoveUserFromGroup(List<GroupMemberEventRef> groupMemberEventRefs, 
+      Map<String, Set<PolicyBean>> policyConfigIdToPolicyBeans, Map<String, ActionBean> actionConfigIdToActionDetails,
+      Map<Long, String> lifecycleEventIdToLifecycleEventConfigId, Map<String, String> groupIdToPolicyConfigId,
+      Map<MultiKey, Membership> membershipsFromGroupIdsMemberIds) {
+    
+    List<GroupMemberEventRef> refsWithRemoveUserFromGroupAction = new ArrayList<>();
+    
+    for (GroupMemberEventRef groupMemberEventRef: groupMemberEventRefs) {
+      
+      String lifecycleEventConfig = lifecycleEventIdToLifecycleEventConfigId.get(groupMemberEventRef.lifecycleEventInternalId);
+      String policyConfigId = groupIdToPolicyConfigId.get(groupMemberEventRef.groupId);
+      
+      if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
         
+        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
+        
+        for (PolicyBean policyBean: policyBeans) {
+          if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
+            //this is the policy part where the lifecycle config is used and now we need to perform all the actions
+            
+            for (String lifecycleActionConfigId : policyBean.lifecycleActionConfigIds) {
+              //now get the action details and perform the action
+              
+              ActionBean actionBean = actionConfigIdToActionDetails.get(lifecycleActionConfigId);
+              if (actionBean != null && Strings.CS.equals(actionBean.actionType, "removeUserFromGroup")) {
+                refsWithRemoveUserFromGroupAction.add(groupMemberEventRef);
+              }
+            }
+          }
+        }
       }
       
     }
     
-    //Step 5 - now we have the memberships that we need to perform lifecycle actions for. To figure out which action to perform for which membership, we need 
-    // 1 - get the lifecycle configs attached to the lifecycle events
-    // 2 - figure out which policy part has the lifecycle event attached to it. these are the ones we need to consider only.
-    // 3 - get the lifecycle actions from the policy parts retrieved in step 5.2 above
     
+    for (GroupMemberEventRef groupMemberEventRef: refsWithRemoveUserFromGroupAction) {
+      
+      MultiKey groupIdMemberId = new MultiKey(groupMemberEventRef.groupId, groupMemberEventRef.memberId);
+      if (membershipsFromGroupIdsMemberIds.containsKey(groupIdMemberId)) {
+        Membership membership = membershipsFromGroupIdsMemberIds.get(groupIdMemberId);
+        if (membership != null) {
+         membership.delete();
+        }
+      }
+    }
+    
+  }
+  
+  
+  private void populateSubjectsAndGroups(Set<String> memberIds, Set<String> groupIds, Map<String, Subject> memberIdToSubject, Map<String, Group> groupIdToGroup) {
+    
+    for (String memberId: memberIds) {      
+      Subject subject = new SubjectFinder().assignMemberId(memberId).findSubject();
+      if (subject != null) {
+        memberIdToSubject.put(memberId, subject);
+      }
+    }
+    
+    boolean hasAtLeastOneGroupId = false;
+    GroupFinder finder = new GroupFinder();
+    for (String groupId: groupIds) {
+      finder.addGroupId(groupId);
+      hasAtLeastOneGroupId = true;
+    }
+    
+    if (hasAtLeastOneGroupId) {
+      Set<Group> groups = finder.findGroups();
+      
+      for (Group group: groups) {
+        groupIdToGroup.put(group.getId(), group);
+      }
+    }
+    
+  }
+  
+  private String getEmailAddressFromSubject(Subject subject) {
+    
+    String emailAddress = null;
+    if (StringUtils.equals(subject.getType().getName(), SubjectTypeEnum.PERSON.getName())) {
+      String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(subject.getSourceId());
+      if (!StringUtils.isBlank(emailAttributeName)) {
+        emailAddress = subject.getAttributeValue(emailAttributeName);
+      }
+    }
+    
+    return emailAddress;
+    
+  }
+  
+  private List<String> getEmailAddressesFromSubjects(Set<Subject> subjects) {
+    
+    List<String> emailAddresses = new ArrayList<String>();
+    for (Subject subject: subjects) {
+      
+      if (StringUtils.equals(subject.getType().getName(), SubjectTypeEnum.PERSON.getName())) {
+        String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(subject.getSourceId());
+        if (!StringUtils.isBlank(emailAttributeName)) {
+          String emailAddress = subject.getAttributeValue(emailAttributeName);
+          emailAddresses.add(emailAddress);
+        }
+      }
+      
+      
+    }
+    
+    return emailAddresses;
+  }
+  
+  /**
+   * From the database, retrieve memberships where they already have in flight attributes assigned. call it alreadyHavingInFlightAttributes
+   * Assign in flight attributes to the remaining ones. Assign in flight micros expire at the same time 
+   * @param groupMemberEventRefs - memberships with the lifecycle event internal id that took place since the last run
+   * @param policyConfigIdToPolicyBeans - policy config id to set of policy parts. one group can have one policy attached and the same policy can be in multiple policy parts. 
+   * @param actionConfigIdToActionDetails - action config id to action details map so that we can easily look up action type 
+   * @param lifecycleEventIdToLifecycleEventConfigId - lifecycle event internal id to lifecycle event config id. it's passed to reduce individual look ups
+   * @param groupIdToPolicyConfigId - group id to policy config id map. each group can have at most one policy attached.
+   * @param membershipsFromGroupIdsMemberIds - memberships look up based on group id/member id
+   */
+  private void workOnActionTypeEmailUser(List<GroupMemberEventRef> groupMemberEventRefs, 
+      Map<String, Set<PolicyBean>> policyConfigIdToPolicyBeans, Map<String, ActionBean> actionConfigIdToActionDetails,
+      Map<Long, String> lifecycleEventIdToLifecycleEventConfigId, Map<String, String> groupIdToPolicyConfigId,
+      Map<MultiKey, Membership> membershipsFromGroupIdsMemberIds) {
+    
+    Map<String, EmailRecipientsWithRecordMaps> actionConfigIdToRecipientsRecordMaps = new HashMap<>();
+    
+    Set<String> memberIds = new HashSet<>();
+    Set<String> groupIds = new HashSet<>();
+    
+    List<GroupMemberEventRef> eligibleGroupMemberEventRefs = new ArrayList<>();
+    for (GroupMemberEventRef groupMemberEventRef: groupMemberEventRefs) {
+      
+      String lifecycleEventConfig = lifecycleEventIdToLifecycleEventConfigId.get(groupMemberEventRef.lifecycleEventInternalId);
+      String policyConfigId = groupIdToPolicyConfigId.get(groupMemberEventRef.groupId);
+      
+      if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
+        
+        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
+        
+        for (PolicyBean policyBean: policyBeans) {
+          if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
+            //this is the policy part where the lifecycle config is used and now we need to perform all the actions
+            
+            for (String lifecycleActionConfigId : policyBean.lifecycleActionConfigIds) {
+              //now get the action details and perform the action
+              
+              ActionBean actionBean = actionConfigIdToActionDetails.get(lifecycleActionConfigId);
+              if (actionBean != null && Strings.CS.equals(actionBean.actionType, "emailUser")) {
+                eligibleGroupMemberEventRefs.add(groupMemberEventRef);
+                memberIds.add(groupMemberEventRef.memberId);
+                groupIds.add(groupMemberEventRef.groupId);
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    Map<String, Subject> memberIdToSubject = new HashMap<>(); 
+    
+    Map<String, Group> groupIdToGroup = new HashMap<>(); 
+    
+    populateSubjectsAndGroups(memberIds, groupIds, memberIdToSubject, groupIdToGroup);
+    
+    for (GroupMemberEventRef groupMemberEventRef: eligibleGroupMemberEventRefs) {
+      
+      Subject subject = memberIdToSubject.get(groupMemberEventRef.memberId);
+      Group group = groupIdToGroup.get(groupMemberEventRef.groupId);
+      
+      if (subject == null || group == null) {
+        continue;
+      }
+      
+      String lifecycleEventConfig = lifecycleEventIdToLifecycleEventConfigId.get(groupMemberEventRef.lifecycleEventInternalId);
+      String policyConfigId = groupIdToPolicyConfigId.get(groupMemberEventRef.groupId);
+      
+      if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
+        
+        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
+        
+        for (PolicyBean policyBean: policyBeans) {
+          if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
+            //this is the policy part where the lifecycle config is used and now we need to perform all the actions
+            
+            for (String lifecycleActionConfigId : policyBean.lifecycleActionConfigIds) {
+              //now get the action details and perform the action
+              ActionBean actionBean = actionConfigIdToActionDetails.get(lifecycleActionConfigId);
+              if (actionBean != null && Strings.CS.equals(actionBean.actionType, "emailUser")) {
+                
+                String emailAddressFromSubject = getEmailAddressFromSubject(subject);
+                if (StringUtils.isNotBlank(emailAddressFromSubject)) {
+                  
+                  if (actionConfigIdToRecipientsRecordMaps.containsKey(lifecycleActionConfigId)) {
+                    EmailRecipientsWithRecordMaps recipientsWithRecordMaps = actionConfigIdToRecipientsRecordMaps.get(lifecycleActionConfigId);
+                    recipientsWithRecordMaps.emailAddresses.add(emailAddressFromSubject);
+                    
+                    Map<String, Object> recordMap = new HashMap<String, Object>();
+                    
+                    SafeSubject safeSubject = new SafeSubject(subject);
+                    recordMap.put("safeSubjectRecipient", safeSubject);
+                    recordMap.put("safeSubjectLifecycleUser", safeSubject);
+                    recordMap.put("groupDescription", group.getDescription());
+                    recordMap.put("groupDisplayExtension", group.getDisplayExtension());
+                    recordMap.put("groupDisplayName", group.getDisplayName());
+                    recordMap.put("groupExtension", group.getExtension());
+                    recordMap.put("groupId", group.getId());
+                    recordMap.put("groupName", group.getName());
+                    
+                    recipientsWithRecordMaps.listOfRecordMaps.add(recordMap);
+                    
+                  } else {
+                    EmailRecipientsWithRecordMaps recipientsWithRecordMaps = new EmailRecipientsWithRecordMaps();
+                    recipientsWithRecordMaps.emailAddresses = new HashSet<String>();
+                    recipientsWithRecordMaps.listOfRecordMaps = new ArrayList<Map<String,Object>>();
+                    
+                    recipientsWithRecordMaps.emailAddresses.add(emailAddressFromSubject);
+                    
+                    Map<String, Object> recordMap = new HashMap<String, Object>();
+                    
+                    SafeSubject safeSubject = new SafeSubject(subject);
+                    recordMap.put("safeSubjectRecipient", safeSubject);
+                    recordMap.put("safeSubjectLifecycleUser", safeSubject);
+                    recordMap.put("groupDescription", group.getDescription());
+                    recordMap.put("groupDisplayExtension", group.getDisplayExtension());
+                    recordMap.put("groupDisplayName", group.getDisplayName());
+                    recordMap.put("groupExtension", group.getExtension());
+                    recordMap.put("groupId", group.getId());
+                    recordMap.put("groupName", group.getName());
+                    
+                    recipientsWithRecordMaps.listOfRecordMaps.add(recordMap);
+                    
+                    actionConfigIdToRecipientsRecordMaps.put(lifecycleActionConfigId, recipientsWithRecordMaps);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    //now we've the data structure ready to send emails
+    for (String actionConfigId: actionConfigIdToRecipientsRecordMaps.keySet()) {
+      
+      ActionBean actionBean = actionConfigIdToActionDetails.get(actionConfigId);
+      
+      EmailRecipientsWithRecordMaps emailRecipientsWithRecordMaps = actionConfigIdToRecipientsRecordMaps.get(actionConfigId);
+      if (emailRecipientsWithRecordMaps.emailAddresses.size() == 0) {
+        continue;
+      }
+      
+      Map<String, Object> variableMap = new HashMap<String, Object>();
+      variableMap.put("listOfRecordMaps", emailRecipientsWithRecordMaps.listOfRecordMaps);
+      
+      String subjectText = GrouperUtil.substituteExpressionLanguageTemplate(actionBean.emailSubjectLine, variableMap, true, false, true);
+      String emailBodyTemplate = GrouperUtil.replace(actionBean.emailBody, "__NEWLINE__", "\n");
+      String bodyText = GrouperUtil.substituteExpressionLanguageTemplate(emailBodyTemplate, variableMap, true, false, true);
+
+      GrouperEmail grouperEmail = new GrouperEmail().setSubject(subjectText).setBody(bodyText);
+      
+      String emailAddressesCommaSeparated = GrouperUtil.join(emailRecipientsWithRecordMaps.emailAddresses.iterator(), ",") ;
+      grouperEmail.setTo(emailAddressesCommaSeparated);
+      
+      grouperEmail.send();
+      
+    }
+    
+    
+  }
+  
+  /**
+   * From the database, retrieve memberships where they already have in flight attributes assigned. call it alreadyHavingInFlightAttributes
+   * Assign in flight attributes to the remaining ones. Assign in flight micros expire at the same time 
+   * @param groupMemberEventRefs - memberships with the lifecycle event internal id that took place since the last run
+   * @param policyConfigIdToPolicyBeans - policy config id to set of policy parts. one group can have one policy attached and the same policy can be in multiple policy parts. 
+   * @param actionConfigIdToActionDetails - action config id to action details map so that we can easily look up action type 
+   * @param lifecycleEventIdToLifecycleEventConfigId - lifecycle event internal id to lifecycle event config id. it's passed to reduce individual look ups
+   * @param groupIdToPolicyConfigId - group id to policy config id map. each group can have at most one policy attached.
+   * @param membershipsFromGroupIdsMemberIds - memberships look up based on group id/member id
+   */
+  private void workOnActionTypeEmailGroupAdmin(List<GroupMemberEventRef> groupMemberEventRefs, 
+      Map<String, Set<PolicyBean>> policyConfigIdToPolicyBeans, Map<String, ActionBean> actionConfigIdToActionDetails,
+      Map<Long, String> lifecycleEventIdToLifecycleEventConfigId, Map<String, String> groupIdToPolicyConfigId,
+      Map<MultiKey, Membership> membershipsFromGroupIdsMemberIds) {
+    
+    Map<String, EmailRecipientsWithRecordMaps> actionConfigIdToRecipientsRecordMaps = new HashMap<>();
+    
+    Set<String> memberIds = new HashSet<>();
+    Set<String> groupIds = new HashSet<>();
+    
+    List<GroupMemberEventRef> eligibleGroupMemberEventRefs = new ArrayList<>();
+    for (GroupMemberEventRef groupMemberEventRef: groupMemberEventRefs) {
+      
+      String lifecycleEventConfig = lifecycleEventIdToLifecycleEventConfigId.get(groupMemberEventRef.lifecycleEventInternalId);
+      String policyConfigId = groupIdToPolicyConfigId.get(groupMemberEventRef.groupId);
+      
+      if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
+        
+        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
+        
+        for (PolicyBean policyBean: policyBeans) {
+          if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
+            //this is the policy part where the lifecycle config is used and now we need to perform all the actions
+            
+            for (String lifecycleActionConfigId : policyBean.lifecycleActionConfigIds) {
+              //now get the action details and perform the action
+              
+              ActionBean actionBean = actionConfigIdToActionDetails.get(lifecycleActionConfigId);
+              if (actionBean != null && Strings.CS.equals(actionBean.actionType, "emailGroupAdmin")) {
+                eligibleGroupMemberEventRefs.add(groupMemberEventRef);
+                memberIds.add(groupMemberEventRef.memberId);
+                groupIds.add(groupMemberEventRef.groupId);
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    Map<String, Subject> memberIdToSubject = new HashMap<>(); 
+    
+    Map<String, Group> groupIdToGroup = new HashMap<>(); 
+    
+    populateSubjectsAndGroups(memberIds, groupIds, memberIdToSubject, groupIdToGroup);
+    
+    for (GroupMemberEventRef groupMemberEventRef: eligibleGroupMemberEventRefs) {
+      
+      Subject lifecycleSubject = memberIdToSubject.get(groupMemberEventRef.memberId);
+      Group group = groupIdToGroup.get(groupMemberEventRef.groupId);
+      
+      if (lifecycleSubject == null || group == null) {
+        continue;
+      }
+      
+      Set<Subject> recipientSubjects = group.getAdmins();
+      
+      String lifecycleEventConfig = lifecycleEventIdToLifecycleEventConfigId.get(groupMemberEventRef.lifecycleEventInternalId);
+      String policyConfigId = groupIdToPolicyConfigId.get(groupMemberEventRef.groupId);
+      
+      if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
+        
+        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
+        
+        for (PolicyBean policyBean: policyBeans) {
+          if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
+            //this is the policy part where the lifecycle config is used and now we need to perform all the actions
+            
+            for (String lifecycleActionConfigId : policyBean.lifecycleActionConfigIds) {
+              //now get the action details and perform the action
+              ActionBean actionBean = actionConfigIdToActionDetails.get(lifecycleActionConfigId);
+              if (actionBean != null && Strings.CS.equals(actionBean.actionType, "emailGroupAdmin")) {
+                
+                List<String> emailAddressesFromSubjects = getEmailAddressesFromSubjects(recipientSubjects);
+                if (!emailAddressesFromSubjects.isEmpty()) {
+                  
+                  if (actionConfigIdToRecipientsRecordMaps.containsKey(lifecycleActionConfigId)) {
+                    EmailRecipientsWithRecordMaps recipientsWithRecordMaps = actionConfigIdToRecipientsRecordMaps.get(lifecycleActionConfigId);
+                    recipientsWithRecordMaps.emailAddresses.addAll(emailAddressesFromSubjects);
+                    
+                    Map<String, Object> recordMap = new HashMap<String, Object>();
+                    
+                    SafeSubject safeSubject = new SafeSubject(lifecycleSubject);
+//                    recordMap.put("safeSubjectRecipient", );
+                    recordMap.put("safeSubjectLifecycleUser", safeSubject);
+                    recordMap.put("groupDescription", group.getDescription());
+                    recordMap.put("groupDisplayExtension", group.getDisplayExtension());
+                    recordMap.put("groupDisplayName", group.getDisplayName());
+                    recordMap.put("groupExtension", group.getExtension());
+                    recordMap.put("groupId", group.getId());
+                    recordMap.put("groupName", group.getName());
+                    
+                    recipientsWithRecordMaps.listOfRecordMaps.add(recordMap);
+                    
+                  } else {
+                    EmailRecipientsWithRecordMaps recipientsWithRecordMaps = new EmailRecipientsWithRecordMaps();
+                    recipientsWithRecordMaps.emailAddresses = new HashSet<String>();
+                    recipientsWithRecordMaps.listOfRecordMaps = new ArrayList<Map<String,Object>>();
+                    
+                    recipientsWithRecordMaps.emailAddresses.addAll(emailAddressesFromSubjects);
+                    
+                    Map<String, Object> recordMap = new HashMap<String, Object>();
+                    
+                    SafeSubject safeSubject = new SafeSubject(lifecycleSubject);
+//                    recordMap.put("safeSubjectRecipient", safeSubject);
+                    recordMap.put("safeSubjectLifecycleUser", safeSubject);
+                    recordMap.put("groupDescription", group.getDescription());
+                    recordMap.put("groupDisplayExtension", group.getDisplayExtension());
+                    recordMap.put("groupDisplayName", group.getDisplayName());
+                    recordMap.put("groupExtension", group.getExtension());
+                    recordMap.put("groupId", group.getId());
+                    recordMap.put("groupName", group.getName());
+                    
+                    recipientsWithRecordMaps.listOfRecordMaps.add(recordMap);
+                    
+                    actionConfigIdToRecipientsRecordMaps.put(lifecycleActionConfigId, recipientsWithRecordMaps);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    //now we've the data structure ready to send emails
+    for (String actionConfigId: actionConfigIdToRecipientsRecordMaps.keySet()) {
+      
+      ActionBean actionBean = actionConfigIdToActionDetails.get(actionConfigId);
+      
+      EmailRecipientsWithRecordMaps emailRecipientsWithRecordMaps = actionConfigIdToRecipientsRecordMaps.get(actionConfigId);
+      if (emailRecipientsWithRecordMaps.emailAddresses.size() == 0) {
+        continue;
+      }
+      
+      Map<String, Object> variableMap = new HashMap<String, Object>();
+      variableMap.put("listOfRecordMaps", emailRecipientsWithRecordMaps.listOfRecordMaps);
+      
+      String subjectText = GrouperUtil.substituteExpressionLanguageTemplate(actionBean.emailSubjectLine, variableMap, true, false, true);
+      String emailBodyTemplate = GrouperUtil.replace(actionBean.emailBody, "__NEWLINE__", "\n");
+      String bodyText = GrouperUtil.substituteExpressionLanguageTemplate(emailBodyTemplate, variableMap, true, false, true);
+
+      GrouperEmail grouperEmail = new GrouperEmail().setSubject(subjectText).setBody(bodyText);
+      
+      String emailAddressesCommaSeparated = GrouperUtil.join(emailRecipientsWithRecordMaps.emailAddresses.iterator(), ",") ;
+      grouperEmail.setTo(emailAddressesCommaSeparated);
+      
+      grouperEmail.send();
+      
+    }
+    
+    
+  }
+  
+  
+  
+  @Override
+  public OtherJobOutput run(OtherJobInput otherJobInput) {
+    
+    AttributeDef attributeDef = UserLifecycleAttributeNames.retrieveAttributeDefBaseDef();
+    if (attributeDef == null) {
+      LOG.error(UserLifecycleAttributeNames.userLifecycleStemName() + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_POLICY_GROUP_MARKER_DEF + " attribute def doesn't exist. Job will not proceed.");
+      return null;
+    }
+    
+    //Step 1 - retrieve list of groups that have lifecycle policies attached to them.
+    Map<String, String> groupIdToPolicyConfigId = retrieveGroupsWithPolicies();
+    
+    
+    //Step 2 - retrieve lifecycle events for groups that have policies attached to them and only retrieve events that took place after the most recent full sync
+    List<GroupMemberEventRef> groupIdsMemberIdsLifecycleEventIds = retrieveLifecycleEvents(groupIdToPolicyConfigId.keySet());
+    
+    Set<Long> lifecycleEventIds = new HashSet<Long>(); //these are the lifecycle event ids for which we need to retrieve lifecycle event config ids
+    
+    for (GroupMemberEventRef groupIdMemberIdLifecycleEventId: groupIdsMemberIdsLifecycleEventIds) {
+      lifecycleEventIds.add(groupIdMemberIdLifecycleEventId.lifecycleEventInternalId);
+    }
+    
+    // Prepare metadata for step 3 and beyond.
     //retrieve lifecycle event config ids at once so that we don't have to make multiple sql queries
     String sqlToRetrieveLifecycleEventConfig = """
         select gle.internal_id, gle.grpr_lcycl_evnt_cnfg_intrnl_id, glec.config_id from grouper_lifecycle_event gle, grouper_lifecycle_event_config glec where glec.internal_id = gle.grpr_lcycl_evnt_cnfg_intrnl_id 
@@ -272,345 +743,34 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
       
     }
     
-    
     Map<String, ActionBean> actionConfigIdToActionDetails = retrieveActionConfigIdToActionDetails();
     
-    Map<String, Set<PolicyBean>> policyConfigIdToPolicyBeans = retrievePolicyConfigIdToPolicyBeans(new HashSet<String>(groupIdToPolicyConfigId.values())); //we're only interested in policies that are attached to one group
+    Map<String, Set<PolicyBean>> policyConfigIdToPolicyBeans = retrievePolicyConfigIdToPolicyBeans(new HashSet<String>(groupIdToPolicyConfigId.values())); //we're only interested in policies that are attached to the group
+    
+    Map<MultiKey,Membership> membershipsFromGroupIdsMemberIds = retrieveMembershipsFromGroupIdsMemberIds(groupIdsMemberIdsLifecycleEventIds);
+    
+    //Step 3 - Work on group id, member id, and lifecycle event id from above where action type is addEndDateOnMembership
+    workOnActionTypeAddEndDateOnMembership(groupIdsMemberIdsLifecycleEventIds, policyConfigIdToPolicyBeans, 
+        actionConfigIdToActionDetails, lifecycleEventIdToLifecycleEventConfigId, 
+        groupIdToPolicyConfigId, membershipsFromGroupIdsMemberIds);
     
     
-    //Step 6 - This step is only if the action type is addEndDateOnMembership. It is to calculate value for USER_LIFECYCLE_MSHIP_IN_FLIGHT_MICROS_EXPIRE attribute to the membership
-    
-    Map<MultiKey, Long> groupIdMemberIdLifecycleEventIdToMicrosExpire = new HashMap<MultiKey, Long>(); 
-    for (MultiKey groupIdMemberIdLifecycleEventId : groupIdsMemberIdsLifecycleEventIdsOnWhichToPeformActions) {
-      
-      String groupId = GrouperUtil.stringValue(groupIdMemberIdLifecycleEventId.getKey(0));
-      Long lifecycleEventId = GrouperUtil.longValue(groupIdMemberIdLifecycleEventId.getKey(2));
-
-      //get the lifecycle event config id from lifecycle event id
-      String lifecycleEventConfig = lifecycleEventIdToLifecycleEventConfigId.get(lifecycleEventId);
-      String policyConfigId = groupIdToPolicyConfigId.get(groupId);
-      
-      if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
-        
-        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
-        
-        for (PolicyBean policyBean: policyBeans) {
-          if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
-            //this is the policy part where the lifecycle config is used and now we need to perform all the actions
-            
-            for (String lifecycleActionConfigId : policyBean.lifecycleActionConfigIds) {
-              //now get the action details and perform the action
-              
-              ActionBean actionBean = actionConfigIdToActionDetails.get(lifecycleActionConfigId);
-              if (actionBean != null) {
-                if (Strings.CS.equals(actionBean.actionType, "addEndDateOnMembership")) {
-                  
-                  Instant instant = Instant.now().plus(actionBean.numberOfDaysInTheFuture, ChronoUnit.DAYS);
-                  long microsInFuture = instant.getEpochSecond() * 1000L * 1000L;
-                  groupIdMemberIdLifecycleEventIdToMicrosExpire.put(groupIdMemberIdLifecycleEventId, microsInFuture);
-                  
-                }
-              }
-              
-            }
-          }
-        }
-        
-      }
-      
-    }
+    //Step 4 - Work on group id, member id, and lifecycle event id from above where action type is removeUserFromGroup
+    workOnActionTypeRemoveUserFromGroup(groupIdsMemberIdsLifecycleEventIds, policyConfigIdToPolicyBeans, 
+        actionConfigIdToActionDetails, lifecycleEventIdToLifecycleEventConfigId, 
+        groupIdToPolicyConfigId, membershipsFromGroupIdsMemberIds);
     
     
-    // if there are multiple micros values because of either multiple actions or multiple policy parts, pick the minimum one. basically, we want to remove the membership earliest in the future
-    // if there's an action of remove member, then we dont need it. I
-    // if USER_LIFECYCLE_MSHIP_IN_FLIGHT_MICROS_EXPIRE is already assigned and the value is the same as the minimum, then don't change it
-   
-//    for (MultiKey groupIdMemberIdLifecycleEventId : groupIdsMemberIdsLifecycleEventIdsOnWhichToPeformActions) {
-//      
-//      String groupId = GrouperUtil.stringValue(groupIdMemberIdLifecycleEventId.getKey(0));
-//      String memberId = GrouperUtil.stringValue(groupIdMemberIdLifecycleEventId.getKey(1));
-//      Long lifecycleEventId = GrouperUtil.longValue(groupIdMemberIdLifecycleEventId.getKey(2));
-//
-//      //get the lifecycle event config id from lifecycle event id
-//      String lifecycleEventConfig = lifecycleEventIdToLifecycleEventConfigId.get(lifecycleEventId);
-//      String policyConfigId = groupIdToPolicyConfigId.get(groupId);
-//      
-//      Set<MultiKey> groupIdMemberIdThatDoNotNeedMicrosExpireAttribute = new HashSet<MultiKey>();
-//      
-//      if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
-//        
-//        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
-//        
-//        for (PolicyBean policyBean: policyBeans) {
-//          if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
-//            //this is the policy part where the lifecycle config is used and now we need to perform all the actions
-//            
-//            for (String lifecycleActionConfigId : policyBean.lifecycleActionConfigIds) {
-//              //now get the action details and perform the action
-//              
-//              ActionBean actionBean = actionConfigIdToActionDetails.get(lifecycleActionConfigId);
-//              if (actionBean != null) {
-//                MultiKey groupIdMemberId = new MultiKey(groupId, memberId);
-//                if (Strings.CS.equals(actionBean.actionType, "addEndDateOnMembership") && !groupIdMemberIdThatDoNotNeedMicrosExpireAttribute.contains(groupIdMemberId)) {
-//                  
-//                  Instant instant = Instant.now().plus(actionBean.numberOfDaysInTheFuture, ChronoUnit.DAYS);
-//                  long microsInFuture = instant.getEpochSecond() * 1000L * 1000L;
-//                  if (groupIdMemberIdLifecycleEventIdToMicrosExpire.containsKey(groupIdMemberId)) {
-//                    // we want to assign the minimum value 
-//                    long existingValue = groupIdMemberIdLifecycleEventIdToMicrosExpire.get(groupIdMemberId);
-//                    groupIdMemberIdLifecycleEventIdToMicrosExpire.put(groupIdMemberId, Math.min(microsInFuture, existingValue));
-//                  } else {                    
-//                    groupIdMemberIdLifecycleEventIdToMicrosExpire.put(groupIdMemberId, microsInFuture);
-//                  }
-//                  
-//                } else if (Strings.CS.equals(actionBean.actionType, "removeUserFromGroup")) {
-//                  groupIdMemberIdThatDoNotNeedMicrosExpireAttribute.add(groupIdMemberId);                  
-//                  groupIdMemberIdLifecycleEventIdToMicrosExpire.remove(groupIdMemberId);
-//                }
-//              }
-//              
-//            }
-//          }
-//        }
-//        
-//      }
-//      
-//    }
+    //Step 5 - Work on group id, member id, and lifecycle event id from above where action type is emailUser
+    workOnActionTypeEmailUser(groupIdsMemberIdsLifecycleEventIds, policyConfigIdToPolicyBeans, 
+        actionConfigIdToActionDetails, lifecycleEventIdToLifecycleEventConfigId, 
+        groupIdToPolicyConfigId, membershipsFromGroupIdsMemberIds);
     
-    //Step 7 - now actually assign USER_LIFECYCLE_MSHIP_IN_FLIGHT_MICROS_EXPIRE value 
-    for (MultiKey groupIdMemberIdLifecycleEventId: groupIdMemberIdLifecycleEventIdToMicrosExpire.keySet()) {
-      
-      String groupId = GrouperUtil.stringValue(groupIdMemberIdLifecycleEventId.getKey(0));
-      String memberId = GrouperUtil.stringValue(groupIdMemberIdLifecycleEventId.getKey(1));
-      Long lifecycleEventId = GrouperUtil.longValue(groupIdMemberIdLifecycleEventId.getKey(2));
-      
-      Membership membership = null;
-      if (groupIdMemberIdToMembership.containsKey(new MultiKey(groupId, memberId))) {
-        membership = groupIdMemberIdToMembership.get(new MultiKey(groupId, memberId));
-      } else {
-        membership = new MembershipFinder().addGroupId(groupId).addMemberId(memberId).assignMembershipType(MembershipType.IMMEDIATE).findMembership(false);
-        groupIdMemberIdToMembership.put(new MultiKey(groupId, memberId), membership);
-      }
-      
-      if (membership != null) {
-        
-        Set<AttributeAssign> existingInFlightAttributeAssignments = membership.getAttributeDelegate().retrieveAssignments(UserLifecycleAttributeNames.retrieveInFlightAttributeDefNameMarker());
-        
-        AttributeAssign attributeAssignThatWillStoreInFlightMicrosExpire = null; 
-        //now we need to match on existing lifecycle event id so that we can attach USER_LIFECYCLE_MSHIP_IN_FLIGHT_MICROS_EXPIRE to the correct attribute assignment
-        for (AttributeAssign attributeAssign: existingInFlightAttributeAssignments) {
-          AttributeAssignValue existingInFlightLifecycleEventId = attributeAssign.getAttributeValueDelegate()
-              .retrieveAttributeAssignValue(userLifecycleStemName()+":"+USER_LIFECYCLE_MSHIP_IN_FLIGHT_LIFECYCLE_EVENT_ID);
-          if (existingInFlightLifecycleEventId == null || existingInFlightLifecycleEventId.getValueInteger() == null || !GrouperUtil.equals(existingInFlightLifecycleEventId.getValueInteger(), lifecycleEventId)) {
-            continue;
-          }
-          
-          attributeAssignThatWillStoreInFlightMicrosExpire = attributeAssign;
-          
-        }
-        
-        if (attributeAssignThatWillStoreInFlightMicrosExpire != null) {
-          AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(UserLifecycleAttributeNames.userLifecycleStemName()+":"+UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_MICROS_EXPIRE, true);
-          attributeAssignThatWillStoreInFlightMicrosExpire.getAttributeValueDelegate().assignValueInteger(attributeDefName.getName(), groupIdMemberIdLifecycleEventIdToMicrosExpire.get(groupIdMemberIdLifecycleEventId));
-          
-          attributeAssignThatWillStoreInFlightMicrosExpire.saveOrUpdate();
-        }
-        
-        
-      }
-      
-    }
+    //Step 6 - Work on group id, member id, and lifecycle event id from above where action type is emailGroupAdmin
+    workOnActionTypeEmailGroupAdmin(groupIdsMemberIdsLifecycleEventIds, policyConfigIdToPolicyBeans, 
+        actionConfigIdToActionDetails, lifecycleEventIdToLifecycleEventConfigId, 
+        groupIdToPolicyConfigId, membershipsFromGroupIdsMemberIds);
     
-    //prepare map so that we can find subjects in one go and email actions can be batched
-    Map<String, Set<EmailObject>> memberIdToEmailObjects = new HashMap<String, Set<EmailObject>>();
-    Map<String, Set<EmailObject>> groupIdToEmailObjects = new HashMap<String, Set<EmailObject>>();
-    
-    //now we're finally ready to perform the actions
-    for (MultiKey groupIdMemberIdLifecycleEventId : groupIdsMemberIdsLifecycleEventIdsOnWhichToPeformActions) {
-      
-      String groupId = GrouperUtil.stringValue(groupIdMemberIdLifecycleEventId.getKey(0));
-      String memberId = GrouperUtil.stringValue(groupIdMemberIdLifecycleEventId.getKey(1));
-      Long lifecycleEventId = GrouperUtil.longValue(groupIdMemberIdLifecycleEventId.getKey(2));
-
-      // if the action is removeUserFromGroup, remove member from the group.
-      // if the action is addEndDateOnMembership, now look at the time difference between when the in flight micros expire vs now and if micros expire is in the past, remove the membership
-      // remove member from the group otherwise 
-      
-      
-      // batch email to  
-      // based on the time difference between when the in flight micros added vs now and if the difference is greater than numberOfDaysInTheFuture,
-      // then delete the membership immediately
-      
-      //get the lifecycle event config id from lifecycle event id
-      String lifecycleEventConfig = lifecycleEventIdToLifecycleEventConfigId.get(lifecycleEventId);
-      String policyConfigId = groupIdToPolicyConfigId.get(groupId);
-      
-      if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
-        
-        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
-        
-        for (PolicyBean policyBean: policyBeans) {
-          if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
-            //this is the policy part where the lifecycle config is used and now we need to perform all the actions
-            
-            for (String lifecycleActionConfigId : policyBean.lifecycleActionConfigIds) {
-              //now get the action details and perform the action
-              
-              ActionBean actionBean = actionConfigIdToActionDetails.get(lifecycleActionConfigId);
-              if (actionBean != null) {
-                
-                if (Strings.CS.equals(actionBean.actionType, "addEndDateOnMembership")) {
-                  
-                  Membership membership = null;
-                  if (groupIdMemberIdToMembership.containsKey(new MultiKey(groupId, memberId))) {
-                    membership = groupIdMemberIdToMembership.get(new MultiKey(groupId, memberId));
-                  } else {
-                    membership = new MembershipFinder().addGroupId(groupId).addMemberId(memberId).assignMembershipType(MembershipType.IMMEDIATE).findMembership(false);
-                    groupIdMemberIdToMembership.put(new MultiKey(groupId, memberId), membership);
-                  }
-                  
-                  if (membership != null) {
-                    
-                    Set<AttributeAssign> existingInFlightAttributeAssignments = membership.getAttributeDelegate().retrieveAssignments(UserLifecycleAttributeNames.retrieveInFlightAttributeDefNameMarker());
-                    
-                    for (AttributeAssign attributeAssign: existingInFlightAttributeAssignments) {
-                      AttributeAssignValue existingInFlightLifecycleEventId = attributeAssign.getAttributeValueDelegate()
-                          .retrieveAttributeAssignValue(userLifecycleStemName()+":"+UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_MICROS_EXPIRE);
-                      if (existingInFlightLifecycleEventId == null || existingInFlightLifecycleEventId.getValueInteger() == null) {
-                        continue;
-                      }
-                      
-                      Long microsExpireAssignedToTheMembership = existingInFlightLifecycleEventId.getValueInteger();
-                      
-                      if ((System.currentTimeMillis() * 1000L) > microsExpireAssignedToTheMembership) {
-                        membership.delete();
-                        break;
-                      }
-                      
-                    }
-                  }
-                  
-                } else if (Strings.CS.equals(actionBean.actionType, "removeUserFromGroup")) {
-                  
-                  Membership membership = null;
-                  if (groupIdMemberIdToMembership.containsKey(new MultiKey(groupId, memberId))) {
-                    membership = groupIdMemberIdToMembership.get(new MultiKey(groupId, memberId));
-                  } else {
-                    membership = new MembershipFinder().addGroupId(groupId).addMemberId(memberId).assignMembershipType(MembershipType.IMMEDIATE).findMembership(false);
-                  }
-                  
-                  if (membership != null) {
-                    membership.delete();
-                  }
-                } else if (Strings.CS.equals(actionBean.actionType, "emailUser")) {
-                  
-                  if (memberIdToEmailObjects.containsKey(memberId)) {
-                    Set<EmailObject> set = memberIdToEmailObjects.get(memberId);
-                    set.add(new EmailObject(actionBean.emailSubjectLine, actionBean.emailBody));
-                  } else {
-                    Set<EmailObject> set = new HashSet<GroupPolicyUserLifecycleFullDaemon.EmailObject>();
-                    memberIdToEmailObjects.put(memberId, set);
-                    set.add(new EmailObject(actionBean.emailSubjectLine, actionBean.emailBody));
-                  }
-                  
-                } else if (Strings.CS.equals(actionBean.actionType, "emailGroupAdmin")) {
-                  
-                  if (groupIdToEmailObjects.containsKey(groupId)) {
-                    Set<EmailObject> set = groupIdToEmailObjects.get(groupId);
-                    set.add(new EmailObject(actionBean.emailSubjectLine, actionBean.emailBody));
-                  } else {
-                    Set<EmailObject> set = new HashSet<GroupPolicyUserLifecycleFullDaemon.EmailObject>();
-                    groupIdToEmailObjects.put(groupId, set);
-                    set.add(new EmailObject(actionBean.emailSubjectLine, actionBean.emailBody));
-                  }
-                  
-                }
-              }
-              
-            }
-          }
-        }
-        
-      }
-      
-      
-    }
-    
-    //Step 8 - let's send emails members and group admins
-    Map<String, Set<EmailObject>> emailAddressToEmailObjects = new HashMap<String, Set<EmailObject>>();
-    
-    Set<String> memberIds = memberIdToEmailObjects.keySet();
-    
-    for (String memberId: memberIds) {
-      Subject subject = new SubjectFinder().assignMemberId(memberId).findSubject();
-      if (subject != null) {
-        if (StringUtils.equals(subject.getType().getName(), SubjectTypeEnum.PERSON.getName())) {
-          String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(subject.getSourceId());
-          if (!StringUtils.isBlank(emailAttributeName)) {
-            String emailAddress = subject.getAttributeValue(emailAttributeName);
-            if (!StringUtils.isBlank(emailAddress)) {
-              
-              if (emailAddressToEmailObjects.containsKey(emailAddress)) {
-                Set<EmailObject> set = emailAddressToEmailObjects.get(emailAddress);
-                set.addAll(memberIdToEmailObjects.get(memberId));
-              } else {
-                Set<EmailObject> set = new HashSet<GroupPolicyUserLifecycleFullDaemon.EmailObject>();
-                set.addAll(memberIdToEmailObjects.get(memberId));
-                emailAddressToEmailObjects.put(emailAddress, set);
-              }
-              
-            }
-          }
-        }
-      }
-    }
-    
-    boolean hasAtLeastOneGroupInFinder = false;
-    GroupFinder groupFinder = new GroupFinder();
-    for (String groupId: groupIdToEmailObjects.keySet()) {
-      groupFinder.addGroupId(groupId);
-      hasAtLeastOneGroupInFinder = true;
-    }
-    
-    Set<Group> groups = hasAtLeastOneGroupInFinder ?  groupFinder.findGroups() : new HashSet<Group>();
-    
-    for (Group group: GrouperUtil.nonNull(groups)) {
-      
-      Set<Subject> subjects = GrouperUtil.nonNull(group.getAdmins());
-      for (Subject subject: subjects) {
-        if (StringUtils.equals(subject.getType().getName(), SubjectTypeEnum.PERSON.getName())) {
-          String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(subject.getSourceId());
-          if (!StringUtils.isBlank(emailAttributeName)) {
-            String emailAddress = subject.getAttributeValue(emailAttributeName);
-            if (!StringUtils.isBlank(emailAddress)) {
-              
-              if (emailAddressToEmailObjects.containsKey(emailAddress)) {
-                Set<EmailObject> set = emailAddressToEmailObjects.get(emailAddress);
-                set.addAll(groupIdToEmailObjects.get(group.getId()));
-              } else {
-                Set<EmailObject> set = new HashSet<GroupPolicyUserLifecycleFullDaemon.EmailObject>();
-                set.addAll(groupIdToEmailObjects.get(group.getId()));
-                emailAddressToEmailObjects.put(emailAddress, set);
-              }
-              
-            }
-          }
-        }
-      }
-    }
-    
-    //now we have email address to email objects. let's send
-    //optimize to send to multiple recipients at once
-    for (String recipient: emailAddressToEmailObjects.keySet()) {
-      Set<EmailObject> emailObjects = emailAddressToEmailObjects.get(recipient);
-      for (EmailObject emailObject: emailObjects) {
-        try {
-          new GrouperEmail().setBody(emailObject.emailBody).setSubject(emailObject.subjectLine).setTo(recipient).send();
-        } catch (Exception e) {
-          LOG.error("Error sending email", e);
-        }
-      }
-    }
     
     return null;
   }
@@ -731,6 +891,43 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
     return policyConfigIdToPolicyBeans;
   }
   
+  class GroupMemberEventRef {
+    String groupId;
+    String memberId;
+    Long lifecycleEventInternalId;
+    
+    public GroupMemberEventRef(String groupId, String memberId,
+        Long lifecycleEventInternalId) {
+      this.groupId = groupId;
+      this.memberId = memberId;
+      this.lifecycleEventInternalId = lifecycleEventInternalId;
+    }
+    
+    @Override
+    public int hashCode() {
+      return new HashCodeBuilder()
+          .append(this.groupId)
+          .append(this.memberId)
+          .append(this.lifecycleEventInternalId)
+          .toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (!(obj instanceof GroupMemberEventRef)) {
+        return false;
+      }
+      GroupMemberEventRef groupMemberEventRef = (GroupMemberEventRef)obj;
+      return new EqualsBuilder()
+          .append(this.groupId, groupMemberEventRef.groupId)
+          .append(this.memberId, groupMemberEventRef.memberId)
+          .append(this.lifecycleEventInternalId, groupMemberEventRef.lifecycleEventInternalId)
+          .isEquals();
+    }
+    
+    
+  }
+  
   class PolicyBean {
     
     String policyPartConfigId;
@@ -765,6 +962,11 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
       this.emailBody = emailBody;
     }
     
+  }
+  
+  class EmailRecipientsWithRecordMaps {
+    Set<String> emailAddresses;
+    List<Map<String, Object>> listOfRecordMaps;
   }
  
 
