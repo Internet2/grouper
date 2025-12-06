@@ -1,0 +1,2802 @@
+// Note, use all imports whether they are needed or not.  Just in case.
+
+// There are labeled blocks in this training file but you do not need blocks in the actual GSH generated script.
+
+// Write valid Java, but so it works in groovy.  For instance do not have java that uses multiple lines.
+// Do not break up string concatenation across multiple lines.  You can use triple quoted strings if necessary.
+// Queries should be in triple quoted strings.
+
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.*;
+
+
+import org.apache.commons.lang3.*;
+import org.apache.commons.logging.Log;
+
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.*;
+
+import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.CompositeSave;
+import edu.internet2.middleware.grouper.ai.openai.*;
+import edu.internet2.middleware.grouper.app.attestation.*;
+import edu.internet2.middleware.grouper.app.externalSystem.*;
+import edu.internet2.middleware.grouper.app.grouperTypes.*;
+import edu.internet2.middleware.grouper.app.gsh.template.*;
+import edu.internet2.middleware.grouper.app.loader.*;
+import edu.internet2.middleware.grouper.app.provisioning.*;
+import edu.internet2.middleware.grouper.attr.finder.*;
+import edu.internet2.middleware.grouper.attr.value.*;
+import edu.internet2.middleware.grouper.attr.*;
+import edu.internet2.middleware.grouper.attr.assign.*;
+import edu.internet2.middleware.grouper.authentication.*;
+import edu.internet2.middleware.grouper.exception.*;
+import edu.internet2.middleware.grouper.group.*;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.ldap.*;
+import edu.internet2.middleware.grouper.membership.*;
+import edu.internet2.middleware.grouper.misc.*;
+import edu.internet2.middleware.grouper.util.*;
+import edu.internet2.middleware.grouperClient.jdbc.*;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.*;
+import edu.internet2.middleware.subject.*;
+import edu.internet2.middleware.grouper.privs.*;
+
+
+public class Test124aiGshTraining extends GshTemplateV2 {
+
+  /** declare logger, The logger class is always GshTemplateV2.class since the groovy scripts make random classnames */
+  private static final Log LOG = GrouperUtil.getLog(GshTemplateV2.class);
+
+  /**
+   * this is the main logic method
+   */
+  @Override
+  public void gshRunLogic(GshTemplateV2input gshTemplateV2input,
+      GshTemplateV2output gshTemplateV2output) {
+
+    GshTemplateOutput gsh_builtin_gshTemplateOutput = gshTemplateV2output.getGsh_builtin_gshTemplateOutput();
+    
+    // GSH code here
+    
+    // do all validations before doing any work
+    // any operation with validations has the validations up here
+    // the the work down below
+    
+    // see if validation problem, and return if so
+    if (GrouperUtil.length(gsh_builtin_gshTemplateOutput.getValidationLines()) > 0) {
+      gsh_builtin_gshTemplateOutput.assignIsError(true);
+      return;
+    }
+    
+    // perform the GSH template logic
+
+    String gsh_input_groupName = null;
+
+    String gsh_input_groupNamesToAdd = null;
+
+
+    SUCCESS: {
+      // #########
+      // Each GSH script should output a success message at the end:
+      // #########
+
+      // tell the user the GSH template is complete
+      gsh_builtin_gshTemplateOutput.addOutputLine("Success: the task was completed");
+    }
+
+    INPUT_VARIABLES: {
+      // #########
+      // Scripts can have input variables, the prompt will let AI know what variables to use.
+      // #########
+
+      // read the value of an input variable string.  the input variable is named gsh_input_action
+      String gsh_input_action = gshTemplateV2input.getGsh_builtin_inputString("gsh_input_action");
+
+      // read the value of an input variable boolean.  the input variable is named gsh_input_requiresTwostep
+      boolean gsh_input_requiresTwostep = gshTemplateV2input.getGsh_builtin_inputBoolean("gsh_input_requiresTwostep");
+      
+      // read the value of an input variable boolean with default: false.  the input variable is named gsh_input_requiresEmployee
+      boolean gsh_input_requiresEmployee = GrouperUtil.booleanValue(gshTemplateV2input.getGsh_builtin_inputBoolean("gsh_input_requiresEmployee"), false);
+
+    }
+
+    NO_REDIRECT: {
+      // #########
+      // If the GSH template should not redirect anywhere at the end, and stay on same screen, add this line in the script
+      // #########
+
+      // the GSH template should not redirect anywhere, stay on same screen, otherwise it will redirect to the group or folder that initiated the GSH template
+      gsh_builtin_gshTemplateOutput.assignRedirectToGrouperOperation("NONE");
+    }
+
+    REDIRECT_TO_GROUP: {
+      // #########
+      // If the GSH template should redirect to a group, add this line in the script
+      // #########
+
+      // the GSH template should redirect to a group, otherwise it will redirect to the group or folder that initiated the GSH template
+      String groupName = "test:testGroup"; // replace with the actual group name
+      gsh_builtin_gshTemplateOutput.assignRedirectToGrouperOperation("operation=UiV2Group.viewGroup&groupName=" + groupName);
+    }
+    
+    REDIRECT_TO_FOLDER: {
+      // #########
+      // If the GSH template should redirect to a folder, add this line in the script
+      // #########
+
+      // the GSH template should redirect to a group, otherwise it will redirect to the group or folder that initiated the GSH template
+      String stemName = "test:testFolder"; // replace with the actual folder name
+      gsh_builtin_gshTemplateOutput.assignRedirectToGrouperOperation("operation=UiV2Stem.viewStem&stemName=" + stemName);
+    }
+    
+    CREATE_GROUP_WITH_DESCRIPTION: {
+      // #########
+      // Create a group for admins based on the input gsh_input_groupName in the folder a:b:c 
+      // with description: This is the group for the organitzation: gsh_input_groupName
+      // #########
+
+      // Create a group for an organization based on the input gsh_input_groupName in the folder a:b:c 
+      // with description: This is the group for the organitzation: gsh_input_groupName
+      GroupSave organizationGroupSave = new GroupSave();
+      organizationGroupSave.assignName("a:b:c:" + gsh_input_groupName);
+      organizationGroupSave.assignDescription("This is the group for organization: " + gsh_input_groupName);
+
+      boolean createParentStemsIfNotExist = false;
+      organizationGroupSave.assignCreateParentStemsIfNotExist(createParentStemsIfNotExist);
+      
+      Group organizationGroup = organizationGroupSave.save();
+
+      if (organizationGroupSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group existed: " + organizationGroup.getName());
+      } else if (organizationGroupSave.getSaveResultType() == SaveResultType.INSERT) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group created: " + organizationGroup.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group updated: " + organizationGroup.getName());
+      }
+    }
+
+    ADD_GROUPS_TO_GROUP: {
+      // #########
+      // Add a list of groups from an input variable gsh_input_groupNamesToAdd to be members of the referenceGroup "my:referenceGroup"
+      // #########
+      Group referenceGroup = GroupFinder.findByName("my:referenceGroup", true);
+
+      // validate
+      List<String> groupNamesToAdd = GrouperUtil.splitTrimToList(gsh_input_groupNamesToAdd, ",");
+      List<Group> groupsToAdd = new ArrayList<>();
+      for (String groupName : GrouperUtil.nonNull(groupNamesToAdd)) {
+        Group group = GroupFinder.findByName(groupName, false);
+        if (group == null) {
+          gsh_builtin_gshTemplateOutput.addValidationLine("gsh_input_groupNamesToAdd", "Error: group cannot be found '" + groupName + "'!");
+        }
+        groupsToAdd.add(group);
+      }
+
+      // perform logic
+      for (Group group : groupsToAdd) {
+        Subject groupSubject = group.toSubject();
+        MembershipSave membershipSave = new MembershipSave();
+        membershipSave.assignGroup(referenceGroup);
+        membershipSave.assignSubject(groupSubject);
+        membershipSave.save();
+
+        if (membershipSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
+          gsh_builtin_gshTemplateOutput.addOutputLine("Group '" + referenceGroup.getName() + 
+              "' already had member group: '" + group.getName() + "'");
+        } else {
+          gsh_builtin_gshTemplateOutput.addOutputLine("Group '" + referenceGroup.getName() + 
+              "' added member group: '" + group.getName() + "'");
+        }
+
+      }
+    }
+
+    RUN_DAEMON: {
+      // ##########
+      // Run a daemon job with a specified name, probably on the daemon node unless otherwise specified
+      // ##########
+
+      String jobName = "SQL_GROUP_LIST__penn:isc:clientCare:apps:grammarly:service:grammarlyPolicyGroupLoader__9c21f089d5d44aeab0a3244aa5fead30";
+      boolean runOnDaemonServer = true;
+      GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), jobName, runOnDaemonServer);
+    }
+
+    CHECK_DAEMON_JOB_RAN: {
+
+      // ##########
+      // Check if a daemon job ran successfully by job name, poll and sleep a second for a certain amount of time
+      // ##########
+
+      String jobName = "SQL_GROUP_LIST__penn:isc:clientCare:apps:grammarly:service:grammarlyPolicyGroupLoader__9c21f089d5d44aeab0a3244aa5fead30";
+      long utcMillisToCheck = System.currentTimeMillis() - (60 * 1000); // check if it ran in the last minute
+      int numberOfSecondsToWait = 30; // wait up to 30 seconds for the job to run
+      // must be at least 1
+      numberOfSecondsToWait = Math.max(numberOfSecondsToWait, 1);
+      
+      boolean jobRanSuccessfully = false;
+      // loop and sleep a second each time if not first in loop
+      for (int i = 0; i < numberOfSecondsToWait; i++) {
+        if (i > 0) {
+          // if not first iteration, sleep for a second
+          GrouperUtil.sleep(1000); // sleep for 1 second
+        }
+        int successes = new GcDbAccess().sql("""
+            select count(1) from grouper_loader_log where job_name = ? 
+            and status = 'SUCCESS' and ended_time > ?
+            """).addBindVar(jobName).addBindVar(new Timestamp(utcMillisToCheck)).select(int.class);
+        if (successes > 0) {
+          jobRanSuccessfully = true;
+          break; // exit loop if job ran successfully
+        }
+      }
+      
+    }
+    
+    CHANGE_LOG: {
+      // ##########
+      // Run a change log consumer by provisioner config id and wait for it to finish
+      // ##########
+
+      String provisionerConfigId = "grammarlyDev";
+      String provisionerJobNameChangeLog = "CHANGE_LOG_consumer_provisioner_incremental_" + provisionerConfigId;
+      boolean waitForProvisioningChangeLogTempToEntityProcess = true;  // default true if not mentioned
+      int exceptionIfNotProvisioningProcessedAfterSeconds = 30; // default 30 if not mentioned
+      GrouperLoader.waitForChangeLogJobProcess(provisionerJobNameChangeLog, waitForProvisioningChangeLogTempToEntityProcess, exceptionIfNotProvisioningProcessedAfterSeconds);
+    }
+
+    ASSIGN_DISPLAY_EXTENSION: {
+      // #########
+      // Assign a display extension to a group using GroupSave
+      // #########
+
+      // Create a GroupSave instance
+      GroupSave groupSaveWithDisplayExtension = new GroupSave();
+
+      // Assign the group name and display extension
+      groupSaveWithDisplayExtension.assignName("a:b:c:exampleGroup");
+      groupSaveWithDisplayExtension.assignDisplayExtension("Example Group Display Name");
+
+      // Save the group
+      Group groupWithDisplayExtension = groupSaveWithDisplayExtension.save();
+
+      // Check if the group was updated or newly created
+      if (groupSaveWithDisplayExtension.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made to the group: " + groupWithDisplayExtension.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group updated or created: " + groupWithDisplayExtension.getName());
+      }
+
+    }
+
+    LOG_ERROR_WITH_EXCEPTION: {
+      // #########
+      // Log an error message with an exception
+      // #########
+      try {
+        // Simulate an operation that might throw an exception
+        throw new RuntimeException("This is a simulated exception for logging purposes.");
+      } catch (Exception e) {
+        // Log the error with the exception
+        LOG.error("An error occurred while processing: ", e);
+      }
+    }
+
+    LOG_INFO: {
+      // #########
+      // Log an informational message
+      // #########
+
+      // Log an informational message
+      LOG.info("This is an informational message for the GSH template execution.");
+    }
+    
+    CREATE_GROUP_WITH_PARENT_FOLDERS: {
+      // #########
+      // Create a group and ensure parent stems are created if they do not exist
+      // #########
+
+      // Initialize a GroupSave instance
+      GroupSave groupSaveCreareParentStems = new GroupSave();
+
+      // Assign the group name and enable creating parent stems if they do not exist
+      groupSaveCreareParentStems.assignName("a:b:c:exampleGroup");
+      groupSaveCreareParentStems.assignCreateParentStemsIfNotExist(true);
+
+      // Save the group
+      Group groupCreateParentStems = groupSaveCreareParentStems.save();
+
+      // Check if the group was newly created or already existed
+      if (groupSaveCreareParentStems.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made to the group: " + groupCreateParentStems.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group created or updated: " + groupCreateParentStems.getName());
+      }
+    }
+
+    CREATE_GROUP_WITH_ROLE_TYPE: {
+      // #########
+      // Create a group with type of group set to "role" and ensure parent stems are created if they do not exist
+      // #########
+
+      // Initialize a GroupSave instance
+      GroupSave groupSaveRoleType = new GroupSave();
+
+      // Assign the group name and enable creating parent stems if they do not exist
+      groupSaveRoleType.assignName("a:b:c:exampleRoleGroup");
+      groupSaveRoleType.assignCreateParentStemsIfNotExist(true);
+
+      // Assign the type of group to "role"
+      groupSaveRoleType.assignTypeOfGroup(TypeOfGroup.role);
+
+      // Save the group
+      Group groupRoleType = groupSaveRoleType.save();
+
+      // Check if the group was newly created or already existed
+      if (groupSaveRoleType.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made to the group: " + groupRoleType.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group created or updated: " + groupRoleType.getName());
+      }
+    }
+
+    RENAME_GROUP: {
+      // #########
+      // Rename a group using GroupSave
+      // #########
+
+      // Initialize a GroupSave instance
+      GroupSave groupSaveRename = new GroupSave();
+
+      // Specify the current name of the group to edit
+      String oldGroupName = "folder:oldGroupName";
+      groupSaveRename.assignGroupNameToEdit(oldGroupName);
+
+      // Specify the new name for the group
+      String newGroupName = "folder2:newGroupName";
+      groupSaveRename.assignName(newGroupName);
+
+      // Save the changes
+      Group renamedGroup = groupSaveRename.save();
+
+      // Output the result
+      if (groupSaveRename.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group '" + oldGroupName + "' renamed to: '" + newGroupName + "'");
+      }
+    }
+
+    REMOVE_USER_FROM_GROUP_BY_SUBJECT_ID: {    
+      // #########
+      // Remove a member from a group using MembershipSave and subjectId
+      // #########
+
+      // Initialize a MembershipSave instance
+      MembershipSave membershipSaveRemove = new MembershipSave();
+
+      // Specify the group name from which the member will be removed
+      String groupName = "example:groupName";
+      membershipSaveRemove.assignGroupName(groupName);
+
+      // Specify the subject ID and source ID of the member to be removed
+      String subjectId = "exampleSubjectId";
+      String subjectSourceId = "exampleSourceId";
+      membershipSaveRemove.assignSubjectId(subjectId);
+      membershipSaveRemove.assignSubjectSourceId(subjectSourceId);
+
+      // Specify the save mode as DELETE
+      membershipSaveRemove.assignSaveMode(SaveMode.DELETE);
+
+      // Save the changes
+      Membership removedMembership = membershipSaveRemove.save();
+
+      // Output the result
+      if (membershipSaveRemove.getSaveResultType() == SaveResultType.DELETE) {
+        String outputLine = "Member with subject ID '" + subjectId;
+        outputLine += "' and source ID '" + subjectSourceId + "' removed from group: '" + groupName + "'";
+        gsh_builtin_gshTemplateOutput.addOutputLine(outputLine);
+      } else {
+        String outputLine = "No changes made. Member with subject ID '" + subjectId + "' and source ID '";
+        outputLine += subjectSourceId + "' was not found directly in group: '" + groupName + "'";
+        gsh_builtin_gshTemplateOutput.addOutputLine(outputLine);
+      }
+    }
+
+    REMOVE_USER_FROM_GROUP_BY_SUBJECT: {
+      // #########
+      // Remove a member from a group using MembershipSave and a Subject object
+      // #########
+
+      // Initialize a MembershipSave instance
+      MembershipSave membershipSaveRemoveMember = new MembershipSave();
+
+      // Specify the group name from which the member will be removed
+      String targetGroupName = "example:targetGroup";
+      membershipSaveRemoveMember.assignGroupName(targetGroupName);
+
+      // Create a Subject object for the member to be removed
+      Subject subjectToRemove = SubjectFinder.findByIdAndSource("uniqueSubjectId", "uniqueSourceId", true);
+      membershipSaveRemoveMember.assignSubject(subjectToRemove);
+
+      // Specify the save mode as DELETE
+      membershipSaveRemoveMember.assignSaveMode(SaveMode.DELETE);
+
+      // Save the changes
+      Membership deletedMembership = membershipSaveRemoveMember.save();
+
+      // Output the result
+      if (membershipSaveRemoveMember.getSaveResultType() == SaveResultType.DELETE) {
+        String outputLine = "Member with subject ID '" + subjectToRemove.getId() + "' removed from group: '" + targetGroupName + "'";
+        gsh_builtin_gshTemplateOutput.addOutputLine(outputLine);
+      } else {
+        String outputLine = "No changes made. Member with subject ID '" + subjectToRemove.getId();
+        outputLine += "' was not found directly in group: '" + targetGroupName + "'";
+        gsh_builtin_gshTemplateOutput.addOutputLine(outputLine);
+      }
+    }
+
+    ADD_MEMBERSHIP_WITH_END_DATE: {
+      //#########
+      //Add a membership with an end date using MembershipSave
+      //#########
+
+      //Initialize a MembershipSave instance
+      MembershipSave membershipSaveAddEndDate = new MembershipSave();
+
+      //Specify the group to which the membership will be added
+      String targetGroupNameEndDate = "example:targetGroup";
+      membershipSaveAddEndDate.assignGroupName(targetGroupNameEndDate);
+
+      //Create a Subject object for the member to be added
+      Subject newMember = SubjectFinder.findByIdAndSource("uniqueSubjectId", "uniqueSourceId", true);
+      membershipSaveAddEndDate.assignSubject(newMember);
+
+      //Specify the membership end date (e.g., 30 days from now)
+      Long membershipEndDate = System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000); // 30 days in milliseconds
+      membershipSaveAddEndDate.assignImmediateMshipDisabledTime(membershipEndDate);
+
+      //Save the changes
+      Membership addedMembership = membershipSaveAddEndDate.save();
+
+      //Output the result
+      if (membershipSaveAddEndDate.getSaveResultType() == SaveResultType.INSERT) {
+        String outputLine = "Membership added for subject ID '" + newMember.getId();
+        outputLine += "' in group: '" + targetGroupNameEndDate + "' with an end date.";
+        gsh_builtin_gshTemplateOutput.addOutputLine(outputLine);
+      } else {
+        String outputLine = "No changes made. Membership for subject ID '" + newMember.getId();
+        outputLine += "' already exists in group: '" + targetGroupNameEndDate + "'";
+        gsh_builtin_gshTemplateOutput.addOutputLine(outputLine);
+      }
+    }
+
+    FIND_ATTRIBUTE_ASSIGNMENT_ON_GROUP: {
+      // #########
+      // Find an attribute assignment on group
+      // #########
+
+      boolean exceptionIfAttributeDefNameNotFound = true;
+      AttributeDefName provisioningMarkerAttributeDefName = AttributeDefNameFinder.findByName("some:attribute:def:name", exceptionIfAttributeDefNameNotFound);
+
+      // If the user in the grouper session is allowed to see this assignment, generally for GSH templates this is false
+      boolean checkSecurity = false;
+      boolean exceptionIfNull = true;
+      Group group = null;
+      AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, provisioningMarkerAttributeDefName, checkSecurity, exceptionIfNull);
+
+    }
+
+    FIND_ATTRIBUTE_VALUE_STRING_ON_ATTRIBUTE_ASSIGNMENT: {
+      // #########
+      // Find an attribute value string on an attribute assignment
+      // #########
+
+      // Assuming 'attributeAssign' is the AttributeAssign object retrieved previously
+      AttributeAssign attributeAssign = null;
+      
+      // Get the attribute value from the attribute assignment
+      String attributeValueString = attributeAssign.getAttributeValueDelegate().retrieveValueString("some:attribute:def:name");
+
+    }
+    
+    FIND_ATTRIBUTE_VALUE_INTEGER_ON_ATTRIBUTE_ASSIGNMENT: {
+      // #########
+      // Find an attribute value integer on an attribute assignment
+      // #########
+
+      // Assuming 'attributeAssign' is the AttributeAssign object retrieved previously
+      AttributeAssign attributeAssign = null;
+      
+      // Get the attribute value from the attribute assignment
+      Long attributeValueLong = attributeAssign.getAttributeValueDelegate().retrieveValueInteger("some:attribute:def:name");
+
+    }
+    
+    ASSIGN_ATTRIBUTE_VALUE_STRING_ON_ATTRIBUTE_ASSIGNMENT: {
+      // #########
+      // Assign an attribute value string on an attribute assignment
+      // #########
+
+      // Assuming 'attributeAssign' is the AttributeAssign object retrieved previously
+      AttributeAssign attributeAssign = null;
+
+      // Assign a string value to the attribute assignment
+      String newValue = "newValue";
+      attributeAssign.getAttributeValueDelegate().assignValueString("some:attribute:def:name", newValue);
+
+    }
+    
+    FIND_FOLDER: {
+      // #########
+      // Find a folder (stem) by name using StemFinder
+      // #########
+
+      // Specify the name of the folder to find
+      String folderNameToFind = "example:targetFolder";
+
+      // Find the stem (folder) by name
+      Stem stem = StemFinder.findByName(folderNameToFind, true);
+
+    }
+
+    GET_GROUPER_SESSION: {
+      // #########
+      // Get the current Grouper session
+      // #########
+
+      // Start a Grouper session as root
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    }
+    
+    START_ROOT_GROUPER_SESSION: {
+      // #########
+      // Start a Grouper session as root
+      // #########
+
+      // Start a Grouper session as root
+      GrouperSession grouperSessionRoot = GrouperSession.startRootSession();
+
+      //stop the session when done
+      GrouperSession.stopQuietly(grouperSessionRoot);
+    }
+    
+    START_SESSION_AS_USER: {
+      // #########
+      // Start a Grouper session as a specific user
+      // #########
+
+      // Specify the subject ID and source ID of the user to start the session as
+      String userId = "uniqueUserId";
+      String userSourceId = "uniqueSourceId";
+
+      // Find the subject by ID and source ID
+      Subject userSubject = SubjectFinder.findByIdAndSource(userId, userSourceId, true);
+
+      // Start a Grouper session as the specified user
+      GrouperSession grouperSessionUser = GrouperSession.start(userSubject);
+
+      //stop the session when done
+      GrouperSession.stopQuietly(grouperSessionUser);
+    }
+    
+    RUN_CODE_AS_ROOT_GROUPER_SESSION_TEMP: {
+      // #########
+      // Run code as a temporary Grouper session
+      // #########
+
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+           
+         // ... do things as root ...       
+       
+          return null;
+        }
+      });
+    }
+    
+    RUN_CODE_AS_USER_GROUPER_SESSION_TEMP: {
+      // #########
+      // Run code as a temporary Grouper session
+      // #########
+
+      GrouperSession.callbackGrouperSessionBySubjectId("12345678", "institutionPerson", new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+           
+         // ... do things as root ...       
+       
+          return null;
+        }
+      });
+     
+    }
+    
+    
+    REPLACE_PARTS_OF_STRING: {
+      // #########
+      // Replace parts of a string with another string
+      // #########
+
+      // Example string
+      String theString = "Hello, world!";
+      
+      // Replace "world" with "Grouper"
+      theString = StringUtils.replace(theString, "world", "Grouper");
+      
+    }
+    
+    COMPARE_TWO_STRINGS: {
+      // #########
+      // Compare two strings for equality
+      // #########
+
+      String string1 = "Grouper";
+      String string2 = "Grouper";
+
+      boolean areEqual = StringUtils.equals(string1, string2);
+
+    }
+    
+    LIST_GROUPS_IN_FOLDER: {
+      // #########
+      // List all groups in a folder (stem) using StemFinder
+      // #########
+
+      // Find the stem by name
+      Stem stemToListGroups = null;
+
+      // Get all groups in the specified stem.  this method returns a Set<Object> so always declare as Set<Group> before looping through
+      Set<Group> groupsInStem = stemToListGroups.getChildGroups();
+
+    }
+    
+    CONVERT_JSON_NODE_TO_OBJECT_NODE: {
+      // #########
+      // Convert a JsonNode to an ObjectNode
+      // #########
+
+      // Assuming 'jsonNode' is a JsonNode object
+      JsonNode jsonNode = GrouperUtil.jsonJacksonNode("""
+          {"a":"b}
+          """);
+      
+      // if jsonNode was created with GrouperUtil.jsonJacksonNode, then it is am ObjectNode
+      ObjectNode objectNode = (ObjectNode)jsonNode;
+
+    }
+    
+    ADD_REPORT_ATTESTATION_TO_FOLDER: {
+      // #########
+      // Add report attestation to a folder on reportConfigName every 30 days, send emails to group a:b:c
+      // #########
+
+      // Initialize an AttestationStemSave instance
+      AttestationStemSave attestationStemSave = new AttestationStemSave();
+
+      // Specify the folder (stem) name to which attestation will be added
+      String attestationFolderName = "example:targetFolder";
+      attestationStemSave.assignStemName(attestationFolderName);
+
+      // Set the attestation type (e.g., "report" or "group")
+      attestationStemSave.assignReportConfigName("reportConfigName");
+      attestationStemSave.assignAttestationType(AttestationType.report);
+
+      // Specify the number of days before a reminder is sent
+      attestationStemSave.assignDaysBeforeToRemind(7);
+
+      // Specify the number of days until recertification is required
+      attestationStemSave.assignDaysUntilRecertify(30);
+
+      // Enable email notifications
+      attestationStemSave.assignSendEmail(true);
+      Group attributeStemSaveEmailToGroup = GroupFinder.findByName("a:b:c", true);
+      attestationStemSave.addEmailAddresses(attributeStemSaveEmailToGroup);
+
+      // Save the attestation
+      attestationStemSave.save();
+
+      // Output the result
+      if (attestationStemSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made. Attestation already existed for folder: '" + attestationFolderName + "'");
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Attestation added to folder: '" + attestationFolderName + "'");
+      }
+    }
+    
+    GET_SUBJECT_LOGGED_IN: {
+      // #########
+      // Get the subject logged in to the UI or WS
+      // #########
+
+      // Get the subject logged in to the Grouper session
+      Subject subjectLoggedIn = gshTemplateV2input.getGsh_builtin_subject();
+    }
+    
+    
+    UPDATE_ATTESTATION_IN_STEM: {
+      // #########
+      // Update an existing attestation in a stem using AttestationStemSave
+      // #########
+
+      // Initialize an AttestationStemSave instance
+      AttestationStemSave attestationStemUpdate = new AttestationStemSave();
+
+      // Specify the stem name where the attestation will be updated
+      String attestationStemName = "example:targetStem";
+      attestationStemUpdate.assignStemName(attestationStemName);
+
+      // Set the attestation type (e.g., "report" or "group")
+      attestationStemUpdate.assignAttestationType(AttestationType.report);
+
+      // Specify the number of days before a reminder is sent
+      attestationStemUpdate.assignDaysBeforeToRemind(7);
+
+      // Specify the number of days until recertification is required
+      attestationStemUpdate.assignDaysUntilRecertify(30);
+      attestationStemUpdate.assignReplaceAllSettings(false);
+      
+      
+      // Enable email notifications
+      attestationStemUpdate.assignSendEmail(true);
+      Group attributeStemUpdateEmailToGroup = GroupFinder.findByName("d:e:f", true);
+      attestationStemUpdate.addEmailAddresses(attributeStemUpdateEmailToGroup);
+
+      // Save the updated attestation
+      attestationStemUpdate.save();
+
+      // Output the result
+      if (attestationStemUpdate.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Attestation updated in stem: '" + attestationStemName + "'");
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made. Attestation already exists for stem: '"
+                + attestationStemName + "'");
+      }
+    }
+    
+    
+    
+    
+    ADD_ATTESTATION_TO_GROUP: {
+      // #########
+      // Assign attestation to a group using AttestationGroupSave, send email to group d:e:f
+      // #########
+
+      // Initialize an AttestationGroupSave instance
+      AttestationGroupSave attestationGroupSave = new AttestationGroupSave();
+
+      // Specify the group name to which attestation will be assigned
+      String attestationGroupSaveGroupName = "example:targetGroup";
+      attestationGroupSave.assignGroupName(attestationGroupSaveGroupName);
+
+      // Set the attestation type (e.g., "report" or "group")
+      AttestationType attestationTypeToAssign = AttestationType.report;
+      attestationGroupSave.assignAttestationType(attestationTypeToAssign);
+
+      // Specify the number of days before a reminder is sent
+      attestationGroupSave.assignDaysBeforeToRemind(7);
+
+      // Specify the number of days until recertification is required
+      attestationGroupSave.assignDaysUntilRecertify(30);
+
+      // Enable email notifications
+      attestationGroupSave.assignSendEmail(true);
+      Group attributeGroupSaveEmailToGroup = GroupFinder.findByName("d:e:f", true);
+      attestationGroupSave.addEmailAddresses(attributeGroupSaveEmailToGroup);
+
+      // Save the attestation
+      attestationGroupSave.save();
+
+      // Output the result
+      if (attestationGroupSave.getSaveResultType() == SaveResultType.INSERT) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Attestation added to group: '" + attestationGroupSaveGroupName + "'");
+      } else if (attestationGroupSave.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Attestation updated for group: '" + attestationGroupSaveGroupName + "'");
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made. Attestation already exists for group: '" + attestationGroupSaveGroupName + "'");
+      }
+    }
+    
+    DELETE_ATTESTATION_FROM_STEM: {
+      // #########
+      // Delete an attestation from a stem using AttestationStemSave
+      // #########
+
+      // Initialize an AttestationStemSave instance
+      AttestationStemSave attestationStemDelete = new AttestationStemSave();
+
+      // Specify the stem name from which the attestation will be deleted
+      String attestationStemNameToDelete = "example:targetStem";
+      attestationStemDelete.assignStemName(attestationStemNameToDelete);
+
+      // Specify the save mode as DELETE
+      attestationStemDelete.assignSaveMode(SaveMode.DELETE);
+
+      // Save the changes
+      attestationStemDelete.save();
+
+      // Output the result
+      if (attestationStemDelete.getSaveResultType() == SaveResultType.DELETE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine(
+            "Attestation deleted from stem: '" + attestationStemNameToDelete + "'");
+      } else {
+        gsh_builtin_gshTemplateOutput
+            .addOutputLine("No changes made. Attestation does not exist for stem: '"
+                + attestationStemNameToDelete + "'");
+      }
+    }
+    
+    DELETE_ATTESTATION_FROM_GROUP: {
+      // #########
+      // Delete an attestation from a group using AttestationGroupSave
+      // #########
+
+      // Initialize an AttestationGroupSave instance
+      AttestationGroupSave attestationGroupDelete = new AttestationGroupSave();
+
+      // Specify the group name from which the attestation will be deleted
+      String attestationGroupNameToDelete = "example:targetGroup";
+      attestationGroupDelete.assignGroupName(attestationGroupNameToDelete);
+
+      // Specify the save mode as DELETE
+      attestationGroupDelete.assignSaveMode(SaveMode.DELETE);
+
+      // Save the changes
+      attestationGroupDelete.save();
+
+      // Output the result
+      if (attestationGroupDelete.getSaveResultType() == SaveResultType.DELETE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine(
+            "Attestation deleted from group: '" + attestationGroupNameToDelete + "'");
+      } else {
+        gsh_builtin_gshTemplateOutput
+            .addOutputLine("No changes made. Attestation does not exist for group: '"
+                + attestationGroupNameToDelete + "'");
+      }
+    }
+    
+    UPDATE_ATTESTATION_FOR_GROUP: {
+      // #########
+      // Update an existing attestation for a group using AttestationGroupSave
+      // #########
+      // Initialize an AttestationGroupSave instance
+      AttestationGroupSave attestationGroupUpdate = new AttestationGroupSave();
+      attestationGroupUpdate.assignGroupName("example:targetGroup");
+      attestationGroupUpdate.assignReplaceAllSettings(false);
+      attestationGroupUpdate.assignSendEmail(true);
+     
+      attestationGroupUpdate.save();
+     
+      // Output the result
+      if (attestationGroupUpdate.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Attestation updated for group: example:targetGroup");
+      } else {
+        gsh_builtin_gshTemplateOutput
+            .addOutputLine("No changes made. Attestation already exists for group: example:targetGroup" );
+      }
+      
+    }
+
+    ASSIGN_ATTRIBUTE_TO_ATTRIBUTE_ASSIGNMENT_INSERT: {
+      // #########
+      // Assign an attribute to an attribute assignment using AttributeAssignToAssignmentSave
+      // #########
+      AttributeAssign attributeAssign = new AttributeAssign();
+      AttributeDefName attributeDefName = new AttributeDefName();
+      AttributeAssignToAssignmentSave attributeAssignToAssignmentSave = new AttributeAssignToAssignmentSave();
+      AttributeAssignResult attributeAssignResult = attributeAssignToAssignmentSave.assignAttributeAssign(attributeAssign).assignAttributeDefName(attributeDefName).save();
+      
+      
+        
+      
+    }
+    
+    ASSIGN_ATTRIBUTE_TO_ATTRIBUTE_ASSIGNMENT_DELETE: {
+      // #########
+      // Delete an attribute assignment using AttributeAssignToAssignmentSave
+      // #########
+      AttributeAssign attributeAssign = new AttributeAssign();
+      AttributeDefName attributeDefName = new AttributeDefName();
+      
+      AttributeAssignToAssignmentSave attributeAssignToAssignmentSave = new AttributeAssignToAssignmentSave();
+      attributeAssignToAssignmentSave.assignAttributeAssign(attributeAssign).assignAttributeDefName(attributeDefName).assignAttributeAssignOperation(AttributeAssignOperation.remove_attr).save();
+      
+    }
+    
+    ASSIGN_ATTRIBUTE_TO_ASSIGNMENT_WITH_VALUES: {
+      // #########
+      // Assign an attribute to an assignment with values using AttributeAssignToAssignmentSave
+      // #########
+      
+      
+      AttributeAssignToGroupSave attributeAssignToGroupSave = new AttributeAssignToGroupSave();
+      attributeAssignToGroupSave.assignNameOfAttributeDefName("etc:attribute:abacJexlScript:grouperJexlScriptMarker");
+      attributeAssignToGroupSave.assignGroupName("test:isc:astt:chris:testJexl2");
+      
+      AttributeAssign attributeAssign = attributeAssignToGroupSave.save();
+      attributeAssign.getAttributeValueDelegate().assignValueString(
+          "etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", 
+          "${entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup1')}");
+      
+    }
+    
+    
+    ASSIGN_ATTRIBUTE_TO_STEM_INSERT: {
+      // #########
+      // Assign an attribute to a stem using AttributeAssignToStemSave
+      // #########
+      AttributeDefName attributeDefName = new AttributeDefName();
+      Stem stem = new Stem();
+      AttributeAssignToStemSave attributeAssignToStemSave = new AttributeAssignToStemSave().assignAttributeDefName(attributeDefName).assignStem(stem);
+      AttributeAssign attributeAssign = attributeAssignToStemSave.save();
+    }
+    
+    
+    
+    ASSIGN_ATTRIBUTE_TO_STEM_DELETE: {
+      // #########
+      // Delete an attribute assignment from a stem using AttributeAssignToStemSave
+      // #########
+      AttributeDefName attributeDefName = new AttributeDefName();
+      Stem stem = new Stem();
+      new AttributeAssignToStemSave().assignAttributeDefName(attributeDefName).assignStem(stem).assignSaveMode(SaveMode.DELETE).save();
+      
+    }
+    
+    ASSIGN_ATTRIBUTE_TO_STEM_WITH_METADATA_NAMES_AND_VALUES: {
+      // #########
+      // Assign an attribute to a stem with metadata names and values using AttributeAssignToStemSave
+      // #########
+
+      AttributeAssignToStemSave attributeAssignToStemSave = new AttributeAssignToStemSave();
+      attributeAssignToStemSave.assignNameOfAttributeDefName("etc:attribute:abacJexlScript:grouperJexlScriptMarker");
+      attributeAssignToStemSave.assignStemName("test:isc:astt:chris:testJexl2");
+      AttributeAssign attributeAssign = attributeAssignToStemSave.save();
+      
+        
+      attributeAssign.getAttributeValueDelegate().assignValueString(
+          "etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", 
+          "${entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup1')}");
+    }
+    
+    ASSIGN_ATTRIBUTE_TO_GROUP_INSERT: {
+      // #########
+      // Assign an attribute to a group using AttributeAssignToGroupSave
+      // #########
+      Group group = new Group();
+      AttributeDefName attributeDefName = new AttributeDefName();
+      AttributeAssignToGroupSave attributeAssignToGroupSave = new AttributeAssignToGroupSave().assignAttributeDefName(attributeDefName).assignGroup(group);
+      AttributeAssign attributeAssign = attributeAssignToGroupSave.save();
+
+    }
+    
+    
+    
+    ASSIGN_ATTRIBUTE_TO_GROUP_DELETE: {
+      // #########
+      // Delete an attribute assignment from a group using AttributeAssignToGroupSave
+      // #########
+      Group group = new Group();
+      AttributeDefName attributeDefName = new AttributeDefName();
+      new AttributeAssignToGroupSave().assignAttributeDefName(attributeDefName).assignGroup(group).assignSaveMode(SaveMode.DELETE).save();
+
+      
+    }
+    
+    ATTRIBUTE_ASSIGN_TO_GROUP_WITH_METADATA_AND_VALUES: {
+      // #########
+      // Assign an attribute to a group with metadata names and values using AttributeAssignToGroupSave
+      // #########
+
+      AttributeAssignToGroupSave attributeAssignToGroupSave = new AttributeAssignToGroupSave();
+      attributeAssignToGroupSave.assignNameOfAttributeDefName(
+          "etc:attribute:abacJexlScript:grouperJexlScriptMarker");
+      attributeAssignToGroupSave.assignGroupName("test:isc:astt:chris:testJexl2");
+      AttributeAssign attributeAssign = attributeAssignToGroupSave.save();
+
+      attributeAssign.getAttributeValueDelegate().assignValueString(
+          "etc:attribute:abacJexlScript:grouperJexlScriptJexlScript",
+          "${entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup1')}");
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    CREATE_ATTRIBUTE_DEF: {
+      // #########
+      // Create an attribute definition with name "example:attributeDefName" and description: "This is a sample attribute definition."
+      // #########
+
+      // Start a Grouper session
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      // Initialize an AttributeDefSave instance
+      AttributeDefSave attributeDefSave = new AttributeDefSave(grouperSession);
+
+      // Specify the name of the attribute definition
+      String attributeDefName = "example:attributeDefName";
+      attributeDefSave.assignName(attributeDefName);
+
+      // Set the description for the attribute definition
+      String attributeDefDescription = "This is a sample attribute definition.";
+      attributeDefSave.assignDescription(attributeDefDescription);
+
+      // Set the type of the attribute definition (e.g., 'attr' or 'perm')
+      attributeDefSave.assignAttributeDefType(AttributeDefType.attr);
+
+      // Set the value type (e.g., 'string', 'integer', 'marker')
+      attributeDefSave.assignValueType(AttributeDefValueType.string);
+
+      // Allow multiple values to be assigned
+      attributeDefSave.assignMultiValued(false);
+
+      // Allow assigning this attribute to groups
+      attributeDefSave.assignToGroup(true);
+
+      // Allow assigning this attribute to stems
+      attributeDefSave.assignToStem(true);
+
+      // Create parent stems if they do not exist
+      attributeDefSave.assignCreateParentStemsIfNotExist(false);
+
+      // Save the attribute definition
+      AttributeDef attributeDef = attributeDefSave.save();
+
+      // Log the result using addOutputLine
+      if (attributeDefSave.getSaveResultType() == SaveResultType.INSERT) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Attribute definition created: " + attributeDef.getName());
+      } else if (attributeDefSave.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Attribute definition updated: " + attributeDef.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made to the attribute definition: " + attributeDef.getName());
+      }
+    }
+    
+    UPDATE_ATTRIBUTE_DEF: {
+      // #########
+      // Update an existing attribute definition with name "example:attributeDefName" and change its description
+      // #########
+
+      // Initialize an AttributeDefSave instance for updating
+      AttributeDefSave attributeDefUpdate = new AttributeDefSave();
+
+      // Assign the existing attribute definition to update
+      attributeDefUpdate.assignAttributeDefNameToEdit("example:attributeDefName");
+
+      // Change the description of the attribute definition
+      String newDescription = "This is an updated description for the attribute definition.";
+      attributeDefUpdate.assignDescription(newDescription);
+      attributeDefUpdate.assignReplaceAllSettings(false);
+      
+      // Save the changes
+      AttributeDef attributeDef = attributeDefUpdate.save();
+
+      // Log the result using addOutputLine
+      if (attributeDefUpdate.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine(
+            "Attribute definition updated: " + attributeDef.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made to the attribute definition: "
+                + attributeDef.getName());
+      }
+    }
+    
+
+    
+    CREATE_ATTRIBUTE_NAME: {
+      AttributeDef attributeDef = new AttributeDef();
+      AttributeDefNameSave attributeDefNameSave = new AttributeDefNameSave(attributeDef).assignName("top:b").assignDescription("whatever").assignDisplayExtension("theB");
+      AttributeDefName attributeDefName = attributeDefNameSave.save();
+      
+      
+    }
+    
+    UPDATE_ATTRIBUTE_NAME: { 
+      AttributeDef attributeDef = new AttributeDef();
+      new AttributeDefNameSave(attributeDef).assignName("top:b").assignDisplayExtension("theB").assignReplaceAllSettings(false).save();
+      
+    }
+    
+    
+    ASSIGN_ATTRIBUTE_VALUE: {
+      AttributeAssign attributeAssign = new AttributeAssign();
+      AttributeAssignValueSave attributeAssignValueSave = new AttributeAssignValueSave();
+      AttributeAssignValueResult attributeAssignValueResult = attributeAssignValueSave.assignAttributeAssign(attributeAssign).assignValue("hello").save();
+      
+      
+    }
+    
+    REMOVE_ATTRIBUTE_VALUE: {
+      AttributeAssign attributeAssign = new AttributeAssign();
+
+      AttributeAssignValueSave attributeAssignValueSave = new AttributeAssignValueSave();
+      AttributeAssignValueResult attributeAssignValueResult = attributeAssignValueSave.assignAttributeAssign(attributeAssign).assignAttributeAssignValueOperation(AttributeAssignValueOperation.remove_value).assignValue("hello").save();
+
+    }
+    
+    ASSIGN_ATTRIBUTE_AND_VALUE_TO_STEM: {
+      // #########
+      // Assign an attribute and value to a stem using AttributeAssignToStemSave
+      // #########
+      boolean exceptionIfNotFound = true;
+      Stem sympaFolder = StemFinder.findByName("etc:attribute:comanagetemplate", exceptionIfNotFound);
+      
+      
+      AttributeValueResult attributeValueResult=sympaFolder.getAttributeValueDelegate().assignValue("etc:attribute:comanagetemplate:ownerfolderid", "someValue"); 
+      gsh_builtin_gshTemplateOutput.addOutputLine("Attribute ownerfolderid assigned: " + attributeValueResult.getAttributeAssignValueResult().isChanged());
+      
+    }
+    
+    ASSIGN_ATTRIBUTE_AND_VALUE_TO_GROUP: {
+      // #########
+      // Assign an attribute and value to a group using AttributeAssignToGroupSave
+      // #########
+      boolean exceptionIfNotFound = true;
+      Group sympaGroup = GroupFinder.findByName("etc:attribute:comanagetemplate",
+          exceptionIfNotFound);
+
+      AttributeValueResult attributeValueResult = sympaGroup.getAttributeValueDelegate().assignValue("etc:attribute:comanagetemplate:ownerfolderid", "someValue");
+      gsh_builtin_gshTemplateOutput.addOutputLine("Attribute ownerfolderid assigned: "
+          + attributeValueResult.getAttributeAssignValueResult().isChanged());
+    }
+
+    CREATE_COMPOSITE_GROUP: {
+      // #########
+      // Create a composite group using CompositeSave
+      // #########
+
+      // Initialize a CompositeSave instance
+      CompositeSave compositeSave = new CompositeSave();
+
+      // Specify the name of the composite group
+      String compositeGroupName = "example:compositeGroup";
+      compositeSave.assignOwnerGroupName(compositeGroupName);
+
+      // Specify the left and right groups for the composite
+      compositeSave.assignLeftFactorGroupName("example:leftGroup");
+      compositeSave.assignRightFactorGroupName("example:rightGroup");
+
+      // Set the type of composite (e.g., 'intersection', 'complement')
+      compositeSave.assignCompositeType(CompositeType.COMPLEMENT);
+
+      // Save the composite group
+      Composite compositeGroup = compositeSave.save();
+
+      // Log the result using addOutputLine
+      gsh_builtin_gshTemplateOutput.addOutputLine("Composite group created: " + compositeGroup.getName());
+    }
+    
+    DELETE_COMPOSITE_GROUP: {
+      // #########
+      // Delete a composite group using CompositeSave
+      // #########
+
+      // Initialize a CompositeSave instance
+      CompositeSave compositeDelete = new CompositeSave();
+
+      // Specify the name of the composite group to delete
+      String compositeGroupNameToDelete = "example:compositeGroup";
+      compositeDelete.assignOwnerGroupName(compositeGroupNameToDelete);
+
+      // Set the save mode to DELETE
+      compositeDelete.assignSaveMode(SaveMode.DELETE);
+
+      // Save the changes (delete the composite group)
+      Composite deletedComposite = compositeDelete.save();
+
+      // Log the result using addOutputLine
+      if (compositeDelete.getSaveResultType() == SaveResultType.DELETE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine(
+            "Composite group deleted: " + deletedComposite.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine(
+            "No changes made. Composite group was not found: "+ compositeGroupNameToDelete);
+      }
+    }
+
+    UPDATE_COMPOSITE_GROUP: {
+      // #########
+      // Update a composite group using CompositeSave
+      // #########
+
+      GroupSave groupSave = new GroupSave();
+      Group compositeGroup = groupSave.save();
+      
+      
+      // Initialize a CompositeSave instance
+      CompositeSave compositeUpdate = new CompositeSave();
+
+      // Specify the name of the composite group to update
+      String compositeGroupNameToUpdate = "example:compositeGroup";
+      compositeUpdate.assignOwnerGroupName(compositeGroupNameToUpdate);
+
+      // Find the existing composite group
+      Composite existingComposite = CompositeFinder.findAsOwner(compositeGroup, true);
+
+
+      // Change the type of composite (e.g., 'intersection', 'complement')
+      compositeUpdate.assignType("intersection");
+      // Save the changes
+      compositeUpdate.save();
+
+      // Log the result using addOutputLine
+      if (compositeUpdate.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine(
+            "Composite group updated: " + existingComposite.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine(
+             "No changes made. Composite group was not found: " + compositeGroupNameToUpdate);
+      }
+      
+    }
+    
+    FIND_COMPOSITE_GROUP: {
+      // #########
+      // Find a composite group by name using CompositeFinder
+      // #########
+
+      // Specify the name of the composite group to find
+      String compositeGroupNameToFind = "example:compositeGroup";
+      
+      // Find the group
+      boolean exceptionIfNotFound = true;
+      Group compositeGroup = GroupFinder.findByName(compositeGroupNameToFind, exceptionIfNotFound);
+      
+      // Find the composite group
+      boolean throwExceptionIfNotFound = true;
+      Composite foundComposite = CompositeFinder.findAsOwner(compositeGroup,
+          throwExceptionIfNotFound);
+
+      // Log the result using addOutputLine
+      if (foundComposite != null) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Composite group found: " + foundComposite.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine(
+            "No composite group found with name: " + compositeGroupNameToFind);
+      }
+    }
+    
+    EMAIL_TO_EMAIL_ADDRESS: {
+      // #########
+      // Send an email using GrouperEmail
+      // #########
+      // Initialize a GrouperEmail instance
+      GrouperEmail grouperEmail = new GrouperEmail();
+      // Set the subject of the email
+      grouperEmail.setSubject("Test Email Subject");
+      // Set the body of the email
+      grouperEmail.setBody("This is a test email body.");
+      // Set the recipient email address
+      grouperEmail.setTo("email@domain.com");
+      // Send the email
+      grouperEmail.send();
+      
+      
+    }
+    
+    EMAIL_TO_GROUPER_SUBJECT: {
+      // #########
+      // Send an email using GrouperEmail
+      // #########
+      // Initialize a GrouperEmail instance
+      GrouperEmail grouperEmail = new GrouperEmail();
+      // Set the subject of the email
+      grouperEmail.setSubject("Test Email Subject");
+      // Set the body of the email
+      grouperEmail.setBody("This is a test email body.");
+      // Set the recipient grouper subject that has an email address
+      grouperEmail.addSubjectIdentifierToSendTo("mySourceId", "someNetId");
+      grouperEmail.assignRunAsRoot(true);
+      // Send the email
+      grouperEmail.send();
+    }
+    
+    EMAIL_TO_GROUP_BY_NAME: {
+      // #########
+      // Send an email using GrouperEmail
+      // #########
+      // Initialize a GrouperEmail instance
+      GrouperEmail grouperEmail = new GrouperEmail();
+      // Set the subject of the email
+      grouperEmail.setSubject("Test Email Subject");
+      // Set the body of the email
+      grouperEmail.setBody("This is a test email body.");
+      // Set the recipient grouper subject that has an email address
+      boolean exceptionIfNotFound = true;
+      grouperEmail.addGroupNameToSendTo("a:b:c", exceptionIfNotFound);
+      grouperEmail.assignRunAsRoot(true);
+      // Send the email
+      grouperEmail.send();
+    }
+    
+    GROUPER_SESSION: {
+      // #########
+      // Start a Grouper session with root privileges
+      // #########
+
+      // Start a Grouper session as the root user
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      // Log the session start
+      gsh_builtin_gshTemplateOutput.addOutputLine("Grouper session started as root user.");
+
+      // Remember to stop the session at the end of your script
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+    CREATE_GROUP: {
+      // #########
+      // Create a group using GroupSave
+      // #########
+
+      // Initialize a GroupSave instance
+      GroupSave groupSave = new GroupSave();
+
+      // Specify the name of the group to create
+      String groupName = "example:groupName";
+      groupSave.assignName(groupName);
+
+      // Set the description for the group
+      String groupDescription = "This is a sample group.";
+      groupSave.assignDescription(groupDescription);
+
+      // Enable creating parent stems if they do not exist
+      groupSave.assignCreateParentStemsIfNotExist(true);
+
+      // Save the group
+      Group createdGroup = groupSave.save();
+
+      // Log the result using addOutputLine
+      if (groupSave.getSaveResultType() == SaveResultType.INSERT) {
+        gsh_builtin_gshTemplateOutput
+            .addOutputLine("Group created: " + createdGroup.getName());
+      } else if (groupSave.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput
+            .addOutputLine("Group updated: " + createdGroup.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput
+            .addOutputLine("No changes made to the group: " + createdGroup.getName());
+      }
+    }
+    
+    UPDATE_GROUP: {
+      // #########
+      // Update an existing group using GroupSave
+      // #########
+
+      // Initialize a GroupSave instance
+      GroupSave groupUpdate = new GroupSave();
+
+      // Specify the name of the group to update
+      String groupNameToUpdate = "example:groupName";
+      groupUpdate.assignGroupNameToEdit(groupNameToUpdate);
+
+      // Change the description for the group
+      String newGroupDescription = "This is an updated description for the group.";
+      groupUpdate.assignDescription(newGroupDescription);
+      groupUpdate.assignReplaceAllSettings(false);
+      
+      // Save the changes
+      Group updatedGroup = groupUpdate.save();
+
+      // Log the result using addOutputLine
+      if (groupUpdate.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput
+            .addOutputLine("Group updated: " + updatedGroup.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput
+            .addOutputLine("No changes made to the group: " + updatedGroup.getName());
+      }
+    }
+    
+    DELETE_GROUP: {
+      // #########
+      // Delete an existing group using GroupSave
+      // #########
+
+      // Initialize a GroupSave instance
+      GroupSave groupDelete = new GroupSave();
+
+      // Specify the name of the group to delete
+      String groupNameToDelete = "example:groupName";
+      groupDelete.assignGroupNameToEdit(groupNameToDelete);
+
+      // Set the save mode to DELETE
+      groupDelete.assignSaveMode(SaveMode.DELETE);
+
+      // Save the changes (delete the group)
+      Group deletedGroup = groupDelete.save();
+
+      // Log the result using addOutputLine
+      if (groupDelete.getSaveResultType() == SaveResultType.DELETE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine(
+            "Group deleted: " + deletedGroup.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine(
+            "No changes made. Group was not found: " + groupNameToDelete);
+      }
+    }
+    
+    GROUP_FINDER: {
+      // #########
+      // Find a group by name using GroupFinder
+      // #########
+
+      // Specify the name of the group to find
+      String groupNameToFind = "example:groupName";
+
+      // Find the group
+      Group foundGroup = GroupFinder.findByName(groupNameToFind, true);
+
+      // Log the result using addOutputLine
+      gsh_builtin_gshTemplateOutput.addOutputLine("Group found: " + foundGroup.getName());
+    }
+    
+    FIND_GROUPS_A_SUBJECT_HAS_SPECIFIC_PRIVILEGES_ON: {
+      Subject subject = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      Set groups = new GroupFinder().assignPrivileges(AccessPrivilege.VIEW_PRIVILEGES).assignField(Group.getDefaultList()).
+          assignSubject(subject).assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
+    }
+    
+    COPY_GROUP: {
+      // #########
+      // Copy a group using GroupCopy
+      // #########
+      // Initialize a GroupCopy instance
+      Group child_group = new Group();
+      Stem stem = new Stem();
+      GroupCopy groupCopy = new GroupCopy(child_group, stem);
+      Group newGroup = groupCopy.copyPrivilegesOfGroup(true).copyGroupAsPrivilege(true).copyListMembersOfGroup(true).copyListGroupAsMember(true).copyAttributes(true).save();
+    }
+    
+    HTTP_CALL: {
+      // #########
+      // Make an HTTP call using GrouperHttpClient
+      // #########
+      String url = "https://api.example.com/endpoint";
+      String bearerToken = "yourBearerTokenHere";
+      String body = "{\"key\":\"value\"}";
+      GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
+      grouperHttpCall.assignUrl(url);
+      grouperHttpCall.assignGrouperHttpMethod("POST");
+      grouperHttpCall.addHeader("Content-Type", "application/json");
+      grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
+      grouperHttpCall.assignBody(body);
+      grouperHttpCall.executeRequest();
+      if (grouperHttpCall.getResponseCode() != 200) {
+        throw new RuntimeException("Error connecting to '" + url + "': " + grouperHttpCall.getResponseCode());
+      }
+      String json = grouperHttpCall.getResponseBody();
+      
+    }
+    
+
+    
+    EXECUTE_GSH_TEMPLATE: {
+      // #########
+      // Execute a GSH template script using GshTemplateExec
+      // #########
+      boolean exceptionIfNull = true;
+      Subject subject = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", exceptionIfNull);
+      Stem ownerStem = new Stem();
+      
+      GshTemplateExec exec = new GshTemplateExec();
+      exec.assignConfigId("testGshTemplateConfig");
+      exec.assignCurrentUser(subject);
+      exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
+      exec.assignOwnerStemName(ownerStem.getName());
+      GshTemplateInput input = new GshTemplateInput();
+      input.assignName("gsh_input_myExtension");
+      input.assignValueString("zoomTest");
+      exec.addGshTemplateInput(input);
+      GshTemplateExecOutput output = exec.execute();
+      if (output.getGshTemplateOutput().isError()) {
+        // handle this... e.g. from another template: gsh_builtin_gshTemplateOutput.addOutputLine("Error running sub-template");
+      }
+      if (GrouperUtil.length(output.getGshTemplateOutput().getValidationLines()) > 0) {
+        for (GshValidationLine gshValidationLine : output.getGshTemplateOutput().getValidationLines()) {
+          // handle this... e.g. from another template 
+          // gsh_builtin_gshTemplateOutput.addOutputLine((String)(gshValidationLine.getInputName() + ": " + gshValidationLine.getText()));
+        }
+      }
+        
+      }
+
+    
+
+    LDAP_SESSION_UTILS: {
+      String ldapServerId = "personLdap";
+      List<LdapEntry> list = LdapSessionUtils.ldapSession().list(ldapServerId, "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", GrouperUtil.toArray(GrouperUtil.toList("objectClass", "cn", "member", "businessCategory"), String.class), null);
+      for (LdapEntry ldapEntry : list) {
+        String cn = ldapEntry.getAttribute("cn").getStringValues().iterator().next();
+        String businessCategory = ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next();
+        Collection<String> members = ldapEntry.getAttribute("member").getStringValues();
+        // Do something with the cn, businessCategory, and members
+      }
+    }
+    
+    FIND_MEMBER_OF_GROUP: {
+      // #########
+      // Find a member of a group using MemberFinder
+      // #########
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      Set members = MemberFinder.findAll(grouperSession);
+      
+     
+    }
+    
+    FIND_MEMBER_OF_GROUP_BY_ATTR_DEF: {
+      // #########
+      // Find a member of a group using MemberFinder by attribute definition
+      // #########
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      String attributeDefName = "example:attributeDefName";
+      Set members = new MemberFinder().assignNameOfAttributeDefName(attributeDefName).
+          assignAttributeCheckReadOnAttributeDef(true).assignQueryOptions(QueryOptions.create("subjectId", true, null, null)).findMembers();
+     
+    }
+    
+    
+    
+    CREATE_MEMBERSHIP: {
+      // #########
+      // Create a membership using MembershipSave
+      // #########
+
+      // Initialize a MembershipSave instance
+      MembershipSave membershipSave = new MembershipSave();
+
+      // Specify the group name to which the member will be added
+      String groupName = "example:groupName";
+      membershipSave.assignGroupName(groupName);
+
+      // Create a Subject object for the member to be added
+      Subject newMember = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      membershipSave.assignSubject(newMember);
+
+      // Specify the save mode as INSERT (to add a new membership)
+      membershipSave.assignSaveMode(SaveMode.INSERT);
+
+      // Save the membership
+      Membership createdMembership = membershipSave.save();
+
+      
+    }
+    
+    UPDATE_MEMBERSHIP: {
+      // #########
+      // Update a membership using MembershipSave
+      // #########
+
+      // Initialize a MembershipSave instance
+      MembershipSave membershipUpdate = new MembershipSave();
+
+      // Specify the group name where the membership will be updated
+      String groupNameToUpdate = "example:groupName";
+      membershipUpdate.assignGroupName(groupNameToUpdate);
+
+      // Create a Subject object for the member whose membership will be updated
+      Subject memberToUpdate = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      membershipUpdate.assignSubject(memberToUpdate);
+
+      
+      // Specify the save mode as UPDATE (to update an existing membership)
+      membershipUpdate.assignSaveMode(SaveMode.UPDATE);
+
+      // Save the changes
+      Membership updatedMembership = membershipUpdate.save();
+
+
+    }
+    
+    DELETE_MEMBERSHIP: {
+      // #########
+      // Delete a membership using MembershipSave
+      // #########
+
+      // Initialize a MembershipSave instance
+      MembershipSave membershipDelete = new MembershipSave();
+
+      // Specify the group name from which the member will be removed
+      String groupNameToDelete = "example:groupName";
+      membershipDelete.assignGroupName(groupNameToDelete);
+
+      // Create a Subject object for the member whose membership will be deleted
+      Subject memberToDelete = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      membershipDelete.assignSubject(memberToDelete);
+
+      // Specify the save mode as DELETE (to remove an existing membership)
+      membershipDelete.assignSaveMode(SaveMode.DELETE);
+
+      // Save the changes (delete the membership)
+      Membership deletedMembership = membershipDelete.save();
+
+    }
+    
+    FIND_MEMBERSHIP: {
+      // #########
+      // Find a membership by subject and group using MembershipFinder
+      // #########
+      // Find a subject
+      Subject subject = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      
+      Membership membership1 = new MembershipFinder().addGroup("my:groupname").addSubject(subject).assignEnabled(true).findMembership(true);
+      
+    }
+    
+    FIND_MULTIPLE_MEMBERSHIPS_IN_GROUP: {
+      // #########
+      // Find multiple memberships in a group using MembershipFinder
+      // #########
+
+      // Specify the group name to search for memberships
+      String groupNameToFind = "example:groupName";
+
+      // Find the memberships in the specified group
+      Set<Object[]> membershipsMembers = new MembershipFinder().
+          addGroup(groupNameToFind).assignEnabled(true).findMembershipsMembers();
+      for (Object[] membershipMember : membershipsMembers) {
+        Subject member = (Subject) membershipMember[0];
+        Membership membership = (Membership) membershipMember[1];
+        // Do something with the member and membership
+      }
+      // Log the result using addOutputLine
+      gsh_builtin_gshTemplateOutput.addOutputLine(
+          "Found " + membershipsMembers.size() + " memberships in group: " + groupNameToFind);
+    }
+    
+    FIND_IMMEDIATE_GROUPS_FOR_A_MEMBER: {
+      // #########
+      // Find immediate groups for a member using MembershipFinder
+      // #########
+
+      // Create a Subject object for the member
+      Subject subject = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+
+      // Find the immediate groups for the specified member
+      Set<Object[]> immediateMembershipsGroupsMembers= new MembershipFinder().addSubject(subject)
+          .assignEnabled(true).addField(Group.getDefaultList()).assignMembershipType(MembershipType.IMMEDIATE).findMembershipResult().getMembershipsOwnersMembers();;
+      
+      for (Object[] immediateMembershipsGroupMember : immediateMembershipsGroupsMembers) {
+        Membership membership = (Membership) immediateMembershipsGroupMember[0];
+        Group group = (Group) immediateMembershipsGroupMember[1];
+        // Do something with the member and group
+        Member member = (Member) immediateMembershipsGroupMember[2];
+        // Do something with the group
+      }
+      
+      
+    }
+    
+    CREATE_GROUPER_PASSWORD: {
+      // #########
+      // Create a Grouper password using GrouperPasswordSave
+      // #########
+
+      // Initialize a GrouperPasswordSave instance
+      GrouperPasswordSave grouperPasswordSave = new GrouperPasswordSave();
+
+      // Specify the subject for which the password will be created
+      Subject subjectForPassword = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      grouperPasswordSave.assignMemberId("uniqueSubjectId");
+
+      // Set the password value
+      String passwordValue = "securePassword123";
+      grouperPasswordSave.assignPassword(passwordValue);
+
+      // Save the password
+      grouperPasswordSave.save();
+
+      
+    }
+    
+    UPDATE_GROUPER_PASSWORD: {
+      // #########
+      // Update a Grouper password using GrouperPasswordSave
+      // #########
+
+      // Initialize a GrouperPasswordSave instance
+      GrouperPasswordSave grouperPasswordUpdate = new GrouperPasswordSave();
+
+      // Specify the subject for which the password will be updated
+      String username = "uniqueSubjectId";
+      grouperPasswordUpdate.assignUsername(username);
+
+      // Set the new password value
+      String newPasswordValue = "newSecurePassword456";
+      grouperPasswordUpdate.assignPassword(newPasswordValue);
+
+      // Save the updated password
+      grouperPasswordUpdate.save();
+
+      
+    }
+    
+    DELETE_GROUPER_PASSWORD: {
+      // #########
+      // Delete a Grouper password using GrouperPasswordSave
+      // #########
+
+      // Initialize a GrouperPasswordSave instance
+      GrouperPasswordSave grouperPasswordDelete = new GrouperPasswordSave();
+
+      // Specify the subject for which the password will be deleted
+      String username = "uniqueSubjectId";
+      grouperPasswordDelete.assignUsername(username);
+
+      // Set the save mode to DELETE
+      grouperPasswordDelete.assignSaveMode(SaveMode.DELETE);
+
+      // Save the changes (delete the password)
+      grouperPasswordDelete.save();
+
+
+    }
+    
+    INSERT_PRIV_INHERITANCE_FOR_ATTRIBUTE_DEF: {
+      // #########
+      // Insert a privilege inheritance for an attribute definition using PrivilegeAttributeDefInheritanceSave
+      // #########
+      // Initialize a PrivilegeAttributeDefInheritanceSave instance
+      PrivilegeAttributeDefInheritanceSave privilegeInheritanceSave = new PrivilegeAttributeDefInheritanceSave();
+      // Specify the attribute definition for which the privilege inheritance will be created
+      String attributeDefName = "example:attributeDefName";
+      AttributeDef attributeDef = AttributeDefFinder.findByName(attributeDefName, true);
+      // Specify the subject who will inherit the privilege
+      Subject subjectToInherit = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      privilegeInheritanceSave.assignSubject(subjectToInherit);
+      // Specify the privilege to inherit (e.g., 'read', 'update', 'admin')
+      privilegeInheritanceSave.addPrivilege(null);
+      // Save the privilege inheritance
+      privilegeInheritanceSave.save();
+
+      
+    }
+    
+    UPDATE_PRIV_INHERITANCE_FOR_ATTRIBUTE_DEF: {
+      // #########
+      // Update a privilege inheritance for an attribute definition using PrivilegeAttributeDefInheritanceSave
+      // #########
+
+      // Initialize a PrivilegeAttributeDefInheritanceSave instance
+      PrivilegeAttributeDefInheritanceSave privilegeInheritanceUpdate = new PrivilegeAttributeDefInheritanceSave();
+
+      // Specify the attribute definition for which the privilege inheritance will be updated
+      String attributeDefNameToUpdate = "example:attributeDefName";
+      AttributeDef attributeDefToUpdate = AttributeDefFinder
+          .findByName(attributeDefNameToUpdate, true);
+      privilegeInheritanceUpdate.assignAttributeAssign(null);
+
+      // Specify the subject whose privilege inheritance will be updated
+      Subject subjectToUpdate = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      privilegeInheritanceUpdate.assignSubject(subjectToUpdate);
+
+      // Specify the new privilege to inherit (e.g., 'read', 'update', 'admin')
+      privilegeInheritanceUpdate.addPrivilege(null);
+
+      // Save the updated privilege inheritance
+      privilegeInheritanceUpdate.save();
+
+
+      
+    }
+    
+    DELETE_PRIV_INHERITANCE_FOR_ATTRIBUTE_DEF: {
+      // #########
+      // Delete a privilege inheritance for an attribute definition using PrivilegeAttributeDefInheritanceSave
+      // #########
+      Stem stem = new Stem();
+      
+      
+      new PrivilegeAttributeDefInheritanceSave().assignStem(stem).assignStemScope(null).assignSubject(null).assignSaveMode(SaveMode.DELETE).save();
+
+
+    }
+    
+    FIND_PRIV_INHERITANCE_FOR_ATTRIBUTE_DEF: {
+      // #########
+      // Find a privilege inheritance for an attribute definition using PrivilegeAttributeDefInheritanceFinder
+      // #########
+
+      Set<Privilege> assignedPrivileges = new PrivilegeAttributeDefInheritanceFinder().assignSubject(null).assignRunAsRoot(true).assignStemName("stemName").findAssignedPrivileges();
+      
+    }
+    
+    
+    CREATE_PRIV_INHERITANCE_FOR_FOLDER: {
+      // #########
+      // Create a privilege inheritance for a folder (stem) using PrivilegeStemInheritanceSave
+      // #########
+
+      // Initialize a PrivilegeStemInheritanceSave instance
+      PrivilegeStemInheritanceSave privilegeInheritanceSave = new PrivilegeStemInheritanceSave();
+
+      // Specify the stem (folder) for which the privilege inheritance will be created
+      String stemName = "example:targetFolder";
+      Stem targetStem = StemFinder.findByName(stemName, true);
+      privilegeInheritanceSave.assignStem(targetStem);
+
+      // Specify the subject who will inherit the privilege
+      Subject subjectToInherit = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      privilegeInheritanceSave.assignSubject(subjectToInherit);
+
+      // Specify the privilege to inherit (e.g., 'read', 'update', 'admin')
+      privilegeInheritanceSave.addPrivilege(null);
+
+      // Save the privilege inheritance
+      privilegeInheritanceSave.save();
+
+      
+    }
+    
+    UPDATE_PRIV_INHERITANCE_FOR_FOLDER: {
+      // #########
+      // Update a privilege inheritance for a folder (stem) using PrivilegeStemInheritanceSave
+      // #########
+
+      // Initialize a PrivilegeStemInheritanceSave instance
+      PrivilegeStemInheritanceSave privilegeInheritanceUpdate = new PrivilegeStemInheritanceSave();
+
+      // Specify the stem (folder) for which the privilege inheritance will be updated
+      String stemNameToUpdate = "example:targetFolder";
+      Stem targetStemToUpdate = StemFinder.findByName(stemNameToUpdate, true);
+      privilegeInheritanceUpdate.assignStem(targetStemToUpdate);
+
+      // Specify the subject whose privilege inheritance will be updated
+      Subject subjectToUpdate = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      privilegeInheritanceUpdate.assignSubject(subjectToUpdate);
+
+      // Specify the new privilege to inherit (e.g., 'read', 'update', 'admin')
+      privilegeInheritanceUpdate.addPrivilege(null);
+
+      // Save the updated privilege inheritance
+      privilegeInheritanceUpdate.save();
+
+
+    }
+    
+    DELETE_PRIV_INHERITANCE_FOR_FOLDER: {
+      // #########
+      // Delete a privilege inheritance for a folder (stem) using PrivilegeStemInheritanceSave
+      // #########
+
+      // Initialize a PrivilegeStemInheritanceSave instance
+      PrivilegeStemInheritanceSave privilegeInheritanceDelete = new PrivilegeStemInheritanceSave();
+
+      // Specify the stem (folder) for which the privilege inheritance will be deleted
+      String stemNameToDelete = "example:targetFolder";
+      Stem targetStemToDelete = StemFinder.findByName(stemNameToDelete, true);
+      privilegeInheritanceDelete.assignStem(targetStemToDelete);
+
+      // Specify the subject whose privilege inheritance will be deleted
+      Subject subjectToDelete = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      privilegeInheritanceDelete.assignSubject(subjectToDelete);
+
+      // Set the save mode to DELETE
+      privilegeInheritanceDelete.assignSaveMode(SaveMode.DELETE);
+
+      // Save the changes (delete the privilege inheritance)
+      privilegeInheritanceDelete.save();
+
+    }
+    
+    
+    FIND_PRIV_INHERITANCE_FOR_FOLDER: {
+      // #########
+      // Find a privilege inheritance for a folder (stem) using PrivilegeStemInheritanceFinder
+      // #########
+
+      Set<Privilege> assignedPrivileges = new PrivilegeStemInheritanceFinder().assignSubject(null).assignRunAsRoot(true).assignStemName("stemName").findAssignedPrivileges();
+
+      
+    }
+    
+    CREATE_PRIV_INHERITANCE_FOR_GROUP: {
+      // #########
+      // Create a privilege inheritance for a group using PrivilegeGroupInheritanceSave
+      // #########
+
+      // Initialize a PrivilegeGroupInheritanceSave instance
+      PrivilegeGroupInheritanceSave privilegeInheritanceSave = new PrivilegeGroupInheritanceSave();
+
+      // Specify the group for which the privilege inheritance will be created
+
+
+      // Specify the subject who will inherit the privilege
+      Subject subjectToInherit = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      privilegeInheritanceSave.assignSubject(subjectToInherit);
+
+      // Specify the privilege to inherit (e.g., 'read', 'update', 'admin')
+      privilegeInheritanceSave.addPrivilege(null);
+      // Save the privilege inheritance
+      privilegeInheritanceSave.save();
+
+      
+    }
+    
+    UPDATE_PRIV_INHERITANCE_FOR_GROUP: {
+      // #########
+      // Update a privilege inheritance for a group using PrivilegeGroupInheritanceSave
+      // #########
+
+      // Initialize a PrivilegeGroupInheritanceSave instance
+      PrivilegeGroupInheritanceSave privilegeInheritanceUpdate = new PrivilegeGroupInheritanceSave();
+
+      
+      // Specify the subject whose privilege inheritance will be updated
+      Subject subjectToUpdate = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      privilegeInheritanceUpdate.assignSubject(subjectToUpdate);
+
+      // Specify the new privilege to inherit (e.g., 'read', 'update', 'admin')
+      privilegeInheritanceUpdate.addPrivilege(null);
+
+      // Save the updated privilege inheritance
+      privilegeInheritanceUpdate.save();
+
+      
+    }
+   
+    
+    DELETE_PRIV_INHERITANCE_FOR_GROUP: {
+      // #########
+      // Delete a privilege inheritance for a group using PrivilegeGroupInheritanceSave
+      // #########
+
+      // Initialize a PrivilegeGroupInheritanceSave instance
+      PrivilegeGroupInheritanceSave privilegeInheritanceDelete = new PrivilegeGroupInheritanceSave();
+
+      
+      // Specify the subject whose privilege inheritance will be deleted
+      Subject subjectToDelete = SubjectFinder.findByIdAndSource("uniqueSubjectId",
+          "uniqueSourceId", true);
+      privilegeInheritanceDelete.assignSubject(subjectToDelete);
+
+      // Set the save mode to DELETE
+      privilegeInheritanceDelete.assignSaveMode(SaveMode.DELETE);
+
+      // Save the changes (delete the privilege inheritance)
+      privilegeInheritanceDelete.save();
+
+    }
+    
+    FIND_PRIV_INHERITANCE_FOR_GROUP: {
+      // #########
+      // Find a privilege inheritance for a group using PrivilegeGroupInheritanceFinder
+      // #########
+
+      Set<Privilege> assignedPrivileges = new PrivilegeGroupInheritanceFinder().assignSubject(null).assignRunAsRoot(true).assignStemName("stemName").findAssignedPrivileges();
+
+
+      
+    }
+    
+    FIND_PROVISIONABLE_FOLDER: {
+      // #########
+      // Find a provisionable folder (stem) using ProvisionableStemFinder
+      // #########
+
+      
+      ProvisionableStemFinder provisionableStemFinder = new ProvisionableStemFinder();
+      GrouperProvisioningAttributeValue attributeValue = provisionableStemFinder.assignStemName("a:b:c").assignTargetName("ldapProvTest").findProvisionableStemAttributeValue();
+    
+    
+    }
+    
+    
+    CREATE_PROVISIONING_ATTRIBUTE_FOR_FOLDER: {
+      // #########
+      // Create a provisioning attribute for a folder (stem) using ProvisionableStemSave
+      // #########
+      ProvisionableStemSave provisionableStemSave = new ProvisionableStemSave();
+      GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = provisionableStemSave.assignTargetName("ldapProvTest").assignMetadataString("md_testInput", "testValue").assignStemName("a:b:c").save();
+      
+
+      
+    }
+    
+    UPDATE_PROVISIONING_ATTRIBUTE_FOR_FOLDER: {
+      // #########
+      // Update a provisioning attribute for a folder (stem) using ProvisionableStemSave
+      // #########
+      Stem stem = new Stem();
+      // Initialize a ProvisionableStemSave instance
+      
+      ProvisionableStemSave provisionableStemSave = new ProvisionableStemSave();
+      GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = provisionableStemSave.assignTargetName("ldapProvTest").assignPolicyGroupOnly(true).assignReplaceAllSettings(false).assignStem(stem).save();
+    }
+    
+    DELETE_PROVISIONING_ATTRIBUTE_FOR_FOLDER: {
+      // #########
+      // Delete a provisioning attribute for a folder (stem) using ProvisionableStemSave
+      // #########
+      Stem stem = new Stem();
+      ProvisionableStemSave provisionableStemSave = new ProvisionableStemSave();
+      provisionableStemSave.assignTargetName("ldapProvTest").assignSaveMode(SaveMode.DELETE).assignStem(stem).save();
+    }
+    
+    FIND_PROVISIONING_ATTRIBUTE_FOR_GROUP: {
+      // #########
+      // Find a provisioning attribute for a group using ProvisionableGroupFinder
+      // #########
+
+      // Specify the group to find the provisioning attribute
+      
+
+    }
+    
+    CREATE_PROVSIONING_ATTRIBUTE_FOR_GROUP: {
+      // #########
+      // Create a provisioning attribute for a group using ProvisionableGroupSave
+      // #########
+
+      // Initialize a ProvisionableGroupSave instance
+      ProvisionableGroupSave provisionableGroupSave = new ProvisionableGroupSave();
+
+      // Specify the group for which the provisioning attribute will be created
+      String groupName = "example:provisionableGroup";
+      Group provisionableGroup = new Group();
+
+      // Specify the provisioning attribute value
+      String provisioningAttributeValue = "someProvisioningValue";
+      provisionableGroupSave.assignMetadataString(provisioningAttributeValue, null);
+
+      // Save the provisioning attribute
+      provisionableGroupSave.save();
+
+
+    }
+    
+    UPDATE_PROVISIONING_ATTRIBUTE_FOR_GROUP: {
+      // #########
+      // Update a provisioning attribute for a group using ProvisionableGroupSave
+      // #########
+
+      // Initialize a ProvisionableGroupSave instance
+      ProvisionableGroupSave provisionableGroupUpdate = new ProvisionableGroupSave();
+
+      // Specify the group for which the provisioning attribute will be updated
+      String groupNameToUpdate = "example:provisionableGroup";
+      Group provisionableGroupToUpdate = new Group();
+      provisionableGroupUpdate.assignGroup(provisionableGroupToUpdate);
+
+      // Specify the new provisioning attribute value
+      String newProvisioningAttributeValue = "newProvisioningValue";
+      provisionableGroupUpdate.assignMetadataString(newProvisioningAttributeValue, null);
+
+      provisionableGroupUpdate.assignReplaceAllSettings(false);
+      
+      // Save the updated provisioning attribute
+      provisionableGroupUpdate.save();
+      
+    }
+    
+    DELETE_PROVISIONING_ATTRIBUTE_FOR_GROUP: {
+      // #########
+      // Delete a provisioning attribute for a group using ProvisionableGroupSave
+      // #########
+
+      // Initialize a ProvisionableGroupSave instance
+      ProvisionableGroupSave provisionableGroupDelete = new ProvisionableGroupSave();
+
+      // Specify the group for which the provisioning attribute will be deleted
+      String groupNameToDelete = "example:provisionableGroup";
+      Group provisionableGroupToDelete = new Group();
+      provisionableGroupDelete.assignGroup(provisionableGroupToDelete);
+
+      // Set the save mode to DELETE
+      provisionableGroupDelete.assignSaveMode(SaveMode.DELETE);
+
+      // Save the changes (delete the provisioning attribute)
+      provisionableGroupDelete.save();
+
+      
+    }
+    
+    STEM_FINDER: {
+      // #########
+      // Find a stem (folder) by name using StemFinder
+      // #########
+
+      // Specify the stem name to find
+      String stemNameToFind = "example:targetStem";
+
+      // Find the stem
+      Stem foundStem = StemFinder.findByName(stemNameToFind, true);
+
+    }
+    
+    STEM_COPY: {
+      // #########
+      // Copy a stem (folder) using StemCopy
+      // #########
+
+      StemSave stemSave1 = new StemSave()
+          .assignCreateParentStemsIfNotExist(true).assignDescription("testDescription");
+         Stem stem_copy_source = stemSave1.save();
+         
+      StemSave stemSave2 = new StemSave().assignName("test")
+          .assignCreateParentStemsIfNotExist(true);
+         Stem stem_copy_target = stemSave2.save();
+
+      StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+      Stem newStem = stemCopy.copyPrivilegesOfStem(true).copyPrivilegesOfGroup(true).copyGroupAsPrivilege(true).copyListMembersOfGroup(true).copyListGroupAsMember(true).copyAttributes(true).save(); 
+      
+    }
+    
+    FIND_SUBJECT: {
+      // #########
+      // Find a subject by ID and source using SubjectFinder
+      // #########
+
+      // Specify the subject ID and source to find
+      String subjectId = "uniqueSubjectId";
+      String subjectSource = "uniqueSourceId";
+
+      // Find the subject
+      Subject foundSubject = SubjectFinder.findByIdAndSource(subjectId, subjectSource,
+          true);
+
+      
+    }
+    
+    SYNC_DATA_TO_TABLE: {
+      // #########
+      // Sync data to a database table using GcTableSyncFromData
+      // #########
+      // Specify the table name to sync data to
+      String tableName = "example_table";
+      // Create an instance of GcTableSyncFromData
+      GcTableSyncFromData gcTableSync = new GcTableSyncFromData();
+      // Assign the table name
+      gcTableSync.assignTableName(tableName);
+      // Specify the data to sync (this could be a list of objects or a data source)
+      
+      gcTableSync.assignData(null);
+      // Perform the sync operation
+      gcTableSync.sync();
+        
+      
+    }
+    
+    FIND_OBJECT_TYPE_STEM: {
+      // #########
+      // Find object type attributes for a stem using GdgTypeStemFinder
+      
+      // #########
+      // Specify the stem name to find object type attributes
+      String stemName = "example:targetStem";
+      // Find the stem
+      Stem targetStem = StemFinder.findByName(stemName, true);
+      // Create an instance of GdgTypeStemFinder
+      GdgTypeStemFinder gdgTypeStemFinder = new GdgTypeStemFinder();
+      // Assign the stem to the finder
+      gdgTypeStemFinder.assignStem(targetStem);
+      
+    }
+    
+    CREATE_OBJECT_TYPE_STEM: {
+      // #########
+      // Create an object type attribute for a stem using GdgTypeStemSave
+      // #########
+      Stem stem = new Stem();
+      
+      GdgTypeStemSave gdgTypeStemSave = new GdgTypeStemSave();
+      GrouperObjectTypesAttributeValue grouperObjectTypesAttributeValue = gdgTypeStemSave.assignStem(stem).assignType("ref").assignDataOwner("do").assignMemberDescription("md").save();
+      
+      
+    }
+    
+    UPDATE_OBJECT_TYPE_STEM: {
+      // #########
+      // Update an object type attribute for a stem using GdgTypeStemSave
+      // #########
+      Stem stem = new Stem();
+      
+      GdgTypeStemSave gdgTypeStemSave = new GdgTypeStemSave();
+      gdgTypeStemSave.assignStem(stem).assignType("ref").assignReplaceAllSettings(false).assignDataOwner("do1").save();
+    }
+    
+    DELETE_OBJECT_TYPE_STEM: {
+      // #########
+      // Delete an object type attribute for a stem using GdgTypeStemSave
+      // #########
+      Stem stem = new Stem();
+      GdgTypeStemSave gdgTypeStemSave = new GdgTypeStemSave();
+      gdgTypeStemSave.assignStem(stem).assignType("ref").assignSaveMode(SaveMode.DELETE).save();
+    }
+    
+    FIND_OBJECT_TYPE_GROUP: {
+      // #########
+      // Find object type attributes for a group using GdgTypeGroupFinder
+      // #########
+
+      // Specify the group name to find object type attributes
+      String groupName = "example:targetGroup";
+      // Find the group
+      Group targetGroup = GroupFinder.findByName(groupName, true);
+      // Create an instance of GdgTypeGroupFinder
+      GdgTypeGroupFinder gdgTypeGroupFinder = new GdgTypeGroupFinder();
+      // Assign the group to the finder
+      gdgTypeGroupFinder.assignGroup(targetGroup);
+      // Find the object type attributes for the group
+
+    }
+    
+    CREATE_OBJECT_TYPE_GROUP: {
+      // #########
+      // Create an object type attribute for a group using GdgTypeGroupSave
+      // #########
+      Group group = new Group();
+      
+      GdgTypeGroupSave gdgTypeGroupSave = new GdgTypeGroupSave();
+      GrouperObjectTypesAttributeValue grouperObjectTypesAttributeValue = gdgTypeGroupSave.assignGroup(group).assignType("ref").assignDataOwner("do").assignReplaceAllSettings(false).assignMemberDescription("md").save();
+      
+    }
+    
+    UPDATE_OBJECT_TYPE_GROUP: {
+      // #########
+      // Update an object type attribute for a group using GdgTypeGroupSave
+      // #########
+      Group group = new Group();
+      GdgTypeGroupSave gdgTypeGroupSave = new GdgTypeGroupSave();
+      gdgTypeGroupSave.assignGroup(group).assignType("ref").assignReplaceAllSettings(false).assignDataOwner("do1").save();
+    }
+    
+    DELETE_OBJECT_TYPE_GROUP: {
+      // #########
+      // Delete an object type attribute for a group using GdgTypeGroupSave
+      // #########
+
+      // Specify the group name to delete an object type attribute
+      String groupName = "example:targetGroup";
+      // Find the group
+      Group targetGroup = GroupFinder.findByName(groupName, true);
+      // Create an instance of GdgTypeGroupSave
+      GdgTypeGroupSave gdgTypeGroupSave = new GdgTypeGroupSave();
+      // Assign the group to the save instance
+      gdgTypeGroupSave.assignGroup(targetGroup);
+      gdgTypeGroupSave.assignType("ref");
+      // Save the changes (delete the object type attribute)
+      gdgTypeGroupSave.assignSaveMode(SaveMode.DELETE);
+      gdgTypeGroupSave.save();
+ 
+    }
+    
+    
+    
+    DATABASE_INSERT: {
+       // #########
+       // Insert a record into a database table using GcDbAccess
+       // #########
+      
+       // Define the SQL insert query
+       String sql = """
+         INSERT INTO example_table (column1, column2, column3)
+         VALUES (?, ?, ?)
+       """;
+      
+       // Create an instance of GcDbAccess
+       GcDbAccess gcDbAccess = new GcDbAccess();
+      
+       // Bind values to the query parameters
+       gcDbAccess.sql(sql);
+       gcDbAccess.addBindVar("value1");  // Bind value for column1
+       gcDbAccess.addBindVar(123);       // Bind value for column2
+       gcDbAccess.addBindVar("value3");  // Bind value for column3
+       gcDbAccess.executeSql();
+      
+       // Output success message
+       gsh_builtin_gshTemplateOutput.addOutputLine("Record inserted into example_table successfully.");
+    }
+    
+    CREATE_STEM: {
+      // #########
+      // Create a folder (stem) using StemSave and log the output
+      // #########
+
+      // Specify the name of the folder to create
+      String folderName = "example:targetFolder";
+
+      // Initialize a StemSave instance
+      StemSave stemSave = new StemSave();
+
+      // Assign the folder name and description
+      stemSave.assignName(folderName);
+      stemSave.assignDescription("This is a description for the target folder.");
+
+      // Ensure parent folders are created if they do not exist
+      boolean createParentStems = false;
+      stemSave.assignCreateParentStemsIfNotExist(createParentStems);
+
+      // Save the folder
+      stemSave.save();
+
+      // Determine the result and log the appropriate message
+      if (stemSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made. Folder already exists: " + folderName);
+      } else if (stemSave.getSaveResultType() == SaveResultType.INSERT) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Folder created: " + folderName);
+      } else if (stemSave.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Folder updated: " + folderName);
+      }
+    }
+    
+    WS_GET_PARAMS: {
+      // #########
+      // Get parameters from the web service input
+      // #########
+
+      String email = gshTemplateV2input.getGsh_builtin_inputString("gsh_input_email");
+
+    }
+
+    SQL_SELECT_STRING: {
+      // #########
+      // Get a string selected by sql.  If there is a connection
+      // #########
+
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      // if there is a connection name (e.g. myConnectionName), use it, otherwise, do not set it
+      gcDbAccess.connectionName("myConnectionName");
+
+      String sql = """
+          SELECT DISTINCT the_col FROM some_table WHERE email = ?
+          """;
+      gcDbAccess.sql(sql);
+      
+      // if there is a parameter, then set the bind variable
+      String email = "some@domain.com";
+      gcDbAccess.addBindVar(email);
+
+      // run the query
+      String sqlResult = gcDbAccess.select(String.class);
+    }
+    
+    SQL_SELECT_TIMESTAMP: {
+      // #########
+      // Get a string selected by sql.  If there is a connection
+      // #########
+
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      // if there is a connection name (e.g. myConnectionName), use it, otherwise, do not set it
+      gcDbAccess.connectionName("myConnectionName");
+
+      String sql = """
+          select max(ended_time) from grouper_loader_log where job_name = ?
+          """;
+      gcDbAccess.sql(sql);
+      
+      // if there is a parameter, then set the bind variable
+      String jobName = "CHANGE_LOG_consumer_recentMemberships";
+      gcDbAccess.addBindVar(jobName);
+
+      // run the query
+      Timestamp sqlResult = gcDbAccess.select(Timestamp.class);
+      
+        
+    }
+    
+    SQL_SELECT_INTEGER: {
+      // #########
+      // Get a string selected by sql.  If there is a connection
+      // #########
+
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      // if there is a connection name (e.g. myConnectionName), use it, otherwise, do not set it
+      gcDbAccess.connectionName("externalSystemConfigId");
+
+      String sql = """
+          select count(*) from grouper_groups where name = ?
+          """;
+      gcDbAccess.sql(sql);
+      
+      // if there is a parameter, then set the bind variable
+      String groupName = "a:b:c";
+      gcDbAccess.addBindVar(groupName);
+
+      // run the query
+      int sqlResult = gcDbAccess.select(int.class);
+    
+    }
+
+    WS_RETURN_DATA: {
+      // #########
+      // Return json data to the web service response from java map
+      // #########
+
+      // simple params have a map of json attributes to values
+      Map<String, Object> output = new HashMap<>();
+
+      String someVariable = "test";
+      output.put("matched", StringUtils.isNotBlank(someVariable));
+      output.put("someAttributeName", "theValue");
+      output.put("someNumber", 25);
+
+      gsh_builtin_gshTemplateOutput.setWsOutput(output);
+  
+    }
+
+    GROUP_AS_MEMBER_SUBJECT: {
+      // #########
+      // See if a group has a subject as a member of the group
+      // #########
+
+      boolean exceptionIfGroupNotExist = true;
+      Group group = GroupFinder.findByName("temp:someGroup", exceptionIfGroupNotExist);
+      
+      boolean exceptionIfSubjectNotExist = true;
+      Subject subject = SubjectFinder.findByIdAndSource("someSubjectId", "someSource", exceptionIfSubjectNotExist);
+      
+      boolean isMember = group.hasMember(subject);
+    }
+    
+    SEND_ABAC_SCRIPT_TO_LOADER: {
+      // #########
+      // if doing an abac script the last line sends abac script to the loader
+      // #########
+
+      String abacScript = """
+          # some abac script
+          """;
+
+      gsh_builtin_gshTemplateOutput.assignAbacScript(abacScript);
+    }
+
+    WEB_SERVICE_HEADER: {
+      // #########
+      // When calling a web service add a header
+      // #########
+
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Add the required headers
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+    }      
+
+    WEB_SERVICE_AUTHENTICATION: {
+      
+      // #########
+      // When calling a web service attach authentication using an external system config id
+      // #########
+      
+      String externalSystemId = "someExternalSystemId";
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Attach bearer token authentication to the HTTP client
+      WsBearerTokenExternalSystem.attachAuthenticationToHttpClient(grouperHttpClient, externalSystemId);
+    }
+    
+    WEB_SERVICE_ENDPOINT: {
+      
+      // #########
+      // When calling a web service get the endpoint using an external system config id
+      // #########
+      
+      String externalSystemId = "someExternalSystemId";
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Retrieve the endpoint from the configuration
+      String endpoint = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueStringRequired("grouper.wsBearerToken." + externalSystemId + ".endpoint");
+
+      // always strip last slash
+      endpoint = GrouperUtil.stripLastSlashIfExists(endpoint);
+
+    }
+
+    WEB_SERVICE_PATH: {
+      
+      // #########
+      // When calling a web service append the path to the endpoint
+      // #########
+      
+      String externalSystemId = "someExternalSystemId";
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Retrieve the endpoint from the configuration
+      String endpoint = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueStringRequired("grouper.wsBearerToken." + externalSystemId + ".endpoint");
+
+      // always strip last slash
+      endpoint = GrouperUtil.stripLastSlashIfExists(endpoint);
+      
+      String path = "/v1/threads";
+      // Construct the URL for the OpenAI API
+      String url = endpoint + path ;
+
+    }
+    WEB_SERVICE_REQUEST_BODY: {
+      
+      // #########
+      // When calling a web service send a request body
+      // #########
+      
+      String externalSystemId = "someExternalSystemId";
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      String body = "";
+      grouperHttpClient.assignBody(body);
+    }
+
+    WEB_SERVICE_METHOD: {
+      
+      // #########
+      // Specify the HTTP method for the web service request: delete, get, post, put, patch
+      // #########
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // method is post
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
+
+    }
+
+    WEB_SERVICE_EXECUTE: {
+      
+      // #########
+      // After setting up the web service, execute
+      // #########
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Execute the request
+      grouperHttpClient.executeRequest();
+
+    }
+
+
+    WEB_SERVICE_CHECK_RESPONSE_CODE: {
+      
+      // #########
+      // Make sure the response code is what you expect
+      // #########
+      
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Check the response code
+      int responseCode = grouperHttpClient.getResponseCode();
+      if (responseCode != 200) {
+        throw new RuntimeException(
+            "Helpful error message: " + responseCode);
+      }
+
+    }
+
+    WEB_SERVICE_GET_JSON_RESPONSE: {
+      
+      // #########
+      // Turn the response into a JSON object
+      // #########
+      
+      
+      // Create a new GrouperHttpClient instance
+      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+      // Read and return the JSON response body
+      JsonNode jsonNode = grouperHttpClient.retrieveJsonNode();
+
+    }
+
+    JSON_ATTRIBUTE: {
+      
+      // #########
+      // Get a specific field from the JSON response
+      // #########
+      
+      
+      // Read and return the JSON response body
+      JsonNode jsonNode = null;
+      
+      // get a specific field from the JSON response
+      String threadId = GrouperUtil.jsonJacksonGetString(jsonNode, "id");      
+      
+
+    }
+
+    WS_RETURN_DATA_JSON: {
+      // #########
+      // Return json data to the web service output from JsonNode
+      // #########
+
+      JsonNode jsonNode = null;
+
+      gsh_builtin_gshTemplateOutput.setWsOutput(jsonNode);
+
+    }
+
+    JSON_ARRAY: {
+      
+      // #########
+      // Loop through a JSON array
+      // #########
+      
+      
+      // Read and return the JSON response body
+      JsonNode jsonNode = null;
+
+      // get data array
+      ArrayNode dataArrayNode = GrouperUtil.jsonJacksonGetArrayNode(jsonNode, "data");
+      
+      // loop through the data array
+      for (JsonNode dataNode : dataArrayNode) {
+      }
+      
+
+    }
+    
+    JSON_CREATE_WITH_ATTRIBUTES: {
+      
+      // #########
+      // Make a JSON string based on a string attribute
+      // #########
+      
+      
+      ObjectNode objectNode = GrouperUtil.jsonJacksonNode();
+      String attributeValue = "";
+      GrouperUtil.jsonJacksonAssignString(objectNode, "attributeName", attributeValue);
+      String json = objectNode.toString();
+      
+
+    }
+    
+    // composite save
+    COMPOSITE_SAVE: {
+      // #########
+      // Save a composite group using CompositeSave
+      // #########
+      // Create a new CompositeSave instance
+      CompositeSave compositeSave = new CompositeSave();
+      compositeSave.assignOwnerName("a:b:ownerGroupName"); // Replace with the name of the owner group
+      compositeSave.assignLeftFactorName("a:c:leftFactorGroupName"); // Replace with the name of the left factor group
+      compositeSave.assignRightFactorName("a:d:rightFactorGroupName"); // Replace with the name of the right factor group
+      
+      // Replace with the composite type (e.g., "intersection" or "complement")
+      // a complement is also called minus
+      compositeSave.assignType("intersection"); 
+      compositeSave.save();
+
+    }
+    
+    FIND_ATTRIBUTE_DEF_NAME_BY_NAME: {
+
+      // #########
+      // Find an attribute definition name by its full name using AttributeDefNameFinder
+      // #########
+
+      // AttributeDefName full name
+      String attributeDefNameFullName = "example:attributeDef:someAttrDefName";
+
+      // Find the AttributeDefName
+      boolean exceptionIfNotFound = true;
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameFullName, exceptionIfNotFound);
+
+    }
+
+    OPENAI_RETRIEVE_OPENAI_THREAD_ID: {
+      // #########
+      // Retrieve an OpenAI thread ID using GrouperOpenAiApiCommands
+      // #########
+
+      String externalSystemConfigId = "myExternalSystemConfigId";
+      String threadId = GrouperOpenAiApiCommands.retrieveOpenAiThreadId(externalSystemConfigId);
+      
+    }
+
+    OPENAI_SEND_MESSAGE_TO_THREAD: {
+      // #########
+      // Send a message to an OpenAI thread using GrouperOpenAiApiCommands
+      // #########
+
+      String externalSystemConfigId = "myExternalSystemConfigId";
+      String threadId = "myThreadId";
+      String message = "Hello, OpenAI!";
+      GrouperOpenAiApiCommands.sendMessageToOpenAi(externalSystemConfigId, threadId, message);
+      
+    }
+
+    OPENAI_RUN_THREAD_ON_ASSISTANT: {
+      // #########
+      // Run an OpenAI thread on an assistant and retrieve the response using GrouperOpenAiApiCommands
+      // #########
+
+      String externalSystemConfigId = "myExternalSystemConfigId";
+      String threadId = "myThreadId";
+      String assistantId = "myAssistantId";
+      String runId = GrouperOpenAiApiCommands.runThreadOnAssistant(externalSystemConfigId, threadId, assistantId);
+    }
+    
+    OPENAI_RETRIEVE_THREAD_STATUS: {
+      // #########
+      // Retrieve the status of an OpenAI thread run and the first message from the thread using GrouperOpenAiApiCommands
+      // #########
+
+      String externalSystemConfigId = "myExternalSystemConfigId";
+      String threadId = "myThreadId";
+      String runId = "myRunId";
+
+      boolean status = GrouperOpenAiApiCommands.retrieveThreadStatus(externalSystemConfigId, threadId, runId);
+    }
+    
+    OPENAI_RETRIEVE_FIRST_MESSAGE_FROM_THREAD: {
+      // #########
+      // Retrieve the first message from an OpenAI thread using GrouperOpenAiApiCommands
+      // #########
+
+      String externalSystemConfigId = "myExternalSystemConfigId";
+      String threadId = "myThreadId";
+
+      String aiResponse = GrouperOpenAiApiCommands.retrieveFirstMessageFromThread(externalSystemConfigId, threadId);
+    }
+    
+    OPENAI_SEND_MESSAGE_ON_NEW_THREAD: {
+      // #########
+      // Send a message on a new OpenAI thread using GrouperOpenAiApiCommands
+      // #########
+
+      String externalSystemConfigId = "myExternalSystemConfigId";
+      String threadId = GrouperOpenAiApiCommands.retrieveOpenAiThreadId(externalSystemConfigId);
+      
+      String message = "Hello, OpenAI!";
+      GrouperOpenAiApiCommands.sendMessageToOpenAi(externalSystemConfigId, threadId, message);
+
+      String assistantId = "myAssistantId";
+      String runId = GrouperOpenAiApiCommands.runThreadOnAssistant(externalSystemConfigId, threadId, assistantId);
+ 
+      // loop through for three minutes until the thread is done
+      for (int i=0;i<180;i++) {
+        boolean isDone = GrouperOpenAiApiCommands.retrieveThreadStatus(externalSystemConfigId, threadId, runId);
+        if (isDone) {
+          break;
+        }
+        GrouperUtil.sleep(1000);
+      }
+
+      String aiResponse = GrouperOpenAiApiCommands.retrieveFirstMessageFromThread(externalSystemConfigId, threadId);
+    }
+    
+  }
+  
+}
