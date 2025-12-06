@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.node.*;
 
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.CompositeSave;
+import edu.internet2.middleware.grouper.ai.openai.*;
 import edu.internet2.middleware.grouper.app.attestation.*;
 import edu.internet2.middleware.grouper.app.externalSystem.*;
 import edu.internet2.middleware.grouper.app.grouperTypes.*;
@@ -2714,6 +2715,87 @@ public class Test124aiGshTraining extends GshTemplateV2 {
 
     }
 
+    OPENAI_RETRIEVE_OPENAI_THREAD_ID: {
+      // #########
+      // Retrieve an OpenAI thread ID using GrouperOpenAiApiCommands
+      // #########
+
+      String externalSystemConfigId = "myExternalSystemConfigId";
+      String threadId = GrouperOpenAiApiCommands.retrieveOpenAiThreadId(externalSystemConfigId);
+      
+    }
+
+    OPENAI_SEND_MESSAGE_TO_THREAD: {
+      // #########
+      // Send a message to an OpenAI thread using GrouperOpenAiApiCommands
+      // #########
+
+      String externalSystemConfigId = "myExternalSystemConfigId";
+      String threadId = "myThreadId";
+      String message = "Hello, OpenAI!";
+      GrouperOpenAiApiCommands.sendMessageToOpenAi(externalSystemConfigId, threadId, message);
+      
+    }
+
+    OPENAI_RUN_THREAD_ON_ASSISTANT: {
+      // #########
+      // Run an OpenAI thread on an assistant and retrieve the response using GrouperOpenAiApiCommands
+      // #########
+
+      String externalSystemConfigId = "myExternalSystemConfigId";
+      String threadId = "myThreadId";
+      String assistantId = "myAssistantId";
+      String runId = GrouperOpenAiApiCommands.runThreadOnAssistant(externalSystemConfigId, threadId, assistantId);
+    }
+    
+    OPENAI_RETRIEVE_THREAD_STATUS: {
+      // #########
+      // Retrieve the status of an OpenAI thread run and the first message from the thread using GrouperOpenAiApiCommands
+      // #########
+
+      String externalSystemConfigId = "myExternalSystemConfigId";
+      String threadId = "myThreadId";
+      String runId = "myRunId";
+
+      boolean status = GrouperOpenAiApiCommands.retrieveThreadStatus(externalSystemConfigId, threadId, runId);
+    }
+    
+    OPENAI_RETRIEVE_FIRST_MESSAGE_FROM_THREAD: {
+      // #########
+      // Retrieve the first message from an OpenAI thread using GrouperOpenAiApiCommands
+      // #########
+
+      String externalSystemConfigId = "myExternalSystemConfigId";
+      String threadId = "myThreadId";
+
+      String aiResponse = GrouperOpenAiApiCommands.retrieveFirstMessageFromThread(externalSystemConfigId, threadId);
+    }
+    
+    OPENAI_SEND_MESSAGE_ON_NEW_THREAD: {
+      // #########
+      // Send a message on a new OpenAI thread using GrouperOpenAiApiCommands
+      // #########
+
+      String externalSystemConfigId = "myExternalSystemConfigId";
+      String threadId = GrouperOpenAiApiCommands.retrieveOpenAiThreadId(externalSystemConfigId);
+      
+      String message = "Hello, OpenAI!";
+      GrouperOpenAiApiCommands.sendMessageToOpenAi(externalSystemConfigId, threadId, message);
+
+      String assistantId = "myAssistantId";
+      String runId = GrouperOpenAiApiCommands.runThreadOnAssistant(externalSystemConfigId, threadId, assistantId);
+ 
+      // loop through for three minutes until the thread is done
+      for (int i=0;i<180;i++) {
+        boolean isDone = GrouperOpenAiApiCommands.retrieveThreadStatus(externalSystemConfigId, threadId, runId);
+        if (isDone) {
+          break;
+        }
+        GrouperUtil.sleep(1000);
+      }
+
+      String aiResponse = GrouperOpenAiApiCommands.retrieveFirstMessageFromThread(externalSystemConfigId, threadId);
+    }
     
   }
   
