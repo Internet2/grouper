@@ -3911,7 +3911,7 @@ public class GrouperCheckConfig {
                 "Lifecycle event id", attributeDefNameSaves);
             
             checkAttribute(userLifecycleAttributesRootStem, userLifecycleMshipHistoryAttrType, UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_ADDED_MICROS, 
-                "Micros when the lifecycle event occurred", attributeDefNameSaves);
+                "Micros when the membership was approved", attributeDefNameSaves);
 
             checkAttribute(userLifecycleAttributesRootStem, userLifecycleMshipHistoryAttrType, UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_APPROVED_BY, 
                 "Approved by - member internal id", attributeDefNameSaves);

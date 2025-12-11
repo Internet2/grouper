@@ -52,6 +52,9 @@
                       <br /><br /><a href="?operation=UiV2Rules.viewAllRules" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Rules.viewAllRules');" style="white-space: nowrap;">
                         ${textContainer.text['adminRulesConfigurationsLink'] }</a>
                     </c:if>
+
+                    <br /><br /><a id="miscellaneousUserLifecycleEventsLink" href="?operation=UiV2UserLifecycleEvents.viewUserLifecycleEvents" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2UserLifecycleEvents.viewUserLifecycleEvents');" style="white-space: nowrap;"
+                    >${textContainer.text['miscellaneousUserLifecycleEventsLink'] }</a>
                     
                   </div>
                 </div>

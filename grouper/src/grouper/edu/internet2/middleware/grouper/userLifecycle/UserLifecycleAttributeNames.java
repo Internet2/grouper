@@ -212,6 +212,21 @@ public class UserLifecycleAttributeNames {
     }
     return attributeDefName;
   }
+  
+  /**
+   * attribute def name assigned
+   * @return the attribute def name
+   */
+  public static AttributeDefName retrieveHistoryAttributeDefNameMarker() {
+    
+    AttributeDefName attributeDefName = retrieveAttributeDefNameFromDbOrCache(
+        userLifecycleStemName() + ":" + USER_LIFECYCLE_MSHIP_HISTORY_MARKER);
+  
+    if (attributeDefName == null) {
+      throw new RuntimeException("Why cant userLifecycleMshipHistoryMarker be found?");
+    }
+    return attributeDefName;
+  }
 
   /**
    * cache this.  note, not sure if its necessary

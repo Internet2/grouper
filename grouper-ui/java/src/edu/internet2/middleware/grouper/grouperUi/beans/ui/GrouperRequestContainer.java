@@ -1091,4 +1091,17 @@ public class GrouperRequestContainer {
     return this.grouperPasswordContainer;
   }
 
+  private UserLifecycleEventsContainer userLifecycleEventsContainer;
+  
+  /**
+   * container for user lifecycle events
+   * @return the container
+   */
+  public UserLifecycleEventsContainer getUserLifecycleEventsContainer() {
+    if (this.userLifecycleEventsContainer == null) {
+      this.userLifecycleEventsContainer = new UserLifecycleEventsContainer();
+    }
+    
+    return this.userLifecycleEventsContainer;
+  }
 }

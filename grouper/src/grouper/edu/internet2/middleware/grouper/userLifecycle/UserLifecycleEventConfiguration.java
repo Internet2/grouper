@@ -172,6 +172,22 @@ public class UserLifecycleEventConfiguration extends GrouperConfigurationModuleB
       }
     }
     
+    groupUUIDOrNameAttribute = attributes.get("naturalLanguageDescriptionJexlPrivilegedGroupIdOrName");
+    if (groupUUIDOrNameAttribute != null && StringUtils.isNotBlank(groupUUIDOrNameAttribute.getValueOrExpressionEvaluationValue()) ) {
+      String groupUuidOrName = groupUUIDOrNameAttribute.getValueOrExpressionEvaluationValue();
+      
+      Group group = GroupFinder.findByUuid(groupUuidOrName, false);
+      if (group == null) {
+        group = GroupFinder.findByName(groupUuidOrName, false);
+      }
+      
+      if (group == null) {
+        String error = GrouperTextContainer.textOrNull("userLifecycleEventConfigSaveErrorGroupNotFound");
+        error = GrouperUtil.replace(error, "$$groupUUIDOrName$$", groupUuidOrName);
+        validationErrorsToDisplay.put(groupUUIDOrNameAttribute.getHtmlForElementIdHandle(), error);
+      }
+    }
+    
     GrouperConfigurationModuleAttribute stemUUIDOrNameAttribute = attributes.get("groupUserRemoveFromFolder");
     if (stemUUIDOrNameAttribute != null && StringUtils.isNotBlank(stemUUIDOrNameAttribute.getValueOrExpressionEvaluationValue()) ) {
       String stemUuidOrName = stemUUIDOrNameAttribute.getValueOrExpressionEvaluationValue();
