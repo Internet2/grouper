@@ -567,7 +567,8 @@ public class GrouperProvisioningLogic {
     
     this.grouperProvisioner.getDebugMap().put("state", "assignRecalc");
     
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups()
+        || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()) {
     
       // everything in a full sync is a recalc if it can be
       for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
@@ -577,7 +578,8 @@ public class GrouperProvisioningLogic {
       }
     }
     
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities()
+        || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()) {
       for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
         
         provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesForRecalc());
@@ -2415,7 +2417,7 @@ public class GrouperProvisioningLogic {
         }
 
         throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetGroupsToInsert) + " but retrieved " + GrouperUtil.length(targetGroups)
-          + " maybe a config is off?\n" + searchAttributeValuesAndObjects.toString());
+        + " maybe a config is off?\n" + searchAttributeValuesAndObjects.toString());
       }
       
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesGroups(targetGroups, false, true, false, false);
@@ -2762,9 +2764,9 @@ public class GrouperProvisioningLogic {
           }
         }    
 
-        
+
         throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetEntitiesToInsert) + " but retrieved " + GrouperUtil.length(targetEntities) 
-          + " maybe a config is off?\n" + searchAttributeValuesAndObjects.toString());
+        + " maybe a config is off?\n" + searchAttributeValuesAndObjects.toString());
       }
       
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesEntities(targetEntities, false, true, false, false);
