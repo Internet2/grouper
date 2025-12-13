@@ -576,7 +576,8 @@ public class GrouperProvisioningLogic {
     
     this.grouperProvisioner.getDebugMap().put("state", "assignRecalc");
     
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups()
+        || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()) {
     
       // everything in a full sync is a recalc if it can be
       for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
@@ -586,7 +587,8 @@ public class GrouperProvisioningLogic {
       }
     }
     
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities()
+        || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()) {
       for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
         
         provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesForRecalc());
@@ -2437,7 +2439,7 @@ public class GrouperProvisioningLogic {
           }
         }
 
-        throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetGroupsToInsert) + " groups after creating them, but retrieved " + GrouperUtil.length(grouperTargetGroupsToInsert)
+        throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetGroupsToInsert) + " groups after creating them, but retrieved " + GrouperUtil.length(targetGroups)
         + " maybe the server is caching results and is not returning the created group or a matching/searching config needs to be adjusted?  Here are examples that could not be found: \n" + searchAttributeValuesAndObjects.toString());
 
       }
@@ -2787,7 +2789,7 @@ public class GrouperProvisioningLogic {
           }
         }    
 
-        throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetEntitiesToInsert) + " entities after creating them, but retrieved " + GrouperUtil.length(grouperTargetEntitiesToInsert)
+        throw new RuntimeException("Searched for " + GrouperUtil.length(grouperTargetEntitiesToInsert) + " entities after creating them, but retrieved " + GrouperUtil.length(targetEntities)
         + " maybe the server is caching results and is not returning the created entity or a matching/searching config needs to be adjusted?  Here are examples that could not be found: \n" + searchAttributeValuesAndObjects.toString());
 
       }
