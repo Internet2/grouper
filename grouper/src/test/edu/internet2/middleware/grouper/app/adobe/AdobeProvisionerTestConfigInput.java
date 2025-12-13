@@ -274,16 +274,4 @@ public class AdobeProvisionerTestConfigInput {
     return this;
   }
 
-  private boolean bearer = true;
-  
-  public boolean isBearer() {
-    return bearer;
-  }
-
-
-  public AdobeProvisionerTestConfigInput assignBearer(boolean bearer) {
-    this.bearer = bearer;
-    return this;
-  }
-  
 }
