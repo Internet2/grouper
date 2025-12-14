@@ -36,30 +36,6 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/v4_0_020/groups" : {
-      "post" : {
-        "tags" : [ "Grouper" ],
-        "summary" : "Add member",
-        "description" : "<b>Description</b>: Add member will add or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Add+Member'>wiki</a> and go to samples to see requests and responses",
-        "operationId" : "addMember",
-        "parameters" : [ {
-          "in" : "body",
-          "name" : "body",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/definitions/WsRestAddMemberRequestWrapper"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/WsAddMemberResultsWrapper"
-            }
-          }
-        }
-      }
-    },
     "/grouper-ws/servicesRest/v4_0_030/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
@@ -745,7 +721,7 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/v4_0_100/grouperPriveleges" : {
+    "/grouper-ws/servicesRest/v4_0_100/grouperPrivileges" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign grouper privileges",
@@ -1865,30 +1841,6 @@
             "description" : "successful operation",
             "schema" : {
               "$ref" : "#/definitions/WsAttributeDefSaveLiteResultsWrapper"
-            }
-          }
-        }
-      }
-    },
-    "/grouper-ws/servicesRest/v4_0_220/groups" : {
-      "post" : {
-        "tags" : [ "Grouper" ],
-        "summary" : "Delete member",
-        "description" : "<b>Description</b>: Delete member will delete or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is in an indirect membership, this is still a success<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Delete+Member'>wiki</a> and go to samples to see requests and responses",
-        "operationId" : "deleteMember",
-        "parameters" : [ {
-          "in" : "body",
-          "name" : "body",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/definitions/WsRestDeleteMemberRequestWrapper"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/WsDeleteMemberResultsWrapper"
             }
           }
         }
@@ -4180,30 +4132,6 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/v4_0_450/groups" : {
-      "post" : {
-        "tags" : [ "Grouper" ],
-        "summary" : "Get members",
-        "description" : "<b>Description</b>: Get members will retrieve subjects assigned to a group.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Members'>wiki</a> and go to samples to see requests and responses",
-        "operationId" : "getMembers",
-        "parameters" : [ {
-          "in" : "body",
-          "name" : "body",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/definitions/WsRestGetMembersRequestWrapper"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/WsGetMembersResultsWrapper"
-            }
-          }
-        }
-      }
-    },
     "/grouper-ws/servicesRest/v4_0_460/memberships" : {
       "post" : {
         "tags" : [ "Grouper" ],
@@ -5643,30 +5571,6 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/v4_0_570/members" : {
-      "post" : {
-        "tags" : [ "Grouper" ],
-        "summary" : "Has member",
-        "description" : "<b>Description</b>: Has member will see if a group contains a subject as a member<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Has+Member'>wiki</a> and go to samples to see requests and responses",
-        "operationId" : "hasMember",
-        "parameters" : [ {
-          "in" : "body",
-          "name" : "body",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/definitions/WsRestHasMemberRequestWrapper"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/WsHasMemberResultsWrapper"
-            }
-          }
-        }
-      }
-    },
     "/grouper-ws/servicesRest/v4_0_580/members" : {
       "post" : {
         "tags" : [ "Grouper" ],
@@ -5826,173 +5730,6 @@
             "description" : "successful operation",
             "schema" : {
               "$ref" : "#/definitions/WsHasMemberLiteResultsWrapper"
-            }
-          }
-        }
-      }
-    },
-    "/grouper-ws/servicesRest/v4_0_590/members" : {
-      "post" : {
-        "tags" : [ "Grouper" ],
-        "summary" : "Member change subject",
-        "description" : "<b>Description</b>: \"Member change subject\" will change the subject that a member refers to. You would want to do this when a person or entity changes their id, or if they were loaded wrong in the system.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Member+change+subject'>wiki</a> and go to samples to see requests and responses",
-        "operationId" : "memberChangeSubject",
-        "parameters" : [ {
-          "in" : "body",
-          "name" : "body",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/definitions/WsRestMemberChangeSubjectRequestWrapper"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/WsMemberChangeSubjectResultsWrapper"
-            }
-          }
-        }
-      }
-    },
-    "/grouper-ws/servicesRest/v4_0_600/members" : {
-      "post" : {
-        "tags" : [ "Grouper" ],
-        "summary" : "Member change subject lite",
-        "description" : "<b>Description</b>: \"Member change subject\" will change the subject that a member refers to. You would want to do this when a person or entity changes their id, or if they were loaded wrong in the system.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Member+change+subject'>wiki</a> and go to samples to see requests and responses",
-        "operationId" : "memberChangeSubjectLite",
-        "parameters" : [ {
-          "name" : "wsLiteObjectType",
-          "in" : "formData",
-          "description" : "WsRestFindGroupsLiteRequest",
-          "required" : true,
-          "type" : "String",
-          "x-example" : "WsRestFindGroupsLiteRequest"
-        }, {
-          "name" : "clientVersion",
-          "in" : "formData",
-          "description" : "Version of the client (i.e. that the client was coded against)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "v2_6_001"
-        }, {
-          "name" : "actAsSubjectId",
-          "in" : "formData",
-          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "12345678"
-        }, {
-          "name" : "actAsSubjectSourceId",
-          "in" : "formData",
-          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "myInstitutionPeople"
-        }, {
-          "name" : "actAsSubjectIdentifier",
-          "in" : "formData",
-          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "jsmith"
-        }, {
-          "name" : "paramName0",
-          "in" : "formData",
-          "description" : "Optional params for this request",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "NA"
-        }, {
-          "name" : "paramValue0",
-          "in" : "formData",
-          "description" : "Optional params for this request",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "NA"
-        }, {
-          "name" : "paramName1",
-          "in" : "formData",
-          "description" : "Optional params for this request",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "NA"
-        }, {
-          "name" : "paramValue1",
-          "in" : "formData",
-          "description" : "Optional params for this request",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "NA"
-        }, {
-          "name" : "includeSubjectDetail",
-          "in" : "formData",
-          "description" : "If the subject detail should be returned (anything more than ID), default to false",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "T|F"
-        }, {
-          "name" : "deleteOldMember",
-          "in" : "formData",
-          "description" : "T/F or TRUE/FALSE (Case sensitive) true means delete subject that was changed, false means keep, defaults to true",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "T"
-        }, {
-          "name" : "oldSubjectSourceId",
-          "in" : "formData",
-          "description" : "the old Id of the subjectSource of the person to be changed, recommended",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "schoolPerson"
-        }, {
-          "name" : "oldSubjectIdentifier",
-          "in" : "formData",
-          "description" : "Old subjectIdentifier of entity to be changed, mutually exclusive with subjectId, one of the two is required",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "subjIdent0"
-        }, {
-          "name" : "oldsubjectId",
-          "in" : "formData",
-          "description" : "Old subjectId of entity to be changed, mutually exclusive with subjectIdentifier, one of the two is required (preferred)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "12345678"
-        }, {
-          "name" : "newSubjectSourceId",
-          "in" : "formData",
-          "description" : "the new Id of the subjectSource of the person to be changed, recommended",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "schoolPerson"
-        }, {
-          "name" : "newSubjectIdentifier",
-          "in" : "formData",
-          "description" : "New subjectIdentifier of entity to be changed, mutually exclusive with subjectId, one of the two is required",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "subjIdent0"
-        }, {
-          "name" : "newSubjectId",
-          "in" : "formData",
-          "description" : "New subjectId of entity to be changed, mutually exclusive with subjectIdentifier, one of the two is required (preferred)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "12345678"
-        }, {
-          "name" : "subjectAttributeNames",
-          "in" : "formData",
-          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "lastName, middleName"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/WsMemberChangeSubjectLiteResultsWrapper"
             }
           }
         }
@@ -6315,6 +6052,245 @@
           }
         }
       }
+    },
+    "/grouper-ws/servicesRest/vA_A_MEF/groups" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Add member",
+        "description" : "<b>Description</b>: Add member will add or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Add+Member'>wiki</a> and go to samples to see requests and responses",
+        "operationId" : "addMember",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestAddMemberRequestWrapper"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAddMemberResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vD_M_EMF/groups" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Delete member",
+        "description" : "<b>Description</b>: Delete member will delete or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is in an indirect membership, this is still a success<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Delete+Member'>wiki</a> and go to samples to see requests and responses",
+        "operationId" : "deleteMember",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestDeleteMemberRequestWrapper"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsDeleteMemberResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_MEF/groups" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get members",
+        "description" : "<b>Description</b>: Get members will retrieve subjects assigned to a group.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Members'>wiki</a> and go to samples to see requests and responses",
+        "operationId" : "getMembers",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestGetMembersRequestWrapper"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetMembersResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vH_M_EML/groups" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Has member",
+        "description" : "<b>Description</b>: Has member will see if a group contains a subject as a member<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Has+Member'>wiki</a> and go to samples to see requests and responses",
+        "operationId" : "hasMember",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestHasMemberRequestWrapper"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsHasMemberResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vM_C_SUL/members" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Member change subject lite",
+        "description" : "<b>Description</b>: \"Member change subject\" will change the subject that a member refers to. You would want to do this when a person or entity changes their id, or if they were loaded wrong in the system.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Member+change+subject'>wiki</a> and go to samples to see requests and responses",
+        "operationId" : "memberChangeSubjectLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "deleteOldMember",
+          "in" : "formData",
+          "description" : "T/F or TRUE/FALSE (Case sensitive) true means delete subject that was changed, false means keep, defaults to true",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T"
+        }, {
+          "name" : "oldSubjectSourceId",
+          "in" : "formData",
+          "description" : "the old Id of the subjectSource of the person to be changed, recommended",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "oldSubjectIdentifier",
+          "in" : "formData",
+          "description" : "Old subjectIdentifier of entity to be changed, mutually exclusive with subjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "oldsubjectId",
+          "in" : "formData",
+          "description" : "Old subjectId of entity to be changed, mutually exclusive with subjectIdentifier, one of the two is required (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "newSubjectSourceId",
+          "in" : "formData",
+          "description" : "the new Id of the subjectSource of the person to be changed, recommended",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "newSubjectIdentifier",
+          "in" : "formData",
+          "description" : "New subjectIdentifier of entity to be changed, mutually exclusive with subjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "newSubjectId",
+          "in" : "formData",
+          "description" : "New subjectId of entity to be changed, mutually exclusive with subjectIdentifier, one of the two is required (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsMemberChangeSubjectLiteResult"
+            }
+          }
+        }
+      }
     }
   },
   "definitions" : {
@@ -6396,15 +6372,6 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
-        }
-      }
-    },
-    "WsAddMemberResultsWrapper" : {
-      "type" : "object",
-      "properties" : {
-        "WsAddMemberResults" : {
-          "description" : "Identifies the response of an add member request",
-          "$ref" : "#/definitions/WsAddMemberResults"
         }
       }
     },
@@ -7726,15 +7693,6 @@
         }
       }
     },
-    "WsDeleteMemberResultsWrapper" : {
-      "type" : "object",
-      "properties" : {
-        "WsDeleteMemberResults" : {
-          "description" : "Identifies the response of a delete member request",
-          "$ref" : "#/definitions/WsDeleteMemberResults"
-        }
-      }
-    },
     "WsExecuteGshTemplateResultsWrapper" : {
       "type" : "object",
       "properties" : {
@@ -8335,15 +8293,6 @@
           "items" : {
             "$ref" : "#/definitions/WsGetMembersResult"
           }
-        }
-      }
-    },
-    "WsGetMembersResultsWrapper" : {
-      "type" : "object",
-      "properties" : {
-        "WsGetMembersResults" : {
-          "description" : "Identifies the response of a get members request",
-          "$ref" : "#/definitions/WsGetMembersResults"
         }
       }
     },
@@ -8987,15 +8936,6 @@
         }
       }
     },
-    "WsHasMemberResultsWrapper" : {
-      "type" : "object",
-      "properties" : {
-        "WsHasMemberResults" : {
-          "description" : "Identifies the response of a has member request",
-          "$ref" : "#/definitions/WsHasMemberResults"
-        }
-      }
-    },
     "WsMemberChangeSubject" : {
       "type" : "object",
       "properties" : {
@@ -9033,15 +8973,6 @@
         }
       }
     },
-    "WsMemberChangeSubjectLiteResultsWrapper" : {
-      "type" : "object",
-      "properties" : {
-        "WsMemberChangeSubjectLiteResult" : {
-          "description" : "Identifies the response of a member change subject lite request",
-          "$ref" : "#/definitions/WsMemberChangeSubjectLiteResult"
-        }
-      }
-    },
     "WsMemberChangeSubjectResult" : {
       "type" : "object",
       "properties" : {
@@ -9076,15 +9007,6 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
-        }
-      }
-    },
-    "WsMemberChangeSubjectResultsWrapper" : {
-      "type" : "object",
-      "properties" : {
-        "WsMemberChangeSubjectResults" : {
-          "description" : "Identifies the response of a member change subject request",
-          "$ref" : "#/definitions/WsMemberChangeSubjectResults"
         }
       }
     },
