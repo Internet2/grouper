@@ -322,7 +322,7 @@ public class GrouperDdlCompare {
             for (int i=0;i<databaseForeignKey.getReferenceCount();i++) {
              
               Reference databaseReference = databaseForeignKey.getReferences()[i];
-              Reference javaReference = databaseForeignKey.getReferences()[i];
+              Reference javaReference = javaForeignKey.getReferences()[i];
 
               if (!StringUtils.equalsIgnoreCase(databaseReference.getForeignColumnName(), javaReference.getForeignColumnName())) {
                 
@@ -344,7 +344,7 @@ public class GrouperDdlCompare {
           }
           
           tableNotes.append("Database foreign key: " + databaseForeignKey.toVerboseString() 
-            + ", java foreign key: " + databaseForeignKey.toVerboseString() + ".  ");
+            + ", java foreign key: " + javaForeignKey.toVerboseString() + ".  ");
           
         }
 
@@ -370,7 +370,7 @@ public class GrouperDdlCompare {
       GrouperDdlCompareColumn grouperDdlCompareColumn = grouperDdlCompareColumns.get(columnName);
       
       Column databaseColumn = grouperDdlCompareColumn.getDatabaseColumn();
-      Column javaColumn = grouperDdlCompareColumn.getDatabaseColumn();
+      Column javaColumn = grouperDdlCompareColumn.getJavaColumn();
 
       if (databaseColumn == null) {
         grouperDdlCompareColumn.setMissing(true);
@@ -381,7 +381,7 @@ public class GrouperDdlCompare {
       } else {
         
         if (!StringUtils.equals(databaseColumn.getDefaultValue(), javaColumn.getDefaultValue())) {
-          tableWarnings.append("Column '" + columnName + "' default value '" + databaseColumn.getDefaultValue() 
+          tableErrors.append("Column '" + columnName + "' default value '" + databaseColumn.getDefaultValue() 
             + "' should be '" + javaColumn.getDefaultValue() + "'.  ");
           
         }
@@ -397,7 +397,7 @@ public class GrouperDdlCompare {
           tableWarnings.append("Column '" + columnName + "' special type '" + databaseColumn.isOfSpecialType()
             + "' should be '" + javaColumn.isOfSpecialType() + "'.  ");
         }
-        if (databaseColumn.getSize() !=  javaColumn.getSize()) {
+        if (!StringUtils.equals(databaseColumn.getSize(), javaColumn.getSize())) {
           tableWarnings.append("Column '" + columnName + "' size '" + databaseColumn.getSize() 
             + "' should be '" + javaColumn.getSize() + "'.  ");
         }
@@ -410,11 +410,11 @@ public class GrouperDdlCompare {
             + "' should be '" + javaColumn.getScale() + "'.  ");
         }
         if (databaseColumn.isPrimaryKey() !=  javaColumn.isPrimaryKey()) {
-          tableWarnings.append("Column '" + columnName + "' primary key '" + databaseColumn.isPrimaryKey()
+          tableErrors.append("Column '" + columnName + "' primary key '" + databaseColumn.isPrimaryKey()
             + "' should be '" + javaColumn.isPrimaryKey() + "'.  ");
         }
         if (databaseColumn.isRequired() !=  javaColumn.isRequired()) {
-          tableWarnings.append("Column '" + columnName + "' required '" + databaseColumn.isRequired()
+          tableErrors.append("Column '" + columnName + "' required '" + databaseColumn.isRequired()
             + "' should be '" + javaColumn.isRequired() + "'.  ");
         }
       }
@@ -586,7 +586,7 @@ public class GrouperDdlCompare {
       GrouperDdlCompareIndex grouperDdlCompareIndex = grouperDdlCompareIndexes.get(indexName);
       
       Index databaseIndex = grouperDdlCompareIndex.getDatabaseIndex();
-      Index javaIndex = grouperDdlCompareIndex.getDatabaseIndex();
+      Index javaIndex = grouperDdlCompareIndex.getJavaIndex();
   
       if (databaseIndex == null) {
         grouperDdlCompareIndex.setMissing(true);

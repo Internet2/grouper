@@ -296,7 +296,7 @@ public class GrouperDdl5_11_0 {
         COLUMN_GROUPER_PROV_SCIM_USER_CONFIG_ID);
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperDuoTable.getName(), 
-        "grouper_prov_scim_user_idx2", true, 
+        "grouper_prov_scim_user_idx2", false, 
         COLUMN_GROUPER_PROV_SCIM_USER_USER_NAME, COLUMN_GROUPER_PROV_SCIM_USER_CONFIG_ID);
 
   }
@@ -319,7 +319,7 @@ public class GrouperDdl5_11_0 {
         COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ID + "(100)", COLUMN_GROUPER_PROV_SCIM_USER_ATTR_CONFIG_ID, COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ATTR_NAME + "(100)");
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperScimUserAttrTable.getName(), 
-        "grouper_prov_scim_usat_idx2", true, 
+        "grouper_prov_scim_usat_idx2", false, 
         COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ID + "(100)", COLUMN_GROUPER_PROV_SCIM_USER_ATTR_CONFIG_ID, COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ATTR_VALUE + "(100)");
 
   }

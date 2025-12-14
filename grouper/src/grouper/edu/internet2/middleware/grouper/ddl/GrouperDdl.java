@@ -652,25 +652,25 @@ public enum GrouperDdl implements DdlVersionable {
             AuditEntry.TABLE_GROUPER_AUDIT_ENTRY);
         
         GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
-            "hibernate_version_number", Types.BIGINT, null, false, false); 
+            "hibernate_version_number", Types.BIGINT, "19", false, false); 
 
         GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
-            "int01", Types.BIGINT, null, false, false); 
+            "int01", Types.BIGINT, "19", false, false); 
 
         GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
-            "int02", Types.BIGINT, null, false, false); 
+            "int02", Types.BIGINT, "19", false, false); 
 
         GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
-            "int03", Types.BIGINT, null, false, false); 
+            "int03", Types.BIGINT, "19", false, false); 
 
         GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
-            "int04", Types.BIGINT, null, false, false); 
+            "int04", Types.BIGINT, "19", false, false); 
 
         GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
-            "int05", Types.BIGINT, null, false, false); 
+            "int05", Types.BIGINT, "19", false, false); 
 
         GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
-            "duration_microseconds", Types.BIGINT, "15", false, false); 
+            "duration_microseconds", Types.BIGINT, "19", false, false); 
         
 
       }
@@ -12764,25 +12764,25 @@ public enum GrouperDdl implements DdlVersionable {
           "grouper_version", Types.VARCHAR, "20", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "hibernate_version_number", Types.BIGINT, null, false, false); 
+          "hibernate_version_number", Types.BIGINT, "19", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "id", Types.VARCHAR, ID_SIZE, true, true); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int01", Types.BIGINT, null, false, false); 
+          "int01", Types.BIGINT, "19", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int02", Types.BIGINT, null, false, false); 
+          "int02", Types.BIGINT, "19", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int03", Types.BIGINT, null, false, false); 
+          "int03", Types.BIGINT, "19", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int04", Types.BIGINT, null, false, false); 
+          "int04", Types.BIGINT, "19", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int05", Types.BIGINT, null, false, false); 
+          "int05", Types.BIGINT, "19", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "last_updated", Types.BIGINT, "20", false, false); 
@@ -12821,7 +12821,7 @@ public enum GrouperDdl implements DdlVersionable {
           "user_ip_address", Types.VARCHAR, "50", false, false); 
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "duration_microseconds", Types.BIGINT, "15", false, false); 
+          "duration_microseconds", Types.BIGINT, "19", false, false); 
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "query_count", Types.INTEGER, null, false, false); 

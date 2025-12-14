@@ -27,7 +27,7 @@ public class DuoProvisioningLoader extends GrouperProvisioningLoader {
   }
   
   public List<String> getLoaderEntityKeyColumnNames() {
-    return GrouperUtil.toList("user_id");
+    return GrouperUtil.toList("user_id", "config_id");
   }
   
   public List<Object[]> retrieveLoaderEntityTableDataFromDataBean() {

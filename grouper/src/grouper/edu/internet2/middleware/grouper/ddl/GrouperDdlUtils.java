@@ -3303,4 +3303,61 @@ public class GrouperDdlUtils {
       GrouperUtil.closeQuietly(connection);
     }
   }
+
+  /**
+   * See if table has a primary key
+   * @param tableName
+   * @param primaryKeyColumnNamesLowerCase column names in primary key in lower case
+   * @return true or false
+   */
+  public static boolean assertPrimaryKeyExists(String tableName, Set<String> primaryKeyColumnNamesLowerCase) {
+    Platform platform = GrouperDdlUtils.retrievePlatform(false);
+    
+    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
+    
+    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
+  
+    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
+  
+    //to be safe lets only deal with tables related to this object
+    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
+    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
+    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
+  
+    //convenience to get the url, user, etc of the grouper db, helps get db connection
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    
+    Connection connection = null;
+    try {
+      connection = grouperDb.connection();
+  
+      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
+        null, null);
+    
+      Table table = GrouperDdlUtils.ddlutilsFindTable(database, tableName, false);
+      
+      if (table == null) {
+        return false;
+      }
+      
+      // get primary key columns
+      Column[] primaryKeyColumns = table.getPrimaryKeyColumns();
+      
+      // if number of columns dont match, return false
+      if (GrouperUtil.length(primaryKeyColumns) != primaryKeyColumnNamesLowerCase.size()) {
+        return false;
+      }
+      
+      // check if all primary key columns exist
+      for (Column primaryKeyColumn : primaryKeyColumns) {
+        if (!primaryKeyColumnNamesLowerCase.contains(primaryKeyColumn.getName().toLowerCase())) {
+          return false;
+        }
+      }
+      return true;      
+    } finally {
+      GrouperUtil.closeQuietly(connection);
+    }
+  
+  }
 }
