@@ -2547,7 +2547,7 @@ public class GrouperService {
    * @return the result of one member query
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vM_C_SUL/groups")
+  @Path("/grouper-ws/servicesRest/vM_C_SUL/members")
   @ApiOperation(httpMethod = "POST", value = "Member change subject lite", nickname = "memberChangeSubjectLite", //response = .class,
   notes = "<b>Description</b>: \"Member change subject\" will change the subject that a member refers to. You would want to do this when a person or entity changes their id, or if they were loaded wrong in the system."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Member+change+subject'>wiki</a> and go to samples to see requests and responses") 
