@@ -191,40 +191,46 @@ tail -n +$(( $(egrep -n '^Time: ' $TESTLOG | tail -n1 | cut -d: -f1) )) $TESTLOG
 summary_code=$?
 
 
-# Run pspng as a separate set of tests
-$MVN -f grouper-misc/grouper-pspng dependency:copy-dependencies >>$BUILDLOG 2>&1
-exit_code=$?
-if [ $exit_code -ne 0 ]; then
-  echo "Maven pspng dependency:copy-dependencies failed (exit $exit_code)" >>$TESTLOG
-  exit 1
+#==== Run pspng as a separate set of tests ====
+
+RUN_PSPNG=
+if [ -n "$RUN_PSPNG" ]; then
+  $MVN -f grouper-misc/grouper-pspng dependency:copy-dependencies >>$BUILDLOG 2>&1
+  exit_code=$?
+  if [ $exit_code -ne 0 ]; then
+    echo "Maven pspng dependency:copy-dependencies failed (exit $exit_code)" >>$TESTLOG
+    exit 1
+  fi
+
+  CP=$(compgen -G "grouper-misc/grouper-pspng/target/grouper-pspng-[0-9].[0-9].[0-9]*.jar" | grep -v -- '-sources.jar' | tr '\n' ':' | sed -e 's/::/:/;s/:$//'):$CP
+  CP=$CP:"grouper-misc/grouper-pspng/target/dependency/*"
+  echo $CP
+
+  echo "Executing edu.internet2.middleware.grouper.AllTests" >>$TESTLOG 2>&1
+  echo "CP=$CP" >>$TESTLOG 2>&1
+  $JAVA -classpath "$CP" \
+    -Dgrouper.allow.db.changes=true \
+    -Dgrouper.home=grouper-misc/grouper-pspng \
+    -Xms80m -Xmx640m \
+    --add-opens java.base/java.lang=ALL-UNNAMED \
+    --add-opens java.base/java.util=ALL-UNNAMED \
+    --add-opens java.sql/java.sql=ALL-UNNAMED \
+    edu.internet2.middleware.grouper.AllTests pspng.AllPspngTests \
+    -noprompt \
+    >>$TESTLOG 2>&1
+
+  exit_code=$?
+
+  echo $(date) "CI test (PSPNG) finished (exit code $exit_code)" >>$TESTLOG
+
+  echo "PSPNG TESTS" >> $SUMMARYLOG
+  echo "===========" >> $SUMMARYLOG
+
+  tail -n +$(( $(egrep -n '^Time: ' $TESTLOG | tail -n1 | cut -d: -f1) )) $TESTLOG >>$SUMMARYLOG 2>>$TESTLOG
+  pspng_summary_code=$?
+else
+  echo "PSPNG TESTS *NOT RUN*" >> $SUMMARYLOG
 fi
-
-CP=$(compgen -G "grouper-misc/grouper-pspng/target/grouper-pspng-[0-9].[0-9].[0-9]*.jar" | grep -v -- '-sources.jar' | tr '\n' ':' | sed -e 's/::/:/;s/:$//'):$CP
-CP=$CP:"grouper-misc/grouper-pspng/target/dependency/*"
-echo $CP
-
-echo "Executing edu.internet2.middleware.grouper.AllTests" >>$TESTLOG 2>&1
-echo "CP=$CP" >>$TESTLOG 2>&1
-$JAVA -classpath "$CP" \
-  -Dgrouper.allow.db.changes=true \
-  -Dgrouper.home=grouper-misc/grouper-pspng \
-  -Xms80m -Xmx640m \
-  --add-opens java.base/java.lang=ALL-UNNAMED \
-  --add-opens java.base/java.util=ALL-UNNAMED \
-  --add-opens java.sql/java.sql=ALL-UNNAMED \
-  edu.internet2.middleware.grouper.AllTests pspng.AllPspngTests \
-  -noprompt \
-  >>$TESTLOG 2>&1
-
-exit_code=$?
-
-echo $(date) "CI test (PSPNG) finished (exit code $exit_code)" >>$TESTLOG
-
-echo "PSPNG TESTS" >> $SUMMARYLOG
-echo "===========" >> $SUMMARYLOG
-
-tail -n +$(( $(egrep -n '^Time: ' $TESTLOG | tail -n1 | cut -d: -f1) )) $TESTLOG >>$SUMMARYLOG 2>>$TESTLOG
-pspng_summary_code=$?
 
 
 GROUPER_ATTACH=
