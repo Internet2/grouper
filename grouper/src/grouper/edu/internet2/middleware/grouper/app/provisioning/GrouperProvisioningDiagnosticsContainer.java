@@ -718,13 +718,13 @@ public class GrouperProvisioningDiagnosticsContainer {
       return null;
     }
 
-    if (this.provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+    if (this.provisioningGroupWrapper == null || this.provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
       this.report.append("<font color='gray'><b>Note:</b></font> Cannot add membership in target since the group does not exist there\n");
       this.report.append("</pre>\n");
       return null;
     }
     
-    if (this.provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+    if (this.provisioningEntityWrapper == null || this.provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
       this.report.append("<font color='gray'><b>Note:</b></font> Cannot add membership in target since the entity does not exist there\n");
       this.report.append("</pre>\n");
       return null;

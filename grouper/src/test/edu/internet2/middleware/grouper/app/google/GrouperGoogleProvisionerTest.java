@@ -46,7 +46,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperGoogleProvisionerTest("testFullSyncGoogle"));
+    TestRunner.run(new GrouperGoogleProvisionerTest("testFullSyncGoogleStartWithAndDiagnostics"));
     
   }
   
@@ -117,6 +117,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   }
   
   
+  //need to run individually
   public void testFullSyncGoogleStartWithAndDiagnostics() {
     
     GrouperStartup.startup();
@@ -648,7 +649,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   }
   
   
-  public void testFullSyncGoogleReal() throws IOException {
+  public void atestFullSyncGoogleReal() throws IOException {
     
     GoogleProvisionerTestUtils.setupGoogleExternalSystem();
     GoogleProvisionerTestUtils.configureGoogleProvisioner(new GoogleProvisionerTestConfigInput().addExtraConfig("selectAllGroups", "false"));
