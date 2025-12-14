@@ -73,7 +73,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzureReal"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testAddManyMembershipsUncgHelperIncremental"));
     //realAzureAddUsers();
   }
 
@@ -385,6 +385,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
   }
   
+  //need to run individually
   public void testDeleteMembershipsInTrackedGroupsOnlyTrue() {
     
     GrouperStartup.startup();
@@ -470,7 +471,8 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
   }
   
-  public void testUdelLargeOperationsFull() {
+  //it runs against real system
+  public void atestUdelLargeOperationsFull() {
     assertEquals("memberships must be divisible by 2", 0, AZURE_MEMBERSHIPS_TO_CREATE%2);
     assertTrue("memberships must be less than equals users * groups", AZURE_MEMBERSHIPS_TO_CREATE <= (AZURE_USERS_TO_CREATE*AZURE_GROUPS_TO_CREATE));
     
@@ -786,6 +788,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
   }
 
+  //need to run individually
   public void testAddManyMembershipsUncgHelperFull() {
     addManyMembershipsUncgHelper(true);
   }
@@ -1403,7 +1406,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 
   }
   
-  public void testFullSyncAzureReal() {
+  public void atestFullSyncAzureReal() {
     
     GrouperStartup.startup();
     
@@ -2356,6 +2359,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 
   }
 
+  //need to run individually
   public void testFullSyncAzureDontSelectAll() {
     
     GrouperStartup.startup();
@@ -2530,7 +2534,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
             //.assignRealAzure(true)
             .assignConfigId(configId)
             .assignProvisioningStrategy("michiganAzure")
-          );
+            .addExtraConfig("scoreConvertToFullSyncThreshold", "500"));
             
       String azureGroupDisplayName = "test:test0";
       List<GrouperAzureGroup> grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false, new HashSet<String>());
@@ -2843,7 +2847,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
             .assignRealAzure(false)
             .assignProvisioningStrategy("michiganAzure")
             .addExtraConfig("errorHandlingShow", "true")
-            .addExtraConfig("errorHandlingTargetObjectDoesNotExistIsAnError", "false")
+            .addExtraConfig("errorHandlingMatchingValidationIsAnError", "false")
           );
       
       RegistrySubject.add(grouperSession, "Fred400", "person", "Fred400");
