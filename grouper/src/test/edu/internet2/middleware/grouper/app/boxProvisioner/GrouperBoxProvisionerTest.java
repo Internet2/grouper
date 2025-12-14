@@ -47,7 +47,7 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperBoxProvisionerTest("testFullSyncBoxStartWithAndDiagnostics"));
+    TestRunner.run(new GrouperBoxProvisionerTest("testIncrementalSyncBox"));
     
   }
   
@@ -65,7 +65,10 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
   public void testIncrementalSyncBox() throws IOException {
     
     BoxProvisionerTestUtils.setupBoxExternalSystem();
-    BoxProvisionerTestUtils.configureBoxProvisioner(new BoxProvisionerTestConfigInput());
+    BoxProvisionerTestUtils.configureBoxProvisioner(
+        new BoxProvisionerTestConfigInput()
+        .addExtraConfig("scoreConvertToFullSyncThreshold", "200")
+        );
   
     GrouperStartup.startup();
     
@@ -515,7 +518,10 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
   public void testIncrementalSyncBox2() throws IOException {
     
     BoxProvisionerTestUtils.setupBoxExternalSystem();
-    BoxProvisionerTestUtils.configureBoxProvisioner(new BoxProvisionerTestConfigInput());
+    BoxProvisionerTestUtils.configureBoxProvisioner(
+        new BoxProvisionerTestConfigInput()
+        .addExtraConfig("scoreConvertToFullSyncThreshold", "200")
+        );
   
     GrouperStartup.startup();
     
