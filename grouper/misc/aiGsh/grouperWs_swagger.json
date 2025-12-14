@@ -12,7 +12,7 @@
   } ],
   "schemes" : [ "https" ],
   "paths" : {
-    "/grouperWs/servicesRest/vA_A_MAF/messaging" : {
+    "/grouper-ws/servicesRest/vA_A_MAF/messaging" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Acknowledge message",
@@ -36,7 +36,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_A_MEF/groups" : {
+    "/grouper-ws/servicesRest/vA_A_MEF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Add member",
@@ -60,7 +60,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_A_MEL/groups" : {
+    "/grouper-ws/servicesRest/vA_A_MEL/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Add member lite",
@@ -224,7 +224,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_D_ACF/attributeDefActions" : {
+    "/grouper-ws/servicesRest/vA_D_ACF/attributeDefActions" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attribute def actions",
@@ -248,7 +248,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_D_ANF/attributeDefNames" : {
+    "/grouper-ws/servicesRest/vA_D_ANF/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attribute def name inheritance",
@@ -272,7 +272,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_D_ANL/attributeDefNames" : {
+    "/grouper-ws/servicesRest/vA_D_ANL/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attribute def name inheritance lite",
@@ -387,7 +387,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_E_ATF/attributeAssignments" : {
+    "/grouper-ws/servicesRest/vA_E_ATF/attributeAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attributes",
@@ -411,7 +411,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_E_ATG/attributeAssignments" : {
+    "/grouper-ws/servicesRest/vA_E_ATG/attributeAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attributes batch",
@@ -435,7 +435,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_E_ATL/attributeAssignments" : {
+    "/grouper-ws/servicesRest/vA_E_ATL/attributeAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attributes lite",
@@ -745,7 +745,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_G_PRF/grouperPriveleges" : {
+    "/grouper-ws/servicesRest/vA_G_PRF/grouperPriveleges" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign grouper privileges",
@@ -769,7 +769,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_G_PRL/grouperPrivileges" : {
+    "/grouper-ws/servicesRest/vA_G_PRL/grouperPrivileges" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign grouper privileges lite",
@@ -940,7 +940,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_H_PRF/permissionAssignments" : {
+    "/grouper-ws/servicesRest/vA_H_PRF/permissionAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign permissions",
@@ -964,7 +964,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_H_PRL/permissionAssignments" : {
+    "/grouper-ws/servicesRest/vA_H_PRL/permissionAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign permissions lite",
@@ -1190,7 +1190,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_I_DEF/attributeDefs" : {
+    "/grouper-ws/servicesRest/vA_I_DEF/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def delete",
@@ -1214,7 +1214,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_I_DEL/attributeDefs" : {
+    "/grouper-ws/servicesRest/vA_I_DEL/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def delete lite",
@@ -1315,7 +1315,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_J_DEF/attributeDefNames" : {
+    "/grouper-ws/servicesRest/vA_J_DEF/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def name delete",
@@ -1339,7 +1339,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_J_DEL/attributeDefNames" : {
+    "/grouper-ws/servicesRest/vA_J_DEL/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def name delete lite",
@@ -1433,7 +1433,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_K_SAF/attributeDefNames" : {
+    "/grouper-ws/servicesRest/vA_K_SAF/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def name save",
@@ -1457,7 +1457,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_K_SAL/attributeDefNames" : {
+    "/grouper-ws/servicesRest/vA_K_SAL/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def name save lite",
@@ -1606,7 +1606,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_L_SAF/attributeDefs" : {
+    "/grouper-ws/servicesRest/vA_L_SAF/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def save",
@@ -1630,7 +1630,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vA_L_SAL/attributeDefs" : {
+    "/grouper-ws/servicesRest/vA_L_SAL/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def save lite",
@@ -1870,7 +1870,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vD_M_EMF/groups" : {
+    "/grouper-ws/servicesRest/vD_M_EMF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Delete member",
@@ -1894,7 +1894,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vD_M_EML/groups" : {
+    "/grouper-ws/servicesRest/vD_M_EML/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Delete member lite",
@@ -2037,7 +2037,31 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vE_G_TEM" : {
+    "/grouper-ws/servicesRest/vD_P_SLS" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Data Provider Subject List Sync",
+        "description" : "<b>Description</b>: Data provider subject list sync.",
+        "operationId" : "dataProviderSubjectListSync",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestDataProviderSubjectListSyncRequestWrapper"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsDataProviderSubjectListSyncResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vE_G_TEM" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Execute GSH template",
@@ -2061,7 +2085,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vE_S_DEL/externalSubjects" : {
+    "/grouper-ws/servicesRest/vE_S_DEL/externalSubjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "External subject delete",
@@ -2085,7 +2109,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vE_S_SAV/externalSubjects" : {
+    "/grouper-ws/servicesRest/vE_S_SAV/externalSubjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "External subject save",
@@ -2109,7 +2133,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vF_A_DNF/attributeDefNames" : {
+    "/grouper-ws/servicesRest/vF_A_DNF/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find attribute def names",
@@ -2133,7 +2157,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vF_A_DNL/attributeDefNames" : {
+    "/grouper-ws/servicesRest/vF_A_DNL/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find attribute def names lite",
@@ -2360,7 +2384,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vF_A_DSF/attributeDefs" : {
+    "/grouper-ws/servicesRest/vF_A_DSF/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find attribute defs",
@@ -2384,7 +2408,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vF_A_DSL/attributeDefs" : {
+    "/grouper-ws/servicesRest/vF_A_DSL/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find attribute defs lite",
@@ -2583,7 +2607,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vF_E_SUB/externalSubjects" : {
+    "/grouper-ws/servicesRest/vF_E_SUB/externalSubjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find external subjects",
@@ -2607,7 +2631,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vF_G_UPF/groups" : {
+    "/grouper-ws/servicesRest/vF_G_UPF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find groups",
@@ -2649,7 +2673,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vF_G_UPL/groups" : {
+    "/grouper-ws/servicesRest/vF_G_UPL/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find groups lite",
@@ -2880,7 +2904,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vF_S_EMF/stems" : {
+    "/grouper-ws/servicesRest/vF_S_EMF/stems" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find stems",
@@ -2904,7 +2928,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vF_S_EML/stems" : {
+    "/grouper-ws/servicesRest/vF_S_EML/stems" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find stems lite",
@@ -3033,7 +3057,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_ABF/attributeAssignActions" : {
+    "/grouper-ws/servicesRest/vG_E_ABF/attributeAssignActions" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get attribute assign actions",
@@ -3057,7 +3081,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_ABF/attributeAssignments" : {
+    "/grouper-ws/servicesRest/vG_E_ABF/attributeAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get attribute assignments",
@@ -3081,7 +3105,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_ABL/attributeAssignActions" : {
+    "/grouper-ws/servicesRest/vG_E_ABL/attributeAssignActions" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get attribute assign actions lite",
@@ -3189,7 +3213,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_ABL/attributeAssignments" : {
+    "/grouper-ws/servicesRest/vG_E_ABL/attributeAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get attribute assignments lite",
@@ -3528,7 +3552,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_AEF/audits" : {
+    "/grouper-ws/servicesRest/vG_E_AEF/audits" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get audit entries",
@@ -3552,7 +3576,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_AEL/audits" : {
+    "/grouper-ws/servicesRest/vG_E_AEL/audits" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get audit entries lite",
@@ -3751,7 +3775,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_GPL/grouperPrivileges" : {
+    "/grouper-ws/servicesRest/vG_E_GPL/grouperPrivileges" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get grouper privileges lite",
@@ -3915,7 +3939,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_GRF/groups" : {
+    "/grouper-ws/servicesRest/vG_E_GRF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get groups",
@@ -3939,7 +3963,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_GRL/groups" : {
+    "/grouper-ws/servicesRest/vG_E_GRL/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get groups lite",
@@ -4180,7 +4204,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_MEF/groups" : {
+    "/grouper-ws/servicesRest/vG_E_MEF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get members",
@@ -4204,7 +4228,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_MEL/groups" : {
+    "/grouper-ws/servicesRest/vG_E_MEL/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get members lite",
@@ -4417,7 +4441,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_MSF/memberships" : {
+    "/grouper-ws/servicesRest/vG_E_MSF/memberships" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get memberships",
@@ -4441,7 +4465,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_MSL/memberships" : {
+    "/grouper-ws/servicesRest/vG_E_MSL/memberships" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get memberships lite",
@@ -4829,7 +4853,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_PAF/permissionAssignments" : {
+    "/grouper-ws/servicesRest/vG_E_PAF/permissionAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get permission assignments",
@@ -4853,7 +4877,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_PAL/permissionAssignments" : {
+    "/grouper-ws/servicesRest/vG_E_PAL/permissionAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get permission assignments lite",
@@ -5143,7 +5167,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_SUF/subjects" : {
+    "/grouper-ws/servicesRest/vG_E_SUF/subjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get subjects",
@@ -5167,7 +5191,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_E_SUL/subjects" : {
+    "/grouper-ws/servicesRest/vG_E_SUL/subjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get subjects lite",
@@ -5331,7 +5355,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_R_DEF/groups" : {
+    "/grouper-ws/servicesRest/vG_R_DEF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Group delete",
@@ -5355,7 +5379,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_R_DEL/groups" : {
+    "/grouper-ws/servicesRest/vG_R_DEL/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Group delete lite",
@@ -5456,7 +5480,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_R_SAF/groups" : {
+    "/grouper-ws/servicesRest/vG_R_SAF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Group save",
@@ -5480,7 +5504,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vG_R_SAL/groups" : {
+    "/grouper-ws/servicesRest/vG_R_SAL/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Group save lite",
@@ -5643,7 +5667,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vH_M_EML/groups" : {
+    "/grouper-ws/servicesRest/vH_M_EML/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Has member lite",
@@ -5807,7 +5831,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vM_C_SUL/members" : {
+    "/grouper-ws/servicesRest/vM_C_SUL/members" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Member change subject lite",
@@ -5950,7 +5974,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vR_C_MES/messaging" : {
+    "/grouper-ws/servicesRest/vR_C_MES/messaging" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Receive message",
@@ -5974,7 +5998,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vS_E_MES/messaging" : {
+    "/grouper-ws/servicesRest/vS_E_MES/messaging" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Send message",
@@ -5998,7 +6022,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vS_T_DEL/stems" : {
+    "/grouper-ws/servicesRest/vS_T_DEL/stems" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Stem delete lite",
@@ -6092,7 +6116,7 @@
         }
       }
     },
-    "/grouperWs/servicesRest/vS_T_SAL/stems" : {
+    "/grouper-ws/servicesRest/vS_T_SAL/stems" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Stem save lite",
@@ -7392,6 +7416,17 @@
         },
         "valueString" : {
           "type" : "string"
+        }
+      }
+    },
+    "WsDataProviderSubjectListSyncResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
         }
       }
     },
@@ -9903,6 +9938,41 @@
         }
       },
       "description" : "Request body to save attribute defs"
+    },
+    "WsRestDataProviderSubjectListSyncRequest" : {
+      "type" : "object",
+      "properties" : {
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "dataProviderConfigId" : {
+          "type" : "string",
+          "example" : "myConfigId",
+          "description" : "config id for the data provider"
+        },
+        "subjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubjectLookup"
+          }
+        }
+      },
+      "description" : "bean that will be the data from rest request for executing a data provider sync based on a list of subjects<br /><br /><b>dataProviderConfigId</b>: The config id for the data provider<br /><br /><br /><b>subjectLookups</b>: subjects to sync<br />"
+    },
+    "WsRestDataProviderSubjectListSyncRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestDataProviderSubjectListSyncRequest" : {
+          "description" : "Identifies the request as an execute data provider sync request",
+          "$ref" : "#/definitions/WsRestDataProviderSubjectListSyncRequest"
+        }
+      },
+      "description" : "Request body to execute a data provider sync based on a list of subjects"
     },
     "WsRestDeleteMemberRequest" : {
       "type" : "object",
