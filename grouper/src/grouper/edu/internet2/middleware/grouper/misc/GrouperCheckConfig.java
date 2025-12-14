@@ -62,7 +62,6 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
-import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -116,12 +115,12 @@ import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlEngine;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
-import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttrFramework;
 import edu.internet2.middleware.grouper.group.GroupSaveBatch;
@@ -630,6 +629,15 @@ public class GrouperCheckConfig {
           return null;
         }
       });
+      
+      try {
+        // run these again (failsafe) since the first time if the tables where there (e.g. new install or running tests), they wouldnt have run
+        new GrouperDdlEngine().runUpgradeTasks();
+      } catch (RuntimeException re) {
+        LOG.debug("error in upgrade tasks", re);
+      }
+
+
     } finally {
       inCheckConfig = false;
       firstCheckConfig  = false;
