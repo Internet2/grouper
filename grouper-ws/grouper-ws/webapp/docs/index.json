@@ -36,7 +36,7 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_A_MEF/members" : {
+    "/grouper-ws/servicesRest/vA_A_MEF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Add member",
@@ -60,7 +60,7 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_A_MEL/members" : {
+    "/grouper-ws/servicesRest/vA_A_MEL/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Add member lite",
@@ -1870,7 +1870,7 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vD_M_EMF/members" : {
+    "/grouper-ws/servicesRest/vD_M_EMF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Delete member",
@@ -1894,7 +1894,7 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vD_M_EML/members" : {
+    "/grouper-ws/servicesRest/vD_M_EML/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Delete member lite",
@@ -4204,7 +4204,7 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_MEF/members" : {
+    "/grouper-ws/servicesRest/vG_E_MEF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get members",
@@ -4228,7 +4228,7 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_MEL/members" : {
+    "/grouper-ws/servicesRest/vG_E_MEL/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get members lite",
@@ -5667,7 +5667,7 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vH_M_EML/members" : {
+    "/grouper-ws/servicesRest/vH_M_EML/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Has member lite",

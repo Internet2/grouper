@@ -291,6 +291,9 @@
                 <artifactId>swagger-maven-plugin</artifactId>
                 <version>3.1.8</version>
                 <configuration>
+                    <!-- https://spaces.at.internet2.edu/x/xQEREg -->
+                    <!-- temporarily set this to false and run this, then compare, merge -->
+                    <!-- mvn -f grouper-ws/grouper-ws clean compile swagger:generate -->
                     <skipSwaggerGeneration>true</skipSwaggerGeneration>
                     <apiSources>
                       <apiSource>
@@ -304,8 +307,8 @@
                             <basePath></basePath>
                             <info>
                                 <title>Grouper Web Services</title>
-                                <version>v2.6.1</version>
-                                <description>Grouper Web Service operations.  Substitute vX_Y_AAA with the client version, e.g. v2_6_001.  Note: the base URL and authentication are institution specific.</description>
+                                <version>v4</version>
+                                <description>Grouper Web Service operations.  Substitute vX_Y_AAA with the client version, e.g. v4_0_001.  Note: the base URL and authentication are institution specific.</description>
                             </info>
                             <swaggerDirectory>${basedir}/webapp/docs/</swaggerDirectory>
                             <swaggerFileName>index</swaggerFileName>
