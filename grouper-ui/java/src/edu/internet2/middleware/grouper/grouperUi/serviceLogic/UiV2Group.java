@@ -6686,6 +6686,16 @@ public class UiV2Group {
         if (isAdmin) {
           List<GrouperProvisioningAttributeValue> provisioningAttributeValues = GrouperProvisioningService.getProvisioningAttributeValues(group);
           
+          // remove values which are not provisionable
+          Iterator<GrouperProvisioningAttributeValue> iterator = provisioningAttributeValues.iterator();
+          while (iterator.hasNext()) {
+            GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = iterator.next();
+            
+            if (!grouperProvisioningAttributeValue.isDoProvision()) {
+              iterator.remove();
+            }
+          }
+          
           groupSummaryContainer.setProvisioningAssignmentCount(provisioningAttributeValues.size());
           
           if (provisioningAttributeValues.size() < 10) {
