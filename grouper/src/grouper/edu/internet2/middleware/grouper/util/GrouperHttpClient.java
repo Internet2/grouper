@@ -1377,7 +1377,20 @@ public class GrouperHttpClient {
             LOG.debug(theLog.toString());
           }
           if (grouperHttpCallLog != null) {
-            grouperHttpCallLog.getLog().append(theLog.toString());
+            // do not let the log size get out of control
+            //  # do not log command if commands are being logged and the size exceeds this size in bytes
+            //  # {valueType: "integer", defaultValue: "10000000"}
+            //  httpClientMaxCommandLogSizeBytes = 
+            long maxLogSize = GrouperConfig.retrieveConfig().propertyValueInt("httpClientMaxCommandLogSizeBytes", 10000000);
+            
+            //  # cannot be more than 200MB
+            if (maxLogSize > 200000000) {
+              maxLogSize = 200000000;
+            }
+            
+            if (grouperHttpCallLog.getLog().length() + theLog.length() < maxLogSize) {
+              grouperHttpCallLog.getLog().append(theLog.toString());
+            }
           }
 
         }
