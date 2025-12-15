@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.hooks.examples.AttributeDefAttributeName
 import edu.internet2.middleware.grouper.hooks.examples.AttributeDefNameAttributeNameValidationHook;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeDefUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupAttributeNameValidationHook;
+import edu.internet2.middleware.grouper.hooks.examples.GroupDoNotDeleteIfProvisionable;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeSecurityHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupUniqueExtensionInFoldersHook;
@@ -133,6 +134,7 @@ public class GrouperHooksUtils {
           GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(false);
           GroupTypeSecurityHook.registerHookIfNecessary(false);
           GrouperAttributeAssignValueRulesConfigHook.registerHookIfNecessary(true);
+          GroupDoNotDeleteIfProvisionable.registerHookIfNecessary();
           
           GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
               LifecycleHooks.METHOD_HOOKS_INIT, HooksLifecycleHooksInitBean.class, 
@@ -573,6 +575,7 @@ public class GrouperHooksUtils {
     StemUniqueNameCaseInsensitiveHook.clearHook();
     MembershipRequireMembershipHook.clearHook();
     GroupUniqueExtensionInFoldersHook.clearHook();
+    GroupDoNotDeleteIfProvisionable.clearHook();
   }
 
 }
