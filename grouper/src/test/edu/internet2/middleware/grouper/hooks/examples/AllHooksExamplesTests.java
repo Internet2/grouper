@@ -38,6 +38,7 @@ public class AllHooksExamplesTests {
     suite.addTestSuite(AttributeDefNameAttributeNameValidationHookTest.class);
     suite.addTestSuite(AttributeSecurityFromTypeHookTest.class);
     suite.addTestSuite(GroupAttributeNameValidationHookTest.class);
+    suite.addTestSuite(GroupDoNotDeleteIfProvisionableTest.class);
     suite.addTestSuite(GroupUniqueNameCaseInsensitiveHookTest.class);
     suite.addTestSuite(LDAPProvisioningHookTest.class);
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.membershipCannotAddSelfToGroupHook", false)) {
