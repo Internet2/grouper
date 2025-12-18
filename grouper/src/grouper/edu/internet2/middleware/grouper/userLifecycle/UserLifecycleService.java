@@ -379,7 +379,7 @@ public class UserLifecycleService {
         
         // query the dictionary for the natural language text and save the change magnitude
         Set<Long> dictionaryInternalIds = new LinkedHashSet<>();
-        Map<Long, String> eventInternalIdToChangeMagnitudeString = new LinkedHashMap<>();
+        Map<Long, Float> eventInternalIdToChangeMagnitudeFloat = new LinkedHashMap<>();
         Set<Long> eventInternalIdsToUsePrivilegedText = new LinkedHashSet<>();
         for (GrouperLifecycleEvent grouperLifecycleEvent : grouperLifecycleEvents) {
           GrouperLifecycleEventConfig grouperLifecycleEventConfig = grouperLifecycleEventConfigsByInternalId.get(grouperLifecycleEvent.getGroupLifecycleEventConfigInternalId());
@@ -391,8 +391,8 @@ public class UserLifecycleService {
             dictionaryInternalIds.add(grouperLifecycleEvent.getNaturalLanguageUnPrivilegeDictionaryInternalId());
           }
           
-          String changeMagnitude = GrouperConfig.retrieveConfig().propertyValueString("grouperUserLifecycleEvent." + grouperLifecycleEventConfig.getConfigId() + ".changeMagnitude");
-          eventInternalIdToChangeMagnitudeString.put(grouperLifecycleEvent.getInternalId(), changeMagnitude);
+          float changeMagnitude = GrouperUtil.floatValue(GrouperConfig.retrieveConfig().propertyValueString("grouperUserLifecycleEvent." + grouperLifecycleEventConfig.getConfigId() + ".changeMagnitude"), 0);
+          eventInternalIdToChangeMagnitudeFloat.put(grouperLifecycleEvent.getInternalId(), changeMagnitude);
         }
         
         List<GrouperDictionary> grouperDictionaryEntries = new GcDbAccess().sql("select * from grouper_dictionary ")
@@ -410,7 +410,7 @@ public class UserLifecycleService {
         for (String membershipId : membershipIdToAttributeAssignmentIdToDetailsSorted.keySet()) {
           Map<String, Object[]> attributeAssignmentIdToDetails = membershipIdToAttributeAssignmentIdToDetailsSorted.get(membershipId);
           Long earliestMembershipRemoval = earliestMembershipRemovalMicros(attributeAssignmentIdToDetails);
-          int changeMagnitudeRankUsed = -1;
+          float changeMagnitudeRankUsed = -1;
           Long membershipRemovalMicrosOfChangeMagnitudeUsed = null;
           for (Object[] details : attributeAssignmentIdToDetails.values()) {
             if (!membershipIdToDetails.containsKey(membershipId)) {
@@ -422,8 +422,8 @@ public class UserLifecycleService {
             if (eventInternalId == null) {
               continue;
             }
-            int currentChangeMagnitudeRank = changeMagnitudeRank(eventInternalIdToChangeMagnitudeString.get(eventInternalId));
-            if (currentChangeMagnitudeRank >= changeMagnitudeRankUsed) {
+            Float currentChangeMagnitudeRank = eventInternalIdToChangeMagnitudeFloat.get(eventInternalId);
+            if (currentChangeMagnitudeRank != null && currentChangeMagnitudeRank >= changeMagnitudeRankUsed) {
               GrouperLifecycleEvent grouperLifecycleEvent = grouperLifecycleEventsByInternalId.get(eventInternalId);
               if (grouperLifecycleEvent == null) {
                 continue;
@@ -475,23 +475,5 @@ public class UserLifecycleService {
     }
 
     return min;
-  }
-
-  private static int changeMagnitudeRank(String changeMagnitudeString) {
-    if (changeMagnitudeString == null) {
-      return 0;
-    }
-    
-    if ("high".equals(changeMagnitudeString)) {
-      return 3;
-    }
-    if ("medium".equals(changeMagnitudeString)) {
-      return 2;
-    }
-    if ("low".equals(changeMagnitudeString)) {
-      return 1;
-    }
-    
-    return 0;
   }
 }

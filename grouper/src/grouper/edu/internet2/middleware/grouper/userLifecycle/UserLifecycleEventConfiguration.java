@@ -240,6 +240,26 @@ public class UserLifecycleEventConfiguration extends GrouperConfigurationModuleB
       }
     }
     
+    
+    GrouperConfigurationModuleAttribute changeMagnitudeAttribute = attributes.get("changeMagnitude");
+    if (changeMagnitudeAttribute != null && StringUtils.isNotBlank(changeMagnitudeAttribute.getValueOrExpressionEvaluationValue()) ) {
+      String changeMagnitudeString = changeMagnitudeAttribute.getValueOrExpressionEvaluationValue();
+      
+      boolean isError = false;
+      try {
+        float changeMagnitudeFloat = GrouperUtil.floatValue(changeMagnitudeString);
+        if (changeMagnitudeFloat < 0) {
+          isError = true;
+        }
+      } catch (Exception e) {
+        isError = true;
+      }
+      
+      if (isError) {
+        String error = GrouperTextContainer.textOrNull("userLifecycleEventConfigSaveErrorChangeMagnitudeInvalid");
+        validationErrorsToDisplay.put(changeMagnitudeAttribute.getHtmlForElementIdHandle(), error); 
+      }
+    }
   }
   
   
