@@ -798,11 +798,21 @@ public class GrouperProvisioningConfigurationValidation {
       if (deleteMembershipsIfGrouperCreated) {
         deleteTypes++;        
       }
-      
+          
       if (deleteTypes != 1) {
         this.addErrorMessage(new ProvisioningValidationIssue()
             .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneMembershipDeleteType"))
             .assignJqueryHandle("deleteMemberships"));
+      }
+        // Add validation for object type filter  
+      String objectTypeFilter = (String) suffixToConfigValue.get("deleteMembershipsObjectTypeFilter");  
+      if (!StringUtils.isBlank(objectTypeFilter)) {  
+        Set<String> validObjectTypes = GrouperUtil.toSet("user", "group", "entity");  
+        if (!validObjectTypes.contains(objectTypeFilter)) {  
+          this.addErrorMessage(new ProvisioningValidationIssue()  
+              .assignMessage("Invalid object type filter: " + objectTypeFilter)  
+              .assignJqueryHandle("deleteMembershipsObjectTypeFilter"));  
+        }  
       }
     }
     
