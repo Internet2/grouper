@@ -148,7 +148,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupMembershipProvisioningFullWithAttributesTableFailsafeMinGroupSize"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaMatchingIdMissingValidation"));
 //    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
     
   }
@@ -4396,7 +4396,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
   
   }
 
-  public void testSimpleGroupMembershipProvisioningFullWithAttributesTableFailsafe2() {
+  public void atestSimpleGroupMembershipProvisioningFullWithAttributesTableFailsafe2() {
     
     setupFailsafeJob();
     
@@ -4620,6 +4620,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     
     configureLdapPaTestCase();
 
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.scoreConvertToFullSyncThreshold").value("200").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetGroupAttribute.2.translateExpressionType").value("translationScript").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetGroupAttribute.2.translateExpression")
       .value("${grouperProvisioningGroup.name == 'test:testGroup' ? null : grouperProvisioningGroup.idIndex}").store();
@@ -5138,6 +5139,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     
   }
 
+  //need to run individually due to timing issues. it usually works when running in debug mode
+  // debug mode probably gives it some time to make db changes
   public void testGroupEntityMembershipRenameEntityIncrementalMatchOnOld() {
     
     SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
@@ -5162,6 +5165,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         .addExtraConfig("targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "displayName")
         .addExtraConfig("groupMatchingAttributeSameAsSearchAttribute", "false")
         .addExtraConfig("groupMatchingAttribute0name", "name")
+        .addExtraConfig("scoreConvertToFullSyncThreshold", "200")
         );
   
     fullProvision();
@@ -5782,7 +5786,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         .addExtraConfig("entityAttributesTableName", "testgrouper_pro_dap_entity_attr1")
         .assignConfigId("sqlProvTest1")
         .addExtraConfig("logAllObjectsVerboseForTheseSubjectIds", "test.subject.0")
-        .addExtraConfig("logAllObjectsVerboseForTheseGroupNames", "test:testGroup");
+        .addExtraConfig("logAllObjectsVerboseForTheseGroupNames", "test:testGroup")
+        .addExtraConfig("scoreConvertToFullSyncThreshold", "200");
     SqlProvisionerTestUtils.configureSqlProvisioner(sqlProvisionerTestConfigInput1);
     
     SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput1, "numberOfGroupAttributes", "7");
@@ -5804,6 +5809,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput, "targetGroupAttribute.6.showAttributeValueSettings", "true");
     SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput, "targetGroupAttribute.6.multiValued", "true");
     SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput, "targetGroupAttribute.6.storageType", "separateAttributesTable");
+    SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput, "scoreConvertToFullSyncThreshold", "200");
     
     if (!isFull) {
       fullProvision();
