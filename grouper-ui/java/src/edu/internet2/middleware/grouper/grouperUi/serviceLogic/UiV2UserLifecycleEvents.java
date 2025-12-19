@@ -199,77 +199,76 @@ public class UiV2UserLifecycleEvents {
         return;
       }
       
-      int successes = 0;
-      int failures = 0;
-            
-      final Member loggedInMember = MemberFinder.findBySubject(grouperSession, loggedInSubject, true);
-      
-      for (String membershipId : membershipsIds) {
-        try {
-          final Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(membershipId, true, false);
-  
-          final Group group = membership.getOwnerGroup();
-
-          boolean allowed = (Boolean)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), 
-              new GrouperSessionHandler() {
-            
-            @Override
-            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false)) {
-                return true;
-              }
-              return false;
-            }
-          });
+      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), 
+          new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          int successes = 0;
+          int failures = 0;
           
-          if (!allowed) {
-            failures++;
-          } else {
+          final Member loggedInMember = MemberFinder.findBySubject(grouperSession, loggedInSubject, true);
+          
+          for (String membershipId : membershipsIds) {
+            try {
+              final Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(membershipId, true, false);
+      
+              final Group group = membership.getOwnerGroup();
 
-            HibernateSession.callbackHibernateSession(
-                GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-                new HibernateHandler() {
-                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                      throws GrouperDAOException {
+              boolean allowed = group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false);
+              
+              if (!allowed) {
+                failures++;
+              } else {
 
-                    Set<AttributeAssign> inFlightAssignments = membership.getAttributeDelegate().retrieveAssignments(UserLifecycleAttributeNames.retrieveInFlightAttributeDefNameMarker());
-                    for (AttributeAssign inFlightAssignment : inFlightAssignments) {
-                      
-                      Long eventId = inFlightAssignment.getAttributeValueDelegate().retrieveValueInteger(UserLifecycleAttributeNames.userLifecycleStemName() + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_LIFECYCLE_EVENT_ID);
-                      inFlightAssignment.delete();
-                      
-                      if (eventId != null) {
-                        AttributeAssign attributeAssign = membership.getAttributeDelegate().addAttribute(UserLifecycleAttributeNames.retrieveHistoryAttributeDefNameMarker()).getAttributeAssign();
-                        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(UserLifecycleAttributeNames.userLifecycleStemName() + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_LIFECYCLE_EVENT_ID, true);
-                        attributeAssign.getAttributeValueDelegate().assignValueInteger(attributeDefName.getName(), eventId);
+                HibernateSession.callbackHibernateSession(
+                    GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+                    new HibernateHandler() {
+                      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                          throws GrouperDAOException {
+
+                        Set<AttributeAssign> inFlightAssignments = membership.getAttributeDelegate().retrieveAssignments(UserLifecycleAttributeNames.retrieveInFlightAttributeDefNameMarker());
+                        for (AttributeAssign inFlightAssignment : inFlightAssignments) {
+                          
+                          Long eventId = inFlightAssignment.getAttributeValueDelegate().retrieveValueInteger(UserLifecycleAttributeNames.userLifecycleStemName() + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_LIFECYCLE_EVENT_ID);
+                          inFlightAssignment.delete();
+                          
+                          if (eventId != null) {
+                            AttributeAssign attributeAssign = membership.getAttributeDelegate().addAttribute(UserLifecycleAttributeNames.retrieveHistoryAttributeDefNameMarker()).getAttributeAssign();
+                            AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(UserLifecycleAttributeNames.userLifecycleStemName() + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_LIFECYCLE_EVENT_ID, true);
+                            attributeAssign.getAttributeValueDelegate().assignValueInteger(attributeDefName.getName(), eventId);
+                            
+                            attributeDefName = AttributeDefNameFinder.findByName(UserLifecycleAttributeNames.userLifecycleStemName() + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_ADDED_MICROS, true);
+                            attributeAssign.getAttributeValueDelegate().assignValueInteger(attributeDefName.getName(), System.currentTimeMillis() * 1000);
+
+                            attributeDefName = AttributeDefNameFinder.findByName(UserLifecycleAttributeNames.userLifecycleStemName() + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_APPROVED_BY, true);
+                            attributeAssign.getAttributeValueDelegate().assignValueInteger(attributeDefName.getName(), loggedInMember.getInternalId());
+
+                            attributeAssign.saveOrUpdate();
+                          }
+                        }
                         
-                        attributeDefName = AttributeDefNameFinder.findByName(UserLifecycleAttributeNames.userLifecycleStemName() + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_ADDED_MICROS, true);
-                        attributeAssign.getAttributeValueDelegate().assignValueInteger(attributeDefName.getName(), System.currentTimeMillis() * 1000);
-
-                        attributeDefName = AttributeDefNameFinder.findByName(UserLifecycleAttributeNames.userLifecycleStemName() + ":" + UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_HISTORY_APPROVED_BY, true);
-                        attributeAssign.getAttributeValueDelegate().assignValueInteger(attributeDefName.getName(), loggedInMember.getInternalId());
-
-                        attributeAssign.saveOrUpdate();
+                        return null;
                       }
-                    }
-                    
-                    return null;
-                  }
-                });
-            
-            successes++;
-          }
+                    });
+                
+                successes++;
+              }
+              
+            } catch (Exception e) {
+              LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
+              failures++;
+            }
+          } 
           
-        } catch (Exception e) {
-          LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
-          failures++;
+          GrouperRequestContainer.retrieveFromRequestOrCreate().getUserLifecycleEventsContainer().setSuccessCount(successes);
+          GrouperRequestContainer.retrieveFromRequestOrCreate().getUserLifecycleEventsContainer().setFailureCount(failures);
+          
+          return null;
         }
-      }
-  
-      GrouperRequestContainer.retrieveFromRequestOrCreate().getUserLifecycleEventsContainer().setSuccessCount(successes);
-      GrouperRequestContainer.retrieveFromRequestOrCreate().getUserLifecycleEventsContainer().setFailureCount(failures);
+      });
       
-      if (failures > 0) {
+      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getUserLifecycleEventsContainer().getFailureCount() > 0) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, TextContainer.retrieveFromRequest().getText().get("miscellaneousUserLifecycleEventsListKeepMembersErrors")));
       } else {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("miscellaneousUserLifecycleEventsListKeepMembersSuccesses"))); 
