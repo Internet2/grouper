@@ -95,7 +95,7 @@ public class ServletFilterLogger implements Filter {
     String logForSourceIpCidrs = grouperWsConfig.propertyValueString("ws.ServletFilterLogger.logForSourceIpCidrs");
     
     if (StringUtils.isBlank(logForSourceIpCidrs)) {
-      return true;
+      return false;
     }
     
     try {
