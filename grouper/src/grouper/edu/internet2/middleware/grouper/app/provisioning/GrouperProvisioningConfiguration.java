@@ -1987,7 +1987,10 @@ public abstract class GrouperProvisioningConfiguration {
    * if memberships should be deleted in target
    */
   private boolean deleteMemberships = true;
-
+  /**  
+   * delete memberships object type filter  
+   */  
+  private String deleteMembershipsObjectTypeFilter;
   /**
    * 
    */
