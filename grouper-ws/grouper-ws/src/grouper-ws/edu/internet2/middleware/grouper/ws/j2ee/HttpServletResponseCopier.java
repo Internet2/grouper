@@ -91,12 +91,22 @@ public class HttpServletResponseCopier extends HttpServletResponseWrapper {
     super.addHeader(name, value);
   }
 
+  private String statusMessage = null;
+  
+  /**
+   * get status message
+   * @return status message
+   */
+  public String getStatusMessage() {
+    return this.statusMessage;
+  }
+  
   /**
    * @see javax.servlet.http.HttpServletResponseWrapper#setStatus(int, java.lang.String)
    */
   @Override
   public void setStatus(int sc, String sm) {
-    this.headers.append("HTTP/1.1 ").append(sc).append(" ").append(sm).append("\n");
+    statusMessage = sc + " " + sm;
     super.setStatus(sc, sm);
   }
 
@@ -105,7 +115,7 @@ public class HttpServletResponseCopier extends HttpServletResponseWrapper {
    */
   @Override
   public void setStatus(int sc) {
-    this.headers.append("HTTP/1.1 ").append(sc).append("\n");
+    statusMessage = sc + "";
     super.setStatus(sc);
   }
 

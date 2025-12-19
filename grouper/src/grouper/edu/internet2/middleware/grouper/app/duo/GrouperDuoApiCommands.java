@@ -863,7 +863,7 @@ public class GrouperDuoApiCommands {
 
       List<GrouperDuoUser> results = new ArrayList<GrouperDuoUser>();
 
-      int limit = 100;
+      int limit = 300;
       int offset = 0;
       
       while (offset >= 0) {

@@ -34,35 +34,67 @@ public class GrouperScim2ApiCommands {
     
     GrouperStartup.startup();
     
-
-    GrouperScim2User scimUser = retrieveScimUser("serviceNowReal", "id", "00003f9787005210cd2c41d6cebb35f5", null, new ScimSettings());
     
+    //GrouperScim2Group scimGroup = new GrouperScim2Group();
+    //scimGroup.setId("84953403880441");
+    //scimGroup.setDisplayName("test2");
     
+    //createScimGroup("whartonDataBricks", scimGroup, null, new ScimSettings());
+    
+    //Map<String, ProvisioningObjectChangeAction> fieldToAction = new HashMap<String, ProvisioningObjectChangeAction>();
+    //fieldToAction.put("displayName", ProvisioningObjectChangeAction.update);
+    //
+    //patchScimGroup("whartonDataBricks", scimGroup, fieldToAction, new ScimSettings());
+    
+    //deleteScimGroup("whartonDataBricks", "84953403880441", new ScimSettings());
+    
+    //GrouperScim2Group scimGroup = retrieveScimGroup("whartonDataBricks", "id", "00003f9787005210cd2c41d6cebb35f5", null, new ScimSettings());
+    
+    //System.out.println(scimGroup);
+    
+    GrouperScim2User scimUser = new GrouperScim2User();
+    scimUser.setUserName("mchyzer@upenn.edu");
+    scimUser.setEmailValue("mchyzer@upenn.edu");
+    scimUser.setEmailType("work");
+    scimUser.setDisplayName("Chris2 Hyzer2");
+    
+//    createScimUser("whartonDataBricks", scimUser, null, new ScimSettings());
+    
+    scimUser.setId("76862203730469");
     Map<String, ProvisioningObjectChangeAction> fieldToAction = new HashMap<String, ProvisioningObjectChangeAction>();
+    fieldToAction.put("displayName", ProvisioningObjectChangeAction.update);
+    
+    patchScimUser("whartonDataBricks", scimUser, fieldToAction, new ScimSettings());
+    
+
+//    GrouperScim2User scimUser = retrieveScimUser("serviceNowReal", "id", "00003f9787005210cd2c41d6cebb35f5", null, new ScimSettings());
+    
+    
+//    Map<String, ProvisioningObjectChangeAction> fieldToAction = new HashMap<String, ProvisioningObjectChangeAction>();
 //    fieldToAction.put("manager_uuid", ProvisioningObjectChangeAction.update);
-    fieldToAction.put("department_uuid", ProvisioningObjectChangeAction.update);
+//    fieldToAction.put("department_uuid", ProvisioningObjectChangeAction.update);
 //    fieldToAction.put("emailValue", ProvisioningObjectChangeAction.update);
     
 //    scimUser.setEmailValue("tmurra26@test.edu");
     
-    scimUser.setCustomAttributes(new HashMap<>());
-    scimUser.setCustomAttributeNameToJsonPointer(new HashMap<>());
+//    scimUser.setCustomAttributes(new HashMap<>());
+//    scimUser.setCustomAttributeNameToJsonPointer(new HashMap<>());
     
     ///urn:ietf:params:scim:schemas:extension:servicenow:2.0:User/manager/value
 //    scimUser.getCustomAttributeNameToJsonPointer().put("manager_uuid", "/urn:ietf:params:scim:schemas:extension:servicenow:2.0:User/manager/value");
-    scimUser.getCustomAttributeNameToJsonPointer().put("department_uuid", "/urn:ietf:params:scim:schemas:extension:servicenow:2.0:User/department/value");
+//    scimUser.getCustomAttributeNameToJsonPointer().put("department_uuid", "/urn:ietf:params:scim:schemas:extension:servicenow:2.0:User/department/value");
 //    scimUser.getCustomAttributes().put("manager_uuid", "42d96d076fbce200db62358fae3ee452");
 //    scimUser.getCustomAttributes().remove("department_uuid");
-    scimUser.getCustomAttributes().put("department_uuid", null);
+//    scimUser.getCustomAttributes().put("department_uuid", null);
 //    String scimNamePatchStrategy = "qualified";
     
-    ScimSettings scimSettings = new ScimSettings();
+//    ScimSettings scimSettings = new ScimSettings();
 //    scimSettings.setScimEmailPatchStrategy("pathEmailsQualified");
 //    scimSettings.setOrgName(orgNameThreadLocal.get());
 //    scimSettings.setScimNamePatchStrategy(scimNamePatchStrategy);
 //    scimSettings.setAcceptHeader(scimConfiguration.getAcceptHeader());
     
-    patchScimUser("serviceNowReal", scimUser, fieldToAction, scimSettings);
+//    patchScimUser("serviceNowReal", scimUser, fieldToAction, scimSettings);
     
 //    for (int i=10;i<60;i++) {
 //      GrouperScim2User grouperScimUser = new GrouperScim2User();

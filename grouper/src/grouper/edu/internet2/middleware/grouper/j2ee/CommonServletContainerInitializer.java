@@ -151,17 +151,21 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
           String grouperWsLoggingFilterName = "Grouper logging filter";
           Class grouperWsLoggingFilterClass = Class.forName("edu.internet2.middleware.grouper.ws.j2ee.ServletFilterLogger");
           Dynamic grouperWsLoggingFilter = context.addFilter(grouperWsLoggingFilterName, grouperWsLoggingFilterClass);
-         
+                   
           String grouperWsServiceFilterName = "Grouper service filter";
           Class grouperWsServiceFilterClass = Class.forName("edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee");
           Dynamic grouperWsServiceFilter = context.addFilter(grouperWsServiceFilterName, grouperWsServiceFilterClass);
-          
+
           if (runGrouperWs && runGrouperWsSOAP) {
+            grouperWsLoggingFilter.addMappingForUrlPatterns(null, false, "/services/*");
             grouperWsServiceFilter.addMappingForUrlPatterns(null, false, "/services/*");
           }
           
+          grouperWsLoggingFilter.addMappingForUrlPatterns(null, false, "/servicesRest/*");
           grouperWsServiceFilter.addMappingForUrlPatterns(null, false, "/servicesRest/*");
+          
           if (runGrouperScim) {
+            grouperWsLoggingFilter.addMappingForUrlPatterns(null, false, "/scim/*");
             grouperWsServiceFilter.addMappingForUrlPatterns(null, false, "/scim/*");
           }
 
