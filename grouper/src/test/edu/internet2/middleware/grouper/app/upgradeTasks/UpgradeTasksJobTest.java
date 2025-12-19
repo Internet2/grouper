@@ -1,13 +1,9 @@
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSync;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioner;
-import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntitySave;
@@ -15,7 +11,6 @@ import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import junit.textui.TestRunner;
 
 /**
@@ -96,6 +91,15 @@ public class UpgradeTasksJobTest extends GrouperTest {
     assertEquals(GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceId(gs2.getId(), false).size(), 0);
     assertEquals(GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceId(gs3.getId(), false).size(), 0);
     assertEquals(GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceId(gs4.getId(), false).size(), 0);
+    
+    if (UpgradeTasksJob.getDBVersions().contains(1)) {
+      String groupName = UpgradeTasksJob.grouperUpgradeTasksStemName() + ":" + UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP;
+      Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, false);
+      if (group != null) {
+        String upgradeTasksVersionName = UpgradeTasksJob.grouperUpgradeTasksStemName() + ":" + UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR;
+        group.getAttributeValueDelegate().deleteValue(upgradeTasksVersionName, "1"); 
+      }
+    }
 
     UpgradeTasksJob.runDaemonStandalone();
     ChangeLogTempToEntity.convertRecords();
