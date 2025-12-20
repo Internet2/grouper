@@ -57,7 +57,7 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisioningEntityAttributesTest("testProvisioningEntityAttributesAssignErrorsToMemberships"));    
+    TestRunner.run(new LdapProvisioningEntityAttributesTest("testProvisioningDeleteNotExistInGrouperIncremental"));    
     //TestRunner.run(LdapProvisioningEntityAttributesTest.class);
   }
 
@@ -111,6 +111,7 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     provisioningEntityAttributesDoNotDeleteHelper(true);
   }
   
+  //need to run individually
   public void testProvisioningEntityAttributesAssignErrorsToMemberships() {
     
     EntityAttributeTestConfig entityAttributeTestConfig = new EntityAttributeTestConfig();
@@ -648,6 +649,8 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     if (entityAttributeTestConfig.deleteMembershipsIfGrouperCreated != null) {
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.eduPersonEntitlement.deleteMembershipsIfGrouperCreated").value(entityAttributeTestConfig.deleteMembershipsIfGrouperCreated ? "true" : "false").store();
     }
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.eduPersonEntitlement.scoreConvertToFullSyncThreshold").value("200").store();
     
     provisionableGroupCreatedByGrouperThenDeleted.deleteMember(aclark);
     provisionableGroupMembershipExistedDeletedByGrouper.deleteMember(aclark);

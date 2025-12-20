@@ -63,7 +63,7 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerIncrementalTest("testIncrementalRegexRestriction"));    
+    TestRunner.run(new LdapProvisionerIncrementalTest("testIncremental1recalc"));    
   }
   
   @Override
@@ -629,6 +629,7 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
   public void testIncremental1recalc() {
   
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.recalculateAllOperations", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.scoreConvertToFullSyncThreshold", "200");
     testIncremental1();
   }
 

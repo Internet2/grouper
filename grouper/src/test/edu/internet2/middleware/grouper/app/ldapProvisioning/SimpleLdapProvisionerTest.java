@@ -61,7 +61,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    */
   public static void main(String[] args) {
     // TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionableIncremental"));    
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapAssignErrorMemberships"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testDeletingAGroupOnGrouperSideVariousDeleteTypesIncrementalProvisioning"));    
   }
   
   public SimpleLdapProvisionerTest() {
@@ -708,6 +708,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
+        .addExtraConfig("scoreConvertToFullSyncThreshold", "200")
         .assignSubjectSourcesToProvision("jdbc"));
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteGroups").value("true").store();
@@ -2119,6 +2120,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
           .addExtraConfig("groupSearchAllFilter", null)
+          .addExtraConfig("scoreConvertToFullSyncThreshold", "200")
           .assignMembershipDeleteType("deleteValueIfManagedByGrouper")
           .addExtraConfig("logCommandsAlways", "true")
           .addExtraConfig("logAllObjectsVerbose", "true"));
@@ -2446,6 +2448,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
           .assignEntityAttributeCount(3)
           .assignExplicitFilters(true)
           .assignEntitlementMetadata(true)
+          .addExtraConfig("scoreConvertToFullSyncThreshold", "200")
           );
      
      // ldap specific properties
