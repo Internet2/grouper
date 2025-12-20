@@ -122,32 +122,16 @@ public class GroupUniqueExtensionHookTest extends GrouperTest {
       assertEquals(hv.getReasonKey(), GroupUniqueExtensionHook.VETO_GROUP_UNIQUE_EXTENSION);
     }
 
-    try {
-      //name
-      group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+    // different case should work
+    group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
         .assignName("test2:someGroupNamE").save();
-      fail("Should fail");
-
-    } catch (HookVeto hv) {
-      //this is a success, it is supposed to veto  
-      assertEquals(hv.getReasonKey(), GroupUniqueExtensionHook.VETO_GROUP_UNIQUE_EXTENSION);
-    }
 
     group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
         .assignName("test2:someGroupNamE2").save();
     
-    try {
-      //rename to alternate name
-      group.setExtension("someGroupNaME");
-      group.store();
-      
-      fail("Should fail");
-
-    } catch (HookVeto hv) {
-      //this is a success, it is supposed to veto  
-      assertEquals(hv.getReasonKey(), GroupUniqueExtensionHook.VETO_GROUP_UNIQUE_EXTENSION);
-    }
-
+    //rename to alternate name
+    group.setExtension("someGroupNaME");
+    group.store();
   }
   
   /**
