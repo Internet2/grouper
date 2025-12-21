@@ -39,7 +39,7 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
   
   public static void main(String[] args) {
     GrouperStartup.startup();
-    TestRunner.run(new GrouperDuoProvisionerTest("testFullProvisionGroupAndThenDeleteTheGroup"));
+    TestRunner.run(new GrouperDuoProvisionerTest("testFullSyncDuoStartWithAndDiagnostics"));
   }
   
   @Override
@@ -287,6 +287,7 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
       CommandLineExec commandLineExec = tomcatStart();
     }
     try {
+      List<GrouperDuoGroup> grouperDuoGroups = GrouperDuoApiCommands.retrieveDuoGroups("duo1");
       DuoProvisionerTestUtils.setupDuoExternalSystem();
       
       DuoProvisioningStartWith startWith = new DuoProvisioningStartWith();
