@@ -187,7 +187,7 @@ public class UserLifecycleService {
         
         if (StringUtils.isBlank(policyConfigId) && attributeAssign != null) {
           attributeAssign.delete();
-        } else {
+        } else if (attributeAssign != null) {
           AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(UserLifecycleAttributeNames.userLifecycleStemName()+":"+UserLifecycleAttributeNames.USER_LIFECYCLE_POLICY_GROUP_VALUE_CONFIG_ID, true);
           attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), policyConfigId);
           attributeAssign.saveOrUpdate();
