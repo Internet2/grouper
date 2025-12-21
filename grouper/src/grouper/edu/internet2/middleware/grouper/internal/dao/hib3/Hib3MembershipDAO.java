@@ -2935,6 +2935,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   
   public static Set<Membership> findAllMemberships(List<String> groupIds, List<String> memberIds) throws GrouperDAOException {
    
+    if (GrouperUtil.length(groupIds) == 0) {
+      return new LinkedHashSet<Membership>();
+    }
+    
     StringBuilder hql = new StringBuilder(
         "select m " +
         "from ImmediateMembershipEntry m " +
