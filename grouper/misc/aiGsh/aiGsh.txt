@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.attr.value.*;
 import edu.internet2.middleware.grouper.attr.*;
 import edu.internet2.middleware.grouper.attr.assign.*;
 import edu.internet2.middleware.grouper.authentication.*;
+import edu.internet2.middleware.grouper.cfg.text.*;
 import edu.internet2.middleware.grouper.exception.*;
 import edu.internet2.middleware.grouper.group.*;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -1325,6 +1326,13 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       grouperEmail.assignRunAsRoot(true);
       // Send the email
       grouperEmail.send();
+    }
+    
+    EXTERNALIZED_TEXT: {
+      // #########
+      // If text should be retrieved from externalized text config file
+      // #########
+      String theValue = GrouperTextContainer.textOrNull("mySchoolEmailKey");
     }
     
     EMAIL_FILE: {
