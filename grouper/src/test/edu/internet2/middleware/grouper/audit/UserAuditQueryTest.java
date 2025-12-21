@@ -129,7 +129,7 @@ public class UserAuditQueryTest extends GrouperTest {
     lastId = null;
     while(true) {
       
-      QueryOptions queryOptions = new QueryOptions().sortAsc("id").pagingCursor(7, lastId, false, false);
+      QueryOptions queryOptions = new QueryOptions().sortAsc("theGroup.id").pagingCursor(7, lastId, false, false);
       
       List<Group> groups = new ArrayList<Group>(
           new GroupFinder().assignParentStemId(testStem.getId()).assignStemScope(Scope.SUB).assignQueryOptions(queryOptions).findGroups());
