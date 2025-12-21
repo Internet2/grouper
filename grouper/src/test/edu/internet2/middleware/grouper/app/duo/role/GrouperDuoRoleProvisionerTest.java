@@ -179,6 +179,8 @@ public class GrouperDuoRoleProvisionerTest extends GrouperProvisioningBaseTest {
       CommandLineExec commandLineExec = tomcatStart();
     }
     try {
+      //this will create tables
+      List<GrouperDuoRoleUser> grouperDuoRoleUsers = GrouperDuoRoleApiCommands.retrieveDuoAdministrators("duo1");
       DuoRoleProvisionerTestUtils.setupDuoRoleExternalSystem();
       
       DuoRoleProvisioningStartWith startWith = new DuoRoleProvisioningStartWith();
