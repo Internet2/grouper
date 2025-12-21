@@ -25,3 +25,5 @@ If writing an ABAC GSH template, make a class that extends GshTemplateV2, do not
 Input variables for a GSH template must start with gsh_input_ followed by the variable name.
 
 Generally GSH scripts do not need a try/catch since exceptions are handled upstream.
+
+Do not use array initialization syntax like new String[] {"a","b"};  instead use GrouperUtil.toArray(GrouperUtil.toList("a", "b"), String.class)

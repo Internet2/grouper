@@ -7,6 +7,8 @@
 // Queries should be in triple quoted strings.
 
 
+import java.io.File;
+import java.io.FileReader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.*;
 
-
+import org.apache.commons.csv.*;
 import org.apache.commons.lang3.*;
 import org.apache.commons.logging.Log;
 
@@ -31,6 +33,7 @@ import edu.internet2.middleware.grouper.app.grouperTypes.*;
 import edu.internet2.middleware.grouper.app.gsh.template.*;
 import edu.internet2.middleware.grouper.app.loader.*;
 import edu.internet2.middleware.grouper.app.provisioning.*;
+import edu.internet2.middleware.grouper.app.reports.*;
 import edu.internet2.middleware.grouper.attr.finder.*;
 import edu.internet2.middleware.grouper.attr.value.*;
 import edu.internet2.middleware.grouper.attr.*;
@@ -104,6 +107,9 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       
       // read the value of an input variable boolean with default: false.  the input variable is named gsh_input_requiresEmployee
       boolean gsh_input_requiresEmployee = GrouperUtil.booleanValue(gshTemplateV2input.getGsh_builtin_inputBoolean("gsh_input_requiresEmployee"), false);
+
+      // read a file input variable.  the input variable is named gsh_input_userFile
+      File gsh_input_userFile = gshTemplateV2input.getGsh_builtin_inputFile("gsh_input_userFile");
 
     }
 
@@ -717,7 +723,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       // #########
 
       // Get the subject logged in to the Grouper session
-      Subject subjectLoggedIn = gshTemplateV2input.getGsh_builtin_subject();
+      Subject subjectLoggedIn = gshTemplateV2input.getGsh_builtin_gshTemplateRuntime().getCurrentSubject();
     }
     
     
@@ -1277,7 +1283,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       // Set the subject of the email
       grouperEmail.setSubject("Test Email Subject");
       // Set the body of the email
-      grouperEmail.setBody("This is a test email body.");
+      grouperEmail.setBody("<html>This is a test email body.</html>");
       // Set the recipient email address
       grouperEmail.setTo("email@domain.com");
       // Send the email
@@ -1295,7 +1301,7 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       // Set the subject of the email
       grouperEmail.setSubject("Test Email Subject");
       // Set the body of the email
-      grouperEmail.setBody("This is a test email body.");
+      grouperEmail.setBody("<html>This is a test email body.</html>");
       // Set the recipient grouper subject that has an email address
       grouperEmail.addSubjectIdentifierToSendTo("mySourceId", "someNetId");
       grouperEmail.assignRunAsRoot(true);
@@ -1312,13 +1318,72 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       // Set the subject of the email
       grouperEmail.setSubject("Test Email Subject");
       // Set the body of the email
-      grouperEmail.setBody("This is a test email body.");
+      grouperEmail.setBody("<html>This is a test email body.</html>");
       // Set the recipient grouper subject that has an email address
       boolean exceptionIfNotFound = true;
       grouperEmail.addGroupNameToSendTo("a:b:c", exceptionIfNotFound);
       grouperEmail.assignRunAsRoot(true);
       // Send the email
       grouperEmail.send();
+    }
+    
+    EMAIL_FILE: {
+      // #########
+      // Send an email with an attachment using GrouperEmail
+      // #########
+      
+      // Logged in subject (per requirement)
+      Subject subjectLoggedIn = gshTemplateV2input.getGsh_builtin_gshTemplateRuntime().getCurrentSubject();
+
+      // Resolve logged-in user's email from Subject attributes
+      String loggedInEmail = GrouperEmailUtils.getEmail(subjectLoggedIn);
+
+      String timestampToFileString = GrouperUtil.timestampToFileString(new Date());
+      String fileName = GrouperUtil.tmpDir(true) + "descriptionOfFile_" + timestampToFileString + ".csv";
+      File reportFile = new File(fileName);
+      GrouperUtil.fileCreateNewFile(reportFile);
+
+      // Initialize a GrouperEmail instance
+      GrouperEmail grouperEmail = new GrouperEmail();
+      
+      // Set the subject of the email
+      grouperEmail.setSubject("Email with Attachment");
+      
+      // Set the body of the email
+      grouperEmail.setBody("<html>This email contains an attachment.</html>");
+      
+      // Set the recipient email address
+      grouperEmail.setTo(loggedInEmail);
+      
+      // add file attachment
+      grouperEmail.addAttachment(reportFile);
+      
+      // Send the email
+      grouperEmail.send();
+      
+      // Cleanup temp file after sending
+      reportFile.delete();
+
+    }
+    
+    GET_EMAIL_ADDRESS_OF_LOGGED_IN_SUBJECT: {
+      // #########
+      // Get the email address of the subject logged in to the UI or WS
+      // #########
+
+      // Get the subject logged in to the Grouper session
+      Subject subjectLoggedIn = gshTemplateV2input.getGsh_builtin_gshTemplateRuntime().getCurrentSubject();
+
+      // Resolve logged-in user's email from Subject attributes
+      String loggedInEmail = GrouperEmailUtils.getEmail(subjectLoggedIn);
+
+      // If email is missing, return a validation and do not attempt to send
+      if (StringUtils.isBlank(loggedInEmail)) {
+        gsh_builtin_gshTemplateOutput.addValidationLine("loggedInEmail", "Error: Your email address was found.");
+        gsh_builtin_gshTemplateOutput.assignIsError(true);
+        return;
+      }
+
     }
     
     GROUPER_SESSION: {
@@ -2355,6 +2420,64 @@ public class Test124aiGshTraining extends GshTemplateV2 {
 
       String email = gshTemplateV2input.getGsh_builtin_inputString("gsh_input_email");
 
+    }
+
+    PARSE_CSV_FILE: {
+      
+      // #########
+      // Parse a CSV file
+      // #########
+
+      File gsh_input_file = gshTemplateV2input.getGsh_builtin_inputFile("gsh_input_file");
+      
+      CSVParser csvParser = null;
+      FileReader fileReader = null;
+
+      try {
+        fileReader = new FileReader(gsh_input_file);
+
+        // CSVFormat.DEFAULT: standard comma-separated parsing
+        // Note: If the incoming file uses tab delimiters, CSVFormat may need to be adjusted.
+        csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT);
+
+        // Get all rows; first row is expected to be the header row
+        List<CSVRecord> csvEntries = csvParser.getRecords();
+
+        for (CSVRecord csvRecord : GrouperUtil.nonNull(csvEntries)) {
+          for (int i=0;i<csvRecord.size();i++) {
+            // example get value
+            String cellValue = csvRecord.get(i);
+          }
+        }
+        
+      } catch (Exception e) {
+        gsh_builtin_gshTemplateOutput.addValidationLine("gsh_input_file", "Error processing CSV file: " + e.getMessage());
+      } finally {
+        // Close resources quietly (safe in error paths)
+        GrouperUtil.closeQuietly(csvParser);
+        GrouperUtil.closeQuietly(fileReader);
+      }
+    
+    }
+      
+    CREATE_CSV_FILE: {
+      // #########
+      // Create a CSV file and email it as an attachment
+      // #########
+
+      // Create a temporary CSV file
+      List<String[]> reportDataStrings = new ArrayList<String[]>();
+      List<String> headerStrings = GrouperUtil.toList("Column1", "Column2", "Column3");
+      
+      reportDataStrings.add(GrouperUtil.toArray(GrouperUtil.toList("Value1a", "Value2a", "Value3a"), String.class));
+      reportDataStrings.add(GrouperUtil.toArray(GrouperUtil.toList("Value1b", "Value2b", "Value3b"), String.class));
+      
+      String timestampToFileString = GrouperUtil.timestampToFileString(new Date());
+      String fileName = GrouperUtil.tmpDir(true) + "descriptionOfReport_" + timestampToFileString + ".csv";
+
+      // Create the CSV file using the firstRow header list and the remaining data rows
+      File reportFile = GrouperCsvReportJob.createCsv(fileName, headerStrings, reportDataStrings);
+      
     }
 
     SQL_SELECT_STRING: {
