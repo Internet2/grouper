@@ -18,8 +18,16 @@ docker compose down
 
 ## Accessing the UI and WS
 
-In this quickstart configuration, the only user with access is GrouperSystem, with password `pass`.
+In this quickstart configuration, the only user with access is GrouperSystem, with password `pass`. To set a UI or WS password for one of the LDAP
+users, you will need GSH and the GrouperPassword API to set one.
 
 UI: http://localhost:8080/grouper/
 
 WS: http://localhost:8080/grouper/servicesRest/v5_20_6/{endpoint}
+
+
+## Accessing the shell and GSH
+
+Shell: `docker compose exec grouper bash`
+
+GSH: `docker compose exec grouper bin/gsh.sh`
