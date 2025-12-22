@@ -63,16 +63,6 @@
                     <groupId>dom4j</groupId>
                     <artifactId>dom4j</artifactId>
                 </exclusion>
-                <!-- we are pulling javax jta as a direct dep -->
-                <exclusion>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-jta_1.1_spec</artifactId>
-                </exclusion>
-                <!-- already including jandex 2.0.4 directly, don't need this 2.0.0 version too -->
-                <exclusion>
-                    <groupId>org.jboss</groupId>
-                    <artifactId>jandex</artifactId>
-                </exclusion>
                 <!-- hibernate-c3p0 pulls in 3.3.1, don't need two different versions -->
                 <exclusion>
                     <groupId>org.jboss.logging</groupId>
@@ -141,11 +131,6 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.mwiede</groupId>
-            <artifactId>jsch</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -329,10 +314,6 @@
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jboss</groupId>
-            <artifactId>jandex</artifactId>
-        </dependency>
         <!-- custom Penn -->
         <!-- dependency>
             <groupId>p6spy</groupId>
@@ -396,11 +377,6 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-          <groupId>org.apache.geronimo.specs</groupId>
-          <artifactId>geronimo-jms_1.1_spec</artifactId>
-        </dependency>
-        
         <dependency>
           <groupId>org.apache.qpid</groupId>
           <artifactId>qpid-jms-client</artifactId>
