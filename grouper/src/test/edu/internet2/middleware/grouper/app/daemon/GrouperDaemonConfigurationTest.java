@@ -16,7 +16,7 @@ import junit.textui.TestRunner;
 public class GrouperDaemonConfigurationTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDaemonConfigurationTest("testRetrieveImplementationFromJobName"));
+    TestRunner.run(new GrouperDaemonConfigurationTest("testInsertEditDelete"));
   }
   
   public GrouperDaemonConfigurationTest(String name) {
@@ -29,7 +29,7 @@ public class GrouperDaemonConfigurationTest extends GrouperTest {
     
     configuration.setConfigId("testChangeLogConsumer");
     
-    assertEquals(4, configuration.retrieveAttributes().size());
+    assertEquals(9, configuration.retrieveAttributes().size());
     
     StringBuilder message = new StringBuilder();
     List<String> errorsToDisplay = new ArrayList<String>();
