@@ -28,7 +28,7 @@ services:
       - LDAP_PORT=389
 
   grouper:
-    image: "i2incommon/grouper:5.20.5"
+    image: "i2incommon/grouper:5.22.3"
     ports:
       #- '443:443'
       - 8080:8080
