@@ -107,7 +107,7 @@ public class Test_api_Group extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("test_delete_which_causes_membership_add"));
+    TestRunner.run(new Test_api_Group("test_move_entity"));
   }
   
   private Group           top_group, child_group;
@@ -1165,6 +1165,10 @@ public class Test_api_Group extends GrouperTest {
     stem1.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
     stem2.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
     
+    AttributeDef entitySubjectIdentifierDef = EntityUtils.entitySubjectIdentifierAttributeDefName().getAttributeDef();
+    entitySubjectIdentifierDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, false);
+    entitySubjectIdentifierDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_UPDATE, false);
+    
     GrouperSession.start(SubjectTestHelper.SUBJ1);
     
     Entity entityCopy = entity.copy(stem1);
@@ -1209,6 +1213,10 @@ public class Test_api_Group extends GrouperTest {
     entity.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, true);
     stem2.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
     stem3.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
+    
+    AttributeDef entitySubjectIdentifierDef = EntityUtils.entitySubjectIdentifierAttributeDefName().getAttributeDef();
+    entitySubjectIdentifierDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, false);
+    entitySubjectIdentifierDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_UPDATE, false);
     
     GrouperSession.start(SubjectTestHelper.SUBJ1);
     
