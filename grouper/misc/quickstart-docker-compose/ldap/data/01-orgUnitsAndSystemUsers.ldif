@@ -1,0 +1,13 @@
+dn: ou=People,dc=example,dc=edu
+objectclass: organizationalunit
+
+dn: ou=Groups,dc=example,dc=edu
+objectclass: organizationalunit
+
+dn: cn=admin-seed-data,dc=example,dc=edu
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: admin-seed-data
+userPassword: password
+description: LDAP administrator
+
