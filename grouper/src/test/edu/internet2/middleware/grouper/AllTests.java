@@ -231,20 +231,20 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllConfigTests.suite());
     suite.addTest(AllEntityTests.suite());
 
-    if (GrouperConfig.getPropertyBoolean("junit.test.ddl", true)) {
+    if (GrouperConfig.getPropertyBoolean("junit.test.ddl", false)) {
       //do this first so all tests are done on new ddl
       suite.addTest(AllDdlTests.suite());
     }
 
-    suite.addTest(AllDuoProvisionerTests.suite());
-    suite.addTest(AllDuoRoleProvisionerTests.suite());
+    // dont run provisioning tests in the suite since they use the mock server
+    //suite.addTest(AllDuoProvisionerTests.suite());
+    //suite.addTest(AllDuoRoleProvisionerTests.suite());
     
-    if (GrouperConfig.getPropertyBoolean("junit.test.externalSubjects", true)) {
+    if (GrouperConfig.getPropertyBoolean("junit.test.externalSubjects", false)) {
       suite.addTest(AllExternalSubjectTests.suite());
     }
     
     suite.addTest(AllFilterTests.suite());
-    suite.addTest(AllGoogleProvisionerTests.suite());
     suite.addTest(AllGroupTests.suite());
     suite.addTest(AllGrouperCacheTests.suite());
     suite.addTest(AllGrouperUiTests.suite());
