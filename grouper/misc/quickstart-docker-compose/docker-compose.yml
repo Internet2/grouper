@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: "postgres:14"
+    #restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pass
+
+  ldap:
+    image: dinkel/openldap
+    volumes:
+      - ./ldap/data:/etc/ldap/prepopulate:ro
+      - ./ldap/schema/eduperson.ldif:/etc/ldap.dist/schema/eduperson.ldif
+    # - ldap-data:/var/lib/ldap
+    # - ldap-config:/etc/ldap
+    # - ../scripts:/scripts:ro
+    ports:
+      - '389:389'
+    environment:
+      - SLAPD_PASSWORD=secret
+      - SLAPD_CONFIG_PASSWORD=secret
+      - SLAPD_DOMAIN=example.edu
+      - SLAPD_ADDITIONAL_SCHEMAS=eduperson
+      - PATH=/scripts:$PATH
+      - LDAP_HOST=ldap
+      - LDAP_PORT=389
+
+  grouper:
+    image: "i2incommon/grouper:5.20.5"
+    ports:
+      #- '443:443'
+      - 8080:8080
+      - 8000:5005
+    command:
+      - quickstart
+      #- ui
+    environment:
+      - GROUPERSYSTEM_QUICKSTART_PASS=pass
+      - GROUPER_CHOWN_DIRS=false
+      - GROUPER_TOMCAT_HTTP_PORT=8080
+      - GROUPER_WEBCLIENT_IS_SSL=false
+      - GROUPER_UI_GROUPER_AUTH=true
+      - GROUPER_MORPHSTRING_ENCRYPT_KEY=abcd1234
+      - GROUPER_DATABASE_PASSWORD=pass
+      - GROUPER_DATABASE_USERNAME=postgres
+      - GROUPER_DATABASE_URL=jdbc:postgresql://postgres:5432/postgres
+      - GROUPER_AUTO_DDL_UPTOVERSION=5.*.*
+      - GROUPER_UI_CONFIGURATION_EDITOR_SOURCEIPADDRESSES=0.0.0.0/0
+      - GROUPER_START_DELAY_SECONDS=0
+      - JPDA_ADDRESS=*:5005
+      - GROUPER_EXTRA_CATALINA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      #- GROUPER_GSH_JVMARGS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    volumes:
+      - ./grouper/grouper-loader.properties:/opt/grouper/slashRoot/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-loader.properties:ro
+      - ./grouper/subject.properties:/opt/grouper/slashRoot/opt/grouper/grouperWebapp/WEB-INF/classes/subject.properties:ro
