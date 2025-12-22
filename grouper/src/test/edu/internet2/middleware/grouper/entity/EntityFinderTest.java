@@ -26,11 +26,13 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -252,6 +254,10 @@ public class EntityFinderTest extends GrouperTest {
     testEntity2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
     testEntity4.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
 
+    AttributeDef entitySubjectIdentifierDef = EntityUtils.entitySubjectIdentifierAttributeDefName().getAttributeDef();
+    entitySubjectIdentifierDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+    entitySubjectIdentifierDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+    
     GrouperSession.stopQuietly(grouperSession);
     
     grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
