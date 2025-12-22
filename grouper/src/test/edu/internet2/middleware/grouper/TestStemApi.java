@@ -124,7 +124,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_copy_insufficientPrivileges_with_admin_group"));
+    TestRunner.run(new TestStemApi("test_move_with_entities"));
   }
 
   /** size before getting started */
@@ -2116,6 +2116,10 @@ public class TestStemApi extends GrouperTest {
     stem1.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM);
     stem2.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM);
     stem3.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM);
+    
+    AttributeDef entitySubjectIdentifierDef = EntityUtils.entitySubjectIdentifierAttributeDefName().getAttributeDef();
+    entitySubjectIdentifierDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, false);
+    entitySubjectIdentifierDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_UPDATE, false);
     
     GrouperSession.start(SubjectTestHelper.SUBJ1);
     
