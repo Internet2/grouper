@@ -670,7 +670,8 @@ public class UsduJobTest extends GrouperTest {
       registrySubject.delete(GrouperSession.staticGrouperSession());
     }
 
-    SubjectFinder.flushCache();
+    GrouperCacheUtils.clearAllCaches();
+    Thread.sleep(100);
 
     try {
       SubjectFinder.findById(subject.getId(), true);
