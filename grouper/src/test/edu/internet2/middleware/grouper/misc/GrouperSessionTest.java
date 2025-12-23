@@ -96,7 +96,7 @@ public class GrouperSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperSessionTest("testClosedSession"));
+    TestRunner.run(new GrouperSessionTest("testShorthandById"));
   }
 
   /**
@@ -121,6 +121,8 @@ public class GrouperSessionTest extends GrouperTest {
   public void testShorthandById() {
     
     GrouperSession.stopQuietly(this.grouperSession);
+    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession();
+    GrouperSession.stopQuietly(staticGrouperSession);
     
     try {
       SubjectFinder.findByIdentifier("edu:aGroup", true);
@@ -308,6 +310,8 @@ public class GrouperSessionTest extends GrouperTest {
   public void testShorthandByIdNoThreadLocal() {
     
     GrouperSession.stopQuietly(this.grouperSession);
+    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession();
+    GrouperSession.stopQuietly(staticGrouperSession);
     
     try {
       SubjectFinder.findByIdentifier("edu:aGroup", true);
@@ -341,6 +345,8 @@ public class GrouperSessionTest extends GrouperTest {
   public void testShorthandByIdAndSource() {
     
     GrouperSession.stopQuietly(this.grouperSession);
+    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession();
+    GrouperSession.stopQuietly(staticGrouperSession);
     
     try {
       SubjectFinder.findByIdentifier("edu:aGroup", true);
@@ -370,6 +376,8 @@ public class GrouperSessionTest extends GrouperTest {
   public void testShorthandByIdentifier() {
     
     GrouperSession.stopQuietly(this.grouperSession);
+    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession();
+    GrouperSession.stopQuietly(staticGrouperSession);
     
     try {
       SubjectFinder.findByIdentifier("edu:aGroup", true);
@@ -399,6 +407,8 @@ public class GrouperSessionTest extends GrouperTest {
   public void testShorthandByIdentifierAndSource() {
     
     GrouperSession.stopQuietly(this.grouperSession);
+    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession();
+    GrouperSession.stopQuietly(staticGrouperSession);
     
     try {
       SubjectFinder.findByIdentifier("edu:aGroup", true);
