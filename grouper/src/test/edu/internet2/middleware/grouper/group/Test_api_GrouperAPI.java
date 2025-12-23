@@ -55,9 +55,6 @@ import junit.textui.TestRunner;
 public class Test_api_GrouperAPI extends GrouperTest {
 
   public static void main(String[] args) {
-    GrouperStartup.startup();
-    System.out.println("Sleeping...");
-    GrouperUtil.sleep(10000);
     TestRunner.run(new Test_api_GrouperAPI("test_getSession_equalsSetSession2"));
   }
 
@@ -74,7 +71,6 @@ public class Test_api_GrouperAPI extends GrouperTest {
   }
 
   public void setUp() {
-    super.setUp();
     this.mockAPI = new MockGrouperAPI();
   }
 
