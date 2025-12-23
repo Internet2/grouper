@@ -67,16 +67,6 @@ public class GroupDoNotDeleteIfProvisionableTest extends GrouperTest {
     System.exit(0);
   }
 
-  /**
-   * 
-   */
-  @Override
-  protected void setupConfigs() {
-    //this is the test hook implementation
-    GrouperHookType.addHookOverride(GrouperHookType.GROUP.getPropertyFileKey(), 
-        GroupDoNotDeleteIfProvisionable.class);
-    super.setupConfigs();
-  }
 
   /**
    * @see edu.internet2.middleware.grouper.helper.GrouperTest#tearDown()
@@ -114,7 +104,8 @@ public class GroupDoNotDeleteIfProvisionableTest extends GrouperTest {
 
     // ###### group in a provisionable stem
     Group group = new GroupSave(grouperSession).assignName("test:testProvisionable").save();
-        
+    GrouperHookType.addHookOverride(GrouperHookType.GROUP.getPropertyFileKey(), 
+        GroupDoNotDeleteIfProvisionable.class); 
     try {
       // provisionable, so should veto
       new GroupSave(grouperSession).assignName(group.getName()).assignSaveMode(SaveMode.DELETE).save();
