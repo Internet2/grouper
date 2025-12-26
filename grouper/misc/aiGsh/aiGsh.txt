@@ -10,10 +10,8 @@
 import java.io.File;
 import java.io.FileReader;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.*;
+import java.time.format.*;
 import java.util.*;
 
 import org.apache.commons.csv.*;
@@ -44,6 +42,8 @@ import edu.internet2.middleware.grouper.exception.*;
 import edu.internet2.middleware.grouper.group.*;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.ldap.*;
+import edu.internet2.middleware.grouper.app.loader.*;
+import edu.internet2.middleware.grouper.app.loader.db.*;
 import edu.internet2.middleware.grouper.membership.*;
 import edu.internet2.middleware.grouper.misc.*;
 import edu.internet2.middleware.grouper.util.*;
@@ -2928,6 +2928,66 @@ public class Test124aiGshTraining extends GshTemplateV2 {
       String aiResponse = GrouperOpenAiApiCommands.retrieveFirstMessageFromThread(externalSystemConfigId, threadId);
     }
     
-  }
+    DAEMON_JOB_LOADER_LOG_AND_DEBUG_MAP: {
+      // #########
+      // Make a debug map and log to loader log using OtherJobScript
+      // #########
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = OtherJobScript.retrieveHib3GrouperLoaderLogNotNull();
+
+      Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+      try {
+    
+        debugMap.put("startTime", System.currentTimeMillis());
+                
+      } catch (RuntimeException re) {
+        debugMap.put("exception", GrouperUtil.getFullStackTrace(re));
+        throw re;
+      } finally {
+        
+        // convert to string for log
+        String debugMapForLog = GrouperUtil.toStringForLog(debugMap);
+        
+        // daemon log message seen in UI
+        hib3GrouperLoaderLog.setJobMessage(debugMapForLog);
+
+        // if this is running locally, print to console
+        if (OtherJobScript.retrieveFromThreadLocal() == null) {
+          System.out.println(debugMapForLog);
+        }
+      }      
+    }
+        
+    LOADER_LOG_STATS: {
+      // #########
+      // Examples of loader log stats
+      // #########
+
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = OtherJobScript.retrieveHib3GrouperLoaderLogNotNull();
+      
+      hib3GrouperLoaderLog.addTotalCount(100);
+      hib3GrouperLoaderLog.addInsertCount(25);
+      hib3GrouperLoaderLog.addUpdateCount(50);
+      hib3GrouperLoaderLog.addDeleteCount(10);
+      hib3GrouperLoaderLog.addUnresolvableSubjectCount(3);
+      hib3GrouperLoaderLog.setJobMessage("message");
+      
+      // set instead of add
+      hib3GrouperLoaderLog.setTotalCount(100);
+      
+    }
+    
+    GET_JOB_NAME: {
+      // #########
+      // Get the job name from the loader log using OtherJobScript
+      // #########
   
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = OtherJobScript.retrieveHib3GrouperLoaderLogNotNull();
+  
+      String jobName = hib3GrouperLoaderLog.getJobName();
+    }
+  }  
 }
