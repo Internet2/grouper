@@ -9726,9 +9726,6 @@ public class GrouperUtil {
         }
       }
     }
-    //Hack; Gary 7th Nov 2008
-    fixHibernateConnectionUrl(properties);
-
     return properties;
   }
 
@@ -10227,13 +10224,6 @@ public class GrouperUtil {
     return outPath;
   }
 
-  /**
-   *
-   * @param props
-   */
-  static void fixHibernateConnectionUrl(Properties props) {
-    
-  }
 
   /**
    * null safe string compare
