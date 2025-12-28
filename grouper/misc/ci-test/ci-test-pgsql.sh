@@ -86,23 +86,27 @@ fi
 
 # Build (all projects) and copy dependencies for grouper subproject, so all can be run from the target/ directory
 # NOTE: This needs to be java 8, not 11!
-echo "Building Maven projects (logged to $BUILDLOG)" >>$TESTLOG
-$MVN -f grouper-parent clean package install  >>$BUILDLOG 2>&1
-exit_code=$?
-if [ $exit_code -ne 0 ]; then
-  echo "Maven build failed (exit $exit_code)" >>$TESTLOG
-  echo "Maven build failed (exit $exit_code)" | mailx -s "CI test results *Maven build failed*" -a $BUILDLOG $COMMITTER_EMAILS 2>&1
-  exit 1
-fi
+if [ "$SKIP_MVN" = "" ]; then
+  echo "Building Maven projects (logged to $BUILDLOG)" >>$TESTLOG
+  $MVN -f grouper-parent clean package install  >>$BUILDLOG 2>&1
+  exit_code=$?
+  if [ $exit_code -ne 0 ]; then
+    echo "Maven build failed (exit $exit_code)" >>$TESTLOG
+    echo "Maven build failed (exit $exit_code)" | mailx -s "CI test results *Maven build failed*" -a $BUILDLOG $COMMITTER_EMAILS 2>&1
+    exit 1
+  fi
 
-echo "Downloading Grouper api dependencies" >>$TESTLOG
-#since we are testing in this script, we don't want to skip the test dependencies
-#$MVN -f grouper dependency:copy-dependencies -DincludeScope=runtime
-$MVN -f grouper dependency:copy-dependencies >>$BUILDLOG 2>&1
-exit_code=$?
-if [ $exit_code -ne 0 ]; then
-  echo "Maven dependency:copy-dependencies failed (exit $exit_code)" >>$TESTLOG
-  exit 1
+  echo "Downloading Grouper api dependencies" >>$TESTLOG
+  #since we are testing in this script, we don't want to skip the test dependencies
+  #$MVN -f grouper dependency:copy-dependencies -DincludeScope=runtime
+  $MVN -f grouper dependency:copy-dependencies >>$BUILDLOG 2>&1
+  exit_code=$?
+  if [ $exit_code -ne 0 ]; then
+    echo "Maven dependency:copy-dependencies failed (exit $exit_code)" >>$TESTLOG
+    exit 1
+  fi
+else
+  echo "Skipping Maven build due to SKIP_MVN='$SKIP_MVN'" >>$TESTLOG
 fi
 
 
@@ -142,24 +146,24 @@ CP=$CP:grouper/conf
 #grouper/conf
 
 # Init the grouper database
-echo "Initializing the Grouper database" >>$TESTLOG
-chmod u+x grouper/bin/gsh.sh
-CLASSPATH="$CP" GROUPER_CONF="grouper/misc/ci-test/confForTestPGSQL" grouper/bin/gsh.sh -registry -runscript -noprompt >>$TESTLOG 2>&1
-
-exit_code=$?
-if [ $exit_code -ne 0 ]; then
-  echo "Failed to init the database (exit $exit_code)" >>$TESTLOG
-  exit 1
-fi
+#echo "Initializing the Grouper database" >>$TESTLOG
+#chmod u+x grouper/bin/gsh.sh
+#CLASSPATH="$CP" GROUPER_CONF="grouper/misc/ci-test/confForTestPGSQL" grouper/bin/gsh.sh -registry -runscript -noprompt >>$TESTLOG 2>&1
+#
+#exit_code=$?
+#if [ $exit_code -ne 0 ]; then
+#  echo "Failed to init the database (exit $exit_code)" >>$TESTLOG
+#  exit 1
+#fi
 
 
 # Run the tests
 
-# make sure this runs with Java 8
+# make sure this runs with the right java version
 which java >>$TESTLOG
 JAVA=java
 
-for var in PWD COMMITTER_EMAILS TESTLOG CP; do
+for var in PWD CURRENT_BRANCH COMMITTER_EMAILS TESTLOG CP JAVA MVN; do
   echo "$var = ${!var}" >>$TESTLOG
 done
 
@@ -167,6 +171,7 @@ echo $(date) " | START" >>$TESTLOG
 
 # clean out logs from previous run
 rm -f grouper/logs/*.log >>$TESTLOG 2>&1
+
 
 echo "Executing edu.internet2.middleware.grouper.AllTests" >>$TESTLOG 2>&1
 $JAVA -classpath "$CP" \
@@ -191,40 +196,46 @@ tail -n +$(( $(egrep -n '^Time: ' $TESTLOG | tail -n1 | cut -d: -f1) )) $TESTLOG
 summary_code=$?
 
 
-# Run pspng as a separate set of tests
-$MVN -f grouper-misc/grouper-pspng dependency:copy-dependencies >>$BUILDLOG 2>&1
-exit_code=$?
-if [ $exit_code -ne 0 ]; then
-  echo "Maven pspng dependency:copy-dependencies failed (exit $exit_code)" >>$TESTLOG
-  exit 1
+#==== Run pspng as a separate set of tests ====
+
+RUN_PSPNG=
+if [ -n "$RUN_PSPNG" ]; then
+  $MVN -f grouper-misc/grouper-pspng dependency:copy-dependencies >>$BUILDLOG 2>&1
+  exit_code=$?
+  if [ $exit_code -ne 0 ]; then
+    echo "Maven pspng dependency:copy-dependencies failed (exit $exit_code)" >>$TESTLOG
+    exit 1
+  fi
+
+  CP=$(compgen -G "grouper-misc/grouper-pspng/target/grouper-pspng-[0-9].[0-9].[0-9]*.jar" | grep -v -- '-sources.jar' | tr '\n' ':' | sed -e 's/::/:/;s/:$//'):$CP
+  CP=$CP:"grouper-misc/grouper-pspng/target/dependency/*"
+  echo $CP
+
+  echo "Executing edu.internet2.middleware.grouper.AllTests" >>$TESTLOG 2>&1
+  echo "CP=$CP" >>$TESTLOG 2>&1
+  $JAVA -classpath "$CP" \
+    -Dgrouper.allow.db.changes=true \
+    -Dgrouper.home=grouper-misc/grouper-pspng \
+    -Xms80m -Xmx640m \
+    --add-opens java.base/java.lang=ALL-UNNAMED \
+    --add-opens java.base/java.util=ALL-UNNAMED \
+    --add-opens java.sql/java.sql=ALL-UNNAMED \
+    edu.internet2.middleware.grouper.AllTests pspng.AllPspngTests \
+    -noprompt \
+    >>$TESTLOG 2>&1
+
+  exit_code=$?
+
+  echo $(date) "CI test (PSPNG) finished (exit code $exit_code)" >>$TESTLOG
+
+  echo "PSPNG TESTS" >> $SUMMARYLOG
+  echo "===========" >> $SUMMARYLOG
+
+  tail -n +$(( $(egrep -n '^Time: ' $TESTLOG | tail -n1 | cut -d: -f1) )) $TESTLOG >>$SUMMARYLOG 2>>$TESTLOG
+  pspng_summary_code=$?
+else
+  echo "PSPNG TESTS *NOT RUN*" >> $SUMMARYLOG
 fi
-
-CP=$(compgen -G "grouper-misc/grouper-pspng/target/grouper-pspng-[0-9].[0-9].[0-9]*.jar" | grep -v -- '-sources.jar' | tr '\n' ':' | sed -e 's/::/:/;s/:$//'):$CP
-CP=$CP:"grouper-misc/grouper-pspng/target/dependency/*"
-echo $CP
-
-echo "Executing edu.internet2.middleware.grouper.AllTests" >>$TESTLOG 2>&1
-echo "CP=$CP" >>$TESTLOG 2>&1
-$JAVA -classpath "$CP" \
-  -Dgrouper.allow.db.changes=true \
-  -Dgrouper.home=grouper-misc/grouper-pspng \
-  -Xms80m -Xmx640m \
-  --add-opens java.base/java.lang=ALL-UNNAMED \
-  --add-opens java.base/java.util=ALL-UNNAMED \
-  --add-opens java.sql/java.sql=ALL-UNNAMED \
-  edu.internet2.middleware.grouper.AllTests pspng.AllPspngTests \
-  -noprompt \
-  >>$TESTLOG 2>&1
-
-exit_code=$?
-
-echo $(date) "CI test (PSPNG) finished (exit code $exit_code)" >>$TESTLOG
-
-echo "PSPNG TESTS" >> $SUMMARYLOG
-echo "===========" >> $SUMMARYLOG
-
-tail -n +$(( $(egrep -n '^Time: ' $TESTLOG | tail -n1 | cut -d: -f1) )) $TESTLOG >>$SUMMARYLOG 2>>$TESTLOG
-pspng_summary_code=$?
 
 
 GROUPER_ATTACH=

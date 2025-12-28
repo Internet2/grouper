@@ -442,7 +442,7 @@ public abstract class OtherJobBase implements Job {
           OtherJobBase.this.otherJobInput = otherJobInput;
           OtherJobBase.this.run(otherJobInput);
           
-          if (hib3GrouperLoaderLog.getStatusEnum() == null || !hib3GrouperLoaderLog.getStatusEnum().isError()) {
+          if (hib3GrouperLoaderLog.getStatusEnum() == null || (!hib3GrouperLoaderLog.getStatusEnum().isError() && hib3GrouperLoaderLog.getStatusEnum() != GrouperLoaderStatus.WARNING)) {
             hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
           }
           storeLogInDb(hib3GrouperLoaderLog, true, startTime);

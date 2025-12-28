@@ -187,7 +187,7 @@ public class SourceManager {
           
           sourceManagerStatusBean = new SourceManagerStatusBean();
           
-          for (Source source : getInstance().getSources()) {
+          for (Source source : getInstance().getSourcesEnabled()) {
             
             SubjectStatusConfig subjectStatusConfig = new SubjectStatusConfig(source);
             sourceManagerStatusBean.getSourceIdToStatusConfigs().put(source.getId(), subjectStatusConfig);
@@ -227,7 +227,7 @@ public class SourceManager {
       }
       
       //at this point, we have a subject.properties...  now check it out
-      Collection<Source> sources = SourceManager.getInstance().getSources();
+      Collection<Source> sources = SourceManager.getInstance().getSourcesEnabled();
       for (Source source : sources) {
         result.append(source.printConfig()).append("\n");
       }
@@ -326,7 +326,7 @@ public class SourceManager {
   }
 
   /**
-   * Returns a Collection of Sources.
+   * Returns a Collection of Sources.  Generally this shouldn't be called.  Call getSourcesEnabled() instead.
    * @return Collection
    */
   @JsonIgnore
@@ -335,7 +335,7 @@ public class SourceManager {
   }
 
   /**
-   * Returns a Collection of Sources.
+   * Returns a Collection of Sources.  This includes enabled sources only.
    * @return Collection
    */
   @JsonIgnore
@@ -442,7 +442,13 @@ public class SourceManager {
    * @throws SAXException 
    */
   private void parseConfig() throws IOException, SAXException {
+    Set<String> sourceIds = new HashSet<>();
     for (Source source : SubjectConfig.retrieveConfig().retrieveSourceConfigs().values()) {
+      if (sourceIds.contains(source.getId())) {
+        throw new RuntimeException("Found multiple instances of source id: " + source.getId());
+      }
+      
+      sourceIds.add(source.getId());
       loadSource(source);
     }
   }
@@ -464,7 +470,7 @@ public class SourceManager {
     
     try {
       SourceManager mgr = SourceManager.getInstance();
-      for (Iterator iter = mgr.getSources().iterator(); iter.hasNext();) {
+      for (Iterator iter = mgr.getSourcesEnabled().iterator(); iter.hasNext();) {
         BaseSourceAdapter source = (BaseSourceAdapter) iter.next();
         log.debug("Source init params: " + "id = " + source.getId() + ", params = "
             + source.initParams());

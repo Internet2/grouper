@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -64,21 +67,44 @@ public abstract class GuiObjectBase {
   public static Map<GuiObjectBase, String> convertFromGrouperObjects(Set<GrouperObject> grouperObjects) {
     Map<GuiObjectBase, String> tempObjectBases = new LinkedHashMap<GuiObjectBase, String>();
     
+    // prime the cache
+    GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(grouperObjects);
+
+    // find the stems to find
+    Map<String, Stem> stemIdToStem = new LinkedHashMap<String, Stem>();
+    Set<String> parentStemIdsTofind = new HashSet<String>();
     for (GrouperObject grouperObject : GrouperUtil.nonNull(grouperObjects)) {
       if (grouperObject instanceof Group) {
-        Stem parentStem = ((Group)grouperObject).getParentStem();
+        parentStemIdsTofind.add( ((Group)grouperObject).getParentUuid() );
+      } else if (grouperObject instanceof Stem) {
+        parentStemIdsTofind.add( ((Stem)grouperObject).getParentUuid() );
+      } else if (grouperObject instanceof AttributeDef) {
+        parentStemIdsTofind.add( ((AttributeDef)grouperObject).getParentUuid() );
+      } else if (grouperObject instanceof AttributeDefName) {
+        parentStemIdsTofind.add( ((AttributeDefName)grouperObject).getParentUuid() );
+      }
+    }
+    
+    Set<Stem> stems = StemFinder.findByUuids(GrouperSession.staticGrouperSession(), parentStemIdsTofind, null);
+    for (Stem stem : GrouperUtil.nonNull(stems)) {
+      stemIdToStem.put(stem.getUuid(), stem);
+    }
+    
+    for (GrouperObject grouperObject : GrouperUtil.nonNull(grouperObjects)) {
+      if (grouperObject instanceof Group) {
+        Stem parentStem = stemIdToStem.get( ((Group)grouperObject).getParentUuid() );
         String linkWithIcon = new GuiStem(parentStem).getLinkWithIcon();
         tempObjectBases.put(new GuiGroup((Group)grouperObject), linkWithIcon);
       } else if (grouperObject instanceof Stem) {
-        Stem parentStem = ((Stem)grouperObject).getParentStem();
+        Stem parentStem = stemIdToStem.get( ((Stem)grouperObject).getParentUuid() );
         String linkWithIcon = new GuiStem(parentStem).getLinkWithIcon();
         tempObjectBases.put(new GuiStem((Stem)grouperObject), linkWithIcon);
       } else if (grouperObject instanceof AttributeDef) {
-        Stem parentStem = ((AttributeDef)grouperObject).getParentStem();
+        Stem parentStem = stemIdToStem.get( ((AttributeDef)grouperObject).getParentUuid() );
         String linkWithIcon = new GuiStem(parentStem).getLinkWithIcon();
         tempObjectBases.put(new GuiAttributeDef((AttributeDef)grouperObject), linkWithIcon);
       } else if (grouperObject instanceof AttributeDefName) {
-        Stem parentStem = ((AttributeDefName)grouperObject).getParentStem();
+        Stem parentStem = stemIdToStem.get( ((AttributeDefName)grouperObject).getParentUuid() );
         String linkWithIcon = new GuiStem(parentStem).getLinkWithIcon();
         tempObjectBases.put(new GuiAttributeDefName((AttributeDefName)grouperObject), linkWithIcon);
       } else if (grouperObject instanceof GrouperObjectSubjectWrapper) {
@@ -553,10 +579,11 @@ public abstract class GuiObjectBase {
     StringBuilder output = new StringBuilder();
     List<String> types = new ArrayList<String>();
     
-    List<GrouperObjectTypesAttributeValue> attributeValues = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(getGrouperObject());
-    List<GuiGrouperObjectTypesAttributeValue> guiAttributeValues = GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValues);
+    GrouperObject grouperObject = getGrouperObject();
+    List<GrouperObjectTypesAttributeValue> attributeValues = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(grouperObject);
     
-    if (attributeValues.size() > 0) {
+    if (GrouperUtil.length(attributeValues) > 0) {
+      List<GuiGrouperObjectTypesAttributeValue> guiAttributeValues = GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValues);
       output.append("(");
       for (GuiGrouperObjectTypesAttributeValue guiAttributeValue: guiAttributeValues) {
         String title = TextContainer.retrieveFromRequest().getTextEscapeXml()

@@ -96,15 +96,10 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     MockServiceServlet.dropMockTable("mock_google_auth");
   }
   
-  private static boolean mockTablesThere = false;
-
   @Override
   public void handleRequest(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     
-    if (!mockTablesThere) {
-      ensureGoogleMockTables();
-    }
-    mockTablesThere = true;
+    ensureGoogleMockTables();
     
     if (GrouperUtil.length(mockServiceRequest.getPostMockNamePaths()) == 0) {
       throw new RuntimeException("Pass in a path!");

@@ -27,12 +27,11 @@ public class GrouperConfigurationModuleAttributeTest extends GrouperTest {
     String value = attribute.getValueOrExpressionEvaluation();
     assertEquals("script", value);
     
-    // value is returned when expression language is not set or is false
+    // null value is returned when expression language is not set or is false
     attribute = new GrouperConfigurationModuleAttribute();
     attribute.setExpressionLanguageScript("${'script'}");
-    value = attribute.getValueOrExpressionEvaluationValue();
-    assertEquals("script", value);
-    
+    value = attribute.getValueOrExpressionEvaluation();
+    assertNull(value);
   }
   
   public void testGetHtmlForElementIdHandle() {

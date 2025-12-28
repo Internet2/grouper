@@ -406,7 +406,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         }
         argumentIndex++;
       }   
-      String sql = "select count(1) from grouper_members gm where gm.subject_source != 'g:gsa' and ( " + whereClause + " )";
+      String sql = "select count(1) from grouper_members gm where gm.subject_source != 'g:gsa' and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( " + whereClause + " )";
   
   //    System.out.println(script);
   //    System.out.println(sql);
@@ -1856,7 +1856,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       addMembershipHistoryAbacDependencies(sqlCacheDependencyTypeMshipHistoryAbac, sqlCacheGroupsToCheck, allMshipHistoryAbacSqlCacheDependenciesMap);                
     }
     
-    String sql = "select id from grouper_members gm where gm.subject_source != 'g:gsa' and ( " + grouperJexlScriptSql.getWhereClause() + " )";
+    String sql = "select id from grouper_members gm where gm.subject_source != 'g:gsa' and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( " + grouperJexlScriptSql.getWhereClause() + " )";
  
  //        System.out.println(script);
  //        System.out.println(sql);

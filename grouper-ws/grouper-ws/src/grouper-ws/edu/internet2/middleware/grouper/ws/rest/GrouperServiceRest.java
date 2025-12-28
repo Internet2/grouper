@@ -369,7 +369,7 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_A_MEF/members")
+  @Path("/grouper-ws/servicesRest/vA_A_MEF/groups")
   @ApiOperation(httpMethod = "POST", value = "Add member", nickname = "addMember", //response = .class,
       notes = "<b>Description</b>: Add member will add or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Add+Member'>wiki</a> and go to samples to see requests and responses") 
@@ -513,7 +513,7 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vD_M_EMF/members")
+  @Path("/grouper-ws/servicesRest/vD_M_EMF/groups")
   @ApiOperation(httpMethod = "POST", value = "Delete member", nickname = "deleteMember", //response = .class,
   notes = "<b>Description</b>: Delete member will delete or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is in an indirect membership, this is still a success"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Delete+Member'>wiki</a> and go to samples to see requests and responses") 
@@ -566,7 +566,7 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vH_M_EML/members")
+  @Path("/grouper-ws/servicesRest/vH_M_EML/groups")
   @ApiOperation(httpMethod = "POST", value = "Has member", nickname = "hasMember", //response = .class,
   notes = "<b>Description</b>: Has member will see if a group contains a subject as a member"
     + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Has+Member'>wiki</a> and go to samples to see requests and responses") 
@@ -619,7 +619,7 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_MEF/members")
+  @Path("/grouper-ws/servicesRest/vG_E_MEF/groups")
   @ApiOperation(httpMethod = "POST", value = "Get members", nickname = "getMembers", //response = .class,
   notes = "<b>Description</b>: Get members will retrieve subjects assigned to a group."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Members'>wiki</a> and go to samples to see requests and responses") 

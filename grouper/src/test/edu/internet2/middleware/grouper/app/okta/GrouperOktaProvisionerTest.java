@@ -583,8 +583,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
 
   }
   
-  
-  public void testFullSyncOktaReal() throws IOException {
+  public void atestFullSyncOktaReal() throws IOException {
     
     OktaProvisionerTestUtils.setupOktaExternalSystem();
     

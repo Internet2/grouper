@@ -70,7 +70,7 @@ public class ContextContainer {
     try {
       List<Source> sources = sourcesCache.get(Boolean.TRUE);
       if (sources == null) {
-        sources = new ArrayList<Source>(SourceManager.getInstance().getSources());
+        sources = new ArrayList<Source>(SourceManager.getInstance().getSourcesEnabled());
         
         //lets sort them by id
         Collections.sort(sources, new Comparator() {

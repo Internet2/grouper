@@ -249,11 +249,11 @@ public class GrouperDdl5_14_0 {
         TABLE_GROUPER_PROV_ADOBE_USER);
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperDuoTable.getName(), 
-        "grouper_prov_adobe_user_idx1", true, 
+        "grouper_prov_adobe_user_idx1", false, 
         COLUMN_GROUPER_PROV_ADOBE_USER_EMAIL, COLUMN_GROUPER_PROV_ADOBE_USER_CONFIG_ID);
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperDuoTable.getName(), 
-        "grouper_prov_adobe_user_idx2", true, 
+        "grouper_prov_adobe_user_idx2", false, 
         COLUMN_GROUPER_PROV_ADOBE_USER_USER_NAME, COLUMN_GROUPER_PROV_ADOBE_USER_CONFIG_ID);
   }
   
@@ -270,8 +270,8 @@ public class GrouperDdl5_14_0 {
         TABLE_GROUPER_PROV_ADOBE_GROUP);
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperDuoTable.getName(), 
-        "grouper_prov_adobe_group_idx1", true, 
-        COLUMN_GROUPER_PROV_ADOBE_GROUP_GROUP_ID, COLUMN_GROUPER_PROV_ADOBE_GROUP_CONFIG_ID);
+        "grouper_prov_adobe_group_idx1", false, 
+        COLUMN_GROUPER_PROV_ADOBE_GROUP_NAME, COLUMN_GROUPER_PROV_ADOBE_GROUP_CONFIG_ID);
     
   }
   

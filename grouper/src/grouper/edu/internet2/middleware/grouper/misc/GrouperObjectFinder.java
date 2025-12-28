@@ -600,7 +600,7 @@ public class GrouperObjectFinder {
         String gsaId = SubjectFinder.internal_getGSA().getId();
         Source esa = SubjectFinder.internal_getEntitySourceAdapter(false);
         String esaId = esa == null ? null : esa.getId();
-        for (Source source : SourceManager.getInstance().getSources()) {
+        for (Source source : SourceManager.getInstance().getSourcesEnabled()) {
           if ( StringUtils.equals(source.getId(), gsaId  )
               || (!StringUtils.isBlank(esaId)
                   && StringUtils.equals(source.getId(), esaId))) {

@@ -127,6 +127,7 @@ public class StemUniqueNameCaseInsensitiveHookTest extends GrouperTest {
 
     //get alternate name in there
     stem2.setExtension("someStemNameExists2", true);
+    stem2.store();
     
     try {
       //alternate name

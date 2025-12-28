@@ -1620,7 +1620,7 @@ public class UiV2Membership {
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Subject.viewSubject&memberId=" + member.getId() + "');"));
               
       } else if (StringUtils.equals(backTo, "group")) {
-        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "');"));
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroupMembers&groupId=" + group.getId() + "');"));
 
       } else {
         throw new RuntimeException("not expecting backTo: " + backTo);

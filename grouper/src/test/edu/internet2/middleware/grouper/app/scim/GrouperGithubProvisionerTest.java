@@ -35,7 +35,7 @@ import junit.textui.TestRunner;
 public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperGithubProvisionerTest("testGithubActiveAttributeFullSync"));
+    TestRunner.run(new GrouperGithubProvisionerTest("testFullProvisionLoadEntitiesIntoScimUsersTable"));
 
   }
   
@@ -719,7 +719,7 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
     Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
     
     // mark some folders to provision
-    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:orgName").save();
     Group testGroup2 = new GroupSave(grouperSession).assignName("test2:testGroup2").save();
     
     Group usersToProvisionGroup = new GroupSave(grouperSession).assignName("test2:usersToProvisionGroup").save();
@@ -732,7 +732,7 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
     
     usersToProvisionGroup.addMember(testGroup.toSubject());
     
-    ScimProvisionerTestUtils.setupGithubExternalSystem(true);
+    ScimProvisionerTestUtils.setupGithubExternalSystem(false);
     
     ScimProvisionerTestConfigInput scimProvisioningStrategy = new ScimProvisionerTestConfigInput().assignProvisioningStrategy("scimGithubOrgs");
     scimProvisioningStrategy.assignConfigId("githubProvisioner");
@@ -742,7 +742,7 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
 
     try {
       // this will create tables
-      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem", null);
+      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem", null, "orgName");
       
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
@@ -845,7 +845,7 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
     
     try {
       // this will create tables
-      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem", null);
+      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem", null, "orgName");
   
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();

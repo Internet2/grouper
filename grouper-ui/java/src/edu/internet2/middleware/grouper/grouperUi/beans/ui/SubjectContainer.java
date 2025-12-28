@@ -190,7 +190,7 @@ public class SubjectContainer {
   public Set<Source> getSources() {
     
     //we could cache this at some point
-    Collection<Source> sources = SourceManager.getInstance().getSources();
+    Collection<Source> sources = SourceManager.getInstance().getSourcesEnabled();
     
     return new LinkedHashSet<Source>(sources);
   }

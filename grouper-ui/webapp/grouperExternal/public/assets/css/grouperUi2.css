@@ -272,3 +272,42 @@ td > .config-el-checkbox {
 td > .config-el-label {
   border-bottom: 1px dotted #000;
 }
+
+
+
+/* Green banner bar */
+.grouper-env-announce-outer {
+  padding: 3px;
+  text-align: center;
+}
+.grouper-env-announce-inner {
+  background-color: #E7FAD2; 
+  border: 3px dashed #6BA539;
+  margin: 0 auto;
+  font-weight: 400;
+  color: #232d4b;
+}
+.grouper-env-announce-inner a {
+  color: #232d4b;
+  text-decoration: underline !important;
+  padding: 3px;
+}
+
+
+/* Pink banner bar */
+.grouper-env-banner-outer {
+  padding: 3px;
+  text-align: center;
+}
+.grouper-env-banner-inner {
+  background-color: #ffd6de; 
+  border: 4px dashed #1c6070;
+  margin: 0 auto;
+  font-weight: 500;
+  color: #232d4b;
+  padding: 3px;
+}
+.grouper-env-banner-inner a {
+  color: #232d4b;
+  text-decoration: underline;
+}

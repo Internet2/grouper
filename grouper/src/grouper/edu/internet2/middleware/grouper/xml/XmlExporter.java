@@ -1814,7 +1814,7 @@ public class XmlExporter {
     this.xml.internal_indent();
     this.xml.internal_puts("<subjectSourceMetaData>");
     try {
-      Iterator it = SourceManager.getInstance().getSources().iterator();
+      Iterator it = SourceManager.getInstance().getSourcesEnabled().iterator();
       while (it.hasNext()) {
         this._writeSubjectSourceMetaData( (Source) it.next() );
       }

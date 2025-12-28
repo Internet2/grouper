@@ -86,7 +86,7 @@ public class GrouperDeprovisioningSettings {
         if (result == null) {
           result = new LinkedHashSet<Source>();
           
-          for (Source source : SourceManager.getInstance().getSources()) {
+          for (Source source : SourceManager.getInstance().getSourcesEnabled()) {
             if (StringUtils.equals(source.getId(), GrouperSourceAdapter.groupSourceId())) {
               continue;
             }

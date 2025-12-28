@@ -31,7 +31,7 @@ ${grouper:titleFromKeyAndText('stemAttestationPageTitle', grouperRequestContaine
                                     
                 </c:choose>
                 <div id="stemAttestation">
-                  <c:if test="${grouperRequestContainer.attestationContainer.hasAttestationConfigured}">
+                  <c:if test="${grouperRequestContainer.attestationContainer.hasAttestationConfiguredNoCache}">
                     
                     <table class="table table-condensed table-striped">
                       <tbody>

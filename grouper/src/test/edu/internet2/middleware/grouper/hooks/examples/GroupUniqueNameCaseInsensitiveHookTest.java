@@ -139,6 +139,7 @@ public class GroupUniqueNameCaseInsensitiveHookTest extends GrouperTest {
 
     //get alternate name in there
     group2.setExtension("someGroupNameExists2", true);
+    group2.store();
     
     try {
       //alternate name

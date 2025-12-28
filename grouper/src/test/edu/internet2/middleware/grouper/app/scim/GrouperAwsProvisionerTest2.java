@@ -37,7 +37,7 @@ import junit.textui.TestRunner;
 public class GrouperAwsProvisionerTest2 extends GrouperProvisioningBaseTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAwsProvisionerTest2("testAWS2FullSyncProvisionGroupAndThenDeleteTheGroup"));
+    TestRunner.run(new GrouperAwsProvisionerTest2("testAWS2IncrementalSyncProvisionGroupAndThenDeleteTheGroup"));
 
   }
   
@@ -544,6 +544,7 @@ public class GrouperAwsProvisionerTest2 extends GrouperProvisioningBaseTest {
         .assignUseFirstLastName(true)
         .assignScimType("AWS")
         .assignGroupAttributeCount(2)
+        .addExtraConfig("scoreConvertToFullSyncThreshold", "500")
       );
 
     GrouperStartup.startup();

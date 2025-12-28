@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
@@ -82,6 +83,8 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.customizeUi.IndexMainLogicInput;
+import edu.internet2.middleware.grouper.ui.customizeUi.JavaUiCustomizer;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -662,6 +665,8 @@ public class UiV2Main extends UiServiceLogicBase {
 
         Set<Group> groups = GrouperUserDataApi.recentlyUsedGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
         
+        GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(groups);
+        
         indexContainer.setGuiGroupsRecentlyUsedAbbreviated(
             GuiGroup.convertFromGroups(groups, "uiV2.index.maxRecentlyUsedEachType", 5));
 
@@ -671,7 +676,9 @@ public class UiV2Main extends UiServiceLogicBase {
 
         Set<Stem> stems = GrouperUserDataApi.recentlyUsedStems(GrouperUiUserData.grouperUiGroupNameForUserData(), 
             grouperSession.getSubject());
-        
+
+        GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(stems);
+
         indexContainer.setGuiStemsRecentlyUsedAbbreviated(GuiStem.convertFromStems(stems, "uiV2.index.maxRecentlyUsedEachType", 5));
         
         indexContainer.setRecentlyUsedRetrieved(true);
@@ -725,6 +732,8 @@ public class UiV2Main extends UiServiceLogicBase {
           .assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
           .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt(
             "uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
+
+        GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(theGroups);
 
         indexContainer.setGuiGroupsUserManagesAbbreviated(GuiGroup.convertFromGroups(theGroups));
         indexContainer.setGroupsImanageRetrieved(true);
@@ -807,6 +816,9 @@ public class UiV2Main extends UiServiceLogicBase {
 
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
+      
+      // if the user has customized something
+      JavaUiCustomizer.retrieveInstance().indexMainLogic(new IndexMainLogicInput(request, response));
 
       //just show a jsp
       showJsp("/WEB-INF/grouperUi2/index/index.jsp");
@@ -1612,6 +1624,8 @@ public class UiV2Main extends UiServiceLogicBase {
                 GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10),
                 1, false)).findStems();
   
+        GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(stems);
+
         indexContainer.setGuiStemsUserManagesAbbreviated(GuiStem.convertFromStems(stems));
   
         indexContainer.setStemsImanageRetrieved(true);
@@ -1677,6 +1691,8 @@ public class UiV2Main extends UiServiceLogicBase {
 
         Set<Group> groups = GrouperUserDataApi.favoriteGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
         
+        GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(groups);
+
         indexContainer.setGuiGroupsMyFavoritesAbbreviated(
             GuiGroup.convertFromGroups(groups, "uiV2.index.maxFavoritesEachType", 5));
 
@@ -1688,6 +1704,8 @@ public class UiV2Main extends UiServiceLogicBase {
         Set<Stem> stems = GrouperUserDataApi.favoriteStems(GrouperUiUserData.grouperUiGroupNameForUserData(), 
             grouperSession.getSubject());
         
+        GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(stems);
+
         indexContainer.setGuiStemsMyFavoritesAbbreviated(GuiStem.convertFromStems(stems, "uiV2.index.maxFavoritesEachType", 5));
 
         indexContainer.setMyFavoritesRetrieved(true);
@@ -1744,6 +1762,8 @@ public class UiV2Main extends UiServiceLogicBase {
             .assignQueryOptions(new QueryOptions().paging(
                 GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
     
+        GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(groups);
+
         indexContainer.setGuiGroupsMyMembershipsAbbreviated(GuiGroup.convertFromGroups(groups));
 
         indexContainer.setMyMembershipsRetrieved(true);

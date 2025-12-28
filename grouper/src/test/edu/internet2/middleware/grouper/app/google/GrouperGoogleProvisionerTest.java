@@ -46,7 +46,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperGoogleProvisionerTest("testFullSyncGoogle"));
+    TestRunner.run(new GrouperGoogleProvisionerTest("testIncrementalSyncGoogle"));
     
   }
   
@@ -117,6 +117,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   }
   
   
+  //need to run individually
   public void testFullSyncGoogleStartWithAndDiagnostics() {
     
     GrouperStartup.startup();
@@ -286,12 +287,12 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
     
     try {
       // this will create tables
-//      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null);
+      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null, false, false);
 //  
       new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_auth").executeSql();
+//      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_auth").executeSql();
 //      
 //      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_google_group").select(int.class));
 //      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
@@ -648,7 +649,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   }
   
   
-  public void testFullSyncGoogleReal() throws IOException {
+  public void atestFullSyncGoogleReal() throws IOException {
     
     GoogleProvisionerTestUtils.setupGoogleExternalSystem();
     GoogleProvisionerTestUtils.configureGoogleProvisioner(new GoogleProvisionerTestConfigInput().addExtraConfig("selectAllGroups", "false"));

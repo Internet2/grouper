@@ -16,7 +16,7 @@ public class SourceManagerOptionValueDriver implements OptionValueDriver {
   public List<MultiKey> retrieveKeysAndLabels() {
     List<MultiKey> keysAndLabels = new ArrayList<MultiKey>();
     
-    for (Source source: SourceManager.getInstance().getSources()) {
+    for (Source source: SourceManager.getInstance().getSourcesEnabled()) {
       
       String configId = source.getId();
       keysAndLabels.add(new MultiKey(configId, source.getName() + " (" + source.getId() + ")"));
@@ -29,7 +29,7 @@ public class SourceManagerOptionValueDriver implements OptionValueDriver {
   public static String retrieveAllSourceIdsCommaSeparatedLabel() {
     
     List<String> sourceIds = new ArrayList<String>();
-    for (Source source: SourceManager.getInstance().getSources()) {
+    for (Source source: SourceManager.getInstance().getSourcesEnabled()) {
       
       String configId = source.getId();
       sourceIds.add(configId);

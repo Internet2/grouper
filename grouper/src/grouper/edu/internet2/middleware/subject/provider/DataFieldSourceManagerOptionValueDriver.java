@@ -17,7 +17,7 @@ public class DataFieldSourceManagerOptionValueDriver implements OptionValueDrive
   public List<MultiKey> retrieveKeysAndLabels() {
     List<MultiKey> keysAndLabels = new ArrayList<MultiKey>();
     
-    for (Source source: SourceManager.getInstance().getSources()) {
+    for (Source source: SourceManager.getInstance().getSourcesEnabled()) {
       
       if (source instanceof GrouperDataFieldSourceAdapter) {
         String configId = source.getId();

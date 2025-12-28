@@ -1,16 +1,8 @@
 package edu.internet2.middleware.grouper.app.grouperTypes;
 
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DATA_OWNER;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_MEMBERS_DESCRIPTION;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_OWNER_STEM_ID;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_SERVICE_NAME;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase;
-import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.objectTypesStemName;
-import static org.apache.commons.lang3.BooleanUtils.toStringTrueFalse;
-
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -30,14 +25,18 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache.ExpirableCacheUnit;
 import edu.internet2.middleware.subject.Subject;
 
 public class GrouperObjectTypesConfiguration {
@@ -59,32 +58,278 @@ public class GrouperObjectTypesConfiguration {
   }
 
   /**
+   * cache the type: group or stem, object id, list of types
+   */
+  private static ExpirableCache<MultiKey, List<GrouperObjectTypesAttributeValue>> grouperObjectTypesAttributeValuesCache = null;
+
+  /**
+   * get the cache and init the time for cache
+   */
+  public static ExpirableCache<MultiKey, List<GrouperObjectTypesAttributeValue>> grouperObjectTypesAttributeValuesCache() {
+    if (grouperObjectTypesAttributeValuesCache == null) {
+      grouperObjectTypesAttributeValuesCache = 
+          new ExpirableCache<MultiKey, List<GrouperObjectTypesAttributeValue>>(ExpirableCacheUnit.SECOND, 
+              GrouperConfig.retrieveConfig().propertyValueInt("grouperObjectTypesAttributeValuesCacheSeconds", 60));
+    }
+    return grouperObjectTypesAttributeValuesCache;
+  }
+  
+  /**
+   * clear cache
+   */
+  public static void clearCache() {
+    grouperObjectTypesAttributeValuesCache().clear();
+  }
+    
+  /**
+   * retrieve all the configured type settings for a given grouper object (group/stem)
+   * @param grouperObjects to get from db
+   * @return the map of types
+   */
+  public static Map<GrouperObject, List<GrouperObjectTypesAttributeValue>> getGrouperObjectTypesAttributeValues(Collection<?> grouperObjects) {
+    
+    if (grouperObjects == null || grouperObjects.size() == 0) {
+      return new HashMap<>();
+    }
+    Collection<GrouperObject> theGrouperObjects = (Collection<GrouperObject>)(Object)grouperObjects;
+    
+    Map<GrouperObject, List<GrouperObjectTypesAttributeValue>> results = new HashMap<>();
+    
+    // get a list of objects to get from db
+    Set<Group> groupObjectsToRetrieveFromDb = new HashSet<>();
+    Set<Stem> stemObjectsToRetrieveFromDb = new HashSet<>();
+    
+    for (GrouperObject grouperObject: theGrouperObjects) {
+      
+      if (grouperObject == null) {
+        // put null key with empty value
+        results.put(null, new ArrayList<GrouperObjectTypesAttributeValue>());
+        continue;
+      }
+      
+      // if already in results then skip
+      if (results.containsKey(grouperObject)) {
+        continue;
+      }
+      
+      // if this is not a group or a stem then it doesnt have types
+      if (!(grouperObject instanceof Group) && !(grouperObject instanceof Stem)) {
+        results.put(grouperObject, new ArrayList<GrouperObjectTypesAttributeValue>());
+        continue;
+      }
+
+      // if in cache use it
+      MultiKey multiKey = new MultiKey(grouperObject.getClass().getSimpleName(), grouperObject.getId());
+      
+      List<GrouperObjectTypesAttributeValue> result = grouperObjectTypesAttributeValuesCache().get(multiKey);
+      
+      if (result != null) {
+        results.put(grouperObject, result);
+        continue;
+      }
+      
+      if (grouperObject instanceof Group) {
+        groupObjectsToRetrieveFromDb.add((Group)grouperObject);
+      } else if (grouperObject instanceof Stem) {
+        stemObjectsToRetrieveFromDb.add((Stem)grouperObject);
+      }
+    }
+    
+    // if nothing to do return
+    if (groupObjectsToRetrieveFromDb.size() == 0 && stemObjectsToRetrieveFromDb.size() == 0) {
+      return results;
+    }
+    
+    AttributeDefName grouperObjectTypeMarkerAttributeDefName = GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase();
+    GrouperUtil.assertion(grouperObjectTypeMarkerAttributeDefName != null, "Why is grouperObjectTypeMarkerAttributeDefName null?");
+
+    // retrieve from db
+    // see if any groups
+    if (groupObjectsToRetrieveFromDb.size() > 0) {
+      
+      GcDbAccess gcDbAccess = new GcDbAccess().sql("""
+          select group_id, gaaagv.attribute_assign_id1, gaaagv.attribute_def_name_name2, gaaagv.value_string 
+          from grouper_aval_asn_asn_group_v gaaagv where
+          gaaagv.attribute_def_name_id1 = '%s'
+          """.formatted(grouperObjectTypeMarkerAttributeDefName.getId())).selectMultipleColumnName("group_id").batchSize(100);
+      
+      // map of id to group
+      Map<String, Group> idToGroup = new HashMap<>();
+      
+      for (Group group : groupObjectsToRetrieveFromDb) {
+        gcDbAccess.addBindVar(group.getId());
+        idToGroup.put(group.getId(), group);
+      }
+
+      List<Object[]> groupIdAssignIdAttributeDefNameValues = gcDbAccess.selectList(Object[].class);
+      
+      // lets index these by group id, and then separate out by assign id, then a map by attribute def name to value
+      Map<String, Map<String, Map<String, String>>> groupIdToAssignIdToAttributeDefNameValues = new HashMap<>();
+      
+      for (Object[] groupIdAttributeDefNameValue: groupIdAssignIdAttributeDefNameValues) {
+        String groupId = (String)groupIdAttributeDefNameValue[0];
+        String assignId = (String)groupIdAttributeDefNameValue[1];
+        String attributeDefName = (String)groupIdAttributeDefNameValue[2];
+        String value = (String)groupIdAttributeDefNameValue[3];
+        if (value == null) {
+          continue;
+        }
+        
+        Map<String, Map<String, String>> assignIdToAttributeDefNameValues = groupIdToAssignIdToAttributeDefNameValues.get(groupId);
+        if (assignIdToAttributeDefNameValues == null) {
+          assignIdToAttributeDefNameValues = new HashMap<>();
+          groupIdToAssignIdToAttributeDefNameValues.put(groupId, assignIdToAttributeDefNameValues);
+        }
+        Map<String, String> attributeDefNameToValue = assignIdToAttributeDefNameValues.get(assignId);
+        if (attributeDefNameToValue == null) {
+          attributeDefNameToValue = new HashMap<>();
+          assignIdToAttributeDefNameValues.put(assignId, attributeDefNameToValue);
+        }
+        attributeDefNameToValue.put(attributeDefName, value);
+      }
+      
+      // now lets go by group and get the data
+      for (Group group: groupObjectsToRetrieveFromDb) {
+
+        MultiKey multiKey = new MultiKey(group.getClass().getSimpleName(), group.getId());
+
+        // if there is nothing, just put empty list
+        Map<String, Map<String, String>> assignIdToAttributeDefNameValues = groupIdToAssignIdToAttributeDefNameValues.get(group.getId());
+        if (assignIdToAttributeDefNameValues == null) {
+          grouperObjectTypesAttributeValuesCache().put(multiKey, new ArrayList<>());
+          results.put(group, new ArrayList<>());
+          continue;
+        }
+        
+        List<GrouperObjectTypesAttributeValue> attributeValues = new ArrayList<>();
+        for (Map<String, String> attributeDefNameToValue: assignIdToAttributeDefNameValues.values()) {
+          GrouperObjectTypesAttributeValue grouperObjectTypesAttributeValue = new GrouperObjectTypesAttributeValue();
+          
+          grouperObjectTypesAttributeValue.setObjectTypeName(attributeDefNameToValue.get(
+              GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME));
+          grouperObjectTypesAttributeValue.setDirectAssignment(GrouperUtil.booleanValue(
+              attributeDefNameToValue.get(
+                  GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT), false));
+          grouperObjectTypesAttributeValue.setObjectTypeDataOwner(attributeDefNameToValue.get(
+              GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DATA_OWNER));
+          grouperObjectTypesAttributeValue.setObjectTypeMemberDescription(attributeDefNameToValue.get(
+              GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_MEMBERS_DESCRIPTION));
+          grouperObjectTypesAttributeValue.setObjectTypeServiceName(attributeDefNameToValue.get(
+              GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_SERVICE_NAME));
+          grouperObjectTypesAttributeValue.setObjectTypeOwnerStemId(attributeDefNameToValue.get(
+              GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_OWNER_STEM_ID));
+          
+          attributeValues.add(grouperObjectTypesAttributeValue);
+        }
+        
+        grouperObjectTypesAttributeValuesCache().put(multiKey, attributeValues);
+        results.put(group, attributeValues);
+        
+      }
+    }
+    
+    // see if any stems
+    if (stemObjectsToRetrieveFromDb.size() > 0) {
+      
+      GcDbAccess gcDbAccess = new GcDbAccess().sql("""
+          select stem_id, gaaasv.attribute_assign_id1, gaaasv.attribute_def_name_name2, gaaasv.value_string 
+          from grouper_aval_asn_asn_stem_v gaaasv where
+          gaaasv.attribute_def_name_id1 = '%s'
+          """.formatted(grouperObjectTypeMarkerAttributeDefName.getId())).selectMultipleColumnName("stem_id").batchSize(100);
+      
+      // map of id to stem
+      Map<String, Stem> idToStem = new HashMap<>();
+      
+      for (Stem stem : stemObjectsToRetrieveFromDb) {
+        gcDbAccess.addBindVar(stem.getId());
+        idToStem.put(stem.getId(), stem);
+      }
+      
+      List<Object[]> stemIdAssignIdAttributeDefNameValues = gcDbAccess.selectList(Object[].class);
+      
+      // lets index these by stem id, and then separate out by assign id, then a map by attribute def name to value
+      Map<String, Map<String, Map<String, String>>> stemIdToAssignIdToAttributeDefNameValues = new HashMap<>();
+      
+      for (Object[] stemIdAttributeDefNameValue: stemIdAssignIdAttributeDefNameValues) {
+        String stemId = (String)stemIdAttributeDefNameValue[0];
+        String assignId = (String)stemIdAttributeDefNameValue[1];
+        String attributeDefName = (String)stemIdAttributeDefNameValue[2];
+        String value = (String)stemIdAttributeDefNameValue[3];
+        
+        if (value == null) {
+          continue;
+        }
+        
+        Map<String, Map<String, String>> assignIdToAttributeDefNameValues = stemIdToAssignIdToAttributeDefNameValues.get(stemId);
+        if (assignIdToAttributeDefNameValues == null) {
+          assignIdToAttributeDefNameValues = new HashMap<>();
+          stemIdToAssignIdToAttributeDefNameValues.put(stemId, assignIdToAttributeDefNameValues);
+        }
+        Map<String, String> attributeDefNameToValue = assignIdToAttributeDefNameValues.get(assignId);
+        if (attributeDefNameToValue == null) {
+          attributeDefNameToValue = new HashMap<>();
+          assignIdToAttributeDefNameValues.put(assignId, attributeDefNameToValue);
+        }
+        attributeDefNameToValue.put(attributeDefName, value);
+      }
+      
+      // now lets go by stem and get the data
+      for (Stem stem: stemObjectsToRetrieveFromDb) {
+
+        MultiKey multiKey = new MultiKey(stem.getClass().getSimpleName(), stem.getId());
+
+        // if there is nothing, just put empty list
+        Map<String, Map<String, String>> assignIdToAttributeDefNameValues = stemIdToAssignIdToAttributeDefNameValues.get(stem.getId());
+        if (assignIdToAttributeDefNameValues == null) {
+          grouperObjectTypesAttributeValuesCache().put(multiKey, new ArrayList<>());
+          results.put(stem, new ArrayList<>());
+          continue;
+        }
+        
+        List<GrouperObjectTypesAttributeValue> attributeValues = new ArrayList<>();
+        for (Map<String, String> attributeDefNameToValue: assignIdToAttributeDefNameValues.values()) {
+          GrouperObjectTypesAttributeValue grouperObjectTypesAttributeValue = new GrouperObjectTypesAttributeValue();
+          
+          grouperObjectTypesAttributeValue.setObjectTypeName(attributeDefNameToValue.get(
+              GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME));
+          grouperObjectTypesAttributeValue.setDirectAssignment(GrouperUtil.booleanValue(
+              attributeDefNameToValue.get(
+                  GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT), false));
+          grouperObjectTypesAttributeValue.setObjectTypeDataOwner(attributeDefNameToValue.get(
+              GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DATA_OWNER));
+          grouperObjectTypesAttributeValue.setObjectTypeMemberDescription(attributeDefNameToValue.get(
+              GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_MEMBERS_DESCRIPTION));
+          grouperObjectTypesAttributeValue.setObjectTypeServiceName(attributeDefNameToValue.get(
+              GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_SERVICE_NAME));
+          grouperObjectTypesAttributeValue.setObjectTypeOwnerStemId(attributeDefNameToValue.get(
+              GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_OWNER_STEM_ID));
+          
+          attributeValues.add(grouperObjectTypesAttributeValue);
+        }
+        grouperObjectTypesAttributeValuesCache().put(multiKey, attributeValues);
+        results.put(stem, attributeValues);
+      }        
+    }
+    
+    // return the results
+    return results;
+  }
+  
+  /**
    * retrieve all the configured type settings for a given grouper object (group/stem)
    * @param grouperObject
    * @return
    */
   public static List<GrouperObjectTypesAttributeValue> getGrouperObjectTypesAttributeValues(final GrouperObject grouperObject) {
     
-    final List<GrouperObjectTypesAttributeValue> result = new ArrayList<GrouperObjectTypesAttributeValue>();
+    if (grouperObject == null) {
+      return new ArrayList<>();
+    }
     
-    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-      
-      @Override
-      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        
-        for (String objectType: GrouperObjectTypesSettings.getObjectTypeNames()) {
-          GrouperObjectTypesAttributeValue value = getGrouperObjectTypesAttributeValue(grouperObject, objectType);
-          if (value != null) {
-            result.add(value);
-          }
-        }
-        
-        return null;
-      }
-      
-    });
-    
-    return result;
+    Set<GrouperObject> grouperObjects = new HashSet<>();
+    grouperObjects.add(grouperObject);
+    Map<GrouperObject, List<GrouperObjectTypesAttributeValue>> results = getGrouperObjectTypesAttributeValues(grouperObjects);
+    return results.get(grouperObject);
   }
   
   private static boolean grouperObjectTypesAttributeValuesDifferent(GrouperObjectTypesAttributeValue one, 
@@ -131,9 +376,9 @@ public class GrouperObjectTypesConfiguration {
    
     if (attributeAssign == null) {
       if (grouperObject instanceof Group) {
-        attributeAssign = ((Group)grouperObject).getAttributeDelegate().addAttribute(retrieveAttributeDefNameBase()).getAttributeAssign();
+        attributeAssign = ((Group)grouperObject).getAttributeDelegate().addAttribute(GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
       } else if (grouperObject instanceof Stem) {
-        attributeAssign = ((Stem)grouperObject).getAttributeDelegate().addAttribute(retrieveAttributeDefNameBase()).getAttributeAssign();
+        attributeAssign = ((Stem)grouperObject).getAttributeDelegate().addAttribute(GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase()).getAttributeAssign();
       } else {
         throw new RuntimeException("Only Groups and Folders can have types");
       }
@@ -143,13 +388,13 @@ public class GrouperObjectTypesConfiguration {
       if (!newValueDifferentFromOldValue) return;
     }
     
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT, true);
-    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), toStringTrueFalse(grouperObjectTypesAttributeValue.isDirectAssignment()));
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), BooleanUtils.toStringTrueFalse(grouperObjectTypesAttributeValue.isDirectAssignment()));
     
-    attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_NAME, true);
+    attributeDefName = AttributeDefNameFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperObjectTypesAttributeValue.getObjectTypeName());
     
-    attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DATA_OWNER, true);
+    attributeDefName = AttributeDefNameFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DATA_OWNER, true);
     
     if (grouperObjectTypesAttributeValue.getObjectTypeDataOwner() == null) {
       attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
@@ -157,7 +402,7 @@ public class GrouperObjectTypesConfiguration {
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperObjectTypesAttributeValue.getObjectTypeDataOwner());
     }
     
-    attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_MEMBERS_DESCRIPTION, true);
+    attributeDefName = AttributeDefNameFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_MEMBERS_DESCRIPTION, true);
     
     if (grouperObjectTypesAttributeValue.getObjectTypeMemberDescription() == null) {
       attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
@@ -165,7 +410,7 @@ public class GrouperObjectTypesConfiguration {
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), grouperObjectTypesAttributeValue.getObjectTypeMemberDescription());
     }
     
-    attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_SERVICE_NAME, true);
+    attributeDefName = AttributeDefNameFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_SERVICE_NAME, true);
     
     if (grouperObjectTypesAttributeValue.getObjectTypeServiceName() == null) {
       attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
@@ -174,7 +419,7 @@ public class GrouperObjectTypesConfiguration {
     }
     
     
-    attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_OWNER_STEM_ID, true);
+    attributeDefName = AttributeDefNameFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_OWNER_STEM_ID, true);
     
     if (grouperObjectTypesAttributeValue.getObjectTypeOwnerStemId() == null) {
       attributeAssign.getAttributeDelegate().removeAttribute(attributeDefName);
@@ -317,7 +562,7 @@ public class GrouperObjectTypesConfiguration {
         saveOrUpdateTypeAttributes(childValueToSave, grouperObject);
       } else {
         AttributeAssign attributeAssign = getAttributeAssign(grouperObject, objectTypeName);
-        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_OWNER_STEM_ID, true);
+        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_OWNER_STEM_ID, true);
         attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), parent.getId());
         
         attributeAssign.saveOrUpdate();
@@ -420,8 +665,8 @@ public class GrouperObjectTypesConfiguration {
     
     List<Stem> stems = new ArrayList<Stem>(new StemFinder().assignAttributeCheckReadOnAttributeDef(false)
         .assignSubject(subject)
-        .assignNameOfAttributeDefName(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT).addAttributeValuesOnAssignment("true")
-        .assignNameOfAttributeDefName2(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_NAME).addAttributeValuesOnAssignment2("service")
+        .assignNameOfAttributeDefName(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT).addAttributeValuesOnAssignment("true")
+        .assignNameOfAttributeDefName2(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME).addAttributeValuesOnAssignment2("service")
         .addPrivilege(NamingPrivilege.STEM_ADMIN).findStems());
     
     return stems;
@@ -677,15 +922,15 @@ public class GrouperObjectTypesConfiguration {
     
     if (grouperObject instanceof Group) {
       Group group = (Group)grouperObject;
-      attributeAssigns = group.getAttributeDelegate().retrieveAssignments(retrieveAttributeDefNameBase());
+      attributeAssigns = group.getAttributeDelegate().retrieveAssignments(GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase());
     } else if (grouperObject instanceof Stem) {
       Stem stem = (Stem)grouperObject;
-      attributeAssigns = stem.getAttributeDelegate().retrieveAssignments(retrieveAttributeDefNameBase());
+      attributeAssigns = stem.getAttributeDelegate().retrieveAssignments(GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase());
     }
     
     for (AttributeAssign attributeAssign: attributeAssigns) {
       
-      AttributeAssignValue attributeAssignValue = attributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_NAME);
+      AttributeAssignValue attributeAssignValue = attributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME);
       if (attributeAssignValue == null || StringUtils.isBlank(attributeAssignValue.getValueString())) {
         return null;
       }
@@ -704,21 +949,21 @@ public class GrouperObjectTypesConfiguration {
     AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
     
     GrouperObjectTypesAttributeValue result = new GrouperObjectTypesAttributeValue();
-    result.setObjectTypeName(attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_NAME).getValueString());
+    result.setObjectTypeName(attributeValueDelegate.retrieveAttributeAssignValue(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME).getValueString());
     
-    AttributeAssignValue dataOwnerAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DATA_OWNER);
+    AttributeAssignValue dataOwnerAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DATA_OWNER);
     result.setObjectTypeDataOwner(dataOwnerAssignValue != null ? dataOwnerAssignValue.getValueString(): null);
     
-    AttributeAssignValue memberDescriptionAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_MEMBERS_DESCRIPTION);
+    AttributeAssignValue memberDescriptionAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_MEMBERS_DESCRIPTION);
     result.setObjectTypeMemberDescription(memberDescriptionAssignValue != null ? memberDescriptionAssignValue.getValueString(): null);
 
-    AttributeAssignValue serviceNameAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_SERVICE_NAME);
+    AttributeAssignValue serviceNameAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_SERVICE_NAME);
     result.setObjectTypeServiceName(serviceNameAssignValue != null ? serviceNameAssignValue.getValueString(): null);
     
-    AttributeAssignValue ownerStemIdAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_OWNER_STEM_ID);
+    AttributeAssignValue ownerStemIdAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_OWNER_STEM_ID);
     result.setObjectTypeOwnerStemId(ownerStemIdAssignValue != null ? ownerStemIdAssignValue.getValueString(): null);
     
-    AttributeAssignValue directAssignmentAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(objectTypesStemName()+":"+GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT);
+    AttributeAssignValue directAssignmentAssignValue = attributeValueDelegate.retrieveAttributeAssignValue(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_DIRECT_ASSIGNMENT);
     String directAssignmentStr = directAssignmentAssignValue != null ? directAssignmentAssignValue.getValueString(): null;
     boolean directAssignment = BooleanUtils.toBoolean(directAssignmentStr);
     result.setDirectAssignment(directAssignment);

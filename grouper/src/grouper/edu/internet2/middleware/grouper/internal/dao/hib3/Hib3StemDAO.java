@@ -1837,8 +1837,13 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
                     " where fieldMembership.ownerGroupId = theGroup.uuid " +
                     " and theGroup.parentUuid = ns.uuid ");
             HibUtils.convertFieldsToSqlInString(userHasInGroupFields, byHqlStatic, sql, "fieldMembership.fieldId");
+            
             sql.append(" and fieldMembership.memberUuid = :fieldMembershipMemberUuid and fieldMembership.enabledDb = 'T' ) ");
             byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
+            
+            //sql.append(" and fieldMembership.memberUuid in ( :fieldMembershipMemberUuid, :fieldMembershipAllMemberUuid ) and fieldMembership.enabledDb = 'T' ) ");
+            //byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
+            //byHqlStatic.setString("fieldMembershipAllMemberUuid", MemberFinder.internal_findAllMember().getUuid());
 
           }
 
@@ -1860,9 +1865,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
             sql.append(" exists (select 1 from AttributeDef theAttributeDef, MembershipEntry fieldMembership " +
                     " where fieldMembership.ownerAttrDefId = theAttributeDef.id " +
                     " and theAttributeDef.stemId = ns.uuid ");
-            HibUtils.convertFieldsToSqlInString(userHasInGroupFields, byHqlStatic, sql, "fieldMembership.fieldId");
-            sql.append(" and fieldMembership.memberUuid = :fieldMembershipMemberUuid and fieldMembership.enabledDb = 'T' ) ");
+            HibUtils.convertFieldsToSqlInString(userHasInAttributeFields, byHqlStatic, sql, "fieldMembership.fieldId");
+            sql.append(" and fieldMembership.memberUuid in ( :fieldMembershipMemberUuid, :fieldMembershipAllMemberUuid ) and fieldMembership.enabledDb = 'T' ) ");
             byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
+            byHqlStatic.setString("fieldMembershipAllMemberUuid", MemberFinder.internal_findAllMember().getUuid());
 
           }
 

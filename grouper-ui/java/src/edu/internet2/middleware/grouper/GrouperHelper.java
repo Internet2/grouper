@@ -1766,7 +1766,7 @@ public class GrouperHelper {
 			return personSources;
 		personSources = new ArrayList();
 		SourceManager sm = SourceManager.getInstance();
-		Collection c = sm.getSources();
+		Collection c = sm.getSourcesEnabled();
 		Iterator it = c.iterator();
 		Source source = null;
 		Iterator typesIterator = null;

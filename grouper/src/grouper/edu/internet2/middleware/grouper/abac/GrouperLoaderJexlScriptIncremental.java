@@ -743,7 +743,7 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
       List<Long> memberInternalIdsBatch = GrouperUtil.batchList(memberInternalIdsList, batchSize, i);
       GcDbAccess gcDbAccessBatch = gcDbAccessOrig.cloneDbAccess();
       gcDbAccessBatch.bindVars(originalBindVars);
-      String sql = "select id from grouper_members gm where gm.subject_source != 'g:gsa' and  ( " + grouperJexlScriptSql.getWhereClause() 
+      String sql = "select id from grouper_members gm where gm.subject_source != 'g:gsa' and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and  ( " + grouperJexlScriptSql.getWhereClause() 
         + " ) and gm.internal_id in (" + GrouperClientUtils.appendQuestions(GrouperUtil.length(memberInternalIdsBatch)) + ")";
       for (Long memberInternalId : memberInternalIdsBatch) {
         gcDbAccessBatch.addBindVar(memberInternalId);

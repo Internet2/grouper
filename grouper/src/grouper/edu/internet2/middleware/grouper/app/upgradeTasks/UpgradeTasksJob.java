@@ -280,7 +280,10 @@ public class UpgradeTasksJob extends OtherJobBase {
     String upgradeTasksDefName = grouperUpgradeTasksStemName() + ":" + UpgradeTasksJob.UPGRADE_TASKS_DEF;
     return AttributeDefFinder.findByName(upgradeTasksDefName, true);
   }
-  
+
+  /**
+   * DO NOT CALL THIS METHOD SINCE THE ATTRIBUTE CHANGED TO MULTIVALUED
+   */
   public static int getDBVersion() {
     String groupName = grouperUpgradeTasksStemName() + ":" + UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP;
     Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);

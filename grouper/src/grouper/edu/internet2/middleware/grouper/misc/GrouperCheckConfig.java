@@ -115,6 +115,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlEngine;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -629,6 +630,15 @@ public class GrouperCheckConfig {
           return null;
         }
       });
+      
+      try {
+        // run these again (failsafe) since the first time if the tables where there (e.g. new install or running tests), they wouldnt have run
+        new GrouperDdlEngine().runUpgradeTasks();
+      } catch (RuntimeException re) {
+        LOG.debug("error in upgrade tasks", re);
+      }
+
+
     } finally {
       inCheckConfig = false;
       firstCheckConfig  = false;

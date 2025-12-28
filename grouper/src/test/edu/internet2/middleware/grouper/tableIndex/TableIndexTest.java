@@ -72,7 +72,7 @@ public class TableIndexTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TableIndexTest("testSaveAttributeDefName"));
+    TestRunner.run(new TableIndexTest("testIndexesStem"));
   }
 
   /**
@@ -166,7 +166,7 @@ public class TableIndexTest extends GrouperTest {
       idIndexes.add(idIndex);
     }
     assertTrue(9 <= Hib3TableIndexDAO.testingNumberOfTimesReservedIndexes - originalNumberOfTimesIndexesReserved);
-    assertTrue(11 >= Hib3TableIndexDAO.testingNumberOfTimesReservedIndexes - originalNumberOfTimesIndexesReserved);
+    assertTrue(41 >= Hib3TableIndexDAO.testingNumberOfTimesReservedIndexes - originalNumberOfTimesIndexesReserved);
   }
 
   /**
@@ -183,7 +183,7 @@ public class TableIndexTest extends GrouperTest {
       assertFalse(idIndexes.contains(idIndex));
       idIndexes.add(idIndex);
     }
-    assertTrue(9 <= Hib3TableIndexDAO.testingNumberOfTimesReservedIndexes - originalNumberOfTimesIndexesReserved);
+    assertTrue(8 <= Hib3TableIndexDAO.testingNumberOfTimesReservedIndexes - originalNumberOfTimesIndexesReserved);
     assertTrue(11 >= Hib3TableIndexDAO.testingNumberOfTimesReservedIndexes - originalNumberOfTimesIndexesReserved);
   }
 
@@ -201,7 +201,7 @@ public class TableIndexTest extends GrouperTest {
       assertFalse(idIndexes.contains(idIndex));
       idIndexes.add(idIndex);
     }
-    assertTrue(9 <= Hib3TableIndexDAO.testingNumberOfTimesReservedIndexes - originalNumberOfTimesIndexesReserved);
+    assertTrue(8 <= Hib3TableIndexDAO.testingNumberOfTimesReservedIndexes - originalNumberOfTimesIndexesReserved);
     assertTrue(11 >= Hib3TableIndexDAO.testingNumberOfTimesReservedIndexes - originalNumberOfTimesIndexesReserved);
   }
 

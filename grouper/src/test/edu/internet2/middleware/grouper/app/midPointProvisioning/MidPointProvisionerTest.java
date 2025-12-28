@@ -73,11 +73,12 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
       
       ensureTableSyncTables();
   
-      new GcDbAccess().sql("delete from gr_mp_groups").executeSql();
-      new GcDbAccess().sql("delete from gr_mp_group_attributes").executeSql();
-      new GcDbAccess().sql("delete from gr_mp_subjects").executeSql();
-      new GcDbAccess().sql("delete from gr_mp_subject_attributes").executeSql();
       new GcDbAccess().sql("delete from gr_mp_memberships").executeSql();
+      new GcDbAccess().sql("delete from gr_mp_group_attributes").executeSql();
+      new GcDbAccess().sql("delete from gr_mp_groups").executeSql();
+      new GcDbAccess().sql("delete from gr_mp_subject_attributes").executeSql();
+      new GcDbAccess().sql("delete from gr_mp_subjects").executeSql();
+      
       
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -332,6 +333,12 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     // create the group again with subject 0 in there and deleted should become F
     testGroup.move(stem);
 
+//    new GcDbAccess().sql("delete from gr_mp_memberships").executeSql();
+//    new GcDbAccess().sql("delete from gr_mp_group_attributes").executeSql();
+//    new GcDbAccess().sql("delete from gr_mp_groups").executeSql();
+//    new GcDbAccess().sql("delete from gr_mp_subject_attributes").executeSql();
+//    new GcDbAccess().sql("delete from gr_mp_subjects").executeSql();
+    
     grouperProvisioningOutput = fullProvision();
     
     // TODO this will delete memberships when the group was deleted or maybe deleted before hand...
@@ -774,11 +781,10 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, tableName + "_idx", true, 
               "group_id_index", "subject_id_index");
 
-          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, tableName + "_sfk", 
-              "gr_mp_subjects", "subject_id_index", "subject_id_index");
-          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, tableName + "_gfk", 
-              "gr_mp_groups", "group_id_index", "id_index");
-
+//          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, tableName + "_sfk", 
+//              "gr_mp_subjects", "subject_id_index", "subject_id_index");
+//          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, tableName + "_gfk", 
+//              "gr_mp_groups", "group_id_index", "id_index");
           
         }
         

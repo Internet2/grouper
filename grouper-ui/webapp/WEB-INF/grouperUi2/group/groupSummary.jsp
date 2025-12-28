@@ -3,13 +3,17 @@
 
 <section class="grouper-summary">
 
+  <%-- tell add member to refresh audits --%>
+  <form id="groupRefreshPartFormId">
+    <input type="hidden" name="groupRefreshPart" value="summary" /> 
+  </form> 
   
   <div id="groupDetailsId">
     <table class="table table-condensed" id="groupDetailsTableId">
       <tbody>
         <!-- colspan across for next title -->
         <tr class="grouperIgnoreStripe"><td colspan="2" style="background-color: white"><p style="display: block; margin-top: 0;" />
-        <h3><p class="lead">${textContainer.text['groupSummaryDecription'] }
+        <h3 style="margin-bottom: 0px; padding-bottom: 0px"><p class="lead" style="margin-bottom: 0px; padding-bottom: 0px">${textContainer.text['groupSummaryDecription'] }
           <c:if test="${grouperRequestContainer.groupContainer.guiGroup.canRead or grouperRequestContainer.groupContainer.guiGroup.canUpdate}">
             &nbsp;
             <span id="groupSummaryMoreId" style="font-size: 0.65em; font-weight: 400"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGroupDetails']}"
@@ -17,9 +21,12 @@
                >${textContainer.text['guiGroupSummaryMore']} <i class="fa fa-angle-down"></i></a></span>
           </c:if>
         </p></h3>
-
+        
+        <span style="font-size: 0.8em">${textContainer.text['guiGroupSummaryDisclaimer']}</span>
         
         <p style="display: block; margin-top: 0;" /></td></tr>
+      
+        <%@ include file="../group/groupSummaryCustom.jsp"%>
       
         <c:if test="${not empty grouperRequestContainer.objectTypeContainer.guiConfiguredGrouperObjectTypesAttributeValues}">
           <!-- Types -->
@@ -97,11 +104,10 @@
             <tr>
               <td style="vertical-align: top;"><strong>${textContainer.text['groupSummaryPageAbacScriptedGroup']}</strong></td>
               <td style="padding-left: 0px;">
-                ${textContainer.text['groupSummaryPageAbacScriptedGroupDependenciesCountMessage']} <br /><br />
+                ${textContainer.text['groupSummaryPageAbacScriptedGroupDependenciesCountMessage']}:
                 <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependencies}"> 
                     <c:forEach var="abacScriptedGroupDependency" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.abacScriptedGroupDependencies}">
-                      <li style="margin-left: 12px;">${abacScriptedGroupDependency.shortLinkWithIcon}
-                      <c:if test="${!status.last}">,</c:if></li>
+                      ${abacScriptedGroupDependency.shortLinkWithIcon}<c:if test="${!status.last}">,</c:if>
                     </c:forEach>
                 </c:if>
               </td>
@@ -115,13 +121,10 @@
               <td style="vertical-align: top;"><strong>${textContainer.text['groupComposites']}</strong></td>
               <td style="padding-left: 0px;">
                 <c:if test="${grouperRequestContainer.groupSummaryContainer.composite}">
-                 <li style="margin-left: 12px;">
                   ${textContainer.text['groupSummaryPageCompositeGroupMessage']}
-                  </li>
                 </c:if>
                 
                 <c:if test="${grouperRequestContainer.groupSummaryContainer.compositeSize > 0}">
-                 <li style="margin-left: 12px;">
                   ${textContainer.text['groupSummaryPageCompositeFactorMessage']}
                   <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.composites}"> 
                       <c:forEach var="composite" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.composites}">
@@ -129,32 +132,19 @@
                         <c:if test="${!status.last}">,</c:if>
                       </c:forEach>
                   </c:if>
-                 </li>
                 </c:if>
               </td>
             </tr>
           </c:if>
         </c:if>
-        <c:if test="${grouperRequestContainer.groupContainer.guiGroup.canAdmin}">
-          <c:if test="${grouperRequestContainer.groupSummaryContainer.provisioningAssignmentCount > 0}">
-            <!-- PROVISIONING -->
-            <tr>
-              <td style="vertical-align: top;"><strong><a href="javascript:void(0)" id="groupMoreActionsProvisioningButtonId" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                              >${textContainer.text['provisioningMoreActionsMenuLabel'] }</a></strong></td>
-              <td style="padding-left: 0px;">
-                <li style="margin-left: 12px;">
-                  ${textContainer.text['groupSummaryPageProvisionedTargetMessage']}
-                  <c:if test="${not empty grouperRequestContainer.groupSummaryContainer.guiGrouperProvisioningAttributeValues}"> 
-                    <c:forEach var="guiGrouperProvisioningAttributeValue" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.guiGrouperProvisioningAttributeValues}">
-                      ${guiGrouperProvisioningAttributeValue.externalizedName}
-                      <c:if test="${!status.last}">,</c:if>
-                    </c:forEach>
-                  </c:if>
-                </li>
-              </td>
-            </tr>
-          </c:if>
-        </c:if>
+        <!-- PROVISIONING -->
+        <tr style="display: none" id="groupConfigurationProvisioningRowId">
+          <td style="vertical-align: top;"><strong><a href="javascript:void(0)" id="groupMoreActionsProvisioningButtonId" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          >${textContainer.text['provisioningMoreActionsMenuLabel'] }</a></strong></td>
+          <td style="padding-left: 0px;" id="groupProvisioningSummaryCellId">
+
+          </td>
+        </tr>
         <c:if test="${grouperRequestContainer.groupContainer.guiGroup.canUpdate}">
           <c:if test="${grouperRequestContainer.groupSummaryContainer.attestation}">
             <!-- ATTESTATION -->

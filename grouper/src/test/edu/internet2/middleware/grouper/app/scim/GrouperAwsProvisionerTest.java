@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Membership;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.ScimProvisioningStartWith;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -61,7 +62,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     AwsScim2MockServiceHandler.ensureScimMockTables();
     //TestRunner.run(new GrouperAwsProvisionerTest("testAWSIncrementalSyncProvisionWithActiveAttributeOnUser"));
-    TestRunner.run(new GrouperAwsProvisionerTest("testAWSFullSyncProvisionGroupWithMembershipStrategy"));
+    TestRunner.run(new GrouperAwsProvisionerTest("testAWSFullSyncProvisionGroupUseJsonPointer"));
 
   }
   
@@ -232,7 +233,6 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       .assignGroupAttributeCount(2)
       .assignBearer(bearer)
     );
-
 
 
     GrouperStartup.startup();
@@ -422,9 +422,9 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       assertNull(gcGrouperSyncMembership.getErrorMessage());
       assertNull(gcGrouperSyncMembership.getErrorTimestamp());
       
-      
       //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+      
       
       // now run the full sync again and the member should be deleted from mock_scim_membership also
       started = System.currentTimeMillis();
@@ -837,6 +837,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
     
   }
   
+ //need to run individually
   public void testAWSFullSyncProvisionGroupUseJsonPointer() {
     
     if (!tomcatRunTests()) {
@@ -943,7 +944,8 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
       .assignScimType("AWS")
       .assignUseActiveOnUser(true)
-      .assignGroupAttributeCount(2);
+      .assignGroupAttributeCount(2)
+      .addExtraConfig("scoreConvertToFullSyncThreshold", "500");
     ScimProvisionerTestUtils.configureScimProvisioner(scimProvisionerTestConfigInput);
 
     GrouperStartup.startup();
@@ -1245,6 +1247,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       
   }
   
+  //need to run individually
   public void testAWSFullSyncBulkProvision() {
     
     if (!tomcatRunTests()) {
@@ -1349,6 +1352,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
         .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
         .assignScimType("AWS")
         .assignGroupAttributeCount(2)
+        .addExtraConfig("scoreConvertToFullSyncThreshold", "500")
       );
 
     GrouperStartup.startup();

@@ -156,6 +156,8 @@ import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.customizeUi.GroupViewLogicInput;
+import edu.internet2.middleware.grouper.ui.customizeUi.JavaUiCustomizer;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -309,13 +311,32 @@ public class UiV2Group {
     
   }
 
- 
+  
   /**
    * view group
    * @param request
    * @param response
    */
   public void viewGroup(HttpServletRequest request, HttpServletResponse response) {
+    
+    // see if we are defaulting to the summary tab
+    boolean defaultToSummaryTab = GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.group.viewGroupDefaultToSummaryTab", true);
+    
+    if (defaultToSummaryTab) {
+      viewGroupSummary(request, response);
+    } else {
+      viewGroupMembers(request, response);
+    }
+    
+  }
+
+ 
+  /**
+   * view group
+   * @param request
+   * @param response
+   */
+  public void viewGroupSummary(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -334,6 +355,12 @@ public class UiV2Group {
       }
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      // if the user has customized something
+      GroupViewLogicInput groupViewLogicInput = new GroupViewLogicInput(request, response);
+      //add the group
+      groupViewLogicInput.setGroup(group);
+      JavaUiCustomizer.retrieveInstance().groupViewLogic(groupViewLogicInput);
       
       if (group.getTypeOfGroup() == TypeOfGroup.entity) {
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=" + group.getId() + "')"));
@@ -389,13 +416,15 @@ public class UiV2Group {
           if (countGroupUsage > 0 && countGroupUsage <= 5) {
             
             Set<String> groupIdsForDependentGroupUsage = SqlCacheDependencyDao.retrieveGroupIdsForDependentGroupUsage(group);
-            GroupFinder groupFinder = new GroupFinder();
-            for (String groupId: groupIdsForDependentGroupUsage) {            
-              groupFinder.addGroupId(groupId);
+            if (GrouperUtil.length(groupIdsForDependentGroupUsage) > 0) {
+              GroupFinder groupFinder = new GroupFinder();
+              for (String groupId: groupIdsForDependentGroupUsage) {            
+                groupFinder.addGroupId(groupId);
+              }
+              Set<Group> groups = groupFinder.findGroups();
+              Set<GuiGroup> guiAbacScriptedGroupDependencies = GuiGroup.convertFromGroups(groups);
+              groupSummaryContainer.setAbacScriptedGroupDependencies(guiAbacScriptedGroupDependencies);
             }
-            Set<Group> groups = groupFinder.findGroups();
-            Set<GuiGroup> guiAbacScriptedGroupDependencies = GuiGroup.convertFromGroups(groups);
-            groupSummaryContainer.setAbacScriptedGroupDependencies(guiAbacScriptedGroupDependencies);
           }
         }
       }
@@ -426,46 +455,6 @@ public class UiV2Group {
               compositeOwners.add(new GuiGroup(composie.getOwnerGroup()));
             }
             groupSummaryContainer.setComposites(compositeOwners);
-          }
-        }
-      }
-      
-      //provisioning section
-      {
-        
-        if (isAdmin) {
-          List<GrouperProvisioningAttributeValue> provisioningAttributeValues = GrouperProvisioningService.getProvisioningAttributeValues(group);
-          
-          groupSummaryContainer.setProvisioningAssignmentCount(provisioningAttributeValues.size());
-          
-          if (provisioningAttributeValues.size() < 10) {
-            Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
-            List<GrouperProvisioningAttributeValue> provisioningAttributeValuesViewable = new ArrayList<GrouperProvisioningAttributeValue>();
-            Set<String> targetNamesAlreadyAdded = new HashSet<>();
-            for (GrouperProvisioningAttributeValue grouperProvisioningAttributeValue: provisioningAttributeValues) {
-              
-              String localTargetName = grouperProvisioningAttributeValue.getTargetName();
-              GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(localTargetName);
-              if (grouperProvisioningTarget != null && GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, group)) {
-                provisioningAttributeValuesViewable.add(grouperProvisioningAttributeValue);
-                targetNamesAlreadyAdded.add(grouperProvisioningAttributeValue.getTargetName());
-              }
-            }
-            
-            // convert from raw to gui
-            List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(provisioningAttributeValuesViewable, group);
-            
-            Collections.sort(guiGrouperProvisioningAttributeValues, new Comparator<GuiGrouperProvisioningAttributeValue>() {
-
-              @Override
-              public int compare(GuiGrouperProvisioningAttributeValue o1,
-                  GuiGrouperProvisioningAttributeValue o2) {
-                return o1.getExternalizedName().compareTo(o2.getExternalizedName());
-              }
-            });
-            
-            groupSummaryContainer.setGuiGrouperProvisioningAttributeValues(guiGrouperProvisioningAttributeValues);
-            
           }
         }
       }
@@ -1412,9 +1401,12 @@ public class UiV2Group {
           //doesnt affect
         } else if (StringUtils.equals(groupRefreshPart, "thisGroupsMemberships")) {
           //doesnt affect
+        } else if (StringUtils.equals(groupRefreshPart, "members")) {
+          filterHelper(request, response, group);
+        } else if (StringUtils.equals(groupRefreshPart, "summary")) {
+          //doesnt affect
         } else {
-//          filterHelper(request, response, group);
-          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));
+          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroupMembers&groupId=" + group.getId() + "')"));
         }
 
       } else {
@@ -4757,7 +4749,7 @@ public class UiV2Group {
       }
       
       //go to the view group screen
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroupMembers&groupId=" + group.getId() + "')"));
   
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
@@ -6521,6 +6513,7 @@ public class UiV2Group {
       //memberships section
       {
         if (isReader) {
+          // ok to include disabled sources so the summary isn't hiding that data?
           Collection<Source> sources = SourceManager.getInstance().getSources();
           Iterator<Source> iterator = sources.iterator();
           while (iterator.hasNext()) {
@@ -6690,6 +6683,61 @@ public class UiV2Group {
               "/WEB-INF/grouperUi2/group/groupSummaryMoreAttributes.jsp"));
 
           guiResponseJs.addAction(GuiScreenAction.newScript("$('#groupAttributesSummaryRowId').show('slow');"));
+        }
+      }
+      
+      //provisioning section
+      {
+        
+        if (isAdmin) {
+          List<GrouperProvisioningAttributeValue> provisioningAttributeValues = GrouperProvisioningService.getProvisioningAttributeValues(group);
+          
+          // remove values which are not provisionable
+          Iterator<GrouperProvisioningAttributeValue> iterator = provisioningAttributeValues.iterator();
+          while (iterator.hasNext()) {
+            GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = iterator.next();
+            
+            if (!grouperProvisioningAttributeValue.isDoProvision()) {
+              iterator.remove();
+            }
+          }
+          
+          groupSummaryContainer.setProvisioningAssignmentCount(provisioningAttributeValues.size());
+          
+          if (provisioningAttributeValues.size() < 10) {
+            Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+            List<GrouperProvisioningAttributeValue> provisioningAttributeValuesViewable = new ArrayList<GrouperProvisioningAttributeValue>();
+            Set<String> targetNamesAlreadyAdded = new HashSet<>();
+            for (GrouperProvisioningAttributeValue grouperProvisioningAttributeValue: provisioningAttributeValues) {
+              
+              String localTargetName = grouperProvisioningAttributeValue.getTargetName();
+              GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(localTargetName);
+              if (grouperProvisioningTarget != null && GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, group)) {
+                provisioningAttributeValuesViewable.add(grouperProvisioningAttributeValue);
+                targetNamesAlreadyAdded.add(grouperProvisioningAttributeValue.getTargetName());
+              }
+            }
+            
+            // convert from raw to gui
+            List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(provisioningAttributeValuesViewable, group);
+            
+            Collections.sort(guiGrouperProvisioningAttributeValues, new Comparator<GuiGrouperProvisioningAttributeValue>() {
+
+              @Override
+              public int compare(GuiGrouperProvisioningAttributeValue o1,
+                  GuiGrouperProvisioningAttributeValue o2) {
+                return o1.getExternalizedName().compareTo(o2.getExternalizedName());
+              }
+            });
+            
+            groupSummaryContainer.setGuiGrouperProvisioningAttributeValues(guiGrouperProvisioningAttributeValues);
+            
+          }
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupProvisioningSummaryCellId", 
+              "/WEB-INF/grouperUi2/group/groupSummaryMoreProvisioning.jsp"));
+
+          guiResponseJs.addAction(GuiScreenAction.newScript("$('#groupConfigurationProvisioningRowId').show('slow');"));
+          
         }
       }
       

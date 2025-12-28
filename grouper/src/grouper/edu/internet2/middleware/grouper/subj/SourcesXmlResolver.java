@@ -487,7 +487,18 @@ public class SourcesXmlResolver implements SubjectResolver {
    * @since   1.2.1
    */
   public Set<Source> getSources() {
-    return new LinkedHashSet( SourceManager.getInstance().getSourcesEnabled() );
+    return getSources(true);
+  }
+  
+  /**
+   * @see     SubjectResolver#getSources(boolean)
+   */
+  public Set<Source> getSources(boolean enabledOnly) {
+    if (enabledOnly) {
+      return new LinkedHashSet( SourceManager.getInstance().getSourcesEnabled() );
+    } else {
+      return new LinkedHashSet( SourceManager.getInstance().getSources() );
+    }
   }
 
   /**
@@ -803,7 +814,7 @@ public class SourcesXmlResolver implements SubjectResolver {
    */
   public SearchPageResult findPageInStem(String stemName, String query)
       throws IllegalArgumentException {
-    Set<Source> sources = new LinkedHashSet<Source>(SourceManager.getInstance().getSources());
+    Set<Source> sources = new LinkedHashSet<Source>(SourceManager.getInstance().getSourcesEnabled());
     return findPageInStem(stemName, query, sources);
   }
 

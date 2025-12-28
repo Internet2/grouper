@@ -19,6 +19,11 @@ public class SubjectSourceContainer {
   private String subjectSourceId;
   
   /**
+   * subject source that is being worked on
+   */
+  private Source source;
+  
+  /**
    * subject source configuration user is currently viewing/editing/adding
    */
   private GuiSubjectSourceConfiguration guiSubjectSourceConfiguration;
@@ -42,6 +47,14 @@ public class SubjectSourceContainer {
   
   public void setSources(List<Source> sources) {
     this.sources = sources;
+  }
+  
+  public Source getSource() {
+    return source;
+  }
+  
+  public void setSource(Source source) {
+    this.source = source;
   }
 
   /**

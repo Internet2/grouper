@@ -586,7 +586,7 @@ public class GrouperStartup {
    * verify that at least one search/sort column is specified for each source
    */
   public static void verifyMemberSortAndSearchConfig() {
-    for (Source source : SourceManager.getInstance().getSources()) {
+    for (Source source : SourceManager.getInstance().getSourcesEnabled()) {
       if (source.getSortAttributes() == null || source.getSortAttributes().size() == 0) {
         throw new RuntimeException("At least one sort column should be specified for source " + source.getId());
       }

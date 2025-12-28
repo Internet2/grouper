@@ -521,7 +521,7 @@ public class GrouperService {
    * @return the members, or no members if none found
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_MEL/members")
+  @Path("/grouper-ws/servicesRest/vG_E_MEL/groups")
   @ApiOperation(httpMethod = "POST", value = "Get members lite", nickname = "getMembersLite", //response = .class,
   notes = "<b>Description</b>: Get members will retrieve subjects assigned to a group."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Members'>wiki</a> and go to samples to see requests and responses") 
@@ -2064,7 +2064,7 @@ public class GrouperService {
    * @return the result of one member add
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_A_MEL/members")
+  @Path("/grouper-ws/servicesRest/vA_A_MEL/groups")
   @ApiOperation(httpMethod = "POST", value = "Add member lite", nickname = "addMemberLite", //response = .class,
   notes = "<b>Description</b>: Add member will add or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Add+Member'>wiki</a> and go to samples to see requests and responses") 
@@ -2402,7 +2402,7 @@ public class GrouperService {
      * @return the result of one member query
      */
     @POST
-    @Path("/grouper-ws/servicesRest/vH_M_EML/members")
+    @Path("/grouper-ws/servicesRest/vH_M_EML/groups")
     @ApiOperation(httpMethod = "POST", value = "Has member lite", nickname = "hasMemberLite", //response = .class,
     notes = "<b>Description</b>: Has member will see if a group contains a subject as a member"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Has+Member'>wiki</a> and go to samples to see requests and responses") 
@@ -2728,7 +2728,7 @@ public class GrouperService {
    * @return the result of one member delete
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vD_M_EML/members")
+  @Path("/grouper-ws/servicesRest/vD_M_EML/groups")
   @ApiOperation(httpMethod = "POST", value = "Delete member lite", nickname = "deleteMemberLite", //response = .class,
   notes = "<b>Description</b>: Delete member will delete or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is in an indirect membership, this is still a success"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Delete+Member'>wiki</a> and go to samples to see requests and responses") 

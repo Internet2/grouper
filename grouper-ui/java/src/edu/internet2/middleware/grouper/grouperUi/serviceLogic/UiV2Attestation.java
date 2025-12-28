@@ -2398,7 +2398,7 @@ public class UiV2Attestation {
     if (attestation != null) {
       attestationContainer.setGuiAttestation(attestation);
       
-      if (alsoSetupParentAttestation && attestationContainer.isHasAttestationConfigured() && !attestationContainer.isDirectGroupAttestationAssignment() && !attestationContainer.isDirectStemAttestationAssignment()) {
+      if (alsoSetupParentAttestation && attestationContainer.isHasAttestationConfiguredNoCache() && !attestationContainer.isDirectGroupAttestationAssignment() && !attestationContainer.isDirectStemAttestationAssignment()) {
         Stem parentStem = attestationContainer.getParentStemWithAttestation();
         if (parentStem != null) {
           GuiAttestation parentAttestation = retrieveGuiAttestation(parentStem);

@@ -106,7 +106,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testObliterateAndPointInTimeComposite"));
+    TestRunner.run(new TestStem("testStemObliterate2AttributeDef3"));
     //TestRunner.run(TestStem.class);
     //stemObliterate2setup();
     //loadLotsOfData(3, 3, 3, 3, 3);
@@ -3978,13 +3978,13 @@ public class TestStem extends GrouperTest {
 
     Stem.StemObliterateResults stemObliterateResults = Stem.retrieveObliterateResults();
     assertEquals(2, stemObliterateResults.getStemCount());
-    assertEquals(9, stemObliterateResults.getStemCountTotal());
-    assertEquals(2, stemObliterateResults.getGroupCount());
-    assertEquals(4, stemObliterateResults.getGroupCountTotal());
-    assertEquals(2, stemObliterateResults.getAttributeDefCount());
-    assertEquals(4, stemObliterateResults.getAttributeDefCountTotal());
-    assertEquals(2, stemObliterateResults.getAttributeDefNameCount());
-    assertEquals(4, stemObliterateResults.getAttributeDefNameCountTotal());
+    assertEquals(6, stemObliterateResults.getStemCountTotal());
+    assertEquals(1, stemObliterateResults.getGroupCount());
+    assertEquals(2, stemObliterateResults.getGroupCountTotal());
+    assertEquals(1, stemObliterateResults.getAttributeDefCount());
+    assertEquals(2, stemObliterateResults.getAttributeDefCountTotal());
+    assertEquals(1, stemObliterateResults.getAttributeDefNameCount());
+    assertEquals(2, stemObliterateResults.getAttributeDefNameCountTotal());
     
     int count = testStem.deleteAttributeDefs(false, false, Scope.ONE).size();
     assertEquals(1, count);

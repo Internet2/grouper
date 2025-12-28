@@ -538,6 +538,7 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       
     });
     ConfigPropertiesCascadeBase.clearCache();
+    GshTemplateConfig.clearGrouperObjectTypeIdOrNameToGrouperObjectCache();
 
   }
   
@@ -566,6 +567,7 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
         
       });
       ConfigPropertiesCascadeBase.clearCache();
+      GshTemplateConfig.clearGrouperObjectTypeIdOrNameToGrouperObjectCache();
 
   }
   

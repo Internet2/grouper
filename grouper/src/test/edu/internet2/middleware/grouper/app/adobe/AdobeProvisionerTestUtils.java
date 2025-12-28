@@ -25,6 +25,7 @@ public class AdobeProvisionerTestUtils {
     
     //String token = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword");
     if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouper.adobe.provisioning.real", false)) {
+      // is this supposed to be aws???
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.endpoint").
         value(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.aws.scim.provisioning.real.endpoint")).store();
       
@@ -45,6 +46,7 @@ public class AdobeProvisionerTestUtils {
     
   }
   
+  // TODO why is this here?  this is adobe
   public static void setupGithubExternalSystem(boolean includeOrgName) {
     
     int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);

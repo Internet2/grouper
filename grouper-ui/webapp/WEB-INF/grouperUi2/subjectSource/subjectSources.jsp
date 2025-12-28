@@ -76,6 +76,7 @@ ${grouper:title('subjectSourcesPageTitle')}
 			                             <span class="caret"></span>
 			                           </a>
 			                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
+				                     <li><a href="?operation=UiV2SubjectSource.compareSubjectSources&subjectSourceId=${source.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectSource.compareSubjectSources&subjectSourceId=${source.id}');">${textContainer.text['subjectSourcesCompareActionOption'] }</a></li>
 			                             <li><a href="?operation=UiV2Admin.subjectApiDiagnosticsSourceIdChanged&subjectApiSourceIdName=${source.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.subjectApiDiagnosticsSourceIdChanged&subjectApiSourceIdName=${source.id}');">${textContainer.text['subjectSourcesDiagnosticsActionOption'] }</a></li>
 			                             
 			                             <c:if test="${source.editable}">

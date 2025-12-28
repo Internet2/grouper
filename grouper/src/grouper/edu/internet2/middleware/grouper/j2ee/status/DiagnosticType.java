@@ -98,7 +98,7 @@ public enum DiagnosticType {
     public void appendDiagnostics(Set<DiagnosticTask> diagnosticsTasks) {
       db.appendDiagnostics(diagnosticsTasks);
 
-      Collection<Source> theSources = SourceManager.getInstance().getSources();
+      Collection<Source> theSources = SourceManager.getInstance().getSourcesEnabled();
       
       for (Source source : theSources) {
         

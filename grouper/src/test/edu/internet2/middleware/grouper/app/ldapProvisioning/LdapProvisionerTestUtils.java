@@ -122,15 +122,20 @@ public class LdapProvisionerTestUtils {
     if (dockerPath == null) {
       synchronized(LdapProvisionerTestUtils.class) {
         if (dockerPath == null) {
-          String[] filesToCheck = { "/usr/bin/docker", "/usr/local/bin/docker", "/bin/docker" };
-          for (String fileToCheck : filesToCheck) {
-            if (new File(fileToCheck).exists()) {
-              dockerPath = fileToCheck;
-              break;
-            } 
-          }
-          if (dockerPath == null) {
-            dockerPath = "docker";
+          
+          dockerPath = GrouperConfig.retrieveConfig().propertyValueString("junit.test.docker.command");
+          
+          if (StringUtils.isBlank(dockerPath)) {
+            String[] filesToCheck = { "/usr/bin/docker", "/usr/local/bin/docker", "/bin/docker", "/opt/homebrew/bin/podman" };
+            for (String fileToCheck : filesToCheck) {
+              if (new File(fileToCheck).exists()) {
+                dockerPath = fileToCheck;
+                break;
+              } 
+            }
+            if (dockerPath == null) {
+              dockerPath = "docker";
+            }
           }
         }
       }

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 public class GrouperObjectTypesSettings {
   
@@ -37,12 +38,24 @@ public class GrouperObjectTypesSettings {
   }
   
   /**
+   * cache the object types stem name
+   */
+  private static ExpirableCache<Boolean, String> objectTypesStemNameCache = new ExpirableCache<Boolean, String>(5);
+  
+  /**
    * 
    * @return the stem name with no last colon
    */
   public static String objectTypesStemName() {
-    return GrouperUtil.stripSuffix(GrouperConfig.retrieveConfig().propertyValueString("objectTypes.systemFolder", 
-        GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":objectTypes"), ":");
+    
+    String objectTypesStemName = objectTypesStemNameCache.get(Boolean.TRUE);
+    if (objectTypesStemName == null) {
+      objectTypesStemName = GrouperUtil.stripSuffix(GrouperConfig.retrieveConfig().propertyValueString("objectTypes.systemFolder", 
+          GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":objectTypes"), ":");
+      objectTypesStemNameCache.put(Boolean.TRUE, objectTypesStemName);
+    }
+    return objectTypesStemName;
+    
   }
   
   /**

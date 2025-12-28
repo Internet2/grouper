@@ -52,7 +52,7 @@ public class GrouperRequestContainer {
    */
   public List<GuiSource> getGuiSources() {
     return new ArrayList<GuiSource>(GuiSource.convertFromSources(
-        new LinkedHashSet<Source>(SourceManager.getInstance().getSources())));
+        new LinkedHashSet<Source>(SourceManager.getInstance().getSourcesEnabled())));
   }
 
   /**

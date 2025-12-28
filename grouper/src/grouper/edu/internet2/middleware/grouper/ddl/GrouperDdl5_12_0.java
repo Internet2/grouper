@@ -123,7 +123,7 @@ public class GrouperDdl5_12_0 {
         TABLE_GROUPER_PROV_AZURE_USER);
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperDuoTable.getName(), 
-        "grouper_prov_azure_user_idx1", true, 
+        "grouper_prov_azure_user_idx1", false, 
         COLUMN_GROUPER_PROV_AZURE_USER_PRINCIPAL_NAME, COLUMN_GROUPER_PROV_AZURE_USER_CONFIG_ID);
 
   }

@@ -76,7 +76,7 @@ public class GrouperObjectFinderTest extends GrouperTest {
    */
   public static void main(String[] args) {
     
-    TestRunner.run(new GrouperObjectFinderTest("testFindObjects"));
+    TestRunner.run(new GrouperObjectFinderTest("testFindFoldersAllowed"));
 
   }
 
@@ -103,9 +103,7 @@ public class GrouperObjectFinderTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.folders.are.viewable.by.all");
   }
 
-  /**
-   * 
-   */
+  // this test does not pass.  
   public void testFindFoldersAllowed() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     

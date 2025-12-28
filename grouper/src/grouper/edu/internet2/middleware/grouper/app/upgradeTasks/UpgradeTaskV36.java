@@ -1,7 +1,5 @@
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
-import org.apache.commons.logging.Log;
-
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -11,23 +9,26 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
+/**
+ * grouper_prov_duo_user primary key should be (user_id, config_id), not just user_name
+ */
 public class UpgradeTaskV36 implements UpgradeTasksInterface {
-  
-  /** logger */
-  private static final Log LOG = GrouperUtil.getLog(UpgradeTaskV36.class);
   
   @Override
   public boolean doesUpgradeTaskHaveDdlWorkToDo() {
     
-    if (!GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event_config")) {
-      return true;
-    }
-
-    if (!GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event")) {
-      return true;
-    }
-
-    return false;
+    return (boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        if (!GrouperDdlUtils.assertPrimaryKeyExists("grouper_prov_duo_user", GrouperUtil.toSet("user_id", "config_id"))) {
+          return true;
+        }
+        
+        return false;
+      }
+    });
   }
 
   @Override
@@ -37,9 +38,9 @@ public class UpgradeTaskV36 implements UpgradeTasksInterface {
 
   @Override
   public GrouperVersion versionIntroduced() {
-    return GrouperVersion.valueOfIgnoreCase("5.22.0");
+    return GrouperVersion.valueOfIgnoreCase("4.20.4");
   }
-  
+
   @Override
   public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -47,154 +48,89 @@ public class UpgradeTaskV36 implements UpgradeTasksInterface {
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
-        if (!GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event_config")) {
-          if (GrouperDdlUtils.isOracle()) {
-            new GcDbAccess().sql("""
-                CREATE TABLE grouper_lifecycle_event_config (
-                  internal_id NUMBER(38) NOT NULL,
-                  config_id varchar2(100) NOT NULL,
-                  group_internal_id NUMBER(38),
-                  stem_id_index NUMBER(38),
-                  data_field_internal_id NUMBER(38),
-                  data_row_internal_id NUMBER(38),
-                  created_on_micros NUMBER(38) NOT NULL,
-                  PRIMARY KEY (internal_id)
-                )
-              """).executeSql();
-            
-            if (otherJobInput != null) {
-              otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-              otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", created table grouper_lifecycle_event_config");
-            }
-          } else {
-            new GcDbAccess().sql("""
-                CREATE TABLE grouper_lifecycle_event_config (
-                  internal_id BIGINT NOT NULL,
-                  config_id varchar(100) NOT NULL,
-                  group_internal_id BIGINT,
-                  stem_id_index BIGINT,
-                  data_field_internal_id BIGINT,
-                  data_row_internal_id BIGINT,
-                  created_on_micros BIGINT NOT NULL,
-                  PRIMARY KEY (internal_id)
-                )
-              """).executeSql();
-            
-            if (otherJobInput != null) {
-              otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-              otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", created table grouper_lifecycle_event_config");
-            }
-          }
-        }
-        
-        if (!GrouperDdlUtils.assertIndexExists("grouper_lifecycle_event_config", "grouper_lcycle_evnt_cnfg_idx")) {
-          new GcDbAccess().sql("CREATE UNIQUE INDEX grouper_lcycle_evnt_cnfg_idx ON grouper_lifecycle_event_config (config_id)").executeSql();
+        // check if postgres
+        if (GrouperDdlUtils.isPostgres()) {
+          
+          // drop index grouper_duo_user_id_idx
+          new GcDbAccess().sql("DROP INDEX IF EXISTS grouper_duo_user_id_idx").executeSql();
+          
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_lcycle_evnt_cnfg_idx");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", dropped index: grouper_duo_user_id_idx");
           }
-        }
-        
-        if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event_config", "group_internal_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT group_internal_id_fk FOREIGN KEY (group_internal_id) REFERENCES  grouper_groups(internal_id)").executeSql();
+
+          // drop the primary key
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_duo_user DROP CONSTRAINT IF EXISTS grouper_prov_duo_user_pkey").executeSql();
+
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key group_internal_id_fk");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", dropped primary key on table: grouper_prov_duo_user");
           }
-        }
-        
-        if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event_config", "stem_id_index_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT stem_id_index_fk FOREIGN KEY (stem_id_index) REFERENCES  grouper_stems(id_index)").executeSql();
+
+          // add the new primary key
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_duo_user ADD CONSTRAINT grouper_prov_duo_user_pkey PRIMARY KEY (user_id, config_id)").executeSql();
+          
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key stem_id_index_fk");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added primary key on table: grouper_prov_duo_user (user_id, config_id)");
           }
-        }
-        
-        if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event_config", "data_field_internal_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_field_internal_id_fk FOREIGN KEY (data_field_internal_id) REFERENCES  grouper_data_field(internal_id)").executeSql();
+
+          // check if oracle
+        } else if (GrouperDdlUtils.isOracle()) {
+          
+          // drop index grouper_duo_user_id_idx
+          new GcDbAccess().sql("DROP INDEX grouper_duo_user_id_idx").executeSql();
+
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key data_field_internal_id_fk");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", dropped index: grouper_duo_user_id_idx");
           }
-        }
-        
-        if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event_config", "data_row_internal_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_row_internal_id_fk FOREIGN KEY (data_row_internal_id) REFERENCES  grouper_data_row(internal_id)").executeSql();
+
+          // drop the primary key
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_duo_user DROP PRIMARY KEY").executeSql();
+
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key data_row_internal_id_fk");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", dropped primary key on table: grouper_prov_duo_user");
           }
-        }
-        
-        if (!GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event")) {
-          if (GrouperDdlUtils.isOracle()) {
-            new GcDbAccess().sql("""
-                CREATE TABLE grouper_lifecycle_event (
-                  internal_id NUMBER(38) NOT NULL,
-                  grpr_lcycl_evnt_cnfg_intrnl_id NUMBER(38) NOT NULL,
-                  member_internal_id NUMBER(38) NOT NULL,
-                  event_micros NUMBER(38) NOT NULL,
-                  ntrl_lng_priv_dic_intrnl_id NUMBER(38),
-                  ntrl_lng_unpriv_dic_intrnl_id NUMBER(38),
-                  PRIMARY KEY (internal_id)
-                )
-              """).executeSql();
-            
-            if (otherJobInput != null) {
-              otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-              otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", created table grouper_lifecycle_event");
-            }
-          } else {
-            new GcDbAccess().sql("""
-                CREATE TABLE grouper_lifecycle_event (
-                  internal_id BIGINT NOT NULL,
-                  grpr_lcycl_evnt_cnfg_intrnl_id BIGINT NOT NULL,
-                  member_internal_id BIGINT NOT NULL,
-                  event_micros BIGINT NOT NULL,
-                  ntrl_lng_priv_dic_intrnl_id BIGINT,
-                  ntrl_lng_unpriv_dic_intrnl_id BIGINT,
-                  PRIMARY KEY (internal_id)
-                )
-              """).executeSql();
-            
-            if (otherJobInput != null) {
-              otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-              otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", created table grouper_lifecycle_event");
-            }
-          }
-        }
-        
-        if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event", "lcycl_evnt_cnfg_intrnl_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lcycl_evnt_cnfg_intrnl_id_fk FOREIGN KEY (grpr_lcycl_evnt_cnfg_intrnl_id) REFERENCES  grouper_lifecycle_event_config(internal_id)").executeSql();
+
+          // add the new primary key
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_duo_user ADD CONSTRAINT grouper_prov_duo_user_pkey PRIMARY KEY (user_id, config_id)").executeSql();
+
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key lcycl_evnt_cnfg_intrnl_id_fk");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added primary key on table: grouper_prov_duo_user (user_id, config_id)");
           }
-        }
-        
-        if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event", "member_internal_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT member_internal_id_fk FOREIGN KEY (member_internal_id) REFERENCES  grouper_members(internal_id)").executeSql();
+
+          // check if mysql
+        } else if (GrouperDdlUtils.isMysql()) {
+          
+          // drop index grouper_duo_user_id_idx
+          new GcDbAccess().sql("DROP INDEX grouper_duo_user_id_idx ON grouper_prov_duo_user").executeSql();
+
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key member_internal_id_fk");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", dropped index: grouper_duo_user_id_idx");
           }
-        }
-        
-        if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event", "lng_priv_dic_intrnl_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_priv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_priv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id)").executeSql();
+
+          // drop the primary key
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_duo_user DROP PRIMARY KEY").executeSql();
+
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key lng_priv_dic_intrnl_id_fk");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", dropped primary key on table: grouper_prov_duo_user");
           }
-        }
-        
-        if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event", "lng_unpriv_dic_intrnl_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_unpriv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_unpriv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id)").executeSql();
+
+          // add the new primary key
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_duo_user ADD PRIMARY KEY (user_id, config_id)").executeSql();
+          
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
-            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key lng_unpriv_dic_intrnl_id_fk");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added primary key on table: grouper_prov_duo_user (user_id, config_id)");
           }
+
+        } else {
+          throw new RuntimeException("Not expecting database type: " + GrouperDdlUtils.databaseType());
         }
         
         return null;

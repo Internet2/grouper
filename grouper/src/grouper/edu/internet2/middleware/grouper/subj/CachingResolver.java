@@ -342,6 +342,13 @@ public class CachingResolver extends SubjectResolverDecorator {
   public Set<Source> getSources() {
     return super.getDecoratedResolver().getSources();
   }
+  
+  /**
+   * @see     SubjectResolver#getSources(boolean)
+   */
+  public Set<Source> getSources(boolean enabledOnly) {
+    return super.getDecoratedResolver().getSources(enabledOnly);
+  }
 
   /**
    * Put set of subjects into cache for <code>findAll(...)</code>.
@@ -1063,14 +1070,16 @@ public class CachingResolver extends SubjectResolverDecorator {
 
       Map<String, Subject> nonCachedResult = super.getDecoratedResolver().findByIds(idsNotFoundInCache, source, ignoreCachedSubjects);
 
-      for (Subject subject : nonCachedResult.values()) {
-
-        //put each of these in the cache
-        this.putInFindCache(subject);
-
+      if (nonCachedResult != null) {
+        for (Subject subject : nonCachedResult.values()) {
+  
+          //put each of these in the cache
+          this.putInFindCache(subject);
+  
+        }
+  
+        result.putAll(nonCachedResult);
       }
-
-      result.putAll(nonCachedResult);
 
     }
     return result;

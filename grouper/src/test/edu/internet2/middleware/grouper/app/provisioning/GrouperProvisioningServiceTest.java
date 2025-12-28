@@ -4,6 +4,7 @@ import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTyp
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME;
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.objectTypesStemName;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_DIRECT_ASSIGNMENT;
+import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_DO_PROVISION;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_STEM_SCOPE;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.PROVISIONING_TARGET;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase;
@@ -70,7 +71,7 @@ public class GrouperProvisioningServiceTest extends GrouperProvisioningBaseTest 
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperProvisioningServiceTest("testSaveOrUpdateProvisioningAttributes"));
+    TestRunner.run(new GrouperProvisioningServiceTest("testGetProvisioningAttributeValues"));
   }
   
   @Override
@@ -1074,6 +1075,9 @@ public class GrouperProvisioningServiceTest extends GrouperProvisioningBaseTest 
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), BooleanUtils.toStringTrueFalse(isDirect));
     
     attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_TARGET, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), targetName);
+    
+    attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_DO_PROVISION, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), targetName);
     
     attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_STEM_SCOPE, true);

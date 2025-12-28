@@ -17,14 +17,12 @@ CREATE TABLE grouper_prov_duo_user
     user_name VARCHAR2(256) NOT NULL,
     created_at NUMBER(38) NOT NULL,
     last_login_time NUMBER(38),
-    PRIMARY KEY (user_id)
+    PRIMARY KEY (user_id, config_id)
 );
 
 CREATE INDEX grouper_duo_user_config_id_idx ON grouper_prov_duo_user (config_id);
 
 CREATE UNIQUE INDEX grouper_duo_user_user_name_idx ON grouper_prov_duo_user (user_name, config_id);
-
-CREATE UNIQUE INDEX grouper_duo_user_id_idx ON grouper_prov_duo_user (user_id, config_id);
 
 COMMENT ON TABLE grouper_prov_duo_user IS 'table to load duo users into a sql for reporting and deprovisioning';
 

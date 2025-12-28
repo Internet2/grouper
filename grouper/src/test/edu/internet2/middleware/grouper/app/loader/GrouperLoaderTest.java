@@ -5410,8 +5410,10 @@ public class GrouperLoaderTest extends GrouperTest {
     
     Set<String> groupNamesToSync = GrouperUtil.toSet("a:b:c:d:group1");
     Map<String, String> groupNameToDisplayName = GrouperUtil.toMap("a:b:c:d:group1", "A1:B1:C1:D1:GROUP11");
-    
-    GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, null, null, null);
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+    GrouperLoaderStatus[] grouperLoaderStatuses = new GrouperLoaderStatus[1];
+
+    GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, null, null, null, hib3GrouperLoaderLog, grouperLoaderStatuses);
     
     Stem stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
     
@@ -5426,9 +5428,10 @@ public class GrouperLoaderTest extends GrouperTest {
     
     Set<String> groupNamesToSync = GrouperUtil.toSet("a:b:c:d:group1", "a:b:c:e:group2");
     Map<String, String> groupNameToDisplayName = GrouperUtil.toMap("a:b:c:d:group1", "A1:B1:C1:D1:GROUP11", "a:b:c:e:group2", "A1:B1:C1:E1:GROUP12");
-    
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+    GrouperLoaderStatus[] grouperLoaderStatuses = new GrouperLoaderStatus[1];
     GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.BASE_FOLDER_NAME, 
-        "a:b:c:d:e", null);
+        "a:b:c:d:e", null, hib3GrouperLoaderLog, grouperLoaderStatuses);
     
     Stem stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
     
@@ -5439,14 +5442,14 @@ public class GrouperLoaderTest extends GrouperTest {
     assertEquals("A:B:C:E1", stem.getDisplayName());
     
     GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.BASE_FOLDER_NAME, 
-        "a:b", null);
+        "a:b", null, hib3GrouperLoaderLog, grouperLoaderStatuses);
     
     stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
     
     assertEquals("A:B:C1:D1", stem.getDisplayName());
     
     GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.BASE_FOLDER_NAME, 
-        "a", null);
+        "a", null, hib3GrouperLoaderLog, grouperLoaderStatuses);
     
     stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
     
@@ -5454,7 +5457,7 @@ public class GrouperLoaderTest extends GrouperTest {
     
     
     GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.BASE_FOLDER_NAME, 
-        "root", null); // root means everything
+        "root", null, hib3GrouperLoaderLog, grouperLoaderStatuses); // root means everything
     
     stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
     
@@ -5470,9 +5473,13 @@ public class GrouperLoaderTest extends GrouperTest {
     
     Set<String> groupNamesToSync = GrouperUtil.toSet("a:b:c:d:group1", "a:b:c:e:group2");
     Map<String, String> groupNameToDisplayName = GrouperUtil.toMap("a:b:c:d:group1", "A1:B1:C1:D1:GROUP11", "a:b:c:e:group2", "A1:B1:C1:E1:GROUP12");
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+
+    GrouperLoaderStatus[] grouperLoaderStatuses = new GrouperLoaderStatus[1];
+
     
     GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.LEVELS, 
-       null, 3);
+       null, 3, hib3GrouperLoaderLog, grouperLoaderStatuses);
     
     Stem stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
     
@@ -5483,7 +5490,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertEquals("A:B:C1:E1", stem.getDisplayName());
     
     GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.LEVELS, 
-        null, 4);
+        null, 4, hib3GrouperLoaderLog, grouperLoaderStatuses);
     
     stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
     
@@ -5491,7 +5498,7 @@ public class GrouperLoaderTest extends GrouperTest {
     
     
     GrouperLoaderType.syncFolderList(groupNamesToSync, groupNameToDisplayName, GrouperLoaderDisplayNameSyncType.LEVELS, 
-        null, 10); // everything
+        null, 10, hib3GrouperLoaderLog, grouperLoaderStatuses); // everything
     
     stem = StemFinder.findByName(grouperSession, "a:b:c:d", true);
     

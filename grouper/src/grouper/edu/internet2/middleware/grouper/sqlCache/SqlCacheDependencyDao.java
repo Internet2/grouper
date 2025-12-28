@@ -45,13 +45,15 @@ public class SqlCacheDependencyDao {
   public static Set<String> retrieveGroupIdsForDependentGroupUsage(Group group) {
     Long groupInternalId = group.getInternalId();
     StringBuilder query = new StringBuilder("""
-              select gg.id from grouper_sql_cache_dependency gscd, grouper_sql_cache_group gscg_dependent, grouper_sql_cache_group gscg_owner, grouper_fields gf, grouper_groups gg  where
-          gscd.dependent_internal_id = gscg_dependent.internal_id 
-           and gscg_owner.internal_id  = gscd.owner_internal_id 
-           and gscg_owner.group_internal_id = gg.internal_id 
+           select gg_dependent.id from grouper_sql_cache_dependency gscd, grouper_sql_cache_group gscg_owner, grouper_fields gf,
+        grouper_sql_cache_group gscg_dependent, grouper_groups gg_dependent  
+           where gscd.owner_internal_id = gscg_owner.internal_id
+           and gf.internal_id = gscg_owner.field_internal_id
            and gf.internal_id = gscg_dependent.field_internal_id
            and gf.name = 'members'
-          and gscg_dependent.group_internal_id  = ?;
+           and gscg_owner.group_internal_id  = ?
+           and gscd.dependent_internal_id = gscg_dependent.internal_id 
+           and gscg_dependent.group_internal_id = gg_dependent.internal_id 
         """);
     List<String> groupIds = new GcDbAccess().sql(query.toString()).addBindVar(groupInternalId).selectList(String.class);
     return new HashSet<String>(groupIds);

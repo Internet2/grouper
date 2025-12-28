@@ -25,9 +25,11 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateValidationService;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.util.PerformanceLogger;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -479,12 +481,14 @@ public class GroupStemTemplateContainer {
 
     List<GshTemplateConfiguration> gshTemplateConfigs = GshTemplateConfiguration.retrieveAllGshTemplateConfigs();
     
+    Map<MultiKey, GrouperObject> grouperObjectTypeIdOrNameToGrouperObject = GshTemplateConfig.gshTemplateObjectCache();
+
     for (GshTemplateConfiguration gshTemplateConfiguration: gshTemplateConfigs) {
       if (gshTemplateConfiguration.isEnabled()) {
         
         try {
           GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfiguration.getConfigId());
-          gshTemplateConfig.populateConfiguration();
+          gshTemplateConfig.populateConfiguration(grouperObjectTypeIdOrNameToGrouperObject);
           
           if (StringUtils.isBlank(gshTemplateConfiguration.getConfigId())) {
             continue;

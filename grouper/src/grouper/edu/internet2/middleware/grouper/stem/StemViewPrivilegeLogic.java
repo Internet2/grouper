@@ -843,6 +843,18 @@ public class StemViewPrivilegeLogic {
           List<String> batchMemberIds = GrouperUtil.batchList(memberIdsList, StemViewPrivilegeLogic.BATCH_SIZE, I);
           
           
+//          StringBuilder sql = new StringBuilder("insert into grouper_stem_view_privilege (stem_uuid, object_type, member_uuid) "
+//              + " ( select distinct gg.parent_stem as stem_id, 'G' as object_type, gmav.member_id "  
+//              + " from grouper_memberships_all_v gmav, grouper_groups gg, grouper_fields gfl "
+//              + " where gmav.owner_group_id = gg.id AND gmav.field_id = gfl.id AND gmav.immediate_mship_enabled = 'T' "
+//              + " and gfl.type = 'access' and ( gmav.member_id = ? or gmav.member_id in ( ");
+//          GrouperClientUtils.appendQuestions(sql, GrouperUtil.length(batchMemberIds));
+//          gcDbAccess.addBindVar(MemberFinder.internal_findAllMember().getUuid());
+//          for (String memberId : batchMemberIds) {
+//            gcDbAccess.addBindVar(memberId);
+//          }
+//          sql.append(" ) ) ");
+          
           StringBuilder sql = new StringBuilder("insert into grouper_stem_view_privilege (stem_uuid, object_type, member_uuid) "
               + " ( select distinct gg.parent_stem as stem_id, 'G' as object_type, gmav.member_id "  
               + " from grouper_memberships_all_v gmav, grouper_groups gg, grouper_fields gfl "

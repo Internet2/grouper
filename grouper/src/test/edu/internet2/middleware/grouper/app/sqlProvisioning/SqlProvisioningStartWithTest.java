@@ -48,7 +48,7 @@ public class SqlProvisioningStartWithTest extends GrouperProvisioningBaseTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new SqlProvisioningStartWithTest("testFullProvisionerEntityTableWithAttributesAndMembershipTable"));
+    TestRunner.run(new SqlProvisioningStartWithTest("testFullProvisionerGroupTableWithAttributesAndMembershipTable"));
   }
   
   public void testFullProvisionerGroupTableEntityTableMembershipTable() {
@@ -172,6 +172,7 @@ public class SqlProvisioningStartWithTest extends GrouperProvisioningBaseTest {
     validateNoErrors(grouperProvisioningDiagnosticsContainer);
   }
   
+  //need to run individually. when running with the test suite, the test before it gets stuck and it never reaches here
   public void testFullProvisionerGroupTableWithAttributesAndMembershipTable() {
     
     new GcDbAccess().connectionName("grouper").sql("delete from testgrouper_prov_group").executeSql();
@@ -275,6 +276,7 @@ public class SqlProvisioningStartWithTest extends GrouperProvisioningBaseTest {
     validateNoErrors(grouperProvisioningDiagnosticsContainer);
   }
   
+  //need to run individually. when running with the test suite, it always get stuck
   public void testFullProvisionerEntityTableWithAttributesAndMembershipTable() {
     
     new GcDbAccess().connectionName("grouper").sql("delete from testgrouper_prov_entity").executeSql();

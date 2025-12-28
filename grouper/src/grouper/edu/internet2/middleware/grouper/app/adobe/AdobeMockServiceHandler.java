@@ -726,15 +726,20 @@ public class AdobeMockServiceHandler extends MockServiceHandler {
     String jsonString = mockServiceRequest.getRequestBody();
     ArrayNode arrayNode = (ArrayNode) GrouperUtil.jsonJacksonNode(jsonString);
     
-    JsonNode jsonNode = arrayNode.get(0);
-    
-    if (jsonNode.has("user")) {
-      crudOnUser(jsonNode, mockServiceResponse);
-    } else if (jsonNode.has("usergroup")) {
-      crudOnUserGroup(jsonNode, mockServiceResponse);
+    int completed = 0;
+
+    for (int i=0;i<arrayNode.size();i++) {
+      JsonNode jsonNode = arrayNode.get(i);
+      
+      if (jsonNode.has("user")) {
+        crudOnUser(jsonNode, mockServiceResponse);
+      } else if (jsonNode.has("usergroup")) {
+        crudOnUserGroup(jsonNode, mockServiceResponse);
+      }
+      completed++;
+      
     }
     
-    int completed = 0;
     int notCompleted = 0;
     int completedInTestMode = 0;
     
@@ -754,11 +759,11 @@ public class AdobeMockServiceHandler extends MockServiceHandler {
 //     }
 //   ]
     
-    System.out.println(jsonString);
+//    System.out.println(jsonString);
     
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     
-    resultNode.put("completed", 1);
+    resultNode.put("completed", completed);
     resultNode.put("notCompleted", 0);
     resultNode.put("completedInTestMode", 0);
     resultNode.put("result", "success");
@@ -1286,7 +1291,7 @@ public class AdobeMockServiceHandler extends MockServiceHandler {
       throw new RuntimeException("grant_type must be set to client_credentials");
     }
     
-    String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.adobe.mock.configId");
+    String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.adobe.mock.configId", "adobe");
     
     if (StringUtils.equals(grantType, "client_credentials")) {
       

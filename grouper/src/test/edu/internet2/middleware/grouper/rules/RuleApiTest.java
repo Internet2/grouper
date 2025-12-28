@@ -1747,7 +1747,7 @@ public class RuleApiTest extends GrouperTest {
       assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(stem.getName(), groupAnother.getName()), groupAnother.toSubject()));
       assertTrue(SubjectHelper.inList(SubjectFinder.findAllInStem(stem.getName(), "GrouperSystem"), SubjectFinder.findRootSubject()));
 
-      for (Source source : SourceManager.getInstance().getSources()) {
+      for (Source source : SourceManager.getInstance().getSourcesEnabled()) {
         //nothing should be protected
         RestrictSourceForGroup restrictSourceForGroup = SubjectFinder.restrictSourceForGroup(stem.getName(), source.getId());
         assertFalse(restrictSourceForGroup.isRestrict());

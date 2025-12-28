@@ -2363,9 +2363,17 @@ public class GcDbAccess {
 
         try {
           
-          // create temporary table
+          // create temporary table using select of primary key columns from source table with no data
           try {
-            preparedStatement = connection.prepareStatement("CREATE TEMPORARY TABLE " + tempTableName + " LIKE " + GcDbAccess.this.tableName);
+            StringBuilder createSql = new StringBuilder("CREATE TEMPORARY TABLE " + tempTableName + " AS SELECT ");
+            for (int i = 0; i < primaryKeyColumns.size(); i++) {
+              createSql.append(primaryKeyColumns.get(i));
+              if (i < primaryKeyColumns.size() - 1) {
+                createSql.append(", ");
+              }
+            }
+            createSql.append(" FROM " + GcDbAccess.this.tableName + " WHERE 1 = 0");
+            preparedStatement = connection.prepareStatement(createSql.toString());
             preparedStatement.executeUpdate();
           } finally {
             GrouperClientUtils.closeQuietly(preparedStatement);
@@ -2401,7 +2409,7 @@ public class GcDbAccess {
             if (GcDbAccess.this.queryTimeoutSeconds != null){
               preparedStatement.setQueryTimeout(GcDbAccess.this.queryTimeoutSeconds);
             }
-  
+
             // Add batch bind variables if we have them.
             for (List<Object> theBindVars : GcDbAccess.this.batchBindVars){
               int i = 1;
@@ -2411,8 +2419,7 @@ public class GcDbAccess {
               }
               preparedStatement.addBatch();
             }
-  
-            // Add batch bind variables if we have them.
+
             Long startTime = System.nanoTime();
             preparedStatement.executeBatch();
             GcDbAccess.this.addQueryToQueriesAndMillis(sqlToRecord, startTime);
@@ -2420,9 +2427,17 @@ public class GcDbAccess {
             GrouperClientUtils.closeQuietly(preparedStatement);
           }
           
-          // run the delete statement
+          // run the delete statement using all primary key columns
           try {
-            preparedStatement = connection.prepareStatement("DELETE FROM " + GcDbAccess.this.tableName + " t USING " + tempTableName + " d WHERE t.temp_col1 = d.temp_col1");
+            StringBuilder deleteSql = new StringBuilder("DELETE FROM " + GcDbAccess.this.tableName + " t USING " + tempTableName + " d WHERE ");
+            for (int i=0;i<primaryKeyColumns.size();i++) {
+              String col = primaryKeyColumns.get(i);
+              deleteSql.append("t." + col + " = d." + col);
+              if (i < primaryKeyColumns.size() - 1) {
+                deleteSql.append(" AND ");
+              }
+            }
+            preparedStatement = connection.prepareStatement(deleteSql.toString());
             return preparedStatement.executeUpdate();
           } finally {
             GrouperClientUtils.closeQuietly(preparedStatement);

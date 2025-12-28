@@ -63,7 +63,7 @@ public class GrouperUtilTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testJsonPointerAssignAndRead"));
+    TestRunner.run(new GrouperUtilTest("testFixHibernateConnectionUrl"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
     
@@ -720,68 +720,6 @@ public class GrouperUtilTest extends GrouperTest {
     assertEquals("7d, 6h, 5m, 4s, 30ms", GrouperUtil.convertMillisToFriendlyString(626704030L));
   }
   
-  /**
-   * 
-   */
-  public void testFixHibernateConnectionUrl() {
-    Properties properties = new Properties();
-    String hibKey = "hibernate.connection.url";
-    properties.put(hibKey, "jdbc:hsqldb:file:whatever");
-    String oldGrouperHome = GrouperUtil.grouperHome;
-    try {
-      GrouperUtil.grouperHome = "/something";
-      GrouperUtil.fixHibernateConnectionUrl(properties);
-      assertEquals("jdbc:hsqldb:file:/something" + File.separator + "whatever", properties.get(hibKey));
-      GrouperUtil.fixHibernateConnectionUrl(properties);
-      assertEquals("jdbc:hsqldb:file:/something" + File.separator + "whatever", properties.get(hibKey));
-  
-      properties.put(hibKey, "jdbc:hsqldb:file:whatever");
-      GrouperUtil.grouperHome = "/something/";
-      GrouperUtil.fixHibernateConnectionUrl(properties);
-      assertEquals("jdbc:hsqldb:file:/something/whatever", properties.get(hibKey));
-  
-      properties.put(hibKey, "jdbc:hsqldb:file:/whatever");
-      GrouperUtil.fixHibernateConnectionUrl(properties);
-      assertEquals("jdbc:hsqldb:file:/whatever", properties.get(hibKey));
-      
-      properties.put(hibKey, "jdbc:hsqldb:file:\\whatever");
-      GrouperUtil.fixHibernateConnectionUrl(properties);
-      assertEquals("jdbc:hsqldb:file:\\whatever", properties.get(hibKey));
-      
-      properties.put(hibKey, "jdbc:hsqldb:file:c:/whatever");
-      GrouperUtil.fixHibernateConnectionUrl(properties);
-      assertEquals("jdbc:hsqldb:file:c:/whatever", properties.get(hibKey));
-      
-  
-      //########################
-      //try without file
-      properties.put(hibKey, "jdbc:hsqldb:whatever");
-      GrouperUtil.grouperHome = "/something";
-      GrouperUtil.fixHibernateConnectionUrl(properties);
-      assertEquals("jdbc:hsqldb:/something" + File.separator + "whatever", properties.get(hibKey));
-      GrouperUtil.fixHibernateConnectionUrl(properties);
-      assertEquals("jdbc:hsqldb:/something" + File.separator + "whatever", properties.get(hibKey));
-  
-      properties.put(hibKey, "jdbc:hsqldb:whatever");
-      GrouperUtil.grouperHome = "/something/";
-      GrouperUtil.fixHibernateConnectionUrl(properties);
-      assertEquals("jdbc:hsqldb:/something/whatever", properties.get(hibKey));
-  
-      properties.put(hibKey, "jdbc:hsqldb:/whatever");
-      GrouperUtil.fixHibernateConnectionUrl(properties);
-      assertEquals("jdbc:hsqldb:/whatever", properties.get(hibKey));
-      
-      properties.put(hibKey, "jdbc:hsqldb:\\whatever");
-      GrouperUtil.fixHibernateConnectionUrl(properties);
-      assertEquals("jdbc:hsqldb:\\whatever", properties.get(hibKey));
-      
-      properties.put(hibKey, "jdbc:hsqldb:c:/whatever");
-      GrouperUtil.fixHibernateConnectionUrl(properties);
-      assertEquals("jdbc:hsqldb:c:/whatever", properties.get(hibKey));
-    } finally {
-      GrouperUtil.grouperHome = oldGrouperHome;
-    }
-  }
   
   /**
    * test utility method

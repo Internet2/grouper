@@ -195,10 +195,6 @@ public class GrouperDdl2_6_8 {
         "grouper_duo_user_user_name_idx", true, 
         COLUMN_GROUPER_PROV_DUO_USER_NAME, COLUMN_GROUPER_PROV_DUO_USER_CONFIG_ID);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperDuoTable.getName(), 
-        "grouper_duo_user_id_idx", true, 
-        COLUMN_GROUPER_PROV_DUO_USER_ID, COLUMN_GROUPER_PROV_DUO_USER_CONFIG_ID);
-    
   }
 
   static void addGrouperProvDuoUserTable(Database database, DdlVersionBean ddlVersionBean) {
@@ -216,7 +212,7 @@ public class GrouperDdl2_6_8 {
     Table grouperFileTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_DUO_USER_CONFIG_ID,
-        Types.VARCHAR, "50", false, true);
+        Types.VARCHAR, "50", true, true);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_DUO_USER_ID,
         Types.VARCHAR, "40", true, true);
