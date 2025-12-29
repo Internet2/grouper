@@ -32,12 +32,8 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui;
 
-import java.util.LinkedHashSet;
 import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -46,21 +42,13 @@ import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ui.util.ChainedResourceBundle;
-import edu.internet2.middleware.grouper.ui.util.DOMHelper;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
-import edu.internet2.middleware.grouper.ui.util.MembershipExporter;
-import edu.internet2.middleware.grouper.ui.util.MembershipImportManager;
 
 /**
  * Initialises HttpSession after login. <p/>Should probably make an interface
@@ -80,9 +68,6 @@ public class SessionInitialiser {
 
   /** logger */
   protected static Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(SessionInitialiser.class);
-
-  private static Group debuggers;
-  private static boolean attemptedDebuggers=false;
 
   /** cache the locale and resource bundles.  the multikey is the module, and the locale.
    * this gets the BundleBean, one for nav resource bundle, one for MapBundleWrapper, one for MapBundleWrapper (null), 
@@ -286,135 +271,11 @@ public class SessionInitialiser {
     
     session.setAttribute(RESOURCE_BUNDLE_KEY, resourceBundlesKey);
     
-    ResourceBundle chainedMediaBundle = retrieveLocalizationContext(resourceBundlesKey, false).getResourceBundle();
-    
-    String pageSizes = chainedMediaBundle
-        .getString("pager.pagesize.selection");
-
-    String[] pageSizeSelections = pageSizes.split(" ");
-    session.setAttribute("pageSizeSelections", pageSizeSelections);
-		session.setAttribute("stemSeparator", GrouperHelper.HIER_DELIM);
-    try {
-      String initialStems = chainedMediaBundle
-          .getString("plugin.initialstems");
-      if (initialStems != null && !"".equals(initialStems))
-        session.setAttribute("isQuickLinks", Boolean.TRUE);
-    } catch (Exception e) {
-
-    }
-    
-    initDebugging(session);
     GrouperSession s = getGrouperSession(session);
-    
-    try {
-    	if(GrouperHelper.isRoot(s) && "true".equals(chainedMediaBundle.getString("act-as-admin.default"))) {
-    		session.setAttribute("activeWheelGroupMember",true);
-    	}
-    }catch(Exception e) {
-    	
-    }
-    
-    
-    //@TODO: should we split the personalStemRoot and create
-    //any stems which are missing
 
-		try {
-			String personalStem = chainedMediaBundle
-					.getString("plugin.personalstem");
-			if (personalStem != null && !"".equals(personalStem)) {
-				PersonalStem personalStemInstance = (PersonalStem) Class
-						.forName(personalStem).newInstance();
-				GrouperHelper.createIfAbsentPersonalStem(s,personalStemInstance);
-			}
-		} catch (Exception e) {
-			//e.printStackTrace();
-		}
     initThread(session);
     if(getAuthUser(session)!=null) session.setAttribute("sessionInited", Boolean.TRUE);
-		try{
-			session.setAttribute("fieldList",GrouperHelper.getFieldsAsMap());
-		}catch(Exception e) {
-			LOG.error("Error retrieving Fields: " + e.getMessage());
-		}
-		session.setAttribute("MembershipExporter",new MembershipExporter());
-		session.setAttribute("MembershipImportManager",new MembershipImportManager());
-		Document doc = null;
-		try {
-			doc = DOMHelper.getDomFromResourceOnClassPath("resources/grouper/ui-permissions.xml");
-		}catch(Exception e){
-		  LOG.info("resources/grouper/ui-permissions.xml not found. Default permissions apply.");
-		}
-		if(doc==null) {
-			doc=DOMHelper.newDocument();
-		}
-		if(s==null) return;
-		UiPermissions uip = new UiPermissions(s,doc);
-		session.setAttribute("uiPermissions", uip);
-		Set menuFilters = new LinkedHashSet();
-		session.setAttribute("menuFilters",menuFilters);
-		String mFilters = null;
-		try {
-			mFilters=chainedMediaBundle.getString("menu.filters");
-			String[] parts = mFilters.split(" ");
-			Class claz;
-			MenuFilter filter;
-			for(int i=0;i<parts.length;i++) {
-				try {
-					claz=Class.forName(parts[i]);
-					filter=(MenuFilter)claz.newInstance();
-					menuFilters.add(filter);
-				}catch(Exception e){
-					LOG.error("Unable to add menu filter [" + parts[i] + "]. " + e.getMessage());
-				}
-			}
-		}catch(MissingResourceException mre){
-			LOG.info("No menu.filters set in media.properties");
-		}
-
 	}
-	private static void initDebugging(HttpSession session) {
-		boolean debugEnable = false;
-		String debugGroup=null;
-		Properties mediaProperties = GrouperUiFilter.retrieveMediaProperties();
-		try {
-			debugEnable = !"true".equals(mediaProperties.getProperty("browser.debug.enable"));
-		}catch(Exception e) {
-			LOG.error("Error processing browser.debug.enable. Disabling.", e);
-		}
-		if(debugEnable){
-			session.setAttribute("debugMessage", "debug.error.disabled");
-			return;
-		}
-		if(debuggers==null) {
-			try {
-				debugGroup = mediaProperties.getProperty("browser.debug.group");
-			}catch(Exception e) {
-				LOG.info("browser.debug.group not set in media.properties");
-			}
-			if(!StringUtils.isBlank(debugGroup) && !debugGroup.matches("^@.*?@$") && !attemptedDebuggers) {
-				try {
-					attemptedDebuggers=true;
-					debuggers=GroupFinder.findByNameAsGrouperSystem(debugGroup, true);
-				}catch(Exception e) {
-					LOG.error("browser.debug.group:" + debugGroup + " does not exist",e);
-				}
-			}
-		}
-		GrouperSession gs = getGrouperSession(session);
-		if(gs==null || (debuggers==null && attemptedDebuggers) || (debuggers !=null &&!debuggers.hasMember(gs.getSubject()))) {
-			session.setAttribute("debugMessage", "debug.error.not-allowed");
-			return;
-		}
-		boolean enableHtmlEditor=false;
-		try {
-			enableHtmlEditor="true".equals(mediaProperties.getProperty("browser.debug.group.enable-html-editor"));
-		}catch(Exception e){
-			LOG.info("browser.debug.group.enable-html-editor not set in media.properties");
-		}
-		session.setAttribute("enableHtmlEditor", enableHtmlEditor);
-
-    
-  }
 
   /**
    * add in exclude and include tooltips if not already in there (from grouper.properties)
@@ -496,30 +357,6 @@ public class SessionInitialiser {
     GrouperSession s = (GrouperSession) session
         .getAttribute("edu.intenet2.middleware.grouper.ui.GrouperSession");
     return s;
-  }
-  
-  /**
-	 * Proper way to get UiPermissions from HttpSession
-	 * 
-	 * @param session
-	 *            current HttpSession
-	 * @return the current UiPermissions
-	 */
-	public static UiPermissions getUiPermissions(HttpSession session) {
-		UiPermissions uip = (UiPermissions)session.getAttribute("uiPermissions");
-		return uip;
-	}
-	
-	/**
-   * Proper way to get MenuFilters from HttpSession
-   * 
-   * @param session
-   *            current HttpSession
-   * @return the current MenuFilters
-   */
-  public static Set getMenuFilters(HttpSession session) {
-    Set mf = (Set)session.getAttribute("menuFilters");
-    return mf;
   }
 
   /**
