@@ -311,3 +311,13 @@ td > .config-el-label {
   color: #232d4b;
   text-decoration: underline;
 }
+
+/* tom select padding on combobox should be reduced */
+.ts-control {
+  padding: 4px 4px;
+}
+
+/* Hide the selected “item chip” while the user is typing in a Grouper TomSelect */
+.grouper-ts-typing .ts-control .item {
+  display: none !important;
+}

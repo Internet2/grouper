@@ -777,8 +777,7 @@ public class UiV2AttributeDef {
   
       //clear out the combo
       guiResponseJs.addAction(GuiScreenAction.newScript(
-          "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
-          "dijit.byId('groupAddMemberComboId').set('value', '');"));
+        "$('#groupAddMemberComboId')[0].tomselect.clear(true);"));
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1933,7 +1932,6 @@ public class UiV2AttributeDef {
           
       }
       
-
       
       if (StringUtils.isBlank(attributeDefValueTypeString)) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
@@ -2010,15 +2008,15 @@ public class UiV2AttributeDef {
           for (AttributeDefScope attributeDefScope: attributeDefScopes) {
             attributeDefScope.delete();
           }
-          
+            
           if (StringUtils.isNotBlank(markerAttributeDefName)) {
             AttributeDefScope defScope = attributeDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(markerAttributeDefName);
             defScope.saveOrUpdate();
           }
           savedDefScope = true;
-          
+            
         }
-        
+          
       }
       
       try {
@@ -2568,7 +2566,7 @@ public class UiV2AttributeDef {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessage));
       
     } finally {
-      GrouperSession.stopQuietly(grouperSession);
+      GrouperSession.stopQuietly(grouperSession); 
     }
 
   }
@@ -2630,6 +2628,7 @@ public class UiV2AttributeDef {
         guiAttributeAssign.setAttributeAssign(attributeAssign);
 
         attributeUpdateRequestContainer.setGuiAttributeAssign(guiAttributeAssign);
+        
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeAssignments", 
@@ -2677,7 +2676,7 @@ public class UiV2AttributeDef {
       //now we need to check security
       if (!PrivilegeHelper.canAttrUpdate(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
-        notAllowed = GrouperUiUtils.escapeJavascript(notAllowed, true);
+        notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, notAllowed));
         return;
       }
@@ -2687,7 +2686,7 @@ public class UiV2AttributeDef {
         
         if (StringUtils.isBlank(valueToAdd) ) {
           String required = TagUtils.navResourceString("simpleAttributeUpdate.addValueRequired");
-          required = GrouperUiUtils.escapeJavascript(required, true);
+          required = GrouperUiUtils.escapeHtml(required, true);
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, required));
           return;
           

@@ -23,7 +23,8 @@
                           </tr --%>
                           <tr>
                             <td>${grouper:escapeHtml(guiStem.pathColonSpaceSeparated)}</td>
-                            <td><i class="fa fa-folder"></i> <a href="#" onclick="dijit.byId('parentFolderComboId').set('displayedValue', '${grouper:escapeJavascript(guiStem.stem.displayName)}'); dijit.byId('parentFolderComboId').set('value', '${guiStem.stem.id}'); return true;" data-dismiss="modal">${grouper:escapeHtml(guiStem.stem.displayExtension) }</a></td>
+                            <td><i class="fa fa-folder"></i> <a href="#" onclick="grouperComboboxSetId('#parentFolderComboId', '${grouper:escapeJavascript(guiStem.stem.id)}'); return true;"
+                                >${grouper:escapeHtml(guiStem.stem.displayExtension) }</a></td>
                           </tr>
                         </c:forEach>
                       </tbody>
@@ -35,4 +36,3 @@
                       <grouper:paging2 guiPaging="${grouperRequestContainer.stemContainer.parentStemGuiPaging}" formName="parentStemPagingForm" ajaxFormIds="stemSearchFormId"
                         refreshOperation="../app/UiV2Stem.${grouperRequestContainer.stemContainer.stemSearchType.operationMethod}?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
                     </div>
-

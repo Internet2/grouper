@@ -1018,8 +1018,7 @@ public class UiV2Subject {
 
       //clear out the combo
       guiResponseJs.addAction(GuiScreenAction.newScript(
-          "dijit.byId('parentFolderComboId').set('displayedValue', ''); " +
-          "dijit.byId('parentFolderComboId').set('value', '');"));
+        "$('#parentFolderComboId')[0].tomselect.clear(true);"));
 
       GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, stem);
@@ -1199,8 +1198,7 @@ public class UiV2Subject {
 
       //clear out the combo
       guiResponseJs.addAction(GuiScreenAction.newScript(
-          "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
-          "dijit.byId('groupAddMemberComboId').set('value', '');"));
+        "$('#groupAddMemberComboId')[0].tomselect.clear(true);"));
   
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
@@ -2285,11 +2283,10 @@ public class UiV2Subject {
             TextContainer.retrieveFromRequest().getText().get("attributeDefAddMemberNoChangesSuccess")));
   
       }
-  
+
       //clear out the combo
       guiResponseJs.addAction(GuiScreenAction.newScript(
-          "dijit.byId('attributeDefAddMemberComboId').set('displayedValue', ''); " +
-          "dijit.byId('attributeDefAddMemberComboId').set('value', '');"));
+        "$('#attributeDefAddMemberComboId')[0].tomselect.clear(true);"));
 
       GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, subject);

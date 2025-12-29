@@ -3765,8 +3765,7 @@ public class UiV2Stem {
 
       //clear out the combo
       guiResponseJs.addAction(GuiScreenAction.newScript(
-          "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
-          "dijit.byId('groupAddMemberComboId').set('value', '');"));
+        "$('#groupAddMemberComboId')[0].tomselect.clear(true);"));
 
       GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, stem);
@@ -3856,8 +3855,7 @@ public class UiV2Stem {
 
       //clear out the combo
       guiResponseJs.addAction(GuiScreenAction.newScript(
-          "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
-          "dijit.byId('groupAddMemberComboId').set('value', '');"));
+        "$('#groupAddMemberComboId')[0].tomselect.clear(true);"));
 
       GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, stem);

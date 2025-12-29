@@ -22,7 +22,7 @@
                         <div id="add-members">
                           <form id="add-members-form" target="#" class="form-horizontal form-highlight">
                             <div class="control-group" id="add-member-control-group" aria-live="polite" aria-expanded="false">
-                              <label for="groupAddMemberComboID" class="control-label">${textContainer.text['guiCustomUiUserLabel']}</label>
+                              <label for="groupAddMemberComboId" class="control-label">${textContainer.text['guiCustomUiUserLabel']}</label>
                               <div class="controls">
                                 <div id="add-members-container">
   

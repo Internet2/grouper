@@ -176,7 +176,7 @@
 
   <c:if test="${grouperRequestContainer.visualizationContainer.objectType == 'group' || grouperRequestContainer.visualizationContainer.objectType == 'stem'}">
     <div class="control-group" id="add-member-control-group" aria-live="polite" aria-expanded="false">
-      <label for="visualizationAddMemberComboID" class="control-label">${textContainer.text['groupSearchMemberOrId'] }</label>
+      <label for="visualizationAddMemberComboId" class="control-label">${textContainer.text['groupSearchMemberOrId'] }</label>
       <div class="controls">
         <div id="add-members-container">
                            

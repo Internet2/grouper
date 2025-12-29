@@ -626,8 +626,8 @@ public class UiV2ExternalEntities {
       
       //clear out combobox
       guiResponseJs.addAction(GuiScreenAction.newScript(
-          "dijit.byId('inviteAddGroupComboId').set('displayedValue', ''); " +
-          "dijit.byId('inviteAddGroupComboId').set('value', '');"));
+        "$('#inviteAddGroupComboId')[0].tomselect.clear(true);"));
+
   
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#inviteExtraGroupsDivId", 

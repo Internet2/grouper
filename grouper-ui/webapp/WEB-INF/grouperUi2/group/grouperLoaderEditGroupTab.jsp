@@ -59,7 +59,7 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                     
                      <form id="editLoaderJexlSubjectAnalyzeFormId" class="form-horizontal form-highlight">
                       <div class="control-group" id="add-member-control-group" aria-live="polite" aria-expanded="false">
-                        <label for="analyzeAddMemberComboID" class="control-label">${textContainer.text['groupSearchMemberOrId'] }</label>
+                        <label for="analyzeAddMemberComboId" class="control-label">${textContainer.text['groupSearchMemberOrId'] }</label>
                         <div class="controls">
                           <div id="add-members-container">
                            

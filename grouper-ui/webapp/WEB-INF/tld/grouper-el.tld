@@ -112,7 +112,7 @@
 
   <tag>
     <description>
-      Creates a dojo combobox
+      Creates a combobox
     </description>
     <name>combobox2</name>
     <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperComboboxTag2</tag-class>
@@ -121,7 +121,7 @@
       <description>
         id and class of elements, and name of combobox. Make this unique in page.
         e.g. personPicker.  The id of the tag will be personPickerId, name will be
-        personPickerName.  Will generate a QueryReadStore too... 
+        personPickerName.
         </description>
       <name>idBase</name>
       <required>true</required>
@@ -137,7 +137,7 @@
     </attribute>
     <attribute>
       <description>
-        class to use when drawing the control.  default is claro.  should be a dojo class theme, e.g.  claro, tundra, nihilo and soria
+        class to use when drawing the text input
         </description>
       <name>classCss</name>
       <required>false</required>
@@ -145,10 +145,9 @@
     </attribute>
     <attribute>
       <description>
-        if there should be a down arrow to click.  Default to false.  Generally this is useful only for 
-        combos with less then a few hundred options
+        if there should be a table around the combobox to keep the error icon aligned.  defaults to true.
         </description>
-      <name>hasDownArrow</name>
+      <name>useTable</name>
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>

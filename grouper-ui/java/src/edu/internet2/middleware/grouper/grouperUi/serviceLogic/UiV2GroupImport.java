@@ -188,8 +188,7 @@ public class UiV2GroupImport {
 
       //clear out combobox
       guiResponseJs.addAction(GuiScreenAction.newScript(
-          "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
-          "dijit.byId('groupAddMemberComboId').set('value', '');"));
+        "$('#groupAddMemberComboId')[0].tomselect.clear(true);"));
 
       //select the option for enter in list
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("bulkAddOptions", "input"));
@@ -1329,8 +1328,7 @@ public class UiV2GroupImport {
 
       //clear out combobox
       guiResponseJs.addAction(GuiScreenAction.newScript(
-          "dijit.byId('groupImportGroupComboId').set('displayedValue', ''); " +
-          "dijit.byId('groupImportGroupComboId').set('value', '');"));
+        "$('#groupImportGroupComboId')[0].tomselect.clear(true);"));
 
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupImportExtraGroupsDivId", 
@@ -1407,8 +1405,7 @@ public class UiV2GroupImport {
   
       //clear out combobox
       guiResponseJs.addAction(GuiScreenAction.newScript(
-          "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
-          "dijit.byId('groupAddMemberComboId').set('value', '');"));
+        "$('#groupAddMemberComboId')[0].tomselect.clear(true);"));
   
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupImportExtraMembersDivId", 
