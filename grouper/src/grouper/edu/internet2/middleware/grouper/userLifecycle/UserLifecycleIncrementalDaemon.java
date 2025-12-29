@@ -11,6 +11,7 @@ import java.util.Set;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventType;
@@ -559,6 +560,11 @@ public class UserLifecycleIncrementalDaemon extends EsbListenerBase {
       
     }
     new GcDbAccess().storeListToDatabase(new ArrayList<>(lifecycleEvents));
+    
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog();
+    
+    hib3GrouperLoaderLog.setInsertCount(lifecycleEvents.size());
+    hib3GrouperLoaderLog.store();
     
     
     // get events from the change log

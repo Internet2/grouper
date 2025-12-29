@@ -462,6 +462,7 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
     }
     new GcDbAccess().storeListToDatabase(new ArrayList<>(lifecycleEventsToStore));
     otherJobInput.getHib3GrouperLoaderLog().setInsertCount(lifecycleEventsToStore.size());
+    otherJobInput.getHib3GrouperLoaderLog().store();
     
     return null;
   }
