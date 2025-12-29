@@ -49,13 +49,13 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
-import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+
 
 
 /**
@@ -84,14 +84,11 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    */
   public boolean isCanInviteExternalUsers() {
 
-    boolean canInviteOthers = false;
+    boolean canInviteOthers = PrivilegeHelper.canInviteExternalUsers(
+        GrouperSession.staticGrouperSession(),
+        this.group,
+        GrouperSession.staticGrouperSession().getSubject());
 
-    UIGroupPrivilegeResolver resolver = 
-      UIGroupPrivilegeResolverFactory.getInstance(GrouperSession.staticGrouperSession(), 
-          GrouperUiFilter.retrieveSessionMediaResourceBundle(), 
-          this.group, GrouperSession.staticGrouperSession().getSubject());
-    canInviteOthers = resolver.canInviteExternalPeople();
-    
     //see if we can invite
     // since the lite UI uses jsp to check property settings, it's safe to check for just the new UI property
     if (canInviteOthers && GrouperUiConfig.retrieveConfig().propertyValueBoolean(
