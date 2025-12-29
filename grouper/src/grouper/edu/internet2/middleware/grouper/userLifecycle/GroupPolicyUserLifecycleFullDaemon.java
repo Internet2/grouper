@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
@@ -25,7 +24,6 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperIncrementalDataItem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -78,10 +76,9 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
    */
   private List<GroupMemberEventRef> retrieveLifecycleEvents(Collection<String> groupIds) {
     Timestamp lastFullSyncSuccessStartTimestamp = new GcDbAccess().sql("select max(started_time) from grouper_loader_log where job_name = 'OTHER_JOB_groupPolicyUserLifecycleFullDaemon' and status = 'SUCCESS' ").select(Timestamp.class);
-    lastFullSyncSuccessStartTimestamp = null;
     if (lastFullSyncSuccessStartTimestamp == null) {
-      Instant fiftyDaysAgo = Instant.now().minus(1, ChronoUnit.DAYS);
-      lastFullSyncSuccessStartTimestamp = Timestamp.from(fiftyDaysAgo);
+      Instant oneDayAgo = Instant.now().minus(1, ChronoUnit.DAYS);
+      lastFullSyncSuccessStartTimestamp = Timestamp.from(oneDayAgo);
 //      lastFullSyncSuccessStartTimestamp = new Timestamp(System.currentTimeMillis() - (5010*24*60*60*1000)); // work on all events that happened after yesterday.
     }
     
@@ -139,7 +136,7 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
    * @param membershipsFromGroupIdsMemberIds - memberships look up based on group id/member id
    */
   private void workOnActionTypeAddEndDateOnMembership(List<GroupMemberEventRef> groupMemberEventRefs, 
-      Map<String, Set<PolicyBean>> policyConfigIdToPolicyBeans, Map<String, ActionBean> actionConfigIdToActionDetails,
+      Map<String, Set<PolicyPartBean>> policyConfigIdToPolicyBeans, Map<String, ActionBean> actionConfigIdToActionDetails,
       Map<Long, String> lifecycleEventIdToLifecycleEventConfigId, Map<String, String> groupIdToPolicyConfigId,
       Map<MultiKey, Membership> membershipsFromGroupIdsMemberIds) {
     
@@ -154,9 +151,9 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
       
       if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
         
-        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
+        Set<PolicyPartBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
         
-        for (PolicyBean policyBean: policyBeans) {
+        for (PolicyPartBean policyBean: policyBeans) {
           if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
             //this is the policy part where the lifecycle config is used and now we need to perform all the actions
             
@@ -266,7 +263,7 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
    * @param membershipsFromGroupIdsMemberIds - memberships look up based on group id/member id
    */
   private void workOnActionTypeRemoveUserFromGroup(List<GroupMemberEventRef> groupMemberEventRefs, 
-      Map<String, Set<PolicyBean>> policyConfigIdToPolicyBeans, Map<String, ActionBean> actionConfigIdToActionDetails,
+      Map<String, Set<PolicyPartBean>> policyConfigIdToPolicyBeans, Map<String, ActionBean> actionConfigIdToActionDetails,
       Map<Long, String> lifecycleEventIdToLifecycleEventConfigId, Map<String, String> groupIdToPolicyConfigId,
       Map<MultiKey, Membership> membershipsFromGroupIdsMemberIds) {
     
@@ -279,9 +276,9 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
       
       if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
         
-        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
+        Set<PolicyPartBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
         
-        for (PolicyBean policyBean: policyBeans) {
+        for (PolicyPartBean policyBean: policyBeans) {
           if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
             //this is the policy part where the lifecycle config is used and now we need to perform all the actions
             
@@ -374,8 +371,6 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
   }
   
   /**
-   * From the database, retrieve memberships where they already have in flight attributes assigned. call it alreadyHavingInFlightAttributes
-   * Assign in flight attributes to the remaining ones. Assign in flight micros expire at the same time 
    * @param groupMemberEventRefs - memberships with the lifecycle event internal id that took place since the last run
    * @param policyConfigIdToPolicyBeans - policy config id to set of policy parts. one group can have one policy attached and the same policy can be in multiple policy parts. 
    * @param actionConfigIdToActionDetails - action config id to action details map so that we can easily look up action type 
@@ -384,11 +379,9 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
    * @param membershipsFromGroupIdsMemberIds - memberships look up based on group id/member id
    */
   private void workOnActionTypeEmailUser(List<GroupMemberEventRef> groupMemberEventRefs, 
-      Map<String, Set<PolicyBean>> policyConfigIdToPolicyBeans, Map<String, ActionBean> actionConfigIdToActionDetails,
+      Map<String, Set<PolicyPartBean>> policyConfigIdToPolicyBeans, Map<String, ActionBean> actionConfigIdToActionDetails,
       Map<Long, String> lifecycleEventIdToLifecycleEventConfigId, Map<String, String> groupIdToPolicyConfigId,
       Map<MultiKey, Membership> membershipsFromGroupIdsMemberIds) {
-    
-    Map<String, EmailRecipientsWithRecordMaps> actionConfigIdToRecipientsRecordMaps = new HashMap<>();
     
     Set<String> memberIds = new HashSet<>();
     Set<String> groupIds = new HashSet<>();
@@ -401,9 +394,9 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
       
       if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
         
-        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
+        Set<PolicyPartBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
         
-        for (PolicyBean policyBean: policyBeans) {
+        for (PolicyPartBean policyBean: policyBeans) {
           if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
             //this is the policy part where the lifecycle config is used and now we need to perform all the actions
             
@@ -428,6 +421,8 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
     
     populateSubjectsAndGroups(memberIds, groupIds, memberIdToSubject, groupIdToGroup);
     
+    Map<MultiKey, List<Map<String, Object>>> actionConfigIdEmailAddressToListOfRecordMaps = new HashMap<>();
+    
     for (GroupMemberEventRef groupMemberEventRef: eligibleGroupMemberEventRefs) {
       
       Subject subject = memberIdToSubject.get(groupMemberEventRef.memberId);
@@ -442,9 +437,9 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
       
       if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
         
-        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
+        Set<PolicyPartBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
         
-        for (PolicyBean policyBean: policyBeans) {
+        for (PolicyPartBean policyBean: policyBeans) {
           if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
             //this is the policy part where the lifecycle config is used and now we need to perform all the actions
             
@@ -456,9 +451,10 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
                 String emailAddressFromSubject = getEmailAddressFromSubject(subject);
                 if (StringUtils.isNotBlank(emailAddressFromSubject)) {
                   
-                  if (actionConfigIdToRecipientsRecordMaps.containsKey(lifecycleActionConfigId)) {
-                    EmailRecipientsWithRecordMaps recipientsWithRecordMaps = actionConfigIdToRecipientsRecordMaps.get(lifecycleActionConfigId);
-                    recipientsWithRecordMaps.emailAddresses.add(emailAddressFromSubject);
+                  MultiKey actionConfigIdEmailAddress = new MultiKey(lifecycleActionConfigId, emailAddressFromSubject);
+                  
+                  if (actionConfigIdEmailAddressToListOfRecordMaps.containsKey(actionConfigIdEmailAddress)) {
+                    List<Map<String, Object>> listOfRecordMaps = actionConfigIdEmailAddressToListOfRecordMaps.get(actionConfigIdEmailAddress);
                     
                     Map<String, Object> recordMap = new HashMap<String, Object>();
                     
@@ -472,14 +468,10 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
                     recordMap.put("groupId", group.getId());
                     recordMap.put("groupName", group.getName());
                     
-                    recipientsWithRecordMaps.listOfRecordMaps.add(recordMap);
+                    listOfRecordMaps.add(recordMap);
                     
                   } else {
-                    EmailRecipientsWithRecordMaps recipientsWithRecordMaps = new EmailRecipientsWithRecordMaps();
-                    recipientsWithRecordMaps.emailAddresses = new HashSet<String>();
-                    recipientsWithRecordMaps.listOfRecordMaps = new ArrayList<Map<String,Object>>();
-                    
-                    recipientsWithRecordMaps.emailAddresses.add(emailAddressFromSubject);
+                    List<Map<String, Object>> listOfRecordMaps = new ArrayList<Map<String, Object>>();
                     
                     Map<String, Object> recordMap = new HashMap<String, Object>();
                     
@@ -493,9 +485,9 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
                     recordMap.put("groupId", group.getId());
                     recordMap.put("groupName", group.getName());
                     
-                    recipientsWithRecordMaps.listOfRecordMaps.add(recordMap);
+                    listOfRecordMaps.add(recordMap);
                     
-                    actionConfigIdToRecipientsRecordMaps.put(lifecycleActionConfigId, recipientsWithRecordMaps);
+                    actionConfigIdEmailAddressToListOfRecordMaps.put(actionConfigIdEmailAddress, listOfRecordMaps);
                   }
                 }
               }
@@ -506,17 +498,18 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
     }
     
     //now we've the data structure ready to send emails
-    for (String actionConfigId: actionConfigIdToRecipientsRecordMaps.keySet()) {
+    for (MultiKey actionConfigIdEmailAddress: actionConfigIdEmailAddressToListOfRecordMaps.keySet()) {
       
-      ActionBean actionBean = actionConfigIdToActionDetails.get(actionConfigId);
+      List<Map<String, Object>> listOfRecordMaps = actionConfigIdEmailAddressToListOfRecordMaps.get(actionConfigIdEmailAddress);
       
-      EmailRecipientsWithRecordMaps emailRecipientsWithRecordMaps = actionConfigIdToRecipientsRecordMaps.get(actionConfigId);
-      if (emailRecipientsWithRecordMaps.emailAddresses.size() == 0) {
+      if (listOfRecordMaps.size() == 0) {
         continue;
       }
       
+      ActionBean actionBean = actionConfigIdToActionDetails.get(actionConfigIdEmailAddress.getKey(0));
+      
       Map<String, Object> variableMap = new HashMap<String, Object>();
-      variableMap.put("listOfRecordMaps", emailRecipientsWithRecordMaps.listOfRecordMaps);
+      variableMap.put("listOfRecordMaps", listOfRecordMaps);
       
       String subjectText = GrouperUtil.substituteExpressionLanguageTemplate(actionBean.emailSubjectLine, variableMap, true, false, true);
       String emailBodyTemplate = GrouperUtil.replace(actionBean.emailBody, "__NEWLINE__", "\n");
@@ -524,8 +517,7 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
 
       GrouperEmail grouperEmail = new GrouperEmail().setSubject(subjectText).setBody(bodyText);
       
-      String emailAddressesCommaSeparated = GrouperUtil.join(emailRecipientsWithRecordMaps.emailAddresses.iterator(), ",") ;
-      grouperEmail.setTo(emailAddressesCommaSeparated);
+      grouperEmail.setTo(GrouperUtil.stringValue(actionConfigIdEmailAddress.getKey(1)));
       
       grouperEmail.send();
       
@@ -535,8 +527,6 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
   }
   
   /**
-   * From the database, retrieve memberships where they already have in flight attributes assigned. call it alreadyHavingInFlightAttributes
-   * Assign in flight attributes to the remaining ones. Assign in flight micros expire at the same time 
    * @param groupMemberEventRefs - memberships with the lifecycle event internal id that took place since the last run
    * @param policyConfigIdToPolicyBeans - policy config id to set of policy parts. one group can have one policy attached and the same policy can be in multiple policy parts. 
    * @param actionConfigIdToActionDetails - action config id to action details map so that we can easily look up action type 
@@ -545,11 +535,9 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
    * @param membershipsFromGroupIdsMemberIds - memberships look up based on group id/member id
    */
   private void workOnActionTypeEmailGroupAdmin(List<GroupMemberEventRef> groupMemberEventRefs, 
-      Map<String, Set<PolicyBean>> policyConfigIdToPolicyBeans, Map<String, ActionBean> actionConfigIdToActionDetails,
+      Map<String, Set<PolicyPartBean>> policyConfigIdToPolicyBeans, Map<String, ActionBean> actionConfigIdToActionDetails,
       Map<Long, String> lifecycleEventIdToLifecycleEventConfigId, Map<String, String> groupIdToPolicyConfigId,
       Map<MultiKey, Membership> membershipsFromGroupIdsMemberIds) {
-    
-    Map<String, EmailRecipientsWithRecordMaps> actionConfigIdToRecipientsRecordMaps = new HashMap<>();
     
     Set<String> memberIds = new HashSet<>();
     Set<String> groupIds = new HashSet<>();
@@ -562,9 +550,9 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
       
       if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
         
-        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
+        Set<PolicyPartBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
         
-        for (PolicyBean policyBean: policyBeans) {
+        for (PolicyPartBean policyBean: policyBeans) {
           if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
             //this is the policy part where the lifecycle config is used and now we need to perform all the actions
             
@@ -588,6 +576,8 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
     Map<String, Group> groupIdToGroup = new HashMap<>(); 
     
     populateSubjectsAndGroups(memberIds, groupIds, memberIdToSubject, groupIdToGroup);
+    
+    Map<MultiKey, List<Map<String, Object>>> actionConfigIdEmailAddressToListOfRecordMaps = new HashMap<>();
     
     for (GroupMemberEventRef groupMemberEventRef: eligibleGroupMemberEventRefs) {
       
@@ -605,9 +595,9 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
       
       if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
         
-        Set<PolicyBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
+        Set<PolicyPartBean> policyBeans = policyConfigIdToPolicyBeans.get(policyConfigId); //policy bean is basically the policy part. since one policy config id can be attached to multiple policy part ids, that's why it's a set
         
-        for (PolicyBean policyBean: policyBeans) {
+        for (PolicyPartBean policyBean: policyBeans) {
           if (policyBean.lifecycleEventConfigIds.contains(lifecycleEventConfig)) {
             //this is the policy part where the lifecycle config is used and now we need to perform all the actions
             
@@ -619,47 +609,50 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
                 List<String> emailAddressesFromSubjects = getEmailAddressesFromSubjects(recipientSubjects);
                 if (!emailAddressesFromSubjects.isEmpty()) {
                   
-                  if (actionConfigIdToRecipientsRecordMaps.containsKey(lifecycleActionConfigId)) {
-                    EmailRecipientsWithRecordMaps recipientsWithRecordMaps = actionConfigIdToRecipientsRecordMaps.get(lifecycleActionConfigId);
-                    recipientsWithRecordMaps.emailAddresses.addAll(emailAddressesFromSubjects);
+                  for (String emailAddress: emailAddressesFromSubjects) {
                     
-                    Map<String, Object> recordMap = new HashMap<String, Object>();
+                    MultiKey actionConfigIdEmailAddress = new MultiKey(lifecycleActionConfigId, emailAddress);
                     
-                    SafeSubject safeSubject = new SafeSubject(lifecycleSubject);
-//                    recordMap.put("safeSubjectRecipient", );
-                    recordMap.put("safeSubjectLifecycleUser", safeSubject);
-                    recordMap.put("groupDescription", group.getDescription());
-                    recordMap.put("groupDisplayExtension", group.getDisplayExtension());
-                    recordMap.put("groupDisplayName", group.getDisplayName());
-                    recordMap.put("groupExtension", group.getExtension());
-                    recordMap.put("groupId", group.getId());
-                    recordMap.put("groupName", group.getName());
+                    if (actionConfigIdEmailAddressToListOfRecordMaps.containsKey(actionConfigIdEmailAddress)) {
+                      List<Map<String, Object>> listOfRecordMaps = actionConfigIdEmailAddressToListOfRecordMaps.get(actionConfigIdEmailAddress);
+                      
+                      Map<String, Object> recordMap = new HashMap<String, Object>();
+                      
+                      SafeSubject safeSubject = new SafeSubject(lifecycleSubject);
+//                      recordMap.put("safeSubjectRecipient", );
+                      recordMap.put("safeSubjectLifecycleUser", safeSubject);
+                      recordMap.put("groupDescription", group.getDescription());
+                      recordMap.put("groupDisplayExtension", group.getDisplayExtension());
+                      recordMap.put("groupDisplayName", group.getDisplayName());
+                      recordMap.put("groupExtension", group.getExtension());
+                      recordMap.put("groupId", group.getId());
+                      recordMap.put("groupName", group.getName());
+                      
+                      listOfRecordMaps.add(recordMap);
+                      
+                    } else {
+                      List<Map<String, Object>> listOfRecordMaps = new ArrayList<Map<String, Object>>();
+                      
+                      Map<String, Object> recordMap = new HashMap<String, Object>();
+                      
+                      SafeSubject safeSubject = new SafeSubject(lifecycleSubject);
+//                      recordMap.put("safeSubjectRecipient", safeSubject);
+                      recordMap.put("safeSubjectLifecycleUser", safeSubject);
+                      recordMap.put("groupDescription", group.getDescription());
+                      recordMap.put("groupDisplayExtension", group.getDisplayExtension());
+                      recordMap.put("groupDisplayName", group.getDisplayName());
+                      recordMap.put("groupExtension", group.getExtension());
+                      recordMap.put("groupId", group.getId());
+                      recordMap.put("groupName", group.getName());
+                      
+                      listOfRecordMaps.add(recordMap);
+                      
+                      actionConfigIdEmailAddressToListOfRecordMaps.put(actionConfigIdEmailAddress, listOfRecordMaps);
+                    }
                     
-                    recipientsWithRecordMaps.listOfRecordMaps.add(recordMap);
-                    
-                  } else {
-                    EmailRecipientsWithRecordMaps recipientsWithRecordMaps = new EmailRecipientsWithRecordMaps();
-                    recipientsWithRecordMaps.emailAddresses = new HashSet<String>();
-                    recipientsWithRecordMaps.listOfRecordMaps = new ArrayList<Map<String,Object>>();
-                    
-                    recipientsWithRecordMaps.emailAddresses.addAll(emailAddressesFromSubjects);
-                    
-                    Map<String, Object> recordMap = new HashMap<String, Object>();
-                    
-                    SafeSubject safeSubject = new SafeSubject(lifecycleSubject);
-//                    recordMap.put("safeSubjectRecipient", safeSubject);
-                    recordMap.put("safeSubjectLifecycleUser", safeSubject);
-                    recordMap.put("groupDescription", group.getDescription());
-                    recordMap.put("groupDisplayExtension", group.getDisplayExtension());
-                    recordMap.put("groupDisplayName", group.getDisplayName());
-                    recordMap.put("groupExtension", group.getExtension());
-                    recordMap.put("groupId", group.getId());
-                    recordMap.put("groupName", group.getName());
-                    
-                    recipientsWithRecordMaps.listOfRecordMaps.add(recordMap);
-                    
-                    actionConfigIdToRecipientsRecordMaps.put(lifecycleActionConfigId, recipientsWithRecordMaps);
                   }
+                  
+ 
                 }
               }
             }
@@ -669,17 +662,17 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
     }
     
     //now we've the data structure ready to send emails
-    for (String actionConfigId: actionConfigIdToRecipientsRecordMaps.keySet()) {
+    for (MultiKey actionConfigIdEmailAddress: actionConfigIdEmailAddressToListOfRecordMaps.keySet()) {
       
-      ActionBean actionBean = actionConfigIdToActionDetails.get(actionConfigId);
+      ActionBean actionBean = actionConfigIdToActionDetails.get(actionConfigIdEmailAddress.getKey(0));
       
-      EmailRecipientsWithRecordMaps emailRecipientsWithRecordMaps = actionConfigIdToRecipientsRecordMaps.get(actionConfigId);
-      if (emailRecipientsWithRecordMaps.emailAddresses.size() == 0) {
+      List<Map<String, Object>> listOfRecordMaps = actionConfigIdEmailAddressToListOfRecordMaps.get(actionConfigIdEmailAddress);
+      if (listOfRecordMaps.size() == 0) {
         continue;
       }
       
       Map<String, Object> variableMap = new HashMap<String, Object>();
-      variableMap.put("listOfRecordMaps", emailRecipientsWithRecordMaps.listOfRecordMaps);
+      variableMap.put("listOfRecordMaps", listOfRecordMaps);
       
       String subjectText = GrouperUtil.substituteExpressionLanguageTemplate(actionBean.emailSubjectLine, variableMap, true, false, true);
       String emailBodyTemplate = GrouperUtil.replace(actionBean.emailBody, "__NEWLINE__", "\n");
@@ -687,18 +680,16 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
 
       GrouperEmail grouperEmail = new GrouperEmail().setSubject(subjectText).setBody(bodyText);
       
-      String emailAddressesCommaSeparated = GrouperUtil.join(emailRecipientsWithRecordMaps.emailAddresses.iterator(), ",") ;
-      grouperEmail.setTo(emailAddressesCommaSeparated);
+      grouperEmail.setTo(GrouperUtil.stringValue(actionConfigIdEmailAddress.getKey(1)));
       
       grouperEmail.send();
       
     }
     
-    
   }
   
   
-  
+  //TODO write unit tests
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     
@@ -711,9 +702,17 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
     //Step 1 - retrieve list of groups that have lifecycle policies attached to them.
     Map<String, String> groupIdToPolicyConfigId = retrieveGroupsWithPolicies();
     
+    if (groupIdToPolicyConfigId.isEmpty()) {
+      return null;
+    }
+    
     
     //Step 2 - retrieve lifecycle events for groups that have policies attached to them and only retrieve events that took place after the most recent full sync
     List<GroupMemberEventRef> groupIdsMemberIdsLifecycleEventIds = retrieveLifecycleEvents(groupIdToPolicyConfigId.keySet());
+    
+    if (groupIdsMemberIdsLifecycleEventIds.isEmpty()) {
+      return null;
+    }
     
     Set<Long> lifecycleEventIds = new HashSet<Long>(); //these are the lifecycle event ids for which we need to retrieve lifecycle event config ids
     
@@ -745,7 +744,7 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
     
     Map<String, ActionBean> actionConfigIdToActionDetails = retrieveActionConfigIdToActionDetails();
     
-    Map<String, Set<PolicyBean>> policyConfigIdToPolicyBeans = retrievePolicyConfigIdToPolicyBeans(new HashSet<String>(groupIdToPolicyConfigId.values())); //we're only interested in policies that are attached to the group
+    Map<String, Set<PolicyPartBean>> policyConfigIdToPolicyBeans = retrievePolicyConfigIdToPolicyBeans(new HashSet<String>(groupIdToPolicyConfigId.values())); //we're only interested in policies that are attached to the group
     
     Map<MultiKey,Membership> membershipsFromGroupIdsMemberIds = retrieveMembershipsFromGroupIdsMemberIds(groupIdsMemberIdsLifecycleEventIds);
     
@@ -770,6 +769,30 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
     workOnActionTypeEmailGroupAdmin(groupIdsMemberIdsLifecycleEventIds, policyConfigIdToPolicyBeans, 
         actionConfigIdToActionDetails, lifecycleEventIdToLifecycleEventConfigId, 
         groupIdToPolicyConfigId, membershipsFromGroupIdsMemberIds);
+    
+    // Step 7 - Remove memberships where in flight micros expire is in the past. It should work on all memberships where USER_LIFECYCLE_MSHIP_IN_FLIGHT_MICROS_EXPIRE is assigned
+    GcDbAccess gcDbAccess = new GcDbAccess();
+    Instant instant = Instant.now();
+    long microsNow = instant.getEpochSecond() * 1000L * 1000L;
+    
+    StringBuilder sqlBuilder = new StringBuilder("select gaaamv.group_id, gaaamv.member_id from grouper_aval_asn_asn_mship_v gaaamv where gaaamv.attribute_def_name_name1 = ? and  gaaamv.attribute_def_name_name2 = ? and value_integer < ? ");
+    gcDbAccess.addBindVar(UserLifecycleAttributeNames.userLifecycleStemName() +":"+ UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_MARKER);
+    gcDbAccess.addBindVar(UserLifecycleAttributeNames.userLifecycleStemName() +":"+ UserLifecycleAttributeNames.USER_LIFECYCLE_MSHIP_IN_FLIGHT_MICROS_EXPIRE);
+    gcDbAccess.addBindVar(microsNow);
+    
+    List<String[]> groupIdsMemberIds = gcDbAccess.sql(sqlBuilder.toString()).selectList(String[].class);
+    List<String> groupIds = new ArrayList<>();
+    List<String> memberIds = new ArrayList<>();
+    for (String[] groupIdMemberId: groupIdsMemberIds) {
+      groupIds.add(groupIdMemberId[0]);
+      memberIds.add(groupIdMemberId[1]);
+    }
+    
+    Set<Membership> membershipsToDelete = Hib3MembershipDAO.findAllMemberships(groupIds, memberIds);
+    
+    for (Membership membership: membershipsToDelete) {
+      membership.delete();
+    }
     
     
     return null;
@@ -830,12 +853,12 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
     return actionConfigIdToActionDetails;
   }
   
-  private Map<String, Set<PolicyBean>> retrievePolicyConfigIdToPolicyBeans(Set<String> policyConfigIds) {
+  private Map<String, Set<PolicyPartBean>> retrievePolicyConfigIdToPolicyBeans(Set<String> policyConfigIds) {
     
     List<UserLifecyclePolicyPartConfiguration> policyPartConfigurations = 
         UserLifecyclePolicyPartConfiguration.retrieveAllUserLifecyclePolicyPartConfigurations();
     
-    Map<String, Set<PolicyBean>> policyConfigIdToPolicyBeans = new HashMap<String, Set<PolicyBean>>();
+    Map<String, Set<PolicyPartBean>> policyConfigIdToPolicyBeans = new HashMap<String, Set<PolicyPartBean>>();
     
     for (UserLifecyclePolicyPartConfiguration policyPartConfiguration: policyPartConfigurations) {
       
@@ -847,7 +870,7 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
         continue;
       }
       
-      PolicyBean policyBean = new PolicyBean();
+      PolicyPartBean policyBean = new PolicyPartBean();
       policyBean.policyPartConfigId = policyPartConfiguration.getConfigId();
       policyBean.policyConfigId = policyConfigId;
       policyBean.lifecycleEventConfigIds = new HashSet<String>();
@@ -882,7 +905,7 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
       if (policyConfigIdToPolicyBeans.containsKey(policyConfigId)) {
         policyConfigIdToPolicyBeans.get(policyConfigId).add(policyBean);
       } else {
-        Set<PolicyBean> policyBeans = new HashSet<GroupPolicyUserLifecycleFullDaemon.PolicyBean>();
+        Set<PolicyPartBean> policyBeans = new HashSet<GroupPolicyUserLifecycleFullDaemon.PolicyPartBean>();
         policyBeans.add(policyBean);
         policyConfigIdToPolicyBeans.put(policyConfigId, policyBeans);
       }
@@ -928,8 +951,8 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
     
   }
   
-  class PolicyBean {
-    
+  class PolicyPartBean { 
+     
     String policyPartConfigId;
     String policyConfigId;
     Set<String> lifecycleEventConfigIds;
@@ -964,10 +987,4 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
     
   }
   
-  class EmailRecipientsWithRecordMaps {
-    Set<String> emailAddresses;
-    List<Map<String, Object>> listOfRecordMaps;
-  }
- 
-
 }
