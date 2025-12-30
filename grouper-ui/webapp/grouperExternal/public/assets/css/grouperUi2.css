@@ -365,3 +365,22 @@ td > .config-el-label {
 .jstree-default > .jstree-container-ul > .jstree-node {
   margin-left: 0;
 }
+
+/* Make the left tree pane scroll instead of overlapping main pane */
+#folderTreeContainerId {
+  overflow-y: auto;
+  overflow-x: auto;          /* <-- horizontal scrollbar */
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Don’t wrap node labels (so long names force horizontal scroll) */
+#folderTreeContainerId .jstree-anchor {
+  white-space: nowrap;
+}
+
+/* Ensure the tree can grow wider than the container (so overflow-x activates) */
+#folderTreeContainerId .jstree-container-ul {
+  display: inline-block;
+  min-width: 100%;
+}
