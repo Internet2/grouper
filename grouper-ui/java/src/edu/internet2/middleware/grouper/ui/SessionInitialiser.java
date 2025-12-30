@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
+import edu.internet2.middleware.grouper.ui.util.GrouperListResourceBundle;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -140,9 +141,14 @@ public class SessionInitialiser {
           Locale localeObj = (Locale)multiKey.getKey(1);
           
           ResourceBundle grouperBundle = new GrouperNavResourceBundle(localeObj);
-          ResourceBundle grouperMediaBundle = ResourceBundle.getBundle(
-              "resources.grouper.media", localeObj);
-          
+          GrouperListResourceBundle grouperMediaBundle = new GrouperListResourceBundle("grouperUiProperties");
+
+          //add in grouper-ui.properties for media.properties
+          GrouperUiConfig grouperUiConfig = GrouperUiConfig.retrieveConfig();
+          for (String key : grouperUiConfig.propertyNames()) {
+            grouperMediaBundle.addToCache(key, grouperUiConfig.propertyValueString(key, ""));
+          }
+
           ChainedResourceBundle chainedMediaBundle = null;
           ChainedResourceBundle chainedBundle = new ChainedResourceBundle(grouperBundle,
               "navResource");
@@ -162,13 +168,7 @@ public class SessionInitialiser {
           MapBundleWrapper navBundleWrapperNull = new MapBundleWrapper(chainedBundle, true);
 
           addIncludeExcludeDefaults(chainedBundle, navBundleWrapperNull);
-          
-          //add in grouper-ui.properties for media.properties
-          GrouperUiConfig grouperUiConfig = GrouperUiConfig.retrieveConfig();
-          for (String key : grouperUiConfig.propertyNames()) {
-            chainedMediaBundle.addToCache(key, grouperUiConfig.propertyValueString(key, ""));
-          }
-          
+
           resourceBundles = new BundleBean();
           resourceBundles.setNav(
               new javax.servlet.jsp.jstl.fmt.LocalizationContext(chainedBundle));
