@@ -3,16 +3,17 @@
 <input type="hidden" name="<csrf:token-name/>" value="<csrf:token-value />"/>
 
 
-<%-- note: dojo and jquery script are included in commonHead so we can call dojo things in the screen --%>
+<%-- note: jquery script are included in commonHead --%>
 
 <script src="../../grouperExternal/public/assets/js/tree.jquery.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.dataTables.min.js"></script>
 <script src="../../grouperExternal/public/assets/js/footable-0.1.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.cookie.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.form.js"></script>
+<script src="../../grouperExternal/public/assets/js/jstree.min.js"></script>
 <script src="../../grouperExternal/public/assets/js/grouper.js"></script>
 <script src="../../grouperExternal/public/assets/js/native.history.js"></script>
-<script src="../../grouperExternal/public/assets/js/grouperUi.js?ver=6.0.0"></script>
+<script src="../../grouperExternal/public/assets/js/grouperUi.js?ver=6.0.00"></script>
 <script src="../../grouperExternal/public/assets/js/wz_tooltip.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.blockUI.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.simplemodal.js"></script>
@@ -31,11 +32,4 @@
   //MCH 20132626: this used to be 1000, but the UI v2 modal window is zindex 1050
   $.blockUI.defaults.baseZ = '10000';
   
-</script>
-
-<script>
-  $( document ).ready(function() {
-    dojo.parser.parse();
-  });
- 
 </script>

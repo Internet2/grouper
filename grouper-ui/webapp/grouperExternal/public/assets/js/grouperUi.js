@@ -588,222 +588,384 @@ function guiDecorateUrl(theUrl) {
   return theUrl;
 }
 
-/**
- * TODO remove
- * unregister a widget
- * @param id
- */
-function dojoUnregisterWidget(id) {
-  
-  var widget = dijit.byId(id);
-  if (widget != null) {
-    if (typeof widget.destroyRecursive != 'undefined') {
-      widget.destroyRecursive();
-    }
-  }
-}
 
-/** init the left tree menu */
 function dojoInitMenu(autoSelectNode) {
 
-  if ((typeof folderMenuStore != 'undefined') && (folderMenuStore != null)) {
-    if (typeof folderMenuStore.destroyRecursive != 'undefined') {
-      folderMenuStore.destroyRecursive();
-    }
+  // Guardrails: if jQuery/jsTree aren't present, bail out quietly.
+  if (!window.jQuery || !jQuery.fn || typeof jQuery.fn.jstree !== 'function') {
+    return;
   }
-  if ((typeof folderTree != 'undefined') && (folderTree != null)) {
-    if (typeof folderTree.destroyRecursive != 'undefined') {
-      folderTree.destroyRecursive();
-    }
-  }
-  
+
+
+    // Recreate #folderTree if it was destroyed
   var folderTreeDiv = document.getElementById('folderTree');
-  
-  if (isEmpty(folderTreeDiv)) {
-    //it was destroyed, add a child in the contrainer
+  if (!folderTreeDiv) {
     $('#folderTreeContainerId').append('<div id="folderTree"></div>');
   }
-  
-  folderMenuStore = dojo.store.JsonRest({
-    target:"UiV2Main.folderMenu?",
-    mayHaveChildren: function(object){
-      // see if it has a children property
-      return "children" in object;
-    },
-    getChildren: function(object, onComplete, onError){
-      if (object.root && Array.isArray(object.children)) {
-        // already have children
-        onComplete(object.children);
-      } else {
-        // retrieve the full copy of the object
-        this.get(object.id).then(function(fullObject){
-          // copy to the original object so it has the children array as well.
-          object.children = fullObject.children;
-          // now that full object, we should have an array of children
-          onComplete(fullObject.children);
-        }, function(error){
-          // an error occurred, log it, and indicate no children
-          console.error(error);
-          onComplete([]);
+
+  // Always re-select after potential append
+  var $treeEl = $('#folderTree');
+
+  // ---- Cleanup previous tree instance + handlers (safe to call repeatedly) ----
+  // 1) Destroy any existing jsTree instance
+  if ($treeEl.data('jstree')) {
+    try { $treeEl.jstree('destroy'); } catch (e) {}
+  }
+  // 2) Remove any event handlers we added in prior dojoInitMenu runs
+  $treeEl.off('.dojoInitMenu');
+  // 3) Clear leftover DOM from previous render (destroy usually does this, but this is extra-safe)
+  $treeEl.empty();
+
+
+  function getIcon(item) {
+    // Folder-ish nodes
+    var hasChildrenMarker = (item && Object.prototype.hasOwnProperty.call(item, 'children'));
+    if (!item || hasChildrenMarker || item.theType === 'stem' || item.root) {
+      // you can swap this for your own CSS class if you had dijitFolderClosed
+      return 'jstree-folder';
+    }
+
+    // Leaf types (font-awesome like your Dojo code)
+    if (item.theType === 'truncatedItems') return 'fa fa-ellipsis-h';
+    if (item.theType === 'group') return 'fa fa-group';
+    if (item.theType === 'entity') return 'fa fa-cloud-download';
+    if (item.theType === 'attributeDef') return 'fa fa-cog';
+    if (item.theType === 'attributeDefName') return 'fa fa-cogs';
+
+    return 'jstree-file';
+  }
+
+  function hasChildren(item) {
+    // Dojo used: "children" in object
+    if (!item) return false;
+
+    if (Array.isArray(item.children)) return item.children.length > 0;
+
+    // some APIs return children: true to indicate lazy-loadable
+    if (typeof item.children === 'boolean') return item.children;
+
+    // stems typically have children
+    if (item.theType === 'stem' || item.root) return true;
+
+    return false;
+  }
+
+  function toJsTreeNode(item, parentIdForUniq) {
+        // jsTree requires globally-unique node ids.
+    // The API's special "truncatedItems" rows can reuse the parent id (or otherwise collide),
+    // which causes jsTree to overwrite/replace existing nodes.
+    // Make truncatedItems ids unique for the tree, but keep the original id in node.data for click logic.
+    var nodeId = String(item.id);
+    if (item && item.theType === 'truncatedItems') {
+      nodeId = 'truncatedItems:' + String(item.id) + ':' + String(parentIdForUniq || '');
+    }
+
+    return {
+      id: nodeId,
+      text: item.name,     // Dojo getLabel() => object.name
+      icon: getIcon(item),
+      children: hasChildren(item), // true => show expander + lazy load
+      data: item           // keep original payload for click logic
+    };
+  }
+
+  function childrenToJsTreeNodes(childrenArray, parentIdForUniq) {
+    if (!Array.isArray(childrenArray)) return [];
+    return childrenArray
+      .filter(Boolean)
+      .map(function (child) { return toJsTreeNode(child, parentIdForUniq); });
+  }
+
+  // Init jsTree with lazy AJAX loading
+  // We add a visible "Root" node at the top, then lazy-load its children from ?root.
+  $('#folderTree').jstree({
+    core: {
+      themes: { stripes: false },
+      data: function (node, cb) {
+        // 1) Initial load: return a single synthetic Root node
+        if (node.id === '#') {
+          cb([
+            {
+              id: 'root',
+              text: 'Root',
+              icon: 'jstree-folder',
+              children: true,            // show expander + lazy load
+              data: { root: true, theType: 'stem', id: 'root', name: 'Root' } // synthetic Root payload for click logic
+            }
+          ]);
+          return;
+        }
+
+        // 2) Expanding "Root": fetch real root children from the server
+        if (node.id === 'root') {
+          $.ajax({
+            url: 'UiV2Main.folderMenu?root',
+            type: 'GET',
+            dataType: 'json',
+            cache: true,
+            timeout: 150000
+          }).done(function (rootObj) {
+            // Show the real "root folder" (e.g. "temp") as a node under synthetic Root.
+            // Also inline its immediate children so opening it shows contents right away.
+            var top = rootObj ? toJsTreeNode(rootObj) : null;
+            if (top && rootObj && Array.isArray(rootObj.children)) {
+              top.children = childrenToJsTreeNodes(rootObj.children, rootObj.id);
+            }
+            cb(top ? [top] : []);
+          }).fail(function () {
+            cb([]);
+          });
+          return;
+        }
+
+        // 3) Expanding any other node: fetch its children
+        $.ajax({
+          url: 'UiV2Main.folderMenu?' + encodeURIComponent(node.id),
+          type: 'GET',
+          dataType: 'json',
+          cache: true,
+          timeout: 150000
+        }).done(function (fullObj) {
+          cb(childrenToJsTreeNodes(fullObj && fullObj.children, fullObj && fullObj.id));
+        }).fail(function () {
+          cb([]);
         });
       }
     },
-    getRoot: function(onItem, onError){
-      // get the root object, we will do a get() and callback the result
-      this.get("root").then(onItem, onError);
-    },
-    getLabel: function(object){
-      // just get the name
-      return object.name;
-    }
-    
+    plugins: ['wholerow'] // optional, nicer click target
   });
 
-  // Custom TreeNode class (based on dijit.TreeNode) that allows rich text labels
-  //var MyTreeNode = dojo.declare(dijit.Tree._TreeNode, {
-  //    _setLabelAttr: {node: "labelNode", type: "innerHTML"}
-  //});
-  
-  folderTree = new dijit.Tree({
-    model: folderMenuStore,
-    //_createTreeNode: function(args){
-    //   return new MyTreeNode(args);
-    //},
-    getIconClass: function(/*dojo.store.Item*/ item, /*Boolean*/ opened){
-      //return (!item || this.model.mayHaveChildren(item)) ? (opened ? "dijitFolderOpened" : "dijitFolderClosed") : "dijitLeaf"
-      if (!item || this.model.mayHaveChildren(item)) {
-        if (opened) {
-          return "dijitFolderOpened";
-        } 
-        return "dijitFolderClosed";
-      }
-      if (item.theType == 'truncatedItems') {
-        // regular stems are caught above since they have a children attribute; so this
-        // may be a placeholder stem - possibly the "..." pseudo-stem
-        return "fa fa-ellipsis-h";
-      }
-      if (item.theType == 'group') {
-        //font-awesome icons...
-        return "fa fa-group";
-      }
-      if (item.theType == 'entity') {
-        //font-awesome icons...
-        return "fa fa-cloud-download";
-      }
-      if (item.theType == 'attributeDef') {
-        //font-awesome icons...
-        return "fa fa-cog";
-      }
-      if (item.theType == 'attributeDefName') {
-        //font-awesome icons...
-        return "fa fa-cogs";
-      }
-    },
-    onClick: function(item){
-      // Get the URL from the item, and navigate to it
-      if (item.theType == 'stem') {
-        if ((typeof item.id != 'undefined') && (item.id != null)) {
-          guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id);
-        }
-      } else if (item.theType == 'entity') {
-        if ((typeof item.id != 'undefined') && (item.id != null)) {
-          guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=' + item.id);
-        }
-      } else if (item.theType == 'group') {
-        if ((typeof item.id != 'undefined') && (item.id != null)) {
-          guiV2link('operation=UiV2Group.viewGroup&groupId=' + item.id);
-        }
-      } else if (item.theType == 'attributeDef') {
-        if ((typeof item.id != 'undefined') && (item.id != null)) {
-          guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=' + item.id);
-        }
-        //location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeUpdate.createEdit&attributeDefId=' + item.id;
-      } else if (item.theType == 'attributeDefName') {
-        if ((typeof item.id != 'undefined') && (item.id != null)) {
-          guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=' + item.id);
-        }
-        //location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeNameUpdate.createEditAttributeNames&attributeDefNameId=' + item.id;
-      } else if (item.theType == 'truncatedItems') {
-        if ((typeof item.id != 'undefined') && (item.id != null)) {
-          guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id)
-        }
-      } else {
-        alert('ERROR: cant find theType on object with id: ' + item.id + ': ' + item.theType);
-      }
-    }
-  }, "folderTree"); // make sure you have a target HTML element with this id
+  // Expand synthetic Root (and the real root folder under it) by default on initial render.
+  // This triggers the UiV2Main.folderMenu?root AJAX call via the jsTree lazy loader.
+  (function expandRootByDefault() {
+    var $tree = $('#folderTree');
 
+    function doExpand() {
+      var inst = $tree.jstree(true);
+      if (!inst) return;
+
+            // Open synthetic Root; this triggers UiV2Main.folderMenu?root via the jsTree lazy loader.
+      // Do NOT auto-open any children under Root.
+      inst.open_node('root');
+    }
+
+    // If already ready, expand immediately; otherwise wait.
+    if ($tree.data('jstree')) {
+      try {
+        var instNow = $tree.jstree(true);
+        if (instNow && instNow._ready) {
+          doExpand();
+          return;
+        }
+      } catch (e) {}
+    }
+
+    $tree.one('ready.jstree', function () {
+      doExpand();
+    });
+  })();
+
+  // Click handler (your Dojo onClick logic)
+  // Remove any previous handler first (dojoInitMenu can be called multiple times)
+    $treeEl.on('select_node.jstree.dojoInitMenu', function (e, data) {
+    var item = data && data.node && data.node.data;
+    if (!item) return;
+
+    // Synthetic Root node: navigate to the Root stem
+    if (item.root === true) {
+      // Match existing navigation style used elsewhere in this file
+      guiV2link('operation=UiV2Stem.viewStem&stemId=root');
+      return;
+    }
+
+    function hasId(x) {
+      return typeof x.id !== 'undefined' && x.id !== null;
+    }
+
+    if (item.theType === 'stem') {
+      if (hasId(item)) guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id);
+
+    } else if (item.theType === 'entity') {
+      if (hasId(item)) guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=' + item.id);
+
+    } else if (item.theType === 'group') {
+      if (hasId(item)) guiV2link('operation=UiV2Group.viewGroup&groupId=' + item.id);
+
+    } else if (item.theType === 'attributeDef') {
+      if (hasId(item)) guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=' + item.id);
+
+    } else if (item.theType === 'attributeDefName') {
+      if (hasId(item)) guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=' + item.id);
+
+    } else if (item.theType === 'truncatedItems') {
+      if (hasId(item)) guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id);
+
+    } else {
+      alert('ERROR: cant find theType on object with id: ' + item.id + ': ' + item.theType);
+    }
+  });
+
+  // Auto-select/open path like your Dojo code
   if (autoSelectNode) {
     var itemId = null;
     var itemType = null;
+
     var uri = new URI(location.href);
     uri.search(function (data) {
       if (data.operation === "UiV2Stem.viewStem") {
-        // the breadcrumb menu uses name not id
-        itemId = (data.stemName != undefined) ? data.stemName : data.stemId;
-        itemType = (data.stemName != undefined) ? "stemName" : "stem";
+        itemId = (data.stemName !== undefined) ? data.stemName : data.stemId;
+        itemType = (data.stemName !== undefined) ? "stemName" : "stem";
+
       } else if (data.operation === "UiV2Visualization.stemView") {
         itemId = data.objectId;
         itemType = "stem";
+
       } else if (data.operation === "UiV2Group.viewGroup") {
-        itemId = (data.groupName != undefined) ? data.groupName : data.groupId;
-        itemType = (data.groupName != undefined) ? "groupName" : "group";
+        itemId = (data.groupName !== undefined) ? data.groupName : data.groupId;
+        itemType = (data.groupName !== undefined) ? "groupName" : "group";
+
       } else if (data.operation === "UiV2Subject.viewSubject" && data.sourceId === "grouperEntities") {
         itemId = data.subjectId;
         itemType = "group";
+
       } else if (data.operation === "UiV2Visualization.groupView") {
         itemId = data.objectId;
         itemType = "group";
+
       } else if (data.operation === "UiV2AttributeDef.viewAttributeDef") {
-        itemId = (data.nameOfAttributeDef != undefined) ? data.nameOfAttributeDef : data.attributeDefId;
-        itemType = (data.nameOfAttributeDef != undefined) ? "nameOfAttributeDef" : "attributeDef";
+        itemId = (data.nameOfAttributeDef !== undefined) ? data.nameOfAttributeDef : data.attributeDefId;
+        itemType = (data.nameOfAttributeDef !== undefined) ? "nameOfAttributeDef" : "attributeDef";
+
       } else if (data.operation === "UiV2AttributeDefName.viewAttributeDefName") {
-        itemId = (data.nameOfAttributeDefName != undefined) ? data.nameOfAttributeDefName : data.attributeDefNameId;
-        itemType = (data.nameOfAttributeDefName != undefined) ? "nameOfAttributeDefName" : "attributeDefName";
+        itemId = (data.nameOfAttributeDefName !== undefined) ? data.nameOfAttributeDefName : data.attributeDefNameId;
+        itemType = (data.nameOfAttributeDefName !== undefined) ? "nameOfAttributeDefName" : "attributeDefName";
       }
 
-      if (itemType !== null) {
+            if (itemType !== null) {
         $.ajax({
           url: "UiV2Main.folderMenuObjectPath",
-          /* headers: owaspCsrfTokenHeader, */
           type: "POST",
           cache: true,
           dataType: 'json',
-          data: {"id": itemId, "type": itemType},
-          timeout: 150000,
-          async: true,
-          success: function(json){
-            openFolderTreePathToObject(json);
-          }
+          data: { id: itemId, type: itemType },
+          timeout: 150000
+        }).done(function (json) {
+          openFolderTreePathToObjectJsTree(json);
+        }).fail(function () {
+          // If we can't resolve the path, at least expand Root so the user sees something.
+          openFolderTreePathToObjectJsTree();
         });
+      } else {
+        // If the current page doesn't map to a specific object ("at Root"),
+        // expand/select Root so the user sees Root and its immediate children.
+        openFolderTreePathToObjectJsTree();
       }
     });
   }
 
-  folderTree.startup();
+  // ---- Path open/select helper (lazy-load safe-ish) ----
+  function extractPathIds(pathJson) {
+    // Try a few common shapes:
+    // 1) ["id1","id2","id3"]
+    // 2) [{id:"id1"},{id:"id2"}]
+    // 3) { path: [...] }
+    var p = pathJson;
 
-  /*
-  if (autoSelectNode) {
-    folderTree.onLoadDeferred.then(function () {
-      var selectedNode = null;
-      if (itemId != null) {
-        var array = folderTree.getNodesByItem(itemId);
-        for (index = 0; index < array.length; index++) {
-          selectedNode = array[index];
-          selectedNode.setSelected(true);
+    if (p && Array.isArray(p.path)) p = p.path;
 
-          var parent = selectedNode.getParent();
-          var sibling = parent.getNextSibling();
-          while (sibling != null) {
-            sibling.collapse();
-            sibling = sibling.getNextSibling();
+    if (Array.isArray(p)) {
+      if (p.length && typeof p[0] === 'string') return p.map(String);
+      if (p.length && typeof p[0] === 'object') return p.map(x => String(x.id));
+    }
+    return [];
+  }
+
+  function openFolderTreePathToObjectJsTree(pathJson) {
+    // If nothing is passed, assume we're at Root and expand it.
+    var ids = extractPathIds(pathJson);
+
+    if (!ids || !ids.length) {
+      ids = ['root'];
+    }
+
+    // Our jsTree has a synthetic "root" node at the top. Ensure the open path starts there
+    // so lazy-loading works consistently.
+    if (ids[0] !== 'root') {
+      ids.unshift('root');
+    }
+
+    // De-dupe consecutive ids in case "root" is present twice
+    ids = ids.filter(function (id, idx) {
+      return idx === 0 || id !== ids[idx - 1];
+    });
+
+    var $tree = $('#folderTree');
+
+    // Run callback when the tree is ready AND the synthetic root node exists.
+    function withTreeReady(cb) {
+      try {
+        if ($tree.data('jstree')) {
+          var instNow = $tree.jstree(true);
+          if (instNow && instNow.get_node && instNow.get_node('root', false)) {
+            cb(instNow);
+            return;
+          }
+        }
+      } catch (e) {
+        // fall through to ready handler
+      }
+
+      $tree.one('ready.jstree', function () {
+        cb($tree.jstree(true));
+      });
+    }
+
+    withTreeReady(function (inst) {
+      // Root-only case: expand Root AND also expand the real root folder under it
+      // so the user sees Root -> <root folder> -> its objects.
+      if (ids.length === 1 && ids[0] === 'root') {
+                // Root-only: expand Root so the user sees Root and its immediate children.
+        // Do NOT select Root here because select_node triggers navigation.
+        // Do NOT auto-open any children under Root.
+        inst.open_node('root');
+        return;
+      }
+
+      // Otherwise, open each node in order; opening triggers loading of its children
+      function openNext(i) {
+        if (i >= ids.length) {
+          var last = ids[ids.length - 1];
+                    inst.deselect_all();
+          inst.select_node(last);
+          inst.open_node(last);
+          return;
+        }
+
+        var id = ids[i];
+        var node = inst.get_node(id);
+
+        if (node) {
+          inst.open_node(id, function () { openNext(i + 1); });
+        } else {
+          // If the node isn't present yet, open the previous node to force-load it,
+          // or refresh and retry.
+          var prev = (i === 0) ? null : ids[i - 1];
+          if (prev && inst.get_node(prev)) {
+            inst.open_node(prev, function () { openNext(i); });
+          } else {
+            inst.refresh(false, false);
+            setTimeout(function () { openNext(i); }, 75);
           }
         }
       }
+
+      openNext(0);
     });
   }
-  */
 }
+
+
+
 
 //function dojoClearTree(theTree, theStore) {
 //
@@ -1186,11 +1348,6 @@ function guiProcessJsonResponse(guiResponseJs) {
   //  successResultFunction.call(this, json);
   //}
   
-  if (typeof dojo != 'undefined' && typeof dojo.parser != 'undefined') {
-    //parse the new doc for changes
-    dojo.parser.parse();
-  }
-  
   //round those corners
   guiRoundCorners();
 
@@ -1221,6 +1378,7 @@ function guiProcessAction(guiScreenAction) {
   }
   //replace some html
   if (!guiIsEmpty(guiScreenAction.innerHtmlJqueryHandle) && guiIsEmpty(guiScreenAction.validationMessage)) {
+     grouperDestroyTomSelectInContainer(guiScreenAction.innerHtmlJqueryHandle);
      $(guiEscapeSelectorIfNeeded(guiScreenAction.innerHtmlJqueryHandle)).html(guiScreenAction.html);
   }
 
@@ -3022,6 +3180,20 @@ function grouperRegisterCombobox(jquerySelector, url, additionalFormElementNames
   }
 
   return ts;
+}
+
+function grouperDestroyTomSelectInContainer(containerSelectorOrEl) {
+  var el = (typeof containerSelectorOrEl === 'string')
+    ? document.querySelector(containerSelectorOrEl)
+    : containerSelectorOrEl;
+
+  if (!el) return;
+
+  el.querySelectorAll('input,select').forEach(function(field) {
+    if (field.tomselect) {
+      try { field.tomselect.destroy(); } catch (e) {}
+    }
+  });
 }
 
 /**
