@@ -2455,12 +2455,6 @@ function guiCalendarImageClick(formElementId) {
   return false;
 }
 
-/** format a date from screen to the DB, format will go to ccyymmdd */
-function formatValid_dateformattodb(functionName, args, x) {
-  
-  return guiConvertStringToDateOrTimestamp(x, true); 
-}
-
 /** convert a string to a ccyymmdd or mm/dd/ccyy HH:MM:ss.SSS */
 function guiConvertStringToDateOrTimestamp(input, isDate) {
   var ret = guiConvertStringToDateOrTimestampHelper(input, isDate);
