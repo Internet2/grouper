@@ -1,4 +1,3 @@
-
 //TODO put this in nav.properties and put base HTML pages into JSP
 var guiAjaxSessionProblem = "There was an error communicating with the server.  Your session probably expired.  You will be redirected to login again.";
 
@@ -152,7 +151,9 @@ function _addUrlOptions(url, options) {
 
   options = options || {};
 
-  var namesCsv = options.optionalFormElementNamesToSend;
+  // Historically this code uses the key optionalFormElementNamesToSend.
+  // (Some call sites may pass optionalFormElementNames; accept both.)
+  var namesCsv = options.optionalFormElementNamesToSend || options.optionalFormElementNames;
   if (namesCsv) {
 
     var additionalFormElementNamesArray = guiSplitTrim(namesCsv, ",");
@@ -453,75 +454,6 @@ function AppState() {
   };
 
 }
-
-/** list of combos by id */
-var allComboboxes = new Object();
-
-/**
- * register a combobox div
- * @param divId is comboname plus "Id"
- * @param width
- * @param useImages true or false, if images are in the combobox
- * @param filterUrl
- * @param additionalFormElementNames send more form element names to the filter operation, comma separated
- */
-function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl, comboDefaultText, comboDefaultValue, additionalFormElementNames ) {
-  /* long hand...
-   var simpleMembershipUpdateAddMemberSelect=new dhtmlXCombo(
-      "simpleMembershipUpdateAddMemberDiv","simpleMembershipUpdateAddMember",200, 'image');
-    simpleMembershipUpdateAddMemberSelect.enableFilteringMode(
-       true,"../app/SimpleMembershipUpdate.filterUsers",false); */
-  var theCombo=new dhtmlXCombo(
-      divId,comboName,width, useImages ? 'image' : undefined);
-  
-  filterUrl = guiDecorateUrl(filterUrl);
-  
-  comboboxFormElementNamesToSend[comboName] = additionalFormElementNames;
-  
-  //remember the combo names for when the request goes out
-  theCombo.enableFilteringMode(true,filterUrl,false);
-  
-  //note, for some reason the default value has to be above the default text...
-  if (!guiIsEmpty(comboDefaultValue)) {
-    theCombo.setComboValue(comboDefaultValue);
-  }
-  if (!guiIsEmpty(comboDefaultText)) {
-    theCombo.setComboText(comboDefaultText);
-  }
-
-  //add hidden throbber
-  var textfield = $('div#' + divId + ' :text');
-  var textfieldDropdownImage = $('div#' + divId +   ' .dhx_combo_img');
-
-  textfieldDropdownImage.after(
-      "<img style='position:absolute;top:2px;display:none' alt='busy...' " +
-      "src='../../grouperExternal/public/assets/images/busy.gif' id='comboThrobberId_"
-      + divId + "' class='comboThrobber'  />");
-
-
-  //add a throbbber
-  theCombo.attachEvent("onXLS",function(){
-    var textfieldDropdownImage = $('div#' + divId +   ' .dhx_combo_img');
-
-    var leftOffset = textfieldDropdownImage.css('display') == 'none' ? 0 : (-1 * textfieldDropdownImage.width());
-
-    var textfieldDiv = $('div#' + divId + ' .dhx_combo_box');
-    var throbber = $('#comboThrobberId_' + divId);
-
-    leftOffset = ((textfieldDiv.width() - (throbber.width() + 3)) + leftOffset);
-    throbber.css("left", leftOffset + "px");
-    throbber.show();
-  });
-
-  //remove throbber
-  theCombo.attachEvent("onXLE",function(){
-    $('#comboThrobberId_' + divId).hide();
-  });
-  
-  //keep this so we can control it later
-  allComboboxes[comboName] = theCombo;  
-}
-
 
 /** starting point for all objects */
 function AllObjects() {
@@ -1609,28 +1541,6 @@ function guiDefaultString(x) {
 /** set form element(s) to values */
 function guiFormElementAssignValue(name, values) {
   
-  //see if combo
-  if (!guiIsEmpty(allComboboxes[name])) {
-    if (guiIsEmpty(values)) {
-      allComboboxes[name].clearAll(true);
-    } else {
-      values = guiConvertToArray(values, true);
-      //assign a value
-      if (values.length == 1) {
-        if (guiIsEmpty(values[0])) {
-          allComboboxes[name].clearAll(true);
-        } else {
-          allComboboxes[name].setComboValue(values[0]);
-        }
-      } else {
-        alert("Cant have length more than 1");
-      }
-    }
-    
-    return;
-  }
-
-  
   values = guiConvertToArray(values, true);
   
   for (var i=0;i<values.length;i++) {
@@ -2403,8 +2313,6 @@ function guiFormElement(form, elementName) {
   return null;
 }
  
-var guiCalendars = new Array();
-
 /** redefine this function if you want to set current date to something else */
 function guiNewDate() {
   return new Date();
@@ -2417,42 +2325,6 @@ function guiNow() {
   var now = guiNewDate();
   var x = (now.getMonth()+1) + "/" + now.getDate()+ "/" +  now.getFullYear();
   return x;
-}
-
-function guiCalendarImageClick(formElementId) {
-  if (guiCalendars[formElementId].parent != null && guiCalendars[formElementId].isVisible()) {
-    guiCalendars[formElementId].hide();
-  } else {
-  
-    var textfield = document.getElementById(formElementId);
-
-    var textfieldDate = textfield.value;
-  
-    //if nothing, default to today  
-    if (guiIsEmpty(textfieldDate)) {
-      textfieldDate = guiNow();
-    }
-
-    //convert to yyyymmdd
-    var yyyymmdd = formatValid_dateformattodb('dateformattodb', null, textfieldDate);
-
-    if (guiValidateDate(yyyymmdd)) {
-      //set the date to the control
-      var year = yyyymmdd.substring(0,4);
-      var month = yyyymmdd.substring(4,6);
-      var day = yyyymmdd.substring(6,8);
-      //guiConvertStringToDateOrTimestamp(yyyymmdd, true)
-      var theDate=new Date();
-      theDate.setFullYear(year);
-      theDate.setMonth(month-1);
-      theDate.setDate(day);
-      guiCalendars[formElementId].setDate(theDate);
-    }
-  
-  
-    guiCalendars[formElementId].show();
-  }
-  return false;
 }
 
 /** convert a string to a ccyymmdd or mm/dd/ccyy HH:MM:ss.SSS */
@@ -2492,46 +2364,6 @@ function guiValidateDateHelper(month, day, year, args) {
  
   return null;
 
-}
-
-
-
-function guiCalendarInit(formElementId) {
-
-  //mCal = new dhtmlxCalendarObject("caltext6", false, {isWinHeader: true, isWinDrag: true});
-  //mCal.draw();
-  //mCal.hide();
-  //mCal.attachEvent("onClick", function(date){
-  //  var theDate = mCal.getFormatedDate('%Y%m%d', date);
-  //  document.getElementById("text6").value = theDate;
-  //  document.getElementById("text6").onblur();
-  //  
-  //  mCal.close();
-  //
-  //}) 
-  
-  //  <a href="#" onclick="return guiCalendarImageClick2('text6');"><img 
-  //src="../gui/images/calendar.gif" border="0" alt="Pick a date" height="16" 
-  //width="16" id="PZE8OLPL_image" /></a><span id="text6_theCalendar2" style="position: absolute;"></span>
-  //<script>
-  //  guiCalendarInit2("text6");
-  //</script>
-
-  var imageElementId = formElementId + "_theCalendar";
-  var theCalendar = new dhtmlxCalendarObject(imageElementId, false, 
-    {isWinHeader: true, isWinDrag: true});
-  theCalendar.draw();
-  theCalendar.hide();
-  
-  guiCalendars[formElementId] = theCalendar;
-
-  theCalendar.attachEvent("onClick", function(date){
-    var theDate = guiCalendars[formElementId].getFormatedDate('%Y%m%d', date);
-    document.getElementById(formElementId).value = theDate;
-    document.getElementById(formElementId).onblur();
-    guiCalendars[formElementId].close();
-
-  });   
 }
 
 /**
@@ -3092,8 +2924,7 @@ function grouperRegisterCombobox(jquerySelector, url, additionalFormElementNames
   };
 
   // Clear any previous search results before showing new ones.
-  // Tom Select retains options internally; without clearing, an old option can appear at the top on subsequent searches.
-  // We keep the currently-selected option(s) so the control can still render the selected label.
+  // Tom Select retains options internally; without clearing, an old option can appear at the top on subsequent searches
   function grouperResetOptionsKeepSelection(tsInstance) {
     try {
       var keep = [];

@@ -53,65 +53,6 @@
 
   <tag>
     <description>
-      Creates a dhtmlx combobox
-    </description>
-    <name>combobox</name>
-    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperComboboxTag
-    </tag-class>
-    <body-content>empty</body-content>
-    <attribute>
-      <description>
-        id and class of elements, and name of combobox. Make this unique in app
-        </description>
-      <name>id</name>
-      <required>true</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-      <description>
-        width, int, means pixels
-        </description>
-      <name>width</name>
-      <required>false</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-      <description>
-        the operation to call when filtering
-        </description>
-      <name>filterOperation</name>
-      <required>true</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-      <description>
-        the default text which should appear in the combo box when drawn
-        </description>
-      <name>comboDefaultText</name>
-      <required>false</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-      <description>
-        the default value (will be submitted) which should appear in the combo box when drawn
-        </description>
-      <name>comboDefaultValue</name>
-      <required>false</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-      <description>
-        send more form element names to the filter operation, comma separated
-        </description>
-      <name>additionalFormElementNames</name>
-      <required>false</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-
-  </tag>
-
-  <tag>
-    <description>
       Creates a combobox
     </description>
     <name>combobox2</name>
