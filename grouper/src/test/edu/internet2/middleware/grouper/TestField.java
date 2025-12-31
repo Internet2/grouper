@@ -43,8 +43,6 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import edu.internet2.middleware.grouper.tableIndex.TableIndex;
-import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import junit.framework.Assert;
 import junit.textui.TestRunner;
@@ -62,7 +60,7 @@ public class TestField extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestField("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new TestField("testFields"));
     //TestRunner.run(TestField.class);
   }
   
@@ -418,9 +416,7 @@ public class TestField extends GrouperTest {
       assertFalse(field.xmlDifferentUpdateProperties(exampleField));
 
       field.setName(exampleField.getName());
-      Field clonedExampleField = exampleField.clone();
-      clonedExampleField.setInternalId(TableIndex.reserveId(TableIndexType.field));
-      field.xmlSaveBusinessProperties(clonedExampleField);
+      field.xmlSaveBusinessProperties(exampleField.clone());
       field.xmlSaveUpdateProperties();
       
       field = exampleRetrieveFieldDb();
@@ -440,11 +436,7 @@ public class TestField extends GrouperTest {
       assertFalse(field.xmlDifferentUpdateProperties(exampleField));
 
       field.setName(exampleField.getName());
-      
-      Field clonedExampleField = exampleField.clone();
-      clonedExampleField.setInternalId(TableIndex.reserveId(TableIndexType.field));
-      field.xmlSaveBusinessProperties(clonedExampleField);
-      
+      field.xmlSaveBusinessProperties(exampleField.clone());
       field.xmlSaveUpdateProperties();
       
       field = exampleRetrieveFieldDb();
@@ -464,11 +456,7 @@ public class TestField extends GrouperTest {
       assertFalse(field.xmlDifferentUpdateProperties(exampleField));
 
       field.setReadPrivilege(exampleField.getReadPrivilege());
-      
-      Field clonedExampleField = exampleField.clone();
-      clonedExampleField.setInternalId(TableIndex.reserveId(TableIndexType.field));
-      field.xmlSaveBusinessProperties(clonedExampleField);
-      
+      field.xmlSaveBusinessProperties(exampleField.clone());
       field.xmlSaveUpdateProperties();
       
       field = exampleRetrieveFieldDb();
@@ -488,11 +476,7 @@ public class TestField extends GrouperTest {
       assertFalse(field.xmlDifferentUpdateProperties(exampleField));
 
       field.setType(exampleField.getType());
-      
-      Field clonedExampleField = exampleField.clone();
-      clonedExampleField.setInternalId(TableIndex.reserveId(TableIndexType.field));
-      field.xmlSaveBusinessProperties(clonedExampleField);
-      
+      field.xmlSaveBusinessProperties(exampleField.clone());
       field.xmlSaveUpdateProperties();
       
       field = exampleRetrieveFieldDb();
@@ -512,11 +496,7 @@ public class TestField extends GrouperTest {
       assertFalse(field.xmlDifferentUpdateProperties(exampleField));
 
       field.setUuid(exampleField.getUuid());
-      
-      Field clonedExampleField = exampleField.clone();
-      clonedExampleField.setInternalId(TableIndex.reserveId(TableIndexType.field));
-      field.xmlSaveBusinessProperties(clonedExampleField);
-      
+      field.xmlSaveBusinessProperties(exampleField.clone());
       field.xmlSaveUpdateProperties();
       
       field = exampleRetrieveFieldDb();
@@ -535,11 +515,7 @@ public class TestField extends GrouperTest {
       assertFalse(field.xmlDifferentUpdateProperties(exampleField));
 
       field.setWritePrivilege(exampleField.getWritePrivilege());
-      
-      Field clonedExampleField = exampleField.clone();
-      clonedExampleField.setInternalId(TableIndex.reserveId(TableIndexType.field));
-      field.xmlSaveBusinessProperties(clonedExampleField);
-      
+      field.xmlSaveBusinessProperties(exampleField.clone());
       field.xmlSaveUpdateProperties();
       
       field = exampleRetrieveFieldDb();
