@@ -4,9 +4,18 @@
  */
 package edu.internet2.middleware.grouperDuo;
 
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+
+import com.duosecurity.client.Admin;
+import com.duosecurity.client.Admin.AdminBuilder;
 import com.duosecurity.client.Http;
 
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -14,13 +23,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 
 /**
@@ -142,8 +144,19 @@ public class GrouperDuoCommands {
     
     String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouperDuo.adminDomainName");
     
-    Http request = (timeoutSeconds != null && timeoutSeconds > 0) ? 
-        new Http(method, domain, path, timeoutSeconds) : new Http(method, domain, path);
+    // Pick the right builder for the API you’re calling:
+    //  Auth API     -> new Auth.AuthBuilder(...)
+    //  Admin API    -> new Admin.AdminBuilder(...)
+    //  Accounts API -> new Accounts.AccountsBuilder(...)
+    
+    
+    AdminBuilder b = new Admin.AdminBuilder(method, domain, path);   // or Auth/AuthBuilder, Accounts/AccountsBuilder
+    
+    if (timeoutSeconds != null && timeoutSeconds > 0) {
+     b.useTimeout(timeoutSeconds); // seconds
+    }
+    
+    Http request = b.build();
 
     return request;
   }
