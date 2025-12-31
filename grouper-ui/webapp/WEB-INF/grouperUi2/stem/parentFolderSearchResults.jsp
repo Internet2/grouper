@@ -24,7 +24,7 @@
                           <tr>
                             <td>${grouper:escapeHtml(guiStem.pathColonSpaceSeparated)}</td>
                             <td><i class="fa fa-folder"></i> <a href="#" onclick="grouperComboboxSetId('#parentFolderComboId', '${grouper:escapeJavascript(guiStem.stem.id)}'); return true;"
-                                >${grouper:escapeHtml(guiStem.stem.displayExtension) }</a></td>
+                                data-dismiss="modal">${grouper:escapeHtml(guiStem.stem.displayExtension) }</a></td>
                           </tr>
                         </c:forEach>
                       </tbody>

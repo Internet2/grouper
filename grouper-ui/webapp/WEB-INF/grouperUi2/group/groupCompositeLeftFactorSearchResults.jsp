@@ -18,7 +18,7 @@
                               <tr>
                                 <td>${guiGroup.pathColonSpaceSeparated}</td>
                                 <td><a href="#" onclick="grouperComboboxSetId('#groupCompositeLeftFactorComboId', '${grouper:escapeJavascript(guiGroup.group.id)}'); return true;"
-                                    >${grouper:escapeHtml(guiGroup.group.displayExtension)}</a></td>
+                                    data-dismiss="modal">${grouper:escapeHtml(guiGroup.group.displayExtension)}</a></td>
                               </tr>
                             </c:forEach>
                           </tbody>
