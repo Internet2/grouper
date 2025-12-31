@@ -689,7 +689,6 @@ public class GroupPolicyUserLifecycleFullDaemon extends OtherJobBase {
   }
   
   
-  //TODO write unit tests
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     
