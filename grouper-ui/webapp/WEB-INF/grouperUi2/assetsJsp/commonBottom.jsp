@@ -16,7 +16,6 @@
 <script src="../../grouperExternal/public/assets/js/grouperUi.js?ver=6.0.00"></script>
 <script src="../../grouperExternal/public/assets/js/wz_tooltip.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.blockUI.js"></script>
-<script src="../../grouperExternal/public/assets/js/jquery.simplemodal.js"></script>
 <script src="../../grouperExternal/public/assets/nifty/niftycube.js"></script>
 <script src="../../grouperExternal/public/assets/js/bootstrap-datepicker.min.js"></script>
 

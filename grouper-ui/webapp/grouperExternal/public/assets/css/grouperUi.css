@@ -246,45 +246,6 @@ a.smallLink {
 }
 
 
-#simplemodal-overlay {
-  background-color:#000;
-  cursor:wait;
-}
-
-#simplemodal-container {
-  height:80%;
-  width:80%;
-  overflow: auto;
-  background-color:#fff;
-  border:3px solid #ccc;
-  padding: 20px;
-}
-
-#simplemodal-container a.modalCloseImg {
- background: url(../images/x.png) no-repeat;
-  width:25px;
-  height:29px;
-  display:inline;
-  z-index:3201;
-  position:absolute;
-  top:0px;
-  right:0px;
-  cursor:pointer;
-}
-.simplemodal-guiinner {
-  padding: 20px;
-}
-.simplemodal-guiinnerCentered {
-  text-align: center;
-}
-.simplemodal-dialoginner {
-  padding: 20px;
-}
-
-.simplemodal-buttonrow {
-  margin-top: 20px;
-  text-align: center;
-}
 
 .simpleMembershipUpdateMemberDescription {
   padding-bottom: 10px;

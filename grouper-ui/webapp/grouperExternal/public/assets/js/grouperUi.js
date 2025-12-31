@@ -1408,22 +1408,21 @@ function guiProcessAction(guiScreenAction) {
   
   //do an alert
   if (!guiIsEmpty(guiScreenAction.alert)) {
-    $.unblockUI(); 
+    $.unblockUI();
 
     //default to centered
     var centered = (typeof guiScreenAction.alertCentered == 'undefined') || guiScreenAction.alertCentered;
-    
-    //alert(guiScreenAction.alert);
-    //$.modal.close();
-    $('<div class="guimodal simplemodal-guiinner' + (centered ? ' simplemodal-guiinnerCentered' : '') + '">' 
-        + guiScreenAction.alert + '<div class="simplemodal-buttonrow"><button class=\'simplemodal-close blueButton\'>OK</button></div></div>').modal({close: true, position: [20,20]});
+
+    grouperBootstrapAlert(guiScreenAction.alert, centered);
   }
+
   
-  //do an alert
+  // do a dialog (Bootstrap 2.2.2)
   if (!guiIsEmpty(guiScreenAction.dialog)) {
-    $.unblockUI(); 
-    $('<div class="guimodal simplemodal-dialoginner">' 
-        + guiScreenAction.dialog + '</div>').modal({close: true, position: [20,20]});
+    $.unblockUI();
+
+    // mimic the old behavior: positioned at [20,20]
+    grouperBootstrapDialog(guiScreenAction.dialog, false, null);
   }
   if (!guiIsEmpty(guiScreenAction.optionValues)) {
     var optionValues = guiScreenAction.optionValues;
@@ -1481,6 +1480,104 @@ function guiProcessAction(guiScreenAction) {
       $(guiEscapeSelectorIfNeeded(guiScreenAction.innerHtmlJqueryHandle)).after('&nbsp;<a class="validationError" href="#" onclick="alert(\'' + alertText + '\'); return false;"><i class="fa fa-exclamation-triangle fa-lg" style="color:#CC3333;"></i></span>');
     }
   }
+}
+
+/**
+ * Show a Bootstrap 2.2.2 modal containing arbitrary HTML.
+ * Removes itself from the DOM when closed.
+ *
+ * @param htmlBody HTML string to render in the modal body
+ * @param centered if false, positions near top/left (20px,20px); if true uses Bootstrap default centering
+ * @param title optional title string (null for no header)
+ */
+function grouperBootstrapDialog(htmlBody, centered, title) {
+
+  var modalId = 'grouperBootstrapDialogModal';
+  $('#' + modalId).remove();
+
+  var headerHtml = '';
+  if (title != null && title !== '') {
+    headerHtml =
+      '<div class="modal-header">' +
+        '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
+        '<h3>' + title + '</h3>' +
+      '</div>';
+  }
+
+  var $modal = $(
+    '<div id="' + modalId + '" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">' +
+      headerHtml +
+      '<div class="modal-body"></div>' +
+    '</div>'
+  );
+
+  $modal.find('.modal-body').html(htmlBody);
+
+  if (centered === false) {
+    $modal.css({
+      top: '20px',
+      left: '20px',
+      marginLeft: '0',
+      width: 'auto'
+    });
+  }
+
+  $('body').append($modal);
+
+  $modal.on('hidden', function () {
+    $(this).remove();
+  });
+
+  $modal.modal({ backdrop: true, keyboard: true, show: true });
+}
+
+/**
+ * Show an “OK” alert modal using Bootstrap 2.2.2 (no SimpleModal).
+ * @param htmlMessage HTML string to show in the modal body
+ * @param centered if false, positions near top/left (20px, 20px); if true uses Bootstrap default centering
+ */
+function grouperBootstrapAlert(htmlMessage, centered) {
+
+  // Remove any previous instance
+  var modalId = 'grouperBootstrapAlertModal';
+  $('#' + modalId).remove();
+
+  var $modal = $(
+    '<div id="' + modalId + '" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">' +
+      '<div class="modal-header">' +
+        '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
+        '<h3>Alert</h3>' +
+      '</div>' +
+      '<div class="modal-body"></div>' +
+      '<div class="modal-footer">' +
+        '<button class="btn btn-primary" data-dismiss="modal">OK</button>' +
+      '</div>' +
+    '</div>'
+  );
+
+  // Insert the HTML message
+  $modal.find('.modal-body').html(htmlMessage);
+
+  // Optional positioning: mimic SimpleModal position [20,20]
+  if (centered === false) {
+    // Bootstrap 2 centers with left:50% + negative margin-left; override it.
+    $modal.css({
+      top: '20px',
+      left: '20px',
+      marginLeft: '0',
+      width: 'auto'
+    });
+  }
+
+  // Append and show
+  $('body').append($modal);
+
+  // Clean up after close
+  $modal.on('hidden', function () {
+    $(this).remove();
+  });
+
+  $modal.modal({ backdrop: true, keyboard: true, show: true });
 }
 
 /**
