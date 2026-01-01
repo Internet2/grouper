@@ -146,7 +146,7 @@
          <grouper:menu menuId="assignmentValueMenu"
            operation="UiV2StemAttributeAssignment.assignmentValueMenu"
            structureOperation="UiV2StemAttributeAssignment.assignmentValueMenuStructure" 
-           contextZoneJqueryHandle=".assignmentValueButton" contextMenu="true" />
+           contextZoneJqueryHandle=".assignmentValueButton" />
       
       </c:otherwise>
     </c:choose>

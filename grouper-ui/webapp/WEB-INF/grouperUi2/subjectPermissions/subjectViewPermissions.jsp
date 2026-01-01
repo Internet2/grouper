@@ -197,19 +197,19 @@
           <grouper:menu menuId="permissionsMenu"
             operation="UiV2SubjectPermission.assignmentMenu"
             structureOperation="UiV2SubjectPermission.assignmentMenuStructure" 
-            contextZoneJqueryHandle=".permissionMenuButton" contextMenu="true" />
-          
+            contextZoneJqueryHandle=".permissionMenuButton" />
+
           <%-- attach a menu for each direct limit row --%>
           <grouper:menu menuId="limitMenu"
             operation="UiV2SubjectPermission.limitMenu" 
             structureOperation="UiV2SubjectPermission.limitMenuStructure" 
-            contextZoneJqueryHandle=".limitMenuButton" contextMenu="true" />
+            contextZoneJqueryHandle=".limitMenuButton" />
             
           <%-- attach a menu for each limit value --%>
           <grouper:menu menuId="limitValueMenu"
-            operation="UiV2SubjectPermission.limitValueMenu"
+            operation="UiV2SubjectPermission.limitValueMenu" 
             structureOperation="UiV2SubjectPermission.limitValueMenuStructure" 
-            contextZoneJqueryHandle=".limitAssignValueButton" contextMenu="true" />
+            contextZoneJqueryHandle=".limitAssignValueButton" />
           
         </table>
         <div>

@@ -2158,11 +2158,10 @@ var guiMenuIdOfMenuTarget;
  * @param menuId is the id of the HTML element of the menu
  * @param operation is when events occur (onclick), then that operation is called via ajax
  * @param structureOperation is the operation called to define the structure of the menu
- * @param isContextMenu is true if context menu, false if not
  * @param contextZoneJqueryHandle is the jquery handle (e.g. #someId) which this menu should be attached to.  note
  * that any element you are attaching to must have an id attribute defined
  */
-function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu, contextZoneJqueryHandle) {
+function guiInitDhtmlxMenu(menuId, operation, structureOperation, contextZoneJqueryHandle) {
 // here is the long hand form of this method
 //  var menu;
 //  function initAdvancedMenu() {
@@ -2197,30 +2196,22 @@ function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu,
   var theFunction = function() {
 
     var menu = new dhtmlXMenuObject(menuId, "dhx_blue");
-    if (isContextMenu) {
-      menu.renderAsContextMenu();
-      var elements = $(contextZoneJqueryHandle);
-      if (guiIsEmpty(elements)) {
-        alert("Cant find context zone elements for menu: " + menuId + ", " + contextZoneJqueryHandle);
-        return;
-      }
-      
-      elements.click(function(e){
-        //stache this in global variable, assume only one menu at a time
-        guiMenuIdOfMenuTarget = $(e.target)[0].id
-        menu.showContextMenu(e.pageX, e.pageY);
-        return false;
-      }); 
-      
-      //cant do it this way since the x,y is wrong
-      //for (var i=0; i<elements.length; i++) {
-      //  if (guiIsEmpty(elements[i].id)) {
-      //    alert("Cant find id in html context zone element: " + menuId); 
-      //    return;
-      //  }
-      //  menu.addContextZone(elements[i].id);
-      //}
+
+    menu.renderAsContextMenu();
+    var elements = $(contextZoneJqueryHandle);
+    if (guiIsEmpty(elements)) {
+      alert("Cant find context zone elements for menu: " + menuId + ", " + contextZoneJqueryHandle);
+      return;
     }
+
+    elements.click(function(e){
+      //stache this in global variable, assume only one menu at a time
+      guiMenuIdOfMenuTarget = $(e.target)[0].id
+      menu.showContextMenu(e.pageX, e.pageY);
+      return false;
+    }); 
+    
+
     menu.setImagePath("../public/assets/dhtmlx/menu/imgs/");
     menu.setIconsPath("../public/assets/dhtmlx/menu/icons/");
   
@@ -2273,11 +2264,6 @@ function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu,
   $(document).ready(theFunction);
 }
 
-/**
- * parse an int if not an int already
- * @param input
- * @return
- */
 function guiInt(input) {
   if (guiIsEmpty(input)) {
     return null;

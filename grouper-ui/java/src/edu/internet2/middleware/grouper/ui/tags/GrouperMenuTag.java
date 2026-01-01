@@ -53,25 +53,14 @@ public class GrouperMenuTag extends SimpleTagSupport {
    * that any element you are attaching to must have an id attribute defined
    */
   private String contextZoneJqueryHandle;
-  
+
   /**
    * the jquery handle (e.g. #someId) which this menu should be attached to.  note
-   * that any element you are attaching to must have an id attribute defined
+   * that any element you are attaching to must have an id attribute defined.
    * @param contextZoneJqueryHandle1 the contextZoneJqueryHandle to set
    */
   public void setContextZoneJqueryHandle(String contextZoneJqueryHandle1) {
     this.contextZoneJqueryHandle = contextZoneJqueryHandle1;
-  }
-
-  /** true if context menu, false if not */
-  private boolean contextMenu;
-  
-  /**
-   * true if context menu, false if not
-   * @param contextMenu1 the contextMenu to set
-   */
-  public void setContextMenu(boolean contextMenu1) {
-    this.contextMenu = contextMenu1;
   }
 
   /** the operation called to define the structure of the menu */
@@ -122,7 +111,7 @@ public class GrouperMenuTag extends SimpleTagSupport {
 //    <span id="advancedMenu" ></span>
 //    <script type="text/javascript">
 //    guiInitDhtmlxMenu("advancedMenu", "SimpleMembershipUpdate.advancedMenu", 
-//        "SimpleMembershipUpdate.advancedMenuStructure", true, "#advancedLink");
+//        "SimpleMembershipUpdate.advancedMenuStructure", "#advancedLink");
 //    </script>
     
     //if it was shorthand, prefix with the full path
@@ -138,7 +127,7 @@ public class GrouperMenuTag extends SimpleTagSupport {
     result.append("<script type=\"text/javascript\"> \n");
     result.append("guiInitDhtmlxMenu('").append(this.menuId).append("', '")
       .append(this.operation).append("', '").append(this.structureOperation)
-      .append("', ").append(this.contextMenu).append(", '");
+      .append("', '");
     result.append(this.contextZoneJqueryHandle).append("' );\n");
     result.append("</script>\n");
 

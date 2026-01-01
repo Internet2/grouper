@@ -144,7 +144,7 @@
          <grouper:menu menuId="assignmentValueMenu"
            operation="UiV2AttributeDefName.assignmentValueMenu"
            structureOperation="UiV2AttributeDefName.assignmentValueMenuStructure" 
-           contextZoneJqueryHandle=".assignmentValueButton" contextMenu="true" />
+           contextZoneJqueryHandle=".assignmentValueButton" />
          
          <div class="data-table-bottom gradient-background">
            <grouper:paging2 guiPaging="${grouperRequestContainer.attributeDefNameContainer.guiPaging}" formName="attributeDefNameOwnersPagingForm"

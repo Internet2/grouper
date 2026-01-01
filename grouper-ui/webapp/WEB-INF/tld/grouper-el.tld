@@ -575,14 +575,6 @@
     </attribute>
     <attribute>
       <description>
-        true if context menu, false if not
-        </description>
-      <name>contextMenu</name>
-      <required>true</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-      <description>
         the jquery handle (e.g. #someId) which this menu should be attached to. note
         that any element you are attaching to must have an id attribute defined. Note
         this is not needed if this isnt a context menu
