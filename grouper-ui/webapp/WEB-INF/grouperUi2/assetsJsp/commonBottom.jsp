@@ -4,9 +4,7 @@
 
 <%-- note: jquery script are included in commonHead --%>
 
-<script src="../../grouperExternal/public/assets/js/tree.jquery.js"></script>
 <script src="../../grouperExternal/public/assets/js/footable-0.1.js"></script>
-<script src="../../grouperExternal/public/assets/js/jquery.cookie.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.form.js"></script>
 <script src="../../grouperExternal/public/assets/js/jstree.min.js"></script>
 <script src="../../grouperExternal/public/assets/js/grouper.js"></script>
