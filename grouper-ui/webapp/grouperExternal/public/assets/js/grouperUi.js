@@ -1656,11 +1656,117 @@ function eventCancelBubble(event) {
  * @param message
  */
 function grouperTooltip(message) {
-  //NOTE, we need to unescape the HTML, since it is in a javascript call...
+  // NOTE: message is in a javascript call, so we need to unescape the HTML.
   message = guiEscapeHtml(message, false);
-  //not sure why this was max width 400, now it is 0 so it doesnt truncate...
-  Tip(message, WIDTH, 0, FOLLOWMOUSE, false);
-} 
+
+  // Prefer Bootstrap 2.2.2 tooltip (bootstrap.js) if present.
+  // This relies on being invoked from an inline handler like:
+  //   onmouseover="grouperTooltip('...')"
+  // If we can't infer the element, fall back gracefully.
+  if (typeof $ != 'undefined' && $.fn && typeof $.fn.tooltip == 'function') {
+
+    // Determine the element that triggered the event.
+    var element = null;
+    if (typeof window != 'undefined' && window.event && window.event.srcElement) {
+      // IE
+      element = window.event.srcElement;
+    } else if (typeof window != 'undefined' && window.event && window.event.target) {
+      // Some browsers still populate window.event
+      element = window.event.target;
+    }
+
+    if (element) {
+      // Prefer the closest element with class grouperTooltip, else just use the element.
+      var $el = $(element);
+      var $anchor = $el.closest('.grouperTooltip');
+      if ($anchor.length > 0) {
+        $el = $anchor;
+      }
+
+      // Accessibility: if this is a non-focusable element (e.g. span), make it focusable.
+      // That enables keyboard users to discover the tooltip.
+      if (!$el.is('a,button,input,select,textarea') && !$el.attr('tabindex')) {
+        $el.attr('tabindex', '0');
+      }
+
+      // If we add tabindex, also show/hide tooltip on focus/blur.
+      // Namespace handlers so we can safely rebind.
+      $el.off('.grouperTooltipA11y');
+      $el.on('focus.grouperTooltipA11y', function () {
+        // Mirror the last known title
+        try { $(this).tooltip('show'); } catch (e) {}
+      });
+      $el.on('blur.grouperTooltipA11y', function () {
+        try { $(this).tooltip('hide'); } catch (e) {}
+      });
+
+      // Store content and show immediately.
+      // Use trigger: 'manual' so our UnTip() can consistently hide it.
+      // Use container: 'body' so it isn't clipped by overflow/positioning.
+      $el.attr('data-original-title', message);
+      $el.tooltip({
+        trigger: 'manual',
+        html: true,
+        container: 'body',
+        placement: 'top'
+      });
+
+      $el.tooltip('show');
+
+      // Accessibility: link triggering element to the tooltip via aria-describedby.
+      // Bootstrap 2 doesn't add this automatically.
+      try {
+        var $tip = $el.data('tooltip') ? $el.data('tooltip').tip() : null;
+        if ($tip && $tip.length) {
+          var tipId = $tip.attr('id');
+          if (!tipId) {
+            tipId = 'grouperTooltip_' + (new Date().getTime()) + '_' + Math.floor(Math.random() * 100000);
+            $tip.attr('id', tipId);
+          }
+          // Ensure the tooltip container has role=tooltip
+          if (!$tip.attr('role')) {
+            $tip.attr('role', 'tooltip');
+          }
+          $el.attr('aria-describedby', tipId);
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      return;
+    }
+  }
+}
+
+function UnTip() {
+  if (typeof $ != 'undefined' && $.fn && typeof $.fn.tooltip == 'function') {
+    var element = null;
+    if (typeof window != 'undefined' && window.event && window.event.srcElement) {
+      element = window.event.srcElement;
+    } else if (typeof window != 'undefined' && window.event && window.event.target) {
+      element = window.event.target;
+    }
+    if (element) {
+      var $el = $(element);
+      var $anchor = $el.closest('.grouperTooltip');
+      if ($anchor.length > 0) {
+        $el = $anchor;
+      }
+
+      // Remove aria-describedby linkage if we added it
+      $el.removeAttr('aria-describedby');
+
+      // Hide, then destroy to avoid accumulating handlers on repeated mouseovers.
+      $el.tooltip('hide');
+      $el.tooltip('destroy');
+
+      // Remove the focus/blur handlers we added
+      $el.off('.grouperTooltipA11y');
+
+      return;
+    }
+  }
+}
 
 /** call this from button to hide/show some text */
 function guiToggle(event, jqueryElementKey) {
