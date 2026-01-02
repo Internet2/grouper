@@ -406,3 +406,9 @@ td > .config-el-label {
   text-decoration: none;
   outline: none;
 }
+
+/* font awesome icons dont show in jstree for some reason
+   so dont show any icons and just have the icon in the label */
+.jstree-default .grouper-jstree-no-icon {
+  display: none;
+}

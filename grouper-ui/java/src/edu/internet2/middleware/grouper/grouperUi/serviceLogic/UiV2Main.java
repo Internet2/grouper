@@ -372,7 +372,7 @@ public class UiV2Main extends UiServiceLogicBase {
             ++stemCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              "(More folders)", childStem.getParentUuid(), DojoTreeItemType.truncatedItems, null);
+                "<i class=\"fas fa-ellipsis-h\"></i>&nbsp;(More folders)", childStem.getParentUuid(), DojoTreeItemType.truncatedItems, null);
             break;
           }
         }
@@ -381,13 +381,14 @@ public class UiV2Main extends UiServiceLogicBase {
         for (Group childGroup : childrenGroups) {
           if (groupCt < numberOfGroupsInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              childGroup.getDisplayExtension(), childGroup.getUuid(),
+              (childGroup.getTypeOfGroup() == TypeOfGroup.entity ?
+                  "<i class=\"fas fa-cloud-download\"></i>&nbsp;" : "<i class=\"fas fa-users\"></i>&nbsp;") + childGroup.getDisplayExtension(), childGroup.getUuid(),
               childGroup.getTypeOfGroup() == TypeOfGroup.entity ? DojoTreeItemType.entity : DojoTreeItemType.group,
               null);
             ++groupCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              "(More groups)", childGroup.getParentUuid(), DojoTreeItemType.truncatedItems,null);
+              "<i class=\"fas fa-ellipsis\"></i>&nbsp;(More groups)", childGroup.getParentUuid(), DojoTreeItemType.truncatedItems,null);
             break;
           }
         }
@@ -396,11 +397,11 @@ public class UiV2Main extends UiServiceLogicBase {
         for (AttributeDef childAttributeDef : childrenAttributeDefs) {
           if (attrDefCt < numberOfAttrDefsInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              childAttributeDef.getExtension(), childAttributeDef.getUuid(), DojoTreeItemType.attributeDef, null);
+              "<i class=\"fas fa-cog\"></i>&nbsp;" + childAttributeDef.getExtension(), childAttributeDef.getUuid(), DojoTreeItemType.attributeDef, null);
             ++attrDefCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              "(More attribute defs)", childAttributeDef.getParentUuid(), DojoTreeItemType.truncatedItems, null);
+              "<i class=\"fas fa-ellipsis\"></i>&nbsp;(More attribute defs)", childAttributeDef.getParentUuid(), DojoTreeItemType.truncatedItems, null);
             break;
           }
         }
@@ -409,11 +410,11 @@ public class UiV2Main extends UiServiceLogicBase {
         for (AttributeDefName childAttributeDefName : childrenAttributeDefNames) {
           if (attrDefNameCt < numberOfAttrDefNamesInTree) {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              childAttributeDefName.getDisplayExtension(), childAttributeDefName.getUuid(), DojoTreeItemType.attributeDefName, null);
+                "<i class=\"fas fa-cogs\"></i>&nbsp;" + childAttributeDefName.getDisplayExtension(), childAttributeDefName.getUuid(), DojoTreeItemType.attributeDefName, null);
             ++attrDefNameCt;
           } else {
             childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              "(More attribute def names)", childAttributeDefName.getParentUuid(), DojoTreeItemType.truncatedItems, null);
+              "<i class=\"fas fa-ellipsis\"></i>&nbsp;(More attribute def names)", childAttributeDefName.getParentUuid(), DojoTreeItemType.truncatedItems, null);
             break;
           }
         }

@@ -557,12 +557,14 @@ function dojoInitMenu(autoSelectNode) {
       return 'jstree-folder';
     }
 
-    // Leaf types (font-awesome like your Dojo code)
-    if (item.theType === 'truncatedItems') return 'fa fa-ellipsis-h';
-    if (item.theType === 'group') return 'fa fa-group';
-    if (item.theType === 'entity') return 'fa fa-cloud-download';
-    if (item.theType === 'attributeDef') return 'fa fa-cog';
-    if (item.theType === 'attributeDefName') return 'fa fa-cogs';
+    // Leaf types
+    // font awesome icons dont show in jstree for some reason
+    // so dont show any icons and just have the icon in the label
+    if (item.theType === 'truncatedItems') return 'grouper-jstree-no-icon';
+    if (item.theType === 'group') return 'grouper-jstree-no-icon';
+    if (item.theType === 'entity') return 'grouper-jstree-no-icon';
+    if (item.theType === 'attributeDef') return 'grouper-jstree-no-icon';
+    if (item.theType === 'attributeDefName') return 'grouper-jstree-no-icon';
 
     return 'jstree-file';
   }
