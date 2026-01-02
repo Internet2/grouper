@@ -705,7 +705,13 @@ function dojoInitMenu(autoSelectNode) {
   // Remove any previous handler first (dojoInitMenu can be called multiple times)
   $treeEl.off('activate_node.jstree.dojoInitMenu')
        .on('activate_node.jstree.dojoInitMenu', function (e, data) {
-    var item = data && data.node && data.node.data;
+        
+    if (data && data.event && data.event.preventDefault) {
+      data.event.preventDefault();
+      if (data.event.stopPropagation) data.event.stopPropagation();
+    }        
+
+        var item = data && data.node && data.node.data;
     if (!item) return;
 
     // Synthetic Root node: navigate to the Root stem
