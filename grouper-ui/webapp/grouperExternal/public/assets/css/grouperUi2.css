@@ -384,3 +384,25 @@ td > .config-el-label {
   display: inline-block;
   min-width: 100%;
 }
+
+/**
+ * Subtle, icon-only dropdown trigger (no button styling).
+ * Used when we want the old small-triangle affordance instead of a full Bootstrap button.
+ */
+.grouperDropdownToggleIconOnly {
+  padding: 0;
+  margin-left: 0.25em;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  text-decoration: none;
+  display: inline-block;
+  line-height: 1;
+}
+
+.grouperDropdownToggleIconOnly:hover,
+.grouperDropdownToggleIconOnly:focus {
+  background: transparent;
+  text-decoration: none;
+  outline: none;
+}

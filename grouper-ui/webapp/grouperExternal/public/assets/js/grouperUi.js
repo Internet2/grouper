@@ -633,6 +633,7 @@ function dojoInitMenu(autoSelectNode) {
           $.ajax({
             url: 'UiV2Main.folderMenu?root',
             type: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
             dataType: 'json',
             cache: true,
             timeout: 150000
@@ -654,6 +655,7 @@ function dojoInitMenu(autoSelectNode) {
         $.ajax({
           url: 'UiV2Main.folderMenu?' + encodeURIComponent(node.id),
           type: 'GET',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
           dataType: 'json',
           cache: true,
           timeout: 150000
@@ -777,6 +779,7 @@ function dojoInitMenu(autoSelectNode) {
         $.ajax({
           url: "UiV2Main.folderMenuObjectPath",
           type: "POST",
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
           cache: true,
           dataType: 'json',
           data: { id: itemId, type: itemType },
@@ -2813,6 +2816,9 @@ function grouperRegisterComboboxAjax(url, extraUrlOptions, query, appendWildcard
 
     // Build request headers
     var headers = { 'Accept': 'application/json' };
+
+    // Mark request as AJAX (some server-side logic relies on this conventional header)
+    headers['X-Requested-With'] = 'XMLHttpRequest';
 
     // Add OWASP CSRF token header if present on the page
     var owaspTokenName = 'OWASPCSRFTOKEN';
