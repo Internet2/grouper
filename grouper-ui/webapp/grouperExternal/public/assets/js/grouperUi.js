@@ -2953,7 +2953,10 @@ function grouperRegisterCombobox(jquerySelector, url, additionalFormElementNames
 
     valueField: 'id',
     labelField: 'name',
-    searchField: ['name'],
+    searchField: ['name', 'id'],     // still fine to keep so if id is there it still shows
+    shouldSort: false,
+    // dont let tomselect score things, we will let the server do it
+    score: function() { return function() { return 1; }; },
     maxOptions: 200,
 
     shouldLoad: function(query) {
