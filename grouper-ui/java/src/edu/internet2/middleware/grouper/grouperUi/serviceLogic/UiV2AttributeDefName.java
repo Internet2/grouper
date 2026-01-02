@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -32,7 +31,6 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinderResults
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssignFinderResults;
@@ -52,22 +50,17 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
-import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenu;
-import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenuItem;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
-import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -808,35 +801,6 @@ public class UiV2AttributeDefName {
     
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeAssignments",
         "/WEB-INF/grouperUi2/attributeDefName/attributeDefNameViewOwnerEntities.jsp"));
-  }
-  
-  /**
-   * make the structure of the attribute assignment value
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void assignmentValueMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
-    
-    {
-      DhtmlxMenuItem addMetadataAssignmentMenuItem = new DhtmlxMenuItem();
-      addMetadataAssignmentMenuItem.setId("editValue");
-      addMetadataAssignmentMenuItem.setText(TagUtils.navResourceString("simpleAttributeUpdate.editValueAssignmentAlt"));
-      dhtmlxMenu.addDhtmlxItem(addMetadataAssignmentMenuItem);
-    }
-    
-    {
-      DhtmlxMenuItem addMetadataAssignmentMenuItem = new DhtmlxMenuItem();
-      addMetadataAssignmentMenuItem.setId("deleteValue");
-      addMetadataAssignmentMenuItem.setText(TagUtils.navResourceString("simpleAttributeUpdate.assignDeleteValueAlt"));
-      dhtmlxMenu.addDhtmlxItem(addMetadataAssignmentMenuItem);
-    }
-
-    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" +
-        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
-
-    throw new ControllerDone();
   }
   
   /**

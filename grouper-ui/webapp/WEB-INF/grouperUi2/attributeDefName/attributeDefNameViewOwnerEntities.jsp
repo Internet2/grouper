@@ -1,7 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-<%-- DHTMLX menu includes removed; assignment value actions now use Bootstrap dropdown markup --%>
-
 <%-- for the new group or new stem button --%>
 <input type="hidden" name="objectStemId" value="${grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.parentUuid}" />
 
@@ -147,8 +145,6 @@
              </tbody>
            </table>
            </div>
-         
-         <%-- DHTMLX context menu removed (assignment value actions handled via Bootstrap dropdown) --%>
          
          <div class="data-table-bottom gradient-background">
            <grouper:paging2 guiPaging="${grouperRequestContainer.attributeDefNameContainer.guiPaging}" formName="attributeDefNameOwnersPagingForm"

@@ -1,7 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-<%-- DHTMLX menu includes removed; permissions context menus now use Bootstrap dropdowns --%>
-
 <c:choose>
   <c:when test="${fn:length(grouperRequestContainer.permissionUpdateRequestContainer.guiPermissionEntryActionsContainers) == 0}">
     ${textContainer.text['groupViewPermissionsNoAssignedPermissions']}
@@ -232,8 +230,6 @@
         </tr>
       </c:forEach>
 
-      <%-- DHTMLX menus removed (replaced by Bootstrap dropdowns) --%>
-      
     </table>
     <div>
       <a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2SubjectPermission.saveMultiplePermissionSubmit', {formIds: 'attributePermissionsFormId'}); return false;">${textContainer.text['subjectAssignPermissionSaveButton'] }</a> 

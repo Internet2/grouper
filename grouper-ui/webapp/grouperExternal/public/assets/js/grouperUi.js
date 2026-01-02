@@ -1020,15 +1020,6 @@ function ajax(theUrl, options) {
         
         //alert(element.id + ' - ' + element.nodeName.toUpperCase() + " - " + element.name + " - " + element.type + " - " + options.requestParams[element.name]);
         
-        //see if dhtmlx
-//        if (element.type == "hidden") {
-//
-//          var theCombo = dhtmlxCombos[element.name];
-//          if (typeof theCombo != 'undefined') {
-//            //it is dhtmlx, get the label too just in case
-//            options.requestParams[element.name + '_dhtmlxComboLabel'] = theCombo.getComboText();
-//          }
-//        }
       }
     }
   }
@@ -2153,119 +2144,6 @@ function isEmpty(x) {
 }
 
 /** END GROUPER UI FUNCTIONS */
-
-/** this is the id of the link or button which opened a context menu */
-var guiMenuIdOfMenuTarget;
-
-/**
- * @param menuId is the id of the HTML element of the menu
- * @param operation is when events occur (onclick), then that operation is called via ajax
- * @param structureOperation is the operation called to define the structure of the menu
- * @param contextZoneJqueryHandle is the jquery handle (e.g. #someId) which this menu should be attached to.  note
- * that any element you are attaching to must have an id attribute defined
- */
-function guiInitDhtmlxMenu(menuId, operation, structureOperation, contextZoneJqueryHandle) {
-// here is the long hand form of this method
-//  var menu;
-//  function initAdvancedMenu() {
-//
-//    menu = new dhtmlXMenuObject("advancedMenu", "dhx_blue");
-//    menu.addContextZone("advancedLink");
-//    menu.setImagePath("../public/assets/dhtmlx/menu/imgs/");
-//    menu.setIconsPath("../public/assets/dhtmlx/menu/icons/");
-//
-//    menu.renderAsContextMenu();
-//    //menu.loadXML("dhtmlxmenu.xml?e="+new Date().getTime());
-//    menu.loadXML("../app/SimpleMembershipUpdate.advancedMenuStructure");
-//    menu.attachEvent("onClick", function(id, zoneId, casState){
-//      menu.hideContextMenu();
-//      ajax("SimpleMembershipUpdate.advancedMenu", {requestParams: {menuHtmlId: zoneId, menuItemId: id }});
-//    });
-//    menu.attachEvent("onCheckboxClick", function(id, state, zoneId, casState){
-//      menu.hideContextMenu();
-//      ajax("SimpleMembershipUpdate.advancedMenu", {requestParams: {menuHtmlId: zoneId, menuItemId: id, menuCheckboxChecked: !state }});
-//      return true;
-//    });
-//    menu.attachEvent("onRadioClick", function(group, idChecked, idClicked, zoneId, casState){
-//      menu.hideContextMenu();
-//      ajax("SimpleMembershipUpdate.advancedMenu", {requestParams: {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked }});
-//      return true;
-//    });
-//    
-//  }
-//  $(document).ready(initAdvancedMenu);
-
-  
-  var theFunction = function() {
-
-    var menu = new dhtmlXMenuObject(menuId, "dhx_blue");
-
-    menu.renderAsContextMenu();
-    var elements = $(contextZoneJqueryHandle);
-    if (guiIsEmpty(elements)) {
-      alert("Cant find context zone elements for menu: " + menuId + ", " + contextZoneJqueryHandle);
-      return;
-    }
-
-    elements.click(function(e){
-      //stache this in global variable, assume only one menu at a time
-      guiMenuIdOfMenuTarget = $(e.target)[0].id
-      menu.showContextMenu(e.pageX, e.pageY);
-      return false;
-    }); 
-    
-
-    menu.setImagePath("../public/assets/dhtmlx/menu/imgs/");
-    menu.setIconsPath("../public/assets/dhtmlx/menu/icons/");
-  
-    //menu.loadXML("dhtmlxmenu.xml?e="+new Date().getTime());
-    if (!guiStartsWith(structureOperation, "../app/" )) {
-      structureOperation = "../app/" + structureOperation; 
-    }
-    
-    structureOperation = guiDecorateUrl(structureOperation);
-    
-    menu.loadXML(structureOperation);
-    
-    menu.attachEvent("onClick", function(id, zoneId, casState){
-      var itemType = menu.getItemType(id);
-      if ("radio" == itemType || "checkbox" == itemType) {
-        return;
-      }
-      menu.hideContextMenu();
-      var requestParams = {menuHtmlId: zoneId, menuItemId: id, menuEvent: 'onClick' };
-      //if there is the same menu multiple places on the screen, we might want to know about it
-      if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
-        requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget;
-      }
-      //alert('menu.onClick()');
-      ajax(operation, {requestParams: requestParams});
-    });
-    menu.attachEvent("onCheckboxClick", function(id, state, zoneId, casState){
-      //menu.hideContextMenu();
-      var requestParams = {menuHtmlId: zoneId, menuItemId: id, menuCheckboxChecked: !state, menuEvent: 'onCheckboxClick' };
-      //if there is the same menu multiple places on the screen, we might want to know about it
-      if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
-        requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget;
-      }
-      //alert('menu.onCheckboxClick()');
-      ajax(operation, {requestParams: requestParams});
-      return true;
-    });
-    menu.attachEvent("onRadioClick", function(group, idChecked, idClicked, zoneId, casState){
-      //menu.hideContextMenu();
-      var requestParams = {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked, menuEvent: 'onRadioClick' };
-      //if there is the same menu multiple places on the screen, we might want to know about it
-      if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
-        requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget;
-      }
-      //alert('menu.onRadioClick()');
-      ajax(operation, {requestParams: requestParams});
-      return true;
-    });
-  };
-  $(document).ready(theFunction);
-}
 
 function guiInt(input) {
   if (guiIsEmpty(input)) {

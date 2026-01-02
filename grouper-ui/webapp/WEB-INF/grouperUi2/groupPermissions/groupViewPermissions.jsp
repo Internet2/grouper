@@ -1,7 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-<%-- DHTMLX menu includes removed; permissions context menus now use Bootstrap dropdowns --%>
-
 <c:choose>
   <c:when test="${fn:length(grouperRequestContainer.permissionUpdateRequestContainer.guiPermissionEntryActionsContainers) == 0}">
     ${textContainer.text['groupViewPermissionsNoAssignedPermissions']}
@@ -231,8 +229,6 @@
           <th class="privilegeHeader" colspan="${grouperRequestContainer.permissionUpdateRequestContainer.allActionsSize + 4}">&nbsp;</th>                    
         </tr>
       </c:forEach>
-
-      <%-- DHTMLX menus removed (replaced by Bootstrap dropdowns) --%>
 
     </table>
     <div>

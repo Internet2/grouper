@@ -1,7 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-<%-- DHTMLX menu includes removed; assignment value actions now use Bootstrap dropdown markup --%>
-
 <%-- for the new group or new stem button --%>
 <input type="hidden" name="objectStemId" value="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.parentUuid}" />
 

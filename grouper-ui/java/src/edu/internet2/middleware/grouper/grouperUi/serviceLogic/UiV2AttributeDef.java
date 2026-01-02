@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -90,15 +89,11 @@ import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
-import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenu;
-import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenuItem;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
-import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -2272,35 +2267,6 @@ public class UiV2AttributeDef {
     
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeAssignments",
         "/WEB-INF/grouperUi2/attributeDef/attributeDefViewOwnerEntities.jsp"));
-  }
-  
-  /**
-   * make the structure of the attribute assignment value
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void assignmentValueMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
-    
-    {
-      DhtmlxMenuItem addMetadataAssignmentMenuItem = new DhtmlxMenuItem();
-      addMetadataAssignmentMenuItem.setId("editValue");
-      addMetadataAssignmentMenuItem.setText(TagUtils.navResourceString("simpleAttributeUpdate.editValueAssignmentAlt"));
-      dhtmlxMenu.addDhtmlxItem(addMetadataAssignmentMenuItem);
-    }
-    
-    {
-      DhtmlxMenuItem addMetadataAssignmentMenuItem = new DhtmlxMenuItem();
-      addMetadataAssignmentMenuItem.setId("deleteValue");
-      addMetadataAssignmentMenuItem.setText(TagUtils.navResourceString("simpleAttributeUpdate.assignDeleteValueAlt"));
-      dhtmlxMenu.addDhtmlxItem(addMetadataAssignmentMenuItem);
-    }
-
-    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" +
-        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
-
-    throw new ControllerDone();
   }
   
   /**

@@ -145,7 +145,5 @@
              </tbody>
            </table>
          
-         <%-- DHTMLX context menu removed (assignment value actions handled via Bootstrap dropdown) --%>
-      
       </c:otherwise>
     </c:choose>
