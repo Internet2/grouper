@@ -2676,7 +2676,10 @@ public class UiV2Group {
         
         //set user lifecycle policy if it was submitted from the ui
         String newPolicyConfigId = request.getParameter("userLifecyclePolicy");
-        UserLifecycleService.savePolicyConfigOnGroup(group, newPolicyConfigId, loggedInSubject);
+        boolean attributeAssignedOrDeleted = UserLifecycleService.savePolicyConfigOnGroup(group, newPolicyConfigId, loggedInSubject);
+        if (attributeAssignedOrDeleted) {
+          madeChange = true;
+        }
         
         //set group types to edit
         List<GroupTypeForEdit> typesForEdit = groupContainer.getGroupTypesForEdit();

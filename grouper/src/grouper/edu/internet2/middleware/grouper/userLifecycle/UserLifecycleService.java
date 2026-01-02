@@ -137,7 +137,9 @@ public class UserLifecycleService {
     return result;
   }
   
-  public static void savePolicyConfigOnGroup(Group group, String policyConfigId, Subject subject) {
+  public static boolean savePolicyConfigOnGroup(Group group, String policyConfigId, Subject subject) {
+    
+    boolean[] madeChange = {false};
     
     List<UserLifecyclePolicyConfiguration> userLifecyclePolicies = retrieveUserLifecyclePolicies(subject);
     Set<String> totalPolicyConfigIdsSubjectCanAccess = new HashSet<String>();
@@ -187,15 +189,26 @@ public class UserLifecycleService {
         
         if (StringUtils.isBlank(policyConfigId) && attributeAssign != null) {
           attributeAssign.delete();
+          madeChange[0] = true;
         } else if (attributeAssign != null) {
           AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(UserLifecycleAttributeNames.userLifecycleStemName()+":"+UserLifecycleAttributeNames.USER_LIFECYCLE_POLICY_GROUP_VALUE_CONFIG_ID, true);
+          
+          //check if the same policy is already assigned
+          AttributeAssignValue existingAttributeAssignValue = attributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(attributeDefName.getName());
+          if (existingAttributeAssignValue != null && StringUtils.equals(existingAttributeAssignValue.getValueString(), policyConfigId)) {
+            return null;
+          }
+          
           attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), policyConfigId);
           attributeAssign.saveOrUpdate();
+          madeChange[0] = true;
         }
         return null;
         
       };
     });
+    
+    return madeChange[0];
     
   }
   
