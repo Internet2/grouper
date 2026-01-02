@@ -1,4 +1,3 @@
-
 /*******************************************************************************
  * Copyright 2014 Internet2
  *  
@@ -17,7 +16,6 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -666,7 +664,7 @@ public class UiV2Main extends UiServiceLogicBase {
         Set<Group> groups = GrouperUserDataApi.recentlyUsedGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
         
         GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(groups);
-        
+
         indexContainer.setGuiGroupsRecentlyUsedAbbreviated(
             GuiGroup.convertFromGroups(groups, "uiV2.index.maxRecentlyUsedEachType", 5));
 
@@ -1031,7 +1029,6 @@ public class UiV2Main extends UiServiceLogicBase {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
-
   /**
    * search submit from upper right
    * @param request
@@ -1235,7 +1232,6 @@ public class UiV2Main extends UiServiceLogicBase {
     IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
     
     String dateFormat = GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("audit.query.date-format");
-    SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
     
     Date startDate = null;
     Date endDate = null;
@@ -1243,8 +1239,8 @@ public class UiV2Main extends UiServiceLogicBase {
     Long endTime = 0L;
     if (!StringUtils.isBlank(myActivityStartDate)) {
         try {
-        	startDate = sdf.parse(myActivityStartDate);
-        	startTime = startDate.getTime();
+          startDate = GrouperUtil.stringToDate3(myActivityStartDate, dateFormat);
+          startTime = startDate == null ? 0L : startDate.getTime();
         } catch (ParseException e) {
             guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myActivityStartDate",
             TextContainer.retrieveFromRequest().getText().get("myActivityIncorrectDateFormat")));
@@ -1256,8 +1252,8 @@ public class UiV2Main extends UiServiceLogicBase {
     
     if (!StringUtils.isBlank(myActivityEndDate)) {
         try {
-        	endDate = sdf.parse(myActivityEndDate);
-        	endTime = endDate.getTime();
+          endDate = GrouperUtil.stringToDate3(myActivityEndDate, dateFormat);
+          endTime = endDate == null ? 0L : endDate.getTime();
         } catch (ParseException e) {
             guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myActivityEndDate",
             TextContainer.retrieveFromRequest().getText().get("myActivityIncorrectDateFormat")));
@@ -1612,9 +1608,9 @@ public class UiV2Main extends UiServiceLogicBase {
       public Void callLogic() {
         
         {
-          int millisToSleepForTest = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.test.sleepIn.stemsImanage.widgetMillis", -1);
-          if (millisToSleepForTest > 0) {
-            GrouperUtil.sleep(millisToSleepForTest);
+          int millisToSleep = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.test.sleepIn.stemsImanage.widgetMillis", -1);
+          if (millisToSleep > 0) {
+            GrouperUtil.sleep(millisToSleep);
           }
         }
 
@@ -1812,9 +1808,9 @@ public class UiV2Main extends UiServiceLogicBase {
           
           public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
             {
-              int millisToSleepForTest = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.test.sleepIn.myServices.widgetMillis", -1);
-              if (millisToSleepForTest > 0) {
-                GrouperUtil.sleep(millisToSleepForTest);
+              int millisToSleep = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.test.sleepIn.myServices.widgetMillis", -1);
+              if (millisToSleep > 0) {
+                GrouperUtil.sleep(millisToSleep);
               }
             }
 

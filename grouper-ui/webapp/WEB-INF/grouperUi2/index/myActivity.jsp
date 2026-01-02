@@ -22,9 +22,9 @@ ${grouper:title('myActivityPageTitle')}
                       <label for="myActivityFilterId" style="white-space: nowrap;">${textContainer.text['myActivityFilterFor'] }</label>
                     </div>
                     
-                    <div class="span6 input-daterange" id="dateRangeFilters"  style="white-space: nowrap;">
-                      <input type="text" name="startDate" placeholder="${textContainer.textEscapeXml['myActivitySearchRangeFromPlaceholder'] }" class="span6" id="myActivityStartDate" />
-					  <input type="text" name="endDate" placeholder="${textContainer.textEscapeXml['myActivitySearchRangeToPlaceholder'] }" class="span6" id="myActivityEndDate" />
+                    <div class="span6" id="dateRangeFilters"  style="white-space: nowrap;">
+                      <input type="date" name="startDate" placeholder="${textContainer.textEscapeXml['myActivitySearchRangeFromPlaceholder'] }" class="span6" id="myActivityStartDate" />
+					  <input type="date" name="endDate" placeholder="${textContainer.textEscapeXml['myActivitySearchRangeToPlaceholder'] }" class="span6" id="myActivityEndDate" />
                     </div>
                     
                     <div class="span4"> &nbsp; &nbsp;
@@ -38,9 +38,4 @@ ${grouper:title('myActivityPageTitle')}
                 </div>
               </div>
 
-
-              <script type="text/javascript">
-                  $('#dateRangeFilters input').datepicker({
-                	  orientation: "top auto"
-                  });
-              </script>
+            </div>

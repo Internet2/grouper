@@ -7702,6 +7702,42 @@ public class GrouperUtil {
     calendar.set(Calendar.MILLISECOND, milli);
     return calendar.getTime();
   }
+  
+  /**
+   * Parse a date string from the UI.
+   * <p>
+   * Accepts either:
+   * <ul>
+   *   <li>The configured UI format (e.g. MM/dd/yyyy)</li>
+   *   <li>ISO local date from native browser date inputs (yyyy-MM-dd)</li>
+   * </ul>
+   * 
+   * @param dateString date string from request
+   * @param configuredDateFormat configured format from properties / i18n
+   * @return parsed date, or null if input is blank
+   * @throws ParseException if it can't be parsed as either supported format
+   */
+  public static Date stringToDate3(String dateString, String configuredDateFormat) throws ParseException {
+
+    String trimmed = StringUtils.trimToEmpty(dateString);
+    if (StringUtils.isBlank(trimmed)) {
+      return null;
+    }
+
+    // First try the configured format (historical behavior)
+    try {
+      SimpleDateFormat configured = new SimpleDateFormat(configuredDateFormat);
+      configured.setLenient(false);
+      return configured.parse(trimmed);
+    } catch (ParseException e) {
+      // fall through
+    }
+
+    // Then try ISO local date (native <input type="date">)
+    SimpleDateFormat iso = new SimpleDateFormat("yyyy-MM-dd");
+    iso.setLenient(false);
+    return iso.parse(trimmed);
+  }
 
   /**
    * convert a month string to an int (1 indexed).

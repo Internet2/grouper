@@ -1,4 +1,3 @@
-
 <%-- note this wont work for token per page --%>
 <input type="hidden" name="<csrf:token-name/>" value="<csrf:token-value />"/>
 
@@ -17,7 +16,6 @@
 <script src="../../grouperExternal/public/assets/js/wz_tooltip.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.blockUI.js"></script>
 <script src="../../grouperExternal/public/assets/nifty/niftycube.js"></script>
-<script src="../../grouperExternal/public/assets/js/bootstrap-datepicker.min.js"></script>
 
 <script type="text/javascript">
   $().ajaxStop($.unblockUI); 
