@@ -17,7 +17,8 @@
                               </tr> --%>
                               <tr>
                                 <td>${guiGroup.pathColonSpaceSeparated}</td>
-                                <td><a href="#" onclick="dijit.byId('groupImportGroupComboId').set('displayedValue', '${grouper:escapeJavascript(guiGroup.group.displayName)}'); dijit.byId('groupImportGroupComboId').set('value', '${guiGroup.group.id}'); return true;" data-dismiss="modal">${grouper:escapeHtml(guiGroup.group.displayExtension)}</a></td>
+                                <td><a href="#" onclick="grouperComboboxSetId('#groupImportGroupComboId', '${grouper:escapeJavascript(guiGroup.group.id)}'); return true;"
+                                    >${grouper:escapeHtml(guiGroup.group.displayExtension)}</a></td>
                               </tr>
 
                               </c:forEach>

@@ -860,9 +860,8 @@ public class UiV2LocalEntity {
   
       //clear out the combo
       guiResponseJs.addAction(GuiScreenAction.newScript(
-          "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
-          "dijit.byId('groupAddMemberComboId').set('value', '');"));
-  
+        "$('#groupAddMemberComboId')[0].tomselect.clear(true);"));
+
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
       GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 

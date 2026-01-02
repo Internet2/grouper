@@ -53,7 +53,7 @@
                   </div>
                   
                   <div class="control-group">
-                    <label for="actAsComboID" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsActAs'] }</label>
+                    <label for="actAsComboId" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsActAs'] }</label>
                     <div class="controls">
                       <grouper:combobox2 idBase="actAsCombo" style="width: 30em"
                                       filterOperation="../app/UiV2Admin.subjectApiDiagnosticsActAsCombo"/>

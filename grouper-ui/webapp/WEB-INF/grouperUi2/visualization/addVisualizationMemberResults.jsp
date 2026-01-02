@@ -12,7 +12,8 @@
                                 var="guiSubject" >
 
                                 <tr>
-                                 <td><a href="#" onclick="dijit.byId('visualizationAddMemberComboId').set('displayedValue', '${grouper:escapeJavascript(guiSubject.screenLabelShort2)}'); dijit.byId('visualizationAddMemberComboId').set('value', '${guiSubject.subject.sourceId}||${guiSubject.subject.id}'); return true;" data-dismiss="modal">${guiSubject.screenLabelLongWithIcon }</a></td>
+                                 <td><a href="#" onclick="grouperComboboxSetId('#visualizationAddMemberComboId', '${grouper:escapeJavascript(guiSubject.subject.sourceId)}||${grouper:escapeJavascript(guiSubject.subject.id)}'); return true;"
+                                     >${guiSubject.screenLabelLongWithIcon }</a></td>
                                 </tr>
 
                               </c:forEach>

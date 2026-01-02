@@ -17,7 +17,8 @@
                               </tr> --%>
                               <tr>
                                 <td>${guiGroup.pathColonSpaceSeparated}</td>
-                                <td><a href="#" onclick="dijit.byId('groupCompositeLeftFactorComboId').set('displayedValue', '${grouper:escapeJavascript(guiGroup.group.displayName)}'); dijit.byId('groupCompositeLeftFactorComboId').set('value', '${guiGroup.group.id}'); return true;" data-dismiss="modal">${grouper:escapeHtml(guiGroup.group.displayExtension)}</a></td>
+                                <td><a href="#" onclick="grouperComboboxSetId('#groupCompositeLeftFactorComboId', '${grouper:escapeJavascript(guiGroup.group.id)}'); return true;"
+                                    >${grouper:escapeHtml(guiGroup.group.displayExtension)}</a></td>
                               </tr>
                             </c:forEach>
                           </tbody>

@@ -148,33 +148,46 @@ function guiV2link(url, options) {
 
 /* Used for button clicks, add extra parameters to the url */
 function _addUrlOptions(url, options) {
-  result = "";
+  var result = "";
 
-  if (typeof options == 'undefined') {
-    options = {};
-  }
+  options = options || {};
 
-  if (typeof options.optionalFormElementNamesToSend != 'undefined' && options.optionalFormElementNamesToSend != null) {
+  var namesCsv = options.optionalFormElementNamesToSend;
+  if (namesCsv) {
 
-    //add additional form element names to filter based on other things on the screen
-    var additionalFormElementNamesArray = guiSplitTrim(options.optionalFormElementNamesToSend, ",");
+    var additionalFormElementNamesArray = guiSplitTrim(namesCsv, ",");
+  
     for (var i = 0; i < additionalFormElementNamesArray.length; i++) {
-      var additionalFormElementName = additionalFormElementNamesArray[i];
-
-      //its ok if it is not there
-      if (document.getElementsByName(additionalFormElementName) != null
-          && document.getElementsByName(additionalFormElementName).length > 0
-          && document.getElementsByName(additionalFormElementName)[0] != null) {
-        result += url.indexOf("?") == -1 ? "?" : "&";
-        result += additionalFormElementName + "=";
-        //this will work for simple elements
-        result += encodeURIComponent(document.getElementsByName(additionalFormElementName)[0].value);
+      var name = additionalFormElementNamesArray[i];
+  
+      // It's ok if it is not there
+      var nodes = document.getElementsByName(name);
+      if (!nodes || nodes.length === 0 || !nodes[0]) continue;
+  
+      // Use the first element as the "representative" field.
+      // guiFieldValues will aggregate for radio/checkbox groups by name.
+      var valueOrValues = guiFieldValues(nodes[0]);
+  
+      // If nothing selected for checkbox/radio/multi-select, guiFieldValues returns []
+      if (Array.isArray(valueOrValues)) {
+        if (valueOrValues.length === 0) continue;
+  
+        for (var j = 0; j < valueOrValues.length; j++) {
+          result += (url.indexOf("?") === -1 && result === "") ? "?" : "&";
+          result += encodeURIComponent(name) + "=" + encodeURIComponent(valueOrValues[j]);
+        }
+      } else {
+        // Skip null/undefined/empty-string if you want (matching old behavior loosely)
+        if (valueOrValues === null || typeof valueOrValues === "undefined") continue;
+  
+        result += (url.indexOf("?") === -1 && result === "") ? "?" : "&";
+        result += encodeURIComponent(name) + "=" + encodeURIComponent(valueOrValues);
       }
     }
   }
-  //console.log("Extra options: " + result);
   return result;
 }
+
 
 /**
  * take a url for ajax with an operation=Something.else and call ajax with it
@@ -575,221 +588,384 @@ function guiDecorateUrl(theUrl) {
   return theUrl;
 }
 
-/**
- * unregister a widget
- * @param id
- */
-function dojoUnregisterWidget(id) {
-  
-  var widget = dijit.byId(id);
-  if (widget != null) {
-    if (typeof widget.destroyRecursive != 'undefined') {
-      widget.destroyRecursive();
-    }
-  }
-}
 
-/** init the left tree menu */
 function dojoInitMenu(autoSelectNode) {
 
-  if ((typeof folderMenuStore != 'undefined') && (folderMenuStore != null)) {
-    if (typeof folderMenuStore.destroyRecursive != 'undefined') {
-      folderMenuStore.destroyRecursive();
-    }
+  // Guardrails: if jQuery/jsTree aren't present, bail out quietly.
+  if (!window.jQuery || !jQuery.fn || typeof jQuery.fn.jstree !== 'function') {
+    return;
   }
-  if ((typeof folderTree != 'undefined') && (folderTree != null)) {
-    if (typeof folderTree.destroyRecursive != 'undefined') {
-      folderTree.destroyRecursive();
-    }
-  }
-  
+
+
+    // Recreate #folderTree if it was destroyed
   var folderTreeDiv = document.getElementById('folderTree');
-  
-  if (isEmpty(folderTreeDiv)) {
-    //it was destroyed, add a child in the contrainer
+  if (!folderTreeDiv) {
     $('#folderTreeContainerId').append('<div id="folderTree"></div>');
   }
-  
-  folderMenuStore = dojo.store.JsonRest({
-    target:"UiV2Main.folderMenu?",
-    mayHaveChildren: function(object){
-      // see if it has a children property
-      return "children" in object;
-    },
-    getChildren: function(object, onComplete, onError){
-      if (object.root && Array.isArray(object.children)) {
-        // already have children
-        onComplete(object.children);
-      } else {
-        // retrieve the full copy of the object
-        this.get(object.id).then(function(fullObject){
-          // copy to the original object so it has the children array as well.
-          object.children = fullObject.children;
-          // now that full object, we should have an array of children
-          onComplete(fullObject.children);
-        }, function(error){
-          // an error occurred, log it, and indicate no children
-          console.error(error);
-          onComplete([]);
+
+  // Always re-select after potential append
+  var $treeEl = $('#folderTree');
+
+  // ---- Cleanup previous tree instance + handlers (safe to call repeatedly) ----
+  // 1) Destroy any existing jsTree instance
+  if ($treeEl.data('jstree')) {
+    try { $treeEl.jstree('destroy'); } catch (e) {}
+  }
+  // 2) Remove any event handlers we added in prior dojoInitMenu runs
+  $treeEl.off('.dojoInitMenu');
+  // 3) Clear leftover DOM from previous render (destroy usually does this, but this is extra-safe)
+  $treeEl.empty();
+
+
+  function getIcon(item) {
+    // Folder-ish nodes
+    var hasChildrenMarker = (item && Object.prototype.hasOwnProperty.call(item, 'children'));
+    if (!item || hasChildrenMarker || item.theType === 'stem' || item.root) {
+      // you can swap this for your own CSS class if you had dijitFolderClosed
+      return 'jstree-folder';
+    }
+
+    // Leaf types (font-awesome like your Dojo code)
+    if (item.theType === 'truncatedItems') return 'fa fa-ellipsis-h';
+    if (item.theType === 'group') return 'fa fa-group';
+    if (item.theType === 'entity') return 'fa fa-cloud-download';
+    if (item.theType === 'attributeDef') return 'fa fa-cog';
+    if (item.theType === 'attributeDefName') return 'fa fa-cogs';
+
+    return 'jstree-file';
+  }
+
+  function hasChildren(item) {
+    // Dojo used: "children" in object
+    if (!item) return false;
+
+    if (Array.isArray(item.children)) return item.children.length > 0;
+
+    // some APIs return children: true to indicate lazy-loadable
+    if (typeof item.children === 'boolean') return item.children;
+
+    // stems typically have children
+    if (item.theType === 'stem' || item.root) return true;
+
+    return false;
+  }
+
+  function toJsTreeNode(item, parentIdForUniq) {
+        // jsTree requires globally-unique node ids.
+    // The API's special "truncatedItems" rows can reuse the parent id (or otherwise collide),
+    // which causes jsTree to overwrite/replace existing nodes.
+    // Make truncatedItems ids unique for the tree, but keep the original id in node.data for click logic.
+    var nodeId = String(item.id);
+    if (item && item.theType === 'truncatedItems') {
+      nodeId = 'truncatedItems:' + String(item.id) + ':' + String(parentIdForUniq || '');
+    }
+
+    return {
+      id: nodeId,
+      text: item.name,     // Dojo getLabel() => object.name
+      icon: getIcon(item),
+      children: hasChildren(item), // true => show expander + lazy load
+      data: item           // keep original payload for click logic
+    };
+  }
+
+  function childrenToJsTreeNodes(childrenArray, parentIdForUniq) {
+    if (!Array.isArray(childrenArray)) return [];
+    return childrenArray
+      .filter(Boolean)
+      .map(function (child) { return toJsTreeNode(child, parentIdForUniq); });
+  }
+
+  // Init jsTree with lazy AJAX loading
+  // We add a visible "Root" node at the top, then lazy-load its children from ?root.
+  $('#folderTree').jstree({
+    core: {
+      themes: { stripes: false },
+      data: function (node, cb) {
+        // 1) Initial load: return a single synthetic Root node
+        if (node.id === '#') {
+          cb([
+            {
+              id: 'root',
+              text: 'Root',
+              icon: 'jstree-folder',
+              children: true,            // show expander + lazy load
+              data: { root: true, theType: 'stem', id: 'root', name: 'Root' } // synthetic Root payload for click logic
+            }
+          ]);
+          return;
+        }
+
+        // 2) Expanding "Root": fetch real root children from the server
+        if (node.id === 'root') {
+          $.ajax({
+            url: 'UiV2Main.folderMenu?root',
+            type: 'GET',
+            dataType: 'json',
+            cache: true,
+            timeout: 150000
+          }).done(function (rootObj) {
+            // Show the real "root folder" (e.g. "temp") as a node under synthetic Root.
+            // Also inline its immediate children so opening it shows contents right away.
+            var top = rootObj ? toJsTreeNode(rootObj) : null;
+            if (top && rootObj && Array.isArray(rootObj.children)) {
+              top.children = childrenToJsTreeNodes(rootObj.children, rootObj.id);
+            }
+            cb(top ? [top] : []);
+          }).fail(function () {
+            cb([]);
+          });
+          return;
+        }
+
+        // 3) Expanding any other node: fetch its children
+        $.ajax({
+          url: 'UiV2Main.folderMenu?' + encodeURIComponent(node.id),
+          type: 'GET',
+          dataType: 'json',
+          cache: true,
+          timeout: 150000
+        }).done(function (fullObj) {
+          cb(childrenToJsTreeNodes(fullObj && fullObj.children, fullObj && fullObj.id));
+        }).fail(function () {
+          cb([]);
         });
       }
     },
-    getRoot: function(onItem, onError){
-      // get the root object, we will do a get() and callback the result
-      this.get("root").then(onItem, onError);
-    },
-    getLabel: function(object){
-      // just get the name
-      return object.name;
-    }
-    
+    plugins: ['wholerow'] // optional, nicer click target
   });
 
-  // Custom TreeNode class (based on dijit.TreeNode) that allows rich text labels
-  //var MyTreeNode = dojo.declare(dijit.Tree._TreeNode, {
-  //    _setLabelAttr: {node: "labelNode", type: "innerHTML"}
-  //});
-  
-  folderTree = new dijit.Tree({
-    model: folderMenuStore,
-    //_createTreeNode: function(args){
-    //   return new MyTreeNode(args);
-    //},
-    getIconClass: function(/*dojo.store.Item*/ item, /*Boolean*/ opened){
-      //return (!item || this.model.mayHaveChildren(item)) ? (opened ? "dijitFolderOpened" : "dijitFolderClosed") : "dijitLeaf"
-      if (!item || this.model.mayHaveChildren(item)) {
-        if (opened) {
-          return "dijitFolderOpened";
-        } 
-        return "dijitFolderClosed";
-      }
-      if (item.theType == 'truncatedItems') {
-        // regular stems are caught above since they have a children attribute; so this
-        // may be a placeholder stem - possibly the "..." pseudo-stem
-        return "fa fa-ellipsis-h";
-      }
-      if (item.theType == 'group') {
-        //font-awesome icons...
-        return "fa fa-group";
-      }
-      if (item.theType == 'entity') {
-        //font-awesome icons...
-        return "fa fa-cloud-download";
-      }
-      if (item.theType == 'attributeDef') {
-        //font-awesome icons...
-        return "fa fa-cog";
-      }
-      if (item.theType == 'attributeDefName') {
-        //font-awesome icons...
-        return "fa fa-cogs";
-      }
-    },
-    onClick: function(item){
-      // Get the URL from the item, and navigate to it
-      if (item.theType == 'stem') {
-        if ((typeof item.id != 'undefined') && (item.id != null)) {
-          guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id);
-        }
-      } else if (item.theType == 'entity') {
-        if ((typeof item.id != 'undefined') && (item.id != null)) {
-          guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=' + item.id);
-        }
-      } else if (item.theType == 'group') {
-        if ((typeof item.id != 'undefined') && (item.id != null)) {
-          guiV2link('operation=UiV2Group.viewGroup&groupId=' + item.id);
-        }
-      } else if (item.theType == 'attributeDef') {
-        if ((typeof item.id != 'undefined') && (item.id != null)) {
-          guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=' + item.id);
-        }
-        //location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeUpdate.createEdit&attributeDefId=' + item.id;
-      } else if (item.theType == 'attributeDefName') {
-        if ((typeof item.id != 'undefined') && (item.id != null)) {
-          guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=' + item.id);
-        }
-        //location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeNameUpdate.createEditAttributeNames&attributeDefNameId=' + item.id;
-      } else if (item.theType == 'truncatedItems') {
-        if ((typeof item.id != 'undefined') && (item.id != null)) {
-          guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id)
-        }
-      } else {
-        alert('ERROR: cant find theType on object with id: ' + item.id + ': ' + item.theType);
-      }
-    }
-  }, "folderTree"); // make sure you have a target HTML element with this id
+  // Expand synthetic Root (and the real root folder under it) by default on initial render.
+  // This triggers the UiV2Main.folderMenu?root AJAX call via the jsTree lazy loader.
+  (function expandRootByDefault() {
+    var $tree = $('#folderTree');
 
+    function doExpand() {
+      var inst = $tree.jstree(true);
+      if (!inst) return;
+
+            // Open synthetic Root; this triggers UiV2Main.folderMenu?root via the jsTree lazy loader.
+      // Do NOT auto-open any children under Root.
+      inst.open_node('root');
+    }
+
+    // If already ready, expand immediately; otherwise wait.
+    if ($tree.data('jstree')) {
+      try {
+        var instNow = $tree.jstree(true);
+        if (instNow && instNow._ready) {
+          doExpand();
+          return;
+        }
+      } catch (e) {}
+    }
+
+    $tree.one('ready.jstree', function () {
+      doExpand();
+    });
+  })();
+
+  // Click handler (your Dojo onClick logic)
+  // Remove any previous handler first (dojoInitMenu can be called multiple times)
+    $treeEl.on('select_node.jstree.dojoInitMenu', function (e, data) {
+    var item = data && data.node && data.node.data;
+    if (!item) return;
+
+    // Synthetic Root node: navigate to the Root stem
+    if (item.root === true) {
+      // Match existing navigation style used elsewhere in this file
+      guiV2link('operation=UiV2Stem.viewStem&stemId=root');
+      return;
+    }
+
+    function hasId(x) {
+      return typeof x.id !== 'undefined' && x.id !== null;
+    }
+
+    if (item.theType === 'stem') {
+      if (hasId(item)) guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id);
+
+    } else if (item.theType === 'entity') {
+      if (hasId(item)) guiV2link('operation=UiV2Subject.viewSubject&sourceId=grouperEntities&subjectId=' + item.id);
+
+    } else if (item.theType === 'group') {
+      if (hasId(item)) guiV2link('operation=UiV2Group.viewGroup&groupId=' + item.id);
+
+    } else if (item.theType === 'attributeDef') {
+      if (hasId(item)) guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=' + item.id);
+
+    } else if (item.theType === 'attributeDefName') {
+      if (hasId(item)) guiV2link('operation=UiV2AttributeDefName.viewAttributeDefName&attributeDefNameId=' + item.id);
+
+    } else if (item.theType === 'truncatedItems') {
+      if (hasId(item)) guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id);
+
+    } else {
+      alert('ERROR: cant find theType on object with id: ' + item.id + ': ' + item.theType);
+    }
+  });
+
+  // Auto-select/open path like your Dojo code
   if (autoSelectNode) {
     var itemId = null;
     var itemType = null;
+
     var uri = new URI(location.href);
     uri.search(function (data) {
       if (data.operation === "UiV2Stem.viewStem") {
-        // the breadcrumb menu uses name not id
-        itemId = (data.stemName != undefined) ? data.stemName : data.stemId;
-        itemType = (data.stemName != undefined) ? "stemName" : "stem";
+        itemId = (data.stemName !== undefined) ? data.stemName : data.stemId;
+        itemType = (data.stemName !== undefined) ? "stemName" : "stem";
+
       } else if (data.operation === "UiV2Visualization.stemView") {
         itemId = data.objectId;
         itemType = "stem";
+
       } else if (data.operation === "UiV2Group.viewGroup") {
-        itemId = (data.groupName != undefined) ? data.groupName : data.groupId;
-        itemType = (data.groupName != undefined) ? "groupName" : "group";
+        itemId = (data.groupName !== undefined) ? data.groupName : data.groupId;
+        itemType = (data.groupName !== undefined) ? "groupName" : "group";
+
       } else if (data.operation === "UiV2Subject.viewSubject" && data.sourceId === "grouperEntities") {
         itemId = data.subjectId;
         itemType = "group";
+
       } else if (data.operation === "UiV2Visualization.groupView") {
         itemId = data.objectId;
         itemType = "group";
+
       } else if (data.operation === "UiV2AttributeDef.viewAttributeDef") {
-        itemId = (data.nameOfAttributeDef != undefined) ? data.nameOfAttributeDef : data.attributeDefId;
-        itemType = (data.nameOfAttributeDef != undefined) ? "nameOfAttributeDef" : "attributeDef";
+        itemId = (data.nameOfAttributeDef !== undefined) ? data.nameOfAttributeDef : data.attributeDefId;
+        itemType = (data.nameOfAttributeDef !== undefined) ? "nameOfAttributeDef" : "attributeDef";
+
       } else if (data.operation === "UiV2AttributeDefName.viewAttributeDefName") {
-        itemId = (data.nameOfAttributeDefName != undefined) ? data.nameOfAttributeDefName : data.attributeDefNameId;
-        itemType = (data.nameOfAttributeDefName != undefined) ? "nameOfAttributeDefName" : "attributeDefName";
+        itemId = (data.nameOfAttributeDefName !== undefined) ? data.nameOfAttributeDefName : data.attributeDefNameId;
+        itemType = (data.nameOfAttributeDefName !== undefined) ? "nameOfAttributeDefName" : "attributeDefName";
       }
 
-      if (itemType !== null) {
+            if (itemType !== null) {
         $.ajax({
           url: "UiV2Main.folderMenuObjectPath",
-          /* headers: owaspCsrfTokenHeader, */
           type: "POST",
           cache: true,
           dataType: 'json',
-          data: {"id": itemId, "type": itemType},
-          timeout: 150000,
-          async: true,
-          success: function(json){
-            openFolderTreePathToObject(json);
-          }
+          data: { id: itemId, type: itemType },
+          timeout: 150000
+        }).done(function (json) {
+          openFolderTreePathToObjectJsTree(json);
+        }).fail(function () {
+          // If we can't resolve the path, at least expand Root so the user sees something.
+          openFolderTreePathToObjectJsTree();
         });
+      } else {
+        // If the current page doesn't map to a specific object ("at Root"),
+        // expand/select Root so the user sees Root and its immediate children.
+        openFolderTreePathToObjectJsTree();
       }
     });
   }
 
-  folderTree.startup();
+  // ---- Path open/select helper (lazy-load safe-ish) ----
+  function extractPathIds(pathJson) {
+    // Try a few common shapes:
+    // 1) ["id1","id2","id3"]
+    // 2) [{id:"id1"},{id:"id2"}]
+    // 3) { path: [...] }
+    var p = pathJson;
 
-  /*
-  if (autoSelectNode) {
-    folderTree.onLoadDeferred.then(function () {
-      var selectedNode = null;
-      if (itemId != null) {
-        var array = folderTree.getNodesByItem(itemId);
-        for (index = 0; index < array.length; index++) {
-          selectedNode = array[index];
-          selectedNode.setSelected(true);
+    if (p && Array.isArray(p.path)) p = p.path;
 
-          var parent = selectedNode.getParent();
-          var sibling = parent.getNextSibling();
-          while (sibling != null) {
-            sibling.collapse();
-            sibling = sibling.getNextSibling();
+    if (Array.isArray(p)) {
+      if (p.length && typeof p[0] === 'string') return p.map(String);
+      if (p.length && typeof p[0] === 'object') return p.map(x => String(x.id));
+    }
+    return [];
+  }
+
+  function openFolderTreePathToObjectJsTree(pathJson) {
+    // If nothing is passed, assume we're at Root and expand it.
+    var ids = extractPathIds(pathJson);
+
+    if (!ids || !ids.length) {
+      ids = ['root'];
+    }
+
+    // Our jsTree has a synthetic "root" node at the top. Ensure the open path starts there
+    // so lazy-loading works consistently.
+    if (ids[0] !== 'root') {
+      ids.unshift('root');
+    }
+
+    // De-dupe consecutive ids in case "root" is present twice
+    ids = ids.filter(function (id, idx) {
+      return idx === 0 || id !== ids[idx - 1];
+    });
+
+    var $tree = $('#folderTree');
+
+    // Run callback when the tree is ready AND the synthetic root node exists.
+    function withTreeReady(cb) {
+      try {
+        if ($tree.data('jstree')) {
+          var instNow = $tree.jstree(true);
+          if (instNow && instNow.get_node && instNow.get_node('root', false)) {
+            cb(instNow);
+            return;
+          }
+        }
+      } catch (e) {
+        // fall through to ready handler
+      }
+
+      $tree.one('ready.jstree', function () {
+        cb($tree.jstree(true));
+      });
+    }
+
+    withTreeReady(function (inst) {
+      // Root-only case: expand Root AND also expand the real root folder under it
+      // so the user sees Root -> <root folder> -> its objects.
+      if (ids.length === 1 && ids[0] === 'root') {
+                // Root-only: expand Root so the user sees Root and its immediate children.
+        // Do NOT select Root here because select_node triggers navigation.
+        // Do NOT auto-open any children under Root.
+        inst.open_node('root');
+        return;
+      }
+
+      // Otherwise, open each node in order; opening triggers loading of its children
+      function openNext(i) {
+        if (i >= ids.length) {
+          var last = ids[ids.length - 1];
+                    inst.deselect_all();
+          inst.select_node(last);
+          inst.open_node(last);
+          return;
+        }
+
+        var id = ids[i];
+        var node = inst.get_node(id);
+
+        if (node) {
+          inst.open_node(id, function () { openNext(i + 1); });
+        } else {
+          // If the node isn't present yet, open the previous node to force-load it,
+          // or refresh and retry.
+          var prev = (i === 0) ? null : ids[i - 1];
+          if (prev && inst.get_node(prev)) {
+            inst.open_node(prev, function () { openNext(i); });
+          } else {
+            inst.refresh(false, false);
+            setTimeout(function () { openNext(i); }, 75);
           }
         }
       }
+
+      openNext(0);
     });
   }
-  */
 }
+
+
+
 
 //function dojoClearTree(theTree, theStore) {
 //
@@ -873,12 +1049,6 @@ function ajax(theUrl, options) {
   
   if (typeof options.requestParams == 'undefined') {
     options.requestParams = {};
-  }
-  
-  //copy display values of filtering selects to its hidden field
-  //see if that function even exists
-  if (typeof dojoCopyFilteringSelectDisplays != 'undefined') {
-    dojoCopyFilteringSelectDisplays();
   }
   
   if (!guiIsEmpty(options.formIds) || !guiIsEmpty(options.formIdsOptional)) {
@@ -1178,11 +1348,6 @@ function guiProcessJsonResponse(guiResponseJs) {
   //  successResultFunction.call(this, json);
   //}
   
-  if (typeof dojo != 'undefined' && typeof dojo.parser != 'undefined') {
-    //parse the new doc for changes
-    dojo.parser.parse();
-  }
-  
   //round those corners
   guiRoundCorners();
 
@@ -1213,6 +1378,7 @@ function guiProcessAction(guiScreenAction) {
   }
   //replace some html
   if (!guiIsEmpty(guiScreenAction.innerHtmlJqueryHandle) && guiIsEmpty(guiScreenAction.validationMessage)) {
+     grouperDestroyTomSelectInContainer(guiScreenAction.innerHtmlJqueryHandle);
      $(guiEscapeSelectorIfNeeded(guiScreenAction.innerHtmlJqueryHandle)).html(guiScreenAction.html);
   }
 
@@ -2427,43 +2593,6 @@ function confirmChange(prompt) {
   return true;
 }
 
-//MCH 20131223: keep track of the ids of filtering selects.  note, some might be gone due to ajax
-//note the naming convention, if the bsae id is peoplePicker, then the id is peoplePickerId,
-//name is peoplePickerName, displays are peoplePickerIdDisplay, and peoplePickerNameDisplay
-var dojoFilteringSelectBaseIds = {};
-
-//MCH 20131223: copy the display value of filtering selects to the hidden field so it is submitted
-//with the filtering select value
-function dojoAddFilteringSelectBaseId(dojoFilteringSelectBaseId) {
-
-  dojoFilteringSelectBaseIds[dojoFilteringSelectBaseId] = true;
-
-}
-
-//MCH 20131223: copy the display value of filtering selects to the hidden field so it is submitted
-//with the filtering select value
-function dojoCopyFilteringSelectDisplays() {
-
-  //loop through all the filtering selects that have been registered
-  for(var dojoFilteringSelectBaseId in dojoFilteringSelectBaseIds) {
-  
-    var filteringSelect = dijit.byId(dojoFilteringSelectBaseId + 'Id');
-    
-    //if it hasnt been removed by javascript
-    if (filteringSelect != null) {
-      
-      var displayValue = filteringSelect.get('displayedValue');
-      
-      //set this in the value of the display hidden field
-      var displayInput = document.getElementById(dojoFilteringSelectBaseId + 'IdDisplay');
-      
-      if (displayInput != null) {
-        displayInput.value = displayValue;
-      }
-    }
-  }  
-}
-
 /** this does three things.  When typing in name field, syncs to id field if checkbox checked
  * when clicking checkbox, either sync and disable, or enable the id field
  * or when clicking the id field, if disabled, give a helpful message
@@ -2505,7 +2634,7 @@ function showHideMemberAddBlock() {
   } else {
     $("#add-member-control-group").attr("aria-expanded","true");
     $("#add-member-control-group").attr("role", "alert");
-    $("#groupAddMemberComboId").focus();
+    $('#groupAddMemberComboId')[0].tomselect.focus();
   } 
 }
 
@@ -2522,7 +2651,7 @@ function showHideAssignPermissionBlock() {
   } else {    
     $("#assign-permission-block-container").attr("aria-expanded","true");
     $("assign-permission-block-container").attr("role", "alert");
-    $("#permissionDefComboId").focus();
+    $('#permissionDefComboId')[0].tomselect.focus();
   } 
 }
 
@@ -2539,7 +2668,7 @@ function showHideStemAssignAttributeBlock() {
   } else {    
     $("#assign-stem-attribute-block-container").attr("aria-expanded","true");
     $("assign-stem-attribute-block-container").attr("role", "alert");
-    $("#parentFolderComboId").focus();
+    $('#parentFolderComboId')[0].tomselect.focus();
   } 
 }
 
@@ -2556,7 +2685,7 @@ function showHideGroupAssignAttributeBlock() {
   } else {    
     $("#assign-group-attribute-block-container").attr("aria-expanded","true");
     $("assign-group-attribute-block-container").attr("role", "alert");
-    $("#parentFolderComboId").focus();
+    $('#parentFolderComboId')[0].tomselect.focus();
   } 
 }
 
@@ -2573,7 +2702,7 @@ function showHideAttributeDefAssignAttributeBlock() {
   } else {    
     $("#assign-attribute-def-attribute-block-container").attr("aria-expanded","true");
     $("assign-attribute-def-attribute-block-container").attr("role", "alert");
-    $("#parentFolderComboId").focus();
+    $('#parentFolderComboId')[0].tomselect.focus();
   } 
 }
 
@@ -2590,7 +2719,7 @@ function showHideSubjectAssignAttributeBlock() {
   } else {    
     $("#assign-subject-attribute-block-container").attr("aria-expanded","true");
     $("assign-subject-attribute-block-container").attr("role", "alert");
-    $("#parentFolderComboId").focus();
+    $('#parentFolderComboId')[0].tomselect.focus();
   } 
 }
 
@@ -2607,7 +2736,7 @@ function showHideLocalEntityCreateDownloadKeyBlock() {
   } else {    
     $("#wsJwtKey-create-download-block-container").attr("aria-expanded","true");
     $("wsJwtKey-create-download-block-container").attr("role", "alert");
-    $("#parentFolderComboId").focus();
+    $('#parentFolderComboId')[0].tomselect.focus();
   } 
 }
 
@@ -2624,7 +2753,7 @@ function showHideMembershipAssignAttributeBlock() {
   } else {    
     $("#assign-membership-attribute-block-container").attr("aria-expanded","true");
     $("assign-membership-attribute-block-container").attr("role", "alert");
-    $("#parentFolderComboId").focus();
+    $('#parentFolderComboId')[0].tomselect.focus();
   } 
 }
 
@@ -2708,27 +2837,6 @@ function hideCustomPrivilege(elementId) {
 }
 
 
-/**
- * call this with form or html dom element inside form
- * @param jqueryHandle e.g. #add-members-form
- */
-function grouperDisableEnterOnCombo(jqueryHandleOfFormElement) {
-  var jqueryElement = $(jqueryHandleOfFormElement);
-  //if (!jqueryElement.is('form')) {
-  //  jqueryElement = jqueryElement.closest('form');
-  //}
-  if (jqueryElement.length !== 0) {
-    jqueryElement.on('keyup keypress', function(e) {
-      var keyCode = e.keyCode || e.which;
-      if (keyCode === 13) {
-        e.preventDefault();
-        return false;
-      }
-    });
-  }
-}
-
-
 // this will set the url in the browser so the back button works with the filter
 function grouperAssignDaemonUrl() {
   var url = window.location.href; 
@@ -2756,6 +2864,415 @@ function grouperCancelAllScheduledTasks(taskStart) {
     }
   }
 }
+
+/**
+ * Execute the ajax request for a Grouper TomSelect combobox.
+ *
+ * URL / query syntax notes:
+ * - `url` should be the base endpoint with any required params already on it (e.g. groupId).
+ * - This helper appends `name=` as a query param (uses `?` or `&` as appropriate) and an encoded query.
+ *   (So do NOT pass a url that already includes `name=`.)
+ * - If you need additional filter params from other form fields, pass their names via `extraUrlOptions`
+ *   and `_addUrlOptions(...)` will append them.
+ *
+ * Expected JSON:
+ * - Either an array of items, or an object with an `items` array.
+ * - Each item should have at least: { id: "...", name: "..." }
+ * - Optional: htmlLabel, used for rendering if present.
+ *
+ * @param url base url to call (should NOT already include name=)
+ * @param extraUrlOptions options passed to _addUrlOptions
+ * @param query the query string (typed text, or id for exact lookup)
+ * @param appendWildcard if true, appends '*' to the query (server-side wildcard)
+ * @param callback callback(items)
+ */
+function grouperRegisterComboboxAjax(url, extraUrlOptions, query, appendWildcard, callback) {
+
+  try {
+    // Decide whether to start query params with '?' or '&'
+    // (If the base url already has a '?', we append with '&', otherwise start with '?')
+    var joinChar = (url && url.indexOf('?') === -1) ? '?' : '&';
+
+    // Build the name query parameter.
+    // Note: encodeURIComponent encodes the whole value, including '*'. That's OK if the server decodes it.
+    var baseUrl = url + joinChar + 'name=' + encodeURIComponent(query + (appendWildcard ? '*' : ''));
+
+    // Append extra filter params from screen state.
+    // `_addUrlOptions` returns the leading ? or & as needed.
+    var extra = _addUrlOptions(baseUrl, extraUrlOptions || {});
+    var finalUrl = baseUrl + extra;
+
+    // Build request headers
+    var headers = { 'Accept': 'application/json' };
+
+    // Add OWASP CSRF token header if present on the page
+    var owaspTokenName = 'OWASPCSRFTOKEN';
+    var owaspTokenEls = document.getElementsByName(owaspTokenName);
+    if (owaspTokenEls != null && owaspTokenEls.length > 0 && owaspTokenEls[0] != null) {
+      headers[owaspTokenName] = owaspTokenEls[0].value;
+    }
+
+    fetch(finalUrl, { headers: headers })
+      .then(async (response) => {
+        var text = await response.text();
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status + ': ' + text);
+        }
+
+        // Parse JSON, but keep the raw text so we can show it in an error.
+        var json;
+        try {
+          json = JSON.parse(text);
+
+          /*
+           * Example JSON response:
+           *
+           * {
+           *   "items": [
+           *     {
+           *       "id": "jdbc||test.subject.2",
+           *       "name": "description.test.subject.2",
+           *       "htmlLabel": "<!--guiSubjectLongLinkWithIcon--><i class=\"fa fa-user\"></i>  description.test.subject.2"
+           *     }
+           *   ],
+           *   "label": "name",
+           *   "identifier": "id"
+           * }
+           */
+        } catch (e) {
+          throw new Error('Non-JSON response: ' + text);
+        }
+
+        // Normalize to an array of items.
+        var items = Array.isArray(json) ? json : (json.items || []);
+        callback(items);
+      })
+      .catch((err) => {
+        // Network, HTTP, or JSON parse errors end up here.
+        console.error('TomSelect load error:', err);
+        callback();
+      });
+  } catch (e) {
+    // Any synchronous error building the URL, etc.
+    console.error('TomSelect load exception:', e);
+    callback();
+  }
+}
+
+/**
+ * Register a Tom Select combobox on a selector.
+ *
+ * Behavior summary:
+ * - Normal typing:
+ *   - Only loads after 2+ characters
+ *   - Appends '*' to the query to use server-side wildcard matching
+ *   - Uses Tom Select throttling (loadThrottle) to avoid spamming requests
+ *   - Clears prior search results so each search shows fresh options
+ *
+ * - Enter-to-lookup (optional):
+ *   - If options.useEnterForLookup === true, pressing Enter triggers an *exact* lookup (no '*')
+ *   - Exact lookup is executed immediately (bypasses loadThrottle)
+ *   - If the response includes an exact id match (or only one result), it is auto-selected
+ *   - If fewer than 2 characters are typed, Enter does nothing
+ *   - After Enter, the control exits (no dropdown, no cursor)
+ *
+ * - Initial value:
+ *   - If `value` (an id) is passed, we call grouperComboboxSetId(...) so the label renders like a selection
+ *
+ * CSS note (optional UI behavior):
+ * - To hide the selected item chip while typing, put this in your CSS:
+ *     .grouper-ts-typing .ts-control .item { display:none !important; }
+ *
+ * @param jquerySelector e.g. "#someId"
+ * @param url base endpoint, e.g. "../app/UiV2Group.addMemberFilter?groupId=..." (no name=)
+ * @param additionalFormElementNames comma-separated form element names to send along with ajax request
+ * @param value initial id to select (label is resolved via ajax)
+ * @param options e.g. {searchDelay: 500, useEnterForLookup: true}
+ */
+function grouperRegisterCombobox(jquerySelector, url, additionalFormElementNames, value, options) {
+
+  options = options || {};
+  var useEnterForLookup = (options.useEnterForLookup === true);
+
+  // Names of additional form elements to send as extra params on the ajax request.
+  // `_addUrlOptions` will read these elements and add them to the URL.
+  var extraUrlOptions = {
+    optionalFormElementNamesToSend: additionalFormElementNames
+  };
+
+  // Clear any previous search results before showing new ones.
+  // Tom Select retains options internally; without clearing, an old option can appear at the top on subsequent searches.
+  // We keep the currently-selected option(s) so the control can still render the selected label.
+  function grouperResetOptionsKeepSelection(tsInstance) {
+    try {
+      var keep = [];
+      var selectedValues = (tsInstance.items || []).slice();
+      for (var i = 0; i < selectedValues.length; i++) {
+        var opt = tsInstance.options && tsInstance.options[selectedValues[i]];
+        if (opt) {
+          keep.push(opt);
+        }
+      }
+      if (typeof tsInstance.clearOptions === 'function') {
+        tsInstance.clearOptions();
+      }
+      if (keep.length && typeof tsInstance.addOption === 'function') {
+        tsInstance.addOption(keep);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // Tom Select configuration.
+  // - loadThrottle is Tom Select's request debounce.
+  // - If searchDelay is null/undefined, default to 500ms.
+  var tomSelectOptions = {
+    maxItems: 1,
+    loadThrottle: (typeof options.searchDelay !== 'undefined' && options.searchDelay !== null) ? options.searchDelay : 500,
+
+    onItemAdd: function() {
+      // Blur after the user selects an option so it behaves like a typical single-select.
+      // Also ensure we are not in "typing" mode so the selected item is visible again.
+      try {
+        if (this.wrapper) {
+          this.wrapper.classList.remove('grouper-ts-typing');
+        }
+      } catch (e) {
+        // ignore
+      }
+      this.blur();
+    },
+
+    valueField: 'id',
+    labelField: 'name',
+    searchField: ['name'],
+    maxOptions: 200,
+
+    shouldLoad: function(query) {
+      // Normal typing: wait until 2+ chars.
+      return query.length >= 2;
+    },
+
+    load: function(query, callback) {
+      // Normal typing uses wildcard matching and Tom Select throttling (loadThrottle).
+      grouperRegisterComboboxAjax(url, extraUrlOptions, query, true, function(items) {
+        // Reset options so each search shows only the latest results (plus any current selection).
+        grouperResetOptionsKeepSelection(this);
+
+        // Provide results to Tom Select.
+        callback(items);
+      }.bind(this));
+    },
+
+    // Render htmlLabel if provided (server can send icon markup).
+    // Force nowrap so long labels don't wrap.
+    render: {
+      option: function(item, escape) {
+        return '<div style="white-space: nowrap;">' + (item.htmlLabel || escape(item.name)) + '</div>';
+      },
+      item: function(item, escape) {
+        return '<div style="white-space: nowrap;">' + (item.htmlLabel || escape(item.name)) + '</div>';
+      }
+    }
+  };
+
+  var ts = new TomSelect(jquerySelector, tomSelectOptions);
+
+  // Remember ajax config on the instance so programmatic setters don't need url/extra params.
+  ts._grouperUrl = url;
+  ts._grouperExtraUrlOptions = extraUrlOptions;
+
+  // Hide the selected item in the control while the user is typing.
+  // - Clicking/focusing should NOT hide the selected item.
+  // - Once the user types, it hides (CSS controls the actual hiding).
+  function grouperSetTypingMode(isTyping) {
+    if (!ts.wrapper) {
+      return;
+    }
+    if (isTyping) {
+      ts.wrapper.classList.add('grouper-ts-typing');
+    } else {
+      ts.wrapper.classList.remove('grouper-ts-typing');
+    }
+  }
+
+  if (ts.control_input) {
+    ts.control_input.addEventListener('focus', function() {
+      // Clicking/focusing should NOT hide the selected item.
+      grouperSetTypingMode(false);
+    });
+    ts.control_input.addEventListener('input', function() {
+      // Hide only once they actually start typing.
+      grouperSetTypingMode(ts.control_input.value && ts.control_input.value.length > 0);
+    });
+    ts.control_input.addEventListener('blur', function() {
+      grouperSetTypingMode(false);
+    });
+  }
+
+  // Enter handling:
+  // - Attach to ts.wrapper (capture phase) instead of control_input because Tom Select may replace the input.
+  // - On Enter, do an exact lookup immediately (no '*') and bypass loadThrottle.
+  // - After Enter, always exit the control UI (no dropdown, no cursor).
+  if (useEnterForLookup && ts.wrapper) {
+
+    var grouperEnterHandler = function(e) {
+      var key = e.key || e.keyCode;
+      if (key !== 'Enter' && key !== 13) {
+        return;
+      }
+
+      var inputEl = ts.control_input || (e.target && e.target.tagName && e.target.tagName.toUpperCase() === 'INPUT' ? e.target : null);
+      if (!inputEl) {
+        return;
+      }
+
+      var q = inputEl.value;
+      if (!q || q.length < 2) {
+        // If fewer than 2 characters are typed, do not trigger Enter-to-lookup logic.
+        return;
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Exit UI immediately.
+      try { ts.close(); } catch (e2) {}
+      try { ts.blur(); } catch (e2) {}
+
+      // Exact lookup (no '*') on Enter.
+      grouperRegisterComboboxAjax(url, extraUrlOptions, q, false, function(items) {
+        // If we got a direct id match (or a single result), select it.
+        var match = null;
+        if (items && items.length) {
+          for (var i = 0; i < items.length; i++) {
+            if (String(items[i].id) === String(q)) {
+              match = items[i];
+              break;
+            }
+          }
+          if (!match && items.length === 1) {
+            match = items[0];
+          }
+        }
+
+        if (match) {
+          ts.addOption(match);
+          ts.setValue(match.id, true);
+
+          // Keep only the selected option so old search results don't float to the top later.
+          grouperResetOptionsKeepSelection(ts);
+        }
+
+        // Always exit TomSelect UI after Enter: no dropdown, no cursor.
+        try { ts.close(); } catch (e3) {}
+        try { ts.blur(); } catch (e3) {}
+      });
+    };
+
+    ts.wrapper.addEventListener('keydown', grouperEnterHandler, true);
+  }
+
+  // If an initial value is provided, call the programmatic setter (which will do an exact lookup and set the label).
+  if (!guiIsEmpty(value)) {
+    grouperComboboxSetId(jquerySelector, value);
+  }
+
+  return ts;
+}
+
+function grouperDestroyTomSelectInContainer(containerSelectorOrEl) {
+  var el = (typeof containerSelectorOrEl === 'string')
+    ? document.querySelector(containerSelectorOrEl)
+    : containerSelectorOrEl;
+
+  if (!el) return;
+
+  el.querySelectorAll('input,select').forEach(function(field) {
+    if (field.tomselect) {
+      try { field.tomselect.destroy(); } catch (e) {}
+    }
+  });
+}
+
+/**
+ * Programmatically select an id in a Grouper TomSelect combobox and resolve its label via AJAX.
+ *
+ * This uses the url/extraUrlOptions remembered on the TomSelect instance created by
+ * grouperRegisterCombobox(...):
+ *   ts._grouperUrl
+ *   ts._grouperExtraUrlOptions
+ *
+ * Example:
+ *   grouperComboboxSetId('#users', 'jdbc||test.subject.2');
+ *
+ * @param jquerySelector selector string ("#users") OR a jQuery object ($("#users"))
+ * @param idValue the id to select
+ */
+function grouperComboboxSetId(jquerySelector, idValue) {
+
+  if (idValue == null || idValue === '') {
+    return;
+  }
+
+  // Support either a selector string or a jQuery object.
+  var selector = null;
+  if (typeof jquerySelector === 'string') {
+    selector = jquerySelector;
+  } else if (jquerySelector && jquerySelector.jquery && jquerySelector.length) {
+    selector = jquerySelector.selector || null;
+  }
+
+  var el = null;
+  if (selector) {
+    el = document.querySelector(selector);
+  } else if (jquerySelector && jquerySelector.jquery && jquerySelector.length) {
+    el = jquerySelector[0];
+  }
+
+  if (!el) {
+    throw new Error('grouperComboboxSetId: element not found');
+  }
+  if (!el.tomselect) {
+    throw new Error('grouperComboboxSetId: TomSelect instance not found on element');
+  }
+
+  var ts = el.tomselect;
+
+  // Pull url + extra params from the TomSelect instance created by grouperRegisterCombobox.
+  var url = ts._grouperUrl;
+  if (!url) {
+    throw new Error('grouperComboboxSetId: url not found on TomSelect instance; call grouperRegisterCombobox first');
+  }
+  var extraUrlOptions = ts._grouperExtraUrlOptions || {};
+
+  // Exact lookup (no '*') using the id so the server returns the item with the label.
+  grouperRegisterComboboxAjax(url, extraUrlOptions, String(idValue), false, function(items) {
+
+    if (items && items.length) {
+      // Prefer exact id match; otherwise use the first result.
+      var found = null;
+      for (var i = 0; i < items.length; i++) {
+        if (String(items[i].id) === String(idValue)) {
+          found = items[i];
+          break;
+        }
+      }
+      if (!found) {
+        found = items[0];
+      }
+
+      ts.addOption(found);
+      ts.setValue(found.id, true);
+      return;
+    }
+
+    // Fallback: set the raw value even if we couldn't resolve the label.
+    ts.setValue(idValue, true);
+  });
+}
+
 
 /**
  * Refreshes the dijit Treefolder navigation to expand folders to the current

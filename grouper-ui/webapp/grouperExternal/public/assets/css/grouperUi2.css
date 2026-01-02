@@ -311,3 +311,76 @@ td > .config-el-label {
   color: #232d4b;
   text-decoration: underline;
 }
+
+/* tom select padding on combobox should be reduced */
+.ts-control {
+  padding: 4px 4px;
+}
+
+/* Hide the selected “item chip” while the user is typing in a Grouper TomSelect */
+.grouper-ts-typing .ts-control .item {
+  display: none !important;
+}
+/* jsTree expander -> Font Awesome boxed +/- (FA 4.x) */
+.jstree-default .jstree-ocl {
+  background: none !important;   /* remove theme sprite */
+  width: 14px !important; /* smaller hit area = less gap (try 12–16) */
+}
+
+.jstree-default .jstree-ocl:before {
+  font-family: FontAwesome;
+  content: "\f196";              /* fa-plus-square-o */
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+  font-style: normal;
+  font-weight: normal;
+  /* Bigger + lighter (more gray) for jsTree expand/collapse */
+  font-size: 14px;   /* was ~12px; bump as desired */
+  color: #999;       /* lighter gray; try #777 / #888 / #999 */
+}
+
+.jstree-default .jstree-open > .jstree-ocl:before {
+  content: "\f147";              /* fa-minus-square-o */
+}
+
+.jstree-default .jstree-leaf > .jstree-ocl:before {
+  content: "";                   /* no box for leaf nodes */
+}
+/* Ensure Font Awesome icons in jsTree are not italic */
+#folderTree i.fa,
+#folderTree .fa,
+#folderTree .jstree-icon {
+  font-style: normal !important;
+  font-weight: normal !important;
+}
+
+
+/* Reduce per-level indentation (default theme) */
+.jstree-default .jstree-node {
+  margin-left: 16px;   /* default is larger; try 14–18px */
+}
+
+/* Keep the very top node flush left */
+.jstree-default > .jstree-container-ul > .jstree-node {
+  margin-left: 0;
+}
+
+/* Make the left tree pane scroll instead of overlapping main pane */
+#folderTreeContainerId {
+  overflow-y: auto;
+  overflow-x: auto;          /* <-- horizontal scrollbar */
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Don’t wrap node labels (so long names force horizontal scroll) */
+#folderTreeContainerId .jstree-anchor {
+  white-space: nowrap;
+}
+
+/* Ensure the tree can grow wider than the container (so overflow-x activates) */
+#folderTreeContainerId .jstree-container-ul {
+  display: inline-block;
+  min-width: 100%;
+}
