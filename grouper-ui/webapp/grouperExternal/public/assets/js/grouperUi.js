@@ -703,7 +703,8 @@ function dojoInitMenu(autoSelectNode) {
 
   // Click handler (your Dojo onClick logic)
   // Remove any previous handler first (dojoInitMenu can be called multiple times)
-    $treeEl.on('select_node.jstree.dojoInitMenu', function (e, data) {
+  $treeEl.off('activate_node.jstree.dojoInitMenu')
+       .on('activate_node.jstree.dojoInitMenu', function (e, data) {
     var item = data && data.node && data.node.data;
     if (!item) return;
 
