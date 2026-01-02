@@ -167,6 +167,14 @@ public class UpgradeTaskV37 implements UpgradeTasksInterface {
           }
         }
         
+        if (!GrouperDdlUtils.assertIndexExists("grouper_lifecycle_event", "grouper_lifecycle_event_uniq_idx")) {
+          new GcDbAccess().sql("CREATE UNIQUE INDEX grouper_lifecycle_event_uniq_idx ON grouper_lifecycle_event (grpr_lcycl_evnt_cnfg_intrnl_id, member_internal_id, event_micros)").executeSql();
+          if (otherJobInput != null) {
+            otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_lifecycle_event_uniq_idx");
+          }
+        }
+        
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event", "lcycl_evnt_cnfg_intrnl_id_fk")) {
           new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lcycl_evnt_cnfg_intrnl_id_fk FOREIGN KEY (grpr_lcycl_evnt_cnfg_intrnl_id) REFERENCES  grouper_lifecycle_event_config(internal_id)").executeSql();
           if (otherJobInput != null) {

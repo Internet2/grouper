@@ -43,8 +43,6 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     
-    //TODO: add total count, delete count, add count, update count
-    
     List<GrouperLifecycleEventConfig> lifecycleEventConfigs = UserLifecycleEventConfigDao.selectAll();
     
     Set<GrouperLifecycleEvent> lifecycleEventsToStore = new HashSet<>();
@@ -85,11 +83,7 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
         StringBuilder membersFromMShipTable = new StringBuilder("""
             select  gscm.member_internal_id, gscm.flattened_add_timestamp  from grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm, grouper_fields gf where gf.internal_id = gscg.field_internal_id and 
             gscm.sql_cache_group_internal_id = gscg.internal_id and 
-            gscg.group_internal_id = ? and gf.name = 'members' and gscm.flattened_add_timestamp > ? AND NOT EXISTS (
-            SELECT 1
-            FROM grouper_lifecycle_event gle
-            WHERE gle.member_internal_id = gscm.member_internal_id
-              AND gle.event_micros = gscm.flattened_add_timestamp)
+            gscg.group_internal_id = ? and gf.name = 'members' and gscm.flattened_add_timestamp > ?
             """);
         
         long microsUntilLastYear = (System.currentTimeMillis() - 365*24*60*60L*1000) * 1000;
@@ -98,11 +92,7 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
         
         StringBuilder membersFromMShipHistoryTable = new StringBuilder("""
             select gscmh.member_internal_id, gscmh.end_time from grouper_sql_cache_group gscg, grouper_sql_cache_mship_hst gscmh, grouper_fields gf where gf.internal_id = gscg.field_internal_id and 
-            gscg.internal_id = gscmh.sql_cache_group_internal_id and gscg.group_internal_id = ? and gf.name = 'members' and gscmh.start_time > ? AND NOT EXISTS (
-            SELECT 1
-            FROM grouper_lifecycle_event gle
-            WHERE gle.member_internal_id = gscmh.member_internal_id
-              AND gle.event_micros = gscmh.end_time)
+            gscg.internal_id = gscmh.sql_cache_group_internal_id and gscg.group_internal_id = ? and gf.name = 'members' and gscmh.start_time > ?
             """);
         
         List<Object[]> memberInternalIdsAndEventTimeFromHistoryTable = new GcDbAccess().sql(membersFromMShipHistoryTable.toString()).addBindVar(groupInternalId).addBindVar(microsUntilLastYear).selectList(Object[].class);
@@ -458,10 +448,63 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
           
         }
       }
+    }
+    
+    
+    
+    //we need to check if lifecycle events are already there
+    List<GrouperLifecycleEvent> lifecycleEventsList = new ArrayList<>(lifecycleEventsToStore);
+    int batchSize = 50;
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(lifecycleEventsToStore, batchSize, false);
+    
+    //retrieve already existing lifecycle events
+    List<Object[]> lifecycleEventAttributes = new ArrayList<Object[]>();
+    for (int i=0; i<numberOfBatches; i++) {
+      
+      List<GrouperLifecycleEvent> oneBatchOfLifecycleEvents = GrouperUtil.batchList(lifecycleEventsList, batchSize, i);
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      StringBuilder sqlBuilder = new StringBuilder("select gle.grpr_lcycl_evnt_cnfg_intrnl_id, gle.member_internal_id, gle.event_micros from grouper_lifecycle_event gle where ");
+      boolean first = true;
+      for (GrouperLifecycleEvent groupIdMemberIdLifecycleEventId: oneBatchOfLifecycleEvents) {
+        if (!first) {
+          sqlBuilder.append(" or ");
+        }
+        sqlBuilder.append(" (gle.grpr_lcycl_evnt_cnfg_intrnl_id = ? and gle.member_internal_id = ? and gle.event_micros = ?) ");
+        first = false;
+        
+        gcDbAccess.addBindVar(groupIdMemberIdLifecycleEventId.getGroupLifecycleEventConfigInternalId())
+        .addBindVar(groupIdMemberIdLifecycleEventId.getMemberInternalId())
+        .addBindVar(groupIdMemberIdLifecycleEventId.getEventMicros());
+      }
+      
+      
+      lifecycleEventAttributes.addAll(gcDbAccess.sql(sqlBuilder.toString()).selectList(Object[].class));
       
     }
-    new GcDbAccess().storeListToDatabase(new ArrayList<>(lifecycleEventsToStore));
-    otherJobInput.getHib3GrouperLoaderLog().setInsertCount(lifecycleEventsToStore.size());
+    
+    Set<MultiKey> alreadyHavingInLifecycleEvents = new HashSet<>();
+    
+    for (Object[] lifecycleEventAttribute: lifecycleEventAttributes) {
+      alreadyHavingInLifecycleEvents.add(new MultiKey( GrouperUtil.longValue(lifecycleEventAttribute[0]), 
+          GrouperUtil.longValue(lifecycleEventAttribute[1]), 
+          GrouperUtil.longValue(lifecycleEventAttribute[2])));
+    }
+    
+    //now remove the ones from lifecycleEventsToStore that already exist
+    List<GrouperLifecycleEvent> finalListToStore = new ArrayList<>();
+    for (GrouperLifecycleEvent lifecycleEvent: lifecycleEventsToStore) {
+      
+      MultiKey multiKey = new MultiKey(lifecycleEvent.getGroupLifecycleEventConfigInternalId(), lifecycleEvent.getMemberInternalId(), lifecycleEvent.getEventMicros());
+      if (alreadyHavingInLifecycleEvents.contains(multiKey)) {
+        continue;
+      }
+      
+      finalListToStore.add(lifecycleEvent);
+      
+    }
+    
+    new GcDbAccess().storeListToDatabase(finalListToStore);
+    otherJobInput.getHib3GrouperLoaderLog().setInsertCount(finalListToStore.size());
     otherJobInput.getHib3GrouperLoaderLog().store();
     
     return null;

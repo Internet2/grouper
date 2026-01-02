@@ -2382,6 +2382,8 @@ CREATE TABLE grouper_lifecycle_event (
   PRIMARY KEY (internal_id)
 );
 
+CREATE UNIQUE INDEX grouper_lifecycle_event_uniq_idx ON grouper_lifecycle_event (grpr_lcycl_evnt_cnfg_intrnl_id, member_internal_id, event_micros);
+
 ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lcycl_evnt_cnfg_intrnl_id_fk FOREIGN KEY (grpr_lcycl_evnt_cnfg_intrnl_id) REFERENCES  grouper_lifecycle_event_config(internal_id);
 ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT member_internal_id_fk FOREIGN KEY (member_internal_id) REFERENCES  grouper_members(internal_id);
 ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_priv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_priv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id);
