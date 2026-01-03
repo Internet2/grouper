@@ -123,11 +123,6 @@ public enum DiagnosticType {
 
       diagnosticsTasks.add(new DiagnosticLoaderJobTest("CHANGE_LOG_changeLogTempToChangeLog", GrouperLoaderType.CHANGE_LOG));
 
-      if (StringUtils.isNotBlank(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.class"))
-          && StringUtils.isNotBlank(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.quartzCron"))) {
-        diagnosticsTasks.add(new DiagnosticLoaderJobTest(GrouperLoaderType.PSP_FULL_SYNC.name(), GrouperLoaderType.PSP_FULL_SYNC));
-      }
-
       {
         //expand these out
         Map<String, String> consumerMap = GrouperLoaderConfig.retrieveConfig().propertiesMap( 
