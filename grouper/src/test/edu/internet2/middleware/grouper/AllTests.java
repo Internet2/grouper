@@ -269,11 +269,6 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllSqlCacheTests.suite());
     suite.addTest(AllStemTests.suite());
 
-    if (GrouperConfig.getPropertyBoolean("junit.test.ldappc", false)) {
-      Class theClass = GrouperUtil.forName("edu.internet2.middleware.grouper.shibboleth.AllShibbolethTests");
-      suite.addTest((Test)GrouperUtil.callMethod(theClass, "suite"));
-    }
-    
     if (GrouperConfig.getPropertyBoolean("junit.test.stress", false)) {
       suite.addTest(AllStressTests.suite());
     }
@@ -285,11 +280,6 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllValidatorTests.suite());
     suite.addTest(AllXmlTests.suite());
     suite.addTest(AllXmppTests.suite());
-
-    if (GrouperConfig.getPropertyBoolean("junit.test.ldappc", false)) {
-      Class theClass = GrouperUtil.forName("edu.internet2.middleware.ldappc.AllLdappcJunitTests");
-      suite.addTest((Test)GrouperUtil.callMethod(theClass, "suite"));
-    }
 
     return suite;
   }

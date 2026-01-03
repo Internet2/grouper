@@ -1383,19 +1383,19 @@ public class GrouperEmail {
     String externalSystemTestBody = GrouperConfig.retrieveConfig().propertyValueStringRequired("mail.smtp.externalSystemTestBody");
     grouperEmail.setBody(externalSystemTestBody);
     
-    String externalSystemTestCcAddress = GrouperConfig.retrieveConfig().propertyValueString("mail.externalSystemTestCcAddress");
+    String externalSystemTestCcAddress = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.externalSystemTestCcAddress");
     if (!StringUtils.isBlank(externalSystemTestCcAddress)) {
       grouperEmail.setCc(externalSystemTestCcAddress);
     }
-    String externalSystemTestBccAddress = GrouperConfig.retrieveConfig().propertyValueString("mail.externalSystemTestBccAddress");
+    String externalSystemTestBccAddress = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.externalSystemTestBccAddress");
     if (!StringUtils.isBlank(externalSystemTestBccAddress)) {
       grouperEmail.setBcc(externalSystemTestBccAddress);
     }
-    String externalSystemTestFromAddress = GrouperConfig.retrieveConfig().propertyValueString("mail.externalSystemTestFromAddress");
+    String externalSystemTestFromAddress = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.externalSystemTestFromAddress");
     if (!StringUtils.isBlank(externalSystemTestFromAddress)) {
       grouperEmail.setFrom(externalSystemTestFromAddress);
     }
-    String externalSystemTestReplyAddresses = GrouperConfig.retrieveConfig().propertyValueString("mail.externalSystemTestReplyAddresses");
+    String externalSystemTestReplyAddresses = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.externalSystemTestReplyAddresses");
     if (!StringUtils.isBlank(externalSystemTestReplyAddresses)) {
       grouperEmail.setReplyTo(externalSystemTestReplyAddresses);
     }

@@ -183,7 +183,7 @@ public class AddMissingGroupSets {
     int batchSize = getBatchSize();
 
     boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("groupSet.sync.useThreads", true);
-    int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("groupSet.sync.threadPoolSize", 20);
+    int groupThreadPoolSize = GrouperConfig.retrieveConfig().propertyValueInt("groupSet.sync.threadPoolSize", 20);
     
     try {
       reset();
@@ -323,7 +323,7 @@ public class AddMissingGroupSets {
     int batchSize = getBatchSize();
 
     boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("groupSet.sync.useThreads", true);
-    int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("groupSet.sync.threadPoolSize", 20);
+    int groupThreadPoolSize = GrouperConfig.retrieveConfig().propertyValueInt("groupSet.sync.threadPoolSize", 20);
     
     try {
       reset();
@@ -613,7 +613,7 @@ public class AddMissingGroupSets {
     int batchSize = getBatchSize();
 
     boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("groupSet.sync.useThreads", true);
-    int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("groupSet.sync.threadPoolSize", 20);
+    int groupThreadPoolSize = GrouperConfig.retrieveConfig().propertyValueInt("groupSet.sync.threadPoolSize", 20);
     
     try {
       reset();

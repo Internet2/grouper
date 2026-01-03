@@ -335,7 +335,7 @@ public class MigrateLegacyAttributes {
     showStatus("\n\nSearching for group type assignments");
     
     boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("legacyAttributeMigration.useThreads", true);
-    int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("legacyAttributeMigration.threadPoolSize", 20);
+    int groupThreadPoolSize = GrouperConfig.retrieveConfig().propertyValueInt("legacyAttributeMigration.threadPoolSize", 20);
   
     String baseGroupTypeId = HibernateSession.bySqlStatic().select(String.class, 
         "select id from grouper_types_legacy where name='base'");
@@ -431,7 +431,7 @@ public class MigrateLegacyAttributes {
     showStatus("\n\nSearching for attribute assignments");
     
     boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("legacyAttributeMigration.useThreads", true);
-    int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("legacyAttributeMigration.threadPoolSize", 20);
+    int groupThreadPoolSize = GrouperConfig.retrieveConfig().propertyValueInt("legacyAttributeMigration.threadPoolSize", 20);
     
     // cache attributes first
     String attributeSql = "select id, name from grouper_fields_legacy where type='attribute'";

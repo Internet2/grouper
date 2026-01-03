@@ -504,8 +504,7 @@ public class GrouperTest extends GrouperTestBase {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.include.description", "Group containing manual list of includes for group ${displayExtension} which will be added to the system of record list (unless the subject is also in the excludes group)");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.exclude.description", "Group containing manual list of excludes for group ${displayExtension} which will not be in the overall group");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.systemOfRecordAndIncludes.description", "Internal utility group for group ${displayExtension} which facilitates the group math for the include and exclude lists");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.includesMinusExclude.description", "Internal utility group for group ${displayExtension} which facilitates includes, excludes, and required groups (e.g. activeEmployee)");
-  
+
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.description", "Internal utility group for group ${displayExtension} which facilitates includes, excludes, and required groups (e.g. activeEmployee)");
   
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroup.name.0", "requireActiveEmployee");

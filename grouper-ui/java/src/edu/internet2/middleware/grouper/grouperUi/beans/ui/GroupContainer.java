@@ -655,15 +655,6 @@ public class GroupContainer {
   }
 
   /**
-   * if entities get update when added to a group
-   * @return true if entities get update when added to a group
-   */
-  public boolean isConfigDefaultGroupsCreateGrantAllUpdate() {
-    return GrouperConfig.retrieveConfig()
-        .propertyValueBoolean("groups.create.grant.all.update", false);
-  }
-  
-  /**
    * if entities get read when added to a group
    * @return true if entities get read when added to a group
    */

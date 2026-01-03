@@ -2493,7 +2493,7 @@ public class GrouperCheckConfig {
    */
   private static void checkMisc() {
     
-    boolean autoconfigure = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.attribute.loader.autoconfigure", true);
+    boolean autoconfigure = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouper.attribute.loader.autoconfigure", true);
     if (!autoconfigure) {
       return;
     }

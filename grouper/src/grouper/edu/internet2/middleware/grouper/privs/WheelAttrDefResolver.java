@@ -231,7 +231,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
         //Not happy about the klass but will do for now in the absence of a GrouperSession
         if (!p.equals(AttributeDefPrivilege.ATTR_OPTIN) && !p.equals(AttributeDefPrivilege.ATTR_OPTOUT)) {
           ap = new AttributeDefPrivilege(attributeDef, subject, SubjectFinder.findRootSubject(),
-              p, GrouperConfig.retrieveConfig().propertyValueString("privileges.attributeDef.interface"), false, null);
+              p, null, false, null);
           attributeDefPrivs.add(ap);
         }
       }
@@ -243,7 +243,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
         if (p.equals(AttributeDefPrivilege.ATTR_READ) || p.equals(AttributeDefPrivilege.ATTR_VIEW)
             || p.equals(AttributeDefPrivilege.ATTR_DEF_ATTR_READ)) {
           ap = new AttributeDefPrivilege(attributeDef, subject, SubjectFinder.findRootSubject(),
-              p, GrouperConfig.retrieveConfig().propertyValueString("privileges.attributeDef.interface"), false, null);
+              p, null, false, null);
           attributeDefPrivs.add(ap);
         }
       }
@@ -254,7 +254,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
         //Not happy about the klass but will do for now in the absence of a GrouperSession
         if (p.equals(AttributeDefPrivilege.ATTR_VIEW)) {
           ap = new AttributeDefPrivilege(attributeDef, subject, SubjectFinder.findRootSubject(),
-              p, GrouperConfig.retrieveConfig().propertyValueString("privileges.attributeDef.interface"), false, null);
+              p, null, false, null);
           attributeDefPrivs.add(ap);
         }
       }

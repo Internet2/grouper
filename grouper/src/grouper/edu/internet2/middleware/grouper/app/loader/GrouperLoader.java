@@ -1860,7 +1860,7 @@ public class GrouperLoader {
 
     // old logic
     if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("daemon.legacyIsJobRunning", false)) {
-      long assumeJobKilledIfNoUpdateInMillis = 1000L * GrouperConfig.retrieveConfig().propertyValueInt("loader.assumeJobKilledIfNoUpdateInSeconds", 300);
+      long assumeJobKilledIfNoUpdateInMillis = 1000L * GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.assumeJobKilledIfNoUpdateInSeconds", 300);
       Long count = HibernateSession.byHqlStatic()
           .createQuery("select count(*) from Hib3GrouperLoaderLog where jobName = :jobName and status = 'STARTED' and lastUpdated > :lastUpdated")
           .setString("jobName", jobName)
@@ -1881,7 +1881,7 @@ public class GrouperLoader {
     //      - AND the triggers instance name matches a scheduler that is alive
     //  then the job is running
 
-    long assumeJobKilledIfNoUpdateInMillis = 1000L * GrouperConfig.retrieveConfig().propertyValueInt("loader.assumeJobKilledIfNoUpdateInSecondsV2", 50);
+    long assumeJobKilledIfNoUpdateInMillis = 1000L * GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.assumeJobKilledIfNoUpdateInSecondsV2", 50);
     // last checkin in last 50 seconds
     long lastCheckinTime = System.currentTimeMillis() - 50000;
     List<Long> counts = new GcDbAccess().sql("select count(*) from grouper_loader_log where job_name = ? and status in ('STARTED', 'RUNNING') and last_updated > ? "

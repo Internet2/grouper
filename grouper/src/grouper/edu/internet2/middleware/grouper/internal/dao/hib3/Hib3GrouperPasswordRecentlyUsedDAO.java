@@ -191,7 +191,7 @@ public class Hib3GrouperPasswordRecentlyUsedDAO extends Hib3DAO implements Group
     
     int totalDeleted = 0;
     
-    int entriesToKeep = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.grouperPasswordRecentlyUsedCleanupDaemon.entriesToKeep", 20);
+    int entriesToKeep = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.grouperCredentialRecentlyUsedCleanupDaemon.entriesToKeep", 20);
     
     for (String grouperPasswordId: grouperPasswordIdToAttemptMillis.keySet()) {
       GrouperDaemonUtils.stopProcessingIfJobPaused();

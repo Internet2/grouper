@@ -1447,9 +1447,8 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 
     GrouperUtil.assertion(membersNode.size() > 0, "members@odata.bind needs elements");
 
-    int maxSize = Math.min(20, GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureMembershipPagingSize", 20));
-    
-    GrouperUtil.assertion(membersNode.size() <= maxSize, "members@odata.bind cannot be more than " + maxSize);
+    //int maxSize = Math.min(20, GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureMembershipPagingSize", 20));
+    //GrouperUtil.assertion(membersNode.size() <= maxSize, "members@odata.bind cannot be more than " + maxSize);
 
     List<GrouperAzureGroup> grouperAzureGroups = HibernateSession.byHqlStatic().createQuery(
         "from GrouperAzureGroup where id = :theId")

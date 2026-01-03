@@ -127,7 +127,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     super.setupConfigs();
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
 
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioning.target.testTarget.key", "testTarget");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.testTarget.key", "testTarget");
 
 
   }

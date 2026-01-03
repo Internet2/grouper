@@ -277,7 +277,7 @@ public class GrouperDictionaryDao {
    */
   private static ExpirableCache<String, Long> textToInternalIdCache() {
     if (textToInternalIdCache == null) {
-      maxTermsInMemoryCache = GrouperConfig.retrieveConfig().propertyValueInt("grouper.dictionary.maxTermsInMemoryCache ", 50000);
+      maxTermsInMemoryCache = GrouperConfig.retrieveConfig().propertyValueInt("grouper.dictionary.maxTermsInMemoryCache", 50000);
       int cacheStoreForMinutes = GrouperConfig.retrieveConfig().propertyValueInt("grouper.dictionary.cacheStoreForMinutes");
       textToInternalIdCache = new ExpirableCache<String, Long>(cacheStoreForMinutes);
     }

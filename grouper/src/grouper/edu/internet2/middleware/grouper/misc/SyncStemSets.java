@@ -290,7 +290,7 @@ public class SyncStemSets {
     }
     
     boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("stemSet.sync.useThreads", true);
-    int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("stemSet.sync.threadPoolSize", 20);
+    int groupThreadPoolSize = GrouperConfig.retrieveConfig().propertyValueInt("stemSet.sync.threadPoolSize", 20);
     
     try {
       reset();

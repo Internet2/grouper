@@ -327,7 +327,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
       return null;
     }
 
-    String subjectSourceId = GrouperConfig.retrieveConfig().propertyValueString("registrySubjectSourceId", "jdbc");
+    String subjectSourceId = GrouperConfig.retrieveConfig().propertyValueString("configuration.registrySubjectSource", "jdbc");
 
     Subject theSubject = SubjectFinder.findByIdAndSource(id, subjectSourceId, false);
 
@@ -335,7 +335,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
       try {
         theSubject = SubjectFinder.findById(id, false);
       } catch (SubjectNotUniqueException snue) {
-        throw new RuntimeException("Error: your RegistrySubject was not found after creation: '" + id + "', you need to set the RegistyrSubject source id in grouper.properties: registrySubjectSourceId", snue);
+        throw new RuntimeException("Error: your RegistrySubject was not found after creation: '" + id + "', you need to set the RegistrySubject source id in grouper.properties: registrySubjectSourceId", snue);
       }
       if (theSubject == null) {
         throw new RuntimeException("Error: your RegistrySubject was not found after creation: '" + id + "', you need a source (e.g. the Grouper jdbc source) to resolve registry subjects!");

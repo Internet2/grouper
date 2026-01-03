@@ -1240,17 +1240,4 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     return description;
   }
   
-  /**
-   * substitute and return includesMinusExcludes description
-   * @param overallGroupExtension 
-   * @param overallGroupDisplayExtension 
-   * @return description
-   */
-  public static String includesMinusExcludesDescription(String overallGroupExtension, String overallGroupDisplayExtension) {
-    String description = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.includesMinusExcludes.description");
-    description = StringUtils.replace(description, "${extension}", overallGroupExtension);
-    description = StringUtils.replace(description, "${displayExtension}", overallGroupDisplayExtension);
-    return description;
-  }
-
 }

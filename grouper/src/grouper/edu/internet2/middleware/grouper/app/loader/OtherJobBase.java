@@ -107,7 +107,7 @@ public abstract class OtherJobBase implements Job {
                   otherJobLogUpdaterWorking = false;
 
                   // allow an exit
-                  if (!GrouperConfig.retrieveConfig().propertyValueBoolean("grouperOtherJobLogUpdaterRun", true)) {
+                  if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperOtherJobLogUpdaterRun", true)) {
                     return;
                   }
                   
