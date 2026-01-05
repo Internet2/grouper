@@ -23,7 +23,6 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -34,12 +33,8 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
-import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenu;
-import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenuItem;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
-import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -730,35 +725,6 @@ public class UiV2GroupAttributeAssignment {
 
   }
   
-  /**
-   * make the structure of the attribute assignment value
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void assignmentValueMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
-    
-    {
-      DhtmlxMenuItem addMetadataAssignmentMenuItem = new DhtmlxMenuItem();
-      addMetadataAssignmentMenuItem.setId("editValue");
-      addMetadataAssignmentMenuItem.setText(TagUtils.navResourceString("simpleAttributeUpdate.editValueAssignmentAlt"));
-      dhtmlxMenu.addDhtmlxItem(addMetadataAssignmentMenuItem);
-    }
-    
-    {
-      DhtmlxMenuItem addMetadataAssignmentMenuItem = new DhtmlxMenuItem();
-      addMetadataAssignmentMenuItem.setId("deleteValue");
-      addMetadataAssignmentMenuItem.setText(TagUtils.navResourceString("simpleAttributeUpdate.assignDeleteValueAlt"));
-      dhtmlxMenu.addDhtmlxItem(addMetadataAssignmentMenuItem);
-    }
-
-    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" +
-        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
-
-    throw new ControllerDone();
-  }
-
   /**
    * handle a click or select from the assignment value menu
    * @param httpServletRequest

@@ -13,7 +13,7 @@
 
                                 <tr>
                                  <td><a href="#" onclick="grouperComboboxSetId('#groupAddMemberComboId', '${grouper:escapeJavascript(guiSubject.subject.sourceId)}||${grouper:escapeJavascript(guiSubject.subject.id)}'); return true;"
-                                     >${guiSubject.screenLabelLongWithIcon }</a></td>
+                                      data-dismiss="modal">${guiSubject.screenLabelLongWithIcon }</a></td>
                                 </tr>
 
                               </c:forEach>

@@ -1,16 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-    <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/dhtmlxcommon.js"></script>
-    <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/dhtmlxcombo.js"></script>
-    <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/dhtmlxcalendar.js"></script>
-
-    <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/dhtmlxmenu.js"></script>
-    <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/menu/ext/dhtmlxmenu_ext.js"></script>
-    <link rel="stylesheet" type="text/css" href="../../grouperExternal/public/assets/dhtmlx/menu/skins/dhtmlxmenu_dhx_blue.css" />
-
-    <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/ext/dhtmlxcombo_extra.js"></script>
-
-    <c:choose>
+<c:choose>
       <c:when test="${fn:length(grouperRequestContainer.subjectContainer.guiAttributeAssigns) == 0}">
         ${textContainer.text['subjectViewAttributeAssignsNoAssignedAttributes']}
       </c:when>
@@ -49,10 +39,22 @@
                        </c:if>
    
                        ${grouper:escapeHtml(attributeAssignValue.valueFriendly)}
-                       <a class="assignmentValueButton" href="#">
-                         <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
-                          id="assignmentValueButton_${guiAttributeAssign.attributeAssign.id}_${attributeAssignValue.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
-                       </a>
+                       <div class="btn-group" style="display: inline-block;">
+                         <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
+                           aria-haspopup="true" aria-expanded="false" role="menu"
+                           onclick="$(this).next('ul').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $(this).next('ul').find('li').first().focus();return true;}); return false;">
+                           <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
+                            alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
+                         </a>
+                         <ul class="dropdown-menu dropdown-menu-right">
+                           <li>
+                             <a href="#" onclick="ajax('../app/UiV2SubjectAttributeAssignment.assignmentValueMenu', {requestParams: {menuItemId: 'editValue', menuIdOfMenuTarget: 'assignmentValueButton_${guiAttributeAssign.attributeAssign.id}_${attributeAssignValue.id}'}}); return false;">${textContainer.text['simpleAttributeUpdate.editValueAssignmentAlt']}</a>
+                           </li>
+                           <li>
+                             <a href="#" onclick="ajax('../app/UiV2SubjectAttributeAssignment.assignmentValueMenu', {requestParams: {menuItemId: 'deleteValue', menuIdOfMenuTarget: 'assignmentValueButton_${guiAttributeAssign.attributeAssign.id}_${attributeAssignValue.id}'}}); return false;">${textContainer.text['simpleAttributeUpdate.assignDeleteValueAlt']}</a>
+                           </li>
+                         </ul>
+                       </div>
                        
                        <c:set var="valueRow" value="${valueRow + 1}" />
                      </c:forEach>
@@ -98,10 +100,22 @@
                            <%-- we need a newline before non-first rows --%>
                            <c:if test="${valueRow != 0}"><br /></c:if>
                            ${grouper:escapeHtml(attributeAssignValue.valueFriendly)}
-                           <a class="assignmentValueButton" href="#">
-                             <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
-                              id="assignmentValueButton_${guiAttributeAssignAssign.attributeAssign.id}_${attributeAssignValue.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
-                           </a>
+                           <div class="btn-group" style="display: inline-block;">
+                             <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
+                               aria-haspopup="true" aria-expanded="false" role="menu"
+                               onclick="$(this).next('ul').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $(this).next('ul').find('li').first().focus();return true;}); return false;">
+                               <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
+                                alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
+                             </a>
+                             <ul class="dropdown-menu dropdown-menu-right">
+                               <li>
+                                 <a href="#" onclick="ajax('../app/UiV2SubjectAttributeAssignment.assignmentValueMenu', {requestParams: {menuItemId: 'editValue', menuIdOfMenuTarget: 'assignmentValueButton_${guiAttributeAssignAssign.attributeAssign.id}_${attributeAssignValue.id}'}}); return false;">${textContainer.text['simpleAttributeUpdate.editValueAssignmentAlt']}</a>
+                               </li>
+                               <li>
+                                 <a href="#" onclick="ajax('../app/UiV2SubjectAttributeAssignment.assignmentValueMenu', {requestParams: {menuItemId: 'deleteValue', menuIdOfMenuTarget: 'assignmentValueButton_${guiAttributeAssignAssign.attributeAssign.id}_${attributeAssignValue.id}'}}); return false;">${textContainer.text['simpleAttributeUpdate.assignDeleteValueAlt']}</a>
+                               </li>
+                             </ul>
+                           </div>
                  
                            <c:set var="valueRow" value="${valueRow + 1}" />
                  
@@ -131,11 +145,5 @@
              </tbody>
            </table>
          
-         <%-- attach a menu for each limit value --%>
-         <grouper:menu menuId="assignmentValueMenu"
-           operation="UiV2SubjectAttributeAssignment.assignmentValueMenu"
-           structureOperation="UiV2SubjectAttributeAssignment.assignmentValueMenuStructure" 
-           contextZoneJqueryHandle=".assignmentValueButton" contextMenu="true" />
-      
       </c:otherwise>
     </c:choose>

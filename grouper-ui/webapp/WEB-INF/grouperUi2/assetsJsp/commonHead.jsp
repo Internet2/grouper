@@ -13,8 +13,7 @@
 <link href="../../grouperExternal/public/assets/css/font-awesome.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/tom-select.v2.4.3.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/jstree_themes/default/style.css" rel="stylesheet">
-<link href="../../grouperExternal/public/assets/css/grouperUi2.css?updated=12312025" rel="stylesheet">
-<link href="../../grouperExternal/public/assets/css/bootstrap-datepicker.min.css" rel="stylesheet">
+<link href="../../grouperExternal/public/assets/css/grouperUi2.css?updated=01012026" rel="stylesheet">
 
 <link href="../../grouperExternal/public/assets/css/c3.min.css" rel="stylesheet" type="text/css">
 
@@ -38,7 +37,7 @@
 <script src="../../grouperExternal/public/assets/js/tom-select.complete.min.v2.4.3.js"></script>
 
 
-<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!-- HTML5 shim, for IE6-8 support of HTML elements -->
 <!--[if lt IE 9]>
   <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
@@ -53,4 +52,3 @@
 <script src="../../grouperExternal/public/assets/js/jquery.js?ver=3.7.1"></script>
 <script src="../../grouperExternal/public/assets/js/jquery-migrate.js"></script>
 <script src="../../grouperExternal/public/assets/js/bootstrap.js"></script>
-

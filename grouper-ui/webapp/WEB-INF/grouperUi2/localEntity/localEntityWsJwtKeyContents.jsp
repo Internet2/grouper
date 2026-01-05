@@ -1,16 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-    <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/dhtmlxcommon.js"></script>
-    <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/dhtmlxcombo.js"></script>
-    <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/dhtmlxcalendar.js"></script>
-
-    <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/dhtmlxmenu.js"></script>
-    <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/menu/ext/dhtmlxmenu_ext.js"></script>
-    <link rel="stylesheet" type="text/css" href="../../grouperExternal/public/assets/dhtmlx/menu/skins/dhtmlxmenu_dhx_blue.css" />
-
-    <script type="text/javascript" src="../../grouperExternal/public/assets/dhtmlx/ext/dhtmlxcombo_extra.js"></script>
-
-    <c:choose>
+<c:choose>
       <c:when test="${grouperRequestContainer.grouperPasswordContainer.guiGrouperPassword == null}">
         ${textContainer.text['localEntityViewWsJwtKeyNoAssociatedKey']}
       </c:when>

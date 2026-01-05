@@ -76,8 +76,6 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
-import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenu;
-import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenuItem;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1221,37 +1219,6 @@ public class UiV2SubjectPermission {
   }
   
   /**
-   * make the structure of the limit value menu for the new ui
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void limitValueMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
-       
-    {
-      DhtmlxMenuItem editLimitMenuItem = new DhtmlxMenuItem();
-      editLimitMenuItem.setId("editLimitValue");
-      editLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuEditValue"));
-      editLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuEditValueTooltip"));
-      dhtmlxMenu.addDhtmlxItem(editLimitMenuItem);
-    }
-    
-    {
-      DhtmlxMenuItem deleteLimitMenuItem = new DhtmlxMenuItem();
-      deleteLimitMenuItem.setId("deleteLimitValue");
-      deleteLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuDeleteValue"));
-      deleteLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuDeleteValueTooltip"));
-      dhtmlxMenu.addDhtmlxItem(deleteLimitMenuItem);
-    }
-  
-    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + 
-        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
-  
-    throw new ControllerDone();
-  }
-  
-  /**
    * handle a click or select from the limit menu
    * @param httpServletRequest
    * @param httpServletResponse
@@ -1450,26 +1417,26 @@ public class UiV2SubjectPermission {
    * @param response
    */
   public void permissionPanelImageClick(HttpServletRequest request, HttpServletResponse response) {
-  
+
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-  
+
     GrouperSession grouperSession = null;
 
     AttributeDef attributeDef = null;
-    
+
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-      
+
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-  
+
       String guiPermissionId = request.getParameter("guiPermissionId");
-      
+
       if (StringUtils.isBlank(guiPermissionId)) {
         throw new RuntimeException("Why is guiPermissionId blank????");
       }
 
       String permissionAssignTypeString = request.getParameter("permissionAssignType");
-      
+
       if (StringUtils.isBlank(permissionAssignTypeString)) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
             TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.requiredOwnerType")));
@@ -1477,12 +1444,12 @@ public class UiV2SubjectPermission {
       }
       PermissionType permissionType = PermissionType.valueOfIgnoreCase(permissionAssignTypeString, false);
 
-      if (permissionType ==  null) {
+      if (permissionType == null) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
             TextContainer.retrieveFromRequest().getText().get("simplePermissionAssign.requiredOwnerType")));
         return;
       }
-      
+
       //<c:set var="guiPermissionId" value="${firstPermissionEntry.roleId}__${firstPermissionEntry.memberId}__${firstPermissionEntry.attributeDefNameId}__${firstPermissionEntry.action}" />
       Pattern pattern = Pattern.compile("^(.*)__(.*)__(.*)__(.*)$");
       Matcher matcher = pattern.matcher(guiPermissionId);
@@ -1502,7 +1469,7 @@ public class UiV2SubjectPermission {
         }
       }
       Member member = null;
-      { 
+      {
         if (permissionType == PermissionType.role_subject) {
           String memberId = matcher.group(2);
           member = MemberFinder.findByUuid(grouperSession, memberId, true);
@@ -1518,26 +1485,26 @@ public class UiV2SubjectPermission {
               TextContainer.retrieveFromRequest().getText().get("simplePermissionUpdate.errorCantEditAttributeDef")));
           return;
         }
-        
+
       }
-      
+
       String action = matcher.group(4);
-      
+
       String allowString = request.getParameter("allow");
 
       if (StringUtils.isBlank(allowString)) {
         throw new RuntimeException("Why is allow blank????");
       }
       boolean allow = GrouperUtil.booleanValue(allowString);
-      
+
       String subjectScreenLabel = null;
-      
+
       if (permissionType == PermissionType.role_subject) {
         GuiMember guiMember = new GuiMember(member);
         subjectScreenLabel = guiMember.getGuiSubject().getScreenLabel();
       }
       if (allow) {
-        
+
         if (permissionType == PermissionType.role) {
           AttributeAssignResult attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(action, attributeDefName, PermissionAllowed.ALLOWED);
           if (attributeAssignResult.isChanged()) {
@@ -1556,7 +1523,7 @@ public class UiV2SubjectPermission {
           } else {
             throw new RuntimeException("Why was this not changed????");
           }
-          
+
         } else {
           throw new RuntimeException("Not expecting permission type: " + permissionType);
         }
@@ -1571,7 +1538,7 @@ public class UiV2SubjectPermission {
           } else {
             throw new RuntimeException("Why was this not changed????");
           }
-          
+
         } else if (permissionType == PermissionType.role_subject) {
           AttributeAssignResult attributeAssignResult = role.getPermissionRoleDelegate().removeSubjectRolePermission(action, attributeDefName, member);
           if (attributeAssignResult.isChanged()) {
@@ -1581,59 +1548,20 @@ public class UiV2SubjectPermission {
           } else {
             throw new RuntimeException("Why was this not changed????");
           }
-          
+
         } else {
           throw new RuntimeException("Not expecting permission type: " + permissionType);
         }
 
       }
       memberViewPermissionsHelper(request, response, member);
-      
+
     } finally {
-      GrouperSession.stopQuietly(grouperSession); 
+      GrouperSession.stopQuietly(grouperSession);
     }
-        
+
   }
-  
-  /**
-   * make the structure of the attribute assignment for new ui for subject permissions screeen
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void assignmentMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
-    
-    {
-      DhtmlxMenuItem addLimitMenuItem = new DhtmlxMenuItem();
-      addLimitMenuItem.setId("addLimit");
-      addLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.addLimit"));
-      addLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.addLimitTooltip"));
-      dhtmlxMenu.addDhtmlxItem(addLimitMenuItem);
-    }    
-  
-    {
-      DhtmlxMenuItem analyzeAssignmentMenuItem = new DhtmlxMenuItem();
-      analyzeAssignmentMenuItem.setId("analyzeAssignment");
-      analyzeAssignmentMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.assignMenuAnalyzeAssignment"));
-      analyzeAssignmentMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.assignMenuAnalyzeAssignmentTooltip"));
-      dhtmlxMenu.addDhtmlxItem(analyzeAssignmentMenuItem);
-    }    
-  
-    {
-      DhtmlxMenuItem editAssignmentMenuItem = new DhtmlxMenuItem();
-      editAssignmentMenuItem.setId("editAssignment");
-      editAssignmentMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.editAssignment"));
-      editAssignmentMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.editAssignmentTooltip"));
-      dhtmlxMenu.addDhtmlxItem(editAssignmentMenuItem);
-    }    
-  
-    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + 
-        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
-  
-    throw new ControllerDone();
-  }
-  
+
   /**
    * handle a click or select from the assignment menu
    * @param httpServletRequest
@@ -1652,45 +1580,6 @@ public class UiV2SubjectPermission {
     } else {
       throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
     }
-  }
-  
-  /**
-   * make the structure of the limit menu on subject permissions screen
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void limitMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
-    
-    {
-      DhtmlxMenuItem addValueMenuItem = new DhtmlxMenuItem();
-      addValueMenuItem.setId("addValue");
-      addValueMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuAddValue"));
-      addValueMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuAddValueTooltip"));
-      dhtmlxMenu.addDhtmlxItem(addValueMenuItem);
-    }
-    
-    {
-      DhtmlxMenuItem editLimitMenuItem = new DhtmlxMenuItem();
-      editLimitMenuItem.setId("editLimit");
-      editLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuEditLimit"));
-      editLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuEditLimitTooltip"));
-      dhtmlxMenu.addDhtmlxItem(editLimitMenuItem);
-    }
-    
-    {
-      DhtmlxMenuItem deleteLimitMenuItem = new DhtmlxMenuItem();
-      deleteLimitMenuItem.setId("deleteLimit");
-      deleteLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuDeleteLimit"));
-      deleteLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuDeleteLimitTooltip"));
-      dhtmlxMenu.addDhtmlxItem(deleteLimitMenuItem);
-    }
-  
-    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + 
-        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
-  
-    throw new ControllerDone();
   }
   
   /**
@@ -2320,82 +2209,82 @@ public class UiV2SubjectPermission {
   }
   
   public void permissionActionNameFilter(final HttpServletRequest request, final HttpServletResponse response) {
-    
+
     //run the combo logic
     DojoComboLogic.logic(request, response, new DojoComboQueryLogicBase<AttributeAssignAction>() {
-  
+
       /**
        */
       @Override
       public AttributeAssignAction lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
-        
+
         String permissionDefId = request.getParameter("permissionDefComboName");
-        
+
         String permissionDefNameId = request.getParameter("permissionResourceNameComboName");
-        
+
         if (StringUtils.isBlank(permissionDefId) && StringUtils.isBlank(permissionDefNameId)) {
           return null;
         }
-                
+
         AttributeDef attributeDef = null;
-        
+
         if (StringUtils.isNotBlank(permissionDefId)) {
           attributeDef = AttributeDefFinder.findById(permissionDefId, false);
           if (attributeDef == null) {
-            throw new RuntimeException("given attribute def id "+permissionDefId+" is not valid.");
+            throw new RuntimeException("given attribute def id " + permissionDefId + " is not valid.");
           }
         }
-        
+
         if (attributeDef == null && StringUtils.isNotBlank(permissionDefNameId)) {
           AttributeDefName attributeDefName = AttributeDefNameFinder.findById(permissionDefNameId, false);
           if (attributeDefName == null) {
-            throw new RuntimeException("given attribute def name id "+permissionDefNameId+" is not valid.");
+            throw new RuntimeException("given attribute def name id " + permissionDefNameId + " is not valid.");
           }
           attributeDef = attributeDefName.getAttributeDef();
         }
-        
+
         return attributeDef.getAttributeDefActionDelegate().findAction(query, false);
       }
-  
+
       /**
        * 
        */
       @Override
       public Collection<AttributeAssignAction> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
-        
+
         String permissionDefId = request.getParameter("permissionDefComboName");
-        
+
         String permissionDefNameId = request.getParameter("permissionResourceNameComboName");
-        
+
         if (StringUtils.isBlank(permissionDefId) && StringUtils.isBlank(permissionDefNameId)) {
           return new ArrayList<AttributeAssignAction>();
         }
-                
+
         AttributeDef attributeDef = null;
-        
+
         if (StringUtils.isNotBlank(permissionDefId)) {
           attributeDef = AttributeDefFinder.findById(permissionDefId, false);
           if (attributeDef == null) {
-            throw new RuntimeException("given attribute def id "+permissionDefId+" is not valid.");
+            throw new RuntimeException("given attribute def id " + permissionDefId + " is not valid.");
           }
         }
-        
+
         if (attributeDef == null && StringUtils.isNotBlank(permissionDefNameId)) {
           AttributeDefName attributeDefName = AttributeDefNameFinder.findById(permissionDefNameId, false);
           if (attributeDefName == null) {
-            throw new RuntimeException("given attribute def name id "+permissionDefNameId+" is not valid.");
+            throw new RuntimeException("given attribute def name id " + permissionDefNameId + " is not valid.");
           }
           attributeDef = attributeDefName.getAttributeDef();
         }
-        
+
         List<AttributeAssignAction> actions = new ArrayList<AttributeAssignAction>();
-        
+
         Set<AttributeAssignAction> availableActions = attributeDef.getAttributeDefActionDelegate().allowedActions();
-        
+
         if (!StringUtils.isBlank(query)) {
-        
+
           String searchTerm = query.toLowerCase();
-          
+
           for (AttributeAssignAction action : availableActions) {
             if (action.getName().toLowerCase().contains(searchTerm)) {
               actions.add(action);
@@ -2403,11 +2292,11 @@ public class UiV2SubjectPermission {
           }
 
         }
-        
+
         return actions;
-        
+
       }
-  
+
       /**
        * 
        * @param t
@@ -2417,7 +2306,7 @@ public class UiV2SubjectPermission {
       public String retrieveId(GrouperSession grouperSession, AttributeAssignAction action) {
         return action.getId();
       }
-      
+
       /**
        * 
        */
@@ -2425,7 +2314,7 @@ public class UiV2SubjectPermission {
       public String retrieveLabel(GrouperSession grouperSession, AttributeAssignAction action) {
         return action.getName();
       }
-  
+
       /**
        * 
        */
@@ -2436,31 +2325,31 @@ public class UiV2SubjectPermission {
         String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/folder.gif\" /> " + label;
         return htmlLabel;
       }
-      
+
       @Override
       public String initialValidationError(HttpServletRequest localRequest, GrouperSession grouperSession) {
 
         String permissionDefId = request.getParameter("permissionDefComboName");
-        
+
         String permissionDefNameId = request.getParameter("permissionResourceNameComboName");
-        
+
         if (StringUtils.isBlank(permissionDefId) && StringUtils.isBlank(permissionDefNameId)) {
           return TextContainer.retrieveFromRequest().getText().get("groupAssignPermissionErrorNoPermDefOrResource");
         }
-        
+
         return null;
       }
-  
+
     });
   }
-  
+
   /**
    * @param httpServletRequest
    * @return limitAssignId from request
    */
   private String retrieveLimitAssignId(HttpServletRequest httpServletRequest) {
     String menuIdOfMenuTarget = httpServletRequest.getParameter("menuIdOfMenuTarget");
-    
+
     if (StringUtils.isBlank(menuIdOfMenuTarget)) {
       throw new RuntimeException("Missing id of menu target");
     }
@@ -2470,5 +2359,4 @@ public class UiV2SubjectPermission {
     String limitAssignId = GrouperUtil.prefixOrSuffix(menuIdOfMenuTarget, "limitMenuButton_", false);
     return limitAssignId;
   }
-  
 }

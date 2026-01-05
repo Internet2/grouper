@@ -78,8 +78,6 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
-import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenu;
-import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenuItem;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -954,7 +952,6 @@ public class UiV2GroupPermission {
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
-    
   }
   
   
@@ -1648,7 +1645,7 @@ public class UiV2GroupPermission {
     return new String[] {values[1], values[2]};
     
   }
-  
+
   public void permissionActionNameFilter(final HttpServletRequest request, final HttpServletResponse response) {
     
     //run the combo logic
@@ -1782,45 +1779,6 @@ public class UiV2GroupPermission {
       }
   
     });
-  }
-  
-  /**
-   * make the structure of the attribute assignment
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void assignmentMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
-    
-    {
-      DhtmlxMenuItem addLimitMenuItem = new DhtmlxMenuItem();
-      addLimitMenuItem.setId("addLimit");
-      addLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.addLimit"));
-      addLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.addLimitTooltip"));
-      dhtmlxMenu.addDhtmlxItem(addLimitMenuItem);
-    }    
-  
-    {
-      DhtmlxMenuItem analyzeAssignmentMenuItem = new DhtmlxMenuItem();
-      analyzeAssignmentMenuItem.setId("analyzeAssignment");
-      analyzeAssignmentMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.assignMenuAnalyzeAssignment"));
-      analyzeAssignmentMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.assignMenuAnalyzeAssignmentTooltip"));
-      dhtmlxMenu.addDhtmlxItem(analyzeAssignmentMenuItem);
-    }    
-  
-    {
-      DhtmlxMenuItem editAssignmentMenuItem = new DhtmlxMenuItem();
-      editAssignmentMenuItem.setId("editAssignment");
-      editAssignmentMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.editAssignment"));
-      editAssignmentMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.editAssignmentTooltip"));
-      dhtmlxMenu.addDhtmlxItem(editAssignmentMenuItem);
-    }    
-  
-    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + 
-        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
-  
-    throw new ControllerDone();
   }
   
   /**
@@ -2324,45 +2282,6 @@ public class UiV2GroupPermission {
   }
   
   /**
-   * make the structure of the limit menu
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void limitMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
-    
-    {
-      DhtmlxMenuItem addValueMenuItem = new DhtmlxMenuItem();
-      addValueMenuItem.setId("addValue");
-      addValueMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuAddValue"));
-      addValueMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuAddValueTooltip"));
-      dhtmlxMenu.addDhtmlxItem(addValueMenuItem);
-    }
-    
-    {
-      DhtmlxMenuItem editLimitMenuItem = new DhtmlxMenuItem();
-      editLimitMenuItem.setId("editLimit");
-      editLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuEditLimit"));
-      editLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuEditLimitTooltip"));
-      dhtmlxMenu.addDhtmlxItem(editLimitMenuItem);
-    }
-    
-    {
-      DhtmlxMenuItem deleteLimitMenuItem = new DhtmlxMenuItem();
-      deleteLimitMenuItem.setId("deleteLimit");
-      deleteLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuDeleteLimit"));
-      deleteLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuDeleteLimitTooltip"));
-      dhtmlxMenu.addDhtmlxItem(deleteLimitMenuItem);
-    }
-  
-    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + 
-        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
-  
-    throw new ControllerDone();
-  }
-  
-  /**
    * handle a click or select from the limit menu
    * @param httpServletRequest
    * @param httpServletResponse
@@ -2505,37 +2424,6 @@ public class UiV2GroupPermission {
       GrouperSession.stopQuietly(grouperSession); 
     }
   
-  }
-  
-  /**
-   * make the structure of the limit value menu
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void limitValueMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
-       
-    {
-      DhtmlxMenuItem editLimitMenuItem = new DhtmlxMenuItem();
-      editLimitMenuItem.setId("editLimitValue");
-      editLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuEditValue"));
-      editLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuEditValueTooltip"));
-      dhtmlxMenu.addDhtmlxItem(editLimitMenuItem);
-    }
-    
-    {
-      DhtmlxMenuItem deleteLimitMenuItem = new DhtmlxMenuItem();
-      deleteLimitMenuItem.setId("deleteLimitValue");
-      deleteLimitMenuItem.setText(TagUtils.navResourceString("simplePermissionAssign.limitMenuDeleteValue"));
-      deleteLimitMenuItem.setTooltip(TagUtils.navResourceString("simplePermissionAssign.limitMenuDeleteValueTooltip"));
-      dhtmlxMenu.addDhtmlxItem(deleteLimitMenuItem);
-    }
-  
-    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + 
-        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
-  
-    throw new ControllerDone();
   }
   
   /**

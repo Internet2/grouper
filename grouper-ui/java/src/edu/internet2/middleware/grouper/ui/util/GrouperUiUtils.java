@@ -506,17 +506,6 @@ public class GrouperUiUtils {
   public static Pattern subjectPattern = Pattern.compile("^(.*)\\|\\|\\|\\|(.*)$");
 
   /**
-   * dhtmlx option end of xml
-   */
-  public static final String DHTMLX_OPTIONS_END = "</complete>";
-
-  /**
-   * dhtmlx option start of xml 
-   */
-  public static final String DHTMLX_OPTIONS_START = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<complete>\n"; 
-//utf-8, iso-8859-1
-
-  /**
    * logger 
    */
   private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperUiUtils.class);
@@ -1153,31 +1142,6 @@ public class GrouperUiUtils {
       throw new RuntimeException("Cant find subject: '" + searchString + "'");
     }
     return null;
-  }
-
-
-  /**
-   * make one dhtmlx option
-   * @param result to append to
-   * @param value
-   * @param label
-   * @param imageUrl
-   */
-  public static void dhtmlxOptionAppend(StringBuilder result, String value, String label, String imageUrl) {
-    
-    //<option value="1">one</option>
-    result.append("   <option value=\"").append(escapeHtml(StringUtils.defaultString(value), true, false))
-      .append("\"");
-    
-    //only append image if there is one
-    if (!StringUtils.isBlank(imageUrl)) {
-      if (!imageUrl.contains("/")) {
-        imageUrl = "../../grouperExternal/public/assets/images/" + imageUrl;
-      }
-  
-      result.append(" img_src=\"" + escapeHtml(imageUrl, true) + "\"");
-    }
-    result.append(">").append(escapeHtml(label, true, false)).append("</option>\n");
   }
 
 

@@ -1,4 +1,3 @@
-
 //TODO put this in nav.properties and put base HTML pages into JSP
 var guiAjaxSessionProblem = "There was an error communicating with the server.  Your session probably expired.  You will be redirected to login again.";
 
@@ -152,7 +151,9 @@ function _addUrlOptions(url, options) {
 
   options = options || {};
 
-  var namesCsv = options.optionalFormElementNamesToSend;
+  // Historically this code uses the key optionalFormElementNamesToSend.
+  // (Some call sites may pass optionalFormElementNames; accept both.)
+  var namesCsv = options.optionalFormElementNamesToSend || options.optionalFormElementNames;
   if (namesCsv) {
 
     var additionalFormElementNamesArray = guiSplitTrim(namesCsv, ",");
@@ -454,75 +455,6 @@ function AppState() {
 
 }
 
-/** list of combos by id */
-var allComboboxes = new Object();
-
-/**
- * register a combobox div
- * @param divId is comboname plus "Id"
- * @param width
- * @param useImages true or false, if images are in the combobox
- * @param filterUrl
- * @param additionalFormElementNames send more form element names to the filter operation, comma separated
- */
-function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl, comboDefaultText, comboDefaultValue, additionalFormElementNames ) {
-  /* long hand...
-   var simpleMembershipUpdateAddMemberSelect=new dhtmlXCombo(
-      "simpleMembershipUpdateAddMemberDiv","simpleMembershipUpdateAddMember",200, 'image');
-    simpleMembershipUpdateAddMemberSelect.enableFilteringMode(
-       true,"../app/SimpleMembershipUpdate.filterUsers",false); */
-  var theCombo=new dhtmlXCombo(
-      divId,comboName,width, useImages ? 'image' : undefined);
-  
-  filterUrl = guiDecorateUrl(filterUrl);
-  
-  comboboxFormElementNamesToSend[comboName] = additionalFormElementNames;
-  
-  //remember the combo names for when the request goes out
-  theCombo.enableFilteringMode(true,filterUrl,false);
-  
-  //note, for some reason the default value has to be above the default text...
-  if (!guiIsEmpty(comboDefaultValue)) {
-    theCombo.setComboValue(comboDefaultValue);
-  }
-  if (!guiIsEmpty(comboDefaultText)) {
-    theCombo.setComboText(comboDefaultText);
-  }
-
-  //add hidden throbber
-  var textfield = $('div#' + divId + ' :text');
-  var textfieldDropdownImage = $('div#' + divId +   ' .dhx_combo_img');
-
-  textfieldDropdownImage.after(
-      "<img style='position:absolute;top:2px;display:none' alt='busy...' " +
-      "src='../../grouperExternal/public/assets/images/busy.gif' id='comboThrobberId_"
-      + divId + "' class='comboThrobber'  />");
-
-
-  //add a throbbber
-  theCombo.attachEvent("onXLS",function(){
-    var textfieldDropdownImage = $('div#' + divId +   ' .dhx_combo_img');
-
-    var leftOffset = textfieldDropdownImage.css('display') == 'none' ? 0 : (-1 * textfieldDropdownImage.width());
-
-    var textfieldDiv = $('div#' + divId + ' .dhx_combo_box');
-    var throbber = $('#comboThrobberId_' + divId);
-
-    leftOffset = ((textfieldDiv.width() - (throbber.width() + 3)) + leftOffset);
-    throbber.css("left", leftOffset + "px");
-    throbber.show();
-  });
-
-  //remove throbber
-  theCombo.attachEvent("onXLE",function(){
-    $('#comboThrobberId_' + divId).hide();
-  });
-  
-  //keep this so we can control it later
-  allComboboxes[comboName] = theCombo;  
-}
-
-
 /** starting point for all objects */
 function AllObjects() {
   /** when app is initted, this is the GuiSettings bean which has params, text, templates, etc */
@@ -625,12 +557,14 @@ function dojoInitMenu(autoSelectNode) {
       return 'jstree-folder';
     }
 
-    // Leaf types (font-awesome like your Dojo code)
-    if (item.theType === 'truncatedItems') return 'fa fa-ellipsis-h';
-    if (item.theType === 'group') return 'fa fa-group';
-    if (item.theType === 'entity') return 'fa fa-cloud-download';
-    if (item.theType === 'attributeDef') return 'fa fa-cog';
-    if (item.theType === 'attributeDefName') return 'fa fa-cogs';
+    // Leaf types
+    // font awesome icons dont show in jstree for some reason
+    // so dont show any icons and just have the icon in the label
+    if (item.theType === 'truncatedItems') return 'grouper-jstree-no-icon';
+    if (item.theType === 'group') return 'grouper-jstree-no-icon';
+    if (item.theType === 'entity') return 'grouper-jstree-no-icon';
+    if (item.theType === 'attributeDef') return 'grouper-jstree-no-icon';
+    if (item.theType === 'attributeDefName') return 'grouper-jstree-no-icon';
 
     return 'jstree-file';
   }
@@ -701,6 +635,7 @@ function dojoInitMenu(autoSelectNode) {
           $.ajax({
             url: 'UiV2Main.folderMenu?root',
             type: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
             dataType: 'json',
             cache: true,
             timeout: 150000
@@ -722,6 +657,7 @@ function dojoInitMenu(autoSelectNode) {
         $.ajax({
           url: 'UiV2Main.folderMenu?' + encodeURIComponent(node.id),
           type: 'GET',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
           dataType: 'json',
           cache: true,
           timeout: 150000
@@ -767,8 +703,15 @@ function dojoInitMenu(autoSelectNode) {
 
   // Click handler (your Dojo onClick logic)
   // Remove any previous handler first (dojoInitMenu can be called multiple times)
-    $treeEl.on('select_node.jstree.dojoInitMenu', function (e, data) {
-    var item = data && data.node && data.node.data;
+  $treeEl.off('activate_node.jstree.dojoInitMenu')
+       .on('activate_node.jstree.dojoInitMenu', function (e, data) {
+        
+    if (data && data.event && data.event.preventDefault) {
+      data.event.preventDefault();
+      if (data.event.stopPropagation) data.event.stopPropagation();
+    }        
+
+        var item = data && data.node && data.node.data;
     if (!item) return;
 
     // Synthetic Root node: navigate to the Root stem
@@ -845,6 +788,7 @@ function dojoInitMenu(autoSelectNode) {
         $.ajax({
           url: "UiV2Main.folderMenuObjectPath",
           type: "POST",
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
           cache: true,
           dataType: 'json',
           data: { id: itemId, type: itemType },
@@ -1085,15 +1029,6 @@ function ajax(theUrl, options) {
         
         //alert(element.id + ' - ' + element.nodeName.toUpperCase() + " - " + element.name + " - " + element.type + " - " + options.requestParams[element.name]);
         
-        //see if dhtmlx
-//        if (element.type == "hidden") {
-//
-//          var theCombo = dhtmlxCombos[element.name];
-//          if (typeof theCombo != 'undefined') {
-//            //it is dhtmlx, get the label too just in case
-//            options.requestParams[element.name + '_dhtmlxComboLabel'] = theCombo.getComboText();
-//          }
-//        }
       }
     }
   }
@@ -1408,22 +1343,21 @@ function guiProcessAction(guiScreenAction) {
   
   //do an alert
   if (!guiIsEmpty(guiScreenAction.alert)) {
-    $.unblockUI(); 
+    $.unblockUI();
 
     //default to centered
     var centered = (typeof guiScreenAction.alertCentered == 'undefined') || guiScreenAction.alertCentered;
-    
-    //alert(guiScreenAction.alert);
-    //$.modal.close();
-    $('<div class="guimodal simplemodal-guiinner' + (centered ? ' simplemodal-guiinnerCentered' : '') + '">' 
-        + guiScreenAction.alert + '<div class="simplemodal-buttonrow"><button class=\'simplemodal-close blueButton\'>OK</button></div></div>').modal({close: true, position: [20,20]});
+
+    grouperBootstrapAlert(guiScreenAction.alert, centered);
   }
+
   
-  //do an alert
+  // do a dialog (Bootstrap 2.2.2)
   if (!guiIsEmpty(guiScreenAction.dialog)) {
-    $.unblockUI(); 
-    $('<div class="guimodal simplemodal-dialoginner">' 
-        + guiScreenAction.dialog + '</div>').modal({close: true, position: [20,20]});
+    $.unblockUI();
+
+    // mimic the old behavior: positioned at [20,20]
+    grouperBootstrapDialog(guiScreenAction.dialog, false, null);
   }
   if (!guiIsEmpty(guiScreenAction.optionValues)) {
     var optionValues = guiScreenAction.optionValues;
@@ -1484,6 +1418,104 @@ function guiProcessAction(guiScreenAction) {
 }
 
 /**
+ * Show a Bootstrap 2.2.2 modal containing arbitrary HTML.
+ * Removes itself from the DOM when closed.
+ *
+ * @param htmlBody HTML string to render in the modal body
+ * @param centered if false, positions near top/left (20px,20px); if true uses Bootstrap default centering
+ * @param title optional title string (null for no header)
+ */
+function grouperBootstrapDialog(htmlBody, centered, title) {
+
+  var modalId = 'grouperBootstrapDialogModal';
+  $('#' + modalId).remove();
+
+  var headerHtml = '';
+  if (title != null && title !== '') {
+    headerHtml =
+      '<div class="modal-header">' +
+        '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
+        '<h3>' + title + '</h3>' +
+      '</div>';
+  }
+
+  var $modal = $(
+    '<div id="' + modalId + '" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">' +
+      headerHtml +
+      '<div class="modal-body"></div>' +
+    '</div>'
+  );
+
+  $modal.find('.modal-body').html(htmlBody);
+
+  if (centered === false) {
+    $modal.css({
+      top: '20px',
+      left: '20px',
+      marginLeft: '0',
+      width: 'auto'
+    });
+  }
+
+  $('body').append($modal);
+
+  $modal.on('hidden', function () {
+    $(this).remove();
+  });
+
+  $modal.modal({ backdrop: true, keyboard: true, show: true });
+}
+
+/**
+ * Show an “OK” alert modal using Bootstrap 2.2.2 (no SimpleModal).
+ * @param htmlMessage HTML string to show in the modal body
+ * @param centered if false, positions near top/left (20px, 20px); if true uses Bootstrap default centering
+ */
+function grouperBootstrapAlert(htmlMessage, centered) {
+
+  // Remove any previous instance
+  var modalId = 'grouperBootstrapAlertModal';
+  $('#' + modalId).remove();
+
+  var $modal = $(
+    '<div id="' + modalId + '" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">' +
+      '<div class="modal-header">' +
+        '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
+        '<h3>Alert</h3>' +
+      '</div>' +
+      '<div class="modal-body"></div>' +
+      '<div class="modal-footer">' +
+        '<button class="btn btn-primary" data-dismiss="modal">OK</button>' +
+      '</div>' +
+    '</div>'
+  );
+
+  // Insert the HTML message
+  $modal.find('.modal-body').html(htmlMessage);
+
+  // Optional positioning: mimic SimpleModal position [20,20]
+  if (centered === false) {
+    // Bootstrap 2 centers with left:50% + negative margin-left; override it.
+    $modal.css({
+      top: '20px',
+      left: '20px',
+      marginLeft: '0',
+      width: 'auto'
+    });
+  }
+
+  // Append and show
+  $('body').append($modal);
+
+  // Clean up after close
+  $modal.on('hidden', function () {
+    $(this).remove();
+  });
+
+  $modal.modal({ backdrop: true, keyboard: true, show: true });
+}
+
+/**
  * this is for xstream json... if there is an object which isnt an array, turn it into an array
  * if object doesnt exist, return it (or lack thereof)
  */
@@ -1511,28 +1543,6 @@ function guiDefaultString(x) {
 
 /** set form element(s) to values */
 function guiFormElementAssignValue(name, values) {
-  
-  //see if combo
-  if (!guiIsEmpty(allComboboxes[name])) {
-    if (guiIsEmpty(values)) {
-      allComboboxes[name].clearAll(true);
-    } else {
-      values = guiConvertToArray(values, true);
-      //assign a value
-      if (values.length == 1) {
-        if (guiIsEmpty(values[0])) {
-          allComboboxes[name].clearAll(true);
-        } else {
-          allComboboxes[name].setComboValue(values[0]);
-        }
-      } else {
-        alert("Cant have length more than 1");
-      }
-    }
-    
-    return;
-  }
-
   
   values = guiConvertToArray(values, true);
   
@@ -1653,11 +1663,117 @@ function eventCancelBubble(event) {
  * @param message
  */
 function grouperTooltip(message) {
-  //NOTE, we need to unescape the HTML, since it is in a javascript call...
+  // NOTE: message is in a javascript call, so we need to unescape the HTML.
   message = guiEscapeHtml(message, false);
-  //not sure why this was max width 400, now it is 0 so it doesnt truncate...
-  Tip(message, WIDTH, 0, FOLLOWMOUSE, false);
-} 
+
+  // Prefer Bootstrap 2.2.2 tooltip (bootstrap.js) if present.
+  // This relies on being invoked from an inline handler like:
+  //   onmouseover="grouperTooltip('...')"
+  // If we can't infer the element, fall back gracefully.
+  if (typeof $ != 'undefined' && $.fn && typeof $.fn.tooltip == 'function') {
+
+    // Determine the element that triggered the event.
+    var element = null;
+    if (typeof window != 'undefined' && window.event && window.event.srcElement) {
+      // IE
+      element = window.event.srcElement;
+    } else if (typeof window != 'undefined' && window.event && window.event.target) {
+      // Some browsers still populate window.event
+      element = window.event.target;
+    }
+
+    if (element) {
+      // Prefer the closest element with class grouperTooltip, else just use the element.
+      var $el = $(element);
+      var $anchor = $el.closest('.grouperTooltip');
+      if ($anchor.length > 0) {
+        $el = $anchor;
+      }
+
+      // Accessibility: if this is a non-focusable element (e.g. span), make it focusable.
+      // That enables keyboard users to discover the tooltip.
+      if (!$el.is('a,button,input,select,textarea') && !$el.attr('tabindex')) {
+        $el.attr('tabindex', '0');
+      }
+
+      // If we add tabindex, also show/hide tooltip on focus/blur.
+      // Namespace handlers so we can safely rebind.
+      $el.off('.grouperTooltipA11y');
+      $el.on('focus.grouperTooltipA11y', function () {
+        // Mirror the last known title
+        try { $(this).tooltip('show'); } catch (e) {}
+      });
+      $el.on('blur.grouperTooltipA11y', function () {
+        try { $(this).tooltip('hide'); } catch (e) {}
+      });
+
+      // Store content and show immediately.
+      // Use trigger: 'manual' so our UnTip() can consistently hide it.
+      // Use container: 'body' so it isn't clipped by overflow/positioning.
+      $el.attr('data-original-title', message);
+      $el.tooltip({
+        trigger: 'manual',
+        html: true,
+        container: 'body',
+        placement: 'top'
+      });
+
+      $el.tooltip('show');
+
+      // Accessibility: link triggering element to the tooltip via aria-describedby.
+      // Bootstrap 2 doesn't add this automatically.
+      try {
+        var $tip = $el.data('tooltip') ? $el.data('tooltip').tip() : null;
+        if ($tip && $tip.length) {
+          var tipId = $tip.attr('id');
+          if (!tipId) {
+            tipId = 'grouperTooltip_' + (new Date().getTime()) + '_' + Math.floor(Math.random() * 100000);
+            $tip.attr('id', tipId);
+          }
+          // Ensure the tooltip container has role=tooltip
+          if (!$tip.attr('role')) {
+            $tip.attr('role', 'tooltip');
+          }
+          $el.attr('aria-describedby', tipId);
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      return;
+    }
+  }
+}
+
+function UnTip() {
+  if (typeof $ != 'undefined' && $.fn && typeof $.fn.tooltip == 'function') {
+    var element = null;
+    if (typeof window != 'undefined' && window.event && window.event.srcElement) {
+      element = window.event.srcElement;
+    } else if (typeof window != 'undefined' && window.event && window.event.target) {
+      element = window.event.target;
+    }
+    if (element) {
+      var $el = $(element);
+      var $anchor = $el.closest('.grouperTooltip');
+      if ($anchor.length > 0) {
+        $el = $anchor;
+      }
+
+      // Remove aria-describedby linkage if we added it
+      $el.removeAttr('aria-describedby');
+
+      // Hide, then destroy to avoid accumulating handlers on repeated mouseovers.
+      $el.tooltip('hide');
+      $el.tooltip('destroy');
+
+      // Remove the focus/blur handlers we added
+      $el.off('.grouperTooltipA11y');
+
+      return;
+    }
+  }
+}
 
 /** call this from button to hide/show some text */
 function guiToggle(event, jqueryElementKey) {
@@ -2144,133 +2260,6 @@ function isEmpty(x) {
 
 /** END GROUPER UI FUNCTIONS */
 
-/** this is the id of the link or button which opened a context menu */
-var guiMenuIdOfMenuTarget;
-
-/**
- * @param menuId is the id of the HTML element of the menu
- * @param operation is when events occur (onclick), then that operation is called via ajax
- * @param structureOperation is the operation called to define the structure of the menu
- * @param isContextMenu is true if context menu, false if not
- * @param contextZoneJqueryHandle is the jquery handle (e.g. #someId) which this menu should be attached to.  note
- * that any element you are attaching to must have an id attribute defined
- */
-function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu, contextZoneJqueryHandle) {
-// here is the long hand form of this method
-//  var menu;
-//  function initAdvancedMenu() {
-//
-//    menu = new dhtmlXMenuObject("advancedMenu", "dhx_blue");
-//    menu.addContextZone("advancedLink");
-//    menu.setImagePath("../public/assets/dhtmlx/menu/imgs/");
-//    menu.setIconsPath("../public/assets/dhtmlx/menu/icons/");
-//
-//    menu.renderAsContextMenu();
-//    //menu.loadXML("dhtmlxmenu.xml?e="+new Date().getTime());
-//    menu.loadXML("../app/SimpleMembershipUpdate.advancedMenuStructure");
-//    menu.attachEvent("onClick", function(id, zoneId, casState){
-//      menu.hideContextMenu();
-//      ajax("SimpleMembershipUpdate.advancedMenu", {requestParams: {menuHtmlId: zoneId, menuItemId: id }});
-//    });
-//    menu.attachEvent("onCheckboxClick", function(id, state, zoneId, casState){
-//      menu.hideContextMenu();
-//      ajax("SimpleMembershipUpdate.advancedMenu", {requestParams: {menuHtmlId: zoneId, menuItemId: id, menuCheckboxChecked: !state }});
-//      return true;
-//    });
-//    menu.attachEvent("onRadioClick", function(group, idChecked, idClicked, zoneId, casState){
-//      menu.hideContextMenu();
-//      ajax("SimpleMembershipUpdate.advancedMenu", {requestParams: {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked }});
-//      return true;
-//    });
-//    
-//  }
-//  $(document).ready(initAdvancedMenu);
-
-  
-  var theFunction = function() {
-
-    var menu = new dhtmlXMenuObject(menuId, "dhx_blue");
-    if (isContextMenu) {
-      menu.renderAsContextMenu();
-      var elements = $(contextZoneJqueryHandle);
-      if (guiIsEmpty(elements)) {
-        alert("Cant find context zone elements for menu: " + menuId + ", " + contextZoneJqueryHandle);
-        return;
-      }
-      
-      elements.click(function(e){
-        //stache this in global variable, assume only one menu at a time
-        guiMenuIdOfMenuTarget = $(e.target)[0].id
-        menu.showContextMenu(e.pageX, e.pageY);
-        return false;
-      }); 
-      
-      //cant do it this way since the x,y is wrong
-      //for (var i=0; i<elements.length; i++) {
-      //  if (guiIsEmpty(elements[i].id)) {
-      //    alert("Cant find id in html context zone element: " + menuId); 
-      //    return;
-      //  }
-      //  menu.addContextZone(elements[i].id);
-      //}
-    }
-    menu.setImagePath("../public/assets/dhtmlx/menu/imgs/");
-    menu.setIconsPath("../public/assets/dhtmlx/menu/icons/");
-  
-    //menu.loadXML("dhtmlxmenu.xml?e="+new Date().getTime());
-    if (!guiStartsWith(structureOperation, "../app/" )) {
-      structureOperation = "../app/" + structureOperation; 
-    }
-    
-    structureOperation = guiDecorateUrl(structureOperation);
-    
-    menu.loadXML(structureOperation);
-    
-    menu.attachEvent("onClick", function(id, zoneId, casState){
-      var itemType = menu.getItemType(id);
-      if ("radio" == itemType || "checkbox" == itemType) {
-        return;
-      }
-      menu.hideContextMenu();
-      var requestParams = {menuHtmlId: zoneId, menuItemId: id, menuEvent: 'onClick' };
-      //if there is the same menu multiple places on the screen, we might want to know about it
-      if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
-        requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget;
-      }
-      //alert('menu.onClick()');
-      ajax(operation, {requestParams: requestParams});
-    });
-    menu.attachEvent("onCheckboxClick", function(id, state, zoneId, casState){
-      //menu.hideContextMenu();
-      var requestParams = {menuHtmlId: zoneId, menuItemId: id, menuCheckboxChecked: !state, menuEvent: 'onCheckboxClick' };
-      //if there is the same menu multiple places on the screen, we might want to know about it
-      if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
-        requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget;
-      }
-      //alert('menu.onCheckboxClick()');
-      ajax(operation, {requestParams: requestParams});
-      return true;
-    });
-    menu.attachEvent("onRadioClick", function(group, idChecked, idClicked, zoneId, casState){
-      //menu.hideContextMenu();
-      var requestParams = {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked, menuEvent: 'onRadioClick' };
-      //if there is the same menu multiple places on the screen, we might want to know about it
-      if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
-        requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget;
-      }
-      //alert('menu.onRadioClick()');
-      ajax(operation, {requestParams: requestParams});
-      return true;
-    });
-  };
-  $(document).ready(theFunction);
-}
-
-/**
- * parse an int if not an int already
- * @param input
- * @return
- */
 function guiInt(input) {
   if (guiIsEmpty(input)) {
     return null;
@@ -2306,8 +2295,6 @@ function guiFormElement(form, elementName) {
   return null;
 }
  
-var guiCalendars = new Array();
-
 /** redefine this function if you want to set current date to something else */
 function guiNewDate() {
   return new Date();
@@ -2320,48 +2307,6 @@ function guiNow() {
   var now = guiNewDate();
   var x = (now.getMonth()+1) + "/" + now.getDate()+ "/" +  now.getFullYear();
   return x;
-}
-
-function guiCalendarImageClick(formElementId) {
-  if (guiCalendars[formElementId].parent != null && guiCalendars[formElementId].isVisible()) {
-    guiCalendars[formElementId].hide();
-  } else {
-  
-    var textfield = document.getElementById(formElementId);
-
-    var textfieldDate = textfield.value;
-  
-    //if nothing, default to today  
-    if (guiIsEmpty(textfieldDate)) {
-      textfieldDate = guiNow();
-    }
-
-    //convert to yyyymmdd
-    var yyyymmdd = formatValid_dateformattodb('dateformattodb', null, textfieldDate);
-
-    if (guiValidateDate(yyyymmdd)) {
-      //set the date to the control
-      var year = yyyymmdd.substring(0,4);
-      var month = yyyymmdd.substring(4,6);
-      var day = yyyymmdd.substring(6,8);
-      //guiConvertStringToDateOrTimestamp(yyyymmdd, true)
-      var theDate=new Date();
-      theDate.setFullYear(year);
-      theDate.setMonth(month-1);
-      theDate.setDate(day);
-      guiCalendars[formElementId].setDate(theDate);
-    }
-  
-  
-    guiCalendars[formElementId].show();
-  }
-  return false;
-}
-
-/** format a date from screen to the DB, format will go to ccyymmdd */
-function formatValid_dateformattodb(functionName, args, x) {
-  
-  return guiConvertStringToDateOrTimestamp(x, true); 
 }
 
 /** convert a string to a ccyymmdd or mm/dd/ccyy HH:MM:ss.SSS */
@@ -2401,46 +2346,6 @@ function guiValidateDateHelper(month, day, year, args) {
  
   return null;
 
-}
-
-
-
-function guiCalendarInit(formElementId) {
-
-  //mCal = new dhtmlxCalendarObject("caltext6", false, {isWinHeader: true, isWinDrag: true});
-  //mCal.draw();
-  //mCal.hide();
-  //mCal.attachEvent("onClick", function(date){
-  //  var theDate = mCal.getFormatedDate('%Y%m%d', date);
-  //  document.getElementById("text6").value = theDate;
-  //  document.getElementById("text6").onblur();
-  //  
-  //  mCal.close();
-  //
-  //}) 
-  
-  //  <a href="#" onclick="return guiCalendarImageClick2('text6');"><img 
-  //src="../gui/images/calendar.gif" border="0" alt="Pick a date" height="16" 
-  //width="16" id="PZE8OLPL_image" /></a><span id="text6_theCalendar2" style="position: absolute;"></span>
-  //<script>
-  //  guiCalendarInit2("text6");
-  //</script>
-
-  var imageElementId = formElementId + "_theCalendar";
-  var theCalendar = new dhtmlxCalendarObject(imageElementId, false, 
-    {isWinHeader: true, isWinDrag: true});
-  theCalendar.draw();
-  theCalendar.hide();
-  
-  guiCalendars[formElementId] = theCalendar;
-
-  theCalendar.attachEvent("onClick", function(date){
-    var theDate = guiCalendars[formElementId].getFormatedDate('%Y%m%d', date);
-    document.getElementById(formElementId).value = theDate;
-    document.getElementById(formElementId).onblur();
-    guiCalendars[formElementId].close();
-
-  });   
 }
 
 /**
@@ -2905,6 +2810,9 @@ function grouperRegisterComboboxAjax(url, extraUrlOptions, query, appendWildcard
     // Build request headers
     var headers = { 'Accept': 'application/json' };
 
+    // Mark request as AJAX (some server-side logic relies on this conventional header)
+    headers['X-Requested-With'] = 'XMLHttpRequest';
+
     // Add OWASP CSRF token header if present on the page
     var owaspTokenName = 'OWASPCSRFTOKEN';
     var owaspTokenEls = document.getElementsByName(owaspTokenName);
@@ -3001,8 +2909,7 @@ function grouperRegisterCombobox(jquerySelector, url, additionalFormElementNames
   };
 
   // Clear any previous search results before showing new ones.
-  // Tom Select retains options internally; without clearing, an old option can appear at the top on subsequent searches.
-  // We keep the currently-selected option(s) so the control can still render the selected label.
+  // Tom Select retains options internally; without clearing, an old option can appear at the top on subsequent searches
   function grouperResetOptionsKeepSelection(tsInstance) {
     try {
       var keep = [];
@@ -3046,7 +2953,10 @@ function grouperRegisterCombobox(jquerySelector, url, additionalFormElementNames
 
     valueField: 'id',
     labelField: 'name',
-    searchField: ['name'],
+    searchField: ['name', 'id'],     // still fine to keep so if id is there it still shows
+    shouldSort: false,
+    // dont let tomselect score things, we will let the server do it
+    score: function() { return function() { return 1; }; },
     maxOptions: 200,
 
     shouldLoad: function(query) {

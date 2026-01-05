@@ -1,24 +1,17 @@
-
 <%-- note this wont work for token per page --%>
 <input type="hidden" name="<csrf:token-name/>" value="<csrf:token-value />"/>
 
 
 <%-- note: jquery script are included in commonHead --%>
 
-<script src="../../grouperExternal/public/assets/js/tree.jquery.js"></script>
-<script src="../../grouperExternal/public/assets/js/jquery.dataTables.min.js"></script>
 <script src="../../grouperExternal/public/assets/js/footable-0.1.js"></script>
-<script src="../../grouperExternal/public/assets/js/jquery.cookie.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.form.js"></script>
 <script src="../../grouperExternal/public/assets/js/jstree.min.js"></script>
 <script src="../../grouperExternal/public/assets/js/grouper.js"></script>
 <script src="../../grouperExternal/public/assets/js/native.history.js"></script>
-<script src="../../grouperExternal/public/assets/js/grouperUi.js?ver=6.0.00"></script>
-<script src="../../grouperExternal/public/assets/js/wz_tooltip.js"></script>
+<script src="../../grouperExternal/public/assets/js/grouperUi.js?ver=6.0.06"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.blockUI.js"></script>
-<script src="../../grouperExternal/public/assets/js/jquery.simplemodal.js"></script>
 <script src="../../grouperExternal/public/assets/nifty/niftycube.js"></script>
-<script src="../../grouperExternal/public/assets/js/bootstrap-datepicker.min.js"></script>
 
 <script type="text/javascript">
   $().ajaxStop($.unblockUI); 

@@ -19,9 +19,11 @@
  */
 package edu.internet2.middleware.grouper.util;
 
-import java.io.File;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -42,7 +44,6 @@ import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
-import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.userData.UserDataList;
 import edu.internet2.middleware.grouper.userData.UserDataObject;
 import edu.internet2.middleware.grouper.util.versioningV1.BeanA;
@@ -1272,5 +1273,47 @@ public class GrouperUtilTest extends GrouperTest {
     }
     
   }
+  
+  public void testParseConfiguredFormat() throws Exception {
+
+    Date date = GrouperUtil.stringToDate3("12/30/2025", "MM/dd/yyyy");
+    assertNotNull(date);
+
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(date);
+
+    assertEquals(2025, cal.get(Calendar.YEAR));
+    assertEquals(Calendar.DECEMBER, cal.get(Calendar.MONTH));
+    assertEquals(30, cal.get(Calendar.DAY_OF_MONTH));
+  }
+
+  public void testParseIsoLocalDate() throws Exception {
+
+    Date date = GrouperUtil.stringToDate3("2025-12-30", "MM/dd/yyyy");
+    assertNotNull(date);
+
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(date);
+
+    assertEquals(2025, cal.get(Calendar.YEAR));
+    assertEquals(Calendar.DECEMBER, cal.get(Calendar.MONTH));
+    assertEquals(30, cal.get(Calendar.DAY_OF_MONTH));
+  }
+
+  public void testParseInvalid() throws Exception {
+    try {
+      GrouperUtil.stringToDate3("12-30-2025", "MM/dd/yyyy");
+      fail("Expected ParseException");
+    } catch (ParseException e) {
+      // expected
+    }
+  }
+
+  public void testBlankReturnsNull() throws Exception {
+    assertNull(GrouperUtil.stringToDate3("", "MM/dd/yyyy"));
+    assertNull(GrouperUtil.stringToDate3("   ", "MM/dd/yyyy"));
+    assertNull(GrouperUtil.stringToDate3(null, "MM/dd/yyyy"));
+  }
+
   
 }

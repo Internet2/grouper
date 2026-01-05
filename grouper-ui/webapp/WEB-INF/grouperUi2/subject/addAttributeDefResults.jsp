@@ -18,7 +18,7 @@
                               <tr>
                                 <td>${guiAttributeDef.pathColonSpaceSeparated}</td>
                                 <td><a href="#" onclick="grouperComboboxSetId('#attributeDefAddMemberComboId', '${grouper:escapeJavascript(guiAttributeDef.attributeDef.id)}'); return true;"
-                                    >${grouper:escapeHtml(guiAttributeDef.attributeDef.extension)}</a></td>
+                                    data-dismiss="modal">${grouper:escapeHtml(guiAttributeDef.attributeDef.extension)}</a></td>
                               </tr>
 
                               </c:forEach>

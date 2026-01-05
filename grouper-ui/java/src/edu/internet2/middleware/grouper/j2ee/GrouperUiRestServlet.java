@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.grouperUi.beans.RequestContainer;
@@ -43,29 +42,21 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.MiscMenu;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Admin;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDef;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDefAttributeAssignment;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Configure;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Deprovisioning;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2ExternalEntities;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Group;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupAttributeAssignment;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupImport;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupPermission;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GrouperLoader;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GrouperReport;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Main;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2MembershipAttributeAssignment;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Public;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2StemAttributeAssignment;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Subject;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2SubjectAttributeAssignment;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2SubjectPermission;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2SubjectResolution;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter.UiSection;
@@ -105,53 +96,11 @@ public class GrouperUiRestServlet extends HttpServlet {
   /** uris that it is ok to get (e.g. auto complete and other ajax components */
   private static Set<String> operationsOkGet = GrouperUtil.toSet(
 
-      MiscMenu.class.getSimpleName() + ".miscMenuStructure",
-      
       // ##############
       // we need the Lite UI things in here in case someone installs it.  We can remove at some point
-      "InviteExternalSubjects.groupToAssignFilter",
-      "SimpleMembershipUpdateFilter.filterUsers", 
-      "SimpleMembershipUpdateFilter.filterGroups",
-      "SimpleMembershipUpdateMenu.advancedMenuStructure", 
-      "SimpleMembershipUpdateImportExport.exportSubjectIdsCsv",
-      "SimpleMembershipUpdateImportExport.exportAllCsv", 
-      "SimpleMembershipUpdateMenu.memberMenuStructure",
-      "SimpleMembershipUpdateFilter.filterMembers", 
-      "SimpleAttributeUpdateFilter.filterAttributeDefs",
-      "SimpleAttributeUpdateFilter.filterCreatableNamespace", 
-      "SimpleAttributeUpdateFilter.filterPrivilegeUsers",
-      "SimpleAttributeNameUpdateFilter.filterAttributeDefs",
-      "SimpleGroupUpdateFilter.filterGroups",
-      "SimpleAttributeNameUpdateFilter.filterAttributeDefNames",
-      "SimpleAttributeNameUpdateFilter.filterCreatableNamespace",
-      "SimpleGroupUpdateFilter.filterCreatableNamespace",
-      "SimpleGroupUpdateFilter.filterPrivilegeUsers",
-      "SimpleGroupUpdateFilter.filterRoles",
-      "SimpleAttributeUpdateFilter.filterAttributeDefsByOwnerType",
-      "SimpleAttributeUpdateFilter.filterAttributeNamesByOwnerType",
-      "SimpleAttributeUpdateFilter.filterGroups",
-      "SimpleAttributeUpdateFilter.filterGroupsForMembershipAssignment",
-      "SimpleAttributeUpdateFilter.filterStems",
-      "SimpleAttributeUpdateFilter.filterSubjects",
-      "SimpleAttributeUpdateMenu.assignmentMenuStructure",
-      "SimplePermissionUpdateFilter.filterPermissionAttributeDefs",
-      "SimplePermissionUpdateFilter.filterPermissionResources",
-      "SimplePermissionUpdateFilter.filterRoles",
-      "SimplePermissionUpdateFilter.filterSubjects",
-      "SimplePermissionUpdateFilter.filterActions",
-      "SimplePermissionUpdateMenu.assignmentMenuStructure",
-      "SimplePermissionUpdateFilter.filterLimitDefinitions",
-      "SimplePermissionUpdateFilter.filterLimitNames",
-      "SimplePermissionUpdateMenu.limitMenuStructure",
-      "SimpleGroupUpdateFilter.filterGroupsRolesEntities",
+      // NOTE: keep only entries for classes that are actually present in this codebase
       // #################
       
-      UiV2SubjectPermission.class.getSimpleName() + ".assignmentMenuStructure",
-      UiV2SubjectPermission.class.getSimpleName() + ".limitMenuStructure",
-      UiV2SubjectPermission.class.getSimpleName() + ".limitValueMenuStructure",
-      UiV2GroupPermission.class.getSimpleName() + ".assignmentMenuStructure",
-      UiV2GroupPermission.class.getSimpleName() + ".limitMenuStructure",
-      UiV2GroupPermission.class.getSimpleName() + ".limitValueMenuStructure",
       UiV2Main.class.getSimpleName() + ".index",
       UiV2Main.class.getSimpleName() + ".indexCustomUi",
       UiV2Main.class.getSimpleName() + ".indexGshSimplifiedUi",
@@ -163,13 +112,6 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2Stem.class.getSimpleName() + ".stemCopyParentFolderFilter",
       UiV2Stem.class.getSimpleName() + ".createGroupParentFolderFilter",
       UiV2Stem.class.getSimpleName() + ".createStemParentFolderFilter",
-      UiV2StemAttributeAssignment.class.getSimpleName() + ".assignmentValueMenuStructure",
-      UiV2GroupAttributeAssignment.class.getSimpleName() + ".assignmentValueMenuStructure",
-      UiV2AttributeDefAttributeAssignment.class.getSimpleName() + ".assignmentValueMenuStructure",
-      UiV2SubjectAttributeAssignment.class.getSimpleName() + ".assignmentValueMenuStructure",
-      UiV2MembershipAttributeAssignment.class.getSimpleName() + ".assignmentValueMenuStructure",
-      UiV2AttributeDefName.class.getSimpleName() + ".assignmentValueMenuStructure",
-      UiV2AttributeDef.class.getSimpleName() + ".assignmentValueMenuStructure",
       UiV2AttributeDef.class.getSimpleName() + ".attributeDefFilter",
       UiV2AttributeDefName.class.getSimpleName() + ".attributeDefNameFilter",
       UiV2GroupPermission.class.getSimpleName() + ".permissionActionNameFilter",
@@ -189,7 +131,6 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2Deprovisioning.class.getSimpleName() + ".addMemberFilter",
       UiV2GrouperReport.class.getSimpleName() + ".downloadReportForFolder",
       UiV2GrouperReport.class.getSimpleName() + ".downloadReportForGroup",
-      UiV2SubjectResolution.class.getSimpleName() + ".addMemberFilter",
       UiV2GrouperLoader.class.getSimpleName() + ".recentMembershipsGroupFromFilter",
       UiV2Configure.class.getSimpleName() + ".configurationFileExport",
       UiV2GrouperLoader.class.getSimpleName() + ".exportLoaderConfig"
@@ -260,15 +201,6 @@ public class GrouperUiRestServlet extends HttpServlet {
     }
     
     boolean printToScreen = true;
-
-    //this is just the filename of the export, for the browser to save correctly if right click
-    if (GrouperUtil.length(urlStrings) == 3
-        && StringUtils.equals("app", urlStrings.get(0))
-        && (StringUtils.equals("SimpleMembershipUpdateImportExport.exportSubjectIdsCsv", urlStrings.get(1))
-            || StringUtils.equals("SimpleMembershipUpdateImportExport.exportAllCsv", urlStrings.get(1)))) {
-      //strip off the filename
-      urlStrings = GrouperUtil.toList(urlStrings.get(0), urlStrings.get(1));
-    }
 
     if (GrouperUtil.length(urlStrings) == 5
         && StringUtils.equals("app", urlStrings.get(0))
