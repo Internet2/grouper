@@ -110,6 +110,9 @@ class Hib3RegistryDAO implements RegistryDAO {
             new GcDbAccess().sql("delete from grouper_prov_adobe_user").executeSql();
             new GcDbAccess().sql("delete from grouper_prov_adobe_group").executeSql();
             new GcDbAccess().sql("delete from grouper_prov_adobe_membership").executeSql();
+
+            new GcDbAccess().sql("delete from grouper_lifecycle_event").executeSql();
+            new GcDbAccess().sql("delete from grouper_lifecycle_event_config").executeSql();
             GrouperMembershipRequireChangeDao.deleteAllRecords();
             hibernateSession.getSession().flush();
             

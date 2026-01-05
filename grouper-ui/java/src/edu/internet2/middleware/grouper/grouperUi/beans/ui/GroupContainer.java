@@ -59,6 +59,8 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
+import edu.internet2.middleware.grouper.userLifecycle.UserLifecyclePolicyConfiguration;
+import edu.internet2.middleware.grouper.userLifecycle.UserLifecycleService;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -137,6 +139,27 @@ public class GroupContainer {
    */
   public List<GroupTypeForEdit> getGroupTypesForEdit() {
     return GrouperUtil.nonNull(getGroupTypes("edit"));
+  }
+  
+  
+  public String getSelectedUserLifeycyclePolicyConfigId() {
+    
+    Group group = GroupContainer.this.getGuiGroup().getGroup();
+    String existingPolicyConfigId = UserLifecycleService.retrieveExistingPolicyConfigId(group);
+    return existingPolicyConfigId;
+  }
+  
+  public List<GuiUserLifecyclePolicy> getUserLifecyclePolicies() {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    List<UserLifecyclePolicyConfiguration> userLifecyclePolicies = UserLifecycleService.retrieveUserLifecyclePolicies(loggedInSubject);
+    
+    List<GuiUserLifecyclePolicy> result = new ArrayList<GuiUserLifecyclePolicy>();
+    for (UserLifecyclePolicyConfiguration userLifecyclePolicyConfiguration: userLifecyclePolicies) {
+      result.add(GuiUserLifecyclePolicy.convertFromUserLifecyclePolicyConfiguration(userLifecyclePolicyConfiguration));
+    }
+    
+    return result;
   }
   
   /**

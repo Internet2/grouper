@@ -2932,6 +2932,60 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .listSet(Object[].class);
     return _getMembershipsFromMembershipAndMemberQuery(mships);
   }
+  
+  /**
+   * 
+   * Finds all immediate memberships for the given pairs of group IDs and member IDs
+   * on the 'members' field.
+   * <p>
+   * This method expects the {@code groupIds} and {@code memberIds} lists to be
+   * aligned by index, where each index represents a specific (group, member)
+   * combination to search for. For example, {@code groupIds.get(i)} is matched
+   * with {@code memberIds.get(i)}.
+   * </p>
+   *   
+   * @param groupIds
+   * @param memberIds
+   * @return set of memberships
+   * @throws GrouperDAOException
+   */
+  public static Set<Membership> findAllMemberships(List<String> groupIds, List<String> memberIds) throws GrouperDAOException {
+   
+    if (GrouperUtil.length(groupIds) == 0) {
+      return new LinkedHashSet<Membership>();
+    }
+    
+    if (GrouperUtil.length(groupIds) != GrouperUtil.length(memberIds)) {
+      throw new IllegalArgumentException("group ids length should match member ids length");
+    }
+    
+    StringBuilder hql = new StringBuilder(
+        "select m " +
+        "from ImmediateMembershipEntry m " +
+        "where m.fieldId = :fieldId and ("
+    );
+    Field field = Group.getDefaultList();
+    for (int i = 0; i < groupIds.size(); i++) {
+        if (i > 0) {
+            hql.append(" or ");
+        }
+        hql.append("(m.ownerGroupId = :g").append(i)
+           .append(" and m.memberUuid = :m").append(i)
+           .append(")");
+    }
+    hql.append(")");
+
+    ByHqlStatic query = HibernateSession.byHqlStatic().createQuery(hql.toString());
+
+    query.setString("fieldId", field.getId());
+    
+    for (int i = 0; i < groupIds.size(); i++) {
+      query.setString("g" + i, groupIds.get(i));
+      query.setString("m" + i, memberIds.get(i));
+    }
+
+    return query.listSet(Membership.class);
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllNonImmediateByMemberAndFieldType(java.lang.String, java.lang.String, boolean)

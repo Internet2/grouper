@@ -383,5 +383,19 @@ public class GrouperDictionaryDao {
 
     return result;
   }
+
+  /**
+   * 
+   * @param dictionaryInternalId
+   * @return
+   */
+  public static GrouperDictionary selectByInternalId(Long dictionaryInternalId) {
+    
+    GrouperDictionary grouperDictionary = new GcDbAccess().sql("select * from grouper_dictionary where internal_id = ? ")
+       .addBindVar(dictionaryInternalId)
+       .select(GrouperDictionary.class);
+
+    return grouperDictionary;
+  }
     
 }

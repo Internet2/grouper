@@ -146,6 +146,11 @@ public class GrouperDataProviderFullSyncJob extends OtherJobBase {
     return grouperDataProviderSync.getDebugMap();
   }
   
+  
+  public static void main(String[] args) {
+    runDaemonStandalone("OTHER_JOB_FullDataProviderSyncJob");
+  }
+  
   /**
    * run standalone
    * @param jobName

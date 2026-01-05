@@ -52,6 +52,9 @@
                       <br /><br /><a href="?operation=UiV2Rules.viewAllRules" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Rules.viewAllRules');" style="white-space: nowrap;">
                         ${textContainer.text['adminRulesConfigurationsLink'] }</a>
                     </c:if>
+
+                    <br /><br /><a id="miscellaneousUserLifecycleEventsLink" href="?operation=UiV2UserLifecycleEvents.viewUserLifecycleEvents" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2UserLifecycleEvents.viewUserLifecycleEvents');" style="white-space: nowrap;"
+                    >${textContainer.text['miscellaneousUserLifecycleEventsLink'] }</a>
                     
                   </div>
                 </div>
@@ -124,6 +127,9 @@
                       <br /><br /><a id="miscUnresolvableSubjectsLink" href="?operation=UiV2SubjectResolution.subjectResolutionMain" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SubjectResolution.subjectResolutionMain');" style="white-space: nowrap;"
                       >${textContainer.text['subjectResolutionMainLink'] }</a>
                     </c:if>
+                    
+                    <br /><br /><a id="miscellaneousGlobalLifecycleEventsLink" href="?operation=UiV2UserLifecycle.viewUserLifecycleSummary" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2UserLifecycle.viewUserLifecycleSummary');" style="white-space: nowrap;"
+                    >${textContainer.text['miscellaneousGlobalMemberhsipLifecycle'] }</a>
                     
                     </div>
                     

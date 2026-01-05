@@ -217,6 +217,13 @@ public enum UpgradeTasks {
     }
     
   },
+  V37{
+    @Override
+    public UpgradeTasksInterface upgradeTask() {
+      return new UpgradeTaskV37();
+    }
+    
+  },
   V21 {
     @Override
     public UpgradeTasksInterface upgradeTask() {

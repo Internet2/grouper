@@ -2354,6 +2354,41 @@ ALTER TABLE grouper_data_global_assign ADD CONSTRAINT grouper_data_global_assign
 ALTER TABLE grouper_data_global_assign ADD CONSTRAINT grouper_data_global_diction_fk FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id);
 ALTER TABLE grouper_data_global_assign ADD CONSTRAINT grouper_data_global_prov_fk FOREIGN KEY (data_provider_internal_id) REFERENCES grouper_data_provider(internal_id);
 
+CREATE TABLE grouper_lifecycle_event_config (
+  internal_id BIGINT NOT NULL,
+  config_id varchar(100) NOT NULL,
+  group_internal_id BIGINT,
+  stem_id_index BIGINT,
+  data_field_internal_id BIGINT,
+  data_row_internal_id BIGINT,
+  created_on_micros BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_lcycle_evnt_cnfg_idx ON grouper_lifecycle_event_config (config_id);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT group_internal_id_fk FOREIGN KEY (group_internal_id) REFERENCES  grouper_groups(internal_id);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT stem_id_index_fk FOREIGN KEY (stem_id_index) REFERENCES  grouper_stems(id_index);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_field_internal_id_fk FOREIGN KEY (data_field_internal_id) REFERENCES  grouper_data_field(internal_id);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_row_internal_id_fk FOREIGN KEY (data_row_internal_id) REFERENCES  grouper_data_row(internal_id);
+
+
+CREATE TABLE grouper_lifecycle_event (
+  internal_id BIGINT NOT NULL,
+  grpr_lcycl_evnt_cnfg_intrnl_id BIGINT NOT NULL,
+  member_internal_id BIGINT NOT NULL,
+  event_micros BIGINT NOT NULL,
+  ntrl_lng_priv_dic_intrnl_id BIGINT,
+  ntrl_lng_unpriv_dic_intrnl_id BIGINT,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_lifecycle_event_uniq_idx ON grouper_lifecycle_event (grpr_lcycl_evnt_cnfg_intrnl_id, member_internal_id, event_micros);
+
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lcycl_evnt_cnfg_intrnl_id_fk FOREIGN KEY (grpr_lcycl_evnt_cnfg_intrnl_id) REFERENCES  grouper_lifecycle_event_config(internal_id);
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT member_internal_id_fk FOREIGN KEY (member_internal_id) REFERENCES  grouper_members(internal_id);
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_priv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_priv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id);
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_unpriv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_unpriv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id);
+
 ALTER TABLE grouper_composites
     ADD CONSTRAINT fk_composites_owner FOREIGN KEY (owner) REFERENCES grouper_groups (id);
 

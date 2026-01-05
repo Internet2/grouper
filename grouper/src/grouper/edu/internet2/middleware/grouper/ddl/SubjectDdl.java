@@ -89,6 +89,26 @@ public enum SubjectDdl implements DdlVersionable {
     public String getGrouperVersion() {
       return "1.4.0";
     }
+  }, 
+  
+  V2 {
+    /**
+     * add the subject table
+     * @see SubjectDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database, 
+      DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, DdlVersionBean ddlVersionBean) {
+
+      SubjectDdl5_15_0.addSubjectBaseView(ddlVersionBean, database);
+      SubjectDdl5_15_0.addSubjectView(ddlVersionBean, database);
+      
+    }
+
+    @Override
+    public String getGrouperVersion() {
+      return "5.15.0";
+    }
   };
 
   @Override

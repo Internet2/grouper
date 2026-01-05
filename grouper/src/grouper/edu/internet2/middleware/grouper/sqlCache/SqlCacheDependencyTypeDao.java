@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 public class SqlCacheDependencyTypeDao {
 
   public static final String NAME_MSHIP_HISTORY_ABAC = "mshipHistory_abac";
+  public static final String NAME_MSHIP_HISTORY_LIFECYCLE = "mshipHistory_lifecycle";
   public static final String NAME_ABAC_GROUP = "abac_group";
   public static final String NAME_ABAC_ROW = "abac_row";
   public static final String NAME_ABAC_ATTRIBUTE = "abac_attribute";
@@ -217,6 +218,14 @@ public class SqlCacheDependencyTypeDao {
         sqlCacheDependencyType.setDependencyCategory("mshipHistory");
         sqlCacheDependencyType.setName(NAME_MSHIP_HISTORY_ABAC);
         sqlCacheDependencyType.setDescription("Dependency to keep track of sql cache membership history for objects used with ABAC");
+        sqlCacheDependencyTypesToStore.add(sqlCacheDependencyType);
+      }
+      
+      if (!names.contains(NAME_MSHIP_HISTORY_LIFECYCLE)) {
+        SqlCacheDependencyType sqlCacheDependencyType = new SqlCacheDependencyType();
+        sqlCacheDependencyType.setDependencyCategory("mshipHistory");
+        sqlCacheDependencyType.setName(NAME_MSHIP_HISTORY_LIFECYCLE);
+        sqlCacheDependencyType.setDescription("Dependency to keep track of sql cache membership history for objects used with lifecycle");
         sqlCacheDependencyTypesToStore.add(sqlCacheDependencyType);
       }
       
