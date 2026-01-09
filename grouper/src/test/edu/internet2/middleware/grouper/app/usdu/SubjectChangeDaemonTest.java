@@ -51,33 +51,26 @@ public class SubjectChangeDaemonTest extends GrouperTest {
   protected void tearDown() {
     super.tearDown();
     
-    GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-
-      public void changeDatabase(DdlVersionBean ddlVersionBean) {
-        
-        Database database = ddlVersionBean.getDatabase();
-
-        {
-          Table table = database.findTable("testgrouper_subjectchg1");
-          
-          if (table != null) {
-            database.removeTable(table);
-          }
-        }
-        {
-          Table table = database.findTable("testgrouper_subjectchg2");
-          
-          if (table != null) {
-            database.removeTable(table);
-          }
-        }
-      }
-    });
+    try {
+      new GcDbAccess().sql("DROP TABLE testgrouper_subjectchg1").executeSql();
+    } catch (Exception e) {
+      // ignore
+    }
+    
+    try {
+      new GcDbAccess().sql("DROP TABLE testgrouper_subjectchg2").executeSql();
+    } catch (Exception e) {
+      // ignore
+    }
   }
   
   @Override
   protected void setUp() {
     super.setUp();
+    
+    if (GrouperDdlUtils.tableExists("testgrouper_subjectchg1") && GrouperDdlUtils.tableExists("testgrouper_subjectchg2")) {
+      return;
+    }
    
     GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
 
