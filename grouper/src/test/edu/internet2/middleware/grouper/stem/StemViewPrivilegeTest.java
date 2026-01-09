@@ -7,19 +7,19 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.helper.LoadData;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -36,7 +36,7 @@ public class StemViewPrivilegeTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new StemViewPrivilegeTest("testPrivilegeAddedByGroupIncrementalPublic"));
+    TestRunner.run(new StemViewPrivilegeTest("testPrivilegeAddedByGroupFull"));
   }
   
   @Override
@@ -139,6 +139,13 @@ public class StemViewPrivilegeTest extends GrouperTest {
 
   public void testPrivilegeAddedByGroupFull() {
     
+    // clear grouper all privileges since this test expects that there aren't any
+    Member grouperAllMember = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectFinder.findAllSubject(), false);
+    Set<Membership> grouperAllMemberships = GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMember(grouperAllMember.getId(), false);
+    for (Membership membership : grouperAllMemberships) {
+      membership.delete();
+    }
+        
     GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
 
     long now = System.currentTimeMillis();
@@ -167,7 +174,7 @@ public class StemViewPrivilegeTest extends GrouperTest {
     GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_stemViewPrivilegesFull");
 
     assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_stem_view_privilege").select(int.class).intValue());
-    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
 
     stemB.grantPriv(groupAb.toSubject(), NamingPrivilege.CREATE, false);
 
@@ -182,7 +189,7 @@ public class StemViewPrivilegeTest extends GrouperTest {
     Set<MultiKey> grouperStemViewPrivilegesExpected = GrouperUtil.toSet(new MultiKey(member0.getId(), stemB.getId(), "S"));
     assertEqualsMultiKey(grouperStemViewPrivilegesExpected, grouperStemViewPrivileges);
     
-    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
     
     stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ0).findStems();
     
