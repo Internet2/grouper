@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.OtherJobException;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
@@ -355,6 +356,11 @@ public class GrouperProvisioningFailsafe {
       {
         Integer failsafeMinOverallNumberOfMembers = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigInt("failsafeMinOverallNumberOfMembers", false);
         this.grouperFailsafeBean.assignMinOverallNumberOfMembersOverride(failsafeMinOverallNumberOfMembers);
+      }
+      {
+        String failsafeSendEmailToAddresses = GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.failsafe.sendEmailToAddresses");
+        String failsafeSendEmailToGroup = GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.failsafe.sendEmailToGroup");
+        grouperFailsafeBean.assignEmailAddressesOverride(failsafeSendEmailToAddresses, failsafeSendEmailToGroup);
       }
     }
   }
