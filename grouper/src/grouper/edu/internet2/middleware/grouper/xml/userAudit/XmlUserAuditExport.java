@@ -262,6 +262,9 @@ public class XmlUserAuditExport {
     xStream.alias("XmlMember", XmlMember.class);
     xStream.alias("XmlAuditType", XmlAuditType.class);
     xStream.alias("XmlAuditEntry", XmlAuditEntry.class);
+    
+    xStream.allowTypes(new Class[] { XmlMember.class, XmlAuditType.class, XmlAuditEntry.class });
+    
     return xStream;
   }
 
