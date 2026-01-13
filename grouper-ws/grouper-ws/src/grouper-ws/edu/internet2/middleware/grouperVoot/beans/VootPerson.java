@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouperVoot.beans;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;

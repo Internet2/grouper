@@ -1,6 +1,6 @@
 package edu.internet2.middleware.grouper.app.membershipRequire;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;

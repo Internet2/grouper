@@ -1,6 +1,6 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * run a template

@@ -19,7 +19,7 @@
  */
 package edu.internet2.middleware.grouper.ws.coresoap;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import io.swagger.annotations.ApiModelProperty;
 

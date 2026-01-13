@@ -3,7 +3,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;

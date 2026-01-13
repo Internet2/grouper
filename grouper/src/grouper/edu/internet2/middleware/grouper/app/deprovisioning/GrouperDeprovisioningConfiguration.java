@@ -16,7 +16,7 @@
 
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Stem;

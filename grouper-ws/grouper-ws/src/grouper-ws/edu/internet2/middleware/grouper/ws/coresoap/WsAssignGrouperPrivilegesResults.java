@@ -20,8 +20,8 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;

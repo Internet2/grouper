@@ -18,7 +18,7 @@ package edu.internet2.middleware.grouper.rules;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;

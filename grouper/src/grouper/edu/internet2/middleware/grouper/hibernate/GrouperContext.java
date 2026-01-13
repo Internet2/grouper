@@ -23,7 +23,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;

@@ -21,7 +21,7 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import bsh.CallStack;
 import bsh.Interpreter;

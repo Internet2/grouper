@@ -18,7 +18,7 @@ package edu.internet2.middleware.grouper.ws;
 
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 

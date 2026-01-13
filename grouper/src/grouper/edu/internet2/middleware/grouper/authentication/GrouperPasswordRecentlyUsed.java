@@ -3,7 +3,7 @@
  */
 package edu.internet2.middleware.grouper.authentication;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;

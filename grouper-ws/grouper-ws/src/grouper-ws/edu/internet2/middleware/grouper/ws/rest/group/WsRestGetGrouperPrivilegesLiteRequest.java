@@ -18,7 +18,7 @@
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;

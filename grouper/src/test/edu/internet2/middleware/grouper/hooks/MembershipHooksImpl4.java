@@ -19,7 +19,7 @@
  */
 package edu.internet2.middleware.grouper.hooks;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;

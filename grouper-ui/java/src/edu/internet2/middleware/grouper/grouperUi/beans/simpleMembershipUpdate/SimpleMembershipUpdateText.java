@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;

@@ -31,7 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper.helper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import junit.framework.Assert;
 import edu.internet2.middleware.grouper.GrouperSession;

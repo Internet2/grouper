@@ -32,7 +32,7 @@
 
 package edu.internet2.middleware.grouper.log;
 
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;

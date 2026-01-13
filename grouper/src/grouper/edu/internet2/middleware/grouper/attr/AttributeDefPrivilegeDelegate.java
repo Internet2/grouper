@@ -19,8 +19,8 @@
  */
 package edu.internet2.middleware.grouper.attr;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

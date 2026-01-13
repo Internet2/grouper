@@ -24,7 +24,7 @@ import java.util.Set;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;

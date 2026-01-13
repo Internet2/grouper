@@ -59,7 +59,7 @@ import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 import com.sun.istack.NotNull;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.collections.set.ListOrderedSet;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

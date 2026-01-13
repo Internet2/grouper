@@ -1305,10 +1305,10 @@ public class UiV2Admin extends UiServiceLogicBase {
       }
     }
 
-    if (org.apache.commons.lang.StringUtils.equals("true", request.getParameter("filterZeroCountTotal"))) {
+    if (org.apache.commons.lang3.StringUtils.equals("true", request.getParameter("filterZeroCountTotal"))) {
       criterionList.add(Restrictions.ne("totalCount", 0));
     }
-    if (org.apache.commons.lang.StringUtils.equals("true", request.getParameter("filterZeroCountCrud"))) {
+    if (org.apache.commons.lang3.StringUtils.equals("true", request.getParameter("filterZeroCountCrud"))) {
       criterionList.add(Restrictions.or(
               Restrictions.ne("insertCount", 0),
               Restrictions.ne("updateCount", 0),

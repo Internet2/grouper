@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.collections.iterators.SingletonIterator;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * unmodifiable, holds exactly one value, lightweight set

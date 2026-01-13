@@ -6,7 +6,7 @@ package edu.internet2.middleware.grouper.app.loader;
 
 import java.io.File;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;

@@ -36,7 +36,7 @@ import java.util.Set;
 import junit.framework.Assert;
 import junit.textui.TestRunner;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 

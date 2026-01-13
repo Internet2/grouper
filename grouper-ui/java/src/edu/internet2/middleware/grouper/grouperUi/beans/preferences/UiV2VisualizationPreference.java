@@ -6,7 +6,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.preferences;
 
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * bean to serialize options from stored preferences

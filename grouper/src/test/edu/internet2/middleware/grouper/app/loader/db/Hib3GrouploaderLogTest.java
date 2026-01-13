@@ -22,7 +22,7 @@ package edu.internet2.middleware.grouper.app.loader.db;
 import java.sql.Timestamp;
 
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.helper.GrouperTest;

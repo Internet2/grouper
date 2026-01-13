@@ -37,7 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;

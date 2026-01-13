@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;

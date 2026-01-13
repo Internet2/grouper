@@ -11,7 +11,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateMembershipsResponse;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;

@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 

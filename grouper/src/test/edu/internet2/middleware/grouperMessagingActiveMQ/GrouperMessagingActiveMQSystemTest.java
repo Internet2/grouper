@@ -4,7 +4,7 @@ import static edu.internet2.middleware.grouperClient.messaging.GrouperMessageQue
 
 import java.util.Collection;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueParam;

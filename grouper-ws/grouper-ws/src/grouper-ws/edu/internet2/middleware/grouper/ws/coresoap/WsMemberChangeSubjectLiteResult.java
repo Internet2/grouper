@@ -18,7 +18,7 @@
  */
 package edu.internet2.middleware.grouper.ws.coresoap;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;

@@ -19,7 +19,7 @@
  */
 package edu.internet2.middleware.grouper.subj;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.subject.Subject;

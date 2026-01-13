@@ -3,7 +3,7 @@ package edu.internet2.middleware.grouper.app.gsh.template;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.testing.GrouperTestInApi;

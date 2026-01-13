@@ -38,7 +38,7 @@ import java.util.Date;
 import edu.internet2.middleware.grouper.rules.RuleApi;
 import junit.textui.TestRunner;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
