@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouperVoot.messages;
 import java.lang.reflect.Field;
 import java.util.Comparator;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 import edu.internet2.middleware.grouperVoot.beans.VootPerson;
 
 /**

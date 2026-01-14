@@ -278,11 +278,6 @@
                 <version>${dbcp.version}</version>
             </dependency>
             <dependency>
-                <groupId>backport-util-concurrent</groupId>
-                <artifactId>backport-util-concurrent</artifactId>
-                <version>${backport.util.version}</version>
-            </dependency>
-            <dependency>
               <groupId>com.amazonaws</groupId>
               <artifactId>aws-java-sdk-core</artifactId>
               <version>${aws.java.sdk.core}</version>

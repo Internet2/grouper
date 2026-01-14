@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -272,7 +272,7 @@ public abstract class VootTest extends GrouperTest {
       // Check if all groups are present in the response, without considering their order
       int memberCount = 0;
       @SuppressWarnings("unchecked")
-      List<VootGroup> membersList = Arrays.asList(vootGetMembersResponse.getEntry());
+      List<VootPerson> membersList = Arrays.asList(vootGetMembersResponse.getEntry());
       for (int i = 0; i < subjectCount; ++i) {
         VootPerson vootPerson = new VootPerson(subjects[i]);
         vootPerson.setVoot_membership_role(roles[i]);

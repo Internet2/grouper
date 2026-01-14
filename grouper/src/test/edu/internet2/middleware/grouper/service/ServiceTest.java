@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import junit.textui.TestRunner;
-import edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
