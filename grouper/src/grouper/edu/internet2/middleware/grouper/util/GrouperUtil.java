@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.PushbackInputStream;
 import java.io.Reader;
 import java.io.StringWriter;
@@ -113,7 +112,6 @@ import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JxltEngine;
 import org.apache.commons.jexl3.JxltEngine.Template;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.commons.lang.exception.Nestable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11609,16 +11607,26 @@ public class GrouperUtil {
     if (throwable == null) {
       return null;
     }
-      StringWriter sw = new StringWriter();
-      PrintWriter pw = new PrintWriter(sw, true);
-      Throwable[] ts = getThrowables(throwable);
-      for (int i = 0; i < ts.length; i++) {
-          ts[i].printStackTrace(pw);
-          if (isNestedThrowable(ts[i])) {
-              break;
-          }
+
+    StringBuilder builder = new StringBuilder(ExceptionUtils.getStackTrace(throwable));
+
+    Throwable cause = throwable;
+    for (int i = 10; i > 0; --i) {
+      cause = cause.getCause();
+      if (cause == null) {
+        break;
+      } else if (cause.getCause() == cause) {
+        /* avoid infinite loop */
+        break;
+      } else {
+        builder.append(ExceptionUtils.getStackTrace(cause));
       }
-      return sw.getBuffer().toString();
+      if (i == 0) {
+        LOG.error("Throwable " + throwable.getClass().getName() + " chain of causes too long");
+      }
+    }
+
+    return builder.toString();
   }
 
   /** true or false for if we know if this is a class or not */
@@ -12152,271 +12160,6 @@ public class GrouperUtil {
         LOG.trace(logMessage.toString());
       }
     }
-  }
-
-  /**
-   * <p>Returns the list of <code>Throwable</code> objects in the
-   * exception chain.</p>
-   *
-   * <p>A throwable without cause will return an array containing
-   * one element - the input throwable.
-   * A throwable with one cause will return an array containing
-   * two elements. - the input throwable and the cause throwable.
-   * A <code>null</code> throwable will return an array size zero.</p>
-   *
-   * @param throwable  the throwable to inspect, may be null
-   * @return the array of throwables, never null
-   */
-  public static Throwable[] getThrowables(Throwable throwable) {
-      List list = new ArrayList();
-      while (throwable != null) {
-          list.add(throwable);
-          throwable = getCause(throwable);
-      }
-      return (Throwable[]) list.toArray(new Throwable[list.size()]);
-  }
-
-  /**
-   * <p>The names of methods commonly used to access a wrapped exception.</p>
-   */
-  private static String[] CAUSE_METHOD_NAMES = {
-      "getCause",
-      "getNextException",
-      "getTargetException",
-      "getException",
-      "getSourceException",
-      "getRootCause",
-      "getCausedByException",
-      "getNested",
-      "getLinkedException",
-      "getNestedException",
-      "getLinkedCause",
-      "getThrowable",
-  };
-
-  /**
-   * <p>Checks whether this <code>Throwable</code> class can store a cause.</p>
-   *
-   * <p>This method does <b>not</b> check whether it actually does store a cause.<p>
-   *
-   * @param throwable  the <code>Throwable</code> to examine, may be null
-   * @return boolean <code>true</code> if nested otherwise <code>false</code>
-   * @since 2.0
-   */
-  public static boolean isNestedThrowable(Throwable throwable) {
-      if (throwable == null) {
-          return false;
-      }
-
-      if (throwable instanceof Nestable) {
-          return true;
-      } else if (throwable instanceof SQLException) {
-          return true;
-      } else if (throwable instanceof InvocationTargetException) {
-          return true;
-      } else if (isThrowableNested()) {
-          return true;
-      }
-
-      Class cls = throwable.getClass();
-      for (int i = 0, isize = CAUSE_METHOD_NAMES.length; i < isize; i++) {
-          try {
-              Method method = cls.getMethod(CAUSE_METHOD_NAMES[i], (Class[])null);
-              if (method != null && Throwable.class.isAssignableFrom(method.getReturnType())) {
-                  return true;
-              }
-          } catch (NoSuchMethodException ignored) {
-          } catch (SecurityException ignored) {
-          }
-      }
-
-      try {
-          Field field = cls.getField("detail");
-          if (field != null) {
-              return true;
-          }
-      } catch (NoSuchFieldException ignored) {
-      } catch (SecurityException ignored) {
-      }
-
-      return false;
-  }
-
-  /**
-   * <p>The Method object for JDK1.4 getCause.</p>
-   */
-  private static final Method THROWABLE_CAUSE_METHOD;
-  static {
-      Method getCauseMethod;
-      try {
-          getCauseMethod = Throwable.class.getMethod("getCause", (Class[])null);
-      } catch (Exception e) {
-          getCauseMethod = null;
-      }
-      THROWABLE_CAUSE_METHOD = getCauseMethod;
-  }
-
-  /**
-   * <p>Checks if the Throwable class has a <code>getCause</code> method.</p>
-   *
-   * <p>This is true for JDK 1.4 and above.</p>
-   *
-   * @return true if Throwable is nestable
-   * @since 2.0
-   */
-  public static boolean isThrowableNested() {
-      return THROWABLE_CAUSE_METHOD != null;
-  }
-
-  /**
-   * <p>Introspects the <code>Throwable</code> to obtain the cause.</p>
-   *
-   * <p>The method searches for methods with specific names that return a
-   * <code>Throwable</code> object. This will pick up most wrapping exceptions,
-   * including those from JDK 1.4, and
-   * {@link org.apache.commons.lang.exception.NestableException NestableException}.</p>
-   *
-   * <p>The default list searched for are:</p>
-   * <ul>
-   *  <li><code>getCause()</code></li>
-   *  <li><code>getNextException()</code></li>
-   *  <li><code>getTargetException()</code></li>
-   *  <li><code>getException()</code></li>
-   *  <li><code>getSourceException()</code></li>
-   *  <li><code>getRootCause()</code></li>
-   *  <li><code>getCausedByException()</code></li>
-   *  <li><code>getNested()</code></li>
-   * </ul>
-   *
-   * <p>In the absence of any such method, the object is inspected for a
-   * <code>detail</code> field assignable to a <code>Throwable</code>.</p>
-   *
-   * <p>If none of the above is found, returns <code>null</code>.</p>
-   *
-   * @param throwable  the throwable to introspect for a cause, may be null
-   * @return the cause of the <code>Throwable</code>,
-   *  <code>null</code> if none found or null throwable input
-   * @since 1.0
-   */
-  public static Throwable getCause(Throwable throwable) {
-      return getCause(throwable, CAUSE_METHOD_NAMES);
-  }
-
-  /**
-   * <p>Introspects the <code>Throwable</code> to obtain the cause.</p>
-   *
-   * <ol>
-   * <li>Try known exception types.</li>
-   * <li>Try the supplied array of method names.</li>
-   * <li>Try the field 'detail'.</li>
-   * </ol>
-   *
-   * <p>A <code>null</code> set of method names means use the default set.
-   * A <code>null</code> in the set of method names will be ignored.</p>
-   *
-   * @param throwable  the throwable to introspect for a cause, may be null
-   * @param methodNames  the method names, null treated as default set
-   * @return the cause of the <code>Throwable</code>,
-   *  <code>null</code> if none found or null throwable input
-   * @since 1.0
-   */
-  public static Throwable getCause(Throwable throwable, String[] methodNames) {
-      if (throwable == null) {
-          return null;
-      }
-      Throwable cause = getCauseUsingWellKnownTypes(throwable);
-      if (cause == null) {
-          if (methodNames == null) {
-              methodNames = CAUSE_METHOD_NAMES;
-          }
-          for (int i = 0; i < methodNames.length; i++) {
-              String methodName = methodNames[i];
-              if (methodName != null) {
-                  cause = getCauseUsingMethodName(throwable, methodName);
-                  if (cause != null) {
-                      break;
-                  }
-              }
-          }
-
-          if (cause == null) {
-              cause = getCauseUsingFieldName(throwable, "detail");
-          }
-      }
-      return cause;
-  }
-
-  /**
-   * <p>Finds a <code>Throwable</code> by method name.</p>
-   *
-   * @param throwable  the exception to examine
-   * @param methodName  the name of the method to find and invoke
-   * @return the wrapped exception, or <code>null</code> if not found
-   */
-  private static Throwable getCauseUsingMethodName(Throwable throwable, String methodName) {
-      Method method = null;
-      try {
-          method = throwable.getClass().getMethod(methodName, (Class[])null);
-      } catch (NoSuchMethodException ignored) {
-      } catch (SecurityException ignored) {
-      }
-
-      if (method != null && Throwable.class.isAssignableFrom(method.getReturnType())) {
-          try {
-              return (Throwable) method.invoke(throwable, EMPTY_OBJECT_ARRAY);
-          } catch (IllegalAccessException ignored) {
-          } catch (IllegalArgumentException ignored) {
-          } catch (InvocationTargetException ignored) {
-          }
-      }
-      return null;
-  }
-
-  /**
-   * <p>Finds a <code>Throwable</code> by field name.</p>
-   *
-   * @param throwable  the exception to examine
-   * @param fieldName  the name of the attribute to examine
-   * @return the wrapped exception, or <code>null</code> if not found
-   */
-  private static Throwable getCauseUsingFieldName(Throwable throwable, String fieldName) {
-      Field field = null;
-      try {
-          field = throwable.getClass().getField(fieldName);
-      } catch (NoSuchFieldException ignored) {
-      } catch (SecurityException ignored) {
-      }
-
-      if (field != null && Throwable.class.isAssignableFrom(field.getType())) {
-          try {
-              return (Throwable) field.get(throwable);
-          } catch (IllegalAccessException ignored) {
-          } catch (IllegalArgumentException ignored) {
-          }
-      }
-      return null;
-  }
-
-  /**
-   * <p>Finds a <code>Throwable</code> for known types.</p>
-   *
-   * <p>Uses <code>instanceof</code> checks to examine the exception,
-   * looking for well known types which could contain chained or
-   * wrapped exceptions.</p>
-   *
-   * @param throwable  the exception to examine
-   * @return the wrapped exception, or <code>null</code> if not found
-   */
-  private static Throwable getCauseUsingWellKnownTypes(Throwable throwable) {
-      if (throwable instanceof Nestable) {
-          return ((Nestable) throwable).getCause();
-      } else if (throwable instanceof SQLException) {
-          return ((SQLException) throwable).getNextException();
-      } else if (throwable instanceof InvocationTargetException) {
-          return ((InvocationTargetException) throwable).getTargetException();
-      } else {
-          return null;
-      }
   }
 
   /**
