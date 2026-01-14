@@ -3,9 +3,9 @@ package edu.internet2.middleware.grouper.app.adobe;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -878,7 +878,7 @@ public class AdobeMockServiceHandler extends MockServiceHandler {
      */
     
     GrouperAdobeGroup grouperAdobeGroup = new GrouperAdobeGroup();
-    grouperAdobeGroup.setId(RandomUtils.nextLong());
+    grouperAdobeGroup.setId(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE));
     grouperAdobeGroup.setName(groupName);
 //    grouperAdobeGroup.setProductName(productName);
     
