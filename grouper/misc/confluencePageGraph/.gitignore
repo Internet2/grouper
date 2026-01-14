@@ -1,0 +1,5 @@
+*.zip
+attachments/
+*.png
+*.svg
+*.dot
