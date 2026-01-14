@@ -24,7 +24,7 @@ import java.util.Collection;
 
 import javax.naming.NameNotFoundException;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -91,7 +91,7 @@ public class SubjectCheckConfig {
       sources = SourceManager.getInstance().getSourcesEnabled();
     } catch (Exception e) {
       String error = "problem initting sources from subject.properties";
-      System.err.println("Subject API error: " + error + ", " + ExceptionUtils.getFullStackTrace(e));
+      System.err.println("Subject API error: " + error + ", " + ExceptionUtils.getStackTrace(e));
       log.error(error, e);
       if (exceptionIfProblem) {
         throw new RuntimeException(error, e);
@@ -121,7 +121,7 @@ public class SubjectCheckConfig {
         if (ExceptionUtils.getRootCause(e) != null && ExceptionUtils.getRootCause(e) instanceof NameNotFoundException) {
           theError += "The underlying exception is NameNotFoundException.  Be sure that the base dn values in your subject.properties are correct and relative to the base dn specified in the LDAP url in your grouper-loader.properties configuration.  Note that if your LDAP url in grouper-loader.properties has a base dn, then that base dn should not be included in subject.properties.  See subject.base.properties for documentation and examples.";
         }
-        System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
+        System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getStackTrace(e));
         log.error(theError, e);
         
         if (exceptionIfProblem) {
@@ -148,7 +148,7 @@ public class SubjectCheckConfig {
         if (ExceptionUtils.getRootCause(e) != null && ExceptionUtils.getRootCause(e) instanceof NameNotFoundException) {
           theError += "The underlying exception is NameNotFoundException.  Be sure that the base dn values in your subject.properties are correct and relative to the base dn specified in the LDAP url in your grouper-loader.properties configuration.  Note that if your LDAP url in grouper-loader.properties has a base dn, then that base dn should not be included in subject.properties.  See subject.base.properties for documentation and examples.";
         }
-        System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
+        System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getStackTrace(e));
         log.error(theError, e);
         
         if (exceptionIfProblem) {
@@ -173,7 +173,7 @@ public class SubjectCheckConfig {
         if (ExceptionUtils.getRootCause(e) != null && ExceptionUtils.getRootCause(e) instanceof NameNotFoundException) {
           theError += "The underlying exception is NameNotFoundException.  Be sure that the base dn values in your subject.properties are correct and relative to the base dn specified in the LDAP url in your grouper-loader.properties configuration.  Note that if your LDAP url in grouper-loader.properties has a base dn, then that base dn should not be included in subject.properties.  See subject.base.properties for documentation and examples.";
         }
-        System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
+        System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getStackTrace(e));
         log.error(theError, e);
         
         if (exceptionIfProblem) {

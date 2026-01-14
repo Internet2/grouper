@@ -29,7 +29,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.net.telnet.TelnetClient;
 
 /**
@@ -71,7 +71,7 @@ public class TcpCaptureServer {
           System.err.println("Couldn't connect successfully to port: " + portListen +", " + e.getMessage());
         }
         
-        System.err.println("Socket thread called from: " + ExceptionUtils.getFullStackTrace(new RuntimeException()));
+        System.err.println("Socket thread called from: " + ExceptionUtils.getStackTrace(new RuntimeException()));
       }
       
       Thread thread = new Thread(new Runnable() {
@@ -130,7 +130,7 @@ public class TcpCaptureServer {
     } catch (IOException ioe) {
 
       System.err.println("Problem with port: " + portListen + ", " + ioe);
-      this.error = ExceptionUtils.getFullStackTrace(ioe);
+      this.error = ExceptionUtils.getStackTrace(ioe);
     
     } finally {
       if (sock != null) {
@@ -223,7 +223,7 @@ public class TcpCaptureServer {
               PROXY_TO_SERVER.flush();
             }
           } catch (Exception e) {
-            TcpCaptureServer.this.error = ExceptionUtils.getFullStackTrace(e);
+            TcpCaptureServer.this.error = ExceptionUtils.getStackTrace(e);
             e.printStackTrace();
           }
 
@@ -271,7 +271,7 @@ public class TcpCaptureServer {
               PROXY_TO_CLIENT.flush();
             }
           } catch (Exception e) {
-            TcpCaptureServer.this.error = ExceptionUtils.getFullStackTrace(e);
+            TcpCaptureServer.this.error = ExceptionUtils.getStackTrace(e);
             e.printStackTrace();
           }
 
@@ -287,7 +287,7 @@ public class TcpCaptureServer {
       clientToServer.join();
       proxyToClient.flush();
     } catch (Exception e) {
-      this.error = ExceptionUtils.getFullStackTrace(e);
+      this.error = ExceptionUtils.getStackTrace(e);
       e.printStackTrace();
     } finally {
       if (serverToProxy != null) {

@@ -19,7 +19,7 @@
 package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
@@ -107,7 +107,7 @@ public class WsMemberChangeSubjectLiteResult implements WsResponseBean, ResultMe
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
+          theError + ExceptionUtils.getStackTrace(e));
       this.assignResultCode(wsMemberChangeSubjectLiteResultCodeOverride);
 
     }

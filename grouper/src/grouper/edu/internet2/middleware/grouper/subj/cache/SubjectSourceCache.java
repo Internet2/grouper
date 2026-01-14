@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -176,7 +176,7 @@ public class SubjectSourceCache {
       
     } catch (RuntimeException re) {
       if (LOG.isDebugEnabled()) {
-        debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+        debugMap.put("exception", ExceptionUtils.getStackTrace(re));
       } 
       throw re;
     } finally {
@@ -366,7 +366,7 @@ public class SubjectSourceCache {
       
     } catch (RuntimeException re) {
       if (LOG.isDebugEnabled()) {
-        debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+        debugMap.put("exception", ExceptionUtils.getStackTrace(re));
       } 
       throw re;
     } finally {
@@ -444,7 +444,7 @@ public class SubjectSourceCache {
       
     } catch (RuntimeException re) {
       if (LOG.isDebugEnabled()) {
-        debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+        debugMap.put("exception", ExceptionUtils.getStackTrace(re));
       } 
       throw re;
     } finally {
@@ -643,7 +643,7 @@ public class SubjectSourceCache {
       
     } catch (RuntimeException re) {
       if (LOG.isDebugEnabled()) {
-        debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+        debugMap.put("exception", ExceptionUtils.getStackTrace(re));
       } 
       throw re;
     } finally {
@@ -913,7 +913,7 @@ public class SubjectSourceCache {
       
     } catch (RuntimeException re) {
       if (LOG.isDebugEnabled()) {
-        debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+        debugMap.put("exception", ExceptionUtils.getStackTrace(re));
       } 
       throw re;
     } finally {
@@ -1166,7 +1166,7 @@ public class SubjectSourceCache {
       }
     } catch (RuntimeException re) {
       if (LOG.isDebugEnabled()) {
-        debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+        debugMap.put("exception", ExceptionUtils.getStackTrace(re));
       } 
       throw re;
     } finally {
@@ -1301,7 +1301,7 @@ public class SubjectSourceCache {
         if (re instanceof SubjectNotFoundException) {
           debugMap.put("SubjectNotFound", re.getMessage());
         } else {
-          debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+          debugMap.put("exception", ExceptionUtils.getStackTrace(re));
         }
       } 
       throw re;
@@ -1495,7 +1495,7 @@ public class SubjectSourceCache {
         
     } catch (RuntimeException re) {
       if (LOG.isDebugEnabled()) {
-        debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+        debugMap.put("exception", ExceptionUtils.getStackTrace(re));
       } 
       throw re;
     } finally {
@@ -1629,7 +1629,7 @@ public class SubjectSourceCache {
         
     } catch (RuntimeException re) {
       if (LOG.isDebugEnabled()) {
-        debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+        debugMap.put("exception", ExceptionUtils.getStackTrace(re));
       } 
       throw re;
     } finally {
@@ -1807,7 +1807,7 @@ public class SubjectSourceCache {
         
     } catch (RuntimeException re) {
       if (LOG.isDebugEnabled()) {
-        debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+        debugMap.put("exception", ExceptionUtils.getStackTrace(re));
       } 
       throw re;
     } finally {
@@ -1990,7 +1990,7 @@ public class SubjectSourceCache {
         
     } catch (RuntimeException re) {
       if (LOG.isDebugEnabled()) {
-        debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+        debugMap.put("exception", ExceptionUtils.getStackTrace(re));
       } 
       throw re;
     } finally {
@@ -2210,7 +2210,7 @@ public class SubjectSourceCache {
         
     } catch (RuntimeException re) {
       if (LOG.isDebugEnabled()) {
-        debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+        debugMap.put("exception", ExceptionUtils.getStackTrace(re));
       } 
       throw re;
     } finally {
@@ -2267,7 +2267,7 @@ public class SubjectSourceCache {
             
     } catch (RuntimeException re) {
       if (LOG.isDebugEnabled()) {
-        debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+        debugMap.put("exception", ExceptionUtils.getStackTrace(re));
       } 
       throw re;
     } finally {

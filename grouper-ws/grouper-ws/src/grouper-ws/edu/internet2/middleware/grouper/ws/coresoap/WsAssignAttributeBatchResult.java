@@ -20,7 +20,7 @@
 package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -90,7 +90,7 @@ public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttribut
     if (this.resultMetadata == null) {
       this.resultMetadata = new WsResultMeta();
     }
-    String stack = e == null ? "" : ExceptionUtils.getFullStackTrace(e);
+    String stack = e == null ? "" : ExceptionUtils.getStackTrace(e);
 
     if (StringUtils.isBlank(this.resultMetadata.getResultMessage())) {
       this.resultMetadata.setResultMessage(theError + ", " + stack);

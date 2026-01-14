@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper.externalSubjects;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -132,7 +132,7 @@ public class ExternalSubjectAttributeTest extends GrouperTest {
       externalSubject.assignAttribute("jabber1", "a@w.e"); 
       fail("Shouldnt get here");
     } catch (Exception e) {
-      assertTrue(ExceptionUtils.getFullStackTrace(e), ExceptionUtils.getFullStackTrace(e).toLowerCase().contains("invalid attribute"));
+      assertTrue(ExceptionUtils.getStackTrace(e), ExceptionUtils.getStackTrace(e).toLowerCase().contains("invalid attribute"));
     }
   }
   

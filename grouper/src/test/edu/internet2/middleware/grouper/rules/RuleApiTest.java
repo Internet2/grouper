@@ -26,7 +26,7 @@ import java.util.Set;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -1378,7 +1378,7 @@ public class RuleApiTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be a member of stem:a if not a member of stem:b"));
     }
 
@@ -1417,7 +1417,7 @@ public class RuleApiTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
     }
   
@@ -1464,7 +1464,7 @@ public class RuleApiTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
     }
   
@@ -1506,7 +1506,7 @@ public class RuleApiTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
     }
   
@@ -1801,7 +1801,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("b deny jdbc"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -1812,7 +1812,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("b deny jdbc"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -1823,7 +1823,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("Root cannot be group"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -1852,7 +1852,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("Root cannot be group"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -1878,7 +1878,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("Root cannot be group"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -1915,7 +1915,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("a:b deny jdbc sub"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -1926,7 +1926,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("a:b deny jdbc sub"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -1937,7 +1937,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("Root cannot be group"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -1963,7 +1963,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("b:d allow employees jdbc sub"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -1974,7 +1974,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("Root cannot be group"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -1998,7 +1998,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("a:e allow employees all sub"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -2009,7 +2009,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("a:e allow employees all sub"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -2020,7 +2020,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("a:e allow employees all sub"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -2045,7 +2045,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("a:e:a deny all sub"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -2056,7 +2056,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("a:e:a deny all sub"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -2067,7 +2067,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("a:e:a deny all sub"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -2078,7 +2078,7 @@ public class RuleApiTest extends GrouperTest {
       fail();
     } catch (RuntimeException re) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(re);
+      String stack = ExceptionUtils.getStackTrace(re);
       assertTrue(stack, stack.contains("a:e:a deny all"));
     }
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
@@ -2845,7 +2845,7 @@ public class RuleApiTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be a member of group if not in the IT department org"));
     }
   
@@ -2906,7 +2906,7 @@ public class RuleApiTest extends GrouperTest {
       payrollUser.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject0);
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be assigned these permissions unless they are an employee"));
     }
 
@@ -4063,7 +4063,7 @@ public class RuleApiTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Group has too many members"));
     }
   
@@ -4103,7 +4103,7 @@ public class RuleApiTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Group has too many members"));
     }
   

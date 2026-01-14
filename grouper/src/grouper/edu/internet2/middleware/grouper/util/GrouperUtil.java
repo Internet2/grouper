@@ -112,7 +112,7 @@ import org.apache.commons.jexl2.parser.JexlNode;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JxltEngine;
 import org.apache.commons.jexl3.JxltEngine.Template;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang.exception.Nestable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -12018,7 +12018,7 @@ public class GrouperUtil {
           if (exception instanceof HookVeto) {
             logMessage.append(", it was vetoed: " + exception);
           } else {
-            logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
+            logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getStackTrace(exception));
           }
         }
         // GRP-4622: do not log env vars in container since could be sensitive
@@ -12145,7 +12145,7 @@ public class GrouperUtil {
           if (exception instanceof HookVeto) {
             logMessage.append(", it was vetoed: " + exception);
           } else {
-            logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
+            logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getStackTrace(exception));
           }
         }
         // GRP-4622: do not log env vars in container since could be sensitive
@@ -14498,7 +14498,7 @@ public class GrouperUtil {
           assignField(outputField, result, outputFieldObject, true, false);
         } catch (RuntimeException re) {
           if (logMessage != null) {
-            logMessage.append("problem with field: ").append(inputField.getName()).append(", ").append(ExceptionUtils.getFullStackTrace(re));
+            logMessage.append("problem with field: ").append(inputField.getName()).append(", ").append(ExceptionUtils.getStackTrace(re));
             interestingLogFields++;
           }
         }
@@ -15196,7 +15196,7 @@ public class GrouperUtil {
           if (exception instanceof HookVeto) {
             logMessage.append(", it was vetoed: " + exception);
           } else {
-            logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
+            logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getStackTrace(exception));
           }
         }
         // GRP-4622: do not log env vars in container since could be sensitive

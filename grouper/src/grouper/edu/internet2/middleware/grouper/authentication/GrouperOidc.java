@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import com.nimbusds.jwt.JWT;
@@ -489,7 +489,7 @@ public class GrouperOidc {
       
       return subject;
     } catch (Exception e) {
-      debugMap.put("exception", ExceptionUtils.getFullStackTrace(e));
+      debugMap.put("exception", ExceptionUtils.getStackTrace(e));
       if (e instanceof RuntimeException) {
         throw (RuntimeException)e;
       }

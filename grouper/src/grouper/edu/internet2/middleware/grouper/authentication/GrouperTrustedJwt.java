@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import com.auth0.jwt.JWT;
@@ -255,7 +255,7 @@ public class GrouperTrustedJwt {
       debugMap.put("subjectFound", subject != null);
       return subject;
     } catch (Exception e) {
-      debugMap.put("exception", ExceptionUtils.getFullStackTrace(e));
+      debugMap.put("exception", ExceptionUtils.getStackTrace(e));
       if (e instanceof RuntimeException) {
         throw (RuntimeException)e;
       }

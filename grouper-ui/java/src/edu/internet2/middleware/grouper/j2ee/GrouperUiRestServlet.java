@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
@@ -298,7 +298,7 @@ public class GrouperUiRestServlet extends HttpServlet {
         printToScreen = cd.isPrintGuiReponseJs();
         //do nothing, this is ok
       } catch (RuntimeException re) {
-        String error = "Problem calling reflection from URL: " + className + "." + methodName + "\n\n" + ExceptionUtils.getFullStackTrace(re);
+        String error = "Problem calling reflection from URL: " + className + "." + methodName + "\n\n" + ExceptionUtils.getStackTrace(re);
         if (uiv2 && GrouperUiUtils.vetoHandle(guiResponseJs, re)) {
           LOG.debug(error);
         } else {

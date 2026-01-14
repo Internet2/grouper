@@ -22,7 +22,7 @@ import java.util.Set;
 
 import junit.textui.TestRunner;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -114,7 +114,7 @@ public class AttributeDefNameTest extends GrouperTest {
     try {
       attributeDefName2 = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
     } catch (AttributeDefNameAddException adae) {
-      assertTrue(ExceptionUtils.getFullStackTrace(adae), adae.getMessage().contains("attribute def name already exists"));
+      assertTrue(ExceptionUtils.getStackTrace(adae), adae.getMessage().contains("attribute def name already exists"));
     }
 
     attributeDefName2 = this.top.addChildAttributeDefName(attributeDef, "testName2", "test name2");

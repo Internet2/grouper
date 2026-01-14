@@ -36,7 +36,7 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -339,7 +339,7 @@ public class GrouperServiceLogic {
                 } catch (SchemaException se) {
                   throw new WsInvalidQueryException(
                       "Problem with getting existing members: " + FIELD_CALCULATED + ".  "
-                          + ExceptionUtils.getFullStackTrace(se));
+                          + ExceptionUtils.getStackTrace(se));
                 }
               }
 
@@ -4823,7 +4823,7 @@ public class GrouperServiceLogic {
   //          wsViewOrEditAttributesResult
   //              .assignResultCode(WsViewOrEditAttributesResultCode.EXCEPTION);
   //          wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
-  //              ExceptionUtils.getFullStackTrace(e));
+  //              ExceptionUtils.getStackTrace(e));
   //          LOG.error(wsGroupLookup + ", " + e, e);
   //        }
   //      }
@@ -5571,7 +5571,7 @@ public class GrouperServiceLogic {
     //          wsViewOrEditAttributesResult
     //              .assignResultCode(WsViewOrEditAttributesResultCode.EXCEPTION);
     //          wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
-    //              ExceptionUtils.getFullStackTrace(e));
+    //              ExceptionUtils.getStackTrace(e));
     //          LOG.error(wsGroupLookup + ", " + e, e);
     //        }
     //      }
@@ -11144,7 +11144,7 @@ public class GrouperServiceLogic {
       
       
     } catch (Exception e) {
-      wsGshTemplateExecResult.assignResultCodeException(e, ExceptionUtils.getFullStackTrace(e), clientVersion);
+      wsGshTemplateExecResult.assignResultCodeException(e, ExceptionUtils.getStackTrace(e), clientVersion);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);

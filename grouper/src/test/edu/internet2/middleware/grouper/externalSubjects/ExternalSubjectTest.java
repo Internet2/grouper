@@ -24,7 +24,7 @@ import java.util.Set;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -273,14 +273,14 @@ public class ExternalSubjectTest extends GrouperTest {
       fail("Shouldnt be allowed");
     } catch (Exception e) {
       //ok
-      assertTrue(ExceptionUtils.getFullStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
+      assertTrue(ExceptionUtils.getStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
     }
     try {
       externalSubject.delete();
       fail("Shouldnt be allowed");
     } catch (Exception e) {
       //ok
-      assertTrue(ExceptionUtils.getFullStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
+      assertTrue(ExceptionUtils.getStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
     }
 
     //subject0 cannot do this
@@ -293,14 +293,14 @@ public class ExternalSubjectTest extends GrouperTest {
       fail("Shouldnt be allowed");
     } catch (Exception e) {
       //ok
-      assertTrue(ExceptionUtils.getFullStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
+      assertTrue(ExceptionUtils.getStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
     }
     try {
       externalSubject.delete();
       fail("Shouldnt be allowed");
     } catch (Exception e) {
       //ok
-      assertTrue(ExceptionUtils.getFullStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
+      assertTrue(ExceptionUtils.getStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
     }
     
     //###########################################
@@ -327,14 +327,14 @@ public class ExternalSubjectTest extends GrouperTest {
       fail("Shouldnt be allowed");
     } catch (Exception e) {
       //ok
-      assertTrue(ExceptionUtils.getFullStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
+      assertTrue(ExceptionUtils.getStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
     }
     try {
       externalSubject.store();
       fail("Shouldnt be allowed");
     } catch (Exception e) {
       //ok
-      assertTrue(ExceptionUtils.getFullStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
+      assertTrue(ExceptionUtils.getStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
     }
     
     //###########################################
@@ -364,14 +364,14 @@ public class ExternalSubjectTest extends GrouperTest {
       fail("Shouldnt be allowed");
     } catch (Exception e) {
       //ok
-      assertTrue(ExceptionUtils.getFullStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
+      assertTrue(ExceptionUtils.getStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
     }
     try {
       externalSubject.store();
       fail("Shouldnt be allowed");
     } catch (Exception e) {
       //ok
-      assertTrue(ExceptionUtils.getFullStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
+      assertTrue(ExceptionUtils.getStackTrace(e).toLowerCase().contains("subject cannot edit external users"));
     }
     
     
@@ -425,7 +425,7 @@ public class ExternalSubjectTest extends GrouperTest {
       externalSubject.store();
       fail("Name is required");
     } catch (Exception e) {
-      assertTrue(ExceptionUtils.getFullStackTrace(e).toLowerCase().contains("name is a required"));
+      assertTrue(ExceptionUtils.getStackTrace(e).toLowerCase().contains("name is a required"));
     }
     externalSubject.setName("my name");
     //sohuld work now
@@ -453,7 +453,7 @@ public class ExternalSubjectTest extends GrouperTest {
       externalSubject.store();
       fail("Email is required");
     } catch (Exception e) {
-      assertTrue(ExceptionUtils.getFullStackTrace(e).toLowerCase().contains("email is a required"));
+      assertTrue(ExceptionUtils.getStackTrace(e).toLowerCase().contains("email is a required"));
     }
     externalSubject.setEmail("my@email.address");
     //should work now
@@ -483,7 +483,7 @@ public class ExternalSubjectTest extends GrouperTest {
       fail("Institution is a required");
     } catch (Exception e) {
       assertTrue(e.getMessage(), ExceptionUtils
-          .getFullStackTrace(e).toLowerCase().contains("institution is a required"));
+          .getStackTrace(e).toLowerCase().contains("institution is a required"));
     }
     externalSubject.setInstitution("My institution");
     //should work now
@@ -518,7 +518,7 @@ public class ExternalSubjectTest extends GrouperTest {
         fail("Jabber is a required");
       } catch (Exception e) {
         assertTrue(e.getMessage(), ExceptionUtils
-            .getFullStackTrace(e).toLowerCase().contains("jabber is a required"));
+            .getStackTrace(e).toLowerCase().contains("jabber is a required"));
       }
   
       //institution is required
@@ -539,7 +539,7 @@ public class ExternalSubjectTest extends GrouperTest {
         fail("Jabber is a required");
       } catch (Exception e) {
         assertTrue(e.getMessage(), ExceptionUtils
-            .getFullStackTrace(e).toLowerCase().contains("jabber is a required"));
+            .getStackTrace(e).toLowerCase().contains("jabber is a required"));
       }
   
       //institution is required
@@ -551,7 +551,7 @@ public class ExternalSubjectTest extends GrouperTest {
         fail("Jabber is a required");
       } catch (Exception e) {
         assertTrue(e.getMessage(), ExceptionUtils
-            .getFullStackTrace(e).toLowerCase().contains("jabber is a required"));
+            .getStackTrace(e).toLowerCase().contains("jabber is a required"));
       }
     } finally {
       GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.attributes.jabber.required");

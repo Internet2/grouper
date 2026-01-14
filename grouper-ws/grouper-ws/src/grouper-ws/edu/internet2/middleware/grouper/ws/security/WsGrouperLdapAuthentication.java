@@ -27,7 +27,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.ldaptive.FilterTemplate;
 
@@ -218,7 +218,7 @@ public class WsGrouperLdapAuthentication implements WsCustomAuthentication {
     } catch (Exception le) {
       if (LOG.isDebugEnabled()) {
         debugMap.put("authenticated", "false");
-        debugMap.put("error", ExceptionUtils.getFullStackTrace(le));
+        debugMap.put("error", ExceptionUtils.getStackTrace(le));
       }
 
       LOG.warn("error for principal: " + principal + ", dn: " + userDn, le);

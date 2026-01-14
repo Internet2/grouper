@@ -40,7 +40,7 @@ import junit.framework.Assert;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import com.jamonapi.Monitor;
@@ -1643,7 +1643,7 @@ public class TestGroup1 extends GrouperTest {
       fail("not good since READONLY txs should not commit");
     } catch (Exception e) {
       //good, it failed
-      String exception = ExceptionUtils.getFullStackTrace(e).toLowerCase();
+      String exception = ExceptionUtils.getStackTrace(e).toLowerCase();
       assertTrue(
           "Should be readonly commitable problem, or problem with read/write tx inside readonly...: "
               + exception, exception.contains("read") && exception.contains("only"));
@@ -1691,7 +1691,7 @@ public class TestGroup1 extends GrouperTest {
           });
     } catch (Exception e) {
       //good, it failed
-      exception = ExceptionUtils.getFullStackTrace(e).toLowerCase();
+      exception = ExceptionUtils.getStackTrace(e).toLowerCase();
     }
     assertTrue("Should be from inner exception, have that text in there: " + exception,
         StringUtils.contains(exception, "just to cause a rollback"));

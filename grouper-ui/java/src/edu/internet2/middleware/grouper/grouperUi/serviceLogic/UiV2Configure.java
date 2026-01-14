@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -1302,7 +1302,7 @@ public class UiV2Configure {
         } catch (Exception e) {
           final String errorHeader = "Error in import for key '" + keyObject + "': " + configFileName.getConfigFileName();
           LOG.error(errorHeader, e);
-          message.append(errorHeader + "\n" + ExceptionUtils.getFullStackTrace(e));
+          message.append(errorHeader + "\n" + ExceptionUtils.getStackTrace(e));
           countError++;
         }
         

@@ -31,7 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper.group;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -137,7 +137,7 @@ public class Test_I_API_Group_addCompositeMember extends GrouperTest {
       runCompositeMembershipChangeLogConsumer();
     }
     catch (Exception eShouldNotHappen) {
-      fail( "ERROR INITIALIZING TEST: " + ExceptionUtils.getFullStackTrace(eShouldNotHappen));
+      fail( "ERROR INITIALIZING TEST: " + ExceptionUtils.getStackTrace(eShouldNotHappen));
     }
     assertTrue( "gD has immediate gC",    gD.hasImmediateMember( gC.toSubject() ) );
     assertTrue( "gD has effective subjX", gD.hasEffectiveMember( subjX ) );

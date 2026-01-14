@@ -18,7 +18,7 @@
  */
 package edu.internet2.middleware.grouper.ws.coresoap;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -290,7 +290,7 @@ public class WsStemSaveResult implements ResultMetadataHolder {
       this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
       this.assignResultCode(WsStemSaveResultCode.INVALID_QUERY, clientVersion);
     } else {
-      this.getResultMetadata().setResultMessage(ExceptionUtils.getFullStackTrace(e));
+      this.getResultMetadata().setResultMessage(ExceptionUtils.getStackTrace(e));
       this.assignResultCode(WsStemSaveResultCode.EXCEPTION, clientVersion);
     }
     LOG.error(wsStemToSave + ", " + e, e);

@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.validator.EmailValidator;
 
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -178,7 +178,7 @@ public class SubjectSourceDiagnostics {
           subjectApiReport.append("<font color='orange'>WARNING:</font> No subject found by id in " + millis + "ms: '" + GrouperUtil.xmlEscape(subjectId) + "'\n         with SubjectFinder.findByIdAndSource(\"" + GrouperUtil.xmlEscape(subjectId) + "\", \"" + GrouperUtil.xmlEscape(sourceId) + "\", false)\n");
         } else {
           subjectApiReport.append("<font color='red'>ERROR:</font> Exception thrown when finding subject by id in " + millis + "ms: '" + GrouperUtil.xmlEscape(subjectId) + "'\n         with SubjectFinder.findByIdAndSource(\"" + GrouperUtil.xmlEscape(subjectId) + "\", \"" + GrouperUtil.xmlEscape(sourceId) + "\", false)\n");
-          subjectApiReport.append(ExceptionUtils.getFullStackTrace(exception));
+          subjectApiReport.append(ExceptionUtils.getStackTrace(exception));
         }
         if (!StringUtils.isBlank(logMessage)) {
           subjectApiReport.append("<font color='blue'>DEBUG:</font> ").append(GrouperUtil.xmlEscape(StringUtils.trim(logMessage))).append("\n");
@@ -208,7 +208,7 @@ public class SubjectSourceDiagnostics {
           subjectApiReport.append("<font color='orange'>WARNING:</font> No subject found by identifier in " + millis + "ms: '" + GrouperUtil.xmlEscape(subjectIdentifier) + "'\n         with SubjectFinder.findByIdentifierAndSource(\"" + GrouperUtil.xmlEscape(subjectIdentifier) + "\", \"" + GrouperUtil.xmlEscape(sourceId) + "\", false)\n");
         } else {
           subjectApiReport.append("<font color='red'>ERROR:</font> Exception thrown when finding subject by id in " + millis + "ms: '" + GrouperUtil.xmlEscape(subjectId) + "'\n         with SubjectFinder.findByIdentifierAndSource(\"" + GrouperUtil.xmlEscape(subjectIdentifier) + "\", \"" + GrouperUtil.xmlEscape(sourceId) + "\", false)\n");
-          subjectApiReport.append(ExceptionUtils.getFullStackTrace(exception));
+          subjectApiReport.append(ExceptionUtils.getStackTrace(exception));
         }
         if (!StringUtils.isBlank(logMessage)) {
           subjectApiReport.append("<font color='blue'>DEBUG:</font> ").append(GrouperUtil.xmlEscape(StringUtils.trim(logMessage))).append("\n");
@@ -239,7 +239,7 @@ public class SubjectSourceDiagnostics {
           subjectApiReport.append("<font color='orange'>WARNING:</font> Found no subjects by search string in " + millis + "ms: '" + GrouperUtil.xmlEscape(searchString) + "'\n         with SubjectFinder.findAll(\"" + GrouperUtil.xmlEscape(searchString) + "\", \"" + GrouperUtil.xmlEscape(sourceId) + "\")\n");
         } else {
           subjectApiReport.append("<font color='red'>ERROR:</font> Exception finding subjects by search string in " + millis + "ms: '" + GrouperUtil.xmlEscape(searchString) + "'\n         with SubjectFinder.findAll(\"" + GrouperUtil.xmlEscape(searchString) + "\", \"" + GrouperUtil.xmlEscape(sourceId) + "\")\n");
-          subjectApiReport.append(ExceptionUtils.getFullStackTrace(exception));
+          subjectApiReport.append(ExceptionUtils.getStackTrace(exception));
         }
         if (!StringUtils.isBlank(logMessage)) {
           subjectApiReport.append("<font color='blue'>DEBUG:</font> ").append(GrouperUtil.xmlEscape(StringUtils.trim(logMessage))).append("\n");
@@ -274,7 +274,7 @@ public class SubjectSourceDiagnostics {
           subjectApiReport.append("<font color='orange'>WARNING:</font> Found no subjects by paged search string in " + millis + "ms: '" + GrouperUtil.xmlEscape(searchString) + "'\n         with SubjectFinder.findPage(\"" + GrouperUtil.xmlEscape(searchString) + "\", \"" + GrouperUtil.xmlEscape(sourceId) + "\")\n");
         } else {
           subjectApiReport.append("<font color='red'>ERROR:</font> Exception finding subjects by paged search string in " + millis + "ms: '" + GrouperUtil.xmlEscape(searchString) + "'\n         with SubjectFinder.findPage(\"" + GrouperUtil.xmlEscape(searchString) + "\", \"" + GrouperUtil.xmlEscape(sourceId) + "\")\n");
-          subjectApiReport.append(ExceptionUtils.getFullStackTrace(exception));
+          subjectApiReport.append(ExceptionUtils.getStackTrace(exception));
         }
         if (!StringUtils.isBlank(logMessage)) {
           subjectApiReport.append("<font color='blue'>DEBUG:</font> ").append(GrouperUtil.xmlEscape(StringUtils.trim(logMessage))).append("\n");
@@ -479,7 +479,7 @@ public class SubjectSourceDiagnostics {
                       GrouperUtil.closeQuietly(new GrouperLoaderDb(jdbcConfigId).connection());
                       subjectApiReport.append("<font color='green'>SUCCESS:</font> '" + jdbcConfigId + "' is a valid connection provider\n");
                     } catch (Exception e) {
-                      subjectApiReport.append("<font color='red'>ERROR:</font> '" + jdbcConfigId + "' is an invalid connection provider\n" + ExceptionUtils.getFullStackTrace(e) + "\n");
+                      subjectApiReport.append("<font color='red'>ERROR:</font> '" + jdbcConfigId + "' is an invalid connection provider\n" + ExceptionUtils.getStackTrace(e) + "\n");
                     }
                     
                   }

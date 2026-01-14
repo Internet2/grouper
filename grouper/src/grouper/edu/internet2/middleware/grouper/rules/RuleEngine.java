@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.jsoup.internal.StringUtil;
 
@@ -587,7 +587,7 @@ public class RuleEngine {
       }
     } catch (RuntimeException re) {
       if (shouldLog && logData != null) {
-        logData.append(", EXCEPTION: ").append(ExceptionUtils.getFullStackTrace(re));
+        logData.append(", EXCEPTION: ").append(ExceptionUtils.getStackTrace(re));
       }
       throw re;
     } finally {
@@ -709,7 +709,7 @@ public class RuleEngine {
           hib3GrouperLoaderLog.setJobMessage("Ran rules daemon, changed " + rulesChanged + " records, there were " + numberOfErrors + " errors.");          
           if (numberOfErrors > 0) {
             hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-            hib3GrouperLoaderLog.appendJobMessage("  All errors logged but here's one: " + ExceptionUtils.getFullStackTrace(throwable));
+            hib3GrouperLoaderLog.appendJobMessage("  All errors logged but here's one: " + ExceptionUtils.getStackTrace(throwable));
           } else {
             hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name()); 
           }

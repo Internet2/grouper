@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -682,7 +682,7 @@ public class WsAssignAttributeLogic {
         //add to error and keep going
         errorMessage.append(
             "Problem with " + attributeDefName + ", action: " + action 
-            + ", owner: " + attributeAssignable + ", " + ExceptionUtils.getFullStackTrace(e) + ".  ");
+            + ", owner: " + attributeAssignable + ", " + ExceptionUtils.getStackTrace(e) + ".  ");
       }
       
     }
@@ -792,7 +792,7 @@ public class WsAssignAttributeLogic {
           //add to error and keep going
           errorMessage.append(
               "Problem with " + attributeDefName + ", action: " + action 
-              + ", owner: " + attributeAssignable + ", " + ExceptionUtils.getFullStackTrace(e) + ".  ");
+              + ", owner: " + attributeAssignable + ", " + ExceptionUtils.getStackTrace(e) + ".  ");
         }
         
         

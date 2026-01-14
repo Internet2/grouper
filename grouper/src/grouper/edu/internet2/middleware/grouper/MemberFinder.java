@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
@@ -861,7 +861,7 @@ public class MemberFinder {
               catch (MemberNotFoundException eMNF2) {
                 //put this exception in the other one...
                 GrouperUtil.injectInException(re, "... second memberNotFoundException for subject " + GrouperUtil.subjectToString(subj) 
-                    + "... " + ExceptionUtils.getFullStackTrace(eMNF2) + "...");
+                    + "... " + ExceptionUtils.getStackTrace(eMNF2) + "...");
                 //ignore this exception...  throw the original create exception
                 throw re;
               }

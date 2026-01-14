@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -236,7 +236,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.appendDeleteEntityFromTarget();
     } catch (Exception e) {
       LOG.error("error in diagnostics", e);
-      this.report.append("</pre><pre>").append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(e))).append("</pre>");
+      this.report.append("</pre><pre>").append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(e))).append("</pre>");
     } finally {
       this.inDiagnostics = false;
 
@@ -692,7 +692,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       }
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Adding entity to group").append(this.getCurrentDuration()).append("\n");
-      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
 
     } finally {
       String debugInfo = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();
@@ -868,7 +868,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       return result;
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Adding membership to target").append(this.getCurrentDuration()).append("\n");
-      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
 
     } finally {
       String debugInfo = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();
@@ -975,7 +975,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       return result;
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Deleting membership from target").append(this.getCurrentDuration()).append("\n");
-      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
 
     } finally {
       String debugInfo = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();
@@ -1144,7 +1144,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       }
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Removing entity from group").append(this.getCurrentDuration()).append("\n");
-      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
 
     } finally {
       String debugInfo = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();
@@ -1247,7 +1247,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Inserting group").append(this.getCurrentDuration()).append("\n");
-      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
       
     } finally {
       String debugInfo = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();
@@ -1365,7 +1365,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Deleting group").append(this.getCurrentDuration()).append("\n");
-      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
       
     } finally {
       String debugInfo = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();
@@ -1463,7 +1463,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Inserting entity").append(this.getCurrentDuration()).append("\n");
-      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
       
     } finally {
       String debugInfo = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();
@@ -1568,7 +1568,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Deleting entity").append(this.getCurrentDuration()).append("\n");
-      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
       
     } finally {
       String debugInfo = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();
@@ -1641,7 +1641,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           
         } catch (RuntimeException re) {
           this.report.append("<font color='red'><b>Error:</b></font> Selecting specific group(s)").append(this.getCurrentDuration()).append("\n");
-          this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+          this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
           
         }
       }
@@ -1713,7 +1713,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           
         } catch (RuntimeException re) {
           this.report.append("<font color='red'><b>Error:</b></font> Selecting specific entity").append(this.getCurrentDuration()).append("\n");
-          this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+          this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
           
         }
       }
@@ -1888,7 +1888,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           
         } catch (RuntimeException re) {
           this.report.append("<font color='red'><b>Error:</b></font> Selecting all groups").append(this.getCurrentDuration()).append("\n");
-          this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+          this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
           
         } finally {
           String debugInfo = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();
@@ -1994,7 +1994,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           
         } catch (RuntimeException re) {
           this.report.append("<font color='red'><b>Error:</b></font> Selecting all entities").append(this.getCurrentDuration()).append("\n");
-          this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+          this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
           
         }
       }
@@ -2062,7 +2062,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           
         } catch (RuntimeException re) {
           this.report.append("<font color='red'><b>Error:</b></font> Selecting all memberships").append(this.getCurrentDuration()).append("\n");
-          this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+          this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
           
         }
       }
@@ -2227,7 +2227,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       }
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Adding group to entity").append(this.getCurrentDuration()).append("\n");
-      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
 
     } finally {
       String debugInfo = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();
@@ -2392,7 +2392,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       }
     } catch (RuntimeException re) {
       this.report.append("<font color='red'><b>Error:</b></font> Removing group from entity").append(this.getCurrentDuration()).append("\n");
-      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getFullStackTrace(re)));
+      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
 
     } finally {
       String debugInfo = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();

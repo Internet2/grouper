@@ -68,7 +68,7 @@ import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import com.nimbusds.openid.connect.sdk.Nonce;
@@ -470,7 +470,7 @@ public class GrouperUiFilter implements Filter {
       });
     } catch (RuntimeException e) {
       if (LOG.isDebugEnabled()) {
-        debugMap.put("exception", ExceptionUtils.getFullStackTrace(e));
+        debugMap.put("exception", ExceptionUtils.getStackTrace(e));
       }
       throw e;
     } finally {
@@ -1477,7 +1477,7 @@ public class GrouperUiFilter implements Filter {
       //ignore
     } catch (Throwable t) {      
       
-      GrouperUiUtils.appendErrorToRequest(ExceptionUtils.getFullStackTrace(t));
+      GrouperUiUtils.appendErrorToRequest(ExceptionUtils.getStackTrace(t));
       LOG.error("UI error", t);
 
       //make a friendly response if not ajax

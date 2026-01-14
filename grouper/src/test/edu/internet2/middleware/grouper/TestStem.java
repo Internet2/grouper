@@ -36,7 +36,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.type.StringType;
 
@@ -1664,7 +1664,7 @@ public class TestStem extends GrouperTest {
       s.stop();
     }
     catch (Exception e) {
-      Assert.fail(e.getMessage() + ", " + ExceptionUtils.getFullStackTrace(e));
+      Assert.fail(e.getMessage() + ", " + ExceptionUtils.getStackTrace(e));
     }
   } // public void testAddChildStemWithBadExtnOrDisplayExtn()
 

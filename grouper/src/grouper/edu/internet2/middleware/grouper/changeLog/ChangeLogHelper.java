@@ -24,7 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -424,7 +424,7 @@ public class ChangeLogHelper {
           }
           LOG.error("Error", e);
           hib3GrouploaderLog.appendJobMessage("Error: " 
-              + ExceptionUtils.getFullStackTrace(e));
+              + ExceptionUtils.getStackTrace(e));
           error = true;
         }
         if (lastProcessed > -1 && (changeLogConsumer.getLastSequenceProcessed() == null || changeLogConsumer.getLastSequenceProcessed() != lastProcessed)) {
@@ -444,7 +444,7 @@ public class ChangeLogHelper {
           String errorString = "Error: " 
               + changeLogProcessorMetadata.getRecordProblemText()
               + ", sequenceNumber: " + changeLogProcessorMetadata.getRecordExceptionSequence()
-              + ", " + ExceptionUtils.getFullStackTrace(changeLogProcessorMetadata.getRecordException());
+              + ", " + ExceptionUtils.getStackTrace(changeLogProcessorMetadata.getRecordException());
           LOG.error(errorString);
           hib3GrouploaderLog.appendJobMessage(errorString);
           error = true;

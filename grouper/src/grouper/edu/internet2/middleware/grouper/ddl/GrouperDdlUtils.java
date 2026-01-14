@@ -46,7 +46,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
@@ -577,7 +577,7 @@ public class GrouperDdlUtils {
       newOutErr.print(e.getMessage());
       
       String error = "Error running script: " + scriptFile.getAbsolutePath();
-      logMessage = error + ", " + ExceptionUtils.getFullStackTrace(e) + "\n";
+      logMessage = error + ", " + ExceptionUtils.getStackTrace(e) + "\n";
       if (fromUnitTest) {
         throw new RuntimeException(error, e);
       }

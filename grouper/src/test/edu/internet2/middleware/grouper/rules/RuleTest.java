@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -166,7 +166,7 @@ public class RuleTest extends GrouperTest {
 //      fail("Should be vetoed");
 //    } catch (RuleVeto rve) {
 //      //this is good
-//      String stack = ExceptionUtils.getFullStackTrace(rve);
+//      String stack = ExceptionUtils.getStackTrace(rve);
 //      assertTrue(stack, stack.contains("Entity cannot be a member of stem:a if not a member of stem:b"));
 //    }
 //    
@@ -407,7 +407,7 @@ public class RuleTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be a member of stem:a if not a member of stem:b"));
     }
 
@@ -3847,7 +3847,7 @@ public class RuleTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be a member of group if not in the IT department org"));
     }
   
@@ -3950,7 +3950,7 @@ public class RuleTest extends GrouperTest {
       payrollUser.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject0);
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be assigned these permissions unless they are an employee"));
     }
 
@@ -4698,7 +4698,7 @@ public class RuleTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
     }
   
@@ -4776,7 +4776,7 @@ public class RuleTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Group has too many members"));
     }
   
@@ -4839,7 +4839,7 @@ public class RuleTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Group has too few members"));
     }
     
@@ -4854,7 +4854,7 @@ public class RuleTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Group has too few members"));
     }
     
@@ -4875,7 +4875,7 @@ public class RuleTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Group has too few members"));
     }
   
@@ -4954,7 +4954,7 @@ public class RuleTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Group has too many members"));
     }
   
@@ -5029,7 +5029,7 @@ public class RuleTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
     }
 
@@ -5113,7 +5113,7 @@ public class RuleTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
     }
   
@@ -5197,7 +5197,7 @@ public class RuleTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
     }
   
@@ -5240,7 +5240,7 @@ public class RuleTest extends GrouperTest {
       restrictedGroup.addMember(SubjectTestHelper.SUBJ0, true);
       added = true;
     } catch (Exception e) {
-      String stack = ExceptionUtils.getFullStackTrace(e);
+      String stack = ExceptionUtils.getStackTrace(e);
       assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
     }
     
@@ -5300,7 +5300,7 @@ public class RuleTest extends GrouperTest {
       restrictedGroup.addMember(SubjectTestHelper.SUBJ0, true);
       added = true;
     } catch (Exception e) {
-      String stack = ExceptionUtils.getFullStackTrace(e);
+      String stack = ExceptionUtils.getStackTrace(e);
       assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
     }
     
@@ -5425,7 +5425,7 @@ public class RuleTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Entity cannot be assigned if not a member of etc:employee"));
     }
   
@@ -5799,7 +5799,7 @@ public class RuleTest extends GrouperTest {
               fail("Should be vetoed");
             } catch (RuleVeto rve) {
               //this is good
-              String stack = ExceptionUtils.getFullStackTrace(rve);
+              String stack = ExceptionUtils.getStackTrace(rve);
               assertTrue(stack, stack.contains("Entity cannot be a member of stem:a if not a member of stem:b"));
             }
 
@@ -5928,7 +5928,7 @@ public class RuleTest extends GrouperTest {
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
-      String stack = ExceptionUtils.getFullStackTrace(rve);
+      String stack = ExceptionUtils.getStackTrace(rve);
       assertTrue(stack, stack.contains("Permission is not allowed"));
     }
   

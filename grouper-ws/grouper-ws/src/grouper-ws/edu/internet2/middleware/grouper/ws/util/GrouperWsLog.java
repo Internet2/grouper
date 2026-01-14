@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -50,7 +50,7 @@ public class GrouperWsLog {
     }
     
     if (value instanceof Throwable) {
-      messageMap.put(key, ExceptionUtils.getFullStackTrace((Throwable)value));
+      messageMap.put(key, ExceptionUtils.getStackTrace((Throwable)value));
       return;
     }
     

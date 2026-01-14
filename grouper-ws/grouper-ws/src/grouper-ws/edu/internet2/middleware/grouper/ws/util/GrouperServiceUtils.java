@@ -40,7 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -1115,7 +1115,7 @@ public final class GrouperServiceUtils {
       field = StringUtils.isBlank(fieldName) ? null : FieldFinder.find(fieldName, true);
     } catch (Exception e) {
       throw new WsInvalidQueryException("Problem with fieldName: " + fieldName + ".  "
-          + ExceptionUtils.getFullStackTrace(e));
+          + ExceptionUtils.getStackTrace(e));
     }
     return field;
   }
@@ -1138,7 +1138,7 @@ public final class GrouperServiceUtils {
       fieldType = StringUtils.isBlank(fieldTypeName) ? null : FieldType.valueOfIgnoreCase(fieldTypeName, true);
     } catch (Exception e) {
       throw new WsInvalidQueryException("Problem with fieldType: " + fieldTypeName + ".  "
-          + ExceptionUtils.getFullStackTrace(e));
+          + ExceptionUtils.getStackTrace(e));
     }
     return fieldType;
   }

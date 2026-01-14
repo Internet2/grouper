@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.type.StringType;
@@ -1438,7 +1438,7 @@ public class GrouperAttestationDaemonLogic extends OtherJobBase {
       otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running attestation full sync logic daemon. \n "+GrouperUtil.mapToString(debugMap));
     } catch (Exception e) {
       LOG.warn("Error while running attestation full sync daemon", e);
-      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running object attestation full sync logic daemon with an error: " + ExceptionUtils.getFullStackTrace(e));
+      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running object attestation full sync logic daemon with an error: " + ExceptionUtils.getStackTrace(e));
     } finally {
       otherJobInput.getHib3GrouperLoaderLog().store();
     }

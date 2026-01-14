@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -457,7 +457,7 @@ public abstract class OtherJobBase implements Job {
               hib3GrouperLoaderLog.setStatus(grouperLoaderStatus.name());
             }
           }
-          hib3GrouperLoaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(e));
+          hib3GrouperLoaderLog.appendJobMessage(ExceptionUtils.getStackTrace(e));
           
           storeLogInDb(hib3GrouperLoaderLog, false, startTime);
           if (e instanceof RuntimeException) {
