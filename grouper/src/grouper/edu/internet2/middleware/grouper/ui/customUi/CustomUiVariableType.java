@@ -6,7 +6,7 @@ package edu.internet2.middleware.grouper.ui.customUi;
 
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 

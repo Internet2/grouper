@@ -24,7 +24,7 @@ import java.util.List;
 
 import junit.textui.TestRunner;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;

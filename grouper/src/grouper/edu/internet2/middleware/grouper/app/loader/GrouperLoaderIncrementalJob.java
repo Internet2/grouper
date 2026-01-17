@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
@@ -483,11 +483,11 @@ public class GrouperLoaderIncrementalJob implements Job {
       storeLogInDb(hib3GrouperloaderLog, true, startTime);
     } catch (Exception e) {
       
-      GrouperLoaderLogger.addLogEntry("overallLog", "exception", ExceptionUtils.getFullStackTrace(e));
+      GrouperLoaderLogger.addLogEntry("overallLog", "exception", ExceptionUtils.getStackTrace(e));
 
       LOG.error("Error running job", e);
       hib3GrouperloaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-      hib3GrouperloaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(e));
+      hib3GrouperloaderLog.appendJobMessage(ExceptionUtils.getStackTrace(e));
       
       if (!(e instanceof JobExecutionException)) {
         e = new JobExecutionException(e);

@@ -23,8 +23,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -1019,7 +1019,7 @@ public class SampleCapture {
     } catch (Exception e) {
       String error = "Problem with: " + resultFile.getName() + ", " + clientType.name() + ", " 
           + clientClass.toString() + ", " + format + ", " + e.getMessage();
-      System.out.println(error + ", " + ExceptionUtils.getFullStackTrace(e));
+      System.out.println(error + ", " + ExceptionUtils.getStackTrace(e));
       LOG.error(error, e);
     }
   }

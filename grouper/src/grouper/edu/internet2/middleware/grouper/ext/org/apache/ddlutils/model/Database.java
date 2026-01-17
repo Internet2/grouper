@@ -27,8 +27,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.dynabean.DynaClassCache;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.dynabean.SqlDynaClass;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.dynabean.SqlDynaException;

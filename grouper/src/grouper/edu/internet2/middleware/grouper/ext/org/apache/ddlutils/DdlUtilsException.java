@@ -19,14 +19,12 @@ package edu.internet2.middleware.grouper.ext.org.apache.ddlutils;
  * under the License.
  */
 
-import org.apache.commons.lang.exception.NestableRuntimeException;
-
 /**
  * Base class for DdlUtils exceptions.
  * 
  * @version $Revision: 289996 $
  */
-public class DdlUtilsException extends NestableRuntimeException 
+public class DdlUtilsException extends RuntimeException
 {
     /** Constant for serializing instances of this class. */
     private static final long serialVersionUID = 5624776387174310551L;

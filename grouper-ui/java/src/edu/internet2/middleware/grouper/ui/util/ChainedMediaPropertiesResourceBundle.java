@@ -19,7 +19,7 @@ import java.util.Enumeration;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * do a resource bundle which consults the properties file before 

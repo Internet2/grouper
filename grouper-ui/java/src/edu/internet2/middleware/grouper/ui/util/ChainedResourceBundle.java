@@ -35,7 +35,7 @@ package edu.internet2.middleware.grouper.ui.util;
 import java.io.Serializable;
 import java.util.*;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 

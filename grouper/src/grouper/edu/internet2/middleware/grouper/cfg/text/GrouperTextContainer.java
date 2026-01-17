@@ -11,8 +11,8 @@ import java.util.Map;
 
 import javax.servlet.ServletRequest;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -209,7 +209,7 @@ public class GrouperTextContainer {
         return null;
       }
       LOG.error("Cant find text for variable: '" + key + "'");
-      return "$$not found: " + StringEscapeUtils.escapeHtml(key) + "$$";
+      return "$$not found: " + StringEscapeUtils.escapeHtml4(key) + "$$";
     }
     try {
       //if there might be a scriptlet

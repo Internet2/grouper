@@ -21,8 +21,8 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 

@@ -30,8 +30,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.type.LongType;
 import org.hibernate.type.TimestampType;
@@ -89,8 +89,8 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         deleteOldGrouperLoaderLogs(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error in deleteOldGrouperLoaderLogs", e);
-        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInGrouperLoaderDelete", ExceptionUtils.getFullStackTrace(e));
-        jobMessage.append("\nError in deleteOldGrouperLoaderLogs: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInGrouperLoaderDelete", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in deleteOldGrouperLoaderLogs: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
       }
       
@@ -100,8 +100,8 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         deleteOldChangeLogEntries(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error in deleteOldChangeLogEntries", e);
-        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInChangeLogEntryDelete", ExceptionUtils.getFullStackTrace(e));
-        jobMessage.append("\nError in deleteOldChangeLogEntries: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInChangeLogEntryDelete", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in deleteOldChangeLogEntries: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
         
       }
@@ -112,8 +112,8 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         deleteOldInstrumentationData(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error in deleteOldInstrumentation", e);
-        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInInstrumentationDelete", ExceptionUtils.getFullStackTrace(e));
-        jobMessage.append("\nError in deleteOldInstrumentation: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInInstrumentationDelete", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in deleteOldInstrumentation: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
       }
       
@@ -123,8 +123,8 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         deleteOldAuditEntryNoLoggedInUser(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error in deleteOldAuditEntryNoLoggedInUser", e);
-        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInAuditEntryNoLoggedInUserDelete", ExceptionUtils.getFullStackTrace(e));
-        jobMessage.append("\nError in deleteOldAuditEntryNoLoggedInUser: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInAuditEntryNoLoggedInUserDelete", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in deleteOldAuditEntryNoLoggedInUser: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
         
       }
@@ -135,8 +135,8 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         deleteOldAuditEntry(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error in deleteOldAuditEntry", e);
-        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInAuditEntryDelete", ExceptionUtils.getFullStackTrace(e));
-        jobMessage.append("\nError in deleteOldAuditEntry: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInAuditEntryDelete", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in deleteOldAuditEntry: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
         
       }
@@ -161,8 +161,8 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         }
       } catch (Exception e) {
         LOG.error("Error in removeMultiAttributeValuesIfSingleValuedAttribute", e);
-        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInRemoveMultiAttributeValuesIfSingleValuedAttribute", ExceptionUtils.getFullStackTrace(e));
-        jobMessage.append("\nError in removeMultiAttributeValuesIfSingleValuedAttribute: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInRemoveMultiAttributeValuesIfSingleValuedAttribute", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in removeMultiAttributeValuesIfSingleValuedAttribute: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
       }
 
@@ -187,8 +187,8 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         }
       } catch (Exception e) {
         LOG.error("Error in removeMultiAttributeAssignIfSingleAssignAttribute", e);
-        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInRemoveMultiAttributeAssignIfSingleAssignAttribute", ExceptionUtils.getFullStackTrace(e));
-        jobMessage.append("\nError in removeMultiAttributeAssignIfSingleAssignAttribute: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInRemoveMultiAttributeAssignIfSingleAssignAttribute", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in removeMultiAttributeAssignIfSingleAssignAttribute: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
       }
 
@@ -198,8 +198,8 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         deleteOldDeletedPointInTimeObjects(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error in deleteOldDeletedPointInTime", e);
-        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInDeletedPointInTimeDelete", ExceptionUtils.getFullStackTrace(e));
-        jobMessage.append("\nError in deleteOldDeletedPointInTime: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInDeletedPointInTimeDelete", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in deleteOldDeletedPointInTime: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
       }
 
@@ -214,8 +214,8 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         }
       } catch (Exception e) {
         LOG.error("Error in deleteOldDeletedPointInTime", e);
-        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInDeletedPointInTimeDelete", ExceptionUtils.getFullStackTrace(e));
-        jobMessage.append("\nError in deleteOldDeletedPointInTime: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInDeletedPointInTimeDelete", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in deleteOldDeletedPointInTime: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
       }
       
@@ -228,8 +228,8 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         }
       } catch (Exception e) {
         LOG.error("Error in verifyTableIdIndexes", e);
-        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInVerifyTableIdIndexes", ExceptionUtils.getFullStackTrace(e));
-        jobMessage.append("\nError in verifyTableIdIndexes: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInVerifyTableIdIndexes", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in verifyTableIdIndexes: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
       }
 
@@ -246,8 +246,8 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
 
       } catch (Exception e) {
         LOG.error("Error deleting invalid provisioning assignments", e);
-        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInDeleteInvalidProvisioningConfigs", ExceptionUtils.getFullStackTrace(e));
-        jobMessage.append("\nError deleting invalid provisioning assignments: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInDeleteInvalidProvisioningConfigs", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError deleting invalid provisioning assignments: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
       }
 
@@ -257,8 +257,8 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         deleteOldSyncData(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error deleting old sync data", e);
-        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInDeleteOldSyncData", ExceptionUtils.getFullStackTrace(e));
-        jobMessage.append("\nError deleting old sync data: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInDeleteOldSyncData", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError deleting old sync data: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
       }
   
@@ -927,12 +927,12 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
       } catch (Exception e) {
         LOG.error("Error with obliterate folder key: " + daysKey, e);
         if (jobMessage != null) {
-          jobMessage.append("Error in folder: " + daysKey + ", " + ExceptionUtils.getFullStackTrace(e));
+          jobMessage.append("Error in folder: " + daysKey + ", " + ExceptionUtils.getStackTrace(e));
         }
         if (GrouperUtil.length(error) == 1) {
           error[0] = true;
         }
-        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems." + index + ".stem.error", ExceptionUtils.getFullStackTrace(e));
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems." + index + ".stem.error", ExceptionUtils.getStackTrace(e));
 
       }
       index++;
@@ -1054,9 +1054,9 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
                 error[0] = true;
               }
               if (jobMessage != null) {
-                jobMessage.append("Error in folder: " + stem.getName() + ", " + ExceptionUtils.getFullStackTrace(e));
+                jobMessage.append("Error in folder: " + stem.getName() + ", " + ExceptionUtils.getStackTrace(e));
               }
-              GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems." + index + ".stem." + stem.getExtension() + ".error", ExceptionUtils.getFullStackTrace(e));
+              GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems." + index + ".stem." + stem.getExtension() + ".error", ExceptionUtils.getStackTrace(e));
             }
           }
           
@@ -1066,9 +1066,9 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
             error[0] = true;
           }
           if (jobMessage != null) {
-            jobMessage.append("Error in folder: " + folderName + ", " + ExceptionUtils.getFullStackTrace(e));
+            jobMessage.append("Error in folder: " + folderName + ", " + ExceptionUtils.getStackTrace(e));
           }
-          GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems." + index + ".stem.error", ExceptionUtils.getFullStackTrace(e));
+          GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems." + index + ".stem.error", ExceptionUtils.getStackTrace(e));
           
         }
         

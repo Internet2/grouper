@@ -18,7 +18,7 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_2;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * <pre>

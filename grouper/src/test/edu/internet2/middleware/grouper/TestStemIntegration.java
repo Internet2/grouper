@@ -33,7 +33,7 @@
 package edu.internet2.middleware.grouper;
 import junit.textui.TestRunner;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -242,10 +242,10 @@ public class TestStemIntegration extends GrouperTest {
     }
     catch (GroupNotFoundException eGNF) {
       
-      fail( "did not find renamed group by name: " + ExceptionUtils.getFullStackTrace(eGNF) );
+      fail( "did not find renamed group by name: " + ExceptionUtils.getStackTrace(eGNF) );
     }  
     catch (StemNotFoundException eNSNF) {
-      fail( "did not find renamed stem by name: " + ExceptionUtils.getFullStackTrace(eNSNF) );
+      fail( "did not find renamed stem by name: " + ExceptionUtils.getStackTrace(eNSNF) );
     }
     catch (Exception e) {
       unexpectedException(e);

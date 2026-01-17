@@ -18,7 +18,7 @@ package edu.internet2.middleware.grouper.hibernate;
 import java.io.Serializable;
 import java.util.Collection;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.Session;
 

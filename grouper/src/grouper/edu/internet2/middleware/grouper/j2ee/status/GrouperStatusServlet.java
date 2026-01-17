@@ -37,8 +37,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -300,7 +300,7 @@ public class GrouperStatusServlet extends HttpServlet {
         
       } else {
 
-        theLastDiagnosticsError = "Error in status:\n" + ExceptionUtils.getFullStackTrace(re);
+        theLastDiagnosticsError = "Error in status:\n" + ExceptionUtils.getStackTrace(re);
         messageNoDetails = "Error in status. See logs or 'All daemon jobs' for details.";
         LOG.error("Error in status: ", re);
       }

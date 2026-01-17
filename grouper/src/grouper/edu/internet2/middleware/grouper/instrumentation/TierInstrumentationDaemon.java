@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
@@ -180,7 +180,7 @@ public class TierInstrumentationDaemon extends OtherJobBase {
       otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running TIER instrumentation daemon.");
     } catch (Exception e) {
       LOG.warn("Error while sending instrumentation data to TIER", e);
-      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running TIER instrumentation daemon but received an error while sending data to TIER: " + ExceptionUtils.getFullStackTrace(e));
+      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running TIER instrumentation daemon but received an error while sending data to TIER: " + ExceptionUtils.getStackTrace(e));
     } finally {
       otherJobInput.getHib3GrouperLoaderLog().store();
     }

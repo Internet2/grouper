@@ -31,7 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.util;
-import  org.apache.commons.lang.StringEscapeUtils;
+import  org.apache.commons.text.StringEscapeUtils;
 
 /**
  * XML Utility class.
@@ -50,7 +50,7 @@ public class XML {
    * @since   1.2.0
    */
   public static String escape(String s) {
-    return StringEscapeUtils.escapeXml(s);
+    return StringEscapeUtils.escapeXml10(s);
   } 
 
 } 

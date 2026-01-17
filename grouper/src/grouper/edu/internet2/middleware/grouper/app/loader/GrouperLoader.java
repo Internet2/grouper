@@ -34,8 +34,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.PlatformFactory;
 import org.hibernate.type.StringType;
@@ -534,7 +534,7 @@ public class GrouperLoader {
     } catch (Exception e) {
       String errorMessage = "Could not schedule job: '" + GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG + "'";
       LOG.error(errorMessage, e);
-      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
       try {
         //lets enter a log entry so it shows up as error in the db
         Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -640,7 +640,7 @@ public class GrouperLoader {
 
         String errorMessage = "Could not schedule job: '" + jobName + "'";
         LOG.error(errorMessage, e);
-        errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+        errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
         try {
           //lets enter a log entry so it shows up as error in the db
           Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -682,7 +682,7 @@ public class GrouperLoader {
           } catch (Exception e) {
             String errorMessage = "Could not unschedule job: '" + jobName + "'";
             LOG.error(errorMessage, e);
-            errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+            errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
             try {
               //lets enter a log entry so it shows up as error in the db
               Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -703,7 +703,7 @@ public class GrouperLoader {
       
       String errorMessage = "Could not query change log jobs to see if any should be unscheduled.";
       LOG.error(errorMessage, e);
-      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
       try {
         //lets enter a log entry so it shows up as error in the db
         Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -811,7 +811,7 @@ public class GrouperLoader {
 
         String errorMessage = "Could not schedule job: '" + jobName + "'";
         LOG.error(errorMessage, e);
-        errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+        errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
         try {
           //lets enter a log entry so it shows up as error in the db
           Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -851,7 +851,7 @@ public class GrouperLoader {
           } catch (Exception e) {
             String errorMessage = "Could not unschedule job: '" + jobName + "'";
             LOG.error(errorMessage, e);
-            errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+            errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
             try {
               //lets enter a log entry so it shows up as error in the db
               Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -872,7 +872,7 @@ public class GrouperLoader {
       
       String errorMessage = "Could not query change log jobs to see if any should be unscheduled.";
       LOG.error(errorMessage, e);
-      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
       try {
         //lets enter a log entry so it shows up as error in the db
         Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -976,7 +976,7 @@ public class GrouperLoader {
 
         String errorMessage = "Could not schedule job: '" + jobName + "'";
         LOG.error(errorMessage, e);
-        errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+        errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
         try {
           //lets enter a log entry so it shows up as error in the db
           Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -1018,7 +1018,7 @@ public class GrouperLoader {
           } catch (Exception e) {
             String errorMessage = "Could not unschedule job: '" + jobName + "'";
             LOG.error(errorMessage, e);
-            errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+            errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
             try {
               //lets enter a log entry so it shows up as error in the db
               Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -1039,7 +1039,7 @@ public class GrouperLoader {
       
       String errorMessage = "Could not query other jobs to see if any should be unscheduled.";
       LOG.error(errorMessage, e);
-      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
       try {
         //lets enter a log entry so it shows up as error in the db
         Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -1134,7 +1134,7 @@ public class GrouperLoader {
       String errorMessage = "Could not schedule job: '"
           + GrouperLoaderType.GROUPER_ESB_HTTP_LISTENER + "'";
       LOG.error(errorMessage, e);
-      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
       try {
         //lets enter a log entry so it shows up as error in the db
         Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -1224,7 +1224,7 @@ public class GrouperLoader {
       String errorMessage = "Could not schedule job: '"
           + GrouperLoaderType.GROUPER_ESB_XMMP_LISTENER + "'";
       LOG.error(errorMessage, e);
-      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
       try {
         //lets enter a log entry so it shows up as error in the db
         Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -1516,7 +1516,7 @@ public class GrouperLoader {
     } catch (Exception e) {
       String errorMessage = "Could not schedule job: '" + GrouperLoaderType.PSP_FULL_SYNC.name() + "'";
       LOG.error(errorMessage, e);
-      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      errorMessage += "\n" + ExceptionUtils.getStackTrace(e);
       try {
         //lets enter a log entry so it shows up as error in the db
         Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();

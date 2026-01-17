@@ -50,7 +50,7 @@ import org.quartz.impl.matchers.GroupMatcher;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
@@ -1305,10 +1305,10 @@ public class UiV2Admin extends UiServiceLogicBase {
       }
     }
 
-    if (org.apache.commons.lang.StringUtils.equals("true", request.getParameter("filterZeroCountTotal"))) {
+    if (org.apache.commons.lang3.StringUtils.equals("true", request.getParameter("filterZeroCountTotal"))) {
       criterionList.add(Restrictions.ne("totalCount", 0));
     }
-    if (org.apache.commons.lang.StringUtils.equals("true", request.getParameter("filterZeroCountCrud"))) {
+    if (org.apache.commons.lang3.StringUtils.equals("true", request.getParameter("filterZeroCountCrud"))) {
       criterionList.add(Restrictions.or(
               Restrictions.ne("insertCount", 0),
               Restrictions.ne("updateCount", 0),

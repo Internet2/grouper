@@ -18,7 +18,7 @@
  */
 package edu.internet2.middleware.grouper.exception;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitDocumentation;
 import edu.internet2.middleware.grouper.util.GrouperUtil;

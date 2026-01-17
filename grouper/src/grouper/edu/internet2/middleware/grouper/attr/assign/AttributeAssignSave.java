@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;

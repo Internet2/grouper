@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper.attr;
 
 import java.sql.Timestamp;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;

@@ -25,7 +25,7 @@ import java.util.List;
 import javax.transaction.Status;
 import javax.transaction.Synchronization;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.Transaction;
 

@@ -31,8 +31,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
@@ -17761,7 +17761,7 @@ public class GrouperClientWsTest extends GrouperTest {
               "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --actAsSubjectId=" + SubjectTestHelper.SUBJ0_ID,
               " "));
         } catch (Exception e) {
-          assertTrue(ExceptionUtils.getFullStackTrace(e).contains("GROUP_NOT_FOUND"));
+          assertTrue(ExceptionUtils.getStackTrace(e).contains("GROUP_NOT_FOUND"));
         }
         System.out.flush();
 
@@ -19058,7 +19058,7 @@ public class GrouperClientWsTest extends GrouperTest {
         try {
           GrouperClient.main(args.toArray(new String[0]));
         } catch (Exception e) {
-          assertTrue(ExceptionUtils.getFullStackTrace(e).contains("GROUP_NOT_FOUND"));
+          assertTrue(ExceptionUtils.getStackTrace(e).contains("GROUP_NOT_FOUND"));
         }
         System.out.flush();
 

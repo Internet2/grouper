@@ -28,8 +28,8 @@ import java.util.Set;
 
 import javax.persistence.OptimisticLockException;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -562,7 +562,7 @@ public class HibernateSession {
       }
     } catch (RuntimeException re) {
       //hmmm, dont die on a rollback, but put it in the original exception
-      if (!GrouperUtil.injectInException(e, "Exception rolling back savepoint in exception catch: " + ExceptionUtils.getFullStackTrace(re))) {
+      if (!GrouperUtil.injectInException(e, "Exception rolling back savepoint in exception catch: " + ExceptionUtils.getStackTrace(re))) {
         LOG.error("Error", e);
       }
     }    
@@ -580,7 +580,7 @@ public class HibernateSession {
       }
     } catch (RuntimeException re) {
       //hmmm, dont die on a rollback, but put it in the original exception
-      if (!GrouperUtil.injectInException(e, "Exception rolling back in exception catch: " + ExceptionUtils.getFullStackTrace(re))) {
+      if (!GrouperUtil.injectInException(e, "Exception rolling back in exception catch: " + ExceptionUtils.getStackTrace(re))) {
         LOG.error("Error", e);
       }
     }

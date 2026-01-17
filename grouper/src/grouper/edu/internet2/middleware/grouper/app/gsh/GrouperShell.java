@@ -31,7 +31,7 @@ import java.util.Map;
 
 import jline.TerminalFactory;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -244,7 +244,7 @@ private static boolean handleSpecialCase(String[] args) {
 		  Method method = claz.getMethod("main", String[].class);
 		  method.invoke(null, (Object)mainArgs);
 	  }catch(Exception e) {
-	    if (ExceptionUtils.getFullStackTrace(e).contains("PSPCLI")) {
+	    if (ExceptionUtils.getStackTrace(e).contains("PSPCLI")) {
 	      String error = "Make sure you have run 'ant dist' in ldappcng, and 'ant ldappcng' in grouper to copy the libs over";
         LOG.fatal(error);
         System.err.println(error);
@@ -388,7 +388,7 @@ private static boolean handleSpecialCase(String[] args) {
               shell.getHistory().flush();
             }
           } catch (IOException e) {
-            System.err.println("Error flushing GSH history: " + ExceptionUtils.getFullStackTrace(e));
+            System.err.println("Error flushing GSH history: " + ExceptionUtils.getStackTrace(e));
           }
         }
       });
@@ -422,7 +422,7 @@ private static boolean handleSpecialCase(String[] args) {
       throw new RuntimeException(error, t);
     }
       
-    System.err.println(error + ": " + ExceptionUtils.getFullStackTrace(t));
+    System.err.println(error + ": " + ExceptionUtils.getStackTrace(t));
   }
   
   /**

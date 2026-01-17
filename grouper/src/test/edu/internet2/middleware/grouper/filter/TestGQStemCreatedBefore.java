@@ -33,7 +33,7 @@
 package edu.internet2.middleware.grouper.filter;
 import java.util.Date;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import junit.framework.Assert;
 import junit.textui.TestRunner;

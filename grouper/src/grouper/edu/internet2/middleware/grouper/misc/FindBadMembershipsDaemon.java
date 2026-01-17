@@ -20,7 +20,7 @@ import java.io.PrintStream;
 import java.io.StringReader;
 import java.sql.Timestamp;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -137,7 +137,7 @@ public class FindBadMembershipsDaemon implements Job {
           } catch (Throwable e) {
             LOG.error("Error running job", e);
             hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-            hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(e));
+            hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getStackTrace(e));
             
             if (!(e instanceof JobExecutionException)) {
               e = new JobExecutionException(e);

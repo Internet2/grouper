@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
@@ -187,7 +187,7 @@ public class MessagingListenerController {
           }
           LOG.error("Error", e);
           hib3GrouploaderLog.appendJobMessage("Error: " 
-              + ExceptionUtils.getFullStackTrace(e));
+              + ExceptionUtils.getStackTrace(e));
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
           error = true;
         }
@@ -199,7 +199,7 @@ public class MessagingListenerController {
           String errorString = "Error: " 
               + messagingListenerMetadata.getRecordProblemText()
               + ", messageId: " + messagingListenerMetadata.getRecordExceptionId()
-              + ", " + ExceptionUtils.getFullStackTrace(messagingListenerMetadata.getRecordException());
+              + ", " + ExceptionUtils.getStackTrace(messagingListenerMetadata.getRecordException());
           LOG.error(errorString);
           hib3GrouploaderLog.appendJobMessage(errorString);
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());

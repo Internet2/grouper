@@ -51,8 +51,8 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.Job;
 
@@ -308,7 +308,7 @@ public class GrouperCheckConfig {
         }
         return CheckGroupResult.CREATED;
       } catch (Exception e) {
-        System.err.println("Grouper error: " + groupName + ", " + ExceptionUtils.getFullStackTrace(e));
+        System.err.println("Grouper error: " + groupName + ", " + ExceptionUtils.getStackTrace(e));
         LOG.error("Problem with group: " + groupName, e);
         return CheckGroupResult.ERROR_CREATING;
       }
@@ -1668,7 +1668,7 @@ public class GrouperCheckConfig {
           + driverClassName
           + ", perhaps you did not put the database driver jar in the /opt/grouper/grouperWebapp/WEB-INF/lib dir or lib dir, " +
               "or you have the wrong driver listed";
-        System.err.println("Grouper error: " + error + ": " + ExceptionUtils.getFullStackTrace(e));
+        System.err.println("Grouper error: " + error + ": " + ExceptionUtils.getStackTrace(e));
         LOG.error(error, e);
         return false;
       }
@@ -1688,7 +1688,7 @@ public class GrouperCheckConfig {
             + driverClassName
             + "', perhaps you did not put the database driver jar in the /opt/grouper/grouperWebapp/WEB-INF/lib dir or lib dir, " +
                 "or you have the wrong driver listed";
-          System.err.println("Grouper error: " + error + ": " + ExceptionUtils.getFullStackTrace(e));
+          System.err.println("Grouper error: " + error + ": " + ExceptionUtils.getStackTrace(e));
           LOG.error(error, e);
           return false;
         }
@@ -1704,7 +1704,7 @@ public class GrouperCheckConfig {
       } catch( SQLException sqlException) {
         String error = "Error connecting to the database with credentials from " + databaseDescription + ", "
           + spyInsert + "url: " + connectionUrl + ", driver: " + driverClassName + ", user: " + dbUser;
-        System.out.println("Grouper error: " + error + ", " + ExceptionUtils.getFullStackTrace(sqlException));
+        System.out.println("Grouper error: " + error + ", " + ExceptionUtils.getStackTrace(sqlException));
         LOG.error(error, sqlException);
       } finally {
         GrouperUtil.closeQuietly(dbConnection);
@@ -1712,7 +1712,7 @@ public class GrouperCheckConfig {
       
     } catch (Exception e) {
       String error = "Error verifying " + databaseDescription + " database configuration: ";
-      System.err.println("Grouper error: " + error + ExceptionUtils.getFullStackTrace(e));
+      System.err.println("Grouper error: " + error + ExceptionUtils.getStackTrace(e));
       LOG.error(error, e);
     }
     return false;
@@ -1865,7 +1865,7 @@ public class GrouperCheckConfig {
         
       } catch (Exception e) {
         String error = "problem finding class: " + classKey + " from grouper-loader.properties: " + className 
-          + ", " + ExceptionUtils.getFullStackTrace(e);
+          + ", " + ExceptionUtils.getStackTrace(e);
         System.out.println("Grouper error: " + error);
         LOG.error(error);
         
@@ -1933,7 +1933,7 @@ public class GrouperCheckConfig {
         
       } catch (Exception e) {
         String error = "problem finding class: " + classKey + " from grouper-loader.properties: " + className 
-          + ", " + ExceptionUtils.getFullStackTrace(e);
+          + ", " + ExceptionUtils.getStackTrace(e);
         System.out.println("Grouper error: " + error);
         LOG.error(error);
         

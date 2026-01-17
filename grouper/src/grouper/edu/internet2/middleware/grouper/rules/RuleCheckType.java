@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -2455,14 +2455,14 @@ public enum RuleCheckType {
       //lets get the if enum
       RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
-      
+
       if (!canRunDeamon(ruleDefinition)) {
         return;
       }
-      
+
       switch (ruleIfConditionEnum) {
         
-        case groupHasNoImmediateEnabledMembership:
+        case groupHasNoImmediateEnabledMembership, groupHasNoEnabledMembership:
           
           switch (ruleThenEnum) {
             
@@ -2663,7 +2663,7 @@ public enum RuleCheckType {
       
       switch (ruleIfConditionEnum) {
         
-        case groupHasNoImmediateEnabledMembership:
+        case groupHasNoImmediateEnabledMembership, groupHasNoEnabledMembership:
           
           switch (ruleThenEnum) {
             

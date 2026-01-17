@@ -3,7 +3,7 @@ package edu.internet2.middleware.grouper.dataField;
 import java.sql.Timestamp;
 import java.util.Map;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
@@ -48,7 +48,7 @@ public class GrouperDataProviderFullSyncJob extends OtherJobBase {
           otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running full sync for dataProviderConfigId=" + dataProviderConfigId + "\n" + GrouperUtil.mapToString(debugMap));
         } catch (Exception e) {
           LOG.warn("Error while running full sync for dataProviderConfigId=" + dataProviderConfigId, e);
-          otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running full sync for dataProviderConfigId=" + dataProviderConfigId + " with an error: " + ExceptionUtils.getFullStackTrace(e));
+          otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running full sync for dataProviderConfigId=" + dataProviderConfigId + " with an error: " + ExceptionUtils.getStackTrace(e));
           throw e;
         } finally {
           otherJobInput.getHib3GrouperLoaderLog().store();

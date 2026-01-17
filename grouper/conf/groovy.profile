@@ -289,7 +289,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.*;
 import edu.internet2.middleware.grouperClient.collections.*;
 import edu.internet2.middleware.grouperClient.jdbc.*;
 import edu.internet2.middleware.grouperClient.util.*;
-import org.apache.commons.lang.*;
+import org.apache.commons.lang3.*;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.*;
 import edu.internet2.middleware.grouper.exception.*;
 import edu.internet2.middleware.grouper.Stem.Scope;

@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
-import edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -60,7 +60,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
       otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Finished successfully running stem view privilege full sync daemon. \n "+GrouperUtil.mapToString(debugMap));
     } catch (Exception e) {
       LOG.warn("Error while running stem view privilege full sync daemon", e);
-      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running object stem view privilege full sync logic daemon with an error: " + ExceptionUtils.getFullStackTrace(e));
+      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running object stem view privilege full sync logic daemon with an error: " + ExceptionUtils.getStackTrace(e));
     } finally {
       otherJobInput.getHib3GrouperLoaderLog().store();
     }

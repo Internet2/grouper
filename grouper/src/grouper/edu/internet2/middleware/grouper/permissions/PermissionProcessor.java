@@ -30,7 +30,7 @@ import java.util.TreeMap;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
-import edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Collections;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;

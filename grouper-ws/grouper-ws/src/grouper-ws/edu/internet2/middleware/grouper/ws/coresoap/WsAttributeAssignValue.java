@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import java.util.Set;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignValue;
 import edu.internet2.middleware.grouper.util.GrouperUtil;

@@ -36,8 +36,8 @@ import java.util.Set;
 import junit.framework.Assert;
 import junit.textui.TestRunner;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -743,7 +743,7 @@ public class TestGroupType extends GrouperTest {
       catch (Exception e) {
         String error = "could not delete LIST: " + e.getMessage();
         LOG.error(error, e);
-        Assert.fail(error + ", " + ExceptionUtils.getFullStackTrace(e));
+        Assert.fail(error + ", " + ExceptionUtils.getStackTrace(e));
       }
     }
     catch (Exception e) {

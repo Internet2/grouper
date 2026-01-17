@@ -26,9 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.CronTrigger;
 import org.quartz.DisallowConcurrentExecution;
@@ -619,7 +619,7 @@ public class GrouperLoaderJob implements Job {
       if (grouperLoaderStatus == null || !grouperLoaderStatus.isError()) {
         hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
       }
-      hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(t));
+      hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getStackTrace(t));
       throwExceptionsInFinally = false;
       GrouperUtil.injectInException(t, "jobName: "+jobName);
       if (t instanceof RuntimeException) {
@@ -863,7 +863,7 @@ public class GrouperLoaderJob implements Job {
       if (grouperLoaderStatus == null || !grouperLoaderStatus.isError()) {
         hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
       }
-      hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(t));
+      hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getStackTrace(t));
       throwExceptionsInFinally = false;
       GrouperUtil.injectInException(t, "jobName: "+jobName);
       if (t instanceof RuntimeException) {
@@ -948,7 +948,7 @@ public class GrouperLoaderJob implements Job {
       LOG.error("Error on job: " + jobName, t);
       
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-      hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(t));
+      hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getStackTrace(t));
       throwExceptionsInFinally = false;
       if (t instanceof RuntimeException) {
         throw (RuntimeException)t;

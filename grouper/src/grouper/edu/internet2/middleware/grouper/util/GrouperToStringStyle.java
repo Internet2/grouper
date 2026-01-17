@@ -19,7 +19,7 @@
  */
 package edu.internet2.middleware.grouper.util;
 
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 
 /**
@@ -30,7 +30,7 @@ public class GrouperToStringStyle extends ToStringStyle {
 
   /**
    * 
-   * @see org.apache.commons.lang.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, boolean[], java.lang.Boolean)
+   * @see org.apache.commons.lang3.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, boolean[], java.lang.Boolean)
    */
   @Override
   public void append(StringBuffer buffer, String fieldName, boolean[] array,
@@ -43,7 +43,7 @@ public class GrouperToStringStyle extends ToStringStyle {
 
   /**
    * 
-   * @see org.apache.commons.lang.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, byte[], java.lang.Boolean)
+   * @see org.apache.commons.lang3.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, byte[], java.lang.Boolean)
    */
   @Override
   public void append(StringBuffer buffer, String fieldName, byte[] array,
@@ -56,7 +56,7 @@ public class GrouperToStringStyle extends ToStringStyle {
 
   /**
    * 
-   * @see org.apache.commons.lang.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, char[], java.lang.Boolean)
+   * @see org.apache.commons.lang3.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, char[], java.lang.Boolean)
    */
   @Override
   public void append(StringBuffer buffer, String fieldName, char[] array,
@@ -69,7 +69,7 @@ public class GrouperToStringStyle extends ToStringStyle {
 
   /**
    * 
-   * @see org.apache.commons.lang.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, double[], java.lang.Boolean)
+   * @see org.apache.commons.lang3.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, double[], java.lang.Boolean)
    */
   @Override
   public void append(StringBuffer buffer, String fieldName, double[] array,
@@ -82,7 +82,7 @@ public class GrouperToStringStyle extends ToStringStyle {
 
   /**
    * 
-   * @see org.apache.commons.lang.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, float[], java.lang.Boolean)
+   * @see org.apache.commons.lang3.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, float[], java.lang.Boolean)
    */
   @Override
   public void append(StringBuffer buffer, String fieldName, float[] array,
@@ -95,7 +95,7 @@ public class GrouperToStringStyle extends ToStringStyle {
 
   /**
    * 
-   * @see org.apache.commons.lang.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, int[], java.lang.Boolean)
+   * @see org.apache.commons.lang3.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, int[], java.lang.Boolean)
    */
   @Override
   public void append(StringBuffer buffer, String fieldName, int[] array,
@@ -108,7 +108,7 @@ public class GrouperToStringStyle extends ToStringStyle {
 
   /**
    * 
-   * @see org.apache.commons.lang.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, long[], java.lang.Boolean)
+   * @see org.apache.commons.lang3.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, long[], java.lang.Boolean)
    */
   @Override
   public void append(StringBuffer buffer, String fieldName, long[] array,
@@ -121,7 +121,7 @@ public class GrouperToStringStyle extends ToStringStyle {
 
   /**
    * 
-   * @see org.apache.commons.lang.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, java.lang.Object, java.lang.Boolean)
+   * @see org.apache.commons.lang3.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, java.lang.Object, java.lang.Boolean)
    */
   @Override
   public void append(StringBuffer buffer, String fieldName, Object value,
@@ -138,7 +138,7 @@ public class GrouperToStringStyle extends ToStringStyle {
 
   /**
    * 
-   * @see org.apache.commons.lang.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, java.lang.Object[], java.lang.Boolean)
+   * @see org.apache.commons.lang3.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, java.lang.Object[], java.lang.Boolean)
    */
   @Override
   public void append(StringBuffer buffer, String fieldName, Object[] array,
@@ -152,7 +152,7 @@ public class GrouperToStringStyle extends ToStringStyle {
 
   /**
    * 
-   * @see org.apache.commons.lang.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, short[], java.lang.Boolean)
+   * @see org.apache.commons.lang3.builder.ToStringStyle#append(java.lang.StringBuffer, java.lang.String, short[], java.lang.Boolean)
    */
   @Override
   public void append(StringBuffer buffer, String fieldName, short[] array,

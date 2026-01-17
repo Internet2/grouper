@@ -33,7 +33,7 @@
 package edu.internet2.middleware.grouper.group;
 import junit.textui.TestRunner;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -202,7 +202,7 @@ public class Test_I_API_Group_deleteMember extends GrouperTest {
       runCompositeMembershipChangeLogConsumer();
     }
     catch (Exception eShouldNotHappen) {
-      fail( "ERROR INITIALIZING TEST: " + ExceptionUtils.getFullStackTrace(eShouldNotHappen) );
+      fail( "ERROR INITIALIZING TEST: " + ExceptionUtils.getStackTrace(eShouldNotHappen) );
     }
     assertFalse( "gC !has subjX", gC.hasMember(subjX) );
     assertTrue(  "gC has subjY",  gC.hasMember(subjY) );

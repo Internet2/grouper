@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;

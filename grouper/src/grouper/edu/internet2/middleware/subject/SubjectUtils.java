@@ -59,8 +59,8 @@ import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -1515,7 +1515,7 @@ public class SubjectUtils {
       }
     } catch (Exception e) {
       result.append("<<exception>> ").append(object.getClass()).append(":\n")
-        .append(ExceptionUtils.getFullStackTrace(e)).append("\n");
+        .append(ExceptionUtils.getStackTrace(e)).append("\n");
     }
   }
 

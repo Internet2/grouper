@@ -18,7 +18,7 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 /**
  * this represents a query which can be and'ed or or'ed

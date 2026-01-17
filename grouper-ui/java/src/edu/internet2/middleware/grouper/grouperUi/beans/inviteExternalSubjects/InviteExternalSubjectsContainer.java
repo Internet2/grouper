@@ -17,7 +17,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.inviteExternalSubjects;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;

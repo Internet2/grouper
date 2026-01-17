@@ -24,8 +24,8 @@ import java.util.Set;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -3116,7 +3116,7 @@ public class GrouperServiceRest {
           wsRestGshTemplateExecRequest.getGshTemplateActAsSubjectLookup(),
           wsRestGshTemplateExecRequest.getActAsSubjectLookup(), wsRestGshTemplateExecRequest.getParams());
     } catch (Exception e) {
-      wsGshTemplateExecResult.assignResultCodeException(e, ExceptionUtils.getFullStackTrace(e), clientVersion);
+      wsGshTemplateExecResult.assignResultCodeException(e, ExceptionUtils.getStackTrace(e), clientVersion);
     }
 
     //set response headers

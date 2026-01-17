@@ -32,8 +32,8 @@ package edu.internet2.middleware.grouper.privs;
 
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -126,7 +126,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   
           String error = "Initialisation error with wheel group name '" + wheelName
               + "': " + e.getClass().getSimpleName()
-              + "\n" + ExceptionUtils.getFullStackTrace(e);
+              + "\n" + ExceptionUtils.getStackTrace(e);
   
           //only log this once as error, dont log if checking config
           if (!loggedWheelGroupMissing && !GrouperCheckConfig.inCheckConfig) {
@@ -161,7 +161,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   
           String error = "Initialisation error with wheel viewonly group name '" + wheelViewonlyName
               + "': " + e.getClass().getSimpleName()
-              + "\n" + ExceptionUtils.getFullStackTrace(e);
+              + "\n" + ExceptionUtils.getStackTrace(e);
   
           //only log this once as error, dont log if checking config
           if (!loggedWheelViewonlyGroupMissing && !GrouperCheckConfig.inCheckConfig) {
@@ -196,7 +196,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   
           String error = "Initialisation error with wheel readonly group name '" + wheelReadonlyName
               + "': " + e.getClass().getSimpleName()
-              + "\n" + ExceptionUtils.getFullStackTrace(e);
+              + "\n" + ExceptionUtils.getStackTrace(e);
   
           //only log this once as error, dont log if checking config
           if (!loggedWheelReadonlyGroupMissing && !GrouperCheckConfig.inCheckConfig) {

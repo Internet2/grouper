@@ -34,8 +34,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -182,7 +182,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
               + ", perhaps you did not put the database driver jar in the /opt/grouper/grouperWebapp/WEB-INF/lib dir or lib dir, "
               + "or you have the wrong driver listed";
           System.err.println("Subject API error: " + theError + ": "
-              + ExceptionUtils.getFullStackTrace(e));
+              + ExceptionUtils.getStackTrace(e));
           log.error(theError, e);
           return;
         }
@@ -207,7 +207,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
                 + ", perhaps you did not put the database driver jar in the /opt/grouper/grouperWebapp/WEB-INF/lib dir or lib dir, "
                 + "or you have the wrong driver listed";
             System.err.println("Subject API error: " + theError + ": "
-                + ExceptionUtils.getFullStackTrace(e));
+                + ExceptionUtils.getStackTrace(e));
             log.error(theError, e);
             return;
           }
@@ -225,7 +225,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
               + spyInsert + ", url: " + dbUrl + ", driver: " + driver + ", user: "
               + dbUser;
           System.out.println("Subject API error: " + theError + ", "
-              + ExceptionUtils.getFullStackTrace(sqlException));
+              + ExceptionUtils.getStackTrace(sqlException));
           log.error(theError, sqlException);
           return;
         } finally {
@@ -235,7 +235,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       } catch (Exception e) {
         String theError = error + "Error verifying subject.properties database configuration: ";
         System.err.println("Subject API error: " + theError
-            + ExceptionUtils.getFullStackTrace(e));
+            + ExceptionUtils.getStackTrace(e));
         log.error(theError, e);
       }
 

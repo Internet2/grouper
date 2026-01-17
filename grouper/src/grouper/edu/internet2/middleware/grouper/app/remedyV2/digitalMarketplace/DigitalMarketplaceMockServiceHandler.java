@@ -2,7 +2,7 @@ package edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;

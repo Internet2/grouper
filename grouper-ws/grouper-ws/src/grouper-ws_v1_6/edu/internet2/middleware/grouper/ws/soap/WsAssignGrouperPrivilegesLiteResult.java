@@ -18,7 +18,7 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Result of assigning or removing a privilege

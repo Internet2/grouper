@@ -40,8 +40,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
@@ -992,7 +992,7 @@ public class GrouperTestBase extends TestCase {
   public void unexpectedException(Exception e) {
     e.printStackTrace();
     LOG.error("Error in test", e);
-    fail( "UNEXPECTED EXCEPTION: " + ExceptionUtils.getFullStackTrace(e) );
+    fail( "UNEXPECTED EXCEPTION: " + ExceptionUtils.getStackTrace(e) );
   } // public void unexpectedException(e)
 
 

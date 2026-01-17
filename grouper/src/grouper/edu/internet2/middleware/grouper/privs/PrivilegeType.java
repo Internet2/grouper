@@ -15,7 +15,7 @@
  */
 package edu.internet2.middleware.grouper.privs;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 

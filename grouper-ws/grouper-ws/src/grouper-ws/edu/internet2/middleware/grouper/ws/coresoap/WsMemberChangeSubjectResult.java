@@ -18,7 +18,7 @@
  */
 package edu.internet2.middleware.grouper.ws.coresoap;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Member;
@@ -224,7 +224,7 @@ public class WsMemberChangeSubjectResult implements ResultMetadataHolder {
    */
   public void assignResultCodeException(Exception e, WsMemberChangeSubject wsMemberChangeSubject) {
     this.assignResultCode(WsMemberChangeSubjectResultCode.EXCEPTION);
-    this.getResultMetadata().setResultMessage(ExceptionUtils.getFullStackTrace(e));
+    this.getResultMetadata().setResultMessage(ExceptionUtils.getStackTrace(e));
     LOG.error(wsMemberChangeSubject + ", " + e, e);
   }
 

@@ -30,7 +30,7 @@ import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
@@ -262,6 +262,9 @@ public class XmlUserAuditExport {
     xStream.alias("XmlMember", XmlMember.class);
     xStream.alias("XmlAuditType", XmlAuditType.class);
     xStream.alias("XmlAuditEntry", XmlAuditEntry.class);
+    
+    xStream.allowTypes(new Class[] { XmlMember.class, XmlAuditType.class, XmlAuditEntry.class });
+    
     return xStream;
   }
 

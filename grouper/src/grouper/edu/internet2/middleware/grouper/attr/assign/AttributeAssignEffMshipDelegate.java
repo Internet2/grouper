@@ -22,7 +22,7 @@ package edu.internet2.middleware.grouper.attr.assign;
 import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;

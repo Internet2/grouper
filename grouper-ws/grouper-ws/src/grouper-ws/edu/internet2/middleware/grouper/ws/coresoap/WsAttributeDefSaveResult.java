@@ -16,7 +16,7 @@
  */
 package edu.internet2.middleware.grouper.ws.coresoap;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -277,7 +277,7 @@ public class WsAttributeDefSaveResult {
       this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
       this.assignResultCode(WsAttributeDefSaveResultCode.INVALID_QUERY, clientVersion);
     } else {
-      this.getResultMetadata().setResultMessage(ExceptionUtils.getFullStackTrace(e));
+      this.getResultMetadata().setResultMessage(ExceptionUtils.getStackTrace(e));
       this.assignResultCode(WsAttributeDefSaveResultCode.EXCEPTION, clientVersion);
     }
     LOG.error(wsAttributeDefToSave + ", " + e, e);

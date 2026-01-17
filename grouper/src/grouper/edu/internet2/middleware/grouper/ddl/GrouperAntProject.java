@@ -19,8 +19,8 @@
  */
 package edu.internet2.middleware.grouper.ddl;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Target;
@@ -81,7 +81,7 @@ public class GrouperAntProject extends Project {
             externalLog.append(message).append("\n");
           }
           if (throwable != null) {
-            externalLog.append(ExceptionUtils.getFullStackTrace(throwable)).append("\n");
+            externalLog.append(ExceptionUtils.getStackTrace(throwable)).append("\n");
           }
           
           //log to info because caller is doing this
@@ -95,7 +95,7 @@ public class GrouperAntProject extends Project {
           if (LOG.isWarnEnabled()) {
             LOG.warn(message, throwable);
           } else {
-            System.err.println(message + (throwable == null ? "" : ("\n" + ExceptionUtils.getFullStackTrace(throwable))));
+            System.err.println(message + (throwable == null ? "" : ("\n" + ExceptionUtils.getStackTrace(throwable))));
           }
         }
         break;
@@ -108,7 +108,7 @@ public class GrouperAntProject extends Project {
             externalLog.append(message).append("\n");
           }
           if (throwable != null) {
-            externalLog.append(ExceptionUtils.getFullStackTrace(throwable)).append("\n");
+            externalLog.append(ExceptionUtils.getStackTrace(throwable)).append("\n");
           }
           
           //log to info because caller is doing this
@@ -122,7 +122,7 @@ public class GrouperAntProject extends Project {
           if (LOG.isErrorEnabled()) {
             LOG.error(message, throwable);
           } else {
-            System.err.println(message  + (throwable == null ? "" : ("\n" + ExceptionUtils.getFullStackTrace(throwable))));
+            System.err.println(message  + (throwable == null ? "" : ("\n" + ExceptionUtils.getStackTrace(throwable))));
           }
         }
         break;

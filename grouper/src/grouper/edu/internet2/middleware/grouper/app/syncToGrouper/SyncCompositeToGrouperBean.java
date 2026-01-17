@@ -1,6 +1,6 @@
 package edu.internet2.middleware.grouper.app.syncToGrouper;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.CompositeSave;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;

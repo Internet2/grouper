@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper.hooks;
 
 import junit.textui.TestRunner;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;

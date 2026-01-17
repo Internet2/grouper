@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -682,7 +682,7 @@ public class WsAssignAttributeLogic {
         //add to error and keep going
         errorMessage.append(
             "Problem with " + attributeDefName + ", action: " + action 
-            + ", owner: " + attributeAssignable + ", " + ExceptionUtils.getFullStackTrace(e) + ".  ");
+            + ", owner: " + attributeAssignable + ", " + ExceptionUtils.getStackTrace(e) + ".  ");
       }
       
     }
@@ -792,7 +792,7 @@ public class WsAssignAttributeLogic {
           //add to error and keep going
           errorMessage.append(
               "Problem with " + attributeDefName + ", action: " + action 
-              + ", owner: " + attributeAssignable + ", " + ExceptionUtils.getFullStackTrace(e) + ".  ");
+              + ", owner: " + attributeAssignable + ", " + ExceptionUtils.getStackTrace(e) + ".  ");
         }
         
         

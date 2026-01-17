@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper.hooks.examples;
 
 import junit.textui.TestRunner;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
@@ -111,7 +111,7 @@ public class AttributeSecurityFromTypeHookTest extends GrouperTest {
         try {
           group.setAttribute("gidNumber", "2");
         } catch (Exception e) {
-          fail("Shouldnt get here: " + ExceptionUtils.getFullStackTrace(e));
+          fail("Shouldnt get here: " + ExceptionUtils.getStackTrace(e));
         }
 
         return null;

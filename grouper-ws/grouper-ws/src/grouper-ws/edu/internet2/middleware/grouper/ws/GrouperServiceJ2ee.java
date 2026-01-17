@@ -37,8 +37,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.ThreadContext;
 
@@ -1070,7 +1070,7 @@ public class GrouperServiceJ2ee implements Filter {
       throw ioe;
     } catch (RuntimeException re) {
       LOG.info("error in request", re);
-      debugMap.put("exception", ExceptionUtils.getFullStackTrace(re));
+      debugMap.put("exception", ExceptionUtils.getStackTrace(re));
       handleException(re);
       throw re;
     } finally {

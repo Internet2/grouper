@@ -31,8 +31,8 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -243,7 +243,7 @@ public class SimpleMembershipUpdateImportExport {
     } catch (Exception e) {
       result[headers.length] = "F";
       String error = "error with memberId: " + member.getUuid() + ", subjectId: " + member.getSubjectId()
-        + ", " + ExceptionUtils.getFullStackTrace(e);
+        + ", " + ExceptionUtils.getStackTrace(e);
       LOG.error(error);
       result[headers.length + 1] = error;
     }

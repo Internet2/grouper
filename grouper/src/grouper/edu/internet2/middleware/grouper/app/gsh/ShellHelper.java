@@ -23,7 +23,7 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import java.util.List;
 
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.logging.Log;
 
 import bsh.Interpreter;
