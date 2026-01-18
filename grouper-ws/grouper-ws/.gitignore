@@ -13,3 +13,4 @@ target
 /bin/
 .project
 .classpath
+src/grouper-ws/Test*.java

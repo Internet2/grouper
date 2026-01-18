@@ -319,30 +319,16 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   }
 
   /**
-   * Note, this is 
-   * web service format string
-   */
-  private static final String WS_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
-
-  /**
-   * Note, this is 
-   * web service format string
-   */
-  private static final String WS_DATE_FORMAT2 = "yyyy/MM/dd_HH:mm:ss.SSS";
-
-  /**
    * convert a date to a string using the standard web service pattern
    * yyyy/MM/dd HH:mm:ss.SSS Note that HH is 0-23
    * 
    * @param date
    * @return the string, or null if the date is null
+   * @deprecated use GrouperUtil.dateToString
    */
+  @Deprecated
   public static String dateToString(Date date) {
-    if (date == null) {
-      return null;
-    }
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(WS_DATE_FORMAT);
-    return simpleDateFormat.format(date);
+    return GrouperUtil.dateToString(date);
   }
 
   /**
@@ -351,23 +337,11 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    * 
    * @param dateString
    * @return the string, or null if the date was null
+   * @deprecated use GrouperUtil.stringToDate
    */
+  @Deprecated
   public static Date stringToDate(String dateString) {
-    if (StringUtils.isBlank(dateString)) {
-      return null;
-    }
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(WS_DATE_FORMAT);
-    try {
-      return simpleDateFormat.parse(dateString);
-    } catch (ParseException e) {
-      SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat(WS_DATE_FORMAT2);
-      try {
-        return simpleDateFormat2.parse(dateString);
-      } catch (ParseException e2) {
-        throw new RuntimeException("Cannot convert '" + dateString
-            + "' to a date based on format: " + WS_DATE_FORMAT, e);
-      }
-    }
+    return GrouperUtil.stringToDate(dateString);
   }
 
   

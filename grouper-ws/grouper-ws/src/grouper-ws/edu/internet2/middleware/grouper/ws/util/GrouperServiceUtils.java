@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,7 +37,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -55,7 +53,6 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -79,6 +76,7 @@ import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet;
 import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -97,60 +95,40 @@ public final class GrouperServiceUtils {
   
 
   /**
-   * compute a url of a resource
-   * @param resourceName
+   * compute a url of a resource.
+   * @param resourceName resource name
    * @param canBeNull if cant be null, throw runtime
    * @return the URL
+   * @deprecated use {@link edu.internet2.middleware.grouper.util.GrouperUtil#computeUrl(String, boolean)}
    */
+  @Deprecated
   public static URL computeUrl(String resourceName, boolean canBeNull) {
-    //get the url of the navigation file
-    ClassLoader cl = classLoader();
-
-    URL url = null;
-
-    try {
-      url = cl.getResource(resourceName);
-    } catch (NullPointerException npe) {
-      String error = "computeUrl() Could not find resource file: " + resourceName;
-      throw new RuntimeException(error, npe);
-    }
-
-    if (!canBeNull && url == null) {
-      throw new RuntimeException("Cant find resource: " + resourceName);
-    }
-
-    return url;
+    return GrouperUtil.computeUrl(resourceName, canBeNull);
   }
 
 
   /**
    * fast class loader
    * @return the class loader
+   * @deprecated use {@link edu.internet2.middleware.grouper.util.GrouperUtil#classLoader()}
    */
+  @Deprecated
   public static ClassLoader classLoader() {
-    return GrouperServiceUtils.class.getClassLoader();
+    return GrouperUtil.classLoader();
   }
 
 
   /**
    * get a file name from a resource name
    * 
-   * @param resourceName
-   *          is the classpath location
+   * @param resourceName is the classpath location
    * 
    * @return the file path on the system
+   * @deprecated use {@link edu.internet2.middleware.grouper.util.GrouperUtil#fileFromResourceName(String)}
    */
+  @Deprecated
   public static File fileFromResourceName(String resourceName) {
-    
-    URL url = computeUrl(resourceName, true);
-
-    if (url == null) {
-      return null;
-    }
-
-    File configFile = new File(url.getFile());
-
-    return configFile;
+    return GrouperUtil.fileFromResourceName(resourceName);
   }
 
   /**
@@ -189,25 +167,18 @@ public final class GrouperServiceUtils {
    * @param exceptionOnNull true if exception should be thrown on null or blank
    * @return the enum or null or exception if not found
    * @throws GrouperRestInvalidRequest if there is a problem
+   * @deprecated use {@link edu.internet2.middleware.grouper.util.GrouperUtil#enumValueOfIgnoreCase(Class, String, boolean)}
    */
+  @Deprecated
   public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
       boolean exceptionOnNull) throws GrouperRestInvalidRequest {
-    
-    if (!exceptionOnNull && StringUtils.isBlank(string)) {
-      return null;
+
+    try {
+      return GrouperUtil.enumValueOfIgnoreCase(theEnumClass, string, exceptionOnNull);
+    } catch (RuntimeException re) {
+      // preserve the WS-layer exception type
+      throw new GrouperRestInvalidRequest(re.getMessage());
     }
-    for (E e : theEnumClass.getEnumConstants()) {
-      if (StringUtils.equalsIgnoreCase(string, e.name())) {
-        return e;
-      }
-    }
-    StringBuilder error = new StringBuilder(
-        "Cant find " + theEnumClass.getSimpleName() + " from string: '").append(string);
-    error.append("', expecting one of: ");
-    for (E e : theEnumClass.getEnumConstants()) {
-      error.append(e.name()).append(", ");
-    }
-    throw new GrouperRestInvalidRequest(error.toString());
 
   }
   
@@ -1149,9 +1120,11 @@ public final class GrouperServiceUtils {
    * 
    * @param date
    * @return the string, or null if the date is null
+   * @deprecated use {@link edu.internet2.middleware.grouper.util.GrouperUtil#dateToString(Date)}
    */
+  @Deprecated
   public static String dateToString(Date date) {
-    return AttributeAssignValue.dateToString(date);
+    return GrouperUtil.dateToString(date);
   }
 
   /**
@@ -1160,24 +1133,23 @@ public final class GrouperServiceUtils {
    * 
    * @param dateString
    * @return the string, or null if the date was null
+   * @deprecated use {@link edu.internet2.middleware.grouper.util.GrouperUtil#stringToDate(String)}
    */
+  @Deprecated
   public static Date stringToDate(String dateString) {
-    return AttributeAssignValue.stringToDate(dateString);
+    return GrouperUtil.stringToDate(dateString);
   }
 
   /**
-   * convert a string to a date using the standard web service pattern Note
-   * that HH is 0-23
+   * convert a string to a timestamp
    * 
    * @param timestampString
-   * @return the string, or null if the date was null
+   * @return the timestamp, or null if the date was null
+   * @deprecated use {@link edu.internet2.middleware.grouper.util.GrouperUtil#stringToTimestamp(String)}
    */
+  @Deprecated
   public static Timestamp stringToTimestamp(String timestampString) {
-    Date date = AttributeAssignValue.stringToDate(timestampString);
-    if (date == null) {
-      return null;
-    }
-    return new Timestamp(date.getTime());
+    return GrouperUtil.stringToTimestamp(timestampString);
   }
 
   /**
@@ -1418,102 +1390,22 @@ public final class GrouperServiceUtils {
    * @param object
    * @param maxChars is the max chars that should be returned (abbreviate if longer), or -1 for any amount
    * @return the string value
+   * @deprecated use {@link edu.internet2.middleware.grouper.util.GrouperUtil#toStringForLog(Object, int)}
    */
+  @Deprecated
   public static String toStringForLog(Object object, int maxChars) {
-    StringBuilder result = new StringBuilder();
-    toStringForLogHelper(object, -1, result);
-    String resultString = result.toString();
-    if (maxChars != -1) {
-      return GrouperUtil.abbreviate(resultString, maxChars);
-    }
-    return resultString;
+    return GrouperUtil.toStringForLog(object, maxChars);
   }
 
   /**
-   * print out various types of objects
-   *
-   * @param object
-   * @param maxChars is where it should stop when figuring out object.  note, result might be longer than max...
-   * need to abbreviate when back
-   * @param result is where to append to
-   */
-  private static void toStringForLogHelper(Object object, int maxChars, StringBuilder result) {
-
-    try {
-      if (object == null) {
-        result.append("null");
-      } else if (object.getClass().isArray()) {
-        // handle arrays
-        int length = Array.getLength(object);
-        if (length == 0) {
-          result.append("Empty array");
-        } else {
-          result.append("Array size: ").append(length).append(": ");
-          for (int i = 0; i < length; i++) {
-            if (i > 0) {
-              result.append(", ");
-            }
-            result.append("[").append(i).append("]: ").append(
-                toStringForLog(Array.get(object, i), maxChars));
-            if (maxChars != -1 && result.length() > maxChars) {
-              return;
-            }
-          }
-        }
-      } else if (object instanceof Collection) {
-        //give size and type if collection
-        Collection<Object> collection = (Collection<Object>) object;
-        int collectionSize = collection.size();
-        if (collectionSize == 0) {
-          result.append("Empty ").append(object.getClass().getSimpleName());
-        } else {
-          result.append(object.getClass().getSimpleName()).append(" size: ").append(collectionSize).append(": ");
-          int i=0;
-          for (Object collectionObject : collection) {
-            if (i > 0) {
-              result.append(", ");
-            }
-            result.append("[").append(i).append("]: ").append(
-                toStringForLog(collectionObject, maxChars));
-            if (maxChars != -1 && result.length() > maxChars) {
-              return;
-            }
-            i++;
-          }
-        }
-      } else if (object instanceof Subject) {
-        result.append(GrouperUtil.subjectToString((Subject)object));
-      } else {
-        result.append(toStringForWsLog(object));
-      }
-    } catch (Exception e) {
-      result.append("<<exception>> ").append(object.getClass()).append(":\n")
-        .append(GrouperUtil.getFullStackTrace(e)).append("\n");
-    }
-  }
-  
-  /**
-   * convert a set to a string (comma separate)
+   * convert a map to a string (comma separate)
    * @param map
    * @return the String
+   * @deprecated use {@link edu.internet2.middleware.grouper.util.GrouperUtil#mapToString(Map)}
    */
+  @Deprecated
   public static String mapToString(Map<?, ?> map) {
-    if (map == null) {
-      return "null";
-    }
-    if (map.size() == 0) {
-      return "empty";
-    }
-    StringBuilder result = new StringBuilder();
-    boolean first = true;
-    for (Object object : map.keySet()) {
-      if (!first) {
-        result.append(", ");
-      }
-      first = false;
-      result.append(object).append(": ").append(toStringForWsLog(map.get(object)));
-    }
-    return result.toString();
+    return GrouperUtil.mapToString(map);
   }
 
   /**
