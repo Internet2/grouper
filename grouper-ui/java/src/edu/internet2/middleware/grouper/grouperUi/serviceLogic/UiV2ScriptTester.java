@@ -22,7 +22,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
 
 public class UiV2ScriptTester {
   
@@ -164,7 +163,7 @@ public class UiV2ScriptTester {
       
       auditEntry.saveOrUpdate(true);
 
-      LOG.warn(SubjectUtils.subjectToString(loggedInSubject) + ", tested jexl script: "+scriptExample.name() +
+      LOG.warn(GrouperUtil.subjectToString(loggedInSubject) + ", tested jexl script: "+scriptExample.name() +
           ", script: "+jexlScript + " ,"
               + "nullCheckingScript: "+nullCheckingJexlScript + " ,availableBeans: "+availableBeansGshScript);
       

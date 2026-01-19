@@ -21,7 +21,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
 
 public class WsGrouperOauthAuthentication implements WsCustomAuthentication {
 
@@ -59,7 +58,7 @@ public class WsGrouperOauthAuthentication implements WsCustomAuthentication {
     if (subject == null) {
       System.out.println("Subject is null");
     } else {
-      System.out.println("Subject: " + SubjectUtils.subjectToString(subject));
+      System.out.println("Subject: " + GrouperUtil.subjectToString(subject));
     }
   }
   
@@ -135,7 +134,7 @@ public class WsGrouperOauthAuthentication implements WsCustomAuthentication {
           if (subject == null) {
             debugMap.put("subject", "null");
           } else {
-            debugMap.put("subject", SubjectUtils.subjectToString(subject));
+            debugMap.put("subject", GrouperUtil.subjectToString(subject));
             return subject.getId();
           }
         }

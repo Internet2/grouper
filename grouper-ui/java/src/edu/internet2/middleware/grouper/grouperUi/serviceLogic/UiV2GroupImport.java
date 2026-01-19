@@ -35,7 +35,6 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -93,7 +92,6 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
-import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * operations in the group screen
@@ -1023,7 +1021,7 @@ public class UiV2GroupImport {
             } catch (Exception e) {
               // if not already logged
               if (!hasError) {
-                String subjectString = SubjectUtils.subjectToString(subject);
+                String subjectString = GrouperUtil.subjectToString(subject);
                 String errorMessage = GrouperUiUtils.vetoHandleErrorMessage(e);
                 GroupImportError groupImportError = null;
                 if (errorMessage != null) {
@@ -1055,7 +1053,7 @@ public class UiV2GroupImport {
               
               groupImportGroupSummary.groupCountDeletedIncrement();
             } catch (Exception e) {
-              String subjectString = SubjectUtils.subjectToString(member.getSubject());
+              String subjectString = GrouperUtil.subjectToString(member.getSubject());
               GroupImportError groupImportError = new GroupImportError(subjectString, GrouperUtil.xmlEscape(e.getMessage()));
               groupImportGroupSummary.getGroupImportErrors().add(groupImportError);
               groupImportGroupSummary.groupCountErrorsIncrement();
@@ -1091,7 +1089,7 @@ public class UiV2GroupImport {
                   GrouperUtil.sleep(pauseBetweenRecordsMillis);
                   groupImportGroupSummary.groupCountUpdatedIncrement();
                 } catch (Exception e) {
-                  String subjectString = SubjectUtils.subjectToString(overlappingMember.getSubject());
+                  String subjectString = GrouperUtil.subjectToString(overlappingMember.getSubject());
                   GroupImportError groupImportError = new GroupImportError(subjectString, GrouperUtil.xmlEscape(e.getMessage()));
                   groupImportGroupSummary.getGroupImportErrors().add(groupImportError);
                   groupImportGroupSummary.groupCountErrorsIncrement();
@@ -1117,7 +1115,7 @@ public class UiV2GroupImport {
             } catch (Exception e) {
 
               
-              String subjectString = SubjectUtils.subjectToString(existingMember.getSubject());
+              String subjectString = GrouperUtil.subjectToString(existingMember.getSubject());
               GroupImportError groupImportError = new GroupImportError(subjectString, GrouperUtil.xmlEscape(e.getMessage()));
               groupImportGroupSummary.getGroupImportErrors().add(groupImportError);
               groupImportGroupSummary.groupCountErrorsIncrement();
@@ -1137,7 +1135,7 @@ public class UiV2GroupImport {
           GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
               loggedInSubject, group);
         } catch (Exception e) {
-          LOG.warn("Cant add recently used group: " + group.getName() + ", for subject: " + SubjectUtils.subjectToString(loggedInSubject) + ", maybe a priv was lost after import started???", e);
+          LOG.warn("Cant add recently used group: " + group.getName() + ", for subject: " + GrouperUtil.subjectToString(loggedInSubject) + ", maybe a priv was lost after import started???", e);
         }
         
         if (StringUtils.equals(bulkAddOption, "import")) {

@@ -491,7 +491,8 @@ public class SubjectImpl implements Subject {
     if (this.getTranslationMap() != null ) {
       variableMap.putAll(this.getTranslationMap());
     }
-    variableMap.put("GrouperUtil", new GrouperUtil());
+    variableMap.put("subjectUtils", new GrouperUtil());
+    variableMap.put("grouperUtil", new GrouperUtil());
     
     //take each attribute and init it
     for (String attributeName : virtualAttributes.keySet()) {

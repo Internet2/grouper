@@ -28,7 +28,6 @@ import edu.internet2.middleware.grouperClient.jdbc.GcJdbcConnectionProvider;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
@@ -437,10 +436,10 @@ public class SubjectSourceDiagnostics {
             Class<?> adapterClassClass = null;
             
             try {
-              adapterClassClass = SubjectUtils.forName(adapterClassName);
+              adapterClassClass = GrouperUtil.forName(adapterClassName);
               subjectApiReport.append("<font color='green'>SUCCESS:</font> Found adapter class\n");
               try {
-                sourceAdapter = (BaseSourceAdapter)SubjectUtils.newInstance(adapterClassClass);
+                sourceAdapter = (BaseSourceAdapter)GrouperUtil.newInstance(adapterClassClass);
                 subjectApiReport.append("<font color='green'>SUCCESS:</font> Instantiated adapter class\n");
               } catch (Exception e) {
                 subjectApiReport.append("<font color='red'>ERROR:</font> Cannot instantiate adapter class\n");
@@ -459,10 +458,10 @@ public class SubjectSourceDiagnostics {
             Class<?> jdbcConnectionProviderClassClass = null;
             
             try {
-              jdbcConnectionProviderClassClass = SubjectUtils.forName(jdbcConnectionProviderClassName);
+              jdbcConnectionProviderClassClass = GrouperUtil.forName(jdbcConnectionProviderClassName);
               subjectApiReport.append("<font color='green'>SUCCESS:</font> Found connection provider class\n");
               try {
-                GcJdbcConnectionProvider gcJdbcConnectionProvider = (GcJdbcConnectionProvider)SubjectUtils.newInstance(jdbcConnectionProviderClassClass);
+                GcJdbcConnectionProvider gcJdbcConnectionProvider = (GcJdbcConnectionProvider)GrouperUtil.newInstance(jdbcConnectionProviderClassClass);
                 subjectApiReport.append("<font color='green'>SUCCESS:</font> Instantiated connection provider class\n");
   
                 if (gcJdbcConnectionProvider instanceof GrouperJdbcConnectionProvider) {
