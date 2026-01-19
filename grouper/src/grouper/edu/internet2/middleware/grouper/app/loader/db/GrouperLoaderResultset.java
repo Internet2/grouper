@@ -47,7 +47,6 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationBase;
 import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationInput;
 import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationOutput;
-import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
@@ -733,7 +732,7 @@ public class GrouperLoaderResultset {
         
         String groupParentFolderName = (GrouperUtil.parentStemNameFromName(groupName, true) + ":");
         
-        String loaderGroupName = groupParentFolderName + defaultFolder + LoaderLdapElUtils.convertDnToSubPath(nameInNamespace, 
+        String loaderGroupName = groupParentFolderName + defaultFolder + GrouperUtil.convertDnToSubPath(nameInNamespace, 
             baseDn, searchDn);
 
         String loaderGroupDisplayName = null;

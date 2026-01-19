@@ -707,7 +707,8 @@ public class LoaderLdapUtils {
       return expression;
     }
     
-    loaderEnvVars.put("loaderLdapElUtils", new LoaderLdapElUtils());
+    loaderEnvVars.put("loaderLdapElUtils", new GrouperUtil());
+    loaderEnvVars.put("grouperUtil", new GrouperUtil());
     loaderEnvVars.put("ldapLookup", new LdapLookup());
     
     //get custom el classes to add
