@@ -9862,6 +9862,31 @@ public class GrouperUtil {
   }
 
   /**
+   * convert properties to a string (comma separate)
+   * @param properties
+   * @return the String
+   */
+  public static String propertiesToString(Properties properties) {
+    if (properties == null) {
+      return "null";
+    }
+    if (properties.size() == 0) {
+      return "empty";
+    }
+    StringBuilder result = new StringBuilder();
+    boolean first = true;
+    for (Object object : properties.keySet()) {
+      if (!first) {
+        result.append(", ");
+      }
+      first = false;
+      result.append(object).append(": ").append(properties.get(object));
+    }
+    return result.toString();
+  }
+
+
+  /**
    * get a value (trimmed to e) from a property file
    * @param properties
    * @param overrideMap for testing or threadlocal, to override some properties values

@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 /**
  * <p>Use this class to add/edit/delete object types on groups</p>
@@ -274,7 +274,7 @@ public class GdgTypeGroupSave {
             
             if (!runAsRoot) {
               if (!group.canHavePrivilege(SUBJECT_IN_SESSION, AccessPrivilege.ADMIN.getName(), false)) {
-                throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
+                throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(SUBJECT_IN_SESSION) 
                   + "' cannot ADMIN group '" + group.getName() + "'");
               }
             }

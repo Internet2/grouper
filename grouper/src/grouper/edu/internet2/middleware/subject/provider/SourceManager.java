@@ -36,7 +36,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -47,12 +46,12 @@ import edu.internet2.middleware.grouper.cache.GrouperCacheDatabaseClearInput;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
-import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 
 /**
@@ -212,13 +211,13 @@ public class SourceManager {
     try {
       StringBuilder result = new StringBuilder();
 
-      File subjectPropertiesFile = SubjectUtils.fileFromResourceName("subject.properties");
+      File subjectPropertiesFile = GrouperUtil.fileFromResourceName("subject.properties");
       String subjectPropertiesFileLocation = subjectPropertiesFile == null ? " [cant find subject.properties]"
-          : SubjectUtils.fileCanonicalPath(subjectPropertiesFile);
+          : GrouperUtil.fileCanonicalPath(subjectPropertiesFile);
       result.append("subject.properties read from: " + subjectPropertiesFileLocation + "\n");
 
       result.append("sources configured in:        subject.properties\n");
-      File sourcesXmlFile = SubjectUtils.fileFromResourceName("sources.xml");
+      File sourcesXmlFile = GrouperUtil.fileFromResourceName("sources.xml");
       if (sourcesXmlFile != null && sourcesXmlFile.exists() && sourcesXmlFile.isFile()) {
         String sourcesError = "NON-FATAL ERROR:              subject sources are read from subject.properties but you "
             + "still have a sources.xml on the classpath which is confusing, please backup and remove this file: " + sourcesXmlFile.getAbsolutePath();

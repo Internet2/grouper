@@ -22,8 +22,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 /**
  * config for a source of the status params
@@ -52,7 +53,7 @@ public class SubjectStatusConfig {
     {
       String statusesFromUser = source.getInitParam("statusesFromUser");
       if (!StringUtils.isBlank(statusesFromUser)) {
-        for (String statusFromUser : SubjectUtils.splitTrim(statusesFromUser, ",")) {
+        for (String statusFromUser : GrouperUtil.splitTrim(statusesFromUser, ",")) {
           this.statusesFromUser.add(statusFromUser.toLowerCase());
         }
       }
@@ -117,13 +118,13 @@ public class SubjectStatusConfig {
     
     boolean hasStatusDatastoreFieldName = !StringUtils.isBlank(this.statusDatastoreFieldName);
 
-    boolean hasStatusesFromUser = SubjectUtils.length(this.statusesFromUser) > 0;
+    boolean hasStatusesFromUser = GrouperUtil.length(this.statusesFromUser) > 0;
     
     boolean hasStatusLabel = !StringUtils.isBlank(this.statusLabel);
     
     boolean hasStatusSearchDefault = !StringUtils.isBlank(this.statusLabel);
     
-    boolean hasStatusTemplateUserToDatastore = SubjectUtils.length(this.statusTranslateUserToDatastore) > 0;
+    boolean hasStatusTemplateUserToDatastore = GrouperUtil.length(this.statusTranslateUserToDatastore) > 0;
     
     //has nothing, thats ok
     if (!hasStatusAllFromUser && !hasStatusDatastoreFieldName && !hasStatusesFromUser 

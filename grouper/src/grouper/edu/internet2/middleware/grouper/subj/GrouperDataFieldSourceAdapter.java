@@ -31,7 +31,7 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.InvalidQueryRuntimeException;
@@ -529,7 +529,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
 
     } finally {
       if (log.isDebugEnabled()) {
-        log.debug("Query returned " + results.size() + ", " + query + ", " + SubjectUtils.toStringForLog(args));
+        log.debug("Query returned " + results.size() + ", " + query + ", " + GrouperUtil.toStringForLog(args));
       }
     }
 
@@ -838,7 +838,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
       {
         String errorOnMaxResultsString = props.getProperty("errorOnMaxResults");
         if (!StringUtils.isBlank(errorOnMaxResultsString)) {
-          this.errorOnMaxResults = SubjectUtils.booleanValue(errorOnMaxResultsString, true);
+          this.errorOnMaxResults = GrouperUtil.booleanValue(errorOnMaxResultsString, true);
         }
       }
       

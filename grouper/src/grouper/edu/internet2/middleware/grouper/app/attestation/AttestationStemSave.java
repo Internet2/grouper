@@ -37,7 +37,7 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 /**
  * <p>Use this class to add/edit/delete attestation on folders.</p>
@@ -605,12 +605,12 @@ public class AttestationStemSave {
               
               if (!runAsRoot) {
                 if (!stem.canHavePrivilege(SUBJECT_IN_SESSION, NamingPrivilege.STEM_ADMIN.getName(), false)) {
-                  throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
+                  throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(SUBJECT_IN_SESSION) 
                     + "' cannot ADMIN stem '" + stem.getName() + "'");
                 }
                 
                 if (groupCanAttest != null && !groupCanAttest.canHavePrivilege(SUBJECT_IN_SESSION, AccessPrivilege.READ.getName(), false)) {
-                  throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
+                  throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(SUBJECT_IN_SESSION) 
                   + "' cannot READ group '" + groupCanAttest.getName() + "'");
                 }
               }
@@ -693,7 +693,7 @@ public class AttestationStemSave {
               }
               if (!runAsRoot && emailGroup != null) {
                 if (!emailGroup.canHavePrivilege(SUBJECT_IN_SESSION, AccessPrivilege.READ.getName(), false)) {
-                  throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
+                  throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(SUBJECT_IN_SESSION) 
                     + "' cannot READ group '" + emailGroup.getName() + "'");
                 }
               }

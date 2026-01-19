@@ -15,7 +15,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils; 
+ 
 
 /**
  * <p>Use this class to find objects type attributes on groups</p>
@@ -153,7 +153,7 @@ public class GdgTypeGroupFinder {
         
         if (!runAsRoot) {
           if (!group.canHavePrivilege(SUBJECT_IN_SESSION, AccessPrivilege.READ.getName(), false)) {
-            throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
+            throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(SUBJECT_IN_SESSION) 
               + "' cannot READ group '" + group.getName() + "'");
           }
         }

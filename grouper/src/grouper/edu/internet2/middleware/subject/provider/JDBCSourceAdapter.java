@@ -42,8 +42,8 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.InvalidQueryException;
 import edu.internet2.middleware.subject.SearchPageResult;
@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.SubjectCheckConfig;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 /**
  * JDBC Source
@@ -111,7 +111,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   public Set<String> retrieveAllSubjectIds() {
 
     String getAllSubjectIdsIsImplementedString = this.getInitParam("getAllSubjectIdsIsImplemented");
-    boolean getAllSubjectIdsIsImplemented = SubjectUtils.booleanValue(getAllSubjectIdsIsImplementedString, true);
+    boolean getAllSubjectIdsIsImplemented = GrouperUtil.booleanValue(getAllSubjectIdsIsImplementedString, true);
     if (!getAllSubjectIdsIsImplemented) {
       throw new UnsupportedOperationException();
     }
@@ -250,13 +250,13 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     //do the batched one
     if (this.useInClauseForIdAndIdentifier) {
       
-      Map<String, Subject> result = this.getSubjectsByIds(SubjectUtils.toSet(id1));
+      Map<String, Subject> result = this.getSubjectsByIds(GrouperUtil.toSet(id1));
       
-      if (SubjectUtils.length(result) == 1) {
+      if (GrouperUtil.length(result) == 1) {
         return result.get(id1);
       }
       
-      if (SubjectUtils.length(result) > 1) {
+      if (GrouperUtil.length(result) > 1) {
         throw new SubjectNotUniqueException("Not unique by id: " + id1);
       }
       
@@ -287,13 +287,13 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     //do the batched one
     if (this.useInClauseForIdAndIdentifier) {
       
-      Map<String, Subject> result = this.getSubjectsByIdentifiers(SubjectUtils.toSet(id1));
+      Map<String, Subject> result = this.getSubjectsByIdentifiers(GrouperUtil.toSet(id1));
       
-      if (SubjectUtils.length(result) == 1) {
+      if (GrouperUtil.length(result) == 1) {
         return result.get(id1);
       }
       
-      if (SubjectUtils.length(result) > 1) {
+      if (GrouperUtil.length(result) > 1) {
         throw new SubjectNotUniqueException("Not unique by id: " + id1);
       }
 
@@ -419,7 +419,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       return new SearchPageResult(false, result);
     }
     String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
-    boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+    boolean throwErrorOnFindAllFailure = GrouperUtil.booleanValue(throwErrorOnFindAllFailureString, true);
 
     Connection conn = null;
     PreparedStatement stmt = null;
@@ -526,7 +526,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       String result = rs.getString(name1);
       return result;
     } catch (SQLException se) {
-      SubjectUtils.injectInException(se, "Error retrieving column name: '" + name1
+      GrouperUtil.injectInException(se, "Error retrieving column name: '" + name1
           + "' in source: " + this.getId() + ", in query: " + sql + ", "
           + se.getMessage() + ", maybe the column configured in " + varName
           + " does not exist as a query column");
@@ -599,7 +599,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
             //find out which id or identifier found this one
             for (String identifierAttribute : this.identifierAttributes) {
               Set<String> values = subject.getAttributeValues(identifierAttribute);
-              if (SubjectUtils.length(values) > 0) {
+              if (GrouperUtil.length(values) > 0) {
                 for (String value: values) {
                   //we found a match
                   if (searchValuesSet.contains(value)) {
@@ -616,7 +616,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
             //if we made it this far there is a problem
             throw new InvalidQueryException("Why is this subject not able to be " +
                 "referenced by id or identifier (do you need to add " +
-                "identifierAttributes to your subject.properties???) " + SubjectUtils.subjectToString(subject) );
+                "identifierAttributes to your subject.properties???) " + GrouperUtil.subjectToString(subject) );
 
           }
           
@@ -699,7 +699,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       try {
         stmt.setString(i, searchValue);
       } catch (SQLException e) {
-        SubjectUtils
+        GrouperUtil
             .injectInException(
                 e,
                 "Error setting param: "
@@ -742,7 +742,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         try {
           stmt.setString(paramIndex++, idOrIdentifier);
         } catch (SQLException e) {
-          SubjectUtils
+          GrouperUtil
               .injectInException(
                   e,
                   "Error setting param: "
@@ -860,7 +860,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       {
         String errorOnMaxResultsString = props.getProperty("errorOnMaxResults");
         if (!StringUtils.isBlank(errorOnMaxResultsString)) {
-          this.errorOnMaxResults = SubjectUtils.booleanValue(errorOnMaxResultsString, true);
+          this.errorOnMaxResults = GrouperUtil.booleanValue(errorOnMaxResultsString, true);
         }
       }
       
@@ -879,7 +879,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         String useInClauseForIdAndIdentifierString = props.getProperty("useInClauseForIdAndIdentifier");
         if (!StringUtils.isBlank(useInClauseForIdAndIdentifierString)) {
           try {
-            this.useInClauseForIdAndIdentifier = SubjectUtils.booleanValue(useInClauseForIdAndIdentifierString);
+            this.useInClauseForIdAndIdentifier = GrouperUtil.booleanValue(useInClauseForIdAndIdentifierString);
           } catch (Exception e) {
             throw new SourceUnavailableException("Cant parse useInClauseForIdAndIdentifier: " + useInClauseForIdAndIdentifierString, e);
           }
@@ -889,7 +889,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       {
         String identifierAttributesString = props.getProperty("identifierAttributes");
         if (!StringUtils.isBlank(identifierAttributesString)) {
-          this.identifierAttributes = SubjectUtils.toList(SubjectUtils.splitTrim(identifierAttributesString, ","));
+          this.identifierAttributes = GrouperUtil.toList(GrouperUtil.splitTrim(identifierAttributesString, ","));
         }
       }
 
@@ -897,7 +897,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         String changeSearchQueryForMaxResultsString = props.getProperty("changeSearchQueryForMaxResults");
         if (!StringUtils.isBlank(changeSearchQueryForMaxResultsString)) {
           try {
-            this.changeSearchQueryForMaxResults = SubjectUtils.booleanValue(changeSearchQueryForMaxResultsString);
+            this.changeSearchQueryForMaxResults = GrouperUtil.booleanValue(changeSearchQueryForMaxResultsString);
           } catch (Exception e) {
             throw new SourceUnavailableException("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString, e);
           }
@@ -964,16 +964,16 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     dbPwd = Morph.decryptIfFile(dbPwd);
 
     //defaults to true
-    Boolean readOnly = SubjectUtils.booleanObjectValue(props.getProperty("readOnly"));
+    Boolean readOnly = GrouperUtil.booleanObjectValue(props.getProperty("readOnly"));
 
-    String jdbcConnectionProviderString = SubjectUtils.defaultIfBlank(props
+    String jdbcConnectionProviderString = GrouperUtil.defaultIfBlank(props
         .getProperty("jdbcConnectionProvider"), C3p0JdbcConnectionProvider.class
         .getName());
     Class<JdbcConnectionProvider> jdbcConnectionProviderClass = null;
     try {
-      jdbcConnectionProviderClass = SubjectUtils.forName(jdbcConnectionProviderString);
+      jdbcConnectionProviderClass = GrouperUtil.forName(jdbcConnectionProviderString);
     } catch (RuntimeException re) {
-      SubjectUtils
+      GrouperUtil
           .injectInException(
               re,
               "Valid built-in options are: "
@@ -985,7 +985,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       throw re;
     }
 
-    this.jdbcConnectionProvider = SubjectUtils.newInstance(jdbcConnectionProviderClass);
+    this.jdbcConnectionProvider = GrouperUtil.newInstance(jdbcConnectionProviderClass);
     this.jdbcConnectionProvider.init(props, this.getId(), driver, maxActive, 2, maxIdle, 2,
         maxWaitSeconds, 5, dbUrl, dbUser, dbPwd, readOnly, true, jdbcConfigId);
 
@@ -1124,7 +1124,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         String useInClauseForIdAndIdentifierString = props.getProperty("useInClauseForIdAndIdentifier");
         if (!StringUtils.isBlank(useInClauseForIdAndIdentifierString)) {
           try {
-            SubjectUtils.booleanValue(useInClauseForIdAndIdentifierString);
+            GrouperUtil.booleanValue(useInClauseForIdAndIdentifierString);
           } catch (Exception e) {
             System.err.println("Cant parse useInClauseForIdAndIdentifier: " + useInClauseForIdAndIdentifier);
             log.error("Cant parse useInClauseForIdAndIdentifier: " + useInClauseForIdAndIdentifier);
@@ -1137,7 +1137,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         String changeSearchQueryForMaxResultsString = props.getProperty("changeSearchQueryForMaxResults");
         if (!StringUtils.isBlank(changeSearchQueryForMaxResultsString)) {
           try {
-            SubjectUtils.booleanValue(changeSearchQueryForMaxResultsString);
+            GrouperUtil.booleanValue(changeSearchQueryForMaxResultsString);
           } catch (Exception e) {
             System.err.println("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString);
             log.error("Cant parse changeSearchQueryForMaxResults: " + changeSearchQueryForMaxResultsString);
@@ -1150,7 +1150,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         String errorOnMaxResultsString = props.getProperty("errorOnMaxResults");
         if (!StringUtils.isBlank(errorOnMaxResultsString)) {
           try {
-            SubjectUtils.booleanValue(errorOnMaxResultsString);
+            GrouperUtil.booleanValue(errorOnMaxResultsString);
           } catch (Exception e) {
             System.err.println("Cant parse errorOnMaxResultsString: " + errorOnMaxResultsString);
             log.error("Cant parse errorOnMaxResultsString: " + errorOnMaxResultsString);
@@ -1194,11 +1194,11 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
           if (!SubjectCheckConfig.checkConfig("spy.properties")) {
             return;
           }
-          Properties spyProperties = SubjectUtils
+          Properties spyProperties = GrouperUtil
               .propertiesFromResourceName("spy.properties");
           driver = spyProperties.getProperty("realdriver");
           try {
-            driverClass = SubjectUtils.forName(driver);
+            driverClass = GrouperUtil.forName(driver);
           } catch (Exception e) {
             String theError = error
                 + "Error finding database driver class from spy.properties: "
@@ -1228,7 +1228,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
           log.error(theError, sqlException);
           return;
         } finally {
-          SubjectUtils.closeQuietly(dbConnection);
+          GrouperUtil.closeQuietly(dbConnection);
         }
 
       } catch (Exception e) {
@@ -1300,7 +1300,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
 
     Map<String, Subject> results = new LinkedHashMap<String, Subject>();
     
-    if (SubjectUtils.length(idsOrIdentifiers) > 0) {
+    if (GrouperUtil.length(idsOrIdentifiers) > 0) {
       
       Search search = getSearch(searchType);
 
@@ -1347,13 +1347,13 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       //we dont want more than 180 bind variables per batch
       int batchSize = 180 / numParameters;
       
-      List<String> idsOrIdentifiersList = SubjectUtils.listFromCollection(idsOrIdentifiers);
+      List<String> idsOrIdentifiersList = GrouperUtil.listFromCollection(idsOrIdentifiers);
       
-      int numberOfBatches = SubjectUtils.batchNumberOfBatches(idsOrIdentifiersList, batchSize);
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsOrIdentifiersList, batchSize);
       
       for (int i=0;i<numberOfBatches;i++) {
 
-        List<String> batchIdsOrIdentifiers = SubjectUtils.batchList(idsOrIdentifiersList, batchSize, i);
+        List<String> batchIdsOrIdentifiers = GrouperUtil.batchList(idsOrIdentifiersList, batchSize, i);
         
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -1376,7 +1376,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
           jdbcConnectionBean.doneWithConnection();
         } catch (SQLException ex) {
           String error = "problem in subject.properties source: " + this.getId() + ", sql: "
-              + aggregateSql + ", id size: " + SubjectUtils.length(idsOrIdentifiers) + ", " + searchType;
+              + aggregateSql + ", id size: " + GrouperUtil.length(idsOrIdentifiers) + ", " + searchType;
           try {
             jdbcConnectionBean.doneWithConnectionError(ex);
           } catch (RuntimeException e) {
@@ -1406,7 +1406,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   private String uniqueSearchBatchSql(String sql, String inclause, List<String> batchIdsOrIdentifiers) {
     StringBuilder result = new StringBuilder();
     result.append(" ( ");
-    for (int i=0;i<SubjectUtils.length(batchIdsOrIdentifiers);i++) {
+    for (int i=0;i<GrouperUtil.length(batchIdsOrIdentifiers);i++) {
       if (i != 0) {
         result.append(" or ");
       }

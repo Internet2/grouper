@@ -28,7 +28,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.subject.SubjectUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
+
 
 
 
@@ -199,7 +201,7 @@ public enum JdbcDatabaseType {
     if (fromClause == null) {
       return null;
     }
-    String[] cols = SubjectUtils.splitTrim(fromClause, ",");
+    String[] cols = GrouperUtil.splitTrim(fromClause, ",");
     List<String> result = new ArrayList<String>();
     //we need the last whole string
     String alias = null;
@@ -287,7 +289,7 @@ public enum JdbcDatabaseType {
    * @return the enum or null or exception if not found
    */
   public static JdbcDatabaseType valueOfIgnoreCase(String string, boolean exceptionOnNull) {
-    return SubjectUtils.enumValueOfIgnoreCase(JdbcDatabaseType.class, 
+    return GrouperUtil.enumValueOfIgnoreCase(JdbcDatabaseType.class, 
         string, exceptionOnNull);
   
   }

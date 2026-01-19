@@ -24,7 +24,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 /**
  * <p>Use this class to add/edit/delete provisioning attributes on stems</p>
@@ -295,7 +295,7 @@ public class ProvisionableStemSave {
             if (!runAsRoot) {
               
               if (!PrivilegeHelper.isWheelOrRoot(SUBJECT_IN_SESSION)) {
-                throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION)+ "' is not wheel or root user.");
+                throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(SUBJECT_IN_SESSION)+ "' is not wheel or root user.");
               }
               
               if (!GrouperProvisioningService.isTargetEditable(provisioningTarget, SUBJECT_IN_SESSION, stem)) {

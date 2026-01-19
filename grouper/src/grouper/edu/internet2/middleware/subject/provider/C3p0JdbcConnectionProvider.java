@@ -25,13 +25,13 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 
 /**
@@ -141,24 +141,24 @@ public class C3p0JdbcConnectionProvider implements JdbcConnectionProvider {
     this.comboPooledDataSource.setJdbcUrl( dbUrl ); 
     this.comboPooledDataSource.setUser(dbUser); 
     this.comboPooledDataSource.setPassword(dbPassword); 
-    this.comboPooledDataSource.setMaxPoolSize(SubjectUtils.defaultIfNull(maxActive, defaultMaxActive));
+    this.comboPooledDataSource.setMaxPoolSize(GrouperUtil.defaultIfNull(maxActive, defaultMaxActive));
     
     //this isnt used
     if (maxIdle != null) {
       log.warn("maxIdle is not available for c3p0 (in subject API: " + sourceId + ")");
     }
-    int checkoutTimeout = 1000*SubjectUtils.defaultIfNull(maxWaitSeconds, defaultMaxWaitSeconds);
+    int checkoutTimeout = 1000*GrouperUtil.defaultIfNull(maxWaitSeconds, defaultMaxWaitSeconds);
     //if checkout timeout is less than 0, then make it 5 minutes
     checkoutTimeout = checkoutTimeout < 0 ? (5 * 60 * 1000) : checkoutTimeout; 
     this.comboPooledDataSource.setCheckoutTimeout(checkoutTimeout);
-    this.connectionReadOnly = SubjectUtils.defaultIfNull(readOnly, readOnlyDefault);
+    this.connectionReadOnly = GrouperUtil.defaultIfNull(readOnly, readOnlyDefault);
     
     {
       //max connection age is if the connection should eventually be thrown out (e.g. for firewalls)
       String maxConnectionAgeString = properties.getProperty("maxConnectionAge");
       
       if (!StringUtils.isBlank(maxConnectionAgeString)) {
-        int maxConnectionAgeInteger = SubjectUtils.intValue(maxConnectionAgeString);
+        int maxConnectionAgeInteger = GrouperUtil.intValue(maxConnectionAgeString);
         this.comboPooledDataSource.setMaxConnectionAge(maxConnectionAgeInteger);
       }
     }
@@ -168,7 +168,7 @@ public class C3p0JdbcConnectionProvider implements JdbcConnectionProvider {
       String testConnectionOnCheckoutString = properties.getProperty("testConnectionOnCheckout");
       
       if (!StringUtils.isBlank(testConnectionOnCheckoutString)) {
-        boolean testConnectionOnCheckout = SubjectUtils.booleanValue(testConnectionOnCheckoutString);
+        boolean testConnectionOnCheckout = GrouperUtil.booleanValue(testConnectionOnCheckoutString);
         this.comboPooledDataSource.setTestConnectionOnCheckout(testConnectionOnCheckout);
       }
             
@@ -190,7 +190,7 @@ public class C3p0JdbcConnectionProvider implements JdbcConnectionProvider {
       String idleConnectionTestPeriodString = properties.getProperty("idleConnectionTestPeriod");
       
       if (!StringUtils.isBlank(idleConnectionTestPeriodString)) {
-        int idleConnectionTestPeriodInteger = SubjectUtils.intValue(idleConnectionTestPeriodString);
+        int idleConnectionTestPeriodInteger = GrouperUtil.intValue(idleConnectionTestPeriodString);
         this.comboPooledDataSource.setIdleConnectionTestPeriod(idleConnectionTestPeriodInteger);
       }
             

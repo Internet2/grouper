@@ -26,10 +26,10 @@ import javax.naming.NameNotFoundException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -108,11 +108,11 @@ public class SubjectCheckConfig {
         source.checkConfig();
         
         String findSubjectOnCheckConfigString = source.getInitParam(FIND_SUBJECT_BY_ID_ON_CHECK_CONFIG);
-        boolean findSubjectOnCheckConfig = SubjectUtils.booleanValue(findSubjectOnCheckConfigString, true);
+        boolean findSubjectOnCheckConfig = GrouperUtil.booleanValue(findSubjectOnCheckConfigString, true);
         
         if (findSubjectOnCheckConfig) {
           String subjectToFindOnCheckConfig = source.getInitParam(SUBJECT_ID_TO_FIND_ON_CHECK_CONFIG);
-          subjectToFindOnCheckConfig = SubjectUtils.defaultIfBlank(subjectToFindOnCheckConfig, GROUPER_TEST_SUBJECT_BY_ID);
+          subjectToFindOnCheckConfig = GrouperUtil.defaultIfBlank(subjectToFindOnCheckConfig, GROUPER_TEST_SUBJECT_BY_ID);
           source.getSubject(subjectToFindOnCheckConfig, false);
         }
 
@@ -133,11 +133,11 @@ public class SubjectCheckConfig {
       try {
         
         String findSubjectOnCheckConfigString = source.getInitParam("findSubjectByIdentifiedOnCheckConfig");
-        boolean findSubjectOnCheckConfig = SubjectUtils.booleanValue(findSubjectOnCheckConfigString, true);
+        boolean findSubjectOnCheckConfig = GrouperUtil.booleanValue(findSubjectOnCheckConfigString, true);
         
         if (findSubjectOnCheckConfig) {
           String subjectIdentifierToFindOnCheckConfig = source.getInitParam("subjectIdentifierToFindOnCheckConfig");
-          subjectIdentifierToFindOnCheckConfig = SubjectUtils.defaultIfBlank(subjectIdentifierToFindOnCheckConfig, "grouperTestSubjectByIdentifierOnStartupASDFGHJ");
+          subjectIdentifierToFindOnCheckConfig = GrouperUtil.defaultIfBlank(subjectIdentifierToFindOnCheckConfig, "grouperTestSubjectByIdentifierOnStartupASDFGHJ");
           source.getSubjectByIdentifier(subjectIdentifierToFindOnCheckConfig, false);
         }
 
@@ -160,11 +160,11 @@ public class SubjectCheckConfig {
       try {
         
         String findSubjectOnCheckConfigString = source.getInitParam("findSubjectByStringOnCheckConfig");
-        boolean findSubjectOnCheckConfig = SubjectUtils.booleanValue(findSubjectOnCheckConfigString, true);
+        boolean findSubjectOnCheckConfig = GrouperUtil.booleanValue(findSubjectOnCheckConfigString, true);
         
         if (findSubjectOnCheckConfig) {
           String stringToFindOnCheckConfig = source.getInitParam("stringToFindOnCheckConfig");
-          stringToFindOnCheckConfig = SubjectUtils.defaultIfBlank(stringToFindOnCheckConfig, "grouperTestStringOnStartupASDFGHJ");
+          stringToFindOnCheckConfig = GrouperUtil.defaultIfBlank(stringToFindOnCheckConfig, "grouperTestStringOnStartupASDFGHJ");
           source.search(stringToFindOnCheckConfig);
         }
         

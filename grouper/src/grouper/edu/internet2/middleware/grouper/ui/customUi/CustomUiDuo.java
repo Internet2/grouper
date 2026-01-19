@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 
 /**
@@ -164,7 +164,7 @@ public class CustomUiDuo extends CustomUiUserQueryBase {
       String username  = CustomUiUtil.substituteExpressionLanguage(subjectIdValueFormat, null, null, null, subject, null);
       
       if (StringUtils.isBlank(username)) {
-        throw new RuntimeException("Cant find username from subject: '" + subjectIdValueFormat + "', " + SubjectUtils.subjectToString(subject));
+        throw new RuntimeException("Cant find username from subject: '" + subjectIdValueFormat + "', " + GrouperUtil.subjectToString(subject));
       }
       
       JsonNode jsonNode = GrouperDuoApiCommands.retrieveDuoUserByNameJsonNode(configId, username, true);

@@ -30,7 +30,6 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * <p>Use this class to add/edit/delete attestation on groups.</p>
@@ -438,7 +437,7 @@ public class AttestationGroupSave {
               
               if (!runAsRoot) {
                 if (!group.canHavePrivilege(SUBJECT_IN_SESSION, AccessPrivilege.UPDATE.getName(), false)) {
-                  throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
+                  throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(SUBJECT_IN_SESSION) 
                     + "' cannot UPDATE group '" + group.getName() + "'");
                 }
               }
@@ -451,7 +450,7 @@ public class AttestationGroupSave {
               }
               if (!runAsRoot && emailGroup != null) {
                 if (!emailGroup.canHavePrivilege(SUBJECT_IN_SESSION, AccessPrivilege.READ.getName(), false)) {
-                  throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
+                  throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(SUBJECT_IN_SESSION) 
                     + "' cannot READ group '" + emailGroup.getName() + "'");
                 }
               }

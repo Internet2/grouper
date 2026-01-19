@@ -22,9 +22,10 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SubjectCheckConfig;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 
@@ -86,11 +87,11 @@ public class DiagnosticSourceTest extends DiagnosticTask {
       Source source = SourceManager.getInstance().getSource(this.sourceId);
       
       String findSubjectOnCheckConfigString = source.getInitParam(SubjectCheckConfig.FIND_SUBJECT_BY_ID_ON_CHECK_CONFIG);
-      boolean findSubjectOnCheckConfig = SubjectUtils.booleanValue(findSubjectOnCheckConfigString, true);
+      boolean findSubjectOnCheckConfig = GrouperUtil.booleanValue(findSubjectOnCheckConfigString, true);
       
       if (findSubjectOnCheckConfig) {
         String subjectToFindOnCheckConfig = source.getInitParam(SubjectCheckConfig.SUBJECT_ID_TO_FIND_ON_CHECK_CONFIG);
-        subjectToFindOnCheckConfig = SubjectUtils.defaultIfBlank(subjectToFindOnCheckConfig, SubjectCheckConfig.GROUPER_TEST_SUBJECT_BY_ID);
+        subjectToFindOnCheckConfig = GrouperUtil.defaultIfBlank(subjectToFindOnCheckConfig, SubjectCheckConfig.GROUPER_TEST_SUBJECT_BY_ID);
         source.getSubject(subjectToFindOnCheckConfig, false);
         this.appendSuccessTextLine("Searched for subject by id: " + subjectToFindOnCheckConfig);
         sourceCache.put(this.sourceId, Boolean.TRUE);

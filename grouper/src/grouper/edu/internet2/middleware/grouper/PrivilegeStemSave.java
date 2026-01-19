@@ -37,7 +37,6 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.SubjectUtils;
 
 
 /**
@@ -355,7 +354,7 @@ public class PrivilegeStemSave {
           }
 
           if (!stem.canHavePrivilege(GrouperSession.staticGrouperSession().getSubject(), NamingPrivilege.STEM_ADMIN.getName(), false)) {
-            throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(GrouperSession.staticGrouperSession().getSubject()) 
+            throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(GrouperSession.staticGrouperSession().getSubject()) 
               + "' cannot ADMIN stem '" + stem.getName() + "'");
           }
 

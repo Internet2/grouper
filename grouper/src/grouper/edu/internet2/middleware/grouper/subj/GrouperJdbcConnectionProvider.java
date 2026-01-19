@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 import edu.internet2.middleware.subject.provider.JdbcConnectionBean;
 import edu.internet2.middleware.subject.provider.JdbcConnectionProvider;
 
@@ -200,7 +200,7 @@ public class GrouperJdbcConnectionProvider implements JdbcConnectionProvider {
       log.warn("shouldnt set dbPassword for GrouperJdbcConnectionProvider: " + sourceId);
     }
 
-    this.readOnly = SubjectUtils.defaultIfNull(readOnly, readOnlyDefault);
+    this.readOnly = GrouperUtil.defaultIfNull(readOnly, readOnlyDefault);
     
     this.jdbcConfigId = theJdbcConfigId;
     //nothing to do...

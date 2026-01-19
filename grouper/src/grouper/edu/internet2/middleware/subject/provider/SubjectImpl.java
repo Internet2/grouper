@@ -50,7 +50,7 @@ import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveSet;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveSetImpl;
 import edu.internet2.middleware.subject.SubjectType;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 import edu.internet2.middleware.subject.config.SubjectConfig;
 
 /**
@@ -470,7 +470,7 @@ public class SubjectImpl implements Subject {
     
     Source source = this.getSource();
     Map<String, String> virtualAttributes = BaseSourceAdapter.virtualAttributesForSourceLegacy(source);
-    if (SubjectUtils.length(virtualAttributes) == 0) {
+    if (GrouperUtil.length(virtualAttributes) == 0) {
       return;
     }
     
@@ -478,12 +478,12 @@ public class SubjectImpl implements Subject {
     variableMap.put("subject", this);
 
     Map<String, String> virtualAttributeVariables = BaseSourceAdapter.virtualAttributeVariablesForSourceLegacy(source);
-    if (SubjectUtils.length(virtualAttributeVariables) > 0) {
+    if (GrouperUtil.length(virtualAttributeVariables) > 0) {
       for (String name : virtualAttributeVariables.keySet()) {
         
         String className = virtualAttributeVariables.get(name);
-        Class<?> theClass = SubjectUtils.forName(className);
-        Object instance = SubjectUtils.newInstance(theClass);
+        Class<?> theClass = GrouperUtil.forName(className);
+        Object instance = GrouperUtil.newInstance(theClass);
         variableMap.put(name, instance);
       }
     }
@@ -491,7 +491,7 @@ public class SubjectImpl implements Subject {
     if (this.getTranslationMap() != null ) {
       variableMap.putAll(this.getTranslationMap());
     }
-    variableMap.put("subjectUtils", new SubjectUtils());
+    variableMap.put("GrouperUtil", new GrouperUtil());
     
     //take each attribute and init it
     for (String attributeName : virtualAttributes.keySet()) {

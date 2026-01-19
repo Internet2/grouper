@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 
 /**
@@ -183,7 +183,7 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       String subjectId  = CustomUiUtil.substituteExpressionLanguage(subjectIdValueFormat, null, null, null, subject, null);
       
       if (StringUtils.isBlank(subjectId)) {
-        throw new RuntimeException("Cant find subject lookup value: '" + subjectIdValueFormat + "', " + SubjectUtils.subjectToString(subject));
+        throw new RuntimeException("Cant find subject lookup value: '" + subjectIdValueFormat + "', " + GrouperUtil.subjectToString(subject));
       }
       
       // //    GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/users/smadan%40upenn.edu/memberOf?$filter=id%20eq%20'bf5c1726-4a6c-474f-b9d8-a58908c11cb8'");
@@ -319,7 +319,7 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       String subjectId  = CustomUiUtil.substituteExpressionLanguage(subjectIdValueFormat, null, null, null, subject, null);
       
       if (StringUtils.isBlank(subjectId)) {
-        throw new RuntimeException("Cant find subject lookup value: '" + subjectIdValueFormat + "', " + SubjectUtils.subjectToString(subject));
+        throw new RuntimeException("Cant find subject lookup value: '" + subjectIdValueFormat + "', " + GrouperUtil.subjectToString(subject));
       }
       
       // //    GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/users/smadan%40upenn.edu/memberOf?$filter=id%20eq%20'bf5c1726-4a6c-474f-b9d8-a58908c11cb8'");
@@ -471,7 +471,7 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       String subjectId  = CustomUiUtil.substituteExpressionLanguage(subjectIdValueFormat, null, null, null, subject, null);
       
       if (StringUtils.isBlank(subjectId)) {
-        throw new RuntimeException("Cant find subject lookup value: '" + subjectIdValueFormat + "', " + SubjectUtils.subjectToString(subject));
+        throw new RuntimeException("Cant find subject lookup value: '" + subjectIdValueFormat + "', " + GrouperUtil.subjectToString(subject));
       }
       
       // //    GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/users/smadan%40upenn.edu/memberOf?$filter=id%20eq%20'bf5c1726-4a6c-474f-b9d8-a58908c11cb8'");

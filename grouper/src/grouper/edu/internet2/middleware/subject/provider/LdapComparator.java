@@ -40,10 +40,10 @@ package edu.internet2.middleware.subject.provider;
 import java.util.Comparator;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 public class LdapComparator implements Comparator<Subject> {
 
@@ -74,11 +74,11 @@ public class LdapComparator implements Comparator<Subject> {
       return 1;
     }
     
-    int compare = SubjectUtils.compare(so0.getSourceId(), so1.getSourceId());
+    int compare = GrouperUtil.compare(so0.getSourceId(), so1.getSourceId());
     if (compare != 0) {
       return compare;
     }
     
-    return SubjectUtils.compare(so0.getId(), so1.getId());
+    return GrouperUtil.compare(so0.getId(), so1.getId());
 	}
 }

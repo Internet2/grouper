@@ -37,9 +37,9 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -48,7 +48,7 @@ import edu.internet2.middleware.subject.SubjectCheckConfig;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 import edu.internet2.middleware.subject.util.SubjectApiUtils;
 
 /**
@@ -195,11 +195,11 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
           if (!SubjectCheckConfig.checkConfig("spy.properties")) {
             return;
           }
-          Properties spyProperties = SubjectUtils
+          Properties spyProperties = GrouperUtil
               .propertiesFromResourceName("spy.properties");
           driver = spyProperties.getProperty("realdriver");
           try {
-            driverClass = SubjectUtils.forName(driver);
+            driverClass = GrouperUtil.forName(driver);
           } catch (Exception e) {
             String theError = error
                 + "Error finding database driver class from spy.properties: "
@@ -229,7 +229,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
           log.error(theError, sqlException);
           return;
         } finally {
-          SubjectUtils.closeQuietly(dbConnection);
+          GrouperUtil.closeQuietly(dbConnection);
         }
 
       } catch (Exception e) {
@@ -288,7 +288,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     {
       String errorOnMaxResultsString = props.getProperty("errorOnMaxResults");
       if (!StringUtils.isBlank(errorOnMaxResultsString)) {
-        this.errorOnMaxResults = SubjectUtils.booleanValue(errorOnMaxResultsString, true);
+        this.errorOnMaxResults = GrouperUtil.booleanValue(errorOnMaxResultsString, true);
       }
     }
   }
@@ -491,7 +491,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
   public Set<String> retrieveAllSubjectIds() {
 
     String getAllSubjectIdsIsImplementedString = this.getInitParam("getAllSubjectIdsIsImplemented");
-    boolean getAllSubjectIdsIsImplemented = SubjectUtils.booleanValue(getAllSubjectIdsIsImplementedString, true);
+    boolean getAllSubjectIdsIsImplemented = GrouperUtil.booleanValue(getAllSubjectIdsIsImplementedString, true);
     if (!getAllSubjectIdsIsImplemented) {
       throw new UnsupportedOperationException();
     }
@@ -703,7 +703,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     dbPwd = Morph.decryptIfFile(dbPwd);
 
     //defaults to true
-    Boolean readOnly = SubjectUtils.booleanObjectValue(props.getProperty("readOnly"));
+    Boolean readOnly = GrouperUtil.booleanObjectValue(props.getProperty("readOnly"));
 
     
     
@@ -720,9 +720,9 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     }
     Class<JdbcConnectionProvider> jdbcConnectionProviderClass = null;
     try {
-      jdbcConnectionProviderClass = SubjectUtils.forName(jdbcConnectionProviderString);
+      jdbcConnectionProviderClass = GrouperUtil.forName(jdbcConnectionProviderString);
     } catch (RuntimeException re) {
-      SubjectUtils
+      GrouperUtil
           .injectInException(
               re,
               "Valid built-in options are: "
@@ -734,7 +734,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       throw re;
     }
 
-    this.jdbcConnectionProvider = SubjectUtils.newInstance(jdbcConnectionProviderClass);
+    this.jdbcConnectionProvider = GrouperUtil.newInstance(jdbcConnectionProviderClass);
     this.jdbcConnectionProvider.init(props, this.getId(), driver, maxActive, 2, maxIdle, 2,
         maxWaitSeconds, 5, dbUrl, dbUser, dbPwd, readOnly, true, jdbcConfigId);
 
@@ -976,7 +976,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     }
     
     String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
-    boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+    boolean throwErrorOnFindAllFailure = GrouperUtil.booleanValue(throwErrorOnFindAllFailureString, true);
 
     try {
       boolean[] tooManyResultHelper = new boolean[]{false};
@@ -1065,14 +1065,14 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
 
       ResultSet rs = null;
 
-      for (int i = 0; i < SubjectUtils.length(args); i++) {
+      for (int i = 0; i < GrouperUtil.length(args); i++) {
 
         String arg = args.get(i);
 
         try {
           stmt.setString(i + 1, arg);
         } catch (SQLException e) {
-          SubjectUtils.injectInException(e, "Error setting param: " + i
+          GrouperUtil.injectInException(e, "Error setting param: " + i
               + " (zero indexed) in source: " + this.getId() + ", in query: " + query
               + ", " + e.getMessage());
           throw e;
@@ -1117,7 +1117,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     } finally {
       
       if (log.isDebugEnabled()) {
-        log.debug("Query returned " + results.size() + ", " + query + ", " + SubjectUtils.toStringForLog(args));
+        log.debug("Query returned " + results.size() + ", " + query + ", " + GrouperUtil.toStringForLog(args));
       }
       
       closeStatement(stmt);
@@ -1282,7 +1282,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       
       return result;
     } catch (SQLException se) {
-      SubjectUtils.injectInException(se, "Error retrieving column name: '" + name
+      GrouperUtil.injectInException(se, "Error retrieving column name: '" + name
           + "' in source: " + this.getId() + ", in query: " + query + ", "
           + se.getMessage() + ", maybe the column configured in " + varName
           + " does not exist as a query column");
@@ -1445,7 +1445,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
                     
           // if we still don't have anything..
           if (temp.size() == 0) {
-            for (String identifierCol : SubjectUtils.nonNull(subjectIdentifierCols)) {
+            for (String identifierCol : GrouperUtil.nonNull(subjectIdentifierCols)) {
               // check if this column is mapped to an attribute
               String attribute = subjectAttributeColToName.get(identifierCol);
               if (attribute != null) {
@@ -1484,7 +1484,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
           // if we still don't have anything..
           if (temp.size() == 0) {
             int i=0;
-            for (String identifierCol : SubjectUtils.nonNull(subjectIdentifierCols)) {
+            for (String identifierCol : GrouperUtil.nonNull(subjectIdentifierCols)) {
               // check if this column is mapped to an attribute
               String attribute = subjectAttributeColToName.get(identifierCol);
               if (attribute != null) {

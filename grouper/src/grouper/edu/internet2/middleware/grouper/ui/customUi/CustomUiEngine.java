@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 
 /**
@@ -954,7 +954,7 @@ public class CustomUiEngine {
         }
       } );
     } catch (RuntimeException re) {
-      GrouperUtil.injectInException(re, group1.getName() + ", " + SubjectUtils.subjectToString(subjectOperatedOn1) + ", " + SubjectUtils.subjectToString(subjectLoggedIn1));
+      GrouperUtil.injectInException(re, group1.getName() + ", " + GrouperUtil.subjectToString(subjectOperatedOn1) + ", " + GrouperUtil.subjectToString(subjectLoggedIn1));
       throw re;
     } finally {
       this.debugMap.put("processGroupStep1Millis", ((System.nanoTime() - startedNanos)/1000000));
@@ -992,7 +992,7 @@ public class CustomUiEngine {
         }
       } );
     } catch (RuntimeException re) {
-      GrouperUtil.injectInException(re, group1.getName() + ", " + SubjectUtils.subjectToString(subjectOperatedOn1) + ", " + SubjectUtils.subjectToString(subjectLoggedIn1));
+      GrouperUtil.injectInException(re, group1.getName() + ", " + GrouperUtil.subjectToString(subjectOperatedOn1) + ", " + GrouperUtil.subjectToString(subjectLoggedIn1));
       throw re;
     } finally {
       this.debugMap.put("processGroupstep2Millis", ((System.nanoTime() - startedNanos)/1000000));

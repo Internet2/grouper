@@ -65,7 +65,7 @@ import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 /**
  * Ldap source adapter.  
@@ -141,7 +141,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     nameAttributeName = convertSubjectAttributeToSourceAttribute(nameAttributeName);
     
 
-    subjectIDFormatToLowerCase = SubjectUtils.booleanValue(props.getProperty("SubjectID_formatToLowerCase"), false);
+    subjectIDFormatToLowerCase = GrouperUtil.booleanValue(props.getProperty("SubjectID_formatToLowerCase"), false);
 
     String mr = props.getProperty("Multiple_Results");
     if (mr!=null && (mr.equalsIgnoreCase("yes")||mr.equalsIgnoreCase("true"))) multipleResults = true;
@@ -160,16 +160,16 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     }
     
 
-    Map<String, String> virtualAttributes = SubjectUtils.nonNull(BaseSourceAdapter.virtualAttributesForSourceLegacy(this));
+    Map<String, String> virtualAttributes = GrouperUtil.nonNull(BaseSourceAdapter.virtualAttributesForSourceLegacy(this));
 
     // GRP-1669: grouper sends virtual attribute names to ldap
     //take out dupes and virtuals
-    Set<String> attributeSet = SubjectUtils.toSet(allAttributeNames);
+    Set<String> attributeSet = GrouperUtil.toSet(allAttributeNames);
     attributeSet.removeAll(virtualAttributes.keySet());
     allAttributeNames = toArray(attributeSet, String.class);
 
     String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
-    throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+    throwErrorOnFindAllFailure = GrouperUtil.booleanValue(throwErrorOnFindAllFailureString, true);
 
 
     {
@@ -197,7 +197,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     {
       String errorOnMaxResultsString = props.getProperty("errorOnMaxResults");
       if (!StringUtils.isBlank(errorOnMaxResultsString)) {
-        this.errorOnMaxResults = SubjectUtils.booleanValue(errorOnMaxResultsString, true);
+        this.errorOnMaxResults = GrouperUtil.booleanValue(errorOnMaxResultsString, true);
       }
     }
   }
@@ -302,7 +302,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
 
     } finally {
       if (log.isDebugEnabled()) {
-        log.debug(SubjectUtils.mapToString(debugLog));
+        log.debug(GrouperUtil.mapToString(debugLog));
       }
     }
 
@@ -621,7 +621,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         debugLog.put("method", "getLdapUnique");
         debugLog.put("search", search);
         debugLog.put("searchValue", searchValue);
-        debugLog.put("attributeNames", SubjectUtils.toStringForLog(attributeNames, 200));
+        debugLog.put("attributeNames", GrouperUtil.toStringForLog(attributeNames, 200));
       }
 
       Iterator<LdapEntry> results = getLdapResults(search, searchValue, attributeNames);
@@ -676,7 +676,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
 
     } finally {
       if (log.isDebugEnabled()) {
-        log.debug(SubjectUtils.mapToString(debugLog));
+        log.debug(GrouperUtil.mapToString(debugLog));
       }
     }
 

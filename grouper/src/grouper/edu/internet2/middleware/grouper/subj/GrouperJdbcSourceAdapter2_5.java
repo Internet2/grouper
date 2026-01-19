@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter2;
 import edu.internet2.middleware.subject.provider.JdbcSubjectAttributeSet;
@@ -87,7 +87,7 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
     
     String extraAttributesFromSource = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".extraAttributesFromSource");
     if (StringUtils.isNotBlank(extraAttributesFromSource)) {
-      for (String extraAttribute : SubjectUtils.splitTrim(extraAttributesFromSource, ",")) {
+      for (String extraAttribute : GrouperUtil.splitTrim(extraAttributesFromSource, ",")) {
         selectCols.add(extraAttribute);
       }
     }

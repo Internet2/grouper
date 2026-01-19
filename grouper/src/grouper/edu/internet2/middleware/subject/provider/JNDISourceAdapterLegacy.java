@@ -56,9 +56,9 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -67,7 +67,7 @@ import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 /**
  * JNDI Source 
@@ -228,7 +228,7 @@ public class JNDISourceAdapterLegacy extends BaseSourceAdapter {
       return new SearchPageResult(tooManyResults, result);
     }
     String throwErrorOnFindAllFailureString = this.getInitParam("throwErrorOnFindAllFailure");
-    boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+    boolean throwErrorOnFindAllFailure = GrouperUtil.booleanValue(throwErrorOnFindAllFailureString, true);
 
     try {
       String[] attributeNames = { this.nameAttributeName, this.subjectIDAttributeName,

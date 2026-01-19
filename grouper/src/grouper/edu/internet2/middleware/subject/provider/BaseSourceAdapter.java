@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.SubjectCaseInsensitiveSetImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.SourceManager.SourceManagerStatusBean;
 
@@ -480,7 +480,7 @@ public abstract class BaseSourceAdapter implements Source {
     Map<String, Subject> result = new LinkedHashMap<String, Subject>();
     
     Subject subject = null;
-    for (String theId : SubjectUtils.nonNull(ids)) {
+    for (String theId : GrouperUtil.nonNull(ids)) {
       try {
         subject = getSubject(theId, true);
         result.put(theId, subject);
@@ -542,7 +542,7 @@ public abstract class BaseSourceAdapter implements Source {
       return subject;
     } finally {
       if (log.isDebugEnabled()) {
-        log.debug(SubjectUtils.mapToString(debugLog));
+        log.debug(GrouperUtil.mapToString(debugLog));
       }
     }
   }
@@ -554,17 +554,17 @@ public abstract class BaseSourceAdapter implements Source {
       Collection<String> idsOrIdentifiers) {
     Map<String, Subject> result = new LinkedHashMap<String, Subject>();
 
-    if (SubjectUtils.length(idsOrIdentifiers) == 0) {
+    if (GrouperUtil.length(idsOrIdentifiers) == 0) {
       return result;
     }
     //do these in batches so they have the batched performance...
-    result.putAll(SubjectUtils.nonNull(this.getSubjectsByIdentifiers(idsOrIdentifiers)));
+    result.putAll(GrouperUtil.nonNull(this.getSubjectsByIdentifiers(idsOrIdentifiers)));
     
     //take out the ones that were found
     Set<String> identifiers = new HashSet<String>(idsOrIdentifiers);
     identifiers.removeAll(result.keySet());
-    if (SubjectUtils.length(identifiers) > 0) {
-      result.putAll(SubjectUtils.nonNull(this.getSubjectsByIds(identifiers)));
+    if (GrouperUtil.length(identifiers) > 0) {
+      result.putAll(GrouperUtil.nonNull(this.getSubjectsByIds(identifiers)));
     }
     
     return result;
@@ -1198,7 +1198,7 @@ public abstract class BaseSourceAdapter implements Source {
           }
         }
         if (virtualKeys.size() > 0) {
-          log.error("Invalid virtual attribute keys: " + SubjectUtils.toStringForLog(virtualKeys) + ", for source: " + source.getId());
+          log.error("Invalid virtual attribute keys: " + GrouperUtil.toStringForLog(virtualKeys) + ", for source: " + source.getId());
         }
       }
     }

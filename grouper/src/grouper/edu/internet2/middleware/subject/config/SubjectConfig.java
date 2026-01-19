@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSour
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.Search;
 
@@ -185,8 +185,8 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
       
         String adapterClassName = propertyValueString("subjectApi.source." + sourceConfigId + ".adapterClass");
         
-        Class<?> adapterClassClass = SubjectUtils.forName(adapterClassName);
-        source = (BaseSourceAdapter)SubjectUtils.newInstance(adapterClassClass);
+        Class<?> adapterClassClass = GrouperUtil.forName(adapterClassName);
+        source = (BaseSourceAdapter)GrouperUtil.newInstance(adapterClassClass);
       }              
   
       source.setConfigId(sourceConfigId);
@@ -210,7 +210,7 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
         //  # subjectApi.source.<configName>.types = person, application
         String sourceTypes = propertyValueString("subjectApi.source." + sourceConfigId + ".types");
         if (!StringUtils.isEmpty(sourceTypes)) {
-          for (String sourceType : SubjectUtils.splitTrim(sourceTypes, ",")) {
+          for (String sourceType : GrouperUtil.splitTrim(sourceTypes, ",")) {
             source.addSubjectType(sourceType);
           }
         }
@@ -321,7 +321,7 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
         //  # subjectApi.source.<configName>.internalAttributes = someName, anotherName
         String internalAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".internalAttributes");
         if (!StringUtils.isEmpty(internalAttributes)) {
-          for (String internalAttribute : SubjectUtils.splitTrim(internalAttributes, ",")) {
+          for (String internalAttribute : GrouperUtil.splitTrim(internalAttributes, ",")) {
             source.addInternalAttribute(internalAttribute);
           }
         }
@@ -398,14 +398,14 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
         //  # subjectApi.source.<configName>.attributes = cn, sn, uid, department, exampleEduRegId
         String attributes = propertyValueString("subjectApi.source." + sourceConfigId + ".attributes");
         if (!StringUtils.isEmpty(attributes)) {
-          for (String attribute : SubjectUtils.splitTrim(attributes, ",")) {
+          for (String attribute : GrouperUtil.splitTrim(attributes, ",")) {
             source.addAttribute(attribute);
           }
         }
         
         String extraAttributesFromSource = propertyValueString("subjectApi.source." + sourceConfigId + ".extraAttributesFromSource");
         if (!StringUtils.isEmpty(extraAttributesFromSource)) {
-          for (String extraAttribute : SubjectUtils.splitTrim(extraAttributesFromSource, ",")) {
+          for (String extraAttribute : GrouperUtil.splitTrim(extraAttributesFromSource, ",")) {
             source.addAttribute(extraAttribute);
           }
         }

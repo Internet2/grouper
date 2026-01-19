@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 
 /**
@@ -117,7 +117,7 @@ public class GrouperDbConfig {
 
     if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
       throw new RuntimeException("User is not allowed to edit database configuration! " 
-          + SubjectUtils.subjectToString(grouperSession.getSubject()));
+          + GrouperUtil.subjectToString(grouperSession.getSubject()));
     }
 
   }

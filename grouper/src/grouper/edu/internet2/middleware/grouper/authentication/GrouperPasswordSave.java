@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 /**
  * <p>Use this class to add username and password in grouper registry</p>
@@ -491,7 +491,7 @@ public class GrouperPasswordSave {
               Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
               
               if (!canAccessWsJwtKeys(SUBJECT_IN_SESSION, member.getSubject())) {
-                throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
+                throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(SUBJECT_IN_SESSION) 
                 + "' cannot save/delete grouper public key for local entity '" + memberId + "'");
               } 
             }
@@ -697,7 +697,7 @@ public class GrouperPasswordSave {
             if (!runAsRoot) {
               
               if (!PrivilegeHelper.isWheelOrRoot(SUBJECT_IN_SESSION)) {
-                throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
+                throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(SUBJECT_IN_SESSION) 
                 + "' cannot save/delete grouper password");
               }
             

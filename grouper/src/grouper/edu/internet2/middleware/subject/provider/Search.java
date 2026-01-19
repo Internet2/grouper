@@ -39,9 +39,10 @@ package edu.internet2.middleware.subject.provider;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.subject.SubjectUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
+
 
 /**
  * 
@@ -111,7 +112,7 @@ public class Search {
    */
   @Override
   public String toString() {
-    return "Search [params=" + SubjectUtils.propertiesToString(this.params) + ", searchType=" + this.searchType + "]";
+    return "Search [params=" + GrouperUtil.propertiesToString(this.params) + ", searchType=" + this.searchType + "]";
   }
 
   

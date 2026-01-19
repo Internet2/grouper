@@ -65,7 +65,7 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
@@ -376,7 +376,7 @@ public class SourcesXmlResolver implements SubjectResolver {
         throw (SubjectTooManyResults)re;
       }
       String throwErrorOnFindAllFailureString = sourceObject.getInitParam("throwErrorOnFindAllFailure");
-      boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+      boolean throwErrorOnFindAllFailure = GrouperUtil.booleanValue(throwErrorOnFindAllFailureString, true);
 
       if (!throwErrorOnFindAllFailure) {
         LOG.error("Exception with source: " + sourceObject.getId() + ", on query: '" + query + "'", re);
@@ -766,7 +766,7 @@ public class SourcesXmlResolver implements SubjectResolver {
       return searchPage;
     } catch (RuntimeException re) {
       String throwErrorOnFindAllFailureString = sourceObject.getInitParam("throwErrorOnFindAllFailure");
-      boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+      boolean throwErrorOnFindAllFailure = GrouperUtil.booleanValue(throwErrorOnFindAllFailureString, true);
   
       if (!throwErrorOnFindAllFailure) {
         LOG.error("Exception with source: " + sourceObject.getId() + ", on query: '" + query + "'", re);
@@ -939,7 +939,7 @@ public class SourcesXmlResolver implements SubjectResolver {
               throw (SubjectTooManyResults)re;
             }
             String throwErrorOnFindAllFailureString = SOURCE.getInitParam("throwErrorOnFindAllFailure");
-        boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+        boolean throwErrorOnFindAllFailure = GrouperUtil.booleanValue(throwErrorOnFindAllFailureString, true);
 
         if (!throwErrorOnFindAllFailure) {
               LOG.error("Exception with source: " + SOURCE.getId() + ", on query: '" + query + "'", re);
@@ -1078,7 +1078,7 @@ public class SourcesXmlResolver implements SubjectResolver {
             return searchPage;
           } catch (RuntimeException re) {
             String throwErrorOnFindAllFailureString = SOURCE.getInitParam("throwErrorOnFindAllFailure");
-            boolean throwErrorOnFindAllFailure = SubjectUtils.booleanValue(throwErrorOnFindAllFailureString, true);
+            boolean throwErrorOnFindAllFailure = GrouperUtil.booleanValue(throwErrorOnFindAllFailureString, true);
       
             if (!throwErrorOnFindAllFailure) {
               LOG.error("Exception with source: " + SOURCE.getId() + ", on query: '" + query + "'", re);

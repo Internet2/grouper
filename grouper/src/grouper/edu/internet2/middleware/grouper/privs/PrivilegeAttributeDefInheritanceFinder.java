@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.rules.RuleThen;
 import edu.internet2.middleware.grouper.rules.RuleThenEnum;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
+
 
 public class PrivilegeAttributeDefInheritanceFinder {
   
@@ -296,7 +296,7 @@ private String stemId;
         
         if (!runAsRoot) {
           if (!stem.canHavePrivilege(SUBJECT_IN_SESSION, NamingPrivilege.STEM_ADMIN.getName(), false)) {
-            throw new RuntimeException("Subject '" + SubjectUtils.subjectToString(SUBJECT_IN_SESSION) 
+            throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(SUBJECT_IN_SESSION) 
             + "' cannot ADMIN stem '" + stem.getName() + "'");
           }
         }
