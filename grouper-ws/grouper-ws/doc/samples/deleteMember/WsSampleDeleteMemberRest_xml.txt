@@ -141,7 +141,7 @@ upLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.member;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;

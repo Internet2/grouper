@@ -103,7 +103,7 @@ wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.stem;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
