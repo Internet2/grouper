@@ -12,7 +12,6 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadataType;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class GrouperConfigurationModuleAttribute {
@@ -421,7 +420,7 @@ public class GrouperConfigurationModuleAttribute {
     if (evaluate) {
       Map<String, Object> variableMap = new HashMap<String, Object>();
 
-      variableMap.put("grouperUtil", new GrouperUtilElSafe());
+      variableMap.put("grouperUtil", new GrouperUtil());
       
       String value = GrouperUtil.substituteExpressionLanguage(this.expressionLanguageScript, variableMap, true, true, true);
 

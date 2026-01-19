@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,7 +39,6 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
@@ -497,7 +495,7 @@ public abstract class GrouperConfigurationModuleBase {
     if (this.objectValueSubstituteMap == null) {
       Map<String, Object> variableMap = new HashMap<String, Object>();
 
-      variableMap.put("grouperUtil", new GrouperUtilElSafe());
+      variableMap.put("grouperUtil", new GrouperUtil());
       
       for (GrouperConfigurationModuleAttribute grouperConfigModuleAttribute : this.retrieveAttributes().values()) {
         

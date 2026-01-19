@@ -21,11 +21,10 @@ package edu.internet2.middleware.grouper.util;
 
 import java.util.List;
 
-import junit.textui.TestRunner;
-
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import junit.textui.TestRunner;
 
 
 /**
@@ -70,7 +69,7 @@ public class GrouperUtilElSafeTest extends GrouperTest {
     
     String input = "{jobCategory=Staff}:{campus=UM_ANN-ARBOR}:{deptId=316033}:{deptGroup=UM_HOSPITAL}:{deptDescription=MEDICAL SHORT STAY UNIT}:{deptDescription=SOME OTHER UNIT}:{deptGroupDescription=Univ Hospitals & Health Center}:{deptVPArea=EXEC_VP_MED_AFF}:{jobcode=278040}:{jobFamily=31}:{emplStatus=A}:{regTemp=R}:{supervisorId=44272654}:{tenureStatus=NA}:{jobIndicator=P}";
     
-    List<String> values = GrouperUtilElSafe.splitTrimCurlyColons(input, "deptDescription", "[a-zA-Z0-9_]", "_");
+    List<String> values = GrouperUtil.splitTrimCurlyColons(input, "deptDescription", "[a-zA-Z0-9_]", "_");
     
     assertEquals(2, GrouperUtil.length(values));
     

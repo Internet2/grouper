@@ -180,7 +180,7 @@ public class LdapSubjectTest extends GrouperTest {
     //      </param>
     //  </search>
     //
-    //  <!-- you need this to be able to reference GrouperUtilElSafe in scripts -->
+    //  <!-- you need this to be able to reference GrouperUtil in scripts -->
     //  <init-param>
     //    <param-name>subjectVirtualAttributeVariable_grouperUtilElSafe</param-name>
     //    <param-value>edu.internet2.middleware.grouper.util.GrouperUtilElSafe</param-value>

@@ -42,7 +42,7 @@ public class GrouperDaemonChangeLogEsbToMessagingConfiguration extends GrouperDa
   //  # {valueType: "string", regex: "^changeLog\\.consumer\\.([^.]+)\\.routingKey$"}
   //  #changeLog.consumer.messagingEsb.publisher.routingKey = 
   //
-  //  # EL replacement definition. groupName is the variable for the name of the group. grouperUtil is the class GrouperUtilElSafe can be used for utility methods. 
+  //  # EL replacement definition. groupName is the variable for the name of the group. grouperUtil is the class GrouperUtil can be used for utility methods. 
   //  # {valueType: "string", regex: "^changeLog\\.consumer\\.([^.]+)\\.regexRoutingKeyReplacementDefinition$"}
   //  #changeLog.consumer.messagingEsb.regexRoutingKeyReplacementDefinition = ${groupName.replaceFirst('hawaii.edu', 'group.modify').replace(':enrolled', '').replace(':waitlisted', '').replace(':withdrawn', '')}
   //

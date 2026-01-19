@@ -686,6 +686,7 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     Map<String, Object> elVariables = new HashMap<String, Object>();
     elVariables.put("event", esbEvent);
     elVariables.put("grouperUtilElSafe", new GrouperUtil());
+    elVariables.put("grouperUtil", new GrouperUtil());
 
     String resultString = GrouperUtil.substituteExpressionLanguage("${" + filterString + "}", elVariables, true, true, true);
 

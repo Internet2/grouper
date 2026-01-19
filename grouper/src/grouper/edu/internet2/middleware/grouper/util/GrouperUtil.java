@@ -4405,6 +4405,59 @@ public class GrouperUtil {
     return result;
   }
 
+  private static String friendlyTimezoneStringForInputDescription;
+  
+  /**
+   * Return a string that combines the standard and daylight timezones of the server
+   * into one string separated by a slash that can be used in an input description
+   * to inform the user of the server timezone.  For the main US timezones, the following
+   * is returned instead:  ET, CT, MT, PT. 
+   * @return string
+   * 
+   */
+  public static String getFriendlyTimezoneStringForInputDescription() {
+    if (friendlyTimezoneStringForInputDescription == null) {
+      synchronized(GrouperUtil.class) {
+        Calendar now = Calendar.getInstance();
+        TimeZone timeZone = now.getTimeZone();
+        
+        String tzWithoutDaylight = timeZone.getDisplayName(false, TimeZone.SHORT);
+        String tzWithDaylight = timeZone.observesDaylightTime() ? timeZone.getDisplayName(true, TimeZone.SHORT) : null;
+        
+        if (isBlank(tzWithoutDaylight) && isBlank(tzWithDaylight)) {
+          friendlyTimezoneStringForInputDescription = "Unknown";
+        } else if (isBlank(tzWithoutDaylight)) {
+          friendlyTimezoneStringForInputDescription = tzWithDaylight;
+        } else if (isBlank(tzWithDaylight)) {
+          friendlyTimezoneStringForInputDescription = tzWithoutDaylight;
+        } else {
+          String temp;
+          
+          if (equals(tzWithoutDaylight, tzWithDaylight)) {
+            temp = tzWithoutDaylight;
+          } else {
+            temp = tzWithoutDaylight + "/" + tzWithDaylight;
+          }
+          
+          if (temp.equals("EST/EDT")) {
+            friendlyTimezoneStringForInputDescription = "ET";
+          } else if (temp.equals("CST/CDT")) {
+            friendlyTimezoneStringForInputDescription = "CT";
+          } else if (temp.equals("MST/MDT")) {
+            friendlyTimezoneStringForInputDescription = "MT";
+          } else if (temp.equals("PST/PDT")) {
+            friendlyTimezoneStringForInputDescription = "PT";
+          } else {
+            friendlyTimezoneStringForInputDescription = temp;
+          }          
+        }
+      }
+    }
+    
+    return friendlyTimezoneStringForInputDescription;
+  }
+
+  
   /**
    * cache separator
    */
@@ -9362,6 +9415,44 @@ public class GrouperUtil {
   }
 
   /**
+   * see if a regex matches a char, cache it
+   */
+  private static Map<MultiKey, Boolean> characterMatchesRegexCache = new HashMap<MultiKey, Boolean>();
+  
+  /**
+   * 
+   * @param character
+   * @param regex
+   * @return if regex
+   */
+  public static boolean characterMatchesRegex(Character character, String regex) {
+    
+    MultiKey key = new MultiKey(regex, character);
+    
+    Boolean result = characterMatchesRegexCache.get(key);
+    
+    if (result == null) {
+    
+      Pattern pattern = Pattern.compile(regex);
+      
+      if (pattern.matcher(character.toString()).matches()) {
+        
+        result = true;
+        
+      } else {
+        
+        result = false;
+        
+      }
+      
+      characterMatchesRegexCache.put(key, result);
+      
+    }
+    
+    return result;
+  }
+
+  /**
    * convert an object to a char
    * @param input
    * @return the number
@@ -11654,6 +11745,131 @@ public class GrouperUtil {
   }
 
   /**
+   * <p>Converts all the whitespace separated words in a String into capitalized words, 
+   * that is each word is made up of a titlecase character and then a series of 
+   * lowercase characters.  </p>
+   *
+   * <p>Whitespace is defined by {@link Character#isWhitespace(char)}.
+   * A <code>null</code> input String returns <code>null</code>.
+   * Capitalization uses the Unicode title case, normally equivalent to
+   * upper case.</p>
+   *
+   * <pre>
+   * WordUtils.capitalizeFully(null)        = null
+   * WordUtils.capitalizeFully("")          = ""
+   * WordUtils.capitalizeFully("i am FINE") = "I Am Fine"
+   * </pre>
+   * 
+   * @param str  the String to capitalize, may be null
+   * @return capitalized String, <code>null</code> if null String input
+   */
+  public static String capitalizeFully(String str) {
+    return capitalizeFully(str, null);
+  }
+
+  /**
+   * <p>Converts all the delimiter separated words in a String into capitalized words, 
+   * that is each word is made up of a titlecase character and then a series of 
+   * lowercase characters. </p>
+   *
+   * <p>The delimiters represent a set of characters understood to separate words.
+   * The first string character and the first non-delimiter character after a
+   * delimiter will be capitalized. </p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * Capitalization uses the Unicode title case, normally equivalent to
+   * upper case.</p>
+   *
+   * <pre>
+   * WordUtils.capitalizeFully(null, *)            = null
+   * WordUtils.capitalizeFully("", *)              = ""
+   * WordUtils.capitalizeFully(*, null)            = *
+   * WordUtils.capitalizeFully(*, new char[0])     = *
+   * WordUtils.capitalizeFully("i aM.fine", {'.'}) = "I am.Fine"
+   * </pre>
+   * 
+   * @param str  the String to capitalize, may be null
+   * @param delimiters  set of characters to determine capitalization, null means whitespace
+   * @return capitalized String, <code>null</code> if null String input
+   * @since 2.1
+   */
+  public static String capitalizeFully(String str, char... delimiters) {
+    int delimLen = delimiters == null ? -1 : delimiters.length;
+    if (StringUtils.isEmpty(str) || delimLen == 0) {
+      return str;
+    }
+    str = str.toLowerCase();
+    return capitalize(str, delimiters);
+  }
+  
+  /**
+   * <p>Capitalizes all the delimiter separated words in a String.
+   * Only the first letter of each word is changed. To convert the 
+   * rest of each word to lowercase at the same time, 
+   * use {@link #capitalizeFully(String, char[])}.</p>
+   *
+   * <p>The delimiters represent a set of characters understood to separate words.
+   * The first string character and the first non-delimiter character after a
+   * delimiter will be capitalized. </p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * Capitalization uses the Unicode title case, normally equivalent to
+   * upper case.</p>
+   *
+   * <pre>
+   * WordUtils.capitalize(null, *)            = null
+   * WordUtils.capitalize("", *)              = ""
+   * WordUtils.capitalize(*, new char[0])     = *
+   * WordUtils.capitalize("i am fine", null)  = "I Am Fine"
+   * WordUtils.capitalize("i aM.fine", {'.'}) = "I aM.Fine"
+   * </pre>
+   * 
+   * @param str  the String to capitalize, may be null
+   * @param delimiters  set of characters to determine capitalization, null means whitespace
+   * @return capitalized String, <code>null</code> if null String input
+   * @see #capitalizeFully(String)
+   * @since 2.1
+   */
+  public static String capitalize(String str, char... delimiters) {
+    int delimLen = delimiters == null ? -1 : delimiters.length;
+    if (StringUtils.isEmpty(str) || delimLen == 0) {
+      return str;
+    }
+    char[] buffer = str.toCharArray();
+    boolean capitalizeNext = true;
+    for (int i = 0; i < buffer.length; i++) {
+      char ch = buffer[i];
+      if (isDelimiter(ch, delimiters)) {
+        capitalizeNext = true;
+      } else if (capitalizeNext) {
+        buffer[i] = Character.toTitleCase(ch);
+        capitalizeNext = false;
+      }
+    }
+    return new String(buffer);
+  }
+
+  /**
+   * Is the character a delimiter.
+   *
+   * @param ch  the character to check
+   * @param delimiters  the delimiters
+   * @return true if it is a delimiter
+   */
+  private static boolean isDelimiter(char ch, char[] delimiters) {
+    if (delimiters == null) {
+      return Character.isWhitespace(ch);
+    }
+    for (char delimiter : delimiters) {
+      if (ch == delimiter) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  
+  /**
    * contains newline since JSP cant have a quoted newlines
    * @param string
    * @return newline
@@ -12302,7 +12518,7 @@ public class GrouperUtil {
 
       //allow utility methods
       if (!variableMap.containsKey("grouperUtil")) {
-        jc.set("grouperUtil", new GrouperUtilElSafe());
+        jc.set("grouperUtil", new GrouperUtil());
       }
       //if you add another one here, add it in the logs below
 
@@ -12491,7 +12707,7 @@ public class GrouperUtil {
 
       //allow utility methods
       if (!variableMap.containsKey("grouperUtil")) {
-        jc.set("grouperUtil", new GrouperUtilElSafe());
+        jc.set("grouperUtil", new GrouperUtil());
       }
       //if you add another one here, add it in the logs below
 
@@ -15280,7 +15496,7 @@ public class GrouperUtil {
   
       //allow utility methods
       if (!variableMap.containsKey("grouperUtil")) {
-        jc.set("grouperUtil", new GrouperUtilElSafe());
+        jc.set("grouperUtil", new GrouperUtil());
       }
       //if you add another one here, add it in the logs below
 
@@ -16031,6 +16247,154 @@ public class GrouperUtil {
       value = doubleValue(value);
     } 
     return set.contains(value);
+  }
+
+  /**
+   * split by commas.  only keep specific attribute values.  if a regexAllowedChars is specified, then whitelist chars by regex.
+   * character to replace (e.g. underscore), default is underscore.  if there isnt a value, dont put it in the list
+   * @param input 
+   * @param commaSeparatedAttributes 
+   * @param regexAllowedChars 
+   * @param replaceChar 
+   * @return the list of attributes
+   * 
+   */
+  public static List<String> splitTrimCommas(String input, String commaSeparatedAttributes, String regexAllowedChars, String replaceChar) {
+  
+    // uid=sw4p,ou=Account,dc=andrew,dc=cmu,dc=edu
+  
+    Set<String> attributeNames = GrouperUtil.splitTrimToSet(commaSeparatedAttributes, ",");
+    
+    List<String> results = new ArrayList<String>();
+  
+    if (!StringUtils.isBlank(input)) {
+      
+      Set<String> entries = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(input, ","));
+      
+      for (String entry : entries) {
+        
+        if (GrouperUtil.isBlank(entry)) {
+          continue;
+        }
+                
+        String name = GrouperUtil.prefixOrSuffix(entry, "=", true);
+        
+        if (!attributeNames.contains(name)) {
+          continue;
+        }
+        
+        String value = GrouperUtil.prefixOrSuffix(entry, "=", false);
+        
+        if (!StringUtils.isBlank(regexAllowedChars)) {
+          
+          StringBuilder valueBuilder = new StringBuilder();
+          
+          for (char curChar : value.toCharArray()) {
+            
+            if (!StringUtils.isBlank(regexAllowedChars)) {
+              if (!characterMatchesRegex(curChar, regexAllowedChars)) {
+                curChar = replaceChar.charAt(0);
+              }
+            }
+  
+            valueBuilder.append(curChar);
+          }
+         
+          value = valueBuilder.toString();
+        }
+        
+        results.add(value);
+        
+      }
+  
+    }
+    
+    return results;
+  }
+
+  /**
+   * split by curly colons.  only keep specific attribute values.  if a regexAllowedChars is specified, then whitelist chars by regex.
+   * character to replace (e.g. underscore), default is underscore.  if there isnt a value, dont put it in the list
+   * @param input 
+   * @param commaSeparatedAttributes 
+   * @param regexAllowedChars 
+   * @param replaceChar 
+   * @return the list of attributes
+   * 
+   */
+  public static List<String> splitTrimCurlyColons(String input, String commaSeparatedAttributes, String regexAllowedChars, String replaceChar) {
+  
+    // {jobCategory=Staff}:{campus=UM_ANN-ARBOR}:{deptId=316033}:{deptGroup=UM_HOSPITAL}:{deptDescription=MEDICAL SHORT STAY UNIT}:{deptGroupDescription=Univ Hospitals & Health Center}
+    // :{deptVPArea=EXEC_VP_MED_AFF}:{jobcode=278040}:{jobFamily=31}:{emplStatus=A}:{regTemp=R}:{supervisorId=44272654}:{tenureStatus=NA}:{jobIndicator=P}
+  
+    Set<String> attributeNames = GrouperUtil.splitTrimToSet(commaSeparatedAttributes, ",");
+    
+    List<String> results = new ArrayList<String>();
+  
+    if (!StringUtils.isBlank(input)) {
+      
+      Set<String> entries = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(input, ":"));
+      
+      for (String entry : entries) {
+        
+        if (GrouperUtil.isBlank(entry)) {
+          continue;
+        }
+        
+        entry = GrouperUtil.stripStart(entry, "{");
+        entry = GrouperUtil.stripSuffix(entry, "}");
+        
+        String name = GrouperUtil.prefixOrSuffix(entry, "=", true);
+        
+        if (!attributeNames.contains(name)) {
+          continue;
+        }
+        
+        String value = GrouperUtil.prefixOrSuffix(entry, "=", false);
+        
+        if (!StringUtils.isBlank(regexAllowedChars)) {
+          
+          StringBuilder valueBuilder = new StringBuilder();
+          
+          for (char curChar : value.toCharArray()) {
+            
+            if (!StringUtils.isBlank(regexAllowedChars)) {
+              if (!characterMatchesRegex(curChar, regexAllowedChars)) {
+                curChar = replaceChar.charAt(0);
+              }
+            }
+  
+            valueBuilder.append(curChar);
+          }
+         
+          value = valueBuilder.toString();
+        }
+        
+        results.add(value);
+        
+      }
+  
+    }
+    
+    return results;
+  }
+
+  /**
+   * null safe to lower method
+   * @param input
+   * @return lower
+   */
+  public static String toLowerCase(String input) {
+    return input == null ? null : input.toLowerCase();
+  }
+
+  /**
+   * null safe to upper method
+   * @param input
+   * @return upper
+   */
+  public static String toUpperCase(String input) {
+    return input == null ? null : input.toUpperCase();
   }
 
 }

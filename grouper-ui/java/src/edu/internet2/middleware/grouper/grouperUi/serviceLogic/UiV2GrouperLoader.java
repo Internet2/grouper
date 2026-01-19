@@ -73,7 +73,6 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationBase;
 import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationInput;
 import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationOutput;
-import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -4322,7 +4321,7 @@ public class UiV2GrouperLoader {
 
         String groupParentFolderName = (GrouperUtil.parentStemNameFromName(groupName, true) + ":");
         
-        String loaderGroupName = groupParentFolderName + defaultFolder + LoaderLdapElUtils.convertDnToSubPath(nameInNamespace, 
+        String loaderGroupName = groupParentFolderName + defaultFolder + GrouperUtil.ldapConvertDnToSubPath(nameInNamespace, 
             baseDn, grouperLoaderContainer.getLdapSearchDn());
 
         if (!StringUtils.isBlank(grouperLoaderContainer.getLdapGroupNameExpression())
