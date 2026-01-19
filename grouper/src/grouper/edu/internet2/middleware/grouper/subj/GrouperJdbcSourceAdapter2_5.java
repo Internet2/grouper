@@ -21,7 +21,6 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter2;
 import edu.internet2.middleware.subject.provider.JdbcSubjectAttributeSet;
-import edu.internet2.middleware.subject.util.SubjectApiUtils;
 
 public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
 
@@ -221,7 +220,7 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
       }
       if (!foundValue) {
         throw new RuntimeException("Why did a query by identifier return a subject " +
-            "which cant be found by identifier??? " + SubjectApiUtils.subjectToString(subject)
+            "which cant be found by identifier??? " + GrouperUtil.subjectToString(subject)
             + ", " + query + " in source: " + this.getId());
       }
     }

@@ -38,8 +38,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -48,8 +50,6 @@ import edu.internet2.middleware.subject.SubjectCheckConfig;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
-
-import edu.internet2.middleware.subject.util.SubjectApiUtils;
 
 /**
  * jdbc source adapter based on one table with more complex searches
@@ -150,7 +150,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
         log.error(error + ", dbUrl param is required");
         return;
       }
-      String driver = SubjectApiUtils.convertUrlToDriverClassIfNeeded(dbUrl, props.getProperty("dbDriver"));
+      String driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(dbUrl, props.getProperty("dbDriver"));
       if (StringUtils.isBlank(driver)) {
         System.err.println("Subject API error: " + error + ", driver param is required");
         log.error(error + ", driver param is required");
@@ -305,15 +305,15 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       threadLocalRealm.set(StringUtils.defaultString(realm));
     }
     try {
-      Map<String, Subject> subjectMap = getSubjectsByIds(SubjectApiUtils.toSet(id1));
+      Map<String, Subject> subjectMap = getSubjectsByIds(GrouperUtil.toSet(id1));
       
-      if (SubjectApiUtils.length(subjectMap) > 1) {
-        throw new RuntimeException("Why are there more than one result??? " + id1 + ", " + SubjectApiUtils.length(subjectMap) + " in source: " + this.getId());
+      if (GrouperUtil.length(subjectMap) > 1) {
+        throw new RuntimeException("Why are there more than one result??? " + id1 + ", " + GrouperUtil.length(subjectMap) + " in source: " + this.getId());
       }
       
       Subject subject = null;
       
-      if (SubjectApiUtils.length(subjectMap) == 1) {
+      if (GrouperUtil.length(subjectMap) == 1) {
         subject = subjectMap.values().iterator().next();
       }
       
@@ -341,15 +341,15 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     }
     try {
 
-      Map<String, Subject> subjectMap = getSubjectsByIdentifiers(SubjectApiUtils.toSet(identifier));
+      Map<String, Subject> subjectMap = getSubjectsByIdentifiers(GrouperUtil.toSet(identifier));
   
-      if (SubjectApiUtils.length(subjectMap) > 1) {
-        throw new RuntimeException("Why are there more than one result??? " + identifier + ", " + SubjectApiUtils.length(subjectMap));
+      if (GrouperUtil.length(subjectMap) > 1) {
+        throw new RuntimeException("Why are there more than one result??? " + identifier + ", " + GrouperUtil.length(subjectMap));
       }
   
       Subject subject = null;
   
-      if (SubjectApiUtils.length(subjectMap) == 1) {
+      if (GrouperUtil.length(subjectMap) == 1) {
         subject = subjectMap.values().iterator().next();
       }
   
@@ -411,7 +411,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
   
       Map<String, Subject> results = new HashMap<String, Subject>();
       
-      if (SubjectApiUtils.length(identifiers) > 0) {
+      if (GrouperUtil.length(identifiers) > 0) {
   
         //if no identifier col, just get by id
         if (this.subjectIdentifierCols.size() == 0) {
@@ -429,13 +429,13 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
         }
   
         int batchSize = 180 / this.subjectIdentifierCols.size();
-        int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(identifiers, batchSize);
+        int numberOfBatches = GrouperUtil.batchNumberOfBatches(identifiers, batchSize);
         
         List<String> identifiersList = new ArrayList<String>(identifiers);
         
         for (int i=0;i<numberOfBatches;i++) {
           
-          List<String> identifiersBatch = SubjectApiUtils.batchList(identifiersList, batchSize, i);        
+          List<String> identifiersBatch = GrouperUtil.batchList(identifiersList, batchSize, i);        
   
         
           //we need the select cols, and the identifier cols so we can match the results with the identifiers
@@ -573,23 +573,23 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       if (ids.size() > 0) {
         
         int batchSize = 180;
-        int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(ids, batchSize);
+        int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, batchSize);
         
         List<String> idsList = new ArrayList<String>(ids);
         
         for (int i=0;i<numberOfBatches;i++) {
   
-          List<String> idsBatch = SubjectApiUtils.batchList(idsList, batchSize, i);        
+          List<String> idsBatch = GrouperUtil.batchList(idsList, batchSize, i);        
   
           String query = "select " + StringUtils.join(this.selectCols.iterator(), ",")
             + " from " + dbTableOrView() + " where " + this.subjectIdCol + " in ("
-            + SubjectApiUtils.convertToInClauseForSqlStatic(idsBatch) + ")";
+            + HibUtils.convertToInClauseForSqlStatic(idsBatch) + ")";
       
           List<String> args = new ArrayList<String>(idsBatch);
     
           Set<Subject> subjects = this.search(query.toString(), args, false, false, false, null, null, null);
           
-          for (Subject subject : SubjectApiUtils.nonNull(subjects)) {
+          for (Subject subject : GrouperUtil.nonNull(subjects)) {
             results.put(subject.getId(), subject);
           }
         }
@@ -1040,7 +1040,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     }
     
     if (resultIdentifierToSubject != null) {
-      if (SubjectApiUtils.length(identifiersForIdentifierToMap) == 0) {
+      if (GrouperUtil.length(identifiersForIdentifierToMap) == 0) {
         throw new RuntimeException("Why is there no identifiersForIdentifierToMap???");
       }
     }
@@ -1214,7 +1214,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       }
       if (!foundValue) {
         throw new RuntimeException("Why did a query by identifier return a subject " +
-        		"which cant be found by identifier??? " + SubjectApiUtils.subjectToString(subject)
+        		"which cant be found by identifier??? " + GrouperUtil.subjectToString(subject)
         		+ ", " + query + " in source: " + this.getId());
       }
     }

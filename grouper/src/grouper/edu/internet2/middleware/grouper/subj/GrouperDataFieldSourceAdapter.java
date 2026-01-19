@@ -31,12 +31,10 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
-
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.InvalidQueryRuntimeException;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
-import edu.internet2.middleware.subject.util.SubjectApiUtils;
 
 public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
   
@@ -140,13 +138,13 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     if (subjectIds.size() > 0) {
       
       int batchSize = 800;
-      int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(subjectIds, batchSize, false);
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjectIds, batchSize, false);
       
       List<String> idsList = new ArrayList<String>(subjectIds);
       
       for (int i=0;i<numberOfBatches;i++) {
 
-        List<String> idsBatch = SubjectApiUtils.batchList(idsList, batchSize, i);        
+        List<String> idsBatch = GrouperUtil.batchList(idsList, batchSize, i);        
 
         List<String> args = new ArrayList<String>();
        
@@ -189,7 +187,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         
         Set<Subject> subjects = search(query.toString(), args, false, false, null, null, dataFieldCache);
         
-        for (Subject subject : SubjectApiUtils.nonNull(subjects)) {
+        for (Subject subject : GrouperUtil.nonNull(subjects)) {
           results.put(subject.getId(), subject);
         }
       }
@@ -230,7 +228,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     if (identifiers.size() > 0) {
       
       int batchSize = 800/identifierDataFieldConfigIds.size();
-      int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(identifiers, batchSize, false);
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(identifiers, batchSize, false);
       
       List<String> identifiersList = new ArrayList<String>(identifiers);
       
@@ -238,7 +236,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
       
       for (int i=0;i<numberOfBatches; i++) {
 
-        List<String> identifierBatch = SubjectApiUtils.batchList(identifiersList, batchSize, i);        
+        List<String> identifierBatch = GrouperUtil.batchList(identifiersList, batchSize, i);        
         
         //retrieve all the member ids that match the identifiers
         StringBuilder subjectIdsQuery =  new StringBuilder("""
@@ -357,7 +355,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         
         Set<Subject> subjects = search(query.toString(), args, false, false, null, null, dataFieldCache);
         
-        for (Subject subject : SubjectApiUtils.nonNull(subjects)) {
+        for (Subject subject : GrouperUtil.nonNull(subjects)) {
           String subjectId = subject.getId();
           String subjectIdentifier = subjectIdToSubjectIdentifier.get(subjectId);
           results.put(subjectIdentifier, subject);
@@ -370,15 +368,15 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
   @Override
   public Subject getSubject(String subjectId) throws SubjectNotFoundException, SubjectNotUniqueException {
     
-    Map<String, Subject> subjectMap = getSubjectsByIds(SubjectApiUtils.toSet(subjectId));
+    Map<String, Subject> subjectMap = getSubjectsByIds(GrouperUtil.toSet(subjectId));
     
-    if (SubjectApiUtils.length(subjectMap) > 1) {
-      throw new RuntimeException("Why are there more than one result??? " + subjectId + ", " + SubjectApiUtils.length(subjectMap) + " in source: " + this.getId());
+    if (GrouperUtil.length(subjectMap) > 1) {
+      throw new RuntimeException("Why are there more than one result??? " + subjectId + ", " + GrouperUtil.length(subjectMap) + " in source: " + this.getId());
     }
     
     Subject subject = null;
     
-    if (SubjectApiUtils.length(subjectMap) == 1) {
+    if (GrouperUtil.length(subjectMap) == 1) {
       subject = subjectMap.values().iterator().next();
     }
     
@@ -412,7 +410,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
       InvalidQueryRuntimeException {
 
     if (resultIdentifierToSubject != null) {
-      if (SubjectApiUtils.length(identifiersForIdentifierToMap) == 0) {
+      if (GrouperUtil.length(identifiersForIdentifierToMap) == 0) {
         throw new RuntimeException("Why is there no identifiersForIdentifierToMap???");
       }
     }
@@ -553,15 +551,15 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
   @Override
   public Subject getSubjectByIdentifier(String identifier) throws SubjectNotFoundException, SubjectNotUniqueException {
     
-    Map<String, Subject> subjectMap = getSubjectsByIdentifiers(SubjectApiUtils.toSet(identifier));
+    Map<String, Subject> subjectMap = getSubjectsByIdentifiers(GrouperUtil.toSet(identifier));
     
-    if (SubjectApiUtils.length(subjectMap) > 1) {
-      throw new RuntimeException("Why are there more than one result??? " + identifier + ", " + SubjectApiUtils.length(subjectMap));
+    if (GrouperUtil.length(subjectMap) > 1) {
+      throw new RuntimeException("Why are there more than one result??? " + identifier + ", " + GrouperUtil.length(subjectMap));
     }
 
     Subject subject = null;
 
-    if (SubjectApiUtils.length(subjectMap) == 1) {
+    if (GrouperUtil.length(subjectMap) == 1) {
       subject = subjectMap.values().iterator().next();
     }
 
