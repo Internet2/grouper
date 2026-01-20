@@ -40,10 +40,6 @@
       <artifactId>org.wso2.charon.core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.json</groupId>
-      <artifactId>json</artifactId>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>grouper</artifactId>
       <version>${project.version}</version>

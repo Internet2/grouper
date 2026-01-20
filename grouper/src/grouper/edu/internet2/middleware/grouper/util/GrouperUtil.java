@@ -180,9 +180,6 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import javassist.util.proxy.ProxyObject;
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-import net.sf.json.util.PropertyFilter;
 
 
 /**
@@ -2830,31 +2827,31 @@ public class GrouperUtil {
 //    JSONObject jsonObject = net.sf.json.JSONObject.fromObject( object );
 //    String json = jsonObject.toString();
     
-    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
+//    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
     String json;
-    if (useLegacy) {
-      JsonConfig jsonConfig = new JsonConfig();
-      jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
-         public boolean apply( Object source, String name, Object value ) {
-           //json-lib cannot handle maps where the key is not a string
-           if( value != null && value instanceof Map ){
-             Map map = (Map)value;
-             if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
-               return true;
-             }
-           }
-           return value == null;
-         }
-      });
-      JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
-      json = jsonObject.toString();
-    } else {
+//    if (useLegacy) {
+//      JsonConfig jsonConfig = new JsonConfig();
+//      jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
+//         public boolean apply( Object source, String name, Object value ) {
+//           //json-lib cannot handle maps where the key is not a string
+//           if( value != null && value instanceof Map ){
+//             Map map = (Map)value;
+//             if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
+//               return true;
+//             }
+//           }
+//           return value == null;
+//         }
+//      });
+//      JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
+//      json = jsonObject.toString();
+//    } else {
       try {
         json = objectMapper.writeValueAsString(object);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
-    }
+//    }
     
     if (!includeObjectNameWrapper) {
       return json;
@@ -3373,35 +3370,35 @@ public class GrouperUtil {
         throw new NullPointerException();
       }
       
-      boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
-      String json;
-      if (useLegacy) {
-        JsonConfig jsonConfig = new JsonConfig();
-        jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
-           public boolean apply( Object source, String name, Object value ) {
-             //json-lib cannot handle maps where the key is not a string
-             if( value != null && value instanceof Map ){
-               Map map = (Map)value;
-               if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
-                 return true;
-               }
-             }
-             if ("source".equals(name) && source instanceof Subject) {
-               return true;
-             }
-             if ("subject".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
-               return true;
-             }
-             if ("member".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
-               return true;
-             }
-             return value == null;
-           }
-        });
-        JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
-        json = jsonObject.toString();
-        return json;
-      }
+//      boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
+//      String json;
+//      if (useLegacy) {
+//        JsonConfig jsonConfig = new JsonConfig();
+//        jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
+//           public boolean apply( Object source, String name, Object value ) {
+//             //json-lib cannot handle maps where the key is not a string
+//             if( value != null && value instanceof Map ){
+//               Map map = (Map)value;
+//               if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
+//                 return true;
+//               }
+//             }
+//             if ("source".equals(name) && source instanceof Subject) {
+//               return true;
+//             }
+//             if ("subject".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
+//               return true;
+//             }
+//             if ("member".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
+//               return true;
+//             }
+//             return value == null;
+//           }
+//        });
+//        JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
+//        json = jsonObject.toString();
+//        return json;
+//      }
       
       try {
         return objectMapper.writeValueAsString(object);
@@ -3505,22 +3502,22 @@ public class GrouperUtil {
     return val;
   }
 
-  /**
-   * convert an object from json using legacy converter.  dont call this.  note this works well if there are no collections, just real types, arrays, etc.
-   * @param json is the json string, not wrapped with a simple class name
-   * @param theClass is the class that the object should be coverted into.
-   * Note: only the top level object needs to be registered
-   * @return the object
-   * @deprecated
-   * 
-   */
-  @Deprecated
-  private static <T> T jsonConvertFromLegacy(String json, Class<T> theClass) {
-
-    JSONObject jsonObject = JSONObject.fromObject( json );
-    Object object = JSONObject.toBean( jsonObject, theClass );
-    return (T)object;
-  }
+//  /**
+//   * convert an object from json using legacy converter.  dont call this.  note this works well if there are no collections, just real types, arrays, etc.
+//   * @param json is the json string, not wrapped with a simple class name
+//   * @param theClass is the class that the object should be coverted into.
+//   * Note: only the top level object needs to be registered
+//   * @return the object
+//   * @deprecated
+//   * 
+//   */
+//  @Deprecated
+//  private static <T> T jsonConvertFromLegacy(String json, Class<T> theClass) {
+//
+//    JSONObject jsonObject = JSONObject.fromObject( json );
+//    Object object = JSONObject.toBean( jsonObject, theClass );
+//    return (T)object;
+//  }
 
   /**
    * dont log more than once per hour
@@ -3541,23 +3538,23 @@ public class GrouperUtil {
       return null;
     }
 
-    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
-    
-    if (useLegacy) {
-      return jsonConvertFromLegacy(json,  theClass);
-    }
+//    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
+//    
+//    if (useLegacy) {
+//      return jsonConvertFromLegacy(json,  theClass);
+//    }
     T val = null;
     try {
       val = objectMapper.readValue(json, theClass);
     } catch (Exception e) {
-      if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacyOnError", true)) {
-        int logAfterMillis = GrouperConfig.retrieveConfig().propertyValueInt("grouper.json.serialize.deserialize.parseErrorLogEveryMillis", 3600000);
-        if (System.currentTimeMillis() - jsonLastLogParseErrorMillis > logAfterMillis) {
-          jsonLastLogParseErrorMillis = System.currentTimeMillis();
-          LOG.error("Error parsing JSON new way perhaps since more strict than legacy", e);
-        }
-        return jsonConvertFromLegacy(json,  theClass);
-      }
+//      if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacyOnError", true)) {
+//        int logAfterMillis = GrouperConfig.retrieveConfig().propertyValueInt("grouper.json.serialize.deserialize.parseErrorLogEveryMillis", 3600000);
+//        if (System.currentTimeMillis() - jsonLastLogParseErrorMillis > logAfterMillis) {
+//          jsonLastLogParseErrorMillis = System.currentTimeMillis();
+//          LOG.error("Error parsing JSON new way perhaps since more strict than legacy", e);
+//        }
+//        return jsonConvertFromLegacy(json,  theClass);
+//      }
       throw GrouperUtil.exceptionConvertToRuntime(e, "Error parsing JSON new way perhaps since more strict than legacy");
     }
     return val;
