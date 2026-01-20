@@ -15,7 +15,6 @@ Most modules are Java source code.
   - **grouperClient/**: Client library for accessing Grouper APIs
   - **grouper-installer/**: Installation and upgrade utilities
   - **grouperActivemq/**: ActiveMQ integration
-  - **grouperScim/**: SCIM provisioning support
 
 
 ### Key Development Areas

@@ -56,7 +56,6 @@ projects = [
     'grouper-misc/grouper-messaging-aws',
     'grouper-misc/grouper-messaging-rabbitmq',
     'grouper-misc/grouperActivemq',
-    'grouper-misc/grouperScim',
 ]
 
 class PropertyReference:
