@@ -143,7 +143,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testGroupRename"));
+    TestRunner.run(new GrouperLoaderTest("testConnectionsLoaderAndClient"));
   }
 
   /**
@@ -934,7 +934,7 @@ public class GrouperLoaderTest extends GrouperTest {
    */
   public void testConnectionsLoaderAndClient() {
     
-    if (GrouperConfig.retrieveConfig().propertyValueBoolean("test.db.connect.multiple.dbs", false)) {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("test.db.connect.multiple.dbs", false)) {
       return;
     }
     
@@ -1152,6 +1152,9 @@ public class GrouperLoaderTest extends GrouperTest {
    */
   public void testLoaderTypesGroupMeta() throws Exception {
     
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
     
     TestgrouperLoader group1subj0 = new TestgrouperLoader("loader:group1_systemOfRecord", SubjectTestHelper.SUBJ0_ID, null);
@@ -1213,7 +1216,9 @@ public class GrouperLoaderTest extends GrouperTest {
       "select group_name, group_display_name, group_description from testgrouper_loader_groups");
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
     assertEquals("The loader:group 1", overallGroup1.getDisplayName());
     Group systemOfRecordGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord", true);
@@ -1276,7 +1281,9 @@ public class GrouperLoaderTest extends GrouperTest {
     //lets use the includes/excludes for group6
     Group group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes", true);
     group6includes.addMember(SubjectTestHelper.SUBJ9);
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Group overallGroup6 = GroupFinder.findByName(this.grouperSession, "loader:group6", true);
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ1));
@@ -1318,7 +1325,9 @@ public class GrouperLoaderTest extends GrouperTest {
     loaderGroup.store();
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     admins = GroupFinder.findByName(this.grouperSession, "loaderSecurity:admins", false);
     assertNotNull(admins);
     readers = GroupFinder.findByName(this.grouperSession, "loaderSecurity:readers", false);
@@ -1455,7 +1464,9 @@ public class GrouperLoaderTest extends GrouperTest {
     systemOfRecordGroup7.addMember(SubjectTestHelper.SUBJ0);
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     systemOfRecordGroup7 = GroupFinder.findByName(this.grouperSession, "loader:group7_systemOfRecord", true);
     assertEquals(0, systemOfRecordGroup7.getMembers().size());
   }
@@ -1464,6 +1475,9 @@ public class GrouperLoaderTest extends GrouperTest {
    * @throws Exception 
    */
   public void testLoaderTypes() throws Exception {
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
     
@@ -1500,6 +1514,8 @@ public class GrouperLoaderTest extends GrouperTest {
         "addIncludeExclude");
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
     assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
@@ -1543,7 +1559,9 @@ public class GrouperLoaderTest extends GrouperTest {
     //lets use the includes/excludes for group6
     Group group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes", true);
     group6includes.addMember(SubjectTestHelper.SUBJ9);
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Group overallGroup6 = GroupFinder.findByName(this.grouperSession, "loader:group6", true);
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ1));
@@ -1562,6 +1580,8 @@ public class GrouperLoaderTest extends GrouperTest {
     Group anotherGroup = Group.saveGroup(this.grouperSession, "aStem:anotherGroup", null, 
         "aStem:anotherGroup", null, null, null, true);
     anotherGroup.addMember(SubjectFinder.findById(overallGroup1.getUuid(), true));
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     //now lets change around the memberships...
     //delete group1, group2, and group3subj2
@@ -1581,7 +1601,9 @@ public class GrouperLoaderTest extends GrouperTest {
     HibernateSession.byObjectStatic().saveOrUpdate(GrouperUtil.toList(group3subj4, group5subj4, group5subj5));
 
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     //###################################################################
     //we didnt add the attribute yet, so nothing should work yet
     
@@ -1592,6 +1614,8 @@ public class GrouperLoaderTest extends GrouperTest {
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%_systemOfRecord");
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     //###################################################################
     //make sure everything worked...
@@ -2822,6 +2846,9 @@ public class GrouperLoaderTest extends GrouperTest {
   @SuppressWarnings("deprecation")
   public void testLoaderDisplayNameChangeForAddIncludeExclueGroup() throws Exception {
     
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
     
     TestgrouperLoader group1subj0 = new TestgrouperLoader("loader:group1_systemOfRecord", SubjectTestHelper.SUBJ0_ID, null);
@@ -2845,7 +2872,9 @@ public class GrouperLoaderTest extends GrouperTest {
       "select group_name, group_display_name, group_description from testgrouper_loader_groups");
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
     assertEquals("The loader:group 1", overallGroup1.getDisplayName());
     Group systemOfRecordGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord", true);
@@ -2872,7 +2901,9 @@ public class GrouperLoaderTest extends GrouperTest {
     HibernateSession.byObjectStatic().saveOrUpdate(group1meta);
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true, new QueryOptions().secondLevelCache(false));
     assertEquals("The loader:group 2", overallGroup1.getDisplayName());
     systemOfRecordGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord", true, new QueryOptions().secondLevelCache(false));
@@ -3491,6 +3522,9 @@ public class GrouperLoaderTest extends GrouperTest {
    */
   public void testLoaderUnresolvablesInLoaderDBGroupList() throws Exception {
     
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
     
     TestgrouperLoader group1subj0 = new TestgrouperLoader("loader:group1_systemOfRecord", SubjectTestHelper.SUBJ0_ID, null);
@@ -3563,16 +3597,22 @@ public class GrouperLoaderTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.minGroupSize", "14");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.maxPercentForSuccess", "22");
     assertFalse(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup).contains("with subject problems"));
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     // no issues since high percentage
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.minGroupSize", "13");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.maxPercentForSuccess", "23");
     assertFalse(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup).contains("with subject problems"));
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     // now this should be a problem
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.minGroupSize", "13");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.maxPercentForSuccess", "22");
-    assertTrue(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup).contains("with subject problems"));    
+    assertTrue(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup).contains("with subject problems"));  
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
   }
   
   /**
@@ -3583,9 +3623,12 @@ public class GrouperLoaderTest extends GrouperTest {
     
     // this should be okay because the minManagedGroups is high
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.use", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.minManagedGroups", "6");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.maxPercentRemove", "59");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.use", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.maxPercentGroupsRemove", "85");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.maxPercentMembershipsRemove", "85");
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
     
@@ -3623,6 +3666,8 @@ public class GrouperLoaderTest extends GrouperTest {
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%");
 
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
     assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
@@ -3666,6 +3711,8 @@ public class GrouperLoaderTest extends GrouperTest {
     //lets use the includes/excludes for group6
     Group group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes", true);
     group6includes.addMember(SubjectTestHelper.SUBJ9);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
 
     Group overallGroup6 = GroupFinder.findByName(this.grouperSession, "loader:group6", true);
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ0));
@@ -3682,6 +3729,8 @@ public class GrouperLoaderTest extends GrouperTest {
     HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader where col1='loader:group3_systemOfRecord'").executeUpdate();
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     // verify
     Group sorGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord", false);
@@ -3724,9 +3773,12 @@ public class GrouperLoaderTest extends GrouperTest {
     
     // this should be okay because the maxPercentRemove is high
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.use", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.minManagedGroups", "5");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.maxPercentRemove", "60");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.use", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.maxPercentGroupsRemove", "85");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.maxPercentMembershipsRemove", "85");
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
     
@@ -3764,6 +3816,8 @@ public class GrouperLoaderTest extends GrouperTest {
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%");
 
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
     assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
@@ -3807,7 +3861,9 @@ public class GrouperLoaderTest extends GrouperTest {
     //lets use the includes/excludes for group6
     Group group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes", true);
     group6includes.addMember(SubjectTestHelper.SUBJ9);
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Group overallGroup6 = GroupFinder.findByName(this.grouperSession, "loader:group6", true);
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ1));
@@ -3823,6 +3879,8 @@ public class GrouperLoaderTest extends GrouperTest {
     HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader where col1='loader:group3_systemOfRecord'").executeUpdate();
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     // verify
     Group sorGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord", false);
@@ -3865,9 +3923,11 @@ public class GrouperLoaderTest extends GrouperTest {
     
     // this should fail - both numbers under threshold
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.use", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.minManagedGroups", "5");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.maxPercentRemove", "59");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.use", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.maxPercentMembershipsRemove", "59");
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
     
@@ -3905,6 +3965,8 @@ public class GrouperLoaderTest extends GrouperTest {
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%");
 
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
     assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
@@ -3948,7 +4010,9 @@ public class GrouperLoaderTest extends GrouperTest {
     //lets use the includes/excludes for group6
     Group group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes", true);
     group6includes.addMember(SubjectTestHelper.SUBJ9);
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Group overallGroup6 = GroupFinder.findByName(this.grouperSession, "loader:group6", true);
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ1));
@@ -3964,6 +4028,7 @@ public class GrouperLoaderTest extends GrouperTest {
     HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader where col1='loader:group3_systemOfRecord'").executeUpdate();
     
     try {
+      System.out.println("BEFORE");
       GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
       fail("Didn't throw exception");
     } catch (RuntimeException e) {
@@ -4030,9 +4095,11 @@ public class GrouperLoaderTest extends GrouperTest {
     // make sure still fails if there are a bunch of empty groups.  that shouldn't lower the percentage
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.sqlTable.likeString.removeGroupIfNotUsed", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.use", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.minManagedGroups", "5");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.maxPercentRemove", "59");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.use", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.maxPercentMembershipsRemove", "59");
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
     
@@ -4075,6 +4142,8 @@ public class GrouperLoaderTest extends GrouperTest {
     loaderStem.addChildGroup("group9_systemOfRecord", "group9_systemOfRecord");
 
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
     assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
@@ -4118,7 +4187,9 @@ public class GrouperLoaderTest extends GrouperTest {
     //lets use the includes/excludes for group6
     Group group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes", true);
     group6includes.addMember(SubjectTestHelper.SUBJ9);
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Group overallGroup6 = GroupFinder.findByName(this.grouperSession, "loader:group6", true);
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ1));
@@ -4201,9 +4272,11 @@ public class GrouperLoaderTest extends GrouperTest {
     // do anything in that case.  so no fail safe needed.  but adding a check just in case that logic
     // changes in the future and we need to adjust the fail safe.
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.use", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.minManagedGroups", "5");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.maxPercentRemove", "59");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.use", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.groupList.managedGroups.maxPercentMembershipsRemove", "59");
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
     
@@ -4262,6 +4335,8 @@ public class GrouperLoaderTest extends GrouperTest {
         "select group_name, group_display_name, group_description from testgrouper_loader_groups");
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
     assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
@@ -4305,7 +4380,9 @@ public class GrouperLoaderTest extends GrouperTest {
     //lets use the includes/excludes for group6
     Group group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes", true);
     group6includes.addMember(SubjectTestHelper.SUBJ9);
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Group overallGroup6 = GroupFinder.findByName(this.grouperSession, "loader:group6", true);
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ1));
@@ -4319,6 +4396,8 @@ public class GrouperLoaderTest extends GrouperTest {
     HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoaderGroups").executeUpdate();
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     
     // verify
     Group sorGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord", true);

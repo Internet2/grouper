@@ -3227,6 +3227,7 @@ public class GrouperCheckConfig {
             attributeDefSaves.add(new AttributeDefSave().assignName(attributeDefLoaderDefName)
                 .assignAttributeDefType(AttributeDefType.attr)
                 .assignToAttributeDefAssn(true)
+                .assignToAttributeDef(true)
                 .assignMultiAssignable(false)
                 .assignValueType(AttributeDefValueType.string));
             
