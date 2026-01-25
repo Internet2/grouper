@@ -2,15 +2,20 @@ package edu.internet2.middleware.grouper.userLifecycle;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
@@ -31,13 +36,23 @@ import edu.internet2.middleware.grouper.dictionary.GrouperDictionary;
 import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.esb.listener.ProvisioningSyncConsumerResult;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependency;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyDao;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyType;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyTypeDao;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class UserLifecycleIncrementalDaemon extends EsbListenerBase {
   
   private static Set<EsbEventType> validEventTypes = new HashSet<EsbEventType>();
+  
+  /** logger */
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UserLifecycleIncrementalDaemon.class);
   
   static {
     validEventTypes.add(EsbEventType.MEMBERSHIP_ADD);
@@ -358,6 +373,9 @@ public class UserLifecycleIncrementalDaemon extends EsbListenerBase {
     }
     
     //Step 6 - This is the step where we're actually populating the grouper lifecycle event table
+    
+    Set<GrouperLifecycleEventConfig> lifecycleEventConfigsForCacheDependency = new HashSet<>(); // we need to take care of sql cache dependencies for these 
+    
     for (EsbEventContainer esbEventContainer : eligibleEventContainers) {
       try {
         
@@ -384,6 +402,7 @@ public class UserLifecycleIncrementalDaemon extends EsbListenerBase {
           variableMap.put("groupDescription", GrouperUtil.stringValue(groupAttributes[6]));
           
           List<GrouperLifecycleEventConfig> lifecycleEventConfigsForOneGroup = groupIdsRemove.get(GrouperUtil.longValue(groupAttributes[1]));
+          lifecycleEventConfigsForCacheDependency.addAll(lifecycleEventConfigsForOneGroup);
           
           for (GrouperLifecycleEventConfig lifecycleEventConfig: lifecycleEventConfigsForOneGroup) {
             
@@ -429,6 +448,8 @@ public class UserLifecycleIncrementalDaemon extends EsbListenerBase {
           variableMap.put("groupDescription", GrouperUtil.stringValue(groupAttributes[6]));
           
           List<GrouperLifecycleEventConfig> lifecycleEventConfigsForOneGroup = groupIdsAdd.get(GrouperUtil.longValue(groupAttributes[1]));
+          
+          lifecycleEventConfigsForCacheDependency.addAll(lifecycleEventConfigsForOneGroup);
           
           for (GrouperLifecycleEventConfig lifecycleEventConfig: lifecycleEventConfigsForOneGroup) {
             
@@ -587,6 +608,56 @@ public class UserLifecycleIncrementalDaemon extends EsbListenerBase {
         Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlPrivilegedResult));
         Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlUnprivilegedResult));
      */
+    
+    Collection<Long> groupInternalIds = new HashSet<>();
+    for (GrouperLifecycleEventConfig lifecycleEventConfig: lifecycleEventConfigsForCacheDependency) {
+      
+      String configId = lifecycleEventConfig.getConfigId();
+      
+      String trigger = GrouperConfig.retrieveConfig().propertyValueString("grouperUserLifecycleEvent."+configId+".trigger");
+      
+      if (StringUtils.equals(trigger, "groupUserAdd")) {
+        Long groupInternalId = lifecycleEventConfig.getGroupInternalId();
+        
+        groupInternalIds.add(groupInternalId); //this is for later when we need to insert/delete entries from the sql cache dependency table
+      } else if (StringUtils.equals(trigger, "groupUserRemove")) {
+        
+        Long groupInternalId = lifecycleEventConfig.getGroupInternalId();
+        groupInternalIds.add(groupInternalId);
+      } else if (StringUtils.equals(trigger, "groupUserRemoveFromFolder")) {
+        Long stemIdIndex = lifecycleEventConfig.getStemIdIndex();
+        
+        Stem stem = StemFinder.findByIdIndex(stemIdIndex, false, null);
+        if (stem == null) {
+          LOG.warn("grouper lifecycle event config: '"+configId+"' does not have the correct folder idIndex: '"+stemIdIndex+"'");
+          continue;
+        }
+        for (Group group: stem.getChildGroups(Scope.SUB)) {
+          
+          Long groupInternalId = group.getInternalId();
+          
+          groupInternalIds.add(groupInternalId);
+        }
+      }
+    }
+    
+    Set<MultiKey> groupInternalIdsFieldInternalIds = new HashSet<MultiKey>();
+    for (Long groupInternalId: groupInternalIds) {
+      MultiKey groupInternalIdFieldInternalId = new MultiKey(groupInternalId, Group.getDefaultList().getInternalId());
+      groupInternalIdsFieldInternalIds.add(groupInternalIdFieldInternalId);
+    }
+    
+    Collection<SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupInternalIdsFieldInternalIds(groupInternalIdsFieldInternalIds).values();
+    
+    SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryLifecycle = SqlCacheDependencyTypeDao.retrieveByDependencyCategoryAndName("mshipHistory", SqlCacheDependencyTypeDao.NAME_MSHIP_HISTORY_LIFECYCLE);
+    Set<MultiKey> ownerInternalIdsDependentInternalIds = new HashSet<>();
+    for (SqlCacheGroup sqlCacheGroup : sqlCacheGroups) {
+      ownerInternalIdsDependentInternalIds.add(new MultiKey(sqlCacheGroup.getInternalId(), sqlCacheGroup.getInternalId()));
+    }
+    Map<MultiKey, SqlCacheDependency> sqlCacheDependencies = SqlCacheDependencyDao.retrieveByDepTypeInternalIdAndOwnerInternalIdsDependentInternalIds(sqlCacheDependencyTypeMshipHistoryLifecycle.getInternalId(), ownerInternalIdsDependentInternalIds);
+    // go through and see which ones don't have the mshipHistory_lifecycle dependency
+    UserLifecycleEventConfiguration.addMembershipHistoryLifecycleDependencies(sqlCacheDependencyTypeMshipHistoryLifecycle, sqlCacheGroups, sqlCacheDependencies);
+    
     
     ProvisioningSyncConsumerResult provisioningSyncConsumerResult = new ProvisioningSyncConsumerResult();
     

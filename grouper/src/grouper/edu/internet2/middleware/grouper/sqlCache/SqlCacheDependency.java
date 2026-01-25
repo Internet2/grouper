@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.sqlCache;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperIncrementalDataItem;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
@@ -188,6 +190,33 @@ public class SqlCacheDependency implements GcSqlAssignPrimaryKey, GcDbVersionabl
         .isEquals();
   
   }
+  
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder()
+        .append(this.createdOn)
+        .append(this.dependencyTypeInternalId)
+        .append(this.dependentInternalId)
+        .append(this.internalId)
+        .append(this.ownerInternalId)
+        .toHashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof SqlCacheDependency)) {
+      return false;
+    }
+    SqlCacheDependency sqlCachdeDependency = (SqlCacheDependency)obj;
+    return new EqualsBuilder()
+        .append(this.createdOn, sqlCachdeDependency.createdOn)
+        .append(this.dependencyTypeInternalId, sqlCachdeDependency.dependencyTypeInternalId)
+        .append(this.dependentInternalId, sqlCachdeDependency.dependentInternalId)
+        .append(this.internalId, sqlCachdeDependency.internalId)
+        .append(this.ownerInternalId, sqlCachdeDependency.ownerInternalId)
+        .isEquals();
+  }
+  
   /**
    * 
    */

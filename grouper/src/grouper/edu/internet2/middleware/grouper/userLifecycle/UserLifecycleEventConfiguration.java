@@ -263,8 +263,11 @@ public class UserLifecycleEventConfiguration extends GrouperConfigurationModuleB
   }
   
   
-  private static void addMembershipHistoryLifecycleDependencies(SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryLifecycle, 
+  public static List<SqlCacheDependency> addMembershipHistoryLifecycleDependencies(SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryLifecycle, 
       Collection<SqlCacheGroup> sqlCacheGroupsToCheck, Map<MultiKey, SqlCacheDependency> sqlCacheDependencies) {
+    
+    List<SqlCacheDependency> sqlCacheDependenciesInserted = new ArrayList<SqlCacheDependency>();
+    
     for (SqlCacheGroup sqlCacheGroup : sqlCacheGroupsToCheck) {
       MultiKey multiKey = new MultiKey(sqlCacheGroup.getInternalId(), sqlCacheGroup.getInternalId());
       if (!sqlCacheDependencies.containsKey(multiKey)) {
@@ -281,6 +284,7 @@ public class UserLifecycleEventConfiguration extends GrouperConfigurationModuleB
           sqlCacheDependency.setOwnerInternalId(sqlCacheGroup.getInternalId());
           sqlCacheDependency.setDependentInternalId(sqlCacheGroup.getInternalId());
           SqlCacheDependencyDao.store(sqlCacheDependency);
+          sqlCacheDependenciesInserted.add(sqlCacheDependency);
           
           sqlCacheDependencies.put(multiKey, sqlCacheDependency);
         }
@@ -291,9 +295,10 @@ public class UserLifecycleEventConfiguration extends GrouperConfigurationModuleB
         }
       }
     }
+    return sqlCacheDependenciesInserted;
   }
   
-  private void prepareAndStoreSqlCacheDependencies(GrouperLifecycleEventConfig lifecycleEventConfig) {
+  public static void prepareAndStoreSqlCacheDependencies(GrouperLifecycleEventConfig lifecycleEventConfig) {
     
     Collection<Long> groupInternalIds = new HashSet<>();
     if (lifecycleEventConfig.getGroupInternalId() != null) {
@@ -427,7 +432,10 @@ public class UserLifecycleEventConfiguration extends GrouperConfigurationModuleB
         
         Collection<SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupInternalIdsFieldInternalIds(groupInternalIdsFieldInternalIds).values();
         
-        List<Long> dependentGroupCacheInternalIds = sqlCacheGroups.stream().map(g -> g.getInternalId()).collect(Collectors.toList());
+        List<Long> dependentGroupCacheInternalIds = new ArrayList<Long>();
+        for (SqlCacheGroup g : sqlCacheGroups) {
+            dependentGroupCacheInternalIds.add(g.getInternalId());
+        }
         
         SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryLifecycle = SqlCacheDependencyTypeDao.retrieveByDependencyCategoryAndName("mshipHistory", SqlCacheDependencyTypeDao.NAME_MSHIP_HISTORY_LIFECYCLE);
         

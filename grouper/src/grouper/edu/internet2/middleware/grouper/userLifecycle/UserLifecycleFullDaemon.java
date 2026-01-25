@@ -1,13 +1,13 @@
 package edu.internet2.middleware.grouper.userLifecycle;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -31,7 +31,14 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignHst;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignHstDao;
 import edu.internet2.middleware.grouper.dictionary.GrouperDictionary;
 import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependency;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyDao;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyType;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyTypeDao;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class UserLifecycleFullDaemon extends OtherJobBase {
@@ -46,7 +53,9 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
     List<GrouperLifecycleEventConfig> lifecycleEventConfigs = UserLifecycleEventConfigDao.selectAll();
     
     Set<GrouperLifecycleEvent> lifecycleEventsToStore = new HashSet<>();
-
+    
+    Collection<Long> groupInternalIds = new HashSet<>();
+    
     for (GrouperLifecycleEventConfig lifecycleEventConfig: lifecycleEventConfigs) {
       
       String configId = lifecycleEventConfig.getConfigId();
@@ -57,6 +66,8 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
       
       if (StringUtils.equals(trigger, "groupUserAdd")) {
         Long groupInternalId = lifecycleEventConfig.getGroupInternalId();
+        
+        groupInternalIds.add(groupInternalId); //this is for later when we need to insert/delete entries from the sql cache dependency table
         
         StringBuilder groupsFinderSql = new StringBuilder("SELECT name, display_name, extension, display_extension, description FROM grouper_groups WHERE internal_id = ? ");
         
@@ -120,6 +131,7 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
       } else if (StringUtils.equals(trigger, "groupUserRemove")) {
         
         Long groupInternalId = lifecycleEventConfig.getGroupInternalId();
+        groupInternalIds.add(groupInternalId); //this is for later when we need to insert/delete entries from the sql cache dependency table
         
         StringBuilder groupsFinderSql = new StringBuilder("SELECT * FROM grouper_groups WHERE internal_id = ? ");
         
@@ -202,6 +214,8 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
         for (Group group: stem.getChildGroups(Scope.SUB)) {
           
           Long groupInternalId = group.getInternalId();
+          
+          groupInternalIds.add(groupInternalId); //this is for later when we need to insert/delete entries from the sql cache dependency table
           
           Map<String, Object> variableMap = new HashMap<>();
           variableMap.put("groupName", group.getName());
@@ -506,6 +520,37 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
     new GcDbAccess().storeListToDatabase(finalListToStore);
     otherJobInput.getHib3GrouperLoaderLog().setInsertCount(finalListToStore.size());
     otherJobInput.getHib3GrouperLoaderLog().store();
+    
+    Set<MultiKey> groupInternalIdsFieldInternalIds = new HashSet<>(); // we need to insert/delete entries from the sql cache dependency table
+    for (Long groupInternalId: groupInternalIds) {
+      MultiKey groupInternalIdFieldInternalId = new MultiKey(groupInternalId, Group.getDefaultList().getInternalId());
+      groupInternalIdsFieldInternalIds.add(groupInternalIdFieldInternalId);
+    }
+
+    
+    Collection<SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupInternalIdsFieldInternalIds(groupInternalIdsFieldInternalIds).values();
+    
+    SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryLifecycle = SqlCacheDependencyTypeDao.retrieveByDependencyCategoryAndName("mshipHistory", SqlCacheDependencyTypeDao.NAME_MSHIP_HISTORY_LIFECYCLE);
+    
+    //start with retrieving all existing ones so that we can remove the ones that are no longer associated with any lifecycle event configs later
+    Set<SqlCacheDependency> allDependencies = new HashSet<>(SqlCacheDependencyDao.retrieveByDependencyTypeInternalId(sqlCacheDependencyTypeMshipHistoryLifecycle.getInternalId()));
+    
+    
+    Set<MultiKey> ownerInternalIdsDependentInternalIds = new HashSet<>();
+    for (SqlCacheGroup sqlCacheGroup : sqlCacheGroups) {
+      ownerInternalIdsDependentInternalIds.add(new MultiKey(sqlCacheGroup.getInternalId(), sqlCacheGroup.getInternalId()));
+    }
+    Map<MultiKey, SqlCacheDependency> sqlCacheDependencies = SqlCacheDependencyDao.retrieveByDepTypeInternalIdAndOwnerInternalIdsDependentInternalIds(sqlCacheDependencyTypeMshipHistoryLifecycle.getInternalId(), ownerInternalIdsDependentInternalIds);
+    // go through and see which ones don't have the mshipHistory_lifecycle dependency
+    List<SqlCacheDependency> insertedSqlCacheDependencies = UserLifecycleEventConfiguration.addMembershipHistoryLifecycleDependencies(sqlCacheDependencyTypeMshipHistoryLifecycle, sqlCacheGroups, sqlCacheDependencies);
+    
+    //now we need to delete the ones that are not needed anymore
+    Set<SqlCacheDependency> doNotDelete = new HashSet<SqlCacheDependency>();
+    doNotDelete.addAll(insertedSqlCacheDependencies);
+    doNotDelete.addAll(sqlCacheDependencies.values());
+    
+    allDependencies.removeAll(doNotDelete); // now the remaining ones we can delete
+    new GcDbAccess().deleteFromDatabaseMultiple(allDependencies);
     
     return null;
   }
