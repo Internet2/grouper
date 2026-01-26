@@ -102,7 +102,7 @@ services:
       #- ./grouper/config/grouper-ui.properties.cas:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-ui.properties
       - ./grouper/config/grouper-loader.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-loader.properties
       - ./grouper/config/subject.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/subject.properties
-      - ./shibboleth-idp/opt-shibboleth-idp/metadata/idp-metadata.xml:/opt/grouper/idp-metadata.xml
+      - ./shibboleth-idp/files-local/metadata/idp-metadata.xml:/opt/grouper/idp-metadata.xml
       - ./grouper/certs/unicon.local.pem:/opt/grouper/certs/client/unicon.local.pem
     environment:
       GROUPER_DATABASE_URL: "jdbc:postgresql://database/grouper"
