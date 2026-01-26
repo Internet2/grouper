@@ -47,6 +47,7 @@ import org.quartz.Trigger;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -160,6 +161,7 @@ public class GrouperLoaderIncrementalJob implements Job {
       int fullSyncThreshold = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob." + jobProperty + ".fullSyncThreshold", 100);
       boolean skipIfFullSyncDisabled = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobProperty + ".skipIfFullSyncDisabled", true);
       final boolean caseInsensitiveSubjectLookupsInDataSource = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobProperty + ".caseInsensitiveSubjectLookupsInDataSource", false);
+      final boolean runFullSyncIfGroupDoesntExist = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob." + jobProperty + ".runFullSyncIfGroupDoesntExist", true);
 
       boolean useThreads = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.incrementalThreads", true);
       int threadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.incrementalThreadPoolSize", 10);
@@ -378,7 +380,7 @@ public class GrouperLoaderIncrementalJob implements Job {
                   GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
                   processOneSQLRow(GrouperSession.staticGrouperSession(), grouperLoaderDb, row, tableName, loaderGroup, 
                       GROUPER_LOADER_TYPE, hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, grouperLoaderAndGroups, 
-                      grouperLoaderGroupsLike, grouperLoaderGroupQuery, grouperLoaderQuery, grouperLoaderDbName, caseInsensitiveSubjectLookupsInDataSource, true);
+                      grouperLoaderGroupsLike, grouperLoaderGroupQuery, grouperLoaderQuery, grouperLoaderDbName, caseInsensitiveSubjectLookupsInDataSource, true, runFullSyncIfGroupDoesntExist);
                   return null;
                 }
               };
@@ -426,7 +428,7 @@ public class GrouperLoaderIncrementalJob implements Job {
                         subjectExpression,
                         extraAttributes,
                         groupNameExpression, 
-                        ldapAttributeFilterExpression, resultsTransformationClass);
+                        ldapAttributeFilterExpression, resultsTransformationClass, runFullSyncIfGroupDoesntExist);
                     
                     return null;
                   }
@@ -739,7 +741,8 @@ public class GrouperLoaderIncrementalJob implements Job {
       String extraAttributes,
       String groupNameExpression, 
       String ldapAttributeFilterExpression,
-      String resultsTransformationClass) {
+      String resultsTransformationClass,
+      boolean runFullSyncIfGroupDoesntExist) {
     
     Connection connection = null;
 
@@ -783,7 +786,7 @@ public class GrouperLoaderIncrementalJob implements Job {
         }
         
         handleGroupList(grouperSession, connection, tableName, row, loaderGroup, grouperLoaderAndGroups, grouperLoaderGroupsLike, null, grouperLoaderType,
-            hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, subject, membershipsInSource, true);
+            hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, subject, membershipsInSource, true, runFullSyncIfGroupDoesntExist);
       } else {
         throw new RuntimeException("Unsupported loader type: " + grouperLoaderType);
       }
@@ -800,7 +803,7 @@ public class GrouperLoaderIncrementalJob implements Job {
       Group loaderGroup, String grouperLoaderType, 
       Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates,
       String grouperLoaderAndGroups, String grouperLoaderGroupsLike, String grouperLoaderGroupQuery, String grouperLoaderQuery, String grouperLoaderDbName,
-      boolean caseInsensitiveSubjectLookupsInDataSource, boolean updateIncrementalTable) {
+      boolean caseInsensitiveSubjectLookupsInDataSource, boolean updateIncrementalTable, boolean runFullSyncIfGroupDoesntExist) {
     
     GrouperLoaderDb grouperLoaderDbForLoaderSource = GrouperLoaderConfig.retrieveDbProfile(grouperLoaderDbName);
 
@@ -978,7 +981,7 @@ public class GrouperLoaderIncrementalJob implements Job {
         }
         
         handleGroupList(grouperSession, connection, tableName, row, loaderGroup, grouperLoaderAndGroups, grouperLoaderGroupsLike, grouperLoaderGroupQuery, grouperLoaderType,
-            hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, subject, membershipsInSource, updateIncrementalTable);
+            hib3GrouperloaderLog, groupsRequiringLoaderMetadataUpdates, subject, membershipsInSource, updateIncrementalTable, runFullSyncIfGroupDoesntExist);
       } else {
         throw new RuntimeException("Unsupported loader type: " + grouperLoaderType);
       }
@@ -993,7 +996,7 @@ public class GrouperLoaderIncrementalJob implements Job {
   
   private static void handleGroupList(GrouperSession grouperSession, Connection connection, String tableName, Row row, Group loaderGroup, String grouperLoaderAndGroups, 
       String grouperLoaderGroupsLike, String grouperLoaderGroupQuery, String grouperLoaderType, Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates, 
-      Subject subject, Set<String> membershipsInSource, boolean updateIncrementalTable) throws SchedulerException, SQLException {
+      Subject subject, Set<String> membershipsInSource, boolean updateIncrementalTable, boolean runFullSyncIfGroupDoesntExist) throws SchedulerException, SQLException {
 
 //    String sql = "select g.nameDb "
 //        + " from Member m, MembershipEntry ms, Group g "
@@ -1058,12 +1061,18 @@ public class GrouperLoaderIncrementalJob implements Job {
       Group theGroup = GroupFinder.findByName(grouperSession, groupName, false);
       
       if (theGroup == null) {
-        // if group doesn't exist, full sync and set completion time
-        scheduleJobNow(loaderGroup, grouperLoaderType);
+        if (runFullSyncIfGroupDoesntExist) {
+          // if group doesn't exist, full sync and set completion time
+          scheduleJobNow(loaderGroup, grouperLoaderType);
+          
+          // just setting this one row completed instead of all from this group list just in case the full sync takes a long time
+          setRowCompleted(connection, tableName, row.getId(), updateIncrementalTable);
+          continue;
+        }
         
-        // just setting this one row completed instead of all from this group list just in case the full sync takes a long time
-        setRowCompleted(connection, tableName, row.getId(), updateIncrementalTable);
-        continue;
+        GroupSave groupSave = new GroupSave(grouperSession);
+        groupSave.assignGroupNameToEdit(groupName).assignName(groupName);
+        theGroup = groupSave.save();
       }
       
       if (shouldAddSubject(grouperSession, loaderGroup, subject)) {
