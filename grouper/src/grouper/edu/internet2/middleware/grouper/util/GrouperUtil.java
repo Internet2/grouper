@@ -2116,15 +2116,13 @@ public class GrouperUtil {
    * cache for if cn is person or group
    * cn -> is Person; true = person, false = group, store in memory for 3 hours
    */
-  private static GrouperCache<String, Boolean> ldapCacheIsPerson = new GrouperCache<String, Boolean>("loaderLdapElUtilsCacheIsPerson", 
-      10000, false, 60 * 3 * 60, 60 * 3 * 60, false);
+  private static GrouperCache<String, Boolean> ldapCacheIsPerson;
 
   /**
    * cache for DN to group name
    * dn -> group ID store for 3 hours
    */
-  private static GrouperCache<String, String> ldapCacheDnToGroupName = new GrouperCache<String, String>("loaderLdapElUtilsCacheDnToGroupName", 
-      10000, false, 60 * 3 * 60, 60 * 3 * 60, false);
+  private static GrouperCache<String, String> ldapCacheDnToGroupName;
 
   /**
    * @see #ldapConvertAdMemberDnToSpecificValue(String, String, String, String, boolean)
@@ -9184,8 +9182,22 @@ public class GrouperUtil {
   /**
    * logger
    */
-  private static final Log LOG = getLog(GrouperUtil.class);
+  private static final Log LOG;
 
+  /**
+   * The tmpdir, log, and EHCache objects need to be defined in specific order to prevent nulls
+   */
+  static {
+    JAVA_IO_TMPDIR = "java.io.tmpdir";
+    ORIGINAL_TMP_DIR = System.getProperty("java.io.tmpdir");
+    LOG = getLog(GrouperUtil.class);
+
+    ldapCacheIsPerson = new GrouperCache<String, Boolean>("loaderLdapElUtilsCacheIsPerson",
+            10000, false, 60 * 3 * 60, 60 * 3 * 60, false);
+
+    ldapCacheDnToGroupName = new GrouperCache<String, String>("loaderLdapElUtilsCacheDnToGroupName",
+            10000, false, 60 * 3 * 60, 60 * 3 * 60, false);
+  }
   /**
    * The name says it all.
    */
@@ -14898,10 +14910,10 @@ public class GrouperUtil {
   /**
    *
    */
-  public static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
+  public static final String JAVA_IO_TMPDIR;
 
-  /** original tmp dir */
-  private static final String ORIGINAL_TMP_DIR = System.getProperty(JAVA_IO_TMPDIR);
+  /** original tmp dir; needs to be set in an initializer to ensure logger is set first */
+  private static final String ORIGINAL_TMP_DIR;
 
   /** log it once */
   private static boolean loggedTempDir = false;
