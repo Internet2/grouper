@@ -33,6 +33,7 @@
         <thead>
           <tr>
             <th>${textContainer.text['entityDataFieldsHeaderConfigId']}</th>
+            <th>${textContainer.text['userLifecycleTableNameColumn']}</th>
             <th>${textContainer.text['entityDataFieldsHeaderActions']}</th>
           </tr>
         </thead>
@@ -43,6 +44,9 @@
             <tr>
               <td style="white-space: nowrap;">
                 ${guiUserLifecyclePolicyConfig.userLifecyclePolicyConfiguration.configId}
+              </td>
+              <td style="white-space: nowrap;">
+                ${guiUserLifecyclePolicyConfig.userLifecyclePolicyConfiguration.name}
               </td>
 
               <td>

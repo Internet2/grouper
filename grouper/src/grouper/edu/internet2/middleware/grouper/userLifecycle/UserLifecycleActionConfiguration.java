@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
@@ -63,6 +64,30 @@ public class UserLifecycleActionConfiguration extends GrouperConfigurationModule
   @Override
   public String getConfigIdThatIdentifiesThisConfig() {
     return "userLifecycleActionConfigId";
+  }
+  
+  public String getName() {
+    
+    Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
+    
+    GrouperConfigurationModuleAttribute nameAttribute = attributes.get("name");
+    if (nameAttribute != null) {      
+      String name = nameAttribute.getValueOrExpressionEvaluationValue();
+      return name;
+    }
+    return null;
+  }
+  
+  public String getActionType() {
+    
+    Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
+    
+    GrouperConfigurationModuleAttribute attribute = attributes.get("actionType");
+    if (attribute != null) {      
+      String actionType = attribute.getValueOrExpressionEvaluationValue();
+      return actionType;
+    }
+    return null;
   }
   
   /**

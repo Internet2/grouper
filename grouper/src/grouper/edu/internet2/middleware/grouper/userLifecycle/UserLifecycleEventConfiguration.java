@@ -88,6 +88,30 @@ public class UserLifecycleEventConfiguration extends GrouperConfigurationModuleB
    return (List<UserLifecycleEventConfiguration>) (Object) retrieveAllConfigurations(classNames);
   }
   
+  public String getName() {
+    
+    Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
+    
+    GrouperConfigurationModuleAttribute nameAttribute = attributes.get("name");
+    if (nameAttribute != null) {      
+      String name = nameAttribute.getValueOrExpressionEvaluationValue();
+      return name;
+    }
+    return null;
+  }
+  
+  public String getTrigger() {
+    
+    Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
+    
+    GrouperConfigurationModuleAttribute attribute = attributes.get("trigger");
+    if (attribute != null) {      
+      String trigger = attribute.getValueOrExpressionEvaluationValue();
+      return trigger;
+    }
+    return null;
+  }
+  
   
   @Override
   public void validatePreSave(boolean isInsert, List<String> errorsToDisplay,Map<String, String> validationErrorsToDisplay) {

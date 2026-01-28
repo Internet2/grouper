@@ -33,6 +33,8 @@
         <thead>
           <tr>
             <th>${textContainer.text['entityDataFieldsHeaderConfigId']}</th>
+            <th>${textContainer.text['userLifecycleTableNameColumn']}</th>
+            <th>${textContainer.text['userLifecycleTableTriggerColumn']}</th>
             <th>${textContainer.text['entityDataFieldsHeaderActions']}</th>
           </tr>
         </thead>
@@ -43,6 +45,12 @@
             <tr>
               <td style="white-space: nowrap;">
                 ${guiUserLifecycleEventConfig.userLifecycleEventConfiguration.configId}
+              </td>
+              <td style="white-space: nowrap;">
+                ${guiUserLifecycleEventConfig.userLifecycleEventConfiguration.name}
+              </td>
+              <td style="white-space: nowrap;">
+                ${guiUserLifecycleEventConfig.userLifecycleEventConfiguration.trigger}
               </td>
 
               <td>

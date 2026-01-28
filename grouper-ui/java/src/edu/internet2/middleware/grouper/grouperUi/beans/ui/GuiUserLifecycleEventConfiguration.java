@@ -33,5 +33,5 @@ public class GuiUserLifecycleEventConfiguration {
     return guiConfigs;
     
   }
-
+  
 }
