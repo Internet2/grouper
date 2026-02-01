@@ -4,9 +4,10 @@
  */
 package edu.internet2.middleware.grouperClient.messaging;
 
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeUtils;
-import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import org.apache.commons.lang3.StringUtils;
+
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
 /**
@@ -104,7 +105,7 @@ public class GrouperMessagingConfig {
     
     if (!StringUtils.isBlank(propertyValueString)) {
       try {
-        return ConfigPropertiesCascadeUtils.intValue(propertyValueString);
+        return GrouperClientUtils.intValue(propertyValueString);
       } catch (Exception e) {
         
       }

@@ -28,12 +28,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOutput;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.cfg.text.TextBundleBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
 
@@ -71,11 +71,11 @@ public class GrouperUiApiTextConfig extends ConfigPropertiesCascadeBase {
     
     System.out.println("2: " + properties.get("institutionName"));
     
-    URL url = ConfigPropertiesCascadeUtils.computeUrl("grouperText/grouper.text.fr.fr.properties", true);
+    URL url = GrouperClientUtils.computeUrl("grouperText/grouper.text.fr.fr.properties", true);
 
     InputStream inputStream = url.openStream();
 
-    String contents = ConfigPropertiesCascadeUtils.toString(inputStream, "UTF-8");
+    String contents = GrouperClientUtils.toString(inputStream, "UTF-8");
     
     System.out.println("3: " + contents);
     

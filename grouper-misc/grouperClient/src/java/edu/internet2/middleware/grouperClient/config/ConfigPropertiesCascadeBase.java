@@ -166,7 +166,7 @@ public abstract class ConfigPropertiesCascadeBase {
       
       configPropertiesCascadeBase = (T)configSingletonFromClass.get(configClass);
       if (configPropertiesCascadeBase == null) {
-        configPropertiesCascadeBase = ConfigPropertiesCascadeUtils.newInstance(configClass, true);
+        configPropertiesCascadeBase = GrouperClientUtils.newInstance(configClass, true);
         configSingletonFromClass.put(configClass, configPropertiesCascadeBase);
         
       }
@@ -336,13 +336,13 @@ public abstract class ConfigPropertiesCascadeBase {
     Map<String, String> localPropertiesOverrideMap = propertiesOverrideMap();
     
     for (String key: localPropertiesOverrideMap.keySet()) {
-      assignProperty(tempResult, key, ConfigPropertiesCascadeUtils.defaultString(localPropertiesOverrideMap.get(key)));
+      assignProperty(tempResult, key, GrouperClientUtils.defaultString(localPropertiesOverrideMap.get(key)));
     }
     
     localPropertiesOverrideMap = propertiesThreadLocalOverrideMap();
     
     for (String key: localPropertiesOverrideMap.keySet()) {
-      assignProperty(tempResult, key, ConfigPropertiesCascadeUtils.defaultString(localPropertiesOverrideMap.get(key)));
+      assignProperty(tempResult, key, GrouperClientUtils.defaultString(localPropertiesOverrideMap.get(key)));
     }
 
     Properties result = new Properties();
@@ -356,7 +356,7 @@ public abstract class ConfigPropertiesCascadeBase {
       if (!key.endsWith(EL_CONFIG_SUFFIX)) {
         
         //cant be null, or hashtable exception
-        result.put(key, ConfigPropertiesCascadeUtils.defaultString(value));
+        result.put(key, GrouperClientUtils.defaultString(value));
 
       }
     }
@@ -371,14 +371,14 @@ public abstract class ConfigPropertiesCascadeBase {
         
         if (setValues) {
           //process the EL
-          value = ConfigPropertiesCascadeUtils.substituteExpressionLanguage(value, null, true, true, true, false);
+          value = GrouperClientUtils.substituteExpressionLanguage(value, null, true, true, true, false);
         }
         
         //change the key name
         key = key.substring(0, key.length() - EL_CONFIG_SUFFIX.length());
 
         //cant be null, or hashtable exception
-        result.put(key, ConfigPropertiesCascadeUtils.defaultString(value));
+        result.put(key, GrouperClientUtils.defaultString(value));
 
       }
     }
@@ -534,7 +534,7 @@ public abstract class ConfigPropertiesCascadeBase {
       if (elPropertyValueResult.isHasKey()) {
         
         //process the EL
-        String result = ConfigPropertiesCascadeUtils.substituteExpressionLanguage(elPropertyValueResult.getTheValue(), null, true, true, true, false);
+        String result = GrouperClientUtils.substituteExpressionLanguage(elPropertyValueResult.getTheValue(), null, true, true, true, false);
         
         result = substituteUnicode(result);
         PropertyValueResult propertyValueResult = new PropertyValueResult(result, true);
@@ -568,18 +568,18 @@ public abstract class ConfigPropertiesCascadeBase {
       
       throw new RuntimeException(error);
     }
-    value = ConfigPropertiesCascadeUtils.trim(value);
+    value = GrouperClientUtils.trim(value);
     value = substituteCommonVars(value);
 
     value = substituteLocalReferencesOneField(this, value);
     value = substituteUnicode(value);
     
-    if (!required && ConfigPropertiesCascadeUtils.isBlank(value)) {
+    if (!required && GrouperClientUtils.isBlank(value)) {
       return new PropertyValueResult(null, true);
     }
 
     //do the validation if this is required
-    if (required && ConfigPropertiesCascadeUtils.isBlank(value)) {
+    if (required && GrouperClientUtils.isBlank(value)) {
       String error = "Property " + key + " in properties file: " + this.getMainConfigClasspath() + ", has a blank value, it is required";
       
       throw new RuntimeException(error);
@@ -602,10 +602,10 @@ public abstract class ConfigPropertiesCascadeBase {
       return string;
     }
     //might have $space$
-    string = ConfigPropertiesCascadeUtils.replace(string, "$space$", " ");
+    string = GrouperClientUtils.replace(string, "$space$", " ");
     
     //note, at some point we could be OS specific
-    string = ConfigPropertiesCascadeUtils.replace(string, "$newline$", "\n"); 
+    string = GrouperClientUtils.replace(string, "$newline$", "\n"); 
     return string;
   }
 
@@ -719,7 +719,7 @@ public abstract class ConfigPropertiesCascadeBase {
       @Override
       public InputStream inputStream(String configFileTypeConfig,
           ConfigPropertiesCascadeBase configPropertiesCascadeBase) {
-        URL url = ConfigPropertiesCascadeUtils.computeUrl(configFileTypeConfig, true);
+        URL url = GrouperClientUtils.computeUrl(configFileTypeConfig, true);
         Exception exception = null;
         if (url != null) {
           try {
@@ -732,10 +732,10 @@ public abstract class ConfigPropertiesCascadeBase {
         //if we didnt get there yet, lets look for a companion jar
         Class<?> classInJar = configPropertiesCascadeBase.getClassInSiblingJar();
         if (classInJar != null) {
-          File jarFile = classInJar == null ? null : ConfigPropertiesCascadeUtils.jarFile(classInJar);
+          File jarFile = classInJar == null ? null : GrouperClientUtils.jarFile(classInJar);
           File parentDir = jarFile == null ? null : jarFile.getParentFile();
           String fileName = parentDir == null ? null 
-              : (ConfigPropertiesCascadeUtils.stripLastSlashIfExists(ConfigPropertiesCascadeUtils.fileCanonicalPath(parentDir)) + File.separator + configFileTypeConfig);
+              : (GrouperClientUtils.stripLastSlashIfExists(GrouperClientUtils.fileCanonicalPath(parentDir)) + File.separator + configFileTypeConfig);
           File configFile = fileName == null ? null 
               : new File(fileName);
           
@@ -768,7 +768,7 @@ public abstract class ConfigPropertiesCascadeBase {
      * @return the enum or null or exception if not found
      */
     public static ConfigFileType valueOfIgnoreCase(String string) {
-      return ConfigPropertiesCascadeUtils.enumValueOfIgnoreCase(ConfigFileType.class,string, false );
+      return GrouperClientUtils.enumValueOfIgnoreCase(ConfigFileType.class,string, false );
     }
 
   }
@@ -845,14 +845,14 @@ public abstract class ConfigPropertiesCascadeBase {
       try {
         inputStream = this.configFileType.inputStream(this.configFileTypeConfig, configPropertiesCascadeBase);
         if (inputStream != null) {
-          return ConfigPropertiesCascadeUtils.toString(inputStream, encoding());
+          return GrouperClientUtils.toString(inputStream, encoding());
         }
         // dont return contents for DATABASE configs while setting up the database
         return "";
       } catch (Exception e) {
             throw new RuntimeException("Problem reading config: '" + this.originalConfig + "'", e);
       } finally {
-            ConfigPropertiesCascadeUtils.closeQuietly(inputStream);
+            GrouperClientUtils.closeQuietly(inputStream);
       }
     }
 
@@ -871,9 +871,9 @@ public abstract class ConfigPropertiesCascadeBase {
       }
       
       //lets get the type
-      String configFileTypeString = ConfigPropertiesCascadeUtils.trim(ConfigPropertiesCascadeUtils.prefixOrSuffix(configFileFullConfig, ":", true));
+      String configFileTypeString = GrouperClientUtils.trim(GrouperClientUtils.prefixOrSuffix(configFileFullConfig, ":", true));
       
-      if (ConfigPropertiesCascadeUtils.isBlank(configFileTypeString)) {
+      if (GrouperClientUtils.isBlank(configFileTypeString)) {
         throw new RuntimeException("Config file spec needs the type of config and a colon, e.g. file:/some/path/config.properties  '" + configFileFullConfig + "'");
       }
       
@@ -883,7 +883,7 @@ public abstract class ConfigPropertiesCascadeBase {
         throw new RuntimeException("Config file spec needs the type of config and a colon, e.g. file:/some/path/config.properties  '" + configFileFullConfig + "', " + e.getMessage(), e);
       }
       
-      this.configFileTypeConfig = ConfigPropertiesCascadeUtils.trim(ConfigPropertiesCascadeUtils.prefixOrSuffix(configFileFullConfig, ":", false));
+      this.configFileTypeConfig = GrouperClientUtils.trim(GrouperClientUtils.prefixOrSuffix(configFileFullConfig, ":", false));
       
     }
     
@@ -1002,16 +1002,16 @@ public abstract class ConfigPropertiesCascadeBase {
     }
     
     //if couldnt find it from the override, get from example
-    if (ConfigPropertiesCascadeUtils.isBlank(overrideFullConfig) || ConfigPropertiesCascadeUtils.isBlank(secondsToCheckConfigString)) {
+    if (GrouperClientUtils.isBlank(overrideFullConfig) || GrouperClientUtils.isBlank(secondsToCheckConfigString)) {
       
       Properties mainExampleConfigFile = propertiesFromResourceName(this.getMainExampleConfigClasspath(), false, this.getClassInSiblingJar());
       
       if (mainExampleConfigFile != null) {
         
-        if (ConfigPropertiesCascadeUtils.isBlank(overrideFullConfig)) {
+        if (GrouperClientUtils.isBlank(overrideFullConfig)) {
           overrideFullConfig = mainExampleConfigFile.getProperty(this.getHierarchyConfigKey());
         }
-        if (ConfigPropertiesCascadeUtils.isBlank(secondsToCheckConfigString)) {
+        if (GrouperClientUtils.isBlank(secondsToCheckConfigString)) {
           secondsToCheckConfigString = mainExampleConfigFile.getProperty(this.getSecondsToCheckConfigKey());
         }
 
@@ -1020,24 +1020,24 @@ public abstract class ConfigPropertiesCascadeBase {
     }
 
     //if hasnt found yet, there is a problem
-    if (ConfigPropertiesCascadeUtils.isBlank(overrideFullConfig)) {
+    if (GrouperClientUtils.isBlank(overrideFullConfig)) {
       throw new RuntimeException("Cant find the hierarchy config key: " + this.getHierarchyConfigKey() 
           + " in config files: " + this.getMainConfigClasspath()
           + " or " + this.getMainExampleConfigClasspath());
     }
     
     //if hasnt found yet, there is a problem
-    if (ConfigPropertiesCascadeUtils.isBlank(secondsToCheckConfigString)) {
+    if (GrouperClientUtils.isBlank(secondsToCheckConfigString)) {
       throw new RuntimeException("Cant find the seconds to check config key: " + this.getSecondsToCheckConfigKey() 
           + " in config files: " + this.getMainConfigClasspath()
           + " or " + this.getMainExampleConfigClasspath());
     }
 
     //make a new return object based on this class
-    ConfigPropertiesCascadeBase result = ConfigPropertiesCascadeUtils.newInstance(this.getClass(), true);
+    ConfigPropertiesCascadeBase result = GrouperClientUtils.newInstance(this.getClass(), true);
 
     try {
-      result.timeToCheckConfigSeconds = ConfigPropertiesCascadeUtils.intValue(secondsToCheckConfigString);
+      result.timeToCheckConfigSeconds = GrouperClientUtils.intValue(secondsToCheckConfigString);
     } catch (Exception e) {
       throw new RuntimeException("Invalid integer seconds to check config config value: " + secondsToCheckConfigString
           + ", key: " + this.getSecondsToCheckConfigKey() 
@@ -1048,7 +1048,7 @@ public abstract class ConfigPropertiesCascadeBase {
     
     //ok, we have the config file list...
     //lets get this into a comma separated list
-    List<String> overrideConfigStringList = ConfigPropertiesCascadeUtils.splitTrimToList(overrideFullConfig, ",");
+    List<String> overrideConfigStringList = GrouperClientUtils.splitTrimToList(overrideFullConfig, ",");
 
     result.configFiles = new ArrayList<ConfigFile>();
 
@@ -1099,10 +1099,10 @@ public abstract class ConfigPropertiesCascadeBase {
       if (!grouperClientConfigNextToJar) {
         configFileContents = replaceWithBlank ? "" : configFile.retrieveContents(this);
       } else {
-        File jarFile = ConfigPropertiesCascadeUtils.jarFile(this.getClassInSiblingJar());
+        File jarFile = GrouperClientUtils.jarFile(this.getClassInSiblingJar());
         File parentDir = jarFile == null ? null : jarFile.getParentFile();
         String fileName = parentDir == null ? null 
-            : (ConfigPropertiesCascadeUtils.stripLastSlashIfExists(ConfigPropertiesCascadeUtils.fileCanonicalPath(parentDir)) + File.separator + this.getMainConfigFileName());
+            : (GrouperClientUtils.stripLastSlashIfExists(GrouperClientUtils.fileCanonicalPath(parentDir)) + File.separator + this.getMainConfigFileName());
         configFileContents = GrouperClientCommonUtils.readFileIntoStringUtf8(new File(fileName));
       }      
       configFile.setContents(configFileContents);
@@ -1251,7 +1251,7 @@ public abstract class ConfigPropertiesCascadeBase {
       return configObject;
     } finally {
       if (LOG != null && isDebugEnabled && debugMap.size() > 0) {
-        LOG.debug(ConfigPropertiesCascadeUtils.mapToString(debugMap));
+        LOG.debug(GrouperClientUtils.mapToString(debugMap));
       }
     }
   }
@@ -1289,7 +1289,7 @@ public abstract class ConfigPropertiesCascadeBase {
     try {
       //lets look at all the files and see if they have changed...
       for (ConfigFile configFile : this.configFiles) {
-        if (!ConfigPropertiesCascadeUtils.equals(configFile.getContents(), configFile.retrieveContents(this))) {
+        if (!GrouperClientUtils.equals(configFile.getContents(), configFile.retrieveContents(this))) {
           logInfo("Contents changed for config file, reloading: " + configFile.getOriginalConfig(), null);
           return true;
         }
@@ -1374,10 +1374,10 @@ public abstract class ConfigPropertiesCascadeBase {
    */
   protected Boolean propertyValueBoolean(String key, Boolean defaultValue, boolean required) {
     String value = propertyValueString(key, null, false).getTheValue();
-    if (ConfigPropertiesCascadeUtils.isBlank(value) && !required) {
+    if (GrouperClientUtils.isBlank(value) && !required) {
       return defaultValue;
     }
-    if (ConfigPropertiesCascadeUtils.isBlank(value) && required) {
+    if (GrouperClientUtils.isBlank(value) && required) {
       throw new RuntimeException("Cant find boolean property " + key + " in properties file: " + this.getMainConfigClasspath() + ", it is required, expecting true or false");
     }
     if ("true".equalsIgnoreCase(value)) {
@@ -1418,14 +1418,14 @@ public abstract class ConfigPropertiesCascadeBase {
    */
   protected Integer propertyValueInt(String key, Integer defaultValue, boolean required) {
     String value = propertyValueString(key, null, false).getTheValue();
-    if (ConfigPropertiesCascadeUtils.isBlank(value) && !required) {
+    if (GrouperClientUtils.isBlank(value) && !required) {
       return defaultValue;
     }
-    if (ConfigPropertiesCascadeUtils.isBlank(value) && required) {
+    if (GrouperClientUtils.isBlank(value) && required) {
       throw new RuntimeException("Cant find integer property " + key + " in config file: " + this.getMainConfigClasspath() + ", it is required");
     }
     try {
-      return ConfigPropertiesCascadeUtils.intValue(value);
+      return GrouperClientUtils.intValue(value);
     } catch (Exception e) {
       
     }
@@ -1506,7 +1506,7 @@ public abstract class ConfigPropertiesCascadeBase {
     
     try {
       
-      url = ConfigPropertiesCascadeUtils.computeUrl(resourceName, true);
+      url = GrouperClientUtils.computeUrl(resourceName, true);
       
     } catch (Exception e) {
       //I guess this ok
@@ -1517,10 +1517,10 @@ public abstract class ConfigPropertiesCascadeBase {
     }
 
     if (url == null) {
-      File jarFile = classInSiblingJar == null ? null : ConfigPropertiesCascadeUtils.jarFile(classInSiblingJar);
+      File jarFile = classInSiblingJar == null ? null : GrouperClientUtils.jarFile(classInSiblingJar);
       File parentDir = jarFile == null ? null : jarFile.getParentFile();
       String fileName = parentDir == null ? null 
-          : (ConfigPropertiesCascadeUtils.stripLastSlashIfExists(ConfigPropertiesCascadeUtils.fileCanonicalPath(parentDir)) + File.separator + resourceName);
+          : (GrouperClientUtils.stripLastSlashIfExists(GrouperClientUtils.fileCanonicalPath(parentDir)) + File.separator + resourceName);
       File configFile = fileName == null ? null 
           : new File(fileName);
 
@@ -1532,7 +1532,7 @@ public abstract class ConfigPropertiesCascadeBase {
           inputStream = new FileInputStream(configFile);
           properties.load(inputStream);
           if ((LOG != null && LOG.isDebugEnabled()) || GrouperClientLog.debugToConsoleByFlag()) {
-            String theLog = "Reading resource: " + resourceName + ", from: " + ConfigPropertiesCascadeUtils.fileCanonicalPath(configFile);
+            String theLog = "Reading resource: " + resourceName + ", from: " + GrouperClientUtils.fileCanonicalPath(configFile);
             if (LOG != null && LOG.isDebugEnabled()) {
               LOG.debug(theLog);
             }
@@ -1548,7 +1548,7 @@ public abstract class ConfigPropertiesCascadeBase {
           LOG.debug("Error reading from file for resource: " + resourceName + ", file: " + fileName, e2);
         }
       } finally {
-        ConfigPropertiesCascadeUtils.closeQuietly(inputStream);
+        GrouperClientUtils.closeQuietly(inputStream);
       }
      
       
@@ -1573,7 +1573,7 @@ public abstract class ConfigPropertiesCascadeBase {
       throw new RuntimeException("Problem loading config file: " + resourceName, e);
       
     } finally {
-      ConfigPropertiesCascadeUtils.closeQuietly(inputStream);
+      GrouperClientUtils.closeQuietly(inputStream);
     }
     return properties;
   }
@@ -1585,7 +1585,7 @@ public abstract class ConfigPropertiesCascadeBase {
    */
   public boolean assertPropertyValueRequired(String key) {
     String value = propertyValueString(key);
-    if (!ConfigPropertiesCascadeUtils.isBlank(value)) {
+    if (!GrouperClientUtils.isBlank(value)) {
       return true;
     }
     String error = "Cant find property " + key + " in resource: " + this.getMainConfigClasspath() + ", it is required";
@@ -1608,11 +1608,11 @@ public abstract class ConfigPropertiesCascadeBase {
   
     String value = propertyValueString(key);
     //maybe ok not there
-    if (!required && ConfigPropertiesCascadeUtils.isBlank(value)) {
+    if (!required && GrouperClientUtils.isBlank(value)) {
       return true;
     }
     try {
-      ConfigPropertiesCascadeUtils.booleanValue(value);
+      GrouperClientUtils.booleanValue(value);
       return true;
     } catch (Exception e) {
       
@@ -1639,7 +1639,7 @@ public abstract class ConfigPropertiesCascadeBase {
     String value = propertyValueString(key);
   
     //maybe ok not there
-    if (!required && ConfigPropertiesCascadeUtils.isBlank(value)) {
+    if (!required && GrouperClientUtils.isBlank(value)) {
       return true;
     }
     
@@ -1647,14 +1647,14 @@ public abstract class ConfigPropertiesCascadeBase {
     for (String classValue : value.split(",")) {
       try {
         
-        Class<?> theClass = ConfigPropertiesCascadeUtils.forName(classValue.trim());
+        Class<?> theClass = GrouperClientUtils.forName(classValue.trim());
         if (classType.isAssignableFrom(theClass)) {
         } else {
           extraError += " does not derive from class: " + classType.getSimpleName();
         }
         
       } catch (Exception e) {
-        extraError = ", " + ConfigPropertiesCascadeUtils.getFullStackTrace(e);
+        extraError = ", " + GrouperClientUtils.getFullStackTrace(e);
       }
     }  
 
