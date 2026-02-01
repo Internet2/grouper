@@ -188,7 +188,7 @@ public class GshTemplateValidationService {
   
   private boolean validateSecurityRunType(GshTemplateConfig templateConfig, GshTemplateExec gshTemplateExec, GshTemplateOutput gshTemplateOutput) {
     
-    if (PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject())) {
+    if (PrivilegeHelper.isWheelOrRoot(gshTemplateExec.getCurrentUser())) {
       return true;
     }
     
@@ -213,7 +213,7 @@ public class GshTemplateValidationService {
         return false;
       } 
       
-      if (!PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject())) {
+      if (!PrivilegeHelper.isWheelOrRoot(gshTemplateExec.getCurrentUser())) {
         
         String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.currentUser.notMemberOfWheelGroup.message");
         errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$subjectId$$", gshTemplateExec.getCurrentUser().getId());
@@ -242,7 +242,7 @@ public class GshTemplateValidationService {
           return false;
         }
         
-      } else {
+      } else if (gshTemplateExec.getGshTemplateOwnerType() == GshTemplateOwnerType.group) {
         String ownerGroupString = gshTemplateExec.getOwnerGroupName();
         Group ownerGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), ownerGroupString, true);
         
@@ -259,6 +259,15 @@ public class GshTemplateValidationService {
           
           return false;
         }
+        
+      } else {
+
+        // passing no owner when the privileges are on owner
+        String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerType.required.message");
+        
+        gshTemplateOutput.addValidationLine(errorMessage);
+        
+        return false;
         
       }
      
