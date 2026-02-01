@@ -140,7 +140,7 @@ configRefs = dict()
 # Given a directory, find all Java code that looks like a string
 def searchJavaDir(dirname):
     # pattern = re.compile('"(\w+)')
-    pattern = re.compile(r'(GrouperUiUtils\.message|contentKeys\.get|getText\(\)\.get|GrouperTextContainer\.textOrNull|grouperUiApiTextConfig\.propertyValueString|TextContainer\.retrieveFromRequest\(\)\.getTextEscapeXml\(\)\.get)\("([\w.-]+)"\)')
+    pattern = re.compile(r'(GrouperUiUtils\.message|contentKeys\.get|getText\(\)\.get|GrouperTextContainer\.textOrNull|grouperUiApiTextConfig\.propertyValueString|TextContainer\.retrieveFromRequest\(\)\.getTextEscapeXml\(\)\.get|TagUtils\.navResourceString)\("([\w.-]+)"\)')
     patternComment = re.compile(r'^\s*//')
 
     files = glob.glob('%s/**/*.java' % dirname, recursive=True)

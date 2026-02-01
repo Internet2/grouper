@@ -656,9 +656,9 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     assertFalse(errorsAndSuffixes.contains(
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetEntityLink_spanid")));
     assertFalse(errorsAndSuffixes.contains(
-        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket")).assignJqueryHandle("#config_entityAttributeValueCache0entityAttribute_spanid")));
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleFromSameAttribute")).assignJqueryHandle("#config_entityAttributeValueCache0entityAttribute_spanid")));
     assertFalse(errorsAndSuffixes.contains(
-        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket")).assignJqueryHandle("#config_common.entityLink.entityAttributeValueCache0_spanid")));
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleFromSameAttribute")).assignJqueryHandle("#config_common.entityLink.entityAttributeValueCache0_spanid")));
 
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.numberOfGroupAttributes", "3");
