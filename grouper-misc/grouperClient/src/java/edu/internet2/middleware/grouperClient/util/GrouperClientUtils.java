@@ -861,7 +861,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
       }
       
       //allow utility methods
-      jc.set("elUtils", new GcElUtilsSafe());
+      jc.set("elUtils", new GrouperClientUtils());
       //if you add another one here, add it in the logs below
       
       // matching ${ exp }   (non-greedy)

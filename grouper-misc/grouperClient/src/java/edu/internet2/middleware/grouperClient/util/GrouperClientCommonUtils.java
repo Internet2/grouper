@@ -5277,6 +5277,42 @@ public class GrouperClientCommonUtils  {
    * 
    * @return String
    */
+  public static String readFileIntoStringUtf8(String fileName) {
+    return readFileIntoStringUtf8(fileName, true);
+  }
+
+  /**
+   * 
+   * @param file
+   *          is the file to read into a string
+   * 
+   * @return String
+   */
+  public static String readFileIntoStringUtf8(String fileName, boolean trim) {
+    File theFile = new File(fileName);
+    if (!theFile.exists() || !theFile.isFile()) {
+      throw new RuntimeException("File doesnt exist! '" + fileName + "'");
+    }
+    try {
+      String fileContents = GrouperClientUtils.readFileIntoStringUtf8(theFile);
+      if (trim) {
+        fileContents = trim(fileContents);
+      }
+      return fileContents;
+    } catch (RuntimeException re) {
+      RuntimeException re2 = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(re, "error reading from fileName: '" + fileName + "', file: '" + (theFile == null ? null : theFile.getAbsolutePath()) +  "'");
+      throw re2;
+    }
+  }
+
+  
+  /**
+   * 
+   * @param file
+   *          is the file to read into a string
+   * 
+   * @return String
+   */
   public static String readFileIntoStringUtf8(File file) {
   
     if (file == null) {
@@ -10160,6 +10196,854 @@ public class GrouperClientCommonUtils  {
     }
     return result.toString();
   }
+
+  /**
+   * if theString is not blank, apppend it to the result, and if appending,
+   * @param result to append to
+   * add a prefix and suffix (if not null)
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @return true if something appended, false if not
+   */
+  public static boolean appendIfNotBlank(StringBuilder result,
+      Object theStringOrArrayOrList) {
+    return appendIfNotBlank(result, null, theStringOrArrayOrList, null);
+  }
+
+  /**
+   * if theString is not Blank, apppend it to the result, and if appending,
+   * add a prefix (if not null)
+   * @param result to append to
+   * @param prefix
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @return true if something appended, false if not
+   */
+  public static boolean appendIfNotBlank(StringBuilder result,
+      String prefix, Object theStringOrArrayOrList) {
+    return appendIfNotBlank(result, prefix, theStringOrArrayOrList, null);
+  }
+
+  /**
+   * if theString is not Blank, apppend it to the result, and if appending,
+   * add a prefix and suffix (if not null)
+   * @param result to append to, assumed to be not null
+   * @param prefix
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @param suffix
+   * @return true if anything appended, false if not
+   */
+  public static boolean appendIfNotBlank(StringBuilder result,
+      String prefix, Object theStringOrArrayOrList, String suffix) {
+    return appendIfNotBlank(result, prefix, null, theStringOrArrayOrList, suffix);
+  }
+
+  /**
+   * if theString is not Blank, apppend it to the result, and if appending,
+   * add a prefix and suffix (if not null)
+   * @param result to append to, assumed to be not null
+   * @param prefix prepend this prefix always (when a result not empty).  Will be after the other prefix
+   * @param prefixIfNotBlank prepend this prefix if the result is not empty
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @param suffix
+   * @return true if anything appended, false if not
+   */
+  public static boolean appendIfNotBlank(StringBuilder result,
+      String prefix, String prefixIfNotBlank, Object theStringOrArrayOrList, String suffix) {
+    int length = length(theStringOrArrayOrList);
+    Iterator iterator = iterator(theStringOrArrayOrList);
+    boolean appendedAnything = false;
+  
+    //these could be appending spaces, so only check to see if they are empty
+    boolean hasPrefix = !isEmpty(prefix);
+    boolean hasPrefixIfNotBlank = !isEmpty(prefixIfNotBlank);
+    boolean hasSuffix = !isEmpty(suffix);
+    for (int i = 0; i < length; i++) {
+      String current = (String) next(theStringOrArrayOrList, iterator, i);
+  
+      //only append if not empty
+      if (!isBlank(current)) {
+  
+        //keeping track if anything changed
+        appendedAnything = true;
+        if (hasPrefix) {
+          result.append(prefix);
+        }
+        if (hasPrefixIfNotBlank && result.length() > 0) {
+          result.append(prefixIfNotBlank);
+        }
+        result.append(current);
+        if (hasSuffix) {
+          result.append(suffix);
+        }
+      }
+    }
+    return appendedAnything;
+  }
+
+  /**
+     * if theString is not empty, apppend it to the result, and if appending,
+     * @param result to append to
+     * add a prefix and suffix (if not null)
+     * @param theStringOrArrayOrList is a string, array, list, or set of strings
+     * @return true if something appended, false if not
+     */
+  public static boolean appendIfNotEmpty(StringBuilder result,
+        Object theStringOrArrayOrList) {
+    return appendIfNotEmpty(result, null, theStringOrArrayOrList, null);
+  }
+
+  /**
+   * if theString is not empty, apppend it to the result, and if appending,
+   * add a prefix (if not null)
+   * @param result to append to
+   * @param prefix
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @return true if something appended, false if not
+   */
+  public static boolean appendIfNotEmpty(StringBuilder result,
+      String prefix, Object theStringOrArrayOrList) {
+    return appendIfNotEmpty(result, prefix, theStringOrArrayOrList, null);
+  }
+
+  /**
+   * if theString is not empty, apppend it to the result, and if appending,
+   * add a prefix and suffix (if not null)
+   * @param result to append to, assumed to be not null
+   * @param prefix
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @param suffix
+   * @return true if anything appended, false if not
+   */
+  public static boolean appendIfNotEmpty(StringBuilder result,
+      String prefix, Object theStringOrArrayOrList, String suffix) {
+    return appendIfNotEmpty(result, prefix, null, theStringOrArrayOrList, suffix);
+  }
+
+  /**
+   * if theString is not empty, apppend it to the result, and if appending,
+   * add a prefix and suffix (if not null)
+   * @param result to append to, assumed to be not null
+   * @param prefix prepend this prefix always (when a result not empty).  Will be after the other prefix
+   * @param prefixIfNotEmpty prepend this prefix if the result is not empty
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @param suffix
+   * @return true if anything appended, false if not
+   */
+  public static boolean appendIfNotEmpty(StringBuilder result,
+      String prefix, String prefixIfNotEmpty, Object theStringOrArrayOrList, String suffix) {
+    int length = length(theStringOrArrayOrList);
+    Iterator iterator = iterator(theStringOrArrayOrList);
+    boolean appendedAnything = false;
+    boolean hasPrefix = !isEmpty(prefix);
+    boolean hasPrefixIfNotEmpty = !isEmpty(prefixIfNotEmpty);
+    boolean hasSuffix = !isEmpty(suffix);
+    for (int i = 0; i < length; i++) {
+      String current = (String) next(theStringOrArrayOrList, iterator, i);
+  
+      //only append if not empty
+      if (!isEmpty(current)) {
+  
+        //keeping track if anything changed
+        appendedAnything = true;
+        if (hasPrefix) {
+          result.append(prefix);
+        }
+        if (hasPrefixIfNotEmpty && result.length() > 0) {
+          result.append(prefixIfNotEmpty);
+        }
+        result.append(current);
+        if (hasSuffix) {
+          result.append(suffix);
+        }
+      }
+    }
+    return appendedAnything;
+  }
+
+  /**
+   * see if an ip address is on a network
+   * 
+   * @param ipString
+   *          is the ip address to check
+   * @param networkIpString
+   *          is the ip address of the network
+   * @param mask
+   *          is the length of the mask (0-32)
+   * @return boolean
+   */
+  public static boolean ipOnNetwork(String ipString, String networkIpString, int mask) {
+  
+    //this allows all
+    if (mask == 0) {
+      return true;
+    }
+    int ip = ipInt(ipString);
+    int networkIp = ipInt(networkIpString);
+  
+    ip = ipReadyForAnd(ip, mask);
+    networkIp = ipReadyForAnd(networkIp, mask);
+  
+    return ip == networkIp;
+  }
+
+  /**
+   * see if an ip address is on a network
+   * 
+   * @param ipString
+   *          is the ip address to check
+   * @param networkIpStrings
+   *          are the ip addresses of the networks, e.g. 1.2.3.4/12, 2.3.4.5/24
+   * @return boolean
+   */
+  public static boolean ipOnNetworks(String ipString, String networkIpStrings) {
+  
+    String[] networkIpStringsArray = splitTrim(networkIpStrings, ",");
+  
+    //check each one
+    for (String networkIpString : networkIpStringsArray) {
+  
+      if (!contains(networkIpString, "/")) {
+        throw new RuntimeException(
+            "String must contain slash and CIDR network bits, e.g. 1.2.3.4/14");
+      }
+      //get network part:
+      String network = prefixOrSuffix(networkIpString, "/", true);
+      network = trim(network);
+  
+      String mask = prefixOrSuffix(networkIpString, "/", false);
+      mask = trim(mask);
+      int maskInt = -1;
+  
+      maskInt = Integer.parseInt(mask);
+  
+      //if on the network, then all good
+      if (ipOnNetwork(ipString, network, maskInt)) {
+        return true;
+      }
+  
+    }
+    return false;
+  }
+
+  /**
+   * get the ip addres integer from a string ip address
+   * @param ip String
+   * @return int
+   */
+  public static int ipInt(String ip) {
+    int block1;
+    int block2;
+    int block3;
+    int block4;
+  
+    try {
+      int periodIndex = ip.indexOf('.');
+      String blockString = ip.substring(0, periodIndex);
+      block1 = Integer.parseInt(blockString);
+  
+      //split it up for 2^24 since it does the math wrong if you dont
+      int mathPow = (int) Math.pow(2, 24);
+      block1 *= mathPow;
+  
+      int oldPeriodIndex = periodIndex;
+  
+      periodIndex = ip.indexOf('.', periodIndex + 1);
+      blockString = ip.substring(oldPeriodIndex + 1, periodIndex);
+      block2 = Integer.parseInt(blockString);
+      block2 *= Math.pow(2, 16);
+      oldPeriodIndex = periodIndex;
+  
+      periodIndex = ip.indexOf('.', periodIndex + 1);
+      blockString = ip.substring(oldPeriodIndex + 1, periodIndex);
+      block3 = Integer.parseInt(blockString);
+      block3 *= Math.pow(2, 8);
+  
+      blockString = ip.substring(periodIndex + 1, ip.length());
+      block4 = Integer.parseInt(blockString);
+    } catch (NumberFormatException nfe) {
+      throw new RuntimeException("Could not parse the ipaddress: " + ip);
+    }
+  
+    return block1 + block2 + block3 + block4;
+  }
+
+  /**
+   * get the ip address after putting 1's where the subnet mask is not
+   * @param ip int
+   * @param maskLength int
+   * @return int
+   */
+  public static int ipReadyForAnd(int ip, int maskLength) {
+    int mask = -1 + (int) Math.pow(2, 32 - maskLength);
+  
+    return ip | mask;
+  }
+
+  /**
+   * compare null safe
+   * @param first
+   * @param second
+   * @return 0 for equal, 1 for greater, -1 for less
+   */
+  public static int compare(Comparable first, Comparable second) {
+    if (first == second) {
+      return 0;
+    }
+    if (first == null) {
+      return -1;
+    }
+    if (second == null) {
+      return 1;
+    }
+    return first.compareTo(second);
+  }
+
+  /**
+   * string length
+   * @param string
+   * @return string length
+   */
+  public static int stringLength(String string) {
+    return string == null ? 0 : string.length();
+  }
+
+  /**
+   * Return the zero element of the array, if it exists, null if the array is empty.
+   * If there is more than one element in the list, an exception is thrown.
+   * @param <T>
+   * @param array is the container of objects to get the first of.
+   * @return the first object, null, or exception.
+   */
+  public static <T> T arrayPopOne(T[] array) {
+    int size = length(array);
+    if (size == 1) {
+      return array[0];
+    } else if (size == 0) {
+      return null;
+    }
+    throw new RuntimeException("More than one object of type " + className(array[0])
+        + " was returned when only one was expected. (size:" + size + ")");
+  }
+
+  /**
+   * Return the zero element of the list, if it exists, null if the list is empty.
+   * If there is more than one element in the list, an exception is thrown.
+   * @param <T>
+   * @param collection is the container of objects to get the first of.
+   * @param exceptionIfMoreThanOne will throw exception if there is more than one item in list
+   * @return the first object, null, or exception.
+   */
+  public static <T> T collectionPopOne(Collection<T> collection,
+      boolean exceptionIfMoreThanOne) {
+    int size = length(collection);
+    if (size > 1 && exceptionIfMoreThanOne) {
+      throw new RuntimeException("More than one object of type "
+          + className(get(collection, 0))
+          + " was returned when only one was expected. (size:" + size + ")");
+    }
+    if (size == 0) {
+      return null;
+    }
+    return collection.iterator().next();
+  }
+
+  /**
+   * convert a string date into a long date (e.g. for xml export)
+   * @param date
+   * @return the long or null if the date was null or blank
+   */
+  public static Long dateLongValue(String date) {
+    if (isBlank(date)) {
+      return null;
+    }
+    Date dateObject = dateValue(date);
+    return dateObject.getTime();
+  }
+
+  /**
+   * @param values
+   * @return the max long in the list of args
+   */
+  public static Long getMaxLongValue(Long... values) {
+    if (values == null || values.length == 0) {
+      return null;
+    }
+  
+    Long maxValue = null;
+    for (int i = 0; i < values.length; i++) {
+      if (values[i] != null) {
+        if (maxValue == null || maxValue.compareTo(values[i]) < 0) {
+          maxValue = new Long(values[i]);
+        }
+      }
+    }
+  
+    return maxValue;
+  }
+
+  /**
+   * @param values
+   * @return the min long in the list of args
+   */
+  public static Long getMinLongValue(Long... values) {
+    if (values == null || values.length == 0) {
+      return null;
+    }
+  
+    Long minValue = null;
+    for (int i = 0; i < values.length; i++) {
+      if (values[i] != null) {
+        if (minValue == null || minValue.compareTo(values[i]) > 0) {
+          minValue = new Long(values[i]);
+        }
+      }
+    }
+  
+    return minValue;
+  }
+
+  /**
+   * Return the zero element of the list, if it exists, null if the list is empty.
+   * If there is more than one element in the list, an exception is thrown.
+   * @param <T>
+   * @param list is the container of objects to get the first of.
+   * @return the first object, null, or exception.
+   */
+  public static <T> T listPopOne(List<T> list) {
+    int size = length(list);
+    if (size == 1) {
+      return list.get(0);
+    } else if (size == 0) {
+      return null;
+    }
+    throw new RuntimeException("More than one object of type " + className(list.get(0))
+        + " was returned when only one was expected. (size:" + size + ")");
+  }
+
+  /**
+   * Return the zero element of the set, if it exists, null if the list is empty.
+   * If there is more than one element in the list, an exception is thrown.
+   * @param <T>
+   * @param set is the container of objects to get the first of.
+   * @return the first object, null, or exception.
+   */
+  public static <T> T setPopOne(Set<T> set) {
+    int size = length(set);
+    if (size == 1) {
+      return set.iterator().next();
+    } else if (size == 0) {
+      return null;
+    }
+    throw new RuntimeException("More than one object of type "
+        + className(set.iterator().next())
+        + " was returned when only one was expected. (size:" + size + ")");
+  }
+
+  /**
+   * <pre>
+   * append a string to another string if both not blank, with separator.  trim to empty everything
+   * </pre>
+   * @param string
+   * @param separator
+   * @param suffix
+   * @return the resulting string or blank if nothing
+   */
+  public static String appendIfNotBlankString(String string, String separator,
+      String suffix) {
+  
+    string = trimToEmpty(string);
+    suffix = trimToEmpty(suffix);
+  
+    boolean stringIsBlank = isBlank(string);
+    boolean suffixIsBlank = isBlank(suffix);
+  
+    if (stringIsBlank && suffixIsBlank) {
+      return "";
+    }
+  
+    if (stringIsBlank) {
+      return suffix;
+    }
+  
+    if (suffixIsBlank) {
+      return string;
+    }
+  
+    return string + separator + suffix;
+  
+  }
+
+  /**
+   * convert a set to a string (comma separate)
+   * @param collection
+   * @return the String
+   */
+  public static String collectionToString(Collection collection) {
+    if (collection == null) {
+      return "null";
+    }
+    if (collection.size() == 0) {
+      return "empty";
+    }
+    StringBuilder result = new StringBuilder();
+    boolean first = true;
+    for (Object object : collection) {
+      if (!first) {
+        result.append(", ");
+      }
+      first = false;
+      result.append(object);
+    }
+    return result.toString();
+  
+  }
+
+  /**
+   * convert millis to friendly string
+   * @param duration
+   * @return the friendly string
+   */
+  public static String convertMillisToFriendlyString(Integer duration) {
+    if (duration == null) {
+      return convertMillisToFriendlyString((Long) null);
+    }
+    return convertMillisToFriendlyString(new Long(duration.intValue()));
+  }
+
+  /**
+   * convert millis to friendly string
+   * @param duration
+   * @return the friendly string
+   */
+  public static String convertMillisToFriendlyString(Long duration) {
+  
+    if (duration == null) {
+      return "";
+    }
+  
+    if (duration < 1000) {
+      return duration + "ms";
+    }
+  
+    long ms = duration % 1000;
+    duration = duration / 1000;
+    long s = duration % 60;
+    duration = duration / 60;
+  
+    if (duration == 0) {
+      return s + "s, " + ms + "ms";
+    }
+  
+    long m = duration % 60;
+    duration = duration / 60;
+  
+    if (duration == 0) {
+      return m + "m, " + s + "s, " + ms + "ms";
+    }
+  
+    long h = duration % 24;
+    duration = duration / 24;
+  
+    if (duration == 0) {
+      return h + "h, " + m + "m, " + s + "s, " + ms + "ms";
+    }
+  
+    long d = duration;
+  
+    return d + "d, " + h + "h, " + m + "m, " + s + "s, " + ms + "ms";
+  }
+
+  /**
+   * web service format string
+   */
+  private static final String TIMESTAMP_XML_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
+
+  /**
+   * date object to a string: 
+   * @param date
+   * @return the long or null if the date was null or blank
+   */
+  public static String dateStringValue(Date date) {
+    if (date == null) {
+      return null;
+    }
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(TIMESTAMP_XML_FORMAT);
+    return simpleDateFormat.format(date);
+  }
+
+  /**
+   * date object to a string: 
+   * @param theDate
+   * @return the long or null if the date was null or blank
+   */
+  public static String dateStringValue(Long theDate) {
+    if (theDate == null) {
+      return null;
+    }
+    return dateStringValue(new Date(theDate));
+  }
+
+  /**
+   * get env var for a key
+   * @param key
+   * @return env var
+   */
+  public static String environmentVariable(String key) {
+    return System.getenv().get(key);
+  }
+
+  /**
+   * 
+   * @param number e.g. 12345678
+   * @return the string, e.g. 12,345,678
+   */
+  public static String formatNumberWithCommas(Long number) {
+    if (number == null) {
+      return "null";
+    }
+    DecimalFormat df = new DecimalFormat();
+    return df.format(number);
+  }
+
+  /**
+   * take email addresses from a textarea and turn them into semi separated
+   * @param emailAddresses can be whitespace, comma, or semi separated
+   * @return the email addresses semi separated
+   */
+  public static String normalizeEmailAddresses(String emailAddresses) {
+    if (emailAddresses == null) {
+      return null;
+    }
+    emailAddresses = replace(emailAddresses, ",", " ");
+    emailAddresses = replace(emailAddresses, ";", " ");
+    emailAddresses = replace(emailAddresses, "\n", " ");
+    emailAddresses = replace(emailAddresses, "\t", " ");
+    emailAddresses = replace(emailAddresses, "\r", " ");
+    emailAddresses = join(splitTrim(emailAddresses, " "), ";");
+    return emailAddresses;
+  }
+
+  /**
+   * read from file if env var _FILE is there, or just read var
+   */
+  public static String processEnvVarOrFile(String envVarOrFileBase) {
+  
+    return processEnvVarOrFileHelper(envVarOrFileBase, true);
+  }
+
+  /**
+   * read from file if env var _FILE is there, or just read var
+   */
+  private static String processEnvVarOrFileHelper(String envVarOrFileBase, boolean trim) {
+  
+    if (isBlank(envVarOrFileBase)) {
+      throw new RuntimeException("env var is required");
+    }
+    
+    {
+      String envVarFile = envVarOrFileBase + "_FILE";
+      
+      String fileName = trim(System.getenv().get(envVarFile));
+      if (!isBlank(fileName)) {
+        
+        File theFile = new File(fileName);
+        try {
+          String fileContents = GrouperClientUtils.readFileIntoStringUtf8(theFile);
+          if (trim) {
+            fileContents = trim(fileContents);
+          }
+          return fileContents;
+        } catch (RuntimeException re) {
+          RuntimeException re2 = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(re, "error with env var: '" + envVarFile + "', file: '" + (theFile == null ? null : theFile.getAbsolutePath()) +  "'");
+          throw re2;
+        }
+         
+      }
+    }
+    // TODO add this in for VT System.getProperty(key, def)
+    // this could be empty
+    return trim(System.getenv().get(envVarOrFileBase));
+  }
+
+  /**
+   * read from file if env var _FILE is there, or just read var
+   */
+  public static String processEnvVarOrFileNoTrim(String envVarOrFileBase) {
+    return processEnvVarOrFileHelper(envVarOrFileBase, false);
+  }
+
+  /**
+   * shorten a set if it is too long
+   * @param <T>
+   * @param theSet
+   * @param maxSize
+   * @return the new set
+   */
+  public static <T> Set<T> setShorten(Set<T> theSet, int maxSize) {
+  
+    if (length(theSet) < maxSize) {
+      return theSet;
+    }
+  
+    //truncate the list
+    Set<T> newList = new LinkedHashSet<T>();
+    int i = 0;
+  
+    //TODO test this logic
+    for (T t : theSet) {
+  
+      if (i >= maxSize) {
+        break;
+      }
+  
+      newList.add(t);
+      i++;
+    }
+    return newList;
+  }
+
+  /**
+   * 
+   * @param seconds
+   */
+  public static void sleepWithStdoutCountdown(int seconds) {
+    for (int i = seconds; i > 0; i--) {
+      System.out.println("Sleeping: " + i);
+      sleep(1000);
+    }
+  }
+
+  /**
+   * strip the suffix off
+   * @param string
+   * @param suffix
+   * @return the string without the suffix
+   */
+  public static String stripSuffix(String string, String suffix) {
+    if (string == null || suffix == null) {
+      return string;
+    }
+    if (string.endsWith(suffix)) {
+      return string.substring(0, string.length() - suffix.length());
+    }
+    return string;
+  }
+
+  /**
+   * Convert a timestamp into a string: yyyy/MM/dd HH:mm:ss.SSS
+   * @param timestamp
+   * @return the string representation
+   */
+  public synchronized static String timestampToFileString(Date timestamp) {
+    if (timestamp == null) {
+      return null;
+    }
+    return timestampFileFormat.format(timestamp);
+  }
+
+  /**
+   * return a list of objects from varargs.  Though if there is one
+   * object, and it is a list, return it.
+   * 
+   * @param objects
+   * @return the list or null if objects is null
+   */
+  public static List<Object> toListObject(Object... objects) {
+    if (objects == null) {
+      return null;
+    }
+    List<Object> result = new ArrayList<Object>();
+    for (Object object : objects) {
+      result.add(object);
+    }
+    return result;
+  }
+
+  /**
+   * return a set of string
+   * 
+   * @param <T> template type of the objects
+   * @param object
+   * @return the set
+   */
+  public static <T> Set<T> toSetObject(T object) {
+    if (object == null) {
+      return null;
+    }
+    Set<T> result = new LinkedHashSet<T>();
+    result.add(object);
+    return result;
+  }
+
+  /**
+   * turn some strings into a map
+   * @param stringObjects is an array of String,Object,String,Object etc where the 
+   * Strings are the key, and the Object is the value
+   * @return the map (never null)
+   */
+  public static Map<String, Object> toStringObjectMap(Object... stringObjects) {
+    Map<String, Object> map = new LinkedHashMap<String, Object>();
+    if (stringObjects != null) {
+      if (stringObjects.length % 2 != 0) {
+        throw new RuntimeException("Must pass in an even number of strings: "
+            + stringObjects.length);
+      }
+      for (int i = 0; i < stringObjects.length; i += 2) {
+        String key = (String) stringObjects[i];
+        map.put(key, stringObjects[i + 1]);
+      }
+    }
+    return map;
+  }
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   * 
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   * 
+   * @return the HTML converted string
+   */
+  public static String xmlEscape(String input, boolean isEscape) {
+    if (isEscape) {
+      return replace(input, XML_SEARCH_NO_SINGLE, XML_REPLACE_NO_SINGLE);
+    }
+    return replace(input, XML_REPLACE_NO_SINGLE, XML_SEARCH_NO_SINGLE);
+  }
+
+  /**
+   * string format of dates for file names
+   */
+  public static final String TIMESTAMP_FILE_FORMAT = "yyyy_MM_dd__HH_mm_ss_SSS";
+
+  /**
+   * timestamp format, make sure to synchronize
+   */
+  final static SimpleDateFormat timestampFileFormat = new SimpleDateFormat(
+      TIMESTAMP_FILE_FORMAT);
+
+  /** array for converting HTML to string */
+  private static final String[] XML_REPLACE_NO_SINGLE = new String[] { "&amp;", "&lt;",
+      "&gt;", "&quot;" };
+
+  /** array for converting HTML to string */
+  private static final String[] XML_SEARCH_NO_SINGLE = new String[] { "&", "<", ">", "\"" };
+
+  /**
+   * 
+   * @param email
+   * @return true if valid, false if not
+   */
+  public static boolean validEmail(String email) {
+    Matcher matcher = emailPattern.matcher(email);
+    return matcher.matches();
+  }
+
+  /** 
+   * pattern as simple validation for email.  need text, @ sign, then text, dot, and text.
+   * granted this could be better, but this is a first step
+   */
+  private static Pattern emailPattern = Pattern.compile("^[^@]+@[^.]+\\..+$");
 
 
 }
