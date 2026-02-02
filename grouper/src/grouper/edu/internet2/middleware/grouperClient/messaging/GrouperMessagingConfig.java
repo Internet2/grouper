@@ -4,8 +4,16 @@
  */
 package edu.internet2.middleware.grouperClient.messaging;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -73,6 +81,17 @@ public class GrouperMessagingConfig {
    * default system settings to this messaging system, note, there is only one level of inheritance
    */
   private String defaultSystemName;
+
+  /**
+   * pattern for messaging system
+   */
+  private static Pattern grouperMessagingConfigPattern = Pattern.compile("^grouper.messaging.system.([^.]+).name$");
+
+  /**
+   * cache the messaging configs
+   */
+  private static ExpirableCache<Boolean, Map<String, GrouperMessagingConfig>> grouperMessagingConfigs
+    = new ExpirableCache<Boolean, Map<String, GrouperMessagingConfig>>(2);
   
   /**
    * default system name
@@ -138,6 +157,89 @@ public class GrouperMessagingConfig {
     
     return null;
   }
+
+
+  /**
+   * get a messaging config cant be null
+   * @param systemName
+   * @return the config
+   */
+  public static GrouperMessagingConfig retrieveGrouperMessagingConfigNonNull(String systemName) {
+    GrouperMessagingConfig grouperMessagingConfig = retrieveGrouperMessagingConfigs().get(systemName);
+    if (grouperMessagingConfig == null) {
+      throw new RuntimeException("Cant find messaging config for system name: " + systemName);
+    }
+    
+    return grouperMessagingConfig;
+    
+  }
+
+
+  /**
+   * process configs for messaging and return the map 
+   * @return the configs
+   */
+  public static Map<String, GrouperMessagingConfig> retrieveGrouperMessagingConfigs() {
+    
+    GrouperClientConfig grouperClientConfig = GrouperClientConfig.retrieveConfig();
+
+    Map<String, GrouperMessagingConfig> instanceGrouperMessagingConfigs = grouperMessagingConfigs.get(Boolean.TRUE);
+    
+    if (instanceGrouperMessagingConfigs == null) {
+      synchronized (GrouperClientConfig.class) {
+        
+        instanceGrouperMessagingConfigs = grouperMessagingConfigs.get(Boolean.TRUE);
+        
+        if (instanceGrouperMessagingConfigs == null) {
+          Map<String, GrouperMessagingConfig> theGrouperMessagingConfigs = new HashMap<String, GrouperMessagingConfig>();
+          
+          for (String configName : grouperClientConfig.propertyNames()) {
+            
+            //  # name of a messaging system.  note, "myAwsMessagingSystem" can be arbitrary
+            //  # grouper.messaging.system.myAwsMessagingSystem.name = aws
+            //
+            //  # class that implements edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem
+            //  # grouper.messaging.system.myAwsMessagingSystem.class = 
   
+            Matcher matcher = grouperMessagingConfigPattern.matcher(configName);
+            if (matcher.matches()) {
+              String name = matcher.group(1);
+              GrouperMessagingConfig grouperMessagingConfig = new GrouperMessagingConfig();
+              grouperMessagingConfig.setName(name);
+              String defaultMessagingSystemName = grouperClientConfig.propertyValueString("grouper.messaging.system." + name + ".defaultSystemName");
+              
+              if (!StringUtils.isBlank(defaultMessagingSystemName)) {
+                grouperMessagingConfig.setDefaultSystemName(defaultMessagingSystemName);
+              }
+              
+              String theClassName = grouperMessagingConfig.propertyValueString(grouperClientConfig, "class");
+              
+              try {
+                Class<GrouperMessagingSystem> grouperMessagingSystemClass = GrouperClientUtils.forName(theClassName);
+                
+                //make sure implements interface
+                if (!GrouperMessagingSystem.class.isAssignableFrom(grouperMessagingSystemClass)) {
+                  throw new RuntimeException(theClassName + " class does not implement " + GrouperMessagingSystem.class.getName());
+                }
+                grouperMessagingConfig.setTheClass(grouperMessagingSystemClass);
+                theGrouperMessagingConfigs.put(name, grouperMessagingConfig);
+              } catch (Exception e) {
+                LOG.error("Cant instantiate messaging system: " + name + ", " + theClassName, e);
+              }
+              
+            }
+          }
+          instanceGrouperMessagingConfigs = theGrouperMessagingConfigs;
+          grouperMessagingConfigs.put(Boolean.TRUE, theGrouperMessagingConfigs);
+          
+        }
+      }
+    }
+    return instanceGrouperMessagingConfigs;
+  }
+  
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperMessagingConfig.class);
+
 }
 

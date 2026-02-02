@@ -159,7 +159,7 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
     
     validate(queueParam, systemParam);
    
-    GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(systemParam.getMessageSystemName());
+    GrouperMessagingConfig grouperMessagingConfig = GrouperMessagingConfig.retrieveGrouperMessagingConfigNonNull(systemParam.getMessageSystemName());
     int defaultPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "defaultPageSize", 5);
     int maxPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "maxPageSize", 5);
     
@@ -226,7 +226,7 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
     }
     
     if (queueParam.getQueueType() != queue) {
-    	LOG.warn("For AWS SQS, only queue type is allowed.");
+      LOG.warn("For AWS SQS, only queue type is allowed.");
     }
     
     if (systemParam.isAutocreateObjects()) {
@@ -272,7 +272,7 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
         
         if (sqs == null) {
           
-          GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(messagingSystemName);
+          GrouperMessagingConfig grouperMessagingConfig = GrouperMessagingConfig.retrieveGrouperMessagingConfigNonNull(messagingSystemName);
           String accessKey = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "accessKey");
           String secretKey = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "secretKey");
           String awsRegion = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "awsRegion");

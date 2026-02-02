@@ -84,7 +84,7 @@ public class GrouperMessagingEngine {
    * @return the system
    */
   public static GrouperMessagingSystem retrieveGrouperMessageSystem(String grouperMessageSystemName) {
-    GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigs().get(grouperMessageSystemName);
+    GrouperMessagingConfig grouperMessagingConfig = GrouperMessagingConfig.retrieveGrouperMessagingConfigs().get(grouperMessageSystemName);
     
     //valid name?
     if (grouperMessagingConfig == null) {
