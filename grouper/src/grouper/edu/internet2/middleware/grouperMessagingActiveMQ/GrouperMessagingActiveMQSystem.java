@@ -62,7 +62,7 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
     
     String queueOrTopicName = queueParam.getQueueOrTopicName();
     
-    GrouperMessagingConfig grouperMessagingConfig = GrouperMessagingConfig.retrieveGrouperMessagingConfigNonNull(systemParam.getMessageSystemName());
+    GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(systemParam.getMessageSystemName());
 
     //Create a single ActiveMQ session per connection, to prevent OOM errors
     boolean createSingleSessionPerConnection = GrouperUtil.booleanValue(grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "createSingleSessionPerConnection"), false);
@@ -125,7 +125,7 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
     
     validate(queueParam, systemParam);
     
-    GrouperMessagingConfig grouperMessagingConfig = GrouperMessagingConfig.retrieveGrouperMessagingConfigNonNull(systemParam.getMessageSystemName());
+    GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(systemParam.getMessageSystemName());
     int defaultPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "defaultPageSize", 5);
     int maxPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "maxPageSize", 10);
     
@@ -295,7 +295,7 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
           
           if (connection == null) {
             
-            GrouperMessagingConfig grouperMessagingConfig = GrouperMessagingConfig.retrieveGrouperMessagingConfigNonNull(messagingSystemName);
+            GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(messagingSystemName);
   
             String host = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "host");
             String uri =  grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "uri");

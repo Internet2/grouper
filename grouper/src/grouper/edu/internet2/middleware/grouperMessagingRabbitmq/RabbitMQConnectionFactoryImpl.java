@@ -11,7 +11,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import com.rabbitmq.client.Connection;
@@ -22,6 +21,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
   
@@ -46,7 +46,7 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
         
         if (connection == null || !connection.isOpen()) {
           
-          GrouperMessagingConfig grouperMessagingConfig = GrouperMessagingConfig.retrieveGrouperMessagingConfigNonNull(messagingSystemName);
+          GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(messagingSystemName);
 
           
           String host = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "host");

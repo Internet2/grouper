@@ -23,6 +23,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingConfig;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,5 +103,84 @@ public class GrouperClientConfig extends ConfigPropertiesCascadeBase {
    * 
    */
   private static Log log = LogFactory.getLog(GrouperClientConfig.class);
+  
+  /**
+   * cache the messaging configs
+   */
+  private Map<String, GrouperMessagingConfig> grouperMessagingConfigs;
+
+  /**
+   * pattern for messaging system
+   */
+  private static Pattern grouperMessagingConfigPattern = Pattern.compile("^grouper.messaging.system.([^.]+).name$");
+  
+  /**
+   * get a messaging config cant be null
+   * @param systemName
+   * @return the config
+   */
+  public GrouperMessagingConfig retrieveGrouperMessagingConfigNonNull(String systemName) {
+    GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigs().get(systemName);
+    if (grouperMessagingConfig == null) {
+      throw new RuntimeException("Cant find messaging config for system name: " + systemName);
+    }
+    
+    return grouperMessagingConfig;
+    
+  }
+  
+  /**
+   * process configs for messaging and return the map 
+   * @return the configs
+   */
+  public Map<String, GrouperMessagingConfig> retrieveGrouperMessagingConfigs() {
+    if (this.grouperMessagingConfigs == null) {
+      synchronized (GrouperClientConfig.class) {
+        if (this.grouperMessagingConfigs == null) {
+          Map<String, GrouperMessagingConfig> theGrouperMessagingConfigs = new HashMap<String, GrouperMessagingConfig>();
+          
+          for (String configName : this.propertyNames()) {
+            
+            //  # name of a messaging system.  note, "myAwsMessagingSystem" can be arbitrary
+            //  # grouper.messaging.system.myAwsMessagingSystem.name = aws
+            //
+            //  # class that implements edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem
+            //  # grouper.messaging.system.myAwsMessagingSystem.class = 
+
+            Matcher matcher = grouperMessagingConfigPattern.matcher(configName);
+            if (matcher.matches()) {
+              String name = matcher.group(1);
+              GrouperMessagingConfig grouperMessagingConfig = new GrouperMessagingConfig();
+              grouperMessagingConfig.setName(name);
+              String defaultMessagingSystemName = this.propertyValueString("grouper.messaging.system." + name + ".defaultSystemName");
+              
+              if (!StringUtils.isBlank(defaultMessagingSystemName)) {
+                grouperMessagingConfig.setDefaultSystemName(defaultMessagingSystemName);
+              }
+              
+              String theClassName = grouperMessagingConfig.propertyValueString(this, "class");
+              
+              try {
+                Class<GrouperMessagingSystem> grouperMessagingSystemClass = GrouperClientUtils.forName(theClassName);
+                
+                //make sure implements interface
+                if (!GrouperMessagingSystem.class.isAssignableFrom(grouperMessagingSystemClass)) {
+                  throw new RuntimeException(theClassName + " class does not implement " + GrouperMessagingSystem.class.getName());
+                }
+                grouperMessagingConfig.setTheClass(grouperMessagingSystemClass);
+                theGrouperMessagingConfigs.put(name, grouperMessagingConfig);
+              } catch (Exception e) {
+                log.error("Cant instantiate messaging system: " + name + ", " + theClassName, e);
+              }
+              
+            }
+          }
+          
+          this.grouperMessagingConfigs = theGrouperMessagingConfigs;
+        }
+      }
+    }
+    return this.grouperMessagingConfigs;
+  }
   
 }

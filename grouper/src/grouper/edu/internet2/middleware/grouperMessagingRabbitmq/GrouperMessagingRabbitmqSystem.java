@@ -140,7 +140,7 @@ public class GrouperMessagingRabbitmqSystem implements GrouperMessagingSystem {
       if (grouperMessageSystemParam == null || StringUtils.isBlank(grouperMessageSystemParam.getMessageSystemName())) {
         throw new IllegalArgumentException("grouperMessageSystemParam.messageSystemName is required.");
       }
-      GrouperMessagingConfig grouperMessagingConfig = GrouperMessagingConfig.retrieveGrouperMessagingConfigNonNull(grouperMessageSystemParam.getMessageSystemName());
+      GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(grouperMessageSystemParam.getMessageSystemName());
       int defaultPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "defaultPageSize", 5);
       int maxPageSize = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "maxPageSize", 5);
           
