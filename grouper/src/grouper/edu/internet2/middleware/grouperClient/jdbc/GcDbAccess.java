@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -2845,14 +2846,14 @@ public class GcDbAccess {
     }
     
     try {
-      Object grouperLoaderDbInstance = grouperLoaderDbInstance(connectionName);
-      GrouperClientUtils.callMethod(grouperLoaderDbInstance, "initProperties");
-      String url = (String)GrouperClientUtils.callMethod(grouperLoaderDbInstance, "getUrl");
+      GrouperLoaderDb grouperLoaderDb = new GrouperLoaderDb(connectionName);
+      grouperLoaderDb.initProperties();
+      String url = grouperLoaderDb.getUrl();
       boolean isSnowflake = url.contains(":snowflake:");
       connectionNameToIsSnowflake.put(connectionName, isSnowflake);
       return isSnowflake;
     } catch (Exception e) {
-      LOG.debug("Error calling constructor, initProperties, and getUrl on " + GROUPER_LOADER_DB_CLASSNAME, e);
+      LOG.debug("Error calling constructor, initProperties, and getUrl on GrouperLoaderDb '" + connectionName + "'", e);
       // lets ignore this
       connectionNameToIsSnowflake.put(connectionName, false);
     }
@@ -2870,42 +2871,12 @@ public class GcDbAccess {
    */
   public static Connection connectionGetFromPool(String connectionName, final String[] url)
       throws ClassNotFoundException, SQLException {
-    
-    try {
-      Object grouperLoaderDbInstance = grouperLoaderDbInstance(connectionName);
-      Connection connection = (Connection)GrouperClientUtils.callMethod(grouperLoaderDbInstance, "connection");
-      url[0] = (String)GrouperClientUtils.callMethod(grouperLoaderDbInstance, "getUrl");
-      return connection;
-      
-    } catch (Exception e) {
-      throw new RuntimeException("Error calling constructor and 'connection' on " + GROUPER_LOADER_DB_CLASSNAME, e);
-    }
-    
-  }
 
-  final static String GROUPER_LOADER_DB_CLASSNAME = "edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb";
-
-
-  /**
-   * get a connection from a grouper pool
-   * @param connectionName
-   * @param url
-   * @return the connection
-   * @throws ClassNotFoundException
-   * @throws SQLException
-   */
-  public static Object grouperLoaderDbInstance(String connectionName)
-      throws ClassNotFoundException {
-    
-    try {
-      Class grouperLoaderDbClass = GrouperClientUtils.forName(GROUPER_LOADER_DB_CLASSNAME);
-      Constructor constructor = grouperLoaderDbClass.getConstructor(new Class[]{String.class});
-      Object grouperLoaderDbInstance = constructor.newInstance(connectionName);
-      return grouperLoaderDbInstance;
-    } catch (Exception e) {
-      throw new RuntimeException("Error calling constructor and 'connection' on " + GROUPER_LOADER_DB_CLASSNAME, e);
-    }
-    
+    GrouperLoaderDb grouperLoaderDb = new GrouperLoaderDb(connectionName);
+    grouperLoaderDb.initProperties();
+    Connection connection = grouperLoaderDb.connection();
+    url[0] = grouperLoaderDb.getUrl();
+    return connection;    
   }
 
   /**
@@ -2914,13 +2885,9 @@ public class GcDbAccess {
    * @return
    */
   public static String quoteForColumnsInSql(String connectionName) {
-    try {
-      Object grouperLoaderDbInstance = grouperLoaderDbInstance(connectionName);
-      return (String)GrouperClientUtils.callMethod(grouperLoaderDbInstance, "getQuoteForColumnsInSql");
-      
-    } catch (Exception e) {
-      throw new RuntimeException("Error calling constructor and 'getQuoteForColumnsInSql' on " + GROUPER_LOADER_DB_CLASSNAME, e);
-    }
+    GrouperLoaderDb grouperLoaderDb = new GrouperLoaderDb(connectionName);
+    grouperLoaderDb.initProperties();
+    return grouperLoaderDb.getQuoteForColumnsInSql();
   }
 
 
