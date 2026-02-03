@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata.ColumnType;
@@ -1449,7 +1450,7 @@ public enum GcTableSyncSubtype {
   /**
    * log object
    */
-  private static final Log LOG = GrouperClientUtils.retrieveLog(GcTableSyncSubtype.class);
+  private static final Log LOG = GrouperUtil.getLog(GcTableSyncSubtype.class);
   
   /**
    * see if full sync

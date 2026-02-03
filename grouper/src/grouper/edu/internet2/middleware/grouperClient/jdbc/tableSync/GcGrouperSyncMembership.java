@@ -7,6 +7,10 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
@@ -15,8 +19,6 @@ import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.logging.Log;
 
 
 /**
@@ -532,7 +534,7 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
   /**
    * 
    */
-  private static Log LOG = GrouperClientUtils.retrieveLog(GcGrouperSyncMembership.class);
+  private static Log LOG = GrouperUtil.getLog(GcGrouperSyncMembership.class);
 
   public void storePrepare() {
     this.lastUpdated = new Timestamp(System.currentTimeMillis());

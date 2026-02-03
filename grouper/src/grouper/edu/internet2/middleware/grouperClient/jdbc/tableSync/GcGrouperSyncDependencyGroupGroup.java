@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
@@ -269,7 +270,7 @@ public class GcGrouperSyncDependencyGroupGroup implements GcSqlAssignPrimaryKey,
   /**
    * 
    */
-  private static Log LOG = GrouperClientUtils.retrieveLog(GcGrouperSyncDependencyGroupGroup.class);
+  private static Log LOG = GrouperUtil.getLog(GcGrouperSyncDependencyGroupGroup.class);
 
   /**
    * connection name or null for default

@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
@@ -358,7 +360,7 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
   /**
    * 
    */
-  private static Log LOG = GrouperClientUtils.retrieveLog(GcGrouperSync.class);
+  private static Log LOG = GrouperUtil.getLog(GcGrouperSync.class);
 
   /**
    * use 'grouper' if not specified

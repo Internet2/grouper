@@ -16,6 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcResultSetCallback;
@@ -24,8 +28,6 @@ import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
 
 
 /**
@@ -585,7 +587,7 @@ public class GcTableSyncTableMetadata {
   /**
    * 
    */
-  private static Log LOG = GrouperClientUtils.retrieveLog(GcTableSyncTableMetadata.class);
+  private static Log LOG = GrouperUtil.getLog(GcTableSyncTableMetadata.class);
 
   /**
    * if group this is the group column
