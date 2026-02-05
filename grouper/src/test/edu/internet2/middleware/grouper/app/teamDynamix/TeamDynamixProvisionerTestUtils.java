@@ -107,6 +107,9 @@ public class TeamDynamixProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "teamDynamixExternalSystemConfigId", "teamdx");
     configureProvisionerSuffix(provisioningTestConfigInput, "threadPoolSize", "1");
     
+    configureProvisionerSuffix(provisioningTestConfigInput, "errorHandlingShow", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "errorHandlingTargetObjectDoesNotExistIsAnError", "false");
+    
     for (String key: provisioningTestConfigInput.getExtraConfig().keySet()) {
       String theValue = provisioningTestConfigInput.getExtraConfig().get(key);
       if (!StringUtils.isBlank(theValue)) {

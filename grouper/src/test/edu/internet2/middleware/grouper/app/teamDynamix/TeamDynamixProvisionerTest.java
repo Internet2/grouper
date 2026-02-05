@@ -34,7 +34,7 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
   
   public static void main(String[] args) {
     GrouperStartup.startup();
-    TestRunner.run(new TeamDynamixProvisionerTest("testFullProvisionGroupAndThenDeleteTheGroup"));
+    TestRunner.run(new TeamDynamixProvisionerTest("testIncrementalProvisionTeamDynamix"));
   }
   
   
@@ -450,7 +450,7 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from TeamDynamixMembership").list(TeamDynamixMembership.class).size());
       TeamDynamixGroup grouperDuoGroup = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).get(0);
       
-      assertEquals("test:testGroup", grouperDuoGroup.getName());
+      assertEquals("test:testGroup1", grouperDuoGroup.getName());
       
       GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myTeamDynamixProvisioner");
       assertEquals(1, gcGrouperSync.getGroupCount().intValue());
