@@ -1867,9 +1867,14 @@ public class GrouperUtil {
     if (StringUtils.isBlank(dn)) {
       return dn;
     }
-
+    
     Dn theDn = new Dn(dn);
-    return theDn.format(new DefaultRDnNormalizer(), ':', true);
+    List<String> values = new ArrayList<>();
+    for (RDn rdn : theDn.getRDns()) {
+      values.add(rdn.getNameValue().getStringValue());
+    }
+    Collections.reverse(values);
+    return String.join(":", values);
   }
 
   /**

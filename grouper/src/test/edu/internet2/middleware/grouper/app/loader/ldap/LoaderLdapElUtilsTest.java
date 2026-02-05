@@ -872,7 +872,7 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "the_dn", Types.VARCHAR, "200", true, true);
 
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "mail", Types.VARCHAR, "10", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "mail", Types.VARCHAR, "40", false, true);
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "description", Types.VARCHAR, "1024", false, true);
 
@@ -884,7 +884,7 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
 
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    //LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
+    LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
   
     try {
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.class", "edu.internet2.middleware.grouper.app.ldapToSql.LdapToSqlSyncDaemon");
@@ -894,7 +894,7 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.1.ldapName", "mail");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.1.sqlColumn", "mail");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.2.sqlColumn", "description");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.2.translation", "${ldapAttribute__givenname + ', ' + ldapAttribute__uid}");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.2.translation", "${ldapAttribute__givenName + ', ' + ldapAttribute__uid}");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.3.sqlColumn", "some_int");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlAttribute.3.translation", "${123}");
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.ldapToSqlSingleValued.ldapSqlBaseDn", "ou=People,dc=example,dc=edu");
