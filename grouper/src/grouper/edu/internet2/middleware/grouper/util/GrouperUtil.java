@@ -450,6 +450,7 @@ public class GrouperUtil {
     objectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
     objectMapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);
     objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, true);
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     
     objectMapper.setSerializationInclusion(Include.NON_NULL);
   }
