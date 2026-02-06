@@ -99,13 +99,13 @@ public class GrouperDaemonConfigurationTest extends GrouperTest {
     configuration.setConfigId("notExist");
     attributes = configuration.retrieveAttributes();
 
-    assertEquals(GrouperUtil.toStringForLog(attributes), 6, attributes.size());
+    assertEquals(GrouperUtil.toStringForLog(attributes), 7, attributes.size());
     
     configuration = new GrouperDaemonOtherJobLoaderIncrementalConfiguration();
     configuration.setConfigId("abc");
     attributes = configuration.retrieveAttributes();
 
-    assertEquals(GrouperUtil.toStringForLog(attributes), 7, attributes.size());
+    assertEquals(GrouperUtil.toStringForLog(attributes), 8, attributes.size());
     
   }
   
