@@ -131,13 +131,13 @@ public class GrouperVersion {
         grouperVersionString = GrouperCheckConfig.jarVersion(GrouperVersion.class);
       } catch (Exception e) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Can't find version of grouper jar, using 5.0.0", e);
+          LOG.debug("Can't find version of grouper jar, using 6.0.0", e);
         } else {
-          LOG.warn("Can't find version of grouper jar, using 5.0.0");
+          LOG.warn("Can't find version of grouper jar, using 6.0.0");
         }
       }
       if (grouperVersionString == null) {
-        grouperVersionString = "5.0.0";
+        grouperVersionString = "6.0.0";
       }
     }
     return grouperVersionString;
