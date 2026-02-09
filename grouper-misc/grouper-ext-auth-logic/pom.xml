@@ -26,7 +26,7 @@
 
     <groupId>edu.internet2.middleware.grouper</groupId>
     <artifactId>grouper-authentication-logic</artifactId>
-    <version>5.0.0-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
     <name>Grouper Authentication Logic</name>
     <description>Authentication Library Logic</description>
     <packaging>jar</packaging>
@@ -34,7 +34,7 @@
     <parent>
             <groupId>edu.internet2.middleware.grouper</groupId>
             <artifactId>grouper-parent</artifactId>
-            <version>5.0.0-SNAPSHOT</version>
+            <version>6.0.0-SNAPSHOT</version>
             <relativePath>../../grouper-parent</relativePath>
     </parent>
 
