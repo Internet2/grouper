@@ -77,6 +77,7 @@
 	                        <option value="" >${textContainer.text['configSourceAll']}</option>
 	                        <option ${grouperRequestContainer.configurationContainer.configSource == 'nonBase' ? 'selected="selected"' : '' } value="nonBase">${textContainer.text['configSourceNonBase']}</option>
 	                        <option ${grouperRequestContainer.configurationContainer.configSource == 'db' ? 'selected="selected"' : '' } value="db">${textContainer.text['configSourceDbConfigOnly']}</option>
+	                        <option ${grouperRequestContainer.configurationContainer.configSource == 'nonBaseNonDb' ? 'selected="selected"' : '' } value="nonBaseNonDb">${textContainer.text['configSourceNonBaseNonDb']}</option>
 	                      </select>
 	                    </div>
 	                  </div>
@@ -91,6 +92,12 @@
 						<div class="span4">
 							<input type="submit" class="btn" aria-controls="propertiesResultTableId"  id="filterSubmitId" value="${textContainer.textEscapeDouble['configurationFilterApplyButton'] }"
 	                        onclick="ajax('../app/UiV2Configure.configureFilterSubmit?configFile=${grouperRequestContainer.configurationContainer.configFileName}', {formIds: 'configureFilterForm'}); return false;"> 
+                          
+                         
+                         <input type="button" class="btn" value="${textContainer.textEscapeDouble['configurationFilterExportButton'] }"
+                                    onclick="return configurationFileExport(event, '../app/UiV2Configure.configurationFileExport', {optionalFormElementNamesToSend: 'configFile,configSource,filter'}); return false;"
+                         />
+                          
 	                      <a class="btn" role="button" onclick="$('#table-filter').val(''); $('#config-source-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['configurationFilterResetButton'] }</a>
 	                    </div>
                     </div>
@@ -114,6 +121,7 @@
                     <a href="#" onclick="ajax('../app/UiV2Configure.removeProperties', 
                       {formIds: 'configListingForm'}); return false;" class="btn" role="button">
                         ${textContainer.text['configurationDeleteSelectedConfigsButton'] }</a>
+                        
                   </div>
                   
                 </div>

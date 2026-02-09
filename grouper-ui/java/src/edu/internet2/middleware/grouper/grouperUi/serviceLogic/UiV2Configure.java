@@ -392,12 +392,10 @@ public class UiV2Configure {
 
   }
   
-  /**
-   * export config
-   * @param request
-   * @param response
-   */
+  
   public void configurationFileExport(HttpServletRequest request, HttpServletResponse response) {
+    
+    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
@@ -423,8 +421,15 @@ public class UiV2Configure {
         return;
       }
       
+      String filter = request.getParameter("filter");
+      String configSource = request.getParameter("configSource");
       
-      StringBuilder contents = new StringBuilder();
+      
+      buildConfigFileAndMetadata(filter.trim(), configSource);
+      
+      configurationContainer.setFilter(filter.trim());
+      configurationContainer.setConfigSource(configSource);
+      
       
       Set<GrouperConfigHibernate> grouperConfigHibernateSet = Hib3DAOFactory.getFactory().getConfig().findAll(configFileName, null, null);
       
@@ -434,35 +439,45 @@ public class UiV2Configure {
         grouperConfigHibernateMap.put(grouperConfigHibernate.getConfigKey(), grouperConfigHibernate);
       }
       
-      Map<String, String> properties = new TreeMap<String, String>(ConfigDatabaseLogic.retrieveConfigMap(configFileName.getConfigFileName()));
+      StringBuilder contents = new StringBuilder();
       
-      for (String property: properties.keySet()) {
-        
-        String value = properties.get(property);
-        if (grouperConfigHibernateMap.containsKey(property) &&
-            grouperConfigHibernateMap.get(property) != null && grouperConfigHibernateMap.get(property).isConfigEncrypted()) {
-          value = "*******";
+      List<GuiConfigSection> guiConfigSections = configurationContainer.getGuiConfigFile().getGuiConfigSections();
+      for (GuiConfigSection guiConfigSection: guiConfigSections) {
+        List<GuiConfigProperty> guiConfigProperties = guiConfigSection.getGuiConfigProperties();
+        for (GuiConfigProperty guiConfigProperty: guiConfigProperties) {
+          
+          String property = guiConfigProperty.getConfigItemMetadata().getKeyOrSampleKey();
+          String value = guiConfigProperty.getPropertyValue();
+          
+          if (guiConfigProperty.isFromDatabase()) {
+            if (grouperConfigHibernateMap.containsKey(property) &&
+                grouperConfigHibernateMap.get(property) != null && grouperConfigHibernateMap.get(property).isConfigEncrypted()) {
+              value = "*******";
+            }
+            value = GrouperUtil.whitespaceNormalizeNewLines(value);
+
+            // escape backslashes
+            value = GrouperUtil.replace(value, "\\", "\\u005C");
+
+            // $
+            value = GrouperUtil.replace(value, "$", "\\u0024");
+            
+            // #
+            value = GrouperUtil.replace(value, "#", "\\u0023");
+            
+            // :
+            value = GrouperUtil.replace(value, ":", "\\u003A");
+            
+            // the end of a newline must be literally: \n\{newline}
+            value = GrouperUtil.replace(value, "\n", "\\n\\\n");
+          }
+          
+          contents.append(property + " = " + value);
+          contents.append("\n");
+          
         }
-        value = GrouperUtil.whitespaceNormalizeNewLines(value);
-
-        // escape backslashes
-        value = GrouperUtil.replace(value, "\\", "\\u005C");
-
-        // $
-        value = GrouperUtil.replace(value, "$", "\\u0024");
-        
-        // #
-        value = GrouperUtil.replace(value, "#", "\\u0023");
-        
-        // :
-        value = GrouperUtil.replace(value, ":", "\\u003A");
-        
-        // the end of a newline must be literally: \n\{newline}
-        value = GrouperUtil.replace(value, "\n", "\\n\\\n");
-        
-        contents.append(property + " = " + value);
-        contents.append("\n");
       }
+      
       
       response.setContentType("application/octet-stream");
       response.setHeader ("Content-Disposition", "inline;filename=\"" + configFileName.getConfigFileName() + "\"");
@@ -474,11 +489,12 @@ public class UiV2Configure {
       } catch (IOException e) {
         throw new RuntimeException("Error occured while writing response");
       }
+    }
       
-    } finally {
+    finally {
       GrouperSession.stopQuietly(grouperSession);
     }
-
+    
   }
   
   /**
@@ -1183,6 +1199,9 @@ public class UiV2Configure {
         configFileContents = GrouperUtil.whitespaceNormalizeNewLines(configFileContents);
         configFileContents = StringUtils.replace(configFileContents, "\\n\\\n ", "\\n\\\n\u0020");
         
+        configFileContents = configFileContents.replace(" ", "\\u0020");
+        configFileContents = configFileContents.replace("\t", "\\t");
+        
         // create a new reader
         StringReader reader = new StringReader(configFileContents);
 
@@ -1398,6 +1417,10 @@ public class UiV2Configure {
       }
       
       if (configSource.equals("db") && (sourceOfValue == null || !sourceOfValue.equals("database")) ) {
+        return false;
+      }
+      
+      if (configSource.equals("nonBaseNonDb") && (sourceOfValue == null || sourceOfValue.endsWith("base.properties") || sourceOfValue.equals("database"))) {
         return false;
       }
     }

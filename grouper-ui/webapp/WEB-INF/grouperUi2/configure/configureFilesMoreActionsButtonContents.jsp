@@ -18,18 +18,6 @@
                             onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.configurationFileAddConfig', {optionalFormElementNamesToSend: 'configFile'}); return false;"
                             >${textContainer.text['configurationFilesMenuAddConfig'] }</a>
                             </li>
-                            
-                            <c:choose>
-	                            <c:when test="${not empty grouperRequestContainer.configurationContainer.configFileName}">
-	                            	<li><a href="../app/UiV2Configure.configurationFileExport?configFile=${grouperRequestContainer.configurationContainer.configFileName}">${textContainer.text['configurationFilesMenuExport'] }</a></li>
-	                            </c:when>
-	                            <c:otherwise>
-		                            <li><a href="?operation=UiV2Configure.configurationFileExport"
-		                            onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.configurationFileExport', {optionalFormElementNamesToSend: 'configFile'}); return false;"
-		                            >${textContainer.text['configurationFilesMenuExport'] }</a>
-		                            </li>
-	                            </c:otherwise>
-                            </c:choose>
                             <li><a href="?operation=UiV2Configure.configurationFileImport"
                             onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.configurationFileImport', {optionalFormElementNamesToSend: 'configFile'}); return false;"
                             >${textContainer.text['configurationFilesMenuImport'] }</a></li>

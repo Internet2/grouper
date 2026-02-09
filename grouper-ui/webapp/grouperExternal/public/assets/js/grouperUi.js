@@ -3238,6 +3238,22 @@ function handleGuiV2LinkClick(event, url, options) {
   }
 }
 
+function configurationFileExport(event, url, options) {
+    event.preventDefault(); // Prevent the default action (navigating to the URL)
+    
+    //id = config-source-filter
+    var sourceFilterValue = document.getElementById('config-source-filter').value;
+    if (sourceFilterValue === '') {
+        alert('Export isn’t available when All sources is selected. Please choose a specific source and try again.');
+        return;
+    }
+    
+    url += _addUrlOptions(url, options);
+    window.location.href = url;
+    
+    return false;
+}
+
 // sometimes window is blocked on back button
 $(window).on("unload", function() {
   $.unblockUI();
