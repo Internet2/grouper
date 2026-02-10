@@ -3439,7 +3439,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningEntities()));
     assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningMemberships()));
     assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningGroups()));
-    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningEntities()));
+    assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningEntities()));
     assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningMemberships()));
     assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningGroups()));
     assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningEntities()));
@@ -3765,6 +3765,9 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         .addExtraConfig("customizeEntityCrud", "false")
         .addExtraConfig("makeChangesToEntities", "true")
         .assignProvisioningType("groupAttributes")
+        .addExtraConfig("targetEntityAttribute.2.showAdvancedAttribute", "true")
+        .addExtraConfig("targetEntityAttribute.2.showAttributeCrud", "true")
+        .addExtraConfig("targetEntityAttribute.2.update", "false")
         .addExtraConfig("logAllObjectsVerboseForTheseSubjectIds", "test.subject.0")
         .addExtraConfig("logAllObjectsVerboseForTheseGroupNames", "test:testGroup");
     SqlProvisionerTestUtils.configureSqlProvisioner(sqlProvisionerTestConfigInput
@@ -4836,7 +4839,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("T", gcGrouperSyncMember4.getProvisionableDb());
       assertFalse("T".equals(gcGrouperSyncMember4.getInTargetDb()));
       assertFalse("F".equals(gcGrouperSyncMember4.getInTargetInsertOrExistsDb()));
-      assertEquals(GcGrouperSyncErrorCode.DNE, gcGrouperSyncMember4.getErrorCode());
+      assertEquals(GcGrouperSyncErrorCode.MAT, gcGrouperSyncMember4.getErrorCode());
     }  
     
     {
@@ -4870,7 +4873,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       GcGrouperSyncMembership gcGrouperSyncMembership4 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup2.getId(), member4.getId());
       assertFalse("T".equals(gcGrouperSyncMembership4.getInTargetDb()));
       assertFalse("T".equals(gcGrouperSyncMembership4.getInTargetInsertOrExistsDb()));
-      assertEquals(GcGrouperSyncErrorCode.DNE, gcGrouperSyncMembership4.getErrorCode());
+      assertEquals(GcGrouperSyncErrorCode.MAT, gcGrouperSyncMembership4.getErrorCode());
     }  
 
     // this should retry
