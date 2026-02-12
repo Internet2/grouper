@@ -446,7 +446,24 @@ public class GrouperScim2User {
       }
     }
     
-    //TODO set title, division, and department once Chris is done with Json pointer
+    // add simple string attributes
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("title")) {
+      if (!StringUtils.isBlank(this.title)) {
+        GrouperUtil.jsonJacksonAssignString(result, "title", this.title);
+      }
+    }
+
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("division")) {
+      if (!StringUtils.isBlank(this.division)) {
+        GrouperUtil.jsonJacksonAssignString(result, "division", this.division);
+      }
+    }
+
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("department")) {
+      if (!StringUtils.isBlank(this.department)) {
+        GrouperUtil.jsonJacksonAssignString(result, "department", this.department);
+      }
+    }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("formattedName")
         || fieldNamesToSet.contains("familyName") || fieldNamesToSet.contains("givenName")
