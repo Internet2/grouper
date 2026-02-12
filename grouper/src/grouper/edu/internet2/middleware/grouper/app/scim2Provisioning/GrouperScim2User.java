@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -175,18 +176,34 @@ public class GrouperScim2User {
       }
 
       GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration) grouperProvisioner.retrieveGrouperProvisioningConfiguration();
-      
+
       for (String attributeName:  scimConfig.getEntityAttributeJsonPointer().keySet()) {
         Object attributeValue = this.customAttributes.get(attributeName);
         if (GrouperUtil.isBlank(attributeValue)) {
           continue;
         }
-        
-        if (StringUtils.equals(scimConfig.getEntityAttributeJsonValueType().get(attributeName), "boolean")) {
-          attributeValue = GrouperUtil.booleanValue(attributeValue) ? "true": "false";
+
+        GrouperProvisioningConfigurationAttribute configurationAttribute = scimConfig.getTargetEntityAttributeNameToConfig().get(attributeName);
+
+        if (configurationAttribute == null) {
+          // no config for this target attribute; assign raw value
+          targetEntity.assignAttributeValue(attributeName, attributeValue);
+          continue;
         }
+
+        // do not support multi-valued custom attributes in this path
+        if (attributeValue instanceof Set || attributeValue instanceof Collection) {
+          throw new RuntimeException("Cannot add custom attribute '" + attributeName
+              + "' to ProvisioningEntity because the value is multi-valued (" + attributeValue.getClass().getName()
+              + "); only scalar values are supported in this toProvisioningEntity() path");
+        }
+
+        // coerce to the target entity attribute value type (not json value type)
+        attributeValue = configurationAttribute.getValueType().convert(attributeValue);
+
         targetEntity.assignAttributeValue(attributeName, attributeValue);
       }
+
     }
     
     return targetEntity;
@@ -321,9 +338,18 @@ public class GrouperScim2User {
         } else if (jsonNode.isValueNode()) { 
           Object attributeValue = GrouperUtil.jsonJacksonGetStringFromJsonPointer(entityNode, jsonPointer);
           if (!GrouperUtil.isBlank(attributeValue)) {
-            
-            if (StringUtils.equals(scimConfig.getEntityAttributeJsonValueType().get(attributeName), "boolean")) {
+
+            String valueType = scimConfig.getEntityAttributeJsonValueType().get(attributeName);
+
+            if (StringUtils.equals(valueType, "boolean")) {
               attributeValue = GrouperUtil.booleanValue(attributeValue);
+            } else if (StringUtils.equals(valueType, "number")) {
+              String attributeValueString = GrouperUtil.stringValue(attributeValue);
+              if (StringUtils.isNotBlank(attributeValueString) && attributeValueString.matches("^-?\\d+$")) {
+                attributeValue = GrouperUtil.longObjectValue(attributeValueString, true);
+              } else {
+                attributeValue = GrouperUtil.doubleObjectValue(attributeValueString, true);
+              }
             }
             
             grouperScimUser.customAttributes.put(attributeName, attributeValue);
@@ -1170,24 +1196,15 @@ public class GrouperScim2User {
     }
 
     GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration) grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    Map<String, String> attributeJsonPointers = scimConfig.getEntityAttributeJsonPointer();
 
-    for (String attributeName:  scimConfig.getEntityAttributeJsonPointer().keySet()) {
+    for (String attributeName:  attributeJsonPointers.keySet()) {
 
       Object valueObject = targetEntity.retrieveAttributeValueString(attributeName);
 
-      grouperProvisioner = targetEntity.getGrouperProvisioner();
-      if (grouperProvisioner == null) {
-        grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-      }
-      if (grouperProvisioner == null) {
-        throw new RuntimeException("Cannot read custom attributes from ProvisioningEntity because no GrouperProvisioner is available (neither on the ProvisioningEntity nor as the current provisioner)");
-      }
-
-      GrouperScim2ProvisionerConfiguration scimConfig2 = (GrouperScim2ProvisionerConfiguration) grouperProvisioner.retrieveGrouperProvisioningConfiguration();
-      Map<String, String> attributeJsonPointers = scimConfig2.getEntityAttributeJsonPointer();
       String jsonPointer = attributeJsonPointers.get(attributeName);
       if (StringUtils.isNotBlank(jsonPointer)) {
-        grouperScim2User.customAttributeNameToJsonPointer = scimConfig.getEntityAttributeJsonPointer();
+        grouperScim2User.customAttributeNameToJsonPointer = attributeJsonPointers;
 
         if (StringUtils.equals(scimConfig.getEntityAttributeJsonValueType().get(attributeName), "boolean")) {
           valueObject = GrouperUtil.booleanValue(valueObject);
