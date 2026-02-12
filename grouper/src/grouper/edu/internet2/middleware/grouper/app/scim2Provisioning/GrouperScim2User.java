@@ -475,10 +475,10 @@ public class GrouperScim2User {
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("formattedName")
         || fieldNamesToSet.contains("familyName") || fieldNamesToSet.contains("givenName")
-        || fieldNamesToSet.contains("givenName")) {
+        || fieldNamesToSet.contains("middleName")) {
       if (!StringUtils.isBlank(this.formattedName) || !StringUtils.isBlank(this.familyName)
-          || !StringUtils.isBlank(this.givenName) || !StringUtils.isBlank(this.givenName)) {
-        
+          || !StringUtils.isBlank(this.givenName) || !StringUtils.isBlank(this.middleName)) {
+
         ObjectNode nameNode = GrouperUtil.jsonJacksonNode();
         if (fieldNamesToSet == null || fieldNamesToSet.contains("formattedName")) {
           GrouperUtil.jsonJacksonAssignString(nameNode, "formatted", this.formattedName);
@@ -1115,20 +1115,26 @@ public class GrouperScim2User {
       grouperScim2User.setDepartment(targetEntity.retrieveAttributeValueString("department"));
     }
     
-    GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration) targetEntity.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-    
+    GrouperProvisioner grouperProvisioner = targetEntity.getGrouperProvisioner();
+    if (grouperProvisioner == null) {
+      grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    }
+    if (grouperProvisioner == null) {
+      throw new RuntimeException("Cannot read custom attributes from ProvisioningEntity because no GrouperProvisioner is available (neither on the ProvisioningEntity nor as the current provisioner)");
+    }
+
+    GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration) grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+
     for (String attributeName:  scimConfig.getEntityAttributeJsonPointer().keySet()) {
-      
-      String jsonPointer = scimConfig.getEntityAttributeJsonPointer().get(attributeName);
-      
+
       Object valueObject = targetEntity.retrieveAttributeValueString(attributeName);
 
       grouperScim2User.customAttributeNameToJsonPointer = scimConfig.getEntityAttributeJsonPointer();
-      
+
       if (StringUtils.equals(scimConfig.getEntityAttributeJsonValueType().get(attributeName), "boolean")) {
         valueObject = GrouperUtil.booleanValue(valueObject);
       }
-      
+
       ProvisioningAttribute provisioningAttribute = targetEntity.retrieveProvisioningAttribute(attributeName);
       if (provisioningAttribute == null) {
         continue;
