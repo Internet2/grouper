@@ -166,7 +166,15 @@ public class GrouperScim2User {
     }
     
     if (this.customAttributes != null) {
-      GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration) targetEntity.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      GrouperProvisioner grouperProvisioner = targetEntity.getGrouperProvisioner();
+      if (grouperProvisioner == null) {
+        grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+      }
+      if (grouperProvisioner == null) {
+        throw new RuntimeException("Cannot add customAttributes to ProvisioningEntity because no GrouperProvisioner is available (neither on the ProvisioningEntity nor as the current provisioner)");
+      }
+
+      GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration) grouperProvisioner.retrieveGrouperProvisioningConfiguration();
       
       for (String attributeName:  scimConfig.getEntityAttributeJsonPointer().keySet()) {
         Object attributeValue = this.customAttributes.get(attributeName);
