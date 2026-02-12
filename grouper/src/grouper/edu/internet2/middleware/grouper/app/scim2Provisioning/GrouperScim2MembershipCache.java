@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 
+
 public class GrouperScim2MembershipCache {
 
   public GrouperScim2MembershipCache() {
@@ -86,7 +87,7 @@ public class GrouperScim2MembershipCache {
           groupIds.addAll(oldGroupIds);
         }
       }
-      groupIds.add(userId);
+      groupIds.add(groupId);
     }
   
   }
