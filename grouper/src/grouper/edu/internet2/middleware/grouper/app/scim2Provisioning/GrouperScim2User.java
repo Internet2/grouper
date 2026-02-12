@@ -553,8 +553,8 @@ public class GrouperScim2User {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "user_type", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "org", Types.VARCHAR, "256", false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_user_name_idx", false, "user_name", "org_in_url");
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_user_name_idx", false, "id", "org_in_url");
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_user_user_name_idx", false, "user_name", "org_in_url");
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_user_id_idx", false, "id", "org_in_url");
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_user_name_org_idx", false, "user_name", "org", "org_in_url");
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_user_empn_idx", false, "employee_number", "org_in_url");
 
