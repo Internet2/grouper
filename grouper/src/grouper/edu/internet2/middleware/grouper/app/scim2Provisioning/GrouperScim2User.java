@@ -102,11 +102,11 @@ public class GrouperScim2User {
     }
     
     if (this.emailType2 != null) {
-      targetEntity.assignAttributeValue("emailType2", this.emailType);
+      targetEntity.assignAttributeValue("emailType2", this.emailType2);
     }
     
     if (this.emailValue2 != null) {
-      targetEntity.assignAttributeValue("emailValue2", this.emailValue);
+      targetEntity.assignAttributeValue("emailValue2", this.emailValue2);
     }
     
     if (this.employeeNumber != null) {
