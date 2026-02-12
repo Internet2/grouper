@@ -1092,7 +1092,7 @@ public class GrouperScim2User {
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("phoneNumber2")) {      
-      grouperScim2User.setPhoneNumber2(targetEntity.retrieveAttributeValueString("phoneNumbe2"));
+      grouperScim2User.setPhoneNumber2(targetEntity.retrieveAttributeValueString("phoneNumber2"));
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("title")) {      
