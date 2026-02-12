@@ -4590,14 +4590,65 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterToDate", ""));
       filterToDateString = null;
     } else if (StringUtils.equals(filterTypeString, "on")) {
-
+      
+      // if both dates are not blank (if they are same its ok) give a validation error
+      if (StringUtils.isNotBlank(filterFromDateString) && StringUtils.isNotBlank(filterToDateString)
+          && !StringUtils.equals(filterFromDateString, filterToDateString)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#from-date",
+            TextContainer.retrieveFromRequest().getText().get("groupAuditLogFilterOnDateCantHaveToDate")));
+        return;
+        
+        
+      }
+      
+      // if from date is blank, and to date is not blank, set from date to to date
+      if (StringUtils.isBlank(filterFromDateString) && StringUtils.isNotBlank(filterToDateString)) {
+        filterFromDateString = filterToDateString;
+        guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterFromDate", filterFromDateString));
+      }
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterToDate", ""));
       filterToDateString = null;
     } else if (StringUtils.equals(filterTypeString, "before")) {
+
+      // if both dates are not blank (if they are same its ok) give a validation error
+      if (StringUtils.isNotBlank(filterFromDateString) && StringUtils.isNotBlank(filterToDateString)
+          && !StringUtils.equals(filterFromDateString, filterToDateString)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#from-date",
+            TextContainer.retrieveFromRequest().getText().get("groupAuditLogFilterOnDateCantHaveToDate")));
+        return;
+        
+        
+      }
+      
+      // if from date is blank, and to date is not blank, set from date to to date
+      if (StringUtils.isBlank(filterFromDateString) && StringUtils.isNotBlank(filterToDateString)) {
+        filterFromDateString = filterToDateString;
+        guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterFromDate", filterFromDateString));
+      }
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterToDate", ""));
       filterToDateString = null;
     } else if (StringUtils.equals(filterTypeString, "between")) {
     } else if (StringUtils.equals(filterTypeString, "since")) {
+
+      // if both dates are not blank (if they are same its ok) give a validation error
+      if (StringUtils.isNotBlank(filterFromDateString) && StringUtils.isNotBlank(filterToDateString)
+          && !StringUtils.equals(filterFromDateString, filterToDateString)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#from-date",
+            TextContainer.retrieveFromRequest().getText().get("groupAuditLogFilterOnDateCantHaveToDate")));
+        return;
+        
+        
+      }
+      // if from date is blank, and to date is not blank, set from date to to date
+      if (StringUtils.isBlank(filterFromDateString) && StringUtils.isNotBlank(filterToDateString)) {
+        filterFromDateString = filterToDateString;
+        guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterFromDate", filterFromDateString));
+      }
+
+      
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterToDate", ""));
       filterToDateString = null;
     } else {
@@ -4670,7 +4721,7 @@ public class UiV2Group {
     } else  if (StringUtils.equals(filterTypeString, "since")) {
       query.setFromDate(filterFromDate);
     } else  if (StringUtils.equals(filterTypeString, "before")) {
-      query.setToDate(filterToDate);
+      query.setToDate(filterFromDate);
     }
     
     query.setQueryOptions(queryOptions);
