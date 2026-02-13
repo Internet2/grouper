@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -543,7 +544,7 @@ public class PITUtils {
     for (int i = 0; i < pitList.size(); i++) {
       GrouperPIT pit = pitList.get(i);
       try {
-        HibernateSession.byObjectStatic().setIgnoreHooks(true).delete(pit);
+        deleteInNewTransactionWithoutHooks(pit);
         LOG.warn("Successfully deleted duplicate row from class=" + pit.getClass().getSimpleName() + ", id=" + pit.fieldValue("id") + ", sourceId=" + pit.fieldValue("sourceId"));
       } catch (Exception e) {
         LOG.warn("Failed to delete duplicate row but will try others from class=" + pit.getClass().getSimpleName() + ", id=" + pit.fieldValue("id") + ", sourceId=" + pit.fieldValue("sourceId"));
@@ -551,7 +552,7 @@ public class PITUtils {
         for (int j = i + 1; j < pitList.size(); j++) {
           GrouperPIT pit2 = pitList.get(j);
           try {
-            HibernateSession.byObjectStatic().setIgnoreHooks(true).delete(pit2);
+            deleteInNewTransactionWithoutHooks(pit2);
             LOG.warn("Successfully deleted duplicate row from class=" + pit2.getClass().getSimpleName() + ", id=" + pit2.fieldValue("id") + ", sourceId=" + pit2.fieldValue("sourceId"));
           } catch (Exception e2) {
             LOG.error("Failed to delete all but one duplicate rows from class=" + pit2.getClass().getSimpleName() + ", id1=" + pit.fieldValue("id") + ", id2=" + pit2.fieldValue("id") + ", sourceId=" + pit2.fieldValue("sourceId"));
@@ -560,7 +561,7 @@ public class PITUtils {
         }
 
         try {
-          HibernateSession.byObjectStatic().setIgnoreHooks(true).delete(keep);
+          deleteInNewTransactionWithoutHooks(keep);
           LOG.warn("Successfully deleted duplicate row from class=" + keep.getClass().getSimpleName() + ", id=" + keep.fieldValue("id") + ", sourceId=" + keep.fieldValue("sourceId"));
         } catch (Exception e2) {
           LOG.error("Failed to delete all but one duplicate rows from class=" + keep.getClass().getSimpleName() + ", id1=" + pit.fieldValue("id") + ", id2=" + keep.fieldValue("id") + ", sourceId=" + keep.fieldValue("sourceId"));
@@ -572,5 +573,19 @@ public class PITUtils {
     }
 
     return (T)keep;
+  }
+  
+  private static void deleteInNewTransactionWithoutHooks(GrouperPIT pit) {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+        
+        HibernateSession.byObjectStatic().setIgnoreHooks(true).delete(pit);
+
+        hibernateHandlerBean.getHibernateSession().commit(GrouperCommitType.COMMIT_NOW);
+        return null;
+      }
+    });
   }
 }
