@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -80,12 +81,12 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
    * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO#findBySourceIdActive(java.lang.String, boolean)
    */
   public PITAttributeAssign findBySourceIdActive(String id, boolean exceptionIfNotFound) {
-    PITAttributeAssign pitAttributeAssign = HibernateSession
+    PITAttributeAssign pitAttributeAssign = PITUtils.internal_deleteIfMultipleResults(HibernateSession
       .byHqlStatic()
       .createQuery("select attrAssign from PITAttributeAssign as attrAssign where attrAssign.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
-      .uniqueResult(PITAttributeAssign.class);
+      .list(PITAttributeAssign.class));
     
     if (pitAttributeAssign == null && exceptionIfNotFound) {
       throw new RuntimeException("Active PITAttributeAssign with sourceId=" + id + " not found");

@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO;
 import edu.internet2.middleware.grouper.pit.PITMembership;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -74,12 +75,12 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findBySourceIdActive(java.lang.String, boolean)
    */
   public PITMembership findBySourceIdActive(String id, boolean exceptionIfNotFound) {
-    PITMembership pitMembership = HibernateSession
+    PITMembership pitMembership = PITUtils.internal_deleteIfMultipleResults(HibernateSession
       .byHqlStatic()
       .createQuery("select pitMembership from PITMembership as pitMembership where pitMembership.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
-      .uniqueResult(PITMembership.class);
+      .list(PITMembership.class));
     
     if (pitMembership == null && exceptionIfNotFound) {
       throw new RuntimeException("Active PITMembership with sourceId=" + id + " not found");

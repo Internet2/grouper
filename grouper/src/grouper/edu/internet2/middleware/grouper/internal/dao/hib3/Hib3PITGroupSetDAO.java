@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.pit.PITField;
 import edu.internet2.middleware.grouper.pit.PITGroupSet;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 
 /**
  * @author shilen
@@ -86,12 +87,12 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findBySourceIdActive(java.lang.String, boolean)
    */
   public PITGroupSet findBySourceIdActive(String id, boolean exceptionIfNotFound) {
-    PITGroupSet pitGroupSet = HibernateSession
+    PITGroupSet pitGroupSet = PITUtils.internal_deleteIfMultipleResults(HibernateSession
       .byHqlStatic()
       .createQuery("select pitGroupSet from PITGroupSet as pitGroupSet where pitGroupSet.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
-      .uniqueResult(PITGroupSet.class);
+      .list(PITGroupSet.class));
     
     if (pitGroupSet == null && exceptionIfNotFound) {
       throw new RuntimeException("Active PITGroupSet with sourceId=" + id + " not found");

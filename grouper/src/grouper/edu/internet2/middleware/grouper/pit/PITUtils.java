@@ -16,8 +16,15 @@
 package edu.internet2.middleware.grouper.pit;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -28,6 +35,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -35,6 +43,8 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  */
 public class PITUtils {
 
+  private static final Log LOG = GrouperUtil.getLog(PITUtils.class);
+  
   /**
    * Delete point in time records that ended before the given date.
    * @param date
@@ -485,5 +495,82 @@ public class PITUtils {
     } finally {
       HibUtils.clearDisallowCacheThreadLocal();
     }
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static <T> T internal_deleteIfMultipleResults(Collection<T> results) {
+
+    if (results == null || results.isEmpty()) {
+      return null;
+    }
+
+    if (results.size() == 1) {
+      return results.iterator().next();
+    }
+    
+    if (results.size() > 3) {
+      throw new RuntimeException("Too many results: " + results.size());
+    }
+
+    if (!(results.iterator().next() instanceof GrouperPIT)) {
+      throw new RuntimeException("Unexpected");
+    }
+
+    List<GrouperPIT> pitList = new ArrayList<GrouperPIT>();
+    for (T result : results) {
+      pitList.add((GrouperPIT)result);
+    }
+
+    // sort newest -> oldest
+    Collections.sort(pitList, new Comparator<GrouperPIT>() {
+      @Override
+      public int compare(GrouperPIT a, GrouperPIT b) {
+        long timeA = a.getStartTimeDb();
+        long timeB = b.getStartTimeDb();
+        if (timeA < timeB) {
+          return 1;
+        }
+        if (timeA > timeB) {
+          return -1;
+        }
+        return 0;
+      }
+    });
+
+    // prefer deleting newest ones
+    GrouperPIT keep = pitList.remove(pitList.size() - 1);
+    
+    for (int i = 0; i < pitList.size(); i++) {
+      GrouperPIT pit = pitList.get(i);
+      try {
+        HibernateSession.byObjectStatic().setIgnoreHooks(true).delete(pit);
+        LOG.warn("Successfully deleted duplicate row from class=" + pit.getClass().getSimpleName() + ", id=" + pit.fieldValue("id") + ", sourceId=" + pit.fieldValue("sourceId"));
+      } catch (Exception e) {
+        LOG.warn("Failed to delete duplicate row but will try others from class=" + pit.getClass().getSimpleName() + ", id=" + pit.fieldValue("id") + ", sourceId=" + pit.fieldValue("sourceId"));
+
+        for (int j = i + 1; j < pitList.size(); j++) {
+          GrouperPIT pit2 = pitList.get(j);
+          try {
+            HibernateSession.byObjectStatic().setIgnoreHooks(true).delete(pit2);
+            LOG.warn("Successfully deleted duplicate row from class=" + pit2.getClass().getSimpleName() + ", id=" + pit2.fieldValue("id") + ", sourceId=" + pit2.fieldValue("sourceId"));
+          } catch (Exception e2) {
+            LOG.error("Failed to delete all but one duplicate rows from class=" + pit2.getClass().getSimpleName() + ", id1=" + pit.fieldValue("id") + ", id2=" + pit2.fieldValue("id") + ", sourceId=" + pit2.fieldValue("sourceId"));
+            throw new RuntimeException(e2);
+          }
+        }
+
+        try {
+          HibernateSession.byObjectStatic().setIgnoreHooks(true).delete(keep);
+          LOG.warn("Successfully deleted duplicate row from class=" + keep.getClass().getSimpleName() + ", id=" + keep.fieldValue("id") + ", sourceId=" + keep.fieldValue("sourceId"));
+        } catch (Exception e2) {
+          LOG.error("Failed to delete all but one duplicate rows from class=" + keep.getClass().getSimpleName() + ", id1=" + pit.fieldValue("id") + ", id2=" + keep.fieldValue("id") + ", sourceId=" + keep.fieldValue("sourceId"));
+          throw new RuntimeException(e2);
+        }
+        
+        return (T)pit;
+      }
+    }
+
+    return (T)keep;
   }
 }

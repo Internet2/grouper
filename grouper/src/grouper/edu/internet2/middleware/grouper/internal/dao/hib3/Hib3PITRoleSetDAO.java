@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 
 /**
  * @author shilen
@@ -75,12 +76,12 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findBySourceIdActive(java.lang.String, boolean)
    */
   public PITRoleSet findBySourceIdActive(String id, boolean exceptionIfNotFound) {
-    PITRoleSet pitRoleSet = HibernateSession
+    PITRoleSet pitRoleSet = PITUtils.internal_deleteIfMultipleResults(HibernateSession
       .byHqlStatic()
       .createQuery("select roleSet from PITRoleSet as roleSet where roleSet.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
-      .uniqueResult(PITRoleSet.class);
+      .list(PITRoleSet.class));
     
     if (pitRoleSet == null && exceptionIfNotFound) {
       throw new RuntimeException("Active PITRoleSet with sourceId=" + id + " not found");

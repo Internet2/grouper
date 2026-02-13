@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
 import edu.internet2.middleware.grouper.pit.PITStem;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -125,12 +126,12 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findBySourceIdActive(java.lang.String, boolean, boolean)
    */
   public PITGroup findBySourceIdActive(String id, boolean createIfNotFound, boolean exceptionIfNotFound) {
-    PITGroup pitGroup = HibernateSession
+    PITGroup pitGroup = PITUtils.internal_deleteIfMultipleResults(HibernateSession
       .byHqlStatic()
       .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
-      .uniqueResult(PITGroup.class);
+      .list(PITGroup.class));
 
     if (pitGroup == null && createIfNotFound) {
       Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(id, false);

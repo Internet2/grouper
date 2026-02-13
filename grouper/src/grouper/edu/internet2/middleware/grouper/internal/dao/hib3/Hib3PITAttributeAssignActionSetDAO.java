@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 
 /**
  * @author shilen
@@ -75,12 +76,12 @@ public class Hib3PITAttributeAssignActionSetDAO extends Hib3DAO implements PITAt
    * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#findBySourceIdActive(java.lang.String, boolean)
    */
   public PITAttributeAssignActionSet findBySourceIdActive(String id, boolean exceptionIfNotFound) {
-    PITAttributeAssignActionSet pitAttributeAssignActionSet = HibernateSession
+    PITAttributeAssignActionSet pitAttributeAssignActionSet = PITUtils.internal_deleteIfMultipleResults(HibernateSession
       .byHqlStatic()
       .createQuery("select actionSet from PITAttributeAssignActionSet as actionSet where actionSet.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
-      .uniqueResult(PITAttributeAssignActionSet.class);
+      .list(PITAttributeAssignActionSet.class));
     
     if (pitAttributeAssignActionSet == null && exceptionIfNotFound) {
       throw new RuntimeException("Active PITAttributeAssignActionSet with sourceId=" + id + " not found");

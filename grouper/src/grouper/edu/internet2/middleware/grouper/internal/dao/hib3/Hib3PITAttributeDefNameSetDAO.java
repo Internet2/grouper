@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 
 /**
  * @author shilen
@@ -75,12 +76,12 @@ public class Hib3PITAttributeDefNameSetDAO extends Hib3DAO implements PITAttribu
    * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#findBySourceIdActive(java.lang.String, boolean)
    */
   public PITAttributeDefNameSet findBySourceIdActive(String id, boolean exceptionIfNotFound) {
-    PITAttributeDefNameSet pitAttributeDefNameSet = HibernateSession
+    PITAttributeDefNameSet pitAttributeDefNameSet = PITUtils.internal_deleteIfMultipleResults(HibernateSession
       .byHqlStatic()
       .createQuery("select attrDefNameSet from PITAttributeDefNameSet as attrDefNameSet where attrDefNameSet.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
-      .uniqueResult(PITAttributeDefNameSet.class);
+      .list(PITAttributeDefNameSet.class));
     
     if (pitAttributeDefNameSet == null && exceptionIfNotFound) {
       throw new RuntimeException("Active PITAttributeDefNameSet with sourceId=" + id + " not found");

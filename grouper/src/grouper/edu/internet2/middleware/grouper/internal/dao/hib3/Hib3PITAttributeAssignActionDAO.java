@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 
 /**
  * @author shilen
@@ -67,12 +68,12 @@ public class Hib3PITAttributeAssignActionDAO extends Hib3DAO implements PITAttri
    * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO#findBySourceIdActive(java.lang.String, boolean)
    */
   public PITAttributeAssignAction findBySourceIdActive(String id, boolean exceptionIfNotFound) {
-    PITAttributeAssignAction pitAttributeAssignAction = HibernateSession
+    PITAttributeAssignAction pitAttributeAssignAction = PITUtils.internal_deleteIfMultipleResults(HibernateSession
       .byHqlStatic()
       .createQuery("select action from PITAttributeAssignAction as action where action.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
-      .uniqueResult(PITAttributeAssignAction.class);
+      .list(PITAttributeAssignAction.class));
     
     if (pitAttributeAssignAction == null && exceptionIfNotFound) {
       throw new RuntimeException("Active PITAttributeAssignAction with sourceId=" + id + " not found");

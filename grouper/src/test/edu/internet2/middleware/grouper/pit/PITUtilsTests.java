@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SyncPITTables;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
@@ -61,7 +62,7 @@ public class PITUtilsTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITUtilsTests("testDeleteInactiveRecordsWithBadData2"));
+    TestRunner.run(new PITUtilsTests("testDuplicateCleanupDuringFindBySourceIdActive"));
   }
   
   /** top level stems */
@@ -1066,5 +1067,207 @@ public class PITUtilsTests extends GrouperTest {
     assertNull(GrouperDAOFactory.getFactory().getPITRoleSet().findBySourceIdUnique(roleSet2cTo2d.getId(), false));
     assertNull(GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(stem2.getUuid(), false));
     assertNotNull(GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(edu2.getUuid(), false));
+  }
+  
+  public void testDuplicateCleanupDuringFindBySourceIdActive() {
+    Group group1 = edu.addChildGroup("group1", "group1");
+    group1.addMember(SubjectTestHelper.SUBJ0);
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITGroup pitGroup1ShouldRemain = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1.getId(), true);
+    
+    {
+      // keep the one with the earlier time
+      PITGroup pitGroup1Duplicate1 = new PITGroup();
+      pitGroup1Duplicate1.setId(GrouperUuid.getUuid());
+      pitGroup1Duplicate1.setSourceId(pitGroup1ShouldRemain.getSourceId());
+      pitGroup1Duplicate1.setNameDb(pitGroup1ShouldRemain.getName());  
+      pitGroup1Duplicate1.setStemId(pitGroup1ShouldRemain.getStemId());
+      pitGroup1Duplicate1.setActiveDb("T");
+      pitGroup1Duplicate1.setStartTimeDb((pitGroup1ShouldRemain.getStartTimeDb() + 1));
+      pitGroup1Duplicate1.setSourceInternalId(pitGroup1ShouldRemain.getSourceInternalId());
+      pitGroup1Duplicate1.saveOrUpdate();
+
+      assertEquals(2, GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(group1.getId(), false).size());
+      
+      // this should get one and cleanup other
+      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group1.getId(), true);
+      assertEquals(pitGroup1ShouldRemain.getId(), pitGroup.getId());
+      assertEquals(1, GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(group1.getId(), false).size());
+      
+      // check to make sure it's right
+      pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group1.getId(), true);
+      assertEquals(pitGroup1ShouldRemain.getId(), pitGroup.getId());
+    }
+    
+    {
+      // keep the one with the later time
+      PITGroup pitGroup1Duplicate1 = new PITGroup();
+      pitGroup1Duplicate1.setId(GrouperUuid.getUuid());
+      pitGroup1Duplicate1.setSourceId(pitGroup1ShouldRemain.getSourceId());
+      pitGroup1Duplicate1.setNameDb(pitGroup1ShouldRemain.getName());  
+      pitGroup1Duplicate1.setStemId(pitGroup1ShouldRemain.getStemId());
+      pitGroup1Duplicate1.setActiveDb("T");
+      pitGroup1Duplicate1.setStartTimeDb((pitGroup1ShouldRemain.getStartTimeDb() - 1));
+      pitGroup1Duplicate1.setSourceInternalId(pitGroup1ShouldRemain.getSourceInternalId());
+      pitGroup1Duplicate1.saveOrUpdate();
+
+      assertEquals(2, GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(group1.getId(), false).size());
+      
+      // this should get one and cleanup other
+      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group1.getId(), true);
+      assertEquals(pitGroup1ShouldRemain.getId(), pitGroup.getId());
+      assertEquals(1, GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(group1.getId(), false).size());
+      
+      // check to make sure it's right
+      pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group1.getId(), true);
+      assertEquals(pitGroup1ShouldRemain.getId(), pitGroup.getId());
+    }
+    
+    {
+      // keep the one with the earlier time, two after should get deleted
+      PITGroup pitGroup1Duplicate1 = new PITGroup();
+      pitGroup1Duplicate1.setId(GrouperUuid.getUuid());
+      pitGroup1Duplicate1.setSourceId(pitGroup1ShouldRemain.getSourceId());
+      pitGroup1Duplicate1.setNameDb(pitGroup1ShouldRemain.getName());  
+      pitGroup1Duplicate1.setStemId(pitGroup1ShouldRemain.getStemId());
+      pitGroup1Duplicate1.setActiveDb("T");
+      pitGroup1Duplicate1.setStartTimeDb((pitGroup1ShouldRemain.getStartTimeDb() + 1));
+      pitGroup1Duplicate1.setSourceInternalId(pitGroup1ShouldRemain.getSourceInternalId());
+      pitGroup1Duplicate1.saveOrUpdate();
+      
+      PITGroup pitGroup1Duplicate2 = new PITGroup();
+      pitGroup1Duplicate2.setId(GrouperUuid.getUuid());
+      pitGroup1Duplicate2.setSourceId(pitGroup1ShouldRemain.getSourceId());
+      pitGroup1Duplicate2.setNameDb(pitGroup1ShouldRemain.getName());  
+      pitGroup1Duplicate2.setStemId(pitGroup1ShouldRemain.getStemId());
+      pitGroup1Duplicate2.setActiveDb("T");
+      pitGroup1Duplicate2.setStartTimeDb((pitGroup1ShouldRemain.getStartTimeDb() + 2));
+      pitGroup1Duplicate2.setSourceInternalId(pitGroup1ShouldRemain.getSourceInternalId());
+      pitGroup1Duplicate2.saveOrUpdate();
+
+      assertEquals(3, GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(group1.getId(), false).size());
+      
+      // this should get one and cleanup others
+      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group1.getId(), true);
+      assertEquals(pitGroup1ShouldRemain.getId(), pitGroup.getId());
+      assertEquals(1, GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(group1.getId(), false).size());
+      
+      // check to make sure it's right
+      pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group1.getId(), true);
+      assertEquals(pitGroup1ShouldRemain.getId(), pitGroup.getId());
+    }
+    
+    {
+      // keep the one with the later time, two before should get deleted
+      PITGroup pitGroup1Duplicate1 = new PITGroup();
+      pitGroup1Duplicate1.setId(GrouperUuid.getUuid());
+      pitGroup1Duplicate1.setSourceId(pitGroup1ShouldRemain.getSourceId());
+      pitGroup1Duplicate1.setNameDb(pitGroup1ShouldRemain.getName());  
+      pitGroup1Duplicate1.setStemId(pitGroup1ShouldRemain.getStemId());
+      pitGroup1Duplicate1.setActiveDb("T");
+      pitGroup1Duplicate1.setStartTimeDb((pitGroup1ShouldRemain.getStartTimeDb() - 1));
+      pitGroup1Duplicate1.setSourceInternalId(pitGroup1ShouldRemain.getSourceInternalId());
+      pitGroup1Duplicate1.saveOrUpdate();
+      
+      PITGroup pitGroup1Duplicate2 = new PITGroup();
+      pitGroup1Duplicate2.setId(GrouperUuid.getUuid());
+      pitGroup1Duplicate2.setSourceId(pitGroup1ShouldRemain.getSourceId());
+      pitGroup1Duplicate2.setNameDb(pitGroup1ShouldRemain.getName());  
+      pitGroup1Duplicate2.setStemId(pitGroup1ShouldRemain.getStemId());
+      pitGroup1Duplicate2.setActiveDb("T");
+      pitGroup1Duplicate2.setStartTimeDb((pitGroup1ShouldRemain.getStartTimeDb() - 2));
+      pitGroup1Duplicate2.setSourceInternalId(pitGroup1ShouldRemain.getSourceInternalId());
+      pitGroup1Duplicate2.saveOrUpdate();
+
+      assertEquals(3, GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(group1.getId(), false).size());
+      
+      // this should get one and cleanup others
+      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group1.getId(), true);
+      assertEquals(pitGroup1ShouldRemain.getId(), pitGroup.getId());
+      assertEquals(1, GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(group1.getId(), false).size());
+      
+      // check to make sure it's right
+      pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group1.getId(), true);
+      assertEquals(pitGroup1ShouldRemain.getId(), pitGroup.getId());
+    }
+    
+    {
+      // keep the one with the middle time
+      PITGroup pitGroup1Duplicate1 = new PITGroup();
+      pitGroup1Duplicate1.setId(GrouperUuid.getUuid());
+      pitGroup1Duplicate1.setSourceId(pitGroup1ShouldRemain.getSourceId());
+      pitGroup1Duplicate1.setNameDb(pitGroup1ShouldRemain.getName());  
+      pitGroup1Duplicate1.setStemId(pitGroup1ShouldRemain.getStemId());
+      pitGroup1Duplicate1.setActiveDb("T");
+      pitGroup1Duplicate1.setStartTimeDb((pitGroup1ShouldRemain.getStartTimeDb() - 1));
+      pitGroup1Duplicate1.setSourceInternalId(pitGroup1ShouldRemain.getSourceInternalId());
+      pitGroup1Duplicate1.saveOrUpdate();
+      
+      PITGroup pitGroup1Duplicate2 = new PITGroup();
+      pitGroup1Duplicate2.setId(GrouperUuid.getUuid());
+      pitGroup1Duplicate2.setSourceId(pitGroup1ShouldRemain.getSourceId());
+      pitGroup1Duplicate2.setNameDb(pitGroup1ShouldRemain.getName());  
+      pitGroup1Duplicate2.setStemId(pitGroup1ShouldRemain.getStemId());
+      pitGroup1Duplicate2.setActiveDb("T");
+      pitGroup1Duplicate2.setStartTimeDb((pitGroup1ShouldRemain.getStartTimeDb() + 1));
+      pitGroup1Duplicate2.setSourceInternalId(pitGroup1ShouldRemain.getSourceInternalId());
+      pitGroup1Duplicate2.saveOrUpdate();
+
+      assertEquals(3, GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(group1.getId(), false).size());
+      
+      // this should get one and cleanup others
+      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group1.getId(), true);
+      assertEquals(pitGroup1ShouldRemain.getId(), pitGroup.getId());
+      assertEquals(1, GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(group1.getId(), false).size());
+      
+      // check to make sure it's right
+      pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group1.getId(), true);
+      assertEquals(pitGroup1ShouldRemain.getId(), pitGroup.getId());
+    }
+    
+    {
+      // if no references, make sure it prefers to keep oldest
+      PITGroup test1 = new PITGroup();
+      test1.setId(GrouperUuid.getUuid());
+      test1.setSourceId("abc");
+      test1.setNameDb("edu:abc");  
+      test1.setStemId(pitGroup1ShouldRemain.getStemId());
+      test1.setActiveDb("T");
+      test1.setStartTimeDb(1700000000000001L);
+      test1.setSourceInternalId(1000000L);
+      test1.saveOrUpdate();
+      
+      PITGroup test2 = new PITGroup();
+      test2.setId(GrouperUuid.getUuid());
+      test2.setSourceId("abc");
+      test2.setNameDb("edu:abc");  
+      test2.setStemId(pitGroup1ShouldRemain.getStemId());
+      test2.setActiveDb("T");
+      test2.setStartTimeDb(1700000000000000L);
+      test2.setSourceInternalId(1000000L);
+      test2.saveOrUpdate();
+      
+      PITGroup test3 = new PITGroup();
+      test3.setId(GrouperUuid.getUuid());
+      test3.setSourceId("abc");
+      test3.setNameDb("edu:abc");  
+      test3.setStemId(pitGroup1ShouldRemain.getStemId());
+      test3.setActiveDb("T");
+      test3.setStartTimeDb(1700000000000002L);
+      test3.setSourceInternalId(1000000L);
+      test3.saveOrUpdate();
+      
+      assertEquals(3, GrouperDAOFactory.getFactory().getPITGroup().findBySourceId("abc", false).size());
+
+      // this should get one and cleanup others
+      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive("abc", true);
+      assertEquals(test2.getId(), pitGroup.getId());
+      assertEquals(1, GrouperDAOFactory.getFactory().getPITGroup().findBySourceId("abc", false).size());
+      
+      // check to make sure it's right
+      pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive("abc", true);
+      assertEquals(test2.getId(), pitGroup.getId());
+    }
   }
 }

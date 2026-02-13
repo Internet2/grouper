@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 
 /**
  * @author shilen
@@ -67,12 +68,12 @@ public class Hib3PITAttributeDefNameDAO extends Hib3DAO implements PITAttributeD
    * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO#findBySourceIdActive(java.lang.String, boolean)
    */
   public PITAttributeDefName findBySourceIdActive(String id, boolean exceptionIfNotFound) {
-    PITAttributeDefName pitAttributeDefName = HibernateSession
+    PITAttributeDefName pitAttributeDefName = PITUtils.internal_deleteIfMultipleResults(HibernateSession
       .byHqlStatic()
       .createQuery("select attrDefName from PITAttributeDefName as attrDefName where attrDefName.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
-      .uniqueResult(PITAttributeDefName.class);
+      .list(PITAttributeDefName.class));
     
     if (pitAttributeDefName == null && exceptionIfNotFound) {
       throw new RuntimeException("Active PITAttributeDefName with sourceId=" + id + " not found");

@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITFieldDAO;
 import edu.internet2.middleware.grouper.pit.PITField;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -74,12 +75,12 @@ public class Hib3PITFieldDAO extends Hib3DAO implements PITFieldDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.PITFieldDAO#findBySourceIdActive(java.lang.String, boolean)
    */
   public PITField findBySourceIdActive(String id, boolean exceptionIfNotFound) {
-    PITField pitField = HibernateSession
+    PITField pitField = PITUtils.internal_deleteIfMultipleResults(HibernateSession
       .byHqlStatic()
       .createQuery("select pitField from PITField as pitField where pitField.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
-      .uniqueResult(PITField.class);
+      .list(PITField.class));
     
     if (pitField == null && exceptionIfNotFound) {
       throw new RuntimeException("Active PITField with sourceId=" + id + " not found");

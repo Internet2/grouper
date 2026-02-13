@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITStem;
+import edu.internet2.middleware.grouper.pit.PITUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -168,12 +169,12 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findBySourceIdActive(java.lang.String, boolean, boolean)
    */
   public PITStem findBySourceIdActive(String id, boolean createIfNotFound, boolean exceptionIfNotFound) {
-    PITStem pitStem = HibernateSession
+    PITStem pitStem = PITUtils.internal_deleteIfMultipleResults(HibernateSession
       .byHqlStatic()
       .createQuery("select pitStem from PITStem as pitStem where pitStem.sourceId = :id and activeDb = 'T'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdActive")
       .setString("id", id)
-      .uniqueResult(PITStem.class);
+      .list(PITStem.class));
     
     if (pitStem == null && createIfNotFound) {
       Stem stem = GrouperDAOFactory.getFactory().getStem().findByUuid(id, false);
