@@ -5,7 +5,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -569,6 +571,29 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
       String groupName = astStringLiteral.getLiteral();
       analyzeJexlMemberOf(grouperJexlScriptPart, groupName);
+    } else if (StringUtils.equals("memberOfAny", astIdentifierAccess.getName())) {
+      ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
+      if (astArguments.jjtGetNumChildren() != 1) {
+        throw new RuntimeException("Not expecting method with more than one argument! " + astArguments.jjtGetNumChildren());
+      }
+      if (!(astArguments.jjtGetChild(0) instanceof ASTArrayLiteral)) {
+        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
+      }
+      Set<String> groupNames = new LinkedHashSet<>();
+      ASTArrayLiteral astArrayLiteral = (ASTArrayLiteral)astArguments.jjtGetChild(0);
+      for (int i=0; i<astArrayLiteral.jjtGetNumChildren(); i++) {
+        JexlNode jjtGetChild = astArrayLiteral.jjtGetChild(i);
+        if (jjtGetChild instanceof ASTStringLiteral) {
+          String value = ((ASTStringLiteral)jjtGetChild).getLiteral();
+          groupNames.add(value);
+        } else {
+          throw new RuntimeException("Not expecting argument of type! " + jjtGetChild.getClass().getName());
+        }
+      }
+      if (groupNames.size() == 0) {
+        throw new RuntimeException("Expecting at least one group name!");
+      }
+      analyzeJexlMemberOfAny(grouperJexlScriptPart, groupNames);
     } else if (StringUtils.equals("recentMemberOf", astIdentifierAccess.getName())) {
       ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
       if (astArguments.jjtGetNumChildren() != 2) {
@@ -999,6 +1024,25 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
     grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisMemberOfGroup"))
       .append(" '").append(GrouperUtil.xmlEscape(groupName)).append("'");
+  }
+  
+  private static void analyzeJexlMemberOfAny(GrouperJexlScriptPart grouperJexlScriptPart,
+      Set<String> groupNames) {
+    grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_sql_cache_mship gscm "
+        + "where gscm.sql_cache_group_internal_id in (" + GrouperClientUtils.appendQuestions(groupNames.size()) + ") "
+        + " and gscm.member_internal_id = gm.internal_id and gm.subject_source != 'g:gsa') ");
+    
+    grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisMemberOfAnyGroup"));
+
+    Iterator<String> groupNamesIterator = groupNames.iterator();
+    while (groupNamesIterator.hasNext()) {
+      String groupName = groupNamesIterator.next();
+      grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
+      grouperJexlScriptPart.getDisplayDescription().append(" '").append(GrouperUtil.xmlEscape(groupName)).append("'");
+      if (groupNamesIterator.hasNext()) {
+        grouperJexlScriptPart.getDisplayDescription().append(",");
+      }
+    }    
   }
   
   private static void analyzeJexlRecentMemberOf(GrouperJexlScriptPart grouperJexlScriptPart,
