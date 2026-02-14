@@ -366,7 +366,7 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
           .propertyValueString("grouper.wsBearerToken." + externalSystemConfigId + ".basicAuthPassword");
       
       password = StringUtils.defaultString(password);
-      if (grouperLoaderConfig.propertyValueBoolean("grouper.wsBearerToken." + externalSystemConfigId + ".basicAuthStandardUserPasswordOrder", true)) {
+      if (grouperLoaderConfig.propertyValueBoolean("grouper.wsBearerToken." + externalSystemConfigId + ".basicAuthStandardUserOrder", true)) {
         grouperHttpClient.assignUser(user);
         grouperHttpClient.assignPassword(password);
 
