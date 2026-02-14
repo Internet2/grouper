@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class FreshRequesterGroup {
   
@@ -118,6 +119,11 @@ public class FreshRequesterGroup {
   }
   
   
+  @Override
+  public String toString() {
+    return GrouperClientUtils.toStringReflection(this);
+  }
+
   private long id;
   private String name;
   private String description;

@@ -25,9 +25,9 @@ public class FreshRequesterMembership {
 
       Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id", Types.VARCHAR, "40", false, true);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "user_id", Types.VARCHAR, "40", false, true);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id", Types.BIGINT, "20", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "user_id", Types.BIGINT, "20", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.BIGINT, "20", true, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_freshreq_mship_gid_idx", false, "group_id");
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_freshreq_mship_uid_idx", false, "user_id");
@@ -39,53 +39,45 @@ public class FreshRequesterMembership {
     
   }
   
-  private String userId;
-  
-  private String groupId;
-  
-  public String getUserId() {
+  private long userId;
+
+  private long groupId;
+
+  public long getUserId() {
     return userId;
   }
 
-  
-  public void setUserId(String userId) {
+
+  public void setUserId(long userId) {
     this.userId = userId;
   }
 
-  
-  public String getGroupId() {
+
+  public long getGroupId() {
     return groupId;
   }
-  
-  public void setGroupId(String groupId) {
+
+  public void setGroupId(long groupId) {
     this.groupId = groupId;
   }
 
-  private String id;
+  private long id;
 
-  public String getId() {
+  public long getId() {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId(long id) {
     this.id = id;
   }
   
   public ProvisioningMembership toProvisioningMembership() {
     ProvisioningMembership targetMembership = new ProvisioningMembership(false);
-    
-    if (this.groupId != null) {
-      targetMembership.setProvisioningGroupId(this.groupId);
-    }
-    
-    if (this.userId != null) {
-      targetMembership.setProvisioningEntityId(this.userId);
-    }
-    
-    if (this.id != null) {
-      targetMembership.setId(this.id);
-    }
-    
+
+    targetMembership.setProvisioningGroupId(Long.toString(this.groupId));
+    targetMembership.setProvisioningEntityId(Long.toString(this.userId));
+    targetMembership.setId(Long.toString(this.id));
+
     return targetMembership;
   }
 

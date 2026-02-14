@@ -60,6 +60,9 @@ import edu.internet2.middleware.grouper.app.duo.GrouperDuoGroup;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoMembership;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoUser;
 import edu.internet2.middleware.grouper.app.duo.role.GrouperDuoRoleUser;
+import edu.internet2.middleware.grouper.app.freshServiceRequester.FreshRequesterGroup;
+import edu.internet2.middleware.grouper.app.freshServiceRequester.FreshRequesterMembership;
+import edu.internet2.middleware.grouper.app.freshServiceRequester.FreshRequesterUser;
 import edu.internet2.middleware.grouper.app.google.GrouperGoogleAuth;
 import edu.internet2.middleware.grouper.app.google.GrouperGoogleGroup;
 import edu.internet2.middleware.grouper.app.google.GrouperGoogleMembership;
@@ -294,7 +297,11 @@ public abstract class Hib3DAO {
         addClass(configuration, GrouperOktaUser.class);
         addClass(configuration, GrouperOktaMembership.class);
         addClass(configuration, GrouperOktaAuth.class);
-        
+
+        addClass(configuration, FreshRequesterGroup.class);
+        addClass(configuration, FreshRequesterUser.class);
+        addClass(configuration, FreshRequesterMembership.class);
+
       }
       addClass(configuration, Hib3MemberDAO.class);
       addClass(configuration, Hib3MembershipDAO.class);

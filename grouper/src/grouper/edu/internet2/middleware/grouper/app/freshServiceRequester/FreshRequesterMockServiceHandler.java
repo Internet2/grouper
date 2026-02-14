@@ -123,9 +123,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
   public void getGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     try {
       checkAuthorization(mockServiceRequest);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       mockServiceResponse.setResponseCode(401);
-      return;
+      throw e;
     }
 
     List<FreshRequesterGroup> freshRequesterGroups = null;
@@ -163,9 +163,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
   public void getGroup(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     try {
       checkAuthorization(mockServiceRequest);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       mockServiceResponse.setResponseCode(401);
-      return;
+      throw e;
     }
 
     String groupIdString = mockServiceRequest.getPostMockNamePaths()[1];
@@ -205,9 +205,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     try {
       checkAuthorization(mockServiceRequest);
       checkRequestContentType(mockServiceRequest);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       mockServiceResponse.setResponseCode(401);
-      return;
+      throw e;
     }
 
     String groupJsonString = mockServiceRequest.getRequestBody();
@@ -245,9 +245,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     try {
       checkAuthorization(mockServiceRequest);
       checkRequestContentType(mockServiceRequest);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       mockServiceResponse.setResponseCode(401);
-      return;
+      throw e;
     }
 
     String groupIdString = mockServiceRequest.getPostMockNamePaths()[1];
@@ -302,9 +302,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
   public void deleteGroup(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     try {
       checkAuthorization(mockServiceRequest);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       mockServiceResponse.setResponseCode(401);
-      return;
+      throw e;
     }
 
     String groupIdString = mockServiceRequest.getPostMockNamePaths()[1];
@@ -334,9 +334,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
   public void getUsers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     try {
       checkAuthorization(mockServiceRequest);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       mockServiceResponse.setResponseCode(401);
-      return;
+      throw e;
     }
 
     String email = mockServiceRequest.getHttpServletRequest().getParameter("query");
@@ -391,9 +391,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
   public void getUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     try {
       checkAuthorization(mockServiceRequest);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       mockServiceResponse.setResponseCode(401);
-      return;
+      throw e;
     }
 
     String userIdString = mockServiceRequest.getPostMockNamePaths()[1];
@@ -432,9 +432,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     try {
       checkAuthorization(mockServiceRequest);
       checkRequestContentType(mockServiceRequest);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       mockServiceResponse.setResponseCode(401);
-      return;
+      throw e;
     }
 
     String userJsonString = mockServiceRequest.getRequestBody();
@@ -482,9 +482,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     try {
       checkAuthorization(mockServiceRequest);
       checkRequestContentType(mockServiceRequest);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       mockServiceResponse.setResponseCode(401);
-      return;
+      throw e;
     }
 
     String userIdString = mockServiceRequest.getPostMockNamePaths()[1];
@@ -607,9 +607,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
   public void deleteUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     try {
       checkAuthorization(mockServiceRequest);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       mockServiceResponse.setResponseCode(401);
-      return;
+      throw e;
     }
 
     String userIdString = mockServiceRequest.getPostMockNamePaths()[1];
@@ -639,9 +639,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
   public void getGroupMembers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     try {
       checkAuthorization(mockServiceRequest);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       mockServiceResponse.setResponseCode(401);
-      return;
+      throw e;
     }
 
     String groupIdString = mockServiceRequest.getPostMockNamePaths()[1];
@@ -680,9 +680,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
   public void addGroupMember(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     try {
       checkAuthorization(mockServiceRequest);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       mockServiceResponse.setResponseCode(401);
-      return;
+      throw e;
     }
 
     String groupIdString = mockServiceRequest.getPostMockNamePaths()[1];
@@ -691,6 +691,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(GrouperUtil.length(groupIdString) > 0, "groupId is required");
     GrouperUtil.assertion(GrouperUtil.length(userIdString) > 0, "userId is required");
 
+    Long groupId = GrouperUtil.longValue(groupIdString);
+    Long userId = GrouperUtil.longValue(userIdString);
+    
     // check if group exists
     List<FreshRequesterGroup> groups = HibernateSession.byHqlStatic()
         .createQuery("from FreshRequesterGroup where id = :theId")
@@ -720,10 +723,11 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
 
     if (GrouperUtil.length(existingMemberships) == 0) {
       FreshRequesterMembership membership = new FreshRequesterMembership();
-      membership.setGroupId(groupIdString);
-      membership.setUserId(userIdString);
-      membership.setId(GrouperUuid.getUuid());
-
+      membership.setGroupId(groupId);
+      membership.setUserId(userId);
+      // set membership id to random long value to avoid conflicts
+      membership.setId(ThreadLocalRandom.current().nextLong(1, 99999999));
+      
       HibernateSession.byObjectStatic().save(membership);
     }
 
@@ -737,9 +741,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
   public void removeGroupMember(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     try {
       checkAuthorization(mockServiceRequest);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       mockServiceResponse.setResponseCode(401);
-      return;
+      throw e;
     }
 
     String groupIdString = mockServiceRequest.getPostMockNamePaths()[1];
@@ -777,6 +781,13 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     }
 
     List<String> mockNamePaths = GrouperUtil.toList(mockServiceRequest.getPostMockNamePaths());
+
+    // strip "api/v2" prefix
+    GrouperUtil.assertion(mockNamePaths.size() >= 3, "Must start with api/v2/");
+    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(0), "api"), "first path must be 'api'");
+    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(1), "v2"), "second path must be 'v2'");
+
+    mockNamePaths = mockNamePaths.subList(2, mockNamePaths.size());
 
     String[] paths = new String[mockNamePaths.size()];
     paths = mockNamePaths.toArray(paths);
