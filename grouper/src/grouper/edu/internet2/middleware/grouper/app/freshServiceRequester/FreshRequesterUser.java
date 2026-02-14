@@ -504,9 +504,9 @@ public class FreshRequesterUser {
   public ObjectNode toJson(Set<String> fieldNamesToSet) {
     ObjectNode result = GrouperUtil.jsonJacksonNode();
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {
-      result.put("id", this.id);
-    }
+//    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {
+//      result.put("id", this.id);
+//    }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("firstName")) {
       result.put("first_name", this.firstName);
     }

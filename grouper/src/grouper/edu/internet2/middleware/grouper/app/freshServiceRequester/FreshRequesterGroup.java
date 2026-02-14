@@ -70,9 +70,9 @@ public class FreshRequesterGroup {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("name")) {
       result.put("name", this.name);
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {
-      result.put("id", this.id);
-    }
+//    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {
+//      result.put("id", this.id);
+//    }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {
       result.put("description", this.description);
     }
