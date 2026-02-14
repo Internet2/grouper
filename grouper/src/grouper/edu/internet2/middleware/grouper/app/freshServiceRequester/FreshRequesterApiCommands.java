@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -39,29 +38,19 @@ public class FreshRequesterApiCommands {
 //    updateRequesterGroup(configId, group);
 //    createRequesterGroup(configId, group);
 //    
-    List<FreshRequesterGroup> groups = retrieveRequesterGroups(configId);
-    System.out.println(groups.size());
+//    List<FreshRequesterGroup> groups = retrieveRequesterGroups(configId);
+//    System.out.println(groups.size());
 
 //    List<FreshRequesterUser> users = retrieveRequesterUsers(configId);
 //    System.out.println(users.size());
     
 //    FreshRequesterUser user = new FreshRequesterUser();
-//    user.setFirstName("B");
+//    user.setFirstName("A");
 //    user.setLastName("TestUser");
-//    user.setEmail("b.testuser@test.edu");
+//    user.setEmail("a.testuser@test.edu");
 //    createRequesterUser(configId, user);
     
-//    FreshRequesterUser user = retrieveRequesterUser(configId, 43053904L);
-//    System.out.println(user.getEmail());
-//    user.setEmail("danjelnygard@hotmail.com");
-//    Map<String,ProvisioningObjectChangeAction> updateMap = new LinkedHashMap<>();
-//    updateMap.put("email", ProvisioningObjectChangeAction.update);
-//    
-//    updateRequesterUser(configId, user, updateMap);
-//    deactivateRequesterUser(configId, 9566008L);
-    
-    
-//    deleteRequesterGroup(configId, 8070026L);
+    deleteRequesterGroup(configId, 8070026L);
     
     
     System.out.println("done");
