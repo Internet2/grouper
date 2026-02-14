@@ -1,0 +1,25 @@
+<hibernate-mapping package="edu.internet2.middleware.grouper.app.freshServiceRequester" default-lazy="false">
+  <class name="FreshRequesterUser" table="mock_freshreq_user">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <id name="id" column="id">
+      <generator class="assigned" />
+    </id>
+
+    <property name="firstName" column="first_name" />
+    <property name="lastName" column="last_name" />
+    <property name="email" column="email" />
+
+    <property name="isAgentString" column="is_agent" />
+    <property name="jobTitle" column="job_title" />
+    <property name="workPhoneNumber" column="work_phone_number" />
+    <property name="departmentId" column="department_id" />
+    <property name="reportingManagerId" column="reporting_manager_id" />
+    <property name="address" column="address" />
+    <property name="customFieldsJson" column="custom_fields" />
+    <property name="activeString" column="active" />
+
+  </class>
+</hibernate-mapping>
