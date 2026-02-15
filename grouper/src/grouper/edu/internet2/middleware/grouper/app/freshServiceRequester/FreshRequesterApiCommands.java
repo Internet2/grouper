@@ -156,24 +156,34 @@ public class FreshRequesterApiCommands {
    * @param configId the id of the external system
    * @param grouperRequesterGroup the requester group to be created in Freshservice
    */
-  public static void createRequesterGroup(String configId, FreshRequesterGroup grouperRequesterGroup) {
+  public static FreshRequesterGroup createRequesterGroup(String configId, FreshRequesterGroup grouperRequesterGroup) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-    
+
     debugMap.put("method", "createRequesterGroup");
-    
+
     long startTime = System.nanoTime();
-    
+
     try {
       JsonNode jsonToSend = grouperRequesterGroup.toJson(null);
-      
+
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
-      
-      executeMethod(debugMap, "POST", configId, "api/v2/requester_groups",
-          GrouperUtil.toSet(200,201), new int[] { -1 }, jsonStringToSend, null, false, null);
-      
+
+      int[] returnCode = new int[] { -1 };
+      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/v2/requester_groups",
+          GrouperUtil.toSet(200, 201, 409), returnCode, jsonStringToSend, null, false, null);
+
+      if (returnCode[0] == 409) {
+        throw new RuntimeException("Requester group already exists: " + grouperRequesterGroup.getName());
+      }
+
+      JsonNode groupNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "requester_group");
+      FreshRequesterGroup createdGroup = FreshRequesterGroup.fromJson(groupNode);
+
+      return createdGroup;
+
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw(re);
+      throw re;
     } finally {
       FreshRequesterLog.freshserviceLog(debugMap, startTime);
     }
@@ -184,7 +194,7 @@ public class FreshRequesterApiCommands {
    * @param configId the id of the external system
    * @param grouperRequesterGroup the group to be updated in Freshservice
    */
-  public static void updateRequesterGroup(String configId, FreshRequesterGroup grouperRequesterGroup, Map<String, ProvisioningObjectChangeAction> fieldsToUpdate) {
+  public static FreshRequesterGroup updateRequesterGroup(String configId, FreshRequesterGroup grouperRequesterGroup, Map<String, ProvisioningObjectChangeAction> fieldsToUpdate) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
     debugMap.put("method", "updateRequesterGroup");
@@ -243,8 +253,12 @@ public class FreshRequesterApiCommands {
 
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      executeMethod(debugMap, "PUT", configId, "api/v2/requester_groups/" + String.valueOf(groupId),
+      JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, "api/v2/requester_groups/" + String.valueOf(groupId),
           GrouperUtil.toSet(200, 201), new int[] { -1 }, jsonStringToSend, null, false, null);
+
+      JsonNode groupNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "requester_group");
+      FreshRequesterGroup updatedGroup = FreshRequesterGroup.fromJson(groupNode);
+      return updatedGroup;
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -452,7 +466,7 @@ public class FreshRequesterApiCommands {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
-    debugMap.put("method", "retrieveBoxGroup");
+    debugMap.put("method", "retrieveRequesterGroup");
     
     long startTime = System.nanoTime();
     
@@ -469,8 +483,13 @@ public class FreshRequesterApiCommands {
       if (groupNode == null) {
         return null;
       }
+      // skip rule_based groups since the API cannot manage them
+      String groupType = GrouperUtil.jsonJacksonGetString(groupNode, "type");
+      if (Strings.CS.equals("rule_based", groupType)) {
+        return null;
+      }
       FreshRequesterGroup grouperRequesterGroup = FreshRequesterGroup.fromJson(groupNode);
-      
+
       return grouperRequesterGroup;
       
     } catch (RuntimeException re) {
@@ -539,29 +558,39 @@ public class FreshRequesterApiCommands {
    * Create a requester user in Freshservice
    * @param configId the id of the external system
    * @param grouperRequesterUser the user to be created in Freshservice
+   * @return the created requester user with assigned id
    */
-  public static void createRequesterUser(String configId, FreshRequesterUser grouperRequesterUser) {
+  public static FreshRequesterUser createRequesterUser(String configId, FreshRequesterUser grouperRequesterUser) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-    
+
     debugMap.put("method", "createRequesterUser");
-    
+
     long startTime = System.nanoTime();
-    
+
     try {
       JsonNode jsonToSend = grouperRequesterUser.toJson(null);
-      
+
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
-      
-      executeMethod(debugMap, "POST", configId, "api/v2/requesters",
-          GrouperUtil.toSet(200,201), new int[] { -1 }, jsonStringToSend, null, false, null);
-      
+
+      int[] returnCode = new int[] { -1 };
+      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/v2/requesters",
+          GrouperUtil.toSet(200, 201, 409), returnCode, jsonStringToSend, null, false, null);
+
+      if (returnCode[0] == 409) {
+        throw new RuntimeException("Requester user already exists: " + grouperRequesterUser.getEmail());
+      }
+
+      JsonNode userNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "requester");
+      FreshRequesterUser createdUser = FreshRequesterUser.fromJson(userNode);
+      return createdUser;
+
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw(re);
+      throw re;
     } finally {
       FreshRequesterLog.freshserviceLog(debugMap, startTime);
     }
-    
+
   }
   
   /**
@@ -590,16 +619,16 @@ public class FreshRequesterApiCommands {
             GrouperUtil.toSet(200), new int[] { -1 }, null, page, true, null);
         
         ArrayNode requesterUsersArray = (ArrayNode) jsonNode.get("requesters");
-        
-        if (requesterUsersArray.size() > 0) {
-          for (int i = 0; i < (requesterUsersArray == null ? 0 : requesterUsersArray.size()); i++) {
-            JsonNode userNode = requesterUsersArray.get(i);
-            FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromJson(userNode);
-            results.add(grouperRequesterUser);
-          }
-          page++;
-          
-        } else {
+
+        for (int i = 0; i < (requesterUsersArray == null ? 0 : requesterUsersArray.size()); i++) {
+          JsonNode userNode = requesterUsersArray.get(i);
+          FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromJson(userNode);
+          results.add(grouperRequesterUser);
+        }
+
+        page++;
+
+        if (requesterUsersArray.size() < grouperLoaderConfig.propertyValueInt("grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE)) {
           lastPage = true;
         }
       }
@@ -630,28 +659,31 @@ public class FreshRequesterApiCommands {
     
     try {
       int[] returnCode = new int[] { -1 };
-      
+
       String urlSuffix = "api/v2/requesters/" + String.valueOf(id);
       JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
-          GrouperUtil.toSet(200), returnCode, null, null, false, null);
-      
-      if (jsonNode == null) {
+          GrouperUtil.toSet(200, 404), returnCode, null, null, false, null);
+
+      if (returnCode[0] == 404) {
         return null;
       }
-      
+
       JsonNode userNode = jsonNode.get("requester");
-      
+      if (userNode == null) {
+        return null;
+      }
+
       FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromJson(userNode);
-      
+
       return grouperRequesterUser;
-      
+
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
       FreshRequesterLog.freshserviceLog(debugMap, startTime);
     }
-    
+
   }
   
   /**

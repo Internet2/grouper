@@ -77,7 +77,6 @@ public class FreshRequesterGroup {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {
       result.put("description", this.description);
     }
-    
     return result;
   }
   

@@ -215,6 +215,18 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
 
     FreshRequesterGroup freshReqGroup = FreshRequesterGroup.fromJson(groupJsonNode);
 
+    // check if group with same name already exists
+    List<FreshRequesterGroup> existingGroups = HibernateSession.byHqlStatic()
+        .createQuery("from FreshRequesterGroup where name = :theName")
+        .setString("theName", freshReqGroup.getName()).list(FreshRequesterGroup.class);
+
+    if (GrouperUtil.length(existingGroups) > 0) {
+      mockServiceResponse.setResponseCode(409);
+      mockServiceResponse.setContentType("application/json");
+      mockServiceResponse.setResponseBody("{\"description\":\"Validation failed\",\"errors\":[{\"field\":\"name\",\"message\":\"already exists\"}]}");
+      return;
+    }
+
     boolean idSaved = false;
 
     while(!idSaved) {
@@ -232,7 +244,7 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     objectNode.put("id", freshReqGroup.getId());
     resultNode.set("requester_group", objectNode);
 
-    mockServiceResponse.setResponseCode(201);
+    mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
 
@@ -312,6 +324,17 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(GrouperUtil.length(groupIdString) > 0, "groupId is required");
 
     long groupId = GrouperUtil.longValue(groupIdString);
+
+    // check if group exists
+    List<FreshRequesterGroup> existingGroups = HibernateSession.byHqlStatic()
+        .createQuery("from FreshRequesterGroup where id = :theId")
+        .setLong("theId", groupId).list(FreshRequesterGroup.class);
+
+    if (GrouperUtil.length(existingGroups) == 0) {
+      mockServiceResponse.setResponseCode(404);
+      mockServiceResponse.setContentType("application/json");
+      return;
+    }
 
     // delete memberships first
     HibernateSession.byHqlStatic()
@@ -448,7 +471,9 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
           .createQuery("from FreshRequesterUser where email = :theEmail")
           .setString("theEmail", freshReqUser.getEmail()).list(FreshRequesterUser.class);
       if (existingUsers != null && existingUsers.size() > 0) {
-        mockServiceResponse.setResponseCode(400);
+        mockServiceResponse.setResponseCode(409);
+        mockServiceResponse.setContentType("application/json");
+        mockServiceResponse.setResponseBody("{\"description\":\"Validation failed\",\"errors\":[{\"field\":\"email\",\"message\":\"already exists\"}]}");
         return;
       }
     }
@@ -618,14 +643,21 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
 
     long userId = GrouperUtil.longValue(userIdString);
 
-    // delete memberships first
-    HibernateSession.byHqlStatic()
-        .createQuery("delete from FreshRequesterMembership where userId = :userId")
-        .setString("userId", String.valueOf(userId)).executeUpdateInt();
+    // check if user exists
+    List<FreshRequesterUser> existingUsers = HibernateSession.byHqlStatic()
+        .createQuery("from FreshRequesterUser where id = :theId")
+        .setLong("theId", userId).list(FreshRequesterUser.class);
 
-    HibernateSession.byHqlStatic()
-        .createQuery("delete from FreshRequesterUser where id = :theId")
-        .setLong("theId", userId).executeUpdateInt();
+    if (GrouperUtil.length(existingUsers) == 0) {
+      mockServiceResponse.setResponseCode(404);
+      mockServiceResponse.setContentType("application/json");
+      return;
+    }
+
+    // Freshservice DELETE requester deactivates instead of removing
+    FreshRequesterUser freshRequesterUser = existingUsers.get(0);
+    freshRequesterUser.setActive(false);
+    HibernateSession.byObjectStatic().saveOrUpdate(freshRequesterUser);
 
     mockServiceResponse.setResponseCode(204);
     mockServiceResponse.setContentType("application/json");
