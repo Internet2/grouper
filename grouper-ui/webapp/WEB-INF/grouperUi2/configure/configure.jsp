@@ -128,21 +128,19 @@
 		                        </tr>
                 
                                 <tr>
-                                  <td colspan="8" class="table-toolbar gradient-background">
+                                  <td colspan="2" class="table-toolbar gradient-background">
                                   
-                                   <div class="span1">
+                                   
                                     <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" style="margin-top: 0px;" onchange="$('.configCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
                                     <span>
                                       ${textContainer.text['configurationDeleteSelectConfigs'] }
                                     </span>
-                                  </div>                                                 
-                                  <div class="span4">
+                                    </td>
+                                    <td colspan="3" class="table-toolbar gradient-background">
+                                  
                                     <a href="#" onclick="ajax('../app/UiV2Configure.removeProperties', 
                                       {formIds: 'configListingForm'}); return false;" class="btn" role="button">
                                         ${textContainer.text['configurationDeleteSelectedConfigsButton'] }</a>
-                                        
-                                  </div>
-                  
                                   </td>
                                 </tr>
 		                        
