@@ -109,23 +109,6 @@
 	                </div>
                 </div>
                 
-                
-                <div class="row-fluid" style="margin-bottom: 5px;">
-                  <div class="span3">
-                    <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.configCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
-                    <span>
-                      ${textContainer.text['configurationDeleteSelectConfigs'] }
-                    </span>
-                  </div>                                                 
-                  <div class="span4">
-                    <a href="#" onclick="ajax('../app/UiV2Configure.removeProperties', 
-                      {formIds: 'configListingForm'}); return false;" class="btn" role="button">
-                        ${textContainer.text['configurationDeleteSelectedConfigsButton'] }</a>
-                        
-                  </div>
-                  
-                </div>
-                
                 <form id="configListingForm">
                   <input type="hidden" value="${grouperRequestContainer.configurationContainer.configFileName.configFileName}"
                      name="configFile">
@@ -136,18 +119,37 @@
                         <c:if test="${guiConfigSection.guiConfigProperties.size() > 0}">
                         	<tbody class="config_tbody">
 		                        <tr>
-		                          <th colspan="4">
+		                          <th colspan="5">
 		                            <h4 style="margin-top: 2em">${grouper:escapeHtml(guiConfigSection.configSectionMetadata.title) }</h4>
 		                            <c:if test="${! grouper:isBlank(guiConfigSection.configSectionMetadata.comment)}">
 		                              <p style="font-weight: normal;">${grouper:escapeHtml(guiConfigSection.configSectionMetadata.comment.trim()) }</p>
 		                            </c:if>
 		                          </th>
 		                        </tr>
+                
+                                <tr>
+                                  <td colspan="8" class="table-toolbar gradient-background">
+                                  
+                                   <div class="span2">
+                                    <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.configCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                                    <span>
+                                      ${textContainer.text['configurationDeleteSelectConfigs'] }
+                                    </span>
+                                  </div>                                                 
+                                  <div class="span4">
+                                    <a href="#" onclick="ajax('../app/UiV2Configure.removeProperties', 
+                                      {formIds: 'configListingForm'}); return false;" class="btn" role="button">
+                                        ${textContainer.text['configurationDeleteSelectedConfigsButton'] }</a>
+                                        
+                                  </div>
+                  
+                                  </td>
+                                </tr>
 		                        
 			                    <tr>
-                              <th style="white-space: nowrap; background-color: white">
-                                ${textContainer.text['configurationColumnSelect']}
-                              </th>
+                                  <th style="white-space: nowrap; background-color: white">
+                                    ${textContainer.text['configurationColumnSelect']}
+                                  </th>
 			                        <th style="white-space: nowrap; background-color: white">
 			                          ${textContainer.text['configurationColumnAction']}
 			                        </th>
