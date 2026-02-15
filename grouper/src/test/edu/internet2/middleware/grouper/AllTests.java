@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.abac.AllAbacTests;
 import edu.internet2.middleware.grouper.app.AllAppTests;
 import edu.internet2.middleware.grouper.app.duo.AllDuoProvisionerTests;
 import edu.internet2.middleware.grouper.app.duo.role.AllDuoRoleProvisionerTests;
+import edu.internet2.middleware.grouper.app.freshServiceRequester.AllFreshRequesterProvisionerTests;
 import edu.internet2.middleware.grouper.app.google.AllGoogleProvisionerTests;
 import edu.internet2.middleware.grouper.attr.AllAttributeTests;
 import edu.internet2.middleware.grouper.audit.AllAuditTests;
@@ -242,6 +243,7 @@ public class AllTests extends GrouperTest {
     // dont run provisioning tests in the suite since they use the mock server
     //suite.addTest(AllDuoProvisionerTests.suite());
     //suite.addTest(AllDuoRoleProvisionerTests.suite());
+    //suite.addTest(AllFreshRequesterProvisionerTests.suite());
     
     if (GrouperConfig.getPropertyBoolean("junit.test.externalSubjects", false)) {
       suite.addTest(AllExternalSubjectTests.suite());
