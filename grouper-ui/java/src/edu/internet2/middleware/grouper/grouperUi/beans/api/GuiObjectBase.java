@@ -17,6 +17,8 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -583,6 +585,18 @@ public abstract class GuiObjectBase {
     List<GrouperObjectTypesAttributeValue> attributeValues = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(grouperObject);
     
     if (GrouperUtil.length(attributeValues) > 0) {
+      
+      Collections.sort(attributeValues, new Comparator<GrouperObjectTypesAttributeValue>() {
+
+        @Override
+        public int compare(GrouperObjectTypesAttributeValue o1, GrouperObjectTypesAttributeValue o2) {
+          if (StringUtils.isBlank(o1.getObjectTypeName()) || StringUtils.isBlank(o2.getObjectTypeName())) {
+            return 0;
+          }
+          return o1.getObjectTypeName().compareTo(o2.getObjectTypeName());
+        }
+      });
+      
       List<GuiGrouperObjectTypesAttributeValue> guiAttributeValues = GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValues);
       output.append("(");
       for (GuiGrouperObjectTypesAttributeValue guiAttributeValue: guiAttributeValues) {

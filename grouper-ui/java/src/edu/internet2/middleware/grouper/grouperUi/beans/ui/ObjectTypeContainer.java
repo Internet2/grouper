@@ -4,6 +4,8 @@ import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTyp
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.SERVICE;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +22,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGroup
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiStemObjectType;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class ObjectTypeContainer {
   
@@ -161,6 +164,18 @@ public class ObjectTypeContainer {
    */
   public void setGuiConfiguredGrouperObjectTypesAttributeValues(
       List<GuiGrouperObjectTypesAttributeValue> guiConfiguredGrouperObjectTypesAttributeValues) {
+    
+    Collections.sort(GrouperUtil.nonNull(guiConfiguredGrouperObjectTypesAttributeValues), new Comparator<GuiGrouperObjectTypesAttributeValue>() {
+
+      @Override
+      public int compare(GuiGrouperObjectTypesAttributeValue o1, GuiGrouperObjectTypesAttributeValue o2) {
+        if (StringUtils.isBlank(o1.getGrouperObjectTypesAttributeValue().getObjectTypeName()) || StringUtils.isBlank(o2.getGrouperObjectTypesAttributeValue().getObjectTypeName())) {
+          return 0;
+        }
+        return o1.getGrouperObjectTypesAttributeValue().getObjectTypeName().compareTo(o2.getGrouperObjectTypesAttributeValue().getObjectTypeName());
+      }
+    });
+    
     this.guiConfiguredGrouperObjectTypesAttributeValues = guiConfiguredGrouperObjectTypesAttributeValues;
   }
   
