@@ -130,8 +130,8 @@
                                 <tr>
                                   <td colspan="8" class="table-toolbar gradient-background">
                                   
-                                   <div class="span2">
-                                    <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.configCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                                   <div class="span1">
+                                    <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" style="margin-top: 0px;" onchange="$('.configCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
                                     <span>
                                       ${textContainer.text['configurationDeleteSelectConfigs'] }
                                     </span>
