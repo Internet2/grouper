@@ -10,22 +10,25 @@
   
                       <ul class="dropdown-menu dropdown-menu-right" id="configure-files-more-options">
                         <%-- main link --%>
-                            <li><a href="?operation=UiV2Configure.configure"
-                            onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.configure', {optionalFormElementNamesToSend: 'configFile'}); return false;"
-                            >${textContainer.text['configurationFilesMenuIndex'] }</a></li>
-                            <li>
+                         <li>
                             <a href="?operation=UiV2Configure.configurationFileAddConfig"
                             onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.configurationFileAddConfig', {optionalFormElementNamesToSend: 'configFile'}); return false;"
                             >${textContainer.text['configurationFilesMenuAddConfig'] }</a>
                             </li>
-                            <li><a href="?operation=UiV2Configure.configurationFileImport"
-                            onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.configurationFileImport', {optionalFormElementNamesToSend: 'configFile'}); return false;"
-                            >${textContainer.text['configurationFilesMenuImport'] }</a></li>
-                            <li>
+                             <li>
                             <a href="?operation=UiV2Configure.history"
                             onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.history'); return false;"
                             >${textContainer.text['configurationFilesMenuHistory'] }</a>
                             </li>
+                              <li><a href="?operation=UiV2Configure.configurationFileImport"
+                            onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.configurationFileImport', {optionalFormElementNamesToSend: 'configFile'}); return false;"
+                            >${textContainer.text['configurationFilesMenuImport'] }</a></li>
+                            <li><a href="?operation=UiV2Configure.configure"
+                            onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.configure', {optionalFormElementNamesToSend: 'configFile'}); return false;"
+                            >${textContainer.text['configurationFilesMenuIndex'] }</a></li>
+                           
+                          
+                           
 
                       </ul>
                     </div>
