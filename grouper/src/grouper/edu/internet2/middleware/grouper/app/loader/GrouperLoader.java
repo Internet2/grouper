@@ -136,7 +136,7 @@ public class GrouperLoader {
 //    GrouperCheckConfig.checkConfigProperties("grouper-loader.properties", 
 //        "grouper-loader.example.properties");
     
-    GrouperCheckConfig.checkGrouperLoaderConfigDbs();
+//    GrouperCheckConfig.checkGrouperLoaderConfigDbs();
     GrouperCheckConfig.checkGrouperLoaderConsumers();
     GrouperCheckConfig.checkGrouperLoaderOtherJobs();
     
