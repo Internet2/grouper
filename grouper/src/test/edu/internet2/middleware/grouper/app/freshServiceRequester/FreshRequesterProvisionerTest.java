@@ -1020,4 +1020,147 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
     }
   }
 
+  public void testMemberAddRemoveReAddFull() {
+    memberAddRemoveReAdd(true);
+  }
+
+  public void testMemberAddRemoveReAddIncremental() {
+    memberAddRemoveReAdd(false);
+  }
+
+  public void memberAddRemoveReAdd(boolean isFull) {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+
+    FreshRequesterProvisionerTestUtils.configureFreshRequesterProvisioner(
+        new FreshRequesterProvisionerTestConfigInput()
+            .assignConfigId("freshRequesterProvisioner")
+    );
+
+    GrouperUtil.sleep(5000);
+
+    GrouperStartup.startup();
+
+    try {
+      // this will create tables
+      FreshRequesterApiCommands.retrieveRequesterUsers("freshServiceDev", false);
+
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_user").executeSql();
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      // if incremental, initialize provisioner state before attaching provisioning attribute
+      if (!isFull) {
+        fullProvision();
+        incrementalProvision();
+      }
+
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("freshRequesterProvisioner");
+      attributeValue.setTargetName("freshRequesterProvisioner");
+      attributeValue.setStemScopeString("sub");
+
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+      //
+      // first provision: should provision group, 1 user, 1 membership
+      //
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
+
+      Long userId = new GcDbAccess().connectionName("grouper")
+          .sql("select id from mock_freshreq_user where active = 'T'").select(Long.class);
+      Long groupId = new GcDbAccess().connectionName("grouper")
+          .sql("select id from mock_freshreq_group").select(Long.class);
+
+      // verify via commands class
+      FreshRequesterUser retrievedUser = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", userId, false);
+      assertNotNull(retrievedUser);
+      assertEquals(Boolean.TRUE, retrievedUser.getActive());
+
+      List<FreshRequesterUser> members = FreshRequesterApiCommands.retrieveMembershipsByGroup("freshServiceDev", groupId);
+      assertEquals(1, members.size());
+
+      //
+      // remove member and provision again - user should be deactivated, memberships deleted
+      //
+      testGroup.deleteMember(SubjectTestHelper.SUBJ0);
+
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
+
+      // user still exists in mock table but is inactive
+      String activeFlag = new GcDbAccess().connectionName("grouper")
+          .sql("select active from mock_freshreq_user where id = ?").addBindVar(userId).select(String.class);
+      assertEquals("F", activeFlag);
+
+      // commands class: should not return inactive user without includeInactive flag
+      FreshRequesterUser inactiveUserFiltered = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", userId, false);
+      assertNull(inactiveUserFiltered);
+
+      // commands class: should return inactive user with includeInactive flag
+      FreshRequesterUser inactiveUser = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", userId, true);
+      assertNotNull(inactiveUser);
+      assertEquals(Boolean.FALSE, inactiveUser.getActive());
+
+      // commands class: no memberships
+      members = FreshRequesterApiCommands.retrieveMembershipsByGroup("freshServiceDev", groupId);
+      assertEquals(0, members.size());
+
+      //
+      // re-add the same member and provision again - user should be reactivated, membership re-created
+      //
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
+
+      // commands class: user is active again
+      FreshRequesterUser reactivatedUser = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", userId, false);
+      assertNotNull(reactivatedUser);
+      assertEquals(Boolean.TRUE, reactivatedUser.getActive());
+
+      // commands class: membership is back
+      members = FreshRequesterApiCommands.retrieveMembershipsByGroup("freshServiceDev", groupId);
+      assertEquals(1, members.size());
+
+    } finally {
+
+    }
+  }
+
 }
