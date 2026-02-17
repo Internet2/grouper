@@ -320,7 +320,7 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
         fieldNamesToUpdate.add(fieldName);
       }
 
-      FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromProvisioningEntity(targetEntity, fieldNamesToUpdate);
+      FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromProvisioningEntity(targetEntity, null);
 
       FreshRequesterApiCommands.updateRequesterUser(
           freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), grouperRequesterUser, fieldNamesToUpdate);
