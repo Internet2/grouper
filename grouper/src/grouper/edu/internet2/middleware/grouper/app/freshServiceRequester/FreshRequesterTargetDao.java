@@ -1,7 +1,11 @@
 package edu.internet2.middleware.grouper.app.freshServiceRequester;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -10,10 +14,19 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerDaoCapabilities;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
@@ -29,6 +42,10 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupResponse;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -98,6 +115,110 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
   }
   
   @Override
+  public TargetDaoInsertGroupResponse insertGroup(TargetDaoInsertGroupRequest targetDaoInsertGroupRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningGroup targetGroup = targetDaoInsertGroupRequest.getTargetGroup();
+
+    try {
+      FreshRequesterConfiguration freshserviceConfiguration = (FreshRequesterConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+
+      FreshRequesterGroup grouperRequesterGroup = FreshRequesterGroup.fromProvisioningGroup(targetGroup, null);
+
+      FreshRequesterGroup createdGroup = FreshRequesterApiCommands.createRequesterGroup(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), grouperRequesterGroup);
+
+      targetGroup.setId(String.valueOf(createdGroup.getId()));
+      targetGroup.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoInsertGroupResponse();
+    } catch (Exception e) {
+      targetGroup.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertGroup", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoUpdateGroupResponse updateGroup(TargetDaoUpdateGroupRequest targetDaoUpdateGroupRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningGroup targetGroup = targetDaoUpdateGroupRequest.getTargetGroup();
+
+    try {
+      FreshRequesterConfiguration freshserviceConfiguration = (FreshRequesterConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+
+      // collect the field names and actions that need to be updated from the provisioning object changes
+      Map<String, ProvisioningObjectChangeAction> fieldsToUpdate = new LinkedHashMap<String, ProvisioningObjectChangeAction>();
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        String fieldName = provisioningObjectChange.getAttributeName();
+        fieldsToUpdate.put(fieldName, provisioningObjectChange.getProvisioningObjectChangeAction());
+      }
+
+      FreshRequesterGroup grouperRequesterGroup = FreshRequesterGroup.fromProvisioningGroup(targetGroup, null);
+
+      FreshRequesterApiCommands.updateRequesterGroup(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), grouperRequesterGroup, fieldsToUpdate);
+
+      targetGroup.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoUpdateGroupResponse();
+    } catch (Exception e) {
+      targetGroup.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("updateGroup", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoDeleteGroupResponse deleteGroup(TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
+
+    try {
+      FreshRequesterConfiguration freshserviceConfiguration = (FreshRequesterConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+
+      FreshRequesterGroup grouperRequesterGroup = FreshRequesterGroup.fromProvisioningGroup(targetGroup, null);
+
+      FreshRequesterApiCommands.deleteRequesterGroup(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), grouperRequesterGroup.getId());
+
+      targetGroup.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoDeleteGroupResponse();
+    } catch (Exception e) {
+      targetGroup.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteGroup", startNanos));
+    }
+  }
+
+  @Override
   public TargetDaoRetrieveAllEntitiesResponse retrieveAllEntities(TargetDaoRetrieveAllEntitiesRequest targetDaoRetrieveAllEntitiesRequest) {
     List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
     long startNanos = System.nanoTime();
@@ -106,7 +227,7 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
       FreshRequesterConfiguration freshserviceConfiguration = (FreshRequesterConfiguration) this.getGrouperProvisioner()
           .retrieveGrouperProvisioningConfiguration();
       
-      List<FreshRequesterUser> requesters = FreshRequesterApiCommands.retrieveRequesterUsers(freshserviceConfiguration.getFreshserviceExternalSystemConfigId());
+      List<FreshRequesterUser> requesters = FreshRequesterApiCommands.retrieveRequesterUsers(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), false);
       for (FreshRequesterUser requester : requesters) {
         ProvisioningEntity targetEntity = requester.toProvisioningEntity();
         results.add(targetEntity);
@@ -130,10 +251,10 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
       
       if (StringUtils.equals("email", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
         requester = FreshRequesterApiCommands.retrieveRequesterUserByEmail(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
-            targetDaoRetrieveEntityRequest.getSearchAttributeValue().toString());
+            targetDaoRetrieveEntityRequest.getSearchAttributeValue().toString(), false);
       } else if (StringUtils.equals("id", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
-        requester = FreshRequesterApiCommands.retrieveRequesterUser(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
-            GrouperUtil.longValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue()));
+        requester = FreshRequesterApiCommands.retrieveRequesterUserById(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
+            GrouperUtil.longValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue()), false);
       } else {
         throw new RuntimeException("Not expecting search attribute '" + targetDaoRetrieveEntityRequest.getSearchAttribute() + "'");
       }
@@ -150,6 +271,111 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
   
+  @Override
+  public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
+
+    try {
+      FreshRequesterConfiguration freshserviceConfiguration = (FreshRequesterConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+
+      FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromProvisioningEntity(targetEntity, null);
+
+      FreshRequesterUser createdUser = FreshRequesterApiCommands.createRequesterUser(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), grouperRequesterUser);
+
+      targetEntity.setId(String.valueOf(createdUser.getId()));
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoInsertEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertEntity", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoUpdateEntityResponse updateEntity(TargetDaoUpdateEntityRequest targetDaoUpdateEntityRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoUpdateEntityRequest.getTargetEntity();
+
+    try {
+      FreshRequesterConfiguration freshserviceConfiguration = (FreshRequesterConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+
+      // collect the field names that need to be updated from the provisioning object changes
+      Set<String> fieldNamesToUpdate = new HashSet<String>();
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        String fieldName = provisioningObjectChange.getAttributeName();
+        fieldNamesToUpdate.add(fieldName);
+      }
+
+      FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromProvisioningEntity(targetEntity, fieldNamesToUpdate);
+
+      FreshRequesterApiCommands.updateRequesterUser(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), grouperRequesterUser, fieldNamesToUpdate);
+
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoUpdateEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("updateEntity", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoDeleteEntityResponse deleteEntity(TargetDaoDeleteEntityRequest targetDaoDeleteEntityRequest) {
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoDeleteEntityRequest.getTargetEntity();
+
+    try {
+      FreshRequesterConfiguration freshserviceConfiguration = (FreshRequesterConfiguration) this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration();
+
+      FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromProvisioningEntity(targetEntity, null);
+
+      // deactivate (soft delete) the requester user
+      FreshRequesterApiCommands.deactivateRequesterUser(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), grouperRequesterUser.getId());
+
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoDeleteEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteEntity", startNanos));
+    }
+  }
+
   @Override
   public TargetDaoInsertMembershipResponse insertMembership(TargetDaoInsertMembershipRequest targetDaoInsertMembershipRequest) {
     long startNanos = System.nanoTime();
@@ -222,7 +448,7 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
       for(FreshRequesterUser requester : requesters) {
         ProvisioningMembership targetMembership = new ProvisioningMembership();
         targetMembership.setProvisioningGroupId(targetGroupId);
-        targetMembership.setProvisioningEntityId(Long.toString(requester.getId()));
+        targetMembership.setProvisioningEntityId(requester.getId() == null ? null : Long.toString(requester.getId()));
         provisioningMemberships.add(targetMembership);
       }
       
@@ -261,10 +487,14 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
+    grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
+    grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
+    grouperProvisionerDaoCapabilities.setCanDeleteEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+    grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
     grouperProvisionerDaoCapabilities.setCanInsertMembership(true);
     grouperProvisionerDaoCapabilities.setCanDeleteMembership(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);

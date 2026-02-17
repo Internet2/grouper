@@ -51,11 +51,7 @@ public class FreshRequesterGroup {
     grouperRequesterGroup.name = GrouperUtil.jsonJacksonGetString(groupNode, "name");
     grouperRequesterGroup.description = GrouperUtil.jsonJacksonGetString(groupNode, "description");
     
-    try {
-      grouperRequesterGroup.id = GrouperUtil.jsonJacksonGetLong(groupNode, "id");
-    } catch (NullPointerException e) {
-      
-    }
+    grouperRequesterGroup.id = GrouperUtil.jsonJacksonGetLong(groupNode, "id");
     
     return grouperRequesterGroup;
   }
@@ -87,7 +83,9 @@ public class FreshRequesterGroup {
    */
   public ProvisioningGroup toProvisioningGroup() {
     ProvisioningGroup targetGroup = new ProvisioningGroup();
-    targetGroup.setId(Long.toString(this.id));
+    if (this.id != null) {
+      targetGroup.setId(Long.toString(this.id));
+    }
     targetGroup.assignAttributeValue("description", this.description);
     targetGroup.assignAttributeValue("name", this.name);
     return targetGroup;
@@ -103,7 +101,11 @@ public class FreshRequesterGroup {
     FreshRequesterGroup grouperRequesterGroup = new FreshRequesterGroup();
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {
-      grouperRequesterGroup.setId(GrouperUtil.longValue(targetGroup.getId()));
+      if (targetGroup.getId() == null) {
+        grouperRequesterGroup.setId(null);
+      } else {
+        grouperRequesterGroup.setId(Long.parseLong(targetGroup.getId()));
+      }
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("name")) {      
@@ -123,16 +125,16 @@ public class FreshRequesterGroup {
     return GrouperClientUtils.toStringReflection(this);
   }
 
-  private long id;
+  private Long id;
   private String name;
   private String description;
   
   
-  public long getId() {
+  public Long getId() {
     return id;
   }
-  
-  public void setId(long id) {
+
+  public void setId(Long id) {
     this.id = id;
   }
   

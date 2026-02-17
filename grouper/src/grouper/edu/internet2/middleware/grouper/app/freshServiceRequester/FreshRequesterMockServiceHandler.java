@@ -339,7 +339,7 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     // delete memberships first
     HibernateSession.byHqlStatic()
         .createQuery("delete from FreshRequesterMembership where groupId = :groupId")
-        .setString("groupId", String.valueOf(groupId)).executeUpdateInt();
+        .setLong("groupId", groupId).executeUpdateInt();
 
     HibernateSession.byHqlStatic()
         .createQuery("delete from FreshRequesterGroup where id = :theId")
@@ -464,6 +464,14 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     JsonNode userJsonNode = GrouperUtil.jsonJacksonNode(userJsonString);
 
     FreshRequesterUser freshReqUser = FreshRequesterUser.fromJson(userJsonNode);
+
+    // Default active=true and isAgent=false to match real Freshservice behavior
+    if (freshReqUser.getActive() == null) {
+      freshReqUser.setActive(true);
+    }
+    if (freshReqUser.getIsAgent() == null) {
+      freshReqUser.setIsAgent(false);
+    }
 
     // check if email already exists
     if (StringUtils.isNotBlank(freshReqUser.getEmail())) {
@@ -629,7 +637,7 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
   /**
    * DELETE /requesters/{id} - deactivate/delete a user
    */
-  public void deleteUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+  public void deactivateUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     try {
       checkAuthorization(mockServiceRequest);
     } catch (RuntimeException e) {
@@ -659,6 +667,52 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     freshRequesterUser.setActive(false);
     HibernateSession.byObjectStatic().saveOrUpdate(freshRequesterUser);
 
+    // delete all memberships for the deactivated user
+    HibernateSession.byHqlStatic()
+        .createQuery("delete from FreshRequesterMembership where userId = :userId")
+        .setLong("userId", userId).executeUpdateInt();
+
+    mockServiceResponse.setResponseCode(204);
+    mockServiceResponse.setContentType("application/json");
+  }
+
+  /**
+   * DELETE /requesters/{id}/forget - permanently delete (forget) a user
+   */
+  public void forgetUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    try {
+      checkAuthorization(mockServiceRequest);
+    } catch (RuntimeException e) {
+      mockServiceResponse.setResponseCode(401);
+      throw e;
+    }
+
+    String userIdString = mockServiceRequest.getPostMockNamePaths()[1];
+
+    GrouperUtil.assertion(GrouperUtil.length(userIdString) > 0, "userId is required");
+
+    long userId = GrouperUtil.longValue(userIdString);
+
+    // check if user exists
+    List<FreshRequesterUser> existingUsers = HibernateSession.byHqlStatic()
+        .createQuery("from FreshRequesterUser where id = :theId")
+        .setLong("theId", userId).list(FreshRequesterUser.class);
+
+    if (GrouperUtil.length(existingUsers) == 0) {
+      mockServiceResponse.setResponseCode(404);
+      mockServiceResponse.setContentType("application/json");
+      return;
+    }
+
+    // permanently delete: remove memberships first, then remove the user
+    HibernateSession.byHqlStatic()
+        .createQuery("delete from FreshRequesterMembership where userId = :userId")
+        .setLong("userId", userId).executeUpdateInt();
+
+    HibernateSession.byHqlStatic()
+        .createQuery("delete from FreshRequesterUser where id = :theId")
+        .setLong("theId", userId).executeUpdateInt();
+
     mockServiceResponse.setResponseCode(204);
     mockServiceResponse.setContentType("application/json");
   }
@@ -680,17 +734,19 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
 
     GrouperUtil.assertion(GrouperUtil.length(groupIdString) > 0, "groupId is required");
 
+    long groupId = GrouperUtil.longValue(groupIdString);
+
     // find all user ids in this group via membership table
     List<FreshRequesterMembership> memberships = HibernateSession.byHqlStatic()
         .createQuery("from FreshRequesterMembership where groupId = :theGroupId")
-        .setString("theGroupId", groupIdString).list(FreshRequesterMembership.class);
+        .setLong("theGroupId", groupId).list(FreshRequesterMembership.class);
 
     ArrayNode usersArray = GrouperUtil.jsonJacksonArrayNode();
 
     for (FreshRequesterMembership membership : memberships) {
       List<FreshRequesterUser> users = HibernateSession.byHqlStatic()
           .createQuery("from FreshRequesterUser where id = :theId")
-          .setLong("theId", GrouperUtil.longValue(membership.getUserId())).list(FreshRequesterUser.class);
+          .setLong("theId", membership.getUserId()).list(FreshRequesterUser.class);
       if (GrouperUtil.length(users) == 1) {
         ObjectNode objectNode = users.get(0).toJson(null);
         objectNode.put("id", users.get(0).getId());
@@ -729,7 +785,7 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     // check if group exists
     List<FreshRequesterGroup> groups = HibernateSession.byHqlStatic()
         .createQuery("from FreshRequesterGroup where id = :theId")
-        .setLong("theId", GrouperUtil.longValue(groupIdString)).list(FreshRequesterGroup.class);
+        .setLong("theId", groupId).list(FreshRequesterGroup.class);
 
     if (GrouperUtil.length(groups) == 0) {
       mockServiceResponse.setResponseCode(404);
@@ -739,7 +795,7 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     // check if user exists
     List<FreshRequesterUser> users = HibernateSession.byHqlStatic()
         .createQuery("from FreshRequesterUser where id = :theId")
-        .setLong("theId", GrouperUtil.longValue(userIdString)).list(FreshRequesterUser.class);
+        .setLong("theId", userId).list(FreshRequesterUser.class);
 
     if (GrouperUtil.length(users) == 0) {
       mockServiceResponse.setResponseCode(404);
@@ -749,8 +805,8 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     // check if already a member
     List<FreshRequesterMembership> existingMemberships = HibernateSession.byHqlStatic()
         .createQuery("from FreshRequesterMembership where groupId = :groupId and userId = :userId")
-        .setString("groupId", groupIdString)
-        .setString("userId", userIdString)
+        .setLong("groupId", groupId)
+        .setLong("userId", userId)
         .list(FreshRequesterMembership.class);
 
     if (GrouperUtil.length(existingMemberships) == 0) {
@@ -784,10 +840,13 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(GrouperUtil.length(groupIdString) > 0, "groupId is required");
     GrouperUtil.assertion(GrouperUtil.length(userIdString) > 0, "userId is required");
 
+    long groupId = GrouperUtil.longValue(groupIdString);
+    long userId = GrouperUtil.longValue(userIdString);
+
     int deleted = HibernateSession.byHqlStatic()
         .createQuery("delete from FreshRequesterMembership where groupId = :groupId and userId = :userId")
-        .setString("groupId", groupIdString)
-        .setString("userId", userIdString)
+        .setLong("groupId", groupId)
+        .setLong("userId", userId)
         .executeUpdateInt();
 
     if (deleted > 0) {
@@ -905,9 +964,15 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
         removeGroupMember(mockServiceRequest, mockServiceResponse);
         return;
       }
+      // DELETE /requesters/{id}/forget
+      if ("requesters".equals(mockNamePaths.get(0)) && 3 == mockNamePaths.size()
+          && "forget".equals(mockNamePaths.get(2))) {
+        forgetUser(mockServiceRequest, mockServiceResponse);
+        return;
+      }
       // DELETE /requesters/{id}
       if ("requesters".equals(mockNamePaths.get(0)) && 2 == mockNamePaths.size()) {
-        deleteUser(mockServiceRequest, mockServiceResponse);
+        deactivateUser(mockServiceRequest, mockServiceResponse);
         return;
       }
     }
