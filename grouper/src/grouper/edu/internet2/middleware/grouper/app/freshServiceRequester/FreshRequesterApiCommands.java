@@ -208,9 +208,8 @@ public class FreshRequesterApiCommands {
       }
 
       Long groupId = grouperRequesterGroup.getId();
-      if (groupId == 0) {
-        // legacy pattern: 0 means unset
-        throw new RuntimeException("groupId is 0 (unset)");
+      if (groupId == null || groupId == 0L) {
+        throw new RuntimeException("groupId is null or 0 (unset)");
       }
 
       FreshRequesterGroup requesterGroupCurrentState = retrieveRequesterGroup(configId, groupId);
@@ -269,12 +268,33 @@ public class FreshRequesterApiCommands {
   }
   
   /**
-   * Update a Freshservice requester user
+   * Update a Freshservice requester user.
+   *
+   * This method performs a three-step update:
+   * 1. GET the current requester JSON from Freshservice by id
+   * 2. Strip read-only attributes that cannot be sent on a PUT
+   *    (id, created_at, has_logged_in, is_agent, updated_at, work_schedule_id,
+   *    department_names, location_name)
+   * 3. Overlay the fields indicated in fieldsToUpdate with values from the
+   *    supplied FreshRequesterUser, then PUT the result
+   *
+   * The fieldsToUpdate set uses Java-style field names which are translated
+   * to their Freshservice JSON attribute names (e.g. "firstName" becomes "first_name",
+   * "email" becomes "primary_email", "departmentId" becomes "department_ids" array).
+   *
+   * Custom fields use the prefix "customField_" followed by the Freshservice
+   * custom field name (e.g. "customField_pennkey").
+   *
    * @param configId the id of the external system
-   * @param grouperRequesterUser the user to be updated in Freshservice
-   * @param fieldsToUpdate map of fieldName -> change action
+   * @param grouperRequesterUser the requester user containing the new values.
+   *   Must have id set to identify which user to update.
+   * @param fieldsToUpdate set of Java field names to update. Supported values:
+   *   "firstName", "lastName", "email", "jobTitle", "workPhoneNumber",
+   *   "departmentId", "reportingManagerId", "address", "active",
+   *   and custom fields with prefix "customField_" (e.g. "customField_pennkey")
+   * @return the updated requester user parsed from the PUT response
    */
-  public static void updateRequesterUser(String configId, FreshRequesterUser grouperRequesterUser, Map<String, ProvisioningObjectChangeAction> fieldsToUpdate) {
+  public static FreshRequesterUser updateRequesterUser(String configId, FreshRequesterUser grouperRequesterUser, Set<String> fieldsToUpdate) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
     debugMap.put("method", "updateRequesterUser");
@@ -283,139 +303,193 @@ public class FreshRequesterApiCommands {
 
     try {
 
+      // validate input
       if (grouperRequesterUser == null) {
         throw new RuntimeException("grouperRequesterUser is null");
       }
 
-      long userId = grouperRequesterUser.getId();
-      if (userId == 0) {
-        throw new RuntimeException("userId is 0 (unset)");
+      Long userId = grouperRequesterUser.getId();
+      if (userId == null || userId == 0L) {
+        throw new RuntimeException("userId is null or 0 (unset)");
       }
 
-      FreshRequesterUser requesterUserCurrentState = retrieveRequesterUser(configId, userId);
-      if (requesterUserCurrentState == null) {
+      // Step 1: GET the current state of the requester from Freshservice
+      // GET /api/v2/requesters/{id} returns { "requester": { ... } }
+      int[] getReturnCode = new int[] { -1 };
+      String getUrlSuffix = "api/v2/requesters/" + String.valueOf(userId);
+      JsonNode getJsonNode = executeMethod(debugMap, "GET", configId, getUrlSuffix,
+          GrouperUtil.toSet(200, 404), getReturnCode, null, null, false, null);
+
+      // if the user does not exist, we cannot update
+      if (getReturnCode[0] == 404 || getJsonNode == null) {
         throw new RuntimeException("Cannot update requester user that does not exist in target. id=" + userId);
       }
 
-      ObjectNode jsonToSend = requesterUserCurrentState.toJson(null);
+      // extract the "requester" object from the response
+      JsonNode requesterNode = getJsonNode.get("requester");
+      if (requesterNode == null) {
+        throw new RuntimeException("Cannot update requester user that does not exist in target. id=" + userId);
+      }
 
-      // overlay only updated fields
+      // Step 2: deep copy to a mutable ObjectNode and strip read-only attributes
+      // that the Freshservice PUT endpoint does not accept
+      ObjectNode jsonToSend = requesterNode.deepCopy();
+      jsonToSend.remove("id");
+      jsonToSend.remove("created_at");
+      jsonToSend.remove("has_logged_in");
+      jsonToSend.remove("is_agent");
+      jsonToSend.remove("updated_at");
+      jsonToSend.remove("work_schedule_id");
+      jsonToSend.remove("department_names");
+      jsonToSend.remove("location_name");
+
+      // Step 3: overlay only the fields indicated in fieldsToUpdate.
+      // Each field name is a Java-style name that maps to a Freshservice JSON attribute.
+      // If the value on the FreshRequesterUser is non-null, set it; otherwise send null.
       if (fieldsToUpdate != null) {
-        for (Map.Entry<String, ProvisioningObjectChangeAction> entry : fieldsToUpdate.entrySet()) {
-          String fieldName = entry.getKey();
-          ProvisioningObjectChangeAction action = entry.getValue();
-          if (action == null) {
-            continue;
-          }
+        for (String fieldName : fieldsToUpdate) {
           if (StringUtils.isBlank(fieldName)) {
             continue;
           }
 
-          boolean isDelete = action == ProvisioningObjectChangeAction.delete;
+          // read-only attributes that Freshservice does not allow on PUT.
+          // If a provisioner tries to update these, the CRUD update setting
+          // for this attribute should be set to false in the provisioner configuration.
+          if ("id".equals(fieldName) || "isAgent".equals(fieldName)
+              || "createdAt".equals(fieldName) || "hasLoggedIn".equals(fieldName)
+              || "updatedAt".equals(fieldName) || "workScheduleId".equals(fieldName)
+              || "departmentNames".equals(fieldName) || "locationName".equals(fieldName)) {
+            throw new RuntimeException("Cannot update read-only attribute '" + fieldName
+                + "'. Set CRUD update to false for this attribute in the provisioner configuration.");
+          }
 
-          // built-ins
+          // "firstName" -> JSON "first_name"
           if ("firstName".equals(fieldName)) {
-            if (isDelete) {
-              jsonToSend.putNull("first_name");
-            } else {
+            if (grouperRequesterUser.getFirstName() != null) {
               jsonToSend.put("first_name", grouperRequesterUser.getFirstName());
+            } else {
+              jsonToSend.putNull("first_name");
             }
+
+          // "lastName" -> JSON "last_name"
           } else if ("lastName".equals(fieldName)) {
-            if (isDelete) {
-              jsonToSend.putNull("last_name");
-            } else {
+            if (grouperRequesterUser.getLastName() != null) {
               jsonToSend.put("last_name", grouperRequesterUser.getLastName());
+            } else {
+              jsonToSend.putNull("last_name");
             }
+
+          // "email" -> JSON "primary_email"
           } else if ("email".equals(fieldName)) {
-            if (isDelete) {
-              jsonToSend.putNull("primary_email");
-            } else {
+            if (grouperRequesterUser.getEmail() != null) {
               jsonToSend.put("primary_email", grouperRequesterUser.getEmail());
+            } else {
+              jsonToSend.putNull("primary_email");
             }
-          } else if ("isAgent".equals(fieldName)) {
-            if (isDelete) {
-              jsonToSend.putNull("is_agent");
-            } else if (grouperRequesterUser.getIsAgent() != null) {
-              jsonToSend.put("is_agent", grouperRequesterUser.getIsAgent().booleanValue());
-            }
+
+          // "jobTitle" -> JSON "job_title"
           } else if ("jobTitle".equals(fieldName)) {
-            if (isDelete) {
-              jsonToSend.putNull("job_title");
-            } else {
+            if (grouperRequesterUser.getJobTitle() != null) {
               jsonToSend.put("job_title", grouperRequesterUser.getJobTitle());
-            }
-          } else if ("workPhoneNumber".equals(fieldName)) {
-            if (isDelete) {
-              jsonToSend.putNull("work_phone_number");
             } else {
-              jsonToSend.put("work_phone_number", grouperRequesterUser.getWorkPhoneNumber());
+              jsonToSend.putNull("job_title");
             }
+
+          // "workPhoneNumber" -> JSON "work_phone_number"
+          } else if ("workPhoneNumber".equals(fieldName)) {
+            if (grouperRequesterUser.getWorkPhoneNumber() != null) {
+              jsonToSend.put("work_phone_number", grouperRequesterUser.getWorkPhoneNumber());
+            } else {
+              jsonToSend.putNull("work_phone_number");
+            }
+
+          // "departmentId" -> JSON "department_ids" (array with single element)
           } else if ("departmentId".equals(fieldName)) {
-            if (isDelete) {
-              jsonToSend.putNull("department_ids");
-            } else if (grouperRequesterUser.getDepartmentId() != null) {
+            if (grouperRequesterUser.getDepartmentId() != null) {
+              // Freshservice expects department_ids as an array
               ArrayNode departmentIdsArray = GrouperUtil.jsonJacksonArrayNode();
               departmentIdsArray.add(grouperRequesterUser.getDepartmentId().longValue());
               jsonToSend.set("department_ids", departmentIdsArray);
-            }
-          } else if ("reportingManagerId".equals(fieldName)) {
-            if (isDelete) {
-              jsonToSend.putNull("reporting_manager_id");
-            } else if (grouperRequesterUser.getReportingManagerId() != null) {
-              jsonToSend.put("reporting_manager_id", grouperRequesterUser.getReportingManagerId().longValue());
-            }
-          } else if ("address".equals(fieldName)) {
-            if (isDelete) {
-              jsonToSend.putNull("address");
             } else {
+              jsonToSend.putNull("department_ids");
+            }
+
+          // "reportingManagerId" -> JSON "reporting_manager_id"
+          } else if ("reportingManagerId".equals(fieldName)) {
+            if (grouperRequesterUser.getReportingManagerId() != null) {
+              jsonToSend.put("reporting_manager_id", grouperRequesterUser.getReportingManagerId().longValue());
+            } else {
+              jsonToSend.putNull("reporting_manager_id");
+            }
+
+          // "address" -> JSON "address"
+          } else if ("address".equals(fieldName)) {
+            if (grouperRequesterUser.getAddress() != null) {
               jsonToSend.put("address", grouperRequesterUser.getAddress());
+            } else {
+              jsonToSend.putNull("address");
             }
+
+          // "active" -> JSON "active" (boolean)
           } else if ("active".equals(fieldName)) {
-            if (isDelete) {
-              jsonToSend.putNull("active");
-            } else if (grouperRequesterUser.getActive() != null) {
+            if (grouperRequesterUser.getActive() != null) {
               jsonToSend.put("active", grouperRequesterUser.getActive().booleanValue());
+            } else {
+              jsonToSend.putNull("active");
             }
+
+          // "customField_<name>" -> nested inside JSON "custom_fields" object
+          // e.g. "customField_pennkey" sets custom_fields.pennkey
           } else if (fieldName.startsWith(FreshRequesterUser.CUSTOM_FIELD_ATTRIBUTE_PREFIX)) {
 
-            // custom field in the fieldsToUpdate map is identified by customField_<name>
+            // strip the prefix to get the actual Freshservice custom field name
             String customFieldName = fieldName.substring(FreshRequesterUser.CUSTOM_FIELD_ATTRIBUTE_PREFIX.length());
             if (!StringUtils.isBlank(customFieldName)) {
+
+              // get or create the custom_fields JSON object
               ObjectNode customFieldsNode = (ObjectNode) GrouperUtil.jsonJacksonGetNode(jsonToSend, "custom_fields");
               if (customFieldsNode == null) {
                 customFieldsNode = GrouperUtil.jsonJacksonNode();
                 jsonToSend.set("custom_fields", customFieldsNode);
               }
 
-              if (isDelete) {
-                customFieldsNode.putNull(customFieldName);
-              } else {
-                Object customValue = grouperRequesterUser.getCustomFields() == null ? null
-                    : grouperRequesterUser.getCustomFields().get(customFieldName);
+              // get the custom field value from the FreshRequesterUser
+              Object customValue = grouperRequesterUser.getCustomFields() == null ? null
+                  : grouperRequesterUser.getCustomFields().get(customFieldName);
 
-                if (customValue == null) {
-                  // if update is requested but value is null, send null
-                  customFieldsNode.putNull(customFieldName);
-                } else if (customValue instanceof String) {
-                  customFieldsNode.put(customFieldName, (String) customValue);
-                } else if (customValue instanceof Boolean) {
-                  customFieldsNode.put(customFieldName, ((Boolean) customValue).booleanValue());
-                } else if (customValue instanceof Number) {
-                  customFieldsNode.put(customFieldName, ((Number) customValue).longValue());
-                } else {
-                  throw new RuntimeException("Unsupported custom field type for " + customFieldName + ": "
-                      + customValue.getClass().getName());
-                }
+              // set the value in the JSON according to its type
+              if (customValue == null) {
+                customFieldsNode.putNull(customFieldName);
+              } else if (customValue instanceof String) {
+                customFieldsNode.put(customFieldName, (String) customValue);
+              } else if (customValue instanceof Boolean) {
+                customFieldsNode.put(customFieldName, ((Boolean) customValue).booleanValue());
+              } else if (customValue instanceof Number) {
+                customFieldsNode.put(customFieldName, ((Number) customValue).longValue());
+              } else {
+                throw new RuntimeException("Unsupported custom field type for " + customFieldName + ": "
+                    + customValue.getClass().getName());
               }
             }
+
+          // unrecognized field name
+          } else {
+            throw new RuntimeException("Unrecognized field name in fieldsToUpdate: '" + fieldName + "'");
           }
         }
       }
 
+      // serialize the JSON and send the PUT request
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      executeMethod(debugMap, "PUT", configId, "api/v2/requesters/" + String.valueOf(userId),
+      // PUT /api/v2/requesters/{id} returns { "requester": { ... } }
+      JsonNode responseNode = executeMethod(debugMap, "PUT", configId, "api/v2/requesters/" + String.valueOf(userId),
           GrouperUtil.toSet(200, 201), new int[] { -1 }, jsonStringToSend, null, false, null);
+
+      // parse the updated requester from the response
+      JsonNode updatedUserNode = GrouperUtil.jsonJacksonGetNode(responseNode, "requester");
+      FreshRequesterUser updatedUser = FreshRequesterUser.fromJson(updatedUserNode);
+      return updatedUser;
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -518,7 +592,7 @@ public class FreshRequesterApiCommands {
       boolean lastPage = false;
       int page = 1;
       
-      while (lastPage != true) {
+      while (!lastPage) {
         
         JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "api/v2/requester_groups",
             GrouperUtil.toSet(200), new int[] { -1 }, null, page, true, null);
@@ -555,15 +629,95 @@ public class FreshRequesterApiCommands {
   }
   
   /**
-   * Create a requester user in Freshservice
+   * Create a requester user in Freshservice, or update an existing one if a user
+   * with the same email address already exists.
+   *
+   * This method first looks up the user by email address:
+   * - If a user already exists and is inactive, it will be reactivated and updated
+   *   with all the fields from grouperRequesterUser.
+   * - If a user already exists and is active, it will be updated with all the
+   *   fields from grouperRequesterUser.
+   * - If no user exists with that email, a new user is created via the helper method.
+   *
    * @param configId the id of the external system
-   * @param grouperRequesterUser the user to be created in Freshservice
-   * @return the created requester user with assigned id
+   * @param grouperRequesterUser the user to be created or updated in Freshservice
+   * @return the created or updated requester user
    */
   public static FreshRequesterUser createRequesterUser(String configId, FreshRequesterUser grouperRequesterUser) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
     debugMap.put("method", "createRequesterUser");
+
+    long startTime = System.nanoTime();
+
+    try {
+
+      // look up existing user by email address
+      FreshRequesterUser existingUser = null;
+      if (!StringUtils.isBlank(grouperRequesterUser.getEmail())) {
+        existingUser = retrieveRequesterUserByEmail(configId, grouperRequesterUser.getEmail(), true);
+      }
+
+      if (existingUser != null) {
+        // user already exists - build a set of all fields to update
+        Set<String> fieldsToUpdate = new java.util.LinkedHashSet<String>();
+        fieldsToUpdate.add("firstName");
+        fieldsToUpdate.add("lastName");
+        fieldsToUpdate.add("email");
+        fieldsToUpdate.add("jobTitle");
+        fieldsToUpdate.add("workPhoneNumber");
+        fieldsToUpdate.add("departmentId");
+        fieldsToUpdate.add("reportingManagerId");
+        fieldsToUpdate.add("address");
+
+        // if the existing user is not active, reactivate it
+        if (existingUser.getActive() == null || !existingUser.getActive()) {
+          grouperRequesterUser.setActive(true);
+        }
+        fieldsToUpdate.add("active");
+
+        // add any custom fields from the grouperRequesterUser
+        if (grouperRequesterUser.getCustomFields() != null) {
+          for (String customFieldName : grouperRequesterUser.getCustomFields().keySet()) {
+            if (!StringUtils.isBlank(customFieldName)) {
+              fieldsToUpdate.add(FreshRequesterUser.CUSTOM_FIELD_ATTRIBUTE_PREFIX + customFieldName);
+            }
+          }
+        }
+
+        // set the id from the existing user so updateRequesterUser can find it
+        grouperRequesterUser.setId(existingUser.getId());
+
+        // update the existing user with all fields
+        return updateRequesterUser(configId, grouperRequesterUser, fieldsToUpdate);
+      }
+
+      // no existing user found - create a new one
+      return createRequesterUserHelper(configId, grouperRequesterUser);
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      FreshRequesterLog.freshserviceLog(debugMap, startTime);
+    }
+
+  }
+
+  /**
+   * Helper method to create a new requester user in Freshservice via POST.
+   * This method directly calls the Freshservice POST /api/v2/requesters endpoint.
+   * Callers should typically use createRequesterUser() which handles the
+   * lookup-by-email and update-if-exists logic.
+   *
+   * @param configId the id of the external system
+   * @param grouperRequesterUser the user to be created in Freshservice
+   * @return the created requester user with assigned id
+   */
+  public static FreshRequesterUser createRequesterUserHelper(String configId, FreshRequesterUser grouperRequesterUser) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "createRequesterUserHelper");
 
     long startTime = System.nanoTime();
 
@@ -596,33 +750,44 @@ public class FreshRequesterApiCommands {
   /**
    * Retrieve all requester users from Freshservice
    * @param configId the id of the external system
-   * @return a list of all Freshservice requester users
+   * @param includeInactiveRequesters if true, include inactive (deactivated) requesters
+   *   in the results. If false, only active requesters are returned.
+   * @return a list of Freshservice requester users
    */
-  public static List<FreshRequesterUser> retrieveRequesterUsers(String configId) {
-    
+  public static List<FreshRequesterUser> retrieveRequesterUsers(String configId, boolean includeInactiveRequesters) {
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-    
+
     List<FreshRequesterUser> results = new ArrayList<FreshRequesterUser>();
-    
+
     debugMap.put("method", "retrieveRequesterUsers");
-    
+
     long startTime = System.nanoTime();
-    
+
     try {
-      
+
       boolean lastPage = false;
       int page = 1;
-      
-      while (lastPage != true) {
-        
+
+      while (!lastPage) {
+
         JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "api/v2/requesters",
             GrouperUtil.toSet(200), new int[] { -1 }, null, page, true, null);
-        
+
         ArrayNode requesterUsersArray = (ArrayNode) jsonNode.get("requesters");
 
         for (int i = 0; i < (requesterUsersArray == null ? 0 : requesterUsersArray.size()); i++) {
           JsonNode userNode = requesterUsersArray.get(i);
           FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromJson(userNode);
+          // skip agents since the API should not manage them
+          if (grouperRequesterUser.getIsAgent() != null && grouperRequesterUser.getIsAgent()) {
+            continue;
+          }
+          // skip inactive requesters unless caller explicitly wants them
+          if (!includeInactiveRequesters
+              && (grouperRequesterUser.getActive() == null || !grouperRequesterUser.getActive())) {
+            continue;
+          }
           results.add(grouperRequesterUser);
         }
 
@@ -632,31 +797,33 @@ public class FreshRequesterApiCommands {
           lastPage = true;
         }
       }
-      
+
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
       FreshRequesterLog.freshserviceLog(debugMap, startTime);
     }
-    
+
     return results;
   }
-  
+
   /**
    * Get a Freshservice requester user by id
    * @param configId the id of the external system
    * @param id the id of the requester user to be retrieved
-   * @return the requester user
+   * @param includeInactiveRequesters if true, return the user even if inactive.
+   *   If false, return null for inactive users.
+   * @return the requester user, or null if not found (or inactive when not included)
    */
-  public static FreshRequesterUser retrieveRequesterUser(String configId, Long id) {
-    
+  public static FreshRequesterUser retrieveRequesterUserById(String configId, Long id, boolean includeInactiveRequesters) {
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "retrieveRequesterUser");
+    debugMap.put("method", "retrieveRequesterUserById");
 
     long startTime = System.nanoTime();
-    
+
     try {
       int[] returnCode = new int[] { -1 };
 
@@ -675,6 +842,17 @@ public class FreshRequesterApiCommands {
 
       FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromJson(userNode);
 
+      // skip agents since the API should not manage them
+      if (grouperRequesterUser.getIsAgent() != null && grouperRequesterUser.getIsAgent()) {
+        return null;
+      }
+
+      // skip inactive requesters unless caller explicitly wants them
+      if (!includeInactiveRequesters
+          && (grouperRequesterUser.getActive() == null || !grouperRequesterUser.getActive())) {
+        return null;
+      }
+
       return grouperRequesterUser;
 
     } catch (RuntimeException re) {
@@ -685,58 +863,69 @@ public class FreshRequesterApiCommands {
     }
 
   }
-  
+
   /**
    * Get a Freshservice requester user by email address
    * @param configId the id of the external system
    * @param email the email address of the requester user to be retrieved
-   * @return the requester user
+   * @param includeInactiveRequesters if true, return the user even if inactive.
+   *   If false, return null for inactive users.
+   * @return the requester user, or null if not found (or inactive when not included)
    */
-  public static FreshRequesterUser retrieveRequesterUserByEmail(String configId, String email) {
-    
+  public static FreshRequesterUser retrieveRequesterUserByEmail(String configId, String email, boolean includeInactiveRequesters) {
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
     debugMap.put("method", "retrieveRequesterUserByEmail");
 
     long startTime = System.nanoTime();
-    
-    //Email param needs ' and ' at beginning and end    
+
+    //Email param needs ' and ' at beginning and end
     String paramEmail;
-    
+
     if (!email.startsWith("'") || !email.endsWith("'")) {
       paramEmail = "'" + email + "'";
     } else {
       paramEmail = email;
     }
-    
+
     try {
       int[] returnCode = new int[] { -1 };
-      
+
       String urlSuffix = "api/v2/requesters";
       JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
           GrouperUtil.toSet(200), returnCode, null, null, false, paramEmail);
-      
+
       if (jsonNode == null) {
         return null;
       }
-      
+
       ArrayNode requesterUserArray = (ArrayNode) jsonNode.get("requesters");
-      
+
       if (requesterUserArray.size()==1) {
         JsonNode userNode = requesterUserArray.get(0);
         FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromJson(userNode);
+        // skip agents since the API should not manage them
+        if (grouperRequesterUser.getIsAgent() != null && grouperRequesterUser.getIsAgent()) {
+          return null;
+        }
+        // skip inactive requesters unless caller explicitly wants them
+        if (!includeInactiveRequesters
+            && (grouperRequesterUser.getActive() == null || !grouperRequesterUser.getActive())) {
+          return null;
+        }
         return grouperRequesterUser;
       }
-      
+
       return null;
-      
+
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
       FreshRequesterLog.freshserviceLog(debugMap, startTime);
     }
-    
+
   }
   
   /**
@@ -771,14 +960,15 @@ public class FreshRequesterApiCommands {
     long startTime = System.nanoTime();
 
     try {
-      String addGroupId = String.valueOf(groupId);
-      String addUserId = String.valueOf(userId);
-      if (StringUtils.isBlank(addGroupId) || addGroupId == "null") {
+      if (groupId == null) {
         throw new RuntimeException("groupId is null");
       }
-      if (StringUtils.isBlank(addUserId) || addUserId == "null") {
+      if (userId == null) {
         throw new RuntimeException("userId is null");
-      }  
+      }
+
+      String addGroupId = String.valueOf(groupId);
+      String addUserId = String.valueOf(userId);
 
       String urlPrefix = "api/v2/requester_groups/" + addGroupId + "/members/" + addUserId;
 
@@ -806,7 +996,7 @@ public class FreshRequesterApiCommands {
    * Retrieve the members of a group
    * @param configId the id of the external system
    * @param groupId the id of the group to get members from
-   * @return
+   * @return list of requester users who are members of the group
    */
   public static List<FreshRequesterUser> retrieveMembershipsByGroup(String configId, Long groupId) {
     
@@ -823,33 +1013,33 @@ public class FreshRequesterApiCommands {
       boolean lastPage = false;
       int page = 1;
       
-      while (lastPage != true) {
+      while (!lastPage) {
         
         JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "api/v2/requester_groups/" + String.valueOf(groupId) + "/members",
             GrouperUtil.toSet(200), new int[] { -1 }, null, page, true, null);
         
         ArrayNode requesterUsersArray = (ArrayNode) jsonNode.get("requesters");
-        
-        if (requesterUsersArray.size() > 0) {
-          for (int i = 0; i < (requesterUsersArray == null ? 0 : requesterUsersArray.size()); i++) {
-            JsonNode groupNode = requesterUsersArray.get(i);
-            FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromJson(groupNode);
-            results.add(grouperRequesterUser);
-          }
-          page++;
-          
-        } else {
+
+        for (int i = 0; i < (requesterUsersArray == null ? 0 : requesterUsersArray.size()); i++) {
+          JsonNode userNode = requesterUsersArray.get(i);
+          FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromJson(userNode);
+          results.add(grouperRequesterUser);
+        }
+
+        page++;
+
+        if (requesterUsersArray.size() < grouperLoaderConfig.propertyValueInt("grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE)) {
           lastPage = true;
         }
       }
-      
+
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
       FreshRequesterLog.freshserviceLog(debugMap, startTime);
     }
-    
+
     return results;
   }
   
@@ -883,7 +1073,39 @@ public class FreshRequesterApiCommands {
       FreshRequesterLog.freshserviceLog(debugMap, startTime);
     }
   }
-    
-    
+
+  /**
+   * Permanently delete (forget) a requester user from Freshservice.
+   * This removes the user entirely, unlike deactivate which just sets active=false.
+   * Endpoint: DELETE /api/v2/requesters/{id}/forget
+   * Expected response: 204 No Content, 404 if already deleted
+   * @param configId the id of the external system
+   * @param userId the requester user id
+   */
+  public static void forgetRequesterUser(String configId, Long userId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "forgetRequesterUser");
+
+    long startTime = System.nanoTime();
+
+    try {
+      if (userId == null) {
+        throw new RuntimeException("userId is null");
+      }
+      String id = String.valueOf(userId);
+
+      executeMethod(debugMap, "DELETE", configId, "api/v2/requesters/" + id + "/forget",
+          GrouperUtil.toSet(204, 404), new int[] { -1 }, null, null, false, null);
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      FreshRequesterLog.freshserviceLog(debugMap, startTime);
+    }
+  }
+
+
 }
   

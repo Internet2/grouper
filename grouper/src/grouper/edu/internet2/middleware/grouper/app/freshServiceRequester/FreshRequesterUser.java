@@ -48,7 +48,7 @@ public class FreshRequesterUser {
     
   }
   
-  private long id;
+  private Long id;
   private String firstName;
   private String lastName;
   private String email;
@@ -74,15 +74,15 @@ public class FreshRequesterUser {
    * Get the Requester's ID
    * @return the Requester's ID
    */
-  public long getId() {
+  public Long getId() {
     return id;
   }
-  
+
   /**
    * Set the Requester's ID
    * @param id the new ID to set
    */
-  public void setId(long id) {
+  public void setId(Long id) {
     this.id = id;
   }
 
@@ -265,7 +265,9 @@ public class FreshRequesterUser {
   public ProvisioningEntity toProvisioningEntity() {
     ProvisioningEntity targetEntity = new ProvisioningEntity(false);
     
-    targetEntity.assignAttributeValue("id", this.id);
+    if (this.id != null) {
+      targetEntity.assignAttributeValue("id", this.id);
+    }
     targetEntity.assignAttributeValue("firstName", this.firstName);
     targetEntity.assignAttributeValue("lastName", this.lastName);
     targetEntity.assignAttributeValue("email", this.email);
@@ -312,7 +314,11 @@ public class FreshRequesterUser {
     FreshRequesterUser grouperRequesterUser = new FreshRequesterUser();
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {
-      grouperRequesterUser.setId(Long.parseLong(targetEntity.getId()));
+      if (targetEntity.getId() == null) {
+        grouperRequesterUser.setId(null);
+      } else {
+        grouperRequesterUser.setId(Long.parseLong(targetEntity.getId()));
+      }
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("firstName")) {
@@ -430,11 +436,7 @@ public class FreshRequesterUser {
     
     FreshRequesterUser grouperRequesterUser = new FreshRequesterUser();
     
-    try {
-      grouperRequesterUser.id = GrouperUtil.jsonJacksonGetLong(entityNode, "id");
-    } catch (NullPointerException e) {
-      
-    }
+    grouperRequesterUser.id = GrouperUtil.jsonJacksonGetLong(entityNode, "id");
     
     grouperRequesterUser.firstName = GrouperUtil.jsonJacksonGetString(entityNode, "first_name");
     grouperRequesterUser.lastName = GrouperUtil.jsonJacksonGetString(entityNode, "last_name");

@@ -3,10 +3,21 @@ package edu.internet2.middleware.grouper.app.freshServiceRequester;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import junit.textui.TestRunner;
 
@@ -15,8 +26,9 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
 
     FreshRequesterMockServiceHandler.ensureFreshserviceMockTables();
-    TestRunner.run(new FreshRequesterProvisionerTest("testDeactivateRequesterUser"));
+    TestRunner.run(new FreshRequesterProvisionerTest("testFullSyncProvisionGroupAndThenDeleteGroup"));
 
+    System.exit(0);
   }
 
   @Override
@@ -86,7 +98,7 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
     FreshRequesterGroup group = FreshRequesterApiCommands.retrieveRequesterGroup("freshServiceDev", 1001L);
 
     assertNotNull(group);
-    assertEquals(1001L, group.getId());
+    assertEquals(1001L, (long)group.getId());
     assertEquals("IT Support", group.getName());
     assertEquals("IT support team group", group.getDescription());
 
@@ -258,7 +270,7 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
         .sql("insert into mock_freshreq_user (id, email, first_name, last_name, active) values (2003, 'bwilson@test.edu', 'Bob', 'Wilson', 'F')")
         .executeSql();
 
-    List<FreshRequesterUser> users = FreshRequesterApiCommands.retrieveRequesterUsers("freshServiceDev");
+    List<FreshRequesterUser> users = FreshRequesterApiCommands.retrieveRequesterUsers("freshServiceDev", true);
 
     assertEquals(3, users.size());
 
@@ -299,17 +311,17 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
         .executeSql();
 
     // retrieve existing user
-    FreshRequesterUser user = FreshRequesterApiCommands.retrieveRequesterUser("freshServiceDev", 2001L);
+    FreshRequesterUser user = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", 2001L, false);
 
     assertNotNull(user);
-    assertEquals(2001L, user.getId());
+    assertEquals(2001L, (long)user.getId());
     assertEquals("jsmith@test.edu", user.getEmail());
     assertEquals("John", user.getFirstName());
     assertEquals("Smith", user.getLastName());
     assertEquals(Boolean.TRUE, user.getActive());
 
     // retrieve non-existing user should return null
-    FreshRequesterUser notFound = FreshRequesterApiCommands.retrieveRequesterUser("freshServiceDev", 9999L);
+    FreshRequesterUser notFound = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", 9999L, false);
 
     assertNull(notFound);
   }
@@ -327,16 +339,16 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
         .executeSql();
 
     // retrieve existing user by email
-    FreshRequesterUser user = FreshRequesterApiCommands.retrieveRequesterUserByEmail("freshServiceDev", "jsmith@test.edu");
+    FreshRequesterUser user = FreshRequesterApiCommands.retrieveRequesterUserByEmail("freshServiceDev", "jsmith@test.edu", false);
 
     assertNotNull(user);
-    assertEquals(2001L, user.getId());
+    assertEquals(2001L, (long)user.getId());
     assertEquals("jsmith@test.edu", user.getEmail());
     assertEquals("John", user.getFirstName());
     assertEquals("Smith", user.getLastName());
 
     // retrieve non-existing email should return null
-    FreshRequesterUser notFound = FreshRequesterApiCommands.retrieveRequesterUserByEmail("freshServiceDev", "nobody@test.edu");
+    FreshRequesterUser notFound = FreshRequesterApiCommands.retrieveRequesterUserByEmail("freshServiceDev", "nobody@test.edu", false);
 
     assertNull(notFound);
   }
@@ -345,11 +357,18 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
 
     FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
 
+    Map<String, Object> customFields = new HashMap<String, Object>();
+    customFields.put("pennkey", "jsmith");
+    customFields.put("penn_id", "12345678");
+
     FreshRequesterUser userToCreate = new FreshRequesterUser();
     userToCreate.setFirstName("John");
     userToCreate.setLastName("Smith");
     userToCreate.setEmail("jsmith@test.edu");
     userToCreate.setActive(true);
+    userToCreate.setJobTitle("Worker");
+    userToCreate.setDepartmentId(39000211201L);
+    userToCreate.setCustomFields(customFields);
 
     // create the user
     FreshRequesterUser createdUser = FreshRequesterApiCommands.createRequesterUser("freshServiceDev", userToCreate);
@@ -359,24 +378,47 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals("John", createdUser.getFirstName());
     assertEquals("Smith", createdUser.getLastName());
     assertEquals("jsmith@test.edu", createdUser.getEmail());
+    assertEquals("Worker", createdUser.getJobTitle());
 
     // verify it can be retrieved
-    FreshRequesterUser retrievedUser = FreshRequesterApiCommands.retrieveRequesterUser("freshServiceDev", createdUser.getId());
+    FreshRequesterUser retrievedUser = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", createdUser.getId(), false);
 
     assertNotNull(retrievedUser);
     assertEquals(createdUser.getId(), retrievedUser.getId());
     assertEquals("John", retrievedUser.getFirstName());
     assertEquals("Smith", retrievedUser.getLastName());
     assertEquals("jsmith@test.edu", retrievedUser.getEmail());
+    assertEquals("Worker", retrievedUser.getJobTitle());
+    assertNotNull(retrievedUser.getCustomFields());
+    assertEquals("jsmith", retrievedUser.getCustomFields().get("pennkey"));
+    assertEquals("12345678", retrievedUser.getCustomFields().get("penn_id"));
 
-    // creating a user with the same email should throw an exception (409)
+    // creating a user with the same email should update the existing user
     FreshRequesterUser duplicateUser = new FreshRequesterUser();
     duplicateUser.setFirstName("Johnny");
     duplicateUser.setLastName("Smythe");
     duplicateUser.setEmail("jsmith@test.edu");
+    duplicateUser.setJobTitle("Senior Worker");
+
+    FreshRequesterUser updatedUser = FreshRequesterApiCommands.createRequesterUser("freshServiceDev", duplicateUser);
+
+    assertNotNull(updatedUser);
+    // should be the same user id as the original
+    assertEquals(createdUser.getId(), updatedUser.getId());
+    // should have the updated fields
+    assertEquals("Johnny", updatedUser.getFirstName());
+    assertEquals("Smythe", updatedUser.getLastName());
+    assertEquals("jsmith@test.edu", updatedUser.getEmail());
+    assertEquals("Senior Worker", updatedUser.getJobTitle());
+
+    // calling the helper directly with a duplicate email should throw an exception (409)
+    FreshRequesterUser duplicateUser2 = new FreshRequesterUser();
+    duplicateUser2.setFirstName("Jane");
+    duplicateUser2.setLastName("Doe");
+    duplicateUser2.setEmail("jsmith@test.edu");
 
     try {
-      FreshRequesterApiCommands.createRequesterUser("freshServiceDev", duplicateUser);
+      FreshRequesterApiCommands.createRequesterUserHelper("freshServiceDev", duplicateUser2);
       fail("Should have thrown exception for duplicate email");
     } catch (RuntimeException e) {
       assertTrue(e.getMessage().contains("already exists"));
@@ -399,15 +441,15 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue(createdUser.getId() > 0);
 
     // verify active is true
-    FreshRequesterUser retrievedUser = FreshRequesterApiCommands.retrieveRequesterUser("freshServiceDev", createdUser.getId());
+    FreshRequesterUser retrievedUser = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", createdUser.getId(), false);
     assertNotNull(retrievedUser);
     assertEquals(Boolean.TRUE, retrievedUser.getActive());
 
     // deactivate the user
     FreshRequesterApiCommands.deactivateRequesterUser("freshServiceDev", createdUser.getId());
 
-    // verify user still exists but active is now false
-    FreshRequesterUser deactivatedUser = FreshRequesterApiCommands.retrieveRequesterUser("freshServiceDev", createdUser.getId());
+    // verify user still exists but active is now false (pass true to include inactive)
+    FreshRequesterUser deactivatedUser = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", createdUser.getId(), true);
     assertNotNull(deactivatedUser);
     assertEquals(createdUser.getId(), deactivatedUser.getId());
     assertEquals("jsmith@test.edu", deactivatedUser.getEmail());
@@ -418,6 +460,404 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
 
     // deactivate non-existing user should not throw an error (404 is acceptable)
     FreshRequesterApiCommands.deactivateRequesterUser("freshServiceDev", 9999L);
+  }
+
+  public void testForgetRequesterUser() {
+
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+
+    // create a user to forget
+    FreshRequesterUser userToCreate = new FreshRequesterUser();
+    userToCreate.setFirstName("John");
+    userToCreate.setLastName("Smith");
+    userToCreate.setEmail("jsmith@test.edu");
+    userToCreate.setActive(true);
+
+    FreshRequesterUser createdUser = FreshRequesterApiCommands.createRequesterUser("freshServiceDev", userToCreate);
+    assertNotNull(createdUser);
+    assertTrue(createdUser.getId() > 0);
+
+    // verify it exists
+    FreshRequesterUser retrievedUser = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", createdUser.getId(), false);
+    assertNotNull(retrievedUser);
+
+    // forget (permanently delete) the user
+    FreshRequesterApiCommands.forgetRequesterUser("freshServiceDev", createdUser.getId());
+
+    // verify it no longer exists
+    FreshRequesterUser forgottenUser = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", createdUser.getId(), false);
+    assertNull(forgottenUser);
+
+    // forget again should not throw an error (404 is acceptable)
+    FreshRequesterApiCommands.forgetRequesterUser("freshServiceDev", createdUser.getId());
+  }
+
+  public void testUpdateRequesterUser() {
+
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+
+    // create a user to update
+    Map<String, Object> customFields = new HashMap<String, Object>();
+    customFields.put("pennkey", "jsmith");
+    customFields.put("penn_id", "12345678");
+
+    FreshRequesterUser userToCreate = new FreshRequesterUser();
+    userToCreate.setFirstName("John");
+    userToCreate.setLastName("Smith");
+    userToCreate.setEmail("jsmith@test.edu");
+    userToCreate.setActive(true);
+    userToCreate.setJobTitle("Worker");
+    userToCreate.setDepartmentId(39000211201L);
+    userToCreate.setCustomFields(customFields);
+
+    FreshRequesterUser createdUser = FreshRequesterApiCommands.createRequesterUser("freshServiceDev", userToCreate);
+    assertNotNull(createdUser);
+    assertTrue(createdUser.getId() > 0);
+
+    // update email only
+    FreshRequesterUser userToUpdate = new FreshRequesterUser();
+    userToUpdate.setId(createdUser.getId());
+    userToUpdate.setEmail("jsmith2@upenn.edu");
+
+    Set<String> fieldsToUpdate = new java.util.LinkedHashSet<String>();
+    fieldsToUpdate.add("email");
+
+    FreshRequesterUser updatedUser = FreshRequesterApiCommands.updateRequesterUser("freshServiceDev", userToUpdate, fieldsToUpdate);
+
+    assertNotNull(updatedUser);
+    assertEquals(createdUser.getId(), updatedUser.getId());
+    assertEquals("jsmith2@upenn.edu", updatedUser.getEmail());
+    assertEquals("John", updatedUser.getFirstName());
+    assertEquals("Smith", updatedUser.getLastName());
+    assertEquals("Worker", updatedUser.getJobTitle());
+
+    // verify via retrieve
+    FreshRequesterUser retrievedUser = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", createdUser.getId(), false);
+    assertNotNull(retrievedUser);
+    assertEquals("jsmith2@upenn.edu", retrievedUser.getEmail());
+    assertEquals("John", retrievedUser.getFirstName());
+    assertEquals("Smith", retrievedUser.getLastName());
+    assertEquals("Worker", retrievedUser.getJobTitle());
+
+    // update multiple fields including custom_fields
+    Map<String, Object> updatedCustomFields = new HashMap<String, Object>();
+    updatedCustomFields.put("pennkey", "jsmith2");
+    updatedCustomFields.put("penn_id", "12345679");
+
+    FreshRequesterUser userToUpdate2 = new FreshRequesterUser();
+    userToUpdate2.setId(createdUser.getId());
+    userToUpdate2.setFirstName("Johnny");
+    userToUpdate2.setJobTitle("Manager");
+    userToUpdate2.setCustomFields(updatedCustomFields);
+
+    Set<String> fieldsToUpdate2 = new java.util.LinkedHashSet<String>();
+    fieldsToUpdate2.add("firstName");
+    fieldsToUpdate2.add("jobTitle");
+    fieldsToUpdate2.add("customField_pennkey");
+    fieldsToUpdate2.add("customField_penn_id");
+
+    FreshRequesterUser updatedUser2 = FreshRequesterApiCommands.updateRequesterUser("freshServiceDev", userToUpdate2, fieldsToUpdate2);
+
+    assertNotNull(updatedUser2);
+    assertEquals(createdUser.getId(), updatedUser2.getId());
+    assertEquals("Johnny", updatedUser2.getFirstName());
+    assertEquals("Smith", updatedUser2.getLastName());
+    assertEquals("jsmith2@upenn.edu", updatedUser2.getEmail());
+    assertEquals("Manager", updatedUser2.getJobTitle());
+    assertNotNull(updatedUser2.getCustomFields());
+    assertEquals("jsmith2", updatedUser2.getCustomFields().get("pennkey"));
+    assertEquals("12345679", updatedUser2.getCustomFields().get("penn_id"));
+
+    // verify via retrieve that final state persisted
+    FreshRequesterUser retrievedUser2 = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", createdUser.getId(), false);
+    assertNotNull(retrievedUser2);
+    assertEquals("Johnny", retrievedUser2.getFirstName());
+    assertEquals("Smith", retrievedUser2.getLastName());
+    assertEquals("jsmith2@upenn.edu", retrievedUser2.getEmail());
+    assertEquals("Manager", retrievedUser2.getJobTitle());
+    assertNotNull(retrievedUser2.getCustomFields());
+    assertEquals("jsmith2", retrievedUser2.getCustomFields().get("pennkey"));
+    assertEquals("12345679", retrievedUser2.getCustomFields().get("penn_id"));
+
+    // update non-existing user should throw an exception
+    FreshRequesterUser nonExistingUser = new FreshRequesterUser();
+    nonExistingUser.setId(9999L);
+    nonExistingUser.setFirstName("Nobody");
+
+    Set<String> fieldsToUpdate3 = new java.util.LinkedHashSet<String>();
+    fieldsToUpdate3.add("firstName");
+
+    try {
+      FreshRequesterApiCommands.updateRequesterUser("freshServiceDev", nonExistingUser, fieldsToUpdate3);
+      fail("Should have thrown exception for non-existing user");
+    } catch (RuntimeException e) {
+      assertTrue(e.getMessage().contains("does not exist"));
+    }
+  }
+
+  public void testAddGroupMembership() {
+
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+
+    // create a group and a user
+    FreshRequesterGroup groupToCreate = new FreshRequesterGroup();
+    groupToCreate.setName("IT Support");
+    groupToCreate.setDescription("IT support team");
+
+    FreshRequesterGroup createdGroup = FreshRequesterApiCommands.createRequesterGroup("freshServiceDev", groupToCreate);
+    assertNotNull(createdGroup);
+
+    FreshRequesterUser userToCreate = new FreshRequesterUser();
+    userToCreate.setFirstName("John");
+    userToCreate.setLastName("Smith");
+    userToCreate.setEmail("jsmith@test.edu");
+
+    FreshRequesterUser createdUser = FreshRequesterApiCommands.createRequesterUser("freshServiceDev", userToCreate);
+    assertNotNull(createdUser);
+
+    // verify no memberships exist yet
+    int count = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from mock_freshreq_membership where group_id = ? and user_id = ?")
+        .addBindVar(createdGroup.getId()).addBindVar(createdUser.getId())
+        .select(int.class);
+    assertEquals(0, count);
+
+    // add membership
+    FreshRequesterApiCommands.addGroupMembership("freshServiceDev", createdGroup.getId(), createdUser.getId());
+
+    // verify membership exists
+    count = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from mock_freshreq_membership where group_id = ? and user_id = ?")
+        .addBindVar(createdGroup.getId()).addBindVar(createdUser.getId())
+        .select(int.class);
+    assertEquals(1, count);
+
+    // add same membership again should not throw an error (200 if already existed)
+    FreshRequesterApiCommands.addGroupMembership("freshServiceDev", createdGroup.getId(), createdUser.getId());
+
+    // verify still only one membership row
+    count = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from mock_freshreq_membership where group_id = ? and user_id = ?")
+        .addBindVar(createdGroup.getId()).addBindVar(createdUser.getId())
+        .select(int.class);
+    assertEquals(1, count);
+  }
+
+  public void testRemoveGroupMembership() {
+
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+
+    // create a group and two users
+    FreshRequesterGroup groupToCreate = new FreshRequesterGroup();
+    groupToCreate.setName("IT Support");
+    groupToCreate.setDescription("IT support team");
+
+    FreshRequesterGroup createdGroup = FreshRequesterApiCommands.createRequesterGroup("freshServiceDev", groupToCreate);
+    assertNotNull(createdGroup);
+
+    FreshRequesterUser user1 = new FreshRequesterUser();
+    user1.setFirstName("John");
+    user1.setLastName("Smith");
+    user1.setEmail("jsmith@test.edu");
+
+    FreshRequesterUser createdUser1 = FreshRequesterApiCommands.createRequesterUser("freshServiceDev", user1);
+    assertNotNull(createdUser1);
+
+    FreshRequesterUser user2 = new FreshRequesterUser();
+    user2.setFirstName("Jane");
+    user2.setLastName("Doe");
+    user2.setEmail("jdoe@test.edu");
+
+    FreshRequesterUser createdUser2 = FreshRequesterApiCommands.createRequesterUser("freshServiceDev", user2);
+    assertNotNull(createdUser2);
+
+    // add both memberships
+    FreshRequesterApiCommands.addGroupMembership("freshServiceDev", createdGroup.getId(), createdUser1.getId());
+    FreshRequesterApiCommands.addGroupMembership("freshServiceDev", createdGroup.getId(), createdUser2.getId());
+
+    // verify both exist
+    int count = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from mock_freshreq_membership where group_id = ?")
+        .addBindVar(createdGroup.getId())
+        .select(int.class);
+    assertEquals(2, count);
+
+    // remove first membership
+    FreshRequesterApiCommands.removeGroupMembership("freshServiceDev", createdGroup.getId(), createdUser1.getId());
+
+    // verify only second remains
+    count = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from mock_freshreq_membership where group_id = ?")
+        .addBindVar(createdGroup.getId())
+        .select(int.class);
+    assertEquals(1, count);
+
+    count = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from mock_freshreq_membership where group_id = ? and user_id = ?")
+        .addBindVar(createdGroup.getId()).addBindVar(createdUser2.getId())
+        .select(int.class);
+    assertEquals(1, count);
+
+    // remove again should not throw (404 is acceptable)
+    FreshRequesterApiCommands.removeGroupMembership("freshServiceDev", createdGroup.getId(), createdUser1.getId());
+
+    // remove non-existing membership should not throw (404 is acceptable)
+    FreshRequesterApiCommands.removeGroupMembership("freshServiceDev", createdGroup.getId(), 9999L);
+  }
+
+  public void testRetrieveMembershipsByGroup() {
+
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+
+    // create a group and two users
+    FreshRequesterGroup groupToCreate = new FreshRequesterGroup();
+    groupToCreate.setName("Engineering");
+    groupToCreate.setDescription("Engineering team");
+
+    FreshRequesterGroup createdGroup = FreshRequesterApiCommands.createRequesterGroup("freshServiceDev", groupToCreate);
+    assertNotNull(createdGroup);
+
+    FreshRequesterUser user1 = new FreshRequesterUser();
+    user1.setFirstName("John");
+    user1.setLastName("Smith");
+    user1.setEmail("jsmith@test.edu");
+
+    FreshRequesterUser createdUser1 = FreshRequesterApiCommands.createRequesterUser("freshServiceDev", user1);
+    assertNotNull(createdUser1);
+
+    FreshRequesterUser user2 = new FreshRequesterUser();
+    user2.setFirstName("Jane");
+    user2.setLastName("Doe");
+    user2.setEmail("jdoe@test.edu");
+
+    FreshRequesterUser createdUser2 = FreshRequesterApiCommands.createRequesterUser("freshServiceDev", user2);
+    assertNotNull(createdUser2);
+
+    // empty group should return empty list
+    List<FreshRequesterUser> members = FreshRequesterApiCommands.retrieveMembershipsByGroup("freshServiceDev", createdGroup.getId());
+    assertEquals(0, members.size());
+
+    // add both memberships
+    FreshRequesterApiCommands.addGroupMembership("freshServiceDev", createdGroup.getId(), createdUser1.getId());
+    FreshRequesterApiCommands.addGroupMembership("freshServiceDev", createdGroup.getId(), createdUser2.getId());
+
+    // retrieve members
+    members = FreshRequesterApiCommands.retrieveMembershipsByGroup("freshServiceDev", createdGroup.getId());
+    assertEquals(2, members.size());
+
+    Map<Long, FreshRequesterUser> memberById = new HashMap<Long, FreshRequesterUser>();
+    for (FreshRequesterUser member : members) {
+      memberById.put(member.getId(), member);
+    }
+
+    FreshRequesterUser member1 = memberById.get(createdUser1.getId());
+    assertNotNull(member1);
+    assertEquals("jsmith@test.edu", member1.getEmail());
+    assertEquals("John", member1.getFirstName());
+    assertEquals("Smith", member1.getLastName());
+
+    FreshRequesterUser member2 = memberById.get(createdUser2.getId());
+    assertNotNull(member2);
+    assertEquals("jdoe@test.edu", member2.getEmail());
+    assertEquals("Jane", member2.getFirstName());
+    assertEquals("Doe", member2.getLastName());
+
+    // remove one membership and verify list shrinks
+    FreshRequesterApiCommands.removeGroupMembership("freshServiceDev", createdGroup.getId(), createdUser1.getId());
+
+    members = FreshRequesterApiCommands.retrieveMembershipsByGroup("freshServiceDev", createdGroup.getId());
+    assertEquals(1, members.size());
+    assertEquals(createdUser2.getId(), members.get(0).getId());
+  }
+
+  public void testFullSyncProvisionGroupAndThenDeleteGroup() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+
+    FreshRequesterProvisionerTestUtils.configureFreshRequesterProvisioner(
+        new FreshRequesterProvisionerTestConfigInput()
+            .assignConfigId("freshRequesterProvisioner")
+    );
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      tomcatStart();
+    }
+
+    try {
+      // this will create tables
+      FreshRequesterApiCommands.retrieveRequesterUsers("freshServiceDev", false);
+
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_user").executeSql();
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+      // mark the stem to provision
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("freshRequesterProvisioner");
+      attributeValue.setTargetName("freshRequesterProvisioner");
+      attributeValue.setStemScopeString("sub");
+
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+      // assert mock tables are empty before sync
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
+
+      //
+      // first full sync: should provision group, 2 users, 2 memberships
+      //
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+      assertTrue(1 <= grouperProvisioningOutput.getInsert());
+
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
+
+      String groupName = new GcDbAccess().connectionName("grouper").sql("select name from mock_freshreq_group").select(String.class);
+      assertEquals("testGroup", groupName);
+
+      //
+      // remove one member and run full sync again
+      //
+      testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+
+      grouperProvisioningOutput = fullProvision();
+
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
+
+      //
+      // delete the group entirely and run full sync
+      //
+      testGroup.delete();
+
+      grouperProvisioningOutput = fullProvision();
+
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
+
+    } finally {
+      // tomcatStop();
+    }
   }
 
 }
