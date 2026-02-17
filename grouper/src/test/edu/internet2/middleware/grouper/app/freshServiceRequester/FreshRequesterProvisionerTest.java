@@ -18,6 +18,8 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningServ
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import junit.textui.TestRunner;
 
@@ -26,7 +28,7 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
 
     FreshRequesterMockServiceHandler.ensureFreshserviceMockTables();
-    TestRunner.run(new FreshRequesterProvisionerTest("testFullSyncProvisionGroupAndThenDeleteGroup"));
+    TestRunner.run(new FreshRequesterProvisionerTest("testUpdateGroupDescriptionIncremental"));
 
     System.exit(0);
   }
@@ -770,7 +772,15 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals(createdUser2.getId(), members.get(0).getId());
   }
 
-  public void testFullSyncProvisionGroupAndThenDeleteGroup() {
+  public void testUpdateGroupDescriptionFull() {
+    updateGroupDescription(true);
+  }
+
+  public void testUpdateGroupDescriptionIncremental() {
+    updateGroupDescription(false);
+  }
+
+  public void updateGroupDescription(boolean isFull) {
 
     if (!tomcatRunTests()) {
       return;
@@ -783,11 +793,129 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
             .assignConfigId("freshRequesterProvisioner")
     );
 
+    GrouperUtil.sleep(5000);
+
     GrouperStartup.startup();
 
-    if (startTomcat) {
-      tomcatStart();
+    try {
+      // this will create tables
+      FreshRequesterApiCommands.retrieveRequesterUsers("freshServiceDev", false);
+
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_user").executeSql();
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").assignDescription("test description").save();
+
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      // if incremental, initialize provisioner state before attaching provisioning attribute
+      if (!isFull) {
+        fullProvision();
+        incrementalProvision();
+      }
+
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("freshRequesterProvisioner");
+      attributeValue.setTargetName("freshRequesterProvisioner");
+      attributeValue.setStemScopeString("sub");
+
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+      //
+      // first provision: should create group with description "test description"
+      //
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+
+      String dbDescription = new GcDbAccess().connectionName("grouper")
+          .sql("select description from mock_freshreq_group where name = ?").addBindVar("testGroup").select(String.class);
+      assertEquals("test description", dbDescription);
+
+      Long groupId = new GcDbAccess().connectionName("grouper")
+          .sql("select id from mock_freshreq_group where name = ?").addBindVar("testGroup").select(Long.class);
+
+      FreshRequesterGroup retrievedGroup = FreshRequesterApiCommands.retrieveRequesterGroup("freshServiceDev", groupId);
+      assertNotNull(retrievedGroup);
+      assertEquals("test description", retrievedGroup.getDescription());
+
+      //
+      // update description to "new description 1"
+      //
+      new GroupSave(grouperSession).assignUuid(testGroup.getUuid()).assignDescription("new description 1").assignSaveMode(SaveMode.INSERT_OR_UPDATE).save();
+
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+
+      dbDescription = new GcDbAccess().connectionName("grouper")
+          .sql("select description from mock_freshreq_group where name = ?").addBindVar("testGroup").select(String.class);
+      assertEquals("new description 1", dbDescription);
+
+      retrievedGroup = FreshRequesterApiCommands.retrieveRequesterGroup("freshServiceDev", groupId);
+      assertNotNull(retrievedGroup);
+      assertEquals("new description 1", retrievedGroup.getDescription());
+
+      //
+      // set description to null
+      //
+      new GroupSave(grouperSession).assignUuid(testGroup.getUuid()).assignDescription(null).assignSaveMode(SaveMode.INSERT_OR_UPDATE).save();
+
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+
+      dbDescription = new GcDbAccess().connectionName("grouper")
+          .sql("select description from mock_freshreq_group where name = ?").addBindVar("testGroup").select(String.class);
+      assertNull(dbDescription);
+
+      retrievedGroup = FreshRequesterApiCommands.retrieveRequesterGroup("freshServiceDev", groupId);
+      assertNotNull(retrievedGroup);
+      assertNull(retrievedGroup.getDescription());
+
+    } finally {
+
     }
+  }
+
+  public void testFullSyncProvisionGroupAndThenDeleteGroup() {
+    provisionGroupAndThenDeleteGroup(true);
+  }
+
+  public void testIncrementalProvisionGroupAndThenDeleteGroup() {
+    provisionGroupAndThenDeleteGroup(false);
+  }
+
+  public void provisionGroupAndThenDeleteGroup(boolean isFull) {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+
+    FreshRequesterProvisionerTestUtils.configureFreshRequesterProvisioner(
+        new FreshRequesterProvisionerTestConfigInput()
+            .assignConfigId("freshRequesterProvisioner")
+    );
+
+    GrouperUtil.sleep(5000);
+
+    GrouperStartup.startup();
 
     try {
       // this will create tables
@@ -807,6 +935,12 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
       testGroup.addMember(SubjectTestHelper.SUBJ0, false);
       testGroup.addMember(SubjectTestHelper.SUBJ1, false);
 
+      // if incremental, initialize provisioner state before attaching provisioning attribute
+      if (!isFull) {
+        fullProvision();
+        incrementalProvision();
+      }
+
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(true);
       attributeValue.setDoProvision("freshRequesterProvisioner");
@@ -821,10 +955,13 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
 
       //
-      // first full sync: should provision group, 2 users, 2 memberships
+      // first provision: should provision group, 2 users, 2 memberships
       //
-      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
-      assertTrue(1 <= grouperProvisioningOutput.getInsert());
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
 
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
       assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
@@ -834,29 +971,52 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("testGroup", groupName);
 
       //
-      // remove one member and run full sync again
+      // remove one member and provision again
       //
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
 
-      grouperProvisioningOutput = fullProvision();
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
 
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
 
       //
-      // delete the group entirely and run full sync
+      // add a different member and provision again
+      //
+      testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
+
+      //
+      // delete the group entirely and provision again
       //
       testGroup.delete();
 
-      grouperProvisioningOutput = fullProvision();
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
 
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
 
     } finally {
-      // tomcatStop();
+
     }
   }
 

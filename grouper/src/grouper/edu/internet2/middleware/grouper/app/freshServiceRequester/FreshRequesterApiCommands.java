@@ -235,13 +235,13 @@ public class FreshRequesterApiCommands {
           boolean isDelete = action == ProvisioningObjectChangeAction.delete;
 
           if ("name".equals(fieldName)) {
-            if (isDelete) {
+            if (isDelete || grouperRequesterGroup.getName() == null) {
               jsonToSend.putNull("name");
             } else {
               jsonToSend.put("name", grouperRequesterGroup.getName());
             }
           } else if ("description".equals(fieldName)) {
-            if (isDelete) {
+            if (isDelete || grouperRequesterGroup.getDescription() == null) {
               jsonToSend.putNull("description");
             } else {
               jsonToSend.put("description", grouperRequesterGroup.getDescription());
