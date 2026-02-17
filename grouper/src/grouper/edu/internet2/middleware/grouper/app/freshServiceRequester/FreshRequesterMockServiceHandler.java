@@ -677,6 +677,53 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
   }
 
   /**
+   * PUT /requesters/{id}/reactivate - reactivate a deactivated user
+   * Returns 200 if successful.  400 with body if already active.
+   */
+  public void reactivateUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    try {
+      checkAuthorization(mockServiceRequest);
+    } catch (RuntimeException e) {
+      mockServiceResponse.setResponseCode(401);
+      throw e;
+    }
+
+    String userIdString = mockServiceRequest.getPostMockNamePaths()[1];
+
+    GrouperUtil.assertion(GrouperUtil.length(userIdString) > 0, "userId is required");
+
+    long userId = GrouperUtil.longValue(userIdString);
+
+    // check if user exists
+    List<FreshRequesterUser> existingUsers = HibernateSession.byHqlStatic()
+        .createQuery("from FreshRequesterUser where id = :theId")
+        .setLong("theId", userId).list(FreshRequesterUser.class);
+
+    if (GrouperUtil.length(existingUsers) == 0) {
+      mockServiceResponse.setResponseCode(404);
+      mockServiceResponse.setContentType("application/json");
+      return;
+    }
+
+    FreshRequesterUser freshRequesterUser = existingUsers.get(0);
+
+    // if already active, return 400
+    if (freshRequesterUser.getActive() != null && freshRequesterUser.getActive()) {
+      mockServiceResponse.setResponseCode(400);
+      mockServiceResponse.setContentType("application/json");
+      mockServiceResponse.setResponseBody("{\"code\":\"contact_already_active\",\"message\":\"Contact is already active and cannot be restored.\"}");
+      return;
+    }
+
+    // reactivate
+    freshRequesterUser.setActive(true);
+    HibernateSession.byObjectStatic().saveOrUpdate(freshRequesterUser);
+
+    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setContentType("application/json");
+  }
+
+  /**
    * DELETE /requesters/{id}/forget - permanently delete (forget) a user
    */
   public void forgetUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
@@ -942,6 +989,12 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
       // PUT /requester_groups/{id}
       if ("requester_groups".equals(mockNamePaths.get(0)) && 2 == mockNamePaths.size()) {
         updateGroup(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+      // PUT /requesters/{id}/reactivate
+      if ("requesters".equals(mockNamePaths.get(0)) && 3 == mockNamePaths.size()
+          && "reactivate".equals(mockNamePaths.get(2))) {
+        reactivateUser(mockServiceRequest, mockServiceResponse);
         return;
       }
       // PUT /requesters/{id}

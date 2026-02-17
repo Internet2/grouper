@@ -1365,4 +1365,44 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
     }
   }
 
+  public void testReactivateRequesterUser() {
+
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+
+    // create a user
+    FreshRequesterUser userToCreate = new FreshRequesterUser();
+    userToCreate.setFirstName("John");
+    userToCreate.setLastName("Smith");
+    userToCreate.setEmail("jsmith@test.edu");
+    userToCreate.setActive(true);
+
+    FreshRequesterUser createdUser = FreshRequesterApiCommands.createRequesterUser("freshServiceDev", userToCreate);
+    assertNotNull(createdUser);
+    assertTrue(createdUser.getId() > 0);
+
+    // deactivate the user
+    FreshRequesterApiCommands.deactivateRequesterUser("freshServiceDev", createdUser.getId());
+
+    // verify user is inactive
+    FreshRequesterUser deactivatedUser = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", createdUser.getId(), true);
+    assertNotNull(deactivatedUser);
+    assertEquals(Boolean.FALSE, deactivatedUser.getActive());
+
+    // reactivate the user
+    FreshRequesterApiCommands.reactivateRequesterUser("freshServiceDev", createdUser.getId());
+
+    // verify user is active again
+    FreshRequesterUser reactivatedUser = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", createdUser.getId(), false);
+    assertNotNull(reactivatedUser);
+    assertEquals(Boolean.TRUE, reactivatedUser.getActive());
+
+    // reactivate again should not throw (400 with body is allowed)
+    FreshRequesterApiCommands.reactivateRequesterUser("freshServiceDev", createdUser.getId());
+
+    // verify still active
+    reactivatedUser = FreshRequesterApiCommands.retrieveRequesterUserById("freshServiceDev", createdUser.getId(), false);
+    assertNotNull(reactivatedUser);
+    assertEquals(Boolean.TRUE, reactivatedUser.getActive());
+  }
+
 }
