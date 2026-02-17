@@ -291,8 +291,8 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
       freshRequesterGroup.setName(name);
     }
 
-    String description = GrouperUtil.jsonJacksonGetString(groupJsonNode, "description");
-    if (description != null) {
+    if (groupJsonNode.has("description")) {
+      String description = GrouperUtil.jsonJacksonGetString(groupJsonNode, "description");
       freshRequesterGroup.setDescription(description);
     }
 
