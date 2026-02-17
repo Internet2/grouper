@@ -659,6 +659,12 @@ public class FreshRequesterApiCommands {
       }
 
       if (existingUser != null) {
+
+        // if the existing user is not active, reactivate it first
+        if (existingUser.getActive() == null || !existingUser.getActive()) {
+          reactivateRequesterUser(configId, existingUser.getId());
+        }
+
         // user already exists - build a set of all fields to update
         Set<String> fieldsToUpdate = new java.util.LinkedHashSet<String>();
         fieldsToUpdate.add("firstName");
@@ -669,12 +675,6 @@ public class FreshRequesterApiCommands {
         fieldsToUpdate.add("departmentId");
         fieldsToUpdate.add("reportingManagerId");
         fieldsToUpdate.add("address");
-
-        // if the existing user is not active, reactivate it
-        if (existingUser.getActive() == null || !existingUser.getActive()) {
-          grouperRequesterUser.setActive(true);
-        }
-        fieldsToUpdate.add("active");
 
         // add any custom fields from the grouperRequesterUser
         if (grouperRequesterUser.getCustomFields() != null) {
@@ -1065,6 +1065,39 @@ public class FreshRequesterApiCommands {
 
       executeMethod(debugMap, "DELETE", configId, "api/v2/requesters/" + id,
           GrouperUtil.toSet(204, 404), new int[] { -1 }, null, null, false, null);
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      FreshRequesterLog.freshserviceLog(debugMap, startTime);
+    }
+  }
+
+  /**
+   * Reactivate a deactivated requester user in Freshservice.
+   * Endpoint: PUT /api/v2/requesters/{id}/reactivate
+   * Returns 200 if successful.  400 with body if already active:
+   * {"code":"contact_already_active","message":"Contact is already active and cannot be restored."}
+   * @param configId the id of the external system
+   * @param userId the requester user id
+   */
+  public static void reactivateRequesterUser(String configId, Long userId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "reactivateRequesterUser");
+
+    long startTime = System.nanoTime();
+
+    try {
+      if (userId == null) {
+        throw new RuntimeException("userId is null");
+      }
+      String id = String.valueOf(userId);
+
+      int[] returnCode = new int[] { -1 };
+      executeMethod(debugMap, "PUT", configId, "api/v2/requesters/" + id + "/reactivate",
+          GrouperUtil.toSet(200, 400), returnCode, null, null, false, null);
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
