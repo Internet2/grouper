@@ -249,15 +249,10 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
       FreshRequesterConfiguration freshserviceConfiguration = (FreshRequesterConfiguration) this.getGrouperProvisioner()
           .retrieveGrouperProvisioningConfiguration();
       
-      if (StringUtils.equals("email", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
-        requester = FreshRequesterApiCommands.retrieveRequesterUserByEmail(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
-            targetDaoRetrieveEntityRequest.getSearchAttributeValue().toString(), false);
-      } else if (StringUtils.equals("id", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
-        requester = FreshRequesterApiCommands.retrieveRequesterUserById(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
-            GrouperUtil.longValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue()), false);
-      } else {
-        throw new RuntimeException("Not expecting search attribute '" + targetDaoRetrieveEntityRequest.getSearchAttribute() + "'");
-      }
+      requester = FreshRequesterApiCommands.retrieveRequesterUserByAttribute(
+          freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
+          targetDaoRetrieveEntityRequest.getSearchAttribute(),
+          targetDaoRetrieveEntityRequest.getSearchAttributeValue());
       
       ProvisioningEntity targetEntity = requester == null ? null : requester.toProvisioningEntity();
       

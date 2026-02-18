@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.j2ee.MockServiceRequest;
 import edu.internet2.middleware.grouper.j2ee.MockServiceResponse;
 import edu.internet2.middleware.grouper.j2ee.MockServiceServlet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import io.netty.util.internal.ThreadLocalRandom;
 
@@ -362,26 +363,40 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
       throw e;
     }
 
-    String email = mockServiceRequest.getHttpServletRequest().getParameter("query");
+    String queryParam = mockServiceRequest.getHttpServletRequest().getParameter("query");
 
     List<FreshRequesterUser> freshRequesterUsers = null;
     ByHqlStatic query = null;
     QueryOptions queryOptions = new QueryOptions();
 
-    if (StringUtils.isNotBlank(email)) {
-      // query param format: "primary_email:'someone@test.edu'"
-      String emailValue = email;
-      if (emailValue.startsWith("primary_email:")) {
-        emailValue = emailValue.substring("primary_email:".length());
-      }
-      // strip surrounding quotes
-      if (emailValue.startsWith("'") && emailValue.endsWith("'")) {
-        emailValue = emailValue.substring(1, emailValue.length() - 1);
-      }
+    // parse the query parameter format: "attributeName:'value'" or "attributeName:value"
+    String queryAttributeName = null;
+    String queryAttributeValue = null;
 
+    if (StringUtils.isNotBlank(queryParam)) {
+      int colonIndex = queryParam.indexOf(':');
+      if (colonIndex > 0) {
+        queryAttributeName = queryParam.substring(0, colonIndex);
+        queryAttributeValue = queryParam.substring(colonIndex + 1);
+        // strip surrounding quotes
+        if (queryAttributeValue.startsWith("'") && queryAttributeValue.endsWith("'")) {
+          queryAttributeValue = queryAttributeValue.substring(1, queryAttributeValue.length() - 1);
+        }
+      }
+    }
+
+    if ("primary_email".equals(queryAttributeName)) {
       query = HibernateSession.byHqlStatic()
           .createQuery("from FreshRequesterUser where email = :theEmail")
-          .setString("theEmail", emailValue);
+          .setString("theEmail", queryAttributeValue);
+    } else if ("external_id".equals(queryAttributeName)) {
+      query = HibernateSession.byHqlStatic()
+          .createQuery("from FreshRequesterUser where externalId = :theExternalId")
+          .setString("theExternalId", queryAttributeValue);
+    } else if (queryAttributeName != null) {
+      // for custom fields, load all users and filter in Java
+      // since custom fields are stored as JSON
+      query = HibernateSession.byHqlStatic().createQuery("from FreshRequesterUser");
     } else {
       query = HibernateSession.byHqlStatic().createQuery("from FreshRequesterUser");
     }
@@ -396,6 +411,22 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     ArrayNode usersArray = GrouperUtil.jsonJacksonArrayNode();
 
     for (FreshRequesterUser freshRequesterUser : freshRequesterUsers) {
+
+      // for custom field queries, filter in Java since custom fields are stored as JSON
+      if (queryAttributeName != null && !"primary_email".equals(queryAttributeName) && !"external_id".equals(queryAttributeName)) {
+        boolean matches = false;
+        java.util.Map<String, Object> customFields = freshRequesterUser.getCustomFields();
+        if (customFields != null) {
+          Object fieldValue = customFields.get(queryAttributeName);
+          if (fieldValue != null && String.valueOf(fieldValue).equals(queryAttributeValue)) {
+            matches = true;
+          }
+        }
+        if (!matches) {
+          continue;
+        }
+      }
+
       ObjectNode objectNode = freshRequesterUser.toJson(null);
       objectNode.put("id", freshRequesterUser.getId());
       usersArray.add(objectNode);
@@ -591,6 +622,11 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     String address = GrouperUtil.jsonJacksonGetString(userJsonNode, "address");
     if (address != null) {
       freshRequesterUser.setAddress(address);
+    }
+
+    String externalId = GrouperUtil.jsonJacksonGetString(userJsonNode, "external_id");
+    if (externalId != null) {
+      freshRequesterUser.setExternalId(externalId);
     }
 
     Boolean active = GrouperUtil.jsonJacksonGetBoolean(userJsonNode, "active");
@@ -913,6 +949,24 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
       ensureFreshserviceMockTables();
     }
     mockTablesThere = true;
+
+    // this must be there and it might be a caching issue:
+    //     String configId = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperTest.exampleFreshRequester.mockExternalSystem.configId");
+    // loop 10 times and wait a second each time if not there, to avoid issues with tables not being found
+    // if no there at end give a good exception
+    // after 10 seconds the caches should have cleared if everything is setup correctly.
+    for (int i=0; i<10; i++) {
+      // clear cache
+      ConfigPropertiesCascadeBase.clearCache();
+      String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.exampleFreshRequester.mockExternalSystem.configId");
+      if (!StringUtils.isBlank(configId)) {
+        break;
+      }
+      if (i >= 9) {
+        throw new RuntimeException("grouper.properties grouperTest.exampleFreshRequester.mockExternalSystem.configId must be set to the configId of the external system used by mock!");
+      }
+      GrouperUtil.sleep(1000);
+    }
 
     if (GrouperUtil.length(mockServiceRequest.getPostMockNamePaths()) == 0) {
       throw new RuntimeException("Pass in a path!");

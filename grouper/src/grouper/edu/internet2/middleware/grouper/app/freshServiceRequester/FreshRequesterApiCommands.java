@@ -71,8 +71,8 @@ public class FreshRequesterApiCommands {
   }
   
   private static JsonNode executeMethod(Map<String, Object> debugMap,
-      String httpMethodName, String configId, String urlSuffix, Set<Integer> allowedReturnCodes, 
-      int[] returnCode, String bodyParam, Integer page, boolean addPageSize, String email) {
+      String httpMethodName, String configId, String urlSuffix, Set<Integer> allowedReturnCodes,
+      int[] returnCode, String bodyParam, Integer page, boolean addPageSize, String queryParam) {
     
     GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
     
@@ -110,8 +110,8 @@ public class FreshRequesterApiCommands {
       grouperHttpClient.addUrlParameter("per_page", Integer.toString(pageSize));
     }
     
-    if (StringUtils.isNotBlank(email)) {
-      grouperHttpClient.addUrlParameter("query", String.format("primary_email:%s", email));
+    if (StringUtils.isNotBlank(queryParam)) {
+      grouperHttpClient.addUrlParameter("query", queryParam);
     }
     
     if (httpMethodName.equals("POST") || httpMethodName.equals("PUT")) {
@@ -428,6 +428,14 @@ public class FreshRequesterApiCommands {
               jsonToSend.put("address", grouperRequesterUser.getAddress());
             } else {
               jsonToSend.putNull("address");
+            }
+
+          // "externalId" -> JSON "external_id"
+          } else if ("externalId".equals(fieldName)) {
+            if (grouperRequesterUser.getExternalId() != null) {
+              jsonToSend.put("external_id", grouperRequesterUser.getExternalId());
+            } else {
+              jsonToSend.putNull("external_id");
             }
 
           // "active" -> JSON "active" (boolean)
@@ -894,7 +902,7 @@ public class FreshRequesterApiCommands {
 
       String urlSuffix = "api/v2/requesters";
       JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
-          GrouperUtil.toSet(200), returnCode, null, null, false, paramEmail);
+          GrouperUtil.toSet(200), returnCode, null, null, false, "primary_email:" + paramEmail);
 
       if (jsonNode == null) {
         return null;
@@ -927,7 +935,123 @@ public class FreshRequesterApiCommands {
     }
 
   }
-  
+
+  /**
+   * Retrieve a requester user by a provisioning attribute name and value.
+   *
+   * If attributeName is "id" or "email", delegates to the existing lookup methods.
+   * If attributeName is "externalId", searches by external_id.
+   * If attributeName starts with "customField_", searches by that custom field name.
+   * Otherwise throws an exception.
+   *
+   * The Freshservice API query format is:
+   *   GET /api/v2/requesters?query=attributeName:'value'   (for strings)
+   *   GET /api/v2/requesters?query=attributeName:value      (for numbers)
+   *
+   * @param configId the id of the external system
+   * @param attributeName the provisioning attribute name (e.g. "id", "email", "externalId", "customField_pennkey")
+   * @param attributeValue the value to search for. Must be String, Long, or Integer.
+   *   String values are always quoted in the query (even if they contain digits).
+   *   Long/Integer values are sent as bare numbers.
+   * @return the requester user if found, null if not found
+   * @throws RuntimeException if multiple users are found or attributeValue is an unsupported type
+   */
+  public static FreshRequesterUser retrieveRequesterUserByAttribute(String configId, String attributeName, Object attributeValue) {
+
+    if (StringUtils.isBlank(attributeName)) {
+      throw new RuntimeException("attributeName is required");
+    }
+    if (attributeValue == null) {
+      return null;
+    }
+
+    // validate attributeValue type
+    if (!(attributeValue instanceof String) && !(attributeValue instanceof Long) && !(attributeValue instanceof Integer)) {
+      throw new RuntimeException("attributeValue must be String, Long, or Integer, but was: " + attributeValue.getClass().getName());
+    }
+
+    // delegate to existing methods for id and email
+    if ("id".equals(attributeName)) {
+      return retrieveRequesterUserById(configId, GrouperUtil.longValue(attributeValue), false);
+    }
+    if ("email".equals(attributeName)) {
+      return retrieveRequesterUserByEmail(configId, GrouperUtil.stringValue(attributeValue), false);
+    }
+
+    // determine the Freshservice query attribute name
+    String freshserviceAttributeName = null;
+    if ("externalId".equals(attributeName)) {
+      freshserviceAttributeName = "external_id";
+    } else if (attributeName.startsWith(FreshRequesterUser.CUSTOM_FIELD_ATTRIBUTE_PREFIX)) {
+      freshserviceAttributeName = attributeName.substring(FreshRequesterUser.CUSTOM_FIELD_ATTRIBUTE_PREFIX.length());
+    } else {
+      throw new RuntimeException("Unsupported attributeName for requester lookup: '" + attributeName
+          + "'. Expected 'id', 'email', 'externalId', or 'customField_<name>'");
+    }
+
+    if (StringUtils.isBlank(freshserviceAttributeName)) {
+      throw new RuntimeException("Could not determine Freshservice attribute name from: '" + attributeName + "'");
+    }
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "retrieveRequesterUserByAttribute");
+    debugMap.put("attributeName", attributeName);
+
+    long startTime = System.nanoTime();
+
+    try {
+      int[] returnCode = new int[] { -1 };
+
+      // build the query value: Long/Integer are numeric (no quotes), String always gets single quotes
+      String queryValue;
+      if (attributeValue instanceof Long || attributeValue instanceof Integer) {
+        queryValue = freshserviceAttributeName + ":" + attributeValue;
+      } else {
+        queryValue = freshserviceAttributeName + ":'" + attributeValue + "'";
+      }
+
+      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "api/v2/requesters",
+          GrouperUtil.toSet(200), returnCode, null, null, false, queryValue);
+
+      if (jsonNode == null) {
+        return null;
+      }
+
+      ArrayNode requesterUserArray = (ArrayNode) jsonNode.get("requesters");
+
+      if (requesterUserArray == null || requesterUserArray.size() == 0) {
+        return null;
+      }
+
+      if (requesterUserArray.size() == 1) {
+        JsonNode userNode = requesterUserArray.get(0);
+        FreshRequesterUser grouperRequesterUser = FreshRequesterUser.fromJson(userNode);
+        // skip agents
+        if (grouperRequesterUser.getIsAgent() != null && grouperRequesterUser.getIsAgent()) {
+          return null;
+        }
+        return grouperRequesterUser;
+      }
+
+      // multiple users found - throw a descriptive exception with first 10k of json
+      String jsonString = GrouperUtil.jsonJacksonToString(jsonNode);
+      if (jsonString.length() > 10000) {
+        jsonString = jsonString.substring(0, 10000);
+      }
+      throw new RuntimeException("Expected 0 or 1 requesters for attribute '" + attributeName
+          + "' = '" + attributeValue + "', but found " + requesterUserArray.size()
+          + ". First 10k of response: " + jsonString);
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      FreshRequesterLog.freshserviceLog(debugMap, startTime);
+    }
+
+  }
+
   /**
    * Add a requester user to a group.
    * @param configId the id of the external system
