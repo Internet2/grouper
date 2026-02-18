@@ -363,6 +363,7 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
       throw e;
     }
 
+    String emailParam = mockServiceRequest.getHttpServletRequest().getParameter("email");
     String queryParam = mockServiceRequest.getHttpServletRequest().getParameter("query");
 
     List<FreshRequesterUser> freshRequesterUsers = null;
@@ -373,7 +374,11 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     String queryAttributeName = null;
     String queryAttributeValue = null;
 
-    if (StringUtils.isNotBlank(queryParam)) {
+    // email= parameter takes priority (e.g. /api/v2/requesters?email=jsmith@upenn.edu)
+    if (StringUtils.isNotBlank(emailParam)) {
+      queryAttributeName = "email";
+      queryAttributeValue = emailParam;
+    } else if (StringUtils.isNotBlank(queryParam)) {
       int colonIndex = queryParam.indexOf(':');
       if (colonIndex > 0) {
         queryAttributeName = queryParam.substring(0, colonIndex);
@@ -385,7 +390,7 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
       }
     }
 
-    if ("primary_email".equals(queryAttributeName)) {
+    if ("email".equals(queryAttributeName)) {
       query = HibernateSession.byHqlStatic()
           .createQuery("from FreshRequesterUser where email = :theEmail")
           .setString("theEmail", queryAttributeValue);
@@ -413,7 +418,7 @@ public class FreshRequesterMockServiceHandler extends MockServiceHandler {
     for (FreshRequesterUser freshRequesterUser : freshRequesterUsers) {
 
       // for custom field queries, filter in Java since custom fields are stored as JSON
-      if (queryAttributeName != null && !"primary_email".equals(queryAttributeName) && !"external_id".equals(queryAttributeName)) {
+      if (queryAttributeName != null && !"email".equals(queryAttributeName) && !"external_id".equals(queryAttributeName)) {
         boolean matches = false;
         java.util.Map<String, Object> customFields = freshRequesterUser.getCustomFields();
         if (customFields != null) {

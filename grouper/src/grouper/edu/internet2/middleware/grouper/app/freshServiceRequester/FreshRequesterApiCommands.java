@@ -873,7 +873,10 @@ public class FreshRequesterApiCommands {
   }
 
   /**
-   * Get a Freshservice requester user by email address
+   * Get a Freshservice requester user by email address.
+   * Uses the Freshservice email parameter:
+   *   GET /api/v2/requesters?email=jsmith@upenn.edu
+   *
    * @param configId the id of the external system
    * @param email the email address of the requester user to be retrieved
    * @param includeInactiveRequesters if true, return the user even if inactive.
@@ -888,21 +891,13 @@ public class FreshRequesterApiCommands {
 
     long startTime = System.nanoTime();
 
-    //Email param needs ' and ' at beginning and end
-    String paramEmail;
-
-    if (!email.startsWith("'") || !email.endsWith("'")) {
-      paramEmail = "'" + email + "'";
-    } else {
-      paramEmail = email;
-    }
-
     try {
       int[] returnCode = new int[] { -1 };
 
-      String urlSuffix = "api/v2/requesters";
+      // use the email= URL parameter instead of query=
+      String urlSuffix = "api/v2/requesters?email=" + GrouperUtil.escapeUrlEncode(email);
       JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
-          GrouperUtil.toSet(200), returnCode, null, null, false, "primary_email:" + paramEmail);
+          GrouperUtil.toSet(200), returnCode, null, null, false, null);
 
       if (jsonNode == null) {
         return null;
