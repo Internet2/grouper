@@ -18,6 +18,7 @@
     <property name="departmentId" column="department_id" />
     <property name="reportingManagerId" column="reporting_manager_id" />
     <property name="address" column="address" />
+    <property name="externalId" column="external_id" />
     <property name="customFieldsJson" column="custom_fields" />
     <property name="activeString" column="active" />
 

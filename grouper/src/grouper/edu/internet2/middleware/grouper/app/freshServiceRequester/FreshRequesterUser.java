@@ -40,6 +40,7 @@ public class FreshRequesterUser {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "department_id", Types.BIGINT, "20", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "reporting_manager_id", Types.BIGINT, "20", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "address", Types.VARCHAR, "512", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "external_id", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "custom_fields", Types.VARCHAR, "4000", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "active", Types.VARCHAR, "1", false, false);
       
@@ -59,6 +60,7 @@ public class FreshRequesterUser {
   private Long departmentId;
   private Long reportingManagerId;
   private String address;
+  private String externalId;
 
   /**
    * custom_fields from Freshservice. Keys are arbitrary, values must be String, Long, or Boolean.
@@ -170,6 +172,14 @@ public class FreshRequesterUser {
 
   public void setAddress(String address) {
     this.address = address;
+  }
+
+  public String getExternalId() {
+    return externalId;
+  }
+
+  public void setExternalId(String externalId) {
+    this.externalId = externalId;
   }
 
   public Map<String, Object> getCustomFields() {
@@ -284,6 +294,7 @@ public class FreshRequesterUser {
       targetEntity.assignAttributeValue("reportingManagerId", this.reportingManagerId);
     }
     targetEntity.assignAttributeValue("address", this.address);
+    targetEntity.assignAttributeValue("externalId", this.externalId);
 
     // Custom fields are represented as individual provisioning attributes: customField_<fieldName>
     if (this.customFields != null && !this.customFields.isEmpty()) {
@@ -356,6 +367,9 @@ public class FreshRequesterUser {
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("address")) {
       grouperRequesterUser.setAddress(targetEntity.retrieveAttributeValueString("address"));
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("externalId")) {
+      grouperRequesterUser.setExternalId(targetEntity.retrieveAttributeValueString("externalId"));
     }
 
     // Custom fields: provisioned as attributes named customField_<fieldName>
@@ -465,6 +479,7 @@ public class FreshRequesterUser {
 
     grouperRequesterUser.reportingManagerId = GrouperUtil.jsonJacksonGetLong(entityNode, "reporting_manager_id");
     grouperRequesterUser.address = GrouperUtil.jsonJacksonGetString(entityNode, "address");
+    grouperRequesterUser.externalId = GrouperUtil.jsonJacksonGetString(entityNode, "external_id");
 
     JsonNode customFieldsNode = GrouperUtil.jsonJacksonGetNode(entityNode, "custom_fields");
     if (customFieldsNode != null && !customFieldsNode.isNull()) {
@@ -550,6 +565,11 @@ public class FreshRequesterUser {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("address")) {
       if (!GrouperUtil.isBlank(this.address)) {
         result.put("address", this.address);
+      }
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("externalId")) {
+      if (!GrouperUtil.isBlank(this.externalId)) {
+        result.put("external_id", this.externalId);
       }
     }
 

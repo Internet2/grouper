@@ -30,7 +30,7 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
 
     FreshRequesterMockServiceHandler.ensureFreshserviceMockTables();
-    TestRunner.run(new FreshRequesterProvisionerTest("testFullSyncEditCustomFieldPennId"));
+    TestRunner.run(new FreshRequesterProvisionerTest("testRetrieveRequesterUserByCustomAttribute"));
 
     System.exit(0);
   }
@@ -355,6 +355,52 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
     FreshRequesterUser notFound = FreshRequesterApiCommands.retrieveRequesterUserByEmail("freshServiceDev", "nobody@test.edu", false);
 
     assertNull(notFound);
+  }
+
+  public void testRetrieveRequesterUserByCustomAttribute() {
+
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+
+    // insert some users directly into the mock table with custom_fields JSON
+    // pennId is numeric (no quotes around the value in JSON)
+    new GcDbAccess().connectionName("grouper")
+        .sql("insert into mock_freshreq_user (id, email, first_name, last_name, active, custom_fields) values (2001, 'jsmith@test.edu', 'John', 'Smith', 'T', '{\"pennId\":12345678,\"pennkey\":\"jsmith\"}')")
+        .executeSql();
+    new GcDbAccess().connectionName("grouper")
+        .sql("insert into mock_freshreq_user (id, email, first_name, last_name, active, custom_fields) values (2002, 'jdoe@test.edu', 'Jane', 'Doe', 'T', '{\"pennId\":87654321,\"pennkey\":\"jdoe\"}')")
+        .executeSql();
+    new GcDbAccess().connectionName("grouper")
+        .sql("insert into mock_freshreq_user (id, email, first_name, last_name, active, custom_fields) values (2003, 'bwilson@test.edu', 'Bob', 'Wilson', 'T', null)")
+        .executeSql();
+
+    // retrieve existing user by custom field pennId as Long
+    FreshRequesterUser user = FreshRequesterApiCommands.retrieveRequesterUserByAttribute("freshServiceDev", "customField_pennId", 12345678L);
+
+    assertNotNull(user);
+    assertEquals(2001L, (long)user.getId());
+    assertEquals("jsmith@test.edu", user.getEmail());
+    assertEquals("John", user.getFirstName());
+    assertEquals("Smith", user.getLastName());
+    assertNotNull(user.getCustomFields());
+    assertEquals(12345678L, user.getCustomFields().get("pennId"));
+    assertEquals("jsmith", user.getCustomFields().get("pennkey"));
+
+    // retrieve by a different custom field pennkey (String)
+    FreshRequesterUser user2 = FreshRequesterApiCommands.retrieveRequesterUserByAttribute("freshServiceDev", "customField_pennkey", "jdoe");
+
+    assertNotNull(user2);
+    assertEquals(2002L, (long)user2.getId());
+    assertEquals("jdoe@test.edu", user2.getEmail());
+
+    // retrieve non-existing custom field value should return null
+    FreshRequesterUser notFound = FreshRequesterApiCommands.retrieveRequesterUserByAttribute("freshServiceDev", "customField_pennId", 99999999L);
+
+    assertNull(notFound);
+
+    // retrieve by custom field when user has no custom_fields should return null
+    FreshRequesterUser notFoundNull = FreshRequesterApiCommands.retrieveRequesterUserByAttribute("freshServiceDev", "customField_pennId", 11111111L);
+
+    assertNull(notFoundNull);
   }
 
   public void testCreateRequesterUser() {
@@ -1359,6 +1405,199 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
       assertNotNull(retrievedUser);
       assertNotNull(retrievedUser.getCustomFields());
       assertEquals("my name is test.subject.0", retrievedUser.getCustomFields().get("pennId"));
+
+    } finally {
+
+    }
+  }
+
+  public void testFullSyncMatchByCustomField() {
+    matchByCustomFieldAddRemoveMembers(true);
+  }
+
+  public void testIncrementalSyncMatchByCustomField() {
+    matchByCustomFieldAddRemoveMembers(false);
+  }
+
+  public void matchByCustomFieldAddRemoveMembers(boolean isFull) {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+
+    FreshRequesterProvisionerTestUtils.configureFreshRequesterProvisioner(
+        new FreshRequesterProvisionerTestConfigInput()
+            .assignConfigId("freshRequesterProvisioner")
+            .addExtraConfig("numberOfEntityAttributes", "3")
+            .addExtraConfig("targetEntityAttribute.2.name.elConfig", "${'customField_pennId'}")
+            .addExtraConfig("targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField")
+            .addExtraConfig("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "subjectId")
+            .addExtraConfig("entityMatchingAttributeCount", "3")
+            .addExtraConfig("entityMatchingAttribute2name", "customField_pennId")
+            .addExtraConfig("entityAttributeValueCache2has", "true")
+            .addExtraConfig("entityAttributeValueCache2source", "target")
+            .addExtraConfig("entityAttributeValueCache2type", "entityAttribute")
+            .addExtraConfig("entityAttributeValueCache2entityAttribute", "customField_pennId")
+    );
+
+    GrouperUtil.sleep(5000);
+
+    GrouperStartup.startup();
+
+    try {
+      // this will create tables
+      FreshRequesterApiCommands.retrieveRequesterUsers("freshServiceDev", false);
+
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_user").executeSql();
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      // if incremental, initialize provisioner state before attaching provisioning attribute
+      if (!isFull) {
+        fullProvision();
+        incrementalProvision();
+      }
+
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("freshRequesterProvisioner");
+      attributeValue.setTargetName("freshRequesterProvisioner");
+      attributeValue.setStemScopeString("sub");
+
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+      // assert mock tables are empty before sync
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
+
+      //
+      // first provision: should create group, 2 users with customField_pennId, 2 memberships
+      //
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
+
+      // verify customField_pennId is set to subjectId for both users
+      String customFields0 = new GcDbAccess().connectionName("grouper")
+          .sql("select custom_fields from mock_freshreq_user where email = ?")
+          .addBindVar("test.subject.0@somewhere.someSchool.edu")
+          .select(String.class);
+      assertNotNull(customFields0);
+      assertTrue(customFields0.contains("pennId"));
+      assertTrue(customFields0.contains("test.subject.0"));
+
+      String customFields1 = new GcDbAccess().connectionName("grouper")
+          .sql("select custom_fields from mock_freshreq_user where email = ?")
+          .addBindVar("test.subject.1@somewhere.someSchool.edu")
+          .select(String.class);
+      assertNotNull(customFields1);
+      assertTrue(customFields1.contains("pennId"));
+      assertTrue(customFields1.contains("test.subject.1"));
+
+      // verify via commands class
+      Long groupId = new GcDbAccess().connectionName("grouper")
+          .sql("select id from mock_freshreq_group").select(Long.class);
+
+      List<FreshRequesterUser> members = FreshRequesterApiCommands.retrieveMembershipsByGroup("freshServiceDev", groupId);
+      assertEquals(2, members.size());
+
+      // verify custom field via commands class attribute search
+      FreshRequesterUser user0 = FreshRequesterApiCommands.retrieveRequesterUserByAttribute("freshServiceDev", "customField_pennId", "test.subject.0");
+      assertNotNull(user0);
+      assertNotNull(user0.getCustomFields());
+      assertEquals("test.subject.0", user0.getCustomFields().get("pennId"));
+
+      FreshRequesterUser user1 = FreshRequesterApiCommands.retrieveRequesterUserByAttribute("freshServiceDev", "customField_pennId", "test.subject.1");
+      assertNotNull(user1);
+      assertNotNull(user1.getCustomFields());
+      assertEquals("test.subject.1", user1.getCustomFields().get("pennId"));
+
+      //
+      // remove one member and provision again
+      //
+      testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
+
+      // verify via commands class: only 1 membership remains
+      members = FreshRequesterApiCommands.retrieveMembershipsByGroup("freshServiceDev", groupId);
+      assertEquals(1, members.size());
+
+      // the remaining member should be SUBJ0
+      FreshRequesterUser remainingUser = FreshRequesterApiCommands.retrieveRequesterUserByAttribute("freshServiceDev", "customField_pennId", "test.subject.0");
+      assertNotNull(remainingUser);
+      assertEquals(Boolean.TRUE, remainingUser.getActive());
+
+      //
+      // add a new member and provision again
+      //
+      testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
+
+      // verify via commands class: 2 memberships
+      members = FreshRequesterApiCommands.retrieveMembershipsByGroup("freshServiceDev", groupId);
+      assertEquals(2, members.size());
+
+      // verify the new user has customField_pennId set
+      FreshRequesterUser user2 = FreshRequesterApiCommands.retrieveRequesterUserByAttribute("freshServiceDev", "customField_pennId", "test.subject.2");
+      assertNotNull(user2);
+      assertNotNull(user2.getCustomFields());
+      assertEquals("test.subject.2", user2.getCustomFields().get("pennId"));
+
+      //
+      // remove all members and provision again
+      //
+      testGroup.deleteMember(SubjectTestHelper.SUBJ0);
+      testGroup.deleteMember(SubjectTestHelper.SUBJ2);
+
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_group").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_user where active = 'T'").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_freshreq_membership").select(int.class));
+
+      // verify via commands class: 0 memberships
+      members = FreshRequesterApiCommands.retrieveMembershipsByGroup("freshServiceDev", groupId);
+      assertEquals(0, members.size());
 
     } finally {
 
