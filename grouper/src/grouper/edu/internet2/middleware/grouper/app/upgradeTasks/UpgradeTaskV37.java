@@ -98,31 +98,55 @@ public class UpgradeTaskV37 implements UpgradeTasksInterface {
         }
         
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event_config", "group_internal_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT group_internal_id_fk FOREIGN KEY (group_internal_id) REFERENCES  grouper_groups(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT group_internal_id_fk FOREIGN KEY (group_internal_id) REFERENCES  grouper_groups(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key group_internal_id_fk");
           }
         }
-        
+
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event_config", "stem_id_index_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT stem_id_index_fk FOREIGN KEY (stem_id_index) REFERENCES  grouper_stems(id_index)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT stem_id_index_fk FOREIGN KEY (stem_id_index) REFERENCES  grouper_stems(id_index)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key stem_id_index_fk");
           }
         }
-        
+
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event_config", "data_field_internal_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_field_internal_id_fk FOREIGN KEY (data_field_internal_id) REFERENCES  grouper_data_field(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_field_internal_id_fk FOREIGN KEY (data_field_internal_id) REFERENCES  grouper_data_field(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key data_field_internal_id_fk");
           }
         }
-        
+
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event_config", "data_row_internal_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_row_internal_id_fk FOREIGN KEY (data_row_internal_id) REFERENCES  grouper_data_row(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_row_internal_id_fk FOREIGN KEY (data_row_internal_id) REFERENCES  grouper_data_row(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key data_row_internal_id_fk");
@@ -176,31 +200,55 @@ public class UpgradeTaskV37 implements UpgradeTasksInterface {
         }
         
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event", "lcycl_evnt_cnfg_intrnl_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lcycl_evnt_cnfg_intrnl_id_fk FOREIGN KEY (grpr_lcycl_evnt_cnfg_intrnl_id) REFERENCES  grouper_lifecycle_event_config(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lcycl_evnt_cnfg_intrnl_id_fk FOREIGN KEY (grpr_lcycl_evnt_cnfg_intrnl_id) REFERENCES  grouper_lifecycle_event_config(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key lcycl_evnt_cnfg_intrnl_id_fk");
           }
         }
-        
+
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event", "member_internal_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT member_internal_id_fk FOREIGN KEY (member_internal_id) REFERENCES  grouper_members(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT member_internal_id_fk FOREIGN KEY (member_internal_id) REFERENCES  grouper_members(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key member_internal_id_fk");
           }
         }
-        
+
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event", "lng_priv_dic_intrnl_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_priv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_priv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_priv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_priv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key lng_priv_dic_intrnl_id_fk");
           }
         }
-        
+
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_lifecycle_event", "lng_unpriv_dic_intrnl_id_fk")) {
-          new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_unpriv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_unpriv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_unpriv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_unpriv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key lng_unpriv_dic_intrnl_id_fk");

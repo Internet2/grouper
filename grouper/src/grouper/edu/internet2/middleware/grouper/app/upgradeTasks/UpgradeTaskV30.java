@@ -6,6 +6,7 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class UpgradeTaskV30 implements UpgradeTasksInterface {
@@ -189,23 +190,41 @@ public class UpgradeTaskV30 implements UpgradeTasksInterface {
         }
         
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_data_field_assign_hst", "data_field_assign_hst_fk_1")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_data_field_assign_hst ADD CONSTRAINT data_field_assign_hst_fk_1 FOREIGN KEY (member_internal_id) REFERENCES grouper_members(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE grouper_data_field_assign_hst ADD CONSTRAINT data_field_assign_hst_fk_1 FOREIGN KEY (member_internal_id) REFERENCES grouper_members(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key data_field_assign_hst_fk_1");
           }
         }
-        
+
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_data_field_assign_hst", "data_field_assign_hst_fk_2")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_data_field_assign_hst ADD CONSTRAINT data_field_assign_hst_fk_2 FOREIGN KEY (data_field_internal_id) REFERENCES grouper_data_field(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE grouper_data_field_assign_hst ADD CONSTRAINT data_field_assign_hst_fk_2 FOREIGN KEY (data_field_internal_id) REFERENCES grouper_data_field(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key data_field_assign_hst_fk_2");
           }
         }
-        
+
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_data_field_assign_hst", "data_field_assign_hst_fk_3")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_data_field_assign_hst ADD CONSTRAINT data_field_assign_hst_fk_3 FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE grouper_data_field_assign_hst ADD CONSTRAINT data_field_assign_hst_fk_3 FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key data_field_assign_hst_fk_3");
@@ -275,15 +294,27 @@ public class UpgradeTaskV30 implements UpgradeTasksInterface {
         }
         
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_data_row_assign_hst", "data_row_assign_hst_fk_1")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_data_row_assign_hst ADD CONSTRAINT data_row_assign_hst_fk_1 FOREIGN KEY (member_internal_id) REFERENCES grouper_members(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE grouper_data_row_assign_hst ADD CONSTRAINT data_row_assign_hst_fk_1 FOREIGN KEY (member_internal_id) REFERENCES grouper_members(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key data_row_assign_hst_fk_1");
           }
         }
-        
+
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_data_row_assign_hst", "data_row_assign_hst_fk_2")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_data_row_assign_hst ADD CONSTRAINT data_row_assign_hst_fk_2 FOREIGN KEY (data_row_internal_id) REFERENCES grouper_data_row(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE grouper_data_row_assign_hst ADD CONSTRAINT data_row_assign_hst_fk_2 FOREIGN KEY (data_row_internal_id) REFERENCES grouper_data_row(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key data_row_assign_hst_fk_2");
@@ -363,15 +394,27 @@ public class UpgradeTaskV30 implements UpgradeTasksInterface {
         }
         
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_data_row_field_asn_hst", "data_row_field_asn_hst_fk_1")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_data_row_field_asn_hst ADD CONSTRAINT data_row_field_asn_hst_fk_1 FOREIGN KEY (data_field_internal_id) REFERENCES grouper_data_field(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE grouper_data_row_field_asn_hst ADD CONSTRAINT data_row_field_asn_hst_fk_1 FOREIGN KEY (data_field_internal_id) REFERENCES grouper_data_field(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key data_row_field_asn_hst_fk_1");
           }
         }
-        
+
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_data_row_field_asn_hst", "data_row_field_asn_hst_fk_2")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_data_row_field_asn_hst ADD CONSTRAINT data_row_field_asn_hst_fk_2 FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE grouper_data_row_field_asn_hst ADD CONSTRAINT data_row_field_asn_hst_fk_2 FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key data_row_field_asn_hst_fk_2");

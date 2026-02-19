@@ -7,6 +7,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyTypeDao;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class UpgradeTaskV28 implements UpgradeTasksInterface {
@@ -183,7 +184,13 @@ public class UpgradeTaskV28 implements UpgradeTasksInterface {
         }
         
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_sql_cache_dependency", "grouper_sql_cache_dep_fk")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_sql_cache_dependency ADD CONSTRAINT grouper_sql_cache_dep_fk FOREIGN KEY (dep_type_internal_id) REFERENCES grouper_sql_cache_depend_type(internal_id)").executeSql();
+          try {
+            new GcDbAccess().sql("ALTER TABLE grouper_sql_cache_dependency ADD CONSTRAINT grouper_sql_cache_dep_fk FOREIGN KEY (dep_type_internal_id) REFERENCES grouper_sql_cache_depend_type(internal_id)").executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              throw e;
+            }
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key grouper_sql_cache_dep_fk");

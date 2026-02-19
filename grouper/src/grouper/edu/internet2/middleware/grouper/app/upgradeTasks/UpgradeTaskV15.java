@@ -414,7 +414,13 @@ public class UpgradeTaskV15 implements UpgradeTasksInterface {
       }
       
       if (!GrouperDdlUtils.assertForeignKeyExists("grouper_sql_cache_mship", "grouper_sql_cache_mship1_fk")) {
-        new GcDbAccess().sql("ALTER TABLE grouper_sql_cache_mship ADD CONSTRAINT grouper_sql_cache_mship1_fk FOREIGN KEY (sql_cache_group_internal_id) REFERENCES grouper_sql_cache_group(internal_id)").executeSql();
+        try {
+          new GcDbAccess().sql("ALTER TABLE grouper_sql_cache_mship ADD CONSTRAINT grouper_sql_cache_mship1_fk FOREIGN KEY (sql_cache_group_internal_id) REFERENCES grouper_sql_cache_group(internal_id)").executeSql();
+        } catch (Exception e) {
+          if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+            throw e;
+          }
+        }
         if (otherJobInput != null) {
           otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
           otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key grouper_sql_cache_mship1_fk");
