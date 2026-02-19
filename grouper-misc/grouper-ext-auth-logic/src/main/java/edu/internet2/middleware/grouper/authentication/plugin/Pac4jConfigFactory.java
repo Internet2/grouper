@@ -31,6 +31,18 @@ public class Pac4jConfigFactory implements ConfigFactory {
             } else {
                 provider = grouperConfig.propertyValueString("external.authentication.provider");
             }
+
+            if (StringUtils.isBlank(provider)) {
+                String configFile = ConfigUtils.isGrouperUi() ? "grouper-ui.properties" : "grouper-ws.properties";
+                throw new RuntimeException("External authentication is enabled (grouper.is.extAuth.enabled = true) "
+                        + "but the required property 'external.authentication.provider' is not configured. "
+                        + "Please set 'external.authentication.provider' to one of: cas, oidc, saml "
+                        + "(or a fully qualified class name implementing ClientProvider) "
+                        + "in " + configFile + ". "
+                        + "If you do not need external authentication, set 'grouper.is.extAuth.enabled' to false "
+                        + "in " + configFile + ".");
+            }
+
             Client client = getClient(provider);
 
             String callbackUrl = grouperConfig.propertyValueString("external.authentication.grouperContextUrl")

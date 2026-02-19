@@ -22,11 +22,13 @@ public class SecurityFilterDecorator extends SecurityFilter implements Reinitial
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
-        this.initDecorator();
-        int period = ConfigUtils.getBestGrouperConfiguration().propertyValueInt("external.authentication.config.reload.milliseconds", 60 * 1000);
-        if (period > 0) {
-            TimerTask timerTask = new ReinitializingTimer(this);
-            this.timer.schedule(timerTask, period, period);
+        if (ConfigUtils.isGrouperUi() && FilterDecoratorUtils.isExternalAuthenticationEnabled()) {
+            this.initDecorator();
+            int period = ConfigUtils.getBestGrouperConfiguration().propertyValueInt("external.authentication.config.reload.milliseconds", 60 * 1000);
+            if (period > 0) {
+                TimerTask timerTask = new ReinitializingTimer(this);
+                this.timer.schedule(timerTask, period, period);
+            }
         }
     }
 
