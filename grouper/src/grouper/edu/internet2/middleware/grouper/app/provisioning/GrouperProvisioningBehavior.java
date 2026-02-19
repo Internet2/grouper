@@ -1237,7 +1237,17 @@ public class GrouperProvisioningBehavior {
     if (provisioningMembershipWrapper == null) {
       return this.isDeleteMembershipsIfNotExistInGrouper();
     }
-    
+        // Apply object type filter  
+    String objectTypeFilter = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getDeleteMembershipsObjectTypeFilter();  
+    if (!StringUtils.isBlank(objectTypeFilter)) {  
+      ProvisioningEntity provisioningEntity = provisioningMembershipWrapper.getProvisioningEntity();  
+      if (provisioningEntity != null) {  
+        String entityType = provisioningEntity.getEntityType();  
+        if (!objectTypeFilter.equals(entityType)) {  
+          return false;  
+        }  
+      }  
+    }
     if ((this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isOperateOnGrouperGroups() && !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfUnmarkedProvisionable()) ||
         (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isOperateOnGrouperMemberships() && !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembershipsIfGroupUnmarkedProvisionable())) {
       
