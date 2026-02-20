@@ -932,7 +932,7 @@ public class GrouperObjectTypesConfiguration {
       
       AttributeAssignValue attributeAssignValue = attributeAssign.getAttributeValueDelegate().retrieveAttributeAssignValue(GrouperObjectTypesSettings.objectTypesStemName()+":"+GrouperObjectTypesAttributeNames.GROUPER_OBJECT_TYPE_NAME);
       if (attributeAssignValue == null || StringUtils.isBlank(attributeAssignValue.getValueString())) {
-        return null;
+        continue;
       }
       
       String objectTypeNameFromDB = attributeAssignValue.getValueString();
