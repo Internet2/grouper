@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -33,6 +35,10 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem.StemSearchType;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
+import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.GrouperObjectFinderType;
+import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -317,6 +323,11 @@ public class StemContainer {
    * if the logged in user can view privileges, lazy loaded
    */
   private Boolean canViewPrivileges;
+  
+  /**
+   * if the logged in user can view at least one group inside this stem
+   */
+  private Boolean canViewAnyChildGroup;
 
   /**
    * if the logged in user can read attributes, lazy loaded
@@ -420,6 +431,44 @@ public class StemContainer {
     }
     
     return this.canViewPrivileges;
+  }
+  
+  /**
+   * if the logged in user can view at least one group inside this stem
+   * @return true if logged in and can view at least one child group
+   */
+  public boolean isCanViewAnyChildGroup() {
+    
+    if (this.canViewAnyChildGroup == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true, null);
+      
+      this.canViewAnyChildGroup = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              if (loggedInSubject == null) {
+                return false;
+              }
+              QueryOptions queryOptions = QueryOptions.create(null, null, 1, 1);
+              queryOptions.retrieveResults(false);
+              GrouperObjectFinder grouperObjectFinder = new GrouperObjectFinder()
+                  .assignObjectPrivilege(ObjectPrivilege.view)
+                  .assignParentStemId(StemContainer.this.getGuiStem().getStem().getId())
+                  .assignStemScope(Scope.ONE)
+                  .assignQueryOptions(queryOptions)
+                  .assignSubject(loggedInSubject)
+                  .assignGrouperObjectFinderType(Collections.singletonList(GrouperObjectFinderType.groups));
+              
+              grouperObjectFinder.findGrouperObjects();
+              return queryOptions.getCount() > 0;
+            }
+          });
+      
+    }
+    
+    return this.canViewAnyChildGroup;
   }
 
   /**

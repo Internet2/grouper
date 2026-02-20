@@ -25,7 +25,7 @@
   </c:if>
 
   <%-- More tab include (conditional) --%>
-  <c:if test="${grouperRequestContainer.stemContainer.canReadPrivilegeInheritance}">
+  <c:if test="${grouperRequestContainer.stemContainer.canViewAnyChildGroup}">
     <%@ include file="../stem/stemMoreTab.jsp" %>
   </c:if>
 
