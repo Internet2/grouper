@@ -210,13 +210,24 @@ public class ObjectTypeContainer {
     for (GuiGrouperObjectTypesAttributeValue guiGrouperObjectTypesAttributeValue: guiConfiguredGrouperObjectTypesAttributeValues) {
       
       final GrouperObjectTypesAttributeValue typesAttributeValue = guiGrouperObjectTypesAttributeValue.getGrouperObjectTypesAttributeValue();
-      
-      String title = TextContainer.retrieveFromRequest().getTextEscapeXml()
-          .get(guiGrouperObjectTypesAttributeValue.getObjectTypeDescriptionKey());
-      
+
+      if (StringUtils.isBlank(typesAttributeValue.getObjectTypeName())) {
+        continue;
+      }
+
+      String descriptionKey = guiGrouperObjectTypesAttributeValue.getObjectTypeDescriptionKey();
+      String title = null;
+      if (StringUtils.isNotBlank(descriptionKey)) {
+        title = TextContainer.retrieveFromRequest().getTextEscapeXml()
+            .get(descriptionKey);
+      }
+      if (StringUtils.isBlank(title)) {
+        title = typesAttributeValue.getObjectTypeName();
+      }
+
       String escapedTooltipText = StringUtils.replace(title, "'", "&#39;");
       escapedTooltipText = GrouperUiUtils.escapeHtml(escapedTooltipText, true, true);
-      
+
       types.add("<span class=\"grouperTooltip\" onmouseover=\"grouperTooltip('"+escapedTooltipText+"')\" onmouseout=\"UnTip()\" >"+typesAttributeValue.getObjectTypeName()+"</span>");
       
       if (StringUtils.isNotBlank(typesAttributeValue.getObjectTypeDataOwner())) {    
@@ -227,7 +238,7 @@ public class ObjectTypeContainer {
         memberDescriptions.add(typesAttributeValue.getObjectTypeMemberDescription());
       }
       
-      if (typesAttributeValue.getObjectTypeName().equals(APP) && !typesAttributeValue.isDirectAssignment()) {
+      if (StringUtils.equals(typesAttributeValue.getObjectTypeName(), APP) && !typesAttributeValue.isDirectAssignment()) {
         
          GrouperSession.callbackGrouperSession(
             GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
@@ -248,7 +259,7 @@ public class ObjectTypeContainer {
         
       }
       
-      if (typesAttributeValue.getObjectTypeName().equals(SERVICE) && !typesAttributeValue.isDirectAssignment()) {
+      if (StringUtils.equals(typesAttributeValue.getObjectTypeName(), SERVICE) && !typesAttributeValue.isDirectAssignment()) {
         
         GrouperSession.callbackGrouperSession(
           GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
