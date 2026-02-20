@@ -52,6 +52,13 @@
                         <c:otherwise>
                           <div id="add-members">
                             <form id="add-members-form" target="#" class="form-horizontal form-highlight">
+                              
+                              <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}">
+                                <div role="alert" class="alert alert-info">
+                                    ${textContainer.text['loaderGroupDirectMembershipAddRemoveWarning']}
+                                </div>
+                              </c:if>
+                              
                               <div class="control-group" id="add-member-control-group" aria-live="polite" aria-expanded="false">
                                 <label for="groupAddMemberComboId" class="control-label">${textContainer.text['groupSearchMemberOrId'] }</label>
                                 <div class="controls">

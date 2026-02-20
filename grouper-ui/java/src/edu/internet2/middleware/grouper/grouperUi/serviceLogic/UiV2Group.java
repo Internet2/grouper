@@ -817,6 +817,12 @@ public class UiV2Group {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
                 TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberSuccess")));
           }
+          
+          GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+          if (grouperLoaderContainer.isLoaderGroup()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.info, 
+                TextContainer.retrieveFromRequest().getText().get("loaderGroupDirectMembershipAddRemoveWarning")));
+          }
               
         } else {
           
@@ -3444,6 +3450,13 @@ public class UiV2Group {
               TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersSuccesses"))); 
         }
       }
+      
+      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+      if (grouperLoaderContainer.isLoaderGroup()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.info, 
+            TextContainer.retrieveFromRequest().getText().get("loaderGroupDirectMembershipAddRemoveWarning")));
+      }
+     
 
     } catch (RuntimeException re) {
       if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {

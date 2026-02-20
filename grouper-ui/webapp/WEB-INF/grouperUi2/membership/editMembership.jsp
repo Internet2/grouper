@@ -21,6 +21,12 @@
                   <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
                   <input type="hidden" name="memberId" value="${grouperRequestContainer.subjectContainer.guiSubject.memberId}" />
                   <input type="hidden" name="fieldId" value="${grouperRequestContainer.membershipGuiContainer.field.id}" />
+                  
+                  <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}">
+                    <div role="alert" class="alert alert-info">
+                        ${textContainer.text['loaderGroupDirectMembershipAddRemoveWarning']}
+                    </div>
+                  </c:if>
 
                   <div class="control-group">
                     <label class="control-label">${textContainer.text['subjectViewLabelId'] }</label>

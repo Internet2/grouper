@@ -73,6 +73,13 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
               <%-- note this wont work for token per page --%>
               <input type="hidden" name="<csrf:token-name/>" value="<csrf:token-value />"/>
               
+              
+               <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup}">
+                <div role="alert" class="alert alert-info">
+                    ${textContainer.text['loaderGroupDirectMembershipAddRemoveWarning']}
+                </div>
+               </c:if>
+              
               <div class="bulk-add-group-input-container">
                 <div class="control-group bulk-add-group-block">
                   <label for="add-entities" style="position:absolute" class="control-label">${textContainer.text['groupImportAddMembersToGroupLabel'] }</label>
