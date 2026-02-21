@@ -35,6 +35,7 @@ package edu.internet2.middleware.grouper.ui;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.security.Principal;
 import java.sql.Timestamp;
@@ -810,9 +811,32 @@ public class GrouperUiFilter implements Filter {
             String responseType = grouperOidc.retrieveResponseType();
             
             String authorizationCodeReturnedFromOidc = httpServletRequest.getParameter(responseType);
+            String errorFromOidc = httpServletRequest.getParameter("error");
             
             if (LOG.isDebugEnabled()) {
               debugLog.put("hasAuthorizationCodeReturnedFromOidc", StringUtils.isNotBlank(authorizationCodeReturnedFromOidc));
+            }
+            
+            if (StringUtils.isBlank(authorizationCodeReturnedFromOidc) && !StringUtils.isBlank(errorFromOidc)) {
+              String errorDescriptionFromOidc = httpServletRequest.getParameter("error_description");
+
+              try {
+                retrieveHttpServletResponse().setContentType("text/html");
+                PrintWriter out = retrieveHttpServletResponse().getWriter();
+                out.write(TextContainer.retrieveFromRequest().getText().get("guiErrorHeader"));
+
+                if (!StringUtils.isBlank(errorDescriptionFromOidc)) {
+                  out.write(GrouperUiUtils.escapeHtml(errorDescriptionFromOidc, true));
+                } else {
+                  out.write(GrouperUiUtils.escapeHtml(errorFromOidc, true));
+                }
+                
+                out.close();
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+
+              throw new ControllerDone();
             }
             
             if (StringUtils.isBlank(authorizationCodeReturnedFromOidc)) {
