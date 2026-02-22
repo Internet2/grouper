@@ -69,7 +69,7 @@ public class GrouperOktaApiCommands {
       grouperHttpCall.assignProxyType(proxyType);
       
       String url = "";
-      if (urlSuffix.startsWith("https://")) { // for pagination, we are passing the full url instead of url suffix
+      if (urlSuffix.startsWith("https://") || urlSuffix.startsWith("http://")) { // for pagination, we are passing the full url instead of url suffix
         url = urlSuffix;
       } else {      
         url = tenantDomain + (tenantDomain.endsWith("/") ? "" : "/") +  urlSuffix;
