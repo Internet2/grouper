@@ -61,20 +61,20 @@ public class GrouperOktaApiCommands {
       String tenantDomain = grouperLoaderConfig.propertyValueStringRequired("grouper.wsBearerToken." + configId + ".serviceUrl");
 
       WsBearerTokenExternalSystem.attachAuthenticationToHttpClient(grouperHttpCall, configId, grouperLoaderConfig, debugMap);
-      
+
       String proxyUrl = grouperLoaderConfig.propertyValueString("grouper.wsBearerToken." + configId + ".proxyUrl");
       String proxyType = grouperLoaderConfig.propertyValueString("grouper.wsBearerToken." + configId + ".proxyType");
-      
+
       grouperHttpCall.assignProxyUrl(proxyUrl);
       grouperHttpCall.assignProxyType(proxyType);
-      
+
       String url = "";
       if (urlSuffix.startsWith("https://") || urlSuffix.startsWith("http://")) { // for pagination, we are passing the full url instead of url suffix
         url = urlSuffix;
-      } else {      
+      } else {
         url = tenantDomain + (tenantDomain.endsWith("/") ? "" : "/") +  urlSuffix;
       }
-      
+
       debugMap.put("url", url);
 
       grouperHttpCall.assignUrl(url);
