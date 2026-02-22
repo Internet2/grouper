@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -243,7 +243,20 @@ public class OktaMockServiceHandler extends MockServiceHandler {
 
     String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
     String pageToken = mockServiceRequest.getHttpServletRequest().getParameter("after");
-      
+    String search = mockServiceRequest.getHttpServletRequest().getParameter("search");
+
+    String loginValue = null;
+    if (StringUtils.isNotBlank(search)) {
+      //profile.login eq "test.subject.0@somewhere.someSchool.edu"
+      if (!StringUtils.startsWith(search, "profile.login")) {
+        throw new RuntimeException("Only supports searching on profile.login");
+      }
+
+      loginValue = StringUtils.substringAfterLast(search, "eq ");
+      loginValue = StringUtils.replace(loginValue, "\"", "");
+    }
+
+
     int limitInt = 100;
     if (StringUtils.isNotBlank(limit)) {
       limitInt = GrouperUtil.intValue(limit);
@@ -259,35 +272,36 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     ByHqlStatic query = null;
     QueryOptions queryOptions = new QueryOptions();
     if (StringUtils.isNotBlank(pageToken)) {
-      query = HibernateSession.byHqlStatic().createQuery("from GrouperOktaUser where login > :pageToken");
-      query.setScalar("pageToken", pageToken);
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperOktaUser where login > :after");
+      query.setScalar("after", pageToken);
+    } else if (StringUtils.isNotBlank(loginValue)) {
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperOktaUser where login = :loginValue");
+      query.setScalar("loginValue", loginValue);
     } else {
       query = HibernateSession.byHqlStatic().createQuery("from GrouperOktaUser");
     }
-    
+
     queryOptions.paging(limitInt, 1, true);
     queryOptions.sort(new QuerySort("login", true));
     query.options(queryOptions);
-    
+
     grouperOktaUsers = query.list(GrouperOktaUser.class);
-    
-    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    
+
     int totalRecordCount = queryOptions.getQueryPaging().getTotalRecordCount();
-    if (totalRecordCount > grouperOktaUsers.size()) {
-      
-      String nextPageToken = grouperOktaUsers.get(grouperOktaUsers.size()-1).getLogin();
-      resultNode.put("nextPageToken", nextPageToken);
+    if (totalRecordCount > grouperOktaUsers.size() && grouperOktaUsers.size() > 0) {
+      String nextAfter = grouperOktaUsers.get(grouperOktaUsers.size() - 1).getLogin();
+      String nextUrl = mockServiceRequest.getHttpServletRequest().getRequestURL().toString()
+          + "?after=" + GrouperUtil.escapeUrlEncode(nextAfter)
+          + "&limit=" + limitInt;
+      mockServiceResponse.getResponseHeaders().put("link", "<" + nextUrl + ">; rel=\"next\"");
     }
-    
+
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
-    
+
     for (GrouperOktaUser grouperOktaUser : grouperOktaUsers) {
       valueNode.add(toUserJson(grouperOktaUser));
     }
-    
-    resultNode.set("users", valueNode);
-    
+
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(valueNode));
@@ -577,64 +591,55 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     QueryOptions queryOptions = new QueryOptions();
     String whereConj = " where ";
 
-    if (groupFilter != null) {
+    if (StringUtils.isNotBlank(groupFilter)) {
       sql.append(whereConj);
       sql.append("name = :name");
-      
+      whereConj = " and ";
+
       String regex = "\"([^\"]*)\"";
-
-      // Create a Pattern object
       Pattern pattern = Pattern.compile(regex);
-
-      // Create a Matcher object
       Matcher matcher = pattern.matcher(groupFilter);
-
-      // Check if a match is found
       if (matcher.find()) {
-          // Group 1 contains the content within the quotes
-          String result = matcher.group(1);
-          byHqlStatic.setScalar("name", result);
+        String result = matcher.group(1);
+        byHqlStatic.setScalar("name", result);
       } else {
-          throw new RuntimeException("Could not parse group name from search query");
+        throw new RuntimeException("Could not parse group name from search query");
       }
-      
-      
-//      sql.append(groupFilter);
-//      whereConj = " and ";
     }
 
-//    if (StringUtils.isNotBlank(pageToken)) {
-//      sql.append(whereConj);
-//      sql.append(" email > :pageToken");
-//      byHqlStatic.setScalar("pageToken", pageToken);
-//      whereConj = " and ";
-//    }
-
+    if (StringUtils.isNotBlank(pageToken)) {
+      sql.append(whereConj);
+      sql.append("id > :after");
+      byHqlStatic.setScalar("after", pageToken);
+      whereConj = " and ";
+    }
 
     queryOptions.paging(limitInt, 1, true);
-    
     queryOptions.sort(new QuerySort("id", true));
 
     List<GrouperOktaGroup> grouperOktaGroups = byHqlStatic.createQuery(sql.toString())
             .options(queryOptions)
             .list(GrouperOktaGroup.class);
 
-    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    
     int totalRecordCount = queryOptions.getQueryPaging().getTotalRecordCount();
-    if (totalRecordCount > grouperOktaGroups.size()) {
-      
-      String nextPageToken = grouperOktaGroups.get(grouperOktaGroups.size()-1).getId();
-      resultNode.put("nextPageToken", nextPageToken);
+    if (totalRecordCount > grouperOktaGroups.size() && grouperOktaGroups.size() > 0) {
+      String nextAfter = grouperOktaGroups.get(grouperOktaGroups.size() - 1).getId();
+      String nextUrl = mockServiceRequest.getHttpServletRequest().getRequestURL().toString()
+          + "?after=" + GrouperUtil.escapeUrlEncode(nextAfter)
+          + "&limit=" + limitInt;
+      if (StringUtils.isNotBlank(groupFilter)) {
+        nextUrl += "&search=" + GrouperUtil.escapeUrlEncode(groupFilter);
+      }
+      mockServiceResponse.getResponseHeaders().put("link", "<" + nextUrl + ">; rel=\"next\"");
     }
-    
+
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
-    
+
     for (GrouperOktaGroup grouperOktaGroup : grouperOktaGroups) {
       ObjectNode objectNode = grouperOktaGroup.toJsonGroupOnly(null);
       valueNode.add(objectNode);
     }
-    
+
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(valueNode));
@@ -650,31 +655,54 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     }
 
     String groupId = mockServiceRequest.getPostMockNamePaths()[1];
-    
+
     GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
 
+    String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
+    String after = mockServiceRequest.getHttpServletRequest().getParameter("after");
+
+    int limitInt = 1000;
+    if (StringUtils.isNotBlank(limit)) {
+      limitInt = GrouperUtil.intValue(limit);
+      if (limitInt <= 0) {
+        throw new RuntimeException("limit cannot be less than or equal to 0.");
+      }
+    }
 
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
     QueryOptions queryOptions = new QueryOptions();
 
-    StringBuffer sql = new StringBuffer("from GrouperOktaUser u where u.id in (select m.userId from GrouperOktaMembership m where m.groupId = :theGroupId");
+    StringBuffer sql;
+    if (StringUtils.isNotBlank(after)) {
+      sql = new StringBuffer("from GrouperOktaUser u where u.id > :after and u.id in (select m.userId from GrouperOktaMembership m where m.groupId = :theGroupId)");
+      byHqlStatic.setScalar("after", after);
+    } else {
+      sql = new StringBuffer("from GrouperOktaUser u where u.id in (select m.userId from GrouperOktaMembership m where m.groupId = :theGroupId)");
+    }
     byHqlStatic.setString("theGroupId", groupId);
 
-    sql.append(")");
-
+    queryOptions.paging(limitInt, 1, true);
     queryOptions.sort(new QuerySort("id", true));
 
     List<GrouperOktaUser> grouperOktaUsers = byHqlStatic.createQuery(sql.toString())
             .options(queryOptions)
             .list(GrouperOktaUser.class);
 
-    
+    int totalRecordCount = queryOptions.getQueryPaging().getTotalRecordCount();
+    if (totalRecordCount > grouperOktaUsers.size() && grouperOktaUsers.size() > 0) {
+      String nextAfter = grouperOktaUsers.get(grouperOktaUsers.size() - 1).getId();
+      String nextUrl = mockServiceRequest.getHttpServletRequest().getRequestURL().toString()
+          + "?after=" + GrouperUtil.escapeUrlEncode(nextAfter)
+          + "&limit=" + limitInt;
+      mockServiceResponse.getResponseHeaders().put("link", "<" + nextUrl + ">; rel=\"next\"");
+    }
+
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
-    
+
     for (GrouperOktaUser grouperOktaUser : grouperOktaUsers) {
       valueNode.add(toUserJson(grouperOktaUser));
     }
-    
+
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(valueNode));
