@@ -10,7 +10,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
-import edu.internet2.middleware.grouper.plugins.FrameworkStarter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -19,8 +18,6 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 
 public class CommonServletContainerInitializer implements ServletContainerInitializer {
   
@@ -35,20 +32,13 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
       GrouperStartup.waitForGrouperStartup();
 
       // setup ServletContainerInitializer from OSGI
+      // Note: OSGi classes are loaded lazily via a separate method to avoid ClassNotFoundException
+      // when OSGi JARs are not on the classpath (they are provided scope)
       if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.osgi.enable", false)) {
-        BundleContext bundleContext = FrameworkStarter.getInstance().getFramework().getBundleContext();
-
         try {
-          Collection<ServletContainerInitializer> initializerCollection = FrameworkStarter.getInstance().getFramework().getBundleContext().getServiceReferences(ServletContainerInitializer.class, null).stream().map(r -> bundleContext.getService(r)).collect(Collectors.toList());
-          initializerCollection.stream().forEach(r -> {
-            try {
-              r.onStartup(arg0, context);
-            } catch (ServletException e) {
-              throw new RuntimeException(e);
-            }
-          });
-        } catch (InvalidSyntaxException e) {
-          throw new RuntimeException(e);
+          initOsgiServlets(arg0, context);
+        } catch (NoClassDefFoundError e) {
+          LOG.error("OSGi is enabled but OSGi classes are not on the classpath", e);
         }
       }
 
@@ -215,9 +205,9 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
       }
       
       if (runGrouperDaemon) {
-        
+
         Thread thread = new Thread(new Runnable() {
-          
+
           public void run() {
             try {
               GrouperLoader.main(new String[] {});
@@ -229,6 +219,37 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
         thread.setDaemon(true);
         thread.start();
       }
-      
+
+  }
+
+  /**
+   * Initialize servlet container initializers from OSGi bundles.
+   * This method is in a separate method so that OSGi classes (BundleContext, InvalidSyntaxException)
+   * are only resolved by the JVM when this method is actually called, not when the enclosing
+   * class is loaded. This prevents ClassNotFoundException when OSGi JARs are not on the classpath.
+   * @param classes the classes
+   * @param context the servlet context
+   * @throws ServletException
+   */
+  private void initOsgiServlets(Set<Class<?>> classes, ServletContext context) throws ServletException {
+    org.osgi.framework.BundleContext bundleContext = edu.internet2.middleware.grouper.plugins.FrameworkStarter.getInstance()
+        .getFramework().getBundleContext();
+    try {
+      Collection<ServletContainerInitializer> initializerCollection = edu.internet2.middleware.grouper.plugins.FrameworkStarter.getInstance()
+          .getFramework().getBundleContext()
+          .getServiceReferences(ServletContainerInitializer.class, null)
+          .stream()
+          .map(r -> bundleContext.getService(r))
+          .collect(Collectors.toList());
+      initializerCollection.stream().forEach(r -> {
+        try {
+          r.onStartup(classes, context);
+        } catch (ServletException e) {
+          throw new RuntimeException(e);
+        }
+      });
+    } catch (org.osgi.framework.InvalidSyntaxException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
