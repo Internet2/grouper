@@ -106,12 +106,12 @@ Released versions are tagged in the format GROUPER_RELEASE_a.b.c, where a.b.c is
 ```bash
 # Build entire project from grouper-parent/
 cd grouper-parent
-mvn clean install -Dcheckstyle.skip
+mvn clean install dependency:copy-dependencies -Dcheckstyle.skip
 
 # Build specific module
-mvn -f grouper-misc/grouperClient clean install
-mvn -f grouper clean install
-mvn -f grouper-ui clean install
+mvn -f grouper-misc/grouperClient clean install dependency:copy-dependencies
+mvn -f grouper clean install dependency:copy-dependencies
+mvn -f grouper-ui clean install dependency:copy-dependencies
 ```
 
 ## "Quickstart" Demo application
