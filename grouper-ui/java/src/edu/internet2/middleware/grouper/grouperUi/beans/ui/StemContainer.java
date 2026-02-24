@@ -327,7 +327,7 @@ public class StemContainer {
   /**
    * if the logged in user can view at least one group inside this stem
    */
-  private Boolean canViewAnyChildGroup;
+  private Boolean canReadAnyChildGroup;
 
   /**
    * if the logged in user can read attributes, lazy loaded
@@ -437,13 +437,13 @@ public class StemContainer {
    * if the logged in user can view at least one group inside this stem
    * @return true if logged in and can view at least one child group
    */
-  public boolean isCanViewAnyChildGroup() {
+  public boolean isCanReadAnyChildGroup() {
     
-    if (this.canViewAnyChildGroup == null) {
+    if (this.canReadAnyChildGroup == null) {
       
       final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true, null);
       
-      this.canViewAnyChildGroup = (Boolean)GrouperSession.callbackGrouperSession(
+      this.canReadAnyChildGroup = (Boolean)GrouperSession.callbackGrouperSession(
           GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
             
             @Override
@@ -454,9 +454,9 @@ public class StemContainer {
               QueryOptions queryOptions = QueryOptions.create(null, null, 1, 1);
               queryOptions.retrieveResults(false);
               GrouperObjectFinder grouperObjectFinder = new GrouperObjectFinder()
-                  .assignObjectPrivilege(ObjectPrivilege.view)
+                  .assignObjectPrivilege(ObjectPrivilege.read)
                   .assignParentStemId(StemContainer.this.getGuiStem().getStem().getId())
-                  .assignStemScope(Scope.ONE)
+                  .assignStemScope(Scope.SUB)
                   .assignQueryOptions(queryOptions)
                   .assignSubject(loggedInSubject)
                   .assignGrouperObjectFinderType(Collections.singletonList(GrouperObjectFinderType.groups));
@@ -468,7 +468,7 @@ public class StemContainer {
       
     }
     
-    return this.canViewAnyChildGroup;
+    return this.canReadAnyChildGroup;
   }
 
   /**
