@@ -11,13 +11,10 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import java.util.Collections;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
@@ -50,7 +47,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 
 public class UiV2EntityDataFields {
@@ -656,48 +652,27 @@ public class UiV2EntityDataFields {
       }
       
       String configId = request.getParameter("privacyRealmConfigId");
-      
+
       if (StringUtils.isBlank(configId)) {
         throw new RuntimeException("ConfigId cannot be blank");
-      }
-      
-      // check if this privacy realm is referenced by any data fields or data rows
-      GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
-      grouperDataEngine.loadFieldsAndRows(null);
-
-      List<String> referencingConfigs = new ArrayList<>();
-
-      for (Map.Entry<String, GrouperDataFieldConfig> fieldEntry : grouperDataEngine.getFieldConfigByConfigId().entrySet()) {
-        if (StringUtils.equals(configId, fieldEntry.getValue().getGrouperPrivacyRealmConfigId())) {
-          referencingConfigs.add("data field '" + fieldEntry.getKey() + "'");
-        }
-      }
-
-      for (Map.Entry<String, GrouperDataRowConfig> rowEntry : grouperDataEngine.getRowConfigByConfigId().entrySet()) {
-        if (StringUtils.equals(configId, rowEntry.getValue().getPrivacyRealmName())) {
-          referencingConfigs.add("data row '" + rowEntry.getKey() + "'");
-        }
-      }
-
-      if (referencingConfigs.size() > 0) {
-        String referencingConfigsString = StringUtils.join(referencingConfigs, ", ");
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-            TextContainer.retrieveFromRequest().getText().get("privacyRealmConfigDeleteErrorInUse")
-            + " " + referencingConfigsString));
-        return;
       }
 
       GrouperPrivacyRealmConfiguration privacyRealmConfiguration = new GrouperPrivacyRealmConfiguration();
 
       privacyRealmConfiguration.setConfigId(configId);
 
-      privacyRealmConfiguration.deleteConfig(true);
+      try {
+        privacyRealmConfiguration.deleteConfig(true);
+      } catch (GrouperReferentialIntegrityException e) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, e.getMessage()));
+        return;
+      }
 
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2EntityDataFields.viewPrivacyRealmConfigs')"));
 
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("privacyRealmConfigDeleteSuccess")));
-      
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -1199,62 +1174,27 @@ public class UiV2EntityDataFields {
       }
       
       String configId = request.getParameter("dataFieldConfigId");
-      
+
       if (StringUtils.isBlank(configId)) {
         throw new RuntimeException("ConfigId cannot be blank");
-      }
-      
-      // check if this data field is referenced by any data rows or data provider queries
-      GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
-      grouperDataEngine.loadFieldsAndRows(null);
-
-      List<String> referencingConfigs = new ArrayList<>();
-
-      for (Map.Entry<String, GrouperDataRowConfig> rowEntry : grouperDataEngine.getRowConfigByConfigId().entrySet()) {
-        if (rowEntry.getValue().getDataFieldConfigIds().contains(configId)) {
-          referencingConfigs.add("data row '" + rowEntry.getKey() + "'");
-        }
-      }
-
-      // check if this data field is referenced by any data provider queries
-      List<GrouperDataProviderQueryConfiguration> allQueryConfigs = GrouperDataProviderQueryConfiguration.retrieveAllDataProviderQueryConfigurations();
-      for (GrouperDataProviderQueryConfiguration queryConfig : GrouperUtil.nonNull(allQueryConfigs)) {
-        String numberOfFieldsString = queryConfig.retrieveAttributeValueFromConfig("providerQueryNumberOfDataFields", false);
-        int numberOfFields = GrouperUtil.intValue(numberOfFieldsString, 0);
-        for (int i = 0; i < numberOfFields; i++) {
-          String fieldConfigId = queryConfig.retrieveAttributeValueFromConfig("providerQueryDataField." + i + ".providerDataFieldConfigId", false);
-          if (StringUtils.equals(configId, fieldConfigId)) {
-            referencingConfigs.add("data provider query '" + queryConfig.getConfigId() + "'");
-            break;
-          }
-        }
-      }
-
-      // check if this data field is used by any scripted groups (ABAC)
-      List<String> dependentGroupNames = new GcDbAccess().sql("select distinct depen_group_name from grouper_sql_dependency_attr_v where owner_data_field_config_id = ?").addBindVar(configId).selectList(String.class);
-      for (String groupName : GrouperUtil.nonNull(dependentGroupNames)) {
-        referencingConfigs.add("scripted group '" + groupName + "'");
-      }
-
-      if (referencingConfigs.size() > 0) {
-        String referencingConfigsString = StringUtils.join(referencingConfigs, ", ");
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-            TextContainer.retrieveFromRequest().getText().get("dataFieldConfigDeleteErrorInUse")
-            + " " + referencingConfigsString));
-        return;
       }
 
       GrouperDataFieldConfiguration dataFieldConfiguration = new GrouperDataFieldConfiguration();
 
       dataFieldConfiguration.setConfigId(configId);
 
-      dataFieldConfiguration.deleteConfig(true);
+      try {
+        dataFieldConfiguration.deleteConfig(true);
+      } catch (GrouperReferentialIntegrityException e) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, e.getMessage()));
+        return;
+      }
 
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2EntityDataFields.viewEntityDataFields')"));
 
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("dataFieldConfigDeleteSuccess")));
-      
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -1289,48 +1229,16 @@ public class UiV2EntityDataFields {
         throw new RuntimeException("ConfigId cannot be blank");
       }
       
-      // check if this data provider is referenced by any queries or change log queries
-      List<String> referencingConfigs = new ArrayList<>();
-
-      List<GrouperDataProviderQueryConfiguration> allQueryConfigs = GrouperDataProviderQueryConfiguration.retrieveAllDataProviderQueryConfigurations();
-      for (GrouperDataProviderQueryConfiguration queryConfig : GrouperUtil.nonNull(allQueryConfigs)) {
-        String providerConfigId = queryConfig.retrieveAttributeValueFromConfig("providerConfigId", false);
-        if (StringUtils.equals(configId, providerConfigId)) {
-          referencingConfigs.add("data provider query '" + queryConfig.getConfigId() + "'");
-        }
-      }
-
-      List<GrouperDataProviderChangeLogQueryConfiguration> allChangeLogQueryConfigs = GrouperDataProviderChangeLogQueryConfiguration.retrieveAllDataProviderChangeLogQueryConfigurations();
-      for (GrouperDataProviderChangeLogQueryConfiguration changeLogQueryConfig : GrouperUtil.nonNull(allChangeLogQueryConfigs)) {
-        String providerConfigId = changeLogQueryConfig.retrieveAttributeValueFromConfig("providerConfigId", false);
-        if (StringUtils.equals(configId, providerConfigId)) {
-          referencingConfigs.add("data provider change log query '" + changeLogQueryConfig.getConfigId() + "'");
-        }
-      }
-
-      // check if this data provider is referenced by any daemon jobs
-      Pattern daemonPattern = Pattern.compile("^otherJob\\.(.*)\\.dataProviderConfigId$");
-      Set<String> daemonConfigIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(daemonPattern);
-      for (String daemonConfigId : GrouperUtil.nonNull(daemonConfigIds)) {
-        String daemonProviderConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + daemonConfigId + ".dataProviderConfigId");
-        if (StringUtils.equals(configId, daemonProviderConfigId)) {
-          referencingConfigs.add("daemon '" + daemonConfigId + "'");
-        }
-      }
-
-      if (referencingConfigs.size() > 0) {
-        String referencingConfigsString = StringUtils.join(referencingConfigs, ", ");
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-            TextContainer.retrieveFromRequest().getText().get("dataProviderConfigDeleteErrorInUse")
-            + " " + referencingConfigsString));
-        return;
-      }
-
       GrouperDataProviderConfiguration dataProviderConfiguration = new GrouperDataProviderConfiguration();
 
       dataProviderConfiguration.setConfigId(configId);
 
-      dataProviderConfiguration.deleteConfig(true);
+      try {
+        dataProviderConfiguration.deleteConfig(true);
+      } catch (GrouperReferentialIntegrityException e) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, e.getMessage()));
+        return;
+      }
 
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2EntityDataFields.viewDataProviders')"));
 

@@ -1,15 +1,19 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.exception.GrouperReferentialIntegrityException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperDataProviderConfiguration extends GrouperConfigurationModuleBase {
@@ -66,27 +70,48 @@ public class GrouperDataProviderConfiguration extends GrouperConfigurationModule
 
   @Override
   public void deleteConfig(boolean fromUi) {
+
+    String configId = this.getConfigId();
+
+    List<String> referencingConfigs = new ArrayList<>();
+
+    // check if this data provider is referenced by any queries
+    List<GrouperDataProviderQueryConfiguration> allQueryConfigs = GrouperDataProviderQueryConfiguration.retrieveAllDataProviderQueryConfigurations();
+    for (GrouperDataProviderQueryConfiguration queryConfig : GrouperUtil.nonNull(allQueryConfigs)) {
+      String providerConfigId = queryConfig.retrieveAttributeValueFromConfig("providerConfigId", false);
+      if (StringUtils.equals(configId, providerConfigId)) {
+        referencingConfigs.add("data provider query '" + queryConfig.getConfigId() + "'");
+      }
+    }
+
+    // check if this data provider is referenced by any change log queries
+    List<GrouperDataProviderChangeLogQueryConfiguration> allChangeLogQueryConfigs = GrouperDataProviderChangeLogQueryConfiguration.retrieveAllDataProviderChangeLogQueryConfigurations();
+    for (GrouperDataProviderChangeLogQueryConfiguration changeLogQueryConfig : GrouperUtil.nonNull(allChangeLogQueryConfigs)) {
+      String providerConfigId = changeLogQueryConfig.retrieveAttributeValueFromConfig("providerConfigId", false);
+      if (StringUtils.equals(configId, providerConfigId)) {
+        referencingConfigs.add("data provider change log query '" + changeLogQueryConfig.getConfigId() + "'");
+      }
+    }
+
+    // check if this data provider is referenced by any daemon jobs
+    Pattern daemonPattern = Pattern.compile("^otherJob\\.(.*)\\.dataProviderConfigId$");
+    Set<String> daemonConfigIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(daemonPattern);
+    for (String daemonConfigId : GrouperUtil.nonNull(daemonConfigIds)) {
+      String daemonProviderConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + daemonConfigId + ".dataProviderConfigId");
+      if (StringUtils.equals(configId, daemonProviderConfigId)) {
+        referencingConfigs.add("daemon '" + daemonConfigId + "'");
+      }
+    }
+
+    if (referencingConfigs.size() > 0) {
+      String referencingConfigsString = StringUtils.join(referencingConfigs, ", ");
+      throw new GrouperReferentialIntegrityException("Error: cannot delete this data provider because it is referenced by: " + referencingConfigsString);
+    }
+
     super.deleteConfig(fromUi);
-    
+
     GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
 
     GrouperDataEngine.syncDataProviders(grouperConfig);
-    
-    //delete data provider queries and data provider change log queries
-    List<GrouperDataProviderQueryConfiguration> allDataProviderQueryConfigurations = GrouperDataProviderQueryConfiguration.retrieveAllDataProviderQueryConfigurations();
-    for (GrouperDataProviderQueryConfiguration queryConfig: GrouperUtil.nonNull(allDataProviderQueryConfigurations)) {
-      String providerId = queryConfig.retrieveAttributeValueFromConfig("providerConfigId", false);
-      if (StringUtils.equals(this.getConfigId(), providerId)) {
-        queryConfig.deleteConfig(fromUi);
-      }
-    }
-    
-    List<GrouperDataProviderChangeLogQueryConfiguration> allDataProviderChangeLogQueryConfigurations = GrouperDataProviderChangeLogQueryConfiguration.retrieveAllDataProviderChangeLogQueryConfigurations();
-    for (GrouperDataProviderChangeLogQueryConfiguration changeLogQueryConfig: GrouperUtil.nonNull(allDataProviderChangeLogQueryConfigurations)) {
-      String providerId = changeLogQueryConfig.retrieveAttributeValueFromConfig("providerConfigId", false);
-      if (StringUtils.equals(this.getConfigId(), providerId)) {
-        changeLogQueryConfig.deleteConfig(fromUi);
-      }
-    }
   }
 }
