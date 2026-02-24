@@ -1292,14 +1292,41 @@ public class UiV2EntityDataFields {
         throw new RuntimeException("ConfigId cannot be blank");
       }
       
+      // check if this data provider is referenced by any queries or change log queries
+      List<String> referencingConfigs = new ArrayList<>();
+
+      List<GrouperDataProviderQueryConfiguration> allQueryConfigs = GrouperDataProviderQueryConfiguration.retrieveAllDataProviderQueryConfigurations();
+      for (GrouperDataProviderQueryConfiguration queryConfig : GrouperUtil.nonNull(allQueryConfigs)) {
+        String providerConfigId = queryConfig.retrieveAttributeValueFromConfig("providerConfigId", false);
+        if (StringUtils.equals(configId, providerConfigId)) {
+          referencingConfigs.add("data provider query '" + queryConfig.getConfigId() + "'");
+        }
+      }
+
+      List<GrouperDataProviderChangeLogQueryConfiguration> allChangeLogQueryConfigs = GrouperDataProviderChangeLogQueryConfiguration.retrieveAllDataProviderChangeLogQueryConfigurations();
+      for (GrouperDataProviderChangeLogQueryConfiguration changeLogQueryConfig : GrouperUtil.nonNull(allChangeLogQueryConfigs)) {
+        String providerConfigId = changeLogQueryConfig.retrieveAttributeValueFromConfig("providerConfigId", false);
+        if (StringUtils.equals(configId, providerConfigId)) {
+          referencingConfigs.add("data provider change log query '" + changeLogQueryConfig.getConfigId() + "'");
+        }
+      }
+
+      if (referencingConfigs.size() > 0) {
+        String referencingConfigsString = StringUtils.join(referencingConfigs, ", ");
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("dataProviderConfigDeleteErrorInUse")
+            + " " + referencingConfigsString));
+        return;
+      }
+
       GrouperDataProviderConfiguration dataProviderConfiguration = new GrouperDataProviderConfiguration();
-      
+
       dataProviderConfiguration.setConfigId(configId);
-      
+
       dataProviderConfiguration.deleteConfig(true);
-      
+
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2EntityDataFields.viewDataProviders')"));
-      
+
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("dataProviderConfigDeleteSuccess")));
       
