@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
@@ -33,17 +34,18 @@ public class TeamDynamixApiCommands {
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(TeamDynamixApiCommands.class);
+  
 
 
-  private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId,
+  private static JsonNode executeGetMethod(Map<String, Object> debugMap, String debugLabel, String configId,
       String urlSuffix, int[] returnCode) {
 
-    return executeMethod(debugMap, "GET", configId, urlSuffix,
+    return executeMethod(debugMap, debugLabel, "GET", configId, urlSuffix,
         GrouperUtil.toSet(200, 404, 429), returnCode, null);
 
   }
 
-  private static JsonNode executeMethod(Map<String, Object> debugMap,
+  private static JsonNode executeMethod(Map<String, Object> debugMap, String debugLabel,
       String httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body) {
 
@@ -107,7 +109,13 @@ public class TeamDynamixApiCommands {
       }
     });
     
-    grouperHttpCall.executeRequest();
+    long httpCallStartMillis = System.currentTimeMillis();
+    try {
+      grouperHttpCall.executeRequest();
+    } finally {
+      GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
+          System.currentTimeMillis() - httpCallStartMillis);
+    }
     
     int code = -1;
     String json = null;
@@ -204,7 +212,7 @@ public class TeamDynamixApiCommands {
       
       String urlSuffix = "api/groups/"+groupId+"/members?isNotified="+isNotified;
 
-      executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200), 
+      executeMethod(debugMap, "createTeamDynamixMemberships", "POST", configId, urlSuffix, GrouperUtil.toSet(200), 
           new int[] { -1 }, jsonStringToSend);
       
     } catch (RuntimeException re) {
@@ -234,7 +242,7 @@ public class TeamDynamixApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonJacksonNode);
       
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/groups/search",
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveTeamDynamixGroups", "POST", configId, "api/groups/search",
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
       
       ArrayNode groupsArray = (ArrayNode) jsonNode;
@@ -299,7 +307,7 @@ public class TeamDynamixApiCommands {
         
         String urlSuffix = "api/groups/"+groupId+"/members";
 
-        executeMethod(debugMap, "DELETE", configId, urlSuffix, GrouperUtil.toSet(200), 
+        executeMethod(debugMap, "deleteTeamDynamixMemberships", "DELETE", configId, urlSuffix, GrouperUtil.toSet(200), 
             new int[] { -1 }, jsonStringToSend);
         
       }
@@ -349,7 +357,7 @@ public class TeamDynamixApiCommands {
         throw new RuntimeException("id is null");
       }
     
-      executeMethod(debugMap, "PUT", configId, "/api/people/" + userId+"/isactive?status="+newStatus,
+      executeMethod(debugMap, "updateTeamDynamixUserStatus", "PUT", configId, "/api/people/" + userId+"/isactive?status="+newStatus,
           GrouperUtil.toSet(200), new int[] { -1 }, null);
 
     } catch (RuntimeException re) {
@@ -385,7 +393,7 @@ public class TeamDynamixApiCommands {
         
         int[] returnCode = new int[] { -1 };
         
-        JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/api/people",
+        JsonNode jsonNode = executeMethod(debugMap, "createTeamDynamixUser", "POST", configId, "/api/people",
             GrouperUtil.toSet(200, 201, 400), returnCode, jsonStringToSend);
         
         if (returnCode[0] == 400 && jsonNode != null && jsonNode.has("Message")
@@ -484,7 +492,7 @@ public class TeamDynamixApiCommands {
         GrouperUtil.jsonJacksonAssignBoolean(jsonToSend, "IsActive", true);
         String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
         
-        JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/groups", GrouperUtil.toSet(201), 
+        JsonNode jsonNode = executeMethod(debugMap, "createTeamDynamixGroup", "POST", configId, "api/groups", GrouperUtil.toSet(201), 
             new int[] { -1 }, jsonStringToSend);
 
         TeamDynamixGroup teamDynamixGroupResult = TeamDynamixGroup.fromJson(jsonNode);
@@ -526,7 +534,7 @@ public class TeamDynamixApiCommands {
 
       int[] returnCode = new int[] { -1 };
       
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveTeamDynamixUser", "GET", configId, urlSuffix,
           GrouperUtil.toSet(200, 404), returnCode, null);
       
       if (returnCode[0] == 404) {
@@ -581,7 +589,7 @@ public class TeamDynamixApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonJacksonNode);
       
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/people/search",
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveTeamDynamixUserByExternalId", "POST", configId, "api/people/search",
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
       
       ArrayNode usersArray = (ArrayNode) jsonNode;
@@ -641,7 +649,7 @@ public class TeamDynamixApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonJacksonNode);
       
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/people/search",
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveTeamDynamixUsers", "POST", configId, "api/people/search",
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
       
       ArrayNode usersArray = (ArrayNode) jsonNode;
@@ -684,7 +692,7 @@ public class TeamDynamixApiCommands {
       String urlSuffix = "/groups/" + id;
 
       int[] returnCode = new int[] { -1 };
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveTeamDynamixGroup", "GET", configId, urlSuffix,
           GrouperUtil.toSet(200, 404), returnCode, null);
       
       if (returnCode[0] == 404) {
@@ -733,7 +741,7 @@ public class TeamDynamixApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonJacksonNode);
       
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/groups/search",
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveTeamDynamixGroupByName", "POST", configId, "api/groups/search",
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
       
       ArrayNode groupsArray = (ArrayNode) jsonNode;
@@ -778,7 +786,7 @@ public class TeamDynamixApiCommands {
 
       String urlSuffix = "/api/people/"+userId+"/groups/";
 
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveTeamDynamixGroupsByUser", "GET", configId, urlSuffix,
           GrouperUtil.toSet(200, 404), new int[] { -1 }, null);
       
       ArrayNode groupsArray = (ArrayNode)jsonNode;
@@ -815,7 +823,7 @@ public class TeamDynamixApiCommands {
 
       String urlSuffix = "api/groups/"+groupId+"/members";
 
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveTeamDynamixUsersByGroup", "GET", configId, urlSuffix,
           GrouperUtil.toSet(200, 404), new int[] { -1 }, null);
       
       ArrayNode usersArray = (ArrayNode)jsonNode;
@@ -918,7 +926,7 @@ public class TeamDynamixApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(operationsNode);
 
-      executeMethod(debugMap, "PATCH", configId, "/api/people/"+ GrouperUtil.escapeUrlEncode(teamDynamixUser.getId()),
+      executeMethod(debugMap, "patchTeamDynamixUser", "PATCH", configId, "/api/people/"+ GrouperUtil.escapeUrlEncode(teamDynamixUser.getId()),
           GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend);
 
     } catch (RuntimeException re) {
@@ -960,7 +968,7 @@ public class TeamDynamixApiCommands {
         
         String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-        JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, urlSuffix,
+        JsonNode jsonNode = executeMethod(debugMap, "updateTeamDynamixGroup", "PUT", configId, urlSuffix,
             GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
 
         updatedTeamDynamixGroup = TeamDynamixGroup.fromJson(jsonNode);

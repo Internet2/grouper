@@ -36,6 +36,7 @@ public class GrouperAzureApiCommands {
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperAzureApiCommands.class);
+  
 
   public static void main(String[] args) {
 
@@ -149,15 +150,24 @@ public class GrouperAzureApiCommands {
 
   
 
-  private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId,
+  private static JsonNode executeGetMethod(Map<String, Object> debugMap, String debugLabel, String configId,
       String urlSuffix, int[] returnCode) {
 
-    return executeMethod(debugMap, "GET", configId, urlSuffix,
+    return executeMethod(debugMap, debugLabel, "GET", configId, urlSuffix,
         GrouperUtil.toSet(200, 404, 429), returnCode, null);
 
   }
 
-  private static JsonNode executeMethod(Map<String, Object> debugMap,
+  private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId,
+      String urlSuffix, int[] returnCode) {
+    String debugLabel = GrouperUtil.stringValue(debugMap == null ? null : debugMap.get("method"));
+    if (StringUtils.isBlank(debugLabel)) {
+      debugLabel = "azureDefault";
+    }
+    return executeGetMethod(debugMap, debugLabel, configId, urlSuffix, returnCode);
+  }
+
+  private static JsonNode executeMethod(Map<String, Object> debugMap, String debugLabel,
       String httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body) {
 
@@ -195,7 +205,13 @@ public class GrouperAzureApiCommands {
     grouperHttpCall.addHeader("Content-Type", "application/json");
     grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
     grouperHttpCall.assignBody(body);
-    grouperHttpCall.executeRequest();
+    long httpCallStartMillis = System.currentTimeMillis();
+    try {
+      grouperHttpCall.executeRequest();
+    } finally {
+      GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
+          System.currentTimeMillis() - httpCallStartMillis);
+    }
     
     int code = -1;
     String json = null;
@@ -225,6 +241,24 @@ public class GrouperAzureApiCommands {
       throw new RuntimeException("Error parsing response: '" + json + "'", e);
     }
 
+  }
+
+  private static JsonNode executeMethod(Map<String, Object> debugMap,
+      String httpMethodName, String configId,
+      String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body) {
+    String debugLabel = GrouperUtil.stringValue(debugMap == null ? null : debugMap.get("method"));
+    if (StringUtils.isBlank(debugLabel)) {
+      debugLabel = "azureDefault";
+    }
+    return executeMethod(debugMap, debugLabel, httpMethodName, configId, urlSuffix, allowedReturnCodes, returnCode, body);
+  }
+
+  private static String debugLabel(Map<String, Object> debugMap, String fallback) {
+    String debugLabel = GrouperUtil.stringValue(debugMap == null ? null : debugMap.get("method"));
+    if (StringUtils.isBlank(debugLabel)) {
+      return fallback;
+    }
+    return debugLabel;
   }
   
   /**
@@ -271,7 +305,7 @@ public class GrouperAzureApiCommands {
     }
     
     String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+    JsonNode mainResponseNode = executeMethod(debugMap, debugLabel(debugMap, "createAzureGroups"), "POST", configId, "/$batch/",
         GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
     
     if (mainResponseNode != null) {
@@ -469,7 +503,7 @@ public class GrouperAzureApiCommands {
     }
     
     String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+    JsonNode mainResponseNode = executeMethod(debugMap, debugLabel(debugMap, "createAzureUsers"), "POST", configId, "/$batch/",
         GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
     
     if (mainResponseNode != null) {
@@ -599,7 +633,7 @@ public class GrouperAzureApiCommands {
         GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureMemberhipErrorCount", 1);
       }
       
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members/$ref",
+      JsonNode jsonNode = executeMethod(debugMap, debugLabel(debugMap, "createAzureMembership"), "POST", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members/$ref",
           GrouperUtil.toSet(204, 400, 429), returnCode, jsonStringToSend);
       
       if (returnCode[0] == 429) {
@@ -684,7 +718,7 @@ public class GrouperAzureApiCommands {
     }
     
     String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+    JsonNode mainResponseNode = executeMethod(debugMap, debugLabel(debugMap, "createAzureMemberships"), "POST", configId, "/$batch/",
         GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
     
     if (mainResponseNode != null) {
@@ -843,7 +877,7 @@ public class GrouperAzureApiCommands {
     }
     
     String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+    JsonNode mainResponseNode = executeMethod(debugMap, debugLabel(debugMap, "updateAzureGroups"), "POST", configId, "/$batch/",
         GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
     
     if (mainResponseNode != null) {
@@ -977,7 +1011,7 @@ public class GrouperAzureApiCommands {
     }
     
     String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+    JsonNode mainResponseNode = executeMethod(debugMap, debugLabel(debugMap, "updateAzureUsers"), "POST", configId, "/$batch/",
         GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
     
     if (mainResponseNode != null) {
@@ -1102,7 +1136,7 @@ public class GrouperAzureApiCommands {
     }
     
     String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+    JsonNode mainResponseNode = executeMethod(debugMap, debugLabel(debugMap, "deleteAzureGroups"), "POST", configId, "/$batch/",
         GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
     
     if (mainResponseNode != null) {
@@ -1215,7 +1249,7 @@ public class GrouperAzureApiCommands {
         
         int[] returnCode = new int[] { -1 };
         
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, nextLink, returnCode);
+        JsonNode jsonNode = executeGetMethod(debugMap, debugLabel(debugMap, "retrieveAzureGroups"), configId, nextLink, returnCode);
         
         if (returnCode[0] == 429) {
           int secondsToSleep = retrieveSecondsToSleep(null);
@@ -1287,7 +1321,7 @@ public class GrouperAzureApiCommands {
 
         int[] returnCode = new int[] { -1 };
         
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, nextLink, returnCode);
+        JsonNode jsonNode = executeGetMethod(debugMap, debugLabel(debugMap, "retrieveAzureUsers"), configId, nextLink, returnCode);
         
         if (returnCode[0] == 429) {
           int secondsToSleep = retrieveSecondsToSleep(null);
@@ -1377,7 +1411,7 @@ public class GrouperAzureApiCommands {
     }
     
     String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+    JsonNode mainResponseNode = executeMethod(debugMap, debugLabel(debugMap, "retrieveAzureGroups"), "POST", configId, "/$batch/",
         GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
     
     if (mainResponseNode != null) {
@@ -1499,7 +1533,7 @@ public class GrouperAzureApiCommands {
       String urlSuffix, boolean securityEnabledOnly, Set<String> result) {
     
     int[] returnCode = new int[] {-1};
-    JsonNode jsonNode = executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200, 429), returnCode,
+    JsonNode jsonNode = executeMethod(debugMap, debugLabel(debugMap, "retrieveAzureUserGroups"), "POST", configId, urlSuffix, GrouperUtil.toSet(200, 429), returnCode,
         "{\"securityEnabledOnly\": " + securityEnabledOnly + "}");
 
     if (returnCode[0] == 429) {
@@ -1596,7 +1630,7 @@ public class GrouperAzureApiCommands {
 
       int[] returnCode = new int[] { -1 };
       
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
+      JsonNode jsonNode = executeGetMethod(debugMap, debugLabel(debugMap, "retrieveAzureGroupMembers"), configId, urlSuffix, returnCode);
       
       if (returnCode[0] == 429) {
         int secondsToSleep = retrieveSecondsToSleep(null);
@@ -1635,7 +1669,7 @@ public class GrouperAzureApiCommands {
         } else {
           urlSuffix = nextLink.substring(resourceEndpoint.length(), nextLink.length());
         }
-        JsonNode localJsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
+        JsonNode localJsonNode = executeGetMethod(debugMap, debugLabel(debugMap, "retrieveAzureGroupMembers"), configId, urlSuffix, returnCode);
         
         if (returnCode[0] == 429) {
           int secondsToSleep = retrieveSecondsToSleep(null);
@@ -1721,7 +1755,7 @@ public class GrouperAzureApiCommands {
     }
     
     String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+    JsonNode mainResponseNode = executeMethod(debugMap, debugLabel(debugMap, "retrieveAzureGroups"), "POST", configId, "/$batch/",
         GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
     
     if (mainResponseNode != null) {
@@ -1850,7 +1884,7 @@ public class GrouperAzureApiCommands {
     }
     
     String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+    JsonNode mainResponseNode = executeMethod(debugMap, debugLabel(debugMap, "deleteAzureMemberships"), "POST", configId, "/$batch/",
         GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
     
     if (mainResponseNode != null) {
@@ -1988,7 +2022,7 @@ public class GrouperAzureApiCommands {
     }
     
     String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+    JsonNode mainResponseNode = executeMethod(debugMap, debugLabel(debugMap, "deleteAzureUsers"), "POST", configId, "/$batch/",
         GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
     
     if (mainResponseNode != null) {
@@ -2104,7 +2138,7 @@ public class GrouperAzureApiCommands {
     }
     
     String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+    JsonNode mainResponseNode = executeMethod(debugMap, debugLabel(debugMap, "addOwnersToGroup"), "POST", configId, "/$batch/",
         GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
     
     if (mainResponseNode != null) {
@@ -2254,7 +2288,7 @@ public class GrouperAzureApiCommands {
     }
     
     String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+    JsonNode mainResponseNode = executeMethod(debugMap, debugLabel(debugMap, "removeOwnersFromGroup"), "POST", configId, "/$batch/",
         GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
     
     if (mainResponseNode != null) {
@@ -2392,7 +2426,7 @@ public class GrouperAzureApiCommands {
     }
     
     String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+    JsonNode mainResponseNode = executeMethod(debugMap, debugLabel(debugMap, "removeOwnersFromGroup"), "POST", configId, "/$batch/",
         GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
     
     if (mainResponseNode != null) {

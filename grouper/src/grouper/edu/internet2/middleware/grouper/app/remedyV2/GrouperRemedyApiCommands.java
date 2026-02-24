@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
@@ -29,6 +30,7 @@ public class GrouperRemedyApiCommands {
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperRemedyApiCommands.class);
+  
   
   
   /**
@@ -53,7 +55,7 @@ public class GrouperRemedyApiCommands {
       //paramMap.put("fields", "values(Person ID,Remedy Login ID)");
       
       //JSONObject jsonObject = executeGetMethod(debugMap, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups?fields=values(People%20Permission%20Group%20ID,Permission%20Group,Permission%20Group%20ID,Status)", paramMap);
-      JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS-Access%20Permission%20Grps?fields=values(Status,Permission%20Group,Permission%20Group%20ID)", paramMap);
+      JsonNode jsonObject = executeGetMethod(debugMap, "retrieveRemedyGroups", remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS-Access%20Permission%20Grps?fields=values(Status,Permission%20Group,Permission%20Group%20ID)", paramMap);
       
       //  {
       //    "entries": [
@@ -123,7 +125,7 @@ public class GrouperRemedyApiCommands {
    * @param paramMap
    * @return the json object
    */
-  private static JsonNode executeGetMethod(Map<String, Object> debugMap, 
+  private static JsonNode executeGetMethod(Map<String, Object> debugMap, String debugLabel,
       String remedyExternalSystemConfigId,
       String path, Map<String, String> paramMap) {
 
@@ -141,7 +143,13 @@ public class GrouperRemedyApiCommands {
     String body = null;
     long startTime = System.nanoTime();
     try {
-      grouperHttpClient.executeRequest();
+      long httpCallStartMillis = System.currentTimeMillis();
+      try {
+        grouperHttpClient.executeRequest();
+      } finally {
+        GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
+            System.currentTimeMillis() - httpCallStartMillis);
+      }
       
       responseCodeInt = grouperHttpClient.getResponseCode();
       
@@ -214,7 +222,13 @@ public class GrouperRemedyApiCommands {
       
           long startTime = System.nanoTime();
           try {
-            grouperHttpClient.executeRequest();
+            long httpCallStartMillis = System.currentTimeMillis();
+            try {
+              grouperHttpClient.executeRequest();
+            } finally {
+              GrouperProvisioner.incrementCommandsCallsStats("retrieveJwtToken", 1,
+                  System.currentTimeMillis() - httpCallStartMillis);
+            }
             responseCodeInt = grouperHttpClient.getResponseCode();
             
             try {
@@ -370,7 +384,7 @@ public class GrouperRemedyApiCommands {
           paramMap.put("offset", "" + (i*2000));
         }
 
-        JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/CTM:People", paramMap);
+        JsonNode jsonObject = executeGetMethod(debugMap, "retrieveRemedyUsers", remedyExternalSystemConfigId, "/api/arsys/v1/entry/CTM:People", paramMap);
         
         int[] size = new int[1];
         Map<String, GrouperRemedyUser> results = convertRemedyUsersFromJson(jsonObject, size);
@@ -485,7 +499,7 @@ public class GrouperRemedyApiCommands {
       paramMap.put("q", GrouperRemedyUtils.escapeUrlEncode("'Remedy Login ID' = \"" + loginid + "\""));
       paramMap.put("fields", "values(Person%20ID,Remedy%20Login%20ID,Profile%20Status)");
       
-      JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/CTM:People", paramMap);
+      JsonNode jsonObject = executeGetMethod(debugMap, "retrieveRemedyUser", remedyExternalSystemConfigId, "/api/arsys/v1/entry/CTM:People", paramMap);
       
       Map<String, GrouperRemedyUser> results = convertRemedyUsersFromJson(jsonObject, null);
       
@@ -541,7 +555,7 @@ public class GrouperRemedyApiCommands {
           paramMap.put("offset", "" + (i*2000));
         }
 
-        JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups", paramMap);
+        JsonNode jsonObject = executeGetMethod(debugMap, "retrieveMembershipsForRemedyGroup", remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups", paramMap);
             
         int size[] = new int[1];
         Map<MultiKey, GrouperRemedyMembership> results = GrouperClientUtils.nonNull(convertRemedyMembershipsFromJson(jsonObject, true, size));
@@ -596,7 +610,7 @@ public class GrouperRemedyApiCommands {
       
       paramMap.put("fields", "values(People%20Permission%20Group%20ID,Permission%20Group,Permission%20Group%20ID,Person%20ID,Remedy%20Login%20ID,Status)");
       
-      JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups", paramMap);
+      JsonNode jsonObject = executeGetMethod(debugMap, "retrieveMembershipsForRemedyGroup", remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups", paramMap);
       
       Map<MultiKey, GrouperRemedyMembership> results = GrouperClientUtils.nonNull(convertRemedyMembershipsFromJson(jsonObject, false, null));
       
@@ -699,7 +713,7 @@ public class GrouperRemedyApiCommands {
         newContainer.set("values", valuesJsonNode);
 
         debugMap.put("peoplePermissionGroupId", peoplePermissionGroupId);
-        executePutPostMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups/" + peoplePermissionGroupId, null, newContainer.toString(), true);
+        executePutPostMethod(debugMap, "assignUserToRemedyGroup", remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups/" + peoplePermissionGroupId, null, newContainer.toString(), true);
         
         return null;
       }
@@ -725,7 +739,7 @@ public class GrouperRemedyApiCommands {
       valuesObject.put("Remedy Login ID", remedyLoginId);
       valuesObject.put("Status", "Enabled");
       jsonObject.set("values", valuesObject);
-      executePutPostMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups", null, jsonObject.toString(), false);
+      executePutPostMethod(debugMap, "assignUserToRemedyGroup", remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups", null, jsonObject.toString(), false);
 
       return true;
       
@@ -793,7 +807,7 @@ public class GrouperRemedyApiCommands {
         debugMap.put("peoplePermissionGroupId", peoplePermissionGroupId);
         ObjectNode newContainer = GrouperUtil.jsonJacksonNode();
         newContainer.set("values", valuesJsonNode);
-        executePutPostMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups/" + peoplePermissionGroupId, null, newContainer.toString(), true);
+        executePutPostMethod(debugMap, "removeUserFromRemedyGroup", remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups/" + peoplePermissionGroupId, null, newContainer.toString(), true);
         
         return true;
       }
@@ -820,7 +834,7 @@ public class GrouperRemedyApiCommands {
    * @param isPutNotPost 
    * @return the json object
    */
-  private static JsonNode executePutPostMethod(Map<String, Object> debugMap, String remedyExternalSystemConfigId, String path, Map<String, String> paramMap, String requestBody, boolean isPutNotPost) {
+  private static JsonNode executePutPostMethod(Map<String, Object> debugMap, String debugLabel, String remedyExternalSystemConfigId, String path, Map<String, String> paramMap, String requestBody, boolean isPutNotPost) {
   
     GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
   
@@ -848,7 +862,13 @@ public class GrouperRemedyApiCommands {
     String responseBody = null;
     long startTime = System.nanoTime();
     try {
-      grouperHttpClient.executeRequest();
+      long httpCallStartMillis = System.currentTimeMillis();
+      try {
+        grouperHttpClient.executeRequest();
+      } finally {
+        GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
+            System.currentTimeMillis() - httpCallStartMillis);
+      }
       
       responseCodeInt = grouperHttpClient.getResponseCode();
       

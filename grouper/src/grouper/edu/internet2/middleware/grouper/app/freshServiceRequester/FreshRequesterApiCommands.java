@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
@@ -21,6 +22,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class FreshRequesterApiCommands {
+  
   
   private static final int MAX_PAGE_SIZE = 100;
   public static final Set<String> doNotLogParameters = GrouperUtil.toSet("client_secret");
@@ -70,7 +72,7 @@ public class FreshRequesterApiCommands {
     System.exit(0);
   }
   
-  private static JsonNode executeMethod(Map<String, Object> debugMap,
+  private static JsonNode executeMethod(Map<String, Object> debugMap, String debugLabel,
       String httpMethodName, String configId, String urlSuffix, Set<Integer> allowedReturnCodes,
       int[] returnCode, String bodyParam, Integer page, boolean addPageSize, String queryParam) {
     
@@ -118,7 +120,13 @@ public class FreshRequesterApiCommands {
       grouperHttpClient.addHeader("Content-Type", "application/json; charset=utf-8");
     }
     
-    grouperHttpClient.executeRequest();
+    long httpCallStartMillis = System.currentTimeMillis();
+    try {
+      grouperHttpClient.executeRequest();
+    } finally {
+      GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
+          System.currentTimeMillis() - httpCallStartMillis);
+    }
     
     int code = -1;
     String json = null;
@@ -169,7 +177,7 @@ public class FreshRequesterApiCommands {
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       int[] returnCode = new int[] { -1 };
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/v2/requester_groups",
+      JsonNode jsonNode = executeMethod(debugMap, "createRequesterGroup", "POST", configId, "api/v2/requester_groups",
           GrouperUtil.toSet(200, 201, 409), returnCode, jsonStringToSend, null, false, null);
 
       if (returnCode[0] == 409) {
@@ -252,7 +260,7 @@ public class FreshRequesterApiCommands {
 
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, "api/v2/requester_groups/" + String.valueOf(groupId),
+      JsonNode jsonNode = executeMethod(debugMap, "updateRequesterGroup", "PUT", configId, "api/v2/requester_groups/" + String.valueOf(groupId),
           GrouperUtil.toSet(200, 201), new int[] { -1 }, jsonStringToSend, null, false, null);
 
       JsonNode groupNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "requester_group");
@@ -317,7 +325,7 @@ public class FreshRequesterApiCommands {
       // GET /api/v2/requesters/{id} returns { "requester": { ... } }
       int[] getReturnCode = new int[] { -1 };
       String getUrlSuffix = "api/v2/requesters/" + String.valueOf(userId);
-      JsonNode getJsonNode = executeMethod(debugMap, "GET", configId, getUrlSuffix,
+      JsonNode getJsonNode = executeMethod(debugMap, "updateRequesterUser", "GET", configId, getUrlSuffix,
           GrouperUtil.toSet(200, 404), getReturnCode, null, null, false, null);
 
       // if the user does not exist, we cannot update
@@ -491,7 +499,7 @@ public class FreshRequesterApiCommands {
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       // PUT /api/v2/requesters/{id} returns { "requester": { ... } }
-      JsonNode responseNode = executeMethod(debugMap, "PUT", configId, "api/v2/requesters/" + String.valueOf(userId),
+      JsonNode responseNode = executeMethod(debugMap, "updateRequesterUser", "PUT", configId, "api/v2/requesters/" + String.valueOf(userId),
           GrouperUtil.toSet(200, 201), new int[] { -1 }, jsonStringToSend, null, false, null);
 
       // parse the updated requester from the response
@@ -526,7 +534,7 @@ public class FreshRequesterApiCommands {
       }
       String id = String.valueOf(groupId);
       
-      executeMethod(debugMap, "DELETE", configId, "api/v2/requester_groups/" + id,
+      executeMethod(debugMap, "deleteRequesterGroup", "DELETE", configId, "api/v2/requester_groups/" + id,
           GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null, null, false, null);
       
     } catch (RuntimeException re) {
@@ -555,7 +563,7 @@ public class FreshRequesterApiCommands {
     try {
       String urlSuffix = "api/v2/requester_groups/" + String.valueOf(id);
       int[] returnCode = new int[] { -1 };
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveRequesterGroup", "GET", configId, urlSuffix,
           GrouperUtil.toSet(200, 404), returnCode, null, null, false, null);
       if (returnCode[0] == 404) {
         return null;
@@ -602,7 +610,7 @@ public class FreshRequesterApiCommands {
       
       while (!lastPage) {
         
-        JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "api/v2/requester_groups",
+        JsonNode jsonNode = executeMethod(debugMap, "retrieveRequesterGroups", "GET", configId, "api/v2/requester_groups",
             GrouperUtil.toSet(200), new int[] { -1 }, null, page, true, null);
         
         ArrayNode groupsArray = (ArrayNode) jsonNode.get("requester_groups");
@@ -735,7 +743,7 @@ public class FreshRequesterApiCommands {
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       int[] returnCode = new int[] { -1 };
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/v2/requesters",
+      JsonNode jsonNode = executeMethod(debugMap, "createRequesterUserHelper", "POST", configId, "api/v2/requesters",
           GrouperUtil.toSet(200, 201, 409), returnCode, jsonStringToSend, null, false, null);
 
       if (returnCode[0] == 409) {
@@ -779,7 +787,7 @@ public class FreshRequesterApiCommands {
 
       while (!lastPage) {
 
-        JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "api/v2/requesters",
+        JsonNode jsonNode = executeMethod(debugMap, "retrieveRequesterUsers", "GET", configId, "api/v2/requesters",
             GrouperUtil.toSet(200), new int[] { -1 }, null, page, true, null);
 
         ArrayNode requesterUsersArray = (ArrayNode) jsonNode.get("requesters");
@@ -836,7 +844,7 @@ public class FreshRequesterApiCommands {
       int[] returnCode = new int[] { -1 };
 
       String urlSuffix = "api/v2/requesters/" + String.valueOf(id);
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveRequesterUserById", "GET", configId, urlSuffix,
           GrouperUtil.toSet(200, 404), returnCode, null, null, false, null);
 
       if (returnCode[0] == 404) {
@@ -896,7 +904,7 @@ public class FreshRequesterApiCommands {
 
       // use the email= URL parameter instead of query=
       String urlSuffix = "api/v2/requesters?email=" + GrouperUtil.escapeUrlEncode(email);
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveRequesterUserByEmail", "GET", configId, urlSuffix,
           GrouperUtil.toSet(200), returnCode, null, null, false, null);
 
       if (jsonNode == null) {
@@ -1006,7 +1014,7 @@ public class FreshRequesterApiCommands {
         queryValue = freshserviceAttributeName + ":'" + attributeValue + "'";
       }
 
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "api/v2/requesters",
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveRequesterUserByAttribute", "GET", configId, "api/v2/requesters",
           GrouperUtil.toSet(200), returnCode, null, null, false, queryValue);
 
       if (jsonNode == null) {
@@ -1100,7 +1108,7 @@ public class FreshRequesterApiCommands {
         throw new RuntimeException("Unsupported httpMethod: " + httpMethod);
       }
       
-      executeMethod(debugMap, httpMethod, configId, urlPrefix,
+      executeMethod(debugMap, "updateGroupMembership", httpMethod, configId, urlPrefix,
           allowedReturnCodes, new int[] { -1 }, null, null, false, null);
       
     } catch (RuntimeException re) {
@@ -1134,7 +1142,7 @@ public class FreshRequesterApiCommands {
       
       while (!lastPage) {
         
-        JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "api/v2/requester_groups/" + String.valueOf(groupId) + "/members",
+        JsonNode jsonNode = executeMethod(debugMap, "retrieveMembershipsByGroup", "GET", configId, "api/v2/requester_groups/" + String.valueOf(groupId) + "/members",
             GrouperUtil.toSet(200), new int[] { -1 }, null, page, true, null);
         
         ArrayNode requesterUsersArray = (ArrayNode) jsonNode.get("requesters");
@@ -1182,7 +1190,7 @@ public class FreshRequesterApiCommands {
       }
       String id = String.valueOf(userId);
 
-      executeMethod(debugMap, "DELETE", configId, "api/v2/requesters/" + id,
+      executeMethod(debugMap, "deactivateRequesterUser", "DELETE", configId, "api/v2/requesters/" + id,
           GrouperUtil.toSet(204, 404), new int[] { -1 }, null, null, false, null);
 
     } catch (RuntimeException re) {
@@ -1215,7 +1223,7 @@ public class FreshRequesterApiCommands {
       String id = String.valueOf(userId);
 
       int[] returnCode = new int[] { -1 };
-      executeMethod(debugMap, "PUT", configId, "api/v2/requesters/" + id + "/reactivate",
+      executeMethod(debugMap, "reactivateRequesterUser", "PUT", configId, "api/v2/requesters/" + id + "/reactivate",
           GrouperUtil.toSet(200, 400), returnCode, null, null, false, null);
 
     } catch (RuntimeException re) {
@@ -1247,7 +1255,7 @@ public class FreshRequesterApiCommands {
       }
       String id = String.valueOf(userId);
 
-      executeMethod(debugMap, "DELETE", configId, "api/v2/requesters/" + id + "/forget",
+      executeMethod(debugMap, "forgetRequesterUser", "DELETE", configId, "api/v2/requesters/" + id + "/forget",
           GrouperUtil.toSet(204, 404), new int[] { -1 }, null, null, false, null);
 
     } catch (RuntimeException re) {
