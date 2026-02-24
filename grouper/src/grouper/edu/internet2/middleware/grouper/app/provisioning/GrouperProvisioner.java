@@ -714,6 +714,38 @@ public abstract class GrouperProvisioner {
     return null;
   }
   
+  /**
+   * increment command call counters on the current provisioner debug map
+   * @param debugKeyPrefix label to prefix debug keys
+   * @param numberOfCalls number of calls to add
+   * @param millis total millis to add
+   */
+  public static void incrementCommandsCallsStats(String debugKeyPrefix, long numberOfCalls, long millis) {
+    GrouperProvisioner grouperProvisioner = retrieveCurrentGrouperProvisioner();
+    if (grouperProvisioner == null) {
+      return;
+    }
+    Map<String, Object> debugMap = grouperProvisioner.getDebugMap();
+    String prefix = StringUtils.defaultIfBlank(debugKeyPrefix, "calls");
+    String countKey = prefix + "_calls";
+    String millisKey = prefix + "_millis";
+    synchronized (debugMap) {
+      int currentCount = GrouperUtil.intValue(debugMap.get(countKey), 0);
+      debugMap.put(countKey, currentCount + numberOfCalls);
+      long currentMillis = GrouperUtil.longValue(debugMap.get(millisKey), 0);
+      debugMap.put(millisKey, currentMillis + millis);
+    }
+  }
+
+  /**
+   * increment command call counters on the current provisioner debug map
+   * @param numberOfCalls number of http calls to add
+   * @param millis total millis to add
+   */
+  public static void incrementCommandsCallsStats(long numberOfCalls, long millis) {
+    incrementCommandsCallsStats(null, numberOfCalls, millis);
+  }
+
   public static void assignCurrentGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
     threadLocalGrouperProvisioner.set(new WeakReference<GrouperProvisioner>(grouperProvisioner));
   }
