@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 
 public class UiV2EntityDataFields {
@@ -1240,6 +1241,12 @@ public class UiV2EntityDataFields {
             break;
           }
         }
+      }
+
+      // check if this data field is used by any scripted groups (ABAC)
+      List<String> dependentGroupNames = new GcDbAccess().sql("select distinct depen_group_name from grouper_sql_dependency_attr_v where owner_data_field_config_id = ?").addBindVar(configId).selectList(String.class);
+      for (String groupName : GrouperUtil.nonNull(dependentGroupNames)) {
+        referencingConfigs.add("scripted group '" + groupName + "'");
       }
 
       if (referencingConfigs.size() > 0) {
