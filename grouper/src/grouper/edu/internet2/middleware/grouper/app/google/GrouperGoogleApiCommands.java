@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoLog;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
@@ -41,6 +42,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.morphString.Morph;
 
 public class GrouperGoogleApiCommands {
+  
   
   /**
    * cache of config key to encrypted bearer token
@@ -163,6 +165,7 @@ public class GrouperGoogleApiCommands {
       int code = -1;
       String json = null;
   
+      long httpCallStartMillis = System.currentTimeMillis();
       try {
         grouperHttpClient.executeRequest();
         code = grouperHttpClient.getResponseCode();
@@ -171,6 +174,9 @@ public class GrouperGoogleApiCommands {
         json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
+      } finally {
+        GrouperProvisioner.incrementCommandsCallsStats("google", 1,
+            System.currentTimeMillis() - httpCallStartMillis);
       }
   
       if (code != 200) {
@@ -247,10 +253,10 @@ public class GrouperGoogleApiCommands {
     return accessToken;
   }
   
-  public static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId, String urlSuffix, boolean useSettingsBearerToken) {
+  public static JsonNode executeGetMethod(Map<String, Object> debugMap, String debugLabel, String configId, String urlSuffix, boolean useSettingsBearerToken) {
 
     int[] returnCode = new int[] { -1 };
-    JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
+    JsonNode jsonNode = executeMethod(debugMap, debugLabel, "GET", configId, urlSuffix,
         GrouperUtil.toSet(200, 404), returnCode, null, useSettingsBearerToken);
     
     if (returnCode[0] == 404) {
@@ -260,7 +266,7 @@ public class GrouperGoogleApiCommands {
     return jsonNode;
   }
 
-  public static JsonNode executeMethod(Map<String, Object> debugMap,
+  public static JsonNode executeMethod(Map<String, Object> debugMap, String debugLabel,
       String httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body, boolean useSettingsBearerToken) {
 
@@ -315,7 +321,13 @@ public class GrouperGoogleApiCommands {
       }
     });
     
-    grouperHttpCall.executeRequest();
+    long httpCallStartMillis = System.currentTimeMillis();
+    try {
+      grouperHttpCall.executeRequest();
+    } finally {
+      GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
+          System.currentTimeMillis() - httpCallStartMillis);
+    }
     
     int code = -1;
     String json = null;
@@ -372,7 +384,7 @@ public class GrouperGoogleApiCommands {
       
       
 
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/groups", GrouperUtil.toSet(200), 
+      JsonNode jsonNode = executeMethod(debugMap, "createGoogleGroup", "POST", configId, "/groups", GrouperUtil.toSet(200), 
           new int[] { -1 }, jsonStringToSend, false);
 
       GrouperGoogleGroup grouperGoogleGroupResult = GrouperGoogleGroup.fromJson(jsonNode);
@@ -384,7 +396,7 @@ public class GrouperGoogleApiCommands {
       
       if (jsonToSend.size() > 0) {
         jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
-        JsonNode groupSettingsNode = executeMethod(debugMap, "PATCH", configId, "/"+grouperGoogleGroupResult.getEmail(), GrouperUtil.toSet(200), new int[] { -1 },
+        JsonNode groupSettingsNode = executeMethod(debugMap, "createGoogleGroup", "PATCH", configId, "/"+grouperGoogleGroupResult.getEmail(), GrouperUtil.toSet(200), new int[] { -1 },
             jsonStringToSend, true);
         grouperGoogleGroupResult.populateGroupSettings(groupSettingsNode);
       }
@@ -466,7 +478,7 @@ public class GrouperGoogleApiCommands {
 
 //      String url = "https://admin.googleapis.com/admin/directory/v1/users";
       
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users",
+      JsonNode jsonNode = executeMethod(debugMap, "createGoogleUser", "POST", configId, "/users",
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend, false);
       
       GrouperGoogleUser grouperGoogleUserResult = GrouperGoogleUser.fromJson(jsonNode);
@@ -508,7 +520,7 @@ public class GrouperGoogleApiCommands {
       //String url = "https://admin.googleapis.com/admin/directory/v1/groups/"+groupId+"/members";
       String urlSuffix = "/groups/"+groupId+"/members";
 
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200, 409), 
+      JsonNode jsonNode = executeMethod(debugMap, "createGoogleMembership", "POST", configId, urlSuffix, GrouperUtil.toSet(200, 409), 
           new int[] { -1 }, jsonStringToSend, false);
       
       if (jsonNode == null) {
@@ -551,7 +563,7 @@ public class GrouperGoogleApiCommands {
       String urlSuffix = "/groups/"+groupId+"/members";
 
       int[] returnCode = new int[] { -1 };
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200, 409), 
+      JsonNode jsonNode = executeMethod(debugMap, "createGoogleMembership", "POST", configId, urlSuffix, GrouperUtil.toSet(200, 409), 
           returnCode, jsonStringToSend, false);
       
       if (jsonNode == null) {
@@ -605,7 +617,7 @@ public class GrouperGoogleApiCommands {
       String urlSuffix = "/groups/"+groupId+"/members/"+userId;
 
       int[] returnCode = new int[] { -1 };
-      JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, urlSuffix, GrouperUtil.toSet(200), 
+      JsonNode jsonNode = executeMethod(debugMap, "updateGoogleRoleMembership", "PUT", configId, urlSuffix, GrouperUtil.toSet(200), 
           returnCode, jsonStringToSend, false);
       
       if (jsonNode == null) {
@@ -636,7 +648,7 @@ public class GrouperGoogleApiCommands {
       
 //      String url = "https://admin.googleapis.com/admin/directory/v1/users/"+userId;
     
-      executeMethod(debugMap, "DELETE", configId, "/users/"+userId,
+      executeMethod(debugMap, "deleteGoogleUser", "DELETE", configId, "/users/"+userId,
           GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null, false);
 
     } catch (RuntimeException re) {
@@ -675,7 +687,7 @@ public class GrouperGoogleApiCommands {
         
         String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-        JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, urlSuffix,
+        JsonNode jsonNode = executeMethod(debugMap, "updateGoogleGroup", "PUT", configId, urlSuffix,
             GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend, false);
 
         updatedGoogleGroup = GrouperGoogleGroup.fromJson(jsonNode);
@@ -693,7 +705,7 @@ public class GrouperGoogleApiCommands {
         String settingsUrlSuffix = "/"+updatedGoogleGroup.getEmail();
         
         String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
-        JsonNode groupSettingsNode = executeMethod(debugMap, "PATCH", configId, settingsUrlSuffix, GrouperUtil.toSet(200), new int[] { -1 }, 
+        JsonNode groupSettingsNode = executeMethod(debugMap, "updateGoogleGroup", "PATCH", configId, settingsUrlSuffix, GrouperUtil.toSet(200), new int[] { -1 }, 
             jsonStringToSend, true);
         updatedGoogleGroup.populateGroupSettings(groupSettingsNode);
       }
@@ -740,7 +752,7 @@ public class GrouperGoogleApiCommands {
       JsonNode jsonToSend = grouperGoogleUser.toJson(fieldsToUpdate);
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, "/users/"+id,
+      JsonNode jsonNode = executeMethod(debugMap, "updateGoogleUser", "PUT", configId, "/users/"+id,
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend, false);
 
       GrouperGoogleUser grouperGoogleUserResult = GrouperGoogleUser.fromJson(jsonNode);
@@ -770,7 +782,7 @@ public class GrouperGoogleApiCommands {
     
 //      String url = "https://admin.googleapis.com/admin/directory/v1/groups/"+groupId;
       
-      executeMethod(debugMap, "DELETE", configId, "/groups/"+groupId,
+      executeMethod(debugMap, "deleteGoogleGroup", "DELETE", configId, "/groups/"+groupId,
           GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null, false);
 
     } catch (RuntimeException re) {
@@ -832,7 +844,7 @@ public class GrouperGoogleApiCommands {
           urlSuffix = urlSuffix + "&pageToken="+nextPageToken;
         }
         
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, false);
+        JsonNode jsonNode = executeGetMethod(debugMap, "retrieveGoogleGroups", configId, urlSuffix, false);
         numberOfCalls++;
         
         ArrayNode groupsArray = (ArrayNode) jsonNode.get("groups");
@@ -853,7 +865,7 @@ public class GrouperGoogleApiCommands {
           // for each group retrieve settings
           //String settingsUrl = "https://www.googleapis.com/groups/v1/groups/"+grouperGoogleGroup.getEmail()+"?alt=json";
           String settingsUrlSuffix = "/"+grouperGoogleGroup.getEmail()+"?alt=json";
-          JsonNode groupSettingsNode = executeGetMethod(debugMap, configId, settingsUrlSuffix, true);
+          JsonNode groupSettingsNode = executeGetMethod(debugMap, "retrieveGoogleGroups", configId, settingsUrlSuffix, true);
           grouperGoogleGroup.populateGroupSettings(groupSettingsNode);
           
           // retrieve roles of the members of the group (manager, owner)
@@ -928,7 +940,7 @@ public class GrouperGoogleApiCommands {
           urlSuffix = urlSuffix + "&pageToken="+nextPageToken;
         }
         
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, false);
+        JsonNode jsonNode = executeGetMethod(debugMap, "retrieveGoogleUsers", configId, urlSuffix, false);
         numberOfCalls++;
         
         ArrayNode usersArray = (ArrayNode) jsonNode.get("users");
@@ -986,7 +998,7 @@ public class GrouperGoogleApiCommands {
 
 //      String url = "https://admin.googleapis.com/admin/directory/v1/users/"+id+"?fields=id,primaryEmail,name";
       String urlSuffix = "/users/"+id+"?fields=id,primaryEmail,name,orgUnitPath";
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, false);
+      JsonNode jsonNode = executeGetMethod(debugMap, "retrieveGoogleUser", configId, urlSuffix, false);
       
       /**
         {
@@ -1033,7 +1045,7 @@ public class GrouperGoogleApiCommands {
 
       // GET https://admin.googleapis.com/admin/directory/v1/groups/groupKey/members/memberKey
       String urlSuffix = "/groups/"+groupId+"/members/"+memberId;
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, false);
+      JsonNode jsonNode = executeGetMethod(debugMap, "retrieveGoogleUser", configId, urlSuffix, false);
       
       /**
         {
@@ -1104,7 +1116,7 @@ public class GrouperGoogleApiCommands {
           urlSuffix = urlSuffix + "&pageToken="+nextPageToken;
         }
         
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, false);
+        JsonNode jsonNode = executeGetMethod(debugMap, "retrieveGoogleGroupMembers", configId, urlSuffix, false);
         
         ArrayNode membersArray = (ArrayNode) jsonNode.get("members");
         
@@ -1189,7 +1201,7 @@ public class GrouperGoogleApiCommands {
           urlSuffix = urlSuffix + "&pageToken="+nextPageToken;
         }
         
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, false);
+        JsonNode jsonNode = executeGetMethod(debugMap, "retrieveGoogleGroupMembers", configId, urlSuffix, false);
         
         ArrayNode membersArray = (ArrayNode) jsonNode.get("members");
         
@@ -1249,7 +1261,7 @@ public class GrouperGoogleApiCommands {
 //      String url = "https://admin.googleapis.com/admin/directory/v1/groups/"+id+"?fields=id,email,name,description";
       
       String urlSuffix = "/groups/"+id+"?fields=id,email,name,description";
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, false);
+      JsonNode jsonNode = executeGetMethod(debugMap, "retrieveGoogleGroup", configId, urlSuffix, false);
       
       /**
        {
@@ -1269,7 +1281,7 @@ public class GrouperGoogleApiCommands {
       // retrieve settings now
       // url = "https://www.googleapis.com/groups/v1/groups/"+grouperGoogleGroup.getEmail()+"?alt=json";
       urlSuffix = "/"+grouperGoogleGroup.getEmail()+"?alt=json";
-      JsonNode groupSettingsNode = executeGetMethod(debugMap, configId, urlSuffix, true);
+      JsonNode groupSettingsNode = executeGetMethod(debugMap, "retrieveGoogleGroup", configId, urlSuffix, true);
       grouperGoogleGroup.populateGroupSettings(groupSettingsNode);
       
       // retrieve roles of the members of the group (manager, owner)
@@ -1315,7 +1327,7 @@ public class GrouperGoogleApiCommands {
        //ignore it because user is already manager or owner
       } else {
       // String url = "https://admin.googleapis.com/admin/directory/v1/groups/"+groupId+"/members/"+userId;
-      executeMethod(debugMap, "DELETE", configId, "/groups/"+groupId+"/members/"+userId,
+      executeMethod(debugMap, "deleteGoogleMembership", "DELETE", configId, "/groups/"+groupId+"/members/"+userId,
           GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null, false);
       }
   
@@ -1370,7 +1382,7 @@ public class GrouperGoogleApiCommands {
           return;
         } 
         
-        executeMethod(debugMap, "DELETE", configId, "/groups/"+groupId+"/members/"+userId,
+        executeMethod(debugMap, "deleteGoogleMembership", "DELETE", configId, "/groups/"+groupId+"/members/"+userId,
             GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null, false);
 
       }

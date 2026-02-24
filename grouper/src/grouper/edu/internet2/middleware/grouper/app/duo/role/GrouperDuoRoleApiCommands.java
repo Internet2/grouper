@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -29,6 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperDuoRoleApiCommands {
+  
   
   public static void main(String[] args) {
 
@@ -152,7 +154,7 @@ public class GrouperDuoRoleApiCommands {
     
   }
 
-  private static JsonNode executeMethod(Map<String, Object> debugMap,
+  private static JsonNode executeMethod(Map<String, Object> debugMap, String debugLabel,
       String httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, 
       Map<String, String> params,
@@ -256,7 +258,13 @@ public class GrouperDuoRoleApiCommands {
     grouperHttpCall.addHeader("Authorization", "Basic " + credentials);
     
     grouperHttpCall.assignBody(body);
-    grouperHttpCall.executeRequest();
+    long httpCallStartMillis = System.currentTimeMillis();
+    try {
+      grouperHttpCall.executeRequest();
+    } finally {
+      GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
+          System.currentTimeMillis() - httpCallStartMillis);
+    }
     
     int code = -1;
     String json = null;
@@ -320,7 +328,7 @@ public class GrouperDuoRoleApiCommands {
         params.put("send_email", "1");
       }
 
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/admins",
+      JsonNode jsonNode = executeMethod(debugMap, "createDuoAdministrator", "POST", configId, "/admins",
           GrouperUtil.toSet(200), new int[] { -1 }, params, null, "v1");
       
       JsonNode userNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
@@ -382,7 +390,7 @@ public class GrouperDuoRoleApiCommands {
 //        params.put("username", StringUtils.defaultString(grouperDuoUser.getUserName()));
 //      }
       
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/admins/" + id,
+      JsonNode jsonNode = executeMethod(debugMap, "updateDuoUser", "POST", configId, "/admins/" + id,
           GrouperUtil.toSet(200), new int[] { -1 }, params, null, "v1");
 
       JsonNode groupNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
@@ -418,7 +426,7 @@ public class GrouperDuoRoleApiCommands {
 
         Map<String, String> params = GrouperUtil.toMap("limit", String.valueOf(limit), "offset", String.valueOf(offset));
         
-        JsonNode jsonNode = executeMethod(debugMap, "GET", configId, "/admins",
+        JsonNode jsonNode = executeMethod(debugMap, "retrieveDuoAdministrators", "GET", configId, "/admins",
             GrouperUtil.toSet(200, 404), new int[] { -1 }, params, null, "v1");
         
         ArrayNode usersArray = (ArrayNode) jsonNode.get("response");
@@ -463,7 +471,7 @@ public class GrouperDuoRoleApiCommands {
       String urlSuffix = "/admins/" + id;
 
       int[] returnCode = new int[] { -1 };
-      JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
+      JsonNode jsonNode = executeMethod(debugMap, "retrieveDuoAdministrator(String, String)", "GET", configId, urlSuffix,
           GrouperUtil.toSet(200, 404), returnCode, null, null, "v1");
       
       if (returnCode[0] == 404) {
@@ -500,7 +508,7 @@ public class GrouperDuoRoleApiCommands {
         throw new RuntimeException("adminId is null");
       }
     
-      executeMethod(debugMap, "DELETE", configId, "/admins/" + adminId,
+      executeMethod(debugMap, "deleteDuoAdministrator", "DELETE", configId, "/admins/" + adminId,
           GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null, "v1");
 
     } catch (RuntimeException re) {

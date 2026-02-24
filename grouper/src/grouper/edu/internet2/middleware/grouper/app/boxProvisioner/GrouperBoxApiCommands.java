@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.google.GrouperGoogleLog;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpThrottlingCallback;
@@ -34,6 +35,7 @@ public class GrouperBoxApiCommands {
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperBoxApiCommands.class);
+  
 
   public static void main(String[] args) {
 
@@ -200,7 +202,7 @@ public class GrouperBoxApiCommands {
 
       int[] returnCode = new int[] {-1};
       
-      JsonNode resultNode = executeMethod(debugMap, "POST", configId, "/files/" + fileId + "/content",
+      JsonNode resultNode = executeMethod(debugMap, "uploadFileVersion", "POST", configId, "/files/" + fileId + "/content",
           GrouperUtil.toSet(201), returnCode, null, file, null);
       
       return resultNode; 
@@ -232,7 +234,7 @@ public class GrouperBoxApiCommands {
       
       File[] downloadFile = new File[1];
       
-      executeMethod(debugMap, "GET", configId, "/files/" + fileId + "/content",
+      executeMethod(debugMap, "downloadFile", "GET", configId, "/files/" + fileId + "/content",
           GrouperUtil.toSet(200), returnCode, null, null, downloadFile);
       
       return downloadFile[0]; 
@@ -245,15 +247,15 @@ public class GrouperBoxApiCommands {
   }
 
 
-  private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId,
+  private static JsonNode executeGetMethod(Map<String, Object> debugMap, String debugLabel, String configId,
       String urlSuffix, int[] returnCode) {
 
-    return executeMethod(debugMap, "GET", configId, urlSuffix,
+    return executeMethod(debugMap, debugLabel, "GET", configId, urlSuffix,
         GrouperUtil.toSet(200, 404, 405, 429), returnCode, null, null, null);
 
   }
 
-  private static JsonNode executeMethod(Map<String, Object> debugMap,
+  private static JsonNode executeMethod(Map<String, Object> debugMap, String debugLabel,
       String httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body, File uploadFile, File[] downloadFile) {
 
@@ -365,7 +367,13 @@ public class GrouperBoxApiCommands {
       grouperHttpCall.assignResponseFileName(theFile.getAbsolutePath());
     }
     
-    grouperHttpCall.executeRequest();
+    long httpCallStartMillis = System.currentTimeMillis();
+    try {
+      grouperHttpCall.executeRequest();
+    } finally {
+      GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
+          System.currentTimeMillis() - httpCallStartMillis);
+    }
     
     int code = -1;
     String json = null;
@@ -443,7 +451,7 @@ public class GrouperBoxApiCommands {
       
       int[] returnCode = new int[] {-1};
       
-      JsonNode groupNode = executeMethod(debugMap, "POST", configId, "/groups",
+      JsonNode groupNode = executeMethod(debugMap, "createBoxGroup", "POST", configId, "/groups",
           GrouperUtil.toSet(201, 429), returnCode, jsonStringToSend, null, null);
       
       GrouperBoxGroup grouperBoxGroupResult = GrouperBoxGroup.fromJson(groupNode);
@@ -480,7 +488,7 @@ public class GrouperBoxApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
       
-      JsonNode userNode = executeMethod(debugMap, "POST", configId, "/users",
+      JsonNode userNode = executeMethod(debugMap, "createBoxUser", "POST", configId, "/users",
           GrouperUtil.toSet(201, 429), new int[] { -1 }, jsonStringToSend, null, null);
       
       GrouperBoxUser grouperBoxUserResult = GrouperBoxUser.fromJson(userNode);
@@ -513,7 +521,7 @@ public class GrouperBoxApiCommands {
         throw new RuntimeException("id is null");
       }
     
-      executeMethod(debugMap, "DELETE", configId, "/groups/" + groupId,
+      executeMethod(debugMap, "deleteBoxGroup", "DELETE", configId, "/groups/" + groupId,
           GrouperUtil.toSet(200, 204, 404, 429), new int[] { -1 }, null, null, null);
 
     } catch (RuntimeException re) {
@@ -542,7 +550,7 @@ public class GrouperBoxApiCommands {
         throw new RuntimeException("id is null");
       }
     
-      executeMethod(debugMap, "DELETE", configId, "/users/" + userId,
+      executeMethod(debugMap, "deleteBoxUser", "DELETE", configId, "/users/" + userId,
           GrouperUtil.toSet(200, 404, 204, 429), new int[] { -1 }, null, null, null);
 
     } catch (RuntimeException re) {
@@ -586,7 +594,7 @@ public class GrouperBoxApiCommands {
 
       //String url = "https://api.box.com/2.0/group_memberships";
       String urlSuffix = "/group_memberships";
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200, 201, 429), 
+      JsonNode jsonNode = executeMethod(debugMap, "createBoxMembership", "POST", configId, urlSuffix, GrouperUtil.toSet(200, 201, 429), 
           new int[] { -1 }, jsonStringToSend, null, null);
       
       if (jsonNode == null) {
@@ -621,7 +629,7 @@ public class GrouperBoxApiCommands {
   
 //      String url = "https://api.box.com/2.0/group_memberships/:group_membership_id";
       
-      executeMethod(debugMap, "DELETE", configId, "/group_memberships/"+groupMembershipId,
+      executeMethod(debugMap, "deleteBoxMembership", "DELETE", configId, "/group_memberships/"+groupMembershipId,
           GrouperUtil.toSet(200, 204, 404, 429), new int[] { -1 }, null, null, null);
   
     } catch (RuntimeException re) {
@@ -667,7 +675,7 @@ public class GrouperBoxApiCommands {
       JsonNode jsonToSend = grouperBoxUser.toJson(fieldsToUpdate);
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, "/users/"+id,
+      JsonNode jsonNode = executeMethod(debugMap, "updateBoxUser", "PUT", configId, "/users/"+id,
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend, null, null);
 
       GrouperBoxUser grouperBoxUserResult = GrouperBoxUser.fromJson(jsonNode);
@@ -715,7 +723,7 @@ public class GrouperBoxApiCommands {
       JsonNode jsonToSend = grouperBoxGroup.toJson(fieldsToUpdate);
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, "/groups/"+id,
+      JsonNode jsonNode = executeMethod(debugMap, "updateBoxGroup", "PUT", configId, "/groups/"+id,
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend, null, null);
 
       GrouperBoxGroup grouperBoxGroupResult = GrouperBoxGroup.fromJson(jsonNode);
@@ -773,7 +781,7 @@ public class GrouperBoxApiCommands {
         
         int[] returnCode = new int[] { -1 };
         
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, requestUrl, returnCode);
+        JsonNode jsonNode = executeGetMethod(debugMap, "retrieveBoxGroups", configId, requestUrl, returnCode);
         
         if (!jsonNode.has("total_count")) {
           throw new RuntimeException("Invalid response, requestUri: " + requestUrl + "  : http response code: " + returnCode[0] + ", " + GrouperUtil.jsonJacksonToString(jsonNode));
@@ -846,7 +854,7 @@ public class GrouperBoxApiCommands {
       
       int[] returnCode = new int[] {-1};
       
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
+      JsonNode jsonNode = executeGetMethod(debugMap, "retrieveBoxGroup", configId, urlSuffix, returnCode);
       
       if (returnCode[0] == 404) {
         return null;
@@ -911,7 +919,7 @@ public class GrouperBoxApiCommands {
         
         int[] returnCode = new int[] { -1 };
         
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, requestUrl, returnCode);
+        JsonNode jsonNode = executeGetMethod(debugMap, "retrieveBoxUsers", configId, requestUrl, returnCode);
         
         if (!jsonNode.has("total_count")) {
           throw new RuntimeException("Invalid response, requestUri: " + requestUrl + "  : http response code: " + returnCode[0] + ", " + GrouperUtil.jsonJacksonToString(jsonNode));
@@ -985,7 +993,7 @@ public class GrouperBoxApiCommands {
       int[] returnCode = new int[] { -1 };
       
       String urlSuffix = "/users/"+id+"?fields="+fieldsToSelectSingleString;
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
+      JsonNode jsonNode = executeGetMethod(debugMap, "retrieveBoxUser", configId, urlSuffix, returnCode);
       
       if (returnCode[0] == 404) {
         return null;
@@ -1032,7 +1040,7 @@ public class GrouperBoxApiCommands {
         
         int[] returnCode = new int[] { -1 };
         
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
+        JsonNode jsonNode = executeGetMethod(debugMap, "retrieveBoxGroupMembers", configId, urlSuffix, returnCode);
         
         if (!jsonNode.has("total_count")) {
           throw new RuntimeException("Invalid response, requestUri: " + urlSuffix + "  : http response code: " + returnCode[0] + ", " + GrouperUtil.jsonJacksonToString(jsonNode));

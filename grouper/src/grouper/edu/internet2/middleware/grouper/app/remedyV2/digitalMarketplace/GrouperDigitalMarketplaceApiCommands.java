@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
@@ -25,6 +26,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class GrouperDigitalMarketplaceApiCommands {
+  
   
   /**
    * @param digitalMarketplaceExternalSystemConfigId
@@ -94,7 +96,7 @@ public class GrouperDigitalMarketplaceApiCommands {
       paramMap.put("pageSize", "" + pageSize);
       paramMap.put("startIndex", "" + startIndex);
       
-      JsonNode jsonObject = executeGetMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/datapage", paramMap);
+      JsonNode jsonObject = executeGetMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "retrieveDigitalMarketplaceUsersHelper", "/api/rx/application/datapage", paramMap);
       
       Map<String, GrouperDigitalMarketplaceUser> results = convertMarketplaceUsersFromJson(jsonObject);
       debugMap.put("totalSize", GrouperUtil.jsonJacksonGetInteger(jsonObject, "totalSize")); 
@@ -140,7 +142,7 @@ public class GrouperDigitalMarketplaceApiCommands {
       paramMap.put("startIndex", "0");
       paramMap.put("loginName", loginid);
 
-      JsonNode jsonObject = executeGetMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/datapage", paramMap);
+      JsonNode jsonObject = executeGetMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "retrieveDigitalMarketplaceUser", "/api/rx/application/datapage", paramMap);
 
       Map<String, GrouperDigitalMarketplaceUser> results = convertMarketplaceUsersFromJson(jsonObject);
 
@@ -191,7 +193,7 @@ public class GrouperDigitalMarketplaceApiCommands {
       paramMap.put("startIndex", "0");
       paramMap.put("groupName", groupName);
 
-      JsonNode jsonObject = executeGetMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/datapage", paramMap);
+      JsonNode jsonObject = executeGetMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "retrieveDigitalMarketplaceGroup", "/api/rx/application/datapage", paramMap);
 
       JsonNode jsonObjectEntries = jsonObject.get("data");
       for (int i=0; i < jsonObjectEntries.size(); i++) {
@@ -260,7 +262,7 @@ public class GrouperDigitalMarketplaceApiCommands {
    * @param paramMap
    * @return the json object
    */
-  private static JsonNode executeGetMethod(String digitalMarketplaceExternalSystemConfigId, Map<String, Object> debugMap, String path, Map<String, String> paramMap) {
+  private static JsonNode executeGetMethod(String digitalMarketplaceExternalSystemConfigId, Map<String, Object> debugMap, String debugLabel, String path, Map<String, String> paramMap) {
   
     GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
     
@@ -276,7 +278,13 @@ public class GrouperDigitalMarketplaceApiCommands {
     String body = null;
     long startTime = System.nanoTime();
     try {
-      grouperHttpClient.executeRequest();
+      long httpCallStartMillis = System.currentTimeMillis();
+      try {
+        grouperHttpClient.executeRequest();
+      } finally {
+        GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
+            System.currentTimeMillis() - httpCallStartMillis);
+      }
       responseCodeInt = grouperHttpClient.getResponseCode();
       
       try {
@@ -371,7 +379,13 @@ public class GrouperDigitalMarketplaceApiCommands {
 
           long startTime = System.nanoTime();
           try {
-            grouperHttpClient.executeRequest();
+            long httpCallStartMillis = System.currentTimeMillis();
+            try {
+              grouperHttpClient.executeRequest();
+            } finally {
+              GrouperProvisioner.incrementCommandsCallsStats("digitalMarketplace", 1,
+                  System.currentTimeMillis() - httpCallStartMillis);
+            }
             responseCodeInt = grouperHttpClient.getResponseCode();
             
             try {
@@ -545,7 +559,7 @@ public class GrouperDigitalMarketplaceApiCommands {
       
       //doesnt work since the url shouldnt be encoded
       
-      JsonNode jsonObject = executeGetMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/datapage", paramMap);
+      JsonNode jsonObject = executeGetMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "retrieveDigitalMarketplaceGroups", "/api/rx/application/datapage", paramMap);
       
       //  { 
       //    "totalSize":555,
@@ -733,7 +747,7 @@ public class GrouperDigitalMarketplaceApiCommands {
         String userJson = userWithGroupsJson.toString();
         
         // /api/rx/application/user/Allen
-        executePutPostMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/user/" + grouperDigitalMarketplaceUser.getLoginName(), null, userJson, true);
+        executePutPostMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "assignUserToDigitalMarketplaceGroup", "/api/rx/application/user/" + grouperDigitalMarketplaceUser.getLoginName(), null, userJson, true);
         
         return true;
       } 
@@ -760,7 +774,7 @@ public class GrouperDigitalMarketplaceApiCommands {
    * @param isPutNotPost 
    * @return the json object
    */
-  private static JsonNode executePutPostMethod(String digitalMarketplaceExternalSystemConfigId, Map<String, Object> debugMap, String path, Map<String, String> paramMap, String requestBody, boolean isPutNotPost) {
+  private static JsonNode executePutPostMethod(String digitalMarketplaceExternalSystemConfigId, Map<String, Object> debugMap, String debugLabel, String path, Map<String, String> paramMap, String requestBody, boolean isPutNotPost) {
   
     GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
     
@@ -789,7 +803,13 @@ public class GrouperDigitalMarketplaceApiCommands {
     String responseBody = null;
     long startTime = System.nanoTime();
     try {
-      grouperHttpClient.executeRequest();
+      long httpCallStartMillis = System.currentTimeMillis();
+      try {
+        grouperHttpClient.executeRequest();
+      } finally {
+        GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
+            System.currentTimeMillis() - httpCallStartMillis);
+      }
       responseCodeInt = grouperHttpClient.getResponseCode();
       
       try {
@@ -904,7 +924,7 @@ public class GrouperDigitalMarketplaceApiCommands {
       String groupJson = groupJsonObject.toString();
       
       // /api/rx/application/user/Allen
-      executePutPostMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/group/", null, groupJson, false);
+      executePutPostMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "createDigitalMarketplaceGroup", "/api/rx/application/group/", null, groupJson, false);
         
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -989,7 +1009,13 @@ public class GrouperDigitalMarketplaceApiCommands {
     String responseBody = null;
     long startTime = System.nanoTime();
     try {
-      grouperHttpClient.executeRequest();
+      long httpCallStartMillis = System.currentTimeMillis();
+      try {
+        grouperHttpClient.executeRequest();
+      } finally {
+        GrouperProvisioner.incrementCommandsCallsStats("digitalMarketplace", 1,
+            System.currentTimeMillis() - httpCallStartMillis);
+      }
       responseCodeInt = grouperHttpClient.getResponseCode();
       
       try {
