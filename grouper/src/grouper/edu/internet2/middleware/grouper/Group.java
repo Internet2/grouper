@@ -49,6 +49,7 @@ import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncl
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -100,6 +101,8 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
+import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
+import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
@@ -107,6 +110,7 @@ import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsExc
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
+import edu.internet2.middleware.grouper.exception.GrouperReferentialIntegrityException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -204,6 +208,7 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.grouper.xml.export.XmlExportGroup;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -2033,6 +2038,38 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public void delete() throws GroupDeleteException, InsufficientPrivilegeException {
     final String errorMessageSuffix = ", stem name: " + this.name + ", group extension: " + this.extension
       + ", group dExtension: " + this.displayExtension + ", uuid: " + this.uuid + ", ";
+
+    // check if this group is referenced by any scripted groups
+    List<String> referencingConfigs = new ArrayList<>();
+
+    List<String> dependentGroupNames = new GcDbAccess()
+        .sql("select distinct depen_group_name from grouper_sql_dependency_group_v where owner_group_name = ?")
+        .addBindVar(this.name).selectList(String.class);
+    for (String groupName : GrouperUtil.nonNull(dependentGroupNames)) {
+      referencingConfigs.add("scripted group '" + groupName + "'");
+    }
+
+    // check if this group is referenced by any privacy realm configs
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(null);
+
+    for (Map.Entry<String, GrouperPrivacyRealmConfig> realmEntry : grouperDataEngine.getPrivacyRealmConfigByConfigId().entrySet()) {
+      GrouperPrivacyRealmConfig realmConfig = realmEntry.getValue();
+      if (StringUtils.equals(this.name, realmConfig.getPrivacyRealmViewersGroupName())) {
+        referencingConfigs.add("privacy realm '" + realmEntry.getKey() + "' (viewers group)");
+      }
+      if (StringUtils.equals(this.name, realmConfig.getPrivacyRealmUpdatersGroupName())) {
+        referencingConfigs.add("privacy realm '" + realmEntry.getKey() + "' (updaters group)");
+      }
+      if (StringUtils.equals(this.name, realmConfig.getPrivacyRealmReadersGroupName())) {
+        referencingConfigs.add("privacy realm '" + realmEntry.getKey() + "' (readers group)");
+      }
+    }
+
+    if (referencingConfigs.size() > 0) {
+      String referencingConfigsString = StringUtils.join(referencingConfigs, ", ");
+      throw new GrouperReferentialIntegrityException("Error: cannot delete this group because it is referenced by: " + referencingConfigsString);
+    }
 
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,

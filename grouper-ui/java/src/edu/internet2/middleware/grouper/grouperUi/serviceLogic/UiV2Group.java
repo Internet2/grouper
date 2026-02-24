@@ -96,6 +96,7 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperReferentialIntegrityException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -2169,13 +2170,20 @@ public class UiV2Group {
         //go to the view group screen
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));
     
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
             TextContainer.retrieveFromRequest().getText().get("groupErrorCantDelete")));
-  
+
         return;
-  
+
+      } catch (GrouperReferentialIntegrityException e) {
+
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, e.getMessage()));
+        return;
+
       }
-      
+
       //go to the view stem screen
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + stemId + "')"));
   
