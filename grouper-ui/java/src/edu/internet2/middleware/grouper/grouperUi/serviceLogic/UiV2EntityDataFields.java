@@ -11,10 +11,13 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import java.util.Collections;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
@@ -1308,6 +1311,16 @@ public class UiV2EntityDataFields {
         String providerConfigId = changeLogQueryConfig.retrieveAttributeValueFromConfig("providerConfigId", false);
         if (StringUtils.equals(configId, providerConfigId)) {
           referencingConfigs.add("data provider change log query '" + changeLogQueryConfig.getConfigId() + "'");
+        }
+      }
+
+      // check if this data provider is referenced by any daemon jobs
+      Pattern daemonPattern = Pattern.compile("^otherJob\\.(.*)\\.dataProviderConfigId$");
+      Set<String> daemonConfigIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(daemonPattern);
+      for (String daemonConfigId : GrouperUtil.nonNull(daemonConfigIds)) {
+        String daemonProviderConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + daemonConfigId + ".dataProviderConfigId");
+        if (StringUtils.equals(configId, daemonProviderConfigId)) {
+          referencingConfigs.add("daemon '" + daemonConfigId + "'");
         }
       }
 
