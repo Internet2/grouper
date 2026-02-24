@@ -656,14 +656,40 @@ public class UiV2EntityDataFields {
         throw new RuntimeException("ConfigId cannot be blank");
       }
       
+      // check if this privacy realm is referenced by any data fields or data rows
+      GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+      grouperDataEngine.loadFieldsAndRows(null);
+
+      List<String> referencingConfigs = new ArrayList<>();
+
+      for (Map.Entry<String, GrouperDataFieldConfig> fieldEntry : grouperDataEngine.getFieldConfigByConfigId().entrySet()) {
+        if (StringUtils.equals(configId, fieldEntry.getValue().getGrouperPrivacyRealmConfigId())) {
+          referencingConfigs.add("data field '" + fieldEntry.getKey() + "'");
+        }
+      }
+
+      for (Map.Entry<String, GrouperDataRowConfig> rowEntry : grouperDataEngine.getRowConfigByConfigId().entrySet()) {
+        if (StringUtils.equals(configId, rowEntry.getValue().getPrivacyRealmName())) {
+          referencingConfigs.add("data row '" + rowEntry.getKey() + "'");
+        }
+      }
+
+      if (referencingConfigs.size() > 0) {
+        String referencingConfigsString = StringUtils.join(referencingConfigs, ", ");
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("privacyRealmConfigDeleteErrorInUse")
+            + " " + referencingConfigsString));
+        return;
+      }
+
       GrouperPrivacyRealmConfiguration privacyRealmConfiguration = new GrouperPrivacyRealmConfiguration();
-      
+
       privacyRealmConfiguration.setConfigId(configId);
-      
+
       privacyRealmConfiguration.deleteConfig(true);
-      
+
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2EntityDataFields.viewPrivacyRealmConfigs')"));
-      
+
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("privacyRealmConfigDeleteSuccess")));
       
