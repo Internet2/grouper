@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.dataField.EntityDataFieldsService;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
+import edu.internet2.middleware.grouper.exception.GrouperReferentialIntegrityException;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderChangeLogQueryConfiguration;
@@ -726,41 +727,27 @@ public class UiV2EntityDataFields {
       }
       
       String configId = request.getParameter("dataRowConfigId");
-      
+
       if (StringUtils.isBlank(configId)) {
         throw new RuntimeException("ConfigId cannot be blank");
-      }
-      
-      // check if this data row is referenced by any data provider queries
-      List<String> referencingConfigs = new ArrayList<>();
-
-      List<GrouperDataProviderQueryConfiguration> allQueryConfigs = GrouperDataProviderQueryConfiguration.retrieveAllDataProviderQueryConfigurations();
-      for (GrouperDataProviderQueryConfiguration queryConfig : GrouperUtil.nonNull(allQueryConfigs)) {
-        String rowConfigId = queryConfig.retrieveAttributeValueFromConfig("providerQueryRowConfigId", false);
-        if (StringUtils.equals(configId, rowConfigId)) {
-          referencingConfigs.add("data provider query '" + queryConfig.getConfigId() + "'");
-        }
-      }
-
-      if (referencingConfigs.size() > 0) {
-        String referencingConfigsString = StringUtils.join(referencingConfigs, ", ");
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-            TextContainer.retrieveFromRequest().getText().get("dataRowConfigDeleteErrorInUse")
-            + " " + referencingConfigsString));
-        return;
       }
 
       GrouperDataRowConfiguration dataRowConfiguration = new GrouperDataRowConfiguration();
 
       dataRowConfiguration.setConfigId(configId);
 
-      dataRowConfiguration.deleteConfig(true);
+      try {
+        dataRowConfiguration.deleteConfig(true);
+      } catch (GrouperReferentialIntegrityException e) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, e.getMessage()));
+        return;
+      }
 
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2EntityDataFields.viewEntityDataRows')"));
 
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("dataRowConfigDeleteSuccess")));
-      
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

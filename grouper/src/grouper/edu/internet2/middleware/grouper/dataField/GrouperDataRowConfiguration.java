@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,10 +13,12 @@ import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBas
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.exception.GrouperReferentialIntegrityException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class GrouperDataRowConfiguration extends GrouperConfigurationModuleBase {
   
@@ -140,24 +143,48 @@ public class GrouperDataRowConfiguration extends GrouperConfigurationModuleBase 
 
   @Override
   public void deleteConfig(boolean fromUi) {
-    
+
+    String configId = this.getConfigId();
+
+    List<String> referencingConfigs = new ArrayList<>();
+
+    // check if this data row is referenced by any data provider queries
+    List<GrouperDataProviderQueryConfiguration> allQueryConfigs = GrouperDataProviderQueryConfiguration.retrieveAllDataProviderQueryConfigurations();
+    for (GrouperDataProviderQueryConfiguration queryConfig : GrouperUtil.nonNull(allQueryConfigs)) {
+      String rowConfigId = queryConfig.retrieveAttributeValueFromConfig("providerQueryRowConfigId", false);
+      if (StringUtils.equals(configId, rowConfigId)) {
+        referencingConfigs.add("data provider query '" + queryConfig.getConfigId() + "'");
+      }
+    }
+
+    // check if this data row is used by any scripted groups (ABAC)
+    List<String> dependentGroupNames = new GcDbAccess().sql("select distinct depen_group_name from grouper_sql_dependency_row_v where owner_data_row_config_id = ?").addBindVar(configId).selectList(String.class);
+    for (String groupName : GrouperUtil.nonNull(dependentGroupNames)) {
+      referencingConfigs.add("scripted group '" + groupName + "'");
+    }
+
+    if (referencingConfigs.size() > 0) {
+      String referencingConfigsString = StringUtils.join(referencingConfigs, ", ");
+      throw new GrouperReferentialIntegrityException("Error: cannot delete this data row because it is referenced by: " + referencingConfigsString);
+    }
+
     GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
-      
+
       @Override
       public Object callback(GrouperTransaction grouperTransaction)
           throws GrouperDAOException {
-        
+
         GrouperDataRowConfiguration.super.deleteConfig(fromUi);
-        
+
         GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
-        
+
         GrouperDataEngine.syncDataAliases(grouperConfig);
         GrouperDataEngine.syncDataRows(grouperConfig);
-        
+
         return null;
       }
     });
-    
+
   }
   
   @Override
