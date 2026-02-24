@@ -727,14 +727,33 @@ public class UiV2EntityDataFields {
         throw new RuntimeException("ConfigId cannot be blank");
       }
       
+      // check if this data row is referenced by any data provider queries
+      List<String> referencingConfigs = new ArrayList<>();
+
+      List<GrouperDataProviderQueryConfiguration> allQueryConfigs = GrouperDataProviderQueryConfiguration.retrieveAllDataProviderQueryConfigurations();
+      for (GrouperDataProviderQueryConfiguration queryConfig : GrouperUtil.nonNull(allQueryConfigs)) {
+        String rowConfigId = queryConfig.retrieveAttributeValueFromConfig("providerQueryRowConfigId", false);
+        if (StringUtils.equals(configId, rowConfigId)) {
+          referencingConfigs.add("data provider query '" + queryConfig.getConfigId() + "'");
+        }
+      }
+
+      if (referencingConfigs.size() > 0) {
+        String referencingConfigsString = StringUtils.join(referencingConfigs, ", ");
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("dataRowConfigDeleteErrorInUse")
+            + " " + referencingConfigsString));
+        return;
+      }
+
       GrouperDataRowConfiguration dataRowConfiguration = new GrouperDataRowConfiguration();
-      
+
       dataRowConfiguration.setConfigId(configId);
-      
+
       dataRowConfiguration.deleteConfig(true);
-      
+
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2EntityDataFields.viewEntityDataRows')"));
-      
+
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("dataRowConfigDeleteSuccess")));
       
