@@ -35,7 +35,7 @@ echo $(date) "Checked out branch '$CURRENT_BRANCH' (exit $?)"
 cd $GP/grouper-parent
 rm -rf $SITE
 
-# Without installing packages, complains "Failure to find edu.internet2.middleware.grouper:grouperClient:jar:tests:6.0.0-SNAPSHOT in https://oss.sonatype.org/content/repositories/releases/"
+# Without installing packages, complains "Failure to find edu.internet2.middleware.grouper:grouperClient:jar:tests:7.0.0-SNAPSHOT in https://oss.sonatype.org/content/repositories/releases/"
 $MVN install
 $MVN clean site site-deploy -Dlicense.skip=true -DskipTests=true
 
