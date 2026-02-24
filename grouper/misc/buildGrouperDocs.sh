@@ -17,7 +17,7 @@
 MVN=/opt/apache-maven-3.6.3/bin/mvn
 GP=/var/grouper-docs/git/grouper
 SITE=/tmp/groupersite
-CURRENT_BRANCH=GROUPER_5_BRANCH
+CURRENT_BRANCH=GROUPER_7_BRANCH
 #CURRENT_BRANCH=GROUPER_RELEASE_5.4.0
 export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
 

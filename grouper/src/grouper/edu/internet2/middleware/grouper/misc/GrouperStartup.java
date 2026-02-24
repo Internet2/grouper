@@ -771,7 +771,7 @@ public class GrouperStartup {
     int groupCountNotEtc = -1;
     String rootStemForBuiltinObjects = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc");
     String sqlCacheErrorMessage = "Problem checking if membership cache is populated.  %s  "
-        + "You need to run the SQL cache daemon in v4 to populate the sql cache tables before upgrading to v6.  If this is a false positive, "
+        + "You need to run the SQL cache daemon in v4 to populate the sql cache tables before upgrading to v7.  If this is a false positive, "
         + "you can set the grouper.hibernate.properties config to not check this anymore: registry.checkMembershipCacheIsPopulated = false";
 
     try {

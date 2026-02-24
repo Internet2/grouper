@@ -83,8 +83,8 @@ User-managed configuration are in corresponding files without the `.base` in the
 
 ## Git Repository Information
 
-- Current branch: GROUPER_6_BRANCH
-- Main development branch: GROUPER_6_BRANCH (for PRs)
+- Current branch: GROUPER_7_BRANCH
+- Main development branch: GROUPER_7_BRANCH (for PRs)
 - Other actively maintained branches: GROUPER_4_BRANCH
 
 Released versions are tagged in the format GROUPER_RELEASE_a.b.c, where a.b.c is the version number.
@@ -124,7 +124,7 @@ application can be found in the README.md file in that folder
 Before running the unit tests, get the latest snapshot and build the java libraries, and incorporate dependencies:
 
 ```bash
-git checkout GROUPER_6_BRANCH
+git checkout GROUPER_7_BRANCH
 git pull
 
 mvn -f grouper-parent clean package
