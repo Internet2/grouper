@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 import java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -48,7 +49,9 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 public class UiV2EntityDataFields {
-  
+
+  private static final Log LOG = GrouperUtil.getLog(UiV2EntityDataFields.class);
+
   /**
    * view entity data fields summary
    * @param request
@@ -2231,10 +2234,18 @@ public class UiV2EntityDataFields {
         for (String dataFieldConfigId : dataRowConfig.getDataFieldConfigIds()) {
           
           GrouperDataFieldConfig dataFieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(dataFieldConfigId);
-          
+
+          if (dataFieldConfig == null) {
+            LOG.error("Data row config '" + dataRowConfig.getConfigId()
+                + "' references data field config id '" + dataFieldConfigId
+                + "' which does not exist. Check grouperDataRow." + dataRowConfig.getConfigId()
+                + ".rowDataField.*.colDataFieldConfigId properties");
+            continue;
+          }
+
           GuiDataFieldRowDictionary guiDataFieldRowDictionary = new GuiDataFieldRowDictionary();
           guiDataFieldRowDictionary.setDataFieldConfigId(dataFieldConfigId);
-          
+
           // we want to show the data field config only in row section if it's there so
           // let's remove it from the data field section
           fieldConfigItems.remove(guiDataFieldRowDictionary);
