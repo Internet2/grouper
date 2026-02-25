@@ -24,6 +24,9 @@ import org.apache.commons.vfs2.impl.StandardFileSystemManager;
 import org.apache.commons.vfs2.provider.sftp.IdentityInfo;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 
+import com.jcraft.jsch.ConfigRepository;
+import com.jcraft.jsch.JSch;
+
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperProxyBean;
@@ -338,6 +341,36 @@ public class GrouperSftp {
     }
     SftpFileSystemConfigBuilder.getInstance().setPreferredAuthentications(options,
         !StringUtils.isBlank(keyPath) ? "publickey" : "password");
+
+    // extra server host key algorithms (e.g. ssh-rsa for legacy servers)
+    String extraServerHostKeyAlgorithms = GrouperConfig.retrieveConfig().propertyValueString("grouperSftp.site." + configId + ".extraServerHostKeyAlgorithms");
+    if (!StringUtils.isBlank(extraServerHostKeyAlgorithms)) {
+      String defaultAlgorithms = JSch.getConfig("server_host_key");
+      final String allAlgorithms = defaultAlgorithms + "," + extraServerHostKeyAlgorithms;
+      debugMap.put("serverHostKeyAlgorithms", allAlgorithms);
+      SftpFileSystemConfigBuilder.getInstance().setConfigRepository(options, new ConfigRepository() {
+        @Override
+        public Config getConfig(String host1) {
+          return new Config() {
+            @Override
+            public String getHostname() { return null; }
+            @Override
+            public String getUser() { return null; }
+            @Override
+            public int getPort() { return -1; }
+            @Override
+            public String getValue(String key) {
+              if ("server_host_key".equals(key)) {
+                return allAlgorithms;
+              }
+              return null;
+            }
+            @Override
+            public String[] getValues(String key) { return null; }
+          };
+        }
+      });
+    }
 
     return options;
   }
