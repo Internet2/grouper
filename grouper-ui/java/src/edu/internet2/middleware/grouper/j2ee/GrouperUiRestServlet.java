@@ -164,6 +164,7 @@ public class GrouperUiRestServlet extends HttpServlet {
     String uri = request.getRequestURI();
     
     if (!uri.endsWith("/UiV2Main.index")
+        && !uri.endsWith("/UiV2Public.postIndex")
         && !uri.endsWith("/UiV2Public.index")) {
       RequestContainer.retrieveFromRequest().setAjaxRequest(true);
     }
