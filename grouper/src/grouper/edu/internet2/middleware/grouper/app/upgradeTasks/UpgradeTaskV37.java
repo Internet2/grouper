@@ -29,6 +29,12 @@ public class UpgradeTaskV37 implements UpgradeTasksInterface {
       return true;
     }
 
+    if (GrouperDdlUtils.isOracle()) {
+      if (!GrouperDdlUtils.doesConstraintExistOracle("grouper_stems_id_index_unq")) {
+        return true;
+      }
+    }
+
     return false;
   }
 
@@ -108,6 +114,16 @@ public class UpgradeTaskV37 implements UpgradeTasksInterface {
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key group_internal_id_fk");
+          }
+        }
+
+        if (GrouperDdlUtils.isOracle()) {
+          if (!GrouperDdlUtils.doesConstraintExistOracle("grouper_stems_id_index_unq")) {
+            new GcDbAccess().sql("ALTER TABLE grouper_stems ADD CONSTRAINT grouper_stems_id_index_unq UNIQUE (id_index)").executeSql();
+            if (otherJobInput != null) {
+              otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+              otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added constraint grouper_stems_id_index_unq");
+            }
           }
         }
 
