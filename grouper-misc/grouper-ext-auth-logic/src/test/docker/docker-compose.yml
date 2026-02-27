@@ -76,6 +76,10 @@ services:
   grouper-ui:
     build:
       context: grouper
+    depends_on:
+      - reverse-proxy
+      - directory
+      - database
     command:
       - ui
     labels:
@@ -91,7 +95,7 @@ services:
       - 8000:5005
       #- 9080:8080
     volumes:
-      - ../../../../grouper-ext-auth/target/grouper-authentication-plugin.jar:/opt/grouper/plugins/grouper-authentication-plugin.jar
+      #- ../../../../grouper-ext-auth/target/grouper-authentication-plugin.jar:/opt/grouper/plugins/grouper-authentication-plugin.jar
       - ./grouper/config/grouper.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper.properties
       ## Uncomment one of the grouper-ui.properties below depending on the authentication method
       ##   -- OIDC --
@@ -109,13 +113,98 @@ services:
       GROUPER_DATABASE_USERNAME: "grouper"
       GROUPER_DATABASE_PASSWORD: "grouper"
       GROUPER_MORPHSTRING_ENCRYPT_KEY: "THISISSUPERSECRET!"
-      GROUPER_AUTO_DDL_UPTOVERSION: "5.*.*"
+      GROUPER_AUTO_DDL_UPTOVERSION: "6.*.*"
       GROUPER_TOMCAT_HTTP_PORT: 8080
       GROUPER_START_DELAY_SECONDS: 0
       GROUPER_UI_CONFIGURATION_EDITOR_SOURCEIPADDRESSES: "0.0.0.0/0"
-      GROUPER_EXTRA_CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
-#      GROUPER_UI_GROUPER_AUTH: "true"
-#      GROUPERSYSTEM_QUICKSTART_PASS: "letmein7"
+      #GROUPER_EXTRA_CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+      #GROUPER_UI_GROUPER_AUTH: "true"
+
+
+  grouper-ws:
+    build:
+      context: grouper
+    depends_on:
+      - reverse-proxy
+      - directory
+      - database
+    command:
+      - ws
+    labels:
+      - "traefik.http.routers.grouperWS.rule=Host(`grouper-ws.unicon.local`)"
+      - "traefik.http.services.grouperWS.loadbalancer.server.port=8080"
+      - "traefik.http.routers.grouperWS.tls=true"
+      - "traefik.docker.network=grouper-ext-auth_reverse-proxy"
+      - "traefik.enable=true"
+    networks:
+      - reverse-proxy
+      - grouper
+    #ports:
+    #  - 8000:5005
+    ##  - 9080:8080
+    volumes:
+      #- ../../../../grouper-ext-auth/target/grouper-authentication-plugin.jar:/opt/grouper/plugins/grouper-authentication-plugin.jar
+      - ./grouper/config/grouper.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper.properties
+      ## Uncomment one of the grouper-ui.properties below depending on the authentication method
+      ##   -- OIDC --
+      - ./grouper/config/grouper-ui.properties.oidc:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-ui.properties
+      ##   -- SAML --
+      #- ./grouper/config/grouper-ui.properties.saml:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-ui.properties
+      ##   -- CAS --
+      #- ./grouper/config/grouper-ui.properties.cas:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-ui.properties
+      - ./grouper/config/grouper-loader.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-loader.properties
+      - ./grouper/config/subject.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/subject.properties
+      - ./shibboleth-idp/files-local/metadata/idp-metadata.xml:/opt/grouper/idp-metadata.xml
+      - ./grouper/certs/unicon.local.pem:/opt/grouper/certs/client/unicon.local.pem
+    environment:
+      GROUPER_DATABASE_URL: "jdbc:postgresql://database/grouper"
+      GROUPER_DATABASE_USERNAME: "grouper"
+      GROUPER_DATABASE_PASSWORD: "grouper"
+      GROUPER_MORPHSTRING_ENCRYPT_KEY: "THISISSUPERSECRET!"
+      GROUPER_AUTO_DDL_UPTOVERSION: "6.*.*"
+      GROUPER_TOMCAT_HTTP_PORT: 8080
+      GROUPER_START_DELAY_SECONDS: 0
+      GROUPER_WS_GROUPER_AUTH: "true"
+      #GROUPER_EXTRA_CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
+
+  grouper-daemon:
+    build:
+      context: grouper
+    depends_on:
+      - directory
+      - database
+    command:
+      - daemon
+    networks:
+      - grouper
+    #ports:
+    #  - 8000:5005
+    ##  - 9080:8080
+    volumes:
+      #- ../../../../grouper-ext-auth/target/grouper-authentication-plugin.jar:/opt/grouper/plugins/grouper-authentication-plugin.jar
+      - ./grouper/config/grouper.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper.properties
+      ## Uncomment one of the grouper-ui.properties below depending on the authentication method
+      ##   -- OIDC --
+      - ./grouper/config/grouper-ui.properties.oidc:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-ui.properties
+      ##   -- SAML --
+      #- ./grouper/config/grouper-ui.properties.saml:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-ui.properties
+      ##   -- CAS --
+      #- ./grouper/config/grouper-ui.properties.cas:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-ui.properties
+      - ./grouper/config/grouper-loader.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-loader.properties
+      - ./grouper/config/subject.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/subject.properties
+      - ./shibboleth-idp/files-local/metadata/idp-metadata.xml:/opt/grouper/idp-metadata.xml
+      - ./grouper/certs/unicon.local.pem:/opt/grouper/certs/client/unicon.local.pem
+    environment:
+      GROUPER_DATABASE_URL: "jdbc:postgresql://database/grouper"
+      GROUPER_DATABASE_USERNAME: "grouper"
+      GROUPER_DATABASE_PASSWORD: "grouper"
+      GROUPER_MORPHSTRING_ENCRYPT_KEY: "THISISSUPERSECRET!"
+      GROUPER_AUTO_DDL_UPTOVERSION: "6.*.*"
+      GROUPER_TOMCAT_HTTP_PORT: 8080
+      GROUPER_START_DELAY_SECONDS: 0
+      GROUPER_UI_CONFIGURATION_EDITOR_SOURCEIPADDRESSES: "0.0.0.0/0"
+      #GROUPER_EXTRA_CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
+
 networks:
   reverse-proxy:
   idp:
