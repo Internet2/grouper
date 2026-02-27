@@ -392,6 +392,9 @@ CREATE INDEX stem_context_idx ON grouper_stems (context_id);
 
 CREATE UNIQUE INDEX stem_id_index_idx ON grouper_stems (id_index);
 
+ALTER TABLE grouper_stems ADD CONSTRAINT grouper_stems_id_index_unq UNIQUE (id_index);
+
+
 CREATE TABLE grouper_audit_type
 (
     action_name VARCHAR2(50),
@@ -8071,7 +8074,7 @@ COMMENT ON COLUMN grouper_lifecycle_event.event_micros IS 'when the event occurr
 COMMENT ON COLUMN grouper_lifecycle_event.ntrl_lng_priv_dic_intrnl_id IS 'dictionary table internal id';
 COMMENT ON COLUMN grouper_lifecycle_event.ntrl_lng_unpriv_dic_intrnl_id IS 'dictionary table internal id';
 
-insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+insert into grouper_ddl (id, object_name, db_version, last_updated, history) values
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'),
 to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V47, ');
 commit;
