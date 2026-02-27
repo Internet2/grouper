@@ -30,13 +30,11 @@ public class CallbackFilterDecorator extends CallbackFilter implements Reinitial
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
-        if ((ConfigUtils.isGrouperUi() || ConfigUtils.isGrouperWs()) && FilterDecoratorUtils.isExternalAuthenticationEnabled()) {
-            this.initDecorator();
-            int period = ConfigUtils.getBestGrouperConfiguration().propertyValueInt("external.authentication.config.reload.milliseconds", 60 * 1000);
-            if (period > 0) {
-                TimerTask timerTask = new ReinitializingTimer(this);
-                this.timer.schedule(timerTask, period, period);
-            }
+        this.initDecorator();
+        int period = ConfigUtils.getBestGrouperConfiguration().propertyValueInt("external.authentication.config.reload.milliseconds", 60 * 1000);
+        if (period > 0) {
+            TimerTask timerTask = new ReinitializingTimer(this);
+            this.timer.schedule(timerTask, period, period);
         }
     }
 
@@ -48,7 +46,7 @@ public class CallbackFilterDecorator extends CallbackFilter implements Reinitial
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if ((ConfigUtils.isGrouperUi() || ConfigUtils.isGrouperWs()) && FilterDecoratorUtils.isExternalAuthenticationEnabled() && isCallbackUrlCalled((HttpServletRequest) request)) {
+        if (FilterDecoratorUtils.isExternalAuthenticationEnabled() && isCallbackUrlCalled((HttpServletRequest) request)) {
             super.doFilter(request, response, chain);
         } else {
             chain.doFilter(request, response);
