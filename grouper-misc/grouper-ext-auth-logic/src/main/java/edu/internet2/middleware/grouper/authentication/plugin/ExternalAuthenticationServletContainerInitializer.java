@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.authentication.plugin;
 
 import edu.internet2.middleware.grouper.authentication.plugin.filter.CallbackFilterDecorator;
+import edu.internet2.middleware.grouper.authentication.plugin.filter.FilterDecoratorUtils;
 import edu.internet2.middleware.grouper.authentication.plugin.filter.SecurityFilterDecorator;
 import org.apache.commons.logging.Log;
 
@@ -15,6 +16,7 @@ public class ExternalAuthenticationServletContainerInitializer implements Servle
 
     @Override
     public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
+      if (FilterDecoratorUtils.isExternalAuthenticationEnabled()) {
         log.info("Initializing plugin security filters for external authentication");
         CallbackFilterDecorator callbackFilterDecorator = new CallbackFilterDecorator();
         FilterRegistration.Dynamic callbackFilter = ctx.addFilter("callbackFilter", callbackFilterDecorator);
@@ -23,5 +25,6 @@ public class ExternalAuthenticationServletContainerInitializer implements Servle
         SecurityFilterDecorator securityFilterDecorator = new SecurityFilterDecorator();
         FilterRegistration.Dynamic securityFilter = ctx.addFilter("securityFilter", securityFilterDecorator);
         securityFilter.addMappingForUrlPatterns(null, false, "/*");
+      }
     }
 }
