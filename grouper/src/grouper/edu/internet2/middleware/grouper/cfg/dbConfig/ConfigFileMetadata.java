@@ -298,7 +298,7 @@ public class ConfigFileMetadata {
           //multiple hashes are weird but whatever
           if (configFileLine.startsWith("#")) {
             localConfigValid = false;
-            LOG.error("Config file line invalid, " + configFileName + ", line: " + (i+1) + " should be a comment with one hash: '" + originalConfigFileLine + "'");
+            LOG.warn("Config file line invalid, " + configFileName + ", line: " + (i+1) + " should be a comment with one hash: '" + originalConfigFileLine + "'");
   
             while(configFileLine.startsWith("#")) {
               configFileLine = configFileLine.substring(1);
