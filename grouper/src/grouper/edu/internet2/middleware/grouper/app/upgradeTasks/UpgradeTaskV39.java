@@ -16,6 +16,14 @@ public class UpgradeTaskV39 implements UpgradeTasksInterface {
 
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        if (!GrouperDdlUtils.assertColumnThere(true, "grouper_sync", "internal_id")) {
+          return true;
+        }
+
+        if (!GrouperDdlUtils.assertIndexExists("grouper_sync", "grouper_sync_internal_id_idx")) {
+          return true;
+        }
 
         if (!GrouperDdlUtils.assertTableThere(true, "grouper_prov_group")) {
           return true;
@@ -378,6 +386,33 @@ public class UpgradeTaskV39 implements UpgradeTasksInterface {
 
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        if (!GrouperDdlUtils.assertColumnThere(true, "grouper_sync", "internal_id")) {
+          if (GrouperDdlUtils.isPostgres()) {
+            new GcDbAccess().sql("ALTER TABLE grouper_sync ADD COLUMN internal_id BIGINT").executeSql();
+          } else if (GrouperDdlUtils.isMysql()) {
+            new GcDbAccess().sql("ALTER TABLE grouper_sync ADD COLUMN internal_id BIGINT AFTER last_full_metadata_sync_run").executeSql();
+          } else {
+            new GcDbAccess().sql("ALTER TABLE grouper_sync ADD internal_id NUMBER(38)").executeSql();
+          }
+
+          if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle()) {
+            new GcDbAccess().sql("COMMENT ON COLUMN grouper_sync.internal_id IS 'internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)'").executeSql();
+          }
+
+          if (otherJobInput != null) {
+            otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added column grouper_sync.internal_id");
+          }
+        }
+        
+        if (!GrouperDdlUtils.assertIndexExists("grouper_sync", "grouper_sync_internal_id_idx")) {
+          new GcDbAccess().sql("CREATE UNIQUE INDEX grouper_sync_internal_id_idx ON grouper_sync (internal_id)").executeSql();
+          if (otherJobInput != null) {
+            otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_sync_internal_id_idx");
+          }
+        }
 
         if (!GrouperDdlUtils.assertTableThere(true, "grouper_prov_group")) {
           if (GrouperDdlUtils.isOracle()) {
@@ -508,7 +543,7 @@ public class UpgradeTaskV39 implements UpgradeTasksInterface {
         }
 
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_prov_group_attr", "grouper_prov_grpat_fk1")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_prov_group_attr ADD CONSTRAINT grouper_prov_grpat_fk1 FOREIGN KEY (grouper_prov_group_internal_id) REFERENCES grouper_prov_group(internal_id)").executeSql();
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_group_attr ADD CONSTRAINT grouper_prov_grpat_fk1 FOREIGN KEY (grouper_prov_group_internal_id) REFERENCES grouper_prov_group(internal_id) on delete cascade").executeSql();
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key grouper_prov_grpat_fk1");
@@ -583,7 +618,7 @@ public class UpgradeTaskV39 implements UpgradeTasksInterface {
         }
 
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_prov_group_attr_value", "grouper_prov_grpatv_fk1")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_prov_group_attr_value ADD CONSTRAINT grouper_prov_grpatv_fk1 FOREIGN KEY (prov_group_attr_internal_id) REFERENCES grouper_prov_group_attr(internal_id)").executeSql();
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_group_attr_value ADD CONSTRAINT grouper_prov_grpatv_fk1 FOREIGN KEY (prov_group_attr_internal_id) REFERENCES grouper_prov_group_attr(internal_id) on delete cascade").executeSql();
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key grouper_prov_grpatv_fk1");
@@ -591,7 +626,7 @@ public class UpgradeTaskV39 implements UpgradeTasksInterface {
         }
 
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_prov_group_attr_value", "grouper_prov_grpatv_fk2")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_prov_group_attr_value ADD CONSTRAINT grouper_prov_grpatv_fk2 FOREIGN KEY (prov_group_internal_id) REFERENCES grouper_prov_group(internal_id)").executeSql();
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_group_attr_value ADD CONSTRAINT grouper_prov_grpatv_fk2 FOREIGN KEY (prov_group_internal_id) REFERENCES grouper_prov_group(internal_id) on delete cascade").executeSql();
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key grouper_prov_grpatv_fk2");
@@ -735,7 +770,7 @@ public class UpgradeTaskV39 implements UpgradeTasksInterface {
         }
 
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_prov_user_attr", "grouper_prov_userat_fk1")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_prov_user_attr ADD CONSTRAINT grouper_prov_userat_fk1 FOREIGN KEY (grouper_prov_user_internal_id) REFERENCES grouper_prov_user(internal_id)").executeSql();
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_user_attr ADD CONSTRAINT grouper_prov_userat_fk1 FOREIGN KEY (grouper_prov_user_internal_id) REFERENCES grouper_prov_user(internal_id) on delete cascade").executeSql();
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key grouper_prov_userat_fk1");
@@ -810,7 +845,7 @@ public class UpgradeTaskV39 implements UpgradeTasksInterface {
         }
 
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_prov_user_attr_value", "grouper_prov_useratv_fk1")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_prov_user_attr_value ADD CONSTRAINT grouper_prov_useratv_fk1 FOREIGN KEY (prov_user_attr_internal_id) REFERENCES grouper_prov_user_attr(internal_id)").executeSql();
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_user_attr_value ADD CONSTRAINT grouper_prov_useratv_fk1 FOREIGN KEY (prov_user_attr_internal_id) REFERENCES grouper_prov_user_attr(internal_id) on delete cascade").executeSql();
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key grouper_prov_useratv_fk1");
@@ -818,7 +853,7 @@ public class UpgradeTaskV39 implements UpgradeTasksInterface {
         }
 
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_prov_user_attr_value", "grouper_prov_useratv_fk2")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_prov_user_attr_value ADD CONSTRAINT grouper_prov_useratv_fk2 FOREIGN KEY (prov_user_internal_id) REFERENCES grouper_prov_user(internal_id)").executeSql();
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_user_attr_value ADD CONSTRAINT grouper_prov_useratv_fk2 FOREIGN KEY (prov_user_internal_id) REFERENCES grouper_prov_user(internal_id) on delete cascade").executeSql();
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key grouper_prov_useratv_fk2");
@@ -970,7 +1005,7 @@ public class UpgradeTaskV39 implements UpgradeTasksInterface {
         }
 
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_prov_mship", "grouper_prov_mship_fk2")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_prov_mship ADD CONSTRAINT grouper_prov_mship_fk2 FOREIGN KEY (prov_user_internal_id) REFERENCES grouper_prov_user(internal_id)").executeSql();
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_mship ADD CONSTRAINT grouper_prov_mship_fk2 FOREIGN KEY (prov_user_internal_id) REFERENCES grouper_prov_user(internal_id) on delete cascade").executeSql();
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key grouper_prov_mship_fk2");
@@ -978,7 +1013,7 @@ public class UpgradeTaskV39 implements UpgradeTasksInterface {
         }
 
         if (!GrouperDdlUtils.assertForeignKeyExists("grouper_prov_mship", "grouper_prov_mship_fk3")) {
-          new GcDbAccess().sql("ALTER TABLE grouper_prov_mship ADD CONSTRAINT grouper_prov_mship_fk3 FOREIGN KEY (prov_group_internal_id) REFERENCES grouper_prov_group(internal_id)").executeSql();
+          new GcDbAccess().sql("ALTER TABLE grouper_prov_mship ADD CONSTRAINT grouper_prov_mship_fk3 FOREIGN KEY (prov_group_internal_id) REFERENCES grouper_prov_group(internal_id) on delete cascade").executeSql();
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added foreign key grouper_prov_mship_fk3");

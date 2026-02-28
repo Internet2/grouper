@@ -347,13 +347,6 @@ public enum UpgradeTasks {
     }
 
   },
-  V38{
-    @Override
-    public UpgradeTasksInterface upgradeTask() {
-      return new UpgradeTaskV38();
-    }
-  }
-  ,
   /**
    * remove old maintenance jobs
    */
