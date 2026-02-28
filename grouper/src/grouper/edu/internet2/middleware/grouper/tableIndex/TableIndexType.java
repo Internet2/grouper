@@ -356,6 +356,177 @@ public enum TableIndexType {
       return false;
     }
   },
+
+  /** index assigned to a provisioning sync */
+  syncInternalId {
+
+    @Override
+    public String tableName() {
+      return "grouper_sync";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
+    }
+  },
+  
+  /** index assigned to provisioner group records */
+  provGroup {
+
+    @Override
+    public String tableName() {
+      return "grouper_prov_group";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  
+  /** index assigned to provisioner group attribute records */
+  provGroupAttr {
+
+    @Override
+    public String tableName() {
+      return "grouper_prov_group_attr";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  
+  /** index assigned to provisioner group attribute value records */
+  provGroupAttrValue {
+
+    @Override
+    public String tableName() {
+      return "grouper_prov_group_attr_value";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  
+  /** index assigned to provisioner user records */
+  provUser {
+
+    @Override
+    public String tableName() {
+      return "grouper_prov_user";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  
+  /** index assigned to provisioner user attribute records */
+  provUserAttr {
+
+    @Override
+    public String tableName() {
+      return "grouper_prov_user_attr";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  
+  /** index assigned to provisioner user attribute value records */
+  provUserAttrValue {
+
+    @Override
+    public String tableName() {
+      return "grouper_prov_user_attr_value";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  
+  /** index assigned to provisioner membership role records */
+  provMshipRole {
+
+    @Override
+    public String tableName() {
+      return "grouper_prov_mship_role";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  
+  /** index assigned to provisioner membership records */
+  provMship {
+
+    @Override
+    public String tableName() {
+      return "grouper_prov_mship";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
   
   /** index assigned to a provisioning group group */
   syncDepGroup {

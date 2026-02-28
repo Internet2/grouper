@@ -146,8 +146,8 @@ public class GrouperAdobeProvisionerTest extends GrouperProvisioningBaseTest {
       grouperProvisioningOutput = fullProvision();
       GrouperUtil.sleep(2000);
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAdobeGroup").list(GrouperAdobeGroup.class).size());
-      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAdobeUser").list(GrouperScim2User.class).size());
-      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAdobeMembership").list(GrouperScim2Membership.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAdobeUser").list(GrouperAdobeUser.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAdobeMembership").list(GrouperAdobeMembership.class).size());
       
       
 
