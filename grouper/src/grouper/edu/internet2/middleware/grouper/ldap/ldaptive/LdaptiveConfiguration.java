@@ -170,6 +170,12 @@ final class LdaptiveConfiguration {
             }
           }
         }
+        
+        if (propNameTail.equalsIgnoreCase("enabled")) {
+          if (!GrouperUtil.booleanValue(propValue, true)) {
+            throw new RuntimeException("Ldap system '" + ldapServerId + "' is disabled");
+          }
+        }
 
         // map old property names to current names
         switch (propNameTail) {

@@ -79,6 +79,10 @@ public class GrouperLoaderDb {
           if (StringUtils.equals("driver", configItemName)) {
             return GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
           }
+          
+          if (StringUtils.equals("enabled", configItemName)) {
+            return GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.enabled");
+          }
           throw new RuntimeException("Not expecting config item: '" + configItemName + "'");
         }
         if (StringUtils.equals("useQuotedColumnsInSql", configItemName)) {
@@ -110,6 +114,9 @@ public class GrouperLoaderDb {
   
           if (StringUtils.equals("driver", configItemName)) {
             return GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + databaseKey + ".driver");
+          }
+          if (StringUtils.equals("enabled", configItemName)) {
+            return GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + databaseKey + ".enabled");
           }
           throw new RuntimeException("Not expecting config item: '" + configItemName + "'");
         }
@@ -143,6 +150,9 @@ public class GrouperLoaderDb {
 
           if (StringUtils.equals("driver", configItemName)) {
             return GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.jdbc." + databaseKey + ".driver");
+          }
+          if (StringUtils.equals("enabled", configItemName)) {
+            return GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.jdbc." + databaseKey + ".enabled");
           }
           if (StringUtils.equals("useQuotedColumnsInSql", configItemName)) {
             return GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.jdbc." + databaseKey + ".useQuotedColumnsInSql");
@@ -465,6 +475,10 @@ public class GrouperLoaderDb {
       String theDriver = databaseConfigType.configValue(this.connectionName, "driver");
       String theUser = databaseConfigType.configValue(this.connectionName, "user");
       String thePass = databaseConfigType.configValue(this.connectionName, "pass");
+      String enabled = databaseConfigType.configValue(this.connectionName, "enabled");
+      if (!GrouperUtil.booleanValue(enabled, true)) {
+        throw new RuntimeException("Database system '" + this.connectionName + "' is disabled");
+      }
       
       if (!StringUtils.isBlank(this.url) && !StringUtils.equals(this.url, theUrl)) {
         throw new RuntimeException("In database connectionName '" + this.connectionName + "' the url doesnt match: '" + this.url + "', '" + theUrl + "'");
@@ -600,6 +614,7 @@ public class GrouperLoaderDb {
     return StringUtils.equals(configItemName, "user") 
         || StringUtils.equals(configItemName, "pass")
         || StringUtils.equals(configItemName, "url")
+        || StringUtils.equals(configItemName, "enabled")
         || StringUtils.equals(configItemName, "driver");
   }
   
