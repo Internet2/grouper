@@ -1,6 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 

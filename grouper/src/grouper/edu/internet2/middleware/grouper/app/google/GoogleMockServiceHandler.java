@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 
 import com.auth0.jwt.JWT;
