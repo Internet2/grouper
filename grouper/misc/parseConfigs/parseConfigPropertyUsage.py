@@ -61,7 +61,6 @@ projects = [
     'grouper-misc/grouper-messaging-activemq',
     'grouper-misc/grouper-messaging-aws',
     'grouper-misc/grouper-messaging-rabbitmq',
-    'grouper-misc/grouperActivemq',
     'grouper-misc/grouperScim',
     'grouper-misc/grouper-ext-auth-logic',
 ]

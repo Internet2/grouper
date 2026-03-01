@@ -508,6 +508,7 @@ public class GrouperUiFilter implements Filter {
       if (!StringUtils.isBlank(mediaKey)) {
         
         if (subjectLoggedIn == null) {
+          LOG.info("No subject logged in; access to section " + currentSection.name() + " denied");
           try {
             response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=anonymousSessionNotAllowed");
           } catch (IOException ioe) {
@@ -1267,6 +1268,7 @@ public class GrouperUiFilter implements Filter {
       if (uri.matches("^/[^/]+/grouper(Ui|External)/app/[^/]+$")
           && !uri.endsWith("/UiV2Main.index")
           && !uri.endsWith("/UiV2Public.index")
+          && !uri.endsWith("/UiV2Public.postIndex")
           && !uri.endsWith("/UiV2Main.indexCustomUi")) {
         
         RequestContainer.retrieveFromRequest().setAjaxRequest(true);

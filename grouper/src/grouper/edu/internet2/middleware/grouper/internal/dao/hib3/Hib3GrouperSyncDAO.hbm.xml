@@ -59,6 +59,7 @@
     <property name="groupCount" column="group_count"/>
     <property name="incrementalIndex" column="incremental_index"/>
     <property name="incrementalTimestamp" column="incremental_timestamp" type="timestamp"/>
+    <property name="internalId" column="internal_id"/>
     <property name="lastFullMetadataSyncStart" column="last_full_metadata_sync_start" type="timestamp"/>
     <property name="lastFullMetadataSyncRun" column="last_full_metadata_sync_run" type="timestamp"/>
     <property name="lastFullSyncStart" column="last_full_sync_start" type="timestamp"/>
