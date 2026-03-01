@@ -1231,7 +1231,7 @@ public class GrouperUtil {
    */
   public static Log getLog(Class<?> theClass) {
     logDirsCreateIfNotDone();
-    return new GrouperLogger(LogFactory.getLog(theClass));
+    return new GrouperLogger(LogFactory.getLog(theClass), theClass.getName());
   }
 
   /**
