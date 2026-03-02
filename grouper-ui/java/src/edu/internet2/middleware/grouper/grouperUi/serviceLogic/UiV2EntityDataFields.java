@@ -1205,7 +1205,7 @@ public class UiV2EntityDataFields {
         throw new RuntimeException("ConfigId cannot be blank");
       }
 
-      // check if this data field is referenced by any data rows
+      // check if this data field is referenced by any data rows or data provider queries
       GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
       grouperDataEngine.loadFieldsAndRows(null);
 
@@ -1214,6 +1214,20 @@ public class UiV2EntityDataFields {
       for (Map.Entry<String, GrouperDataRowConfig> rowEntry : grouperDataEngine.getRowConfigByConfigId().entrySet()) {
         if (rowEntry.getValue().getDataFieldConfigIds().contains(configId)) {
           referencingConfigs.add("data row '" + rowEntry.getKey() + "'");
+        }
+      }
+
+      // check if this data field is referenced by any data provider queries
+      List<GrouperDataProviderQueryConfiguration> allQueryConfigs = GrouperDataProviderQueryConfiguration.retrieveAllDataProviderQueryConfigurations();
+      for (GrouperDataProviderQueryConfiguration queryConfig : GrouperUtil.nonNull(allQueryConfigs)) {
+        String numberOfFieldsString = queryConfig.retrieveAttributeValueFromConfig("providerQueryNumberOfDataFields", false);
+        int numberOfFields = GrouperUtil.intValue(numberOfFieldsString, 0);
+        for (int i = 0; i < numberOfFields; i++) {
+          String fieldConfigId = queryConfig.retrieveAttributeValueFromConfig("providerQueryDataField." + i + ".providerDataFieldConfigId", false);
+          if (StringUtils.equals(configId, fieldConfigId)) {
+            referencingConfigs.add("data provider query '" + queryConfig.getConfigId() + "'");
+            break;
+          }
         }
       }
 
