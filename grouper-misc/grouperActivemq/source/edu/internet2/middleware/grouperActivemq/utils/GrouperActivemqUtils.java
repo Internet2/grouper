@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.MapC
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
 /**

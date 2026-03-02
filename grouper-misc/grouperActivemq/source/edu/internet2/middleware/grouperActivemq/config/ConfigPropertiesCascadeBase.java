@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperActivemq.utils.GrouperActivemqUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
 /**
