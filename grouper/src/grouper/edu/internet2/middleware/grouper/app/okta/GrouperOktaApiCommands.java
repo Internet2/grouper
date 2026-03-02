@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoLog;
 import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpThrottlingCallback;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -28,10 +29,11 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperOktaApiCommands {
   
-  public static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId, String urlSuffix) {
+  public static JsonNode executeGetMethod(Map<String, Object> debugMap, String debugLabel,
+      String configId, String urlSuffix) {
 
     int[] returnCode = new int[] { -1 };
-    JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
+    JsonNode jsonNode = executeMethod(debugMap, debugLabel, "GET", configId, urlSuffix,
         GrouperUtil.toSet(200, 404), returnCode, null);
     
     if (returnCode[0] == 404) {
@@ -41,43 +43,49 @@ public class GrouperOktaApiCommands {
     return jsonNode;
   }
 
-  public static JsonNode executeMethod(Map<String, Object> debugMap,
+  public static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId, String urlSuffix) {
+    return executeGetMethod(debugMap, "oktaDefault", configId, urlSuffix);
+  }
+
+  public static JsonNode executeMethod(Map<String, Object> debugMap, String debugLabel,
       String httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body) {
 
-    GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
-    grouperHttpCall.assignDebugMap(debugMap);
-    
-    GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
-    
-    String tenantDomain = grouperLoaderConfig.propertyValueStringRequired("grouper.wsBearerToken." + configId + ".serviceUrl");
+    long httpCallStartMillis = System.currentTimeMillis();
+    try {
+      GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
+      grouperHttpCall.assignDebugMap(debugMap);
+      
+      GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
+      
+      String tenantDomain = grouperLoaderConfig.propertyValueStringRequired("grouper.wsBearerToken." + configId + ".serviceUrl");
 
     WsBearerTokenExternalSystem.attachAuthenticationToHttpClient(grouperHttpCall, configId, grouperLoaderConfig, debugMap);
-    
+
     String proxyUrl = grouperLoaderConfig.propertyValueString("grouper.wsBearerToken." + configId + ".proxyUrl");
     String proxyType = grouperLoaderConfig.propertyValueString("grouper.wsBearerToken." + configId + ".proxyType");
-    
+
     grouperHttpCall.assignProxyUrl(proxyUrl);
     grouperHttpCall.assignProxyType(proxyType);
-    
+
     String url = "";
     if (urlSuffix.startsWith("https://") || urlSuffix.startsWith("http://")) { // for pagination, we are passing the full url instead of url suffix
       url = urlSuffix;
-    } else {      
+    } else {
       url = tenantDomain + (tenantDomain.endsWith("/") ? "" : "/") +  urlSuffix;
     }
-    
+
     debugMap.put("url", url);
 
-    grouperHttpCall.assignUrl(url);
-    grouperHttpCall.assignGrouperHttpMethod(httpMethodName);
-    
-    grouperHttpCall.addHeader("Content-Type", "application/json");
-    grouperHttpCall.assignBody(body);
-    
-    grouperHttpCall.setRetryForThrottlingOrNetworkIssuesSleepMillis(60*1000L); // 1min
-    
-    grouperHttpCall.setThrottlingCallback(new GrouperHttpThrottlingCallback() {
+      grouperHttpCall.assignUrl(url);
+      grouperHttpCall.assignGrouperHttpMethod(httpMethodName);
+      
+      grouperHttpCall.addHeader("Content-Type", "application/json");
+      grouperHttpCall.assignBody(body);
+      
+      grouperHttpCall.setRetryForThrottlingOrNetworkIssuesSleepMillis(60*1000L); // 1min
+      
+      grouperHttpCall.setThrottlingCallback(new GrouperHttpThrottlingCallback() {
       
       @Override
       public boolean setupThrottlingCallback(GrouperHttpClient httpClient) {
@@ -90,54 +98,65 @@ public class GrouperOktaApiCommands {
       }
     });
     
-    grouperHttpCall.executeRequest();
-    
-    int code = -1;
-    String json = null;
+      grouperHttpCall.executeRequest();
+      
+      int code = -1;
+      String json = null;
 
-    Map<String,String> prevNextHeader = new HashMap<String, String>();
-    try {
-      code = grouperHttpCall.getResponseCode();
-      returnCode[0] = code;
-      json = grouperHttpCall.getResponseBody();
-      Map<String,String> responseHeaders = grouperHttpCall.getResponseHeaders();
-      if (responseHeaders.containsKey("link")) {
-        prevNextHeader = parseLinkHeader(responseHeaders.get("link"));
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("Error connecting to '" + debugMap.get("url") + "'", e);
-    }
-
-    if (!allowedReturnCodes.contains(code)) {
-      throw new RuntimeException(
-          "Invalid return code '" + code + "', expecting: " + GrouperUtil.setToString(allowedReturnCodes)
-              + ". '" + debugMap.get("url") + "' " + json);
-    }
-
-    if (StringUtils.isBlank(json)) {
-      return null;
-    }
-
-    try {
-      ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-      JsonNode dataNode = GrouperUtil.jsonJacksonNode(json);
-      resultNode.set("data", dataNode);
-      if (prevNextHeader.containsKey("prev") || prevNextHeader.containsKey("next")) {
-        ObjectNode paginationNode = GrouperUtil.jsonJacksonNode();
-        resultNode.set("pagination", paginationNode);
-        if (prevNextHeader.containsKey("prev")) {      
-          GrouperUtil.jsonJacksonAssignString(paginationNode, "prev", prevNextHeader.get("prev"));
+      Map<String,String> prevNextHeader = new HashMap<String, String>();
+      try {
+        code = grouperHttpCall.getResponseCode();
+        returnCode[0] = code;
+        json = grouperHttpCall.getResponseBody();
+        Map<String,String> responseHeaders = grouperHttpCall.getResponseHeaders();
+        if (responseHeaders.containsKey("link")) {
+          prevNextHeader = parseLinkHeader(responseHeaders.get("link"));
         }
-        if (prevNextHeader.containsKey("next")) { 
-          GrouperUtil.jsonJacksonAssignString(paginationNode, "next", prevNextHeader.get("next"));
-        }
-        
+      } catch (Exception e) {
+        throw new RuntimeException("Error connecting to '" + debugMap.get("url") + "'", e);
       }
-      return resultNode;
-    } catch (Exception e) {
-      throw new RuntimeException("Error parsing response: '" + json + "'", e);
+
+      if (!allowedReturnCodes.contains(code)) {
+        throw new RuntimeException(
+            "Invalid return code '" + code + "', expecting: " + GrouperUtil.setToString(allowedReturnCodes)
+                + ". '" + debugMap.get("url") + "' " + json);
+      }
+
+      if (StringUtils.isBlank(json)) {
+        return null;
+      }
+
+      try {
+        ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+        JsonNode dataNode = GrouperUtil.jsonJacksonNode(json);
+        resultNode.set("data", dataNode);
+        if (prevNextHeader.containsKey("prev") || prevNextHeader.containsKey("next")) {
+          ObjectNode paginationNode = GrouperUtil.jsonJacksonNode();
+          resultNode.set("pagination", paginationNode);
+          if (prevNextHeader.containsKey("prev")) {      
+            GrouperUtil.jsonJacksonAssignString(paginationNode, "prev", prevNextHeader.get("prev"));
+          }
+          if (prevNextHeader.containsKey("next")) { 
+            GrouperUtil.jsonJacksonAssignString(paginationNode, "next", prevNextHeader.get("next"));
+          }
+          
+        }
+        return resultNode;
+      } catch (Exception e) {
+        throw new RuntimeException("Error parsing response: '" + json + "'", e);
+      }
+    } finally {
+      long httpCallMillis = System.currentTimeMillis() - httpCallStartMillis;
+      GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1, httpCallMillis);
     }
 
+  }
+
+  public static JsonNode executeMethod(Map<String, Object> debugMap,
+      String httpMethodName, String configId,
+      String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body) {
+    return executeMethod(debugMap, "oktaDefault", httpMethodName, configId, urlSuffix,
+        allowedReturnCodes, returnCode, body);
   }
   
   private static Map<String, String> parseLinkHeader(String header) {
@@ -194,7 +213,7 @@ public class GrouperOktaApiCommands {
       JsonNode jsonToSend = grouperOktaGroup.toJsonGroupOnly(fieldsToInsert);
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
       
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "groups", GrouperUtil.toSet(200), 
+      JsonNode jsonNode = executeMethod(debugMap, "createOktaGroup", "POST", configId, "groups", GrouperUtil.toSet(200), 
           new int[] { -1 }, jsonStringToSend);
       
       GrouperOktaGroup grouperOktaGroupResult = null;
@@ -253,7 +272,7 @@ public class GrouperOktaApiCommands {
       JsonNode jsonToSend = grouperOktaUser.toJson();
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "users",
+      JsonNode jsonNode = executeMethod(debugMap, "createOktaUser", "POST", configId, "users",
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
       
       GrouperOktaUser grouperOktaUserResult = null;
@@ -298,7 +317,7 @@ public class GrouperOktaApiCommands {
       //groups/00gmvgcs9mpZKSfAX697/users/00umxoh7cgDm3zD9v697
       String urlSuffix = "groups/"+groupId+"/users/"+userId;
 
-      executeMethod(debugMap, "PUT", configId, urlSuffix, GrouperUtil.toSet(204), 
+      executeMethod(debugMap, "createOktaMembership", "PUT", configId, urlSuffix, GrouperUtil.toSet(204), 
           new int[] { -1 }, jsonStringToSend);
       
     } catch (RuntimeException re) {
@@ -326,11 +345,11 @@ public class GrouperOktaApiCommands {
       //users/00umxoh7cgDm3zD9v697
       int[] returnCode = new int[1];
       //first delete marks the user as deactivated and the second one actually deletes it
-      executeMethod(debugMap, "DELETE", configId, "users/"+userId,
+      executeMethod(debugMap, "deleteOktaUser", "DELETE", configId, "users/"+userId,
           GrouperUtil.toSet(200, 204, 404), returnCode, null);
       
       if (returnCode[0] == 200 || returnCode[0] == 204) {
-        executeMethod(debugMap, "DELETE", configId, "users/"+userId,
+        executeMethod(debugMap, "deleteOktaUser", "DELETE", configId, "users/"+userId,
             GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null);
       }
 
@@ -370,7 +389,7 @@ public class GrouperOktaApiCommands {
         
         String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-        JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, urlSuffix,
+        JsonNode jsonNode = executeMethod(debugMap, "updateOktaGroup", "PUT", configId, urlSuffix,
             GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
 
         updatedOktaGroup = GrouperOktaGroup.fromJson(jsonNode);
@@ -416,7 +435,7 @@ public class GrouperOktaApiCommands {
       JsonNode jsonToSend = grouperOktaUser.toJson();
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, "users/"+id,
+      JsonNode jsonNode = executeMethod(debugMap, "updateOktaUser", "PUT", configId, "users/"+id,
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
       if (jsonNode == null) {
         return null;
@@ -447,7 +466,7 @@ public class GrouperOktaApiCommands {
         throw new RuntimeException("id is null");
       }
     
-      executeMethod(debugMap, "DELETE", configId, "groups/"+groupId,
+      executeMethod(debugMap, "deleteOktaGroup", "DELETE", configId, "groups/"+groupId,
           GrouperUtil.toSet(204, 404), new int[] { -1 }, null);
 
     } catch (RuntimeException re) {
@@ -496,7 +515,7 @@ public class GrouperOktaApiCommands {
         firstRequest = false;
         
         String urlSuffix = nextPageUrl != null ? nextPageUrl : urlSuffixConstant;
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+        JsonNode jsonNode = executeGetMethod(debugMap, "retrieveOktaGroups", configId, urlSuffix);
         numberOfCalls++;
         if (jsonNode == null) {
           break;
@@ -548,6 +567,7 @@ public class GrouperOktaApiCommands {
     debugMap.put("method", "retrieveOktaUsers");
 
     long startTime = System.nanoTime();
+    int numberOfCalls = 0;
 
     try {
 
@@ -559,7 +579,6 @@ public class GrouperOktaApiCommands {
       String urlSuffixConstant = "users";
       
       int maxCalls = 1000000;
-      int numberOfCalls = 0;
       String previousPageToken = null;
       while (StringUtils.isNotBlank(nextPageUrl) || firstRequest) {
         
@@ -571,7 +590,7 @@ public class GrouperOktaApiCommands {
         firstRequest = false;
         String urlSuffix = nextPageUrl != null ? nextPageUrl : urlSuffixConstant;
         
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+        JsonNode jsonNode = executeGetMethod(debugMap, "retrieveOktaUsers", configId, urlSuffix);
         numberOfCalls++;
         if (jsonNode == null) {
           break;
@@ -631,7 +650,7 @@ public class GrouperOktaApiCommands {
     try {
       //TODO review commands classes and make sure we are url encoding field names and values like below
       String urlSuffix = "users?search="+GrouperUtil.escapeUrlEncode(fieldName)+"+eq+%22"+GrouperUtil.escapeUrlEncode(fieldValue)+"%22";
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+      JsonNode jsonNode = executeGetMethod(debugMap, "retrieveOktaUser", configId, urlSuffix);
       
       if (jsonNode == null || jsonNode.get("data") == null) {
         return null;
@@ -701,7 +720,7 @@ public class GrouperOktaApiCommands {
         firstRequest = false;
         String urlSuffix = nextPageUrl != null ? nextPageUrl : urlSuffixConstant;
         
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+        JsonNode jsonNode = executeGetMethod(debugMap, "retrieveOktaGroupMembers", configId, urlSuffix);
         numberOfCalls++;
         if (jsonNode == null) {
           break;
@@ -761,7 +780,7 @@ public class GrouperOktaApiCommands {
     try {
 
       String urlSuffix = "groups/"+id;
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+      JsonNode jsonNode = executeGetMethod(debugMap, "retrieveOktaGroup", configId, urlSuffix);
       
       if (jsonNode == null || jsonNode.get("data") == null) {
         return null;
@@ -796,7 +815,7 @@ public class GrouperOktaApiCommands {
 
     try {
      // groups/00gmvgcs9mpZKSfAX697/users/00umxoh7cgDm3zD9v697
-      executeMethod(debugMap, "DELETE", configId, "groups/"+groupId+"/users/"+userId,
+      executeMethod(debugMap, "deleteOktaMembership", "DELETE", configId, "groups/"+groupId+"/users/"+userId,
           GrouperUtil.toSet(204, 404), new int[] { -1 }, null);
   
     } catch (RuntimeException re) {
