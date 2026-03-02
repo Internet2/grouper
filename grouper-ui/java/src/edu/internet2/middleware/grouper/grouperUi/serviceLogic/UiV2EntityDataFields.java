@@ -11,10 +11,13 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import java.util.Collections;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
@@ -1308,6 +1311,43 @@ public class UiV2EntityDataFields {
         throw new RuntimeException("ConfigId cannot be blank");
       }
       
+      // check if this data provider is referenced by any queries or change log queries
+      List<String> referencingConfigs = new ArrayList<>();
+
+      List<GrouperDataProviderQueryConfiguration> allQueryConfigs = GrouperDataProviderQueryConfiguration.retrieveAllDataProviderQueryConfigurations();
+      for (GrouperDataProviderQueryConfiguration queryConfig : GrouperUtil.nonNull(allQueryConfigs)) {
+        String providerConfigId = queryConfig.retrieveAttributeValueFromConfig("providerConfigId", false);
+        if (StringUtils.equals(configId, providerConfigId)) {
+          referencingConfigs.add("data provider query '" + queryConfig.getConfigId() + "'");
+        }
+      }
+
+      List<GrouperDataProviderChangeLogQueryConfiguration> allChangeLogQueryConfigs = GrouperDataProviderChangeLogQueryConfiguration.retrieveAllDataProviderChangeLogQueryConfigurations();
+      for (GrouperDataProviderChangeLogQueryConfiguration changeLogQueryConfig : GrouperUtil.nonNull(allChangeLogQueryConfigs)) {
+        String providerConfigId = changeLogQueryConfig.retrieveAttributeValueFromConfig("providerConfigId", false);
+        if (StringUtils.equals(configId, providerConfigId)) {
+          referencingConfigs.add("data provider change log query '" + changeLogQueryConfig.getConfigId() + "'");
+        }
+      }
+
+      // check if this data provider is referenced by any daemon jobs
+      Pattern daemonPattern = Pattern.compile("^otherJob\\.(.*)\\.dataProviderConfigId$");
+      Set<String> daemonConfigIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(daemonPattern);
+      for (String daemonConfigId : GrouperUtil.nonNull(daemonConfigIds)) {
+        String daemonProviderConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + daemonConfigId + ".dataProviderConfigId");
+        if (StringUtils.equals(configId, daemonProviderConfigId)) {
+          referencingConfigs.add("daemon '" + daemonConfigId + "'");
+        }
+      }
+
+      if (referencingConfigs.size() > 0) {
+        String referencingConfigsString = StringUtils.join(referencingConfigs, ", ");
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("dataProviderConfigDeleteErrorInUse")
+            + " " + referencingConfigsString));
+        return;
+      }
+
       GrouperDataProviderConfiguration dataProviderConfiguration = new GrouperDataProviderConfiguration();
 
       dataProviderConfiguration.setConfigId(configId);
