@@ -1205,6 +1205,26 @@ public class UiV2EntityDataFields {
         throw new RuntimeException("ConfigId cannot be blank");
       }
 
+      // check if this data field is referenced by any data rows
+      GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+      grouperDataEngine.loadFieldsAndRows(null);
+
+      List<String> referencingConfigs = new ArrayList<>();
+
+      for (Map.Entry<String, GrouperDataRowConfig> rowEntry : grouperDataEngine.getRowConfigByConfigId().entrySet()) {
+        if (rowEntry.getValue().getDataFieldConfigIds().contains(configId)) {
+          referencingConfigs.add("data row '" + rowEntry.getKey() + "'");
+        }
+      }
+
+      if (referencingConfigs.size() > 0) {
+        String referencingConfigsString = StringUtils.join(referencingConfigs, ", ");
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("dataFieldConfigDeleteErrorInUse")
+            + " " + referencingConfigsString));
+        return;
+      }
+
       GrouperDataFieldConfiguration dataFieldConfiguration = new GrouperDataFieldConfiguration();
 
       dataFieldConfiguration.setConfigId(configId);
