@@ -45,7 +45,6 @@ projects = [
     'grouper-misc/grouper-messaging-activemq',
     'grouper-misc/grouper-messaging-aws',
     'grouper-misc/grouper-messaging-rabbitmq',
-    'grouper-misc/grouperActivemq',
 ]
 
 # Keys that should never be replaced with placeholders (retain production values)
