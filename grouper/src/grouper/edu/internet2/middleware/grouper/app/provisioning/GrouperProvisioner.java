@@ -730,7 +730,7 @@ public abstract class GrouperProvisioner {
     String countKey = prefix + "_calls";
     String millisKey = prefix + "_millis";
     synchronized (debugMap) {
-      int currentCount = GrouperUtil.intValue(debugMap.get(countKey), 0);
+      long currentCount = GrouperUtil.longValue(debugMap.get(countKey), 0);
       debugMap.put(countKey, currentCount + numberOfCalls);
       long currentMillis = GrouperUtil.longValue(debugMap.get(millisKey), 0);
       debugMap.put(millisKey, currentMillis + millis);
