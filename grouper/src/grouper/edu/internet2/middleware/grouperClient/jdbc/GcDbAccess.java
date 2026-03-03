@@ -71,9 +71,14 @@ public class GcDbAccess {
    * log start
    */
   public static boolean logStart(SqlProvisioningCommandsLog sqlProvisioningCommandsLog) {
-    
-    if (threadLocalLog.get() != null ) {
-      return false;
+
+    SqlProvisioningCommandsLog existing = threadLocalLog.get();
+    if (existing != null) {
+      if (existing.isDisabled()) {
+        threadLocalLog.remove();
+      } else {
+        return false;
+      }
     }
     threadLocalLog.set(sqlProvisioningCommandsLog);
     return true;
@@ -115,6 +120,9 @@ public class GcDbAccess {
   public static String logEnd() {
     SqlProvisioningCommandsLog sqlProvisioningCommandsLog = threadLocalLog.get();
     StringBuilder log = sqlProvisioningCommandsLog == null ? null : sqlProvisioningCommandsLog.getLog();
+    if (sqlProvisioningCommandsLog != null) {
+      sqlProvisioningCommandsLog.setDisabled(true);
+    }
     threadLocalLog.remove();
     return log == null ? null : log.toString();
   }
@@ -2999,17 +3007,18 @@ public class GcDbAccess {
       GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, durationNanos);
       try {
         SqlProvisioningCommandsLog sqlProvisioningCommandsLog = logCurrent();
+        if (sqlProvisioningCommandsLog != null && sqlProvisioningCommandsLog.isDisabled()) {
+          threadLocalLog.remove();
+          sqlProvisioningCommandsLog = null;
+        }
         if (sqlProvisioningCommandsLog != null) {
           StringBuilder theLog = new StringBuilder();
-          
+
           theLog.append("SQL callable (conn: ").append(this.connectionName).append("): ")
             .append(callableStatementCallback.getQuery()).append("\n");
           theLog.append("Result (").append(durationNanos/1000).append(" micros): ").append(GrouperClientUtils.toStringForLog(t, 5000)).append("\n");
 
-          if (sqlProvisioningCommandsLog != null) {
-            sqlProvisioningCommandsLog.getLog().append(logCleanup(theLog.toString()));
-          }
-
+          sqlProvisioningCommandsLog.appendIfRoom(logCleanup(theLog.toString()), 200000000);
 
         }
       } catch (Exception e) {
@@ -3088,9 +3097,13 @@ public class GcDbAccess {
       GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, durationNanos);
       try {
         SqlProvisioningCommandsLog sqlProvisioningCommandsLog = logCurrent();
+        if (sqlProvisioningCommandsLog != null && sqlProvisioningCommandsLog.isDisabled()) {
+          threadLocalLog.remove();
+          sqlProvisioningCommandsLog = null;
+        }
         if (sqlProvisioningCommandsLog != null) {
           StringBuilder theLog = new StringBuilder();
-          
+
           theLog.append("SQL prepared (conn: ").append(this.connectionName).append("): ")
             .append(preparedStatementCallback.getQuery()).append("\n");
           // Add bind variables if we have them.
@@ -3099,10 +3112,8 @@ public class GcDbAccess {
           }
 
           theLog.append("Result (").append(durationNanos/1000).append(" micros): ").append(GrouperClientUtils.toStringForLog(t, 5000)).append("\n");
-          
-          if (sqlProvisioningCommandsLog != null) {
-            sqlProvisioningCommandsLog.getLog().append(logCleanup(theLog.toString()));
-          }
+
+          sqlProvisioningCommandsLog.appendIfRoom(logCleanup(theLog.toString()), 200000000);
 
 
         }
@@ -3283,12 +3294,16 @@ public class GcDbAccess {
       GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, durationNanos);
       try {
         SqlProvisioningCommandsLog sqlProvisioningCommandsLog = logCurrent();
+        if (sqlProvisioningCommandsLog != null && sqlProvisioningCommandsLog.isDisabled()) {
+          threadLocalLog.remove();
+          sqlProvisioningCommandsLog = null;
+        }
         if (sqlProvisioningCommandsLog != null) {
           StringBuilder theLog = new StringBuilder();
-          
+
           theLog.append("SQL resultset (conn: ").append(this.connectionName).append("): ")
             .append(this.sql).append("\n");
-          
+
           // Add bind variables if we have them.
           if (this.bindVars != null){
             theLog.append("Bind vars: ").append(GrouperClientUtils.toStringForLog(this.bindVars, 5000)).append("\n");
@@ -3301,9 +3316,7 @@ public class GcDbAccess {
 
           theLog.append("Result (").append(durationNanos/1000).append(" micros): ").append(GrouperClientUtils.toStringForLog(t, 5000)).append("\n");
 
-          if (sqlProvisioningCommandsLog != null) {
-            sqlProvisioningCommandsLog.getLog().append(logCleanup(theLog.toString()));
-          }
+          sqlProvisioningCommandsLog.appendIfRoom(logCleanup(theLog.toString()), 200000000);
 
         }
       } catch (Exception e) {
