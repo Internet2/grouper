@@ -62,7 +62,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     AwsScim2MockServiceHandler.ensureScimMockTables();
     //TestRunner.run(new GrouperAwsProvisionerTest("testAWSIncrementalSyncProvisionWithActiveAttributeOnUser"));
-    TestRunner.run(new GrouperAwsProvisionerTest("testAWSFullSyncProvisionGroupUseJsonPointer"));
+    TestRunner.run(new GrouperAwsProvisionerTest("testGenericReplaceMembershipsFullSync"));
 
   }
   
@@ -1576,7 +1576,114 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
 //        GrouperUtil.threadJoin(commandLineExec.getThread());
 //      }
     }
-    
+
   }
-  
+
+  public void testGenericReplaceMembershipsFullSync() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    String awsConfigId = "awsConfigId";
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+      .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+      .assignConfigId("awsProvisioner")
+      .assignProvisioningStrategy("genericReplaceMemberships")
+      .assignBearerTokenExternalSystemConfigId(awsConfigId)
+    );
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    try {
+      // this will create tables
+      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers(awsConfigId, null);
+
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_user").executeSql();
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+      // GRP-6676: Test that replaceMemberships does not flap when a member is removed from
+      // one group but still exists in another group. The bug: when a sync membership record
+      // has in_target='F' (previously deleted) but the entity still exists in the target
+      // (because it's in another group), the stale sync membership was not being marked
+      // isDelete=true in calculateProvisioningMembershipsToDelete(). This caused the
+      // replace payload to incorrectly include the removed member, re-adding them to
+      // the group on each sync cycle.
+
+      // Create two groups. subj0 and subj1 will be in both groups.
+      Group testGroupA = new GroupSave(grouperSession).assignName("test:testGroupA").save();
+      Group testGroupB = new GroupSave(grouperSession).assignName("test:testGroupB").save();
+
+      // subj0 in both groups, subj1 in both groups, subj2 only in groupA
+      testGroupA.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroupA.addMember(SubjectTestHelper.SUBJ1, false);
+      testGroupA.addMember(SubjectTestHelper.SUBJ2, false);
+      testGroupB.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroupB.addMember(SubjectTestHelper.SUBJ1, false);
+
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("awsProvisioner");
+      attributeValue.setTargetName("awsProvisioner");
+      attributeValue.setStemScopeString("sub");
+
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+      // ---- First full sync: groupA has 3 members (subj0, subj1, subj2), groupB has 2 (subj0, subj1)
+      fullProvision();
+      GrouperUtil.sleep(2000);
+
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(5, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+
+      // ---- Remove subj1 from groupB only. subj1 stays in groupA so the entity remains in the target.
+      // This creates the flapping scenario: after the next sync, the sync membership record for
+      // subj1-in-groupB will have in_target='F', but subj1 still exists as a provisioned entity
+      // (because of groupA). On subsequent syncs, the stale sync record should NOT cause subj1
+      // to be re-added to groupB.
+      testGroupB.deleteMember(SubjectTestHelper.SUBJ1);
+
+      // ---- Second full sync: groupA still has 3, groupB now has 1 (subj0 only)
+      fullProvision();
+      GrouperUtil.sleep(2000);
+
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(4, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+
+      // ---- Third full sync: no changes. Should be idempotent.
+      // If the bug is present, subj1 will be re-added to groupB (flapping), and we'll see
+      // 5 memberships instead of 4, and non-zero insert count.
+      fullProvision();
+      GrouperUtil.sleep(2000);
+
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(4, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+
+      // verify no inserts or deletes on the idempotent run — if these fail, membership is flapping
+      assertEquals(0, grouperProvisioningOutput.getInsert());
+      assertEquals(0, grouperProvisioningOutput.getDelete());
+
+    } finally {
+    }
+
+  }
+
 }
