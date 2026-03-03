@@ -4416,9 +4416,24 @@ public class GrouperProvisioningLogic {
           
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
         
-        // Caused an issue with over inserting...
-        if (GrouperUtil.booleanValue(gcGrouperSyncMembership.getInTarget(), false) || (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsInGeneral()
-            && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isReplaceMemberships())) {        	
+        // GRP-6676: Mark this stale sync membership for deletion. This membership exists in
+        // the sync table but NOT in Grouper (grouperProvisioningMembership is null above).
+        // We must mark it isDelete=true so it is excluded from replace payloads.
+        //
+        // Previously this only set isDelete when inTarget=true OR when both selectMemberships
+        // and replaceMemberships were false. This caused a flapping bug with replaceMemberships:
+        // if a member was removed from group B but still existed in group A, the sync membership
+        // for group B would have in_target='F' after deletion. On the next sync, this record
+        // was NOT marked isDelete (because in_target=F and replaceMemberships=true), so the
+        // replace logic in GrouperProvisioningCompare incorrectly included it in the replace
+        // payload, re-adding the member to group B. The next sync would remove it again, etc.
+        //
+        // Fix: when we cannot select memberships from the target, always mark stale sync
+        // memberships for deletion regardless of the in_target flag or replace mode. The
+        // original condition "!selectMemberships && !replaceMemberships" was too restrictive;
+        // the !replaceMemberships check was preventing deletion in replace mode.
+        if (GrouperUtil.booleanValue(gcGrouperSyncMembership.getInTarget(), false)
+            || !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsInGeneral()) {
         	provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(true);
         }
         
@@ -4838,7 +4853,7 @@ public class GrouperProvisioningLogic {
     } else {
       throw new RuntimeException("Not expecting DAO capabilities when selecting memberships!  Should be able to select memberships by group or entity!");
     }
-  
+
   }
 
   private void garbageCollectAndLogMemoryIfDebug(Map<String, Object> debugMap, String logLabel) {
