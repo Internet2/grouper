@@ -54,3 +54,4 @@ grouper-misc/googleapps-grouper-provisioner/docker-test/grouper/temp
 **/.DS_Store
 
 **/settings.local.json
+.claude/plan.md
