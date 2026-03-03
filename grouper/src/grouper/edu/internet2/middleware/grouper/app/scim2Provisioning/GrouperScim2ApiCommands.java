@@ -1025,7 +1025,7 @@ public class GrouperScim2ApiCommands {
   
   /**
    * @param configId
-   * @param fieldName id or userPrincipalName
+   * @param fieldName id, email, or userPrincipalName (etc)
    * @param fieldValue is value of id or userPrincipalName
    * @return
    */
@@ -1041,12 +1041,34 @@ public class GrouperScim2ApiCommands {
 
     try {
 
+      // "email" is the default/legacy field name for email lookups. When the caller passes
+      // "email" as the fieldName, we resolve it to the actual SCIM filter syntax
+      // configured in scimEmailFilterStrategy (e.g. "email", "emails.value", "emails[value]",
+      // or "emails[typeWork and value]"). If the strategy is "email" (default), this is a no-op
+      // and preserves backward compatibility.
+      if (StringUtils.equals(fieldName, "email")) {
+        fieldName = scimSettings.getScimEmailFilterStrategy();
+      }
+
+      // Build the URL suffix based on the field name.
+      // - "id" uses a direct REST path: /Users/{id}
+      // - Bracket notation strategies build SCIM bracket filters: emails[value eq "..."]
+      // - All other fields (email, emails.value, userName, etc.) use simple: field eq "value"
       String urlSuffix = null;
+      String escapedFieldValue = StringEscapeUtils.escapeJson(fieldValue);
       if (StringUtils.equals(fieldName, "id")) {
+        // Direct lookup by SCIM resource id
         urlSuffix = "/Users/" + GrouperUtil.escapeUrlEncode(fieldValue);
+      } else if (StringUtils.equals(fieldName, "emails[value]")) {
+        // SCIM 2.0 bracket filter: emails[value eq "someone@example.com"]
+        urlSuffix = "/Users?filter=" + GrouperUtil.escapeUrlEncode("emails[value eq \"" + escapedFieldValue + "\"]");
+      } else if (StringUtils.equals(fieldName, "emails[typeWork and value]")) {
+        // SCIM 2.0 bracket filter with type qualifier: emails[type eq "work" and value eq "someone@example.com"]
+        urlSuffix = "/Users?filter=" + GrouperUtil.escapeUrlEncode("emails[type eq \"work\" and value eq \"" + escapedFieldValue + "\"]");
       } else {
+        // Simple SCIM filter: fieldName eq "value" (handles email, emails.value, userName, etc.)
         urlSuffix = "/Users?filter=" + GrouperUtil.escapeUrlEncode(fieldName)
-            + "%20eq%20" + GrouperUtil.escapeUrlEncode("\"" + StringEscapeUtils.escapeJson(fieldValue) + "\"");
+            + "%20eq%20" + GrouperUtil.escapeUrlEncode("\"" + escapedFieldValue + "\"");
       }
       
       JsonNode jsonNode = executeGetMethod(debugMap, debugLabel(debugMap, "retrieveScimUser"), configId, urlSuffix, scimSettings);
