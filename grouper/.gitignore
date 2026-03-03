@@ -10,6 +10,7 @@ conf/log4j.properties
 conf/morphString.properties
 conf/sources.xml
 conf/spy.properties
+conf/spy_bak.properties
 conf/grouper-ui.properties
 conf/grouper-ws.properties
 conf/penn*

@@ -382,16 +382,52 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     if (StringUtils.isBlank(filter)) {
       grouperScimUsers = HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class);
     } else {
-      //      $filter=" + GrouperUtil.escapeUrlEncode(fieldName)
-      //          + "%20eq%20\"" + GrouperUtil.escapeUrlEncode(fieldValue)
-      //displayName eq "something"
+      String field = null;
+      String value = null;
+
+      // Parse the SCIM filter into a field name and value.
+      // Different SCIM clients send email filters in different formats depending on
+      // the scimEmailFilterStrategy config. We need to handle all of them.
+
+      // SCIM 2.0 bracket notation without type qualifier, e.g.: emails[value eq "someone@example.com"]
+      // Captures the email value inside the brackets. Maps to HQL field "emailValue".
+      Pattern bracketValuePattern = Pattern.compile("^emails\\[value\\s+eq\\s+\"(.+)\"\\]$");
+
+      // SCIM 2.0 bracket notation with type qualifier, e.g.: emails[type eq "work" and value eq "someone@example.com"]
+      // Ignores the type value (e.g. "work") and captures only the email value. Maps to HQL field "emailValue".
+      Pattern bracketTypeValuePattern = Pattern.compile("^emails\\[type\\s+eq\\s+\"[^\"]+\"\\s+and\\s+value\\s+eq\\s+\"(.+)\"\\]$");
+
+      // Simple SCIM filter format, e.g.: userName eq "jsmith" or email eq "someone@example.com"
+      // Group 1 = field name, Group 2 = value.
       Pattern fieldPattern = Pattern.compile("^([^\\s]+)\\s+eq\\s+\"(.+)\"$");
-      Matcher matcher = fieldPattern.matcher(filter);
-      GrouperUtil.assertion(matcher.matches(), "doesnt match regex '" + filter + "'");
-      String field = matcher.group(1);
-      String value = matcher.group(2);
+
+      // Try bracket patterns first since the simple pattern would also partially match bracket syntax
+      Matcher matcher = bracketValuePattern.matcher(filter);
+      if (matcher.matches()) {
+        field = "emailValue";
+        value = matcher.group(1);
+      } else {
+        matcher = bracketTypeValuePattern.matcher(filter);
+        if (matcher.matches()) {
+          field = "emailValue";
+          value = matcher.group(1);
+        } else {
+          // Fall back to simple "field eq value" format
+          matcher = fieldPattern.matcher(filter);
+          GrouperUtil.assertion(matcher.matches(), "SCIM filter doesnt match any expected format: '" + filter + "'");
+          field = matcher.group(1);
+          value = matcher.group(2);
+          // Validate field name to prevent HQL injection — allow alphanumeric and dots (for emails.value)
+          GrouperUtil.assertion(field.matches("^[a-zA-Z0-9.]+$"), "SCIM filter field name must be alphanumeric or dot notation: '" + field + "'");
+          // Map non-standard email filter field names to the HQL column "emailValue" on GrouperScim2User.
+          // "email" is non-standard but used by Qlik; "emails.value" is standard SCIM 2.0 dot notation.
+          // Other fields like "userName" pass through directly since they match the HQL column names.
+          if (StringUtils.equals(field, "email") || StringUtils.equals(field, "emails.value")) {
+            field = "emailValue";
+          }
+        }
+      }
       value = StringEscapeUtils.unescapeJson(value);
-      GrouperUtil.assertion(field.matches("^[a-zA-Z0-9]+$"), "field must be alphanumeric '" + field + "'");
       grouperScimUsers = HibernateSession.byHqlStatic().createQuery("from GrouperScim2User where " + field + " = :theValue").setString("theValue", value).list(GrouperScim2User.class);
     }
     
