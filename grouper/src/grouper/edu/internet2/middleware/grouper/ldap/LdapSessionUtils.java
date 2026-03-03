@@ -62,14 +62,14 @@ public class LdapSessionUtils {
       loggedErrorNotLdaptive = true;
     }
     LdaptiveSessionImpl ldaptiveSessionImpl = new LdaptiveSessionImpl();
-    StringBuilder logCurrent = logCurrent();
-    if (logCurrent != null) {
-      ldaptiveSessionImpl.assignDebug(true, logCurrent);
+    LdapProvisioningCommandsLog commandsLog = logCurrentCommandsLog();
+    if (commandsLog != null) {
+      ldaptiveSessionImpl.assignDebug(true, commandsLog.getLog());
     }
-    return ldaptiveSessionImpl; 
+    return ldaptiveSessionImpl;
   }
-  
-  private static ThreadLocal<StringBuilder> threadLocalLog = new InheritableThreadLocal<StringBuilder>();
+
+  private static ThreadLocal<LdapProvisioningCommandsLog> threadLocalLog = new InheritableThreadLocal<LdapProvisioningCommandsLog>();
 
   /**
    * start a static debug log
@@ -77,12 +77,29 @@ public class LdapSessionUtils {
    * @return false if already started, or true if just started
    */
   public static boolean logStart() {
-    if (threadLocalLog.get() != null ) {
-      return false;
+    LdapProvisioningCommandsLog existing = threadLocalLog.get();
+    if (existing != null) {
+      if (existing.isDisabled()) {
+        threadLocalLog.remove();
+      } else {
+        return false;
+      }
     }
-    threadLocalLog.set(new StringBuilder());
+    threadLocalLog.set(new LdapProvisioningCommandsLog());
     return true;
-    
+
+  }
+
+  /**
+   * get the current commands log
+   */
+  public static LdapProvisioningCommandsLog logCurrentCommandsLog() {
+    LdapProvisioningCommandsLog commandsLog = threadLocalLog.get();
+    if (commandsLog != null && commandsLog.isDisabled()) {
+      threadLocalLog.remove();
+      return null;
+    }
+    return commandsLog;
   }
 
   /**
@@ -90,8 +107,8 @@ public class LdapSessionUtils {
    * log start
    */
   public static StringBuilder logCurrent() {
-    StringBuilder logCurrent = threadLocalLog.get();
-    return logCurrent;
+    LdapProvisioningCommandsLog commandsLog = logCurrentCommandsLog();
+    return commandsLog == null ? null : commandsLog.getLog();
   }
 
   /**
@@ -99,8 +116,12 @@ public class LdapSessionUtils {
    * @return the log message
    */
   public static String logEnd() {
-    StringBuilder log = threadLocalLog.get();
+    LdapProvisioningCommandsLog commandsLog = threadLocalLog.get();
+    if (commandsLog != null) {
+      commandsLog.setDisabled(true);
+    }
     threadLocalLog.remove();
+    StringBuilder log = commandsLog == null ? null : commandsLog.getLog();
     return log == null ? null : log.toString();
   }
   
