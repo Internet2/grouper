@@ -16,6 +16,7 @@ public class ScimSettings {
     this.setScimContentType(scimConfiguration.getScimContentType());
     this.setScimIgnorePagingMetadata(scimConfiguration.isScimIgnorePagingMetadata());
     this.setScimMembershipBatchSize(scimConfiguration.getScimMembershipBatchSize());
+    this.setScimEmailFilterStrategy(scimConfiguration.getScimEmailFilterStrategy());
   }
   
   private int scimMembershipBatchSize = 100;
@@ -31,8 +32,10 @@ public class ScimSettings {
   private String scimContentType = "application/json";
   
   private boolean scimIgnorePagingMetadata = false;
-  
-  
+
+  private String scimEmailFilterStrategy = "email";
+
+
   public int getScimMembershipBatchSize() {
     return scimMembershipBatchSize;
   }
@@ -108,6 +111,17 @@ public class ScimSettings {
     GrouperUtil.assertion(StringUtils.equalsAny(scimEmailPatchStrategy, "pathEmails", "noPath", "pathEmailsQualified"), "scimEmailPatchStrategy needs to be 'pathEmails' or 'noPath' or 'pathEmailsQualified'. You provided: '"+scimEmailPatchStrategy+"'");
     this.scimEmailPatchStrategy = scimEmailPatchStrategy;
   }
-  
+
+  public String getScimEmailFilterStrategy() {
+    return scimEmailFilterStrategy;
+  }
+
+  public void setScimEmailFilterStrategy(String scimEmailFilterStrategy) {
+    if (StringUtils.isBlank(scimEmailFilterStrategy)) {
+      scimEmailFilterStrategy = "email";
+    }
+    GrouperUtil.assertion(StringUtils.equalsAny(scimEmailFilterStrategy, "email", "emails.value", "emails[value]", "emails[typeWork and value]"), "scimEmailFilterStrategy needs to be 'email', 'emails.value', 'emails[value]', or 'emails[typeWork and value]'. You provided: '"+scimEmailFilterStrategy+"'");
+    this.scimEmailFilterStrategy = scimEmailFilterStrategy;
+  }
 
 }

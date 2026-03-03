@@ -32,6 +32,8 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   private boolean scimRetrieveMembershipsByUser = true;
   
   private boolean scimRetrieveMembershipsByGroup = true;
+
+  private String scimEmailFilterStrategy;
   
   public boolean isGithubOrgConfiguration() {
     return StringUtils.equals("Github", this.getScimType())
@@ -212,6 +214,8 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
     this.scimIgnorePagingMetadata = GrouperUtil.booleanValue(this.retrieveConfigBoolean("scimIgnorePagingMetadata", false), false);
     
     this.scimMembershipBatchSize = GrouperUtil.intValue(this.retrieveConfigInt("scimMembershipBatchSize", false), 100);
+
+    this.scimEmailFilterStrategy = GrouperUtil.defaultIfBlank(this.retrieveConfigString("scimEmailFilterStrategy", false), "email");
     
     for (String attributeName : this.getTargetEntityAttributeNameToConfig().keySet()) {
       GrouperProvisioningConfigurationAttribute configurationAttribute = this.getTargetEntityAttributeNameToConfig().get(attributeName);
@@ -271,6 +275,14 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   }
 
   
+  public String getScimEmailFilterStrategy() {
+    return scimEmailFilterStrategy;
+  }
+
+  public void setScimEmailFilterStrategy(String scimEmailFilterStrategy) {
+    this.scimEmailFilterStrategy = scimEmailFilterStrategy;
+  }
+
   public String getScimEmailPatchStrategy() {
     return scimEmailPatchStrategy;
   }
