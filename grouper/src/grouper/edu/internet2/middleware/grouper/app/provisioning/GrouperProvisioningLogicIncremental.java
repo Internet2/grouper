@@ -170,16 +170,7 @@ public class GrouperProvisioningLogicIncremental {
         continue; 
       } 
       
-      // GRP-6679: only keep non-provisionable group if it has memberships actually in target
-      int countInTarget = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMembershipDao().
-          internal_membershipRetrieveFromDbCountByGroupSyncIdAndInTarget(gcGrouperSyncGroup.getId());
-
-      if (countInTarget > 0) {
-        // memberships still in target need cleanup
-        validGroupIds.add(gcGrouperSyncGroup.getGroupId());
-        continue;
-      }
-        
+      // GRP-6679: group is not provisionable and not in target, skip it
       filterByNotProvisionable++;
       iterator.remove();
     }
