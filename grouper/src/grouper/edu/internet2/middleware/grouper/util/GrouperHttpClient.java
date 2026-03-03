@@ -1310,6 +1310,10 @@ public class GrouperHttpClient {
       // do the logging
       try {
         GrouperHttpClientLog grouperHttpCallLog = threadLocalLog.get();
+        if (grouperHttpCallLog != null && grouperHttpCallLog.isDisabled()) {
+          threadLocalLog.remove();
+          grouperHttpCallLog = null;
+        }
         if (grouperHttpCallLog != null || LOG.isDebugEnabled()) {
           StringBuilder theLog = new StringBuilder();
           theLog.append("HTTP method: ").append(this.grouperHttpMethod).append("\n");
@@ -1388,9 +1392,7 @@ public class GrouperHttpClient {
               maxLogSize = 200000000;
             }
             
-            if (grouperHttpCallLog.getLog().length() + theLog.length() < maxLogSize) {
-              grouperHttpCallLog.getLog().append(theLog.toString());
-            }
+            grouperHttpCallLog.appendIfRoom(theLog, maxLogSize);
           }
 
         }
@@ -1589,6 +1591,9 @@ public class GrouperHttpClient {
   public static String logEnd() {
     GrouperHttpClientLog grouperHttpCallLog = threadLocalLog.get();
     StringBuilder log = grouperHttpCallLog == null ? null : grouperHttpCallLog.getLog();
+    if (grouperHttpCallLog != null) {
+      grouperHttpCallLog.setDisabled(true);
+    }
     threadLocalLog.remove();
     return log == null ? null : log.toString();
   }
@@ -1599,8 +1604,13 @@ public class GrouperHttpClient {
    */
   public static boolean logStart(GrouperHttpClientLog grouperHttpCallLog) {
     
-    if (threadLocalLog.get() != null ) {
-      return false;
+    GrouperHttpClientLog existing = threadLocalLog.get();
+    if (existing != null) {
+      if (existing.isDisabled()) {
+        threadLocalLog.remove();
+      } else {
+        return false;
+      }
     }
     threadLocalLog.set(grouperHttpCallLog);
     return true;
