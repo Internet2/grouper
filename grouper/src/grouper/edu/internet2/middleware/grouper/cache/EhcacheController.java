@@ -286,6 +286,18 @@ public class EhcacheController implements CacheController {
               newTmpdir += File.separator;
             }
             newTmpdir += "grouper_ehcache_auto_" + GrouperUtil.uniqueId();
+
+            // create the directory before ehcache tries to
+            try {
+              GrouperUtil.mkdirs(new File(newTmpdir));
+            } catch (RuntimeException re) {
+              GrouperUtil.injectInException(re, "Cannot create ehcache temp directory: '" + newTmpdir
+                  + "'. Ensure the parent directory '" + tmpDir
+                  + "' exists and is writable by the application user. "
+                  + "You can also set 'grouper.tmp.dir' in grouper.properties to a writable directory.");
+              throw re;
+            }
+
             System.setProperty(GrouperUtil.JAVA_IO_TMPDIR, newTmpdir);
           
             synchronized(CacheManager.class) {
