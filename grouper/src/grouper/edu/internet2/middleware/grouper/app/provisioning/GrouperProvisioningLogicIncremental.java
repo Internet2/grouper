@@ -170,13 +170,12 @@ public class GrouperProvisioningLogicIncremental {
         continue; 
       } 
       
-      // TODO batch these? and is query correct?  should it check grouper memberships to?
-      int count = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMembershipDao().
-          internal_membershipRetrieveFromDbCountByGroupSyncId(gcGrouperSyncGroup.getId());
-        
-      // if we're doing entity attributes and a group is deleted, it's not provisionable but if there are still memberships for this group
-      // we need to address them
-      if (count > 0) {
+      // GRP-6679: only keep non-provisionable group if it has memberships actually in target
+      int countInTarget = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMembershipDao().
+          internal_membershipRetrieveFromDbCountByGroupSyncIdAndInTarget(gcGrouperSyncGroup.getId());
+
+      if (countInTarget > 0) {
+        // memberships still in target need cleanup
         validGroupIds.add(gcGrouperSyncGroup.getGroupId());
         continue;
       }
