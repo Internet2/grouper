@@ -610,24 +610,29 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     String groupJsonString = mockServiceRequest.getRequestBody();
     JsonNode groupJsonNode = GrouperUtil.jsonJacksonNode(groupJsonString);
 
-    StringBuilder query = new StringBuilder("from TeamDynamixUser where ");
+    StringBuilder query = new StringBuilder("from TeamDynamixUser ");
 
     String name = null;
+    boolean hasCondition = false;
     if (groupJsonNode.has("ExternalID")) {
       name = GrouperUtil.jsonJacksonGetString(groupJsonNode, "ExternalID");
-      query.append("externalId like :theSearch ");
+      query.append("where externalId like :theSearch ");
+      hasCondition = true;
     } else if (groupJsonNode.has("UserName")) {
       name = GrouperUtil.jsonJacksonGetString(groupJsonNode, "UserName");
-      query.append("userName like :theSearch ");
+      query.append("where userName like :theSearch ");
+      hasCondition = true;
     }
-    
+
     Boolean isActive = GrouperUtil.jsonJacksonGetBoolean(groupJsonNode, "IsActive");
-    
+
     List<TeamDynamixUser> grouperAzureUsers = null;
-    
+
     if (isActive != null) {
-      if (StringUtils.isNotBlank(name)) {
+      if (hasCondition) {
         query.append(" and ");
+      } else {
+        query.append("where ");
       }
       query.append("active = :theActive");
     }
