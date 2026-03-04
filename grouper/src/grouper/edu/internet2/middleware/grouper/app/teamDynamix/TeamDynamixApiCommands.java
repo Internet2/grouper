@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
- * This class interacts with the Microsoft Graph API.
+ * This class interacts with the TeamDynamix API.
  */
 public class TeamDynamixApiCommands {
   
@@ -192,8 +192,6 @@ public class TeamDynamixApiCommands {
       String groupId, Collection<String> userIds, boolean isNotified) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-    
-    Map<MultiKey, Exception> groupIdUserIdToException = new HashMap<>();
 
     debugMap.put("method", "createTeamDynamixMemberships");
 
@@ -255,6 +253,7 @@ public class TeamDynamixApiCommands {
         }
       }
 
+      debugMap.put("size", GrouperClientUtils.length(results));
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -262,7 +261,6 @@ public class TeamDynamixApiCommands {
     } finally {
       TeamDynamixLog.teamDynamixLog(debugMap, startTime);
     }
-    debugMap.put("size", GrouperClientUtils.length(results));
 
     return results;
   }
@@ -406,9 +404,9 @@ public class TeamDynamixApiCommands {
             fieldsToUpdate.put("FirstName", ProvisioningObjectChangeAction.update);
             fieldsToUpdate.put("LastName", ProvisioningObjectChangeAction.update);
             fieldsToUpdate.put("Company", ProvisioningObjectChangeAction.update);
-            fieldsToUpdate.put("ExternalId", ProvisioningObjectChangeAction.update);
+            fieldsToUpdate.put("ExternalID", ProvisioningObjectChangeAction.update);
             fieldsToUpdate.put("PrimaryEmail", ProvisioningObjectChangeAction.update);
-            fieldsToUpdate.put("SecurityRoleId", ProvisioningObjectChangeAction.update);
+            fieldsToUpdate.put("SecurityRoleID", ProvisioningObjectChangeAction.update);
             fieldsToUpdate.put("UserName", ProvisioningObjectChangeAction.update);
             fieldsToUpdate.put("IsActive", ProvisioningObjectChangeAction.update);
             
@@ -439,9 +437,9 @@ public class TeamDynamixApiCommands {
       fieldsToUpdate.put("FirstName", ProvisioningObjectChangeAction.update);
       fieldsToUpdate.put("LastName", ProvisioningObjectChangeAction.update);
       fieldsToUpdate.put("Company", ProvisioningObjectChangeAction.update);
-      fieldsToUpdate.put("ExternalId", ProvisioningObjectChangeAction.update);
+      fieldsToUpdate.put("ExternalID", ProvisioningObjectChangeAction.update);
       fieldsToUpdate.put("PrimaryEmail", ProvisioningObjectChangeAction.update);
-      fieldsToUpdate.put("SecurityRoleId", ProvisioningObjectChangeAction.update);
+      fieldsToUpdate.put("SecurityRoleID", ProvisioningObjectChangeAction.update);
       fieldsToUpdate.put("UserName", ProvisioningObjectChangeAction.update);
       fieldsToUpdate.put("IsActive", ProvisioningObjectChangeAction.update);
       
@@ -874,11 +872,11 @@ public class TeamDynamixApiCommands {
           newValue = teamDynamixUser.getLastName();
         } else if (StringUtils.equals(fieldToUpdate, "Company")) {
           newValue = teamDynamixUser.getCompany();
-        } else if (StringUtils.equals(fieldToUpdate, "ExternalId")) {
+        } else if (StringUtils.equals(fieldToUpdate, "ExternalID")) {
           newValue = teamDynamixUser.getExternalId();
         } else if (StringUtils.equals(fieldToUpdate, "PrimaryEmail")) {
           newValue = teamDynamixUser.getPrimaryEmail();
-        } else if (StringUtils.equals(fieldToUpdate, "SecurityRoleId")) {
+        } else if (StringUtils.equals(fieldToUpdate, "SecurityRoleID")) {
           newValue = teamDynamixUser.getSecurityRoleId();
         } else if (StringUtils.equals(fieldToUpdate, "UserName")) {
           newValue = teamDynamixUser.getUserName();
@@ -902,7 +900,7 @@ public class TeamDynamixApiCommands {
             throw new RuntimeException("Not expecting object change: " + provisioningObjectChangeAction);
         }
         
-        operationNode.put("path", fieldToUpdate);
+        operationNode.put("path", "/" + fieldToUpdate);
         operationsNode.add(operationNode);
         
       }
@@ -911,7 +909,7 @@ public class TeamDynamixApiCommands {
         ObjectNode operationNode = GrouperUtil.jsonJacksonNode();
         operationNode.put("op", "replace");
         operationNode.put("value", teamDynamixUser.getActive());
-        operationNode.put("path", "IsActive");
+        operationNode.put("path", "/IsActive");
         operationsNode.add(operationNode);
       }
       

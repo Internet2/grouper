@@ -121,11 +121,11 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
 
       List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
 
-      List<TeamDynamixGroup> grouperAzureGroups = TeamDynamixApiCommands
+      List<TeamDynamixGroup> teamDynamixGroups = TeamDynamixApiCommands
           .retrieveTeamDynamixGroups(teamDynamixConfiguration.getTeamDynamixExternalSystemConfigId());
 
-      for (TeamDynamixGroup grouperAzureGroup : grouperAzureGroups) {
-        ProvisioningGroup targetGroup = grouperAzureGroup.toProvisioningGroup();
+      for (TeamDynamixGroup teamDynamixGroup : teamDynamixGroups) {
+        ProvisioningGroup targetGroup = teamDynamixGroup.toProvisioningGroup();
         results.add(targetGroup);
       }
 
@@ -147,16 +147,16 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       //TODO
       //boolean includeAllMembershipsIfApplicable = targetDaoRetrieveAllGroupsRequest == null ? false : targetDaoRetrieveAllGroupsRequest.isIncludeAllMembershipsIfApplicable();
 
-      TeamDynamixProvisioningConfiguration azureConfiguration = (TeamDynamixProvisioningConfiguration) this
+      TeamDynamixProvisioningConfiguration teamDynamixConfiguration = (TeamDynamixProvisioningConfiguration) this
           .getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
 
-      List<TeamDynamixUser> grouperAzureUsers = TeamDynamixApiCommands
-          .retrieveTeamDynamixUsers(azureConfiguration.getTeamDynamixExternalSystemConfigId());
+      List<TeamDynamixUser> teamDynamixUsers = TeamDynamixApiCommands
+          .retrieveTeamDynamixUsers(teamDynamixConfiguration.getTeamDynamixExternalSystemConfigId());
 
-      for (TeamDynamixUser grouperAzureUser : grouperAzureUsers) {
-        ProvisioningEntity targetEntity = grouperAzureUser.toProvisioningEntity();
+      for (TeamDynamixUser teamDynamixUser : teamDynamixUsers) {
+        ProvisioningEntity targetEntity = teamDynamixUser.toProvisioningEntity();
         results.add(targetEntity);
       }
 
@@ -306,9 +306,9 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
     List<ProvisioningMembership> targetMemberships = targetDaoDeleteMembershipsRequest.getTargetMemberships();
 
     try {
-      TeamDynamixProvisioningConfiguration  azureConfiguration = (TeamDynamixProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      TeamDynamixProvisioningConfiguration  teamDynamixConfiguration = (TeamDynamixProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      TeamDynamixApiCommands.deleteTeamDynamixMemberships(azureConfiguration.getTeamDynamixExternalSystemConfigId(), targetMemberships);
+      TeamDynamixApiCommands.deleteTeamDynamixMemberships(teamDynamixConfiguration.getTeamDynamixExternalSystemConfigId(), targetMemberships);
 
       for (ProvisioningMembership targetMembership: targetMemberships) {
         
@@ -330,7 +330,7 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
         }
       }
       
-      throw new RuntimeException("Failed to delete Azure memberships", e);
+      throw new RuntimeException("Failed to delete TeamDynamix memberships", e);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteMemberships", startNanos));
     }
