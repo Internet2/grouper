@@ -1330,10 +1330,10 @@ public abstract class GrouperProvisioningConfiguration {
    * to sync (and not more than 500 in a single group), or 1000 groups to sync, or a combination.  -1 means do not convert to full sync
    */
   private int scoreConvertToFullSyncThreshold;
-  
+
   /**
-   * In incremental processing, each provisionable group/entity to sync memberships to sync counts as 10, each provisionable membership to sync counts as 1.  
-   * If the total score is more than this number, it will convert the incrementals to a a full sync.  e.g. 10000 individual memberships 
+   * In incremental processing, each provisionable group/entity to sync memberships to sync counts as 10, each provisionable membership to sync counts as 1.
+   * If the total score is more than this number, it will convert the incrementals to a a full sync.  e.g. 10000 individual memberships
    * to sync (and not more than 500 in a single group), or 1000 groups to sync, or a combination.  -1 means do not convert to full sync
    * @return
    */
@@ -1342,13 +1342,37 @@ public abstract class GrouperProvisioningConfiguration {
   }
 
   /**
-   * In incremental processing, each provisionable group/entity to sync memberships to sync counts as 10, each provisionable membership to sync counts as 1.  
-   * If the total score is more than this number, it will convert the incrementals to a a full sync.  e.g. 10000 individual memberships 
+   * In incremental processing, each provisionable group/entity to sync memberships to sync counts as 10, each provisionable membership to sync counts as 1.
+   * If the total score is more than this number, it will convert the incrementals to a a full sync.  e.g. 10000 individual memberships
    * to sync (and not more than 500 in a single group), or 1000 groups to sync, or a combination.  -1 means do not convert to full sync
    * @param scoreConvertToFullSyncThreshold1
    */
   public void setScoreConvertToFullSyncThreshold(int scoreConvertToFullSyncThreshold1) {
     this.scoreConvertToFullSyncThreshold = scoreConvertToFullSyncThreshold1;
+  }
+
+  /**
+   * delete sync rows after this many seconds out of target.  defaults to grouper-loader property
+   * grouper.provisioning.removeSyncRowsAfterSecondsOutOfTarget, then 604800 (7 days)
+   */
+  private int removeSyncRowsAfterSecondsOutOfTarget;
+
+  /**
+   * delete sync rows after this many seconds out of target.  defaults to grouper-loader property
+   * grouper.provisioning.removeSyncRowsAfterSecondsOutOfTarget, then 604800 (7 days)
+   * @return
+   */
+  public int getRemoveSyncRowsAfterSecondsOutOfTarget() {
+    return removeSyncRowsAfterSecondsOutOfTarget;
+  }
+
+  /**
+   * delete sync rows after this many seconds out of target.  defaults to grouper-loader property
+   * grouper.provisioning.removeSyncRowsAfterSecondsOutOfTarget, then 604800 (7 days)
+   * @param removeSyncRowsAfterSecondsOutOfTarget1
+   */
+  public void setRemoveSyncRowsAfterSecondsOutOfTarget(int removeSyncRowsAfterSecondsOutOfTarget1) {
+    this.removeSyncRowsAfterSecondsOutOfTarget = removeSyncRowsAfterSecondsOutOfTarget1;
   }
 
   /**
@@ -3014,6 +3038,8 @@ public abstract class GrouperProvisioningConfiguration {
     
     this.scoreConvertToFullSyncThreshold = GrouperUtil.intValue(this.retrieveConfigInt("scoreConvertToFullSyncThreshold", false), 10000);
     this.membershipsConvertToGroupSyncThreshold = GrouperUtil.intValue(this.retrieveConfigInt("membershipsConvertToGroupSyncThreshold", false), 500);
+    this.removeSyncRowsAfterSecondsOutOfTarget = GrouperUtil.intValue(this.retrieveConfigInt("removeSyncRowsAfterSecondsOutOfTarget", false),
+        GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.provisioning.removeSyncRowsAfterSecondsOutOfTarget", 60*60*24*7));
     
     this.entitySearchAllFilter = this.retrieveConfigString("userSearchAllFilter", false);
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
