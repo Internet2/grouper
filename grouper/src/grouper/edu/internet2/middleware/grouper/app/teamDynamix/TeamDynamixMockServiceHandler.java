@@ -215,11 +215,11 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
   
-    TeamDynamixUser grouperScimUser = HibernateSession.byHqlStatic()
+    TeamDynamixUser teamDynamixUser = HibernateSession.byHqlStatic()
         .createQuery("from TeamDynamixUser where id = :theValue").setString("theValue", id)
         .uniqueResult(TeamDynamixUser.class);
 
-    if (grouperScimUser == null) {
+    if (teamDynamixUser == null) {
       mockServiceResponse.setResponseCode(404);
       mockServiceRequest.getDebugMap().put("foundUser", false);
       return;
@@ -290,31 +290,31 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
       }
         
       Object newValue = "active".equals(path) ? GrouperUtil.jsonJacksonGetBoolean(operation, "value") : GrouperUtil.jsonJacksonGetString(operation, "value");
-      Object oldValue = GrouperUtil.fieldValue(grouperScimUser, path);
+      Object oldValue = GrouperUtil.fieldValue(teamDynamixUser, path);
       
       if (opAdd) {
         
-        GrouperUtil.assertion(GrouperUtil.isBlank(oldValue), "add op already has value! " + path + ", '" + oldValue + "' " + grouperScimUser);
+        GrouperUtil.assertion(GrouperUtil.isBlank(oldValue), "add op already has value! " + path + ", '" + oldValue + "' " + teamDynamixUser);
         
-        GrouperUtil.assignField(grouperScimUser, path, newValue);
+        GrouperUtil.assignField(teamDynamixUser, path, newValue);
         
       } else {
 
-        GrouperUtil.assertion(!GrouperUtil.isBlank(oldValue), "add op doesnt have value! " + path + ", '" + oldValue + "' " + grouperScimUser);
+        GrouperUtil.assertion(!GrouperUtil.isBlank(oldValue), op + " op doesnt have value! " + path + ", '" + oldValue + "' " + teamDynamixUser);
 
         if (opRemove) {
           
-          GrouperUtil.assertion(newValue == null, "remove op should not have a value! " + path + ", '" + newValue + "' " + grouperScimUser);
+          GrouperUtil.assertion(newValue == null, "remove op should not have a value! " + path + ", '" + newValue + "' " + teamDynamixUser);
         }
 
-        GrouperUtil.assignField(grouperScimUser, path, newValue);
+        GrouperUtil.assignField(teamDynamixUser, path, newValue);
       }
         
       
     }
-    HibernateSession.byObjectStatic().saveOrUpdate(grouperScimUser);
+    HibernateSession.byObjectStatic().saveOrUpdate(teamDynamixUser);
     
-    ObjectNode objectNode = grouperScimUser.toJson(null);
+    ObjectNode objectNode = teamDynamixUser.toJson(null);
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
@@ -612,24 +612,24 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     //    "IsActive": "True",
     //  }
     
-    String groupJsonString = mockServiceRequest.getRequestBody();
-    JsonNode groupJsonNode = GrouperUtil.jsonJacksonNode(groupJsonString);
+    String userJsonString = mockServiceRequest.getRequestBody();
+    JsonNode userJsonNode = GrouperUtil.jsonJacksonNode(userJsonString);
 
     StringBuilder query = new StringBuilder("from TeamDynamixUser ");
 
     String name = null;
     boolean hasCondition = false;
-    if (groupJsonNode.has("ExternalID")) {
-      name = GrouperUtil.jsonJacksonGetString(groupJsonNode, "ExternalID");
+    if (userJsonNode.has("ExternalID")) {
+      name = GrouperUtil.jsonJacksonGetString(userJsonNode, "ExternalID");
       query.append("where externalId like :theSearch ");
       hasCondition = true;
-    } else if (groupJsonNode.has("UserName")) {
-      name = GrouperUtil.jsonJacksonGetString(groupJsonNode, "UserName");
+    } else if (userJsonNode.has("UserName")) {
+      name = GrouperUtil.jsonJacksonGetString(userJsonNode, "UserName");
       query.append("where userName like :theSearch ");
       hasCondition = true;
     }
 
-    Boolean isActive = GrouperUtil.jsonJacksonGetBoolean(groupJsonNode, "IsActive");
+    Boolean isActive = GrouperUtil.jsonJacksonGetBoolean(userJsonNode, "IsActive");
 
     List<TeamDynamixUser> teamDynamixUsers = null;
 
@@ -655,38 +655,28 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     
     ArrayNode results = GrouperUtil.jsonJacksonArrayNode();
     
-    for (TeamDynamixUser teamDynamixGroup : teamDynamixUsers) {
-      results.add(teamDynamixGroup.toJson(null));
+    for (TeamDynamixUser teamDynamixUser : teamDynamixUsers) {
+      results.add(teamDynamixUser.toJson(null));
     }
-    
+
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(results));
     mockServiceResponse.setContentType("application/json");
   }
-  
+
   public void getGroup(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
 
     checkAuthorization(mockServiceRequest);
 
-    checkRequestContentType(mockServiceRequest);
-    
     String id = mockServiceRequest.getPostMockNamePaths()[1];
-    
+
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
-    
+
     List<TeamDynamixGroup> teamDynamixGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup where id = :theId")
         .setString("theId", id).list(TeamDynamixGroup.class);
 
     if (GrouperUtil.length(teamDynamixGroups) == 1) {
       mockServiceResponse.setResponseCode(200);
-
-      //  {
-      //    "id": "11111111-2222-3333-4444-555555555555",
-      //    "mail": "group1@contoso.com",
-      //    "mailEnabled": true,
-      //    "mailNickname": "ContosoGroup1",
-      //    "securityEnabled": true
-      //  }
       
       mockServiceResponse.setContentType("application/json");
 
@@ -705,27 +695,25 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
 
     checkAuthorization(mockServiceRequest);
 
-    checkRequestContentType(mockServiceRequest);
-    
     String id = mockServiceRequest.getPostMockNamePaths()[1];
-    
+
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
-    
-    List<TeamDynamixUser> teamDynamixGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser where id = :theId")
+
+    List<TeamDynamixUser> teamDynamixUsers = HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser where id = :theId")
         .setString("theId", id).list(TeamDynamixUser.class);
 
-    if (GrouperUtil.length(teamDynamixGroups) == 1) {
+    if (GrouperUtil.length(teamDynamixUsers) == 1) {
       mockServiceResponse.setResponseCode(200);
 
       mockServiceResponse.setContentType("application/json");
 
-      ObjectNode objectNode = teamDynamixGroups.get(0).toJson(null);
+      ObjectNode objectNode = teamDynamixUsers.get(0).toJson(null);
       mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
 
-    } else if (GrouperUtil.length(teamDynamixGroups) == 0) {
+    } else if (GrouperUtil.length(teamDynamixUsers) == 0) {
       mockServiceResponse.setResponseCode(404);
     } else {
-      throw new RuntimeException("usersById: " + GrouperUtil.length(teamDynamixGroups) + ", id: " + id);
+      throw new RuntimeException("usersById: " + GrouperUtil.length(teamDynamixUsers) + ", id: " + id);
     }
 
   }
@@ -740,33 +728,25 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
     
-    List<TeamDynamixUser> teamDynamixGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser where id = :theId")
+    List<TeamDynamixUser> teamDynamixUsers = HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser where id = :theId")
         .setString("theId", id).list(TeamDynamixUser.class);
 
-    if (GrouperUtil.length(teamDynamixGroups) == 1) {
-      
-      TeamDynamixUser teamDynamixUser = teamDynamixGroups.get(0);
+    if (GrouperUtil.length(teamDynamixUsers) == 1) {
+
+      TeamDynamixUser teamDynamixUser = teamDynamixUsers.get(0);
       teamDynamixUser.setActive(false);
       HibernateSession.byObjectStatic().saveOrUpdate(teamDynamixUser);
       mockServiceResponse.setResponseCode(200);
 
-      //  {
-      //    "id": "11111111-2222-3333-4444-555555555555",
-      //    "mail": "group1@contoso.com",
-      //    "mailEnabled": true,
-      //    "mailNickname": "ContosoGroup1",
-      //    "securityEnabled": true
-      //  }
-      
       mockServiceResponse.setContentType("application/json");
 
       ObjectNode objectNode = teamDynamixUser.toJson(null);
       mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
 
-    } else if (GrouperUtil.length(teamDynamixGroups) == 0) {
+    } else if (GrouperUtil.length(teamDynamixUsers) == 0) {
       mockServiceResponse.setResponseCode(404);
     } else {
-      throw new RuntimeException("groupsById: " + GrouperUtil.length(teamDynamixGroups) + ", id: " + id);
+      throw new RuntimeException("usersById: " + GrouperUtil.length(teamDynamixUsers) + ", id: " + id);
     }
 
   }
@@ -775,8 +755,6 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
 
     checkAuthorization(mockServiceRequest);
 
-    checkRequestContentType(mockServiceRequest);
-    
     String userId = mockServiceRequest.getPostMockNamePaths()[1];
     
     GrouperUtil.assertion(GrouperUtil.length(userId) > 0, "userId is required");
@@ -815,8 +793,6 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     if (GrouperUtil.length(teamDynamixAuths) != 1) {
       throw new RuntimeException("Invalid access token, not found! " + StringUtils.abbreviate(authorizationToken, 5));
     }
-    
-    TeamDynamixAuth teamDynamixAuth = teamDynamixAuths.get(0);    
 
     // all good
   }

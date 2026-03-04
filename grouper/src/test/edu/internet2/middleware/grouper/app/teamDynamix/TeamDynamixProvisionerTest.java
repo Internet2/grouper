@@ -34,7 +34,7 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
   
   public static void main(String[] args) {
     GrouperStartup.startup();
-    TestRunner.run(new TeamDynamixProvisionerTest("testFullProvisionGroupAndThenDeleteTheGroup"));
+    TestRunner.run(new TeamDynamixProvisionerTest("testIncrementalProvisionTeamDynamix"));
   }
   
   
@@ -120,9 +120,9 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser").list(TeamDynamixUser.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from TeamDynamixMembership").list(TeamDynamixMembership.class).size());
-      TeamDynamixGroup grouperDuoGroup = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).get(0);
+      TeamDynamixGroup teamDynamixGroup = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).get(0);
       
-      assertEquals("test:testGroup", grouperDuoGroup.getName());
+      assertEquals("test:testGroup", teamDynamixGroup.getName());
       
       GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myTeamDynamixProvisioner");
       assertEquals(1, gcGrouperSync.getGroupCount().intValue());
@@ -134,7 +134,7 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
       //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       
-      // now run the full sync again and the member should be deleted from mock_duo_membership also
+      // now run the full sync again and the member should be deleted from mock_teamdynamix_membership also
       grouperProvisioningOutput = fullProvision();
       grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).size());
@@ -189,10 +189,10 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).size());
       assertEquals(3, HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser").list(TeamDynamixUser.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from TeamDynamixMembership").list(TeamDynamixMembership.class).size());
-      grouperDuoGroup = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).get(0);
+      teamDynamixGroup = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).get(0);
       
-      assertEquals("test:testGroup", grouperDuoGroup.getName());
-//      assertEquals(grouperDuoGroup.getActiveDb(), "T");
+      assertEquals("test:testGroup", teamDynamixGroup.getName());
+//      assertEquals(teamDynamixGroup.getActiveDb(), "T");
       
       users = HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser").list(TeamDynamixUser.class);
       
@@ -281,9 +281,9 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser").list(TeamDynamixUser.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from TeamDynamixMembership").list(TeamDynamixMembership.class).size());
-      TeamDynamixGroup grouperDuoGroup = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).get(0);
+      TeamDynamixGroup teamDynamixGroup = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).get(0);
       
-      assertEquals("test:testGroup", grouperDuoGroup.getName());
+      assertEquals("test:testGroup", teamDynamixGroup.getName());
       
       //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
@@ -339,10 +339,10 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).size());
       assertEquals(3, HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser").list(TeamDynamixUser.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from TeamDynamixMembership").list(TeamDynamixMembership.class).size());
-      grouperDuoGroup = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).get(0);
+      teamDynamixGroup = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).get(0);
       
-      assertEquals("test:testGroup", grouperDuoGroup.getName());
-//      assertEquals(grouperDuoGroup.getActiveDb(), "T");
+      assertEquals("test:testGroup", teamDynamixGroup.getName());
+//      assertEquals(teamDynamixGroup.getActiveDb(), "T");
       
       users = HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser").list(TeamDynamixUser.class);
       
@@ -373,7 +373,11 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
   
   
   public void testFullSyncTeamDynamixStartWithAndDiagnostics() {
-    
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
     GrouperStartup.startup();
     
     if (startTomcat) {
@@ -429,36 +433,36 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
       
       // mark some folders to provision
       Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup1").save();
-      
+
       testGroup.addMember(SubjectTestHelper.SUBJ0, false);
       testGroup.addMember(SubjectTestHelper.SUBJ1, false);
-      
+
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(true);
       attributeValue.setDoProvision("myTeamDynamixProvisioner");
       attributeValue.setTargetName("myTeamDynamixProvisioner");
       attributeValue.setStemScopeString("sub");
-  
+
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
-  
+
       GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
-      
+
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser").list(TeamDynamixUser.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from TeamDynamixMembership").list(TeamDynamixMembership.class).size());
-      TeamDynamixGroup grouperDuoGroup = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).get(0);
-      
-      assertEquals("test:testGroup", grouperDuoGroup.getName());
-      
+      TeamDynamixGroup teamDynamixGroup = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup").list(TeamDynamixGroup.class).get(0);
+
+      assertEquals("test:testGroup1", teamDynamixGroup.getName());
+
       GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myTeamDynamixProvisioner");
       assertEquals(1, gcGrouperSync.getGroupCount().intValue());
-      
+
       GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
       assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
       assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
-      
+
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner("myTeamDynamixProvisioner");
       provisioner.initialize(GrouperProvisioningType.diagnostics);
       GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();

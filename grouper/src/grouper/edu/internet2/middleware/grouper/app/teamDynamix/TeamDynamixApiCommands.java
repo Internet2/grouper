@@ -798,6 +798,15 @@ public class TeamDynamixApiCommands {
 
   }
   
+  /**
+   * Retrieve the members of a TeamDynamix group.
+   * Note: the TeamDynamix API (GET /api/groups/{id}/members) returns an array of
+   * GroupMember objects, not User objects. However, GroupMember is a superset of User
+   * (it includes all User fields plus additional ones like IsPrimary, IsManager, IsNotified).
+   * Therefore it is safe to parse the response as TeamDynamixUser objects; the extra
+   * GroupMember-specific fields are simply ignored.
+   * @see <a href="https://app.teamdynamix.com/TDWebApi/Home/type/TeamDynamix.Api.Users.GroupMember">GroupMember API docs</a>
+   */
   public static List<TeamDynamixUser> retrieveTeamDynamixUsersByGroup(String configId, String groupId) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -807,7 +816,7 @@ public class TeamDynamixApiCommands {
     long startTime = System.nanoTime();
 
     try {
-      
+
       List<TeamDynamixUser> results = new ArrayList<>();
 
       String urlSuffix = "api/groups/"+groupId+"/members";
