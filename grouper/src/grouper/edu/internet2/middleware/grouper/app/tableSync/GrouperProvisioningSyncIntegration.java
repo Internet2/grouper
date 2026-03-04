@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectAttributes;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
@@ -72,8 +71,7 @@ public class GrouperProvisioningSyncIntegration {
       groupUuidToSyncGroup.put(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncGroup);
     }
 
-    int removeSyncRowsAfterSecondsOutOfTarget = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
-        "grouper.provisioning.removeSyncRowsAfterSecondsOutOfTarget", 60*60*24*7);
+    int removeSyncRowsAfterSecondsOutOfTarget = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getRemoveSyncRowsAfterSecondsOutOfTarget();
 
     provisioningSyncGroupResult.setGcGrouperSync(gcGrouperSync);
     
@@ -376,11 +374,10 @@ public class GrouperProvisioningSyncIntegration {
       memberUuidToSyncMember.put(gcGrouperSyncMember.getMemberId(), gcGrouperSyncMember);
     }
 
-    int removeSyncRowsAfterSecondsOutOfTarget = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
-        "grouper.provisioning.removeSyncRowsAfterSecondsOutOfTarget", 60*60*24*7);
+    int removeSyncRowsAfterSecondsOutOfTarget = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getRemoveSyncRowsAfterSecondsOutOfTarget();
 
     provisioningSyncResult.setGcGrouperSync(gcGrouperSync);
-    
+
     // start member ids to insert with all member ids minus those which have sync member objects already
     Set<String> memberIdsToInsert = new HashSet<String>(memberUuidToProvisioningObjectAttributes.keySet());
     provisioningSyncResult.setMemberIdsToInsert(memberIdsToInsert);
@@ -413,7 +410,8 @@ public class GrouperProvisioningSyncIntegration {
         gcGrouperSyncMember.setMetadataJson(newMetadataJson);
         
         //if we arent provisionable, and the member has not been in the target for a week, then we done with that one
-        if ((gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget()) && !gcGrouperSyncMember.isProvisionable() && gcGrouperSyncMember.getInTargetEnd() != null) {
+        // GRP-6680: old provisioning sync rows are not getting cleared out
+        if ((gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget()) && !gcGrouperSyncMember.isProvisionable()) {
           long targetEndMillis = gcGrouperSyncMember.getInTargetEnd() == null ? 0 : gcGrouperSyncMember.getInTargetEnd().getTime();
           targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncMember.getProvisionableEnd() == null ? 0 : gcGrouperSyncMember.getProvisionableEnd().getTime());
           targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncMember.getLastUpdated() == null ? 0 : gcGrouperSyncMember.getLastUpdated().getTime());
@@ -783,9 +781,8 @@ public class GrouperProvisioningSyncIntegration {
       }
     }
 
-    int removeSyncRowsAfterSecondsOutOfTarget = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
-        "grouper.provisioning.removeSyncRowsAfterSecondsOutOfTarget", 60*60*24*7);
-  
+    int removeSyncRowsAfterSecondsOutOfTarget = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getRemoveSyncRowsAfterSecondsOutOfTarget();
+
     provisioningSyncResult.setGcGrouperSync(gcGrouperSync);
     
     // start group ids to insert with all group ids minus those which have sync group objects already
@@ -839,7 +836,8 @@ public class GrouperProvisioningSyncIntegration {
         groupIdMemberIdToSyncMembership.remove(groupIdMemberId);
   
 
-        if (!gcGrouperSyncMembership.isInTarget() && gcGrouperSyncMembership.getInTargetEnd() != null) {
+        // GRP-6680: old provisioning sync rows are not getting cleared out
+        if (!gcGrouperSyncMembership.isInTarget()) {
           //if we arent provisionable, and the group has not been in the target for a week, then we done with that one
           long targetEndMillis = gcGrouperSyncMembership.getInTargetEnd() == null ? 0 : gcGrouperSyncMembership.getInTargetEnd().getTime();
           targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncMembership.getLastUpdated() == null ? 0 : gcGrouperSyncMembership.getLastUpdated().getTime());
