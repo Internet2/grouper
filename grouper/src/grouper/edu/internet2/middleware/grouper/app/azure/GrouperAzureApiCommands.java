@@ -2197,7 +2197,7 @@ public class GrouperAzureApiCommands {
   private static int retrieveSecondsToSleep(JsonNode oneResponse) {
     int secondsToSleep = 155;
     
-    if (oneResponse != null) {
+    if (oneResponse == null) {
       return secondsToSleep;
     }
     try {
