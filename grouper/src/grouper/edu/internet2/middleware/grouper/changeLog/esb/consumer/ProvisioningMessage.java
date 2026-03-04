@@ -4,6 +4,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogicIncremental;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
@@ -262,7 +263,11 @@ public class ProvisioningMessage {
         return null;
      }
     });
-    
+
+    // invalidate the message queue cache so that same-JVM provisioner runs
+    // (e.g. in tests or when USDU and provisioner share a JVM) see the new message
+    GrouperProvisioningLogicIncremental.clearProvisioningMessageQueuesWithMessagesCache();
+
   }
   
 }
