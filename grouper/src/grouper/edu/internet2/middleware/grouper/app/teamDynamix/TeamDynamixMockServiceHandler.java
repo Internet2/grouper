@@ -129,8 +129,8 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
         getGroup(mockServiceRequest, mockServiceResponse);
         return;
       }
-      if ("people".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 
-          "groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 3 == mockServiceRequest.getPostMockNamePaths().length) {
+      if ("people".equals(mockServiceRequest.getPostMockNamePaths()[0]) &&
+          "groups".equals(mockServiceRequest.getPostMockNamePaths()[2]) && 3 == mockServiceRequest.getPostMockNamePaths().length) {
         getGroupsForUser(mockServiceRequest, mockServiceResponse);
         return;
       }
