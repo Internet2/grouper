@@ -685,7 +685,7 @@ public class TeamDynamixApiCommands {
 
     try {
 
-      String urlSuffix = "/groups/" + id;
+      String urlSuffix = "/api/groups/" + id;
 
       int[] returnCode = new int[] { -1 };
       JsonNode jsonNode = executeMethod(debugMap, "retrieveTeamDynamixGroup", "GET", configId, urlSuffix,
