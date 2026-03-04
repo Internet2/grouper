@@ -92,6 +92,7 @@ Released versions are tagged in the format GROUPER_RELEASE_a.b.c, where a.b.c is
 ## Issue Tracking
 - JIRA issues: https://todos.internet2.edu/browse/<JIRA-ID>
 - GitHub repository: https://github.com/Internet2/grouper
+- Each distinct piece of work should go in its own Jira.  If there is a followup to a previous recent item, it can have (commit 2) after the Jira ticket number in the commit message
 
 ## Development Guidelines
 
