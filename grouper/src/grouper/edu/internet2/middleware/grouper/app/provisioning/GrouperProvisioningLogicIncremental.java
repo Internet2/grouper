@@ -614,8 +614,8 @@ public class GrouperProvisioningLogicIncremental {
   
         ProvisioningMessage provisioningMessage = ProvisioningMessage.fromJson(messageBody);
   
-        // if the message is before when the last full sync started
-        if (gcGrouperSync.getLastFullSyncStart() != null && provisioningMessage.getMillisSince1970() < gcGrouperSync.getLastFullSyncStart().getTime()) {
+        // if the message is before when the last full sync started (only if a full sync has completed)
+        if (gcGrouperSync.getLastFullSyncRun() != null && gcGrouperSync.getLastFullSyncStart() != null && provisioningMessage.getMillisSince1970() < gcGrouperSync.getLastFullSyncStart().getTime()) {
           messagesSkippedDueToBeforeLastFullSync++;
           continue;
         }
