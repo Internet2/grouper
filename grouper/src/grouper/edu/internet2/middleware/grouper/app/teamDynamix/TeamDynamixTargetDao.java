@@ -448,7 +448,7 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
 
       TeamDynamixGroup teamDynamixGroup = null;
 
-      if (StringUtils.equals("Id", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
+      if (StringUtils.equals("id", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
         teamDynamixGroup = TeamDynamixApiCommands.retrieveTeamDynamixGroup(teamDynamixConfiguration.getTeamDynamixExternalSystemConfigId(), GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()));
       } else if (StringUtils.equals("Name", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
         String name = GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue());
