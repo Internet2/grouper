@@ -752,7 +752,7 @@ public class TeamDynamixApiCommands {
       if (groups.size() > 1) {
         throw new RuntimeException("How can there be more than one group with the same name in TeamDynamix?? '" + groupName + "'");
       }
-      return groups.get(0);
+      return groups.size() == 1 ? groups.get(0) : null;
       
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
