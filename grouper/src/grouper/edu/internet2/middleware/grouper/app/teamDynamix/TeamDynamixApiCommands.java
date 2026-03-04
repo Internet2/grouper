@@ -541,11 +541,7 @@ public class TeamDynamixApiCommands {
         return null;
       }
       
-      JsonNode userNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
-      if (userNode == null) {
-        return null;
-      }
-      TeamDynamixUser teamDynamixUser = TeamDynamixUser.fromJson(userNode);
+      TeamDynamixUser teamDynamixUser = TeamDynamixUser.fromJson(jsonNode);
 
       return teamDynamixUser;
     } catch (RuntimeException re) {
@@ -699,12 +695,7 @@ public class TeamDynamixApiCommands {
         return null;
       }
       
-      //lets get the group node
-      JsonNode groupNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
-      if (groupNode == null) {
-        return null;
-      }
-      TeamDynamixGroup teamDynamixGroup = TeamDynamixGroup.fromJson(groupNode);
+      TeamDynamixGroup teamDynamixGroup = TeamDynamixGroup.fromJson(jsonNode);
 
       return teamDynamixGroup;
     } catch (RuntimeException re) {
