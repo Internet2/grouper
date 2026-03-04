@@ -92,7 +92,7 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
   /**
    * 
    */
-  public static void dropAzureMockTables() {
+  public static void dropTeamDynamixMockTables() {
     MockServiceServlet.dropMockTable("mock_teamdynamix_membership");
     MockServiceServlet.dropMockTable("mock_teamdynamix_user");
     MockServiceServlet.dropMockTable("mock_teamdynamix_group");
@@ -256,7 +256,12 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
         throw new RuntimeException("Invalid op, expecting add, replace, remove, but received: '" + op + "'");
       }
       String path = GrouperUtil.jsonJacksonGetString(operation, "path");
-      
+
+      // strip leading slash from JSON Patch path (e.g. "/FirstName" -> "FirstName")
+      if (path != null && path.startsWith("/")) {
+        path = path.substring(1);
+      }
+
       GrouperUtil.assertion(!"id".equals(path), "cannot patch id");
 
       if ("FirstName".equals(path)) {
@@ -268,13 +273,13 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
       if ("Company".equals(path)) {
         path = "company";
       }
-      if ("ExternalId".equals(path)) {
+      if ("ExternalID".equals(path)) {
         path = "externalId";
       }
       if ("PrimaryEmail".equals(path)) {
         path = "primaryEmail";
       }
-      if ("SecurityRoleId".equals(path)) {
+      if ("SecurityRoleID".equals(path)) {
         path = "securityRoleId";
       }
       if ("UserName".equals(path)) {
@@ -331,10 +336,10 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
     
     //check if group exists
-    List<TeamDynamixGroup> grouperGoogleGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup where id = :theId")
+    List<TeamDynamixGroup> teamDynamixGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup where id = :theId")
         .setString("theId", groupId).list(TeamDynamixGroup.class);
     
-    if (GrouperUtil.length(grouperGoogleGroups) == 0) {
+    if (GrouperUtil.length(teamDynamixGroups) == 0) {
       mockServiceResponse.setResponseCode(400);
       return;
     }
@@ -349,10 +354,10 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
       String memberId = next.asText();
       
       //check if userid exists
-      List<TeamDynamixUser> grouperGoogleUsers = HibernateSession.byHqlStatic().createQuery("select user from TeamDynamixUser user where user.id = :theId")
+      List<TeamDynamixUser> teamDynamixUsers = HibernateSession.byHqlStatic().createQuery("select user from TeamDynamixUser user where user.id = :theId")
           .setString("theId", memberId).list(TeamDynamixUser.class);
       
-      if (grouperGoogleUsers.size() == 1) {
+      if (teamDynamixUsers.size() == 1) {
         
         //check if userid exists
         List<TeamDynamixMembership> memberships = HibernateSession.byHqlStatic().createQuery("from TeamDynamixMembership where userId = :userId and groupId = :groupId")
@@ -385,10 +390,10 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
     
     //check if group exists
-    List<TeamDynamixGroup> grouperGoogleGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup where id = :theId")
+    List<TeamDynamixGroup> teamDynamixGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup where id = :theId")
         .setString("theId", groupId).list(TeamDynamixGroup.class);
     
-    if (GrouperUtil.length(grouperGoogleGroups) == 0) {
+    if (GrouperUtil.length(teamDynamixGroups) == 0) {
       mockServiceResponse.setResponseCode(400);
       return;
     }
@@ -426,18 +431,18 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
     
-    List<TeamDynamixUser> grouperDuoUsers = null;
+    List<TeamDynamixUser> teamDynamixUsers = null;
     
     ByHqlStatic query = HibernateSession.byHqlStatic()
         .createQuery("from TeamDynamixUser u where u.id in (select m.userId from TeamDynamixMembership m where m.groupId = :theGroupId) ")
         .setString("theGroupId", groupId);
     
-    grouperDuoUsers = query.list(TeamDynamixUser.class);
+    teamDynamixUsers = query.list(TeamDynamixUser.class);
     
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
     
-    for (TeamDynamixUser grouperDuoUser : grouperDuoUsers) {
-      valueNode.add(grouperDuoUser.toJson(null));
+    for (TeamDynamixUser teamDynamixUser : teamDynamixUsers) {
+      valueNode.add(teamDynamixUser.toJson(null));
     }
     
     mockServiceResponse.setResponseCode(200);
@@ -489,10 +494,10 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     
    String bearerToken = GrouperUuid.getUuid();
     
-    TeamDynamixAuth grouperAzureAuth = new TeamDynamixAuth();
-    grouperAzureAuth.setConfigId(this.configId);
-    grouperAzureAuth.setAccessToken(bearerToken);
-    HibernateSession.byObjectStatic().save(grouperAzureAuth);
+    TeamDynamixAuth teamDynamixAuth = new TeamDynamixAuth();
+    teamDynamixAuth.setConfigId(this.configId);
+    teamDynamixAuth.setAccessToken(bearerToken);
+    HibernateSession.byObjectStatic().save(teamDynamixAuth);
     
     
     mockServiceResponse.setContentType("application/json");
@@ -563,7 +568,7 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     //check require args
     String name = GrouperUtil.jsonJacksonGetString(groupJsonNode, "NameLike");
     
-    List<TeamDynamixGroup> grouperAzureGroups = null;
+    List<TeamDynamixGroup> teamDynamixGroups = null;
     
     StringBuilder query = new StringBuilder("from TeamDynamixGroup ");
     
@@ -578,12 +583,12 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
       createQuery.setString("theName", "%"+name+"%");
     }
     
-    grouperAzureGroups = createQuery.list(TeamDynamixGroup.class);
+    teamDynamixGroups = createQuery.list(TeamDynamixGroup.class);
     
     ArrayNode results = GrouperUtil.jsonJacksonArrayNode();
     
-    for (TeamDynamixGroup grouperAzureGroup : grouperAzureGroups) {
-      results.add(grouperAzureGroup.toJson(null));
+    for (TeamDynamixGroup teamDynamixGroup : teamDynamixGroups) {
+      results.add(teamDynamixGroup.toJson(null));
     }
     
     mockServiceResponse.setResponseCode(200);
@@ -626,7 +631,7 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
 
     Boolean isActive = GrouperUtil.jsonJacksonGetBoolean(groupJsonNode, "IsActive");
 
-    List<TeamDynamixUser> grouperAzureUsers = null;
+    List<TeamDynamixUser> teamDynamixUsers = null;
 
     if (isActive != null) {
       if (hasCondition) {
@@ -646,12 +651,12 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
       createQuery.setString("theActive", isActive ? "T": "F");
     }
     
-    grouperAzureUsers = createQuery.list(TeamDynamixUser.class);
+    teamDynamixUsers = createQuery.list(TeamDynamixUser.class);
     
     ArrayNode results = GrouperUtil.jsonJacksonArrayNode();
     
-    for (TeamDynamixUser grouperAzureGroup : grouperAzureUsers) {
-      results.add(grouperAzureGroup.toJson(null));
+    for (TeamDynamixUser teamDynamixGroup : teamDynamixUsers) {
+      results.add(teamDynamixGroup.toJson(null));
     }
     
     mockServiceResponse.setResponseCode(200);
@@ -669,10 +674,10 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
     
-    List<TeamDynamixGroup> grouperAzureGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup where id = :theId")
+    List<TeamDynamixGroup> teamDynamixGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup where id = :theId")
         .setString("theId", id).list(TeamDynamixGroup.class);
 
-    if (GrouperUtil.length(grouperAzureGroups) == 1) {
+    if (GrouperUtil.length(teamDynamixGroups) == 1) {
       mockServiceResponse.setResponseCode(200);
 
       //  {
@@ -685,13 +690,13 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
       
       mockServiceResponse.setContentType("application/json");
 
-      ObjectNode objectNode = grouperAzureGroups.get(0).toJson(null);
+      ObjectNode objectNode = teamDynamixGroups.get(0).toJson(null);
       mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
 
-    } else if (GrouperUtil.length(grouperAzureGroups) == 0) {
+    } else if (GrouperUtil.length(teamDynamixGroups) == 0) {
       mockServiceResponse.setResponseCode(404);
     } else {
-      throw new RuntimeException("groupsById: " + GrouperUtil.length(grouperAzureGroups) + ", id: " + id);
+      throw new RuntimeException("groupsById: " + GrouperUtil.length(teamDynamixGroups) + ", id: " + id);
     }
 
   }
@@ -706,21 +711,21 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
     
-    List<TeamDynamixUser> grouperAzureGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser where id = :theId")
+    List<TeamDynamixUser> teamDynamixGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser where id = :theId")
         .setString("theId", id).list(TeamDynamixUser.class);
 
-    if (GrouperUtil.length(grouperAzureGroups) == 1) {
+    if (GrouperUtil.length(teamDynamixGroups) == 1) {
       mockServiceResponse.setResponseCode(200);
 
       mockServiceResponse.setContentType("application/json");
 
-      ObjectNode objectNode = grouperAzureGroups.get(0).toJson(null);
+      ObjectNode objectNode = teamDynamixGroups.get(0).toJson(null);
       mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
 
-    } else if (GrouperUtil.length(grouperAzureGroups) == 0) {
+    } else if (GrouperUtil.length(teamDynamixGroups) == 0) {
       mockServiceResponse.setResponseCode(404);
     } else {
-      throw new RuntimeException("usersById: " + GrouperUtil.length(grouperAzureGroups) + ", id: " + id);
+      throw new RuntimeException("usersById: " + GrouperUtil.length(teamDynamixGroups) + ", id: " + id);
     }
 
   }
@@ -735,12 +740,12 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
     
-    List<TeamDynamixUser> grouperAzureGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser where id = :theId")
+    List<TeamDynamixUser> teamDynamixGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser where id = :theId")
         .setString("theId", id).list(TeamDynamixUser.class);
 
-    if (GrouperUtil.length(grouperAzureGroups) == 1) {
+    if (GrouperUtil.length(teamDynamixGroups) == 1) {
       
-      TeamDynamixUser teamDynamixUser = grouperAzureGroups.get(0);
+      TeamDynamixUser teamDynamixUser = teamDynamixGroups.get(0);
       teamDynamixUser.setActive(false);
       HibernateSession.byObjectStatic().saveOrUpdate(teamDynamixUser);
       mockServiceResponse.setResponseCode(200);
@@ -758,10 +763,10 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
       ObjectNode objectNode = teamDynamixUser.toJson(null);
       mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
 
-    } else if (GrouperUtil.length(grouperAzureGroups) == 0) {
+    } else if (GrouperUtil.length(teamDynamixGroups) == 0) {
       mockServiceResponse.setResponseCode(404);
     } else {
-      throw new RuntimeException("groupsById: " + GrouperUtil.length(grouperAzureGroups) + ", id: " + id);
+      throw new RuntimeException("groupsById: " + GrouperUtil.length(teamDynamixGroups) + ", id: " + id);
     }
 
   }
@@ -804,14 +809,14 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     }
     String authorizationToken = GrouperUtil.prefixOrSuffix(bearerToken, "Bearer ", false);
     
-    List<TeamDynamixAuth> grouperAzureAuths = 
+    List<TeamDynamixAuth> teamDynamixAuths = 
         HibernateSession.byHqlStatic().createQuery("from TeamDynamixAuth where accessToken = :theAccessToken").setString("theAccessToken", authorizationToken).list(TeamDynamixAuth.class);
     
-    if (GrouperUtil.length(grouperAzureAuths) != 1) {
+    if (GrouperUtil.length(teamDynamixAuths) != 1) {
       throw new RuntimeException("Invalid access token, not found! " + StringUtils.abbreviate(authorizationToken, 5));
     }
     
-    TeamDynamixAuth grouperAzureAuth = grouperAzureAuths.get(0);    
+    TeamDynamixAuth teamDynamixAuth = teamDynamixAuths.get(0);    
 
     // all good
   }
