@@ -70,6 +70,16 @@ public class GrouperProvisioningLogicIncremental {
   private static ExpirableCache<Boolean, Set<String>> provisioningMessageQueuesWithMessages = null;
 
   /**
+   * clear the cache of queues with messages, e.g. for testing when messages are sent
+   * in the same JVM and the cache might be stale
+   */
+  public static void clearProvisioningMessageQueuesWithMessagesCache() {
+    if (provisioningMessageQueuesWithMessages == null) {
+      provisioningMessageQueuesWithMessages.clear();
+    }
+  }
+
+  /**
    * get the cache of queues with messages
    * @return the cache
    */
