@@ -342,7 +342,8 @@ public class GrouperProvisioningSyncIntegration {
     groupUuidToSyncGroup.remove(gcGrouperSyncGroup.getGroupId());
 
     //if we arent provisionable, and the group has not been in the target for a week, then we done with that one
-    if ((gcGrouperSyncGroup.getInTarget() == null || !gcGrouperSyncGroup.getInTarget()) && !gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.getInTargetEnd() != null) {
+    // GRP-6680: old provisioning sync rows are not getting cleared out
+    if ((gcGrouperSyncGroup.getInTarget() == null || !gcGrouperSyncGroup.getInTarget()) && !gcGrouperSyncGroup.isProvisionable()) {
       long targetEndMillis = gcGrouperSyncGroup.getInTargetEnd() == null ? 0 : gcGrouperSyncGroup.getInTargetEnd().getTime();
       targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncGroup.getProvisionableEnd() == null ? 0 : gcGrouperSyncGroup.getProvisionableEnd().getTime());
       targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncGroup.getLastUpdated() == null ? 0 : gcGrouperSyncGroup.getLastUpdated().getTime());
