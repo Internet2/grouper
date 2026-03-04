@@ -1676,8 +1676,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       DN oldDn = new DN(oldDnString);
       DN newDn = new DN(newDnString);
       
-      // if the rdn is different, even case difference
-      if (!oldDn.getRDN().equals(newDn.getRDN())) {
+      // if the rdn is different, even case difference (use toString() for case-sensitive compare since RDN.equals() is case-insensitive per LDAP RFC)
+      if (!oldDn.getRDN().toString().equals(newDn.getRDN().toString())) {
         return true;
       }
       
