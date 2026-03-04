@@ -34,7 +34,7 @@ public class TeamDynamixMembership {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_teamdynamix_mship_gid_idx", false, "group_id");
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_teamdynamix_mship_uid_idx", false, "user_id");
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_teamdynamix_mship_uid_idx", true, "group_id", "user_id");
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_teamdynamix_mship_gu_idx", true, "group_id", "user_id");
       
       GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "mock_teamdynamix_mship_gid_fkey", "mock_teamdynamix_group", "group_id", "id");
       GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "mock_teamdynamix_mship_uid_fkey", "mock_teamdynamix_user", "user_id", "id");
