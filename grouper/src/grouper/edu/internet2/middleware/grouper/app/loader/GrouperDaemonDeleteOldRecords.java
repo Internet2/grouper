@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -56,6 +57,11 @@ import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableMetadata;
 
@@ -318,8 +324,135 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
     for (String configId : configIds) {
       ProvisioningConfiguration.deleteProvisionerSyncRecords(configId, jobMessage, hib3GrouploaderLog);
     }
+
+    // GRP-6680: for active provisioners, clean up stale sync rows that are no longer provisionable and not in target
+    deleteOldStaleSyncRows(jobMessage, hib3GrouploaderLog);
   }
-  
+
+  /**
+   * for active provisioners, clean up stale sync rows (groups, members, memberships)
+   * that are no longer provisionable and not in target.
+   * use 2x the timeout (and at least 2 weeks) to avoid conflicting with the provisioner's own cleanup
+   */
+  public static void deleteOldStaleSyncRows(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
+
+    Set<String> activeConfigIds = GrouperProvisioningSettings.getTargets(true).keySet();
+
+    for (String configId : activeConfigIds) {
+      try {
+        // lightweight config read
+        int removeSyncRowsAfterSecondsOutOfTarget = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
+            "provisioner." + configId + ".removeSyncRowsAfterSecondsOutOfTarget",
+            GrouperLoaderConfig.retrieveConfig().propertyValueInt(
+                "grouper.provisioning.removeSyncRowsAfterSecondsOutOfTarget", 60*60*24*7));
+
+        // multiply by 2, and at least 2 weeks
+        int effectiveTimeoutSeconds = Math.max(removeSyncRowsAfterSecondsOutOfTarget * 2, 60*60*24*14);
+
+        Timestamp cutoff = new Timestamp(System.currentTimeMillis() - (1000L * effectiveTimeoutSeconds));
+
+        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+        if (gcGrouperSync == null) {
+          continue;
+        }
+
+        // delete stale sync groups (and their memberships and logs via DAO)
+        {
+          List<GcGrouperSyncGroup> staleGroups = new GcDbAccess().connectionName(gcGrouperSync.getConnectionName())
+              .sql("""
+                  select * from grouper_sync_group where grouper_sync_id = ?
+                  and (provisionable is null or provisionable != 'T')
+                  and (in_target is null or in_target != 'T')
+                  and (in_target_end is null or in_target_end < ?)
+                  and (provisionable_end is null or provisionable_end < ?)
+                  and (last_updated is null or last_updated < ?)
+                  and coalesce(in_target_end, provisionable_end, last_updated) is not null
+                  """)
+              .addBindVar(gcGrouperSync.getId()).addBindVar(cutoff).addBindVar(cutoff).addBindVar(cutoff)
+              .selectList(GcGrouperSyncGroup.class);
+
+          for (GcGrouperSyncGroup staleGroup : GrouperUtil.nonNull(staleGroups)) {
+            staleGroup.setGrouperSync(gcGrouperSync);
+          }
+
+          if (GrouperUtil.length(staleGroups) > 0) {
+            int rows = gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(staleGroups, true, true);
+            if (hib3GrouploaderLog != null) {
+              hib3GrouploaderLog.addDeleteCount(rows);
+            }
+            if (jobMessage != null) {
+              jobMessage.append("Deleted " + GrouperUtil.length(staleGroups) + " stale sync groups from provisioner " + configId + "\n");
+            }
+          }
+        }
+
+        // delete stale sync members (and their memberships and logs via DAO)
+        {
+          List<GcGrouperSyncMember> staleMembers = new GcDbAccess().connectionName(gcGrouperSync.getConnectionName())
+              .sql("""
+                  select * from grouper_sync_member where grouper_sync_id = ?
+                  and (provisionable is null or provisionable != 'T')
+                  and (in_target is null or in_target != 'T')
+                  and (in_target_end is null or in_target_end < ?)
+                  and (provisionable_end is null or provisionable_end < ?)
+                  and (last_updated is null or last_updated < ?)
+                  and coalesce(in_target_end, provisionable_end, last_updated) is not null
+                  """)
+              .addBindVar(gcGrouperSync.getId()).addBindVar(cutoff).addBindVar(cutoff).addBindVar(cutoff)
+              .selectList(GcGrouperSyncMember.class);
+
+          for (GcGrouperSyncMember staleMember : GrouperUtil.nonNull(staleMembers)) {
+            staleMember.setGrouperSync(gcGrouperSync);
+          }
+
+          if (GrouperUtil.length(staleMembers) > 0) {
+            int rows = gcGrouperSync.getGcGrouperSyncMemberDao().memberDelete(staleMembers, true, true);
+            if (hib3GrouploaderLog != null) {
+              hib3GrouploaderLog.addDeleteCount(rows);
+            }
+            if (jobMessage != null) {
+              jobMessage.append("Deleted " + GrouperUtil.length(staleMembers) + " stale sync members from provisioner " + configId + "\n");
+            }
+          }
+        }
+
+        // delete stale sync memberships (no provisionable flag, just in_target)
+        {
+          List<GcGrouperSyncMembership> staleMemberships = new GcDbAccess().connectionName(gcGrouperSync.getConnectionName())
+              .sql("""
+                  select * from grouper_sync_membership where grouper_sync_id = ?
+                  and (in_target is null or in_target != 'T')
+                  and (in_target_end is null or in_target_end < ?)
+                  and (last_updated is null or last_updated < ?)
+                  and coalesce(in_target_end, last_updated) is not null
+                  """)
+              .addBindVar(gcGrouperSync.getId()).addBindVar(cutoff).addBindVar(cutoff)
+              .selectList(GcGrouperSyncMembership.class);
+
+          for (GcGrouperSyncMembership staleMembership : GrouperUtil.nonNull(staleMemberships)) {
+            staleMembership.setGrouperSync(gcGrouperSync);
+          }
+
+          if (GrouperUtil.length(staleMemberships) > 0) {
+            int rows = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipDelete(staleMemberships, true);
+            if (hib3GrouploaderLog != null) {
+              hib3GrouploaderLog.addDeleteCount(rows);
+            }
+            if (jobMessage != null) {
+              jobMessage.append("Deleted " + GrouperUtil.length(staleMemberships) + " stale sync memberships from provisioner " + configId + "\n");
+            }
+          }
+        }
+
+      } catch (Exception e) {
+        LOG.error("Error deleting stale sync rows for provisioner " + configId, e);
+        if (jobMessage != null) {
+          jobMessage.append("Error deleting stale sync rows for provisioner " + configId + ": " + ExceptionUtils.getFullStackTrace(e) + "\n");
+        }
+      }
+    }
+  }
+
   /**
    * @param jobMessage
    */
