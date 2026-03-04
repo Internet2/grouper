@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogicIncremental;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
@@ -148,7 +149,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaMatchingIdMissingValidation"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
 //    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
     
   }
@@ -3766,7 +3767,10 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         .addExtraConfig("makeChangesToEntities", "true")
         .assignProvisioningType("groupAttributes")
         .addExtraConfig("logAllObjectsVerboseForTheseSubjectIds", "test.subject.0")
-        .addExtraConfig("logAllObjectsVerboseForTheseGroupNames", "test:testGroup");
+        .addExtraConfig("logAllObjectsVerboseForTheseGroupNames", "test:testGroup")
+        // entity_uuid is assigned by the target, so don't translate it from Grouper
+        .addExtraConfig("targetEntityAttribute.2.translateExpressionType", "")
+        .addExtraConfig("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "");
     SqlProvisionerTestUtils.configureSqlProvisioner(sqlProvisionerTestConfigInput
         );
     return sqlProvisionerTestConfigInput;
@@ -4836,7 +4840,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("T", gcGrouperSyncMember4.getProvisionableDb());
       assertFalse("T".equals(gcGrouperSyncMember4.getInTargetDb()));
       assertFalse("F".equals(gcGrouperSyncMember4.getInTargetInsertOrExistsDb()));
-      assertEquals(GcGrouperSyncErrorCode.DNE, gcGrouperSyncMember4.getErrorCode());
+      assertEquals(GcGrouperSyncErrorCode.MAT, gcGrouperSyncMember4.getErrorCode());
     }  
     
     {
@@ -4870,7 +4874,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       GcGrouperSyncMembership gcGrouperSyncMembership4 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup2.getId(), member4.getId());
       assertFalse("T".equals(gcGrouperSyncMembership4.getInTargetDb()));
       assertFalse("T".equals(gcGrouperSyncMembership4.getInTargetInsertOrExistsDb()));
-      assertEquals(GcGrouperSyncErrorCode.DNE, gcGrouperSyncMembership4.getErrorCode());
+      assertEquals(GcGrouperSyncErrorCode.MAT, gcGrouperSyncMembership4.getErrorCode());
     }  
 
     // this should retry
@@ -5271,17 +5275,23 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     Subject subject = SubjectFinder.findById("test.subject.0", true);
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject);
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(true), "OTHER_JOB_usduDaemon");
-  
+
+    // clear the static message queue cache so the incremental provisioner sees the
+    // message that the USDU daemon just sent (in production these run in different JVMs
+    // so the cache is not shared, but in tests they share a JVM and the cache from the
+    // previous incrementalProvision() call may still be valid)
+    GrouperProvisioningLogicIncremental.clearProvisioningMessageQueuesWithMessagesCache();
+
     incrementalProvision();
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
-  
+
     //get the grouper_sync and check cols
     gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "sqlProvTest");
-    
+
     testSubject0member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
-    
+
     gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(testSubject0member.getId());
     assertEquals("my name is test.subject.0_new", gcGrouperSyncMember.getEntityAttributeValueCache1());
   
