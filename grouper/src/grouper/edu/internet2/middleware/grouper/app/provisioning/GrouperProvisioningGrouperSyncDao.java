@@ -382,6 +382,18 @@ public class GrouperProvisioningGrouperSyncDao {
       ProvisioningMembershipWrapper provisioningMembershipWrapper = groupUuidMemberUuidToProvisioningMembershipWrapper.get(groupIdMemberId);
       
       if (provisioningMembershipWrapper == null) {
+
+        // filter stale sync memberships that are not in target and where group or member
+        // is not provisionable, same as the full sync filter in retrieveFullSyncMemberships
+        if (!gcGrouperSyncMembership.isInTarget()) {
+          GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveById(gcGrouperSyncMembership.getGrouperSyncGroupId());
+          GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveById(gcGrouperSyncMembership.getGrouperSyncMemberId());
+          if (gcGrouperSyncGroup == null || !gcGrouperSyncGroup.isProvisionable()
+              || gcGrouperSyncMember == null || !gcGrouperSyncMember.isProvisionable()) {
+            continue;
+          }
+        }
+
         provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
         provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
         provisioningMembershipWrapper.setGroupIdMemberId(groupIdMemberId);
