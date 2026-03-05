@@ -1230,6 +1230,10 @@ public class GrouperProvisioningLogic {
     List<ProvisioningMembership> targetProvisioningMemberships = GrouperUtil.nonNull(
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships());
     
+    String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+    GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior()
+        .getGrouperProvisioningBehaviorMembershipType();
+    
     Map<String, GenericProvisioningUserRecord> targetUserIdToRecord = new LinkedHashMap<String, GenericProvisioningUserRecord>();
     for (ProvisioningEntity targetProvisioningEntity : targetProvisioningEntities) {
       String targetUserId = this.normalizeTargetId(targetProvisioningEntity.getId());
@@ -1244,6 +1248,13 @@ public class GrouperProvisioningLogic {
       
       for (ProvisioningAttribute provisioningAttribute : targetProvisioningEntity.retrieveAttributes().values()) {
         String attributeName = provisioningAttribute.getName();
+        if (StringUtils.equalsIgnoreCase("id", attributeName)) {
+          continue;
+        }
+        if (membershipType == GrouperProvisioningBehaviorMembershipType.entityAttributes
+            && StringUtils.equals(attributeName, membershipAttributeName)) {
+          continue;
+        }
         this.addProvisioningAttributeValue(userRecord, attributeName, provisioningAttribute.getValue());
       }
     }
@@ -1262,6 +1273,13 @@ public class GrouperProvisioningLogic {
       
       for (ProvisioningAttribute provisioningAttribute : targetProvisioningGroup.retrieveAttributes().values()) {
         String attributeName = provisioningAttribute.getName();
+        if (StringUtils.equalsIgnoreCase("id", attributeName)) {
+          continue;
+        }
+        if (membershipType == GrouperProvisioningBehaviorMembershipType.groupAttributes
+            && StringUtils.equals(attributeName, membershipAttributeName)) {
+          continue;
+        }
         this.addProvisioningAttributeValue(groupRecord, attributeName, provisioningAttribute.getValue());
       }
     }

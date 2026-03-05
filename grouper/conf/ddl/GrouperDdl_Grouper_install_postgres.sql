@@ -2919,13 +2919,13 @@ alter table grouper_prov_group
     add CONSTRAINT grouper_prov_grp_fk2 FOREIGN KEY (group_internal_id) REFERENCES grouper_groups(internal_id);
 
 alter table grouper_prov_group_attr
-    add CONSTRAINT grouper_prov_grpat_fk1 FOREIGN KEY (grouper_prov_group_internal_id) REFERENCES grouper_prov_group(internal_id) on delete cascade;
+    add CONSTRAINT grouper_prov_grpat_fk1 FOREIGN KEY (grouper_prov_group_internal_id) REFERENCES grouper_prov_group(internal_id);
 
 alter table grouper_prov_group_attr_value
-    add CONSTRAINT grouper_prov_grpatv_fk1 FOREIGN KEY (prov_group_attr_internal_id) REFERENCES grouper_prov_group_attr(internal_id) on delete cascade;
+    add CONSTRAINT grouper_prov_grpatv_fk1 FOREIGN KEY (prov_group_attr_internal_id) REFERENCES grouper_prov_group_attr(internal_id);
 
 alter table grouper_prov_group_attr_value
-    add CONSTRAINT grouper_prov_grpatv_fk2 FOREIGN KEY (prov_group_internal_id) REFERENCES grouper_prov_group(internal_id) on delete cascade;
+    add CONSTRAINT grouper_prov_grpatv_fk2 FOREIGN KEY (prov_group_internal_id) REFERENCES grouper_prov_group(internal_id);
 
 alter table grouper_prov_group_attr_value
     add CONSTRAINT grouper_prov_grpatv_fk3 FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id);
@@ -2937,13 +2937,13 @@ alter table grouper_prov_user
     add CONSTRAINT grouper_prov_user_fk2 FOREIGN KEY (member_internal_id) REFERENCES grouper_members(internal_id);
 
 alter table grouper_prov_user_attr
-    add CONSTRAINT grouper_prov_userat_fk1 FOREIGN KEY (grouper_prov_user_internal_id) REFERENCES grouper_prov_user(internal_id) on delete cascade;
+    add CONSTRAINT grouper_prov_userat_fk1 FOREIGN KEY (grouper_prov_user_internal_id) REFERENCES grouper_prov_user(internal_id);
 
 alter table grouper_prov_user_attr_value
-    add CONSTRAINT grouper_prov_useratv_fk1 FOREIGN KEY (prov_user_attr_internal_id) REFERENCES grouper_prov_user_attr(internal_id) on delete cascade;
+    add CONSTRAINT grouper_prov_useratv_fk1 FOREIGN KEY (prov_user_attr_internal_id) REFERENCES grouper_prov_user_attr(internal_id);
 
 alter table grouper_prov_user_attr_value
-    add CONSTRAINT grouper_prov_useratv_fk2 FOREIGN KEY (prov_user_internal_id) REFERENCES grouper_prov_user(internal_id) on delete cascade;
+    add CONSTRAINT grouper_prov_useratv_fk2 FOREIGN KEY (prov_user_internal_id) REFERENCES grouper_prov_user(internal_id);
 
 alter table grouper_prov_user_attr_value
     add CONSTRAINT grouper_prov_useratv_fk3 FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id);
@@ -2955,10 +2955,10 @@ alter table grouper_prov_mship
     add CONSTRAINT grouper_prov_mship_fk1 FOREIGN KEY (grouper_sync_internal_id) REFERENCES grouper_sync(internal_id);
 
 alter table grouper_prov_mship
-    add CONSTRAINT grouper_prov_mship_fk2 FOREIGN KEY (prov_user_internal_id) REFERENCES grouper_prov_user(internal_id) on delete cascade;
+    add CONSTRAINT grouper_prov_mship_fk2 FOREIGN KEY (prov_user_internal_id) REFERENCES grouper_prov_user(internal_id);
 
 alter table grouper_prov_mship
-    add CONSTRAINT grouper_prov_mship_fk3 FOREIGN KEY (prov_group_internal_id) REFERENCES grouper_prov_group(internal_id) on delete cascade;
+    add CONSTRAINT grouper_prov_mship_fk3 FOREIGN KEY (prov_group_internal_id) REFERENCES grouper_prov_group(internal_id);
 
    
 ALTER TABLE grouper_sql_cache_group ADD CONSTRAINT grouper_sql_cache_group1_fk FOREIGN KEY (field_internal_id) REFERENCES grouper_fields(internal_id);
