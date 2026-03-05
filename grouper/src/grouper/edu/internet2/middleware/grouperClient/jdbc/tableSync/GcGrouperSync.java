@@ -19,8 +19,6 @@ import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
-import edu.internet2.middleware.grouper.tableIndex.TableIndex;
-import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -210,7 +208,6 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
 
     gcGrouperSync.groupCount = this.groupCount;
     gcGrouperSync.id = this.id;
-    gcGrouperSync.internalId = this.internalId;
     gcGrouperSync.incrementalIndex = this.incrementalIndex;
     gcGrouperSync.incrementalTimestamp = this.incrementalTimestamp;
     gcGrouperSync.lastFullMetadataSyncRun = this.lastFullMetadataSyncRun;
@@ -245,7 +242,6 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
       this.groupCount = dbGrouperSync.groupCount;
       
       // this.id = this.id; DONT CLONE
-      this.internalId = dbGrouperSync.internalId;
       
       this.incrementalIndex = dbGrouperSync.incrementalIndex;
       this.incrementalTimestamp = dbGrouperSync.incrementalTimestamp;
@@ -290,7 +286,6 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
 
       .append(this.groupCount, other.groupCount)
       .append(this.id, other.id)
-      .append(this.internalId, other.internalId)
       .append(this.incrementalIndex, other.incrementalIndex)
       .append(this.incrementalTimestamp, other.incrementalTimestamp)
       .append(this.lastFullMetadataSyncRun, other.lastFullMetadataSyncRun)
@@ -490,11 +485,6 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
    * int of last record processed
    */
   private Long incrementalIndex;
-
-  /**
-   * internal integer id for this table.  Do not refer to this outside of Grouper.
-   */
-  private Long internalId;
   
   /**
    * when last record processed if timestamp and not integer
@@ -517,22 +507,6 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
    */
   public void setIncrementalIndex(Long incrementalIndexOrMillis1) {
     this.incrementalIndex = incrementalIndexOrMillis1;
-  }
-
-  /**
-   * internal integer id for this table.  Do not refer to this outside of Grouper.
-   * @return internal id
-   */
-  public Long getInternalId() {
-    return this.internalId;
-  }
-
-  /**
-   * internal integer id for this table.  Do not refer to this outside of Grouper.
-   * @param internalId1
-   */
-  public void setInternalId(Long internalId1) {
-    this.internalId = internalId1;
   }
 
   /**
@@ -919,9 +893,6 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
    */
   @Override
   public boolean gcSqlAssignNewPrimaryKeyForInsert() {
-    if (this.internalId == null) {
-      this.internalId = TableIndex.reserveId(TableIndexType.syncInternalId);
-    }
     if (this.id != null) {
       return false;
     }

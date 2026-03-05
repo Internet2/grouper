@@ -27,8 +27,7 @@ public enum GshTemplateInputValidationType {
       
         Pattern pattern = Pattern.compile(gshTemplateInputConfig.getValidationRegex());
         Matcher matcher = pattern.matcher(valueFromUser == null ? "": valueFromUser);
-        boolean matches = matcher.matches();
-        return matches;
+        return matcher.matches();
     }
     
     
