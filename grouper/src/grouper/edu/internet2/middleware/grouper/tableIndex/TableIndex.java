@@ -511,6 +511,7 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
             defaultCount = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsLoader", 10);
             break;
           case WS:
+          case MCP:
             defaultCount = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsWs", 10);
             break;
           case UI:

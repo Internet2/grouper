@@ -11301,10 +11301,6 @@ public class GrouperServiceLogic {
         queryOptions.pagingCursor(pageSize, lastCursorField, pageCursorFieldIncludesLastRetrieved, false);
       } else {
         
-        if ((pageSize == null) != (pageNumber == null)) {
-          throw new RuntimeException("For offset based paging, if you pass page size, you must pass page number and vice versa");
-        }
-        
         if (pageSize != null) {
           if (pageNumber == null) {
             pageNumber = 1;

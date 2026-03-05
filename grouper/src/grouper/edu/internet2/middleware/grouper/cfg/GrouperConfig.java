@@ -591,6 +591,25 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
   }
   
   /**
+   * get the WS url without a slash on the end
+   * @param exceptionIfNull
+   * @return the WS URL without trailing slash, or null if not configured
+   */
+  public static String getGrouperWsUrl(boolean exceptionIfNull) {
+    String url = getProperty("grouper.ws.url");
+    if (StringUtils.isBlank(url)) {
+      if (exceptionIfNull) {
+        throw new RuntimeException("grouper.ws.url is null in grouper.properties");
+      }
+      return null;
+    }
+    if (url.endsWith("/")) {
+      return url.substring(0, url.length() - 1);
+    }
+    return url;
+  }
+
+  /**
    * get the UI url with a slash on the end
    * @param exceptionIfNull
    * @return the UI URL

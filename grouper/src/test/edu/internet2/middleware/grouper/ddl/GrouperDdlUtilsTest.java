@@ -2658,4 +2658,68 @@ public class GrouperDdlUtilsTest extends GrouperTest {
         grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
         grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
   }
+
+  /**
+   * test upgrade from 6.0.1 to 6.1.0 (OAuth tables: grouper_oauth_client, grouper_oauth_code, grouper_oauth_pend_authz_req)
+   */
+  public void testUpgradeFrom6_0_1To6_1_0ddlUtils() {
+
+    //lets make sure everything is there on install
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_oauth_client"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_oauth_code"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_oauth_pend_authz_req"));
+
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+
+    // load 6.0.1 DDL (no OAuth tables)
+    File scriptToGetTo6_0_1 = retrieveScriptFile("GrouperDdl_6_0_1_" + GrouperDdlUtils.databaseType() + ".sql");
+
+    GrouperDdlUtils.sqlRun(scriptToGetTo6_0_1, true, true);
+
+    // stuff gone
+    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_oauth_client"));
+    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_oauth_code"));
+    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_oauth_pend_authz_req"));
+
+    UpgradeTasks.V38.upgradeTask().updateVersionFromPrevious(null);
+
+    //lets make sure everything is there on upgrade
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_oauth_client"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_oauth_code"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_oauth_pend_authz_req"));
+
+    scriptToGetTo6_0_1.delete();
+
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getResult() + " " +
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+
+
+
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  }
 }

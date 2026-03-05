@@ -33,7 +33,10 @@
                     
                       <br /><br /><a id="miscFormsLink" href="?operation=UiV2GrouperWorkflow.forms" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperWorkflow.forms');" style="white-space: nowrap;"
                       >${textContainer.text['workflowMiscFormsLink'] }</a>
-                    
+
+                    <br /><br /><a id="miscMcpLink" href="?operation=UiV2Mcp.mcpInfo" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Mcp.mcpInfo');" style="white-space: nowrap;"
+                      >${textContainer.text['miscMcpLink'] }</a>
+
                     <c:if test="${grouperRequestContainer.rulesContainer.canReadPrivilegeInheritance && grouperRequestContainer.indexContainer.showGlobalInheritedPrivilegesLink}">
                       <br /><br /><a id="miscInheritedPrivilegesLink" href="?operation=UiV2Main.globalInheritedPrivileges" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.globalInheritedPrivileges');" style="white-space: nowrap;"
                       >${textContainer.text['miscellaneousGlobalInheritedPrivileges'] }</a>

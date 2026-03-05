@@ -3031,7 +3031,89 @@ create view grouper_sql_dependency_attr_v (dependency_type_name, dependency_type
 
 create view grouper_sql_dependency_row_v (dependency_type_name, dependency_type_category,  dependency_type_internal_id, dependency_internal_id, owner_data_row_internal_id,  owner_data_row_config_id, owner_data_alias_name, owner_data_alias_lower_name,  owner_data_alias_internal_id, depen_cache_group_internal_id, depen_group_name,  depen_group_id, depen_group_internal_id, depen_group_id_index, depen_field_name,  depen_field_type, depen_field_internal_id ) as select gscdt.name as dependency_type_name, gscdt.dependency_category as dependency_type_category, gscdt.internal_id as dependency_type_internal_id, gscd.internal_id as dependency_internal_id, dtr_owner.internal_id as owner_data_row_internal_id, dtr_owner.config_id  as owner_data_row_config_id, gda_owner.name as owner_data_alias_name, gda_owner.lower_name as owner_data_alias_lower_name, gda_owner.internal_id as owner_data_alias_internal_id, gscg_dependent.internal_id as depen_cache_group_internal_id, gg_dependent.name as depen_group_name, gg_dependent.id as depen_group_id, gg_dependent.internal_id as depen_group_internal_id, gg_dependent.id_index as depen_group_id_index, gf_dependent.name as depen_field_name, gf_dependent.type as depen_field_type, gf_dependent.internal_id as depen_field_internal_id from  grouper_sql_cache_depend_type gscdt, grouper_sql_cache_dependency gscd left join grouper_data_row dtr_owner on gscd.owner_internal_id = dtr_owner.internal_id left join grouper_data_alias gda_owner on gda_owner.data_row_internal_id = dtr_owner.internal_id left join grouper_sql_cache_group gscg_dependent on gscd.dependent_internal_id = gscg_dependent.internal_id left join grouper_groups gg_dependent on gg_dependent.internal_id = gscg_dependent.group_internal_id left join grouper_fields gf_dependent on gscg_dependent.field_internal_id = gf_dependent.internal_id  where gscdt.name in ('abac_row')  and gscd.dep_type_internal_id = gscdt.internal_id;
 
-insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
+CREATE TABLE grouper_oauth_client
+(
+  internal_id BIGINT NOT NULL,
+  client_id VARCHAR(255) NOT NULL,
+  client_name VARCHAR(255),
+  redirect_uris VARCHAR(4000) NOT NULL,
+  client_secret VARCHAR(4000),
+  registered_micros BIGINT NOT NULL,
+  member_internal_id BIGINT,
+  code_count BIGINT,
+  last_code_micros BIGINT,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_oauth_client_idx ON grouper_oauth_client (client_id);
+
+CREATE TABLE grouper_oauth_code
+(
+  internal_id BIGINT NOT NULL,
+  code VARCHAR(255) NOT NULL,
+  oauth_client_internal_id BIGINT NOT NULL,
+  redirect_uri VARCHAR(4000),
+  code_challenge VARCHAR(255) NOT NULL,
+  code_challenge_method VARCHAR(10) NOT NULL,
+  member_internal_id BIGINT NOT NULL,
+  is_used VARCHAR(1) NOT NULL,
+  created_micros BIGINT NOT NULL,
+  expires_micros BIGINT,
+  consent_details VARCHAR(4000),
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_oauth_code_idx ON grouper_oauth_code (code);
+
+CREATE INDEX grouper_oauth_code_exp_idx ON grouper_oauth_code (expires_micros);
+
+CREATE INDEX grp_oauth_code_client_idx ON grouper_oauth_code (oauth_client_internal_id);
+
+CREATE TABLE grouper_oauth_pend_authz_req
+(
+  internal_id BIGINT NOT NULL,
+  request_id VARCHAR(255) NOT NULL,
+  oauth_client_internal_id BIGINT NOT NULL,
+  redirect_uri VARCHAR(4000),
+  code_challenge VARCHAR(255) NOT NULL,
+  code_challenge_method VARCHAR(10) NOT NULL,
+  state VARCHAR(4000),
+  scope VARCHAR(4000),
+  created_micros BIGINT NOT NULL,
+  expires_micros BIGINT,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grp_oauth_pend_req_idx ON grouper_oauth_pend_authz_req (request_id);
+
+CREATE INDEX grp_oauth_pend_exp_idx ON grouper_oauth_pend_authz_req (expires_micros);
+
+CREATE INDEX grp_oauth_pend_client_idx ON grouper_oauth_pend_authz_req (oauth_client_internal_id);
+
+CREATE TABLE grouper_mcp_tool_log
+(
+    internal_id BIGINT NOT NULL,
+    oauth_client_internal_id BIGINT,
+    member_internal_id BIGINT NOT NULL,
+    tool_name VARCHAR(255) NOT NULL,
+    tool_category VARCHAR(64) NOT NULL,
+    request VARCHAR(4000),
+    response_or_error VARCHAR(4000),
+    is_error VARCHAR(1) NOT NULL,
+    started_micros BIGINT NOT NULL,
+    duration_micros BIGINT,
+    PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX grp_mcp_tool_log_member_idx ON grouper_mcp_tool_log (member_internal_id);
+
+CREATE INDEX grp_mcp_tool_log_started_idx ON grouper_mcp_tool_log (started_micros);
+
+CREATE INDEX grp_mcp_tool_log_name_idx ON grouper_mcp_tool_log (tool_name);
+
+CREATE INDEX grp_mcp_tool_log_oauth_idx ON grouper_mcp_tool_log (oauth_client_internal_id);
+
+insert into grouper_ddl (id, object_name, db_version, last_updated, history) values
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'),
 concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V47, '));
 commit;

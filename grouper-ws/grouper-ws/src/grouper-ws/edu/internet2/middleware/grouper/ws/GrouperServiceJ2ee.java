@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.authentication.GrouperOidc;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.authentication.GrouperPublicPrivateKeyJwt;
 import edu.internet2.middleware.grouper.authentication.GrouperTrustedJwt;
+
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -953,10 +954,26 @@ public class GrouperServiceJ2ee implements Filter {
       request.setCharacterEncoding("UTF-8");
       response.setCharacterEncoding("UTF-8");
 
+      // MCP endpoints handle their own authentication (OAuth JWT and/or normal WS auth)
+      // but need the thread local request so GrouperServiceLogic can read REMOTE_USER
+      String requestUri = httpServletRequest.getRequestURI();
+      String contextPath = httpServletRequest.getContextPath();
+      String pathInContext = requestUri.substring(contextPath.length());
+      if (pathInContext.startsWith("/mcp") || pathInContext.startsWith("/.well-known/")) {
+        threadLocalRequest.set((HttpServletRequest) request);
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.MCP, false, false);
+        try {
+          filterChain.doFilter(request, response);
+        } finally {
+          threadLocalRequest.remove();
+        }
+        return;
+      }
+
       //make sure nulls are not returned for params for Axis bug where
       //empty strings work, but nulls make things off a bit
       request = new WsHttpServletRequest((HttpServletRequest) request);
-      
+
       String authHeader = ((HttpServletRequest) request).getHeader("Authorization");
       if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith("Bearer jwtTrusted_")) {
         Subject subject = new GrouperTrustedJwt().assignBearerTokenHeader(authHeader).decode();
@@ -979,16 +996,16 @@ public class GrouperServiceJ2ee implements Filter {
         }
         
       } else if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith("Bearer jwtUser_")) {
-        
+
         Subject subject = new GrouperPublicPrivateKeyJwt().assignBearerTokenHeader(authHeader).decode(request.getRemoteAddr());
-        
+
         if (subject != null) {
           ((HttpServletRequest) request).setAttribute("REMOTE_USER", subject.getSourceId()+"::::"+subject.getId());
         } else {
-          ((HttpServletResponse) response).sendError(401, "Unauthorized");          
+          ((HttpServletResponse) response).sendError(401, "Unauthorized");
           return;
         }
-        
+
       } else {
         
         boolean runGrouperWsWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws.basicAuthn", false);

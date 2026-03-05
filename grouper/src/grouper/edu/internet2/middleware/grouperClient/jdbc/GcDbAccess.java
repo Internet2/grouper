@@ -315,7 +315,7 @@ public class GcDbAccess {
    * connection name from the config file, or null for default
    */
   private String connectionName;
- 
+
   /**
    * connection name from the config file, or null for default
    * @param theConnectionName
@@ -326,7 +326,53 @@ public class GcDbAccess {
     this.connectionProvided = false;
     return this;
   }
-  
+
+  /**
+   * whether this connection should be set to read-only mode.
+   * when true, connection.setReadOnly(true) is called on the JDBC connection,
+   * which tells the JDBC driver to reject any write operations.
+   */
+  private boolean readOnly = false;
+
+  /**
+   * set the connection to read-only mode.  This calls connection.setReadOnly(true)
+   * which tells the JDBC driver to reject any write operations.
+   * Useful for defense-in-depth when running user-supplied SQL queries.
+   * @param theReadOnly true for read-only
+   * @return this for chaining
+   */
+  public GcDbAccess readOnly(boolean theReadOnly) {
+    this.readOnly = theReadOnly;
+    return this;
+  }
+
+  /**
+   * page number (1-based) for paging results.
+   * use with pageSize via the paging() method.
+   */
+  private Integer pageNumber;
+
+  /**
+   * page size for paging results.
+   * use with pageNumber via the paging() method.
+   */
+  private Integer pageSize;
+
+  /**
+   * set paging parameters for the query.
+   * Page numbers are 1-based (first page is 1).
+   * This appends vendor-appropriate LIMIT/OFFSET or FETCH FIRST/OFFSET
+   * syntax to the SQL at execution time.
+   * @param thePageNumber 1-based page number
+   * @param thePageSize number of rows per page
+   * @return this for chaining
+   */
+  public GcDbAccess paging(int thePageNumber, int thePageSize) {
+    this.pageNumber = thePageNumber;
+    this.pageSize = thePageSize;
+    return this;
+  }
+
   /**
    * end a transaction
    * @param transactionEnd
@@ -2906,16 +2952,23 @@ public class GcDbAccess {
     CallableStatement callableStatement = null;
 
     ConnectionBean connectionBean = null;
-    
+
     T t = null;
-    
+    boolean previousReadOnly = false;
+
     try{
 
       connectionBean = connection(false, true, this.connectionName, this.connectionProvided, this.connection);
-      
+
       // Make a new connection.
       this.connection = connectionBean.getConnection();
-      
+
+      // set read-only mode if requested
+      if (this.readOnly) {
+        previousReadOnly = this.connection.isReadOnly();
+        this.connection.setReadOnly(true);
+      }
+
       // Create the callable statement.
       callableStatement = this.connection.prepareCall(callableStatementCallback.getQuery());
       callableStatement.setFetchSize(1000);
@@ -2931,6 +2984,9 @@ public class GcDbAccess {
     } catch (Exception e){
       throw new RuntimeException(e);
     } finally{
+      if (this.readOnly && this.connection != null) {
+        try { this.connection.setReadOnly(previousReadOnly); } catch (Exception e) { /* ignore */ }
+      }
       try{
         if (callableStatement != null){
           callableStatement.close();
@@ -2979,14 +3035,21 @@ public class GcDbAccess {
     PreparedStatement preparedStatement = null;
 
     ConnectionBean connectionBean = null;
-    
+
     T t = null;
+    boolean previousReadOnly = false;
     try{
 
       connectionBean = connection(false, true, this.connectionName, this.connectionProvided, this.connection);
-      
+
       // Make a new connection.
       this.connection = connectionBean.getConnection();
+
+      // set read-only mode if requested
+      if (this.readOnly) {
+        previousReadOnly = this.connection.isReadOnly();
+        this.connection.setReadOnly(true);
+      }
 
       // Create the callable statement.
       preparedStatement = this.connection.prepareStatement(preparedStatementCallback.getQuery());
@@ -3010,6 +3073,9 @@ public class GcDbAccess {
     } catch (Exception e){
       throw new RuntimeException(e);
     } finally{
+      if (this.readOnly && this.connection != null) {
+        try { this.connection.setReadOnly(previousReadOnly); } catch (Exception e) { /* ignore */ }
+      }
       try{
         if (preparedStatement != null){
           preparedStatement.close();
@@ -3061,13 +3127,20 @@ public class GcDbAccess {
 
     ConnectionBean connectionBean = null;
     long startNanos = System.nanoTime();
+    boolean previousReadOnly = false;
 
     try{
 
       connectionBean = connection(false, true, this.connectionName, this.connectionProvided, this.connection);
-      
+
       // Make a new connection.
       this.connection = connectionBean.getConnection();
+
+      // set read-only mode if requested
+      if (this.readOnly) {
+        previousReadOnly = this.connection.isReadOnly();
+        this.connection.setReadOnly(true);
+      }
 
       //dont worry about autocommit
 
@@ -3081,6 +3154,9 @@ public class GcDbAccess {
     } catch (Exception e){
       throw new RuntimeException(e);
     } finally {
+      if (this.readOnly && this.connection != null) {
+        try { this.connection.setReadOnly(previousReadOnly); } catch (Exception e) { /* ignore */ }
+      }
       ConnectionBean.closeIfStarted(connectionBean);
       GrouperClientUtils.performanceTimingAllDuration(GrouperClientUtils.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
 
@@ -3111,17 +3187,30 @@ public class GcDbAccess {
     ConnectionBean connectionBean = null;
     
     T t = null;
+    boolean previousReadOnly = false;
     try{
 
       connectionBean = connection(false, true, this.connectionName, this.connectionProvided, this.connection);
-      
+
       // Make a new connection.
       this.connection = connectionBean.getConnection();
 
+      // set read-only mode if requested (defense-in-depth for read-only queries)
+      if (this.readOnly) {
+        previousReadOnly = this.connection.isReadOnly();
+        this.connection.setReadOnly(true);
+      }
+
+      // apply paging to the SQL if requested
+      String sqlToUse = this.sql;
+      if (this.pageSize != null && this.pageNumber != null) {
+        sqlToUse = addPagingSql(this.connection, sqlToUse, this.pageNumber, this.pageSize);
+      }
+
       // Get the statement object that we are going to use.
-      preparedStatement = this.connection.prepareStatement(this.sql);
+      preparedStatement = this.connection.prepareStatement(sqlToUse);
       preparedStatement.setFetchSize(1000);
-      String sqltoRecord = this.sql;
+      String sqltoRecord = sqlToUse;
 
 
       // Set the query timeout if there is one.
@@ -3159,12 +3248,12 @@ public class GcDbAccess {
           this.numberOfBatchRowsAffected = preparedStatement.executeBatch();
           this.addQueryToQueriesAndMillis(sqltoRecord, startTime);
           return null;
-        } 
+        }
 
         Long startTime = System.nanoTime();
         this.numberOfRowsAffected = preparedStatement.executeUpdate();
         this.addQueryToQueriesAndMillis(sqltoRecord, startTime);
-        return null; 
+        return null;
       }
 
       // Externally, it is used as a callback.
@@ -3172,10 +3261,14 @@ public class GcDbAccess {
       this.resultSetMetaData = rs.getMetaData();
       t = resultSetCallback.callback(rs);
       return t;
-      
+
     } catch (Exception e){
       throw new RuntimeException("sql: " + this.sql + ", " + (GrouperClientUtils.length(this.bindVars) > 1 ? ("args: " + GrouperClientUtils.toStringForLog(this.bindVars)) : ""), e);
     } finally {
+      // restore read-only state if we changed it
+      if (this.readOnly && this.connection != null) {
+        try { this.connection.setReadOnly(previousReadOnly); } catch (Exception e) { /* ignore */ }
+      }
       this.resultSetMetaData = null;
       this.resultSetMetadataColumnNameLowerToIndex = null;
       if (preparedStatement != null){
@@ -4002,6 +4095,33 @@ public class GcDbAccess {
       }
       
     });
-    
+
+  }
+
+  /**
+   * add paging (LIMIT/OFFSET) to a SQL query, vendor-appropriate.
+   * Detects the database vendor from the JDBC connection metadata.
+   * Page numbers are 1-based (first page is 1).
+   * @param connection the JDBC connection (used for vendor detection)
+   * @param sql the SQL query
+   * @param thePageNumber 1-based page number
+   * @param thePageSize number of rows per page
+   * @return the SQL with paging appended
+   */
+  static String addPagingSql(Connection connection, String sql, int thePageNumber, int thePageSize) {
+    int offset = (thePageNumber - 1) * thePageSize;
+    boolean isOracle = false;
+    try {
+      String productName = connection.getMetaData().getDatabaseProductName();
+      isOracle = productName != null && productName.toLowerCase().contains("oracle");
+    } catch (Exception e) {
+      // fall through to default (LIMIT/OFFSET)
+    }
+    if (isOracle) {
+      // Oracle 12c+ supports OFFSET/FETCH (SQL:2008 standard)
+      return sql + " OFFSET " + offset + " ROWS FETCH NEXT " + thePageSize + " ROWS ONLY";
+    }
+    // PostgreSQL and MySQL both support LIMIT/OFFSET
+    return sql + " LIMIT " + thePageSize + " OFFSET " + offset;
   }
 }

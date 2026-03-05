@@ -53,7 +53,10 @@ public enum GrouperEngineBuiltin implements GrouperEngineIdentifier {
   USDU("grouperUsdu"),
 
   /** junit engine */
-  JUNIT("grouperJunit");
+  JUNIT("grouperJunit"),
+
+  /** MCP (Model Context Protocol) engine */
+  MCP("grouperMcp");
 
   /**
    * have the label different from name

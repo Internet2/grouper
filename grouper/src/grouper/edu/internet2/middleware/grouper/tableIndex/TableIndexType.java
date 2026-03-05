@@ -549,6 +549,60 @@ public enum TableIndexType {
       return false;
     }
   }, 
+  /** OAuth client registration */
+  oauthClient {
+
+    @Override
+    public String tableName() {
+      return "grouper_oauth_client";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  /** OAuth authorization code */
+  oauthCode {
+
+    @Override
+    public String tableName() {
+      return "grouper_oauth_code";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  /** OAuth pending authorization request */
+  oauthPendingRequest {
+
+    @Override
+    public String tableName() {
+      return "grouper_oauth_pend_authz_req";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
   /** SQL cache dependency type */
   sqlCacheDependency{
   
@@ -562,6 +616,24 @@ public enum TableIndexType {
       return "internal_id";
     }
     
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  /** MCP tool call audit log */
+  mcpToolLog {
+
+    @Override
+    public String tableName() {
+      return "grouper_mcp_tool_log";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
     @Override
     public boolean isHasIdColumn() {
       return false;

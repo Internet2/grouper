@@ -110,7 +110,7 @@
                         <td>${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.id}</td>
                         <td style="white-space: nowrap">${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.lastUpdated}</td>
                         <td style="white-space: nowrap">${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.host}</td>
-                        <td style="white-space: nowrap"><grouper:abbreviateTextarea text="${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.jobMessage}" showCharCount="30" cols="20" rows="3"/></td>
+                        <td style="white-space: nowrap"><span class="jobMessageContainer"><grouper:abbreviateTextarea text="${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.jobMessage}" showCharCount="30" cols="20" rows="3"/></span><c:if test="${not empty guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.jobMessage}"> <a href="#" onclick="grouperCopyJobMessage(this); return false;" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left:4px;"><i class="fa fa-clone"></i></a></c:if></td>
                         <td style="white-space: nowrap">${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.parentJobId}</td>
                           
                       </tr>

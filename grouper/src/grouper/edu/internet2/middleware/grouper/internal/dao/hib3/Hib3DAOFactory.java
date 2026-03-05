@@ -580,6 +580,6 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   public GrouperPasswordRecentlyUsedDAO getGrouperPasswordRecentlyUsed() {
     return new Hib3GrouperPasswordRecentlyUsedDAO();
   }
-  
-} 
+
+}
 

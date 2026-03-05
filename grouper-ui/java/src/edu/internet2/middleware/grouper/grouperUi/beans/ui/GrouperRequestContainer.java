@@ -1101,7 +1101,55 @@ public class GrouperRequestContainer {
     if (this.userLifecycleEventsContainer == null) {
       this.userLifecycleEventsContainer = new UserLifecycleEventsContainer();
     }
-    
+
     return this.userLifecycleEventsContainer;
+  }
+
+  /**
+   * container for MCP info page data
+   */
+  private McpContainer mcpContainer;
+
+  /**
+   * container for MCP info page data
+   * @return the container
+   */
+  public McpContainer getMcpContainer() {
+    if (this.mcpContainer == null) {
+      this.mcpContainer = new McpContainer();
+    }
+    return this.mcpContainer;
+  }
+
+  /**
+   * container for MCP info page data
+   * @param mcpContainer1 the mcpContainer to set
+   */
+  public void setMcpContainer(McpContainer mcpContainer1) {
+    this.mcpContainer = mcpContainer1;
+  }
+
+  /**
+   * container for OAuth consent page data
+   */
+  private OAuthContainer oauthContainer;
+
+  /**
+   * container for OAuth consent page data
+   * @return the container
+   */
+  public OAuthContainer getOauthContainer() {
+    if (this.oauthContainer == null) {
+      this.oauthContainer = new OAuthContainer();
+    }
+    return this.oauthContainer;
+  }
+
+  /**
+   * container for OAuth consent page data
+   * @param oauthContainer1 the oauthContainer to set
+   */
+  public void setOauthContainer(OAuthContainer oauthContainer1) {
+    this.oauthContainer = oauthContainer1;
   }
 }

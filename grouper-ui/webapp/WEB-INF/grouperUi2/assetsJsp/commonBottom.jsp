@@ -14,7 +14,8 @@
 <script src="../../grouperExternal/public/assets/nifty/niftycube.js"></script>
 
 <script type="text/javascript">
-  $().ajaxStop($.unblockUI); 
+  var grouperCopiedToClipboardText = "${textContainer.text['copiedToClipboardMessage']}";
+  $().ajaxStop($.unblockUI);
   $.blockUI.defaults.message = "<img src='../../grouperExternal/public/assets/images/busy.gif' alt='busy'/>";
   $.blockUI.defaults.css.border = 'none';
   $.blockUI.defaults.css.backgroundColor = 'transparent';

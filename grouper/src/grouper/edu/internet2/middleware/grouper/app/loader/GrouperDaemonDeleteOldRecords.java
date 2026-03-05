@@ -138,7 +138,18 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInAuditEntryDelete", ExceptionUtils.getStackTrace(e));
         jobMessage.append("\nError in deleteOldAuditEntry: " +ExceptionUtils.getStackTrace(e)  + "\n");
         error = true;
-        
+
+      }
+
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
+      try {
+        deleteOldMcpToolLogs(jobMessage, hib3GrouploaderLog);
+      } catch (Exception e) {
+        LOG.error("Error in deleteOldMcpToolLogs", e);
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInMcpToolLogDelete", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in deleteOldMcpToolLogs: " +ExceptionUtils.getStackTrace(e)  + "\n");
+        error = true;
       }
 
       GrouperDaemonUtils.stopProcessingIfJobPaused();
@@ -1171,5 +1182,52 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
 
     }
     return everythingOk;
+  }
+
+  /**
+   * delete old MCP tool log entries from grouper_mcp_tool_log
+   * @param jobMessage
+   * @param hib3GrouploaderLog
+   */
+  private static void deleteOldMcpToolLogs(StringBuilder jobMessage,
+      Hib3GrouperLoaderLog hib3GrouploaderLog) {
+
+    boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
+
+    try {
+      int daysToKeep = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueInt("loader.retain.db.mcp_tool_log.days", 365);
+
+      GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldMcpToolLogDays", daysToKeep);
+
+      if (daysToKeep != -1) {
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeep);
+        long cutoffMicros = calendar.getTimeInMillis() * 1000L;
+
+        int records = new GcDbAccess()
+            .sql("delete from grouper_mcp_tool_log where started_micros < ?")
+            .addBindVar(cutoffMicros)
+            .executeSql();
+
+        if (hib3GrouploaderLog != null) {
+          hib3GrouploaderLog.addDeleteCount(records);
+        }
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldMcpToolLogCount", records);
+
+        if (jobMessage != null) {
+          jobMessage.append("Deleted " + records
+              + " MCP tool log records older than " + daysToKeep + " days.\n");
+        }
+      } else {
+        if (jobMessage != null) {
+          jobMessage.append("Configured to not delete old MCP tool log records.\n");
+        }
+      }
+    } finally {
+      if (loggerInitted) {
+        GrouperLoaderLogger.doTheLogging(LOG_LABEL);
+      }
+    }
   }
 }

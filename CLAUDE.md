@@ -85,7 +85,7 @@ User-managed configuration are in corresponding files without the `.base` in the
 
 - Current branch: GROUPER_7_BRANCH
 - Main development branch: GROUPER_7_BRANCH (for PRs)
-- Other actively maintained branches: GROUPER_4_BRANCH
+- Other actively maintained branches: GROUPER_4_BRANCH, GROUPER_6_BRANCH
 
 Released versions are tagged in the format GROUPER_RELEASE_a.b.c, where a.b.c is the version number.
 

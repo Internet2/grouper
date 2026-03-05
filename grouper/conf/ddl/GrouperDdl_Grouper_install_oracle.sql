@@ -8074,6 +8074,140 @@ COMMENT ON COLUMN grouper_lifecycle_event.event_micros IS 'when the event occurr
 COMMENT ON COLUMN grouper_lifecycle_event.ntrl_lng_priv_dic_intrnl_id IS 'dictionary table internal id';
 COMMENT ON COLUMN grouper_lifecycle_event.ntrl_lng_unpriv_dic_intrnl_id IS 'dictionary table internal id';
 
+CREATE TABLE grouper_oauth_client
+(
+  internal_id NUMBER(20) NOT NULL,
+  client_id VARCHAR2(255) NOT NULL,
+  client_name VARCHAR2(255),
+  redirect_uris VARCHAR2(4000) NOT NULL,
+  client_secret VARCHAR2(4000),
+  registered_micros NUMBER(20) NOT NULL,
+  member_internal_id NUMBER(20),
+  code_count NUMBER(20),
+  last_code_micros NUMBER(20),
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_oauth_client_idx ON grouper_oauth_client (client_id);
+
+CREATE TABLE grouper_oauth_code
+(
+  internal_id NUMBER(20) NOT NULL,
+  code VARCHAR2(255) NOT NULL,
+  oauth_client_internal_id NUMBER(20) NOT NULL,
+  redirect_uri VARCHAR2(4000),
+  code_challenge VARCHAR2(255) NOT NULL,
+  code_challenge_method VARCHAR2(10) NOT NULL,
+  member_internal_id NUMBER(20) NOT NULL,
+  is_used VARCHAR2(1) NOT NULL,
+  created_micros NUMBER(20) NOT NULL,
+  expires_micros NUMBER(20),
+  consent_details VARCHAR2(4000),
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_oauth_code_idx ON grouper_oauth_code (code);
+
+CREATE INDEX grouper_oauth_code_exp_idx ON grouper_oauth_code (expires_micros);
+
+CREATE INDEX grp_oauth_code_client_idx ON grouper_oauth_code (oauth_client_internal_id);
+
+CREATE TABLE grouper_oauth_pend_authz_req
+(
+  internal_id NUMBER(20) NOT NULL,
+  request_id VARCHAR2(255) NOT NULL,
+  oauth_client_internal_id NUMBER(20) NOT NULL,
+  redirect_uri VARCHAR2(4000),
+  code_challenge VARCHAR2(255) NOT NULL,
+  code_challenge_method VARCHAR2(10) NOT NULL,
+  state VARCHAR2(4000),
+  scope VARCHAR2(4000),
+  created_micros NUMBER(20) NOT NULL,
+  expires_micros NUMBER(20),
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grp_oauth_pend_req_idx ON grouper_oauth_pend_authz_req (request_id);
+
+CREATE INDEX grp_oauth_pend_exp_idx ON grouper_oauth_pend_authz_req (expires_micros);
+
+CREATE INDEX grp_oauth_pend_client_idx ON grouper_oauth_pend_authz_req (oauth_client_internal_id);
+
+COMMENT ON TABLE grouper_oauth_client IS 'table to store dynamically registered OAuth clients';
+
+COMMENT ON COLUMN grouper_oauth_client.internal_id IS 'auto-incrementing bigint primary key';
+COMMENT ON COLUMN grouper_oauth_client.client_id IS 'unique OAuth client identifier';
+COMMENT ON COLUMN grouper_oauth_client.client_name IS 'display name for the client';
+COMMENT ON COLUMN grouper_oauth_client.redirect_uris IS 'comma-separated list of registered redirect URIs';
+COMMENT ON COLUMN grouper_oauth_client.client_secret IS 'encrypted client secret';
+COMMENT ON COLUMN grouper_oauth_client.registered_micros IS 'micros since 1970 when the client was registered';
+COMMENT ON COLUMN grouper_oauth_client.member_internal_id IS 'member internal id of the first user who got an authorization code (nullable)';
+COMMENT ON COLUMN grouper_oauth_client.code_count IS 'number of authorization codes issued for this client';
+COMMENT ON COLUMN grouper_oauth_client.last_code_micros IS 'micros since 1970 when the last authorization code was issued';
+
+COMMENT ON TABLE grouper_oauth_code IS 'table to store issued OAuth authorization codes';
+
+COMMENT ON COLUMN grouper_oauth_code.internal_id IS 'auto-incrementing bigint primary key';
+COMMENT ON COLUMN grouper_oauth_code.code IS 'unique authorization code';
+COMMENT ON COLUMN grouper_oauth_code.oauth_client_internal_id IS 'internal id from grouper_oauth_client (soft link, not a FK)';
+COMMENT ON COLUMN grouper_oauth_code.redirect_uri IS 'redirect URI provided in the authorization request';
+COMMENT ON COLUMN grouper_oauth_code.code_challenge IS 'PKCE code challenge (S256)';
+COMMENT ON COLUMN grouper_oauth_code.code_challenge_method IS 'PKCE code challenge method (S256)';
+COMMENT ON COLUMN grouper_oauth_code.member_internal_id IS 'member internal id of the user who approved';
+COMMENT ON COLUMN grouper_oauth_code.is_used IS 'T or F whether this code has been exchanged for a token';
+COMMENT ON COLUMN grouper_oauth_code.created_micros IS 'micros since 1970 when the code was created';
+COMMENT ON COLUMN grouper_oauth_code.expires_micros IS 'micros since 1970 when the code expires';
+COMMENT ON COLUMN grouper_oauth_code.consent_details IS 'JSON object with consent details (granted scopes, etc.)';
+
+COMMENT ON TABLE grouper_oauth_pend_authz_req IS 'table to store pending OAuth authorization requests awaiting user approval';
+
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.internal_id IS 'auto-incrementing bigint primary key';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.request_id IS 'unique public-facing request identifier';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.oauth_client_internal_id IS 'internal id from grouper_oauth_client (soft link, not a FK)';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.redirect_uri IS 'redirect URI for the response';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.code_challenge IS 'PKCE code challenge (S256)';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.code_challenge_method IS 'PKCE code challenge method (S256)';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.state IS 'OAuth state parameter passed through to redirect';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.scope IS 'requested OAuth scope';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.created_micros IS 'micros since 1970 when the request was created';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.expires_micros IS 'micros since 1970 when the request expires';
+
+CREATE TABLE grouper_mcp_tool_log
+(
+    internal_id NUMBER(20) NOT NULL,
+    oauth_client_internal_id NUMBER(20),
+    member_internal_id NUMBER(20) NOT NULL,
+    tool_name VARCHAR2(255) NOT NULL,
+    tool_category VARCHAR2(64) NOT NULL,
+    request VARCHAR2(4000),
+    response_or_error VARCHAR2(4000),
+    is_error VARCHAR2(1) NOT NULL,
+    started_micros NUMBER(20) NOT NULL,
+    duration_micros NUMBER(20),
+    PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX grp_mcp_tool_log_member_idx ON grouper_mcp_tool_log (member_internal_id);
+
+CREATE INDEX grp_mcp_tool_log_started_idx ON grouper_mcp_tool_log (started_micros);
+
+CREATE INDEX grp_mcp_tool_log_name_idx ON grouper_mcp_tool_log (tool_name);
+
+CREATE INDEX grp_mcp_tool_log_oauth_idx ON grouper_mcp_tool_log (oauth_client_internal_id);
+
+COMMENT ON TABLE grouper_mcp_tool_log IS 'audit log of MCP tool calls including request, response, timing, and error info';
+
+COMMENT ON COLUMN grouper_mcp_tool_log.internal_id IS 'auto-incrementing bigint primary key';
+COMMENT ON COLUMN grouper_mcp_tool_log.oauth_client_internal_id IS 'internal id from grouper_oauth_client (soft link, not a FK, so audits survive client deletion)';
+COMMENT ON COLUMN grouper_mcp_tool_log.member_internal_id IS 'member internal id of the authenticated user who called the tool';
+COMMENT ON COLUMN grouper_mcp_tool_log.tool_name IS 'name of the MCP tool that was called';
+COMMENT ON COLUMN grouper_mcp_tool_log.tool_category IS 'category of the MCP tool';
+COMMENT ON COLUMN grouper_mcp_tool_log.request IS 'request payload (truncated to 4000 chars)';
+COMMENT ON COLUMN grouper_mcp_tool_log.response_or_error IS 'response or error message (truncated to 4000 chars)';
+COMMENT ON COLUMN grouper_mcp_tool_log.is_error IS 'T if the call resulted in an error, F otherwise';
+COMMENT ON COLUMN grouper_mcp_tool_log.started_micros IS 'micros since 1970 when the call started';
+COMMENT ON COLUMN grouper_mcp_tool_log.duration_micros IS 'duration of the call in microseconds';
+
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values
 ('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'),
 to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V47, ');

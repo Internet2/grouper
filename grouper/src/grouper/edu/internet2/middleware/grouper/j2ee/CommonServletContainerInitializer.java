@@ -52,6 +52,13 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
       
       boolean runGrouperScim = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.scim", false);
       
+      // MCP (Model Context Protocol) enables AI tools (Claude, Cursor, etc.) to interact with
+      // Grouper via the MCP Streamable HTTP transport.  The MCP servlets are registered inside the
+      // WS block below, so grouper.is.ws must also be true for the WS-side servlets.
+      // The UI-side consent page and MCP info page (UiV2Mcp) also check this property
+      // and throw an exception if MCP is not enabled.
+      boolean runGrouperMcp = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.mcp", false);
+
       boolean runGrouperDaemon = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.daemon", false);
       
       try {
@@ -125,10 +132,11 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
           javax.servlet.ServletRegistration.Dynamic owaspJavascriptServlet = context.addServlet(owaspJavascriptServletName, owaspJavascriptServletClass);
           owaspJavascriptServlet.addMapping("/grouperExternal/public/OwaspJavaScriptServlet");
         } catch (ClassNotFoundException e) {
-          if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.dev.env.allowMissingServlets", true)) {
-            LOG.info("you can't access grouper ui because required classes are not on the classpath.");
+          if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.dev.env.allowMissingServlets", false)) {
+            LOG.error("You can't access grouper ui because required class is not on the classpath: " + e.getMessage(), e);
           } else {
-            LOG.info("if you are developing and got this exception put grouper.dev.env.allowMissingServlets=true in config file grouper.properties.");
+            LOG.error("Required class for grouper ui is not on the classpath: " + e.getMessage()
+                + ". If you are developing, put grouper.dev.env.allowMissingServlets=true in config file grouper.properties.", e);
             throw new RuntimeException("required classes for grouper ui are not on the classpath", e);
           }
         }
@@ -189,17 +197,90 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
             scimServlet.setLoadOnStartup(1);
           }
 
+          // ---- MCP (Model Context Protocol) servlets ----
+          // Enables AI assistants to interact with Grouper via the MCP Streamable HTTP transport.
+          // Secured by OAuth 2.1 with PKCE; the user authenticates through the Grouper UI and
+          // approves access on a consent page (UiV2OAuth.authorize in the UI module).
+          // Five servlets are registered:
+          //   1. GrouperMcpServlet        - main MCP JSON-RPC 2.0 endpoint (/mcp)
+          //   2. GrouperOAuthServlet      - token exchange and dynamic client registration
+          //   3. GrouperMcpProtectedResourceServlet - RFC 9728 resource metadata discovery
+          //   4. GrouperMcpWellKnownServlet         - RFC 8414 authorization server metadata discovery
+          if (runGrouperMcp) {
+
+            // 1. Main MCP protocol endpoint - JSON-RPC 2.0 over HTTP (POST for messages, DELETE
+            //    for session termination).  Requires a valid JWT bearer token on every request.
+            //    This path IS behind the WS logging and service filters for request logging and
+            //    Grouper session setup.
+            String mcpServletName = "McpServlet";
+            Class mcpServletClass = Class.forName("edu.internet2.middleware.grouper.ws.mcp.GrouperMcpServlet");
+            javax.servlet.ServletRegistration.Dynamic mcpServlet = context.addServlet(mcpServletName, mcpServletClass);
+            mcpServlet.addMapping("/mcp/*");
+            mcpServlet.setLoadOnStartup(1);
+
+            grouperWsLoggingFilter.addMappingForUrlPatterns(null, false, "/mcp/*");
+            grouperWsServiceFilter.addMappingForUrlPatterns(null, false, "/mcp/*");
+
+            // 2. OAuth 2.1 token and dynamic client registration endpoints.
+            //    NOT behind the WS auth filter because they handle their own authentication:
+            //    - POST /mcp/oauth/token    : exchanges auth code + PKCE code_verifier for a signed JWT
+            //    - POST /mcp/oauth/register : RFC 7591 dynamic client registration (returns client_id)
+            //    Also mapped at context-root /register and /token as RFC 8414 fallback paths
+            //    for MCP clients that construct endpoint URLs relative to the issuer root.
+            String oauthServletName = "OAuthServlet";
+            Class oauthServletClass = Class.forName("edu.internet2.middleware.grouper.ws.mcp.GrouperOAuthServlet");
+            javax.servlet.ServletRegistration.Dynamic oauthServlet = context.addServlet(oauthServletName, oauthServletClass);
+            oauthServlet.addMapping("/mcp/oauth/*");
+            oauthServlet.addMapping("/register");
+            oauthServlet.addMapping("/token");
+
+            // logging filter for the context-root fallback paths (/register, /token)
+            // /mcp/oauth/* is already covered by the /mcp/* mapping above
+            grouperWsLoggingFilter.addMappingForUrlPatterns(null, false, "/register");
+            grouperWsLoggingFilter.addMappingForUrlPatterns(null, false, "/token");
+            oauthServlet.setLoadOnStartup(1);
+
+            // 3. Protected Resource Metadata (RFC 9728) - NOT behind the WS auth filter.
+            //    This is the first discovery step: when an MCP client hits /mcp without a token
+            //    it gets a 401 with a WWW-Authenticate header pointing to this endpoint.  The
+            //    response tells the client which authorization server protects the MCP resource.
+            String mcpProtectedResourceServletName = "McpProtectedResourceServlet";
+            Class mcpProtectedResourceServletClass = Class.forName("edu.internet2.middleware.grouper.ws.mcp.GrouperMcpProtectedResourceServlet");
+            javax.servlet.ServletRegistration.Dynamic mcpProtectedResourceServlet = context.addServlet(mcpProtectedResourceServletName, mcpProtectedResourceServletClass);
+            mcpProtectedResourceServlet.addMapping("/.well-known/oauth-protected-resource");
+            mcpProtectedResourceServlet.setLoadOnStartup(1);
+
+            // 4. Authorization Server Metadata (RFC 8414) - NOT behind the WS auth filter.
+            //    Second discovery step: the client fetches this to learn the authorization_endpoint,
+            //    token_endpoint, registration_endpoint, and supported PKCE methods.
+            //    Mapped to both oauth-authorization-server (RFC 8414) and openid-configuration
+            //    (OIDC Discovery) because some MCP clients try the OIDC path as a fallback when
+            //    the RFC 8414 path-based URL is outside the webapp context.
+            String mcpWellKnownServletName = "McpWellKnownServlet";
+            Class mcpWellKnownServletClass = Class.forName("edu.internet2.middleware.grouper.ws.mcp.GrouperMcpWellKnownServlet");
+            javax.servlet.ServletRegistration.Dynamic mcpWellKnownServlet = context.addServlet(mcpWellKnownServletName, mcpWellKnownServletClass);
+            mcpWellKnownServlet.addMapping("/.well-known/oauth-authorization-server");
+            mcpWellKnownServlet.addMapping("/.well-known/openid-configuration");
+            mcpWellKnownServlet.setLoadOnStartup(1);
+
+            // logging filter for well-known discovery endpoints
+            grouperWsLoggingFilter.addMappingForUrlPatterns(null, false, "/.well-known/oauth-protected-resource");
+            grouperWsLoggingFilter.addMappingForUrlPatterns(null, false, "/.well-known/oauth-authorization-server");
+            grouperWsLoggingFilter.addMappingForUrlPatterns(null, false, "/.well-known/openid-configuration");
+          }
+
         } catch (ClassNotFoundException e) {
-          if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.dev.env.allowMissingServlets", true)) {
-            LOG.info("you can't access grouper ws because required classes are not on the classpath.");
+          if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.dev.env.allowMissingServlets", false)) {
+            LOG.error("You can't access grouper ws because required class is not on the classpath: " + e.getMessage(), e);
           } else {
-            LOG.info("if you are developing and got this exception put grouper.dev.env.allowMissingServlets=true in config file grouper.properties.");
+            LOG.error("Required class for grouper ws is not on the classpath: " + e.getMessage()
+                + ". If you are developing, put grouper.dev.env.allowMissingServlets=true in config file grouper.properties.", e);
             throw new RuntimeException("required classes for grouper ws are not on the classpath", e);
           }
         }
-        
+
       }
-      
+
       if (runGrouperScim) {
         // logic to enable/disable filters, web listeners is in the grouper ws scim project itself. One eg. is RestApplication.java
       }

@@ -98,7 +98,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * ddl versions and stuff for grouper.  All ddl classes must have a currentVersion method that
- * returns the current version.  
+ * returns the current version.  Do not add more DDL versions here, add them to upgrade tasks
  */
 public enum GrouperDdl implements DdlVersionable {
 
@@ -2917,6 +2917,22 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdl5_14_0.addGrouperDataRowFieldAsnHstTableAndIndexes(database, ddlVersionBean);
         
         GrouperDdl5_14_0.addDependencyViews(database, ddlVersionBean);
+
+        GrouperDdl7_0_0.addGrouperOAuthClientTable(database, ddlVersionBean);
+        GrouperDdl7_0_0.addGrouperOAuthClientIndex(ddlVersionBean, database);
+        GrouperDdl7_0_0.addGrouperOAuthClientComments(database, ddlVersionBean);
+
+        GrouperDdl7_0_0.addGrouperOAuthCodeTable(database, ddlVersionBean);
+        GrouperDdl7_0_0.addGrouperOAuthCodeIndex(ddlVersionBean, database);
+        GrouperDdl7_0_0.addGrouperOAuthCodeComments(database, ddlVersionBean);
+
+        GrouperDdl7_0_0.addGrouperOAuthPendAuthzReqTable(database, ddlVersionBean);
+        GrouperDdl7_0_0.addGrouperOAuthPendAuthzReqIndex(ddlVersionBean, database);
+        GrouperDdl7_0_0.addGrouperOAuthPendAuthzReqComments(database, ddlVersionBean);
+
+        GrouperDdl7_0_0.addGrouperMcpToolLogTable(database, ddlVersionBean);
+        GrouperDdl7_0_0.addGrouperMcpToolLogIndex(ddlVersionBean, database);
+        GrouperDdl7_0_0.addGrouperMcpToolLogComments(database, ddlVersionBean);
     }
   }
   //DON'T ADD ANY MORE Vs

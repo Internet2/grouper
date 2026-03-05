@@ -1446,16 +1446,60 @@ public class GrouperCheckConfig {
           groupSaves.add(new GroupSave().assignName(groupName).assignCreateParentStemsIfNotExist(true));
 
         }
-        { 
+        {
           String upgradeTasksRootStemName = UpgradeTasksJob.grouperUpgradeTasksStemName();
 
           String groupName = upgradeTasksRootStemName + ":" + UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP;
-          
+
           GroupSave upgradeTasksGroupSave = new GroupSave().assignName(groupName).assignCreateParentStemsIfNotExist(true);
           groupSaves.add(upgradeTasksGroupSave);
-          
+
         }
-                
+
+        // MCP (Model Context Protocol) authorization groups
+        {
+          String mcpReadonly = GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.users.readonly");
+          if (StringUtils.isNotBlank(mcpReadonly)) {
+            groupSaves.add(new GroupSave().assignName(mcpReadonly).assignDescription(
+                "members of this group can use MCP with read-only access").assignCreateParentStemsIfNotExist(true));
+          }
+        }
+        {
+          String mcpReadwrite = GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.users.readwrite");
+          if (StringUtils.isNotBlank(mcpReadwrite)) {
+            groupSaves.add(new GroupSave().assignName(mcpReadwrite).assignDescription(
+                "members of this group can use MCP with read-write access").assignCreateParentStemsIfNotExist(true));
+          }
+        }
+        {
+          String mcpCanRunSql = GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.users.canRunSqlReadonly");
+          if (StringUtils.isNotBlank(mcpCanRunSql)) {
+            groupSaves.add(new GroupSave().assignName(mcpCanRunSql).assignDescription(
+                "members of this group can run read-only SQL queries via MCP").assignCreateParentStemsIfNotExist(true));
+          }
+        }
+        {
+          String mcpWsAuthnAllowed = GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.users.wsAuthnAllowed");
+          if (StringUtils.isNotBlank(mcpWsAuthnAllowed)) {
+            groupSaves.add(new GroupSave().assignName(mcpWsAuthnAllowed).assignDescription(
+                "members of this group can use MCP via WS authentication (HTTP Basic, container auth, etc.)").assignCreateParentStemsIfNotExist(true));
+          }
+        }
+        {
+          String mcpAdminReadonly = GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.users.adminReadonly");
+          if (StringUtils.isNotBlank(mcpAdminReadonly)) {
+            groupSaves.add(new GroupSave().assignName(mcpAdminReadonly).assignDescription(
+                "members of this group can run admin commands readonly via MCP. Must also be a Grouper sysadmin or readonly sysadmin.").assignCreateParentStemsIfNotExist(true));
+          }
+        }
+        {
+          String mcpAdminReadWrite = GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.users.adminReadWrite");
+          if (StringUtils.isNotBlank(mcpAdminReadWrite)) {
+            groupSaves.add(new GroupSave().assignName(mcpAdminReadWrite).assignDescription(
+                "members of this group can run admin commands readwrite via MCP. Must also be a Grouper sysadmin.").assignCreateParentStemsIfNotExist(true));
+          }
+        }
+
         boolean autocreateSystemGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.autocreate.system.groups", true);
 
         if (autocreateSystemGroups) {

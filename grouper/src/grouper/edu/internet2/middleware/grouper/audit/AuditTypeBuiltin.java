@@ -741,7 +741,22 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /**
    * jexl script test execute
    */
-  JEXL_TEST_EXEC(new AuditType("jexlTest", "jexlTestExec", null, "jexlTestExample", "script"))
+  JEXL_TEST_EXEC(new AuditType("jexlTest", "jexlTestExec", null, "jexlTestExample", "script")),
+
+  /**
+   * OAuth client registration (dynamic client registration)
+   */
+  OAUTH_CLIENT_REGISTER(new AuditType("oauth", "clientRegister", null, "clientId", "clientName", "memberId")),
+
+  /**
+   * OAuth authorization consent approved
+   */
+  OAUTH_CONSENT_APPROVE(new AuditType("oauth", "consentApprove", null, "clientId", "clientName", "memberId")),
+
+  /**
+   * OAuth access token issued (token exchange)
+   */
+  OAUTH_TOKEN_ISSUE(new AuditType("oauth", "tokenIssue", null, "clientId", "memberId"))
   ;
 
   /**

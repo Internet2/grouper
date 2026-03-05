@@ -53,3 +53,5 @@ ddlScripts/
 grouper-misc/googleapps-grouper-provisioner/docker-test/grouper/temp
 
 **/.DS_Store
+/.mcp.json
+**/.claude/

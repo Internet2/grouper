@@ -3272,3 +3272,79 @@ $(window).on("unload", function() {
     }, 1000);
   });
 })(jQuery);
+
+/**
+ * Copy text from an element to the clipboard and show a subtle "Copied!" tooltip.
+ * @param elementId the ID of the element whose innerText to copy
+ */
+function grouperCopyToClipboard(elementId) {
+  var el = document.getElementById(elementId);
+  if (!el) return;
+  var text = el.innerText;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function() {
+      grouperShowCopiedTooltip(el);
+    });
+  } else {
+    var textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    grouperShowCopiedTooltip(el);
+  }
+}
+
+/**
+ * Copy the full job message text from an abbreviateTextarea container.
+ * Works before and after the "more" button is clicked because it reads from the textarea
+ * element (which always contains the full text), falling back to the span if no textarea
+ * exists (i.e. the message was short enough to display in full).
+ * @param linkEl the clicked anchor element (the copy icon link)
+ */
+function grouperCopyJobMessage(linkEl) {
+  var container = linkEl.parentNode.querySelector('.jobMessageContainer');
+  if (!container) return;
+  var textarea = container.querySelector('textarea');
+  var text;
+  if (textarea) {
+    text = textarea.value;
+  } else {
+    text = container.innerText;
+  }
+  if (!text) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function() {
+      grouperShowCopiedTooltip(linkEl);
+    });
+  } else {
+    var tempArea = document.createElement('textarea');
+    tempArea.value = text;
+    tempArea.style.position = 'fixed';
+    tempArea.style.opacity = '0';
+    document.body.appendChild(tempArea);
+    tempArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempArea);
+    grouperShowCopiedTooltip(linkEl);
+  }
+}
+
+/**
+ * Show a brief green "Copied to clipboard" label next to the element, then fade and remove it.
+ * Uses the externalized text from grouperCopiedToClipboardText (set in commonBottom.jsp)
+ * with a fallback to "Copied to clipboard" if the variable is not set.
+ * @param el the DOM element near which to show the tooltip
+ */
+function grouperShowCopiedTooltip(el) {
+  var tip = document.createElement('span');
+  tip.textContent = (typeof grouperCopiedToClipboardText !== 'undefined' && grouperCopiedToClipboardText)
+      ? grouperCopiedToClipboardText : 'Copied to clipboard';
+  tip.style.cssText = 'margin-left:6px;color:#5cb85c;font-size:0.85em;font-weight:bold;opacity:1;transition:opacity 0.5s';
+  el.parentNode.insertBefore(tip, el.nextSibling && el.nextSibling.nextSibling);
+  setTimeout(function() { tip.style.opacity = '0'; }, 1200);
+  setTimeout(function() { if (tip.parentNode) tip.parentNode.removeChild(tip); }, 1800);
+}
