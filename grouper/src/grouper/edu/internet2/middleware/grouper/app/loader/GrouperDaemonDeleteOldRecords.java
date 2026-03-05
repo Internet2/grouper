@@ -458,7 +458,7 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
       } catch (Exception e) {
         LOG.error("Error deleting stale sync rows for provisioner " + configId, e);
         if (jobMessage != null) {
-          jobMessage.append("Error deleting stale sync rows for provisioner " + configId + ": " + ExceptionUtils.getFullStackTrace(e) + "\n");
+          jobMessage.append("Error deleting stale sync rows for provisioner " + configId + ": " + ExceptionUtils.getStackTrace(e) + "\n");
         }
       }
     }
