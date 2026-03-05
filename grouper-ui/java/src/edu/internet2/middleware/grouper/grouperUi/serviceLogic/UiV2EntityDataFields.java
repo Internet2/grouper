@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,13 +15,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
-import java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.dataField.EntityDataFieldsService;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
-import edu.internet2.middleware.grouper.exception.GrouperReferentialIntegrityException;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderChangeLogQueryConfiguration;
@@ -30,6 +29,7 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfiguration;
+import edu.internet2.middleware.grouper.exception.GrouperReferentialIntegrityException;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 
 public class UiV2EntityDataFields {
