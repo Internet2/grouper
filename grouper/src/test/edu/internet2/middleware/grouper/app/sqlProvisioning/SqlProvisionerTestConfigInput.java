@@ -520,4 +520,14 @@ public class SqlProvisionerTestConfigInput {
     return this;
   }
   
+  private boolean cacheDataFieldTranslation = false;
+  
+  public SqlProvisionerTestConfigInput assignCacheDataFieldTranslation(boolean cacheDataFieldTranslation) {
+    this.cacheDataFieldTranslation = cacheDataFieldTranslation;
+    return this;
+  }
+  
+  public boolean getCacheDataFieldTranslation() {
+    return this.cacheDataFieldTranslation;
+  }
 }

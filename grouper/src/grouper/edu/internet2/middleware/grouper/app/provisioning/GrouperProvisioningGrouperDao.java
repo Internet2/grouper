@@ -261,7 +261,8 @@ public class GrouperProvisioningGrouperDao {
           "    gm.subject_identifier1, " +
           "    gm.subject_identifier2, " +
           "    gm.id_index, " +
-          "    gm.subject_resolution_resolvable " +
+          "    gm.subject_resolution_resolvable, " +
+          "    gm.internal_id " +
           "from " + 
           "    grouper_members gm " +
           "    left join grouper_sync_member gsm on gsm.member_id = gm.id and gsm.grouper_sync_id = ? " + 
@@ -290,7 +291,8 @@ public class GrouperProvisioningGrouperDao {
           "    gm.subject_identifier1, " +
           "    gm.subject_identifier2, " +
           "    gm.id_index, " +
-          "    gm.subject_resolution_resolvable " +
+          "    gm.subject_resolution_resolvable, " +
+          "    gm.internal_id " +
           "from " + 
           "    grouper_members gm " +
           "    left join grouper_sync_member gsm on  gsm.member_id = gm.id and gsm.grouper_sync_id = ? " + 
@@ -450,7 +452,8 @@ public class GrouperProvisioningGrouperDao {
         "    gm.subject_identifier1, " +
         "    gm.subject_identifier2, " +
         "    gm.id_index, " +
-        "    gm.subject_resolution_resolvable " +
+        "    gm.subject_resolution_resolvable, " +
+        "    gm.internal_id " +
         "from " + 
         "    grouper_members gm  " +      
         "    left join grouper_sync_member gsm on  gsm.member_id = gm.id and gsm.grouper_sync_id = ? " + 
@@ -666,7 +669,8 @@ public class GrouperProvisioningGrouperDao {
               "    gm.subject_identifier1, " + 
               "    gm.subject_identifier2, " + 
               "    gm.id_index, " + 
-              "    gm.subject_resolution_resolvable ");
+              "    gm.subject_resolution_resolvable, " +
+              "    gm.internal_id ");
       
       for (int i = 0; i < numberOfBatches; i++) {
         List<MultiKey> currentBatchIds = GrouperUtil.batchList(groupUuidsMemberUuidsList, 450, i);
@@ -1055,6 +1059,7 @@ public class GrouperProvisioningGrouperDao {
       String subjectIdentifier2 = queryResult[9];
       String idIndex = queryResult[10];
       Boolean subjectResolutionResolvable = GrouperUtil.booleanObjectValue(queryResult[11]);
+      String internalId = queryResult[12];
       
       // check if skipping unresolvable subjects
       
@@ -1064,6 +1069,7 @@ public class GrouperProvisioningGrouperDao {
       grouperProvisioningEntity.setSubjectId(subjectId);
       grouperProvisioningEntity.setEmail(email);
       grouperProvisioningEntity.setIdIndex(Long.parseLong(idIndex));
+      grouperProvisioningEntity.setInternalId(Long.parseLong(internalId));
       grouperProvisioningEntity.setSubjectResolutionResolvable(subjectResolutionResolvable);
       grouperProvisioningEntity.assignAttributeValue("subjectSourceId", subjectSource);
       grouperProvisioningEntity.assignAttributeValue("description", description);
@@ -1130,7 +1136,8 @@ public class GrouperProvisioningGrouperDao {
       String subjectIdentifier2 = queryResult[13];
       Long memberIdIndex = GrouperUtil.longObjectValue(queryResult[14], false);
       Boolean subjectResolutionResolvable = GrouperUtil.booleanObjectValue(queryResult[15]);
-      
+      Long memberInternalId = GrouperUtil.longObjectValue(queryResult[16], false);
+
       // check if skipping unresolvable subjects
       if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsRemove() && !subjectResolutionResolvable) {
         continue;
@@ -1146,6 +1153,7 @@ public class GrouperProvisioningGrouperDao {
         targetEntity.assignAttributeValue("description", description);
         targetEntity.setSubjectId(subjectId);
         targetEntity.setIdIndex(memberIdIndex);
+        targetEntity.setInternalId(memberInternalId);
         targetEntity.setSubjectResolutionResolvable(subjectResolutionResolvable);
         targetEntity.assignAttributeValue("subjectSourceId", subjectSourceId);
         targetEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);

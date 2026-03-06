@@ -207,4 +207,46 @@ public class GrouperDataRowFieldAssignDao {
     
     new GcDbAccess().deleteFromDatabaseMultiple(grouperDataRowFieldAssigns);
   }
+  
+  /**
+   * 
+   * @param dataFieldInternalIds
+   * @param memberInternalIds
+   * @return list of array containing data row internal id, data field internal id, data row assign internal id, member internal id, value string, value integer
+   */
+  public static List<Object[]> selectDataRowFieldAssignValuesByDataFieldInternalIdsAndMemberInternalIds(Set<Long> dataFieldInternalIds, Set<Long> memberInternalIds) {
+    List<Object[]> results = new ArrayList<>();
+
+    if (dataFieldInternalIds == null || dataFieldInternalIds.size() == 0 || memberInternalIds == null || memberInternalIds.size() == 0) {
+      return results;
+    }
+    
+    List<Long> memberInternalIdsList = new ArrayList<Long>(memberInternalIds);
+    int batchSize = 900;
+    int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(memberInternalIdsList, batchSize, true);
+    for (int batchIndex = 0; batchIndex < numberOfBatches; batchIndex++) {
+      List<Long> batchOfMemberInternalIds = GrouperClientUtils.batchList(memberInternalIdsList, batchSize, batchIndex);
+      
+      // ordered to make it deterministic
+      String sql = "select gdra.data_row_internal_id, gdrfa.data_field_internal_id, gdra.internal_id, gdra.member_internal_id, gd.the_text, gdrfa.value_integer " +
+          "from grouper_data_row_assign gdra, grouper_data_row_field_assign gdrfa " +
+          "left join grouper_dictionary gd on gdrfa.value_dictionary_internal_id = gd.internal_id " +
+          "where gdra.internal_id = gdrfa.data_row_assign_internal_id and gdrfa.data_field_internal_id IN (" + GrouperClientUtils.appendQuestions(dataFieldInternalIds.size()) + ") " +
+          "and gdra.member_internal_id IN (" + GrouperClientUtils.appendQuestions(batchOfMemberInternalIds.size()) + ") " +
+          "order by gdrfa.internal_id";
+      
+      GcDbAccess gcDbAccess = new GcDbAccess().sql(sql);
+      for (Long dataFieldInternalId : dataFieldInternalIds) {
+        gcDbAccess.addBindVar(dataFieldInternalId);
+      }
+      
+      for (Long memberInternalId : batchOfMemberInternalIds) {
+        gcDbAccess.addBindVar(memberInternalId);
+      }
+      
+      results.addAll(gcDbAccess.selectList(Object[].class));
+    }
+    
+    return results;
+  }
 }
