@@ -38,18 +38,11 @@
             <groupId>com.duosecurity</groupId>
             <artifactId>duo-client</artifactId>
             <version>0.7.1</version>
-            <!-- until the Duo project can update their deps, these old ones conflict with the Azure deps which are
-                 newer. The okhttp logging-interceptor dep in this project is also a newer version, so it will pull in
-                 newer versions of these excluded artifacts
-            -->
+            <!-- org.json from duo conflicts with the version used elsewhere in Grouper -->
             <exclusions>
                 <exclusion>
                     <groupId>org.json</groupId>
                     <artifactId>org.json</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.squareup.okhttp</groupId>
-                    <artifactId>okhttp</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
