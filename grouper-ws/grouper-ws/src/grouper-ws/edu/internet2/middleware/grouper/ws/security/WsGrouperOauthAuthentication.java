@@ -89,7 +89,7 @@ public class WsGrouperOauthAuthentication implements WsCustomAuthentication {
         //get the url strings
         List<String> urlStrings = extractUrlStrings(httpServletRequest);
         // get version
-        String version = urlStrings.get(0);
+        String version = urlStrings.size() > 0 ? urlStrings.get(0) : null;
         
         debugMap.put("urlVersion", version);
         
