@@ -298,8 +298,15 @@ public class OktaMockServiceHandler extends MockServiceHandler {
 
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
 
+    String skipUser = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.okta.mock.skipUser");
+    boolean skipUserBool = GrouperUtil.booleanValue(skipUser, false) && StringUtils.isBlank(search); //only skip when we're not searching user
+    
     for (GrouperOktaUser grouperOktaUser : grouperOktaUsers) {
-      valueNode.add(toUserJson(grouperOktaUser));
+      if (!skipUserBool) {        
+        valueNode.add(toUserJson(grouperOktaUser));
+      } else {
+        skipUserBool = false;
+      }
     }
 
     mockServiceResponse.setResponseCode(200);
