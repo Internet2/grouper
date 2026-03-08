@@ -202,6 +202,7 @@ public class UiV2OAuth extends UiServiceLogicBase {
           Group readwriteGroup = GroupFinder.findByName(grouperSession, readwriteGroupName, false);
           if (readwriteGroup != null && readwriteGroup.hasMember(loggedInSubject)) {
             oAuthContainer.setShowReadwrite(true);
+            oAuthContainer.setShowReadonly(true);
           }
         }
         if (StringUtils.isNotBlank(sqlReadonlyGroupName)) {
@@ -220,6 +221,7 @@ public class UiV2OAuth extends UiServiceLogicBase {
           Group adminReadWriteGroup = GroupFinder.findByName(grouperSession, adminReadWriteGroupName, false);
           if (adminReadWriteGroup != null && adminReadWriteGroup.hasMember(loggedInSubject)) {
             oAuthContainer.setShowAdminReadwrite(true);
+            oAuthContainer.setShowAdminReadonly(true);
           }
         }
       } finally {

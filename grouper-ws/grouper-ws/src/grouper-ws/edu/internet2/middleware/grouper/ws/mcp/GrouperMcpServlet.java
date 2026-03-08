@@ -777,18 +777,15 @@ public class GrouperMcpServlet extends HttpServlet {
    */
   private boolean hasReadonlyAccess(GrouperMcpAuthUser authUser) {
 
-    // readwrite access implies readonly access
-    if (hasReadwriteAccess(authUser)) {
-      return true;
-    }
-
-    // check group membership
-    if (!isSubjectInGroup(authUser, "grouper.mcp.users.readonly")) {
+    // check group membership (readwrite group also grants readonly access)
+    if (!isSubjectInGroup(authUser, "grouper.mcp.users.readonly")
+        && !isSubjectInGroup(authUser, "grouper.mcp.users.readwrite")) {
       return false;
     }
 
-    // for OAuth users, also require the readonly consent scope
-    if (authUser.isOAuthAuthenticated() && !authUser.isConsentScopeReadonly()) {
+    // for OAuth users, require the readonly or readwrite consent scope
+    if (authUser.isOAuthAuthenticated()
+        && !authUser.isConsentScopeReadonly() && !authUser.isConsentScopeReadwrite()) {
       return false;
     }
 
@@ -836,18 +833,15 @@ public class GrouperMcpServlet extends HttpServlet {
    */
   private boolean hasAdminReadonlyAccess(GrouperMcpAuthUser authUser) {
 
-    // admin readwrite access implies admin readonly access
-    if (hasAdminReadwriteAccess(authUser)) {
-      return true;
-    }
-
-    // check group membership
-    if (!isSubjectInGroup(authUser, "grouper.mcp.users.adminReadonly")) {
+    // check group membership (admin readwrite group also grants admin readonly access)
+    if (!isSubjectInGroup(authUser, "grouper.mcp.users.adminReadonly")
+        && !isSubjectInGroup(authUser, "grouper.mcp.users.adminReadWrite")) {
       return false;
     }
 
-    // for OAuth users, also require the admin readonly consent scope
-    if (authUser.isOAuthAuthenticated() && !authUser.isConsentScopeAdminReadonly()) {
+    // for OAuth users, require the admin readonly or admin readwrite consent scope
+    if (authUser.isOAuthAuthenticated()
+        && !authUser.isConsentScopeAdminReadonly() && !authUser.isConsentScopeAdminReadwrite()) {
       return false;
     }
 
