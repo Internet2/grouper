@@ -1458,6 +1458,794 @@ public class GrouperProvisioningLogic {
         membershipRowData, debugMap, "loadGenericMemberships");
   }
   
+  private void loadDataToGenericProvisionerTablesIncremental() {
+    
+    GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+    if (gcGrouperSync == null || gcGrouperSync.getInternalId() == null) {
+      return;
+    }
+    
+    long grouperSyncInternalId = gcGrouperSync.getInternalId();
+    long nowMicros = System.currentTimeMillis() * 1000L;
+    
+    String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+    GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior()
+        .getGrouperProvisioningBehaviorMembershipType();
+    
+    // collect target IDs to upsert from target provisioning data
+    Map<String, GenericProvisioningUserRecord> targetUserIdToRecord = new LinkedHashMap<String, GenericProvisioningUserRecord>();
+    List<ProvisioningEntity> targetProvisioningEntities = GrouperUtil.nonNull(
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities());
+    for (ProvisioningEntity targetProvisioningEntity : targetProvisioningEntities) {
+      String targetUserId = this.normalizeTargetId(targetProvisioningEntity.getId());
+      if (StringUtils.isBlank(targetUserId)) {
+        continue;
+      }
+      GenericProvisioningUserRecord userRecord = targetUserIdToRecord.get(targetUserId);
+      if (userRecord == null) {
+        userRecord = new GenericProvisioningUserRecord(targetUserId);
+        targetUserIdToRecord.put(targetUserId, userRecord);
+      }
+      
+      for (ProvisioningAttribute provisioningAttribute : targetProvisioningEntity.retrieveAttributes().values()) {
+        String attributeName = provisioningAttribute.getName();
+        if (StringUtils.equalsIgnoreCase("id", attributeName)) {
+          continue;
+        }
+        if (membershipType == GrouperProvisioningBehaviorMembershipType.entityAttributes
+            && StringUtils.equals(attributeName, membershipAttributeName)) {
+          continue;
+        }
+        this.addProvisioningAttributeValue(userRecord, attributeName, provisioningAttribute.getValue());
+      }
+    }
+    
+    Map<String, GenericProvisioningGroupRecord> targetGroupIdToRecord = new LinkedHashMap<String, GenericProvisioningGroupRecord>();
+    List<ProvisioningGroup> targetProvisioningGroups = GrouperUtil.nonNull(
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups());
+    for (ProvisioningGroup targetProvisioningGroup : targetProvisioningGroups) {
+      String targetGroupId = this.normalizeTargetId(targetProvisioningGroup.getId());
+      if (StringUtils.isBlank(targetGroupId)) {
+        continue;
+      }
+      GenericProvisioningGroupRecord groupRecord = targetGroupIdToRecord.get(targetGroupId);
+      if (groupRecord == null) {
+        groupRecord = new GenericProvisioningGroupRecord(targetGroupId);
+        targetGroupIdToRecord.put(targetGroupId, groupRecord);
+      }
+      
+      for (ProvisioningAttribute provisioningAttribute : targetProvisioningGroup.retrieveAttributes().values()) {
+        String attributeName = provisioningAttribute.getName();
+        if (StringUtils.equalsIgnoreCase("id", attributeName)) {
+          continue;
+        }
+        if (membershipType == GrouperProvisioningBehaviorMembershipType.groupAttributes
+            && StringUtils.equals(attributeName, membershipAttributeName)) {
+          continue;
+        }
+        this.addProvisioningAttributeValue(groupRecord, attributeName, provisioningAttribute.getValue());
+      }
+    }
+    
+    List<GenericProvisioningMembershipRecord> membershipRecords = new ArrayList<GenericProvisioningMembershipRecord>();
+    Set<MultiKey> membershipDedup = new LinkedHashSet<MultiKey>();
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper :
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+      if (provisioningMembershipWrapper.getProvisioningStateMembership().isDeleteResultProcessed()) {
+        continue;
+      }
+      ProvisioningMembership membershipForRecord = provisioningMembershipWrapper.getGrouperTargetMembership();
+      if (membershipForRecord == null) {
+        continue;
+      }
+      String targetGroupId = this.resolveMembershipGroupId(membershipForRecord);
+      String targetUserId = this.resolveMembershipUserId(membershipForRecord);
+      if (StringUtils.isBlank(targetGroupId) || StringUtils.isBlank(targetUserId)) {
+        continue;
+      }
+      
+      String roleName = this.resolveMembershipRoleName(membershipForRecord);
+      MultiKey membershipKey = new MultiKey(targetGroupId, targetUserId, roleName);
+      if (!membershipDedup.add(membershipKey)) {
+        continue;
+      }
+      
+      GenericProvisioningMembershipRecord membershipRecord = new GenericProvisioningMembershipRecord();
+      membershipRecord.targetGroupId = targetGroupId;
+      membershipRecord.targetUserId = targetUserId;
+      membershipRecord.roleName = roleName;
+      membershipRecords.add(membershipRecord);
+    }
+    
+    // collect membership target IDs to delete (successfully deleted from target)
+    Set<MultiKey> membershipTargetIdsToDelete = new LinkedHashSet<MultiKey>();
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper :
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+      if (!provisioningMembershipWrapper.getProvisioningStateMembership().isDeleteResultProcessed()) {
+        continue;
+      }
+      ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
+      if (grouperTargetMembership == null) {
+        continue;
+      }
+      String targetGroupId = this.resolveMembershipGroupId(grouperTargetMembership);
+      String targetUserId = this.resolveMembershipUserId(grouperTargetMembership);
+      if (StringUtils.isBlank(targetGroupId) || StringUtils.isBlank(targetUserId)) {
+        continue;
+      }
+      membershipTargetIdsToDelete.add(new MultiKey(targetGroupId, targetUserId));
+    }
+    
+    // collect group target IDs to delete (successfully deleted from target)
+    Set<String> groupTargetIdsToDelete = new LinkedHashSet<String>();
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : 
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
+      if (!provisioningGroupWrapper.getProvisioningStateGroup().isDeleteResultProcessed()) {
+        continue;
+      }
+      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
+      if (grouperTargetGroup == null) {
+        continue;
+      }
+      String targetGroupId = this.normalizeTargetId(grouperTargetGroup.getId());
+      if (!StringUtils.isBlank(targetGroupId)) {
+        groupTargetIdsToDelete.add(targetGroupId);
+      }
+    }
+    
+    // collect entity/user target IDs to delete (successfully deleted from target)
+    Set<String> userTargetIdsToDelete = new LinkedHashSet<String>();
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : 
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
+      if (!provisioningEntityWrapper.getProvisioningStateEntity().isDeleteResultProcessed()) {
+        continue;
+      }
+      ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+      if (grouperTargetEntity == null) {
+        continue;
+      }
+      String targetUserId = this.normalizeTargetId(grouperTargetEntity.getId());
+      if (!StringUtils.isBlank(targetUserId)) {
+        userTargetIdsToDelete.add(targetUserId);
+      }
+    }
+    
+    // remove deleted groups/users from upsert maps so they don't get re-inserted
+    for (String targetGroupId : groupTargetIdsToDelete) {
+      targetGroupIdToRecord.remove(targetGroupId);
+    }
+    for (String targetUserId : userTargetIdsToDelete) {
+      targetUserIdToRecord.remove(targetUserId);
+    }
+    
+    // collect all target IDs we need to scope our DB queries to (upserts + deletes)
+    Set<String> allUserTargetIds = new LinkedHashSet<String>();
+    allUserTargetIds.addAll(targetUserIdToRecord.keySet());
+    allUserTargetIds.addAll(userTargetIdsToDelete);
+    
+    Set<String> allGroupTargetIds = new LinkedHashSet<String>();
+    allGroupTargetIds.addAll(targetGroupIdToRecord.keySet());
+    allGroupTargetIds.addAll(groupTargetIdsToDelete);
+    
+    if (GrouperUtil.length(allUserTargetIds) == 0 && GrouperUtil.length(allGroupTargetIds) == 0
+        && GrouperUtil.length(membershipRecords) == 0 && GrouperUtil.length(membershipTargetIdsToDelete) == 0) {
+      return;
+    }
+    
+    Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+    
+    // look up existing user internal IDs from DB for the scoped target IDs
+    Map<String, Long> existingUserTargetIdToInternalId = new LinkedHashMap<String, Long>();
+    if (GrouperUtil.length(allUserTargetIds) > 0) {
+      List<String> allUserTargetIdsList = new ArrayList<String>(allUserTargetIds);
+      int batchSize = 900;
+      for (int i = 0; i < allUserTargetIdsList.size(); i += batchSize) {
+        List<String> batch = allUserTargetIdsList.subList(i, Math.min(i + batchSize, allUserTargetIdsList.size()));
+        String inClause = GrouperClientUtils.appendQuestions(batch.size());
+        GcDbAccess gcDbAccess = new GcDbAccess().connectionName("grouper");
+        gcDbAccess.sql("select internal_id, target_user_id from grouper_prov_user where grouper_sync_internal_id = ? and target_user_id in (" + inClause + ")");
+        gcDbAccess.addBindVar(grouperSyncInternalId);
+        for (String targetUserId : batch) {
+          gcDbAccess.addBindVar(targetUserId);
+        }
+        List<Object[]> rows = gcDbAccess.selectList(Object[].class);
+        for (Object[] row : rows) {
+          Long internalId = GrouperUtil.longObjectValue(row[0], false);
+          String targetUserId = GrouperUtil.stringValue(row[1]);
+          if (internalId != null && !StringUtils.isBlank(targetUserId)) {
+            existingUserTargetIdToInternalId.put(targetUserId, internalId);
+          }
+        }
+      }
+    }
+    
+    // look up existing group internal IDs from DB for the scoped target IDs
+    Map<String, Long> existingGroupTargetIdToInternalId = new LinkedHashMap<String, Long>();
+    if (GrouperUtil.length(allGroupTargetIds) > 0) {
+      List<String> allGroupTargetIdsList = new ArrayList<String>(allGroupTargetIds);
+      int batchSize = 900;
+      for (int i = 0; i < allGroupTargetIdsList.size(); i += batchSize) {
+        List<String> batch = allGroupTargetIdsList.subList(i, Math.min(i + batchSize, allGroupTargetIdsList.size()));
+        String inClause = GrouperClientUtils.appendQuestions(batch.size());
+        GcDbAccess gcDbAccess = new GcDbAccess().connectionName("grouper");
+        gcDbAccess.sql("select internal_id, target_group_id from grouper_prov_group where grouper_sync_internal_id = ? and target_group_id in (" + inClause + ")");
+        gcDbAccess.addBindVar(grouperSyncInternalId);
+        for (String targetGroupId : batch) {
+          gcDbAccess.addBindVar(targetGroupId);
+        }
+        List<Object[]> rows = gcDbAccess.selectList(Object[].class);
+        for (Object[] row : rows) {
+          Long internalId = GrouperUtil.longObjectValue(row[0], false);
+          String targetGroupId = GrouperUtil.stringValue(row[1]);
+          if (internalId != null && !StringUtils.isBlank(targetGroupId)) {
+            existingGroupTargetIdToInternalId.put(targetGroupId, internalId);
+          }
+        }
+      }
+    }
+    
+    // delete users (and cascade to attributes, attribute values, and memberships)
+    if (GrouperUtil.length(userTargetIdsToDelete) > 0) {
+      Set<Long> userInternalIdsToDelete = new LinkedHashSet<Long>();
+      for (String targetUserId : userTargetIdsToDelete) {
+        Long internalId = existingUserTargetIdToInternalId.get(targetUserId);
+        if (internalId != null) {
+          userInternalIdsToDelete.add(internalId);
+        }
+      }
+      if (GrouperUtil.length(userInternalIdsToDelete) > 0) {
+        this.deleteGenericProvisionerCascadeUser(userInternalIdsToDelete, debugMap);
+      }
+    }
+    
+    // delete groups (and cascade to attributes, attribute values, and memberships)
+    if (GrouperUtil.length(groupTargetIdsToDelete) > 0) {
+      Set<Long> groupInternalIdsToDelete = new LinkedHashSet<Long>();
+      for (String targetGroupId : groupTargetIdsToDelete) {
+        Long internalId = existingGroupTargetIdToInternalId.get(targetGroupId);
+        if (internalId != null) {
+          groupInternalIdsToDelete.add(internalId);
+        }
+      }
+      if (GrouperUtil.length(groupInternalIdsToDelete) > 0) {
+        this.deleteGenericProvisionerCascadeGroup(groupInternalIdsToDelete, debugMap);
+      }
+    }
+    
+    // delete memberships that were successfully deleted from target
+    if (GrouperUtil.length(membershipTargetIdsToDelete) > 0) {
+      int deleteCount = 0;
+      for (MultiKey membershipTargetIdKey : membershipTargetIdsToDelete) {
+        String targetGroupId = (String) membershipTargetIdKey.getKey(0);
+        String targetUserId = (String) membershipTargetIdKey.getKey(1);
+        int rowsDeleted = new GcDbAccess().connectionName("grouper")
+            .sql("delete from grouper_prov_mship where prov_user_internal_id in "
+                + "(select internal_id from grouper_prov_user where grouper_sync_internal_id = ? and target_user_id = ?) "
+                + "and prov_group_internal_id in "
+                + "(select internal_id from grouper_prov_group where grouper_sync_internal_id = ? and target_group_id = ?)")
+            .addBindVar(grouperSyncInternalId).addBindVar(targetUserId)
+            .addBindVar(grouperSyncInternalId).addBindVar(targetGroupId).executeSql();
+        deleteCount += rowsDeleted;
+      }
+      debugMap.put("loadGenericIncrMshipDeletes", deleteCount);
+    }
+    
+    // now handle upserts for users, groups, attributes, attribute values, memberships
+    // reuse existing internal IDs for rows that already exist; reserve new ones for new rows
+    for (GenericProvisioningUserRecord userRecord : targetUserIdToRecord.values()) {
+      Long existingInternalId = existingUserTargetIdToInternalId.get(userRecord.getTargetId());
+      if (existingInternalId != null) {
+        userRecord.setInternalId(existingInternalId);
+      }
+    }
+    // assign new internal IDs only for users that don't have existing ones
+    {
+      List<GenericProvisioningUserRecord> newUserRecords = new ArrayList<GenericProvisioningUserRecord>();
+      for (GenericProvisioningUserRecord userRecord : targetUserIdToRecord.values()) {
+        if (userRecord.getInternalId() == 0) {
+          newUserRecords.add(userRecord);
+        }
+      }
+      if (GrouperUtil.length(newUserRecords) > 0) {
+        List<Long> newInternalIds = TableIndex.reserveIds(TableIndexType.provUser, newUserRecords.size());
+        for (int i = 0; i < newUserRecords.size(); i++) {
+          newUserRecords.get(i).setInternalId(newInternalIds.get(i));
+        }
+      }
+    }
+    
+    for (GenericProvisioningGroupRecord groupRecord : targetGroupIdToRecord.values()) {
+      Long existingInternalId = existingGroupTargetIdToInternalId.get(groupRecord.getTargetId());
+      if (existingInternalId != null) {
+        groupRecord.setInternalId(existingInternalId);
+      }
+    }
+    // assign new internal IDs only for groups that don't have existing ones
+    {
+      List<GenericProvisioningGroupRecord> newGroupRecords = new ArrayList<GenericProvisioningGroupRecord>();
+      for (GenericProvisioningGroupRecord groupRecord : targetGroupIdToRecord.values()) {
+        if (groupRecord.getInternalId() == 0) {
+          newGroupRecords.add(groupRecord);
+        }
+      }
+      if (GrouperUtil.length(newGroupRecords) > 0) {
+        List<Long> newInternalIds = TableIndex.reserveIds(TableIndexType.provGroup, newGroupRecords.size());
+        for (int i = 0; i < newGroupRecords.size(); i++) {
+          newGroupRecords.get(i).setInternalId(newInternalIds.get(i));
+        }
+      }
+    }
+    
+    List<GenericProvisioningAttributeRecord> userAttributeRecords = this.buildProvisioningAttributeRecords(targetUserIdToRecord, TableIndexType.provUserAttr);
+    List<GenericProvisioningAttributeRecord> groupAttributeRecords = this.buildProvisioningAttributeRecords(targetGroupIdToRecord, TableIndexType.provGroupAttr);
+    
+    Set<String> stringValues = new LinkedHashSet<String>();
+    this.addProvisioningStringValues(userAttributeRecords, stringValues);
+    this.addProvisioningStringValues(groupAttributeRecords, stringValues);
+    Map<String, Long> valueStringToDictionaryInternalId = GrouperDictionaryDao.findOrAdd(stringValues);
+    
+    // build user row data
+    List<Object[]> userRowData = new ArrayList<Object[]>();
+    for (GenericProvisioningUserRecord userRecord : targetUserIdToRecord.values()) {
+      userRowData.add(new Object[] {userRecord.getInternalId(), grouperSyncInternalId, null, userRecord.getTargetId(), nowMicros});
+    }
+    
+    // build group row data
+    List<Object[]> groupRowData = new ArrayList<Object[]>();
+    for (GenericProvisioningGroupRecord groupRecord : targetGroupIdToRecord.values()) {
+      groupRowData.add(new Object[] {groupRecord.getInternalId(), grouperSyncInternalId, null, groupRecord.getTargetId(), nowMicros});
+    }
+    
+    // build user attribute row data
+    List<Object[]> userAttributeRowData = this.buildProvisioningAttributeRowData(userAttributeRecords, nowMicros);
+    
+    // build group attribute row data
+    List<Object[]> groupAttributeRowData = this.buildProvisioningAttributeRowData(groupAttributeRecords, nowMicros);
+    
+    // build user attribute value row data
+    List<Object[]> userAttributeValueRowData = this.buildProvisioningAttributeValueRowData(
+        userAttributeRecords, TableIndexType.provUserAttrValue, valueStringToDictionaryInternalId, nowMicros);
+    
+    // build group attribute value row data
+    List<Object[]> groupAttributeValueRowData = this.buildProvisioningAttributeValueRowData(
+        groupAttributeRecords, TableIndexType.provGroupAttrValue, valueStringToDictionaryInternalId, nowMicros);
+    
+    // build role row data (roles only accumulate, no deletes)
+    Map<String, Long> roleNameToInternalId = new LinkedHashMap<String, Long>();
+    Set<String> roleNames = new LinkedHashSet<String>();
+    for (GenericProvisioningMembershipRecord membershipRecord : membershipRecords) {
+      if (membershipRecord.roleName != null) {
+        roleNames.add(membershipRecord.roleName);
+      }
+    }
+    
+    // look up existing roles first
+    Map<String, Long> existingRoleNameToInternalId = new LinkedHashMap<String, Long>();
+    if (GrouperUtil.length(roleNames) > 0) {
+      List<Object[]> existingRoles = new GcDbAccess().connectionName("grouper")
+          .sql("select internal_id, role_name from grouper_prov_mship_role where grouper_sync_internal_id = ?")
+          .addBindVar(grouperSyncInternalId).selectList(Object[].class);
+      for (Object[] row : existingRoles) {
+        Long internalId = GrouperUtil.longObjectValue(row[0], false);
+        String roleName = GrouperUtil.stringValue(row[1]);
+        if (internalId != null && !StringUtils.isBlank(roleName)) {
+          existingRoleNameToInternalId.put(roleName, internalId);
+        }
+      }
+    }
+    
+    Set<String> newRoleNames = new LinkedHashSet<String>();
+    for (String roleName : roleNames) {
+      Long existingInternalId = existingRoleNameToInternalId.get(roleName);
+      if (existingInternalId != null) {
+        roleNameToInternalId.put(roleName, existingInternalId);
+      } else {
+        newRoleNames.add(roleName);
+      }
+    }
+    if (GrouperUtil.length(newRoleNames) > 0) {
+      List<String> newRoleNamesList = new ArrayList<String>(newRoleNames);
+      List<Long> roleInternalIds = TableIndex.reserveIds(TableIndexType.provMshipRole, newRoleNamesList.size());
+      for (int i = 0; i < newRoleNamesList.size(); i++) {
+        roleNameToInternalId.put(newRoleNamesList.get(i), roleInternalIds.get(i));
+      }
+    }
+    
+    List<Object[]> roleRowData = new ArrayList<Object[]>();
+    for (String roleName : newRoleNames) {
+      roleRowData.add(new Object[] {roleNameToInternalId.get(roleName), roleName, grouperSyncInternalId, nowMicros});
+    }
+    
+    // collect all user/group target IDs referenced by memberships that are not already in the record maps
+    Set<String> membershipUserTargetIdsToLookup = new LinkedHashSet<String>();
+    Set<String> membershipGroupTargetIdsToLookup = new LinkedHashSet<String>();
+    for (GenericProvisioningMembershipRecord membershipRecord : membershipRecords) {
+      if (!targetUserIdToRecord.containsKey(membershipRecord.targetUserId)) {
+        membershipUserTargetIdsToLookup.add(membershipRecord.targetUserId);
+      }
+      if (!targetGroupIdToRecord.containsKey(membershipRecord.targetGroupId)) {
+        membershipGroupTargetIdsToLookup.add(membershipRecord.targetGroupId);
+      }
+    }
+    
+    // look up internal IDs for membership user target IDs not in the record maps
+    Map<String, Long> membershipUserTargetIdToInternalId = new LinkedHashMap<String, Long>();
+    if (GrouperUtil.length(membershipUserTargetIdsToLookup) > 0) {
+      List<String> lookupList = new ArrayList<String>(membershipUserTargetIdsToLookup);
+      int batchSize = 900;
+      for (int i = 0; i < lookupList.size(); i += batchSize) {
+        List<String> batch = lookupList.subList(i, Math.min(i + batchSize, lookupList.size()));
+        String inClause = GrouperClientUtils.appendQuestions(batch.size());
+        GcDbAccess gcDbAccess = new GcDbAccess().connectionName("grouper");
+        gcDbAccess.sql("select internal_id, target_user_id from grouper_prov_user where grouper_sync_internal_id = ? and target_user_id in (" + inClause + ")");
+        gcDbAccess.addBindVar(grouperSyncInternalId);
+        for (String targetUserId : batch) {
+          gcDbAccess.addBindVar(targetUserId);
+        }
+        List<Object[]> rows = gcDbAccess.selectList(Object[].class);
+        for (Object[] row : rows) {
+          Long internalId = GrouperUtil.longObjectValue(row[0], false);
+          String targetUserId = GrouperUtil.stringValue(row[1]);
+          if (internalId != null && !StringUtils.isBlank(targetUserId)) {
+            membershipUserTargetIdToInternalId.put(targetUserId, internalId);
+          }
+        }
+      }
+    }
+    
+    // look up internal IDs for membership group target IDs not in the record maps
+    Map<String, Long> membershipGroupTargetIdToInternalId = new LinkedHashMap<String, Long>();
+    if (GrouperUtil.length(membershipGroupTargetIdsToLookup) > 0) {
+      List<String> lookupList = new ArrayList<String>(membershipGroupTargetIdsToLookup);
+      int batchSize = 900;
+      for (int i = 0; i < lookupList.size(); i += batchSize) {
+        List<String> batch = lookupList.subList(i, Math.min(i + batchSize, lookupList.size()));
+        String inClause = GrouperClientUtils.appendQuestions(batch.size());
+        GcDbAccess gcDbAccess = new GcDbAccess().connectionName("grouper");
+        gcDbAccess.sql("select internal_id, target_group_id from grouper_prov_group where grouper_sync_internal_id = ? and target_group_id in (" + inClause + ")");
+        gcDbAccess.addBindVar(grouperSyncInternalId);
+        for (String targetGroupId : batch) {
+          gcDbAccess.addBindVar(targetGroupId);
+        }
+        List<Object[]> rows = gcDbAccess.selectList(Object[].class);
+        for (Object[] row : rows) {
+          Long internalId = GrouperUtil.longObjectValue(row[0], false);
+          String targetGroupId = GrouperUtil.stringValue(row[1]);
+          if (internalId != null && !StringUtils.isBlank(targetGroupId)) {
+            membershipGroupTargetIdToInternalId.put(targetGroupId, internalId);
+          }
+        }
+      }
+    }
+    
+    // build membership row data
+    List<Object[]> membershipRowData = new ArrayList<Object[]>();
+    if (GrouperUtil.length(membershipRecords) > 0) {
+      List<Long> membershipInternalIds = TableIndex.reserveIds(TableIndexType.provMship, membershipRecords.size());
+      for (int i = 0; i < membershipRecords.size(); i++) {
+        GenericProvisioningMembershipRecord membershipRecord = membershipRecords.get(i);
+        
+        Long userInternalId = null;
+        GenericProvisioningUserRecord userRecord = targetUserIdToRecord.get(membershipRecord.targetUserId);
+        if (userRecord != null) {
+          userInternalId = userRecord.getInternalId();
+        } else {
+          userInternalId = membershipUserTargetIdToInternalId.get(membershipRecord.targetUserId);
+        }
+        
+        Long groupInternalId = null;
+        GenericProvisioningGroupRecord groupRecord = targetGroupIdToRecord.get(membershipRecord.targetGroupId);
+        if (groupRecord != null) {
+          groupInternalId = groupRecord.getInternalId();
+        } else {
+          groupInternalId = membershipGroupTargetIdToInternalId.get(membershipRecord.targetGroupId);
+        }
+        
+        Long roleInternalId = membershipRecord.roleName != null ? roleNameToInternalId.get(membershipRecord.roleName) : null;
+        if (userInternalId == null || groupInternalId == null) {
+          continue;
+        }
+        membershipRowData.add(new Object[] {membershipInternalIds.get(i), grouperSyncInternalId, userInternalId,
+            groupInternalId, roleInternalId, nowMicros});
+      }
+    }
+    
+    // sync users (scoped to the target IDs involved)
+    if (GrouperUtil.length(allUserTargetIds) > 0) {
+      this.syncGenericProvisionerTableIncremental("grouper_prov_user",
+          "internal_id,grouper_sync_internal_id,member_internal_id,target_user_id,last_updated",
+          "internal_id",
+          grouperSyncInternalId, "target_user_id", allUserTargetIds,
+          userRowData, debugMap, "loadGenericIncrUsers");
+    }
+    
+    // sync user attributes (scoped to the user internal IDs involved)
+    Set<Long> allUserInternalIds = new LinkedHashSet<Long>();
+    for (GenericProvisioningUserRecord userRecord : targetUserIdToRecord.values()) {
+      allUserInternalIds.add(userRecord.getInternalId());
+    }
+    if (GrouperUtil.length(allUserInternalIds) > 0) {
+      this.syncGenericProvisionerTableByInternalIds("grouper_prov_user_attr",
+          "internal_id,attribute_name,grouper_prov_user_internal_id,attribute_type,last_updated",
+          "internal_id",
+          "grouper_prov_user_internal_id", allUserInternalIds,
+          userAttributeRowData, debugMap, "loadGenericIncrUserAttrs");
+    }
+    
+    // sync user attribute values (scoped to the user internal IDs involved)
+    if (GrouperUtil.length(allUserInternalIds) > 0) {
+      this.syncGenericProvisionerTableByInternalIds("grouper_prov_user_attr_value",
+          "internal_id,prov_user_attr_internal_id,prov_user_internal_id,value_integer,value_dictionary_internal_id,last_updated",
+          "internal_id",
+          "prov_user_internal_id", allUserInternalIds,
+          userAttributeValueRowData, debugMap, "loadGenericIncrUserAttrValues");
+    }
+    
+    // sync groups (scoped to the target IDs involved)
+    if (GrouperUtil.length(allGroupTargetIds) > 0) {
+      this.syncGenericProvisionerTableIncremental("grouper_prov_group",
+          "internal_id,grouper_sync_internal_id,group_internal_id,target_group_id,last_updated",
+          "internal_id",
+          grouperSyncInternalId, "target_group_id", allGroupTargetIds,
+          groupRowData, debugMap, "loadGenericIncrGroups");
+    }
+    
+    // sync group attributes (scoped to the group internal IDs involved)
+    Set<Long> allGroupInternalIds = new LinkedHashSet<Long>();
+    for (GenericProvisioningGroupRecord groupRecord : targetGroupIdToRecord.values()) {
+      allGroupInternalIds.add(groupRecord.getInternalId());
+    }
+    if (GrouperUtil.length(allGroupInternalIds) > 0) {
+      this.syncGenericProvisionerTableByInternalIds("grouper_prov_group_attr",
+          "internal_id,attribute_name,grouper_prov_group_internal_id,attribute_type,last_updated",
+          "internal_id",
+          "grouper_prov_group_internal_id", allGroupInternalIds,
+          groupAttributeRowData, debugMap, "loadGenericIncrGroupAttrs");
+    }
+    
+    // sync group attribute values (scoped to the group internal IDs involved)
+    if (GrouperUtil.length(allGroupInternalIds) > 0) {
+      this.syncGenericProvisionerTableByInternalIds("grouper_prov_group_attr_value",
+          "internal_id,prov_group_attr_internal_id,prov_group_internal_id,value_integer,value_dictionary_internal_id,last_updated",
+          "internal_id",
+          "prov_group_internal_id", allGroupInternalIds,
+          groupAttributeValueRowData, debugMap, "loadGenericIncrGroupAttrValues");
+    }
+    
+    // insert new roles only (no sync needed, roles only accumulate)
+    if (GrouperUtil.length(roleRowData) > 0) {
+      for (Object[] row : roleRowData) {
+        new GcDbAccess().connectionName("grouper")
+            .sql("insert into grouper_prov_mship_role (internal_id, role_name, grouper_sync_internal_id, last_updated) values (?, ?, ?, ?)")
+            .addBindVar(row[0]).addBindVar(row[1]).addBindVar(row[2]).addBindVar(row[3]).executeSql();
+      }
+      debugMap.put("loadGenericIncrMshipRoleInserts", roleRowData.size());
+    }
+    
+    // insert new memberships (deletes are already handled above via isDeleteResultProcessed)
+    if (GrouperUtil.length(membershipRowData) > 0) {
+      int insertCount = 0;
+      for (Object[] row : membershipRowData) {
+        Long userInternalId = GrouperUtil.longObjectValue(row[2], false);
+        Long groupInternalId = GrouperUtil.longObjectValue(row[3], false);
+        // check if this membership already exists in the DB
+        int existingCount = new GcDbAccess().connectionName("grouper")
+            .sql("select count(*) from grouper_prov_mship where grouper_sync_internal_id = ? and prov_user_internal_id = ? and prov_group_internal_id = ?")
+            .addBindVar(grouperSyncInternalId).addBindVar(userInternalId).addBindVar(groupInternalId)
+            .select(int.class);
+        if (existingCount == 0) {
+          new GcDbAccess().connectionName("grouper")
+              .sql("insert into grouper_prov_mship (internal_id, grouper_sync_internal_id, prov_user_internal_id, prov_group_internal_id, prov_mship_role_internal_id, last_updated) values (?, ?, ?, ?, ?, ?)")
+              .addBindVar(row[0]).addBindVar(row[1]).addBindVar(row[2]).addBindVar(row[3]).addBindVar(row[4]).addBindVar(row[5])
+              .executeSql();
+          insertCount++;
+        }
+      }
+      debugMap.put("loadGenericIncrMshipInserts", insertCount);
+    }
+  }
+  
+  private void deleteGenericProvisionerCascadeUser(Set<Long> userInternalIds, Map<String, Object> debugMap) {
+    int deleteCount = 0;
+    List<Long> userInternalIdsList = new ArrayList<Long>(userInternalIds);
+    int batchSize = 900;
+    for (int i = 0; i < userInternalIdsList.size(); i += batchSize) {
+      List<Long> batch = userInternalIdsList.subList(i, Math.min(i + batchSize, userInternalIdsList.size()));
+      String inClause = GrouperClientUtils.appendQuestions(batch.size());
+      
+      // delete user (attributes, attribute values, and memberships cascade-deleted by DB)
+      GcDbAccess gcDbAccess = new GcDbAccess().connectionName("grouper");
+      gcDbAccess.sql("delete from grouper_prov_user where internal_id in (" + inClause + ")");
+      for (Long internalId : batch) {
+        gcDbAccess.addBindVar(internalId);
+      }
+      gcDbAccess.executeSql();
+      
+      deleteCount += batch.size();
+    }
+    debugMap.put("loadGenericIncrUserDeletes", deleteCount);
+  }
+  
+  private void deleteGenericProvisionerCascadeGroup(Set<Long> groupInternalIds, Map<String, Object> debugMap) {
+    int deleteCount = 0;
+    List<Long> groupInternalIdsList = new ArrayList<Long>(groupInternalIds);
+    int batchSize = 900;
+    for (int i = 0; i < groupInternalIdsList.size(); i += batchSize) {
+      List<Long> batch = groupInternalIdsList.subList(i, Math.min(i + batchSize, groupInternalIdsList.size()));
+      String inClause = GrouperClientUtils.appendQuestions(batch.size());
+      
+      // delete group (attributes, attribute values, and memberships cascade-deleted by DB)
+      GcDbAccess gcDbAccess = new GcDbAccess().connectionName("grouper");
+      gcDbAccess.sql("delete from grouper_prov_group where internal_id in (" + inClause + ")");
+      for (Long internalId : batch) {
+        gcDbAccess.addBindVar(internalId);
+      }
+      gcDbAccess.executeSql();
+      
+      deleteCount += batch.size();
+    }
+    debugMap.put("loadGenericIncrGroupDeletes", deleteCount);
+  }
+  
+  private void syncGenericProvisionerTableIncremental(String tableName, String columns, String primaryKeyColumns,
+      long grouperSyncInternalId, String targetIdColumn, Set<String> targetIds,
+      List<Object[]> targetRowData, Map<String, Object> debugMap, String debugKeyPrefix) {
+    
+    GcTableSync gcTableSync = new GcTableSync();
+    
+    GcTableSyncTableBean gcTableSyncTableBeanSql = new GcTableSyncTableBean(gcTableSync);
+    gcTableSyncTableBeanSql.configureMetadata("grouper", tableName);
+    gcTableSync.setDataBeanTo(gcTableSyncTableBeanSql);
+    
+    GcTableSyncTableMetadata gcTableSyncTableMetadata = gcTableSyncTableBeanSql.getTableMetadata();
+    gcTableSyncTableMetadata.assignColumns(columns);
+    gcTableSyncTableMetadata.assignPrimaryKeyColumns(primaryKeyColumns);
+    
+    // select only the rows matching the scoped target IDs
+    List<Object[]> existingResults = new ArrayList<Object[]>();
+    List<String> targetIdsList = new ArrayList<String>(targetIds);
+    int batchSize = 900;
+    for (int i = 0; i < targetIdsList.size(); i += batchSize) {
+      List<String> batch = targetIdsList.subList(i, Math.min(i + batchSize, targetIdsList.size()));
+      String inClause = GrouperClientUtils.appendQuestions(batch.size());
+      GcDbAccess gcDbAccess = new GcDbAccess().connectionName("grouper");
+      gcDbAccess.sql("select " + columns + " from " + tableName + " where grouper_sync_internal_id = ? and " + targetIdColumn + " in (" + inClause + ")");
+      gcDbAccess.addBindVar(grouperSyncInternalId);
+      for (String targetId : batch) {
+        gcDbAccess.addBindVar(targetId);
+      }
+      existingResults.addAll(gcDbAccess.selectList(Object[].class));
+    }
+    
+    GcTableSyncTableData gcTableSyncTableDataSql = new GcTableSyncTableData();
+    gcTableSyncTableDataSql.init(gcTableSyncTableBeanSql,
+        gcTableSyncTableMetadata.lookupColumns(gcTableSyncTableBeanSql.getTableMetadata().columnListAll()),
+        existingResults);
+    gcTableSyncTableDataSql.indexData();
+    
+    gcTableSyncTableBeanSql.setDataInitialQuery(gcTableSyncTableDataSql);
+    gcTableSyncTableBeanSql.setGcTableSync(gcTableSync);
+    
+    debugMap.put(debugKeyPrefix + "DbUniqueKeys", gcTableSyncTableDataSql.allPrimaryKeys().size());
+    
+    GcTableSyncTableBean gcTableSyncTableBeanFrom = new GcTableSyncTableBean();
+    gcTableSync.setDataBeanFrom(gcTableSyncTableBeanFrom);
+    gcTableSyncTableBeanFrom.setTableMetadata(gcTableSyncTableBeanSql.getTableMetadata());
+    gcTableSyncTableBeanFrom.setGcTableSync(gcTableSync);
+    
+    GcTableSyncTableData gcTableSyncTableDataFrom = new GcTableSyncTableData();
+    gcTableSync.getDataBeanFrom().setDataInitialQuery(gcTableSyncTableDataFrom);
+    gcTableSyncTableDataFrom.setColumnMetadata(gcTableSyncTableDataSql.getColumnMetadata());
+    gcTableSyncTableDataFrom.setGcTableSyncTableBean(gcTableSyncTableDataSql.getGcTableSyncTableBean());
+    
+    List<GcTableSyncRowData> gcTableSyncRowDatas = new ArrayList<GcTableSyncRowData>();
+    for (Object[] rowData : targetRowData) {
+      GcTableSyncRowData gcTableSyncRowData = new GcTableSyncRowData();
+      gcTableSyncRowDatas.add(gcTableSyncRowData);
+      gcTableSyncRowData.setGcTableSyncTableData(gcTableSyncTableDataFrom);
+      gcTableSyncRowData.setData(rowData);
+    }
+    
+    gcTableSyncTableDataFrom.setRows(gcTableSyncRowDatas);
+    
+    GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
+    gcTableSync.setGcTableSyncConfiguration(gcTableSyncConfiguration);
+    gcTableSync.setGcTableSyncOutput(new GcTableSyncOutput());
+    
+    Map<String, Object> debugMapLocal = new LinkedHashMap<String, Object>();
+    GcTableSyncSubtype.fullSyncFull.syncData(debugMapLocal, gcTableSync);
+    
+    for (String key : debugMapLocal.keySet()) {
+      Object newValue = debugMapLocal.get(key);
+      if (key.endsWith("Millis")) {
+        if (newValue instanceof Number) {
+          newValue = ((Number)newValue).longValue()/1000;
+        }
+      }
+      String newKey = debugKeyPrefix + StringUtils.capitalize(key);
+      debugMap.put(newKey, newValue);
+    }
+  }
+  
+  private void syncGenericProvisionerTableByInternalIds(String tableName, String columns, String primaryKeyColumns,
+      String foreignKeyColumn, Set<Long> foreignKeyIds,
+      List<Object[]> targetRowData, Map<String, Object> debugMap, String debugKeyPrefix) {
+    
+    GcTableSync gcTableSync = new GcTableSync();
+    
+    GcTableSyncTableBean gcTableSyncTableBeanSql = new GcTableSyncTableBean(gcTableSync);
+    gcTableSyncTableBeanSql.configureMetadata("grouper", tableName);
+    gcTableSync.setDataBeanTo(gcTableSyncTableBeanSql);
+    
+    GcTableSyncTableMetadata gcTableSyncTableMetadata = gcTableSyncTableBeanSql.getTableMetadata();
+    gcTableSyncTableMetadata.assignColumns(columns);
+    gcTableSyncTableMetadata.assignPrimaryKeyColumns(primaryKeyColumns);
+    
+    List<Object[]> existingResults = new ArrayList<Object[]>();
+    List<Long> foreignKeyIdsList = new ArrayList<Long>(foreignKeyIds);
+    int batchSize = 900;
+    for (int i = 0; i < foreignKeyIdsList.size(); i += batchSize) {
+      List<Long> batch = foreignKeyIdsList.subList(i, Math.min(i + batchSize, foreignKeyIdsList.size()));
+      String inClause = GrouperClientUtils.appendQuestions(batch.size());
+      GcDbAccess gcDbAccess = new GcDbAccess().connectionName("grouper");
+      gcDbAccess.sql("select " + columns + " from " + tableName + " where " + foreignKeyColumn + " in (" + inClause + ")");
+      for (Long foreignKeyId : batch) {
+        gcDbAccess.addBindVar(foreignKeyId);
+      }
+      existingResults.addAll(gcDbAccess.selectList(Object[].class));
+    }
+    
+    GcTableSyncTableData gcTableSyncTableDataSql = new GcTableSyncTableData();
+    gcTableSyncTableDataSql.init(gcTableSyncTableBeanSql,
+        gcTableSyncTableMetadata.lookupColumns(gcTableSyncTableBeanSql.getTableMetadata().columnListAll()),
+        existingResults);
+    gcTableSyncTableDataSql.indexData();
+    
+    gcTableSyncTableBeanSql.setDataInitialQuery(gcTableSyncTableDataSql);
+    gcTableSyncTableBeanSql.setGcTableSync(gcTableSync);
+    
+    debugMap.put(debugKeyPrefix + "DbUniqueKeys", gcTableSyncTableDataSql.allPrimaryKeys().size());
+    
+    GcTableSyncTableBean gcTableSyncTableBeanFrom = new GcTableSyncTableBean();
+    gcTableSync.setDataBeanFrom(gcTableSyncTableBeanFrom);
+    gcTableSyncTableBeanFrom.setTableMetadata(gcTableSyncTableBeanSql.getTableMetadata());
+    gcTableSyncTableBeanFrom.setGcTableSync(gcTableSync);
+    
+    GcTableSyncTableData gcTableSyncTableDataFrom = new GcTableSyncTableData();
+    gcTableSync.getDataBeanFrom().setDataInitialQuery(gcTableSyncTableDataFrom);
+    gcTableSyncTableDataFrom.setColumnMetadata(gcTableSyncTableDataSql.getColumnMetadata());
+    gcTableSyncTableDataFrom.setGcTableSyncTableBean(gcTableSyncTableDataSql.getGcTableSyncTableBean());
+    
+    List<GcTableSyncRowData> gcTableSyncRowDatas = new ArrayList<GcTableSyncRowData>();
+    for (Object[] rowData : targetRowData) {
+      GcTableSyncRowData gcTableSyncRowData = new GcTableSyncRowData();
+      gcTableSyncRowDatas.add(gcTableSyncRowData);
+      gcTableSyncRowData.setGcTableSyncTableData(gcTableSyncTableDataFrom);
+      gcTableSyncRowData.setData(rowData);
+    }
+    
+    gcTableSyncTableDataFrom.setRows(gcTableSyncRowDatas);
+    
+    GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
+    gcTableSync.setGcTableSyncConfiguration(gcTableSyncConfiguration);
+    gcTableSync.setGcTableSyncOutput(new GcTableSyncOutput());
+    
+    Map<String, Object> debugMapLocal = new LinkedHashMap<String, Object>();
+    GcTableSyncSubtype.fullSyncFull.syncData(debugMapLocal, gcTableSync);
+    
+    for (String key : debugMapLocal.keySet()) {
+      Object newValue = debugMapLocal.get(key);
+      if (key.endsWith("Millis")) {
+        if (newValue instanceof Number) {
+          newValue = ((Number)newValue).longValue()/1000;
+        }
+      }
+      String newKey = debugKeyPrefix + StringUtils.capitalize(key);
+      debugMap.put(newKey, newValue);
+    }
+  }
+  
+  
   private String normalizeMembershipRoleName(Object roleValue) {
     String roleName = StringUtils.trimToNull(GrouperUtil.stringValue(roleValue));
     if (StringUtils.isBlank(roleName)) {
@@ -2479,6 +3267,9 @@ public class GrouperProvisioningLogic {
           this.countInsertsUpdatesDeletes();
 
           this.errorHandling();
+          
+          // ######### STEP 38: insert/update/delete from grouper_prov* tables
+          loadDataToGenericProvisionerTablesIncremental();
 
         }
         
