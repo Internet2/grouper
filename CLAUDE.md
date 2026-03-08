@@ -82,6 +82,8 @@ User-managed configuration are in corresponding files without the `.base` in the
 - `grouper/conf/grouper.cache.properties`
 - `morphString.properties` - String encryption configuration
 
+There is also configuration in the database which takes precedence over the non base config files.  This is edited in the UI since history in kept in another table, so this should not be edited in the database but it could be viewed in the database or there is an MCP tool to look at configuration (preferred).
+
 ## Git Repository Information
 
 - Current branch: GROUPER_5_BRANCH
