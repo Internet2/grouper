@@ -197,7 +197,7 @@ public class GrouperMcpServlet extends HttpServlet {
 
     String authHeader = request.getHeader("Authorization");
 
-    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.mcp.logAuthDebug", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oauth.logAuthDebug", false)) {
       LOG.warn("MCP authenticateRequest: authHeader "
           + (StringUtils.isBlank(authHeader) ? "is blank"
               : (authHeader.startsWith("Bearer ") ? "is Bearer (len=" + authHeader.length() + ")"

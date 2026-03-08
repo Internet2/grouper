@@ -133,7 +133,7 @@ public class GrouperOAuthSigningKey {
         privateKey = (RSAPrivateKey) kf.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
         publicKey = (RSAPublicKey) kf.generatePublic(new X509EncodedKeySpec(publicKeyBytes));
 
-        if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.mcp.logAuthDebug", false)) {
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oauth.logAuthDebug", false)) {
           LOG.warn("OAuth RSA signing key pair loaded from config, publicKey hash="
               + GrouperUtil.encryptSha(base64PublicKey).substring(0, 12));
         }
