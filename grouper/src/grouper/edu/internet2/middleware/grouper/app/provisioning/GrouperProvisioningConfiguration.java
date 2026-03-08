@@ -559,6 +559,12 @@ public abstract class GrouperProvisioningConfiguration {
   
   private String searchAttributeNameToRetrieveEntities;
   
+  private Set<String> provisioningDataFieldConfigIds = new HashSet<>();
+  
+  public Set<String> getProvisioningDataFieldConfigIds() {
+    return this.provisioningDataFieldConfigIds;
+  }
+  
   
   public String getSearchAttributeNameToRetrieveEntities() {
     return searchAttributeNameToRetrieveEntities;
@@ -3420,6 +3426,14 @@ public abstract class GrouperProvisioningConfiguration {
         
       }
       
+    }
+    
+    for (int i = 0; i <= 1000; i++) {
+      String dataFieldConfigId = this.retrieveConfigString("provisioningDataField."+i+".configId" , false);
+      if (StringUtils.isBlank(dataFieldConfigId)) {
+        break;
+      }
+      this.provisioningDataFieldConfigIds.add(dataFieldConfigId);
     }
     
     this.subjectIdentifierForMemberSyncTable = this.retrieveConfigString("subjectIdentifierForMemberSyncTable", false);

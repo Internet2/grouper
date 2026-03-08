@@ -1199,7 +1199,19 @@ public class GuiAuditEntry {
           
         case JEXL_TEST_EXEC:
           return TextContainer.retrieveFromRequest().getText().get("audits_JEXL_SCRIPT_EXECUTE");
-          
+
+        case OAUTH_CLIENT_REGISTER:
+          this.setupMember();
+          return TextContainer.retrieveFromRequest().getText().get("audits_OAUTH_CLIENT_REGISTER");
+
+        case OAUTH_CONSENT_APPROVE:
+          this.setupMember();
+          return TextContainer.retrieveFromRequest().getText().get("audits_OAUTH_CONSENT_APPROVE");
+
+        case OAUTH_TOKEN_ISSUE:
+          this.setupMember();
+          return TextContainer.retrieveFromRequest().getText().get("audits_OAUTH_TOKEN_ISSUE");
+
         default:
           LOG.error("Cant find audit builtin for category: " + category + " and action: " + actionName);
           return GrouperUtil.xmlEscape(GrouperUtil.abbreviate(this.auditEntry.getDescription(), 500));

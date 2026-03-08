@@ -35,6 +35,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
@@ -101,7 +102,10 @@ public class GrouperOAuthSigningKey {
         base64PrivateKey = java.util.Base64.getEncoder().encodeToString(privateKey.getEncoded());
         base64PublicKey = java.util.Base64.getEncoder().encodeToString(publicKey.getEncoded());
 
+        GrouperSession grouperSession = null;
         try {
+          grouperSession = GrouperSession.startRootSession();
+
           // save private key - auto-encrypted because key name contains "private"
           saveConfigValue(CONFIG_KEY_PRIVATE_KEY, base64PrivateKey);
 
@@ -130,6 +134,8 @@ public class GrouperOAuthSigningKey {
           publicKey = (RSAPublicKey) kf.generatePublic(new X509EncodedKeySpec(loadedPublicKeyBytes));
 
           LOG.info("OAuth RSA signing key pair loaded from config after race condition");
+        } finally {
+          GrouperSession.stopQuietly(grouperSession);
         }
       }
 

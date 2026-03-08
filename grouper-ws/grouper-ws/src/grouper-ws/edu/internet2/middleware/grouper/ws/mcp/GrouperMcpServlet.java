@@ -973,6 +973,9 @@ public class GrouperMcpServlet extends HttpServlet {
    */
   private void sendJsonRpcError(HttpServletResponse response, JsonNode id,
       int code, String message) throws IOException {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.mcp.logClientErrors", false)) {
+      LOG.warn("MCP client error (code " + code + "): " + message);
+    }
     ObjectNode jsonRpcResponse = objectMapper.createObjectNode();
     jsonRpcResponse.put("jsonrpc", "2.0");
     if (id != null) {

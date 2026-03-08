@@ -258,6 +258,28 @@ public class GrouperDataRowDao {
     return result;
   }
   
+  public static Set<GrouperDataRow> selectByInternalIds(Set<Long> internalIds) {
+    if (internalIds == null || internalIds.size() == 0) {
+      return new HashSet<>();
+    }
+    
+    Set<GrouperDataRow> result = new HashSet<>();
+    
+    List<GrouperDataRow> grouperDataRows = new GcDbAccess().sql("select * from grouper_data_row ")
+        .selectMultipleColumnName("internal_id")
+        .bindVars(new ArrayList<Long>(internalIds))
+        .selectList(GrouperDataRow.class);
+    
+    result.addAll(grouperDataRows);
+    
+    for (GrouperDataRow grouperDataRow: result) {
+      configIdToInternalIdCache().put(grouperDataRow.getConfigId(), grouperDataRow.getInternalId());
+      internalIdToConfigIdCache().put(grouperDataRow.getInternalId(), grouperDataRow.getConfigId());
+    }
+   
+    return result;
+  }
+  
   public static void delete(List<GrouperDataRow> grouperDataRows) {
     if (GrouperUtil.length(grouperDataRows) == 0) {
       return;
