@@ -492,6 +492,7 @@ public class GrouperMcpServlet extends HttpServlet {
 
   /**
    * handle tools/list - only include tools the user is authorized for
+   * and that are allowed by the deployer's allow/deny configuration.
    * @param params the JSON-RPC params
    * @param authUser the authenticated user
    */
@@ -501,50 +502,105 @@ public class GrouperMcpServlet extends HttpServlet {
 
     // readonly tools (readwrite implies readonly)
     if (hasReadonlyAccess(authUser)) {
-      toolsArray.add(GrouperMcpFindAttributeDefNames.toolDefinition());
-      toolsArray.add(GrouperMcpFindGroups.toolDefinition());
-      toolsArray.add(GrouperMcpFindStems.toolDefinition());
-      toolsArray.add(GrouperMcpGetAttributeAssignmentsLite.toolDefinition());
-      toolsArray.add(GrouperMcpGetAuditEntries.toolDefinition());
-      toolsArray.add(GrouperMcpGetGrouperPrivilegesLite.toolDefinition());
-      toolsArray.add(GrouperMcpGetGroups.toolDefinition());
-      toolsArray.add(GrouperMcpGetMembersLite.toolDefinition());
-      toolsArray.add(GrouperMcpGetMemberships.toolDefinition());
-      toolsArray.add(GrouperMcpGetSubjects.toolDefinition());
-      toolsArray.add(GrouperMcpHasMember.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpFindAttributeDefNames.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpFindGroups.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpFindStems.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpGetAttributeAssignmentsLite.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpGetAuditEntries.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpGetGrouperPrivilegesLite.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpGetGroups.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpGetMembersLite.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpGetMemberships.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpGetSubjects.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpHasMember.toolDefinition());
     }
 
     // readwrite tools
     if (hasReadwriteAccess(authUser)) {
-      toolsArray.add(GrouperMcpAddMember.toolDefinition());
-      toolsArray.add(GrouperMcpAssignAttributes.toolDefinition());
-      toolsArray.add(GrouperMcpAssignGrouperPrivilegesLite.toolDefinition());
-      toolsArray.add(GrouperMcpDeleteMember.toolDefinition());
-      toolsArray.add(GrouperMcpGroupSave.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpAddMember.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpAssignAttributes.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpAssignGrouperPrivilegesLite.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpDeleteMember.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpGroupSave.toolDefinition());
     }
 
     // SQL readonly tools
     if (hasSqlReadonlyAccess(authUser)) {
-      toolsArray.add(GrouperMcpSqlGetSchema.toolDefinition());
-      toolsArray.add(GrouperMcpSqlSelect.toolDefinition());
-      toolsArray.add(GrouperMcpSqlSelectCount.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpSqlGetSchema.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpSqlSelect.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpSqlSelectCount.toolDefinition());
     }
 
     // admin readonly tools
     if (hasAdminReadonlyAccess(authUser)) {
-      toolsArray.add(GrouperMcpAdminGetDaemonJobMessage.toolDefinition());
-      toolsArray.add(GrouperMcpAdminGetDaemonJobs.toolDefinition());
-      toolsArray.add(GrouperMcpAdminSearchConfigs.toolDefinition());
-      toolsArray.add(GrouperMcpAdminSearchDaemons.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpAdminGetDaemonJobMessage.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpAdminGetDaemonJobs.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpAdminSearchConfigs.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpAdminSearchDaemons.toolDefinition());
     }
 
     // admin readwrite tools
     if (hasAdminReadwriteAccess(authUser)) {
-      toolsArray.add(GrouperMcpAdminRunDaemonJob.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpAdminRunDaemonJob.toolDefinition());
     }
 
     result.set("tools", toolsArray);
     return result;
+  }
+
+  /**
+   * add a tool definition to the tools array only if the tool is allowed
+   * by the deployer's allow/deny configuration.
+   * @param toolsArray the array to add to
+   * @param toolDef the tool definition from toolDefinition()
+   */
+  private static void addToolIfAllowed(ArrayNode toolsArray, ObjectNode toolDef) {
+    String toolName = toolDef.get("name").asText();
+    if (isToolAllowedByConfig(toolName)) {
+      toolsArray.add(toolDef);
+    }
+  }
+
+  /**
+   * check if a tool is allowed by the deployer's allow/deny configuration.
+   * the allow list (grouper.mcp.tools.allow) specifies which tools to allow;
+   * blank means all tools are allowed.
+   * the deny list (grouper.mcp.tools.deny) specifies which tools to deny;
+   * blank means no tools are denied.
+   * effective tools = allow minus deny.
+   * @param toolName the tool name
+   * @return true if the tool is allowed
+   */
+  private static boolean isToolAllowedByConfig(String toolName) {
+    String allowList = StringUtils.trimToNull(
+        GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.tools.allow"));
+    String denyList = StringUtils.trimToNull(
+        GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.tools.deny"));
+
+    // check allow list (null/blank means all allowed)
+    if (allowList != null) {
+      boolean found = false;
+      for (String allowed : GrouperUtil.splitTrim(allowList, ",")) {
+        if (StringUtils.equals(allowed, toolName)) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        return false;
+      }
+    }
+
+    // check deny list (null/blank means none denied)
+    if (denyList != null) {
+      for (String denied : GrouperUtil.splitTrim(denyList, ",")) {
+        if (StringUtils.equals(denied, toolName)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -610,7 +666,8 @@ public class GrouperMcpServlet extends HttpServlet {
   }
 
   /**
-   * dispatch a tool call to the appropriate handler, checking authorization.
+   * dispatch a tool call to the appropriate handler, checking authorization
+   * and the deployer's allow/deny configuration.
    * @param toolName the tool name
    * @param arguments the tool arguments
    * @param authUser the authenticated user
@@ -618,6 +675,13 @@ public class GrouperMcpServlet extends HttpServlet {
    */
   private ObjectNode dispatchToolCall(String toolName, JsonNode arguments,
       GrouperMcpAuthUser authUser) {
+
+    // check deployer allow/deny configuration
+    if (!isToolAllowedByConfig(toolName)) {
+      return buildMcpErrorResult("Access denied: tool '" + toolName
+          + "' is not allowed by server configuration.");
+    }
+
     switch (toolName) {
       // readonly tools (alphabetical)
       case "attribute_def_name_find":
