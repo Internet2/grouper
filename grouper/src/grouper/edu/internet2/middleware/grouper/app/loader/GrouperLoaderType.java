@@ -2413,15 +2413,28 @@ public enum GrouperLoaderType {
   }
 
   /**
+   * return the type for this job name, or null if not found
+   * @param jobName
+   * @return the type or null
+   */
+  public static GrouperLoaderType typeForThisNameOrNull(String jobName) {
+    for (GrouperLoaderType grouperLoaderType : GrouperLoaderType.values()) {
+      if (grouperLoaderType.nameForThisType(jobName)) {
+        return grouperLoaderType;
+      }
+    }
+    return null;
+  }
+
+  /**
    * return the type for this job name
    * @param jobName
    * @return the type
    */
   public static GrouperLoaderType typeForThisName(String jobName) {
-    for (GrouperLoaderType grouperLoaderType : GrouperLoaderType.values()) {
-      if (grouperLoaderType.nameForThisType(jobName)) {
-        return grouperLoaderType;
-      }
+    GrouperLoaderType result = typeForThisNameOrNull(jobName);
+    if (result != null) {
+      return result;
     }
     throw new RuntimeException("Cant find job type for this name: " + jobName);
   }
