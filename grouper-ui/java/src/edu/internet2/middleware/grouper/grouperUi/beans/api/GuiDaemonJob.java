@@ -162,12 +162,12 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
   private boolean isEnabled;
   
   public String getEditQueryParam() {
-    GrouperLoaderType loaderType = GrouperLoaderType.typeForThisName(jobName);
-   
-    if (loaderType == GrouperLoaderType.SQL_SIMPLE 
+    GrouperLoaderType loaderType = GrouperLoaderType.typeForThisNameOrNull(jobName);
+
+    if (loaderType == GrouperLoaderType.SQL_SIMPLE
         || loaderType == GrouperLoaderType.SQL_GROUP_LIST
-        || loaderType == GrouperLoaderType.LDAP_GROUP_LIST 
-        || loaderType == GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES 
+        || loaderType == GrouperLoaderType.LDAP_GROUP_LIST
+        || loaderType == GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES
         || loaderType == GrouperLoaderType.LDAP_SIMPLE) {
       
       int uuidIndexStart = jobName.lastIndexOf("__");
@@ -198,8 +198,10 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
 
       this.setJobName(jobName);
       
-      GrouperLoaderType loaderType = GrouperLoaderType.typeForThisName(jobName);
-      if (loaderType != GrouperLoaderType.ATTR_SQL_SIMPLE
+      GrouperLoaderType loaderType = GrouperLoaderType.typeForThisNameOrNull(jobName);
+      if (loaderType == null) {
+        LOG.warn("Can't find job type for job name: " + jobName);
+      } else if (loaderType != GrouperLoaderType.ATTR_SQL_SIMPLE
           && loaderType != GrouperLoaderType.LDAP_GROUP_LIST
           && loaderType != GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES
           && loaderType != GrouperLoaderType.LDAP_SIMPLE
@@ -378,27 +380,32 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
       }
       
       {
-        GrouperLoaderType grouperLoaderType = GrouperLoaderType.typeForThisName(jobName);
-        int minutesSinceLastSuccess = DaemonJobStatus.getMinutesSinceLastSuccess(jobName, grouperLoaderType);
-        DaemonJobStatus daemonJobStatus = new DaemonJobStatus(jobName, minutesSinceLastSuccess);
-        boolean isSuccess = daemonJobStatus.isSuccess();
-        Long lastSuccess = daemonJobStatus.getLastSuccess();
-        
-        if (isSuccess) {
-          this.setOverallStatus("SUCCESS");
-          this.setOverallStatusDescription("Found a success on " + GrouperUtil.dateStringValue(lastSuccess)  + " in grouper_loader_log for job name: " + jobName + " which is within the threshold of " + minutesSinceLastSuccess + " minutes");
-        } else {
-          if (this.isEnabled) {
-            this.setOverallStatus("ERROR");
-          } else {
-            this.setOverallStatus("DISABLED");
-          }
+        GrouperLoaderType grouperLoaderType = GrouperLoaderType.typeForThisNameOrNull(jobName);
+        if (grouperLoaderType != null) {
+          int minutesSinceLastSuccess = DaemonJobStatus.getMinutesSinceLastSuccess(jobName, grouperLoaderType);
+          DaemonJobStatus daemonJobStatus = new DaemonJobStatus(jobName, minutesSinceLastSuccess);
+          boolean isSuccess = daemonJobStatus.isSuccess();
+          Long lastSuccess = daemonJobStatus.getLastSuccess();
 
-          if (lastSuccess == null) {
-            this.setOverallStatusDescription("Can't find a success in grouper_loader_log for job name: " + jobName);
+          if (isSuccess) {
+            this.setOverallStatus("SUCCESS");
+            this.setOverallStatusDescription("Found a success on " + GrouperUtil.dateStringValue(lastSuccess)  + " in grouper_loader_log for job name: " + jobName + " which is within the threshold of " + minutesSinceLastSuccess + " minutes");
           } else {
-            this.setOverallStatusDescription("Found most recent success on " + GrouperUtil.dateStringValue(lastSuccess) + " in grouper_loader_log for job name: " + jobName + " which is NOT within the threshold of " + minutesSinceLastSuccess + " minutes");
+            if (this.isEnabled) {
+              this.setOverallStatus("ERROR");
+            } else {
+              this.setOverallStatus("DISABLED");
+            }
+
+            if (lastSuccess == null) {
+              this.setOverallStatusDescription("Can't find a success in grouper_loader_log for job name: " + jobName);
+            } else {
+              this.setOverallStatusDescription("Found most recent success on " + GrouperUtil.dateStringValue(lastSuccess) + " in grouper_loader_log for job name: " + jobName + " which is NOT within the threshold of " + minutesSinceLastSuccess + " minutes");
+            }
           }
+        } else {
+          this.setOverallStatus("UNKNOWN");
+          this.setOverallStatusDescription("Unknown job type for job name: " + jobName);
         }
       }
       
