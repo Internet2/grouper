@@ -57,7 +57,6 @@ public class GrouperMcpGroupSave {
         "Create or update a Grouper group. "
         + "Specify the fully qualified group name and optionally a description, "
         + "display extension, save mode, and type of group. "
-        + "Can optionally create parent stems if they do not exist. "
         + "Supports composite groups: set compositeType and left/right factor group names "
         + "to make this group a composite, or set hasComposite to false to remove an existing composite.");
 
@@ -99,13 +98,6 @@ public class GrouperMcpGroupSave {
         + "INSERT_OR_UPDATE = create or update (default).");
     properties.set("saveMode", saveModeProp);
 
-    ObjectNode createParentStemsProp = objectMapper.createObjectNode();
-    createParentStemsProp.put("type", "boolean");
-    createParentStemsProp.put("description",
-        "If true, create parent stems if they do not exist. Default is false.");
-    createParentStemsProp.put("default", false);
-    properties.set("createParentStemsIfNotExist", createParentStemsProp);
-
     ObjectNode typeOfGroupProp = objectMapper.createObjectNode();
     typeOfGroupProp.put("type", "string");
     typeOfGroupProp.put("description",
@@ -117,12 +109,10 @@ public class GrouperMcpGroupSave {
     compositeTypeProp.put("type", "string");
     ArrayNode compositeTypeEnum = objectMapper.createArrayNode();
     compositeTypeEnum.add("COMPLEMENT");
-    compositeTypeEnum.add("UNION");
     compositeTypeEnum.add("INTERSECTION");
     compositeTypeProp.set("enum", compositeTypeEnum);
     compositeTypeProp.put("description",
         "Composite type. COMPLEMENT = members in left but not right, "
-        + "UNION = members in left or right, "
         + "INTERSECTION = members in both left and right. "
         + "Required when hasComposite is true.");
     properties.set("compositeType", compositeTypeProp);
@@ -176,9 +166,6 @@ public class GrouperMcpGroupSave {
         ? arguments.get("displayExtension").asText() : null;
     String saveMode = arguments != null && arguments.has("saveMode")
         ? arguments.get("saveMode").asText() : null;
-    boolean createParentStemsIfNotExist = arguments != null
-        && arguments.has("createParentStemsIfNotExist")
-        && arguments.get("createParentStemsIfNotExist").asBoolean(false);
     String typeOfGroup = arguments != null && arguments.has("typeOfGroup")
         ? arguments.get("typeOfGroup").asText() : null;
     String compositeType = arguments != null && arguments.has("compositeType")
@@ -238,10 +225,6 @@ public class GrouperMcpGroupSave {
       if (StringUtils.isNotBlank(saveMode)) {
         wsGroupToSave.setSaveMode(saveMode);
       }
-      if (createParentStemsIfNotExist) {
-        wsGroupToSave.setCreateParentStemsIfNotExist("T");
-      }
-
       // set composite detail if hasComposite was specified
       if (hasComposite != null) {
         WsGroupDetail wsGroupDetail = new WsGroupDetail();
