@@ -673,6 +673,40 @@ public class GrouperOktaApiCommands {
 
   }
   
+  /**
+   * retrieve a single okta user by their okta id
+   * @param configId
+   * @param userId okta user id
+   * @return okta user or null if not found
+   */
+  public static GrouperOktaUser retrieveOktaUserById(String configId, String userId) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "retrieveOktaUserById");
+
+    long startTime = System.nanoTime();
+
+    try {
+      String urlSuffix = "users/" + userId;
+      JsonNode jsonNode = executeGetMethod(debugMap, "retrieveOktaUserById", configId, urlSuffix);
+
+      if (jsonNode == null || jsonNode.get("data") == null) {
+        return null;
+      }
+
+      GrouperOktaUser grouperOktaUser = GrouperOktaUser.fromJson(jsonNode.get("data"));
+      return grouperOktaUser;
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperOktaLog.oktaLog(debugMap, startTime);
+    }
+
+  }
+
   public static void main(String[] args) {
     GrouperSession.startRootSession();
     
