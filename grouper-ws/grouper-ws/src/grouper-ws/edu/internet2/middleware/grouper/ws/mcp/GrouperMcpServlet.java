@@ -206,7 +206,8 @@ public class GrouperMcpServlet extends HttpServlet {
     }
 
     // try OAuth JWT if Bearer token is present
-    if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith("Bearer ")) {
+    if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith("Bearer ")
+        && GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.mcp.auth.oauth", true)) {
       String bearerToken = authHeader.substring("Bearer ".length()).trim();
       DecodedJWT decodedJwt = GrouperOAuthSigningKey.verifyAndDecodeJwt(bearerToken);
       if (decodedJwt != null) {
@@ -279,8 +280,9 @@ public class GrouperMcpServlet extends HttpServlet {
       return null;
     }
 
-    // try normal WS authentication (HTTP Basic or container auth)
-    if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith("Basic ")) {
+    // try HTTP Basic authentication
+    if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith("Basic ")
+        && GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.mcp.auth.httpBasic", false)) {
       boolean runGrouperWsWithBasicAuth = GrouperHibernateConfig.retrieveConfig()
           .propertyValueBoolean("grouper.is.ws.basicAuthn", false);
       if (runGrouperWsWithBasicAuth) {
@@ -307,9 +309,8 @@ public class GrouperMcpServlet extends HttpServlet {
       }
     }
 
-    // try container auth / custom authentication class
-    {
-      // check if the container already authenticated (e.g. via a valve or filter)
+    // try container auth
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.mcp.auth.container", false)) {
       String remoteUser = request.getRemoteUser();
       if (StringUtils.isBlank(remoteUser) && request.getUserPrincipal() != null) {
         remoteUser = request.getUserPrincipal().getName();
@@ -329,8 +330,10 @@ public class GrouperMcpServlet extends HttpServlet {
           return authUser;
         }
       }
+    }
 
-      // try custom authentication class
+    // try custom authentication class
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.mcp.auth.customAuthClass", false)) {
       String authenticationClassName = GrouperWsConfig.retrieveConfig().propertyValueString(
           GrouperWsConfig.WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS, null);
       if (StringUtils.isNotBlank(authenticationClassName)) {
@@ -359,7 +362,7 @@ public class GrouperMcpServlet extends HttpServlet {
       }
     }
 
-    // no authentication succeeded - return OAuth error
+    // no authentication succeeded
     String resourceMetadataUrl = request.getScheme() + "://" + request.getServerName();
     if (("http".equals(request.getScheme()) && request.getServerPort() != 80)
         || ("https".equals(request.getScheme()) && request.getServerPort() != 443)) {
