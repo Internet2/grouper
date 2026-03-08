@@ -58,7 +58,7 @@ Grouper ships will base configuration properties, which can be overridden by the
 
 - `grouper-misc/grouperClient/conf/grouper.client.base.properties`
 - `grouper/conf/grouper.hibernate.base.properties` - Database connectivity
-- `grouper/conf/grouperText/grouper.textNg.en.us.base.properties` -internationalization (i18n) strings
+- `grouper/conf/grouperText/grouper.textNg.en.us.base.properties` -internationalization (i18n) strings.  User facing text should be in this file.
 - `grouper/conf/grouperText/grouper.textNg.fr.fr.base.properties` -internationalization (i18n) strings
 - `grouper/conf/grouper-loader.base.properties` - External system and daemon job configuration
 - `grouper/conf/grouper-ws-ng.base.properties` - Web services settings
