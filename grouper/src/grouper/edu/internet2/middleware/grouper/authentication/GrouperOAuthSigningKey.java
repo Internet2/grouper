@@ -133,7 +133,10 @@ public class GrouperOAuthSigningKey {
         privateKey = (RSAPrivateKey) kf.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
         publicKey = (RSAPublicKey) kf.generatePublic(new X509EncodedKeySpec(publicKeyBytes));
 
-        LOG.info("OAuth RSA signing key pair loaded from grouper.properties config");
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.mcp.logAuthDebug", false)) {
+          LOG.warn("OAuth RSA signing key pair loaded from config, publicKey hash="
+              + GrouperUtil.encryptSha(base64PublicKey).substring(0, 12));
+        }
       } else {
         // generate new key pair
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
@@ -326,7 +329,7 @@ public class GrouperOAuthSigningKey {
       JWTVerifier verifier = JWT.require(keyBundle.verificationAlgorithm).build();
       return verifier.verify(jwt);
     } catch (JWTVerificationException e) {
-      LOG.debug("OAuth JWT verification failed: " + e.getMessage());
+      LOG.warn("OAuth JWT verification failed: " + e.getMessage());
       return null;
     }
   }

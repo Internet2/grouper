@@ -16,10 +16,7 @@
 package edu.internet2.middleware.grouper.ws.mcp;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -97,12 +94,6 @@ public class GrouperMcpServlet extends HttpServlet {
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
   /**
-   * active session IDs
-   */
-  private static final Set<String> activeSessions =
-      Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
-
-  /**
    * cache for isSubjectInGroup results.
    * key is MultiKey(subjectId, subjectSourceId, groupPropertyName), value is Boolean.
    * caches for 60 seconds so that group membership changes take effect quickly
@@ -144,8 +135,8 @@ public class GrouperMcpServlet extends HttpServlet {
     // initialize does not require a session ID; all other methods do
     if (!"initialize".equals(method)) {
       String sessionId = request.getHeader(SESSION_ID_HEADER);
-      if (sessionId == null || !activeSessions.contains(sessionId)) {
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Session not found");
+      if (StringUtils.isBlank(sessionId)) {
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing Mcp-Session-Id header");
         return;
       }
     }
@@ -205,6 +196,14 @@ public class GrouperMcpServlet extends HttpServlet {
       HttpServletResponse response) throws IOException {
 
     String authHeader = request.getHeader("Authorization");
+
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.mcp.logAuthDebug", false)) {
+      LOG.warn("MCP authenticateRequest: authHeader "
+          + (StringUtils.isBlank(authHeader) ? "is blank"
+              : (authHeader.startsWith("Bearer ") ? "is Bearer (len=" + authHeader.length() + ")"
+                  : "starts with: " + StringUtils.abbreviate(authHeader, 20)))
+          + ", remoteAddr=" + request.getRemoteAddr());
+    }
 
     // try OAuth JWT if Bearer token is present
     if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith("Bearer ")) {
@@ -274,6 +273,7 @@ public class GrouperMcpServlet extends HttpServlet {
       }
 
       // Bearer token present but not a valid JWT
+      LOG.warn("MCP auth: Bearer token present but JWT verification failed, returning 401");
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.setHeader("WWW-Authenticate", "Bearer error=\"invalid_token\"");
       return null;
@@ -451,7 +451,7 @@ public class GrouperMcpServlet extends HttpServlet {
       throws ServletException, IOException {
     try {
       String sessionId = request.getHeader(SESSION_ID_HEADER);
-      if (sessionId != null && activeSessions.remove(sessionId)) {
+      if (StringUtils.isNotBlank(sessionId)) {
         LOG.info("MCP session terminated: " + sessionId);
       }
       response.setStatus(HttpServletResponse.SC_ACCEPTED);
@@ -466,7 +466,6 @@ public class GrouperMcpServlet extends HttpServlet {
    */
   private ObjectNode handleInitialize(JsonNode params, HttpServletResponse response) {
     String sessionId = UUID.randomUUID().toString();
-    activeSessions.add(sessionId);
     response.setHeader(SESSION_ID_HEADER, sessionId);
 
     LOG.info("MCP session initialized: " + sessionId);

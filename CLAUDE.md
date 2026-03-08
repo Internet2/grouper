@@ -302,3 +302,7 @@ These files serve as knowledge base resources for:
 - Learning Grouper operational patterns
 
 When writing GSH scripts, always reference aiGshInstructions.txt for coding standards and aiGsh.txt for implementation patterns.
+
+### Deployment architecture
+
+Grouper runs in Docker containers.  Generally the UI, WS, and daemon run in different containers and each layer has one to many nodes so do not assume that you can set things in static variables and all traffic will see that data.  State must be stored in the database or elsewhere.
