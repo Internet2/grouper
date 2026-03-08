@@ -15,6 +15,12 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -23,6 +29,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
@@ -35,6 +46,15 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
  * Supports searching by name (exact or approximate), by stem, by attribute,
  * with paging and sorting.
  *
+ * <p>Delegates to {@link GrouperServiceLogic#findGroups} for the actual search,
+ * then optionally enriches results with Grouper object type names (e.g., policy, ref,
+ * basis, manual) via {@link GrouperObjectTypesConfiguration}.</p>
+ *
+ * <p>The object types are not part of the WS response, so when includeGroupTypes is true,
+ * we do a second lookup: re-fetch the Group objects by name, then batch-retrieve their
+ * type attributes. This adds some overhead but avoids exposing the underlying attribute
+ * framework complexity to the MCP client.</p>
+ *
  * @author mchyzer
  */
 public class GrouperMcpFindGroups {
@@ -44,8 +64,10 @@ public class GrouperMcpFindGroups {
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
   /**
-   * return the MCP tool definition for group_find
-   * @return the tool definition as a Jackson ObjectNode
+   * Return the MCP tool definition for group_find.
+   * This builds the JSON Schema that describes the tool's input parameters
+   * to the MCP client (e.g., an AI model).
+   * @return the tool definition as a Jackson ObjectNode conforming to the MCP tool schema
    */
   public static ObjectNode toolDefinition() {
     ObjectNode tool = objectMapper.createObjectNode();
@@ -148,6 +170,13 @@ public class GrouperMcpFindGroups {
         "Sort ascending (true, default) or descending (false).");
     properties.set("ascending", ascendingProp);
 
+    ObjectNode includeGroupTypesProp = objectMapper.createObjectNode();
+    includeGroupTypesProp.put("type", "boolean");
+    includeGroupTypesProp.put("description",
+        "If true, include group type names (e.g., policy, ref, basis, manual, app, org, test, service, readOnly, etc.) "
+        + "for each group in the results. Defaults to false.");
+    properties.set("includeGroupTypes", includeGroupTypesProp);
+
     inputSchema.set("properties", properties);
 
     ArrayNode required = objectMapper.createArrayNode();
@@ -160,13 +189,22 @@ public class GrouperMcpFindGroups {
   }
 
   /**
-   * execute the group_find tool by delegating to the WS service logic
-   * @param arguments the tool arguments from the MCP request
-   * @param authUser the authenticated user
-   * @return the MCP tool result
+   * Execute the group_find tool by delegating to the WS service logic.
+   *
+   * <p>Flow:
+   * 1. Parse and validate input arguments from the MCP request
+   * 2. Build a WsQueryFilter and call GrouperServiceLogic.findGroups()
+   * 3. If includeGroupTypes is requested, do a secondary lookup to fetch
+   *    Grouper object type attributes (policy, ref, basis, etc.) for each group
+   * 4. Build a clean JSON response with group details and optional type info</p>
+   *
+   * @param arguments the tool arguments from the MCP request (JSON object)
+   * @param authUser the authenticated user (used for access control upstream)
+   * @return the MCP tool result containing group data or an error message
    */
   public static ObjectNode execute(JsonNode arguments, GrouperMcpAuthUser authUser) {
 
+    // parse all input parameters from the MCP request arguments
     String queryFilterType = arguments != null && arguments.has("queryFilterType")
         ? arguments.get("queryFilterType").asText() : null;
     String groupName = arguments != null && arguments.has("groupName")
@@ -189,6 +227,8 @@ public class GrouperMcpFindGroups {
         ? arguments.get("sortString").asText() : null;
     String ascending = arguments != null && arguments.has("ascending")
         ? (arguments.get("ascending").asBoolean(true) ? "T" : "F") : null;
+    boolean includeGroupTypes = arguments != null && arguments.has("includeGroupTypes")
+        && arguments.get("includeGroupTypes").asBoolean(false);
 
     if (StringUtils.isBlank(queryFilterType)) {
       return buildErrorResult("queryFilterType is required.");
@@ -196,6 +236,7 @@ public class GrouperMcpFindGroups {
 
     try {
 
+      // build the WS query filter from the MCP arguments
       WsQueryFilter wsQueryFilter = new WsQueryFilter();
       wsQueryFilter.setQueryFilterType(queryFilterType);
 
@@ -249,6 +290,41 @@ public class GrouperMcpFindGroups {
       resultNode.put("pageSize", pageSize);
       resultNode.put("pageNumber", pageNumber);
 
+      // Optionally look up Grouper object types (policy, ref, basis, manual, etc.)
+      // for each group. The WS findGroups response doesn't include type info, so we
+      // need to re-fetch the Group objects and use the GrouperObjectTypesConfiguration
+      // API to batch-retrieve the type attributes. The result is a map from group name
+      // to a list of type values, which we later add as an "objectTypes" array on each group.
+      Map<String, List<GrouperObjectTypesAttributeValue>> groupNameToTypes = null;
+      if (includeGroupTypes && groupCount > 0) {
+
+        // collect unique group names from the WS results
+        Set<String> groupNames = new HashSet<>();
+        for (WsGroup wsGroup : groups) {
+          if (StringUtils.isNotBlank(wsGroup.getName())) {
+            groupNames.add(wsGroup.getName());
+          }
+        }
+        if (groupNames.size() > 0) {
+
+          // re-fetch Group objects from the database (needed for the types API)
+          Set<Group> groupObjects = new GroupFinder().assignGroupNames(groupNames).findGroups();
+
+          // batch-retrieve object type attributes for all groups at once
+          Map<GrouperObject, List<GrouperObjectTypesAttributeValue>> typesMap =
+              GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(groupObjects);
+
+          // convert to a name-keyed map for easy lookup when building the response
+          groupNameToTypes = new HashMap<>();
+          for (Map.Entry<GrouperObject, List<GrouperObjectTypesAttributeValue>> entry : typesMap.entrySet()) {
+            if (entry.getKey() instanceof Group) {
+              groupNameToTypes.put(((Group) entry.getKey()).getName(), entry.getValue());
+            }
+          }
+        }
+      }
+
+      // build the response array with each group's details
       ArrayNode groupsArray = objectMapper.createArrayNode();
       if (groupCount > 0) {
         for (WsGroup group : groups) {
@@ -269,6 +345,21 @@ public class GrouperMcpFindGroups {
           if (StringUtils.isNotBlank(group.getTypeOfGroup())) {
             groupNode.put("typeOfGroup", group.getTypeOfGroup());
           }
+          // append object type names (e.g., "policy", "ref") if types were requested and found
+          if (groupNameToTypes != null && StringUtils.isNotBlank(group.getName())) {
+            List<GrouperObjectTypesAttributeValue> typeValues = groupNameToTypes.get(group.getName());
+            if (typeValues != null && typeValues.size() > 0) {
+              ArrayNode typesArray = objectMapper.createArrayNode();
+              for (GrouperObjectTypesAttributeValue typeValue : typeValues) {
+                if (StringUtils.isNotBlank(typeValue.getObjectTypeName())) {
+                  typesArray.add(typeValue.getObjectTypeName());
+                }
+              }
+              if (typesArray.size() > 0) {
+                groupNode.set("objectTypes", typesArray);
+              }
+            }
+          }
           groupsArray.add(groupNode);
         }
       }
@@ -285,7 +376,9 @@ public class GrouperMcpFindGroups {
   }
 
   /**
-   * build a successful MCP tool result
+   * Build a successful MCP tool result with the standard content array format.
+   * @param text the result text (typically JSON) to return to the MCP client
+   * @return ObjectNode with isError=false and a content array containing the text
    */
   private static ObjectNode buildSuccessResult(String text) {
     ObjectNode result = objectMapper.createObjectNode();
@@ -300,7 +393,9 @@ public class GrouperMcpFindGroups {
   }
 
   /**
-   * build an error MCP tool result
+   * Build an error MCP tool result with the standard content array format.
+   * @param errorMessage the error message to return to the MCP client
+   * @return ObjectNode with isError=true and a content array containing the error message
    */
   private static ObjectNode buildErrorResult(String errorMessage) {
     ObjectNode result = objectMapper.createObjectNode();
