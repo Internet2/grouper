@@ -509,6 +509,7 @@ public class GrouperMcpServlet extends HttpServlet {
       toolsArray.add(GrouperMcpGetGrouperPrivilegesLite.toolDefinition());
       toolsArray.add(GrouperMcpGetGroups.toolDefinition());
       toolsArray.add(GrouperMcpGetMembersLite.toolDefinition());
+      toolsArray.add(GrouperMcpGetMemberships.toolDefinition());
       toolsArray.add(GrouperMcpGetSubjects.toolDefinition());
       toolsArray.add(GrouperMcpHasMember.toolDefinition());
     }
@@ -667,6 +668,12 @@ public class GrouperMcpServlet extends HttpServlet {
               + "Membership in the MCP readonly or readwrite group is required.");
         }
         return GrouperMcpGetMembersLite.execute(arguments, authUser);
+      case "memberships_get":
+        if (!hasReadonlyAccess(authUser)) {
+          return buildMcpErrorResult("Access denied: user is not authorized for memberships_get. "
+              + "Membership in the MCP readonly or readwrite group is required.");
+        }
+        return GrouperMcpGetMemberships.execute(arguments, authUser);
       case "group_has_member":
         if (!hasReadonlyAccess(authUser)) {
           return buildMcpErrorResult("Access denied: user is not authorized for group_has_member. "

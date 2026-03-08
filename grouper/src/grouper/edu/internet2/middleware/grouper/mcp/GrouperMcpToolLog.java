@@ -132,6 +132,7 @@ public class GrouperMcpToolLog implements GcSqlAssignPrimaryKey {
       case "group_find":
       case "group_get_members":
       case "group_has_member":
+      case "memberships_get":
       case "privilege_get":
         return CATEGORY_READONLY;
       case "attribute_assignment_save":
