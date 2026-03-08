@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 /**
  * Manages the server RSA key pair for signing and verifying OAuth JWT access tokens.
@@ -59,26 +60,68 @@ public class GrouperOAuthSigningKey {
   /** config key for public key */
   private static final String CONFIG_KEY_PUBLIC_KEY = "grouper.oauth.signingKey.publicKey";
 
-  private static RSAPublicKey publicKey;
-  private static RSAPrivateKey privateKey;
-  private static Algorithm signingAlgorithm;
-  private static Algorithm verificationAlgorithm;
-  private static boolean initialized = false;
+  /**
+   * immutable holder for the key material so all fields are read as a consistent snapshot
+   */
+  private static class KeyBundle {
+
+    private final RSAPublicKey publicKey;
+    private final RSAPrivateKey privateKey;
+    private final Algorithm signingAlgorithm;
+    private final Algorithm verificationAlgorithm;
+
+    KeyBundle(RSAPublicKey publicKey, RSAPrivateKey privateKey) {
+      this.publicKey = publicKey;
+      this.privateKey = privateKey;
+      this.signingAlgorithm = Algorithm.RSA256(publicKey, privateKey);
+      this.verificationAlgorithm = Algorithm.RSA256(publicKey, null);
+    }
+  }
+
+  /**
+   * cache so keys are re-read from config every 5 minutes,
+   * allowing key changes to propagate across containers without a restart
+   */
+  private static ExpirableCache<Boolean, KeyBundle> keyBundleCache = new ExpirableCache<Boolean, KeyBundle>(5);
+
+  /**
+   * Retrieve the current key bundle, initializing from config or generating if needed.
+   * Thread-safe.  Keys are re-read from config every 5 minutes so that key changes
+   * propagate across containers without a restart.
+   * @return the key bundle (never null)
+   */
+  private static KeyBundle retrieveKeyBundle() {
+    KeyBundle keyBundle = keyBundleCache.get(Boolean.TRUE);
+    if (keyBundle != null) {
+      return keyBundle;
+    }
+    synchronized (GrouperOAuthSigningKey.class) {
+      // double-check after acquiring lock
+      keyBundle = keyBundleCache.get(Boolean.TRUE);
+      if (keyBundle != null) {
+        return keyBundle;
+      }
+      keyBundle = initializeKeyBundle();
+      keyBundleCache.put(Boolean.TRUE, keyBundle);
+      return keyBundle;
+    }
+  }
 
   /**
    * Initialize keys from config, or generate and store if not present.
-   * Thread-safe lazy initialization.
+   * Must be called while holding the class lock.
+   * @return the initialized key bundle
    */
-  private static synchronized void initializeIfNeeded() {
-    if (initialized) {
-      return;
-    }
+  private static KeyBundle initializeKeyBundle() {
 
     try {
       String base64PrivateKey = GrouperConfig.retrieveConfig()
           .propertyValueString(CONFIG_KEY_PRIVATE_KEY);
       String base64PublicKey = GrouperConfig.retrieveConfig()
           .propertyValueString(CONFIG_KEY_PUBLIC_KEY);
+
+      RSAPublicKey publicKey;
+      RSAPrivateKey privateKey;
 
       if (StringUtils.isNotBlank(base64PrivateKey) && StringUtils.isNotBlank(base64PublicKey)) {
         // load existing keys from config
@@ -139,9 +182,7 @@ public class GrouperOAuthSigningKey {
         }
       }
 
-      signingAlgorithm = Algorithm.RSA256(publicKey, privateKey);
-      verificationAlgorithm = Algorithm.RSA256(publicKey, null);
-      initialized = true;
+      return new KeyBundle(publicKey, privateKey);
 
     } catch (Exception e) {
       LOG.error("Failed to initialize OAuth RSA key pair", e);
@@ -178,8 +219,14 @@ public class GrouperOAuthSigningKey {
    * @return the RSA public key
    */
   public static RSAPublicKey getPublicKey() {
-    initializeIfNeeded();
-    return publicKey;
+    return retrieveKeyBundle().publicKey;
+  }
+
+  /**
+   * force re-read of keys from config on next access
+   */
+  public static void initializeIfNeeded() {
+    retrieveKeyBundle();
   }
 
   /**
@@ -194,7 +241,7 @@ public class GrouperOAuthSigningKey {
   public static String createSignedJwt(String issuer, String subjectId,
       String subjectSourceId, String clientId, String consentDetails) {
 
-    initializeIfNeeded();
+    KeyBundle keyBundle = retrieveKeyBundle();
 
     int expirationSeconds = GrouperConfig.retrieveConfig().propertyValueInt(
         "grouper.oauth.accessToken.expirationSeconds", 3600);
@@ -235,7 +282,35 @@ public class GrouperOAuthSigningKey {
       }
     }
 
-    return jwtBuilder.sign(signingAlgorithm);
+    return jwtBuilder.sign(keyBundle.signingAlgorithm);
+  }
+
+  /**
+   * Verify that the public and private keys in config form a valid pair by signing
+   * and verifying a test JWT.  Call from GSH to diagnose MCP authentication issues.
+   * Prints results to stdout for easy use in GSH.
+   * @return true if the keys match
+   */
+  public static boolean verifyKeyPair() {
+
+    KeyBundle keyBundle = retrieveKeyBundle();
+
+    try {
+      String testJwt = JWT.create()
+          .withSubject("keyPairTest")
+          .withIssuedAt(new Date())
+          .withExpiresAt(new Date(System.currentTimeMillis() + 60000))
+          .sign(keyBundle.signingAlgorithm);
+
+      JWTVerifier verifier = JWT.require(keyBundle.verificationAlgorithm).build();
+      verifier.verify(testJwt);
+
+      System.out.println("OAuth signing key pair is valid - sign and verify succeeded");
+      return true;
+    } catch (Exception e) {
+      System.out.println("OAuth signing key pair MISMATCH - " + e.getMessage());
+      return false;
+    }
   }
 
   /**
@@ -245,10 +320,10 @@ public class GrouperOAuthSigningKey {
    */
   public static DecodedJWT verifyAndDecodeJwt(String jwt) {
 
-    initializeIfNeeded();
+    KeyBundle keyBundle = retrieveKeyBundle();
 
     try {
-      JWTVerifier verifier = JWT.require(verificationAlgorithm).build();
+      JWTVerifier verifier = JWT.require(keyBundle.verificationAlgorithm).build();
       return verifier.verify(jwt);
     } catch (JWTVerificationException e) {
       LOG.debug("OAuth JWT verification failed: " + e.getMessage());
