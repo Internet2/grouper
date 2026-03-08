@@ -33,6 +33,12 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
+import edu.internet2.middleware.grouper.app.membershipRequire.MembershipRequireConfigBean;
+import edu.internet2.middleware.grouper.app.membershipRequire.MembershipRequireEngine;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -54,6 +60,21 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
  * we do a second lookup: re-fetch the Group objects by name, then batch-retrieve their
  * type attributes. This adds some overhead but avoids exposing the underlying attribute
  * framework complexity to the MCP client.</p>
+ *
+ * <p>Similarly, when includeGroupEligibilityRequirement is true, we use
+ * {@link MembershipRequireEngine} to look up membership eligibility requirements
+ * (e.g., requireEmployee, requireAffiliate) configured via
+ * grouper.membershipRequirement.* properties. These requirements restrict who can
+ * be a member of the group (members must also be in a specified population group).
+ * The result is returned as a comma-separated string of configIds.</p>
+ *
+ * <p>When includeProvisioning is true, we look up which provisioning targets
+ * (e.g., LDAP, Active Directory, Google) are actively provisioning each group.
+ * Uses {@link GrouperProvisioningService#getProvisioningAttributeValues} to get
+ * provisioning config, filters to targets where doProvision is set, and checks
+ * {@link GrouperProvisioningService#isTargetViewable} to ensure the authenticated
+ * user has VIEW privilege on each target (either WHEEL/ROOT/VIEWONLY_ROOT, or
+ * membership in the target's groupAllowedToView group).</p>
  *
  * @author mchyzer
  */
@@ -177,6 +198,25 @@ public class GrouperMcpFindGroups {
         + "for each group in the results. Defaults to false.");
     properties.set("includeGroupTypes", includeGroupTypesProp);
 
+    ObjectNode includeEligibilityProp = objectMapper.createObjectNode();
+    includeEligibilityProp.put("type", "boolean");
+    includeEligibilityProp.put("description",
+        "If true, include membership eligibility requirements "
+        + "(e.g., requireEmployee, requireAffiliate) for each group in the results. "
+        + "These are configured requirements that restrict who can be added as a member "
+        + "(the member must also belong to a specified population group). "
+        + "Returned as a comma-separated string of requirement configIds. Defaults to false.");
+    properties.set("includeGroupEligibilityRequirement", includeEligibilityProp);
+
+    ObjectNode includeProvisioningProp = objectMapper.createObjectNode();
+    includeProvisioningProp.put("type", "boolean");
+    includeProvisioningProp.put("description",
+        "If true, include provisioning target names for each group that is being "
+        + "provisioned to external systems (e.g., LDAP, Active Directory, Google). "
+        + "Only targets the authenticated user is allowed to view are returned. "
+        + "Returned as a comma-separated string. Defaults to false.");
+    properties.set("includeProvisioning", includeProvisioningProp);
+
     inputSchema.set("properties", properties);
 
     ArrayNode required = objectMapper.createArrayNode();
@@ -196,7 +236,11 @@ public class GrouperMcpFindGroups {
    * 2. Build a WsQueryFilter and call GrouperServiceLogic.findGroups()
    * 3. If includeGroupTypes is requested, do a secondary lookup to fetch
    *    Grouper object type attributes (policy, ref, basis, etc.) for each group
-   * 4. Build a clean JSON response with group details and optional type info</p>
+   * 4. If includeGroupEligibilityRequirement is requested, use MembershipRequireEngine
+   *    to look up membership requirement configIds for each group
+   * 5. If includeProvisioning is requested, look up provisioning targets for each group
+   *    and filter by the user's view privilege on each target
+   * 6. Build a clean JSON response with group details and optional enrichment info</p>
    *
    * @param arguments the tool arguments from the MCP request (JSON object)
    * @param authUser the authenticated user (used for access control upstream)
@@ -229,6 +273,12 @@ public class GrouperMcpFindGroups {
         ? (arguments.get("ascending").asBoolean(true) ? "T" : "F") : null;
     boolean includeGroupTypes = arguments != null && arguments.has("includeGroupTypes")
         && arguments.get("includeGroupTypes").asBoolean(false);
+    boolean includeGroupEligibilityRequirement = arguments != null
+        && arguments.has("includeGroupEligibilityRequirement")
+        && arguments.get("includeGroupEligibilityRequirement").asBoolean(false);
+    boolean includeProvisioning = arguments != null
+        && arguments.has("includeProvisioning")
+        && arguments.get("includeProvisioning").asBoolean(false);
 
     if (StringUtils.isBlank(queryFilterType)) {
       return buildErrorResult("queryFilterType is required.");
@@ -290,15 +340,11 @@ public class GrouperMcpFindGroups {
       resultNode.put("pageSize", pageSize);
       resultNode.put("pageNumber", pageNumber);
 
-      // Optionally look up Grouper object types (policy, ref, basis, manual, etc.)
-      // for each group. The WS findGroups response doesn't include type info, so we
-      // need to re-fetch the Group objects and use the GrouperObjectTypesConfiguration
-      // API to batch-retrieve the type attributes. The result is a map from group name
-      // to a list of type values, which we later add as an "objectTypes" array on each group.
-      Map<String, List<GrouperObjectTypesAttributeValue>> groupNameToTypes = null;
-      if (includeGroupTypes && groupCount > 0) {
-
-        // collect unique group names from the WS results
+      // If includeGroupTypes or includeProvisioning is requested, we need to re-fetch
+      // the actual Group objects from the database (the WS only returns WsGroup DTOs).
+      // We fetch them once and share across both lookups to avoid duplicate queries.
+      Map<String, Group> groupObjectsByName = null;
+      if ((includeGroupTypes || includeProvisioning) && groupCount > 0) {
         Set<String> groupNames = new HashSet<>();
         for (WsGroup wsGroup : groups) {
           if (StringUtils.isNotBlank(wsGroup.getName())) {
@@ -306,19 +352,105 @@ public class GrouperMcpFindGroups {
           }
         }
         if (groupNames.size() > 0) {
-
-          // re-fetch Group objects from the database (needed for the types API)
           Set<Group> groupObjects = new GroupFinder().assignGroupNames(groupNames).findGroups();
+          groupObjectsByName = new HashMap<>();
+          for (Group g : groupObjects) {
+            groupObjectsByName.put(g.getName(), g);
+          }
+        }
+      }
 
-          // batch-retrieve object type attributes for all groups at once
-          Map<GrouperObject, List<GrouperObjectTypesAttributeValue>> typesMap =
-              GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(groupObjects);
+      // Optionally look up Grouper object types (policy, ref, basis, manual, etc.)
+      // for each group. Uses the GrouperObjectTypesConfiguration API to batch-retrieve
+      // the type attributes. The result is a map from group name to a list of type values,
+      // which we later add as an "objectTypes" array on each group.
+      Map<String, List<GrouperObjectTypesAttributeValue>> groupNameToTypes = null;
+      if (includeGroupTypes && groupObjectsByName != null && groupObjectsByName.size() > 0) {
 
-          // convert to a name-keyed map for easy lookup when building the response
-          groupNameToTypes = new HashMap<>();
-          for (Map.Entry<GrouperObject, List<GrouperObjectTypesAttributeValue>> entry : typesMap.entrySet()) {
-            if (entry.getKey() instanceof Group) {
-              groupNameToTypes.put(((Group) entry.getKey()).getName(), entry.getValue());
+        // batch-retrieve object type attributes for all groups at once
+        Map<GrouperObject, List<GrouperObjectTypesAttributeValue>> typesMap =
+            GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(groupObjectsByName.values());
+
+        // convert to a name-keyed map for easy lookup when building the response
+        groupNameToTypes = new HashMap<>();
+        for (Map.Entry<GrouperObject, List<GrouperObjectTypesAttributeValue>> entry : typesMap.entrySet()) {
+          if (entry.getKey() instanceof Group) {
+            groupNameToTypes.put(((Group) entry.getKey()).getName(), entry.getValue());
+          }
+        }
+      }
+
+      // Optionally look up membership eligibility requirements for each group.
+      // These are configured via grouper.membershipRequirement.* properties and restrict
+      // who can be a member (e.g., requireEmployee means members must be in the employee group).
+      // MembershipRequireEngine.groupNameToConfigBeanAssigned() checks both direct group-level
+      // and inherited stem-level attribute assignments. Results are cached for 5 minutes.
+      // We build a map from group name to a comma-separated string of requirement configIds.
+      Map<String, String> groupNameToEligibility = null;
+      if (includeGroupEligibilityRequirement && groupCount > 0) {
+        groupNameToEligibility = new HashMap<>();
+        for (WsGroup wsGroup : groups) {
+          if (StringUtils.isNotBlank(wsGroup.getName())) {
+            Set<MembershipRequireConfigBean> configBeans =
+                MembershipRequireEngine.groupNameToConfigBeanAssigned(wsGroup.getName());
+            if (configBeans != null && configBeans.size() > 0) {
+              StringBuilder sb = new StringBuilder();
+              for (MembershipRequireConfigBean configBean : configBeans) {
+                if (StringUtils.isNotBlank(configBean.getConfigId())) {
+                  if (sb.length() > 0) {
+                    sb.append(", ");
+                  }
+                  sb.append(configBean.getConfigId());
+                }
+              }
+              if (sb.length() > 0) {
+                groupNameToEligibility.put(wsGroup.getName(), sb.toString());
+              }
+            }
+          }
+        }
+      }
+
+      // Optionally look up which provisioning targets are actively provisioning each group.
+      // Uses GrouperProvisioningService.getProvisioningAttributeValues() to get all provisioning
+      // config for a group, then filters to targets where doProvision is set (actively provisioning).
+      // Each target is also checked with isTargetViewable() to respect the user's view privilege
+      // (WHEEL/ROOT/VIEWONLY_ROOT or membership in the target's groupAllowedToView group).
+      // We pre-load the targets map once to avoid repeated lookups.
+      Map<String, String> groupNameToProvisioning = null;
+      if (includeProvisioning && groupObjectsByName != null && groupObjectsByName.size() > 0) {
+        groupNameToProvisioning = new HashMap<>();
+
+        // load all configured provisioning targets once
+        Map<String, GrouperProvisioningTarget> targets = GrouperProvisioningSettings.getTargets(true);
+
+        for (Map.Entry<String, Group> entry : groupObjectsByName.entrySet()) {
+          Group groupObject = entry.getValue();
+
+          // get all provisioning attribute values for this group (direct and inherited)
+          List<GrouperProvisioningAttributeValue> provValues =
+              GrouperProvisioningService.getProvisioningAttributeValues(groupObject);
+
+          if (provValues != null && provValues.size() > 0) {
+            StringBuilder sb = new StringBuilder();
+            for (GrouperProvisioningAttributeValue provValue : provValues) {
+
+              // only include targets that are actively provisioning this group
+              if (provValue.isDoProvision() && StringUtils.isNotBlank(provValue.getTargetName())) {
+
+                // check if the authenticated user is allowed to view this target
+                GrouperProvisioningTarget target = targets.get(provValue.getTargetName());
+                if (target != null
+                    && GrouperProvisioningService.isTargetViewable(target, authUser.getSubject(), groupObject)) {
+                  if (sb.length() > 0) {
+                    sb.append(", ");
+                  }
+                  sb.append(provValue.getTargetName());
+                }
+              }
+            }
+            if (sb.length() > 0) {
+              groupNameToProvisioning.put(entry.getKey(), sb.toString());
             }
           }
         }
@@ -358,6 +490,20 @@ public class GrouperMcpFindGroups {
               if (typesArray.size() > 0) {
                 groupNode.set("objectTypes", typesArray);
               }
+            }
+          }
+          // append eligibility requirement configIds (e.g., "requireEmployee") if requested
+          if (groupNameToEligibility != null && StringUtils.isNotBlank(group.getName())) {
+            String eligibility = groupNameToEligibility.get(group.getName());
+            if (StringUtils.isNotBlank(eligibility)) {
+              groupNode.put("eligibilityRequirement", eligibility);
+            }
+          }
+          // append provisioning target names (e.g., "ldapProvisioner") if requested and viewable
+          if (groupNameToProvisioning != null && StringUtils.isNotBlank(group.getName())) {
+            String provisioning = groupNameToProvisioning.get(group.getName());
+            if (StringUtils.isNotBlank(provisioning)) {
+              groupNode.put("provisioning", provisioning);
             }
           }
           groupsArray.add(groupNode);
