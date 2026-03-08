@@ -19,7 +19,6 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
@@ -246,19 +245,11 @@ public class ProvisionableGroupSave {
             GrouperProvisioningTarget provisioningTarget = GrouperProvisioningSettings.getTargets(true).get(targetName);
             
             if (!runAsRoot) {
-              
-              if (!PrivilegeHelper.isWheelOrRoot(SUBJECT_IN_SESSION)) {
-                throw new RuntimeException("Subject '" + GrouperUtil.subjectToString(SUBJECT_IN_SESSION)+ "' is not wheel or root user.");
-              }
-              
+
               if (!GrouperProvisioningService.isTargetEditable(provisioningTarget, SUBJECT_IN_SESSION, group)) {
-                throw new RuntimeException("Not allowed to edit target.");
+                throw new RuntimeException("Not allowed to edit target '" + targetName + "'.");
               }
-              
-            }
-            
-            if (!GrouperProvisioningService.isTargetEditable(provisioningTarget, grouperSession.getSubject(), group)) {
-              throw new RuntimeException("Not allowed to edit target.");
+
             }
             
             if (saveMode == SaveMode.DELETE) {
