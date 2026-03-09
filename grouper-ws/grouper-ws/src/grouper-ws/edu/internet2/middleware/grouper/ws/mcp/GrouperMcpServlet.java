@@ -564,6 +564,7 @@ public class GrouperMcpServlet extends HttpServlet {
       addToolIfAllowed(toolsArray, GrouperMcpAdminGetDaemonJobs.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpAdminSearchConfigs.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpAdminSearchDaemons.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpLdapSearch.toolDefinition());
     }
 
     // admin readwrite tools
@@ -874,6 +875,12 @@ public class GrouperMcpServlet extends HttpServlet {
               + "Membership in the MCP admin readonly group is required.");
         }
         return GrouperMcpAdminSearchDaemons.execute(arguments, authUser);
+      case "ldap":
+        if (!hasAdminReadonlyAccess(authUser)) {
+          return buildMcpErrorResult("Access denied: user is not authorized for ldap. "
+              + "Membership in the MCP admin readonly group is required.");
+        }
+        return GrouperMcpLdapSearch.execute(arguments, authUser);
       // admin readwrite tools (alphabetical)
       case "admin_daemon_job_run":
         if (!hasAdminReadwriteAccess(authUser)) {

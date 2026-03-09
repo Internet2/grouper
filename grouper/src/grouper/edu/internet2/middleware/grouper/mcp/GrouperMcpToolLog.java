@@ -149,6 +149,7 @@ public class GrouperMcpToolLog implements GcSqlAssignPrimaryKey {
       case "admin_daemon_job_message":
       case "admin_daemon_logs":
       case "admin_daemon_names":
+      case "ldap":
         return CATEGORY_ADMIN_READONLY;
       case "admin_daemon_job_run":
         return CATEGORY_ADMIN_READWRITE;
