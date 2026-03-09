@@ -448,7 +448,7 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
     assertNotNull(properties.get("pageNumber"));
     assertNotNull(properties.get("sortString"));
     assertNotNull(properties.get("ascending"));
-    assertNotNull(properties.get("includeGroupTypes"));
+    assertNotNull(properties.get("includeGdgTypes"));
     assertNotNull(properties.get("includeGroupEligibilityRequirement"));
     assertNotNull(properties.get("includeProvisioning"));
 
@@ -461,7 +461,7 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
   }
 
   /**
-   * test with includeGroupTypes
+   * test with includeGdgTypes
    */
   public void testFindGroupsIncludeGroupTypes() {
 
@@ -477,7 +477,7 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
     ObjectNode arguments = objectMapper.createObjectNode();
     arguments.put("queryFilterType", "FIND_BY_GROUP_NAME_EXACT");
     arguments.put("groupName", "test:mcpFindTypesGroup1");
-    arguments.put("includeGroupTypes", true);
+    arguments.put("includeGdgTypes", true);
 
     ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
 

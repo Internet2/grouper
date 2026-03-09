@@ -241,8 +241,7 @@ public class GrouperMcpFindStemsTest extends GrouperTest {
         .assignDescription("nested stem").save();
 
     ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("stemQueryFilterType", "FIND_BY_STEM_NAME_APPROXIMATE");
-    arguments.put("stemName", "%");
+    arguments.put("stemQueryFilterType", "FIND_BY_PARENT_STEM_NAME");
     arguments.put("parentStemName", "test:mcpFindParent");
     arguments.put("parentStemNameScope", "ONE_LEVEL");
 
@@ -320,7 +319,7 @@ public class GrouperMcpFindStemsTest extends GrouperTest {
   }
 
   /**
-   * test with includeFolderTypes
+   * test with includeGdgTypes
    */
   public void testFindStemsIncludeFolderTypes() {
 
@@ -336,7 +335,7 @@ public class GrouperMcpFindStemsTest extends GrouperTest {
     ObjectNode arguments = objectMapper.createObjectNode();
     arguments.put("stemQueryFilterType", "FIND_BY_STEM_NAME");
     arguments.put("stemName", "test:mcpFindTypesStem1");
-    arguments.put("includeFolderTypes", true);
+    arguments.put("includeGdgTypes", true);
 
     ObjectNode result = GrouperMcpFindStems.execute(arguments, authUser);
 
@@ -372,7 +371,7 @@ public class GrouperMcpFindStemsTest extends GrouperTest {
     assertNotNull(properties.get("parentStemName"));
     assertNotNull(properties.get("parentStemNameScope"));
     assertNotNull(properties.get("stemAttributeValue"));
-    assertNotNull(properties.get("includeFolderTypes"));
+    assertNotNull(properties.get("includeGdgTypes"));
 
     // verify required fields
     JsonNode required = toolDef.get("inputSchema").get("required");

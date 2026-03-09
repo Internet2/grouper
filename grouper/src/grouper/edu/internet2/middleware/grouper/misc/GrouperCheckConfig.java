@@ -1475,7 +1475,7 @@ public class GrouperCheckConfig {
           String mcpCanRunSql = GrouperConfig.retrieveConfig().propertyValueString("grouper.mcp.users.canRunSqlReadonly");
           if (StringUtils.isNotBlank(mcpCanRunSql)) {
             groupSaves.add(new GroupSave().assignName(mcpCanRunSql).assignDescription(
-                "members of this group can run read-only SQL queries via MCP").assignCreateParentStemsIfNotExist(true));
+                "members of this group can run read-only SQL queries via MCP. This should only be granted to people who would would let read the entire Grouper database and configured SQL external systems.").assignCreateParentStemsIfNotExist(true));
           }
         }
         {

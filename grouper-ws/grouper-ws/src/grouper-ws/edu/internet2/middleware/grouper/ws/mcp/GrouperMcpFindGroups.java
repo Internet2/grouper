@@ -56,7 +56,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
  * then optionally enriches results with Grouper object type names (e.g., policy, ref,
  * basis, manual) via {@link GrouperObjectTypesConfiguration}.</p>
  *
- * <p>The object types are not part of the WS response, so when includeGroupTypes is true,
+ * <p>The object types are not part of the WS response, so when includeGdgTypes is true,
  * we do a second lookup: re-fetch the Group objects by name, then batch-retrieve their
  * type attributes. This adds some overhead but avoids exposing the underlying attribute
  * framework complexity to the MCP client.</p>
@@ -191,12 +191,12 @@ public class GrouperMcpFindGroups {
         "Sort ascending (true, default) or descending (false).");
     properties.set("ascending", ascendingProp);
 
-    ObjectNode includeGroupTypesProp = objectMapper.createObjectNode();
-    includeGroupTypesProp.put("type", "boolean");
-    includeGroupTypesProp.put("description",
-        "If true, include group type names (e.g., policy, ref, basis, manual, app, org, test, service, readOnly, etc.) "
-        + "for each group in the results. Defaults to false.");
-    properties.set("includeGroupTypes", includeGroupTypesProp);
+    ObjectNode includeGdgTypesProp = objectMapper.createObjectNode();
+    includeGdgTypesProp.put("type", "boolean");
+    includeGdgTypesProp.put("description",
+        "If true, include Grouper Deployment Guide (GDG) type names (e.g., policy, ref, basis, manual, app, org, test, service, readOnly, etc.) "
+        + "for each group in the results. These are different from typeOfGroups (group, role, entity) which is a structural classification. Defaults to false.");
+    properties.set("includeGdgTypes", includeGdgTypesProp);
 
     ObjectNode includeEligibilityProp = objectMapper.createObjectNode();
     includeEligibilityProp.put("type", "boolean");
@@ -234,7 +234,7 @@ public class GrouperMcpFindGroups {
    * <p>Flow:
    * 1. Parse and validate input arguments from the MCP request
    * 2. Build a WsQueryFilter and call GrouperServiceLogic.findGroups()
-   * 3. If includeGroupTypes is requested, do a secondary lookup to fetch
+   * 3. If includeGdgTypes is requested, do a secondary lookup to fetch
    *    Grouper object type attributes (policy, ref, basis, etc.) for each group
    * 4. If includeGroupEligibilityRequirement is requested, use MembershipRequireEngine
    *    to look up membership requirement configIds for each group
@@ -271,8 +271,8 @@ public class GrouperMcpFindGroups {
         ? arguments.get("sortString").asText() : null;
     String ascending = arguments != null && arguments.has("ascending")
         ? (arguments.get("ascending").asBoolean(true) ? "T" : "F") : null;
-    boolean includeGroupTypes = arguments != null && arguments.has("includeGroupTypes")
-        && arguments.get("includeGroupTypes").asBoolean(false);
+    boolean includeGdgTypes = arguments != null && arguments.has("includeGdgTypes")
+        && arguments.get("includeGdgTypes").asBoolean(false);
     boolean includeGroupEligibilityRequirement = arguments != null
         && arguments.has("includeGroupEligibilityRequirement")
         && arguments.get("includeGroupEligibilityRequirement").asBoolean(false);
@@ -346,11 +346,11 @@ public class GrouperMcpFindGroups {
       resultNode.put("pageSize", pageSize);
       resultNode.put("pageNumber", pageNumber);
 
-      // If includeGroupTypes or includeProvisioning is requested, we need to re-fetch
+      // If includeGdgTypes or includeProvisioning is requested, we need to re-fetch
       // the actual Group objects from the database (the WS only returns WsGroup DTOs).
       // We fetch them once and share across both lookups to avoid duplicate queries.
       Map<String, Group> groupObjectsByName = null;
-      if ((includeGroupTypes || includeProvisioning) && groupCount > 0) {
+      if ((includeGdgTypes || includeProvisioning) && groupCount > 0) {
         Set<String> groupNames = new HashSet<>();
         for (WsGroup wsGroup : groups) {
           if (StringUtils.isNotBlank(wsGroup.getName())) {
@@ -369,9 +369,9 @@ public class GrouperMcpFindGroups {
       // Optionally look up Grouper object types (policy, ref, basis, manual, etc.)
       // for each group. Uses the GrouperObjectTypesConfiguration API to batch-retrieve
       // the type attributes. The result is a map from group name to a list of type values,
-      // which we later add as an "objectTypes" array on each group.
+      // which we later add as an "gdgTypes" array on each group.
       Map<String, List<GrouperObjectTypesAttributeValue>> groupNameToTypes = null;
-      if (includeGroupTypes && groupObjectsByName != null && groupObjectsByName.size() > 0) {
+      if (includeGdgTypes && groupObjectsByName != null && groupObjectsByName.size() > 0) {
 
         // batch-retrieve object type attributes for all groups at once
         Map<GrouperObject, List<GrouperObjectTypesAttributeValue>> typesMap =
@@ -494,7 +494,7 @@ public class GrouperMcpFindGroups {
                 }
               }
               if (typesArray.size() > 0) {
-                groupNode.set("objectTypes", typesArray);
+                groupNode.set("gdgTypes", typesArray);
               }
             }
           }

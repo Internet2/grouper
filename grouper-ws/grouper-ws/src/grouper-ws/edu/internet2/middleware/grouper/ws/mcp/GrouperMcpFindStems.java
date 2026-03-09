@@ -50,7 +50,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemQueryFilter;
  * then optionally enriches results with Grouper object type names (e.g., policy, ref,
  * basis, manual) via {@link GrouperObjectTypesConfiguration}.</p>
  *
- * <p>The object types are not part of the WS response, so when includeFolderTypes is true,
+ * <p>The object types are not part of the WS response, so when includeGdgTypes is true,
  * we do a second lookup: re-fetch the Stem objects by name, then batch-retrieve their
  * type attributes. This adds some overhead but avoids exposing the underlying attribute
  * framework complexity to the MCP client.</p>
@@ -88,6 +88,7 @@ public class GrouperMcpFindStems {
     sqftEnum.add("FIND_BY_STEM_NAME");
     sqftEnum.add("FIND_BY_STEM_NAME_APPROXIMATE");
     sqftEnum.add("FIND_BY_STEM_UUID");
+    sqftEnum.add("FIND_BY_PARENT_STEM_NAME");
     sqftEnum.add("FIND_BY_APPROXIMATE_ATTRIBUTE");
     stemQueryFilterTypeProp.set("enum", sqftEnum);
     stemQueryFilterTypeProp.put("description",
@@ -95,6 +96,7 @@ public class GrouperMcpFindStems {
         + "FIND_BY_STEM_NAME = exact name match, "
         + "FIND_BY_STEM_NAME_APPROXIMATE = approximate name match (most common), "
         + "FIND_BY_STEM_UUID = find by UUID, "
+        + "FIND_BY_PARENT_STEM_NAME = find child stems of a parent stem (use with parentStemName and parentStemNameScope), "
         + "FIND_BY_APPROXIMATE_ATTRIBUTE = search by attribute value.");
     properties.set("stemQueryFilterType", stemQueryFilterTypeProp);
 
@@ -115,7 +117,8 @@ public class GrouperMcpFindStems {
     parentStemNameProp.put("type", "string");
     parentStemNameProp.put("description",
         "Parent stem name to search within. "
-        + "Can be used with FIND_BY_STEM_NAME_APPROXIMATE to scope the search.");
+        + "Required for FIND_BY_PARENT_STEM_NAME. "
+        + "Can also be used with FIND_BY_STEM_NAME_APPROXIMATE to scope the search.");
     properties.set("parentStemName", parentStemNameProp);
 
     ObjectNode parentStemNameScopeProp = objectMapper.createObjectNode();
@@ -125,7 +128,9 @@ public class GrouperMcpFindStems {
     scopeEnum.add("ALL_IN_SUBTREE");
     parentStemNameScopeProp.set("enum", scopeEnum);
     parentStemNameScopeProp.put("description",
-        "Scope when searching in a parent stem. ONE_LEVEL = direct children only, "
+        "Scope when searching in a parent stem. "
+        + "Only valid with FIND_BY_PARENT_STEM_NAME. "
+        + "ONE_LEVEL = direct children only, "
         + "ALL_IN_SUBTREE = all descendants (default).");
     properties.set("parentStemNameScope", parentStemNameScopeProp);
 
@@ -135,12 +140,12 @@ public class GrouperMcpFindStems {
         "Attribute value to search for. Used with FIND_BY_APPROXIMATE_ATTRIBUTE.");
     properties.set("stemAttributeValue", stemAttributeValueProp);
 
-    ObjectNode includeFolderTypesProp = objectMapper.createObjectNode();
-    includeFolderTypesProp.put("type", "boolean");
-    includeFolderTypesProp.put("description",
-        "If true, include folder type names (e.g., policy, ref, basis, manual, app, org, test, service, readOnly, etc.) "
-        + "for each folder in the results. Defaults to false.");
-    properties.set("includeFolderTypes", includeFolderTypesProp);
+    ObjectNode includeGdgTypesProp = objectMapper.createObjectNode();
+    includeGdgTypesProp.put("type", "boolean");
+    includeGdgTypesProp.put("description",
+        "If true, include Grouper Deployment Guide (GDG) type names (e.g., policy, ref, basis, manual, app, org, test, service, readOnly, etc.) "
+        + "for each folder in the results. These are different from typeOfGroups (group, role, entity) which is a structural classification. Defaults to false.");
+    properties.set("includeGdgTypes", includeGdgTypesProp);
 
     inputSchema.set("properties", properties);
 
@@ -159,7 +164,7 @@ public class GrouperMcpFindStems {
    * <p>Flow:
    * 1. Parse and validate input arguments from the MCP request
    * 2. Build a WsStemQueryFilter and call GrouperServiceLogic.findStems()
-   * 3. If includeFolderTypes is requested, do a secondary lookup to fetch
+   * 3. If includeGdgTypes is requested, do a secondary lookup to fetch
    *    Grouper object type attributes (policy, ref, basis, etc.) for each stem
    * 4. Build a clean JSON response with stem details and optional type info</p>
    *
@@ -182,8 +187,8 @@ public class GrouperMcpFindStems {
         ? arguments.get("parentStemNameScope").asText() : null;
     String stemAttributeValue = arguments != null && arguments.has("stemAttributeValue")
         ? arguments.get("stemAttributeValue").asText() : null;
-    boolean includeFolderTypes = arguments != null && arguments.has("includeFolderTypes")
-        && arguments.get("includeFolderTypes").asBoolean(false);
+    boolean includeGdgTypes = arguments != null && arguments.has("includeGdgTypes")
+        && arguments.get("includeGdgTypes").asBoolean(false);
 
     if (StringUtils.isBlank(stemQueryFilterType)) {
       return buildErrorResult("stemQueryFilterType is required.");
@@ -235,9 +240,9 @@ public class GrouperMcpFindStems {
       // for each stem. The WS findStems response doesn't include type info, so we
       // need to re-fetch the Stem objects and use the GrouperObjectTypesConfiguration
       // API to batch-retrieve the type attributes. The result is a map from stem name
-      // to a list of type values, which we later add as an "objectTypes" array on each stem.
+      // to a list of type values, which we later add as an "gdgTypes" array on each stem.
       Map<String, List<GrouperObjectTypesAttributeValue>> stemNameToTypes = null;
-      if (includeFolderTypes && stemCount > 0) {
+      if (includeGdgTypes && stemCount > 0) {
 
         // collect unique stem names from the WS results
         Set<String> stemNames = new HashSet<>();
@@ -294,13 +299,14 @@ public class GrouperMcpFindStems {
                 }
               }
               if (typesArray.size() > 0) {
-                stemNode.set("objectTypes", typesArray);
+                stemNode.set("gdgTypes", typesArray);
               }
             }
           }
           stemsArray.add(stemNode);
         }
       }
+      resultNode.put("totalStemsReturned", stemCount);
       resultNode.set("stems", stemsArray);
 
       String resultText = objectMapper.writerWithDefaultPrettyPrinter()
