@@ -54,6 +54,12 @@ public class GrouperReportJob implements Job {
     String jobName = context.getJobDetail().getKey().getName();
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
 
+    // GRP-6745: use SELECT FOR UPDATE to atomically check and claim the job
+    if (!GrouperLoader.claimJobIfNotRunning(jobName, hib3GrouploaderLog)) {
+      LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
+      return;
+    }
+
     runJob(hib3GrouploaderLog, jobName);
   }
   

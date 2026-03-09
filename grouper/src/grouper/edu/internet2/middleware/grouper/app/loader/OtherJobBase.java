@@ -369,13 +369,15 @@ public abstract class OtherJobBase implements Job {
     String jobName = null;
     jobName = context.getJobDetail().getKey().getName();
 
-    if (GrouperLoader.isJobRunning(jobName, true)) {
+    // GRP-6745: use SELECT FOR UPDATE to atomically check and claim the job
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+    if (!GrouperLoader.claimJobIfNotRunning(jobName, hib3GrouperLoaderLog)) {
       LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
       return;
     }
 
     try {
-      execute(jobName, null);
+      execute(jobName, hib3GrouperLoaderLog);
     } catch (Exception e) {
       //make sure this is job execution exception
       if (!(e instanceof JobExecutionException)) {

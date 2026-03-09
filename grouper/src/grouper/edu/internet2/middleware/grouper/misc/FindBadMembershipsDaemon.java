@@ -62,17 +62,14 @@ public class FindBadMembershipsDaemon implements Job {
             GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
   
             String jobName = context.getJobDetail().getKey().getName();
-  
-            if (GrouperLoader.isJobRunning(jobName, true)) {
+
+            // GRP-6745: use SELECT FOR UPDATE to atomically check and claim the job
+            if (!GrouperLoader.claimJobIfNotRunning(jobName, hib3GrouploaderLog)) {
               LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
               return null;
             }
-            
-            hib3GrouploaderLog.setJobName(jobName);
-            hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-            hib3GrouploaderLog.setStartedTime(new Timestamp(startTime));
+
             hib3GrouploaderLog.setJobType("OTHER_JOB");
-            hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
             hib3GrouploaderLog.store();
             
             int runs = 0;

@@ -94,20 +94,22 @@ public class GrouperLoaderJob implements Job {
   
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
+
+
           Group group = null;
           AttributeDef attributeDef = null;
           String jobName = context.getJobDetail().getKey().getName();
       
           GrouperLoaderLogger.addLogEntry("overallLog", "startTime", new Date());
           
-          if (GrouperLoader.isJobRunning(jobName, true)) {
+          // GRP-6745: use SELECT FOR UPDATE to atomically check if the job is running
+          // and claim it.  This prevents the TOCTOU race where two daemon nodes both
+          // see the job as not running and both start it.
+          if (!GrouperLoader.claimJobIfNotRunning(jobName, hib3GrouploaderLog)) {
             GrouperLoaderLogger.addLogEntry("overallLog", "alreadyRunningSoAborting", true);
             LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
             return null;
           }
-          
-          hib3GrouploaderLog.setJobName(jobName);
           
           String grouperLoaderQuartzCronFromOwner = null;
           String grouperLoaderTypeFromOwner = null;
