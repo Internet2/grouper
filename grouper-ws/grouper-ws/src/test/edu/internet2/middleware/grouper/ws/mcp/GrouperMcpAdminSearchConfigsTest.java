@@ -317,8 +317,8 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
     GrouperMcpAuthUser authUser = buildRootAuthUser();
 
     ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("searchRegex", ".*hibernate.*");
-    arguments.put("configFile", "grouper.hibernate.properties");
+    arguments.put("searchRegex", ".*loader.*");
+    arguments.put("configFile", "grouper-loader.properties");
 
     ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
 
@@ -330,9 +330,9 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
       JsonNode responseNode = objectMapper.readTree(text);
       JsonNode configs = responseNode.get("configs");
 
-      // all results should be from the hibernate config file
+      // all results should be from the loader config file
       for (int i = 0; i < configs.size(); i++) {
-        assertEquals("grouper.hibernate.properties",
+        assertEquals("grouper-loader.properties",
             configs.get(i).get("configFile").asText());
       }
     } catch (Exception e) {

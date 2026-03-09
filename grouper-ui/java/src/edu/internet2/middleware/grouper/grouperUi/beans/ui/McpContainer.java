@@ -17,7 +17,16 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * UI bean container for MCP info page data. This container holds fields
@@ -35,6 +44,70 @@ public class McpContainer {
   public boolean isMcpEnabled() {
     return GrouperHibernateConfig.retrieveConfig()
         .propertyValueBoolean("grouper.is.mcp", false);
+  }
+
+  /**
+   * whether the logged-in user can see the MCP link on the miscellaneous page.
+   * True if the user is a Grouper admin, readonly admin, or a member of any MCP role group.
+   * @return true if the MCP link should be shown
+   */
+  public boolean isCanSeeMcpLink() {
+
+    if (!isMcpEnabled()) {
+      return false;
+    }
+
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    if (PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+      return true;
+    }
+
+    // check if user is in any MCP role group
+    String[] mcpGroupConfigKeys = new String[] {
+        "grouper.mcp.users.readonly",
+        "grouper.mcp.users.readwrite",
+        "grouper.mcp.users.canRunSqlReadonly",
+        "grouper.mcp.users.adminReadonly",
+        "grouper.mcp.users.adminReadWrite",
+        "grouper.mcp.users.wsAuthnAllowed"
+    };
+
+    GrouperSession rootSession = GrouperSession.startRootSession();
+    try {
+      for (String configKey : mcpGroupConfigKeys) {
+        String groupName = GrouperConfig.retrieveConfig().propertyValueString(configKey);
+        if (StringUtils.isNotBlank(groupName)) {
+          Group group = GroupFinder.findByName(rootSession, groupName, false);
+          if (group != null && group.hasMember(loggedInSubject)) {
+            return true;
+          }
+        }
+      }
+    } finally {
+      GrouperSession.stopQuietly(rootSession);
+    }
+
+    return false;
+  }
+
+  /**
+   * session duration in hours for display on the info page
+   */
+  private String sessionDurationHours;
+
+  /**
+   * @return the sessionDurationHours
+   */
+  public String getSessionDurationHours() {
+    return this.sessionDurationHours;
+  }
+
+  /**
+   * @param sessionDurationHours the sessionDurationHours to set
+   */
+  public void setSessionDurationHours(String sessionDurationHours) {
+    this.sessionDurationHours = sessionDurationHours;
   }
 
   /**

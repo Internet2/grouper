@@ -29,7 +29,7 @@
                       <tr>
                         <td style="white-space: nowrap; font-weight: bold; width: 200px;">${textContainer.text['mcpInfoServerUrlLabel']}</td>
                         <td>
-                          <code id="mcpServerUrl">${grouper:escapeHtml(grouperRequestContainer.mcpContainer.mcpServerUrl)}/mcp</code>
+                          <code id="mcpServerUrl" style="color: #8b0000;">${grouper:escapeHtml(grouperRequestContainer.mcpContainer.mcpServerUrl)}/mcp</code>
                           <a href="#" onclick="grouperCopyToClipboard('mcpServerUrl'); return false;" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left: 6px;"><i class="fa fa-clone"></i></a>
                         </td>
                       </tr>
@@ -44,10 +44,12 @@
                   </tbody>
                 </table>
 
-                <h4>${textContainer.text['mcpInfoAccessHeader']}</h4>
+                <p style="margin-top: 4px; color: #666;"><i class="fa fa-info-circle"></i> ${textContainer.text['mcpInfoSessionNotePre']} ${grouperRequestContainer.mcpContainer.sessionDurationHours} ${textContainer.text['mcpInfoSessionNotePost']}</p>
+
+                <h4 style="margin-top: 20px; margin-bottom: 8px;">${textContainer.text['mcpInfoAccessHeader']}</h4>
                 <c:choose>
                   <c:when test="${grouperRequestContainer.mcpContainer.allowedReadonly || grouperRequestContainer.mcpContainer.allowedReadwrite || grouperRequestContainer.mcpContainer.allowedSqlReadonly || grouperRequestContainer.mcpContainer.allowedAdminReadonly || grouperRequestContainer.mcpContainer.allowedAdminReadwrite}">
-                    <ul>
+                    <ul style="list-style: none; padding-left: 20px;">
                       <c:if test="${grouperRequestContainer.mcpContainer.allowedReadonly}">
                         <li><i class="fa fa-check" style="color: green;"></i> ${textContainer.text['mcpInfoAccessReadonly']}</li>
                       </c:if>
@@ -72,7 +74,7 @@
 
                 <p>${textContainer.text['mcpInfoWikiLink']}</p>
 
-                <h4>${textContainer.text['mcpInfoToolLogsHeader']}</h4>
+                <h4 style="margin-top: 20px; margin-bottom: 8px;">${textContainer.text['mcpInfoToolLogsHeader']}</h4>
                 <p>
                   <a href="#" class="btn btn-small" onclick="ajax('../app/UiV2Mcp.mcpToolLogs'); return false;">
                     <i class="fa fa-refresh"></i> ${textContainer.text['mcpInfoToolLogsLoadButton']}
@@ -80,7 +82,7 @@
                 </p>
                 <div id="mcpToolLogsResultsId"></div>
 
-                <h4>${textContainer.text['mcpInfoOAuthRegistrationsHeader']}</h4>
+                <h4 style="margin-top: 20px; margin-bottom: 8px;">${textContainer.text['mcpInfoOAuthRegistrationsHeader']}</h4>
                 <p>
                   <a href="#" class="btn btn-small" onclick="ajax('../app/UiV2Mcp.mcpOAuthRegistrations'); return false;">
                     <i class="fa fa-refresh"></i> ${textContainer.text['mcpInfoOAuthRegistrationsLoadButton']}

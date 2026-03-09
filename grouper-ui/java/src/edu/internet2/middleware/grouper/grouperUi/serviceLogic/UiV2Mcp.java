@@ -166,6 +166,16 @@ public class UiV2Mcp extends UiServiceLogicBase {
         GrouperSession.stopQuietly(rootSession);
       }
 
+      // session duration from config (default 14400 seconds = 4 hours)
+      int tokenExpirationSeconds = GrouperConfig.retrieveConfig()
+          .propertyValueInt("grouper.oauth.accessToken.expirationSeconds", 14400);
+      int hours = tokenExpirationSeconds / 3600;
+      if (hours < 1) {
+        mcpContainer.setSessionDurationHours("< 1");
+      } else {
+        mcpContainer.setSessionDurationHours(String.valueOf(hours));
+      }
+
       // check if WS basic auth is enabled
       boolean wsBasicAuth = edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig.retrieveConfig()
           .propertyValueBoolean("grouper.is.ws.basicAuthn", false);
