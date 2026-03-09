@@ -47,6 +47,8 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.j2ee.Authentication;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
@@ -656,39 +658,57 @@ public class GrouperMcpServlet extends HttpServlet {
     }
 
     // --- execute and audit ---
-    long startedMicros = System.currentTimeMillis() * 1000L;
-    long startNanos = System.nanoTime();
-    String requestJson = arguments != null ? arguments.toString() : null;
-    ObjectNode result;
-    boolean isError = false;
-    String responseText = null;
+    final long startedMicros = System.currentTimeMillis() * 1000L;
+    final long startNanos = System.nanoTime();
+    final String requestJson = arguments != null ? arguments.toString() : null;
+
+    // Use callbackGrouperSession to put the authenticated MCP user's session
+    // on the thread-local. This lets GrouperServiceUtils.retrieveGrouperSession()
+    // find the session without going through the WS auth check (etc:wsGroup),
+    // while still running as the authenticated user for object-level security.
+    GrouperSession grouperSession = GrouperSession.start(authUser.getSubject(), false);
+    final ObjectNode[] resultHolder = new ObjectNode[1];
+    final boolean[] isErrorHolder = new boolean[] { false };
+    final String[] responseTextHolder = new String[] { null };
 
     try {
-      result = dispatchToolCall(toolName, arguments, authUser);
+      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
 
-      // extract response text and error flag from the MCP result
-      isError = result.has("isError") && result.get("isError").asBoolean(false);
-      if (result.has("content") && result.get("content").isArray()
-          && result.get("content").size() > 0) {
-        JsonNode firstContent = result.get("content").get(0);
-        if (firstContent.has("text")) {
-          responseText = firstContent.get("text").asText();
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+
+          try {
+            resultHolder[0] = dispatchToolCall(toolName, arguments, authUser);
+
+            // extract response text and error flag from the MCP result
+            isErrorHolder[0] = resultHolder[0].has("isError")
+                && resultHolder[0].get("isError").asBoolean(false);
+            if (resultHolder[0].has("content") && resultHolder[0].get("content").isArray()
+                && resultHolder[0].get("content").size() > 0) {
+              JsonNode firstContent = resultHolder[0].get("content").get(0);
+              if (firstContent.has("text")) {
+                responseTextHolder[0] = firstContent.get("text").asText();
+              }
+            }
+
+          } catch (Exception e) {
+            isErrorHolder[0] = true;
+            responseTextHolder[0] = "Internal error: " + e.getMessage();
+            resultHolder[0] = buildMcpErrorResult(responseTextHolder[0]);
+          }
+          return null;
         }
-      }
-
-    } catch (Exception e) {
-      isError = true;
-      responseText = "Internal error: " + e.getMessage();
-      result = buildMcpErrorResult(responseText);
+      });
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
 
     long durationMicros = (System.nanoTime() - startNanos) / 1000;
 
     // log to audit table (errors in logging do not affect the response)
     GrouperMcpToolLogUtil.logToolCall(authUser, toolName, toolCategory,
-        requestJson, responseText, isError, startedMicros, durationMicros);
+        requestJson, responseTextHolder[0], isErrorHolder[0], startedMicros, durationMicros);
 
-    return result;
+    return resultHolder[0];
   }
 
   /**

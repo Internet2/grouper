@@ -35,7 +35,6 @@ import edu.internet2.middleware.grouper.app.membershipRequire.MembershipRequireE
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignToGroupSave;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionableGroupSave;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -294,10 +293,6 @@ public class GrouperMcpGroupSave {
       }
     }
 
-    // start a GrouperSession as the authenticated user so that all API calls
-    // (GroupSave, CompositeSave, GdgTypeGroupSave, ProvisionableGroupSave, etc.)
-    // check privileges against the calling user, not root
-    GrouperSession grouperSession = GrouperSession.start(authUser.getSubject());
     try {
       // dispatch to the appropriate handler based on the action
       switch (action) {
@@ -334,8 +329,6 @@ public class GrouperMcpGroupSave {
     } catch (Exception e) {
       LOG.error("Error in group_save action '" + action + "' for group: " + groupName, e);
       return buildErrorResult("Error in group_save action '" + action + "': " + e.getMessage());
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
     }
   }
 

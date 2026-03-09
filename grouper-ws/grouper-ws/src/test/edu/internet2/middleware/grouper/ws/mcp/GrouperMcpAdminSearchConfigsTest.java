@@ -21,12 +21,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import junit.textui.TestRunner;
@@ -75,9 +77,9 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
     super.setUp();
     RestClientSettings.resetData();
 
-    GrouperServiceUtils.testSession = GrouperSession.staticGrouperSession();
-
     GrouperWsVersionUtils.assignCurrentClientVersion(GROUPER_VERSION, new StringBuilder());
+
+    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.MCP, false, false);
   }
 
   /**
@@ -86,7 +88,7 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
   @Override
   protected void tearDown() {
     super.tearDown();
-    GrouperServiceUtils.testSession = null;
+    GrouperContext.deleteDefaultContext();
   }
 
   /**
@@ -94,7 +96,7 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
    * @return the auth user
    */
   private GrouperMcpAuthUser buildRootAuthUser() {
-    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    GrouperSession.startRootSession();
     GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(
         SubjectFinder.findRootSubject());
     return authUser;

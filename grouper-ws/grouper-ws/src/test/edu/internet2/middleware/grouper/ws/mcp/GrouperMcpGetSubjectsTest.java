@@ -22,14 +22,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import junit.textui.TestRunner;
@@ -76,12 +78,12 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
     super.setUp();
     RestClientSettings.resetData();
 
-    GrouperServiceUtils.testSession = GrouperSession.staticGrouperSession();
-
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
 
     GrouperWsVersionUtils.assignCurrentClientVersion(GROUPER_VERSION, new StringBuilder());
+
+    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.MCP, false, false);
   }
 
   /**
@@ -90,18 +92,7 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
   @Override
   protected void tearDown() {
     super.tearDown();
-    GrouperServiceUtils.testSession = null;
-  }
-
-  /**
-   * build a GrouperMcpAuthUser for the root session (GrouperSystem)
-   * @return the auth user
-   */
-  private GrouperMcpAuthUser buildRootAuthUser() {
-    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(
-        SubjectFinder.findRootSubject());
-    return authUser;
+    GrouperContext.deleteDefaultContext();
   }
 
   /**
@@ -109,27 +100,32 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
    */
   public void testGetSubjectBySubjectId() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
-
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
-
-    ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
-    assertNotNull(text);
-
-    // parse the returned JSON and verify subject fields
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode subjectNode = objectMapper.readTree(text);
-      assertEquals(SubjectTestHelper.SUBJ0.getId(), subjectNode.get("subjectId").asText());
-      assertNotNull(subjectNode.get("name"));
-      assertNotNull(subjectNode.get("sourceId"));
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+
+      ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      assertNotNull(text);
+
+      // parse the returned JSON and verify subject fields
+      try {
+        JsonNode subjectNode = objectMapper.readTree(text);
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), subjectNode.get("subjectId").asText());
+        assertNotNull(subjectNode.get("name"));
+        assertNotNull(subjectNode.get("sourceId"));
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 
@@ -138,23 +134,28 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
    */
   public void testGetSubjectBySubjectIdentifier() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
-
-    ObjectNode arguments = objectMapper.createObjectNode();
-    // test subjects have identifiers like "id.test.subject.0"
-    arguments.put("subjectIdentifier", "id.test.subject.0");
-
-    ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode subjectNode = objectMapper.readTree(text);
-      assertEquals(SubjectTestHelper.SUBJ0.getId(), subjectNode.get("subjectId").asText());
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      // test subjects have identifiers like "id.test.subject.0"
+      arguments.put("subjectIdentifier", "id.test.subject.0");
+
+      ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode subjectNode = objectMapper.readTree(text);
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), subjectNode.get("subjectId").asText());
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 
@@ -163,25 +164,30 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
    */
   public void testGetSubjectsBySearchString() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
-
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("searchString", "test.");
-
-    ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode resultsNode = objectMapper.readTree(text);
-      // search for "test." should return multiple test subjects
-      assertTrue("Expected array of subjects", resultsNode.isArray());
-      assertTrue("Expected multiple subjects, got: " + resultsNode.size(),
-          resultsNode.size() >= 2);
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("searchString", "test.");
+
+      ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode resultsNode = objectMapper.readTree(text);
+        // search for "test." should return multiple test subjects
+        assertTrue("Expected array of subjects", resultsNode.isArray());
+        assertTrue("Expected multiple subjects, got: " + resultsNode.size(),
+            resultsNode.size() >= 2);
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 
@@ -190,17 +196,22 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
    */
   public void testGetSubjectsNoLookupParam() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
-    ObjectNode arguments = objectMapper.createObjectNode();
+      ObjectNode arguments = objectMapper.createObjectNode();
 
-    ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
+      ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
 
-    assertTrue("Expected error", result.get("isError").asBoolean());
+      assertTrue("Expected error", result.get("isError").asBoolean());
 
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue("Expected error about missing param",
-        text.contains("One of subjectId, subjectIdentifier, or searchString is required"));
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected error about missing param",
+          text.contains("One of subjectId, subjectIdentifier, or searchString is required"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
@@ -208,19 +219,24 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
    */
   public void testGetSubjectsMultipleLookupParams() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
-    arguments.put("searchString", "test.");
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("searchString", "test.");
 
-    ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
+      ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
 
-    assertTrue("Expected error", result.get("isError").asBoolean());
+      assertTrue("Expected error", result.get("isError").asBoolean());
 
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue("Expected error about multiple params",
-        text.contains("Only one of subjectId, subjectIdentifier, or searchString may be provided"));
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected error about multiple params",
+          text.contains("Only one of subjectId, subjectIdentifier, or searchString may be provided"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
@@ -230,25 +246,28 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
    */
   public void testGetSubjectNotFound() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("subjectId", "bogusSubjectIdThatDoesNotExist12345");
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("subjectId", "bogusSubjectIdThatDoesNotExist12345");
 
-    ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
+      ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
 
-    // the WS layer returns a subject entry even for not-found subjects,
-    // so the MCP tool returns it as a non-error result
-    assertNotNull(result);
-    assertNotNull(result.get("content"));
+      // the WS layer returns a subject entry even for not-found subjects,
+      // so the MCP tool returns it as a non-error result
+      assertNotNull(result);
+      assertNotNull(result.get("content"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
    * test filtering subjects by group membership
    */
   public void testGetSubjectsFilterByGroup() {
-
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
 
     Group group1 = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
@@ -259,26 +278,34 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
 
     group1.addMember(SubjectTestHelper.SUBJ0);
     group1.addMember(SubjectTestHelper.SUBJ1);
+    group1.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
 
-    // search with group filter
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("searchString", "test.");
-    arguments.put("groupName", "test:mcpTestGroup1");
-
-    ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode resultsNode = objectMapper.readTree(text);
-      // should only get subjects that are in the group and match search
-      if (resultsNode.isArray()) {
-        assertEquals("Expected 2 subjects in group", 2, resultsNode.size());
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      // search with group filter
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("searchString", "test.");
+      arguments.put("groupName", "test:mcpTestGroup1");
+
+      ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode resultsNode = objectMapper.readTree(text);
+        // should only get subjects that are in the group and match search
+        if (resultsNode.isArray()) {
+          assertEquals("Expected 2 subjects in group", 2, resultsNode.size());
+        }
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
       }
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 
@@ -286,8 +313,6 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
    * test filtering subjects by group membership with member filter
    */
   public void testGetSubjectsFilterByGroupAndMemberFilter() {
-
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
 
     Group group1 = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
@@ -297,24 +322,32 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
         .assignDescription("test group for mcp").save();
 
     group1.addMember(SubjectTestHelper.SUBJ0);
+    group1.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("searchString", "test.");
-    arguments.put("groupName", "test:mcpTestGroup2");
-    arguments.put("memberFilter", "Immediate");
-
-    ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode subjectNode = objectMapper.readTree(text);
-      // single immediate member matching search
-      assertEquals(SubjectTestHelper.SUBJ0.getId(), subjectNode.get("subjectId").asText());
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("searchString", "test.");
+      arguments.put("groupName", "test:mcpTestGroup2");
+      arguments.put("memberFilter", "Immediate");
+
+      ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode subjectNode = objectMapper.readTree(text);
+        // single immediate member matching search
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), subjectNode.get("subjectId").asText());
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 
@@ -323,24 +356,29 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
    */
   public void testGetSubjectWithSubjectDetail() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
-
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
-    arguments.put("includeSubjectDetail", true);
-
-    ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode subjectNode = objectMapper.readTree(text);
-      assertEquals(SubjectTestHelper.SUBJ0.getId(), subjectNode.get("subjectId").asText());
-      // with includeSubjectDetail, we may get attributes
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("includeSubjectDetail", true);
+
+      ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode subjectNode = objectMapper.readTree(text);
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), subjectNode.get("subjectId").asText());
+        // with includeSubjectDetail, we may get attributes
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 
@@ -372,14 +410,19 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
    */
   public void testGetSubjectsNullArguments() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
-    ObjectNode result = GrouperMcpGetSubjects.execute(null, authUser);
+      ObjectNode result = GrouperMcpGetSubjects.execute(null, authUser);
 
-    assertTrue("Expected error for null arguments", result.get("isError").asBoolean());
+      assertTrue("Expected error for null arguments", result.get("isError").asBoolean());
 
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue(text.contains("One of subjectId, subjectIdentifier, or searchString is required"));
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue(text.contains("One of subjectId, subjectIdentifier, or searchString is required"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
@@ -387,23 +430,28 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
    */
   public void testGetSubjectWithSourceIds() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
-
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
-    arguments.putArray("sourceIds").add("jdbc");
-
-    ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode subjectNode = objectMapper.readTree(text);
-      assertEquals(SubjectTestHelper.SUBJ0.getId(), subjectNode.get("subjectId").asText());
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.putArray("sourceIds").add("jdbc");
+
+      ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode subjectNode = objectMapper.readTree(text);
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), subjectNode.get("subjectId").asText());
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 }

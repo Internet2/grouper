@@ -55,7 +55,9 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -807,13 +809,55 @@ public final class GrouperServiceUtils {
   public static GrouperSession testSession = null;
   
   /**
-   * convert the actAsSubjectLookup (and the currently logged in user) to a grouper session
+   * tracks whether the last call to retrieveGrouperSession() started a new session
+   * or reused an existing one from the thread-local.  If reused, the caller should
+   * not stop the session (it doesn't own it).
+   * Use stopSessionIfStarted() in finally blocks instead of GrouperSession.stopQuietly().
+   */
+  private static ThreadLocal<Boolean> startedSession = new ThreadLocal<>();
+
+  /**
+   * stop the session if it was started by retrieveGrouperSession() (not borrowed
+   * from an existing thread-local).  Use this in finally blocks instead of
+   * GrouperSession.stopQuietly(session).
+   * @param session the session to potentially stop
+   */
+  public static void stopSessionIfStarted(GrouperSession session) {
+    try {
+      Boolean started = startedSession.get();
+      if (started != null && started) {
+        GrouperSession.stopQuietly(session);
+      }
+    } finally {
+      startedSession.remove();
+    }
+  }
+
+  /**
+   * convert the actAsSubjectLookup (and the currently logged in user) to a grouper session.
+   * If there is already a session on the thread (e.g., from MCP servlet), it will be
+   * returned without starting a new one.  In that case, the caller should NOT stop the
+   * session since it doesn't own it.  Use stopSessionIfStarted() in finally blocks
+   * to handle this automatically.
    * @param actAsSubjectLookup
    * @return the session
    */
   public static GrouperSession retrieveGrouperSession(WsSubjectLookup actAsSubjectLookup) {
     if (testSession != null) {
+      startedSession.set(false);
       return testSession;
+    }
+    // in MCP context, use the pre-established session from the MCP servlet.
+    // this allows MCP to bypass the WS auth check (etc:wsGroup)
+    // while still running as the authenticated user.
+    // The caller should NOT stop this session since it doesn't own it.
+    GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
+    if (grouperContext != null && grouperContext.getGrouperEngine() == GrouperEngineBuiltin.MCP) {
+      GrouperSession threadLocalSession = GrouperSession.staticGrouperSession(false);
+      if (threadLocalSession != null) {
+        startedSession.set(false);
+        return threadLocalSession;
+      }
     }
     Subject actAsSubject = null;
     actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
@@ -825,6 +869,7 @@ public final class GrouperServiceUtils {
     // use this to be the user connected, or the user act-as
     try {
       GrouperSession session = GrouperSession.start(actAsSubject);
+      startedSession.set(true);
       return session;
     } catch (SessionException se) {
       //this is probably the callers fault, though not positive...

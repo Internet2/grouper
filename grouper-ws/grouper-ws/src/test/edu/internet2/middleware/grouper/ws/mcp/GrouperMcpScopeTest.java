@@ -26,9 +26,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -36,10 +35,13 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import junit.textui.TestRunner;
@@ -90,12 +92,12 @@ public class GrouperMcpScopeTest extends GrouperTest {
     super.setUp();
     RestClientSettings.resetData();
 
-    GrouperServiceUtils.testSession = GrouperSession.staticGrouperSession();
-
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
 
     GrouperWsVersionUtils.assignCurrentClientVersion(GROUPER_VERSION, new StringBuilder());
+
+    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.MCP, false, false);
   }
 
   /**
@@ -104,7 +106,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
   @Override
   protected void tearDown() {
     super.tearDown();
-    GrouperServiceUtils.testSession = null;
+    GrouperContext.deleteDefaultContext();
   }
 
   /**
@@ -123,9 +125,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
   }
 
   /**
-   * build a GrouperMcpAuthUser for the root session with OAuth scope restrictions.
-   * uses a real subject (GrouperSystem) so that tool execute() calls that
-   * pass the scope check can proceed to WS logic.
+   * build a GrouperMcpAuthUser for SUBJ0 with OAuth scope restrictions.
    * @param scopeRestricted whether scope restrictions are active
    * @param folders consented readwrite folder paths
    * @param groups consented readwrite group paths
@@ -134,9 +134,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   private GrouperMcpAuthUser buildOAuthAuthUser(boolean scopeRestricted,
       List<String> folders, List<String> groups, List<String> subjects) {
-    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(
-        SubjectFinder.findRootSubject());
+    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
     authUser.setOAuthAuthenticated(true);
     authUser.setConsentScopeReadwrite(true);
     authUser.setConsentReadwriteScopeRestricted(scopeRestricted);
@@ -369,22 +367,27 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testAddMember_invalidGroupScope() {
 
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        Arrays.asList("allowed:folder"), null,
-        Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("allowed:folder"), null,
+          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("groupName", "other:folder:someGroup");
-    ArrayNode subjects = arguments.putArray("subjects");
-    ObjectNode subjectNode = subjects.addObject();
-    subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "other:folder:someGroup");
+      ArrayNode subjects = arguments.putArray("subjects");
+      ObjectNode subjectNode = subjects.addObject();
+      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
 
-    ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
+      ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
 
-    assertTrue("Expected scope error", result.get("isError").asBoolean());
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue("Expected scope denial for group",
-        text.contains("outside your consented read-write scope"));
+      assertTrue("Expected scope error", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected scope denial for group",
+          text.contains("outside your consented read-write scope"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
@@ -392,28 +395,33 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testAddMember_invalidSubjectScope() {
 
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        Arrays.asList("test"), null,
-        Arrays.asList("allowedSubjectOnly"));
-
     new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignName("test:scopeAddMemberSubj")
         .assignCreateParentStemsIfNotExist(true)
         .assignDescription("test group for scope test").save();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("groupName", "test:scopeAddMemberSubj");
-    ArrayNode subjects = arguments.putArray("subjects");
-    ObjectNode subjectNode = subjects.addObject();
-    subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("test"), null,
+          Arrays.asList("allowedSubjectOnly"));
 
-    ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:scopeAddMemberSubj");
+      ArrayNode subjects = arguments.putArray("subjects");
+      ObjectNode subjectNode = subjects.addObject();
+      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
 
-    assertTrue("Expected scope error for subject", result.get("isError").asBoolean());
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue("Expected scope denial for subject",
-        text.contains("outside your consented read-write scope"));
+      ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
+
+      assertTrue("Expected scope error for subject", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected scope denial for subject",
+          text.contains("outside your consented read-write scope"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
@@ -421,26 +429,33 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testAddMember_validScope() {
 
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        Arrays.asList("test"), null,
-        Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
-
-    new GroupSave(GrouperSession.staticGrouperSession())
+    Group group = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignName("test:scopeAddMemberValid")
         .assignCreateParentStemsIfNotExist(true)
         .assignDescription("test group for scope test").save();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("groupName", "test:scopeAddMemberValid");
-    ArrayNode subjects = arguments.putArray("subjects");
-    ObjectNode subjectNode = subjects.addObject();
-    subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
 
-    ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("test"), null,
+          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
 
-    assertFalse("Expected success (scope check passed), got: " + result.toString(),
-        result.get("isError").asBoolean());
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:scopeAddMemberValid");
+      ArrayNode subjects = arguments.putArray("subjects");
+      ObjectNode subjectNode = subjects.addObject();
+      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+
+      ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
+
+      assertFalse("Expected success (scope check passed), got: " + result.toString(),
+          result.get("isError").asBoolean());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   // ---- GrouperMcpDeleteMember (group_remove_member) ----
@@ -450,32 +465,33 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testDeleteMember_invalidGroupScope() {
 
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        Arrays.asList("allowed:folder"), null,
-        Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("allowed:folder"), null,
+          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("groupName", "other:folder:someGroup");
-    ArrayNode subjects = arguments.putArray("subjects");
-    ObjectNode subjectNode = subjects.addObject();
-    subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "other:folder:someGroup");
+      ArrayNode subjects = arguments.putArray("subjects");
+      ObjectNode subjectNode = subjects.addObject();
+      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
 
-    ObjectNode result = GrouperMcpDeleteMember.execute(arguments, authUser);
+      ObjectNode result = GrouperMcpDeleteMember.execute(arguments, authUser);
 
-    assertTrue("Expected scope error", result.get("isError").asBoolean());
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue("Expected scope denial for group",
-        text.contains("outside your consented read-write scope"));
+      assertTrue("Expected scope error", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected scope denial for group",
+          text.contains("outside your consented read-write scope"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
    * group_remove_member with group and subject both in scope should succeed
    */
   public void testDeleteMember_validScope() {
-
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        Arrays.asList("test"), null,
-        Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
 
     Group group = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
@@ -484,17 +500,27 @@ public class GrouperMcpScopeTest extends GrouperTest {
         .assignDescription("test group for scope test").save();
 
     group.addMember(SubjectTestHelper.SUBJ0);
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("groupName", "test:scopeDeleteMemberValid");
-    ArrayNode subjects = arguments.putArray("subjects");
-    ObjectNode subjectNode = subjects.addObject();
-    subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("test"), null,
+          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
 
-    ObjectNode result = GrouperMcpDeleteMember.execute(arguments, authUser);
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:scopeDeleteMemberValid");
+      ArrayNode subjects = arguments.putArray("subjects");
+      ObjectNode subjectNode = subjects.addObject();
+      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
 
-    assertFalse("Expected success (scope check passed), got: " + result.toString(),
-        result.get("isError").asBoolean());
+      ObjectNode result = GrouperMcpDeleteMember.execute(arguments, authUser);
+
+      assertFalse("Expected success (scope check passed), got: " + result.toString(),
+          result.get("isError").asBoolean());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   // ---- GrouperMcpGroupSave (group_save) ----
@@ -504,19 +530,24 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testGroupSave_invalidGroupScope() {
 
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        Arrays.asList("allowed:folder"), null, null);
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("allowed:folder"), null, null);
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("groupName", "other:folder:newGroup");
-    arguments.put("action", "createGroup");
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "other:folder:newGroup");
+      arguments.put("action", "createGroup");
 
-    ObjectNode result = GrouperMcpGroupSave.execute(arguments, authUser);
+      ObjectNode result = GrouperMcpGroupSave.execute(arguments, authUser);
 
-    assertTrue("Expected scope error", result.get("isError").asBoolean());
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue("Expected scope denial for group",
-        text.contains("outside your consented read-write scope"));
+      assertTrue("Expected scope error", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected scope denial for group",
+          text.contains("outside your consented read-write scope"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
@@ -524,17 +555,28 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testGroupSave_validScope() {
 
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        Arrays.asList("test"), null, null);
+    // grant stem create privilege so SUBJ0 can create groups in test:
+    edu.internet2.middleware.grouper.Stem testStem =
+        edu.internet2.middleware.grouper.StemFinder.findByName(
+            GrouperSession.staticGrouperSession(), "test", true);
+    testStem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("groupName", "test:scopeGroupSaveValid");
-    arguments.put("action", "createGroup");
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("test"), null, null);
 
-    ObjectNode result = GrouperMcpGroupSave.execute(arguments, authUser);
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:scopeGroupSaveValid");
+      arguments.put("action", "createGroup");
 
-    assertFalse("Expected success (scope check passed), got: " + result.toString(),
-        result.get("isError").asBoolean());
+      ObjectNode result = GrouperMcpGroupSave.execute(arguments, authUser);
+
+      assertFalse("Expected success (scope check passed), got: " + result.toString(),
+          result.get("isError").asBoolean());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   // ---- GrouperMcpAssignGrouperPrivilegesLite (privilege_assign) ----
@@ -544,23 +586,28 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testPrivilegeAssign_invalidGroupScope() {
 
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        Arrays.asList("allowed:folder"), null,
-        Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("allowed:folder"), null,
+          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("groupName", "other:folder:someGroup");
-    arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
-    arguments.put("privilegeType", "access");
-    arguments.put("privilegeName", "read");
-    arguments.put("allowed", true);
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "other:folder:someGroup");
+      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("privilegeType", "access");
+      arguments.put("privilegeName", "read");
+      arguments.put("allowed", true);
 
-    ObjectNode result = GrouperMcpAssignGrouperPrivilegesLite.execute(arguments, authUser);
+      ObjectNode result = GrouperMcpAssignGrouperPrivilegesLite.execute(arguments, authUser);
 
-    assertTrue("Expected scope error", result.get("isError").asBoolean());
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue("Expected scope denial for group",
-        text.contains("outside your consented read-write scope"));
+      assertTrue("Expected scope error", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected scope denial for group",
+          text.contains("outside your consented read-write scope"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
@@ -568,29 +615,34 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testPrivilegeAssign_invalidSubjectScope() {
 
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        Arrays.asList("test"), null,
-        Arrays.asList("allowedSubjectOnly"));
-
     new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignName("test:scopePrivSubj")
         .assignCreateParentStemsIfNotExist(true)
         .assignDescription("test group for scope test").save();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("groupName", "test:scopePrivSubj");
-    arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
-    arguments.put("privilegeType", "access");
-    arguments.put("privilegeName", "read");
-    arguments.put("allowed", true);
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("test"), null,
+          Arrays.asList("allowedSubjectOnly"));
 
-    ObjectNode result = GrouperMcpAssignGrouperPrivilegesLite.execute(arguments, authUser);
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:scopePrivSubj");
+      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("privilegeType", "access");
+      arguments.put("privilegeName", "read");
+      arguments.put("allowed", true);
 
-    assertTrue("Expected scope error for subject", result.get("isError").asBoolean());
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue("Expected scope denial for subject",
-        text.contains("outside your consented read-write scope"));
+      ObjectNode result = GrouperMcpAssignGrouperPrivilegesLite.execute(arguments, authUser);
+
+      assertTrue("Expected scope error for subject", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected scope denial for subject",
+          text.contains("outside your consented read-write scope"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
@@ -598,27 +650,34 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testPrivilegeAssign_validScope() {
 
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        Arrays.asList("test"), null,
-        Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
-
-    new GroupSave(GrouperSession.staticGrouperSession())
+    Group group = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignName("test:scopePrivValid")
         .assignCreateParentStemsIfNotExist(true)
         .assignDescription("test group for scope test").save();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("groupName", "test:scopePrivValid");
-    arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
-    arguments.put("privilegeType", "access");
-    arguments.put("privilegeName", "read");
-    arguments.put("allowed", true);
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
 
-    ObjectNode result = GrouperMcpAssignGrouperPrivilegesLite.execute(arguments, authUser);
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("test"), null,
+          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
 
-    assertFalse("Expected success (scope check passed), got: " + result.toString(),
-        result.get("isError").asBoolean());
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:scopePrivValid");
+      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("privilegeType", "access");
+      arguments.put("privilegeName", "read");
+      arguments.put("allowed", true);
+
+      ObjectNode result = GrouperMcpAssignGrouperPrivilegesLite.execute(arguments, authUser);
+
+      assertFalse("Expected success (scope check passed), got: " + result.toString(),
+          result.get("isError").asBoolean());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   // ---- GrouperMcpAssignAttributes (attribute_assignment_save) ----
@@ -627,9 +686,6 @@ public class GrouperMcpScopeTest extends GrouperTest {
    * attribute_assignment_save with an owner group outside the consented scope should be denied
    */
   public void testAssignAttributes_invalidGroupScope() {
-
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        Arrays.asList("allowed:folder"), null, null);
 
     // create attribute def and attribute def name so the arguments are valid
     AttributeDef attributeDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
@@ -644,27 +700,32 @@ public class GrouperMcpScopeTest extends GrouperTest {
         .assignName("test:scopeTestAttrDefName")
         .save();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("attributeAssignType", "group");
-    arguments.put("attributeAssignOperation", "assign_attr");
-    arguments.put("attributeDefNameName", "test:scopeTestAttrDefName");
-    arguments.put("ownerGroupName", "other:folder:someGroup");
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("allowed:folder"), null, null);
 
-    ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("attributeAssignType", "group");
+      arguments.put("attributeAssignOperation", "assign_attr");
+      arguments.put("attributeDefNameName", "test:scopeTestAttrDefName");
+      arguments.put("ownerGroupName", "other:folder:someGroup");
 
-    assertTrue("Expected scope error", result.get("isError").asBoolean());
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue("Expected scope denial for owner group",
-        text.contains("outside your consented read-write scope"));
+      ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
+
+      assertTrue("Expected scope error", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected scope denial for owner group",
+          text.contains("outside your consented read-write scope"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
    * attribute_assignment_save with an owner stem outside the consented scope should be denied
    */
   public void testAssignAttributes_invalidStemScope() {
-
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        Arrays.asList("allowed:folder"), null, null);
 
     // create attribute def and attribute def name so the arguments are valid
     AttributeDef attributeDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
@@ -679,27 +740,32 @@ public class GrouperMcpScopeTest extends GrouperTest {
         .assignName("test:scopeTestAttrDefName")
         .save();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("attributeAssignType", "stem");
-    arguments.put("attributeAssignOperation", "assign_attr");
-    arguments.put("attributeDefNameName", "test:scopeTestAttrDefName");
-    arguments.put("ownerStemName", "other:folder");
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("allowed:folder"), null, null);
 
-    ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("attributeAssignType", "stem");
+      arguments.put("attributeAssignOperation", "assign_attr");
+      arguments.put("attributeDefNameName", "test:scopeTestAttrDefName");
+      arguments.put("ownerStemName", "other:folder");
 
-    assertTrue("Expected scope error", result.get("isError").asBoolean());
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue("Expected scope denial for owner stem",
-        text.contains("outside your consented read-write scope"));
+      ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
+
+      assertTrue("Expected scope error", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected scope denial for owner stem",
+          text.contains("outside your consented read-write scope"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
    * attribute_assignment_save with an owner subject outside the consented scope should be denied
    */
   public void testAssignAttributes_invalidSubjectScope() {
-
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        null, null, Arrays.asList("allowedSubjectOnly"));
 
     // create attribute def and attribute def name so the arguments are valid
     AttributeDef attributeDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
@@ -714,18 +780,26 @@ public class GrouperMcpScopeTest extends GrouperTest {
         .assignName("test:scopeTestAttrDefName")
         .save();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("attributeAssignType", "member");
-    arguments.put("attributeAssignOperation", "assign_attr");
-    arguments.put("attributeDefNameName", "test:scopeTestAttrDefName");
-    arguments.put("ownerSubjectId", SubjectTestHelper.SUBJ0.getId());
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          null, null, Arrays.asList("allowedSubjectOnly"));
 
-    ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("attributeAssignType", "member");
+      arguments.put("attributeAssignOperation", "assign_attr");
+      arguments.put("attributeDefNameName", "test:scopeTestAttrDefName");
+      arguments.put("ownerSubjectId", SubjectTestHelper.SUBJ0.getId());
 
-    assertTrue("Expected scope error for owner subject", result.get("isError").asBoolean());
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue("Expected scope denial for owner subject",
-        text.contains("outside your consented read-write scope"));
+      ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
+
+      assertTrue("Expected scope error for owner subject", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected scope denial for owner subject",
+          text.contains("outside your consented read-write scope"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
@@ -733,14 +807,13 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testAssignAttributes_validScope() {
 
-    GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
-        Arrays.asList("test"), null, null);
-
-    new GroupSave(GrouperSession.staticGrouperSession())
+    Group group = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignName("test:scopeAttrValid")
         .assignCreateParentStemsIfNotExist(true)
         .assignDescription("test group for scope test").save();
+
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
 
     // create attribute def and attribute def name so the WS can resolve them
     AttributeDef attributeDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
@@ -755,15 +828,23 @@ public class GrouperMcpScopeTest extends GrouperTest {
         .assignName("test:scopeTestAttrDefName")
         .save();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("attributeAssignType", "group");
-    arguments.put("attributeAssignOperation", "assign_attr");
-    arguments.put("attributeDefNameName", "test:scopeTestAttrDefName");
-    arguments.put("ownerGroupName", "test:scopeAttrValid");
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("test"), null, null);
 
-    ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("attributeAssignType", "group");
+      arguments.put("attributeAssignOperation", "assign_attr");
+      arguments.put("attributeDefNameName", "test:scopeTestAttrDefName");
+      arguments.put("ownerGroupName", "test:scopeAttrValid");
 
-    assertFalse("Expected success (scope check passed), got: " + result.toString(),
-        result.get("isError").asBoolean());
+      ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
+
+      assertFalse("Expected success (scope check passed), got: " + result.toString(),
+          result.get("isError").asBoolean());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 }

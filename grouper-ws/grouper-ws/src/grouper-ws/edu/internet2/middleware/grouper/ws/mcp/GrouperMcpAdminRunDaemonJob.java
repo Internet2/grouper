@@ -96,23 +96,20 @@ public class GrouperMcpAdminRunDaemonJob {
     jobName = jobName.trim();
 
     try {
+      // use the session from the MCP servlet (user is already verified as admin)
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+
       // run on daemon (asynchronous trigger via Quartz scheduler)
-      GrouperSession grouperSession = GrouperSession.startRootSession();
-      try {
-        String result = GrouperLoader.runOnceByJobName(grouperSession, jobName, true);
+      String result = GrouperLoader.runOnceByJobName(grouperSession, jobName, true);
 
-        ObjectNode resultNode = objectMapper.createObjectNode();
-        resultNode.put("jobName", jobName);
-        resultNode.put("status", "TRIGGERED");
-        resultNode.put("message", result);
+      ObjectNode resultNode = objectMapper.createObjectNode();
+      resultNode.put("jobName", jobName);
+      resultNode.put("status", "TRIGGERED");
+      resultNode.put("message", result);
 
-        String resultText = objectMapper.writerWithDefaultPrettyPrinter()
-            .writeValueAsString(resultNode);
-        return buildSuccessResult(resultText);
-
-      } finally {
-        GrouperSession.stopQuietly(grouperSession);
-      }
+      String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(resultNode);
+      return buildSuccessResult(resultText);
 
     } catch (Exception e) {
       LOG.error("Error triggering daemon job via MCP: " + jobName, e);

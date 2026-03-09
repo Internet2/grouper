@@ -23,12 +23,16 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import junit.textui.TestRunner;
@@ -75,12 +79,12 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
     super.setUp();
     RestClientSettings.resetData();
 
-    GrouperServiceUtils.testSession = GrouperSession.staticGrouperSession();
-
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
 
     GrouperWsVersionUtils.assignCurrentClientVersion(GROUPER_VERSION, new StringBuilder());
+
+    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.MCP, false, false);
   }
 
   /**
@@ -89,18 +93,7 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
   @Override
   protected void tearDown() {
     super.tearDown();
-    GrouperServiceUtils.testSession = null;
-  }
-
-  /**
-   * build a GrouperMcpAuthUser for the root session (GrouperSystem)
-   * @return the auth user
-   */
-  private GrouperMcpAuthUser buildRootAuthUser() {
-    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(
-        SubjectFinder.findRootSubject());
-    return authUser;
+    GrouperContext.deleteDefaultContext();
   }
 
   /**
@@ -108,37 +101,44 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
    */
   public void testFindByGroupNameExact() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
-
-    new GroupSave(GrouperSession.staticGrouperSession())
+    Group group1 = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignGroupNameToEdit("test:mcpFindGroup1")
         .assignName("test:mcpFindGroup1")
         .assignCreateParentStemsIfNotExist(true)
         .assignDescription("test group for mcp findGroups").save();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("queryFilterType", "FIND_BY_GROUP_NAME_EXACT");
-    arguments.put("groupName", "test:mcpFindGroup1");
+    group1.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
 
-    ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode responseNode = objectMapper.readTree(text);
-      assertEquals(1, responseNode.get("totalGroupsReturned").asInt());
-      JsonNode groups = responseNode.get("groups");
-      assertNotNull(groups);
-      assertTrue(groups.isArray());
-      assertEquals(1, groups.size());
-      assertEquals("test:mcpFindGroup1", groups.get(0).get("name").asText());
-      assertEquals("test group for mcp findGroups", groups.get(0).get("description").asText());
-      assertNotNull(groups.get(0).get("uuid"));
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("queryFilterType", "FIND_BY_GROUP_NAME_EXACT");
+      arguments.put("groupName", "test:mcpFindGroup1");
+
+      ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+        assertEquals(1, responseNode.get("totalGroupsReturned").asInt());
+        JsonNode groups = responseNode.get("groups");
+        assertNotNull(groups);
+        assertTrue(groups.isArray());
+        assertEquals(1, groups.size());
+        assertEquals("test:mcpFindGroup1", groups.get(0).get("name").asText());
+        assertEquals("test group for mcp findGroups", groups.get(0).get("description").asText());
+        assertNotNull(groups.get(0).get("uuid"));
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 
@@ -147,38 +147,46 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
    */
   public void testFindByGroupNameApproximate() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
-
-    new GroupSave(GrouperSession.staticGrouperSession())
+    Group group1 = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignGroupNameToEdit("test:mcpFindApprox1")
         .assignName("test:mcpFindApprox1")
         .assignCreateParentStemsIfNotExist(true)
         .assignDescription("approx test 1").save();
 
-    new GroupSave(GrouperSession.staticGrouperSession())
+    Group group2 = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignGroupNameToEdit("test:mcpFindApprox2")
         .assignName("test:mcpFindApprox2")
         .assignCreateParentStemsIfNotExist(true)
         .assignDescription("approx test 2").save();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("queryFilterType", "FIND_BY_GROUP_NAME_APPROXIMATE");
-    arguments.put("groupName", "mcpFindApprox");
+    group1.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    group2.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
 
-    ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode responseNode = objectMapper.readTree(text);
-      assertTrue("Expected at least 2 groups",
-          responseNode.get("totalGroupsReturned").asInt() >= 2);
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("queryFilterType", "FIND_BY_GROUP_NAME_APPROXIMATE");
+      arguments.put("groupName", "mcpFindApprox");
+
+      ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+        assertTrue("Expected at least 2 groups",
+            responseNode.get("totalGroupsReturned").asInt() >= 2);
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 
@@ -187,43 +195,51 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
    */
   public void testFindByStemName() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
-
-    new GroupSave(GrouperSession.staticGrouperSession())
+    Group group1 = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignGroupNameToEdit("test:mcpFindStem:group1")
         .assignName("test:mcpFindStem:group1")
         .assignCreateParentStemsIfNotExist(true)
         .assignDescription("stem test 1").save();
 
-    new GroupSave(GrouperSession.staticGrouperSession())
+    Group group2 = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignGroupNameToEdit("test:mcpFindStem:group2")
         .assignName("test:mcpFindStem:group2")
         .assignCreateParentStemsIfNotExist(true)
         .assignDescription("stem test 2").save();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("queryFilterType", "FIND_BY_STEM_NAME");
-    arguments.put("stemName", "test:mcpFindStem");
+    group1.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    group2.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
 
-    ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode responseNode = objectMapper.readTree(text);
-      assertTrue("Expected at least 2 groups",
-          responseNode.get("totalGroupsReturned").asInt() >= 2);
-      JsonNode groups = responseNode.get("groups");
-      for (int i = 0; i < groups.size(); i++) {
-        assertTrue("Group should be in test:mcpFindStem stem",
-            groups.get(i).get("name").asText().startsWith("test:mcpFindStem:"));
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("queryFilterType", "FIND_BY_STEM_NAME");
+      arguments.put("stemName", "test:mcpFindStem");
+
+      ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+        assertTrue("Expected at least 2 groups",
+            responseNode.get("totalGroupsReturned").asInt() >= 2);
+        JsonNode groups = responseNode.get("groups");
+        for (int i = 0; i < groups.size(); i++) {
+          assertTrue("Group should be in test:mcpFindStem stem",
+              groups.get(i).get("name").asText().startsWith("test:mcpFindStem:"));
+        }
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
       }
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 
@@ -231,8 +247,6 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
    * test finding a group by UUID
    */
   public void testFindByGroupUuid() {
-
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
 
     Group group1 = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
@@ -243,24 +257,33 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
 
     String uuid = group1.getUuid();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("queryFilterType", "FIND_BY_GROUP_UUID");
-    arguments.put("groupUuid", uuid);
+    group1.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
 
-    ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode responseNode = objectMapper.readTree(text);
-      assertEquals(1, responseNode.get("totalGroupsReturned").asInt());
-      JsonNode groups = responseNode.get("groups");
-      assertEquals("test:mcpFindUuidGroup1", groups.get(0).get("name").asText());
-      assertEquals(uuid, groups.get(0).get("uuid").asText());
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("queryFilterType", "FIND_BY_GROUP_UUID");
+      arguments.put("groupUuid", uuid);
+
+      ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+        assertEquals(1, responseNode.get("totalGroupsReturned").asInt());
+        JsonNode groups = responseNode.get("groups");
+        assertEquals("test:mcpFindUuidGroup1", groups.get(0).get("name").asText());
+        assertEquals(uuid, groups.get(0).get("uuid").asText());
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 
@@ -269,59 +292,64 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
    */
   public void testFindGroupsPaging() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
-
+    Group[] groups = new Group[3];
     for (int i = 0; i < 3; i++) {
-      new GroupSave(GrouperSession.staticGrouperSession())
+      groups[i] = new GroupSave(GrouperSession.staticGrouperSession())
           .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
           .assignGroupNameToEdit("test:mcpFindPage:pageGroup" + i)
           .assignName("test:mcpFindPage:pageGroup" + i)
           .assignCreateParentStemsIfNotExist(true)
           .assignDescription("paging test " + i).save();
+      groups[i].grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
     }
 
-    // page 1, size 2
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("queryFilterType", "FIND_BY_STEM_NAME");
-    arguments.put("stemName", "test:mcpFindPage");
-    arguments.put("pageSize", 2);
-    arguments.put("pageNumber", 1);
-
-    ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode responseNode = objectMapper.readTree(text);
-      assertEquals(2, responseNode.get("pageSize").asInt());
-      assertEquals(1, responseNode.get("pageNumber").asInt());
-      assertEquals(2, responseNode.get("groups").size());
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
-    }
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
-    // page 2, size 2 - re-establish session for second call
-    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+      // page 1, size 2
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("queryFilterType", "FIND_BY_STEM_NAME");
+      arguments.put("stemName", "test:mcpFindPage");
+      arguments.put("pageSize", 2);
+      arguments.put("pageNumber", 1);
 
-    arguments = objectMapper.createObjectNode();
-    arguments.put("queryFilterType", "FIND_BY_STEM_NAME");
-    arguments.put("stemName", "test:mcpFindPage");
-    arguments.put("pageSize", 2);
-    arguments.put("pageNumber", 2);
+      ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
 
-    result = GrouperMcpFindGroups.execute(arguments, authUser);
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
 
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+        assertEquals(2, responseNode.get("pageSize").asInt());
+        assertEquals(1, responseNode.get("pageNumber").asInt());
+        assertEquals(2, responseNode.get("groups").size());
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
 
-    text = result.get("content").get(0).get("text").asText();
-    try {
-      JsonNode responseNode = objectMapper.readTree(text);
-      assertEquals(1, responseNode.get("groups").size());
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+      // page 2, size 2
+      arguments = objectMapper.createObjectNode();
+      arguments.put("queryFilterType", "FIND_BY_STEM_NAME");
+      arguments.put("stemName", "test:mcpFindPage");
+      arguments.put("pageSize", 2);
+      arguments.put("pageNumber", 2);
+
+      result = GrouperMcpFindGroups.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+        assertEquals(1, responseNode.get("groups").size());
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 
@@ -330,24 +358,29 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
    */
   public void testFindGroupNotFound() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
-
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("queryFilterType", "FIND_BY_GROUP_NAME_EXACT");
-    arguments.put("groupName", "test:bogusGroupThatDoesNotExist99999");
-
-    ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
-
-    assertFalse("Expected success (empty result), got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode responseNode = objectMapper.readTree(text);
-      assertEquals(0, responseNode.get("totalGroupsReturned").asInt());
-      assertEquals(0, responseNode.get("groups").size());
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("queryFilterType", "FIND_BY_GROUP_NAME_EXACT");
+      arguments.put("groupName", "test:bogusGroupThatDoesNotExist99999");
+
+      ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
+
+      assertFalse("Expected success (empty result), got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+        assertEquals(0, responseNode.get("totalGroupsReturned").asInt());
+        assertEquals(0, responseNode.get("groups").size());
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 
@@ -356,41 +389,49 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
    */
   public void testFindByStemNameOneLevel() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
-
-    new GroupSave(GrouperSession.staticGrouperSession())
+    Group directGroup = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignGroupNameToEdit("test:mcpFindOneLevel:directGroup")
         .assignName("test:mcpFindOneLevel:directGroup")
         .assignCreateParentStemsIfNotExist(true)
         .assignDescription("direct child").save();
 
-    new GroupSave(GrouperSession.staticGrouperSession())
+    Group nestedGroup = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignGroupNameToEdit("test:mcpFindOneLevel:sub:nestedGroup")
         .assignName("test:mcpFindOneLevel:sub:nestedGroup")
         .assignCreateParentStemsIfNotExist(true)
         .assignDescription("nested child").save();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("queryFilterType", "FIND_BY_STEM_NAME");
-    arguments.put("stemName", "test:mcpFindOneLevel");
-    arguments.put("stemNameScope", "ONE_LEVEL");
+    directGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    nestedGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
 
-    ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode responseNode = objectMapper.readTree(text);
-      assertEquals("ONE_LEVEL should only return direct children",
-          1, responseNode.get("totalGroupsReturned").asInt());
-      assertEquals("test:mcpFindOneLevel:directGroup",
-          responseNode.get("groups").get(0).get("name").asText());
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("queryFilterType", "FIND_BY_STEM_NAME");
+      arguments.put("stemName", "test:mcpFindOneLevel");
+      arguments.put("stemNameScope", "ONE_LEVEL");
+
+      ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+        assertEquals("ONE_LEVEL should only return direct children",
+            1, responseNode.get("totalGroupsReturned").asInt());
+        assertEquals("test:mcpFindOneLevel:directGroup",
+            responseNode.get("groups").get(0).get("name").asText());
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 
@@ -399,16 +440,21 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
    */
   public void testFindGroupsMissingQueryFilterType() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("groupName", "test:someGroup");
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:someGroup");
 
-    ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
+      ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
 
-    assertTrue("Expected error", result.get("isError").asBoolean());
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue(text.contains("queryFilterType is required"));
+      assertTrue("Expected error", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue(text.contains("queryFilterType is required"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
@@ -416,13 +462,18 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
    */
   public void testFindGroupsNullArguments() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
-    ObjectNode result = GrouperMcpFindGroups.execute(null, authUser);
+      ObjectNode result = GrouperMcpFindGroups.execute(null, authUser);
 
-    assertTrue("Expected error for null arguments", result.get("isError").asBoolean());
-    String text = result.get("content").get(0).get("text").asText();
-    assertTrue(text.contains("queryFilterType is required"));
+      assertTrue("Expected error for null arguments", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue(text.contains("queryFilterType is required"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
   }
 
   /**
@@ -465,33 +516,40 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
    */
   public void testFindGroupsIncludeGroupTypes() {
 
-    GrouperMcpAuthUser authUser = buildRootAuthUser();
-
-    new GroupSave(GrouperSession.staticGrouperSession())
+    Group group1 = new GroupSave(GrouperSession.staticGrouperSession())
         .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignGroupNameToEdit("test:mcpFindTypesGroup1")
         .assignName("test:mcpFindTypesGroup1")
         .assignCreateParentStemsIfNotExist(true)
         .assignDescription("types test").save();
 
-    ObjectNode arguments = objectMapper.createObjectNode();
-    arguments.put("queryFilterType", "FIND_BY_GROUP_NAME_EXACT");
-    arguments.put("groupName", "test:mcpFindTypesGroup1");
-    arguments.put("includeGdgTypes", true);
+    group1.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
 
-    ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
-
-    assertFalse("Expected success, got: " + result.toString(),
-        result.get("isError").asBoolean());
-
-    String text = result.get("content").get(0).get("text").asText();
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
-      JsonNode responseNode = objectMapper.readTree(text);
-      assertEquals(1, responseNode.get("totalGroupsReturned").asInt());
-      // group may or may not have types assigned, just verify it doesn't error
-      assertNotNull(responseNode.get("groups").get(0).get("name"));
-    } catch (Exception e) {
-      fail("Failed to parse result JSON: " + e.getMessage());
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("queryFilterType", "FIND_BY_GROUP_NAME_EXACT");
+      arguments.put("groupName", "test:mcpFindTypesGroup1");
+      arguments.put("includeGdgTypes", true);
+
+      ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+        assertEquals(1, responseNode.get("totalGroupsReturned").asInt());
+        // group may or may not have types assigned, just verify it doesn't error
+        assertNotNull(responseNode.get("groups").get(0).get("name"));
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
   }
 }
