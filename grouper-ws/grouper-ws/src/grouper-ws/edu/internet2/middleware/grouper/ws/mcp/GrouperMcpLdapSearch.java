@@ -426,10 +426,14 @@ public class GrouperMcpLdapSearch {
     String resultText = objectMapper.writerWithDefaultPrettyPrinter()
         .writeValueAsString(resultNode);
 
-    // cap response size
-    if (resultText.length() > maxChars) {
-      resultText = resultText.substring(0, maxChars)
-          + "\n... (response truncated at " + maxChars + " characters)";
+    // if the response is too large, remove entries from the end until it fits
+    while (resultText.length() > maxChars && entriesArray.size() > 0) {
+      entriesArray.remove(entriesArray.size() - 1);
+      entryCount = entriesArray.size();
+      resultNode.put("entryCount", entryCount);
+      resultNode.put("truncated", true);
+      resultText = objectMapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(resultNode);
     }
 
     return buildSuccessResult(resultText);
