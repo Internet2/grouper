@@ -92,13 +92,15 @@ public class GrouperLoaderIncrementalJob implements Job {
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
         
-        if (GrouperLoader.isJobRunning(jobName, true)) {
+        // GRP-6745: use SELECT FOR UPDATE to atomically check and claim the job
+        Hib3GrouperLoaderLog hib3GrouperloaderLog = new Hib3GrouperLoaderLog();
+        if (!GrouperLoader.claimJobIfNotRunning(jobName, hib3GrouperloaderLog)) {
           LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
           return null;
         }
-        
+
         try {
-          runJob(grouperSession, jobName);
+          runJob(grouperSession, jobName, hib3GrouperloaderLog);
         } catch (Throwable jee) {
           throw GrouperUtil.exceptionConvertToRuntime(jee, null);
         }
@@ -133,21 +135,34 @@ public class GrouperLoaderIncrementalJob implements Job {
   }
   
   /**
-   * @param grouperSession 
+   * @param grouperSession
    * @param jobName
-   * @throws JobExecutionException 
+   * @throws JobExecutionException
    */
   @SuppressWarnings("deprecation")
   public static void runJob(GrouperSession grouperSession, String jobName) throws JobExecutionException {
+    runJob(grouperSession, jobName, null);
+  }
+
+  /**
+   * @param grouperSession
+   * @param jobName
+   * @param hib3GrouperloaderLogInput pre-claimed loader log from claimJobIfNotRunning, or null to create a new one
+   * @throws JobExecutionException
+   */
+  @SuppressWarnings("deprecation")
+  public static void runJob(GrouperSession grouperSession, String jobName, Hib3GrouperLoaderLog hib3GrouperloaderLogInput) throws JobExecutionException {
     long startTime = System.currentTimeMillis();
-    final Hib3GrouperLoaderLog hib3GrouperloaderLog = new Hib3GrouperLoaderLog();
-    
+    final Hib3GrouperLoaderLog hib3GrouperloaderLog = hib3GrouperloaderLogInput != null ? hib3GrouperloaderLogInput : new Hib3GrouperLoaderLog();
+
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("overallLog");
 
     try {
       hib3GrouperloaderLog.setJobName(jobName);
       hib3GrouperloaderLog.setHost(GrouperUtil.hostname());
-      hib3GrouperloaderLog.setStartedTime(new Timestamp(startTime));
+      if (hib3GrouperloaderLog.getStartedTime() == null) {
+        hib3GrouperloaderLog.setStartedTime(new Timestamp(startTime));
+      }
       hib3GrouperloaderLog.setJobType("OTHER_JOB");
       hib3GrouperloaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
       hib3GrouperloaderLog.store();

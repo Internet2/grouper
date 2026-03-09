@@ -39,6 +39,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.PlatformFactory;
 import org.hibernate.type.StringType;
+import org.hibernate.type.TimestampType;
 import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -72,11 +73,14 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.client.ClientConfig;
 import edu.internet2.middleware.grouper.client.ClientConfig.ClientGroupConfigBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -149,6 +153,23 @@ public class GrouperLoader {
     GrouperDaemonUtils.startDaemonPausedJobsCheckThread();
     
     // delay starting the scheduler until the end to make sure things that need to be unscheduled are taken care of first?
+    // GRP-6745: add a random delay before starting the scheduler to stagger daemon nodes.
+    // When multiple daemon containers start at the same time (e.g. nightly restarts),
+    // they can race to fire the same job simultaneously.  A random delay of 0-15 seconds
+    // staggers the Quartz schedulers to reduce lock contention on the SELECT FOR UPDATE
+    // in claimJobIfNotRunning().
+    {
+      int maxDelaySeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.schedulerStartDelayMaxSeconds", 15);
+      if (maxDelaySeconds > 0) {
+        int delaySeconds = new java.util.Random().nextInt(maxDelaySeconds);
+        LOG.info("Delaying Quartz scheduler start by " + delaySeconds + " seconds to stagger daemon nodes");
+        try {
+          Thread.sleep(delaySeconds * 1000L);
+        } catch (InterruptedException ie) {
+          // ignore
+        }
+      }
+    }
     try {
       schedulerFactory.getScheduler().start();
     } catch (SchedulerException e) {
@@ -1820,9 +1841,127 @@ public class GrouperLoader {
     int rowsToFind = checkingAtStartOfJobBeforeInsertingGrouperLoaderLog ? 1 : 0;
     return counts.get(0) > 0 && (counts.get(1) + counts.get(2) > rowsToFind);
   }
-  
+
   /**
-   * @param jobName 
+   * GRP-6745: atomically check if a job is running and claim it if not, using SELECT FOR UPDATE
+   * to serialize across daemon nodes.
+   *
+   * <p><b>Problem:</b> When multiple daemon containers start at the same time (e.g. nightly
+   * restarts), each node's Quartz scheduler can fire the same job simultaneously.  The old
+   * isJobRunning() check suffered from a TOCTOU (time-of-check-time-of-use) race: both nodes
+   * would call isJobRunning(), both would see false (because neither had inserted a STARTED
+   * log entry yet), and both would proceed to run the same job concurrently.</p>
+   *
+   * <p><b>Solution:</b> This method uses SELECT FOR UPDATE on grouper_loader_log rows to
+   * acquire a database-level lock that serializes the check-and-claim across all daemon nodes.
+   * Only one node can hold the lock at a time, so the second node blocks until the first has
+   * committed its STARTED entry.</p>
+   *
+   * <p><b>Flow:</b></p>
+   * <ol>
+   *   <li>SELECT FOR UPDATE on loader_log entries for this job — this acquires row-level locks
+   *       that serialize across daemon nodes.  To minimize the number of locked rows, we first
+   *       check if there are entries from the last hour (the common case since daemon jobs run
+   *       every minute and log entries are only deleted weekly).  If recent entries exist, we
+   *       lock only those.  If not (e.g. after extended downtime or a brand-new installation),
+   *       we fall back to locking all entries for this job to ensure serialization.</li>
+   *   <li>While holding the lock, call isJobRunning() to check if another node already has
+   *       the job running.  isJobRunning() uses GcDbAccess (a separate DB connection), but
+   *       this is safe because the FOR UPDATE lock prevents any other node from reaching this
+   *       point until we commit.</li>
+   *   <li>If not running, insert a STARTED log entry via store(), which uses an autonomous
+   *       READ_WRITE_NEW transaction — so the STARTED row is committed immediately and visible
+   *       to other connections even before this method returns.</li>
+   *   <li>Return from the callback, which commits the outer transaction and releases the
+   *       row locks.</li>
+   *   <li>The next node (blocked on SELECT FOR UPDATE) now unblocks, calls isJobRunning(),
+   *       sees the STARTED entry, and aborts.</li>
+   * </ol>
+   *
+   * <p><b>Transaction details:</b> The outer transaction (READ_WRITE_NEW) holds the FOR UPDATE
+   * lock for only milliseconds — just long enough to run a COUNT query, the SELECT FOR UPDATE,
+   * the isJobRunning() check, and the store().  Row-level locks don't block MVCC readers on
+   * any of the 3 supported databases (PostgreSQL, MySQL, Oracle).</p>
+   *
+   * <p><b>Index usage:</b> job_name is the leading column in the
+   * grouper_loader_log_temp_st_idx index (job_name, started_time), so both the filtered and
+   * unfiltered queries use an efficient index scan.</p>
+   *
+   * @param jobName the job name (e.g. "CHANGE_LOG_changeLogTempToChangeLog")
+   * @param hib3GrouploaderLog the loader log object to populate and store if this node
+   *        successfully claims the job.  On return, if true, this object will have jobName,
+   *        host, startedTime, and status=STARTED set and persisted to the database.
+   * @return true if this node successfully claimed the job (STARTED was inserted),
+   *         false if another node is already running it
+   */
+  public static boolean claimJobIfNotRunning(final String jobName, final Hib3GrouperLoaderLog hib3GrouploaderLog) {
+
+    return (Boolean) HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            // Step 1: Acquire row-level locks on grouper_loader_log entries for this job.
+            // This serializes the check-and-claim across all daemon nodes — any other node
+            // calling claimJobIfNotRunning for the same job will block on the SELECT FOR
+            // UPDATE until this transaction commits.
+            //
+            // Optimization: daemon jobs typically run every minute and log entries are deleted
+            // weekly, so there are usually many entries in the last hour.  We first do a cheap
+            // COUNT to see if recent entries exist.  If so, we lock only the last hour of
+            // entries (fewer row locks).  If not (e.g. after extended downtime, or a brand-new
+            // installation where the job has never run), we fall back to locking ALL entries
+            // for this job so we still get serialization.
+            java.sql.Timestamp oneHourAgo = new java.sql.Timestamp(System.currentTimeMillis() - 3600000L);
+            Long recentCount = HibernateSession.bySqlStatic().select(Long.class,
+                "select count(*) from grouper_loader_log where job_name = ? and started_time > ?",
+                GrouperUtil.toListObject(jobName, oneHourAgo),
+                HibUtils.listType(StringType.INSTANCE, TimestampType.INSTANCE));
+            if (recentCount != null && recentCount > 0) {
+              // Common case: lock only recent entries (fewer rows locked)
+              HibernateSession.bySqlStatic().listSelect(String.class,
+                  "select id from grouper_loader_log where job_name = ? and started_time > ? for update",
+                  GrouperUtil.toListObject(jobName, oneHourAgo),
+                  HibUtils.listType(StringType.INSTANCE, TimestampType.INSTANCE));
+            } else {
+              // Fallback: no recent entries, lock all entries for this job.  This ensures
+              // serialization even after extended downtime where no entries exist in the
+              // last hour.  If the job has truly never run (empty result), the lock is a
+              // no-op, but that only happens on a brand-new installation where there is
+              // only one daemon node anyway.
+              HibernateSession.bySqlStatic().listSelect(String.class,
+                  "select id from grouper_loader_log where job_name = ? for update",
+                  GrouperUtil.toListObject(jobName),
+                  HibUtils.listType(StringType.INSTANCE));
+            }
+
+            // Step 2: Check if the job is already running while we hold the lock.
+            // isJobRunning() uses GcDbAccess (a separate DB connection), which is fine
+            // because the FOR UPDATE lock prevents other nodes from reaching this point.
+            if (isJobRunning(jobName, true)) {
+              return false;
+            }
+
+            // Step 3: Claim the job by inserting a STARTED log entry.
+            // store() uses an autonomous READ_WRITE_NEW transaction, so the STARTED row
+            // is committed immediately and visible to other connections.  The outer lock
+            // is still held until this callback returns, so other nodes remain blocked
+            // until after the STARTED entry is committed.
+            hib3GrouploaderLog.setJobName(jobName);
+            hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+            hib3GrouploaderLog.setStartedTime(new java.sql.Timestamp(System.currentTimeMillis()));
+            hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+            hib3GrouploaderLog.store();
+
+            return true;
+          }
+        });
+  }
+
+  /**
+   * @param jobName
    * @return date or null if not running
    */
   public static Date internal_getJobStartTimeIfRunning(String jobName) {

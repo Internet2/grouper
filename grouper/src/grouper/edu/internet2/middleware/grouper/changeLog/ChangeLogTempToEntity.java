@@ -88,7 +88,63 @@ public class ChangeLogTempToEntity {
   private static final Log LOG = GrouperUtil.getLog(ChangeLogTempToEntity.class);
   
   private static ChangeLogEntry lastTempChangeLogProcessingIfIndividual = null;
-      
+
+  /**
+   * GRP-6745: check if an exception is a constraint violation (duplicate key).
+   * Checks two ways so this continues to work when Hibernate is removed:
+   *
+   * 1. Walks the cause chain looking for:
+   *    - org.hibernate.exception.ConstraintViolationException (current Hibernate layer)
+   *    - java.sql.SQLIntegrityConstraintViolationException (JDBC 4.0 standard, thrown by
+   *      all three supported databases for unique constraint violations)
+   *
+   * 2. Falls back to checking the full stack trace string for database-specific indicators:
+   *    - PostgreSQL: SQL state "23505" (unique_violation)
+   *    - Oracle: "ORA-00001" (unique constraint violated)
+   *    - MySQL: error 1062 "Duplicate entry"
+   *    - Generic: "ConstraintViolationException" (covers Hibernate and JDBC class names)
+   *
+   * @param e the exception to check
+   * @return true if a constraint violation is found in the cause chain or stack trace
+   */
+  private static boolean isConstraintViolation(Throwable e) {
+    // First check the cause chain for known exception types
+    Throwable current = e;
+    while (current != null) {
+      if (current instanceof org.hibernate.exception.ConstraintViolationException) {
+        return true;
+      }
+      if (current instanceof java.sql.SQLIntegrityConstraintViolationException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    // Fall back to checking the full stack trace for database-specific error indicators.
+    // This covers cases where the exception is wrapped in ways that break the cause chain,
+    // and will continue to work after Hibernate is removed.
+    String fullStackTrace = GrouperUtil.getFullStackTrace(e);
+    if (fullStackTrace != null) {
+      // PostgreSQL unique_violation SQL state
+      if (fullStackTrace.contains("23505")) {
+        return true;
+      }
+      // Oracle unique constraint violated
+      if (fullStackTrace.contains("ORA-00001")) {
+        return true;
+      }
+      // MySQL duplicate entry (error 1062)
+      if (fullStackTrace.contains("Duplicate entry")) {
+        return true;
+      }
+      // Covers Hibernate ConstraintViolationException and
+      // java.sql.SQLIntegrityConstraintViolationException as strings
+      if (fullStackTrace.contains("ConstraintViolationException")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * convert the temps to regulars, assign id's
    * hib3GrouperLoaderLog is the log object to post updates, can be null
@@ -208,6 +264,18 @@ public class ChangeLogTempToEntity {
           break;
         }
       } catch (Exception e) {
+        // GRP-6745: if the error is a constraint violation (e.g. duplicate sequence_number),
+        // fail fast and let the next scheduled run handle it.  Retrying with batch size 1
+        // won't help because the problem is another daemon node writing to the same table
+        // with overlapping sequence numbers, not a data issue with a specific temp record.
+        // Clearing the sequence cache ensures the next run re-queries MAX(sequence_number).
+        if (isConstraintViolation(e)) {
+          LOG.warn("Constraint violation while processing temp change log (likely another daemon node "
+              + "is processing concurrently). Clearing sequence cache and failing fast to let the "
+              + "next scheduled run handle it.", e);
+          ChangeLogEntry.clearNextSequenceNumberCache();
+          throw e;
+        }
         if (changeLogTempToChangeLogQuerySize > 1) {
           LOG.warn("Error while processing temp change log, trying individually now", e);
           changeLogTempToChangeLogQuerySize = 1;
@@ -217,7 +285,7 @@ public class ChangeLogTempToEntity {
           } else {
             LOG.error("Error processing the following individual temp change log entry with id=" + lastTempChangeLogProcessingIfIndividual.getId(), e);
           }
-          
+
           throw e;
         }
       }
