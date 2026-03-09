@@ -556,7 +556,6 @@ public class GrouperMcpServlet extends HttpServlet {
     if (hasSqlReadonlyAccess(authUser)) {
       addToolIfAllowed(toolsArray, GrouperMcpSqlGetSchema.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpSqlSelect.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpSqlSelectCount.toolDefinition());
     }
 
     // admin readonly tools
@@ -841,11 +840,15 @@ public class GrouperMcpServlet extends HttpServlet {
         }
         return GrouperMcpSqlSelect.execute(arguments, authUser);
       case "sql_select_count":
+        // backward compatibility: route to sql_select with countOnly=true
         if (!hasSqlReadonlyAccess(authUser)) {
           return buildMcpErrorResult("Access denied: user is not authorized for sql_select_count. "
               + "Membership in the MCP SQL readonly group is required.");
         }
-        return GrouperMcpSqlSelectCount.execute(arguments, authUser);
+        if (arguments != null && arguments.isObject()) {
+          ((ObjectNode) arguments).put("countOnly", true);
+        }
+        return GrouperMcpSqlSelect.execute(arguments, authUser);
       // admin readonly tools (alphabetical)
       case "admin_config_search":
         if (!hasAdminReadonlyAccess(authUser)) {
