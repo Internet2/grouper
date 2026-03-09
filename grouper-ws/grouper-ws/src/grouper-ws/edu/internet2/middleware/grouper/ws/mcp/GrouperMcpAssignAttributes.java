@@ -215,6 +215,25 @@ public class GrouperMcpAssignAttributes {
           GrouperMcpProtectedResources.buildProtectedStemError(ownerStemName));
     }
 
+    // check readwrite scope restrictions (OAuth only)
+    if (authUser.isOAuthAuthenticated()) {
+      if (StringUtils.isNotBlank(ownerGroupName)
+          && !authUser.isGroupInReadwriteScope(ownerGroupName)) {
+        return buildErrorResult("Access denied: group '" + ownerGroupName
+            + "' is outside your consented read-write scope.");
+      }
+      if (StringUtils.isNotBlank(ownerStemName)
+          && !authUser.isStemInReadwriteScope(ownerStemName)) {
+        return buildErrorResult("Access denied: folder '" + ownerStemName
+            + "' is outside your consented read-write scope.");
+      }
+      if (StringUtils.isNotBlank(ownerSubjectId)
+          && !authUser.isSubjectInReadwriteScope(ownerSubjectId)) {
+        return buildErrorResult("Access denied: subject '" + ownerSubjectId
+            + "' is outside your consented read-write scope.");
+      }
+    }
+
     try {
 
       AttributeAssignType attrAssignType = AttributeAssignType.valueOfIgnoreCase(

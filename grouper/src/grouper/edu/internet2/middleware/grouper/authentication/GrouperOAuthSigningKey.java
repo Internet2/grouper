@@ -22,7 +22,9 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -279,6 +281,35 @@ public class GrouperOAuthSigningKey {
         }
         if (consentNode.has("adminReadwrite") && consentNode.get("adminReadwrite").asBoolean()) {
           jwtBuilder.withClaim("grouper_admin_readwrite", true);
+        }
+
+        // readwrite scope restrictions (folder/group/subject lists)
+        if (consentNode.has("readwriteFolders") && consentNode.get("readwriteFolders").isArray()) {
+          List<String> folders = new ArrayList<String>();
+          for (com.fasterxml.jackson.databind.JsonNode item : consentNode.get("readwriteFolders")) {
+            folders.add(item.asText());
+          }
+          if (!folders.isEmpty()) {
+            jwtBuilder.withClaim("grouper_readwrite_folders", folders);
+          }
+        }
+        if (consentNode.has("readwriteGroups") && consentNode.get("readwriteGroups").isArray()) {
+          List<String> groups = new ArrayList<String>();
+          for (com.fasterxml.jackson.databind.JsonNode item : consentNode.get("readwriteGroups")) {
+            groups.add(item.asText());
+          }
+          if (!groups.isEmpty()) {
+            jwtBuilder.withClaim("grouper_readwrite_groups", groups);
+          }
+        }
+        if (consentNode.has("readwriteSubjects") && consentNode.get("readwriteSubjects").isArray()) {
+          List<String> subjects = new ArrayList<String>();
+          for (com.fasterxml.jackson.databind.JsonNode item : consentNode.get("readwriteSubjects")) {
+            subjects.add(item.asText());
+          }
+          if (!subjects.isEmpty()) {
+            jwtBuilder.withClaim("grouper_readwrite_subjects", subjects);
+          }
         }
       } catch (Exception e) {
         LOG.warn("Failed to parse consent details for JWT: " + e.getMessage());

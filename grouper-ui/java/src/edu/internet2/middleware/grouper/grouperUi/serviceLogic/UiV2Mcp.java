@@ -154,6 +154,14 @@ public class UiV2Mcp extends UiServiceLogicBase {
           }
         }
 
+        // readwrite implies readonly, admin readwrite implies admin readonly
+        if (mcpContainer.isAllowedReadwrite()) {
+          mcpContainer.setAllowedReadonly(true);
+        }
+        if (mcpContainer.isAllowedAdminReadwrite()) {
+          mcpContainer.setAllowedAdminReadonly(true);
+        }
+
       } finally {
         GrouperSession.stopQuietly(rootSession);
       }

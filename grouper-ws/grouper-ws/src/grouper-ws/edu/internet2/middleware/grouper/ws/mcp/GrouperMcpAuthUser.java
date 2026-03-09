@@ -15,6 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
+import java.util.List;
+
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -67,6 +69,37 @@ public class GrouperMcpAuthUser {
    * whether the user consented to the adminReadwrite scope in their OAuth token
    */
   private boolean consentScopeAdminReadwrite;
+
+  /**
+   * readwrite scope restriction: folder paths the user consented to.
+   * null or empty means no folder restriction (all folders in scope),
+   * unless consentReadwriteScopeRestricted is true (then empty means nothing allowed).
+   */
+  private List<String> consentReadwriteFolders;
+
+  /**
+   * readwrite scope restriction: group paths the user consented to.
+   * null or empty means no group restriction (all groups in scope),
+   * unless consentReadwriteScopeRestricted is true (then empty means nothing allowed).
+   */
+  private List<String> consentReadwriteGroups;
+
+  /**
+   * readwrite scope restriction: subject IDs/identifiers the user consented to.
+   * null or empty means no subject restriction (all subjects in scope),
+   * unless consentReadwriteScopeRestricted is true (then empty means nothing allowed).
+   */
+  private List<String> consentReadwriteSubjects;
+
+  /**
+   * whether readwrite data-scope restrictions are active.
+   * when true, empty restriction lists mean "nothing is allowed" for that category.
+   * when false (default), empty lists mean "no restriction" (all allowed).
+   * this is set to true when the OAuth consent flow included readwrite data-scope
+   * restrictions (i.e., the config property grouper.mcp.oauth.requireReadwriteDataScope
+   * is enabled and the user consented to readwrite).
+   */
+  private boolean consentReadwriteScopeRestricted;
 
   /**
    * member internal id from grouper_members for the authenticated user
@@ -223,6 +256,169 @@ public class GrouperMcpAuthUser {
    */
   public void setOauthClientInternalId(Long oauthClientInternalId1) {
     this.oauthClientInternalId = oauthClientInternalId1;
+  }
+
+  /**
+   * readwrite scope restriction: folder paths the user consented to.
+   * null or empty means no folder restriction, unless
+   * consentReadwriteScopeRestricted is true (then empty means nothing allowed).
+   * @return the folder paths
+   */
+  public List<String> getConsentReadwriteFolders() {
+    return this.consentReadwriteFolders;
+  }
+
+  /**
+   * set the readwrite folder scope restriction
+   * @param consentReadwriteFolders1
+   */
+  public void setConsentReadwriteFolders(List<String> consentReadwriteFolders1) {
+    this.consentReadwriteFolders = consentReadwriteFolders1;
+  }
+
+  /**
+   * readwrite scope restriction: group paths the user consented to.
+   * null or empty means no group restriction, unless
+   * consentReadwriteScopeRestricted is true (then empty means nothing allowed).
+   * @return the group paths
+   */
+  public List<String> getConsentReadwriteGroups() {
+    return this.consentReadwriteGroups;
+  }
+
+  /**
+   * set the readwrite group scope restriction
+   * @param consentReadwriteGroups1
+   */
+  public void setConsentReadwriteGroups(List<String> consentReadwriteGroups1) {
+    this.consentReadwriteGroups = consentReadwriteGroups1;
+  }
+
+  /**
+   * readwrite scope restriction: subject IDs/identifiers the user consented to.
+   * null or empty means no subject restriction, unless
+   * consentReadwriteScopeRestricted is true (then empty means nothing allowed).
+   * @return the subject IDs
+   */
+  public List<String> getConsentReadwriteSubjects() {
+    return this.consentReadwriteSubjects;
+  }
+
+  /**
+   * set the readwrite subject scope restriction
+   * @param consentReadwriteSubjects1
+   */
+  public void setConsentReadwriteSubjects(List<String> consentReadwriteSubjects1) {
+    this.consentReadwriteSubjects = consentReadwriteSubjects1;
+  }
+
+  /**
+   * whether readwrite data-scope restrictions are active.
+   * when true, empty restriction lists mean "nothing is allowed" for that category.
+   * when false, empty lists mean "no restriction" (all allowed).
+   * @return true if restrictions are active
+   */
+  public boolean isConsentReadwriteScopeRestricted() {
+    return this.consentReadwriteScopeRestricted;
+  }
+
+  /**
+   * set whether readwrite data-scope restrictions are active
+   * @param consentReadwriteScopeRestricted1
+   */
+  public void setConsentReadwriteScopeRestricted(boolean consentReadwriteScopeRestricted1) {
+    this.consentReadwriteScopeRestricted = consentReadwriteScopeRestricted1;
+  }
+
+  /**
+   * Check if a group name is within the readwrite scope restriction.
+   * If no folder/group restrictions are set: when consentReadwriteScopeRestricted
+   * is false all groups are in scope; when true no groups are in scope.
+   * A group is in scope if it matches a consented group path, or if its name
+   * starts with a consented folder path followed by ":".
+   * @param groupName the full group name (ID path)
+   * @return true if the group is in the readwrite scope
+   */
+  public boolean isGroupInReadwriteScope(String groupName) {
+    boolean hasFolders = this.consentReadwriteFolders != null
+        && !this.consentReadwriteFolders.isEmpty();
+    boolean hasGroups = this.consentReadwriteGroups != null
+        && !this.consentReadwriteGroups.isEmpty();
+
+    // if no folder/group restrictions:
+    // - if scope restrictions are active, empty means nothing is allowed
+    // - if scope restrictions are not active, empty means all allowed
+    if (!hasFolders && !hasGroups) {
+      return !this.consentReadwriteScopeRestricted;
+    }
+
+    // check specific group list
+    if (hasGroups) {
+      for (String consentedGroup : this.consentReadwriteGroups) {
+        if (consentedGroup.equals(groupName)) {
+          return true;
+        }
+      }
+    }
+
+    // check folder containment
+    if (hasFolders) {
+      for (String consentedFolder : this.consentReadwriteFolders) {
+        if (groupName.startsWith(consentedFolder + ":")) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Check if a stem (folder) name is within the readwrite scope restriction.
+   * If no folder restrictions are set: when consentReadwriteScopeRestricted
+   * is false all stems are in scope; when true no stems are in scope.
+   * A stem is in scope if it matches a consented folder path, or if its name
+   * starts with a consented folder path followed by ":".
+   * @param stemName the full stem name (ID path)
+   * @return true if the stem is in the readwrite scope
+   */
+  public boolean isStemInReadwriteScope(String stemName) {
+    if (this.consentReadwriteFolders == null
+        || this.consentReadwriteFolders.isEmpty()) {
+      // if scope restrictions are active, empty means nothing is allowed
+      return !this.consentReadwriteScopeRestricted;
+    }
+
+    for (String consentedFolder : this.consentReadwriteFolders) {
+      // stem is a consented folder or under a consented folder
+      if (consentedFolder.equals(stemName) || stemName.startsWith(consentedFolder + ":")) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Check if a subject ID or identifier is within the readwrite scope restriction.
+   * If no subject restrictions are set: when consentReadwriteScopeRestricted
+   * is false all subjects are in scope; when true no subjects are in scope.
+   * @param subjectIdOrIdentifier the subject ID or identifier to check
+   * @return true if the subject is in the readwrite scope
+   */
+  public boolean isSubjectInReadwriteScope(String subjectIdOrIdentifier) {
+    if (this.consentReadwriteSubjects == null
+        || this.consentReadwriteSubjects.isEmpty()) {
+      // if scope restrictions are active, empty means nothing is allowed
+      return !this.consentReadwriteScopeRestricted;
+    }
+
+    for (String consentedSubject : this.consentReadwriteSubjects) {
+      if (consentedSubject.equals(subjectIdOrIdentifier)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

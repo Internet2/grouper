@@ -147,6 +147,14 @@ public class GrouperMcpDeleteMember {
           GrouperMcpProtectedResources.buildProtectedGroupError(groupName));
     }
 
+    // check readwrite scope restrictions (OAuth only)
+    if (authUser.isOAuthAuthenticated()) {
+      if (!authUser.isGroupInReadwriteScope(groupName)) {
+        return buildErrorResult("Access denied: group '" + groupName
+            + "' is outside your consented read-write scope.");
+      }
+    }
+
     // parse subjects array
     if (arguments == null || !arguments.has("subjects")
         || !arguments.get("subjects").isArray()
@@ -175,6 +183,15 @@ public class GrouperMcpDeleteMember {
         return buildErrorResult(
             "Each subject must have either subjectId or subjectIdentifier, not both "
             + "(subject at index " + i + " has both).");
+      }
+
+      // check readwrite scope restrictions on subject (OAuth only)
+      if (authUser.isOAuthAuthenticated()) {
+        String subjectValue = StringUtils.isNotBlank(subjectId) ? subjectId : subjectIdentifier;
+        if (subjectValue != null && !authUser.isSubjectInReadwriteScope(subjectValue)) {
+          return buildErrorResult("Access denied: subject '" + subjectValue
+              + "' is outside your consented read-write scope.");
+        }
       }
 
       subjectLookupList.add(new WsSubjectLookup(subjectId, sourceId, subjectIdentifier));

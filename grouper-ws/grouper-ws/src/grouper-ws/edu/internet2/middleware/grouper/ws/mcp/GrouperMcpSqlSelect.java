@@ -69,7 +69,9 @@ public class GrouperMcpSqlSelect {
         + "the results as a JSON array of row objects. Only SELECT statements are allowed. "
         + "Results are paged; use pageSize (default " + DEFAULT_PAGE_SIZE
         + ", max " + MAX_ROWS + ") and pageNumber (1-based, default 1) to page through "
-        + "large result sets. Use sql_select_count first to check total row count. "
+        + "large result sets. An ORDER BY clause is required when paging beyond page 1 "
+        + "to ensure deterministic results. "
+        + "Use sql_select_count first to check total row count. "
         + "Use sql_get_schema to discover table and view names and their columns.");
 
     ObjectNode inputSchema = objectMapper.createObjectNode();
@@ -96,7 +98,8 @@ public class GrouperMcpSqlSelect {
     ObjectNode pageNumberProp = objectMapper.createObjectNode();
     pageNumberProp.put("type", "integer");
     pageNumberProp.put("description",
-        "Page number, 1-based (default 1). Use with pageSize to page through large result sets.");
+        "Page number, 1-based (default 1). Use with pageSize to page through large result sets. "
+        + "The SQL query must include an ORDER BY clause when using pageNumber > 1.");
     properties.set("pageNumber", pageNumberProp);
 
     inputSchema.set("properties", properties);
@@ -143,6 +146,14 @@ public class GrouperMcpSqlSelect {
     String validationError = validateReadOnlySql(sql);
     if (validationError != null) {
       return buildErrorResult(validationError);
+    }
+
+    // if paging beyond page 1, require an ORDER BY clause so results are deterministic
+    if (pageNumber > 1 && !sql.toUpperCase().contains("ORDER BY")) {
+      return buildErrorResult(
+          "When using paging (pageNumber > 1), the SQL query must include an ORDER BY clause "
+          + "so that results are deterministic across pages. Without ORDER BY, rows may be "
+          + "duplicated or skipped between pages.");
     }
 
     // get the external system (connection name) for SQL tools

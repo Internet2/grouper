@@ -308,8 +308,14 @@ public class GrouperMcpFindGroups {
       if (StringUtils.isNotBlank(typeOfGroups)) {
         wsQueryFilter.setTypeOfGroups(typeOfGroups);
       }
-      wsQueryFilter.setPageSize(String.valueOf(pageSize));
-      wsQueryFilter.setPageNumber(String.valueOf(pageNumber));
+      // only set paging params for query types that support it
+      // (exact name and UUID lookups return at most one result and reject paging)
+      boolean supportsPaging = !"FIND_BY_GROUP_NAME_EXACT".equals(queryFilterType)
+          && !"FIND_BY_GROUP_UUID".equals(queryFilterType);
+      if (supportsPaging) {
+        wsQueryFilter.setPageSize(String.valueOf(pageSize));
+        wsQueryFilter.setPageNumber(String.valueOf(pageNumber));
+      }
       if (StringUtils.isNotBlank(sortString)) {
         wsQueryFilter.setSortString(sortString);
       }

@@ -284,6 +284,16 @@ public class GrouperMcpGroupSave {
           GrouperMcpProtectedResources.buildProtectedGroupError(groupName));
     }
 
+    // check readwrite scope restrictions (OAuth only).
+    // note: composite factor group names (leftGroupName, rightGroupName) are not
+    // checked because they are only referenced (read), not modified.
+    if (authUser.isOAuthAuthenticated()) {
+      if (!authUser.isGroupInReadwriteScope(groupName)) {
+        return buildErrorResult("Access denied: group '" + groupName
+            + "' is outside your consented read-write scope.");
+      }
+    }
+
     // start a GrouperSession as the authenticated user so that all API calls
     // (GroupSave, CompositeSave, GdgTypeGroupSave, ProvisionableGroupSave, etc.)
     // check privileges against the calling user, not root

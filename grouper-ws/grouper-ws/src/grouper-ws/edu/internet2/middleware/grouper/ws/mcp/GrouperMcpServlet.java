@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.ws.mcp;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -256,6 +257,31 @@ public class GrouperMcpServlet extends HttpServlet {
             decodedJwt.getClaim("grouper_admin_readwrite") != null
             && !decodedJwt.getClaim("grouper_admin_readwrite").isNull()
             && decodedJwt.getClaim("grouper_admin_readwrite").asBoolean());
+
+        // extract readwrite scope restrictions from JWT claims
+        if (decodedJwt.getClaim("grouper_readwrite_folders") != null
+            && !decodedJwt.getClaim("grouper_readwrite_folders").isNull()) {
+          authUser.setConsentReadwriteFolders(
+              decodedJwt.getClaim("grouper_readwrite_folders").asList(String.class));
+        }
+        if (decodedJwt.getClaim("grouper_readwrite_groups") != null
+            && !decodedJwt.getClaim("grouper_readwrite_groups").isNull()) {
+          authUser.setConsentReadwriteGroups(
+              decodedJwt.getClaim("grouper_readwrite_groups").asList(String.class));
+        }
+        if (decodedJwt.getClaim("grouper_readwrite_subjects") != null
+            && !decodedJwt.getClaim("grouper_readwrite_subjects").isNull()) {
+          authUser.setConsentReadwriteSubjects(
+              decodedJwt.getClaim("grouper_readwrite_subjects").asList(String.class));
+        }
+
+        // if readwrite data scope restrictions are enabled and user has readwrite consent,
+        // mark that empty restriction lists mean "nothing allowed" (not "wide open")
+        if (authUser.isConsentScopeReadwrite()
+            && GrouperConfig.retrieveConfig().propertyValueBoolean(
+                "grouper.mcp.oauth.requireReadwriteDataScope", false)) {
+          authUser.setConsentReadwriteScopeRestricted(true);
+        }
 
         // look up OAuth client internal id for audit logging
         String clientId = decodedJwt.getClaim("client_id").asString();
@@ -975,6 +1001,7 @@ public class GrouperMcpServlet extends HttpServlet {
     return true;
   }
 
+  // ----------------------------------------------------------------
   /**
    * check if the authenticated user is a member of a configured group.
    * results are cached for 60 seconds (see subjectInGroupCache).
