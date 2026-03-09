@@ -281,7 +281,7 @@ public class GrouperMcpServlet extends HttpServlet {
         // mark that empty restriction lists mean "nothing allowed" (not "wide open")
         if (authUser.isConsentScopeReadwrite()
             && GrouperConfig.retrieveConfig().propertyValueBoolean(
-                "grouper.mcp.oauth.requireReadwriteDataScope", false)) {
+                "grouper.mcp.oauth.requireReadwriteDataScope", true)) {
           authUser.setConsentReadwriteScopeRestricted(true);
         }
 

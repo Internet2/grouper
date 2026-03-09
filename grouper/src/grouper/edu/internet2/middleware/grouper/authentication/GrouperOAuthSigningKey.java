@@ -312,7 +312,8 @@ public class GrouperOAuthSigningKey {
           }
         }
       } catch (Exception e) {
-        LOG.warn("Failed to parse consent details for JWT: " + e.getMessage());
+        throw new RuntimeException("Failed to parse consent details for JWT, "
+            + "refusing to issue token without scope restrictions: " + e.getMessage(), e);
       }
     }
 

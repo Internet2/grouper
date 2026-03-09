@@ -21,6 +21,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -373,28 +377,35 @@ public class UiV2OAuth extends UiServiceLogicBase {
       }
 
       // build consent details JSON
-      StringBuilder consentJson = new StringBuilder("{");
-      consentJson.append("\"readonly\":").append(scopeReadonly);
-      consentJson.append(",\"readwrite\":").append(scopeReadwrite);
-      consentJson.append(",\"sqlReadonly\":").append(scopeSqlReadonly);
-      consentJson.append(",\"adminReadonly\":").append(scopeAdminReadonly);
-      consentJson.append(",\"adminReadwrite\":").append(scopeAdminReadwrite);
+      ObjectMapper consentMapper = new ObjectMapper();
+      ObjectNode consentNode = consentMapper.createObjectNode();
+      consentNode.put("readonly", scopeReadonly);
+      consentNode.put("readwrite", scopeReadwrite);
+      consentNode.put("sqlReadonly", scopeSqlReadonly);
+      consentNode.put("adminReadonly", scopeAdminReadonly);
+      consentNode.put("adminReadwrite", scopeAdminReadwrite);
 
       // add readwrite scope restrictions if present
       if (!readwriteFolders.isEmpty()) {
-        consentJson.append(",\"readwriteFolders\":");
-        appendJsonStringArray(consentJson, readwriteFolders);
+        ArrayNode foldersArray = consentNode.putArray("readwriteFolders");
+        for (String folder : readwriteFolders) {
+          foldersArray.add(folder);
+        }
       }
       if (!readwriteGroups.isEmpty()) {
-        consentJson.append(",\"readwriteGroups\":");
-        appendJsonStringArray(consentJson, readwriteGroups);
+        ArrayNode groupsArray = consentNode.putArray("readwriteGroups");
+        for (String group : readwriteGroups) {
+          groupsArray.add(group);
+        }
       }
       if (!readwriteSubjects.isEmpty()) {
-        consentJson.append(",\"readwriteSubjects\":");
-        appendJsonStringArray(consentJson, readwriteSubjects);
+        ArrayNode subjectsArray = consentNode.putArray("readwriteSubjects");
+        for (String subject : readwriteSubjects) {
+          subjectsArray.add(subject);
+        }
       }
 
-      consentJson.append("}");
+      String consentJson = consentNode.toString();
 
       // generate authorization code
       String authorizationCode = GrouperOAuthStore.generateId();
@@ -407,7 +418,7 @@ public class UiV2OAuth extends UiServiceLogicBase {
       authCode.setCodeChallenge(pendingRequest.getCodeChallenge());
       authCode.setCodeChallengeMethod(pendingRequest.getCodeChallengeMethod());
       authCode.setMemberInternalId(member.getInternalId());
-      authCode.setConsentDetails(consentJson.toString());
+      authCode.setConsentDetails(consentJson);
       authCode.setUsed(false);
       authCode.setCreatedMicros(System.currentTimeMillis() * 1000L);
 
@@ -615,24 +626,7 @@ public class UiV2OAuth extends UiServiceLogicBase {
     return result;
   }
 
-  /**
-   * Append a JSON string array (e.g. ["a","b","c"]) to the StringBuilder.
-   * Values are JSON-escaped.
-   * @param sb the builder
-   * @param values the string values
-   */
-  private static void appendJsonStringArray(StringBuilder sb, List<String> values) {
-    sb.append("[");
-    for (int i = 0; i < values.size(); i++) {
-      if (i > 0) {
-        sb.append(",");
-      }
-      sb.append("\"");
-      sb.append(values.get(i).replace("\\", "\\\\").replace("\"", "\\\""));
-      sb.append("\"");
-    }
-    sb.append("]");
-  }
+
 
   /**
    * Check if MCP is enabled via the grouper.is.mcp configuration property.
