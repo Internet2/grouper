@@ -549,6 +549,7 @@ public class GrouperMcpServlet extends HttpServlet {
       addToolIfAllowed(toolsArray, GrouperMcpAssignAttributes.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpAssignGrouperPrivilegesLite.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpDeleteMember.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpFolderDelete.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpGroupDelete.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpGroupSave.toolDefinition());
     }
@@ -810,6 +811,12 @@ public class GrouperMcpServlet extends HttpServlet {
               + "Membership in the MCP readwrite group is required.");
         }
         return GrouperMcpAddMember.execute(arguments, authUser);
+      case "folder_delete":
+        if (!hasReadwriteAccess(authUser)) {
+          return buildMcpErrorResult("Access denied: user is not authorized for folder_delete. "
+              + "Membership in the MCP readwrite group is required.");
+        }
+        return GrouperMcpFolderDelete.execute(arguments, authUser);
       case "group_delete":
         if (!hasReadwriteAccess(authUser)) {
           return buildMcpErrorResult("Access denied: user is not authorized for group_delete. "

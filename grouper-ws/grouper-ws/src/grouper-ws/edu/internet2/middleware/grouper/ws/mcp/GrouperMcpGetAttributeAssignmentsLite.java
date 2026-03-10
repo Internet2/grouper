@@ -247,7 +247,8 @@ public class GrouperMcpGetAttributeAssignmentsLite {
 
     } catch (Exception e) {
       LOG.error("Error getting attribute assignments", e);
-      return buildErrorResult("Error getting attribute assignments: " + e.getMessage());
+      return buildErrorResult("Error getting attribute assignments: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

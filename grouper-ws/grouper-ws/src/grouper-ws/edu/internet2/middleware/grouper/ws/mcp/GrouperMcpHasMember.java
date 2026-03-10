@@ -303,7 +303,8 @@ public class GrouperMcpHasMember {
 
     } catch (Exception e) {
       LOG.error("Error checking membership in group: " + groupName, e);
-      return buildErrorResult("Error checking membership in group: " + e.getMessage());
+      return buildErrorResult("Error checking membership in group: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

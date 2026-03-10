@@ -128,7 +128,8 @@ public class GrouperMcpAdminSearchConfigs {
     try {
       pattern = Pattern.compile(searchRegex, Pattern.CASE_INSENSITIVE);
     } catch (PatternSyntaxException e) {
-      return buildErrorResult("Invalid regex pattern: " + e.getMessage());
+      return buildErrorResult("Invalid regex pattern: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
 
     // determine which config files to search
@@ -230,7 +231,8 @@ public class GrouperMcpAdminSearchConfigs {
 
     } catch (Exception e) {
       LOG.error("Error searching configs via MCP", e);
-      return buildErrorResult("Error searching configs: " + e.getMessage());
+      return buildErrorResult("Error searching configs: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

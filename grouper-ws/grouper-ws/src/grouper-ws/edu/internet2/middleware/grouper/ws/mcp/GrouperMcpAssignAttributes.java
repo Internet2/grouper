@@ -326,7 +326,8 @@ public class GrouperMcpAssignAttributes {
 
     } catch (Exception e) {
       LOG.error("Error assigning attributes", e);
-      return buildErrorResult("Error assigning attributes: " + e.getMessage());
+      return buildErrorResult("Error assigning attributes: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

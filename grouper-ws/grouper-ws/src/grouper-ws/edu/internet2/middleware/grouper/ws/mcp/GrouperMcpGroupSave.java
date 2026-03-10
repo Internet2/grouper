@@ -328,7 +328,8 @@ public class GrouperMcpGroupSave {
       }
     } catch (Exception e) {
       LOG.error("Error in group_save action '" + action + "' for group: " + groupName, e);
-      return buildErrorResult("Error in group_save action '" + action + "': " + e.getMessage());
+      return buildErrorResult("Error in group_save action '" + action + "': " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

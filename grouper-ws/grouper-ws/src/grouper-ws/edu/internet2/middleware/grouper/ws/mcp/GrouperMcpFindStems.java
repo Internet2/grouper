@@ -315,7 +315,8 @@ public class GrouperMcpFindStems {
 
     } catch (Exception e) {
       LOG.error("Error finding stems", e);
-      return buildErrorResult("Error finding stems: " + e.getMessage());
+      return buildErrorResult("Error finding stems: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

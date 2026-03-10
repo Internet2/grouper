@@ -305,7 +305,8 @@ public class GrouperMcpGetSubjects {
       String lookupDescription = StringUtils.isNotBlank(subjectId) ? subjectId
           : StringUtils.isNotBlank(subjectIdentifier) ? subjectIdentifier : searchString;
       LOG.error("Error looking up subject: " + lookupDescription, e);
-      return buildErrorResult("Error looking up subject: " + e.getMessage());
+      return buildErrorResult("Error looking up subject: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

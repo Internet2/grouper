@@ -255,7 +255,8 @@ public class GrouperMcpDeleteMember {
 
     } catch (Exception e) {
       LOG.error("Error removing members from group: " + groupName, e);
-      return buildErrorResult("Error removing members from group: " + e.getMessage());
+      return buildErrorResult("Error removing members from group: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

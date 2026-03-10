@@ -523,7 +523,8 @@ public class GrouperMcpFindGroups {
 
     } catch (Exception e) {
       LOG.error("Error finding groups", e);
-      return buildErrorResult("Error finding groups: " + e.getMessage());
+      return buildErrorResult("Error finding groups: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

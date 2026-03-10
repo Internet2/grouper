@@ -283,7 +283,8 @@ public class GrouperMcpGetGroups {
       String lookupDescription = StringUtils.isNotBlank(subjectId)
           ? subjectId : subjectIdentifier;
       LOG.error("Error getting groups for subject: " + lookupDescription, e);
-      return buildErrorResult("Error getting groups for subject: " + e.getMessage());
+      return buildErrorResult("Error getting groups for subject: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 
