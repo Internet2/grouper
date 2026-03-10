@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -1182,6 +1184,27 @@ public class GrouperProvisioningLogic {
     public String getTargetId() { return targetId; }
     @Override
     public Map<String, List<Object>> getAttributeNameToValues() { return attributeNameToValues; }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      GenericProvisioningUserRecord other = (GenericProvisioningUserRecord) obj;
+      return new EqualsBuilder()
+          .append(this.targetId, other.targetId)
+          .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+      return new HashCodeBuilder()
+          .append(this.targetId)
+          .toHashCode();
+    }
   }
 
   private static class GenericProvisioningGroupRecord implements GenericProvisioningRecord {
@@ -1201,6 +1224,27 @@ public class GrouperProvisioningLogic {
     public String getTargetId() { return targetId; }
     @Override
     public Map<String, List<Object>> getAttributeNameToValues() { return attributeNameToValues; }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      GenericProvisioningGroupRecord other = (GenericProvisioningGroupRecord) obj;
+      return new EqualsBuilder()
+          .append(this.targetId, other.targetId)
+          .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+      return new HashCodeBuilder()
+          .append(this.targetId)
+          .toHashCode();
+    }
   }
   
   private static class GenericProvisioningTypedValue {
@@ -1221,6 +1265,31 @@ public class GrouperProvisioningLogic {
     private String targetUserId;
     private String targetGroupId;
     private String roleName;
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      GenericProvisioningMembershipRecord other = (GenericProvisioningMembershipRecord) obj;
+      return new EqualsBuilder()
+          .append(this.targetUserId, other.targetUserId)
+          .append(this.targetGroupId, other.targetGroupId)
+          .append(this.roleName, other.roleName)
+          .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+      return new HashCodeBuilder()
+          .append(this.targetUserId)
+          .append(this.targetGroupId)
+          .append(this.roleName)
+          .toHashCode();
+    }
   }
   
   private void loadDataToGenericProvisionerTables() {
@@ -1240,10 +1309,6 @@ public class GrouperProvisioningLogic {
     List<ProvisioningMembership> targetProvisioningMemberships = GrouperUtil.nonNull(
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships());
     
-    String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
-    GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior()
-        .getGrouperProvisioningBehaviorMembershipType();
-    
     Map<String, GenericProvisioningUserRecord> targetUserIdToRecord = new LinkedHashMap<String, GenericProvisioningUserRecord>();
     for (ProvisioningEntity targetProvisioningEntity : targetProvisioningEntities) {
       String targetUserId = this.normalizeTargetId(targetProvisioningEntity.getId());
@@ -1258,13 +1323,6 @@ public class GrouperProvisioningLogic {
       
       for (ProvisioningAttribute provisioningAttribute : targetProvisioningEntity.retrieveAttributes().values()) {
         String attributeName = provisioningAttribute.getName();
-        if (StringUtils.equalsIgnoreCase("id", attributeName)) {
-          continue;
-        }
-        if (membershipType == GrouperProvisioningBehaviorMembershipType.entityAttributes
-            && StringUtils.equals(attributeName, membershipAttributeName)) {
-          continue;
-        }
         this.addProvisioningAttributeValue(userRecord, attributeName, provisioningAttribute.getValue());
       }
     }
@@ -1283,19 +1341,12 @@ public class GrouperProvisioningLogic {
       
       for (ProvisioningAttribute provisioningAttribute : targetProvisioningGroup.retrieveAttributes().values()) {
         String attributeName = provisioningAttribute.getName();
-        if (StringUtils.equalsIgnoreCase("id", attributeName)) {
-          continue;
-        }
-        if (membershipType == GrouperProvisioningBehaviorMembershipType.groupAttributes
-            && StringUtils.equals(attributeName, membershipAttributeName)) {
-          continue;
-        }
         this.addProvisioningAttributeValue(groupRecord, attributeName, provisioningAttribute.getValue());
       }
     }
     
     List<GenericProvisioningMembershipRecord> membershipRecords = new ArrayList<GenericProvisioningMembershipRecord>();
-    Set<MultiKey> membershipDedup = new LinkedHashSet<MultiKey>();
+    Set<MultiKey> membershipDedup = new HashSet<MultiKey>();
     for (ProvisioningMembership targetProvisioningMembership : targetProvisioningMemberships) {
       String targetGroupId = this.resolveMembershipGroupId(targetProvisioningMembership);
       String targetUserId = this.resolveMembershipUserId(targetProvisioningMembership);
@@ -1335,7 +1386,7 @@ public class GrouperProvisioningLogic {
     Set<String> stringValues = new LinkedHashSet<String>();
     this.addProvisioningStringValues(userAttributeRecords, stringValues);
     this.addProvisioningStringValues(groupAttributeRecords, stringValues);
-    Map<String, Long> valueStringToDictionaryInternalId = GrouperDictionaryDao.findOrAdd(stringValues);
+    Map<String, Long> valueStringToDictionaryInternalId = GrouperDictionaryDao.findOrAdd(stringValues); 
     
     // build user row data
     List<Object[]> userRowData = new ArrayList<Object[]>();
@@ -1538,7 +1589,6 @@ public class GrouperProvisioningLogic {
     }
     
     List<GenericProvisioningMembershipRecord> membershipRecords = new ArrayList<GenericProvisioningMembershipRecord>();
-    Set<MultiKey> membershipDedup = new LinkedHashSet<MultiKey>();
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper :
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
       if (provisioningMembershipWrapper.getProvisioningStateMembership().isDeleteResultProcessed()) {
@@ -1555,10 +1605,6 @@ public class GrouperProvisioningLogic {
       }
       
       String roleName = this.resolveMembershipRoleName(membershipForRecord);
-      MultiKey membershipKey = new MultiKey(targetGroupId, targetUserId, roleName);
-      if (!membershipDedup.add(membershipKey)) {
-        continue;
-      }
       
       GenericProvisioningMembershipRecord membershipRecord = new GenericProvisioningMembershipRecord();
       membershipRecord.targetGroupId = targetGroupId;
@@ -2266,6 +2312,7 @@ public class GrouperProvisioningLogic {
     }
     return roleName;
   }
+  
   
   private void syncGenericProvisionerTable(String tableName, String columns, String primaryKeyColumns,
       String selectSql, long selectBindVar, List<Object[]> targetRowData,
