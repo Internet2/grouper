@@ -333,7 +333,9 @@ public class GrouperMcpAuthUser {
   /**
    * Check if a group name is within the readwrite scope restriction.
    * If no folder/group restrictions are set: when consentReadwriteScopeRestricted
-   * is false all groups are in scope; when true no groups are in scope.
+   * is false all groups are in scope; when true, groups are in scope only if
+   * at least one other dimension (subjects) has values (meaning this dimension
+   * is simply unscoped, not blocked).
    * A group is in scope if it matches a consented group path, or if its name
    * starts with a consented folder path followed by ":".
    * @param groupName the full group name (ID path)
@@ -346,10 +348,11 @@ public class GrouperMcpAuthUser {
         && !this.consentReadwriteGroups.isEmpty();
 
     // if no folder/group restrictions:
-    // - if scope restrictions are active, empty means nothing is allowed
-    // - if scope restrictions are not active, empty means all allowed
+    // - if scope restrictions are not active, all groups are allowed
+    // - if scope restrictions are active, groups are allowed only if
+    //   at least one other dimension has values (this dimension is unscoped)
     if (!hasFolders && !hasGroups) {
-      return !this.consentReadwriteScopeRestricted;
+      return !this.consentReadwriteScopeRestricted || hasAnyReadwriteScopeValues();
     }
 
     // check specific group list
@@ -376,7 +379,9 @@ public class GrouperMcpAuthUser {
   /**
    * Check if a stem (folder) name is within the readwrite scope restriction.
    * If no folder restrictions are set: when consentReadwriteScopeRestricted
-   * is false all stems are in scope; when true no stems are in scope.
+   * is false all stems are in scope; when true, stems are in scope only if
+   * at least one other dimension has values (meaning this dimension
+   * is simply unscoped, not blocked).
    * A stem is in scope if it matches a consented folder path, or if its name
    * starts with a consented folder path followed by ":".
    * @param stemName the full stem name (ID path)
@@ -385,8 +390,10 @@ public class GrouperMcpAuthUser {
   public boolean isStemInReadwriteScope(String stemName) {
     if (this.consentReadwriteFolders == null
         || this.consentReadwriteFolders.isEmpty()) {
-      // if scope restrictions are active, empty means nothing is allowed
-      return !this.consentReadwriteScopeRestricted;
+      // if scope restrictions are not active, all stems are allowed
+      // if scope restrictions are active, stems are allowed only if
+      // at least one other dimension has values (this dimension is unscoped)
+      return !this.consentReadwriteScopeRestricted || hasAnyReadwriteScopeValues();
     }
 
     for (String consentedFolder : this.consentReadwriteFolders) {
@@ -402,15 +409,19 @@ public class GrouperMcpAuthUser {
   /**
    * Check if a subject ID or identifier is within the readwrite scope restriction.
    * If no subject restrictions are set: when consentReadwriteScopeRestricted
-   * is false all subjects are in scope; when true no subjects are in scope.
+   * is false all subjects are in scope; when true, subjects are in scope only if
+   * at least one other dimension has values (meaning this dimension
+   * is simply unscoped, not blocked).
    * @param subjectIdOrIdentifier the subject ID or identifier to check
    * @return true if the subject is in the readwrite scope
    */
   public boolean isSubjectInReadwriteScope(String subjectIdOrIdentifier) {
     if (this.consentReadwriteSubjects == null
         || this.consentReadwriteSubjects.isEmpty()) {
-      // if scope restrictions are active, empty means nothing is allowed
-      return !this.consentReadwriteScopeRestricted;
+      // if scope restrictions are not active, all subjects are allowed
+      // if scope restrictions are active, subjects are allowed only if
+      // at least one other dimension has values (this dimension is unscoped)
+      return !this.consentReadwriteScopeRestricted || hasAnyReadwriteScopeValues();
     }
 
     for (String consentedSubject : this.consentReadwriteSubjects) {
@@ -419,6 +430,18 @@ public class GrouperMcpAuthUser {
       }
     }
     return false;
+  }
+
+  /**
+   * check if any of the readwrite scope lists (folders, groups, subjects) have values.
+   * used to determine if an unscoped dimension should be open (at least one other
+   * dimension is scoped) or blocked (nothing is scoped at all).
+   * @return true if at least one scope dimension has values
+   */
+  private boolean hasAnyReadwriteScopeValues() {
+    return (this.consentReadwriteFolders != null && !this.consentReadwriteFolders.isEmpty())
+        || (this.consentReadwriteGroups != null && !this.consentReadwriteGroups.isEmpty())
+        || (this.consentReadwriteSubjects != null && !this.consentReadwriteSubjects.isEmpty());
   }
 
 }

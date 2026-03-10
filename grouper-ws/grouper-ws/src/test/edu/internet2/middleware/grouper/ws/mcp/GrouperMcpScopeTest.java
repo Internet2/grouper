@@ -321,7 +321,8 @@ public class GrouperMcpScopeTest extends GrouperTest {
   // ========================================================================
 
   /**
-   * when scope restricted with only subjects, groups and stems should be blocked
+   * when scope restricted with only subjects, groups and stems should be allowed
+   * (the group/folder dimension is unscoped, so it is open)
    */
   public void testMixedScope_onlySubjects() {
     GrouperMcpAuthUser authUser = createAuthUser(true,
@@ -331,16 +332,21 @@ public class GrouperMcpScopeTest extends GrouperTest {
     assertTrue("matching subject is in scope",
         authUser.isSubjectInReadwriteScope("jsmith"));
 
-    // groups and stems should be blocked because folders/groups lists are empty
-    // and consentReadwriteScopeRestricted is true
-    assertFalse("group should be blocked when only subjects specified",
+    // non-matching subject is blocked
+    assertFalse("non-matching subject should be blocked",
+        authUser.isSubjectInReadwriteScope("bwilson"));
+
+    // groups and stems should be allowed because the group/folder dimension
+    // is unscoped (empty) while subjects dimension has values
+    assertTrue("group should be allowed when only subjects specified",
         authUser.isGroupInReadwriteScope("any:group"));
-    assertFalse("stem should be blocked when only subjects specified",
+    assertTrue("stem should be allowed when only subjects specified",
         authUser.isStemInReadwriteScope("any:stem"));
   }
 
   /**
-   * when scope restricted with only folders, subjects should be blocked
+   * when scope restricted with only folders, subjects should be allowed
+   * (the subject dimension is unscoped, so it is open)
    */
   public void testMixedScope_onlyFolders() {
     GrouperMcpAuthUser authUser = createAuthUser(true,
@@ -350,10 +356,41 @@ public class GrouperMcpScopeTest extends GrouperTest {
     assertTrue("group under consented folder is in scope",
         authUser.isGroupInReadwriteScope("school:departments:engineering"));
 
-    // subjects should be blocked because subjects list is empty
-    // and consentReadwriteScopeRestricted is true
-    assertFalse("subject should be blocked when only folders specified",
+    // group outside folder is blocked
+    assertFalse("group outside consented folder should be blocked",
+        authUser.isGroupInReadwriteScope("school:clubs:chess"));
+
+    // subjects should be allowed because subjects list is empty
+    // and at least one other dimension (folders) has values
+    assertTrue("subject should be allowed when only folders specified",
         authUser.isSubjectInReadwriteScope("jsmith"));
+  }
+
+  /**
+   * when scope restricted with nothing scoped (all lists empty),
+   * everything should be blocked
+   */
+  public void testMixedScope_nothingScoped() {
+    GrouperMcpAuthUser authUser = createAuthUser(true,
+        null, null, null);
+
+    assertFalse("group should be blocked when nothing scoped",
+        authUser.isGroupInReadwriteScope("any:group"));
+    assertFalse("stem should be blocked when nothing scoped",
+        authUser.isStemInReadwriteScope("any:stem"));
+    assertFalse("subject should be blocked when nothing scoped",
+        authUser.isSubjectInReadwriteScope("anySubject"));
+
+    // also with empty lists instead of null
+    authUser = createAuthUser(true,
+        new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
+
+    assertFalse("group should be blocked when nothing scoped (empty lists)",
+        authUser.isGroupInReadwriteScope("any:group"));
+    assertFalse("stem should be blocked when nothing scoped (empty lists)",
+        authUser.isStemInReadwriteScope("any:stem"));
+    assertFalse("subject should be blocked when nothing scoped (empty lists)",
+        authUser.isSubjectInReadwriteScope("anySubject"));
   }
 
   // ========================================================================
@@ -458,6 +495,78 @@ public class GrouperMcpScopeTest extends GrouperTest {
     }
   }
 
+  /**
+   * group_add_member with group in scope but subjects unscoped (empty list)
+   * should succeed - the subject dimension is open when not specified
+   */
+  public void testAddMember_validScope_subjectsUnscoped() {
+
+    Group group = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("test:scopeAddMemberSubjUnscoped")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("test group for scope test").save();
+
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      // folder "test" is scoped, but subjects list is null (unscoped)
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("test"), null,
+          null);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:scopeAddMemberSubjUnscoped");
+      ArrayNode subjects = arguments.putArray("subjects");
+      ObjectNode subjectNode = subjects.addObject();
+      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+
+      ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
+
+      assertFalse("Expected success (subjects unscoped), got: " + result.toString(),
+          result.get("isError").asBoolean());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * group_add_member with subjects scoped but groups/folders unscoped (empty)
+   * should succeed for the group scope check - the group dimension is open
+   */
+  public void testAddMember_validScope_groupsUnscoped() {
+
+    Group group = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("test:scopeAddMemberGrpUnscoped")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("test group for scope test").save();
+
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      // no folder/group scoping, but subjects list has SUBJ0
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          null, null,
+          Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:scopeAddMemberGrpUnscoped");
+      ArrayNode subjects = arguments.putArray("subjects");
+      ObjectNode subjectNode = subjects.addObject();
+      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+
+      ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
+
+      assertFalse("Expected success (groups unscoped), got: " + result.toString(),
+          result.get("isError").asBoolean());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
   // ---- GrouperMcpDeleteMember (group_remove_member) ----
 
   /**
@@ -555,10 +664,13 @@ public class GrouperMcpScopeTest extends GrouperTest {
    */
   public void testGroupSave_validScope() {
 
-    // grant stem create privilege so SUBJ0 can create groups in test:
+    // create the test stem and grant stem create privilege so SUBJ0 can create groups in test:
     edu.internet2.middleware.grouper.Stem testStem =
-        edu.internet2.middleware.grouper.StemFinder.findByName(
-            GrouperSession.staticGrouperSession(), "test", true);
+        new edu.internet2.middleware.grouper.StemSave(GrouperSession.staticGrouperSession())
+            .assignStemNameToEdit("test")
+            .assignName("test")
+            .assignCreateParentStemsIfNotExist(true)
+            .save();
     testStem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
 
     GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
@@ -827,6 +939,10 @@ public class GrouperMcpScopeTest extends GrouperTest {
     new AttributeDefNameSave(GrouperSession.staticGrouperSession(), attributeDef)
         .assignName("test:scopeTestAttrDefName")
         .save();
+
+    // grant SUBJ0 attrUpdate privilege on the attribute def so they can assign attributes
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0,
+        edu.internet2.middleware.grouper.privs.AttributeDefPrivilege.ATTR_UPDATE, false);
 
     GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
     try {
