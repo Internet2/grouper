@@ -209,7 +209,8 @@ public class GrouperMcpSqlSelect {
 
     } catch (Exception e) {
       LOG.error("Error executing SQL count query via MCP", e);
-      return buildErrorResult("Error executing SQL count query: " + e.getMessage());
+      return buildErrorResult("Error executing SQL count query: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 
@@ -290,7 +291,8 @@ public class GrouperMcpSqlSelect {
 
     } catch (Exception e) {
       LOG.error("Error executing SQL query via MCP", e);
-      return buildErrorResult("Error executing SQL query: " + e.getMessage());
+      return buildErrorResult("Error executing SQL query: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 
