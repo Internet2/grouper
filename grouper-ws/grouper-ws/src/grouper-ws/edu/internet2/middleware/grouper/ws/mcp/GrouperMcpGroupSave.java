@@ -288,8 +288,8 @@ public class GrouperMcpGroupSave {
     // checked because they are only referenced (read), not modified.
     if (authUser.isOAuthAuthenticated()) {
       if (!authUser.isGroupInReadwriteScope(groupName)) {
-        return buildErrorResult("Access denied: group '" + groupName
-            + "' is outside your consented read-write scope.");
+        return buildErrorResult(
+            authUser.buildReadwriteScopeDeniedError("group", groupName));
       }
     }
 

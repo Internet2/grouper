@@ -219,18 +219,18 @@ public class GrouperMcpAssignAttributes {
     if (authUser.isOAuthAuthenticated()) {
       if (StringUtils.isNotBlank(ownerGroupName)
           && !authUser.isGroupInReadwriteScope(ownerGroupName)) {
-        return buildErrorResult("Access denied: group '" + ownerGroupName
-            + "' is outside your consented read-write scope.");
+        return buildErrorResult(
+            authUser.buildReadwriteScopeDeniedError("group", ownerGroupName));
       }
       if (StringUtils.isNotBlank(ownerStemName)
           && !authUser.isStemInReadwriteScope(ownerStemName)) {
-        return buildErrorResult("Access denied: folder '" + ownerStemName
-            + "' is outside your consented read-write scope.");
+        return buildErrorResult(
+            authUser.buildReadwriteScopeDeniedError("folder", ownerStemName));
       }
       if (StringUtils.isNotBlank(ownerSubjectId)
           && !authUser.isSubjectInReadwriteScope(ownerSubjectId)) {
-        return buildErrorResult("Access denied: subject '" + ownerSubjectId
-            + "' is outside your consented read-write scope.");
+        return buildErrorResult(
+            authUser.buildReadwriteScopeDeniedError("subject", ownerSubjectId));
       }
     }
 

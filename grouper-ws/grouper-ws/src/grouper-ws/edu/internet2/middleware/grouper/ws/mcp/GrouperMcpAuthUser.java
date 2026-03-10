@@ -15,6 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import edu.internet2.middleware.subject.Subject;
@@ -113,6 +115,11 @@ public class GrouperMcpAuthUser {
    * (not a foreign key so audits survive client deletion).
    */
   private Long oauthClientInternalId;
+
+  /**
+   * when the JWT was issued (from the "iat" claim), or null if not OAuth authenticated
+   */
+  private Date jwtIssuedAt;
 
   /**
    * constructor
@@ -430,6 +437,40 @@ public class GrouperMcpAuthUser {
       }
     }
     return false;
+  }
+
+  /**
+   * when the JWT was issued (from the "iat" claim), or null if not OAuth authenticated
+   * @return the issued-at date
+   */
+  public Date getJwtIssuedAt() {
+    return this.jwtIssuedAt;
+  }
+
+  /**
+   * set when the JWT was issued
+   * @param jwtIssuedAt1
+   */
+  public void setJwtIssuedAt(Date jwtIssuedAt1) {
+    this.jwtIssuedAt = jwtIssuedAt1;
+  }
+
+  /**
+   * build a scope denial error message that includes when the JWT was issued,
+   * so the user can tell if they need to re-authenticate to get updated scopes.
+   * @param entityType e.g. "group", "stem", "subject"
+   * @param entityName the name of the entity that was denied
+   * @return the error message string
+   */
+  public String buildReadwriteScopeDeniedError(String entityType, String entityName) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Access denied: ").append(entityType).append(" '").append(entityName)
+        .append("' is outside your consented read-write scope.");
+    if (this.jwtIssuedAt != null) {
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
+      sb.append(" Token issued at: ").append(sdf.format(this.jwtIssuedAt)).append(".");
+    }
+    return sb.toString();
   }
 
   /**

@@ -52,8 +52,7 @@ public class GrouperMcpGroupDelete {
     tool.put("description",
         "Delete a Grouper group. The group is looked up by name and permanently deleted. "
         + "The calling user must have ADMIN privilege on the group. "
-        + "System groups and groups under the built-in objects stem cannot be deleted."
-        + "Note: you cannot delete a composite member group");
+        + "System groups and groups under the built-in objects stem cannot be deleted.");
 
     ObjectNode inputSchema = objectMapper.createObjectNode();
     inputSchema.put("type", "object");
@@ -110,8 +109,8 @@ public class GrouperMcpGroupDelete {
     // check readwrite scope restrictions (OAuth only)
     if (authUser.isOAuthAuthenticated()) {
       if (!authUser.isGroupInReadwriteScope(groupName)) {
-        return buildErrorResult("Access denied: group '" + groupName
-            + "' is outside your consented read-write scope.");
+        return buildErrorResult(
+            authUser.buildReadwriteScopeDeniedError("group", groupName));
       }
     }
 

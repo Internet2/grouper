@@ -239,6 +239,7 @@ public class GrouperMcpServlet extends HttpServlet {
 
         // extract consent scopes from JWT claims
         authUser.setOAuthAuthenticated(true);
+        authUser.setJwtIssuedAt(decodedJwt.getIssuedAt());
         authUser.setConsentScopeReadonly(
             decodedJwt.getClaim("grouper_readonly") != null
             && !decodedJwt.getClaim("grouper_readonly").isNull()
@@ -277,6 +278,13 @@ public class GrouperMcpServlet extends HttpServlet {
               decodedJwt.getClaim("grouper_readwrite_subjects").asList(String.class));
         }
 
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.mcp.logOauthScopeDebug", false)) {
+          LOG.warn("MCP OAuth scope: readwrite=" + authUser.isConsentScopeReadwrite()
+              + ", folders=" + authUser.getConsentReadwriteFolders()
+              + ", groups=" + authUser.getConsentReadwriteGroups()
+              + ", subjects=" + authUser.getConsentReadwriteSubjects());
+        }
+
         // if readwrite data scope restrictions are enabled and user has readwrite consent,
         // mark that empty restriction lists mean "nothing allowed" (not "wide open")
         if (authUser.isConsentScopeReadwrite()
@@ -285,16 +293,20 @@ public class GrouperMcpServlet extends HttpServlet {
           authUser.setConsentReadwriteScopeRestricted(true);
         }
 
-        // look up OAuth client internal id for audit logging
+        // look up OAuth client to verify it still exists and get internal id for audit logging
         String clientId = decodedJwt.getClaim("client_id").asString();
         if (StringUtils.isNotBlank(clientId)) {
           try {
             GrouperOAuthClient oauthClient = GrouperOAuthStore.retrieveClient(clientId);
-            if (oauthClient != null) {
-              authUser.setOauthClientInternalId(oauthClient.getInternalId());
+            if (oauthClient == null) {
+              LOG.warn("MCP auth: OAuth client has been deleted: " + clientId + ", returning 401");
+              response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+              response.setHeader("WWW-Authenticate", "Bearer error=\"invalid_token\"");
+              return null;
             }
+            authUser.setOauthClientInternalId(oauthClient.getInternalId());
           } catch (Exception e) {
-            LOG.warn("Could not look up OAuth client for audit logging: " + clientId, e);
+            LOG.warn("Could not look up OAuth client: " + clientId, e);
           }
         }
 

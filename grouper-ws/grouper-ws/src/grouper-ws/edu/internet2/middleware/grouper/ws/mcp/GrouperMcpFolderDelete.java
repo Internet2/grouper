@@ -110,8 +110,8 @@ public class GrouperMcpFolderDelete {
     // check readwrite scope restrictions (OAuth only)
     if (authUser.isOAuthAuthenticated()) {
       if (!authUser.isStemInReadwriteScope(stemName)) {
-        return buildErrorResult("Access denied: stem '" + stemName
-            + "' is outside your consented read-write scope.");
+        return buildErrorResult(
+            authUser.buildReadwriteScopeDeniedError("stem", stemName));
       }
     }
 

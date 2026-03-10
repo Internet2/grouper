@@ -256,6 +256,13 @@ public class UiV2OAuth extends UiServiceLogicBase {
         throw new ControllerDone();
       }
 
+      GrouperTextContainer.assignThreadLocalVariable("maxFolders",
+          String.valueOf(GrouperConfig.retrieveConfig().propertyValueInt("grouper.mcp.oauth.maxReadwriteFolders", 10)));
+      GrouperTextContainer.assignThreadLocalVariable("maxGroups",
+          String.valueOf(GrouperConfig.retrieveConfig().propertyValueInt("grouper.mcp.oauth.maxReadwriteGroups", 10)));
+      GrouperTextContainer.assignThreadLocalVariable("maxSubjects",
+          String.valueOf(GrouperConfig.retrieveConfig().propertyValueInt("grouper.mcp.oauth.maxReadwriteSubjects", 50)));
+
       showJsp("/WEB-INF/grouperUi2/oauth/oauthAuthorize.jsp");
 
     } catch (ControllerDone cd) {
@@ -514,26 +521,37 @@ public class UiV2OAuth extends UiServiceLogicBase {
         return;
       }
 
-      // count checks
-      if (folderPaths.size() > 10) {
+      // count checks (limits are configurable)
+      int maxFolders = GrouperConfig.retrieveConfig().propertyValueInt("grouper.mcp.oauth.maxReadwriteFolders", 10);
+      int maxGroups = GrouperConfig.retrieveConfig().propertyValueInt("grouper.mcp.oauth.maxReadwriteGroups", 10);
+      int maxSubjects = GrouperConfig.retrieveConfig().propertyValueInt("grouper.mcp.oauth.maxReadwriteSubjects", 50);
+      int maxGroupsInFolders = GrouperConfig.retrieveConfig().propertyValueInt("grouper.mcp.oauth.maxGroupsInReadwriteFolders", 500);
+
+      if (folderPaths.size() > maxFolders) {
         GrouperTextContainer.assignThreadLocalVariable("itemCount",
             String.valueOf(folderPaths.size()));
+        GrouperTextContainer.assignThreadLocalVariable("maxCount",
+            String.valueOf(maxFolders));
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#oauthReadwriteFolders",
             GrouperTextContainer.textOrNull("oauthConsentReadwriteTooManyFolders")));
         return;
       }
-      if (groupPaths.size() > 10) {
+      if (groupPaths.size() > maxGroups) {
         GrouperTextContainer.assignThreadLocalVariable("itemCount",
             String.valueOf(groupPaths.size()));
+        GrouperTextContainer.assignThreadLocalVariable("maxCount",
+            String.valueOf(maxGroups));
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#oauthReadwriteGroups",
             GrouperTextContainer.textOrNull("oauthConsentReadwriteTooManyGroups")));
         return;
       }
-      if (subjectIds.size() > 50) {
+      if (subjectIds.size() > maxSubjects) {
         GrouperTextContainer.assignThreadLocalVariable("itemCount",
             String.valueOf(subjectIds.size()));
+        GrouperTextContainer.assignThreadLocalVariable("maxCount",
+            String.valueOf(maxSubjects));
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#oauthReadwriteSubjects",
             GrouperTextContainer.textOrNull("oauthConsentReadwriteTooManySubjects")));
@@ -565,9 +583,11 @@ public class UiV2OAuth extends UiServiceLogicBase {
             totalGroupCount += groupCount;
           }
 
-          if (totalGroupCount >= 500) {
+          if (totalGroupCount >= maxGroupsInFolders) {
             GrouperTextContainer.assignThreadLocalVariable("groupCount",
                 String.valueOf(totalGroupCount));
+            GrouperTextContainer.assignThreadLocalVariable("maxCount",
+                String.valueOf(maxGroupsInFolders));
             guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
                 "#oauthReadwriteFolders",
                 GrouperTextContainer.textOrNull("oauthConsentReadwriteTooManyGroupsInFolders")));

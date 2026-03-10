@@ -150,8 +150,8 @@ public class GrouperMcpDeleteMember {
     // check readwrite scope restrictions (OAuth only)
     if (authUser.isOAuthAuthenticated()) {
       if (!authUser.isGroupInReadwriteScope(groupName)) {
-        return buildErrorResult("Access denied: group '" + groupName
-            + "' is outside your consented read-write scope.");
+        return buildErrorResult(
+            authUser.buildReadwriteScopeDeniedError("group", groupName));
       }
     }
 
@@ -189,8 +189,8 @@ public class GrouperMcpDeleteMember {
       if (authUser.isOAuthAuthenticated()) {
         String subjectValue = StringUtils.isNotBlank(subjectId) ? subjectId : subjectIdentifier;
         if (subjectValue != null && !authUser.isSubjectInReadwriteScope(subjectValue)) {
-          return buildErrorResult("Access denied: subject '" + subjectValue
-              + "' is outside your consented read-write scope.");
+          return buildErrorResult(
+              authUser.buildReadwriteScopeDeniedError("subject", subjectValue));
         }
       }
 
