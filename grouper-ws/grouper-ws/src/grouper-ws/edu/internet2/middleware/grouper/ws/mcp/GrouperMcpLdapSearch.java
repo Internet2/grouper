@@ -58,13 +58,13 @@ public class GrouperMcpLdapSearch {
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
   /** default maximum number of LDAP entries to return */
-  static final int DEFAULT_MAX_ENTRIES = 500;
+  static final int DEFAULT_MAX_ENTRIES = 2500;
 
   /** default maximum total attribute values across all entries */
-  static final int DEFAULT_MAX_TOTAL_ATTRIBUTE_VALUES = 5000;
+  static final int DEFAULT_MAX_TOTAL_ATTRIBUTE_VALUES = 10000;
 
   /** default maximum characters in the response text */
-  static final int DEFAULT_MAX_RESPONSE_CHARS = 100000;
+  static final int DEFAULT_MAX_RESPONSE_CHARS = 1000000;
 
   /**
    * get the configured max entries limit
