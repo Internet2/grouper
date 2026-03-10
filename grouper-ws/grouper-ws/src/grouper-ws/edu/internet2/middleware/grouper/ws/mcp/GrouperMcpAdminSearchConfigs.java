@@ -134,7 +134,12 @@ public class GrouperMcpAdminSearchConfigs {
     // determine which config files to search
     ConfigFileName[] configFileNames;
     if (StringUtils.isNotBlank(configFile)) {
-      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFile.trim(), false);
+      ConfigFileName configFileName = null;
+      try {
+        configFileName = ConfigFileName.valueOfIgnoreCase(configFile.trim(), false);
+      } catch (Exception e) {
+        // ignore, handle below
+      }
       if (configFileName == null) {
         StringBuilder availableFiles = new StringBuilder();
         for (ConfigFileName cf : ConfigFileName.values()) {

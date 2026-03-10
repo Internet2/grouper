@@ -154,8 +154,26 @@ public class UiV2Mcp extends UiServiceLogicBase {
           }
         }
 
+        // readwrite implies readonly, admin readwrite implies admin readonly
+        if (mcpContainer.isAllowedReadwrite()) {
+          mcpContainer.setAllowedReadonly(true);
+        }
+        if (mcpContainer.isAllowedAdminReadwrite()) {
+          mcpContainer.setAllowedAdminReadonly(true);
+        }
+
       } finally {
         GrouperSession.stopQuietly(rootSession);
+      }
+
+      // session duration from config (default 14400 seconds = 4 hours)
+      int tokenExpirationSeconds = GrouperConfig.retrieveConfig()
+          .propertyValueInt("grouper.oauth.accessToken.expirationSeconds", 14400);
+      int hours = tokenExpirationSeconds / 3600;
+      if (hours < 1) {
+        mcpContainer.setSessionDurationHours("< 1");
+      } else {
+        mcpContainer.setSessionDurationHours(String.valueOf(hours));
       }
 
       // check if WS basic auth is enabled

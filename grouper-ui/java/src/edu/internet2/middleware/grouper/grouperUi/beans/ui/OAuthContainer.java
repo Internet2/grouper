@@ -78,6 +78,12 @@ public class OAuthContainer {
   private boolean showAdminReadwrite;
 
   /**
+   * whether readwrite data scope restrictions (folders, groups, subjects) are required
+   * on the consent page. comes from grouper.mcp.oauth.requireReadwriteDataScope config.
+   */
+  private boolean requireReadwriteDataScope = true;
+
+  /**
    * @return the requestId
    */
   public String getRequestId() {
@@ -229,5 +235,21 @@ public class OAuthContainer {
    */
   public void setShowAdminReadwrite(boolean showAdminReadwrite) {
     this.showAdminReadwrite = showAdminReadwrite;
+  }
+
+  /**
+   * whether readwrite data scope restrictions are required on the consent page
+   * @return true if required
+   */
+  public boolean isRequireReadwriteDataScope() {
+    return this.requireReadwriteDataScope;
+  }
+
+  /**
+   * set whether readwrite data scope restrictions are required
+   * @param requireReadwriteDataScope1
+   */
+  public void setRequireReadwriteDataScope(boolean requireReadwriteDataScope1) {
+    this.requireReadwriteDataScope = requireReadwriteDataScope1;
   }
 }

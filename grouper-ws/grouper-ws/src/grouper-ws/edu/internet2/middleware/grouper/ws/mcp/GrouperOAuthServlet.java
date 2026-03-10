@@ -237,7 +237,7 @@ public class GrouperOAuthServlet extends HttpServlet {
         authCode.getConsentDetails());
 
     int expirationSeconds = GrouperConfig.retrieveConfig().propertyValueInt(
-        "grouper.oauth.accessToken.expirationSeconds", 3600);
+        "grouper.oauth.accessToken.expirationSeconds", 14400);
 
     // audit (token endpoint is unauthenticated so we need a root session for the audit entry)
     GrouperSession grouperSession = null;

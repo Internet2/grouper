@@ -86,12 +86,23 @@ public class GrouperMcpGetMembersLite {
         + "NonImmediate = non-direct members only.");
     properties.set("memberFilter", memberFilterProp);
 
-    ObjectNode fieldNameProp = objectMapper.createObjectNode();
-    fieldNameProp.put("type", "string");
-    fieldNameProp.put("description",
-        "Field (list) name for the membership. "
-        + "Defaults to 'members' (the standard membership list).");
-    properties.set("fieldName", fieldNameProp);
+    ObjectNode privilegeListNameProp = objectMapper.createObjectNode();
+    privilegeListNameProp.put("type", "string");
+    ArrayNode privilegeListNameEnum = objectMapper.createArrayNode();
+    privilegeListNameEnum.add(Field.FIELD_NAME_ADMINS);
+    privilegeListNameEnum.add(Field.FIELD_NAME_UPDATERS);
+    privilegeListNameEnum.add(Field.FIELD_NAME_READERS);
+    privilegeListNameEnum.add(Field.FIELD_NAME_VIEWERS);
+    privilegeListNameEnum.add(Field.FIELD_NAME_OPTINS);
+    privilegeListNameEnum.add(Field.FIELD_NAME_OPTOUTS);
+    privilegeListNameEnum.add(Field.FIELD_NAME_GROUP_ATTR_READERS);
+    privilegeListNameEnum.add(Field.FIELD_NAME_GROUP_ATTR_UPDATERS);
+    privilegeListNameProp.set("enum", privilegeListNameEnum);
+    privilegeListNameProp.put("description",
+        "Privilege list name to retrieve instead of membership. "
+        + "If omitted, returns the standard membership list. "
+        + "Use this to get subjects who have a specific privilege on the group.");
+    properties.set("privilegeListName", privilegeListNameProp);
 
     ObjectNode sourceIdsProp = objectMapper.createObjectNode();
     sourceIdsProp.put("type", "string");
@@ -135,9 +146,12 @@ public class GrouperMcpGetMembersLite {
     String groupName = arguments != null && arguments.has("groupName")
         ? arguments.get("groupName").asText() : null;
     String memberFilterString = arguments != null && arguments.has("memberFilter")
-        ? arguments.get("memberFilter").asText() : null;
-    String fieldNameString = arguments != null && arguments.has("fieldName")
-        ? arguments.get("fieldName").asText() : null;
+        ? arguments.get("memberFilter").asText() : "All";
+    String fieldNameString = arguments != null && arguments.has("privilegeListName")
+        ? arguments.get("privilegeListName").asText() : null;
+    if (StringUtils.isBlank(fieldNameString) && arguments != null && arguments.has("fieldName")) {
+      fieldNameString = arguments.get("fieldName").asText();
+    }
     String sourceIdsString = arguments != null && arguments.has("sourceIds")
         ? arguments.get("sourceIds").asText() : null;
     Integer pageSize = arguments != null && arguments.has("pageSize")

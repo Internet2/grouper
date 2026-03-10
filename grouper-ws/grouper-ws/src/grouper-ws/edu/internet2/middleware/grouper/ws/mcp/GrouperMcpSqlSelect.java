@@ -34,11 +34,15 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 /**
  * MCP tool handler for executing read-only SQL SELECT queries against the
- * Grouper database.  Only SELECT statements are allowed; DML and DDL are
- * rejected.  Results are returned as a JSON array of row objects.
+ * Grouper database or other configured external systems.  Only SELECT
+ * statements are allowed; DML and DDL are rejected.  Results are returned
+ * as a JSON array of row objects.
  * Uses paging (pageSize/pageNumber) and a read-only JDBC connection
- * for defense-in-depth.  The database connection can be configured to
- * point to a read replica via grouper.mcp.sqlGrouperExternalSystem.
+ * for defense-in-depth.  The default database connection can be configured
+ * via grouper.mcp.sqlGrouperExternalSystem.  Additional external systems
+ * are available when configured with grouper.mcp.&lt;id&gt;.sqlTablesViews
+ * or grouper.mcp.&lt;id&gt;.sqlTablesViewsQuery.
+ * Supports countOnly mode to return just the row count without fetching data.
  *
  * @author mchyzer
  */
@@ -65,12 +69,17 @@ public class GrouperMcpSqlSelect {
     ObjectNode tool = objectMapper.createObjectNode();
     tool.put("name", "sql_select");
     tool.put("description",
-        "Execute a read-only SQL SELECT query against the Grouper database and return "
-        + "the results as a JSON array of row objects. Only SELECT statements are allowed. "
+        "Execute a read-only SQL SELECT query against the Grouper database (or another "
+        + "configured external system) and return the results as a JSON array of row objects. "
+        + "Only SELECT statements are allowed. "
         + "Results are paged; use pageSize (default " + DEFAULT_PAGE_SIZE
         + ", max " + MAX_ROWS + ") and pageNumber (1-based, default 1) to page through "
-        + "large result sets. Use sql_select_count first to check total row count. "
-        + "Use sql_get_schema to discover table and view names and their columns.");
+        + "large result sets. An ORDER BY clause is required when paging beyond page 1 "
+        + "to ensure deterministic results. "
+        + "Set countOnly to true to return just the row count without fetching data. "
+        + "Use sql_get_schema with action 'listExternalSystems' to discover available databases, "
+        + "'listTables' to see table/view names, and 'tableInfo' to get column details. "
+        + "Use externalSystemId to query a different configured database connection.");
 
     ObjectNode inputSchema = objectMapper.createObjectNode();
     inputSchema.put("type", "object");
@@ -86,18 +95,38 @@ public class GrouperMcpSqlSelect {
         + "clauses; use the pageSize and pageNumber parameters instead.");
     properties.set("sql", sqlProp);
 
+    ObjectNode countOnlyProp = objectMapper.createObjectNode();
+    countOnlyProp.put("type", "boolean");
+    countOnlyProp.put("description",
+        "If true, return only the row count without fetching data. "
+        + "Useful for checking result size before fetching. Default is false.");
+    countOnlyProp.put("default", false);
+    properties.set("countOnly", countOnlyProp);
+
     ObjectNode pageSizeProp = objectMapper.createObjectNode();
     pageSizeProp.put("type", "integer");
     pageSizeProp.put("description",
         "Number of rows per page (default " + DEFAULT_PAGE_SIZE + ", max " + MAX_ROWS + "). "
-        + "Use grouperSqlSelectCount first to check total rows if the query may return many rows.");
+        + "Ignored when countOnly is true.");
     properties.set("pageSize", pageSizeProp);
 
     ObjectNode pageNumberProp = objectMapper.createObjectNode();
     pageNumberProp.put("type", "integer");
     pageNumberProp.put("description",
-        "Page number, 1-based (default 1). Use with pageSize to page through large result sets.");
+        "Page number, 1-based (default 1). Use with pageSize to page through large result sets. "
+        + "The SQL query must include an ORDER BY clause when using pageNumber > 1. "
+        + "Ignored when countOnly is true.");
     properties.set("pageNumber", pageNumberProp);
+
+    ObjectNode externalSystemIdProp = objectMapper.createObjectNode();
+    externalSystemIdProp.put("type", "string");
+    externalSystemIdProp.put("description",
+        "Optional external system ID to query a different database connection. "
+        + "Defaults to the Grouper database. The external system must be configured "
+        + "by the administrator with grouper.mcp.sql.<id>.sqlTablesViews or "
+        + "grouper.mcp.sql.<id>.sqlTablesViewsQuery. Use sql_get_schema with "
+        + "action 'listExternalSystems' to see which external systems are available.");
+    properties.set("externalSystemId", externalSystemIdProp);
 
     inputSchema.set("properties", properties);
 
@@ -120,14 +149,80 @@ public class GrouperMcpSqlSelect {
 
     String sql = arguments != null && arguments.has("sql")
         ? arguments.get("sql").asText() : null;
+    boolean countOnly = arguments != null && arguments.has("countOnly")
+        && arguments.get("countOnly").asBoolean(false);
     int pageSize = arguments != null && arguments.has("pageSize")
         ? arguments.get("pageSize").asInt(DEFAULT_PAGE_SIZE) : DEFAULT_PAGE_SIZE;
     int pageNumber = arguments != null && arguments.has("pageNumber")
         ? arguments.get("pageNumber").asInt(1) : 1;
+    String externalSystemId = arguments != null && arguments.has("externalSystemId")
+        ? arguments.get("externalSystemId").asText() : null;
 
     if (StringUtils.isBlank(sql)) {
       return buildErrorResult("sql is required.");
     }
+
+    // validate SQL is read-only
+    String validationError = validateReadOnlySql(sql);
+    if (validationError != null) {
+      return buildErrorResult(validationError);
+    }
+
+    // validate the external system is allowed
+    String externalSystemError = validateExternalSystemAllowed(externalSystemId);
+    if (externalSystemError != null) {
+      return buildErrorResult(externalSystemError);
+    }
+
+    // resolve to the actual database connection name
+    String connectionName = resolveConnectionName(externalSystemId);
+
+    if (countOnly) {
+      return executeCount(sql, connectionName);
+    }
+
+    return executeSelect(sql, pageSize, pageNumber, connectionName);
+  }
+
+  /**
+   * execute a count-only query by wrapping the SQL in SELECT COUNT(*)
+   * @param sql the original SELECT query
+   * @param externalSystem the connection name
+   * @return the MCP tool result with the count
+   */
+  private static ObjectNode executeCount(String sql, String externalSystem) {
+    String countSql = "SELECT COUNT(*) AS cnt FROM (" + sql + ") countQuery";
+
+    try {
+      long count = new GcDbAccess()
+          .connectionName(externalSystem)
+          .readOnly(true)
+          .sql(countSql)
+          .select(Long.class);
+
+      ObjectNode resultNode = objectMapper.createObjectNode();
+      resultNode.put("count", count);
+
+      String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(resultNode);
+      return buildSuccessResult(resultText);
+
+    } catch (Exception e) {
+      LOG.error("Error executing SQL count query via MCP", e);
+      return buildErrorResult("Error executing SQL count query: " + e.getMessage());
+    }
+  }
+
+  /**
+   * execute a paged SELECT query and return results as JSON
+   * @param sql the SELECT query
+   * @param pageSize the page size
+   * @param pageNumber the 1-based page number
+   * @param externalSystem the connection name
+   * @return the MCP tool result with rows
+   */
+  private static ObjectNode executeSelect(String sql, int pageSize, int pageNumber,
+      String externalSystem) {
 
     // enforce page size limits
     if (pageSize < 1 || pageSize > MAX_ROWS) {
@@ -139,15 +234,13 @@ public class GrouperMcpSqlSelect {
       pageNumber = 1;
     }
 
-    // validate SQL is read-only
-    String validationError = validateReadOnlySql(sql);
-    if (validationError != null) {
-      return buildErrorResult(validationError);
+    // if paging beyond page 1, require an ORDER BY clause so results are deterministic
+    if (pageNumber > 1 && !sql.toUpperCase().contains("ORDER BY")) {
+      return buildErrorResult(
+          "When using paging (pageNumber > 1), the SQL query must include an ORDER BY clause "
+          + "so that results are deterministic across pages. Without ORDER BY, rows may be "
+          + "duplicated or skipped between pages.");
     }
-
-    // get the external system (connection name) for SQL tools
-    String externalSystem = GrouperConfig.retrieveConfig()
-        .propertyValueString("grouper.mcp.sqlGrouperExternalSystem", "grouper");
 
     try {
       List<? extends Map<String, Object>> rows = new GcDbAccess()
@@ -199,6 +292,67 @@ public class GrouperMcpSqlSelect {
       LOG.error("Error executing SQL query via MCP", e);
       return buildErrorResult("Error executing SQL query: " + e.getMessage());
     }
+  }
+
+  /**
+   * resolve the database connection name from the externalSystemId parameter.
+   * "grouper" (or null/blank) maps to the configured grouper.mcp.sqlGrouperExternalSystem
+   * value so the caller doesn't need to know the actual connection name.
+   * other external system IDs are returned as-is.
+   * @param externalSystemId the external system ID from the request, or null
+   * @return the resolved database connection name
+   */
+  static String resolveConnectionName(String externalSystemId) {
+    if (StringUtils.isBlank(externalSystemId) || "grouper".equals(externalSystemId.trim())) {
+      return GrouperConfig.retrieveConfig()
+          .propertyValueString("grouper.mcp.sqlGrouperExternalSystem", "grouper");
+    }
+    return externalSystemId.trim();
+  }
+
+  /**
+   * check if the given externalSystemId refers to the Grouper database.
+   * null, blank, or "grouper" all mean the Grouper database.
+   * @param externalSystemId the external system ID from the request, or null
+   * @return true if this is the Grouper database
+   */
+  static boolean isGrouperDb(String externalSystemId) {
+    return StringUtils.isBlank(externalSystemId) || "grouper".equals(externalSystemId.trim());
+  }
+
+  /**
+   * validate that the external system is allowed for MCP SQL queries.
+   * the Grouper database ("grouper" or null/blank) is always allowed.
+   * other external systems require
+   * grouper.mcp.&lt;id&gt;.sqlTablesViews or grouper.mcp.&lt;id&gt;.sqlTablesViewsQuery
+   * to be configured.
+   * @param externalSystemId the external system ID from the request (before resolution)
+   * @return null if allowed, error message if not allowed
+   */
+  static String validateExternalSystemAllowed(String externalSystemId) {
+    // the Grouper database is always allowed
+    if (isGrouperDb(externalSystemId)) {
+      return null;
+    }
+
+    String id = externalSystemId.trim();
+
+    // check if the external system has sqlTablesViews or sqlTablesViewsQuery configured
+    String sqlTablesViews = GrouperConfig.retrieveConfig()
+        .propertyValueString("grouper.mcp.sql." + id + ".sqlTablesViews", "");
+    if (StringUtils.isNotBlank(sqlTablesViews)) {
+      return null;
+    }
+
+    String sqlTablesViewsQuery = GrouperConfig.retrieveConfig()
+        .propertyValueString("grouper.mcp.sql." + id + ".sqlTablesViewsQuery", "");
+    if (StringUtils.isNotBlank(sqlTablesViewsQuery)) {
+      return null;
+    }
+
+    return "External system '" + id + "' is not configured for MCP SQL queries. "
+        + "The administrator must configure grouper.mcp.sql." + id + ".sqlTablesViews "
+        + "or grouper.mcp.sql." + id + ".sqlTablesViewsQuery to enable this external system.";
   }
 
   /**

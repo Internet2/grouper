@@ -21,11 +21,20 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
@@ -33,11 +42,17 @@ import edu.internet2.middleware.grouper.authentication.GrouperOAuthCode;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthClient;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthPendingRequest;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.OAuthContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -177,6 +192,9 @@ public class UiV2OAuth extends UiServiceLogicBase {
       oAuthContainer.setClientName(clientName);
       oAuthContainer.setScope(scope);
       oAuthContainer.setLoggedInUserName(loggedInSubject.getName());
+      oAuthContainer.setRequireReadwriteDataScope(
+          GrouperConfig.retrieveConfig().propertyValueBoolean(
+              "grouper.mcp.oauth.requireReadwriteDataScope", true));
 
       // check group memberships for scope checkboxes
       GrouperSession grouperSession = GrouperSession.startRootSession();
@@ -202,6 +220,7 @@ public class UiV2OAuth extends UiServiceLogicBase {
           Group readwriteGroup = GroupFinder.findByName(grouperSession, readwriteGroupName, false);
           if (readwriteGroup != null && readwriteGroup.hasMember(loggedInSubject)) {
             oAuthContainer.setShowReadwrite(true);
+            oAuthContainer.setShowReadonly(true);
           }
         }
         if (StringUtils.isNotBlank(sqlReadonlyGroupName)) {
@@ -220,6 +239,7 @@ public class UiV2OAuth extends UiServiceLogicBase {
           Group adminReadWriteGroup = GroupFinder.findByName(grouperSession, adminReadWriteGroupName, false);
           if (adminReadWriteGroup != null && adminReadWriteGroup.hasMember(loggedInSubject)) {
             oAuthContainer.setShowAdminReadwrite(true);
+            oAuthContainer.setShowAdminReadonly(true);
           }
         }
       } finally {
@@ -316,22 +336,76 @@ public class UiV2OAuth extends UiServiceLogicBase {
       boolean scopeAdminReadonly = "true".equals(request.getParameter("oauthScopeAdminReadonly"));
       boolean scopeAdminReadwrite = "true".equals(request.getParameter("oauthScopeAdminReadwrite"));
 
+      // readwrite implies readonly, admin readwrite implies admin readonly
+      if (scopeReadwrite) {
+        scopeReadonly = true;
+      }
+      if (scopeAdminReadwrite) {
+        scopeAdminReadonly = true;
+      }
+
       // at least one scope must be selected
       if (!scopeReadonly && !scopeReadwrite && !scopeSqlReadonly
           && !scopeAdminReadonly && !scopeAdminReadwrite) {
         response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-            "At least one operation scope must be selected");
+            GrouperTextContainer.textOrNull("oauthConsentAtLeastOneScopeRequired"));
         throw new ControllerDone();
       }
 
+      // read readwrite scope restrictions (if readwrite is selected)
+      List<String> readwriteFolders = new ArrayList<String>();
+      List<String> readwriteGroups = new ArrayList<String>();
+      List<String> readwriteSubjects = new ArrayList<String>();
+
+      if (scopeReadwrite) {
+        readwriteFolders = splitAndTrimNonEmpty(
+            StringUtils.trimToEmpty(request.getParameter("oauthReadwriteFolders")));
+        readwriteGroups = splitAndTrimNonEmpty(
+            StringUtils.trimToEmpty(request.getParameter("oauthReadwriteGroups")));
+        readwriteSubjects = splitAndTrimNonEmpty(
+            StringUtils.trimToEmpty(request.getParameter("oauthReadwriteSubjects")));
+
+        // validate at least one restriction is present (when config requires it)
+        boolean requireReadwriteDataScope = GrouperConfig.retrieveConfig()
+            .propertyValueBoolean("grouper.mcp.oauth.requireReadwriteDataScope", true);
+        if (requireReadwriteDataScope && readwriteFolders.isEmpty()
+            && readwriteGroups.isEmpty() && readwriteSubjects.isEmpty()) {
+          response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+              GrouperTextContainer.textOrNull("oauthConsentReadwriteAtLeastOneRequired"));
+          throw new ControllerDone();
+        }
+      }
+
       // build consent details JSON
-      StringBuilder consentJson = new StringBuilder("{");
-      consentJson.append("\"readonly\":").append(scopeReadonly);
-      consentJson.append(",\"readwrite\":").append(scopeReadwrite);
-      consentJson.append(",\"sqlReadonly\":").append(scopeSqlReadonly);
-      consentJson.append(",\"adminReadonly\":").append(scopeAdminReadonly);
-      consentJson.append(",\"adminReadwrite\":").append(scopeAdminReadwrite);
-      consentJson.append("}");
+      ObjectMapper consentMapper = new ObjectMapper();
+      ObjectNode consentNode = consentMapper.createObjectNode();
+      consentNode.put("readonly", scopeReadonly);
+      consentNode.put("readwrite", scopeReadwrite);
+      consentNode.put("sqlReadonly", scopeSqlReadonly);
+      consentNode.put("adminReadonly", scopeAdminReadonly);
+      consentNode.put("adminReadwrite", scopeAdminReadwrite);
+
+      // add readwrite scope restrictions if present
+      if (!readwriteFolders.isEmpty()) {
+        ArrayNode foldersArray = consentNode.putArray("readwriteFolders");
+        for (String folder : readwriteFolders) {
+          foldersArray.add(folder);
+        }
+      }
+      if (!readwriteGroups.isEmpty()) {
+        ArrayNode groupsArray = consentNode.putArray("readwriteGroups");
+        for (String group : readwriteGroups) {
+          groupsArray.add(group);
+        }
+      }
+      if (!readwriteSubjects.isEmpty()) {
+        ArrayNode subjectsArray = consentNode.putArray("readwriteSubjects");
+        for (String subject : readwriteSubjects) {
+          subjectsArray.add(subject);
+        }
+      }
+
+      String consentJson = consentNode.toString();
 
       // generate authorization code
       String authorizationCode = GrouperOAuthStore.generateId();
@@ -344,7 +418,7 @@ public class UiV2OAuth extends UiServiceLogicBase {
       authCode.setCodeChallenge(pendingRequest.getCodeChallenge());
       authCode.setCodeChallengeMethod(pendingRequest.getCodeChallengeMethod());
       authCode.setMemberInternalId(member.getInternalId());
-      authCode.setConsentDetails(consentJson.toString());
+      authCode.setConsentDetails(consentJson);
       authCode.setUsed(false);
       authCode.setCreatedMicros(System.currentTimeMillis() * 1000L);
 
@@ -399,6 +473,160 @@ public class UiV2OAuth extends UiServiceLogicBase {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+
+  /**
+   * AJAX endpoint to validate the readwrite scope restrictions before form submission.
+   * Uses the standard GuiResponseJs framework. On success, executes oauthDoSubmit().
+   * On error, displays a validation message via the standard #messaging div.
+   * @param request
+   * @param response
+   */
+  public void ajaxValidateReadwriteScope(HttpServletRequest request,
+      HttpServletResponse response) {
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+
+      String foldersParam = StringUtils.trimToEmpty(request.getParameter("oauthReadwriteFolders"));
+      String groupsParam = StringUtils.trimToEmpty(request.getParameter("oauthReadwriteGroups"));
+      String subjectsParam = StringUtils.trimToEmpty(request.getParameter("oauthReadwriteSubjects"));
+
+      // parse comma-separated values
+      List<String> folderPaths = splitAndTrimNonEmpty(foldersParam);
+      List<String> groupPaths = splitAndTrimNonEmpty(groupsParam);
+      List<String> subjectIds = splitAndTrimNonEmpty(subjectsParam);
+
+      // check if data scope restrictions are required by config
+      boolean requireReadwriteDataScope = GrouperConfig.retrieveConfig()
+          .propertyValueBoolean("grouper.mcp.oauth.requireReadwriteDataScope", true);
+
+      // at least one must be non-empty (when config requires it)
+      if (folderPaths.isEmpty() && groupPaths.isEmpty() && subjectIds.isEmpty()) {
+        if (requireReadwriteDataScope) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#readwriteScopeSection",
+              GrouperTextContainer.textOrNull("oauthConsentReadwriteAtLeastOneRequired")));
+          return;
+        }
+        // if not required and all empty, nothing to validate — submit the form
+        guiResponseJs.addAction(GuiScreenAction.newScript("oauthDoSubmit()"));
+        return;
+      }
+
+      // count checks
+      if (folderPaths.size() > 10) {
+        GrouperTextContainer.assignThreadLocalVariable("itemCount",
+            String.valueOf(folderPaths.size()));
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#oauthReadwriteFolders",
+            GrouperTextContainer.textOrNull("oauthConsentReadwriteTooManyFolders")));
+        return;
+      }
+      if (groupPaths.size() > 10) {
+        GrouperTextContainer.assignThreadLocalVariable("itemCount",
+            String.valueOf(groupPaths.size()));
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#oauthReadwriteGroups",
+            GrouperTextContainer.textOrNull("oauthConsentReadwriteTooManyGroups")));
+        return;
+      }
+      if (subjectIds.size() > 50) {
+        GrouperTextContainer.assignThreadLocalVariable("itemCount",
+            String.valueOf(subjectIds.size()));
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#oauthReadwriteSubjects",
+            GrouperTextContainer.textOrNull("oauthConsentReadwriteTooManySubjects")));
+        return;
+      }
+
+      // verify folders exist and count groups
+      if (!folderPaths.isEmpty()) {
+        GrouperSession grouperSession = GrouperSession.startRootSession();
+        try {
+          long totalGroupCount = 0;
+
+          for (String folderPath : folderPaths) {
+            Stem stem = StemFinder.findByName(grouperSession, folderPath, false);
+            if (stem == null) {
+              GrouperTextContainer.assignThreadLocalVariable("folderName",
+                  GrouperUiUtils.escapeHtml(folderPath, true));
+              guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+                  "#oauthReadwriteFolders",
+                  GrouperTextContainer.textOrNull("oauthConsentReadwriteFolderNotFound")));
+              return;
+            }
+
+            // count groups under this folder (recursive)
+            long groupCount = new GcDbAccess()
+                .sql("SELECT count(*) FROM grouper_groups WHERE name LIKE ?")
+                .addBindVar(folderPath + ":%")
+                .select(Long.class);
+            totalGroupCount += groupCount;
+          }
+
+          if (totalGroupCount >= 500) {
+            GrouperTextContainer.assignThreadLocalVariable("groupCount",
+                String.valueOf(totalGroupCount));
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+                "#oauthReadwriteFolders",
+                GrouperTextContainer.textOrNull("oauthConsentReadwriteTooManyGroupsInFolders")));
+            return;
+          }
+        } finally {
+          GrouperSession.stopQuietly(grouperSession);
+        }
+      }
+
+      // verify groups exist
+      if (!groupPaths.isEmpty()) {
+        GrouperSession grouperSession = GrouperSession.startRootSession();
+        try {
+          for (String groupPath : groupPaths) {
+            Group group = GroupFinder.findByName(grouperSession, groupPath, false);
+            if (group == null) {
+              GrouperTextContainer.assignThreadLocalVariable("groupName",
+                  GrouperUiUtils.escapeHtml(groupPath, true));
+              guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+                  "#oauthReadwriteGroups",
+                  GrouperTextContainer.textOrNull("oauthConsentReadwriteGroupNotFound")));
+              return;
+            }
+          }
+        } finally {
+          GrouperSession.stopQuietly(grouperSession);
+        }
+      }
+
+      // all valid — submit the form
+      guiResponseJs.addAction(GuiScreenAction.newScript("oauthDoSubmit()"));
+
+    } catch (Exception e) {
+      LOG.error("Error in AJAX readwrite scope validation", e);
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+          GrouperTextContainer.textOrNull("oauthConsentReadwriteServerError")));
+    }
+  }
+
+  /**
+   * Split a comma-separated string into a list of trimmed non-empty strings.
+   * @param input the comma-separated input
+   * @return list of trimmed non-empty values
+   */
+  private static List<String> splitAndTrimNonEmpty(String input) {
+    List<String> result = new ArrayList<String>();
+    if (StringUtils.isBlank(input)) {
+      return result;
+    }
+    for (String part : GrouperUtil.splitTrim(input, ",")) {
+      if (StringUtils.isNotBlank(part)) {
+        result.add(part);
+      }
+    }
+    return result;
+  }
+
+
 
   /**
    * Check if MCP is enabled via the grouper.is.mcp configuration property.

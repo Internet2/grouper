@@ -25,6 +25,7 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.ws.rest.contentType.AllRestContentTests;
 import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.AllGrouperPrivilegeTests;
+import edu.internet2.middleware.grouper.ws.mcp.AllMcpTests;
 import edu.internet2.middleware.grouper.ws.util.AllWsUtilTests;
 import edu.internet2.middleware.grouperVoot.AllVootTests;
 
@@ -54,6 +55,7 @@ public class AllWsTests extends GrouperTest {
     suite.addTest(AllRestContentTests.suite());
     suite.addTest(AllWsUtilTests.suite());
     suite.addTest(AllVootTests.suite());
+    suite.addTest(AllMcpTests.suite());
     return suite;
   }
 

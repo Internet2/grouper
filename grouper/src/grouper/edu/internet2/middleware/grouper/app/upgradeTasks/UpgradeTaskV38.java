@@ -15,8 +15,12 @@
  */
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
+import edu.internet2.middleware.grouper.authentication.GrouperOAuthSigningKey;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -78,7 +82,22 @@ public class UpgradeTaskV38 implements UpgradeTasksInterface {
     if (!GrouperDdlUtils.assertIndexExists("grouper_mcp_tool_log", "grp_mcp_tool_log_oauth_idx")) {
       return true;
     }
+    if (!oauthSigningKeysExist()) {
+      return true;
+    }
     return false;
+  }
+
+  /**
+   * check if the OAuth RSA signing key pair is already stored in config
+   * @return true if both keys exist
+   */
+  private static boolean oauthSigningKeysExist() {
+    String privateKey = GrouperConfig.retrieveConfig()
+        .propertyValueString("grouper.oauth.signingKey.privateKey");
+    String publicKey = GrouperConfig.retrieveConfig()
+        .propertyValueString("grouper.oauth.signingKey.publicKey");
+    return StringUtils.isNotBlank(privateKey) && StringUtils.isNotBlank(publicKey);
   }
 
   @Override
@@ -369,6 +388,14 @@ public class UpgradeTaskV38 implements UpgradeTasksInterface {
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grp_mcp_tool_log_oauth_idx");
+          }
+        }
+
+        // initialize OAuth RSA signing key pair so all containers share the same key
+        if (!oauthSigningKeysExist()) {
+          GrouperOAuthSigningKey.initializeIfNeeded();
+          if (otherJobInput != null) {
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", initialized OAuth RSA signing key pair");
           }
         }
 

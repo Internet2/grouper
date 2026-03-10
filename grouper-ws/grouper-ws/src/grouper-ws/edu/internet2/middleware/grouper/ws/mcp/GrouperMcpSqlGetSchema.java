@@ -20,8 +20,10 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,11 +44,15 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 /**
  * MCP tool handler for retrieving database schema (DDL) information.
- * Loads the vendor-appropriate DDL install script from the classpath
- * and returns either a list of table/view names or the DDL for a specific table or view.
- * Additionally, if {@code grouper.mcp.sqlGrouperTablesViews} is configured with a
- * comma-separated list of extra table/view names, those will be included in the schema
- * results with column metadata and comments retrieved from the database.
+ * Supports three actions:
+ * <ul>
+ *   <li>{@code listExternalSystems} - list available external system IDs</li>
+ *   <li>{@code listTables} - list table/view names for an external system</li>
+ *   <li>{@code tableInfo} - get DDL or column metadata for a specific table</li>
+ * </ul>
+ * For the Grouper database ("grouper"), built-in DDL provides base schema;
+ * extra tables/views from config are additive.  For other external systems,
+ * the table list comes entirely from the per-system config.
  *
  * @author mchyzer
  */
@@ -61,7 +67,7 @@ public class GrouperMcpSqlGetSchema {
 
   /**
    * cache for extra table/view metadata.
-   * key is the lowercased table/view name, value is the metadata string (pseudo-DDL with comments).
+   * key is "externalSystem__tableName", value is the metadata string (pseudo-DDL with comments).
    * caches for 1 hour (3600 seconds).
    */
   private static GrouperCache<String, String> extraTableMetadataCache =
@@ -71,13 +77,13 @@ public class GrouperMcpSqlGetSchema {
 
   /**
    * cache for the extra table/view names list.
-   * key is "extraTableNames", value is the list of names.
+   * key is "extraTableNames__externalSystemId", value is the list of names.
    * caches for 1 hour (3600 seconds).
    */
   private static GrouperCache<String, List<String>> extraTableNamesCache =
       new GrouperCache<String, List<String>>(
           GrouperMcpSqlGetSchema.class.getName() + ".extraTableNamesCache",
-          10, false, 3600, 3600, false);
+          50, false, 3600, 3600, false);
 
   /**
    * return the MCP tool definition for sql_get_schema
@@ -87,27 +93,51 @@ public class GrouperMcpSqlGetSchema {
     ObjectNode tool = objectMapper.createObjectNode();
     tool.put("name", "sql_get_schema");
     tool.put("description",
-        "Get Grouper database schema information. "
-        + "Without a tableName parameter, returns the list of all table and view names "
-        + "(including any additional tables/views configured by the administrator). "
-        + "With a tableName parameter, returns the full CREATE TABLE or CREATE VIEW DDL "
-        + "for that specific table or view, or column metadata with comments for "
-        + "administrator-configured extra tables/views.");
+        "Get database schema information. Use action 'listExternalSystems' to discover "
+        + "available database connections (always includes 'grouper'). "
+        + "Use action 'listTables' with an externalSystemId to list table and view names. "
+        + "Use action 'tableInfo' with an externalSystemId and tableName to get the full "
+        + "CREATE TABLE/VIEW DDL or column metadata for a specific table or view.");
 
     ObjectNode inputSchema = objectMapper.createObjectNode();
     inputSchema.put("type", "object");
 
     ObjectNode properties = objectMapper.createObjectNode();
 
+    ObjectNode actionProp = objectMapper.createObjectNode();
+    actionProp.put("type", "string");
+    ArrayNode actionEnum = objectMapper.createArrayNode();
+    actionEnum.add("listExternalSystems");
+    actionEnum.add("listTables");
+    actionEnum.add("tableInfo");
+    actionProp.set("enum", actionEnum);
+    actionProp.put("description",
+        "The action to perform. 'listExternalSystems' returns available database connections. "
+        + "'listTables' returns table/view names for an external system. "
+        + "'tableInfo' returns DDL or column metadata for a specific table.");
+    properties.set("action", actionProp);
+
+    ObjectNode externalSystemIdProp = objectMapper.createObjectNode();
+    externalSystemIdProp.put("type", "string");
+    externalSystemIdProp.put("description",
+        "External system ID. Defaults to 'grouper' (the Grouper database). "
+        + "Required for 'listTables' and 'tableInfo' actions. "
+        + "Use 'listExternalSystems' to discover available IDs.");
+    properties.set("externalSystemId", externalSystemIdProp);
+
     ObjectNode tableNameProp = objectMapper.createObjectNode();
     tableNameProp.put("type", "string");
     tableNameProp.put("description",
-        "Optional table or view name to get DDL for. "
-        + "If omitted, returns the list of all table and view names. "
+        "Table or view name to get info for. Required for 'tableInfo' action. "
         + "Case-insensitive.");
     properties.set("tableName", tableNameProp);
 
     inputSchema.set("properties", properties);
+
+    ArrayNode required = objectMapper.createArrayNode();
+    required.add("action");
+    inputSchema.set("required", required);
+
     tool.set("inputSchema", inputSchema);
 
     return tool;
@@ -121,27 +151,127 @@ public class GrouperMcpSqlGetSchema {
    */
   public static ObjectNode execute(JsonNode arguments, GrouperMcpAuthUser authUser) {
 
+    String action = arguments != null && arguments.has("action")
+        ? arguments.get("action").asText() : null;
     String tableName = arguments != null && arguments.has("tableName")
         ? arguments.get("tableName").asText() : null;
+    String externalSystemId = arguments != null && arguments.has("externalSystemId")
+        ? arguments.get("externalSystemId").asText() : null;
+
+    if (StringUtils.isBlank(action)) {
+      return buildErrorResult("action is required. Use 'listExternalSystems', "
+          + "'listTables', or 'tableInfo'.");
+    }
 
     try {
-      String ddlContent = loadDdlContent();
-      if (ddlContent == null) {
-        return buildErrorResult("Could not load DDL schema file from classpath.");
+      if ("listExternalSystems".equals(action)) {
+        return listExternalSystems();
       }
 
-      if (StringUtils.isBlank(tableName)) {
-        // return list of all table and view names (including extras)
-        return listTablesAndViews(ddlContent);
+      // listTables and tableInfo require a valid external system
+      // validate the external system is allowed
+      String externalSystemError = GrouperMcpSqlSelect.validateExternalSystemAllowed(externalSystemId);
+      if (externalSystemError != null) {
+        return buildErrorResult(externalSystemError);
+      }
+
+      // resolve to the actual database connection name
+      String connectionName = GrouperMcpSqlSelect.resolveConnectionName(externalSystemId);
+
+      // the logical external system ID for config lookups ("grouper" for null/blank)
+      String configId = GrouperMcpSqlSelect.isGrouperDb(externalSystemId) ? "grouper"
+          : externalSystemId.trim();
+
+      boolean isGrouperDb = GrouperMcpSqlSelect.isGrouperDb(externalSystemId);
+
+      if ("listTables".equals(action)) {
+        if (isGrouperDb) {
+          String ddlContent = loadDdlContent();
+          if (ddlContent == null) {
+            return buildErrorResult("Could not load DDL schema file from classpath.");
+          }
+          return listTablesAndViews(ddlContent, configId, connectionName);
+        } else {
+          return listExternalSystemTablesAndViews(configId, connectionName);
+        }
+
+      } else if ("tableInfo".equals(action)) {
+        if (StringUtils.isBlank(tableName)) {
+          return buildErrorResult("tableName is required for 'tableInfo' action.");
+        }
+        if (isGrouperDb) {
+          String ddlContent = loadDdlContent();
+          if (ddlContent == null) {
+            return buildErrorResult("Could not load DDL schema file from classpath.");
+          }
+          return getTableDdl(ddlContent, tableName.trim(), configId, connectionName);
+        } else {
+          return getExternalSystemTableDdl(tableName.trim(), configId, connectionName);
+        }
+
       } else {
-        // return DDL for a specific table or view
-        return getTableDdl(ddlContent, tableName.trim());
+        return buildErrorResult("Unknown action '" + action + "'. Use 'listExternalSystems', "
+            + "'listTables', or 'tableInfo'.");
       }
 
     } catch (Exception e) {
       LOG.error("Error getting schema info", e);
       return buildErrorResult("Error getting schema info: " + e.getMessage());
     }
+  }
+
+  /**
+   * pattern to match external system IDs from config keys like
+   * grouper.mcp.sql.&lt;id&gt;.sqlTablesViews or grouper.mcp.sql.&lt;id&gt;.sqlTablesViewsQuery
+   */
+  private static final Pattern EXTERNAL_SYSTEM_CONFIG_PATTERN = Pattern.compile(
+      "^grouper\\.mcp\\.sql\\.([^.]+)\\.(sqlTablesViews|sqlTablesViewsQuery)$");
+
+  /**
+   * list all available external system IDs by scanning config properties.
+   * always includes "grouper". discovers others from
+   * grouper.mcp.sql.&lt;id&gt;.sqlTablesViews or sqlTablesViewsQuery config keys.
+   * @return the MCP tool result with the list of external systems
+   */
+  private static ObjectNode listExternalSystems() throws Exception {
+    Set<String> externalSystemIds = new LinkedHashSet<String>();
+    // "grouper" is always available
+    externalSystemIds.add("grouper");
+
+    // scan config for grouper.mcp.sql.<id>.sqlTablesViews or sqlTablesViewsQuery
+    Set<String> propertyNames = GrouperConfig.retrieveConfig().propertyNames();
+    for (String key : propertyNames) {
+      Matcher matcher = EXTERNAL_SYSTEM_CONFIG_PATTERN.matcher(key);
+      if (matcher.matches()) {
+        String id = matcher.group(1);
+        // don't duplicate "grouper"
+        if (!"grouper".equals(id)) {
+          externalSystemIds.add(id);
+        }
+      }
+    }
+
+    ArrayNode systemsArray = objectMapper.createArrayNode();
+    for (String id : externalSystemIds) {
+      ObjectNode systemNode = objectMapper.createObjectNode();
+      systemNode.put("id", id);
+      systemNode.put("isGrouperDb", "grouper".equals(id));
+
+      String documentation = GrouperConfig.retrieveConfig()
+          .propertyValueString("grouper.mcp.sql." + id + ".documentationForAiClient", "");
+      if (StringUtils.isNotBlank(documentation)) {
+        systemNode.put("documentation", documentation);
+      }
+
+      systemsArray.add(systemNode);
+    }
+
+    ObjectNode resultNode = objectMapper.createObjectNode();
+    resultNode.set("externalSystems", systemsArray);
+
+    String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(resultNode);
+    return buildSuccessResult(resultText);
   }
 
   /**
@@ -186,20 +316,27 @@ public class GrouperMcpSqlGetSchema {
           Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
   /**
-   * get the list of extra table/view names from config.
-   * the list is parsed from the comma-separated config property and cached for 1 hour.
+   * get the list of extra table/view names from config for a given external system.
+   * first checks grouper.mcp.&lt;configId&gt;.sqlTablesViews (comma-separated),
+   * then grouper.mcp.&lt;configId&gt;.sqlTablesViewsQuery (SQL query).
+   * the result is cached for 1 hour keyed by config ID.
+   * @param configId the logical external system ID for config lookups (e.g. "grouper", "hr_db")
+   * @param connectionName the actual database connection name for executing queries
    * @return the list of lowercased extra table/view names, or empty list if none configured
    */
-  private static List<String> getExtraTableNames() {
-    List<String> cached = extraTableNamesCache.get("extraTableNames");
+  private static List<String> getExtraTableNames(String configId, String connectionName) {
+    String cacheKey = "extraTableNames__" + configId;
+    List<String> cached = extraTableNamesCache.get(cacheKey);
     if (cached != null) {
       return cached;
     }
 
-    String configValue = GrouperConfig.retrieveConfig()
-        .propertyValueString("grouper.mcp.sqlGrouperTablesViews", "");
-
     List<String> names = new ArrayList<String>();
+
+    // first try comma-separated list
+    String configValue = GrouperConfig.retrieveConfig()
+        .propertyValueString("grouper.mcp.sql." + configId + ".sqlTablesViews", "");
+
     if (StringUtils.isNotBlank(configValue)) {
       String[] parts = configValue.split(",");
       for (String part : parts) {
@@ -210,14 +347,44 @@ public class GrouperMcpSqlGetSchema {
       }
     }
 
-    extraTableNamesCache.put("extraTableNames", names);
+    // then try SQL query (additive if both are configured)
+    String queryConfig = GrouperConfig.retrieveConfig()
+        .propertyValueString("grouper.mcp.sql." + configId + ".sqlTablesViewsQuery", "");
+
+    if (StringUtils.isNotBlank(queryConfig)) {
+      try {
+        List<String> queryResults = new GcDbAccess()
+            .connectionName(connectionName)
+            .readOnly(true)
+            .sql(queryConfig)
+            .selectList(String.class);
+        for (String name : queryResults) {
+          if (StringUtils.isNotBlank(name)) {
+            String lowerName = name.trim().toLowerCase();
+            if (!names.contains(lowerName)) {
+              names.add(lowerName);
+            }
+          }
+        }
+      } catch (Exception e) {
+        LOG.error("Error executing sqlTablesViewsQuery for external system '"
+            + configId + "': " + queryConfig, e);
+      }
+    }
+
+    extraTableNamesCache.put(cacheKey, names);
     return names;
   }
 
   /**
-   * list all table and view names from the DDL content, plus any extras from config
+   * list all table and view names from the DDL content, plus any extras from config.
+   * used for the Grouper database external system.
+   * @param ddlContent the loaded DDL content
+   * @param configId the logical external system ID for config lookups
+   * @param connectionName the actual database connection name
    */
-  private static ObjectNode listTablesAndViews(String ddlContent) throws Exception {
+  private static ObjectNode listTablesAndViews(String ddlContent, String configId,
+      String connectionName) throws Exception {
     List<String> tableNames = new ArrayList<String>();
     List<String> viewNames = new ArrayList<String>();
 
@@ -231,12 +398,12 @@ public class GrouperMcpSqlGetSchema {
       viewNames.add(viewMatcher.group(1).toLowerCase());
     }
 
-    // add extra tables/views from config
-    List<String> extraNames = getExtraTableNames();
+    // add extra tables/views from config (additive for grouper)
+    List<String> extraNames = getExtraTableNames(configId, connectionName);
     List<String> extraTableNames = new ArrayList<String>();
     List<String> extraViewNames = new ArrayList<String>();
     if (!extraNames.isEmpty()) {
-      categorizeExtraTablesViews(extraNames, extraTableNames, extraViewNames);
+      categorizeExtraTablesViews(extraNames, extraTableNames, extraViewNames, connectionName);
       for (String name : extraTableNames) {
         if (!tableNames.contains(name)) {
           tableNames.add(name);
@@ -271,18 +438,61 @@ public class GrouperMcpSqlGetSchema {
   }
 
   /**
+   * list all table and view names for a non-Grouper external system.
+   * the table list comes entirely from config (sqlTablesViews or sqlTablesViewsQuery).
+   * @param configId the logical external system ID for config lookups
+   * @param connectionName the actual database connection name
+   */
+  private static ObjectNode listExternalSystemTablesAndViews(String configId,
+      String connectionName) throws Exception {
+
+    List<String> extraNames = getExtraTableNames(configId, connectionName);
+    if (extraNames.isEmpty()) {
+      return buildErrorResult("No tables or views are configured for external system '"
+          + configId + "'. The administrator must configure grouper.mcp.sql."
+          + configId + ".sqlTablesViews or grouper.mcp.sql." + configId
+          + ".sqlTablesViewsQuery.");
+    }
+
+    List<String> tableNames = new ArrayList<String>();
+    List<String> viewNames = new ArrayList<String>();
+
+    categorizeExtraTablesViews(extraNames, tableNames, viewNames, connectionName);
+
+    ObjectNode resultNode = objectMapper.createObjectNode();
+    resultNode.put("externalSystemId", configId);
+    resultNode.put("tableCount", tableNames.size());
+    resultNode.put("viewCount", viewNames.size());
+
+    ArrayNode tablesArray = objectMapper.createArrayNode();
+    for (String name : tableNames) {
+      tablesArray.add(name);
+    }
+    resultNode.set("tables", tablesArray);
+
+    ArrayNode viewsArray = objectMapper.createArrayNode();
+    for (String name : viewNames) {
+      viewsArray.add(name);
+    }
+    resultNode.set("views", viewsArray);
+
+    String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(resultNode);
+    return buildSuccessResult(resultText);
+  }
+
+  /**
    * categorize extra table/view names into tables and views by checking the database.
    * uses JDBC metadata to determine whether each name is a TABLE or a VIEW.
    * names that cannot be found are treated as tables.
    * @param extraNames the list of extra names
    * @param extraTableNames output list for tables
    * @param extraViewNames output list for views
+   * @param externalSystem the external system connection name
    */
   private static void categorizeExtraTablesViews(final List<String> extraNames,
-      final List<String> extraTableNames, final List<String> extraViewNames) {
-
-    String externalSystem = GrouperConfig.retrieveConfig()
-        .propertyValueString("grouper.mcp.sqlGrouperExternalSystem", "grouper");
+      final List<String> extraTableNames, final List<String> extraViewNames,
+      final String externalSystem) {
 
     try {
       new GcDbAccess().connectionName(externalSystem).readOnly(true)
@@ -363,11 +573,16 @@ public class GrouperMcpSqlGetSchema {
   }
 
   /**
-   * get the DDL for a specific table or view.
+   * get the DDL for a specific table or view from the Grouper database.
    * first checks the DDL file, then checks if it is an extra table/view from config.
    * extracts from CREATE TABLE/VIEW to the next CREATE TABLE/VIEW or end of file.
+   * @param ddlContent the loaded DDL content
+   * @param tableName the table or view name
+   * @param configId the logical external system ID for config lookups
+   * @param connectionName the actual database connection name
    */
-  private static ObjectNode getTableDdl(String ddlContent, String tableName) throws Exception {
+  private static ObjectNode getTableDdl(String ddlContent, String tableName,
+      String configId, String connectionName) throws Exception {
 
     // build pattern to find CREATE TABLE or CREATE VIEW for this specific table
     String escapedName = Pattern.quote(tableName);
@@ -382,10 +597,10 @@ public class GrouperMcpSqlGetSchema {
     }
 
     // check if this is an extra table/view from config
-    List<String> extraNames = getExtraTableNames();
+    List<String> extraNames = getExtraTableNames(configId, connectionName);
     String lowerTableName = tableName.toLowerCase();
     if (extraNames.contains(lowerTableName)) {
-      String metadata = getExtraTableMetadata(lowerTableName);
+      String metadata = getExtraTableMetadata(lowerTableName, configId, connectionName);
       if (metadata != null) {
         return buildSuccessResult(metadata);
       }
@@ -399,41 +614,71 @@ public class GrouperMcpSqlGetSchema {
   }
 
   /**
+   * get the DDL for a specific table or view from a non-Grouper external system.
+   * the table must be in the configured table list for the external system.
+   * @param tableName the table or view name
+   * @param configId the logical external system ID for config lookups
+   * @param connectionName the actual database connection name
+   */
+  private static ObjectNode getExternalSystemTableDdl(String tableName,
+      String configId, String connectionName) throws Exception {
+
+    List<String> extraNames = getExtraTableNames(configId, connectionName);
+    String lowerTableName = tableName.toLowerCase();
+    if (extraNames.contains(lowerTableName)) {
+      String metadata = getExtraTableMetadata(lowerTableName, configId, connectionName);
+      if (metadata != null) {
+        return buildSuccessResult(metadata);
+      }
+      return buildErrorResult("Could not retrieve metadata for table or view '"
+          + tableName + "' from external system '" + configId + "'.");
+    }
+
+    return buildErrorResult("Table or view '" + tableName
+        + "' not found in external system '" + configId
+        + "'. Use sql_get_schema with externalSystemId='" + configId
+        + "' without a tableName parameter to see all available tables and views.");
+  }
+
+  /**
    * get metadata for an extra table/view, with 1-hour caching.
    * retrieves column names, types, nullable, and comments from the database.
    * @param tableNameLower the lowercased table/view name
+   * @param configId the logical external system ID for cache keys
+   * @param connectionName the actual database connection name
    * @return the metadata string, or null if it could not be retrieved
    */
-  private static String getExtraTableMetadata(String tableNameLower) {
+  private static String getExtraTableMetadata(final String tableNameLower,
+      final String configId, final String connectionName) {
 
-    String cached = extraTableMetadataCache.get(tableNameLower);
+    String cacheKey = configId + "__" + tableNameLower;
+    String cached = extraTableMetadataCache.get(cacheKey);
     if (cached != null) {
       return cached;
     }
 
-    String externalSystem = GrouperConfig.retrieveConfig()
-        .propertyValueString("grouper.mcp.sqlGrouperExternalSystem", "grouper");
-
     try {
-      String metadata = new GcDbAccess().connectionName(externalSystem).readOnly(true)
+      String metadata = new GcDbAccess().connectionName(connectionName).readOnly(true)
           .callbackConnection(new GcConnectionCallback<String>() {
         @Override
         public String callback(Connection connection) {
           try {
             return buildExtraTableMetadata(connection, tableNameLower);
           } catch (Exception e) {
-            LOG.error("Error building metadata for " + tableNameLower, e);
+            LOG.error("Error building metadata for " + tableNameLower
+                + " on external system " + configId, e);
             return null;
           }
         }
       });
 
       if (metadata != null) {
-        extraTableMetadataCache.put(tableNameLower, metadata);
+        extraTableMetadataCache.put(cacheKey, metadata);
       }
       return metadata;
     } catch (Exception e) {
-      LOG.error("Error retrieving metadata for " + tableNameLower, e);
+      LOG.error("Error retrieving metadata for " + tableNameLower
+          + " on external system " + configId, e);
       return null;
     }
   }

@@ -57,7 +57,7 @@ Grouper ships will base configuration properties, which can be overridden by the
 
 - `grouper-misc/grouperClient/conf/grouper.client.base.properties`
 - `grouper/conf/grouper.hibernate.base.properties` - Database connectivity
-- `grouper/conf/grouperText/grouper.textNg.en.us.base.properties` -internationalization (i18n) strings
+- `grouper/conf/grouperText/grouper.textNg.en.us.base.properties` -internationalization (i18n) strings.  User facing text should be in this file.
 - `grouper/conf/grouperText/grouper.textNg.fr.fr.base.properties` -internationalization (i18n) strings
 - `grouper/conf/grouper-loader.base.properties` - External system and daemon job configuration
 - `grouper/conf/grouper-ws-ng.base.properties` - Web services settings
@@ -80,6 +80,8 @@ User-managed configuration are in corresponding files without the `.base` in the
 - `grouper/conf/grouper.properties`
 - `grouper/conf/grouper.cache.properties`
 - `morphString.properties` - String encryption configuration
+
+There is also configuration in the database which takes precedence over the non base config files.  This is edited in the UI since history in kept in another table, so this should not be edited in the database but it could be viewed in the database or there is an MCP tool to look at configuration (preferred).
 
 ## Git Repository Information
 
@@ -300,3 +302,7 @@ These files serve as knowledge base resources for:
 - Learning Grouper operational patterns
 
 When writing GSH scripts, always reference aiGshInstructions.txt for coding standards and aiGsh.txt for implementation patterns.
+
+### Deployment architecture
+
+Grouper runs in Docker containers.  Generally the UI, WS, and daemon run in different containers and each layer has one to many nodes so do not assume that you can set things in static variables and all traffic will see that data.  State must be stored in the database or elsewhere.

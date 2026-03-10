@@ -15,7 +15,12 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
-import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -25,21 +30,31 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditType;
+import edu.internet2.middleware.grouper.audit.UserAuditQuery;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAuditEntry;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAuditEntryColumn;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetAuditEntriesResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * MCP tool handler for getting audit log entries from Grouper.
  * Supports filtering by audit type, group, stem, subject, date range, and paging.
- * Delegates to the WS getAuditEntries service logic for consistency.
+ * Uses UserAuditQuery directly (same approach as the UI) for privilege checking:
+ * group audits require admin on the group, stem audits require stemAdmin on the stem.
  *
  * @author mchyzer
  */
@@ -48,6 +63,8 @@ public class GrouperMcpGetAuditEntries {
   private static final Log LOG = GrouperUtil.getLog(GrouperMcpGetAuditEntries.class);
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
+
+  private static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
 
   /**
    * return the MCP tool definition for audit_get
@@ -70,27 +87,28 @@ public class GrouperMcpGetAuditEntries {
     ObjectNode auditTypeProp = objectMapper.createObjectNode();
     auditTypeProp.put("type", "string");
     auditTypeProp.put("description",
-        "Audit type to filter by (e.g., 'group', 'membership').");
+        "Audit type category to filter by. "
+        + "Common values: group, stem, membership, privilege. "
+        + "Other values: entity, member, groupType, groupField, groupComposite, "
+        + "groupAttestation, stemAttestation, attributeDef, attributeDefName, "
+        + "provisionerSync, gshTemplate, oauth, configurationFile. "
+        + "Optional - if not specified, all audit types are returned for the entity.");
     properties.set("auditType", auditTypeProp);
-
-    ObjectNode auditActionIdProp = objectMapper.createObjectNode();
-    auditActionIdProp.put("type", "string");
-    auditActionIdProp.put("description",
-        "Audit action ID to filter by.");
-    properties.set("auditActionId", auditActionIdProp);
 
     ObjectNode groupNameProp = objectMapper.createObjectNode();
     groupNameProp.put("type", "string");
     groupNameProp.put("description",
         "Filter to audit entries for this group "
-        + "(e.g., 'stem1:stem2:groupName').");
+        + "(e.g., 'stem1:stem2:groupName'). "
+        + "Requires admin privilege on the group.");
     properties.set("groupName", groupNameProp);
 
     ObjectNode stemNameProp = objectMapper.createObjectNode();
     stemNameProp.put("type", "string");
     stemNameProp.put("description",
         "Filter to audit entries for this stem "
-        + "(e.g., 'stem1:stem2').");
+        + "(e.g., 'stem1:stem2'). "
+        + "Requires stemAdmin privilege on the stem.");
     properties.set("stemName", stemNameProp);
 
     ObjectNode subjectIdProp = objectMapper.createObjectNode();
@@ -148,7 +166,10 @@ public class GrouperMcpGetAuditEntries {
   }
 
   /**
-   * execute the audit_get tool by delegating to the WS service logic
+   * execute the audit_get tool using UserAuditQuery directly (like the UI).
+   * Group audits require admin privilege on the group.
+   * Stem audits require stemAdmin privilege on the stem.
+   * Subject/action audits require admin or being the subject.
    * @param arguments the tool arguments from the MCP request
    * @param authUser the authenticated user
    * @return the MCP tool result
@@ -157,8 +178,6 @@ public class GrouperMcpGetAuditEntries {
 
     String auditType = arguments != null && arguments.has("auditType")
         ? arguments.get("auditType").asText() : null;
-    String auditActionId = arguments != null && arguments.has("auditActionId")
-        ? arguments.get("auditActionId").asText() : null;
     String groupName = arguments != null && arguments.has("groupName")
         ? arguments.get("groupName").asText() : null;
     String stemName = arguments != null && arguments.has("stemName")
@@ -177,72 +196,150 @@ public class GrouperMcpGetAuditEntries {
         ? arguments.get("fromDate").asText() : null;
     String toDateString = arguments != null && arguments.has("toDate")
         ? arguments.get("toDate").asText() : null;
-    Integer pageSize = arguments != null && arguments.has("pageSize")
+    int pageSize = arguments != null && arguments.has("pageSize")
         ? arguments.get("pageSize").asInt() : 50;
+
+    // require at least one filter
+    if (StringUtils.isBlank(groupName) && StringUtils.isBlank(stemName)
+        && StringUtils.isBlank(subjectId) && StringUtils.isBlank(actionsPerformedBySubjectId)
+        && StringUtils.isBlank(auditType)) {
+      return buildErrorResult("At least one filter is required: "
+          + "groupName, stemName, subjectId, actionsPerformedBySubjectId, or auditType.");
+    }
 
     try {
 
-      WsGroupLookup wsGroupLookup = null;
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+      Subject authenticatedSubject = authUser.getSubject();
+      boolean isAdmin = PrivilegeHelper.isWheelOrRoot(authenticatedSubject);
+
+      UserAuditQuery query = new UserAuditQuery();
+
+      // paging and sorting
+      QueryOptions queryOptions = new QueryOptions();
+      queryOptions.paging(QueryPaging.page(pageSize, 1, false));
+      queryOptions.sortDesc("lastUpdatedDb");
+      query.setQueryOptions(queryOptions);
+
+      // date filters
+      if (StringUtils.isNotBlank(fromDateString)) {
+        query.setFromDate(GrouperServiceUtils.stringToTimestamp(fromDateString));
+      }
+      if (StringUtils.isNotBlank(toDateString)) {
+        query.setToDate(GrouperServiceUtils.stringToTimestamp(toDateString));
+      }
+
+      // group filter: requires admin privilege on the group
       if (StringUtils.isNotBlank(groupName)) {
-        wsGroupLookup = new WsGroupLookup();
-        wsGroupLookup.setGroupName(groupName);
+        Group group = GroupFinder.findByName(grouperSession, groupName, false);
+        if (group == null) {
+          return buildErrorResult("Group not found: " + groupName);
+        }
+        if (!isAdmin
+            && !group.canHavePrivilege(authenticatedSubject,
+                AccessPrivilege.ADMIN.getName(), false)) {
+          return buildErrorResult(
+              "Access denied: admin privilege on the group is required to view audit entries.");
+        }
+        query.addAuditTypeFieldValue("groupId", group.getId());
       }
 
-      WsStemLookup wsStemLookup = null;
+      // stem filter: requires stemAdmin privilege on the stem
       if (StringUtils.isNotBlank(stemName)) {
-        wsStemLookup = new WsStemLookup(stemName, null);
+        Stem stem = StemFinder.findByName(grouperSession, stemName, false);
+        if (stem == null) {
+          return buildErrorResult("Stem not found: " + stemName);
+        }
+        if (!isAdmin
+            && !stem.canHavePrivilege(authenticatedSubject,
+                NamingPrivilege.STEM_ADMIN.getName(), false)) {
+          return buildErrorResult(
+              "Access denied: stemAdmin privilege on the stem is required to view audit entries.");
+        }
+        query.addAuditTypeFieldValue("stemId", stem.getId());
       }
 
-      WsSubjectLookup wsSubjectLookup = null;
+      // subject filter: audit entries about this subject
       if (StringUtils.isNotBlank(subjectId)) {
-        wsSubjectLookup = new WsSubjectLookup(subjectId, subjectSourceId, null);
+        Subject subject = StringUtils.isNotBlank(subjectSourceId)
+            ? SubjectFinder.findByIdAndSource(subjectId, subjectSourceId, false)
+            : SubjectFinder.findById(subjectId, false);
+        if (subject == null) {
+          return buildErrorResult("Subject not found: " + subjectId);
+        }
+        // allow if admin or looking at own audit entries
+        if (!isAdmin && !subjectsEqual(authenticatedSubject, subject)) {
+          return buildErrorResult(
+              "Access denied: admin privilege or being the subject is required "
+              + "to view audit entries about a subject.");
+        }
+        Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+        if (member == null) {
+          return buildErrorResult("Member not found for subject: " + subjectId);
+        }
+        query.addAuditTypeFieldValue("memberId", member.getUuid());
       }
 
-      WsSubjectLookup actionsPerformedByLookup = null;
+      // actions performed by filter
       if (StringUtils.isNotBlank(actionsPerformedBySubjectId)) {
-        actionsPerformedByLookup = new WsSubjectLookup(
-            actionsPerformedBySubjectId, actionsPerformedBySubjectSourceId, null);
+        Subject performer = StringUtils.isNotBlank(actionsPerformedBySubjectSourceId)
+            ? SubjectFinder.findByIdAndSource(actionsPerformedBySubjectId,
+                actionsPerformedBySubjectSourceId, false)
+            : SubjectFinder.findById(actionsPerformedBySubjectId, false);
+        if (performer == null) {
+          return buildErrorResult("Subject not found: " + actionsPerformedBySubjectId);
+        }
+        // allow if admin or looking at own actions
+        if (!isAdmin && !subjectsEqual(authenticatedSubject, performer)) {
+          return buildErrorResult(
+              "Access denied: admin privilege or being the subject is required "
+              + "to view actions performed by a subject.");
+        }
+        Member member = MemberFinder.findBySubject(grouperSession, performer, false);
+        if (member == null) {
+          return buildErrorResult(
+              "Member not found for subject: " + actionsPerformedBySubjectId);
+        }
+        query.loggedInMember(member);
+        query.actAsMember(member);
       }
 
-      Timestamp fromTimestamp = GrouperServiceUtils.stringToTimestamp(fromDateString);
-      Timestamp toTimestamp = GrouperServiceUtils.stringToTimestamp(toDateString);
-
-      // actAs is null: the logged-in user (from JWT, set on REMOTE_USER by the MCP servlet) is used
-      // delegate to the WS service logic
-      WsGetAuditEntriesResults wsResults = GrouperServiceLogic.getAuditEntries(
-          GrouperVersion.currentVersion(),
-          null,   // actAsSubjectLookup - uses REMOTE_USER from the MCP JWT
-          auditType,
-          auditActionId,
-          wsGroupLookup,
-          wsStemLookup,
-          null,   // wsAttributeDefLookup
-          null,   // wsAttributeDefNameLookup
-          wsSubjectLookup,
-          actionsPerformedByLookup,
-          null,   // params
-          pageSize,
-          null, null,  // sort
-          null, null, null, null,  // cursor paging
-          fromTimestamp,
-          toTimestamp
-      );
-
-      // check for overall errors
-      if (wsResults.getResultMetadata() != null
-          && !"T".equals(wsResults.getResultMetadata().getSuccess())) {
-        return buildErrorResult(wsResults.getResultMetadata().getResultMessage());
+      // audit type category filter
+      if (StringUtils.isNotBlank(auditType)) {
+        query.addAuditTypeCategory(auditType);
       }
 
-      // build clean MCP-friendly result
-      WsAuditEntry[] auditEntries = wsResults.getWsAuditEntries();
+      // if only auditType with no entity filter, require admin
+      if (StringUtils.isBlank(groupName) && StringUtils.isBlank(stemName)
+          && StringUtils.isBlank(subjectId) && StringUtils.isBlank(actionsPerformedBySubjectId)
+          && !isAdmin) {
+        return buildErrorResult(
+            "Access denied: admin privilege is required to query audit entries by type only.");
+      }
+
+      // execute query
+      List<AuditEntry> auditEntries = query.execute();
+
       if (GrouperUtil.length(auditEntries) == 0) {
         return buildSuccessResult("No audit entries found matching the criteria.");
       }
 
+      // collect member UUIDs from audit entry fields for batch resolution
+      Set<String> memberUuids = new HashSet<>();
+      for (AuditEntry auditEntry : auditEntries) {
+        collectMemberUuids(auditEntry, memberUuids);
+        if (StringUtils.isNotBlank(auditEntry.getLoggedInMemberId())) {
+          memberUuids.add(auditEntry.getLoggedInMemberId());
+        }
+      }
+
+      // batch-resolve member UUIDs to subject info
+      Map<String, String[]> memberUuidToSubjectInfo = resolveMemberUuids(
+          grouperSession, memberUuids);
+
       ArrayNode entriesArray = objectMapper.createArrayNode();
-      for (WsAuditEntry auditEntry : auditEntries) {
-        entriesArray.add(convertAuditEntryToJson(auditEntry));
+      for (AuditEntry auditEntry : auditEntries) {
+        entriesArray.add(convertAuditEntryToJson(auditEntry, memberUuidToSubjectInfo));
       }
 
       String resultText = objectMapper.writerWithDefaultPrettyPrinter()
@@ -256,43 +353,227 @@ public class GrouperMcpGetAuditEntries {
   }
 
   /**
-   * convert a WsAuditEntry to a clean JSON object for MCP consumption.
-   * @param auditEntry the WS audit entry
-   * @return clean JSON object
+   * compare two subjects by id and source
+   * @param a first subject
+   * @param b second subject
+   * @return true if same subject
    */
-  private static ObjectNode convertAuditEntryToJson(WsAuditEntry auditEntry) {
-    ObjectNode entryNode = objectMapper.createObjectNode();
-    entryNode.put("id", auditEntry.getId());
-    if (StringUtils.isNotBlank(auditEntry.getActionName())) {
-      entryNode.put("actionName", auditEntry.getActionName());
-    }
-    if (StringUtils.isNotBlank(auditEntry.getAuditCategory())) {
-      entryNode.put("auditCategory", auditEntry.getAuditCategory());
-    }
-    if (StringUtils.isNotBlank(auditEntry.getTimestamp())) {
-      entryNode.put("timestamp", auditEntry.getTimestamp());
-    }
+  private static boolean subjectsEqual(Subject a, Subject b) {
+    return StringUtils.equals(a.getId(), b.getId())
+        && StringUtils.equals(a.getSourceId(), b.getSourceId());
+  }
 
-    // include audit entry columns as key-value pairs
-    WsAuditEntryColumn[] columns = auditEntry.getAuditEntryColumns();
-    if (GrouperUtil.length(columns) > 0) {
-      ObjectNode entriesObject = objectMapper.createObjectNode();
-      for (WsAuditEntryColumn column : columns) {
-        String label = column.getLabel();
-        String value = column.getValueString();
-        if (StringUtils.isBlank(value)) {
-          value = column.getValueInt();
-        }
-        if (StringUtils.isNotBlank(label) && StringUtils.isNotBlank(value)) {
-          entriesObject.put(label, value);
+  /**
+   * collect member UUIDs from the labeled fields of an audit entry
+   * @param entry the audit entry
+   * @param memberUuids set to add member UUIDs to
+   */
+  private static void collectMemberUuids(AuditEntry entry, Set<String> memberUuids) {
+    AuditType auditType = entry.getAuditType();
+    if (auditType == null) {
+      return;
+    }
+    for (int i = 1; i <= 8; i++) {
+      String label = getStringLabel(auditType, i);
+      if ("memberId".equals(label)) {
+        String value = getStringField(entry, i);
+        if (StringUtils.isNotBlank(value)) {
+          memberUuids.add(value);
         }
       }
+    }
+  }
+
+  /**
+   * batch-resolve member UUIDs to subject info (subjectId, sourceId, description).
+   * @param grouperSession the session
+   * @param memberUuids the member UUIDs to resolve
+   * @return map of member UUID to String[]{subjectId, sourceId, description}
+   */
+  private static Map<String, String[]> resolveMemberUuids(
+      GrouperSession grouperSession, Set<String> memberUuids) {
+    Map<String, String[]> memberUuidToSubjectInfo = new HashMap<>();
+    for (String memberUuid : memberUuids) {
+      try {
+        Member member = MemberFinder.findByUuid(grouperSession, memberUuid, false);
+        if (member != null) {
+          String localSubjectId = member.getSubjectId();
+          String sourceId = member.getSubjectSourceId();
+          String description = null;
+          try {
+            Subject subject = member.getSubject();
+            if (subject != null) {
+              description = subject.getDescription();
+            }
+          } catch (Exception e) {
+            LOG.debug("Could not resolve subject for member: " + memberUuid, e);
+          }
+          memberUuidToSubjectInfo.put(memberUuid,
+              new String[] { localSubjectId, sourceId, description });
+        }
+      } catch (Exception e) {
+        LOG.debug("Could not find member UUID: " + memberUuid, e);
+      }
+    }
+    return memberUuidToSubjectInfo;
+  }
+
+  /**
+   * convert an AuditEntry to a clean JSON object for MCP consumption.
+   * @param auditEntry the audit entry
+   * @param memberUuidToSubjectInfo map of member UUID to String[]{subjectId, sourceId, description}
+   * @return clean JSON object
+   */
+  private static ObjectNode convertAuditEntryToJson(AuditEntry auditEntry,
+      Map<String, String[]> memberUuidToSubjectInfo) {
+    ObjectNode entryNode = objectMapper.createObjectNode();
+    entryNode.put("id", auditEntry.getId());
+
+    AuditType auditType = auditEntry.getAuditType();
+    if (auditType != null) {
+      if (StringUtils.isNotBlank(auditType.getAuditCategory())) {
+        entryNode.put("auditCategory", auditType.getAuditCategory());
+      }
+      if (StringUtils.isNotBlank(auditType.getActionName())) {
+        entryNode.put("actionName", auditType.getActionName());
+      }
+    }
+
+    if (auditEntry.getCreatedOn() != null) {
+      synchronized (TIMESTAMP_FORMAT) {
+        entryNode.put("timestamp", TIMESTAMP_FORMAT.format(auditEntry.getCreatedOn()));
+      }
+    }
+
+    if (StringUtils.isNotBlank(auditEntry.getDescription())) {
+      entryNode.put("description", auditEntry.getDescription());
+    }
+
+    // logged-in member who performed the action
+    if (StringUtils.isNotBlank(auditEntry.getLoggedInMemberId())) {
+      String[] subjectInfo = memberUuidToSubjectInfo.get(auditEntry.getLoggedInMemberId());
+      if (subjectInfo != null) {
+        entryNode.put("performedBySubjectId", subjectInfo[0]);
+        entryNode.put("performedBySourceId", subjectInfo[1]);
+      }
+    }
+
+    // labeled fields from the audit type
+    if (auditType != null) {
+      ObjectNode entriesObject = objectMapper.createObjectNode();
+      addLabeledStringFields(entriesObject, auditEntry, auditType, memberUuidToSubjectInfo);
+      addLabeledIntFields(entriesObject, auditEntry, auditType);
       if (entriesObject.size() > 0) {
         entryNode.set("entries", entriesObject);
       }
     }
 
     return entryNode;
+  }
+
+  /**
+   * add labeled string fields (string01-string08) to the entries object
+   */
+  private static void addLabeledStringFields(ObjectNode entriesObject,
+      AuditEntry entry, AuditType auditType,
+      Map<String, String[]> memberUuidToSubjectInfo) {
+    for (int i = 1; i <= 8; i++) {
+      String label = getStringLabel(auditType, i);
+      String value = getStringField(entry, i);
+      if (StringUtils.isNotBlank(label) && StringUtils.isNotBlank(value)) {
+        if ("memberId".equals(label)) {
+          // resolve member UUID to subject info
+          String[] subjectInfo = memberUuidToSubjectInfo.get(value);
+          if (subjectInfo != null) {
+            entriesObject.put("subjectId", subjectInfo[0]);
+            entriesObject.put("sourceId", subjectInfo[1]);
+            if (StringUtils.isNotBlank(subjectInfo[2])) {
+              entriesObject.put("subjectDescription", subjectInfo[2]);
+            }
+          } else {
+            entriesObject.put(label, value);
+          }
+        } else {
+          entriesObject.put(label, value);
+        }
+      }
+    }
+  }
+
+  /**
+   * add labeled int fields (int01-int05) to the entries object
+   */
+  private static void addLabeledIntFields(ObjectNode entriesObject,
+      AuditEntry entry, AuditType auditType) {
+    for (int i = 1; i <= 5; i++) {
+      String label = getIntLabel(auditType, i);
+      Long value = getIntField(entry, i);
+      if (StringUtils.isNotBlank(label) && value != null) {
+        entriesObject.put(label, value);
+      }
+    }
+  }
+
+  /**
+   * get the label for a string field on an AuditType
+   */
+  private static String getStringLabel(AuditType auditType, int index) {
+    switch (index) {
+      case 1: return auditType.getLabelString01();
+      case 2: return auditType.getLabelString02();
+      case 3: return auditType.getLabelString03();
+      case 4: return auditType.getLabelString04();
+      case 5: return auditType.getLabelString05();
+      case 6: return auditType.getLabelString06();
+      case 7: return auditType.getLabelString07();
+      case 8: return auditType.getLabelString08();
+      default: return null;
+    }
+  }
+
+  /**
+   * get the value of a string field on an AuditEntry
+   */
+  private static String getStringField(AuditEntry entry, int index) {
+    switch (index) {
+      case 1: return entry.getString01();
+      case 2: return entry.getString02();
+      case 3: return entry.getString03();
+      case 4: return entry.getString04();
+      case 5: return entry.getString05();
+      case 6: return entry.getString06();
+      case 7: return entry.getString07();
+      case 8: return entry.getString08();
+      default: return null;
+    }
+  }
+
+  /**
+   * get the label for an int field on an AuditType
+   */
+  private static String getIntLabel(AuditType auditType, int index) {
+    switch (index) {
+      case 1: return auditType.getLabelInt01();
+      case 2: return auditType.getLabelInt02();
+      case 3: return auditType.getLabelInt03();
+      case 4: return auditType.getLabelInt04();
+      case 5: return auditType.getLabelInt05();
+      default: return null;
+    }
+  }
+
+  /**
+   * get the value of an int field on an AuditEntry
+   */
+  private static Long getIntField(AuditEntry entry, int index) {
+    switch (index) {
+      case 1: return entry.getInt01();
+      case 2: return entry.getInt02();
+      case 3: return entry.getInt03();
+      case 4: return entry.getInt04();
+      case 5: return entry.getInt05();
+      default: return null;
+    }
   }
 
   /**

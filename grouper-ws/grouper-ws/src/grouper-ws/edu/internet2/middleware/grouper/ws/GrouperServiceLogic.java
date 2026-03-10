@@ -19,6 +19,7 @@
 package edu.internet2.middleware.grouper.ws;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -442,7 +443,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsAddMemberResults);
     }
 
@@ -694,7 +695,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsDeleteMemberResults);
     }
   
@@ -864,7 +865,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsFindGroupsResults);
 
     }
@@ -1058,7 +1059,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsFindStemsResults);
     }
   
@@ -1366,7 +1367,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsGetGroupsResults);
     }
   
@@ -1708,7 +1709,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsGetMembersResults);
     }
 
@@ -2101,7 +2102,7 @@ public class GrouperServiceLogic {
       wsGetMembershipsResults.assignResultCodeException(null, theSummary, e);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsGetMembershipsResults);
     }
   
@@ -2538,7 +2539,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsGroupDeleteResults);
     }
   
@@ -2784,7 +2785,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsGroupSaveResults);
     }
   
@@ -2919,7 +2920,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsExternalSubjectSaveResults);
     }
   
@@ -3105,7 +3106,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsHasMemberResults);
     }
   
@@ -3415,7 +3416,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsMemberChangeSubjectResults);
     }
     
@@ -3546,7 +3547,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsStemDeleteResults);
       
     }
@@ -3778,7 +3779,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsStemSaveResults);
 
     }
@@ -4392,7 +4393,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsGetGrouperPrivilegesLiteResult);
     }
   
@@ -5289,7 +5290,7 @@ public class GrouperServiceLogic {
         wsGetSubjectsResults.assignResultCodeException(null, theSummary, e);
         GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
       } finally {
-        GrouperSession.stopQuietly(session);
+        GrouperServiceUtils.stopSessionIfStarted(session);
         GrouperWsLog.addToLog(debugMap, wsGetSubjectsResults);
       }
 
@@ -6032,7 +6033,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsAssignGrouperPrivilegesResults);
     }
   
@@ -6548,7 +6549,7 @@ public class GrouperServiceLogic {
       wsGetAttributeAssignmentsResults.assignResultCodeException(null, theSummary, e);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsGetAttributeAssignmentsResults);
     }
   
@@ -6873,7 +6874,7 @@ public class GrouperServiceLogic {
       wsGetAttributeAssignActionsResults.assignResultCodeException(null, theSummary, e);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsGetAttributeAssignActionsResults);
     }
 
@@ -7087,7 +7088,7 @@ public class GrouperServiceLogic {
       wsAssignAttributesResults.assignResultCodeException(null, theSummary, e);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsAssignAttributesResults);
     }
   
@@ -7416,7 +7417,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsAttributeDefSaveResults);
     }
 
@@ -7689,7 +7690,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsAttributeDefDeleteResults);
     }
 
@@ -7911,7 +7912,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsFindAttributeDefsResults);
     }
 
@@ -8132,7 +8133,7 @@ public class GrouperServiceLogic {
       wsAttributeDefAssignActionsResults.assignResultCodeException(null, theSummary, e);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsAttributeDefAssignActionsResults);
     }
 
@@ -8423,7 +8424,7 @@ public class GrouperServiceLogic {
       wsGetPermissionAssignmentsResults.assignResultCodeException(null, theSummary, e);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsGetPermissionAssignmentsResults);
     }
   
@@ -8690,7 +8691,7 @@ public class GrouperServiceLogic {
       wsAssignAttributesResults.assignResultCodeException(null, theSummary, e);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       wsAssignPermissionsResults = new WsAssignPermissionsResults(wsAssignAttributesResults);
       GrouperWsLog.addToLog(debugMap, wsAssignPermissionsResults);
 
@@ -9054,7 +9055,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsAssignAttributeDefNameInheritanceResults);
     }
   
@@ -9240,7 +9241,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsAttributeDefNameDeleteResults);
 
     }
@@ -9419,7 +9420,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsAttributeDefNameSaveResults);
     }
   
@@ -9746,7 +9747,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsFindAttributeDefNamesResults);
     }
   
@@ -10063,7 +10064,7 @@ public class GrouperServiceLogic {
       wsAssignAttributesBatchResults.assignResultCodeException(null, theSummary, e);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsAssignAttributesBatchResults);
     }
     
@@ -10179,7 +10180,7 @@ public class GrouperServiceLogic {
       wsSendMessageResults.assignResultCodeException(null, theSummary, e);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsSendMessageResults);
     }
 
@@ -10312,7 +10313,7 @@ public class GrouperServiceLogic {
       wsReceiveMessageResults.assignResultCodeException(null, theSummary, e);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsReceiveMessageResults);
     }
 
@@ -10429,7 +10430,7 @@ public class GrouperServiceLogic {
       wsMessageAcknowledgedResults.assignResultCodeException(null, theSummary, e);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsMessageAcknowledgedResults);
     }
     return wsMessageAcknowledgedResults;
@@ -10566,7 +10567,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsExternalSubjectDeleteResults);
     }
 
@@ -10660,7 +10661,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsFindExternalSubjectsResults);
     }
   
@@ -10828,17 +10829,17 @@ public class GrouperServiceLogic {
       theSummary = "clientVersion: " + clientVersion+ ", auditType: " + auditType
           +", auditActionId: " + auditActionId
           + ", wsOwnerAttributeDefLookup: "
-          + wsAttributeDefLookup 
+          + wsAttributeDefLookup
           + ", wsOwnerAttributeDefNameLookup: " + wsAttributeDefNameLookup
           + ", wsOwnerStemLookup: "
           + wsStemLookup + ", wsOwnerGroupLookup: "
           + wsGroupLookup + ", wsOwnerSubjectLookup: "
           + wsSubjectLookup
           + ", actAsSubject: "
-          + actAsSubjectLookup 
+          + actAsSubjectLookup
           + "\n, paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, ";
-  
+
       GrouperWsLog.addToLogIfNotBlank(debugMap, "actAsSubjectLookup", actAsSubjectLookup);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "auditType", auditType);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "auditActionId", auditActionId);
@@ -10849,14 +10850,14 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerGroupLookup", wsGroupLookup);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerStemLookup", wsStemLookup);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "wsOwnerSubjectLookup", wsSubjectLookup);
-      
+
       GrouperWsLog.addToLogIfNotBlank(debugMap, "pageSize", pageSize);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "pageIsCursor", pageIsCursor);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorField", pageLastCursorField);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "pageLastCursorFieldType", pageLastCursorFieldType);
       GrouperWsLog.addToLogIfNotBlank(debugMap, "pageCursorFieldIncludesLastRetrieved", pageCursorFieldIncludesLastRetrieved);
 
-      
+
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
       
@@ -10947,7 +10948,11 @@ public class GrouperServiceLogic {
         wsAuditEntry.setActionName(auditTypeObject.getActionName());
         wsAuditEntry.setAuditCategory(auditTypeObject.getAuditCategory());
         wsAuditEntry.setId(entry.getId());
-        
+        if (entry.getCreatedOn() != null) {
+          wsAuditEntry.setTimestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS")
+              .format(entry.getCreatedOn()));
+        }
+
         List<WsAuditEntryColumn> columns = new ArrayList<WsAuditEntryColumn>();
         
         for (String label: auditTypeObject.labels()) {
@@ -10981,14 +10986,14 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsGetAuditEntriesResults);
     }
-  
+
     GrouperWsLog.addToLogIfNotBlank(debugMap, "resultsSize", wsGetAuditEntriesResults == null ? 0 : GrouperUtil.length(wsGetAuditEntriesResults.getWsAuditEntries()));
 
     return wsGetAuditEntriesResults;
-        
+
   }
   
   /**
@@ -11148,7 +11153,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsGshTemplateExecResult);
     }
   
@@ -11241,7 +11246,7 @@ public class GrouperServiceLogic {
       GrouperWsLog.addToLogIfNotBlank(debugMap, "exception", e);
     } finally {
       GrouperWsVersionUtils.removeCurrentClientVersion(true);
-      GrouperSession.stopQuietly(session);
+      GrouperServiceUtils.stopSessionIfStarted(session);
       GrouperWsLog.addToLog(debugMap, wsDataProviderSubjectListSyncResult);
     }
   

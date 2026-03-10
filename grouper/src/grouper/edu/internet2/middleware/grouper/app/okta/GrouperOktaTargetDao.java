@@ -184,6 +184,31 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       
       targetData.setProvisioningMemberships(targetMemberships);
 
+      // collect all entity IDs from the paged user search
+      Set<String> retrievedEntityIds = new HashSet<String>();
+      for (ProvisioningEntity targetEntity : targetEntities) {
+        retrievedEntityIds.add(targetEntity.getId());
+      }
+
+      // find membership user IDs not found in the paged user results
+      Set<String> missingEntityIds = new HashSet<String>();
+      for (ProvisioningMembership targetMembership : targetMemberships) {
+        String entityId = targetMembership.getProvisioningEntityId();
+        if (!retrievedEntityIds.contains(entityId)) {
+          missingEntityIds.add(entityId);
+        }
+      }
+
+      // look up each missing user individually by okta id
+      if (missingEntityIds.size() > 0) {
+        for (String missingEntityId : missingEntityIds) {
+          GrouperOktaUser oktaUser = GrouperOktaApiCommands.retrieveOktaUserById(oktaConfiguration.getOktaExternalSystemConfigId(), missingEntityId);
+          if (oktaUser != null) {
+            targetEntities.add(oktaUser.toProvisioningEntity());
+          }
+        }
+      }
+
       return targetDaoRetrieveAllDataResponse;
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllData", startNanos));
