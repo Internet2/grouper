@@ -94,6 +94,7 @@
         <cglib.version>3.3.0</cglib.version>
         <felix.version>7.0.5</felix.version>
         <jamon.version>2.82</jamon.version>
+        <jsch.version>0.2.25</jsch.version>
         <xstream.version>1.4.21</xstream.version>
         <commons.vfs2.version>2.10.0</commons.vfs2.version>
         <commons.jexl.version>2.1.1</commons.jexl.version>
@@ -288,10 +289,15 @@
               <version>${aws.java.sdk.sns}</version>
             </dependency>
             <dependency>
+                <groupId>com.github.mwiede</groupId>
+                <artifactId>jsch</artifactId>
+                <version>${jsch.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-vfs2</artifactId>
                 <version>${commons.vfs2.version}</version>
-            </dependency>            
+            </dependency>
             <dependency>
                 <groupId>com.mchange</groupId>
                 <artifactId>c3p0</artifactId>
