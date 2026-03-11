@@ -230,12 +230,24 @@ public class GrouperGoogleApiCommands {
       return Morph.decrypt(encryptedBearerToken);
     }
 
-    Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId,
-        "https://www.googleapis.com/auth/admin.directory.user https://www.googleapis.com/auth/admin.directory.group https://www.googleapis.com/auth/admin.directory.group.member");
+    // synchronize to avoid multiple threads generating redundant tokens on a cache miss
+    synchronized (configKeyToExpiresOnAndBearerToken) {
+      // check again now that we have the lock, another thread may have populated the cache
+      encryptedBearerToken = configKeyToExpiresOnAndBearerToken.get(configId);
+      if (StringUtils.isNotBlank(encryptedBearerToken)) {
+        if (debugMap != null) {
+          debugMap.put("googleCachedAccessToken", true);
+        }
+        return Morph.decrypt(encryptedBearerToken);
+      }
 
-    String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
-    configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), tokenCacheMinutes((Integer) accessTokenAndExpiry[1]));
-    return accessToken;
+      Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId,
+          "https://www.googleapis.com/auth/admin.directory.user https://www.googleapis.com/auth/admin.directory.group https://www.googleapis.com/auth/admin.directory.group.member");
+
+      String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
+      configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), tokenCacheMinutes((Integer) accessTokenAndExpiry[1]));
+      return accessToken;
+    }
   }
 
   /**
@@ -254,11 +266,20 @@ public class GrouperGoogleApiCommands {
       return Morph.decrypt(encryptedBearerToken);
     }
 
-    Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId, "https://www.googleapis.com/auth/apps.groups.settings");
+    // synchronize to avoid multiple threads generating redundant tokens on a cache miss
+    synchronized (configKeyToExpiresOnAndSettingsToken) {
+      // check again now that we have the lock, another thread may have populated the cache
+      encryptedBearerToken = configKeyToExpiresOnAndSettingsToken.get(configId);
+      if (StringUtils.isNotBlank(encryptedBearerToken)) {
+        return Morph.decrypt(encryptedBearerToken);
+      }
 
-    String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
-    configKeyToExpiresOnAndSettingsToken.put(configId, Morph.encrypt(accessToken), tokenCacheMinutes((Integer) accessTokenAndExpiry[1]));
-    return accessToken;
+      Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId, "https://www.googleapis.com/auth/apps.groups.settings");
+
+      String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
+      configKeyToExpiresOnAndSettingsToken.put(configId, Morph.encrypt(accessToken), tokenCacheMinutes((Integer) accessTokenAndExpiry[1]));
+      return accessToken;
+    }
   }
   
   public static JsonNode executeGetMethod(Map<String, Object> debugMap, String debugLabel, String configId, String urlSuffix, boolean useSettingsBearerToken) {
