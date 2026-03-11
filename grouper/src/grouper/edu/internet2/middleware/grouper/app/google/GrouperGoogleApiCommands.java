@@ -266,13 +266,56 @@ public class GrouperGoogleApiCommands {
     return jsonNode;
   }
 
+  private static int[] buildAndExecuteHttpCall(Map<String, Object> debugMap, String debugLabel,
+      String httpMethodName, String url, String bearerToken, String proxyUrl, String proxyType,
+      String body, String[] jsonHolder) {
+
+    GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
+    grouperHttpCall.assignDebugMap(debugMap);
+    grouperHttpCall.assignProxyUrl(proxyUrl);
+    grouperHttpCall.assignProxyType(proxyType);
+    grouperHttpCall.assignUrl(url);
+    grouperHttpCall.assignGrouperHttpMethod(httpMethodName);
+    grouperHttpCall.addHeader("Content-Type", "application/json");
+    grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
+    grouperHttpCall.assignBody(body);
+
+    grouperHttpCall.setRetryForThrottlingOrNetworkIssuesSleepMillis(120*1000L); // 2mins
+
+    grouperHttpCall.setThrottlingCallback(new GrouperHttpThrottlingCallback() {
+
+      @Override
+      public boolean setupThrottlingCallback(GrouperHttpClient httpClient) {
+        boolean isThrottle = httpClient.getResponseCode() == 403
+            || httpClient.getResponseCode() == 429 || httpClient.getResponseCode() == 503;
+        if (isThrottle) {
+          GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
+        }
+        return isThrottle;
+      }
+    });
+
+    long httpCallStartMillis = System.currentTimeMillis();
+    try {
+      grouperHttpCall.executeRequest();
+    } finally {
+      GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
+          System.currentTimeMillis() - httpCallStartMillis);
+    }
+
+    try {
+      int code = grouperHttpCall.getResponseCode();
+      jsonHolder[0] = grouperHttpCall.getResponseBody();
+      return new int[] { code };
+    } catch (Exception e) {
+      throw new RuntimeException("Error connecting to '" + url + "'", e);
+    }
+  }
+
   public static JsonNode executeMethod(Map<String, Object> debugMap, String debugLabel,
       String httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body, boolean useSettingsBearerToken) {
 
-    GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
-    grouperHttpCall.assignDebugMap(debugMap);
-    
     String bearerToken = null;
     String url =  null;
     if (useSettingsBearerToken) {
@@ -290,55 +333,35 @@ public class GrouperGoogleApiCommands {
       url = directoryApiBaseUrl + urlSuffix;
       bearerToken = retrieveBearerTokenForGoogleConfigId(debugMap, configId);
     }
-    
+
     String proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".proxyUrl");
     String proxyType = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".proxyType");
-    
-    grouperHttpCall.assignProxyUrl(proxyUrl);
-    grouperHttpCall.assignProxyType(proxyType);
-    
+
     debugMap.put("url", url);
 
-    grouperHttpCall.assignUrl(url);
-    grouperHttpCall.assignGrouperHttpMethod(httpMethodName);
-    
-    grouperHttpCall.addHeader("Content-Type", "application/json");
-    grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
-    grouperHttpCall.assignBody(body);
-    
-    grouperHttpCall.setRetryForThrottlingOrNetworkIssuesSleepMillis(120*1000L); // 2mins
-    
-    grouperHttpCall.setThrottlingCallback(new GrouperHttpThrottlingCallback() {
-      
-      @Override
-      public boolean setupThrottlingCallback(GrouperHttpClient httpClient) {
-        boolean isThrottle = httpClient.getResponseCode() == 403 
-            || httpClient.getResponseCode() == 429 || httpClient.getResponseCode() == 503;
-        if (isThrottle) {                
-          GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
-        }
-        return isThrottle;
-      }
-    });
-    
-    long httpCallStartMillis = System.currentTimeMillis();
-    try {
-      grouperHttpCall.executeRequest();
-    } finally {
-      GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
-          System.currentTimeMillis() - httpCallStartMillis);
-    }
-    
-    int code = -1;
-    String json = null;
+    String[] jsonHolder = new String[] { null };
+    int code = buildAndExecuteHttpCall(debugMap, debugLabel, httpMethodName, url, bearerToken,
+        proxyUrl, proxyType, body, jsonHolder)[0];
+    returnCode[0] = code;
 
-    try {
-      code = grouperHttpCall.getResponseCode();
+    //mid session if we start receiving 401, we need to retrieve the auth token again and continue
+    if (code == 401) {
+      GrouperUtil.mapAddValue(debugMap, "tokenRefreshOn401", 1);
+      if (useSettingsBearerToken) {
+        configKeyToExpiresOnAndSettingsToken.clear();
+        bearerToken = retrieveBearerTokenForGoogleSettingsConfigId(debugMap, configId);
+      } else {
+        configKeyToExpiresOnAndBearerToken.clear();
+        bearerToken = retrieveBearerTokenForGoogleConfigId(debugMap, configId);
+      }
+
+      jsonHolder[0] = null;
+      code = buildAndExecuteHttpCall(debugMap, debugLabel, httpMethodName, url, bearerToken,
+          proxyUrl, proxyType, body, jsonHolder)[0];
       returnCode[0] = code;
-      json = grouperHttpCall.getResponseBody();
-    } catch (Exception e) {
-      throw new RuntimeException("Error connecting to '" + debugMap.get("url") + "'", e);
     }
+
+    String json = jsonHolder[0];
 
     if (!allowedReturnCodes.contains(code)) {
       throw new RuntimeException(
