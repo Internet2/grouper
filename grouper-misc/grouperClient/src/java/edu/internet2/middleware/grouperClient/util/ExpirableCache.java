@@ -401,8 +401,16 @@ public class ExpirableCache<K,V> implements Serializable {
   }
   
   /**
-   * number of elements in map (and check for 
-   * @param evictEvictables true if we should evict values that are stale 
+   * remove a single entry from the cache by key
+   * @param key the key to remove
+   */
+  public synchronized void remove(K key) {
+    this.cache.remove(key);
+  }
+
+  /**
+   * number of elements in map (and check for
+   * @param evictEvictables true if we should evict values that are stale
    * (even if recently checked)
    * @return the number of elements
    */

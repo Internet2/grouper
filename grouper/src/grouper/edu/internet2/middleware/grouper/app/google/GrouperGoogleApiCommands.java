@@ -356,10 +356,10 @@ public class GrouperGoogleApiCommands {
     if (code == 401) {
       GrouperUtil.mapAddValue(debugMap, "tokenRefreshOn401", 1);
       if (useSettingsBearerToken) {
-        configKeyToExpiresOnAndSettingsToken.clear();
+        configKeyToExpiresOnAndSettingsToken.remove(configId);
         bearerToken = retrieveBearerTokenForGoogleSettingsConfigId(debugMap, configId);
       } else {
-        configKeyToExpiresOnAndBearerToken.clear();
+        configKeyToExpiresOnAndBearerToken.remove(configId);
         bearerToken = retrieveBearerTokenForGoogleConfigId(debugMap, configId);
       }
 
@@ -367,6 +367,10 @@ public class GrouperGoogleApiCommands {
       code = buildAndExecuteHttpCall(debugMap, debugLabel, httpMethodName, url, bearerToken,
           proxyUrl, proxyType, body, jsonHolder)[0];
       returnCode[0] = code;
+
+      if (code == 401) {
+        debugMap.put("tokenRefreshFailed", true);
+      }
     }
 
     String json = jsonHolder[0];
