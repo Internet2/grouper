@@ -203,53 +203,61 @@ public class GrouperGoogleApiCommands {
   }
   
   /**
+   * Google tokens typically expire in 60 minutes. Cache well under that to avoid
+   * expired tokens during long-running provisioning jobs with throttling delays.
+   * If expiry > 35 min, cap at 30 min. If 6-35 min, use expiry minus a 5 min buffer. Otherwise use as-is.
+   * @param expiresInSeconds token expiry from Google
+   * @return cache time to live in minutes
+   */
+  static int tokenCacheMinutes(int expiresInSeconds) {
+    int expiresInMinutes = expiresInSeconds / 60;
+    return expiresInMinutes > 35 ? 30 : (expiresInMinutes > 5 ? expiresInMinutes - 5 : expiresInMinutes);
+  }
+
+  /**
    * get bearer token for google config id
    * @param configId
    * @return the bearer token
    */
   private static String retrieveBearerTokenForGoogleConfigId(Map<String, Object> debugMap, String configId) {
-    
+
     String encryptedBearerToken = configKeyToExpiresOnAndBearerToken.get(configId);
-  
+
     if (StringUtils.isNotBlank(encryptedBearerToken)) {
       if (debugMap != null) {
         debugMap.put("googleCachedAccessToken", true);
       }
       return Morph.decrypt(encryptedBearerToken);
     }
-    
-    Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId, 
+
+    Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId,
         "https://www.googleapis.com/auth/admin.directory.user https://www.googleapis.com/auth/admin.directory.group https://www.googleapis.com/auth/admin.directory.group.member");
-    
+
     String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
-    int expiresInSeconds = (Integer) accessTokenAndExpiry[1] - 5; // subtracting 5 just in case if there are network delays
-    int timeToLive = expiresInSeconds/60;
-    configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), timeToLive - 5);
+    configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), tokenCacheMinutes((Integer) accessTokenAndExpiry[1]));
     return accessToken;
   }
-  
+
   /**
    * get bearer token for google settings config id
    * @param configId
    * @return the bearer token
    */
   public static String retrieveBearerTokenForGoogleSettingsConfigId(Map<String, Object> debugMap, String configId) {
-    
+
     String encryptedBearerToken = configKeyToExpiresOnAndSettingsToken.get(configId);
-    
+
     if (StringUtils.isNotBlank(encryptedBearerToken)) {
       if (debugMap != null) {
         debugMap.put("googleCachedAccessTokenForSettings", true);
       }
       return Morph.decrypt(encryptedBearerToken);
     }
-  
+
     Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId, "https://www.googleapis.com/auth/apps.groups.settings");
-    
+
     String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
-    int expiresInSeconds = (Integer) accessTokenAndExpiry[1] - 5; // subtracting 5 just in case if there are network delays
-    int timeToLive = expiresInSeconds/60;
-    configKeyToExpiresOnAndSettingsToken.put(configId, Morph.encrypt(accessToken), timeToLive);
+    configKeyToExpiresOnAndSettingsToken.put(configId, Morph.encrypt(accessToken), tokenCacheMinutes((Integer) accessTokenAndExpiry[1]));
     return accessToken;
   }
   
