@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.azure;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperMockDdl;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -77,7 +79,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
    * 
    */
   public static void ensureAzureMockTables() {
-    
+
     try {
       new GcDbAccess().sql("select count(*) from mock_azure_group").select(int.class);
       new GcDbAccess().sql("select count(*) from mock_azure_user").select(int.class);
@@ -95,17 +97,70 @@ public class AzureMockServiceHandler extends MockServiceHandler {
           GrouperAzureAuth.createTableAzureAuth(ddlVersionBean, database);
           GrouperAzureUser.createTableAzureUser(ddlVersionBean, database);
           GrouperAzureMembership.createTableAzureMembership(ddlVersionBean, database);
-          
+
         }
       });
-  
-    }    
+
+    }
+
+    // ensure extended columns exist on existing tables (added for MCP admin tool)
+    ensureAzureExtendedColumns();
+
+    // ensure mock license table exists
+    ensureAzureLicenseTable();
+  }
+
+  /**
+   * add extended columns to mock_azure_user for MCP admin tool.
+   * uses ALTER TABLE with try/catch since columns may already exist.
+   */
+  private static void ensureAzureExtendedColumns() {
+    String[] alterStatements = {
+        "alter table mock_azure_user add column mail varchar(256)",
+        "alter table mock_azure_user add column user_type varchar(64)",
+        "alter table mock_azure_user add column on_premises_sam_account_name varchar(256)",
+        "alter table mock_azure_user add column on_premises_last_sync_date_time varchar(64)",
+        "alter table mock_azure_user add column proxy_addresses varchar(4000)",
+        "alter table mock_azure_user add column show_in_address_list varchar(1)"
+    };
+    for (String sql : alterStatements) {
+      try {
+        new GcDbAccess().sql(sql).executeSql();
+      } catch (Exception e) {
+        // column probably already exists, ignore
+      }
+    }
+  }
+
+  /**
+   * ensure the mock_azure_license table exists for license details endpoint.
+   */
+  private static void ensureAzureLicenseTable() {
+    try {
+      new GcDbAccess().sql("select count(*) from mock_azure_license").select(int.class);
+    } catch (Exception e) {
+      // create the table
+      GrouperDdlUtils.changeDatabase(GrouperMockDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          Database database = ddlVersionBean.getDatabase();
+
+          Table licenseTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "mock_azure_license");
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(licenseTable, "id", Types.VARCHAR, "40", true, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(licenseTable, "user_id", Types.VARCHAR, "40", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(licenseTable, "sku_id", Types.VARCHAR, "40", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(licenseTable, "sku_part_number", Types.VARCHAR, "256", false, false);
+
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "mock_azure_license", "mock_azure_license_user_idx", false, "user_id");
+        }
+      });
+    }
   }
 
   /**
    * 
    */
   public static void dropAzureMockTables() {
+    MockServiceServlet.dropMockTable("mock_azure_license");
     MockServiceServlet.dropMockTable("mock_azure_membership");
     MockServiceServlet.dropMockTable("mock_azure_user");
     MockServiceServlet.dropMockTable("mock_azure_group");
@@ -151,6 +206,11 @@ public class AzureMockServiceHandler extends MockServiceHandler {
       }
       if ("users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
         getUser(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+      if ("users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 3 == mockServiceRequest.getPostMockNamePaths().length
+          && "licenseDetails".equals(mockServiceRequest.getPostMockNamePaths()[2])) {
+        getUserLicenseDetails(mockServiceRequest, mockServiceResponse);
         return;
       }
     }
@@ -1300,9 +1360,44 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     } else {
       throw new RuntimeException("usersById: " + GrouperUtil.length(grouperAzureUsers) + ", id: " + id);
     }
-  
+
   }
-  
+
+  /**
+   * handle GET /users/{id}/licenseDetails - return mock license details for a user.
+   * reads from mock_azure_license table.
+   */
+  public void getUserLicenseDetails(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+
+    checkAuthorization(mockServiceRequest);
+
+    String userId = mockServiceRequest.getPostMockNamePaths()[1];
+
+    GrouperUtil.assertion(GrouperUtil.length(userId) > 0, "userId is required");
+
+    // look up licenses from mock table
+    List<Object[]> licenseRows = new GcDbAccess().sql(
+        "select id, sku_id, sku_part_number from mock_azure_license where user_id = ?")
+        .addBindVar(userId).selectList(Object[].class);
+
+    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+    ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
+
+    for (Object[] row : licenseRows) {
+      ObjectNode licenseNode = GrouperUtil.jsonJacksonNode();
+      GrouperUtil.jsonJacksonAssignString(licenseNode, "id", (String) row[0]);
+      GrouperUtil.jsonJacksonAssignString(licenseNode, "skuId", (String) row[1]);
+      GrouperUtil.jsonJacksonAssignString(licenseNode, "skuPartNumber", (String) row[2]);
+      valueNode.add(licenseNode);
+    }
+
+    resultNode.set("value", valueNode);
+
+    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setContentType("application/json");
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+  }
+
   public MultiKey patchGroups(JsonNode requestJsonNode, String groupId) {
     
     if (requestJsonNode.has("members@odata.bind")) {

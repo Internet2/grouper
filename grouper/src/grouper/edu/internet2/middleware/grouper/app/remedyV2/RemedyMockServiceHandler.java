@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -436,8 +437,16 @@ public class RemedyMockServiceHandler extends MockServiceHandler {
     String username = mockServiceRequest.getHttpServletRequest().getParameter("username");
     String password = mockServiceRequest.getHttpServletRequest().getParameter("password");
       
-    String expectedUsername = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyConnector."+configId+".username");
-    String expectedPassword = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyConnector."+configId+".password");
+    String expectedUsername = GrouperConfig.retrieveConfig().propertyValueString("grouper.remedyConnector."+configId+".username");
+    if (StringUtils.isBlank(expectedUsername)) {
+      ConfigPropertiesCascadeBase.clearCache();
+      expectedUsername = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyConnector."+configId+".username");
+    }
+    String expectedPassword = GrouperConfig.retrieveConfig().propertyValueString("grouper.remedyConnector."+configId+".password");
+    if (StringUtils.isBlank(expectedPassword)) {
+      ConfigPropertiesCascadeBase.clearCache();
+      expectedPassword = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyConnector."+configId+".password");
+    }
     
     if (StringUtils.equals(username, expectedUsername) && StringUtils.equals(password, expectedPassword)) {
       String jwtToken = GrouperUuid.getUuid();

@@ -574,6 +574,7 @@ public class GrouperMcpServlet extends HttpServlet {
 
     // admin readonly tools
     if (hasAdminReadonlyAccess(authUser)) {
+      addToolIfAllowed(toolsArray, GrouperMcpAdminExternalSystemGet.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpAdminGetDaemonJobMessage.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpAdminGetDaemonJobs.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpAdminSearchConfigs.toolDefinition());
@@ -883,6 +884,12 @@ public class GrouperMcpServlet extends HttpServlet {
               + "Membership in the MCP admin readonly group is required.");
         }
         return GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
+      case "admin_external_system_get":
+        if (!hasAdminReadonlyAccess(authUser)) {
+          return buildMcpErrorResult("Access denied: user is not authorized for admin_external_system_get. "
+              + "Membership in the MCP admin readonly group is required.");
+        }
+        return GrouperMcpAdminExternalSystemGet.execute(arguments, authUser);
       case "admin_daemon_job_message":
         if (!hasAdminReadonlyAccess(authUser)) {
           return buildMcpErrorResult("Access denied: user is not authorized for admin_daemon_job_message. "

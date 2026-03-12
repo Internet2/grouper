@@ -30,10 +30,25 @@ public class GrouperAzureUser {
   private String onPremisesImmutableId;
 
   private String userPrincipalName;
-  
+
   private String password;
-  
+
   private boolean forceChangePasswordNextSignIn = true;
+
+  /**
+   * extended attributes for MCP admin tool - only populated in mock
+   */
+  private String mail;
+
+  private String userType;
+
+  private String onPremisesSamAccountName;
+
+  private String onPremisesLastSyncDateTime;
+
+  private String proxyAddresses;
+
+  private String showInAddressList;
 
   public static final String fieldsToSelect="accountEnabled,displayName,id,mailNickname,onPremisesImmutableId,userPrincipalName";
   
@@ -147,7 +162,55 @@ public class GrouperAzureUser {
   public void setPassword(String password) {
     this.password = password;
   }
-  
+
+  public String getMail() {
+    return mail;
+  }
+
+  public void setMail(String mail) {
+    this.mail = mail;
+  }
+
+  public String getUserType() {
+    return userType;
+  }
+
+  public void setUserType(String userType) {
+    this.userType = userType;
+  }
+
+  public String getOnPremisesSamAccountName() {
+    return onPremisesSamAccountName;
+  }
+
+  public void setOnPremisesSamAccountName(String onPremisesSamAccountName) {
+    this.onPremisesSamAccountName = onPremisesSamAccountName;
+  }
+
+  public String getOnPremisesLastSyncDateTime() {
+    return onPremisesLastSyncDateTime;
+  }
+
+  public void setOnPremisesLastSyncDateTime(String onPremisesLastSyncDateTime) {
+    this.onPremisesLastSyncDateTime = onPremisesLastSyncDateTime;
+  }
+
+  public String getProxyAddresses() {
+    return proxyAddresses;
+  }
+
+  public void setProxyAddresses(String proxyAddresses) {
+    this.proxyAddresses = proxyAddresses;
+  }
+
+  public String getShowInAddressList() {
+    return showInAddressList;
+  }
+
+  public void setShowInAddressList(String showInAddressList) {
+    this.showInAddressList = showInAddressList;
+  }
+
   /**
    * convert from jackson json
    * @param entityNode
@@ -183,7 +246,15 @@ public class GrouperAzureUser {
     grouperAzureUser.mailNickname = GrouperUtil.jsonJacksonGetString(entityNode, "mailNickname");
     grouperAzureUser.onPremisesImmutableId = GrouperUtil.jsonJacksonGetString(entityNode, "onPremisesImmutableId");
     grouperAzureUser.userPrincipalName = GrouperUtil.jsonJacksonGetString(entityNode, "userPrincipalName");
-    
+
+    // extended attributes (used by MCP admin tool mock)
+    grouperAzureUser.mail = GrouperUtil.jsonJacksonGetString(entityNode, "mail");
+    grouperAzureUser.userType = GrouperUtil.jsonJacksonGetString(entityNode, "userType");
+    grouperAzureUser.onPremisesSamAccountName = GrouperUtil.jsonJacksonGetString(entityNode, "onPremisesSamAccountName");
+    grouperAzureUser.onPremisesLastSyncDateTime = GrouperUtil.jsonJacksonGetString(entityNode, "onPremisesLastSyncDateTime");
+    grouperAzureUser.proxyAddresses = GrouperUtil.jsonJacksonGetString(entityNode, "proxyAddresses");
+    grouperAzureUser.showInAddressList = GrouperUtil.jsonJacksonGetString(entityNode, "showInAddressList");
+
     return grouperAzureUser;
   }
 
@@ -230,10 +301,30 @@ public class GrouperAzureUser {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("onPremisesImmutableId")) {      
       GrouperUtil.jsonJacksonAssignString(result, "onPremisesImmutableId", this.onPremisesImmutableId);
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("userPrincipalName")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("userPrincipalName")) {
       GrouperUtil.jsonJacksonAssignString(result, "userPrincipalName", this.userPrincipalName);
     }
-    
+
+    // extended attributes (used by MCP admin tool mock)
+    if (fieldNamesToSet != null && fieldNamesToSet.contains("mail")) {
+      GrouperUtil.jsonJacksonAssignString(result, "mail", this.mail);
+    }
+    if (fieldNamesToSet != null && fieldNamesToSet.contains("userType")) {
+      GrouperUtil.jsonJacksonAssignString(result, "userType", this.userType);
+    }
+    if (fieldNamesToSet != null && fieldNamesToSet.contains("onPremisesSamAccountName")) {
+      GrouperUtil.jsonJacksonAssignString(result, "onPremisesSamAccountName", this.onPremisesSamAccountName);
+    }
+    if (fieldNamesToSet != null && fieldNamesToSet.contains("onPremisesLastSyncDateTime")) {
+      GrouperUtil.jsonJacksonAssignString(result, "onPremisesLastSyncDateTime", this.onPremisesLastSyncDateTime);
+    }
+    if (fieldNamesToSet != null && fieldNamesToSet.contains("proxyAddresses")) {
+      GrouperUtil.jsonJacksonAssignString(result, "proxyAddresses", this.proxyAddresses);
+    }
+    if (fieldNamesToSet != null && fieldNamesToSet.contains("showInAddressList")) {
+      GrouperUtil.jsonJacksonAssignString(result, "showInAddressList", this.showInAddressList);
+    }
+
     if (fieldNamesToSet == null || fieldNamesToSet.contains("password")) {
       
       ObjectNode passwordProfileObjectNode = result.putObject("passwordProfile");
@@ -270,7 +361,15 @@ public class GrouperAzureUser {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_nickname", Types.VARCHAR, "256", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "on_premises_immutable_id", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "user_principal_name", Types.VARCHAR, "256", false, true);
-      
+
+      // extended attributes for MCP admin tool
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "user_type", Types.VARCHAR, "64", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "on_premises_sam_account_name", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "on_premises_last_sync_date_time", Types.VARCHAR, "64", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "proxy_addresses", Types.VARCHAR, "4000", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "show_in_address_list", Types.VARCHAR, "1", false, false);
+
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_azure_user_upn_idx", false, "user_principal_name");
     }
     
