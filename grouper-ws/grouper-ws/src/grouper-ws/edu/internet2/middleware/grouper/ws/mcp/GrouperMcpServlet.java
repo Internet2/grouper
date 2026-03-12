@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthClient;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthSigningKey;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
+import edu.internet2.middleware.grouper.mcp.GrouperMcpDocSearchIndex;
 import edu.internet2.middleware.grouper.mcp.GrouperMcpToolLog;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -542,6 +543,10 @@ public class GrouperMcpServlet extends HttpServlet {
 
     // readonly tools (readwrite implies readonly)
     if (hasReadonlyAccess(authUser)) {
+      // only advertise doc_search if at least one source is available for this user
+      if (GrouperMcpDocSearchIndex.hasAnySourcesForSubject(authUser.getSubject())) {
+        addToolIfAllowed(toolsArray, GrouperMcpDocSearch.toolDefinition());
+      }
       addToolIfAllowed(toolsArray, GrouperMcpFindAttributeDefNames.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpFindGroups.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpFindStems.toolDefinition());
@@ -751,6 +756,12 @@ public class GrouperMcpServlet extends HttpServlet {
               + "Membership in the MCP readonly or readwrite group is required.");
         }
         return GrouperMcpFindAttributeDefNames.execute(arguments, authUser);
+      case "doc_search":
+        if (!hasReadonlyAccess(authUser)) {
+          return buildMcpErrorResult("Access denied: user is not authorized for doc_search. "
+              + "Membership in the MCP readonly or readwrite group is required.");
+        }
+        return GrouperMcpDocSearch.execute(arguments, authUser);
       case "attribute_assignment_get":
         if (!hasReadonlyAccess(authUser)) {
           return buildMcpErrorResult("Access denied: user is not authorized for attribute_assignment_get. "
