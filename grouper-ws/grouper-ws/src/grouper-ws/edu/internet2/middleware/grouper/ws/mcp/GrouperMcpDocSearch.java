@@ -76,7 +76,8 @@ public class GrouperMcpDocSearch {
         + "Use action 'retrieveChunk' to retrieve specific chunks by sourceConfigId, name, and chunkIndexes "
         + "(useful for getting additional context around a search result). "
         + "Use action 'listSourceConfigIds' to list available documentation sources with descriptions. "
-        + "Use action 'listNames' to list document names for a given sourceConfigId. ");
+        + "Use action 'listNames' to list document names for a given sourceConfigId. "
+        + "If results contain 'url' attributes, display them to the user as links so they can navigate to the source document. ");
 
     Set<String> configIds = GrouperMcpDocSearchIndex.getConfigIds();
     if (!configIds.isEmpty()) {

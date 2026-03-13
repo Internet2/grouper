@@ -19,9 +19,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.CompositeSave;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -502,6 +504,7 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
     assertNotNull(properties.get("includeGdgTypes"));
     assertNotNull(properties.get("includeGroupEligibilityRequirement"));
     assertNotNull(properties.get("includeProvisioning"));
+    assertNotNull(properties.get("includeCompositeInfo"));
 
     // verify required fields
     JsonNode required = toolDef.get("inputSchema").get("required");
@@ -545,6 +548,129 @@ public class GrouperMcpFindGroupsTest extends GrouperTest {
         assertEquals(1, responseNode.get("totalGroupsReturned").asInt());
         // group may or may not have types assigned, just verify it doesn't error
         assertNotNull(responseNode.get("groups").get(0).get("name"));
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * test finding a composite group with includeCompositeInfo=true
+   */
+  public void testFindGroupsIncludeCompositeInfo() {
+
+    // create left and right factor groups
+    Group leftGroup = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:mcpCompositeLeft")
+        .assignName("test:mcpCompositeLeft")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("left factor group").save();
+
+    Group rightGroup = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:mcpCompositeRight")
+        .assignName("test:mcpCompositeRight")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("right factor group").save();
+
+    // create the composite (owner) group
+    Group compositeGroup = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:mcpCompositeOwner")
+        .assignName("test:mcpCompositeOwner")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("composite owner group").save();
+
+    // create the composite relationship (union)
+    new CompositeSave()
+        .assignOwnerGroupName("test:mcpCompositeOwner")
+        .assignLeftFactorGroupName("test:mcpCompositeLeft")
+        .assignRightFactorGroupName("test:mcpCompositeRight")
+        .assignCompositeType(CompositeType.UNION)
+        .save();
+
+    compositeGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    leftGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    rightGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      // test finding the composite owner group with includeCompositeInfo=true
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("queryFilterType", "FIND_BY_GROUP_NAME_EXACT");
+      arguments.put("groupName", "test:mcpCompositeOwner");
+      arguments.put("includeCompositeInfo", true);
+
+      ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+        assertEquals(1, responseNode.get("totalGroupsReturned").asInt());
+        JsonNode groups = responseNode.get("groups");
+        JsonNode groupNode = groups.get(0);
+        assertEquals("test:mcpCompositeOwner", groupNode.get("name").asText());
+        assertTrue("Group should be marked as composite", groupNode.get("isComposite").asBoolean());
+        JsonNode compositeInfo = groupNode.get("compositeInfo");
+        assertNotNull("compositeInfo should be present", compositeInfo);
+        assertEquals("union", compositeInfo.get("compositeType").asText());
+        assertEquals("test:mcpCompositeLeft", compositeInfo.get("leftFactorGroupName").asText());
+        assertEquals("test:mcpCompositeRight", compositeInfo.get("rightFactorGroupName").asText());
+      } catch (Exception e) {
+        fail("Failed to parse result JSON: " + e.getMessage());
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * test finding a non-composite group with includeCompositeInfo=true
+   */
+  public void testFindGroupsIncludeCompositeInfoNonComposite() {
+
+    Group group1 = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:mcpNonCompositeGroup")
+        .assignName("test:mcpNonCompositeGroup")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("non-composite group").save();
+
+    group1.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("queryFilterType", "FIND_BY_GROUP_NAME_EXACT");
+      arguments.put("groupName", "test:mcpNonCompositeGroup");
+      arguments.put("includeCompositeInfo", true);
+
+      ObjectNode result = GrouperMcpFindGroups.execute(arguments, authUser);
+
+      assertFalse("Expected success, got: " + result.toString(),
+          result.get("isError").asBoolean());
+
+      String text = result.get("content").get(0).get("text").asText();
+      try {
+        JsonNode responseNode = objectMapper.readTree(text);
+        assertEquals(1, responseNode.get("totalGroupsReturned").asInt());
+        JsonNode groups = responseNode.get("groups");
+        JsonNode groupNode = groups.get(0);
+        assertEquals("test:mcpNonCompositeGroup", groupNode.get("name").asText());
+        assertFalse("Group should not be marked as composite",
+            groupNode.get("isComposite").asBoolean());
+        assertNull("compositeInfo should not be present for non-composite group",
+            groupNode.get("compositeInfo"));
       } catch (Exception e) {
         fail("Failed to parse result JSON: " + e.getMessage());
       }

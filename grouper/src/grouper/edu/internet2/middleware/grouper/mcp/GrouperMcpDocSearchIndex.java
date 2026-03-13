@@ -114,6 +114,9 @@ public class GrouperMcpDocSearchIndex {
   /** when the index was last built (millis since epoch) */
   private static volatile long lastIndexBuildMillis = 0;
 
+  /** whether a background build is currently in progress */
+  private static volatile boolean buildInProgress = false;
+
   /** lock for index building */
   private static final Object INDEX_LOCK = new Object();
 
@@ -305,7 +308,9 @@ public class GrouperMcpDocSearchIndex {
   }
 
   /**
-   * rebuild the index if it is stale or not yet built
+   * rebuild the index if it is stale or not yet built.
+   * runs the build in a background thread so the calling thread is not blocked.
+   * if a build is already in progress, this is a no-op.
    */
   public static void rebuildIfNeeded() {
     if (currentReader != null) {
@@ -319,8 +324,16 @@ public class GrouperMcpDocSearchIndex {
       }
     }
 
+    // if a build is already in progress, don't start another one
+    if (buildInProgress) {
+      return;
+    }
+
     synchronized (INDEX_LOCK) {
       // double-check after acquiring lock
+      if (buildInProgress) {
+        return;
+      }
       if (currentReader != null) {
         long now = System.currentTimeMillis();
         long elapsed = now - lastIndexBuildMillis;
@@ -330,16 +343,34 @@ public class GrouperMcpDocSearchIndex {
         }
       }
 
-      buildIndex();
+      buildInProgress = true;
     }
+
+    // run the build in a background thread
+    Thread buildThread = new Thread(() -> {
+      try {
+        synchronized (INDEX_LOCK) {
+          buildIndex();
+        }
+      } finally {
+        buildInProgress = false;
+      }
+    }, "GrouperMcpDocSearchIndexBuilder");
+    buildThread.setDaemon(true);
+    buildThread.start();
   }
 
   /**
-   * force rebuild the index now
+   * force rebuild the index now (synchronously, blocks the calling thread)
    */
   public static void forceRebuild() {
     synchronized (INDEX_LOCK) {
-      buildIndex();
+      buildInProgress = true;
+      try {
+        buildIndex();
+      } finally {
+        buildInProgress = false;
+      }
     }
   }
 

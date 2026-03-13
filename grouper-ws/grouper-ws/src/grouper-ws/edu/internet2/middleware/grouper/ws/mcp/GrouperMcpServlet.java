@@ -279,7 +279,7 @@ public class GrouperMcpServlet extends HttpServlet {
               decodedJwt.getClaim("grouper_readwrite_subjects").asList(String.class));
         }
 
-        if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.mcp.logOauthScopeDebug", false)) {
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oauth.logAuthDebug", false)) {
           LOG.warn("MCP OAuth scope: readwrite=" + authUser.isConsentScopeReadwrite()
               + ", folders=" + authUser.getConsentReadwriteFolders()
               + ", groups=" + authUser.getConsentReadwriteGroups()
@@ -528,6 +528,13 @@ public class GrouperMcpServlet extends HttpServlet {
     serverInfo.put("version", SERVER_VERSION);
     result.set("serverInfo", serverInfo);
 
+    // include instructions for the AI client (default is in grouper.base.properties)
+    String instructions = GrouperConfig.retrieveConfig()
+        .propertyValueString("grouper.mcp.instructions");
+    if (StringUtils.isNotBlank(instructions)) {
+      result.put("instructions", instructions);
+    }
+
     return result;
   }
 
@@ -541,56 +548,71 @@ public class GrouperMcpServlet extends HttpServlet {
     ObjectNode result = objectMapper.createObjectNode();
     ArrayNode toolsArray = objectMapper.createArrayNode();
 
-    // readonly tools (readwrite implies readonly)
-    if (hasReadonlyAccess(authUser)) {
-      // only advertise doc_search if at least one source is available for this user
-      if (GrouperMcpDocSearchIndex.hasAnySourcesForSubject(authUser.getSubject())) {
-        addToolIfAllowed(toolsArray, GrouperMcpDocSearch.toolDefinition());
-      }
-      addToolIfAllowed(toolsArray, GrouperMcpFindAttributeDefNames.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpFindGroups.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpFindStems.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpGetAttributeAssignmentsLite.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpGetAuditEntries.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpGetGrouperPrivilegesLite.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpGetGroups.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpGetMembersLite.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpGetMemberships.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpGetSubjects.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpHasMember.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpInstitutionalTools.toolDefinition());
-    }
+    // use callbackGrouperSession to put the authenticated MCP user's session
+    // on the thread-local, consistent with handleToolsCall
+    GrouperSession grouperSession = GrouperSession.start(authUser.getSubject(), false);
+    try {
+      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
 
-    // readwrite tools
-    if (hasReadwriteAccess(authUser)) {
-      addToolIfAllowed(toolsArray, GrouperMcpAddMember.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpAssignAttributes.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpAssignGrouperPrivilegesLite.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpDeleteMember.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpFolderDelete.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpGroupDelete.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpGroupSave.toolDefinition());
-    }
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
 
-    // SQL readonly tools
-    if (hasSqlReadonlyAccess(authUser)) {
-      addToolIfAllowed(toolsArray, GrouperMcpSqlGetSchema.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpSqlSelect.toolDefinition());
-    }
+          // readonly tools (readwrite implies readonly)
+          if (hasReadonlyAccess(authUser)) {
+            // only advertise doc_search if at least one source is available for this user
+            if (GrouperMcpDocSearchIndex.hasAnySourcesForSubject(authUser.getSubject())) {
+              addToolIfAllowed(toolsArray, GrouperMcpDocSearch.toolDefinition());
+            }
+            addToolIfAllowed(toolsArray, GrouperMcpFindAttributeDefNames.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpFindGroups.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpFindStems.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpGetAttributeAssignmentsLite.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpGetAuditEntries.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpGetGrouperPrivilegesLite.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpGetGroups.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpGetMembersLite.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpGetMemberships.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpGetSubjects.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpHasMember.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpInstitutionalTools.toolDefinition());
+          }
 
-    // admin readonly tools
-    if (hasAdminReadonlyAccess(authUser)) {
-      addToolIfAllowed(toolsArray, GrouperMcpAdminExternalSystemGet.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpAdminGetDaemonJobMessage.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpAdminGetDaemonJobs.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpAdminSearchConfigs.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpAdminSearchDaemons.toolDefinition());
-      addToolIfAllowed(toolsArray, GrouperMcpLdapSearch.toolDefinition());
-    }
+          // readwrite tools
+          if (hasReadwriteAccess(authUser)) {
+            addToolIfAllowed(toolsArray, GrouperMcpAddMember.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpAssignAttributes.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpAssignGrouperPrivilegesLite.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpDeleteMember.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpFolderDelete.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpGroupDelete.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpGroupSave.toolDefinition());
+          }
 
-    // admin readwrite tools
-    if (hasAdminReadwriteAccess(authUser)) {
-      addToolIfAllowed(toolsArray, GrouperMcpAdminRunDaemonJob.toolDefinition());
+          // SQL readonly tools
+          if (hasSqlReadonlyAccess(authUser)) {
+            addToolIfAllowed(toolsArray, GrouperMcpSqlGetSchema.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpSqlSelect.toolDefinition());
+          }
+
+          // admin readonly tools
+          if (hasAdminReadonlyAccess(authUser)) {
+            addToolIfAllowed(toolsArray, GrouperMcpAdminExternalSystemGet.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpAdminGetDaemonJobMessage.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpAdminGetDaemonJobs.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpAdminSearchConfigs.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpAdminSearchDaemons.toolDefinition());
+            addToolIfAllowed(toolsArray, GrouperMcpLdapSearch.toolDefinition());
+          }
+
+          // admin readwrite tools
+          if (hasAdminReadwriteAccess(authUser)) {
+            addToolIfAllowed(toolsArray, GrouperMcpAdminRunDaemonJob.toolDefinition());
+          }
+
+          return null;
+        }
+      });
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
 
     result.set("tools", toolsArray);

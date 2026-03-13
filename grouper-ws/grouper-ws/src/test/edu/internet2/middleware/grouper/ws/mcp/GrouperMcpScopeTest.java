@@ -199,6 +199,38 @@ public class GrouperMcpScopeTest extends GrouperTest {
   }
 
   /**
+   * when folder scope has a trailing colon (e.g. "school:departments:"),
+   * it should still match groups under that folder
+   */
+  public void testGroupInScope_restricted_withFolders_trailingColon() {
+    GrouperMcpAuthUser authUser = createAuthUser(true,
+        Arrays.asList("school:departments:"), null, null);
+
+    assertTrue("group under consented folder with trailing colon is in scope",
+        authUser.isGroupInReadwriteScope("school:departments:engineering"));
+    assertTrue("group deeply under consented folder with trailing colon is in scope",
+        authUser.isGroupInReadwriteScope("school:departments:engineering:team1"));
+    assertFalse("group outside consented folder is not in scope",
+        authUser.isGroupInReadwriteScope("school:clubs:chess"));
+  }
+
+  /**
+   * when folder scope has a trailing colon (e.g. "school:departments:"),
+   * isStemInReadwriteScope should still match stems under that folder
+   */
+  public void testStemInScope_restricted_withFolders_trailingColon() {
+    GrouperMcpAuthUser authUser = createAuthUser(true,
+        Arrays.asList("school:departments:"), null, null);
+
+    assertTrue("stem matching consented folder with trailing colon is in scope",
+        authUser.isStemInReadwriteScope("school:departments"));
+    assertTrue("stem under consented folder with trailing colon is in scope",
+        authUser.isStemInReadwriteScope("school:departments:engineering"));
+    assertFalse("stem outside consented folder is not in scope",
+        authUser.isStemInReadwriteScope("school:clubs"));
+  }
+
+  /**
    * when consentReadwriteScopeRestricted is true with explicit group restrictions,
    * only matching groups are in scope
    */

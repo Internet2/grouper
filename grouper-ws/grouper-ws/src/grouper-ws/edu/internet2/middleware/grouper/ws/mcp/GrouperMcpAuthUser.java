@@ -418,7 +418,9 @@ public class GrouperMcpAuthUser {
     // check folder containment (only applicable to name, not UUID)
     if (hasFolders && StringUtils.isNotBlank(groupName)) {
       for (String consentedFolder : this.consentReadwriteFolders) {
-        if (groupName.startsWith(consentedFolder + ":")) {
+        // strip trailing colon if someone typed "folder:" instead of "folder"
+        String folder = StringUtils.stripEnd(consentedFolder, ":");
+        if (groupName.startsWith(folder + ":")) {
           return true;
         }
       }
@@ -475,9 +477,11 @@ public class GrouperMcpAuthUser {
     }
 
     for (String consentedFolder : this.consentReadwriteFolders) {
+      // strip trailing colon if someone typed "folder:" instead of "folder"
+      String folder = StringUtils.stripEnd(consentedFolder, ":");
       // stem name matches a consented folder or is under a consented folder
       if (StringUtils.isNotBlank(stemName)
-          && (consentedFolder.equals(stemName) || stemName.startsWith(consentedFolder + ":"))) {
+          && (folder.equals(stemName) || stemName.startsWith(folder + ":"))) {
         return true;
       }
       // also check UUID against the folder list (scope may contain UUIDs)
