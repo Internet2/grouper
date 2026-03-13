@@ -16,9 +16,20 @@
 package edu.internet2.middleware.grouper.ws.mcp;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -36,6 +47,8 @@ import edu.internet2.middleware.subject.Subject;
  * @author mchyzer
  */
 public class GrouperMcpAuthUser {
+
+  private static final Log LOG = GrouperUtil.getLog(GrouperMcpAuthUser.class);
 
   /**
    * the resolved Grouper subject for the authenticated user
@@ -339,16 +352,43 @@ public class GrouperMcpAuthUser {
 
   /**
    * Check if a group name is within the readwrite scope restriction.
-   * If no folder/group restrictions are set: when consentReadwriteScopeRestricted
-   * is false all groups are in scope; when true, groups are in scope only if
-   * at least one other dimension (subjects) has values (meaning this dimension
-   * is simply unscoped, not blocked).
-   * A group is in scope if it matches a consented group path, or if its name
-   * starts with a consented folder path followed by ":".
+   * First checks the name directly against the scope lists. If no match is found,
+   * resolves the group to get its UUID and checks that as well. This allows
+   * the scope list to contain either group names or UUIDs.
    * @param groupName the full group name (ID path)
    * @return true if the group is in the readwrite scope
    */
   public boolean isGroupInReadwriteScope(String groupName) {
+    // first try with just the name (fast path, no DB lookup)
+    if (isGroupInReadwriteScope(groupName, null)) {
+      return true;
+    }
+    // if name didn't match, resolve the group to get the UUID and try that
+    try {
+      Group group = GroupFinder.findByName(groupName, false);
+      if (group != null) {
+        return isGroupInReadwriteScope(null, group.getUuid());
+      }
+    } catch (Exception e) {
+      LOG.debug("Could not resolve group for scope check: " + groupName, e);
+    }
+    return false;
+  }
+
+  /**
+   * Check if a group is within the readwrite scope restriction by checking
+   * both the group name and UUID against the scope lists.
+   * If no folder/group restrictions are set: when consentReadwriteScopeRestricted
+   * is false all groups are in scope; when true, groups are in scope only if
+   * at least one other dimension (subjects) has values (meaning this dimension
+   * is simply unscoped, not blocked).
+   * A group is in scope if its name or UUID matches a consented group entry,
+   * or if its name starts with a consented folder path followed by ":".
+   * @param groupName the full group name (ID path), may be null
+   * @param groupUuid the group UUID, may be null
+   * @return true if the group is in the readwrite scope
+   */
+  public boolean isGroupInReadwriteScope(String groupName, String groupUuid) {
     boolean hasFolders = this.consentReadwriteFolders != null
         && !this.consentReadwriteFolders.isEmpty();
     boolean hasGroups = this.consentReadwriteGroups != null
@@ -362,17 +402,21 @@ public class GrouperMcpAuthUser {
       return !this.consentReadwriteScopeRestricted || hasAnyReadwriteScopeValues();
     }
 
-    // check specific group list
+    // check group name against specific group list
     if (hasGroups) {
       for (String consentedGroup : this.consentReadwriteGroups) {
-        if (consentedGroup.equals(groupName)) {
+        if (StringUtils.isNotBlank(groupName) && consentedGroup.equals(groupName)) {
+          return true;
+        }
+        // also check UUID against the group list (scope may contain UUIDs)
+        if (StringUtils.isNotBlank(groupUuid) && consentedGroup.equals(groupUuid)) {
           return true;
         }
       }
     }
 
-    // check folder containment
-    if (hasFolders) {
+    // check folder containment (only applicable to name, not UUID)
+    if (hasFolders && StringUtils.isNotBlank(groupName)) {
       for (String consentedFolder : this.consentReadwriteFolders) {
         if (groupName.startsWith(consentedFolder + ":")) {
           return true;
@@ -385,16 +429,43 @@ public class GrouperMcpAuthUser {
 
   /**
    * Check if a stem (folder) name is within the readwrite scope restriction.
-   * If no folder restrictions are set: when consentReadwriteScopeRestricted
-   * is false all stems are in scope; when true, stems are in scope only if
-   * at least one other dimension has values (meaning this dimension
-   * is simply unscoped, not blocked).
-   * A stem is in scope if it matches a consented folder path, or if its name
-   * starts with a consented folder path followed by ":".
+   * First checks the name directly against the scope lists. If no match is found,
+   * resolves the stem to get its UUID and checks that as well. This allows
+   * the scope list to contain either stem names or UUIDs.
    * @param stemName the full stem name (ID path)
    * @return true if the stem is in the readwrite scope
    */
   public boolean isStemInReadwriteScope(String stemName) {
+    // first try with just the name (fast path, no DB lookup)
+    if (isStemInReadwriteScope(stemName, null)) {
+      return true;
+    }
+    // if name didn't match, resolve the stem to get the UUID and try that
+    try {
+      Stem stem = StemFinder.findByName(stemName, false);
+      if (stem != null) {
+        return isStemInReadwriteScope(null, stem.getUuid());
+      }
+    } catch (Exception e) {
+      LOG.debug("Could not resolve stem for scope check: " + stemName, e);
+    }
+    return false;
+  }
+
+  /**
+   * Check if a stem (folder) is within the readwrite scope restriction
+   * by checking both the stem name and UUID against the scope lists.
+   * If no folder restrictions are set: when consentReadwriteScopeRestricted
+   * is false all stems are in scope; when true, stems are in scope only if
+   * at least one other dimension has values (meaning this dimension
+   * is simply unscoped, not blocked).
+   * A stem is in scope if its name or UUID matches a consented folder entry,
+   * or if its name starts with a consented folder path followed by ":".
+   * @param stemName the full stem name (ID path), may be null
+   * @param stemUuid the stem UUID, may be null
+   * @return true if the stem is in the readwrite scope
+   */
+  public boolean isStemInReadwriteScope(String stemName, String stemUuid) {
     if (this.consentReadwriteFolders == null
         || this.consentReadwriteFolders.isEmpty()) {
       // if scope restrictions are not active, all stems are allowed
@@ -404,8 +475,13 @@ public class GrouperMcpAuthUser {
     }
 
     for (String consentedFolder : this.consentReadwriteFolders) {
-      // stem is a consented folder or under a consented folder
-      if (consentedFolder.equals(stemName) || stemName.startsWith(consentedFolder + ":")) {
+      // stem name matches a consented folder or is under a consented folder
+      if (StringUtils.isNotBlank(stemName)
+          && (consentedFolder.equals(stemName) || stemName.startsWith(consentedFolder + ":"))) {
+        return true;
+      }
+      // also check UUID against the folder list (scope may contain UUIDs)
+      if (StringUtils.isNotBlank(stemUuid) && consentedFolder.equals(stemUuid)) {
         return true;
       }
     }
@@ -415,14 +491,71 @@ public class GrouperMcpAuthUser {
 
   /**
    * Check if a subject ID or identifier is within the readwrite scope restriction.
-   * If no subject restrictions are set: when consentReadwriteScopeRestricted
-   * is false all subjects are in scope; when true, subjects are in scope only if
-   * at least one other dimension has values (meaning this dimension
-   * is simply unscoped, not blocked).
+   * First checks the provided value directly. If no match is found, resolves
+   * the member record to get all identifiers (subjectId, subjectIdentifier0,
+   * subjectIdentifier1, subjectIdentifier2) and checks those as well. This allows
+   * the scope list to contain any form of subject identifier and still match
+   * regardless of which form the API caller uses.
    * @param subjectIdOrIdentifier the subject ID or identifier to check
    * @return true if the subject is in the readwrite scope
    */
   public boolean isSubjectInReadwriteScope(String subjectIdOrIdentifier) {
+    // first try with just the provided value (fast path, no DB lookup)
+    List<String> identifiers = new ArrayList<String>();
+    if (StringUtils.isNotBlank(subjectIdOrIdentifier)) {
+      identifiers.add(subjectIdOrIdentifier);
+    }
+    if (isSubjectInReadwriteScope(identifiers)) {
+      return true;
+    }
+    // if direct match failed and there are scope restrictions, resolve the member
+    // to get all identifiers and try those
+    if (this.consentReadwriteSubjects != null && !this.consentReadwriteSubjects.isEmpty()
+        && StringUtils.isNotBlank(subjectIdOrIdentifier)) {
+      try {
+        Member member = MemberFinder.find(null, null, null, subjectIdOrIdentifier, null);
+        if (member != null) {
+          List<String> allIdentifiers = new ArrayList<String>();
+          allIdentifiers.add(subjectIdOrIdentifier);
+          if (StringUtils.isNotBlank(member.getSubjectId())
+              && !allIdentifiers.contains(member.getSubjectId())) {
+            allIdentifiers.add(member.getSubjectId());
+          }
+          if (StringUtils.isNotBlank(member.getSubjectIdentifier0())
+              && !allIdentifiers.contains(member.getSubjectIdentifier0())) {
+            allIdentifiers.add(member.getSubjectIdentifier0());
+          }
+          if (StringUtils.isNotBlank(member.getSubjectIdentifier1())
+              && !allIdentifiers.contains(member.getSubjectIdentifier1())) {
+            allIdentifiers.add(member.getSubjectIdentifier1());
+          }
+          if (StringUtils.isNotBlank(member.getSubjectIdentifier2())
+              && !allIdentifiers.contains(member.getSubjectIdentifier2())) {
+            allIdentifiers.add(member.getSubjectIdentifier2());
+          }
+          return isSubjectInReadwriteScope(allIdentifiers);
+        }
+      } catch (Exception e) {
+        LOG.debug("Could not resolve member for scope check: " + subjectIdOrIdentifier, e);
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Check if any of the given subject identifiers (subjectId, subjectIdentifier0,
+   * subjectIdentifier1, subjectIdentifier2, etc.) are within the readwrite scope
+   * restriction. This allows the scope list to contain any form of subject identifier
+   * (ID, identifier0, identifier1, identifier2) and still match regardless of which
+   * form the API caller uses.
+   * If no subject restrictions are set: when consentReadwriteScopeRestricted
+   * is false all subjects are in scope; when true, subjects are in scope only if
+   * at least one other dimension has values (meaning this dimension
+   * is simply unscoped, not blocked).
+   * @param subjectIdsAndIdentifiers all known IDs and identifiers for the subject
+   * @return true if any of the identifiers matches the readwrite scope
+   */
+  public boolean isSubjectInReadwriteScope(List<String> subjectIdsAndIdentifiers) {
     if (this.consentReadwriteSubjects == null
         || this.consentReadwriteSubjects.isEmpty()) {
       // if scope restrictions are not active, all subjects are allowed
@@ -431,9 +564,13 @@ public class GrouperMcpAuthUser {
       return !this.consentReadwriteScopeRestricted || hasAnyReadwriteScopeValues();
     }
 
-    for (String consentedSubject : this.consentReadwriteSubjects) {
-      if (consentedSubject.equals(subjectIdOrIdentifier)) {
-        return true;
+    for (String candidate : subjectIdsAndIdentifiers) {
+      if (StringUtils.isNotBlank(candidate)) {
+        for (String consentedSubject : this.consentReadwriteSubjects) {
+          if (consentedSubject.equals(candidate)) {
+            return true;
+          }
+        }
       }
     }
     return false;

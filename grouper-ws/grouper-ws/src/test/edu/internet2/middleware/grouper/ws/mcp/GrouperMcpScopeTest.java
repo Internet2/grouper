@@ -26,6 +26,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -958,6 +962,337 @@ public class GrouperMcpScopeTest extends GrouperTest {
       ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
 
       assertFalse("Expected success (scope check passed), got: " + result.toString(),
+          result.get("isError").asBoolean());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  // ========================================================================
+  // UUID and multi-identifier scope matching tests (pure method tests)
+  // ========================================================================
+
+  /**
+   * when scope contains a group UUID, isGroupInReadwriteScope should match
+   * when the UUID is passed
+   */
+  public void testGroupInScope_byUuid() {
+    String groupUuid = "abc-123-def-456";
+    GrouperMcpAuthUser authUser = createAuthUser(true,
+        null, Arrays.asList(groupUuid), null);
+
+    // should match when UUID is passed
+    assertTrue("group should be in scope when UUID matches consented group",
+        authUser.isGroupInReadwriteScope(null, groupUuid));
+    assertTrue("group should be in scope when UUID matches consented group (with name)",
+        authUser.isGroupInReadwriteScope("some:other:name", groupUuid));
+
+    // should not match a different UUID
+    assertFalse("group should not be in scope with different UUID",
+        authUser.isGroupInReadwriteScope(null, "different-uuid"));
+    assertFalse("group should not be in scope with only non-matching name",
+        authUser.isGroupInReadwriteScope("some:group", null));
+  }
+
+  /**
+   * when scope contains a group name, isGroupInReadwriteScope should match
+   * by name even when a UUID is also provided
+   */
+  public void testGroupInScope_byNameWithUuid() {
+    GrouperMcpAuthUser authUser = createAuthUser(true,
+        null, Arrays.asList("school:departments:engineering"), null);
+
+    // should match by name
+    assertTrue("group should match by name even when UUID is also passed",
+        authUser.isGroupInReadwriteScope("school:departments:engineering", "some-uuid"));
+    // should not match by UUID alone
+    assertFalse("group should not match by UUID when scope contains names",
+        authUser.isGroupInReadwriteScope("other:group", "some-uuid"));
+  }
+
+  /**
+   * when scope contains a folder path, groups under that folder should match
+   * regardless of UUID
+   */
+  public void testGroupInScope_folderContainmentWithUuid() {
+    GrouperMcpAuthUser authUser = createAuthUser(true,
+        Arrays.asList("school:departments"), null, null);
+
+    assertTrue("group under folder should be in scope",
+        authUser.isGroupInReadwriteScope("school:departments:engineering", "some-uuid"));
+    assertFalse("group outside folder should not be in scope even with UUID",
+        authUser.isGroupInReadwriteScope("school:clubs:chess", "some-uuid"));
+  }
+
+  /**
+   * when scope contains a stem UUID, isStemInReadwriteScope should match
+   * when the UUID is passed
+   */
+  public void testStemInScope_byUuid() {
+    String stemUuid = "stem-uuid-789";
+    GrouperMcpAuthUser authUser = createAuthUser(true,
+        Arrays.asList(stemUuid), null, null);
+
+    // should match when UUID is passed
+    assertTrue("stem should be in scope when UUID matches consented folder",
+        authUser.isStemInReadwriteScope(null, stemUuid));
+    assertTrue("stem should be in scope when UUID matches consented folder (with name)",
+        authUser.isStemInReadwriteScope("some:other:stem", stemUuid));
+
+    // should not match a different UUID
+    assertFalse("stem should not be in scope with different UUID",
+        authUser.isStemInReadwriteScope(null, "different-uuid"));
+  }
+
+  /**
+   * isSubjectInReadwriteScope with a list of identifiers should match
+   * if any identifier is in the scope list
+   */
+  public void testSubjectInScope_multipleIdentifiers() {
+    GrouperMcpAuthUser authUser = createAuthUser(true,
+        null, null, Arrays.asList("jsmith"));
+
+    // should match when any identifier in the list matches
+    assertTrue("should match when subjectIdentifier0 matches scope",
+        authUser.isSubjectInReadwriteScope(
+            Arrays.asList("12345", "jsmith", "john.smith@example.com")));
+
+    // should match if the matching identifier is not the first
+    assertTrue("should match when subjectId is first but identifier matches",
+        authUser.isSubjectInReadwriteScope(
+            Arrays.asList("other-id", "jsmith")));
+
+    // should not match when no identifier matches
+    assertFalse("should not match when no identifier matches",
+        authUser.isSubjectInReadwriteScope(
+            Arrays.asList("12345", "john.smith@example.com")));
+  }
+
+  /**
+   * isSubjectInReadwriteScope with a list should work when scope has subjectId
+   * and the list contains the subjectId among other identifiers
+   */
+  public void testSubjectInScope_multipleIdentifiers_matchById() {
+    GrouperMcpAuthUser authUser = createAuthUser(true,
+        null, null, Arrays.asList("12345"));
+
+    // should match when subjectId matches
+    assertTrue("should match when subjectId in list matches scope",
+        authUser.isSubjectInReadwriteScope(
+            Arrays.asList("12345", "jsmith", "john.smith@example.com")));
+
+    // should not match when subjectId doesn't match
+    assertFalse("should not match when subjectId doesn't match",
+        authUser.isSubjectInReadwriteScope(
+            Arrays.asList("99999", "jsmith")));
+  }
+
+  /**
+   * isSubjectInReadwriteScope with empty or null list should respect
+   * the unrestricted/restricted flag
+   */
+  public void testSubjectInScope_multipleIdentifiers_emptyList() {
+    GrouperMcpAuthUser authUser = createAuthUser(true,
+        null, null, Arrays.asList("jsmith"));
+
+    // empty list should not match
+    assertFalse("empty identifier list should not match any scope",
+        authUser.isSubjectInReadwriteScope(new ArrayList<String>()));
+  }
+
+  // ========================================================================
+  // Integration tests: multi-identifier scope matching in tools
+  // ========================================================================
+
+  /**
+   * group_add_member with a group UUID in scope should succeed when the
+   * tool passes a group name that resolves to that UUID
+   */
+  public void testAddMember_validScope_byGroupUuid() {
+
+    Group group = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("test:scopeAddMemberUuid")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("test group for UUID scope test").save();
+
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      // scope contains the group UUID, not the name
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          null, Arrays.asList(group.getUuid()),
+          Arrays.asList(SubjectTestHelper.SUBJ0_ID));
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:scopeAddMemberUuid");
+      ArrayNode subjects = arguments.putArray("subjects");
+      ObjectNode subjectNode = subjects.addObject();
+      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0_ID);
+
+      ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
+
+      assertFalse("Expected success (group UUID in scope), got: " + result.toString(),
+          result.get("isError").asBoolean());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * group_add_member with subject identifier in scope should succeed
+   * when the tool passes subjectId (which resolves to that identifier)
+   */
+  public void testAddMember_validScope_bySubjectIdentifier() {
+
+    Group group = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("test:scopeAddMemberSubjIdent")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("test group for subject identifier scope test").save();
+
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+
+    // ensure SUBJ0 has a member record with identifiers
+    MemberFinder.findBySubject(GrouperSession.staticGrouperSession(),
+        SubjectTestHelper.SUBJ0, true);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      // scope contains the subject identifier (e.g. "id.test.subject.0"),
+      // not the subject ID ("test.subject.0")
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("test"), null,
+          Arrays.asList(SubjectTestHelper.SUBJ0_IDENTIFIER));
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:scopeAddMemberSubjIdent");
+      ArrayNode subjects = arguments.putArray("subjects");
+      ObjectNode subjectNode = subjects.addObject();
+      // API sends subjectId, but scope has the identifier
+      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0_ID);
+
+      ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
+
+      assertFalse("Expected success (subject identifier in scope matches subjectId), got: "
+          + result.toString(),
+          result.get("isError").asBoolean());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * group_add_member with subject ID in scope should succeed
+   * when the tool passes subjectIdentifier (which resolves to that ID)
+   */
+  public void testAddMember_validScope_bySubjectIdWhenIdentifierSent() {
+
+    Group group = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("test:scopeAddMemberSubjIdReverse")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("test group for reverse subject scope test").save();
+
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+
+    // ensure SUBJ0 has a member record with identifiers
+    MemberFinder.findBySubject(GrouperSession.staticGrouperSession(),
+        SubjectTestHelper.SUBJ0, true);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      // scope contains the subject ID ("test.subject.0")
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("test"), null,
+          Arrays.asList(SubjectTestHelper.SUBJ0_ID));
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:scopeAddMemberSubjIdReverse");
+      ArrayNode subjects = arguments.putArray("subjects");
+      ObjectNode subjectNode = subjects.addObject();
+      // API sends subjectIdentifier, but scope has the subjectId
+      subjectNode.put("subjectIdentifier", SubjectTestHelper.SUBJ0_IDENTIFIER);
+
+      ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
+
+      assertFalse("Expected success (subject ID in scope matches identifier), got: "
+          + result.toString(),
+          result.get("isError").asBoolean());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * folder_delete with stem UUID in scope should succeed when the
+   * tool passes a stem name that resolves to that UUID
+   */
+  public void testFolderDelete_validScope_byStemUuid() {
+
+    Stem stem = new StemSave(GrouperSession.staticGrouperSession())
+        .assignStemNameToEdit("test:scopeFolderDeleteUuid")
+        .assignName("test:scopeFolderDeleteUuid")
+        .assignCreateParentStemsIfNotExist(true)
+        .save();
+
+    stem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ADMIN);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      // scope contains the stem UUID, not the name
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList(stem.getUuid()), null, null);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("stemName", "test:scopeFolderDeleteUuid");
+
+      ObjectNode result = GrouperMcpFolderDelete.execute(arguments, authUser);
+
+      assertFalse("Expected success (stem UUID in scope), got: " + result.toString(),
+          result.get("isError").asBoolean());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * privilege_assign with subject identifier in scope should succeed
+   * when the tool passes subjectId
+   */
+  public void testPrivilegeAssign_validScope_bySubjectIdentifier() {
+
+    Group group = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("test:scopePrivSubjIdent")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("test group for priv subject identifier scope test").save();
+
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+
+    // ensure SUBJ0 has a member record with identifiers
+    MemberFinder.findBySubject(GrouperSession.staticGrouperSession(),
+        SubjectTestHelper.SUBJ0, true);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      // scope contains subject identifier, not subject ID
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("test"), null,
+          Arrays.asList(SubjectTestHelper.SUBJ0_IDENTIFIER));
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:scopePrivSubjIdent");
+      // API sends subjectId, but scope has the identifier
+      arguments.put("subjectId", SubjectTestHelper.SUBJ0_ID);
+      arguments.put("privilegeType", "access");
+      arguments.put("privilegeName", "read");
+      arguments.put("allowed", true);
+
+      ObjectNode result = GrouperMcpAssignGrouperPrivilegesLite.execute(arguments, authUser);
+
+      assertFalse("Expected success (subject identifier in scope), got: " + result.toString(),
           result.get("isError").asBoolean());
     } finally {
       GrouperSession.stopQuietly(session);
