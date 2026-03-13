@@ -1728,7 +1728,7 @@ public class GrouperLoaderTest extends GrouperTest {
   /**
    * 
    */
-  public void ensureTestgrouperLoaderTables() {
+  public static void ensureTestgrouperLoaderTables() {
     //we need to delete the test table if it is there, and create a new one
     //drop field id col, first drop foreign keys
     GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
@@ -5650,5 +5650,240 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(group4x.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(group4x.hasMember(SubjectTestHelper.SUBJ1));
     assertTrue(group4x.hasMember(SubjectTestHelper.SUBJ2));
+  }
+
+  public void testIncrementalLoaderListGroupDoesntExistWithMetadataFull() throws Exception {
+
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.runFullSyncIfGroupDoesntExist", "false");
+
+    // create security groups for privilege testing
+    new StemSave(this.grouperSession).assignName("loaderSecurity")
+      .assignSaveMode(SaveMode.INSERT_OR_UPDATE).save();
+    Group admins = Group.saveGroup(this.grouperSession, null, null, "loaderSecurity:admins", null, null, null, true);
+    Group readers = Group.saveGroup(this.grouperSession, null, null, "loaderSecurity:readers", null, null, null, true);
+    Group viewers = Group.saveGroup(this.grouperSession, null, null, "loaderSecurity:viewers", null, null, null, true);
+    Group updaters = Group.saveGroup(this.grouperSession, null, null, "loaderSecurity:updaters", null, null, null, true);
+
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+
+    // membership data for initial groups
+    testDataList.add(new TestgrouperLoader("loader:group1_systemOfRecord", SubjectTestHelper.SUBJ0_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group1_systemOfRecord", SubjectTestHelper.SUBJ1_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group2_systemOfRecord", SubjectTestHelper.SUBJ2_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group2_systemOfRecord", SubjectTestHelper.SUBJ3_ID, "jdbc"));
+
+    // group metadata for initial groups
+    testDataList.add(new TestgrouperLoaderGroups("loader:group1_systemOfRecord",
+        "The loader:group 1 system of record", "First group description"));
+    testDataList.add(new TestgrouperLoaderGroups("loader:group2_systemOfRecord",
+        "The loader:group 2 system of record", "Second group description"));
+
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    // configure the loader group (use loader2 stem to avoid pre-creating the loader stem,
+    // which would prevent the display name from being set correctly on the loader stem)
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "loader2:owner", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY,
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID, col3 as SUBJECT_SOURCE_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%_systemOfRecord");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_TYPES, "addIncludeExclude");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+        "select group_name, group_display_name, group_description, "
+        + "'loaderSecurity:admins' as admins, 'loaderSecurity:readers' as readers, "
+        + "'loaderSecurity:viewers' as viewers, 'loaderSecurity:updaters' as updaters "
+        + "from testgrouper_loader_groups");
+
+    // run full sync to establish initial groups
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+
+    // verify initial groups were created correctly
+    Group group1sor = GroupFinder.findByName(grouperSession, "loader:group1_systemOfRecord", true);
+    assertEquals("The loader:group 1 system of record", group1sor.getDisplayName());
+    assertEquals("First group description", group1sor.getDescription());
+    Group overallGroup1 = GroupFinder.findByName(grouperSession, "loader:group1", true);
+    assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ1));
+
+    // verify group3 doesn't exist yet
+    assertNull(GroupFinder.findByName(grouperSession, "loader:group3_systemOfRecord", false));
+    assertNull(GroupFinder.findByName(grouperSession, "loader:group3", false));
+
+    // now add membership data and group metadata for the new group
+    testDataList = new ArrayList<GrouperAPI>();
+    testDataList.add(new TestgrouperLoader("loader:group3_systemOfRecord", SubjectTestHelper.SUBJ4_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group3_systemOfRecord", SubjectTestHelper.SUBJ5_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoaderGroups("loader:group3_systemOfRecord",
+        "The loader:group 3 system of record", "Third group description"));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    // add incremental rows to trigger the incremental job for the new group
+    List<TestgrouperIncrementalLoader> testIncrementalDataList = new ArrayList<TestgrouperIncrementalLoader>();
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(1, SubjectTestHelper.SUBJ4_ID, null, null, "jdbc", "loader2:owner", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(2, SubjectTestHelper.SUBJ5_ID, null, null, "jdbc", "loader2:owner", System.currentTimeMillis(), null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testIncrementalDataList);
+
+    // run incremental loader
+    GrouperLoaderIncrementalJob.runJob(this.grouperSession, "OTHER_JOB_incrementalLoader1");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+
+    // verify the new group was created
+    Group group3sor = GroupFinder.findByName(grouperSession, "loader:group3_systemOfRecord", true);
+    assertNotNull(group3sor);
+
+    // verify display name and description
+    assertEquals("The loader:group 3 system of record", group3sor.getDisplayName());
+    assertEquals("Third group description", group3sor.getDescription());
+
+    // verify addIncludeExclude type was applied (includes/excludes groups exist)
+    Group overallGroup3 = GroupFinder.findByName(grouperSession, "loader:group3", true);
+    assertNotNull(overallGroup3);
+    Group group3includes = GroupFinder.findByName(grouperSession, "loader:group3_includes", true);
+    assertNotNull(group3includes);
+    Group group3excludes = GroupFinder.findByName(grouperSession, "loader:group3_excludes", true);
+    assertNotNull(group3excludes);
+
+    // verify memberships on the systemOfRecord group
+    assertTrue(group3sor.hasMember(SubjectTestHelper.SUBJ4));
+    assertTrue(group3sor.hasMember(SubjectTestHelper.SUBJ5));
+
+    // verify memberships on the overall group (via composite)
+    assertTrue(overallGroup3.hasMember(SubjectTestHelper.SUBJ4));
+    assertTrue(overallGroup3.hasMember(SubjectTestHelper.SUBJ5));
+
+    // verify privileges were set on the systemOfRecord group
+    assertTrue(group3sor.hasAdmin(admins.toSubject()));
+    assertTrue(group3sor.hasRead(readers.toSubject()));
+    assertTrue(group3sor.hasView(viewers.toSubject()));
+
+    // verify privileges on the overall group
+    assertTrue(overallGroup3.hasAdmin(admins.toSubject()));
+    assertTrue(overallGroup3.hasRead(readers.toSubject()));
+    assertTrue(overallGroup3.hasView(viewers.toSubject()));
+
+    // verify privileges on the includes group (should have update)
+    assertTrue(group3includes.hasAdmin(admins.toSubject()));
+    assertTrue(group3includes.hasRead(readers.toSubject()));
+    assertTrue(group3includes.hasView(viewers.toSubject()));
+    assertTrue(group3includes.hasUpdate(updaters.toSubject()));
+
+    // verify privileges on the excludes group (should have update)
+    assertTrue(group3excludes.hasAdmin(admins.toSubject()));
+    assertTrue(group3excludes.hasRead(readers.toSubject()));
+    assertTrue(group3excludes.hasView(viewers.toSubject()));
+    assertTrue(group3excludes.hasUpdate(updaters.toSubject()));
+
+    // verify the overall group display name (derived from systemOfRecord)
+    assertEquals("The loader:group 3", overallGroup3.getDisplayName());
+  }
+  
+  public void testIncrementalLoaderListGroupDoesntExistWithMetadataOnlyDisplayName() throws Exception {
+
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.runFullSyncIfGroupDoesntExist", "false");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.allowBlankGroupDescriptions", "true");
+
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+
+    // membership data for initial groups
+    testDataList.add(new TestgrouperLoader("loader:group1_systemOfRecord", SubjectTestHelper.SUBJ0_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group1_systemOfRecord", SubjectTestHelper.SUBJ1_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group2_systemOfRecord", SubjectTestHelper.SUBJ2_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group2_systemOfRecord", SubjectTestHelper.SUBJ3_ID, "jdbc"));
+
+    // group metadata for initial groups
+    testDataList.add(new TestgrouperLoaderGroups("loader:group1_systemOfRecord",
+        "The loader:Group 1 system of record", "First group description"));
+    testDataList.add(new TestgrouperLoaderGroups("loader:group2_systemOfRecord",
+        "The loader:Group 2 system of record", "Second group description"));
+
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    // configure the loader group (use loader2 stem to avoid pre-creating the loader stem,
+    // which would prevent the display name from being set correctly on the loader stem)
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "loader2:owner", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY,
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID, col3 as SUBJECT_SOURCE_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%_systemOfRecord");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+        "select group_name, group_display_name from testgrouper_loader_groups");
+
+    // run full sync to establish initial groups
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+
+    // verify initial groups were created correctly
+    Group group1sor = GroupFinder.findByName(grouperSession, "loader:group1_systemOfRecord", true);
+    assertEquals("The loader:Group 1 system of record", group1sor.getDisplayName());
+    assertEquals("", group1sor.getDescription());
+
+    // verify group3/group4 don't exist yet
+    assertNull(GroupFinder.findByName(grouperSession, "loader:group3_systemOfRecord", false));
+    assertNull(GroupFinder.findByName(grouperSession, "loader:group4", false));
+
+    // now add membership data and group metadata for the new group
+    testDataList = new ArrayList<GrouperAPI>();
+    testDataList.add(new TestgrouperLoader("loader:group3_systemOfRecord", SubjectTestHelper.SUBJ4_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group3_systemOfRecord", SubjectTestHelper.SUBJ5_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoaderGroups("loader:group3_systemOfRecord",
+        "The loader:Group 3 system of record", "Third group description"));
+    
+    testDataList.add(new TestgrouperLoader("loader:group4", SubjectTestHelper.SUBJ5_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoader("loader:group4", SubjectTestHelper.SUBJ6_ID, "jdbc"));
+    testDataList.add(new TestgrouperLoaderGroups("loader:group4",
+        "The loader:The Group 4", null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    // add incremental rows to trigger the incremental job for the new group
+    List<TestgrouperIncrementalLoader> testIncrementalDataList = new ArrayList<TestgrouperIncrementalLoader>();
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(1, SubjectTestHelper.SUBJ4_ID, null, null, "jdbc", "loader2:owner", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(2, SubjectTestHelper.SUBJ5_ID, null, null, "jdbc", "loader2:owner", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(3, SubjectTestHelper.SUBJ6_ID, null, null, "jdbc", "loader2:owner", System.currentTimeMillis(), null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testIncrementalDataList);
+
+    // run incremental loader
+    GrouperLoaderIncrementalJob.runJob(this.grouperSession, "OTHER_JOB_incrementalLoader1");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+
+    // verify the new group was created
+    Group group3sor = GroupFinder.findByName(grouperSession, "loader:group3_systemOfRecord", true);
+    assertNotNull(group3sor);
+    
+    Group group4sor = GroupFinder.findByName(grouperSession, "loader:group4", true);
+    assertNotNull(group4sor);
+
+    // verify display name and description
+    assertEquals("The loader:Group 3 system of record", group3sor.getDisplayName());
+    assertEquals("", group3sor.getDescription());
+    
+    assertEquals("The loader:The Group 4", group4sor.getDisplayName());
+    assertEquals("", group4sor.getDescription());
+
+    // verify memberships on the systemOfRecord group
+    assertTrue(group3sor.hasMember(SubjectTestHelper.SUBJ4));
+    assertTrue(group3sor.hasMember(SubjectTestHelper.SUBJ5));
+    
+    assertTrue(group4sor.hasMember(SubjectTestHelper.SUBJ5));
+    assertTrue(group4sor.hasMember(SubjectTestHelper.SUBJ6));
   }
 }
