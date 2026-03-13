@@ -54,6 +54,7 @@ public class AllMcpTests {
     suite.addTestSuite(GrouperMcpSqlSelectTest.class);
     suite.addTestSuite(GrouperMcpSqlGetSchemaTest.class);
     suite.addTestSuite(GrouperMcpLdapSearchTest.class);
+    suite.addTestSuite(GrouperMcpInstitutionalToolsTest.class);
     //$JUnit-END$
     return suite;
   }

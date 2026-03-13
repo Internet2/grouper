@@ -87,6 +87,13 @@ public class GshTemplateInputConfig {
   private int index;
 
   private boolean useExternalizedText;
+
+  /**
+   * MCP scope type for this input. If set, the input value will be validated
+   * against the user's approved readwrite scopes (folders, groups, or subjects).
+   * null means no scope validation.
+   */
+  private String mcpScopeType;
   
   
   public boolean isUseExternalizedText() {
@@ -445,6 +452,23 @@ public class GshTemplateInputConfig {
   public int getDropdownSqlCacheForMinutes() {
     return dropdownSqlCacheForMinutes;
   }
-  
-  
+
+  /**
+   * MCP scope type for this input (folders, groups, or subjects).
+   * If set, the input value will be validated against the user's approved readwrite scopes.
+   * @return the MCP scope type or null if no scope validation
+   */
+  public String getMcpScopeType() {
+    return mcpScopeType;
+  }
+
+  /**
+   * set the MCP scope type for this input
+   * @param mcpScopeType1
+   */
+  public void setMcpScopeType(String mcpScopeType1) {
+    this.mcpScopeType = mcpScopeType1;
+  }
+
+
 }

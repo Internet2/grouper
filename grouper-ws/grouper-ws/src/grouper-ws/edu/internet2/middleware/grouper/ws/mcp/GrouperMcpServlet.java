@@ -558,6 +558,7 @@ public class GrouperMcpServlet extends HttpServlet {
       addToolIfAllowed(toolsArray, GrouperMcpGetMemberships.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpGetSubjects.toolDefinition());
       addToolIfAllowed(toolsArray, GrouperMcpHasMember.toolDefinition());
+      addToolIfAllowed(toolsArray, GrouperMcpInstitutionalTools.toolDefinition());
     }
 
     // readwrite tools
@@ -865,6 +866,12 @@ public class GrouperMcpServlet extends HttpServlet {
               + "Membership in the MCP readwrite group is required.");
         }
         return GrouperMcpAssignGrouperPrivilegesLite.execute(arguments, authUser);
+      case "institutional_tools":
+        if (!hasReadonlyAccess(authUser)) {
+          return buildMcpErrorResult("Access denied: user is not authorized for institutional_tools. "
+              + "Membership in the MCP readonly or readwrite group is required.");
+        }
+        return GrouperMcpInstitutionalTools.execute(arguments, authUser, hasReadwriteAccess(authUser));
       // SQL readonly tools (alphabetical)
       case "sql_get_schema":
         if (!hasSqlReadonlyAccess(authUser)) {
