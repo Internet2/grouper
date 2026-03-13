@@ -30,8 +30,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.template.GshOutputLine;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguration;
@@ -493,6 +496,13 @@ public class GrouperMcpInstitutionalTools {
       } else {
         return buildErrorResult("Invalid ownerType '" + ownerType + "'. Must be 'group' or 'stem'.");
       }
+    } else if (!templateConfig.isAllowWsFromNoOwner()) {
+      // no owner type specified and allowWsFromNoOwner is false,
+      // try to resolve a default group or folder from config (same as UI)
+      ObjectNode resolveError = resolveDefaultOwner(templateConfig, configId, exec);
+      if (resolveError != null) {
+        return resolveError;
+      }
     }
 
     // inputs
@@ -618,6 +628,61 @@ public class GrouperMcpInstitutionalTools {
     String resultText = objectMapper.writerWithDefaultPrettyPrinter()
         .writeValueAsString(resultNode);
     return output.isSuccess() ? buildSuccessResult(resultText) : buildErrorResult(resultText);
+  }
+
+  /**
+   * resolve a default owner group or folder from the template config when no owner
+   * was specified by the caller. uses the runButtonGroupOrFolder and
+   * defaultRunButtonGroupUuidOrName / defaultRunButtonFolderUuidOrName config,
+   * same as the UI run button.
+   * @param templateConfig the template config
+   * @param configId the template config id
+   * @param exec the exec to assign the owner on
+   * @return an error ObjectNode if no default could be resolved, or null on success
+   */
+  private static ObjectNode resolveDefaultOwner(GshTemplateConfig templateConfig, String configId, GshTemplateExec exec) {
+
+    GshTemplateConfiguration gshTemplateConfiguration = new GshTemplateConfiguration();
+    gshTemplateConfiguration.setConfigId(configId);
+
+    String runButtonType = gshTemplateConfiguration.getDefaultRunButtonType();
+
+    if ("group".equals(runButtonType)) {
+      try {
+        String groupId = gshTemplateConfiguration.getGroupId();
+        Group group = GroupFinder.findByUuid(groupId, false);
+        if (group != null) {
+          exec.assignGshTemplateOwnerType(GshTemplateOwnerType.group);
+          exec.assignOwnerGroupName(group.getName());
+          return null;
+        }
+      } catch (Exception e) {
+        LOG.error("Error resolving default run button group for template: " + configId, e);
+      }
+    } else if ("folder".equals(runButtonType)) {
+      try {
+        String folderId = gshTemplateConfiguration.getFolderId();
+        Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), folderId, false);
+        if (stem != null) {
+          exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
+          exec.assignOwnerStemName(stem.isRootStem() ? ":" : stem.getName());
+          return null;
+        }
+      } catch (Exception e) {
+        LOG.error("Error resolving default run button folder for template: " + configId, e);
+      }
+    }
+
+    // could not resolve a default
+    StringBuilder message = new StringBuilder();
+    message.append("This template requires a group or folder to execute on. ");
+    if (templateConfig.isShowOnGroups()) {
+      message.append("Provide ownerType='group' and ownerGroupName. ");
+    }
+    if (templateConfig.isShowOnFolders()) {
+      message.append("Provide ownerType='stem' and ownerStemName. ");
+    }
+    return buildErrorResult(message.toString().trim());
   }
 
   /**
