@@ -603,24 +603,27 @@ public class GrouperLoaderIncrementalJob implements Job {
     for (String loaderGroupName : groupsRequiringLoaderMetadataUpdates.keySet()) {
       
       for (Group group: groupsRequiringLoaderMetadataUpdates.get(loaderGroupName)) {
-        String loaderMetadataAttributeName = GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF;
-        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
-        if (!group.getAttributeDelegate().hasAttributeByName(loaderMetadataAttributeName)) {
-          group.getAttributeDelegate().assignAttribute(attributeDefName);
-        }
         
-        AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+        // use same lock as GrouperLoaderType when a new group is created to avoid race condition that causes multiple assignments/values
+        synchronized (group.getUuid().intern()) {
+          String loaderMetadataAttributeName = GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.LOADER_METADATA_VALUE_DEF;
+          AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(loaderMetadataAttributeName, false);
+          if (!group.getAttributeDelegate().hasAttributeByName(loaderMetadataAttributeName)) {
+            group.getAttributeDelegate().assignAttribute(attributeDefName);
+          }
 
-        AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()
-            +":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED , false);
-        attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
-        
-        AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
-        attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), loaderGroupName);
-        
-        AttributeDefName grouperLoaderMetadataLastIncrementalMillisSince1970 = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS, false);
-        attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastIncrementalMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
-        
+          AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, attributeDefName, false, false);
+
+          AttributeDefName grouperLoaderMetadataLoaded = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()
+              +":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED , false);
+          attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLoaded.getName(), "true");
+
+          AttributeDefName grouperLoaderMetadataGroupId = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
+          attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataGroupId.getName(), loaderGroupName);
+
+          AttributeDefName grouperLoaderMetadataLastIncrementalMillisSince1970 = AttributeDefNameFinder.findByName(GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_INCREMENTAL_MILLIS, false);
+          attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastIncrementalMillisSince1970.getName(), String.valueOf(System.currentTimeMillis()));
+        }
       }
       
     }
