@@ -54,8 +54,27 @@ import edu.internet2.middleware.subject.Subject;
  * MCP tool for discovering and executing institution-specific GSH templates
  * that have been flagged as MCP-enabled.  Supports two actions:
  * <ul>
- *   <li>{@code schema} - list MCP-enabled templates with their metadata and input definitions</li>
- *   <li>{@code execute} - execute an MCP-enabled template</li>
+ *   <li>{@code schema} - list MCP-enabled templates the user can see, with their metadata,
+ *       input definitions (including mcpScopeType for scope-validated inputs), whether they
+ *       execute on groups/folders, and whether they are readonly or readwrite</li>
+ *   <li>{@code execute} - execute an MCP-enabled template, enforcing:
+ *     <ul>
+ *       <li>MCP readonly vs readwrite access (templates with mcpReadonly=true can be run
+ *           by readonly MCP users; others require readwrite)</li>
+ *       <li>GSH template security (wheel, specifiedGroup, privilegeOnObject, everyone)</li>
+ *       <li>Input scope validation (inputs configured with mcpScopeType are validated against
+ *           the user's approved readwrite folders/groups/subjects scopes)</li>
+ *     </ul>
+ *   </li>
+ * </ul>
+ * <p>Configuration in the GSH template wizard:</p>
+ * <ul>
+ *   <li>{@code mcpEnabled} - boolean, default false. Enables MCP for this template.</li>
+ *   <li>{@code mcpReadonly} - boolean, default false. If true, readonly MCP users can execute
+ *       this template. Only shown when mcpEnabled is true.</li>
+ *   <li>{@code input.N.mcpScopeType} - dropdown (folders, groups, subjects). Restricts this
+ *       input to approved readwrite scopes. Only shown when mcpEnabled is true and mcpReadonly
+ *       is false.</li>
  * </ul>
  *
  * @author mchyzer
@@ -76,10 +95,13 @@ public class GrouperMcpInstitutionalTools {
     tool.put("description",
         "Discover and execute institution-specific tools (GSH templates) that the deployer has made "
         + "available via MCP. Use action 'schema' to list available tools with their configId, name, "
-        + "description, input definitions (names, types, required, validation), and whether they "
-        + "execute on a group name, folder name, or both. Templates with securityRunType "
-        + "'privilegeOnObject' are always listed but authorization is checked at execution time "
-        + "based on the user's privilege on the specific group or folder. "
+        + "description, input definitions (names, types, required, validation, mcpScopeType), "
+        + "whether they execute on a group name, folder name, or both, and whether they are "
+        + "mcpReadonly (accessible with readonly MCP access) or require readwrite MCP access. "
+        + "Templates with securityRunType 'privilegeOnObject' are always listed but authorization "
+        + "is checked at execution time based on the user's privilege on the specific group or folder. "
+        + "Inputs with mcpScopeType (folders, groups, or subjects) are validated against the user's "
+        + "approved readwrite scopes. "
         + "Use action 'execute' to run a specific tool by configId, providing the required inputs.");
 
     ObjectNode inputSchema = objectMapper.createObjectNode();

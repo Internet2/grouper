@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.mcp.GrouperMcpConfigSearchIndex;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 
@@ -103,7 +104,7 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
   }
 
   /**
-   * test basic config search returns results
+   * test basic config search returns results (regex mode)
    */
   public void testSearchConfigsBasic() {
 
@@ -111,6 +112,7 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
 
     ObjectNode arguments = objectMapper.createObjectNode();
     arguments.put("searchRegex", ".*mcp.*");
+    arguments.put("searchType", "regex");
 
     ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
 
@@ -153,6 +155,7 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
 
     ObjectNode arguments = objectMapper.createObjectNode();
     arguments.put("searchRegex", ".*pass.*");
+    arguments.put("searchType", "regex");
 
     ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
 
@@ -198,6 +201,7 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
 
     ObjectNode arguments = objectMapper.createObjectNode();
     arguments.put("searchRegex", "some\\.test\\.secret\\.config");
+    arguments.put("searchType", "regex");
 
     ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
 
@@ -242,6 +246,7 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
 
     ObjectNode arguments = objectMapper.createObjectNode();
     arguments.put("searchRegex", "some\\.test\\.privateKey\\.config");
+    arguments.put("searchType", "regex");
 
     ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
 
@@ -280,6 +285,7 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
 
     ObjectNode arguments = objectMapper.createObjectNode();
     arguments.put("searchRegex", "grouper\\.oauth\\.accessToken\\.expirationSeconds");
+    arguments.put("searchType", "regex");
 
     ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
 
@@ -320,6 +326,7 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
 
     ObjectNode arguments = objectMapper.createObjectNode();
     arguments.put("searchRegex", ".*loader.*");
+    arguments.put("searchType", "regex");
     arguments.put("configFile", "grouper-loader.properties");
 
     ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
@@ -351,6 +358,7 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
 
     ObjectNode arguments = objectMapper.createObjectNode();
     arguments.put("searchRegex", ".*");
+    arguments.put("searchType", "regex");
     arguments.put("configFile", "bogus.properties");
 
     ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
@@ -361,7 +369,7 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
   }
 
   /**
-   * test with invalid regex
+   * test with invalid regex when searchType is regex
    */
   public void testSearchConfigsInvalidRegex() {
 
@@ -369,6 +377,7 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
 
     ObjectNode arguments = objectMapper.createObjectNode();
     arguments.put("searchRegex", "[invalid(regex");
+    arguments.put("searchType", "regex");
 
     ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
 
@@ -426,6 +435,7 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
 
     ObjectNode arguments = objectMapper.createObjectNode();
     arguments.put("searchRegex", "test\\.mcp\\.");
+    arguments.put("searchType", "regex");
 
     ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
 
@@ -457,6 +467,14 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
     JsonNode properties = toolDef.get("inputSchema").get("properties");
     assertNotNull(properties.get("searchRegex"));
     assertNotNull(properties.get("configFile"));
+    assertNotNull(properties.get("searchType"));
+
+    // verify searchType enum values
+    JsonNode searchTypeEnum = properties.get("searchType").get("enum");
+    assertNotNull(searchTypeEnum);
+    assertEquals(2, searchTypeEnum.size());
+    assertEquals("lucene", searchTypeEnum.get(0).asText());
+    assertEquals("regex", searchTypeEnum.get(1).asText());
 
     // verify required fields
     JsonNode required = toolDef.get("inputSchema").get("required");
@@ -464,5 +482,202 @@ public class GrouperMcpAdminSearchConfigsTest extends GrouperTest {
     assertTrue(required.isArray());
     assertEquals(1, required.size());
     assertEquals("searchRegex", required.get(0).asText());
+  }
+
+  /**
+   * test lucene search returns results
+   */
+  public void testLuceneSearchBasic() {
+
+    GrouperMcpAuthUser authUser = buildRootAuthUser();
+
+    // force rebuild so the index is fresh
+    GrouperMcpConfigSearchIndex.forceRebuild();
+
+    ObjectNode arguments = objectMapper.createObjectNode();
+    arguments.put("searchRegex", "mcp");
+    arguments.put("searchType", "lucene");
+
+    ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
+
+    assertFalse("Expected success, got: " + result.toString(),
+        result.get("isError").asBoolean());
+
+    String text = result.get("content").get(0).get("text").asText();
+    try {
+      JsonNode responseNode = objectMapper.readTree(text);
+      assertEquals("lucene", responseNode.get("searchType").asText());
+      assertTrue("Expected at least 1 matching config",
+          responseNode.get("matchCount").asInt() >= 1);
+      JsonNode configs = responseNode.get("configs");
+      assertNotNull(configs);
+      assertTrue(configs.isArray());
+      assertTrue(configs.size() >= 1);
+
+      // verify each entry has key, value, configFile
+      for (int i = 0; i < configs.size(); i++) {
+        assertNotNull(configs.get(i).get("key"));
+        assertNotNull(configs.get(i).get("value"));
+        assertNotNull(configs.get(i).get("configFile"));
+      }
+    } catch (Exception e) {
+      fail("Failed to parse result JSON: " + e.getMessage());
+    }
+  }
+
+  /**
+   * test lucene search masks passwords
+   */
+  public void testLucenePasswordsAreMasked() {
+
+    GrouperMcpAuthUser authUser = buildRootAuthUser();
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "some.test.password.lucene", "superSecretLucene123");
+
+    GrouperMcpConfigSearchIndex.forceRebuild();
+
+    ObjectNode arguments = objectMapper.createObjectNode();
+    arguments.put("searchRegex", "some test password lucene");
+    arguments.put("searchType", "lucene");
+
+    ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
+
+    assertFalse("Expected success, got: " + result.toString(),
+        result.get("isError").asBoolean());
+
+    String text = result.get("content").get(0).get("text").asText();
+    assertFalse("Response should not contain cleartext password",
+        text.contains("superSecretLucene123"));
+  }
+
+  /**
+   * test lucene search with configFile filter
+   */
+  public void testLuceneSearchWithConfigFileFilter() {
+
+    GrouperMcpAuthUser authUser = buildRootAuthUser();
+
+    GrouperMcpConfigSearchIndex.forceRebuild();
+
+    ObjectNode arguments = objectMapper.createObjectNode();
+    arguments.put("searchRegex", "loader");
+    arguments.put("searchType", "lucene");
+    arguments.put("configFile", "grouper-loader.properties");
+
+    ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
+
+    assertFalse("Expected success, got: " + result.toString(),
+        result.get("isError").asBoolean());
+
+    String text = result.get("content").get(0).get("text").asText();
+    try {
+      JsonNode responseNode = objectMapper.readTree(text);
+      JsonNode configs = responseNode.get("configs");
+
+      // all results should be from the loader config file
+      for (int i = 0; i < configs.size(); i++) {
+        assertEquals("grouper-loader.properties",
+            configs.get(i).get("configFile").asText());
+      }
+    } catch (Exception e) {
+      fail("Failed to parse result JSON: " + e.getMessage());
+    }
+  }
+
+  /**
+   * test lucene search includes metadata fields (configuredIn, defaultValue, etc.)
+   */
+  public void testLuceneSearchMetadata() {
+
+    GrouperMcpAuthUser authUser = buildRootAuthUser();
+
+    GrouperMcpConfigSearchIndex.forceRebuild();
+
+    ObjectNode arguments = objectMapper.createObjectNode();
+    // search for a well-known config that should have metadata
+    arguments.put("searchRegex", "grouper mcp tools allow");
+    arguments.put("searchType", "lucene");
+
+    ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
+
+    assertFalse("Expected success, got: " + result.toString(),
+        result.get("isError").asBoolean());
+
+    String text = result.get("content").get(0).get("text").asText();
+    try {
+      JsonNode responseNode = objectMapper.readTree(text);
+      JsonNode configs = responseNode.get("configs");
+      assertTrue("Expected at least 1 config", configs.size() >= 1);
+
+      // find the grouper.mcp.tools.allow entry
+      boolean found = false;
+      for (int i = 0; i < configs.size(); i++) {
+        JsonNode entry = configs.get(i);
+        if ("grouper.mcp.tools.allow".equals(entry.get("key").asText())) {
+          found = true;
+          // should have configuredIn
+          assertNotNull("Expected configuredIn", entry.get("configuredIn"));
+          break;
+        }
+      }
+      assertTrue("Expected to find grouper.mcp.tools.allow config", found);
+    } catch (Exception e) {
+      fail("Failed to parse result JSON: " + e.getMessage());
+    }
+  }
+
+  /**
+   * test that regex searchType still works (backward compatibility)
+   */
+  public void testRegexSearchType() {
+
+    GrouperMcpAuthUser authUser = buildRootAuthUser();
+
+    ObjectNode arguments = objectMapper.createObjectNode();
+    arguments.put("searchRegex", ".*mcp.*");
+    arguments.put("searchType", "regex");
+
+    ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
+
+    assertFalse("Expected success, got: " + result.toString(),
+        result.get("isError").asBoolean());
+
+    String text = result.get("content").get(0).get("text").asText();
+    try {
+      JsonNode responseNode = objectMapper.readTree(text);
+      assertEquals("regex", responseNode.get("searchType").asText());
+      assertTrue("Expected at least 1 matching config",
+          responseNode.get("matchCount").asInt() >= 1);
+    } catch (Exception e) {
+      fail("Failed to parse result JSON: " + e.getMessage());
+    }
+  }
+
+  /**
+   * test that default searchType is lucene (not regex)
+   */
+  public void testDefaultSearchTypeIsLucene() {
+
+    GrouperMcpAuthUser authUser = buildRootAuthUser();
+
+    GrouperMcpConfigSearchIndex.forceRebuild();
+
+    // no searchType specified - should default to lucene
+    ObjectNode arguments = objectMapper.createObjectNode();
+    arguments.put("searchRegex", "mcp");
+
+    ObjectNode result = GrouperMcpAdminSearchConfigs.execute(arguments, authUser);
+
+    assertFalse("Expected success, got: " + result.toString(),
+        result.get("isError").asBoolean());
+
+    String text = result.get("content").get(0).get("text").asText();
+    try {
+      JsonNode responseNode = objectMapper.readTree(text);
+      assertEquals("lucene", responseNode.get("searchType").asText());
+    } catch (Exception e) {
+      fail("Failed to parse result JSON: " + e.getMessage());
+    }
   }
 }

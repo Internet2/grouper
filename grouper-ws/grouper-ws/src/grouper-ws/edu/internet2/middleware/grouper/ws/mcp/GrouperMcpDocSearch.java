@@ -167,6 +167,17 @@ public class GrouperMcpDocSearch {
         + "Use chunkIndex and totalChunksForDocument from search results to determine which chunks to request.");
     properties.set("chunkIndexes", chunkIndexesProp);
 
+    ObjectNode searchTypeProp = objectMapper.createObjectNode();
+    searchTypeProp.put("type", "string");
+    ArrayNode searchTypeEnum = objectMapper.createArrayNode();
+    searchTypeEnum.add("keyword");
+    searchTypeEnum.add("lucene");
+    searchTypeProp.set("enum", searchTypeEnum);
+    searchTypeProp.put("description",
+        "Search mode for 'query' action. 'keyword' (default) performs simple keyword matching. "
+        + "'lucene' allows full Lucene query syntax (AND, OR, wildcards, phrases, etc.).");
+    properties.set("searchType", searchTypeProp);
+
     inputSchema.set("properties", properties);
 
     ArrayNode required = objectMapper.createArrayNode();
@@ -216,6 +227,8 @@ public class GrouperMcpDocSearch {
         ? arguments.get("maxResults").asInt(DEFAULT_MAX_RESULTS) : DEFAULT_MAX_RESULTS;
     String sourceConfigId = arguments != null && arguments.has("sourceConfigId")
         ? arguments.get("sourceConfigId").asText() : null;
+    String searchType = arguments != null && arguments.has("searchType")
+        ? arguments.get("searchType").asText() : "keyword";
 
     if (StringUtils.isBlank(query)) {
       return buildErrorResult("query is required for 'query' action.");
@@ -241,7 +254,7 @@ public class GrouperMcpDocSearch {
 
     try {
       List<DocSearchResult> results = GrouperMcpDocSearchIndex.search(
-          query, maxResults, sourceConfigId, authUser.getSubject());
+          query, maxResults, sourceConfigId, authUser.getSubject(), searchType);
 
       ObjectNode resultNode = objectMapper.createObjectNode();
       ArrayNode resultsArray = objectMapper.createArrayNode();

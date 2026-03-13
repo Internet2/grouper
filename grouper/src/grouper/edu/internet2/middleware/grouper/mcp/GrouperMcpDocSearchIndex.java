@@ -164,7 +164,8 @@ public class GrouperMcpDocSearchIndex {
   }
 
   /**
-   * search the document index, filtering by privacy realm access for the subject
+   * search the document index, filtering by privacy realm access for the subject.
+   * uses keyword search (escaped query) for backward compatibility.
    * @param queryString the search query
    * @param maxResults max results to return
    * @param filterSourceConfigId optional source config id to filter by, or null for all
@@ -173,6 +174,20 @@ public class GrouperMcpDocSearchIndex {
    */
   public static List<DocSearchResult> search(String queryString, int maxResults,
       String filterSourceConfigId, Subject subject) {
+    return search(queryString, maxResults, filterSourceConfigId, subject, "keyword");
+  }
+
+  /**
+   * search the document index, filtering by privacy realm access for the subject
+   * @param queryString the search query
+   * @param maxResults max results to return
+   * @param filterSourceConfigId optional source config id to filter by, or null for all
+   * @param subject the authenticated subject for privacy realm filtering (may be null for no filtering)
+   * @param searchType "keyword" (default, escaped query) or "lucene" (raw Lucene query syntax)
+   * @return list of search results ordered by relevance
+   */
+  public static List<DocSearchResult> search(String queryString, int maxResults,
+      String filterSourceConfigId, Subject subject, String searchType) {
 
     List<DocSearchResult> results = new ArrayList<>();
 
@@ -193,9 +208,16 @@ public class GrouperMcpDocSearchIndex {
     try {
       IndexSearcher searcher = new IndexSearcher(reader);
       QueryParser parser = new QueryParser("content", analyzer);
-      parser.setAllowLeadingWildcard(false);
 
-      Query query = parser.parse(QueryParser.escape(queryString));
+      Query query;
+      if ("lucene".equals(searchType)) {
+        parser.setAllowLeadingWildcard(true);
+        query = parser.parse(queryString);
+      } else {
+        // keyword mode: escape special chars for simple keyword matching
+        parser.setAllowLeadingWildcard(false);
+        query = parser.parse(QueryParser.escape(queryString));
+      }
 
       // fetch more than maxResults since some may be filtered out by source or privacy
       int fetchCount = maxResults * 3;
