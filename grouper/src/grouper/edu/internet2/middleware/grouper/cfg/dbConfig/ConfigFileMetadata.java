@@ -4,9 +4,12 @@
  */
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,6 +24,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * metadata about a config file
  */
 public class ConfigFileMetadata {
+
+  /** track already-logged metadata conflicts so each pair is only logged once */
+  private static final Set<String> loggedConflicts = new HashSet<>();
 
   /**
    * state of config file
@@ -470,33 +476,66 @@ public class ConfigFileMetadata {
    * @param key
    * @return config item metadata related to this key
    */
+  /** cache: exact key -> metadata, built lazily */
+  private volatile Map<String, ConfigItemMetadata> exactKeyCache;
+
+  /** cache: pre-compiled regex patterns with their metadata, built lazily */
+  private volatile List<Map.Entry<Pattern, ConfigItemMetadata>> regexPatternCache;
+
+  /**
+   * build the lookup caches if not yet built.
+   * separates exact-key entries (HashMap for O(1) lookup) from
+   * regex entries (pre-compiled Pattern list).
+   */
+  private void ensureCachesBuilt() {
+    if (this.exactKeyCache != null) {
+      return;
+    }
+    synchronized (this) {
+      if (this.exactKeyCache != null) {
+        return;
+      }
+      Map<String, ConfigItemMetadata> exactKeys = new HashMap<>();
+      List<Map.Entry<Pattern, ConfigItemMetadata>> regexPatterns = new ArrayList<>();
+
+      for (ConfigSectionMetadata configSectionMetadata : this.getConfigSectionMetadataList()) {
+        for (ConfigItemMetadata configItemMetadata : configSectionMetadata.getConfigItemMetadataList()) {
+          String itemKey = configItemMetadata.getKey();
+          if (!StringUtils.isBlank(itemKey)) {
+            exactKeys.put(itemKey, configItemMetadata);
+          }
+          String regex = configItemMetadata.getRegex();
+          if (!StringUtils.isBlank(regex)) {
+            Pattern pattern = Pattern.compile(regex);
+            regexPatterns.add(new AbstractMap.SimpleImmutableEntry<>(pattern, configItemMetadata));
+          }
+        }
+      }
+      this.regexPatternCache = regexPatterns;
+      this.exactKeyCache = exactKeys;
+    }
+  }
+
   public ConfigItemMetadata findConfigItemMetdataFromConfig(String key) {
     if (key == null) {
       return null;
     }
-    ConfigItemMetadata result = null;
-    for (ConfigSectionMetadata configSectionMetadata : this.getConfigSectionMetadataList()) {
-      for (ConfigItemMetadata configItemMetadata : configSectionMetadata.getConfigItemMetadataList()) {
-        
-        boolean matchesRegex = false;
-        {
-          String regex = configItemMetadata.getRegex();
-          if (!StringUtils.isBlank(regex)) {
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(key);
-            if (matcher.matches()) {
-              matchesRegex = true;
-            }
-          }
-        }
-        boolean matchesKey = StringUtils.equals(key, configItemMetadata.getKey());
 
-        if (matchesKey || matchesRegex) {
-          
-          if (result == null) {
-            result = configItemMetadata;
-          } else {
-            LOG.error("Same config key or regex is in multiple files: " + configItemMetadata.getKeyOrSampleKey() + ", " + result.getKeyOrSampleKey());
+    ensureCachesBuilt();
+
+    ConfigItemMetadata result = this.exactKeyCache.get(key);
+
+    for (Map.Entry<Pattern, ConfigItemMetadata> entry : this.regexPatternCache) {
+      Matcher matcher = entry.getKey().matcher(key);
+      if (matcher.matches()) {
+        if (result == null) {
+          result = entry.getValue();
+        } else if (result != entry.getValue()) {
+          String conflictKey = entry.getValue().getKeyOrSampleKey() + "|||" + result.getKeyOrSampleKey();
+          if (loggedConflicts.add(conflictKey)) {
+            LOG.info("Config key '" + key + "' matches multiple metadata entries in same config file: "
+                + "'" + entry.getValue().getKeyOrSampleKey() + "' (regex: " + entry.getValue().getRegex() + ")"
+                + " and '" + result.getKeyOrSampleKey() + "' (regex: " + result.getRegex() + ")");
           }
         }
       }
