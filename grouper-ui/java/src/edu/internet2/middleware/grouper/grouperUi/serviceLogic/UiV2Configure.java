@@ -1274,8 +1274,8 @@ public class UiV2Configure {
       // add all the possible ones
       for (Object keyObject : propertiesToImport.keySet()) {
       
-        String key = (String)keyObject;
-        
+        String key = StringUtils.trim((String)keyObject);
+
         MultiKey configFileNameAndKey = new MultiKey(configFileName.getConfigFileName(), key);
         configFileNameAndKeys.add(configFileNameAndKey);
 
@@ -1289,6 +1289,7 @@ public class UiV2Configure {
           countProperties++;
           String key = (String)keyObject;
           String value = propertiesToImport.getProperty(key);
+          key = StringUtils.trim(key);
 
           String propertyNameString = GrouperUtil.stripSuffix(key, ".elConfig");
           Set<GrouperConfigHibernate> grouperConfigHibernates = keyToConfigHibernate.get(propertyNameString);
