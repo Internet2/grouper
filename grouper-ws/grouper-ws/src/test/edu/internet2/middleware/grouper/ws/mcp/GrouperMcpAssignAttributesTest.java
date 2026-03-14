@@ -530,4 +530,321 @@ public class GrouperMcpAssignAttributesTest extends GrouperTest {
       GrouperSession.stopQuietly(session);
     }
   }
+
+  /**
+   * test that remove_attr with attributeAssignId removes a specific assignment
+   * when there are multiple assignments of the same multi-assignable attribute
+   */
+  public void testRemoveByAttributeAssignId() {
+
+    // create the group
+    Group group = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("test:mcpRemoveByIdGroup")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("test group for remove by ID").save();
+
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+
+    // create a multi-assignable attribute def
+    AttributeDef multiDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
+        .assignName("test:mcpRemoveByIdDef")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignToGroup(true)
+        .assignAttributeDefType(AttributeDefType.attr)
+        .assignMultiAssignable(true)
+        .save();
+
+    new AttributeDefNameSave(GrouperSession.staticGrouperSession(), multiDef)
+        .assignName("test:mcpRemoveByIdAttr")
+        .save();
+
+    // grant SUBJ0 privileges
+    multiDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0,
+        AttributeDefPrivilege.ATTR_UPDATE, false);
+    multiDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0,
+        AttributeDefPrivilege.ATTR_READ, false);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      // add two assignments of the same attribute
+      ObjectNode addArgs1 = objectMapper.createObjectNode();
+      addArgs1.put("attributeAssignType", "group");
+      addArgs1.put("attributeAssignOperation", "add_attr");
+      addArgs1.put("attributeDefNameName", "test:mcpRemoveByIdAttr");
+      addArgs1.put("ownerGroupName", "test:mcpRemoveByIdGroup");
+
+      ObjectNode addResult1 = GrouperMcpAssignAttributes.execute(addArgs1, authUser);
+      assertFalse("Expected success for first add", addResult1.get("isError").asBoolean());
+
+      String addText1 = addResult1.get("content").get(0).get("text").asText();
+      JsonNode addResults1 = objectMapper.readTree(addText1);
+      String assignId1 = addResults1.get(0).get("attributeAssigns").get(0).get("attributeAssignId").asText();
+
+      ObjectNode addArgs2 = objectMapper.createObjectNode();
+      addArgs2.put("attributeAssignType", "group");
+      addArgs2.put("attributeAssignOperation", "add_attr");
+      addArgs2.put("attributeDefNameName", "test:mcpRemoveByIdAttr");
+      addArgs2.put("ownerGroupName", "test:mcpRemoveByIdGroup");
+
+      ObjectNode addResult2 = GrouperMcpAssignAttributes.execute(addArgs2, authUser);
+      assertFalse("Expected success for second add", addResult2.get("isError").asBoolean());
+
+      String addText2 = addResult2.get("content").get(0).get("text").asText();
+      JsonNode addResults2 = objectMapper.readTree(addText2);
+      String assignId2 = addResults2.get(0).get("attributeAssigns").get(0).get("attributeAssignId").asText();
+
+      // verify we have two different assignment IDs
+      assertFalse("Expected two different assignment IDs", assignId1.equals(assignId2));
+
+      // remove just the first assignment by ID
+      ObjectNode removeArgs = objectMapper.createObjectNode();
+      removeArgs.put("attributeAssignType", "group");
+      removeArgs.put("attributeAssignOperation", "remove_attr");
+      removeArgs.put("attributeDefNameName", "test:mcpRemoveByIdAttr");
+      removeArgs.put("ownerGroupName", "test:mcpRemoveByIdGroup");
+      removeArgs.put("attributeAssignId", assignId1);
+
+      ObjectNode removeResult = GrouperMcpAssignAttributes.execute(removeArgs, authUser);
+      assertFalse("Expected success for remove by ID, got: " + removeResult.toString(),
+          removeResult.get("isError").asBoolean());
+
+      // verify that assignment 2 still exists by getting assignments
+      ObjectNode getArgs = objectMapper.createObjectNode();
+      getArgs.put("attributeAssignType", "group");
+      getArgs.put("ownerGroupName", "test:mcpRemoveByIdGroup");
+      getArgs.put("attributeDefNameName", "test:mcpRemoveByIdAttr");
+
+      ObjectNode getResult = GrouperMcpGetAttributeAssignmentsLite.execute(getArgs, authUser);
+      assertFalse("Expected success for get", getResult.get("isError").asBoolean());
+
+      String getText = getResult.get("content").get(0).get("text").asText();
+      JsonNode getResults = objectMapper.readTree(getText);
+      // should have exactly one remaining assignment
+      assertEquals("Expected exactly one remaining assignment", 1, getResults.size());
+      assertEquals("Expected remaining assignment to be the second one",
+          assignId2, getResults.get(0).get("attributeAssignId").asText());
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * test that assign_attr with values replaces existing values on a single-valued
+   * attribute instead of erroring
+   */
+  public void testAssignAttrReplacesExistingValue() {
+
+    // create the group
+    Group group = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("test:mcpReplaceValueGroup")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("test group for value replacement").save();
+
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+
+    // create a single-valued attribute def
+    AttributeDef valueDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
+        .assignName("test:mcpReplaceValueDef")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignToGroup(true)
+        .assignAttributeDefType(AttributeDefType.attr)
+        .assignValueType(AttributeDefValueType.string)
+        .assignMultiAssignable(false)
+        .save();
+
+    new AttributeDefNameSave(GrouperSession.staticGrouperSession(), valueDef)
+        .assignName("test:mcpReplaceValueAttr")
+        .save();
+
+    // grant SUBJ0 privileges
+    valueDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0,
+        AttributeDefPrivilege.ATTR_UPDATE, false);
+    valueDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0,
+        AttributeDefPrivilege.ATTR_READ, false);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      // assign with initial value
+      ObjectNode args1 = objectMapper.createObjectNode();
+      args1.put("attributeAssignType", "group");
+      args1.put("attributeAssignOperation", "assign_attr");
+      args1.put("attributeDefNameName", "test:mcpReplaceValueAttr");
+      args1.put("ownerGroupName", "test:mcpReplaceValueGroup");
+      ArrayNode values1 = objectMapper.createArrayNode();
+      values1.add("originalValue");
+      args1.set("values", values1);
+
+      ObjectNode result1 = GrouperMcpAssignAttributes.execute(args1, authUser);
+      assertFalse("Expected success for initial assign, got: " + result1.toString(),
+          result1.get("isError").asBoolean());
+
+      // assign again with a different value — should replace, not error
+      ObjectNode args2 = objectMapper.createObjectNode();
+      args2.put("attributeAssignType", "group");
+      args2.put("attributeAssignOperation", "assign_attr");
+      args2.put("attributeDefNameName", "test:mcpReplaceValueAttr");
+      args2.put("ownerGroupName", "test:mcpReplaceValueGroup");
+      ArrayNode values2 = objectMapper.createArrayNode();
+      values2.add("replacedValue");
+      args2.set("values", values2);
+
+      ObjectNode result2 = GrouperMcpAssignAttributes.execute(args2, authUser);
+      assertFalse("Expected success for value replacement (not error), got: " + result2.toString(),
+          result2.get("isError").asBoolean());
+
+      // verify the value was actually replaced
+      ObjectNode getArgs = objectMapper.createObjectNode();
+      getArgs.put("attributeAssignType", "group");
+      getArgs.put("ownerGroupName", "test:mcpReplaceValueGroup");
+      getArgs.put("attributeDefNameName", "test:mcpReplaceValueAttr");
+
+      ObjectNode getResult = GrouperMcpGetAttributeAssignmentsLite.execute(getArgs, authUser);
+      assertFalse("Expected success for get", getResult.get("isError").asBoolean());
+
+      String getText = getResult.get("content").get(0).get("text").asText();
+      JsonNode getResults = objectMapper.readTree(getText);
+      assertEquals("Expected one assignment", 1, getResults.size());
+
+      JsonNode valuesNode = getResults.get(0).get("values");
+      assertNotNull("Expected values in result", valuesNode);
+      assertEquals("Expected one value", 1, valuesNode.size());
+      assertEquals("Expected the replaced value", "replacedValue", valuesNode.get(0).asText());
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * test that the valueOperation parameter is honored when explicitly passed.
+   * Uses add_value to add a second value to a multi-valued attribute, and
+   * remove_value to remove a specific value.
+   */
+  public void testExplicitValueOperation() {
+
+    // create the group
+    Group group = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("test:mcpValueOpGroup")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("test group for explicit valueOperation").save();
+
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+
+    // create a multi-valued attribute def
+    AttributeDef valueDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
+        .assignName("test:mcpValueOpDef")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignToGroup(true)
+        .assignAttributeDefType(AttributeDefType.attr)
+        .assignValueType(AttributeDefValueType.string)
+        .assignMultiValued(true)
+        .assignMultiAssignable(false)
+        .save();
+
+    new AttributeDefNameSave(GrouperSession.staticGrouperSession(), valueDef)
+        .assignName("test:mcpValueOpAttr")
+        .save();
+
+    // grant SUBJ0 privileges
+    valueDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0,
+        AttributeDefPrivilege.ATTR_UPDATE, false);
+    valueDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0,
+        AttributeDefPrivilege.ATTR_READ, false);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      // assign with initial value using replace_values (default for assign_attr)
+      ObjectNode args1 = objectMapper.createObjectNode();
+      args1.put("attributeAssignType", "group");
+      args1.put("attributeAssignOperation", "assign_attr");
+      args1.put("attributeDefNameName", "test:mcpValueOpAttr");
+      args1.put("ownerGroupName", "test:mcpValueOpGroup");
+      ArrayNode values1 = objectMapper.createArrayNode();
+      values1.add("value1");
+      args1.set("values", values1);
+
+      ObjectNode result1 = GrouperMcpAssignAttributes.execute(args1, authUser);
+      assertFalse("Expected success for initial assign, got: " + result1.toString(),
+          result1.get("isError").asBoolean());
+
+      // use explicit valueOperation=add_value to add a second value
+      ObjectNode args2 = objectMapper.createObjectNode();
+      args2.put("attributeAssignType", "group");
+      args2.put("attributeAssignOperation", "assign_attr");
+      args2.put("attributeDefNameName", "test:mcpValueOpAttr");
+      args2.put("ownerGroupName", "test:mcpValueOpGroup");
+      args2.put("valueOperation", "add_value");
+      ArrayNode values2 = objectMapper.createArrayNode();
+      values2.add("value2");
+      args2.set("values", values2);
+
+      ObjectNode result2 = GrouperMcpAssignAttributes.execute(args2, authUser);
+      assertFalse("Expected success for add_value, got: " + result2.toString(),
+          result2.get("isError").asBoolean());
+
+      // verify both values exist
+      ObjectNode getArgs = objectMapper.createObjectNode();
+      getArgs.put("attributeAssignType", "group");
+      getArgs.put("ownerGroupName", "test:mcpValueOpGroup");
+      getArgs.put("attributeDefNameName", "test:mcpValueOpAttr");
+
+      ObjectNode getResult = GrouperMcpGetAttributeAssignmentsLite.execute(getArgs, authUser);
+      assertFalse("Expected success for get", getResult.get("isError").asBoolean());
+
+      String getText = getResult.get("content").get(0).get("text").asText();
+      JsonNode getResults = objectMapper.readTree(getText);
+      assertEquals("Expected one assignment", 1, getResults.size());
+
+      JsonNode valuesNode = getResults.get(0).get("values");
+      assertNotNull("Expected values in result", valuesNode);
+      assertEquals("Expected two values after add_value", 2, valuesNode.size());
+
+      // use explicit valueOperation=remove_value to remove value1
+      ObjectNode args3 = objectMapper.createObjectNode();
+      args3.put("attributeAssignType", "group");
+      args3.put("attributeAssignOperation", "assign_attr");
+      args3.put("attributeDefNameName", "test:mcpValueOpAttr");
+      args3.put("ownerGroupName", "test:mcpValueOpGroup");
+      args3.put("valueOperation", "remove_value");
+      ArrayNode values3 = objectMapper.createArrayNode();
+      values3.add("value1");
+      args3.set("values", values3);
+
+      ObjectNode result3 = GrouperMcpAssignAttributes.execute(args3, authUser);
+      assertFalse("Expected success for remove_value, got: " + result3.toString(),
+          result3.get("isError").asBoolean());
+
+      // verify only value2 remains
+      ObjectNode getResult2 = GrouperMcpGetAttributeAssignmentsLite.execute(getArgs, authUser);
+      assertFalse("Expected success for get", getResult2.get("isError").asBoolean());
+
+      String getText2 = getResult2.get("content").get(0).get("text").asText();
+      JsonNode getResults2 = objectMapper.readTree(getText2);
+      assertEquals("Expected one assignment", 1, getResults2.size());
+
+      JsonNode valuesNode2 = getResults2.get(0).get("values");
+      assertNotNull("Expected values in result", valuesNode2);
+      assertEquals("Expected one value after remove_value", 1, valuesNode2.size());
+      assertEquals("Expected value2 to remain", "value2", valuesNode2.get(0).asText());
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
 }

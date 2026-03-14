@@ -77,8 +77,11 @@ public class GrouperMcpAssignAttributes {
     tool.put("name", "attribute_assignment_save");
     tool.put("description",
         "Assign, add, remove, or replace attributes on Grouper objects. "
-        + "Supports attribute operations on groups, stems, members, "
-        + "and other owner types. Can include attribute values. "
+        + "Supports attribute operations on owner types: groups, stems (folders), "
+        + "members (users), memberships ('immediate only' or 'any'), and attribute definitions. Can include attribute values. "
+        + "Use attributeAssignId to target a specific attribute assignment for "
+        + "removal or value update (attributeDefNameName is not required when "
+        + "attributeAssignId is provided). "
         + "Also supports assignment-on-assignment (e.g. group_asgn) to assign "
         + "name/value pair metadata on an existing attribute assignment. "
         + "For example, to configure attestation on a group: first assign the "
@@ -206,6 +209,33 @@ public class GrouperMcpAssignAttributes {
         "Array of string values to assign with the attribute.");
     properties.set("values", valuesProp);
 
+    ObjectNode valueOperationProp = objectMapper.createObjectNode();
+    valueOperationProp.put("type", "string");
+    ArrayNode valueOpEnum = objectMapper.createArrayNode();
+    valueOpEnum.add("assign_value");
+    valueOpEnum.add("add_value");
+    valueOpEnum.add("remove_value");
+    valueOpEnum.add("replace_values");
+    valueOperationProp.set("enum", valueOpEnum);
+    valueOperationProp.put("description",
+        "The operation to perform on the attribute values. "
+        + "Defaults to replace_values for assign_attr (replaces existing values), "
+        + "assign_value for other operations. "
+        + "assign_value (set if not already set), "
+        + "add_value (add even if already set), "
+        + "remove_value (remove this value), "
+        + "replace_values (replace all existing values with these).");
+    properties.set("valueOperation", valueOperationProp);
+
+    ObjectNode attributeAssignIdProp = objectMapper.createObjectNode();
+    attributeAssignIdProp.put("type", "string");
+    attributeAssignIdProp.put("description",
+        "The UUID of a specific attribute assignment to operate on. "
+        + "Use with remove_attr to remove a specific assignment by ID "
+        + "(e.g. when there are multiple assignments of the same attribute). "
+        + "The ID is returned by attribute_assignment_get as attributeAssignId.");
+    properties.set("attributeAssignId", attributeAssignIdProp);
+
     ObjectNode assignmentNotesProp = objectMapper.createObjectNode();
     assignmentNotesProp.put("type", "string");
     assignmentNotesProp.put("description",
@@ -216,7 +246,6 @@ public class GrouperMcpAssignAttributes {
 
     ArrayNode required = objectMapper.createArrayNode();
     required.add("attributeAssignType");
-    required.add("attributeDefNameName");
     inputSchema.set("required", required);
 
     tool.set("inputSchema", inputSchema);
@@ -254,21 +283,30 @@ public class GrouperMcpAssignAttributes {
         ? arguments.get("action").asText() : null;
     JsonNode valuesArray = arguments != null && arguments.has("values")
         ? arguments.get("values") : null;
+    String attributeAssignId = arguments != null && arguments.has("attributeAssignId")
+        ? arguments.get("attributeAssignId").asText() : null;
+    String valueOperationString = arguments != null && arguments.has("valueOperation")
+        ? arguments.get("valueOperation").asText() : null;
     String assignmentNotes = arguments != null && arguments.has("assignmentNotes")
         ? arguments.get("assignmentNotes").asText() : null;
 
     if (StringUtils.isBlank(attributeAssignTypeString)) {
       return buildErrorResult("attributeAssignType is required.");
     }
-    if (StringUtils.isBlank(attributeDefNameName)) {
-      return buildErrorResult("attributeDefNameName is required.");
+    if (StringUtils.isBlank(attributeDefNameName) && StringUtils.isBlank(attributeAssignId)) {
+      return buildErrorResult("attributeDefNameName is required (unless attributeAssignId is provided).");
     }
     if (StringUtils.isBlank(attributeAssignOperationString)) {
       // default based on whether the attribute def is multi-assignable
-      AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(attributeDefNameName, false);
-      if (attributeDefName != null && attributeDefName.getAttributeDef().isMultiAssignable()) {
-        attributeAssignOperationString = "add_attr";
+      if (StringUtils.isNotBlank(attributeDefNameName)) {
+        AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(attributeDefNameName, false);
+        if (attributeDefName != null && attributeDefName.getAttributeDef().isMultiAssignable()) {
+          attributeAssignOperationString = "add_attr";
+        } else {
+          attributeAssignOperationString = "assign_attr";
+        }
       } else {
+        // no def name (operating by ID), default to assign_attr
         attributeAssignOperationString = "assign_attr";
       }
     }
@@ -487,35 +525,45 @@ public class GrouperMcpAssignAttributes {
       AttributeAssignOperation attrAssignOp = AttributeAssignOperation.valueOfIgnoreCase(
           attributeAssignOperationString, false);
 
-      WsAttributeDefNameLookup[] wsAttributeDefNameLookups = new WsAttributeDefNameLookup[] {
-          new WsAttributeDefNameLookup(attributeDefNameName, null)
-      };
-
-      WsGroupLookup[] wsOwnerGroupLookups = null;
-      if (StringUtils.isNotBlank(ownerGroupName)) {
-        WsGroupLookup gl = new WsGroupLookup();
-        gl.setGroupName(ownerGroupName);
-        wsOwnerGroupLookups = new WsGroupLookup[] { gl };
-      }
-
-      WsStemLookup[] wsOwnerStemLookups = null;
-      if (StringUtils.isNotBlank(ownerStemName)) {
-        wsOwnerStemLookups = new WsStemLookup[] { new WsStemLookup(ownerStemName, null) };
-      }
-
-      WsSubjectLookup[] wsOwnerSubjectLookups = null;
-      if (StringUtils.isNotBlank(ownerSubjectIdOrIdentifier)) {
-        wsOwnerSubjectLookups = new WsSubjectLookup[] {
-            GrouperMcpSubjectUtils.createSubjectLookup(
-                ownerSubjectIdOrIdentifier, ownerSubjectIdType, ownerSubjectSourceId)
+      // skip wsAttributeDefNameLookups when targeting by attributeAssignId
+      // (WS layer does not allow both at the same time)
+      WsAttributeDefNameLookup[] wsAttributeDefNameLookups = null;
+      if (StringUtils.isBlank(attributeAssignId) && StringUtils.isNotBlank(attributeDefNameName)) {
+        wsAttributeDefNameLookups = new WsAttributeDefNameLookup[] {
+            new WsAttributeDefNameLookup(attributeDefNameName, null)
         };
       }
 
+      // skip owner lookups when targeting by attributeAssignId
+      // (WS layer does not allow both at the same time)
+      WsGroupLookup[] wsOwnerGroupLookups = null;
+      WsStemLookup[] wsOwnerStemLookups = null;
+      WsSubjectLookup[] wsOwnerSubjectLookups = null;
       WsAttributeAssignLookup[] wsOwnerAttributeAssignLookups = null;
-      if (StringUtils.isNotBlank(ownerAttributeAssignId)) {
-        WsAttributeAssignLookup aal = new WsAttributeAssignLookup();
-        aal.setUuid(ownerAttributeAssignId);
-        wsOwnerAttributeAssignLookups = new WsAttributeAssignLookup[] { aal };
+
+      if (StringUtils.isBlank(attributeAssignId)) {
+        if (StringUtils.isNotBlank(ownerGroupName)) {
+          WsGroupLookup gl = new WsGroupLookup();
+          gl.setGroupName(ownerGroupName);
+          wsOwnerGroupLookups = new WsGroupLookup[] { gl };
+        }
+
+        if (StringUtils.isNotBlank(ownerStemName)) {
+          wsOwnerStemLookups = new WsStemLookup[] { new WsStemLookup(ownerStemName, null) };
+        }
+
+        if (StringUtils.isNotBlank(ownerSubjectIdOrIdentifier)) {
+          wsOwnerSubjectLookups = new WsSubjectLookup[] {
+              GrouperMcpSubjectUtils.createSubjectLookup(
+                  ownerSubjectIdOrIdentifier, ownerSubjectIdType, ownerSubjectSourceId)
+          };
+        }
+
+        if (StringUtils.isNotBlank(ownerAttributeAssignId)) {
+          WsAttributeAssignLookup aal = new WsAttributeAssignLookup();
+          aal.setUuid(ownerAttributeAssignId);
+          wsOwnerAttributeAssignLookups = new WsAttributeAssignLookup[] { aal };
+        }
       }
 
       WsAttributeAssignValue[] wsValues = null;
@@ -532,6 +580,29 @@ public class GrouperMcpAssignAttributes {
         actions = new String[] { action };
       }
 
+      // build wsAttributeAssignLookups for targeted operations (e.g. remove by ID)
+      WsAttributeAssignLookup[] wsAttributeAssignLookups = null;
+      if (StringUtils.isNotBlank(attributeAssignId)) {
+        WsAttributeAssignLookup aal = new WsAttributeAssignLookup();
+        aal.setUuid(attributeAssignId);
+        wsAttributeAssignLookups = new WsAttributeAssignLookup[] { aal };
+      }
+
+      // determine value operation: use explicit parameter if provided,
+      // otherwise default to replace_values for assign_attr (so existing values
+      // get replaced instead of erroring), assign_value for other operations
+      AttributeAssignValueOperation valueOperation = null;
+      if (wsValues != null) {
+        if (StringUtils.isNotBlank(valueOperationString)) {
+          valueOperation = AttributeAssignValueOperation.valueOfIgnoreCase(
+              valueOperationString, true);
+        } else if (attrAssignOp == AttributeAssignOperation.assign_attr) {
+          valueOperation = AttributeAssignValueOperation.replace_values;
+        } else {
+          valueOperation = AttributeAssignValueOperation.assign_value;
+        }
+      }
+
       WsAssignAttributesResults wsResults = GrouperServiceLogic.assignAttributes(
           GrouperVersion.currentVersion(),
           attrAssignType,
@@ -541,8 +612,8 @@ public class GrouperMcpAssignAttributes {
           assignmentNotes,
           null, null,  // enabledTime, disabledTime
           null,   // delegatable
-          wsValues != null ? AttributeAssignValueOperation.assign_value : null,   // attributeAssignValueOperation
-          null,   // wsAttributeAssignLookups
+          valueOperation,   // attributeAssignValueOperation
+          wsAttributeAssignLookups,   // wsAttributeAssignLookups
           wsOwnerGroupLookups,
           wsOwnerStemLookups,
           wsOwnerSubjectLookups,

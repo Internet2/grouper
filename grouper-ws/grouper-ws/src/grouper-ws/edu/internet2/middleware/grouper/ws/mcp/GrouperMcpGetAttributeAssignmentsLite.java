@@ -260,6 +260,9 @@ public class GrouperMcpGetAttributeAssignmentsLite {
   private static ObjectNode convertAttributeAssignToJson(WsAttributeAssign wsAttrAssign) {
     ObjectNode resultNode = objectMapper.createObjectNode();
 
+    if (StringUtils.isNotBlank(wsAttrAssign.getId())) {
+      resultNode.put("attributeAssignId", wsAttrAssign.getId());
+    }
     if (StringUtils.isNotBlank(wsAttrAssign.getAttributeAssignType())) {
       resultNode.put("attributeAssignType", wsAttrAssign.getAttributeAssignType());
     }
