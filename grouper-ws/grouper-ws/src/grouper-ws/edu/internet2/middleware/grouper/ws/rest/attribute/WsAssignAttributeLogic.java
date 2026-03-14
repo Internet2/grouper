@@ -425,10 +425,14 @@ public class WsAssignAttributeLogic {
                 throw new WsInvalidQueryException("Cant pass in disallowed if ws attribute assign lookups...  delete and re-add");
               }
               
-              assignmentMetadataAndValues(wsAssignAttributeResult, 
-                  attributeAssign, values, assignmentNotes, assignmentEnabledTime, 
+              assignmentMetadataAndValues(wsAssignAttributeResult,
+                  attributeAssign, values, assignmentNotes, assignmentEnabledTime,
                   assignmentDisabledTime, delegatable, attributeAssignValueOperation);
-              
+              // if values changed, mark the overall result as changed too
+              if (StringUtils.equals("F", wsAssignAttributeResult.getChanged())
+                  && StringUtils.equals("T", wsAssignAttributeResult.getValuesChanged())) {
+                wsAssignAttributeResult.setChanged("T");
+              }
               break;
             case remove_attr:
               // the delete method doesn't check security so need to do it here...
@@ -785,7 +789,8 @@ public class WsAssignAttributeLogic {
           wsAssignAttributeResult.setWsAttributeAssigns(wsAttributeAssigns);
           //the result knows if it is changed or not
           if (StringUtils.equals("F", wsAssignAttributeResult.getChanged())) {
-            wsAssignAttributeResult.setChanged(attributeAssignResult.isChanged() ? "T" : "F");
+            wsAssignAttributeResult.setChanged((attributeAssignResult.isChanged()
+                || StringUtils.equals("T", wsAssignAttributeResult.getValuesChanged())) ? "T" : "F");
           }
           wsAssignAttributeResultList.add(wsAssignAttributeResult);
         } catch (Exception e) {
