@@ -150,11 +150,26 @@ public class GrouperMcpAssignAttributes {
         + "(e.g., 'stem1:stem2').");
     properties.set("ownerStemName", ownerStemNameProp);
 
-    ObjectNode ownerSubjectIdProp = objectMapper.createObjectNode();
-    ownerSubjectIdProp.put("type", "string");
-    ownerSubjectIdProp.put("description",
-        "The subject ID to assign the attribute on.");
-    properties.set("ownerSubjectId", ownerSubjectIdProp);
+    ObjectNode ownerSubjectIdOrIdentifierProp = objectMapper.createObjectNode();
+    ownerSubjectIdOrIdentifierProp.put("type", "string");
+    ownerSubjectIdOrIdentifierProp.put("description",
+        "The subject ID or identifier to assign the attribute on "
+        + "(e.g., login ID, pennkey, eppn, or subject ID).");
+    properties.set("ownerSubjectIdOrIdentifier", ownerSubjectIdOrIdentifierProp);
+
+    ObjectNode ownerSubjectIdTypeProp = objectMapper.createObjectNode();
+    ownerSubjectIdTypeProp.put("type", "string");
+    ownerSubjectIdTypeProp.put("description",
+        "How to interpret the owner subject value. Defaults to 'subjectIdOrIdentifier' which "
+        + "tries both ID and identifier. Use 'subjectId' to look up by ID only, "
+        + "or 'subjectIdentifier' to look up by identifier only.");
+    ArrayNode ownerSubjectIdTypeEnum = objectMapper.createArrayNode();
+    ownerSubjectIdTypeEnum.add(GrouperMcpSubjectUtils.SUBJECT_ID_TYPE_ID_OR_IDENTIFIER);
+    ownerSubjectIdTypeEnum.add(GrouperMcpSubjectUtils.SUBJECT_ID_TYPE_ID);
+    ownerSubjectIdTypeEnum.add(GrouperMcpSubjectUtils.SUBJECT_ID_TYPE_IDENTIFIER);
+    ownerSubjectIdTypeProp.set("enum", ownerSubjectIdTypeEnum);
+    ownerSubjectIdTypeProp.put("default", GrouperMcpSubjectUtils.SUBJECT_ID_TYPE_ID_OR_IDENTIFIER);
+    properties.set("ownerSubjectIdType", ownerSubjectIdTypeProp);
 
     ObjectNode ownerSubjectSourceIdProp = objectMapper.createObjectNode();
     ownerSubjectSourceIdProp.put("type", "string");
@@ -224,8 +239,10 @@ public class GrouperMcpAssignAttributes {
         ? arguments.get("ownerGroupName").asText() : null;
     String ownerStemName = arguments != null && arguments.has("ownerStemName")
         ? arguments.get("ownerStemName").asText() : null;
-    String ownerSubjectId = arguments != null && arguments.has("ownerSubjectId")
-        ? arguments.get("ownerSubjectId").asText() : null;
+    String ownerSubjectIdOrIdentifier = arguments != null && arguments.has("ownerSubjectIdOrIdentifier")
+        ? arguments.get("ownerSubjectIdOrIdentifier").asText() : null;
+    String ownerSubjectIdType = arguments != null && arguments.has("ownerSubjectIdType")
+        ? arguments.get("ownerSubjectIdType").asText() : null;
     String ownerSubjectSourceId = arguments != null && arguments.has("ownerSubjectSourceId")
         ? arguments.get("ownerSubjectSourceId").asText() : null;
     String ownerAttributeAssignId = arguments != null && arguments.has("ownerAttributeAssignId")
@@ -282,14 +299,14 @@ public class GrouperMcpAssignAttributes {
       }
       // if user has no subject scope, deny subject owners entirely
       if (!authUser.hasSubjectReadwriteScope()) {
-        if (StringUtils.isNotBlank(ownerSubjectId)) {
+        if (StringUtils.isNotBlank(ownerSubjectIdOrIdentifier)) {
           return buildErrorResult("Access denied: your OAuth scope does not include subjects.");
         }
       }
-      if (StringUtils.isNotBlank(ownerSubjectId)
-          && !authUser.isSubjectInReadwriteScope(ownerSubjectId)) {
+      if (StringUtils.isNotBlank(ownerSubjectIdOrIdentifier)
+          && !authUser.isSubjectInReadwriteScope(ownerSubjectIdOrIdentifier)) {
         return buildErrorResult(
-            authUser.buildReadwriteScopeDeniedError("subject", ownerSubjectId));
+            authUser.buildReadwriteScopeDeniedError("subject", ownerSubjectIdOrIdentifier));
       }
     }
 
@@ -478,9 +495,10 @@ public class GrouperMcpAssignAttributes {
       }
 
       WsSubjectLookup[] wsOwnerSubjectLookups = null;
-      if (StringUtils.isNotBlank(ownerSubjectId)) {
+      if (StringUtils.isNotBlank(ownerSubjectIdOrIdentifier)) {
         wsOwnerSubjectLookups = new WsSubjectLookup[] {
-            new WsSubjectLookup(ownerSubjectId, ownerSubjectSourceId, null)
+            GrouperMcpSubjectUtils.createSubjectLookup(
+                ownerSubjectIdOrIdentifier, ownerSubjectIdType, ownerSubjectSourceId)
         };
       }
 

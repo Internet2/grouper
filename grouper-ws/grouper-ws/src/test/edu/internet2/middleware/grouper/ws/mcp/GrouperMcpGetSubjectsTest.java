@@ -105,7 +105,7 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
       GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
       ObjectNode arguments = objectMapper.createObjectNode();
-      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
 
@@ -140,7 +140,7 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
 
       ObjectNode arguments = objectMapper.createObjectNode();
       // test subjects have identifiers like "id.test.subject.0"
-      arguments.put("subjectIdentifier", "id.test.subject.0");
+      arguments.put("subjectIdOrIdentifier", "id.test.subject.0");
 
       ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
 
@@ -208,7 +208,7 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
 
       String text = result.get("content").get(0).get("text").asText();
       assertTrue("Expected error about missing param",
-          text.contains("One of subjectId, subjectIdentifier, or searchString is required"));
+          text.contains("One of subjectIdOrIdentifier or searchString is required"));
     } finally {
       GrouperSession.stopQuietly(session);
     }
@@ -224,7 +224,7 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
       GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
       ObjectNode arguments = objectMapper.createObjectNode();
-      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
       arguments.put("searchString", "test.");
 
       ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
@@ -233,7 +233,7 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
 
       String text = result.get("content").get(0).get("text").asText();
       assertTrue("Expected error about multiple params",
-          text.contains("Only one of subjectId, subjectIdentifier, or searchString may be provided"));
+          text.contains("Only one of subjectIdOrIdentifier or searchString may be provided"));
     } finally {
       GrouperSession.stopQuietly(session);
     }
@@ -251,7 +251,7 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
       GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
       ObjectNode arguments = objectMapper.createObjectNode();
-      arguments.put("subjectId", "bogusSubjectIdThatDoesNotExist12345");
+      arguments.put("subjectIdOrIdentifier", "bogusSubjectIdThatDoesNotExist12345");
 
       ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
 
@@ -361,7 +361,7 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
       GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
       ObjectNode arguments = objectMapper.createObjectNode();
-      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
       arguments.put("includeSubjectDetail", true);
 
       ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);
@@ -394,8 +394,7 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
     assertNotNull(toolDef.get("inputSchema"));
 
     JsonNode properties = toolDef.get("inputSchema").get("properties");
-    assertNotNull(properties.get("subjectId"));
-    assertNotNull(properties.get("subjectIdentifier"));
+    assertNotNull(properties.get("subjectIdOrIdentifier"));
     assertNotNull(properties.get("searchString"));
     assertNotNull(properties.get("sourceIds"));
     assertNotNull(properties.get("groupName"));
@@ -435,7 +434,7 @@ public class GrouperMcpGetSubjectsTest extends GrouperTest {
       GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
       ObjectNode arguments = objectMapper.createObjectNode();
-      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
       arguments.putArray("sourceIds").add("jdbc");
 
       ObjectNode result = GrouperMcpGetSubjects.execute(arguments, authUser);

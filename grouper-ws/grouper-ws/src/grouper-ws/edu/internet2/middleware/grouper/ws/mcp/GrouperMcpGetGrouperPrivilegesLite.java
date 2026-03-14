@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
 
 /**
@@ -61,25 +62,10 @@ public class GrouperMcpGetGrouperPrivilegesLite {
 
     ObjectNode properties = objectMapper.createObjectNode();
 
-    ObjectNode subjectIdProp = objectMapper.createObjectNode();
-    subjectIdProp.put("type", "string");
-    subjectIdProp.put("description",
-        "The subject ID to check privileges for. "
-        + "Mutually exclusive with subjectIdentifier.");
-    properties.set("subjectId", subjectIdProp);
-
-    ObjectNode subjectIdentifierProp = objectMapper.createObjectNode();
-    subjectIdentifierProp.put("type", "string");
-    subjectIdentifierProp.put("description",
-        "The subject identifier (e.g., login ID or eppn). "
-        + "Mutually exclusive with subjectId.");
-    properties.set("subjectIdentifier", subjectIdentifierProp);
-
-    ObjectNode subjectSourceIdProp = objectMapper.createObjectNode();
-    subjectSourceIdProp.put("type", "string");
-    subjectSourceIdProp.put("description",
-        "Optional source ID to restrict the subject lookup to a specific source.");
-    properties.set("subjectSourceId", subjectSourceIdProp);
+    GrouperMcpSubjectUtils.addSubjectIdOrIdentifierProperty(properties,
+        "The subject ID or identifier to check privileges for (e.g., login ID, pennkey, eppn, or subject ID).");
+    GrouperMcpSubjectUtils.addSubjectIdTypeProperty(properties);
+    GrouperMcpSubjectUtils.addSourceIdProperty(properties, null);
 
     ObjectNode groupNameProp = objectMapper.createObjectNode();
     groupNameProp.put("type", "string");
@@ -132,12 +118,12 @@ public class GrouperMcpGetGrouperPrivilegesLite {
    */
   public static ObjectNode execute(JsonNode arguments, GrouperMcpAuthUser authUser) {
 
-    String subjectId = arguments != null && arguments.has("subjectId")
-        ? arguments.get("subjectId").asText() : null;
-    String subjectIdentifier = arguments != null && arguments.has("subjectIdentifier")
-        ? arguments.get("subjectIdentifier").asText() : null;
-    String subjectSourceId = arguments != null && arguments.has("subjectSourceId")
-        ? arguments.get("subjectSourceId").asText() : null;
+    String subjectIdOrIdentifier = arguments != null && arguments.has("subjectIdOrIdentifier")
+        ? arguments.get("subjectIdOrIdentifier").asText() : null;
+    String subjectIdType = arguments != null && arguments.has("subjectIdType")
+        ? arguments.get("subjectIdType").asText() : null;
+    String sourceId = arguments != null && arguments.has("sourceId")
+        ? arguments.get("sourceId").asText() : null;
     String groupName = arguments != null && arguments.has("groupName")
         ? arguments.get("groupName").asText() : null;
     String stemName = arguments != null && arguments.has("stemName")
@@ -149,6 +135,24 @@ public class GrouperMcpGetGrouperPrivilegesLite {
 
     if (StringUtils.isBlank(groupName) && StringUtils.isBlank(stemName)) {
       return buildErrorResult("At least one of groupName or stemName is required.");
+    }
+
+    // validate subjectIdType if provided
+    String subjectIdTypeError = GrouperMcpSubjectUtils.validateSubjectIdType(subjectIdType);
+    if (subjectIdTypeError != null) {
+      return buildErrorResult(subjectIdTypeError);
+    }
+
+    // convert subjectIdOrIdentifier to subjectId/subjectIdentifier fields for the WS call
+    String subjectId = null;
+    String subjectIdentifier = null;
+    String subjectSourceId = sourceId;
+    if (StringUtils.isNotBlank(subjectIdOrIdentifier)) {
+      WsSubjectLookup wsSubjectLookup = GrouperMcpSubjectUtils.createSubjectLookup(
+          subjectIdOrIdentifier, subjectIdType, sourceId);
+      subjectId = wsSubjectLookup.getSubjectId();
+      subjectIdentifier = wsSubjectLookup.getSubjectIdentifier();
+      subjectSourceId = wsSubjectLookup.getSubjectSourceId();
     }
 
     try {

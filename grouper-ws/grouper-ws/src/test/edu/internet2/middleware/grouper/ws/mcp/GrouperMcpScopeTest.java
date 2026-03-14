@@ -451,7 +451,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       arguments.put("groupName", "other:folder:someGroup");
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subjectNode = subjects.addObject();
-      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      subjectNode.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
 
@@ -485,7 +485,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       arguments.put("groupName", "test:scopeAddMemberSubj");
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subjectNode = subjects.addObject();
-      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      subjectNode.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
 
@@ -521,7 +521,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       arguments.put("groupName", "test:scopeAddMemberValid");
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subjectNode = subjects.addObject();
-      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      subjectNode.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
 
@@ -557,7 +557,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       arguments.put("groupName", "test:scopeAddMemberSubjUnscoped");
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subjectNode = subjects.addObject();
-      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      subjectNode.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
 
@@ -593,7 +593,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       arguments.put("groupName", "test:scopeAddMemberGrpUnscoped");
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subjectNode = subjects.addObject();
-      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      subjectNode.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
 
@@ -621,7 +621,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       arguments.put("groupName", "other:folder:someGroup");
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subjectNode = subjects.addObject();
-      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      subjectNode.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpDeleteMember.execute(arguments, authUser);
 
@@ -658,7 +658,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       arguments.put("groupName", "test:scopeDeleteMemberValid");
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subjectNode = subjects.addObject();
-      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      subjectNode.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpDeleteMember.execute(arguments, authUser);
 
@@ -743,7 +743,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "other:folder:someGroup");
-      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
       arguments.put("privilegeType", "access");
       arguments.put("privilegeName", "read");
       arguments.put("allowed", true);
@@ -778,7 +778,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "test:scopePrivSubj");
-      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
       arguments.put("privilegeType", "access");
       arguments.put("privilegeName", "read");
       arguments.put("allowed", true);
@@ -815,7 +815,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
 
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "test:scopePrivValid");
-      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
       arguments.put("privilegeType", "access");
       arguments.put("privilegeName", "read");
       arguments.put("allowed", true);
@@ -1162,7 +1162,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       arguments.put("groupName", "test:scopeAddMemberUuid");
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subjectNode = subjects.addObject();
-      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0_ID);
+      subjectNode.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0_ID);
 
       ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
 
@@ -1204,7 +1204,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subjectNode = subjects.addObject();
       // API sends subjectId, but scope has the identifier
-      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0_ID);
+      subjectNode.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0_ID);
 
       ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
 
@@ -1246,7 +1246,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subjectNode = subjects.addObject();
       // API sends subjectIdentifier, but scope has the subjectId
-      subjectNode.put("subjectIdentifier", SubjectTestHelper.SUBJ0_IDENTIFIER);
+      subjectNode.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0_IDENTIFIER);
 
       ObjectNode result = GrouperMcpAddMember.execute(arguments, authUser);
 
@@ -1572,7 +1572,7 @@ public class GrouperMcpScopeTest extends GrouperTest {
       ObjectNode arguments = objectMapper.createObjectNode();
       arguments.put("groupName", "test:scopePrivSubjIdent");
       // API sends subjectId, but scope has the identifier
-      arguments.put("subjectId", SubjectTestHelper.SUBJ0_ID);
+      arguments.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0_ID);
       arguments.put("privilegeType", "access");
       arguments.put("privilegeName", "read");
       arguments.put("allowed", true);

@@ -111,23 +111,17 @@ public class GrouperMcpGetAuditEntries {
         + "Requires stemAdmin privilege on the stem.");
     properties.set("stemName", stemNameProp);
 
-    ObjectNode subjectIdProp = objectMapper.createObjectNode();
-    subjectIdProp.put("type", "string");
-    subjectIdProp.put("description",
-        "Subject ID to get audit entries about.");
-    properties.set("subjectId", subjectIdProp);
-
-    ObjectNode subjectSourceIdProp = objectMapper.createObjectNode();
-    subjectSourceIdProp.put("type", "string");
-    subjectSourceIdProp.put("description",
+    GrouperMcpSubjectUtils.addSubjectIdOrIdentifierProperty(properties,
+        "Subject ID or identifier to get audit entries about.");
+    GrouperMcpSubjectUtils.addSubjectIdTypeProperty(properties);
+    GrouperMcpSubjectUtils.addSourceIdProperty(properties,
         "Source ID for the subject to get audit entries about.");
-    properties.set("subjectSourceId", subjectSourceIdProp);
 
-    ObjectNode actionsPerformedBySubjectIdProp = objectMapper.createObjectNode();
-    actionsPerformedBySubjectIdProp.put("type", "string");
-    actionsPerformedBySubjectIdProp.put("description",
-        "Subject ID of the user who performed the actions.");
-    properties.set("actionsPerformedBySubjectId", actionsPerformedBySubjectIdProp);
+    ObjectNode actionsPerformedBySubjectIdOrIdentifierProp = objectMapper.createObjectNode();
+    actionsPerformedBySubjectIdOrIdentifierProp.put("type", "string");
+    actionsPerformedBySubjectIdOrIdentifierProp.put("description",
+        "Subject ID or identifier of the user who performed the actions.");
+    properties.set("actionsPerformedBySubjectIdOrIdentifier", actionsPerformedBySubjectIdOrIdentifierProp);
 
     ObjectNode actionsPerformedBySubjectSourceIdProp = objectMapper.createObjectNode();
     actionsPerformedBySubjectSourceIdProp.put("type", "string");
@@ -182,13 +176,15 @@ public class GrouperMcpGetAuditEntries {
         ? arguments.get("groupName").asText() : null;
     String stemName = arguments != null && arguments.has("stemName")
         ? arguments.get("stemName").asText() : null;
-    String subjectId = arguments != null && arguments.has("subjectId")
-        ? arguments.get("subjectId").asText() : null;
-    String subjectSourceId = arguments != null && arguments.has("subjectSourceId")
-        ? arguments.get("subjectSourceId").asText() : null;
-    String actionsPerformedBySubjectId = arguments != null
-        && arguments.has("actionsPerformedBySubjectId")
-        ? arguments.get("actionsPerformedBySubjectId").asText() : null;
+    String subjectIdOrIdentifier = arguments != null && arguments.has("subjectIdOrIdentifier")
+        ? arguments.get("subjectIdOrIdentifier").asText() : null;
+    String subjectIdType = arguments != null && arguments.has("subjectIdType")
+        ? arguments.get("subjectIdType").asText() : null;
+    String sourceId = arguments != null && arguments.has("sourceId")
+        ? arguments.get("sourceId").asText() : null;
+    String actionsPerformedBySubjectIdOrIdentifier = arguments != null
+        && arguments.has("actionsPerformedBySubjectIdOrIdentifier")
+        ? arguments.get("actionsPerformedBySubjectIdOrIdentifier").asText() : null;
     String actionsPerformedBySubjectSourceId = arguments != null
         && arguments.has("actionsPerformedBySubjectSourceId")
         ? arguments.get("actionsPerformedBySubjectSourceId").asText() : null;
@@ -201,10 +197,12 @@ public class GrouperMcpGetAuditEntries {
 
     // require at least one filter
     if (StringUtils.isBlank(groupName) && StringUtils.isBlank(stemName)
-        && StringUtils.isBlank(subjectId) && StringUtils.isBlank(actionsPerformedBySubjectId)
+        && StringUtils.isBlank(subjectIdOrIdentifier)
+        && StringUtils.isBlank(actionsPerformedBySubjectIdOrIdentifier)
         && StringUtils.isBlank(auditType)) {
       return buildErrorResult("At least one filter is required: "
-          + "groupName, stemName, subjectId, actionsPerformedBySubjectId, or auditType.");
+          + "groupName, stemName, subjectIdOrIdentifier, "
+          + "actionsPerformedBySubjectIdOrIdentifier, or auditType.");
     }
 
     try {
@@ -260,12 +258,12 @@ public class GrouperMcpGetAuditEntries {
       }
 
       // subject filter: audit entries about this subject
-      if (StringUtils.isNotBlank(subjectId)) {
-        Subject subject = StringUtils.isNotBlank(subjectSourceId)
-            ? SubjectFinder.findByIdAndSource(subjectId, subjectSourceId, false)
-            : SubjectFinder.findById(subjectId, false);
+      if (StringUtils.isNotBlank(subjectIdOrIdentifier)) {
+        Subject subject = StringUtils.isNotBlank(sourceId)
+            ? SubjectFinder.findByIdOrIdentifierAndSource(subjectIdOrIdentifier, sourceId, false)
+            : SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, false);
         if (subject == null) {
-          return buildErrorResult("Subject not found: " + subjectId);
+          return buildErrorResult("Subject not found: " + subjectIdOrIdentifier);
         }
         // allow if admin or looking at own audit entries
         if (!isAdmin && !subjectsEqual(authenticatedSubject, subject)) {
@@ -275,19 +273,19 @@ public class GrouperMcpGetAuditEntries {
         }
         Member member = MemberFinder.findBySubject(grouperSession, subject, false);
         if (member == null) {
-          return buildErrorResult("Member not found for subject: " + subjectId);
+          return buildErrorResult("Member not found for subject: " + subjectIdOrIdentifier);
         }
         query.addAuditTypeFieldValue("memberId", member.getUuid());
       }
 
       // actions performed by filter
-      if (StringUtils.isNotBlank(actionsPerformedBySubjectId)) {
+      if (StringUtils.isNotBlank(actionsPerformedBySubjectIdOrIdentifier)) {
         Subject performer = StringUtils.isNotBlank(actionsPerformedBySubjectSourceId)
-            ? SubjectFinder.findByIdAndSource(actionsPerformedBySubjectId,
+            ? SubjectFinder.findByIdOrIdentifierAndSource(actionsPerformedBySubjectIdOrIdentifier,
                 actionsPerformedBySubjectSourceId, false)
-            : SubjectFinder.findById(actionsPerformedBySubjectId, false);
+            : SubjectFinder.findByIdOrIdentifier(actionsPerformedBySubjectIdOrIdentifier, false);
         if (performer == null) {
-          return buildErrorResult("Subject not found: " + actionsPerformedBySubjectId);
+          return buildErrorResult("Subject not found: " + actionsPerformedBySubjectIdOrIdentifier);
         }
         // allow if admin or looking at own actions
         if (!isAdmin && !subjectsEqual(authenticatedSubject, performer)) {
@@ -298,7 +296,7 @@ public class GrouperMcpGetAuditEntries {
         Member member = MemberFinder.findBySubject(grouperSession, performer, false);
         if (member == null) {
           return buildErrorResult(
-              "Member not found for subject: " + actionsPerformedBySubjectId);
+              "Member not found for subject: " + actionsPerformedBySubjectIdOrIdentifier);
         }
         query.loggedInMember(member);
         query.actAsMember(member);
@@ -311,7 +309,8 @@ public class GrouperMcpGetAuditEntries {
 
       // if only auditType with no entity filter, require admin
       if (StringUtils.isBlank(groupName) && StringUtils.isBlank(stemName)
-          && StringUtils.isBlank(subjectId) && StringUtils.isBlank(actionsPerformedBySubjectId)
+          && StringUtils.isBlank(subjectIdOrIdentifier)
+          && StringUtils.isBlank(actionsPerformedBySubjectIdOrIdentifier)
           && !isAdmin) {
         return buildErrorResult(
             "Access denied: admin privilege is required to query audit entries by type only.");

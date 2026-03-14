@@ -58,8 +58,8 @@ public class GrouperMcpGetGroups {
     tool.put("name", "entity_get_groups");
     tool.put("description",
         "Find what groups a subject belongs to. "
-        + "The subject is identified by subjectId or subjectIdentifier "
-        + "(and optionally subjectSourceId). "
+        + "The subject is identified by subjectIdOrIdentifier "
+        + "(and optionally sourceId and subjectIdType). "
         + "Supports filtering by membership type, field, stem scope, and paging.");
 
     ObjectNode inputSchema = objectMapper.createObjectNode();
@@ -67,25 +67,10 @@ public class GrouperMcpGetGroups {
 
     ObjectNode properties = objectMapper.createObjectNode();
 
-    ObjectNode subjectIdProp = objectMapper.createObjectNode();
-    subjectIdProp.put("type", "string");
-    subjectIdProp.put("description",
-        "The subject ID to find groups for. "
-        + "Mutually exclusive with subjectIdentifier.");
-    properties.set("subjectId", subjectIdProp);
-
-    ObjectNode subjectIdentifierProp = objectMapper.createObjectNode();
-    subjectIdentifierProp.put("type", "string");
-    subjectIdentifierProp.put("description",
-        "The subject identifier (e.g., login ID or eppn). "
-        + "Mutually exclusive with subjectId.");
-    properties.set("subjectIdentifier", subjectIdentifierProp);
-
-    ObjectNode subjectSourceIdProp = objectMapper.createObjectNode();
-    subjectSourceIdProp.put("type", "string");
-    subjectSourceIdProp.put("description",
-        "Optional source ID to restrict the subject lookup to a specific source.");
-    properties.set("subjectSourceId", subjectSourceIdProp);
+    GrouperMcpSubjectUtils.addSubjectIdOrIdentifierProperty(properties,
+        "The subject ID or identifier to find groups for (e.g., login ID, pennkey, eppn, or subject ID).");
+    GrouperMcpSubjectUtils.addSubjectIdTypeProperty(properties);
+    GrouperMcpSubjectUtils.addSourceIdProperty(properties, null);
 
     ObjectNode memberFilterProp = objectMapper.createObjectNode();
     memberFilterProp.put("type", "string");
@@ -173,12 +158,12 @@ public class GrouperMcpGetGroups {
    */
   public static ObjectNode execute(JsonNode arguments, GrouperMcpAuthUser authUser) {
 
-    String subjectId = arguments != null && arguments.has("subjectId")
-        ? arguments.get("subjectId").asText() : null;
-    String subjectIdentifier = arguments != null && arguments.has("subjectIdentifier")
-        ? arguments.get("subjectIdentifier").asText() : null;
-    String subjectSourceId = arguments != null && arguments.has("subjectSourceId")
-        ? arguments.get("subjectSourceId").asText() : null;
+    String subjectIdOrIdentifier = arguments != null && arguments.has("subjectIdOrIdentifier")
+        ? arguments.get("subjectIdOrIdentifier").asText() : null;
+    String subjectIdType = arguments != null && arguments.has("subjectIdType")
+        ? arguments.get("subjectIdType").asText() : null;
+    String sourceId = arguments != null && arguments.has("sourceId")
+        ? arguments.get("sourceId").asText() : null;
     String memberFilterString = arguments != null && arguments.has("memberFilter")
         ? arguments.get("memberFilter").asText() : "All";
     String fieldNameString = arguments != null && arguments.has("privilegeListName")
@@ -197,20 +182,21 @@ public class GrouperMcpGetGroups {
     Integer pageNumber = arguments != null && arguments.has("pageNumber")
         ? arguments.get("pageNumber").asInt() : null;
 
-    // validate that exactly one of subjectId or subjectIdentifier is provided
-    if (StringUtils.isBlank(subjectId) && StringUtils.isBlank(subjectIdentifier)) {
-      return buildErrorResult(
-          "One of subjectId or subjectIdentifier is required.");
+    // validate subjectIdOrIdentifier is provided
+    if (StringUtils.isBlank(subjectIdOrIdentifier)) {
+      return buildErrorResult("subjectIdOrIdentifier is required.");
     }
-    if (StringUtils.isNotBlank(subjectId) && StringUtils.isNotBlank(subjectIdentifier)) {
-      return buildErrorResult(
-          "Only one of subjectId or subjectIdentifier may be provided, not both.");
+
+    // validate subjectIdType if provided
+    String subjectIdTypeError = GrouperMcpSubjectUtils.validateSubjectIdType(subjectIdType);
+    if (subjectIdTypeError != null) {
+      return buildErrorResult(subjectIdTypeError);
     }
 
     try {
 
       WsSubjectLookup[] subjectLookups = new WsSubjectLookup[] {
-          new WsSubjectLookup(subjectId, subjectSourceId, subjectIdentifier)
+          GrouperMcpSubjectUtils.createSubjectLookup(subjectIdOrIdentifier, subjectIdType, sourceId)
       };
 
       WsStemLookup wsStemLookup = null;
@@ -280,8 +266,7 @@ public class GrouperMcpGetGroups {
       return buildSuccessResult(resultText);
 
     } catch (Exception e) {
-      String lookupDescription = StringUtils.isNotBlank(subjectId)
-          ? subjectId : subjectIdentifier;
+      String lookupDescription = subjectIdOrIdentifier;
       LOG.error("Error getting groups for subject: " + lookupDescription, e);
       return buildErrorResult("Error getting groups for subject: " + e.getMessage()
           + "\n\n" + GrouperUtil.getFullStackTrace(e));
