@@ -90,14 +90,32 @@ public class GrouperMcpInstitutionalTools {
 
   /**
    * return the MCP tool definition for institutional_tools
-   * @return the tool definition as a Jackson ObjectNode
+   * @param authUser the authenticated user (used to determine which tools are visible)
+   * @param hasReadwriteAccess true if the user has MCP readwrite access
+   * @return the tool definition as a Jackson ObjectNode, or null if no institutional tools
+   *         are available for this user (so the tool should not be advertised)
    */
-  public static ObjectNode toolDefinition() {
+  public static ObjectNode toolDefinition(GrouperMcpAuthUser authUser, boolean hasReadwriteAccess) {
+
+    // build a dynamic list of available tool names for this user
+    List<String> availableToolNames = retrieveAvailableToolNames(authUser, hasReadwriteAccess);
+
+    // if no tools are available, don't advertise this tool at all
+    if (availableToolNames.isEmpty()) {
+      return null;
+    }
+
     ObjectNode tool = objectMapper.createObjectNode();
     tool.put("name", "institutional_tools");
-    tool.put("description",
-        "Discover and execute institution-specific tools (GSH templates) that the deployer has made "
-        + "available via MCP. Use action 'schema' to list available tools with their configId, name, "
+
+    StringBuilder description = new StringBuilder();
+    description.append("Discover and execute institution-specific tools (GSH templates) that the deployer has made "
+        + "available via MCP. ");
+    description.append("Available tools: ");
+    description.append(GrouperUtil.join(availableToolNames.iterator(), ", "));
+    description.append(". ");
+
+    description.append("Use action 'schema' to list available tools with their configId, name, "
         + "description, input definitions (names, types, required, validation, mcpScopeType), "
         + "whether they execute on a group name, folder name, or both, and whether they are "
         + "mcpReadonly (accessible with readonly MCP access) or require readwrite MCP access. "
@@ -106,6 +124,8 @@ public class GrouperMcpInstitutionalTools {
         + "Inputs with mcpScopeType (folders, groups, or subjects) are validated against the user's "
         + "approved readwrite scopes. "
         + "Use action 'execute' to run a specific tool by configId, providing the required inputs.");
+
+    tool.put("description", description.toString());
 
     ObjectNode inputSchema = objectMapper.createObjectNode();
     inputSchema.put("type", "object");
@@ -183,6 +203,115 @@ public class GrouperMcpInstitutionalTools {
     tool.set("inputSchema", inputSchema);
 
     return tool;
+  }
+
+  /**
+   * retrieve the names of MCP-enabled GSH templates that the authenticated user
+   * can see, respecting security (wheel, specifiedGroup, privilegeOnObject, everyone)
+   * and readonly/readwrite access.
+   * @param authUser the authenticated user
+   * @param hasReadwriteAccess true if the user has MCP readwrite access
+   * @return list of template display names (may be empty)
+   */
+  private static List<String> retrieveAvailableToolNames(GrouperMcpAuthUser authUser, boolean hasReadwriteAccess) {
+
+    List<String> toolNames = new ArrayList<String>();
+
+    try {
+      List<GshTemplateConfiguration> allConfigs = GshTemplateConfiguration.retrieveAllGshTemplateConfigs();
+
+      Subject subject = authUser.getSubject();
+      boolean isWheelOrRoot = edu.internet2.middleware.grouper.privs.PrivilegeHelper.isWheelOrRoot(subject);
+
+      // pass 1: collect MCP-enabled templates and specifiedGroup groups for batch membership check
+      Map<String, GshTemplateConfig> mcpEnabledConfigs = new LinkedHashMap<String, GshTemplateConfig>();
+      MembershipFinder membershipFinder = null;
+
+      for (GshTemplateConfiguration gshTemplateConfiguration : allConfigs) {
+
+        if (!gshTemplateConfiguration.isEnabled()) {
+          continue;
+        }
+
+        String configId = gshTemplateConfiguration.getConfigId();
+
+        GshTemplateConfig templateConfig = new GshTemplateConfig(configId);
+        templateConfig.populateConfiguration();
+
+        if (!templateConfig.isEnabled() || !templateConfig.isMcpEnabled()) {
+          continue;
+        }
+
+        GshTemplateSecurityRunType securityRunType = templateConfig.getGshTemplateSecurityRunType();
+
+        if (securityRunType == GshTemplateSecurityRunType.wheel && !isWheelOrRoot) {
+          continue;
+        }
+
+        mcpEnabledConfigs.put(configId, templateConfig);
+
+        if (securityRunType == GshTemplateSecurityRunType.specifiedGroup && !isWheelOrRoot) {
+          Group groupThatCanRun = templateConfig.getGroupThatCanRun();
+          if (groupThatCanRun != null) {
+            if (membershipFinder == null) {
+              membershipFinder = new MembershipFinder()
+                  .addSubject(subject)
+                  .addField(Group.getDefaultList())
+                  .assignCheckSecurity(false);
+            }
+            membershipFinder.addGroup(groupThatCanRun);
+          }
+        }
+      }
+
+      // batch membership check
+      MembershipResult membershipResult = null;
+      if (membershipFinder != null) {
+        membershipResult = membershipFinder.findMembershipResult();
+      }
+
+      // pass 2: filter by authorization and collect names
+      for (Map.Entry<String, GshTemplateConfig> entry : mcpEnabledConfigs.entrySet()) {
+
+        GshTemplateConfig templateConfig = entry.getValue();
+        GshTemplateSecurityRunType securityRunType = templateConfig.getGshTemplateSecurityRunType();
+
+        boolean canRun = false;
+        if (securityRunType == GshTemplateSecurityRunType.everyone
+            || securityRunType == GshTemplateSecurityRunType.privilegeOnObject) {
+          canRun = true;
+        } else if (securityRunType == GshTemplateSecurityRunType.wheel) {
+          canRun = true;
+        } else if (securityRunType == GshTemplateSecurityRunType.specifiedGroup) {
+          if (isWheelOrRoot) {
+            canRun = true;
+          } else {
+            Group groupThatCanRun = templateConfig.getGroupThatCanRun();
+            canRun = groupThatCanRun != null && membershipResult != null
+                && membershipResult.hasGroupMembership(groupThatCanRun.getName(), subject);
+          }
+        }
+
+        if (!canRun) {
+          continue;
+        }
+
+        if (!hasReadwriteAccess && !templateConfig.isMcpReadonly()) {
+          continue;
+        }
+
+        String name = templateConfig.getTemplateNameForUi();
+        if (StringUtils.isNotBlank(name)) {
+          toolNames.add(name);
+        } else {
+          toolNames.add(entry.getKey());
+        }
+      }
+    } catch (Exception e) {
+      LOG.error("Error retrieving available institutional tool names for tool description", e);
+    }
+
+    return toolNames;
   }
 
   /**

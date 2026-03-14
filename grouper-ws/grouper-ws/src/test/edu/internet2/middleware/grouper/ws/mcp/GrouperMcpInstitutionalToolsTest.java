@@ -76,14 +76,48 @@ public class GrouperMcpInstitutionalToolsTest extends GrouperTest {
   }
 
   /**
-   * test tool definition
+   * test tool definition returns null when no MCP-enabled templates exist
+   */
+  public void testToolDefinitionNoTemplates() {
+
+    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectFinder.findRootSubject());
+    ObjectNode toolDef = GrouperMcpInstitutionalTools.toolDefinition(authUser, true);
+
+    assertNull("Should return null when no MCP-enabled templates are available", toolDef);
+  }
+
+  /**
+   * test tool definition with an MCP-enabled template includes tool name in description
    */
   public void testToolDefinition() {
 
-    ObjectNode toolDef = GrouperMcpInstitutionalTools.toolDefinition();
+    // configure a GSH template with mcpEnabled=true
+    String configPrefix = "grouperGshTemplate.mcpToolDefTest.";
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "enabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateType", "gsh");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateVersion", "V1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateName", "My Custom Tool");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "templateDescription", "A test template");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "securityRunType", "everyone");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "mcpEnabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "runAsType", "GrouperSystem");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "showOnFolders", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "folderShowType", "allFolders");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "showOnGroups", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "numberOfInputs", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "gshTemplate",
+        "gsh_builtin_gshTemplateOutput.addOutputLine(\"hello\");");
 
+    GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectFinder.findRootSubject());
+    ObjectNode toolDef = GrouperMcpInstitutionalTools.toolDefinition(authUser, true);
+
+    assertNotNull("Should return tool definition when MCP-enabled templates exist", toolDef);
     assertEquals("institutional_tools", toolDef.get("name").asText());
-    assertNotNull(toolDef.get("description"));
+
+    String description = toolDef.get("description").asText();
+    assertNotNull(description);
+    assertTrue("Description should contain the tool name", description.contains("My Custom Tool"));
+
     assertNotNull(toolDef.get("inputSchema"));
 
     JsonNode properties = toolDef.get("inputSchema").get("properties");

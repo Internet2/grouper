@@ -573,7 +573,12 @@ public class GrouperMcpServlet extends HttpServlet {
             addToolIfAllowed(toolsArray, GrouperMcpGetMemberships.toolDefinition());
             addToolIfAllowed(toolsArray, GrouperMcpGetSubjects.toolDefinition());
             addToolIfAllowed(toolsArray, GrouperMcpHasMember.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpInstitutionalTools.toolDefinition());
+            {
+              ObjectNode institutionalToolDef = GrouperMcpInstitutionalTools.toolDefinition(authUser, hasReadwriteAccess(authUser));
+              if (institutionalToolDef != null) {
+                addToolIfAllowed(toolsArray, institutionalToolDef);
+              }
+            }
           }
 
           // readwrite tools
