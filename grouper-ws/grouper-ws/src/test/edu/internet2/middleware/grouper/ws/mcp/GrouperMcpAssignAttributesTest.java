@@ -401,4 +401,133 @@ public class GrouperMcpAssignAttributesTest extends GrouperTest {
       GrouperSession.stopQuietly(session);
     }
   }
+
+  /**
+   * test that when attributeAssignOperation is omitted the default is assign_attr
+   * for a non-multi-assignable attribute def, and add_attr for a multi-assignable one
+   */
+  public void testDefaultAttributeAssignOperation() {
+
+    // create the group
+    Group group = new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("test:mcpDefaultOpGroup")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignDescription("test group for default operation").save();
+
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+
+    // create a non-multi-assignable attribute def
+    AttributeDef singleDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
+        .assignName("test:mcpSingleAssignDef")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignToGroup(true)
+        .assignAttributeDefType(AttributeDefType.attr)
+        .assignMultiAssignable(false)
+        .save();
+
+    new AttributeDefNameSave(GrouperSession.staticGrouperSession(), singleDef)
+        .assignName("test:mcpSingleAssignAttr")
+        .save();
+
+    // create a multi-assignable attribute def
+    AttributeDef multiDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
+        .assignName("test:mcpMultiAssignDef")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignToGroup(true)
+        .assignAttributeDefType(AttributeDefType.attr)
+        .assignMultiAssignable(true)
+        .save();
+
+    new AttributeDefNameSave(GrouperSession.staticGrouperSession(), multiDef)
+        .assignName("test:mcpMultiAssignAttr")
+        .save();
+
+    // grant SUBJ0 privileges on both attribute defs
+    singleDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0,
+        AttributeDefPrivilege.ATTR_UPDATE, false);
+    singleDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0,
+        AttributeDefPrivilege.ATTR_READ, false);
+    multiDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0,
+        AttributeDefPrivilege.ATTR_UPDATE, false);
+    multiDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0,
+        AttributeDefPrivilege.ATTR_READ, false);
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
+
+      // test 1: non-multi-assignable, omit attributeAssignOperation — should default to assign_attr
+      ObjectNode singleArgs = objectMapper.createObjectNode();
+      singleArgs.put("attributeAssignType", "group");
+      // intentionally not setting attributeAssignOperation
+      singleArgs.put("attributeDefNameName", "test:mcpSingleAssignAttr");
+      singleArgs.put("ownerGroupName", "test:mcpDefaultOpGroup");
+
+      ObjectNode singleResult = GrouperMcpAssignAttributes.execute(singleArgs, authUser);
+
+      assertFalse("Expected success for single-assign default, got: " + singleResult.toString(),
+          singleResult.get("isError").asBoolean());
+
+      String singleText = singleResult.get("content").get(0).get("text").asText();
+      JsonNode singleResults = objectMapper.readTree(singleText);
+      assertTrue("Expected changed=true", singleResults.get(0).get("changed").asBoolean());
+
+      // assign again without attributeAssignOperation — should default to assign_attr (no change)
+      ObjectNode singleArgs2 = objectMapper.createObjectNode();
+      singleArgs2.put("attributeAssignType", "group");
+      singleArgs2.put("attributeDefNameName", "test:mcpSingleAssignAttr");
+      singleArgs2.put("ownerGroupName", "test:mcpDefaultOpGroup");
+
+      ObjectNode singleResult2 = GrouperMcpAssignAttributes.execute(singleArgs2, authUser);
+
+      assertFalse("Expected success for second single-assign default, got: " + singleResult2.toString(),
+          singleResult2.get("isError").asBoolean());
+
+      String singleText2 = singleResult2.get("content").get(0).get("text").asText();
+      JsonNode singleResults2 = objectMapper.readTree(singleText2);
+      // assign_attr should not change since it's already assigned
+      assertFalse("Expected changed=false for already-assigned single-assign attr",
+          singleResults2.get(0).get("changed").asBoolean());
+
+      // test 2: multi-assignable, omit attributeAssignOperation — should default to add_attr
+      ObjectNode multiArgs = objectMapper.createObjectNode();
+      multiArgs.put("attributeAssignType", "group");
+      // intentionally not setting attributeAssignOperation
+      multiArgs.put("attributeDefNameName", "test:mcpMultiAssignAttr");
+      multiArgs.put("ownerGroupName", "test:mcpDefaultOpGroup");
+
+      ObjectNode multiResult = GrouperMcpAssignAttributes.execute(multiArgs, authUser);
+
+      assertFalse("Expected success for multi-assign default, got: " + multiResult.toString(),
+          multiResult.get("isError").asBoolean());
+
+      String multiText = multiResult.get("content").get(0).get("text").asText();
+      JsonNode multiResults = objectMapper.readTree(multiText);
+      assertTrue("Expected changed=true for first multi-assign",
+          multiResults.get(0).get("changed").asBoolean());
+
+      // assign again without attributeAssignOperation — should default to add_attr (creates second)
+      ObjectNode multiArgs2 = objectMapper.createObjectNode();
+      multiArgs2.put("attributeAssignType", "group");
+      multiArgs2.put("attributeDefNameName", "test:mcpMultiAssignAttr");
+      multiArgs2.put("ownerGroupName", "test:mcpDefaultOpGroup");
+
+      ObjectNode multiResult2 = GrouperMcpAssignAttributes.execute(multiArgs2, authUser);
+
+      assertFalse("Expected success for second multi-assign default, got: " + multiResult2.toString(),
+          multiResult2.get("isError").asBoolean());
+
+      String multiText2 = multiResult2.get("content").get(0).get("text").asText();
+      JsonNode multiResults2 = objectMapper.readTree(multiText2);
+      // add_attr should always change since it adds a new assignment
+      assertTrue("Expected changed=true for second multi-assign (add_attr default)",
+          multiResults2.get(0).get("changed").asBoolean());
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
 }

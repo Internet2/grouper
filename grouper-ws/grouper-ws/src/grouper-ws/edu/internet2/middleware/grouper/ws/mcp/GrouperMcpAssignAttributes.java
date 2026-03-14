@@ -29,10 +29,12 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -123,7 +125,9 @@ public class GrouperMcpAssignAttributes {
     assignOpEnum.add("replace_attrs");
     attributeAssignOperationProp.set("enum", assignOpEnum);
     attributeAssignOperationProp.put("description",
-        "The operation to perform: assign_attr (assign if not already assigned), "
+        "The operation to perform. "
+        + "Defaults to add_attr if the attribute def is multi-assignable, otherwise assign_attr. "
+        + "assign_attr (assign if not already assigned), "
         + "add_attr (add even if already assigned), "
         + "remove_attr (remove the assignment), "
         + "replace_attrs (replace all existing assignments with this one).");
@@ -212,7 +216,6 @@ public class GrouperMcpAssignAttributes {
 
     ArrayNode required = objectMapper.createArrayNode();
     required.add("attributeAssignType");
-    required.add("attributeAssignOperation");
     required.add("attributeDefNameName");
     inputSchema.set("required", required);
 
@@ -257,11 +260,17 @@ public class GrouperMcpAssignAttributes {
     if (StringUtils.isBlank(attributeAssignTypeString)) {
       return buildErrorResult("attributeAssignType is required.");
     }
-    if (StringUtils.isBlank(attributeAssignOperationString)) {
-      return buildErrorResult("attributeAssignOperation is required.");
-    }
     if (StringUtils.isBlank(attributeDefNameName)) {
       return buildErrorResult("attributeDefNameName is required.");
+    }
+    if (StringUtils.isBlank(attributeAssignOperationString)) {
+      // default based on whether the attribute def is multi-assignable
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findByNameAsRoot(attributeDefNameName, false);
+      if (attributeDefName != null && attributeDefName.getAttributeDef().isMultiAssignable()) {
+        attributeAssignOperationString = "add_attr";
+      } else {
+        attributeAssignOperationString = "assign_attr";
+      }
     }
 
     // block modifications to protected system groups and stems
