@@ -615,6 +615,37 @@ public class GrouperMcpAuthUser {
   }
 
   /**
+   * check if the user has any group or folder values in the readwrite scope.
+   * when scope is restricted and there are no group or folder scope values,
+   * returns false, meaning tools like group_save, group_delete, folder_delete
+   * should not be available.
+   * when scope is not restricted, always returns true.
+   * @return true if the user has group or folder scope or is not scope restricted
+   */
+  public boolean hasGroupOrFolderReadwriteScope() {
+    if (!this.consentReadwriteScopeRestricted) {
+      return true;
+    }
+    return (this.consentReadwriteFolders != null && !this.consentReadwriteFolders.isEmpty())
+        || (this.consentReadwriteGroups != null && !this.consentReadwriteGroups.isEmpty());
+  }
+
+  /**
+   * check if the user has any subject values in the readwrite scope.
+   * when scope is restricted and there are no subject scope values,
+   * returns false, meaning subject-owner operations in attribute_assignment_save
+   * should be denied.
+   * when scope is not restricted, always returns true.
+   * @return true if the user has subject scope or is not scope restricted
+   */
+  public boolean hasSubjectReadwriteScope() {
+    if (!this.consentReadwriteScopeRestricted) {
+      return true;
+    }
+    return this.consentReadwriteSubjects != null && !this.consentReadwriteSubjects.isEmpty();
+  }
+
+  /**
    * check if any of the readwrite scope lists (folders, groups, subjects) have values.
    * used to determine if an unscoped dimension should be open (at least one other
    * dimension is scoped) or blocked (nothing is scoped at all).

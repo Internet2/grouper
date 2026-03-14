@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 
@@ -1284,6 +1285,260 @@ public class GrouperMcpScopeTest extends GrouperTest {
 
       assertFalse("Expected success (stem UUID in scope), got: " + result.toString(),
           result.get("isError").asBoolean());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  // ---- hasGroupOrFolderReadwriteScope tests ----
+  // when scope is restricted to subjects only (no group/folder scope),
+  // group_save, group_delete, folder_delete should be denied,
+  // and attribute_assignment_save should deny group/folder owners
+
+  /**
+   * group_save should be denied when scope restricted to subjects only
+   */
+  public void testGroupSave_deniedWhenSubjectScopeOnly() {
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          null, null, Arrays.asList("someSubject"));
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:newGroup");
+      arguments.put("action", "createGroup");
+
+      ObjectNode result = GrouperMcpGroupSave.execute(arguments, authUser);
+
+      assertTrue("Expected scope error", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected denial for no group/folder scope",
+          text.contains("does not include groups or folders"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * group_delete should be denied when scope restricted to subjects only
+   */
+  public void testGroupDelete_deniedWhenSubjectScopeOnly() {
+
+    new GroupSave(GrouperSession.staticGrouperSession())
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("test:groupToDelete")
+        .assignCreateParentStemsIfNotExist(true)
+        .save();
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          null, null, Arrays.asList("someSubject"));
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("groupName", "test:groupToDelete");
+
+      ObjectNode result = GrouperMcpGroupDelete.execute(arguments, authUser);
+
+      assertTrue("Expected scope error", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected denial for no group/folder scope",
+          text.contains("does not include groups or folders"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * folder_delete should be denied when scope restricted to subjects only
+   */
+  public void testFolderDelete_deniedWhenSubjectScopeOnly() {
+
+    new StemSave(GrouperSession.staticGrouperSession())
+        .assignStemNameToEdit("test:folderToDelete")
+        .assignName("test:folderToDelete")
+        .assignCreateParentStemsIfNotExist(true)
+        .save();
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          null, null, Arrays.asList("someSubject"));
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("stemName", "test:folderToDelete");
+
+      ObjectNode result = GrouperMcpFolderDelete.execute(arguments, authUser);
+
+      assertTrue("Expected scope error", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected denial for no group/folder scope",
+          text.contains("does not include groups or folders"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * attribute_assignment_save with group owner should be denied when scope restricted to subjects only
+   */
+  public void testAssignAttributes_groupOwner_deniedWhenSubjectScopeOnly() {
+
+    AttributeDef attributeDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
+        .assignName("test:noGroupScopeAttrDef")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignToGroup(true)
+        .assignAttributeDefType(AttributeDefType.attr)
+        .assignValueType(AttributeDefValueType.string)
+        .save();
+
+    new AttributeDefNameSave(GrouperSession.staticGrouperSession(), attributeDef)
+        .assignName("test:noGroupScopeAttrDefName")
+        .save();
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          null, null, Arrays.asList("someSubject"));
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("attributeAssignType", "group");
+      arguments.put("attributeAssignOperation", "assign_attr");
+      arguments.put("attributeDefNameName", "test:noGroupScopeAttrDefName");
+      arguments.put("ownerGroupName", "test:someGroup");
+
+      ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
+
+      assertTrue("Expected scope error", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected denial for no group/folder scope",
+          text.contains("does not include groups or folders"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * attribute_assignment_save with stem owner should be denied when scope restricted to subjects only
+   */
+  public void testAssignAttributes_stemOwner_deniedWhenSubjectScopeOnly() {
+
+    AttributeDef attributeDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
+        .assignName("test:noStemScopeAttrDef")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignToStem(true)
+        .assignAttributeDefType(AttributeDefType.attr)
+        .assignValueType(AttributeDefValueType.string)
+        .save();
+
+    new AttributeDefNameSave(GrouperSession.staticGrouperSession(), attributeDef)
+        .assignName("test:noStemScopeAttrDefName")
+        .save();
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          null, null, Arrays.asList("someSubject"));
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("attributeAssignType", "stem");
+      arguments.put("attributeAssignOperation", "assign_attr");
+      arguments.put("attributeDefNameName", "test:noStemScopeAttrDefName");
+      arguments.put("ownerStemName", "test:someStem");
+
+      ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
+
+      assertTrue("Expected scope error", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected denial for no group/folder scope",
+          text.contains("does not include groups or folders"));
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * attribute_assignment_save with subject owner should be allowed when scope restricted to subjects only
+   */
+  public void testAssignAttributes_subjectOwner_allowedWhenSubjectScopeOnly() {
+
+    AttributeDef attributeDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
+        .assignName("test:subjectOnlyAttrDef")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignToMember(true)
+        .assignAttributeDefType(AttributeDefType.attr)
+        .assignValueType(AttributeDefValueType.string)
+        .save();
+
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0,
+        AttributeDefPrivilege.ATTR_UPDATE, false);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0,
+        AttributeDefPrivilege.ATTR_READ, false);
+
+    new AttributeDefNameSave(GrouperSession.staticGrouperSession(), attributeDef)
+        .assignName("test:subjectOnlyAttrDefName")
+        .save();
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          null, null, Arrays.asList(SubjectTestHelper.SUBJ0.getId()));
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("attributeAssignType", "member");
+      arguments.put("attributeAssignOperation", "assign_attr");
+      arguments.put("attributeDefNameName", "test:subjectOnlyAttrDefName");
+      arguments.put("ownerSubjectId", SubjectTestHelper.SUBJ0.getId());
+
+      ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
+
+      // should not get the "does not include groups or folders" error
+      if (result.get("isError").asBoolean()) {
+        String text = result.get("content").get(0).get("text").asText();
+        assertFalse("Should not deny for group/folder scope when assigning to subject owner",
+            text.contains("does not include groups or folders"));
+      }
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  }
+
+  /**
+   * attribute_assignment_save with subject owner should be denied when scope restricted to groups/folders only
+   */
+  public void testAssignAttributes_subjectOwner_deniedWhenGroupFolderScopeOnly() {
+
+    AttributeDef attributeDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
+        .assignName("test:noSubjectScopeAttrDef")
+        .assignCreateParentStemsIfNotExist(true)
+        .assignToMember(true)
+        .assignAttributeDefType(AttributeDefType.attr)
+        .assignValueType(AttributeDefValueType.string)
+        .save();
+
+    new AttributeDefNameSave(GrouperSession.staticGrouperSession(), attributeDef)
+        .assignName("test:noSubjectScopeAttrDefName")
+        .save();
+
+    GrouperSession session = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      // scope restricted to folders only, no subjects
+      GrouperMcpAuthUser authUser = buildOAuthAuthUser(true,
+          Arrays.asList("test"), null, null);
+
+      ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("attributeAssignType", "member");
+      arguments.put("attributeAssignOperation", "assign_attr");
+      arguments.put("attributeDefNameName", "test:noSubjectScopeAttrDefName");
+      arguments.put("ownerSubjectId", SubjectTestHelper.SUBJ0.getId());
+
+      ObjectNode result = GrouperMcpAssignAttributes.execute(arguments, authUser);
+
+      assertTrue("Expected scope error", result.get("isError").asBoolean());
+      String text = result.get("content").get(0).get("text").asText();
+      assertTrue("Expected denial for no subject scope",
+          text.contains("does not include subjects"));
     } finally {
       GrouperSession.stopQuietly(session);
     }

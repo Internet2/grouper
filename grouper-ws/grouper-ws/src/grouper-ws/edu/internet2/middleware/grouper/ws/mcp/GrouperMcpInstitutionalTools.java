@@ -300,6 +300,12 @@ public class GrouperMcpInstitutionalTools {
           continue;
         }
 
+        // check scope compatibility: if user is scope-restricted to subjects only,
+        // skip templates that require group/folder owners
+        if (!isTemplateCompatibleWithScopes(templateConfig, authUser)) {
+          continue;
+        }
+
         String name = templateConfig.getTemplateNameForUi();
         if (StringUtils.isNotBlank(name)) {
           toolNames.add(name);
@@ -452,6 +458,12 @@ public class GrouperMcpInstitutionalTools {
         continue;
       }
 
+      // check scope compatibility: if user is scope-restricted to subjects only,
+      // skip templates that require group/folder owners
+      if (!isTemplateCompatibleWithScopes(templateConfig, authUser)) {
+        continue;
+      }
+
       ObjectNode toolNode = objectMapper.createObjectNode();
       toolNode.put("configId", configId);
       toolNode.put("name", templateConfig.getTemplateNameForUi());
@@ -586,6 +598,13 @@ public class GrouperMcpInstitutionalTools {
     // if user only has readonly access, they can only execute readonly templates
     if (!hasReadwriteAccess && !templateConfig.isMcpReadonly()) {
       return buildErrorResult("Access denied: template '" + configId + "' requires MCP readwrite access.");
+    }
+
+    // check scope compatibility: if user is scope-restricted to subjects only,
+    // they can't execute templates that require group/folder owners
+    if (!isTemplateCompatibleWithScopes(templateConfig, authUser)) {
+      return buildErrorResult("Access denied: template '" + configId
+          + "' requires group or folder scope but your readwrite scope is restricted to subjects only.");
     }
 
     // verify security run type is not unsupported (all types are currently supported)
@@ -812,6 +831,55 @@ public class GrouperMcpInstitutionalTools {
       message.append("Provide ownerType='stem' and ownerStemName. ");
     }
     return buildErrorResult(message.toString().trim());
+  }
+
+  /**
+   * check if a non-readonly template is compatible with the user's readwrite scope restrictions.
+   * if the user is scope-restricted and only has subject scopes (no group/folder scopes),
+   * then templates that require a group or folder owner should not be available.
+   * @param templateConfig the template config
+   * @param authUser the authenticated user
+   * @return true if the template is compatible with the user's scopes
+   */
+  private static boolean isTemplateCompatibleWithScopes(GshTemplateConfig templateConfig, GrouperMcpAuthUser authUser) {
+
+    // readonly templates don't enforce scope restrictions
+    if (templateConfig.isMcpReadonly()) {
+      return true;
+    }
+
+    // if scope restrictions are not active, everything is allowed
+    if (!authUser.isConsentReadwriteScopeRestricted()) {
+      return true;
+    }
+
+    if (templateConfig.isAllowWsFromNoOwner()) {
+      return true;
+    }
+    
+    boolean hasGroupScopes = authUser.getConsentReadwriteGroups() != null && !authUser.getConsentReadwriteGroups().isEmpty();
+    boolean hasFolderScopes = authUser.getConsentReadwriteFolders() != null && !authUser.getConsentReadwriteFolders().isEmpty();
+
+    boolean requiresGroup = templateConfig.isShowOnGroups();
+    boolean requiresFolder = templateConfig.isShowOnFolders();
+
+    // if the template doesn't require a group or folder owner, it's compatible
+    if (!requiresGroup && !requiresFolder) {
+      return true;
+    }
+
+    // if the template can run on groups and user has group scopes, compatible
+    if (requiresGroup && hasGroupScopes) {
+      return true;
+    }
+
+    // if the template can run on folders and user has folder scopes, compatible
+    if (requiresFolder && hasFolderScopes) {
+      return true;
+    }
+
+    // user doesn't have the necessary scopes for this template's owner types
+    return false;
   }
 
   /**

@@ -687,6 +687,7 @@ public class GrouperMcpInstitutionalToolsTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "runAsType", "GrouperSystem");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "showOnFolders", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "showOnGroups", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "allowWsFromNoOwner", "true");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "numberOfInputs", "1");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.name", "gsh_input_targetFolder");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(configPrefix + "input.0.label", "Target Folder");

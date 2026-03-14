@@ -108,6 +108,9 @@ public class GrouperMcpGroupDelete {
 
     // check readwrite scope restrictions (OAuth only)
     if (authUser.isOAuthAuthenticated()) {
+      if (!authUser.hasGroupOrFolderReadwriteScope()) {
+        return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
+      }
       if (!authUser.isGroupInReadwriteScope(groupName)) {
         return buildErrorResult(
             authUser.buildReadwriteScopeDeniedError("group", groupName));

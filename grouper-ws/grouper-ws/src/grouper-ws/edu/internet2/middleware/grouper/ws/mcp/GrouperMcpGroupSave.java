@@ -287,6 +287,9 @@ public class GrouperMcpGroupSave {
     // note: composite factor group names (leftGroupName, rightGroupName) are not
     // checked because they are only referenced (read), not modified.
     if (authUser.isOAuthAuthenticated()) {
+      if (!authUser.hasGroupOrFolderReadwriteScope()) {
+        return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
+      }
       if (!authUser.isGroupInReadwriteScope(groupName)) {
         return buildErrorResult(
             authUser.buildReadwriteScopeDeniedError("group", groupName));

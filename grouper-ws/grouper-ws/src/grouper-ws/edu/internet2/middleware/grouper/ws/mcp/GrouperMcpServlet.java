@@ -587,9 +587,12 @@ public class GrouperMcpServlet extends HttpServlet {
             addToolIfAllowed(toolsArray, GrouperMcpAssignAttributes.toolDefinition());
             addToolIfAllowed(toolsArray, GrouperMcpAssignGrouperPrivilegesLite.toolDefinition());
             addToolIfAllowed(toolsArray, GrouperMcpDeleteMember.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpFolderDelete.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpGroupDelete.toolDefinition());
-            addToolIfAllowed(toolsArray, GrouperMcpGroupSave.toolDefinition());
+            // group/folder-only tools require group or folder scope
+            if (authUser.hasGroupOrFolderReadwriteScope()) {
+              addToolIfAllowed(toolsArray, GrouperMcpFolderDelete.toolDefinition());
+              addToolIfAllowed(toolsArray, GrouperMcpGroupDelete.toolDefinition());
+              addToolIfAllowed(toolsArray, GrouperMcpGroupSave.toolDefinition());
+            }
           }
 
           // SQL readonly tools
@@ -868,11 +871,17 @@ public class GrouperMcpServlet extends HttpServlet {
           return buildMcpErrorResult("Access denied: user is not authorized for folder_delete. "
               + "Membership in the MCP readwrite group is required.");
         }
+        if (!authUser.hasGroupOrFolderReadwriteScope()) {
+          return buildMcpErrorResult("Access denied: your OAuth scope does not include groups or folders.");
+        }
         return GrouperMcpFolderDelete.execute(arguments, authUser);
       case "group_delete":
         if (!hasReadwriteAccess(authUser)) {
           return buildMcpErrorResult("Access denied: user is not authorized for group_delete. "
               + "Membership in the MCP readwrite group is required.");
+        }
+        if (!authUser.hasGroupOrFolderReadwriteScope()) {
+          return buildMcpErrorResult("Access denied: your OAuth scope does not include groups or folders.");
         }
         return GrouperMcpGroupDelete.execute(arguments, authUser);
       case "group_remove_member":
@@ -885,6 +894,9 @@ public class GrouperMcpServlet extends HttpServlet {
         if (!hasReadwriteAccess(authUser)) {
           return buildMcpErrorResult("Access denied: user is not authorized for group_save. "
               + "Membership in the MCP readwrite group is required.");
+        }
+        if (!authUser.hasGroupOrFolderReadwriteScope()) {
+          return buildMcpErrorResult("Access denied: your OAuth scope does not include groups or folders.");
         }
         return GrouperMcpGroupSave.execute(arguments, authUser);
       case "privilege_assign":

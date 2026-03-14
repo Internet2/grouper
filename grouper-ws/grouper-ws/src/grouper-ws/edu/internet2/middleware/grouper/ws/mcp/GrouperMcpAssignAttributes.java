@@ -261,6 +261,15 @@ public class GrouperMcpAssignAttributes {
 
     // check readwrite scope restrictions (OAuth only)
     if (authUser.isOAuthAuthenticated()) {
+      // if user has no group/folder scope, deny group/folder owners entirely
+      if (!authUser.hasGroupOrFolderReadwriteScope()) {
+        if (StringUtils.isNotBlank(ownerGroupName)) {
+          return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
+        }
+        if (StringUtils.isNotBlank(ownerStemName)) {
+          return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
+        }
+      }
       if (StringUtils.isNotBlank(ownerGroupName)
           && !authUser.isGroupInReadwriteScope(ownerGroupName)) {
         return buildErrorResult(
@@ -270,6 +279,12 @@ public class GrouperMcpAssignAttributes {
           && !authUser.isStemInReadwriteScope(ownerStemName)) {
         return buildErrorResult(
             authUser.buildReadwriteScopeDeniedError("folder", ownerStemName));
+      }
+      // if user has no subject scope, deny subject owners entirely
+      if (!authUser.hasSubjectReadwriteScope()) {
+        if (StringUtils.isNotBlank(ownerSubjectId)) {
+          return buildErrorResult("Access denied: your OAuth scope does not include subjects.");
+        }
       }
       if (StringUtils.isNotBlank(ownerSubjectId)
           && !authUser.isSubjectInReadwriteScope(ownerSubjectId)) {
@@ -303,6 +318,10 @@ public class GrouperMcpAssignAttributes {
                   GrouperMcpProtectedResources.buildProtectedGroupError(groupName));
             }
             if (authUser.isOAuthAuthenticated()
+                && !authUser.hasGroupOrFolderReadwriteScope()) {
+              return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
+            }
+            if (authUser.isOAuthAuthenticated()
                 && !authUser.isGroupInReadwriteScope(groupName)) {
               return buildErrorResult(
                   authUser.buildReadwriteScopeDeniedError("group", groupName));
@@ -317,6 +336,10 @@ public class GrouperMcpAssignAttributes {
                   GrouperMcpProtectedResources.buildProtectedStemError(stemName));
             }
             if (authUser.isOAuthAuthenticated()
+                && !authUser.hasGroupOrFolderReadwriteScope()) {
+              return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
+            }
+            if (authUser.isOAuthAuthenticated()
                 && !authUser.isStemInReadwriteScope(stemName)) {
               return buildErrorResult(
                   authUser.buildReadwriteScopeDeniedError("folder", stemName));
@@ -324,6 +347,9 @@ public class GrouperMcpAssignAttributes {
           }
         } else if (AttributeAssignType.member == ownerType) {
           if (authUser.isOAuthAuthenticated() && ownerAssign.getOwnerMember() != null) {
+            if (!authUser.hasSubjectReadwriteScope()) {
+              return buildErrorResult("Access denied: your OAuth scope does not include subjects.");
+            }
             String subjectId = ownerAssign.getOwnerMember().getSubjectId();
             if (!authUser.isSubjectInReadwriteScope(subjectId)) {
               return buildErrorResult(
@@ -340,12 +366,19 @@ public class GrouperMcpAssignAttributes {
                   GrouperMcpProtectedResources.buildProtectedGroupError(groupName));
             }
             if (authUser.isOAuthAuthenticated()
+                && !authUser.hasGroupOrFolderReadwriteScope()) {
+              return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
+            }
+            if (authUser.isOAuthAuthenticated()
                 && !authUser.isGroupInReadwriteScope(groupName)) {
               return buildErrorResult(
                   authUser.buildReadwriteScopeDeniedError("group", groupName));
             }
           }
           if (authUser.isOAuthAuthenticated() && ownerAssign.getOwnerMember() != null) {
+            if (!authUser.hasSubjectReadwriteScope()) {
+              return buildErrorResult("Access denied: your OAuth scope does not include subjects.");
+            }
             String subjectId = ownerAssign.getOwnerMember().getSubjectId();
             if (!authUser.isSubjectInReadwriteScope(subjectId)) {
               return buildErrorResult(
@@ -365,6 +398,10 @@ public class GrouperMcpAssignAttributes {
                       GrouperMcpProtectedResources.buildProtectedGroupError(groupName));
                 }
                 if (authUser.isOAuthAuthenticated()
+                    && !authUser.hasGroupOrFolderReadwriteScope()) {
+                  return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
+                }
+                if (authUser.isOAuthAuthenticated()
                     && !authUser.isGroupInReadwriteScope(groupName)) {
                   return buildErrorResult(
                       authUser.buildReadwriteScopeDeniedError("group", groupName));
@@ -376,6 +413,9 @@ public class GrouperMcpAssignAttributes {
             try {
               Member ownerMember = ownerMembership.getMember();
               if (authUser.isOAuthAuthenticated() && ownerMember != null) {
+                if (!authUser.hasSubjectReadwriteScope()) {
+                  return buildErrorResult("Access denied: your OAuth scope does not include subjects.");
+                }
                 String subjectId = ownerMember.getSubjectId();
                 if (!authUser.isSubjectInReadwriteScope(subjectId)) {
                   return buildErrorResult(
@@ -395,6 +435,10 @@ public class GrouperMcpAssignAttributes {
               if (GrouperMcpProtectedResources.isProtectedStemName(parentStemName)) {
                 return buildErrorResult(
                     GrouperMcpProtectedResources.buildProtectedStemError(parentStemName));
+              }
+              if (authUser.isOAuthAuthenticated()
+                  && !authUser.hasGroupOrFolderReadwriteScope()) {
+                return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
               }
               if (authUser.isOAuthAuthenticated()
                   && !authUser.isStemInReadwriteScope(parentStemName)) {
