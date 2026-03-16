@@ -73,7 +73,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8891,16 +8894,28 @@ public class ConfigPropertiesCascadeCommonUtils  {
   }
   
   /**
-   * threadpool
+   * threadpool. Bounded to prevent thread explosion.
+   * Hardcoded defaults since this class cannot access GrouperClientConfig (lower level).
    */
-  private static ExecutorService executorService = Executors.newCachedThreadPool(new DaemonThreadFactory());
-
+  private static ExecutorService executorService = null;
 
   /**
-   * 
    * @return executor service
    */
   public static ExecutorService retrieveExecutorService() {
+    if (executorService == null) {
+      synchronized (ConfigPropertiesCascadeCommonUtils.class) {
+        if (executorService == null) {
+          ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+              100, 100, 60L, TimeUnit.SECONDS,
+              new LinkedBlockingQueue<Runnable>(10000),
+              new DaemonThreadFactory(),
+              new ThreadPoolExecutor.CallerRunsPolicy());
+          threadPoolExecutor.allowCoreThreadTimeOut(true);
+          executorService = threadPoolExecutor;
+        }
+      }
+    }
     return executorService;
   }
   
