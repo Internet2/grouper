@@ -110,6 +110,7 @@ import org.apache.commons.jexl2.Script;
 import org.apache.commons.jexl2.parser.JexlNode;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JxltEngine;
+import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.commons.jexl3.JxltEngine.Template;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -15620,25 +15621,25 @@ public class GrouperUtil {
           { 
             Boolean silent = true;
             Boolean lenient = true;
-            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).permissions(JexlPermissions.UNRESTRICTED).create();
             jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
           }
           {
             Boolean silent = false;
             Boolean lenient = true;
-            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).permissions(JexlPermissions.UNRESTRICTED).create();
             jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
           }
           {
             Boolean silent = true;
             Boolean lenient = false;
-            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).permissions(JexlPermissions.UNRESTRICTED).create();
             jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
           }
           {
             Boolean silent = false;
             Boolean lenient = false;
-            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).permissions(JexlPermissions.UNRESTRICTED).create();
             jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
           }
           
