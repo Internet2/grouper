@@ -356,12 +356,25 @@ public class GrouperOAuthServlet extends HttpServlet {
 
     String clientName = body.has("client_name") ? body.get("client_name").asText() : null;
 
+    // check if client_secret is requested
+    String tokenEndpointAuthMethod = body.has("token_endpoint_auth_method")
+        ? body.get("token_endpoint_auth_method").asText() : "none";
+    boolean needsSecret = "client_secret_post".equals(tokenEndpointAuthMethod)
+        || "client_secret_basic".equals(tokenEndpointAuthMethod);
+
     // create and register client
     GrouperOAuthClient client = new GrouperOAuthClient();
     client.setClientId(GrouperOAuthStore.generateId());
     client.setRedirectUris(redirectUris);
     client.setClientName(clientName);
     client.setRegisteredMicros(System.currentTimeMillis() * 1000L);
+
+    // generate client_secret if requested
+    String plainTextSecret = null;
+    if (needsSecret) {
+      plainTextSecret = GrouperOAuthStore.generateId();
+      client.setClientSecret(plainTextSecret);
+    }
 
     GrouperOAuthStore.registerClient(client);
 
@@ -385,6 +398,9 @@ public class GrouperOAuthServlet extends HttpServlet {
     // return registration response
     ObjectNode registrationResponse = objectMapper.createObjectNode();
     registrationResponse.put("client_id", client.getClientId());
+    if (StringUtils.isNotBlank(plainTextSecret)) {
+      registrationResponse.put("client_secret", plainTextSecret);
+    }
     if (StringUtils.isNotBlank(clientName)) {
       registrationResponse.put("client_name", clientName);
     }

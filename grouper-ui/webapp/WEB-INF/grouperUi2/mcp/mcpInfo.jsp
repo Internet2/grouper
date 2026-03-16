@@ -82,6 +82,21 @@
                 </p>
                 <div id="mcpToolLogsResultsId"></div>
 
+                <c:if test="${grouperRequestContainer.mcpContainer.allowedConfidentialClientRegistration}">
+                  <h4 style="margin-top: 20px; margin-bottom: 8px;">${textContainer.text['mcpInfoConfidentialClientHeader']}</h4>
+                  <p>${textContainer.text['mcpInfoConfidentialClientDescription']}</p>
+                  <form class="form-inline" style="margin-bottom: 10px;" onsubmit="ajax('../app/UiV2Mcp.mcpRegisterConfidentialClient', {formIds: 'mcpConfidentialClientFormId'}); return false;" id="mcpConfidentialClientFormId">
+                    <label for="confidentialClientName" style="margin-right: 6px;">${textContainer.text['mcpInfoConfidentialClientNameLabel']}</label>
+                    <input type="text" name="confidentialClientName" id="confidentialClientName" placeholder="${textContainer.text['mcpInfoConfidentialClientNamePlaceholder']}" style="margin-right: 10px;" />
+                    <label for="confidentialClientRedirectUri" style="margin-right: 6px;">${textContainer.text['mcpInfoConfidentialClientRedirectUriLabel']}</label>
+                    <input type="text" name="confidentialClientRedirectUri" id="confidentialClientRedirectUri" placeholder="${textContainer.text['mcpInfoConfidentialClientRedirectUriPlaceholder']}" style="margin-right: 10px; width: 350px;" />
+                    <button type="submit" class="btn btn-primary btn-small">
+                      <i class="fa fa-key"></i> ${textContainer.text['mcpInfoConfidentialClientRegisterButton']}
+                    </button>
+                  </form>
+                  <div id="mcpConfidentialClientResultId"></div>
+                </c:if>
+
                 <h4 style="margin-top: 20px; margin-bottom: 8px;">${textContainer.text['mcpInfoOAuthRegistrationsHeader']}</h4>
                 <p>
                   <a href="#" class="btn btn-small" onclick="ajax('../app/UiV2Mcp.mcpOAuthRegistrations'); return false;">
