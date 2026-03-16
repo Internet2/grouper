@@ -77,7 +77,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
@@ -9493,14 +9496,40 @@ public class GrouperClientCommonUtils  {
   /**
    * threadpool
    */
-  private static ExecutorService executorService = Executors.newCachedThreadPool(new DaemonThreadFactory());
-
+  private static ExecutorService executorService = null;
 
   /**
-   * 
+   * Lazy-initialized bounded thread pool.
+   * Configurable via grouper.client.properties:
+   *   grouperClient.executorService.maxThreads (default 100)
+   *   grouperClient.executorService.keepAliveSeconds (default 60)
+   *   grouperClient.executorService.queueSize (default 10000)
    * @return executor service
    */
   public static ExecutorService retrieveExecutorService() {
+    if (executorService == null) {
+      synchronized (GrouperClientCommonUtils.class) {
+        if (executorService == null) {
+          int maxThreads = 100;
+          int keepAliveSeconds = 60;
+          int queueSize = 10000;
+          try {
+            maxThreads = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.executorService.maxThreads", 100);
+            keepAliveSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.executorService.keepAliveSeconds", 60);
+            queueSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.executorService.queueSize", 10000);
+          } catch (Exception e) {
+            // config not available yet, use defaults
+          }
+          ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+              maxThreads, maxThreads, keepAliveSeconds, TimeUnit.SECONDS,
+              new LinkedBlockingQueue<Runnable>(queueSize),
+              new DaemonThreadFactory(),
+              new ThreadPoolExecutor.CallerRunsPolicy());
+          threadPoolExecutor.allowCoreThreadTimeOut(true);
+          executorService = threadPoolExecutor;
+        }
+      }
+    }
     return executorService;
   }
   
