@@ -12024,6 +12024,9 @@ public class GrouperUtil {
       if (object1 instanceof Date && object2 instanceof Date) {
         return ((Date)object1).getTime() == ((Date)object2).getTime();
       }
+      if (object1 instanceof Set && object2 instanceof Set) {
+        return equalsSet((Set<?>)object1, (Set<?>)object2);
+      }
       return object1.equals(object2);
   }
 
