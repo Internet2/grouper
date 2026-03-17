@@ -193,8 +193,21 @@ public class GrouperDataProviderLogic {
     // add row composite key attributes (to config)
     // match rows
     
+    // validate that all data field configIds referenced by query field configs exist before running queries
+    for (GrouperDataProviderQuery grouperDataProviderQuery : grouperDataProviderSync.retrieveGrouperDataProviderQueries()) {
+      GrouperDataProviderQueryConfig grouperDataProviderQueryConfig = grouperDataProviderQuery.retrieveGrouperDataProviderQueryConfig();
+      for (GrouperDataProviderQueryFieldConfig grouperDataProviderQueryFieldConfig : GrouperUtil.nonNull(grouperDataProviderQueryConfig.getGrouperDataProviderQueryFieldConfigs())) {
+        String dataFieldConfigId = grouperDataProviderQueryFieldConfig.getProviderDataFieldConfigId();
+        if (!StringUtils.isBlank(dataFieldConfigId) && !dataEngine.getFieldConfigByConfigId().containsKey(dataFieldConfigId)) {
+          throw new RuntimeException("Data field config 'grouperDataField." + dataFieldConfigId
+              + ".*' not found, referenced by grouperDataProviderQuery." + grouperDataProviderQueryConfig.getConfigId()
+              + ". Fix the data provider query config or add the missing data field config.");
+        }
+      }
+    }
+
     Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex = new HashMap<String, Map<String, Integer>>();
-    
+
     retrieveSourceData(queryConfigIdToLowerColumnNameToZeroIndex, true);
     
     calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex, true);
