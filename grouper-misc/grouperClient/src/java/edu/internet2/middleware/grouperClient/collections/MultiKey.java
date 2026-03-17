@@ -179,11 +179,9 @@ public class MultiKey implements Serializable {
             this.keys = keys;
         }
         
-        int total = 0;
+        int total = 1;
         for (int i = 0; i < keys.length; i++) {
-            if (keys[i] != null) {
-                total ^= keys[i].hashCode();
-            }
+            total = 31 * total + (keys[i] == null ? 0 : keys[i].hashCode());
         }
         hashCode = total;
     }
