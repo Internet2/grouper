@@ -317,6 +317,15 @@ td > .config-el-label {
   padding: 4px 4px;
 }
 
+/* let dropdown expand wider than the input so long results are not truncated */
+.ts-dropdown {
+  width: auto;
+  min-width: 100%;
+}
+.ts-dropdown [data-selectable] {
+  overflow: visible;
+}
+
 /* Hide the selected “item chip” while the user is typing in a Grouper TomSelect */
 .grouper-ts-typing .ts-control .item {
   display: none !important;
