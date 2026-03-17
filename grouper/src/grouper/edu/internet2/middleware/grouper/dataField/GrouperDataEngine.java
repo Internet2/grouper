@@ -498,6 +498,9 @@ public class GrouperDataEngine {
       aliasesToAdd.removeAll(GrouperUtil.nonNull(configIdToGrouperDataFieldAliasesInDb.get(configId)));
       
       GrouperDataField grouperDataField = configIdToGrouperDataFieldInDb.get(configId);
+      if (grouperDataField == null) {
+        continue;
+      }
       GrouperDataAliasDao.insertMissingAliases(grouperDataField.getInternalId(), null, aliasesToAdd);
     }
     
