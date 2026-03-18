@@ -414,11 +414,12 @@ public class UiV2SubjectSource {
       report.append("<font color='red'>ERROR:</font> description mismatch, source " + enabledSource.getId() + "=" + GrouperUtil.xmlEscape(enabledSubject.getDescription()) + ", " + disabledSource.getId() + "=" + GrouperUtil.xmlEscape(disabledSubject.getDescription()) + "\n"); 
     }
     
-    Set<String> attributeNames = new HashSet<>(enabledSubject.getAttributes(false).keySet());
-    attributeNames.addAll(new HashSet<>(disabledSubject.getAttributes(false).keySet()));
+    // use getAttributes(true) to exclude internal attributes (name, description, etc.)
+    Set<String> attributeNames = new HashSet<>(enabledSubject.getAttributes(true).keySet());
+    attributeNames.addAll(new HashSet<>(disabledSubject.getAttributes(true).keySet()));
     for (String attributeName : attributeNames) {
-      Set<String> enabledSubjectAttributeValues = new HashSet<>(GrouperUtil.nonNull(enabledSubject.getAttributes(false).get(attributeName)));
-      Set<String> disabledSubjectAttributeValues = new HashSet<>(GrouperUtil.nonNull(disabledSubject.getAttributes(false).get(attributeName)));
+      Set<String> enabledSubjectAttributeValues = new HashSet<>(GrouperUtil.nonNull(enabledSubject.getAttributes(true).get(attributeName)));
+      Set<String> disabledSubjectAttributeValues = new HashSet<>(GrouperUtil.nonNull(disabledSubject.getAttributes(true).get(attributeName)));
 
       // remove blank values so that {} and {""} are treated as equivalent
       Iterator<String> enabledIterator = enabledSubjectAttributeValues.iterator();
