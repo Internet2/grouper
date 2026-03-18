@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpda
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 
 public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
   
@@ -356,8 +357,16 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       GrouperOktaConfiguration oktaConfiguration = (GrouperOktaConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      GrouperOktaApiCommands.createOktaMembership(oktaConfiguration.getOktaExternalSystemConfigId(),
+      boolean success = GrouperOktaApiCommands.createOktaMembership(oktaConfiguration.getOktaExternalSystemConfigId(),
           targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
+
+      if (!success) {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(
+            targetMembership.getProvisioningMembershipWrapper(), GcGrouperSyncErrorCode.DNE,
+            "User is not in active status in Okta (groupId '" + targetMembership.getProvisioningGroupId()
+                + "', entityId '" + targetMembership.getProvisioningEntityId() + "')");
+        return new TargetDaoInsertMembershipResponse();
+      }
 
       targetMembership.setProvisioned(true);
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
