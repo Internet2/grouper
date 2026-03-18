@@ -936,7 +936,21 @@ public class SubjectSourceCache {
   
   
   /**
-   * multikey is sourceId, label "id"|"identifier", value of id|identifier 
+   * if true on the current thread, dont store resolved subjects in the cache.
+   * use this for bulk operations like data provider full sync that would bloat the cache
+   */
+  private static ThreadLocal<Boolean> threadLocalSkipCacheStore = new ThreadLocal<Boolean>();
+
+  /**
+   * set to true to skip storing resolved subjects in the cache on this thread
+   * @param skipCacheStore
+   */
+  public static void assignThreadLocalSkipCacheStore(boolean skipCacheStore) {
+    threadLocalSkipCacheStore.set(skipCacheStore ? Boolean.TRUE : null);
+  }
+
+  /**
+   * multikey is sourceId, label "id"|"identifier", value of id|identifier
    */
   static Map<MultiKey, SubjectSourceCacheItem> subjectCache = new ConcurrentHashMap<MultiKey, SubjectSourceCacheItem>();
 
@@ -957,8 +971,12 @@ public class SubjectSourceCache {
    * @param retrieved
    * @param updateFromFile
    */
-  private static void updateSubjectInCache(Subject subject, SubjectSourceCacheItem subjectSourceCacheItem, 
+  private static void updateSubjectInCache(Subject subject, SubjectSourceCacheItem subjectSourceCacheItem,
       String sourceId, boolean isId, String idOrIdentifier, boolean accessed, boolean retrieved, boolean updateFromFile) {
+
+    if (Boolean.TRUE.equals(threadLocalSkipCacheStore.get())) {
+      return;
+    }
 
     initCacheIfNotInitted();
 
