@@ -43,7 +43,7 @@ public class GrouperDdlDataMigration {
 
   public static void main(String[] args) {
     
-    String result = new GrouperDdlDataMigration().assignDatabaseFrom("grouper").assignDatabaseTo("postgres").migrateDatabase();
+    String result = new GrouperDdlDataMigration().assignDatabaseFrom("grouper").assignDatabaseTo("anotherPostgres").migrateDatabase();
     
     System.out.println(result);
     
@@ -606,7 +606,11 @@ public class GrouperDdlDataMigration {
 
       for (int i=0;i<entityPersister.getPropertyNames().length;i++) {
         String[] propertyColumnNames = entityPersister.getPropertyColumnNames(i);
-        if (propertyColumnNames.length != 1) {
+        if (propertyColumnNames.length == 0) {
+          // it's probably one of <set>, <list>, <map>, etc. properties in the hbm.xml file
+          continue;
+        }
+        if (propertyColumnNames.length > 1) {
           throw new RuntimeException("Why more than one column? " + entityName 
               + ", " + GrouperUtil.toStringForLog(propertyColumnNames));
         }

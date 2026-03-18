@@ -187,8 +187,6 @@ public class GrouperDdlScript {
         continue;
       }
       
-      currentLine.append(StringUtils.trim(fileLine));
-      
       if (fileLine.endsWith(";")) {
         String currentLineString = currentLine.toString();
         ScriptType scriptType = ScriptType.findType(currentLineString);
