@@ -73,7 +73,7 @@ public class ScimSettings {
     if (StringUtils.isBlank(scimNamePatchStrategy)) {
       scimNamePatchStrategy = "nonqualified";
     }
-    GrouperUtil.assertion(StringUtils.equalsAny(scimNamePatchStrategy, "nonqualified", "qualified"), "scimNamePatchStrategy needs to be 'qualified' or 'nonqualified'. You provided: '"+scimNamePatchStrategy+"'");
+    GrouperUtil.assertion(StringUtils.equalsAny(scimNamePatchStrategy, "nonqualified", "qualified", "nested"), "scimNamePatchStrategy needs to be 'qualified', 'nonqualified', or 'nested'. You provided: '"+scimNamePatchStrategy+"'");
     this.scimNamePatchStrategy = scimNamePatchStrategy;
   }
 

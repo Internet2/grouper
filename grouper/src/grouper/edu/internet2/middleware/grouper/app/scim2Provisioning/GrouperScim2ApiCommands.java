@@ -514,18 +514,52 @@ public class GrouperScim2ApiCommands {
         
       }
 
+      // handle nested name patch strategy
+      boolean nestedNameStrategy = scimSettings != null && StringUtils.equals(scimSettings.getScimNamePatchStrategy(), "nested");
+      if (nestedNameStrategy && (fieldsToUpdate.containsKey("formattedName") || fieldsToUpdate.containsKey("familyName")
+          || fieldsToUpdate.containsKey("givenName") || fieldsToUpdate.containsKey("middleName"))) {
+
+        ObjectNode operationNode = GrouperUtil.jsonJacksonNode();
+        operationNode.put("op", "replace");
+        operationNode.put("path", "name");
+        ObjectNode nameValueNode = GrouperUtil.jsonJacksonNode();
+        if (fieldsToUpdate.containsKey("formattedName") && grouperScim2User.getFormattedName() != null) {
+          nameValueNode.put("formatted", grouperScim2User.getFormattedName());
+        }
+        if (fieldsToUpdate.containsKey("givenName") && grouperScim2User.getGivenName() != null) {
+          nameValueNode.put("givenName", grouperScim2User.getGivenName());
+        }
+        if (fieldsToUpdate.containsKey("familyName") && grouperScim2User.getFamilyName() != null) {
+          nameValueNode.put("familyName", grouperScim2User.getFamilyName());
+        }
+        if (fieldsToUpdate.containsKey("middleName") && grouperScim2User.getMiddleName() != null) {
+          nameValueNode.put("middleName", grouperScim2User.getMiddleName());
+        }
+        if (nameValueNode.size() > 0) {
+          operationNode.set("value", nameValueNode);
+          operationsNode.add(operationNode);
+        }
+      }
+
       int fieldIndex = 0;
       for (String fieldToUpdate : fieldsToUpdate.keySet()) {
-        
+
         if (shouldLog) {
           debugMap.put("field_" + fieldIndex, fieldToUpdate);
         }
-        
+
         if (StringUtils.equals(fieldToUpdate, "emailValue") || StringUtils.equals(fieldToUpdate, "emailType") || StringUtils.equals(fieldToUpdate, "emailValue2") || StringUtils.equals(fieldToUpdate, "emailType2")) {
           continue;
         }
-        
+
         if (StringUtils.equals(fieldToUpdate, "phoneNumber") || StringUtils.equals(fieldToUpdate, "phoneNumberType") || StringUtils.equals(fieldToUpdate, "phoneNumber2") || StringUtils.equals(fieldToUpdate, "phoneNumberType2")) {
+          continue;
+        }
+
+        // skip name fields handled by nested strategy above
+        if (nestedNameStrategy && (StringUtils.equals(fieldToUpdate, "formattedName") || StringUtils.equals(fieldToUpdate, "familyName")
+            || StringUtils.equals(fieldToUpdate, "givenName") || StringUtils.equals(fieldToUpdate, "middleName"))) {
+          fieldIndex++;
           continue;
         }
         
