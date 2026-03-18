@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -416,9 +417,25 @@ public class UiV2SubjectSource {
     Set<String> attributeNames = new HashSet<>(enabledSubject.getAttributes(false).keySet());
     attributeNames.addAll(new HashSet<>(disabledSubject.getAttributes(false).keySet()));
     for (String attributeName : attributeNames) {
-      Set<String> enabledSubjectAttributeValues = GrouperUtil.nonNull(enabledSubject.getAttributes(false).get(attributeName));
-      Set<String> disabledSubjectAttributeValues = GrouperUtil.nonNull(disabledSubject.getAttributes(false).get(attributeName));
-      
+      Set<String> enabledSubjectAttributeValues = new HashSet<>(GrouperUtil.nonNull(enabledSubject.getAttributes(false).get(attributeName)));
+      Set<String> disabledSubjectAttributeValues = new HashSet<>(GrouperUtil.nonNull(disabledSubject.getAttributes(false).get(attributeName)));
+
+      // remove blank values so that {} and {""} are treated as equivalent
+      Iterator<String> enabledIterator = enabledSubjectAttributeValues.iterator();
+      while (enabledIterator.hasNext()) {
+        String value = enabledIterator.next();
+        if (value == null || StringUtils.isBlank(value)) {
+          enabledIterator.remove();
+        }
+      }
+      Iterator<String> disabledIterator = disabledSubjectAttributeValues.iterator();
+      while (disabledIterator.hasNext()) {
+        String value = disabledIterator.next();
+        if (value == null || StringUtils.isBlank(value)) {
+          disabledIterator.remove();
+        }
+      }
+
       String enabledValuesString = GrouperUtil.join(enabledSubjectAttributeValues.iterator(), ",");
       String disabledValuesString = GrouperUtil.join(disabledSubjectAttributeValues.iterator(), ",");
       if (GrouperUtil.equals(enabledSubjectAttributeValues, disabledSubjectAttributeValues)) {
