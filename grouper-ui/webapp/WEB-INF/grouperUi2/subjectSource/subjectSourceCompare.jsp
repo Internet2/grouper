@@ -22,6 +22,14 @@
                 <br /><br />
                 <form class="form-horizontal" id="subjectApiCompareForm"
                     onsubmit="return false;">
+
+                  <div class="control-group">
+                    <label for="actAsId" class="control-label">${textContainer.text['subjectSourcesCompareActAsSubjectIdOrIdentifier'] }</label>
+                    <div class="controls">
+                      <input type="text" id="actAsId" name="actAsName" />
+                      <span class="help-block">${textContainer.text['subjectSourcesCompareActAsSubjectIdOrIdentifierLabel'] }</span>
+                    </div>
+                  </div>
 				
                   <div class="control-group">
                     <label for="subjectApiSourceIdId" class="control-label">${textContainer.text['subjectSourcesCompareSourceId'] }</label>
