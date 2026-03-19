@@ -204,6 +204,7 @@ public class UiV2SubjectSource {
       // want to make sure we're not using old cached data (e.g. virtual attribute config)
       ExpirableCache.clearAll();
       
+      String actAsSubjectIdOrIdentifier = StringUtils.trim(request.getParameter("actAsName"));
       String sourceId1 = StringUtils.trim(request.getParameter("subjectApiSourceIdName"));
       String sourceId2 = StringUtils.trim(request.getParameter("otherSubjectApiSourceIdId"));
       String subjectIds = StringUtils.trim(request.getParameter("subjectIdsName"));
@@ -241,6 +242,12 @@ public class UiV2SubjectSource {
           sql += "limit 100";
         }
         subjectIdsList = new GcDbAccess().sql(sql).addBindVar(enabledSource.getId()).selectList(String.class);
+      }
+      
+      if (!GrouperUtil.isBlank(actAsSubjectIdOrIdentifier)) {
+        Subject actAsSubject = SubjectFinder.findByIdOrIdentifier(actAsSubjectIdOrIdentifier, true);
+        GrouperSession.stopQuietly(grouperSession);
+        grouperSession = GrouperSession.start(actAsSubject);
       }
       
       Map<String, Subject> enabledSourceFindByIds = subjectIdsList.size() == 0 ? new HashMap<>() : enabledSource.getSubjectsByIds(subjectIdsList);
