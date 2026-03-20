@@ -56,6 +56,9 @@ import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxAuth;
 import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxGroup;
 import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxUser;
 import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxMembership;
+import edu.internet2.middleware.grouper.app.datadog.DatadogGroup;
+import edu.internet2.middleware.grouper.app.datadog.DatadogMembership;
+import edu.internet2.middleware.grouper.app.datadog.DatadogUser;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoGroup;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoMembership;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoUser;
@@ -301,6 +304,10 @@ public abstract class Hib3DAO {
         addClass(configuration, FreshRequesterGroup.class);
         addClass(configuration, FreshRequesterUser.class);
         addClass(configuration, FreshRequesterMembership.class);
+
+        addClass(configuration, DatadogGroup.class);
+        addClass(configuration, DatadogUser.class);
+        addClass(configuration, DatadogMembership.class);
 
       }
       addClass(configuration, Hib3MemberDAO.class);

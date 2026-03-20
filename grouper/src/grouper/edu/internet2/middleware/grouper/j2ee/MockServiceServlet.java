@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.app.remedyV2.RemedyMockServiceHandler;
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceMockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.AwsScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GithubScim2MockServiceHandler;
+import edu.internet2.middleware.grouper.app.datadog.DatadogMockServiceHandler;
 import edu.internet2.middleware.grouper.app.freshServiceRequester.FreshRequesterMockServiceHandler;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixMockServiceHandler;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -55,6 +56,7 @@ public class MockServiceServlet extends HttpServlet {
       "azure", AzureMockServiceHandler.class.getName(),
       "awsScim", AwsScim2MockServiceHandler.class.getName(),
       "box", BoxMockServiceHandler.class.getName(),
+      "datadog", DatadogMockServiceHandler.class.getName(),
       "duo", DuoMockServiceHandler.class.getName(),
       "freshRequester", FreshRequesterMockServiceHandler.class.getName(),
       "duoRole", DuoRoleMockServiceHandler.class.getName(),
