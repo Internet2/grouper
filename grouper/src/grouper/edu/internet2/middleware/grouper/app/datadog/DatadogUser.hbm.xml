@@ -1,0 +1,18 @@
+<hibernate-mapping package="edu.internet2.middleware.grouper.app.datadog" default-lazy="false">
+  <class name="DatadogUser" table="mock_datadog_user">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <id name="id" column="id">
+      <generator class="assigned" />
+    </id>
+
+    <property name="email" column="email" />
+    <property name="name" column="name" />
+    <property name="title" column="title" />
+    <property name="disabledString" column="disabled" />
+    <property name="serviceAccountString" column="service_account" />
+
+  </class>
+</hibernate-mapping>

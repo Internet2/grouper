@@ -39,6 +39,9 @@ import edu.internet2.middleware.grouper.app.azure.GrouperAzureUser;
 import edu.internet2.middleware.grouper.app.boxProvisioner.BoxGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxApiCommands;
 import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxUser;
+import edu.internet2.middleware.grouper.app.datadog.DatadogApiCommands;
+import edu.internet2.middleware.grouper.app.datadog.DatadogSettings;
+import edu.internet2.middleware.grouper.app.datadog.DatadogUser;
 import edu.internet2.middleware.grouper.app.google.GoogleGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.google.GrouperGoogleApiCommands;
 import edu.internet2.middleware.grouper.app.google.GrouperGoogleUser;
@@ -69,7 +72,7 @@ import edu.internet2.middleware.grouperDuo.DuoGrouperExternalSystem;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * MCP admin tool for looking up users in configured external systems (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters).
+ * MCP admin tool for looking up users in configured external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters).
  * Supports two actions:
  * <ul>
  *   <li>{@code listExternalSystems} - list external systems configured for MCP user lookups</li>
@@ -99,7 +102,7 @@ public class GrouperMcpAdminExternalSystemGet {
     ObjectNode tool = objectMapper.createObjectNode();
     tool.put("name", "admin_external_system_get");
     tool.put("description",
-        "Look up users in external systems (Azure, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters) configured in Grouper. "
+        "Look up users in external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters) configured in Grouper. "
         + "Use action 'listExternalSystems' to discover which external systems are configured "
         + "for user lookups. "
         + "Use action 'getUser' with an externalSystemConfigId and a Grouper subjectIdOrIdentifier "
@@ -287,7 +290,7 @@ public class GrouperMcpAdminExternalSystemGet {
     String type = detectExternalSystemType(externalSystemConfigId);
     if (type == null) {
       return buildErrorResult("External system '" + externalSystemConfigId
-          + "' could not be identified as a supported type (azure, duo, scim, box, google, remedy, remedyDigitalMarketplace, teamDynamix, freshserviceRequesters). "
+          + "' could not be identified as a supported type (azure, datadog, duo, scim, box, google, remedy, remedyDigitalMarketplace, teamDynamix, freshserviceRequesters). "
           + "Verify the external system connector is configured. For WsBearerToken-based systems "
           + "(SCIM, FreshService) you may need to set grouper.mcp.adminExternalSystem."
           + externalSystemConfigId + ".externalSystemType");
@@ -344,6 +347,8 @@ public class GrouperMcpAdminExternalSystemGet {
     // query the external system
     if ("azure".equals(type)) {
       return getUserAzure(externalSystemConfigId, lookupField, externalUserId, resultNode);
+    } else if ("datadog".equals(type)) {
+      return getUserDatadog(externalSystemConfigId, lookupField, externalUserId, resultNode);
     } else if ("duo".equals(type)) {
       return getUserDuo(externalSystemConfigId, lookupField, externalUserId, resultNode);
     } else if ("scim".equals(type)) {
@@ -543,6 +548,37 @@ public class GrouperMcpAdminExternalSystemGet {
       userNode.put("alias4", duoUser.getAlias4());
     }
     resultNode.set("user", userNode);
+
+    String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(resultNode);
+    return buildSuccessResult(resultText);
+  }
+
+  /**
+   * look up a user in Datadog by email
+   */
+  private static ObjectNode getUserDatadog(String configId, String lookupField,
+      String lookupValue, ObjectNode resultNode) throws Exception {
+
+    DatadogSettings datadogSettings = new DatadogSettings();
+
+    DatadogUser datadogUser = null;
+    if ("email".equals(lookupField)) {
+      datadogUser = DatadogApiCommands.retrieveUserByEmail(configId, datadogSettings, lookupValue, true);
+    } else {
+      // default to email lookup
+      datadogUser = DatadogApiCommands.retrieveUserByEmail(configId, datadogSettings, lookupValue, true);
+    }
+
+    if (datadogUser == null) {
+      resultNode.put("userFound", false);
+      String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(resultNode);
+      return buildSuccessResult(resultText);
+    }
+
+    resultNode.put("userFound", true);
+    resultNode.set("user", datadogUser.toJson(null));
 
     String resultText = objectMapper.writerWithDefaultPrettyPrinter()
         .writeValueAsString(resultNode);
@@ -779,12 +815,12 @@ public class GrouperMcpAdminExternalSystemGet {
   }
 
   /**
-   * detect the type of external system (azure, duo, scim, box, freshserviceRequesters)
+   * detect the type of external system (azure, datadog, duo, scim, box, freshserviceRequesters)
    * by checking if an explicit type is configured, or by matching against configured connectors.
-   * An explicit type is needed when auto-detection is ambiguous (e.g. both SCIM and FreshService
-   * use WsBearerTokenExternalSystem).
+   * An explicit type is needed when auto-detection is ambiguous (e.g. SCIM, FreshService, and Datadog
+   * all use WsBearerTokenExternalSystem).
    * @param configId the external system config ID
-   * @return "azure", "duo", "scim", "box", "freshserviceRequesters", or null if not detected
+   * @return "azure", "datadog", "duo", "scim", "box", "freshserviceRequesters", or null if not detected
    */
   static String detectExternalSystemType(String configId) {
 
