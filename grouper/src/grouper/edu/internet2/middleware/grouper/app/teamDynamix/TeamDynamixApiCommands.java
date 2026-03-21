@@ -956,15 +956,27 @@ public class TeamDynamixApiCommands {
     try {
 
       String id = teamDynamixGroup.getId();
-      
-      JsonNode jsonToSend = teamDynamixGroup.toJson(fieldsToUpdate);
-      
+
+      ObjectNode jsonToSend = teamDynamixGroup.toJson(fieldsToUpdate);
+
       TeamDynamixGroup updatedTeamDynamixGroup = null;
-      
+
       if (jsonToSend.size() > 0) {
         String urlSuffix = "/api/groups/"+id;
-        
-        String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
+
+        // GET the current state first since TeamDynamix PUT requires the full object
+        JsonNode existingJsonNode = executeGetMethod(debugMap, "updateTeamDynamixGroup_get", configId, urlSuffix, new int[] { -1 });
+
+        ObjectNode existingJson = (ObjectNode) existingJsonNode;
+
+        // overlay our changes on the existing state
+        Iterator<String> fieldNames = jsonToSend.fieldNames();
+        while (fieldNames.hasNext()) {
+          String fieldName = fieldNames.next();
+          existingJson.set(fieldName, jsonToSend.get(fieldName));
+        }
+
+        String jsonStringToSend = GrouperUtil.jsonJacksonToString(existingJson);
 
         JsonNode jsonNode = executeMethod(debugMap, "updateTeamDynamixGroup", "PUT", configId, urlSuffix,
             GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
