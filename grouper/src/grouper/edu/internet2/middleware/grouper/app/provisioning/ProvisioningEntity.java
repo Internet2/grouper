@@ -134,6 +134,24 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
   public void setIdIndex(Long idIndex1) {
     this.assignAttributeValue("idIndex", idIndex1);
   }
+  
+  /**
+   * member internal id
+   * @return internalId
+   */
+  public Long getInternalId() {
+    return this.retrieveAttributeValueLong("internalId");
+  }
+
+  /**
+   * member internal id
+   * @param internalId
+   */
+  public void setInternalId(Long internalId) {
+    this.assignAttributeValue("internalId", internalId);
+  }
+  
+  
   /**
    * 
    * @return subjectIdentifier0
@@ -595,4 +613,36 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     return GrouperUtil.equalsIgnoreCaseObject(attributeValue, logAllObjectsVerboseForTheseSubjectId);
   }
 
+  private Map<String, List<Map<String, Object>>> dataRowAliasToDataFieldValues = new HashMap<>();
+
+  
+  public Map<String, List<Map<String, Object>>> getDataRowAliasToDataFieldValues() {
+    return dataRowAliasToDataFieldValues;
+  }
+
+  
+  public void setDataRowAliasToDataFieldValues(Map<String, List<Map<String, Object>>> dataRowAliasToDataFieldValues) {
+    this.dataRowAliasToDataFieldValues = dataRowAliasToDataFieldValues;
+  }
+  
+  public Object retrieveDataRowFieldValue(String rowAlias, String fieldAlias, String expression, Object defaultValue) {
+    if (!expression.contains("${")) {
+      expression = "${" + expression + "}";
+    }
+    
+    if (dataRowAliasToDataFieldValues != null) {
+      List<Map<String, Object>> dataFieldValuesList = dataRowAliasToDataFieldValues.get(rowAlias);
+      if (dataFieldValuesList != null) {
+        for (Map<String, Object> dataFieldValues : dataFieldValuesList) {
+          Object result = GrouperUtil.substituteExpressionLanguageScript(expression, dataFieldValues, true, false, false);
+          if (result instanceof Boolean && (Boolean)result) {
+            if (dataFieldValues.get(fieldAlias) != null) {
+              return dataFieldValues.get(fieldAlias);
+            }
+          }
+        }
+      }
+    }
+    return defaultValue;
+  }
 }

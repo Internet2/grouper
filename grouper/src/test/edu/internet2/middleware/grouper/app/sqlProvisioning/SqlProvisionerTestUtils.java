@@ -685,6 +685,28 @@ public class SqlProvisionerTestUtils {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.name", "subject_id");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateFromGrouperProvisioningEntityField", "subjectId");
+        
+        if (provisioningTestConfigInput.getCacheDataFieldTranslation()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "provisioningNumberOfDataFields", "7");
+          configureProvisionerSuffix(provisioningTestConfigInput, "provisioningDataField.0.configId", "jobNumber");
+          configureProvisionerSuffix(provisioningTestConfigInput, "provisioningDataField.1.configId", "title");
+          configureProvisionerSuffix(provisioningTestConfigInput, "provisioningDataField.2.configId", "affiliationCode");
+          configureProvisionerSuffix(provisioningTestConfigInput, "provisioningDataField.3.configId", "affiliationOrg");
+          configureProvisionerSuffix(provisioningTestConfigInput, "provisioningDataField.4.configId", "affiliationCode2");
+          configureProvisionerSuffix(provisioningTestConfigInput, "provisioningDataField.5.configId", "affiliationOrg2");
+          configureProvisionerSuffix(provisioningTestConfigInput, "provisioningDataField.6.configId", "affiliationActive2");
+          
+          configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "1");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "subject_value");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionType", "translationScript");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpression", "${grouperProvisioningEntity.getSubjectId() + ' - ' + grouperProvisioningEntity.retrieveAttributeValueString('dataField__titleAlias') + ' - ' + grouperProvisioningEntity.retrieveAttributeValueSet('dataField__jobNumber') + ' - ' + grouperProvisioningEntity.retrieveDataRowFieldValue('affiliationAlias', 'affiliationOrgAlias', 'affiliationCodeAlias == \"staff\" || affiliationCodeAlias == \"stu\"', '') + ' - ' + grouperProvisioningEntity.retrieveDataRowFieldValue('affiliationAlias2', 'affiliationOrgAlias2', '(affiliationCodeAlias2 == \"staff\" || affiliationCodeAlias2 == \"stu\") && !affiliationActive2', '')}");
+        
+          configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0source", "grouper");
+          configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "entityAttribute");
+          configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0entityAttribute", "subject_value");
+        }
       }
       if (provisioningTestConfigInput.getMembershipAttributeCount() == 3) {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.0.name", "uuid");

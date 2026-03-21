@@ -35,6 +35,16 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoSendChangesToTargetRequest;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
+import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
+import edu.internet2.middleware.grouper.dataField.GrouperDataField;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldStructure;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRow;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfig;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignDao;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
@@ -1470,6 +1480,9 @@ public class GrouperProvisioningLogic {
             //for any groups or entities that  are pulled back in membership recalcs, we need to retrieve grouper data
             this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncrementalGroupsEntities("Pass3");
             
+            enhanceEntityAttributesWithDataFields();
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
+            
             enhanceEntityAttributesWithSqlResolver(false);
             GrouperDaemonUtils.stopProcessingIfJobPaused();
 
@@ -2892,6 +2905,9 @@ public class GrouperProvisioningLogic {
     gcGrouperSync.setUserCount(GrouperUtil.length(grouperProvisioningLists.getProvisioningEntities()));
     gcGrouperSync.setRecordsCount(GrouperUtil.length(grouperProvisioningLists.getProvisioningMemberships()));
     
+    enhanceEntityAttributesWithDataFields();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+    
     enhanceEntityAttributesWithSqlResolver(true);
     GrouperDaemonUtils.stopProcessingIfJobPaused();
 
@@ -3151,6 +3167,190 @@ public class GrouperProvisioningLogic {
       throw new RuntimeException("Invalid group attributes table structure value");
     }
     
+  }
+  
+  public void enhanceEntityAttributesWithDataFields() {
+    GrouperProvisioningConfiguration provisioningConfiguration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    if (GrouperUtil.length(provisioningConfiguration.getProvisioningDataFieldConfigIds()) == 0) {
+      return;
+    }
+    
+    List<ProvisioningEntity> provisioningEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningEntities();
+    
+    if (provisioningEntities.size() == 0) {
+      return;
+    }
+    
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadConfigFields(null);
+    grouperDataEngine.loadConfigRows(null);
+    Map<String, GrouperDataFieldConfig> configIdToGrouperDataFieldConfig = grouperDataEngine.getFieldConfigByConfigId();
+    Map<String, GrouperDataRowConfig> configIdToGrouperDataRowConfig = grouperDataEngine.getRowConfigByConfigId();
+    
+    Map<Long, ProvisioningEntity> memberInternalIdToProvisioningEntity = new LinkedHashMap<>();
+    for (ProvisioningEntity provisioningEntity : provisioningEntities) {
+      memberInternalIdToProvisioningEntity.put(provisioningEntity.getInternalId(), provisioningEntity);
+    }
+    
+    Set<GrouperDataField> grouperDataFields = GrouperDataFieldDao.selectByTexts(provisioningConfiguration.getProvisioningDataFieldConfigIds());
+    Map<Long, GrouperDataField> dataFieldInternalIdToDataField = new LinkedHashMap<>();
+    for (GrouperDataField grouperDataField : grouperDataFields) {
+      dataFieldInternalIdToDataField.put(grouperDataField.getInternalId(), grouperDataField);
+    }
+       
+    // first handle the direct field assigns
+    {
+      Set<Long> dataFieldInternalIds = new LinkedHashSet<>();
+      for (GrouperDataField grouperDataField : grouperDataFields) {
+        GrouperDataFieldConfig grouperDataFieldConfig = configIdToGrouperDataFieldConfig.get(grouperDataField.getConfigId());
+        if (grouperDataFieldConfig != null && grouperDataFieldConfig.getFieldDataStructure() == GrouperDataFieldStructure.attribute) {
+          dataFieldInternalIds.add(grouperDataField.getInternalId());
+        }
+      }
+      
+      List<Object[]> dataFieldAssignDataList = GrouperDataFieldAssignDao.selectDataFieldAssignValuesByDataFieldInternalIdsAndMemberInternalIds(dataFieldInternalIds, memberInternalIdToProvisioningEntity.keySet());
+      for (Object[] dataFieldAssignData : dataFieldAssignDataList) {
+        Long dataFieldInternalId = GrouperUtil.longValue(dataFieldAssignData[0]);
+        Long memberInternalId = GrouperUtil.longValue(dataFieldAssignData[1]);
+        String valueString = (String)dataFieldAssignData[2];
+        Long valueInteger = dataFieldAssignData[3] == null ? null : GrouperUtil.longValue(dataFieldAssignData[3]);
+        
+        GrouperDataField grouperDataField = dataFieldInternalIdToDataField.get(dataFieldInternalId);
+        if (grouperDataField == null) {
+          continue;
+        }
+        
+        GrouperDataFieldConfig grouperDataFieldConfig = configIdToGrouperDataFieldConfig.get(grouperDataField.getConfigId());
+        if (grouperDataFieldConfig == null) {
+          continue;
+        }
+        
+        ProvisioningEntity provisioningEntity = memberInternalIdToProvisioningEntity.get(memberInternalId);
+        if (provisioningEntity == null) {
+          continue;
+        }
+        
+        Object value = grouperDataFieldConfig.getFieldDataType().convertValue(valueInteger, valueString);
+        if (grouperDataFieldConfig.isFieldMultiValued()) {
+          for (String alias : grouperDataFieldConfig.getFieldAliases()) {
+            provisioningEntity.addAttributeValue("dataField__" + alias, value);
+          }
+        } else {
+          for (String alias : grouperDataFieldConfig.getFieldAliases()) {
+            provisioningEntity.assignAttributeValue("dataField__" + alias, value);
+          }
+        }
+      }
+    }
+    
+    // second handle the row field assigns
+    {
+      Set<Long> dataFieldInternalIds = new LinkedHashSet<>();
+      for (GrouperDataField grouperDataField : grouperDataFields) {
+        GrouperDataFieldConfig grouperDataFieldConfig = configIdToGrouperDataFieldConfig.get(grouperDataField.getConfigId());
+        if (grouperDataFieldConfig != null && grouperDataFieldConfig.getFieldDataStructure() == GrouperDataFieldStructure.rowColumn) {
+          dataFieldInternalIds.add(grouperDataField.getInternalId());
+        }
+      }
+      
+      if (dataFieldInternalIds.size() == 0) {
+        return;
+      }
+      
+      List<Object[]> dataRowFieldAssignDataListAll = GrouperDataRowFieldAssignDao.selectDataRowFieldAssignValuesByDataFieldInternalIdsAndMemberInternalIds(dataFieldInternalIds, memberInternalIdToProvisioningEntity.keySet());
+      Map<Long, Map<Long, List<Object[]>>> memberInternalIdToDataRowAssignInternalIdToDataList = new LinkedHashMap<>();
+      Set<Long> dataRowInternalIds = new LinkedHashSet<>();
+      
+      // organize by member and assignment
+      for (Object[] dataRowFieldAssignData : dataRowFieldAssignDataListAll) {
+        Long dataRowInternalId = GrouperUtil.longValue(dataRowFieldAssignData[0]);
+        Long dataRowAssignInternalId = GrouperUtil.longValue(dataRowFieldAssignData[2]);
+        Long memberInternalId = GrouperUtil.longValue(dataRowFieldAssignData[3]);
+        
+        if (memberInternalIdToDataRowAssignInternalIdToDataList.get(memberInternalId) == null) {
+          memberInternalIdToDataRowAssignInternalIdToDataList.put(memberInternalId, new LinkedHashMap<>());
+        }
+        
+        if (memberInternalIdToDataRowAssignInternalIdToDataList.get(memberInternalId).get(dataRowAssignInternalId) == null) {
+          memberInternalIdToDataRowAssignInternalIdToDataList.get(memberInternalId).put(dataRowAssignInternalId, new ArrayList<>());
+        }
+        
+        memberInternalIdToDataRowAssignInternalIdToDataList.get(memberInternalId).get(dataRowAssignInternalId).add(dataRowFieldAssignData);
+        dataRowInternalIds.add(dataRowInternalId);
+      }
+      
+      // get all the data rows
+      Set<GrouperDataRow> grouperDataRows = GrouperDataRowDao.selectByInternalIds(dataRowInternalIds);
+      Map<Long, GrouperDataRow> dataRowInternalIdToDataRow = new LinkedHashMap<>();
+      for (GrouperDataRow grouperDataRow : grouperDataRows) {
+        dataRowInternalIdToDataRow.put(grouperDataRow.getInternalId(), grouperDataRow);
+      }
+      
+      for (Long memberInternalId : memberInternalIdToDataRowAssignInternalIdToDataList.keySet()) {
+        ProvisioningEntity provisioningEntity = memberInternalIdToProvisioningEntity.get(memberInternalId);
+        if (provisioningEntity == null) {
+          continue;
+        }
+        
+        Map<Long, List<Object[]>> dataRowAssignInternalIdToDataList = memberInternalIdToDataRowAssignInternalIdToDataList.get(memberInternalId);
+        
+        for (Long dataRowAssignInternalId : dataRowAssignInternalIdToDataList.keySet()) {
+          List<Object[]> dataRowFieldAssignDataList = dataRowAssignInternalIdToDataList.get(dataRowAssignInternalId);
+          Long dataRowInternalId = GrouperUtil.longValue(dataRowFieldAssignDataList.iterator().next()[0]);
+
+          GrouperDataRow grouperDataRow = dataRowInternalIdToDataRow.get(dataRowInternalId);
+          if (grouperDataRow == null) {
+            continue;
+          }
+          
+          GrouperDataRowConfig grouperDataRowConfig = configIdToGrouperDataRowConfig.get(grouperDataRow.getConfigId());
+          if (grouperDataRowConfig == null) {
+            continue;
+          }
+          
+          Map<String, Object> dataFieldValues = new LinkedHashMap<>();
+
+          for (String alias : grouperDataRowConfig.getRowAliases()) {
+            if (provisioningEntity.getDataRowAliasToDataFieldValues().get(alias) == null) {
+              provisioningEntity.getDataRowAliasToDataFieldValues().put(alias, new ArrayList<>());
+            }
+            
+            provisioningEntity.getDataRowAliasToDataFieldValues().get(alias).add(dataFieldValues);
+          }
+          
+          for (Object[] dataRowFieldAssignData : dataRowFieldAssignDataList) {
+            Long dataFieldInternalId = GrouperUtil.longValue(dataRowFieldAssignData[1]);
+            String valueString = (String)dataRowFieldAssignData[4];
+            Long valueInteger = dataRowFieldAssignData[5] == null ? null : GrouperUtil.longValue(dataRowFieldAssignData[5]);
+            
+            GrouperDataField grouperDataField = dataFieldInternalIdToDataField.get(dataFieldInternalId);
+            if (grouperDataField == null) {
+              continue;
+            }
+            
+            GrouperDataFieldConfig grouperDataFieldConfig = configIdToGrouperDataFieldConfig.get(grouperDataField.getConfigId());
+            if (grouperDataFieldConfig == null) {
+              continue;
+            }
+                        
+            Object value = grouperDataFieldConfig.getFieldDataType().convertValue(valueInteger, valueString);
+            if (grouperDataFieldConfig.isFieldMultiValued()) {
+              for (String alias : grouperDataFieldConfig.getFieldAliases()) {
+                if (dataFieldValues.get(alias) == null) {
+                  dataFieldValues.put(alias, new LinkedHashSet<>());
+                }
+                
+                ((Set<Object>)dataFieldValues.get(alias)).add(value);
+              }
+            } else {
+              for (String alias : grouperDataFieldConfig.getFieldAliases()) {
+                dataFieldValues.put(alias, value);
+              }
+            }
+          }
+        }        
+      }
+    }
   }
   
   public void enhanceEntityAttributesWithSqlResolver(boolean isFullSync) {
