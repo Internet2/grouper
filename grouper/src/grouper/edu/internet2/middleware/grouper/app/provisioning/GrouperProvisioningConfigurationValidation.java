@@ -449,6 +449,7 @@ public class GrouperProvisioningConfigurationValidation {
       return;
     }
 
+    validateBatchSizes();
     validateProvisionerConfig();
   }
 
@@ -1091,6 +1092,33 @@ public class GrouperProvisioningConfigurationValidation {
       this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(formElementErrors.get(formElementErrorKey)).assignJqueryHandle(formElementErrorKey));
     }
     
+  }
+
+  /**
+   * validate batch size settings are >= 1 if configured
+   */
+  public void validateBatchSizes() {
+
+    for (String batchSizeKey : new String[] {
+        "provisionerBatchingDefault",
+        "provisionerBatchingInsertMemberships", "provisionerBatchingDeleteMemberships",
+        "provisionerBatchingInsertGroups", "provisionerBatchingDeleteGroups",
+        "provisionerBatchingInsertEntities", "provisionerBatchingDeleteEntities",
+        "provisionerBatchingUpdateGroups", "provisionerBatchingUpdateEntities",
+        "provisionerBatchingUpdateMemberships",
+        "provisionerBatchingRetrieveGroups", "provisionerBatchingRetrieveEntities",
+        "provisionerBatchingRetrieveMemberships"}) {
+
+      String valueString = suffixToConfigValue.get(batchSizeKey);
+      if (StringUtils.isNotBlank(valueString)) {
+        int value = GrouperUtil.intValue(valueString, 0);
+        if (value < 1) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.batchSizeMustBeAtLeastOne");
+          errorMessage = StringUtils.replace(errorMessage, "$$configKey$$", batchSizeKey);
+          this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(batchSizeKey));
+        }
+      }
+    }
   }
 
   /**
