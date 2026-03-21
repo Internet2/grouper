@@ -91,6 +91,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -14640,13 +14642,45 @@ public class GrouperUtil {
   /**
    * threadpool
    */
-  private static ExecutorService executorService = Executors.newCachedThreadPool(new DaemonThreadFactory());
+  private static ExecutorService executorService = null;
 
   /**
-   * might want to use GrouperCallable with this
+   * might want to use GrouperCallable with this.
+   * Lazy-initialized so that config properties are available.
+   * Bounded thread pool with bounded queue and CallerRunsPolicy for backpressure.
+   * Up to maxThreads run concurrently, up to queueSize tasks are queued,
+   * and if the queue is full the calling thread runs the task itself.
+   * Idle threads are terminated after keepAliveSeconds.
+   * Configurable via grouper.properties:
+   *   grouper.executorService.maxThreads (default 100)
+   *   grouper.executorService.keepAliveSeconds (default 60)
+   *   grouper.executorService.queueSize (default 10000)
    * @return executor service
    */
   public static ExecutorService retrieveExecutorService() {
+    if (executorService == null) {
+      synchronized (GrouperUtil.class) {
+        if (executorService == null) {
+          int maxThreads = 100;
+          int keepAliveSeconds = 60;
+          int queueSize = 10000;
+          try {
+            maxThreads = GrouperConfig.retrieveConfig().propertyValueInt("grouper.executorService.maxThreads", 100);
+            keepAliveSeconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.executorService.keepAliveSeconds", 60);
+            queueSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.executorService.queueSize", 10000);
+          } catch (Exception e) {
+            // config not available yet, use defaults
+          }
+          ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+              maxThreads, maxThreads, keepAliveSeconds, TimeUnit.SECONDS,
+              new java.util.concurrent.LinkedBlockingQueue<Runnable>(queueSize),
+              new DaemonThreadFactory(),
+              new ThreadPoolExecutor.CallerRunsPolicy());
+          threadPoolExecutor.allowCoreThreadTimeOut(true);
+          executorService = threadPoolExecutor;
+        }
+      }
+    }
     return executorService;
   }
 
