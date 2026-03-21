@@ -13,6 +13,8 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
@@ -482,6 +484,104 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
     
   }
   
+  /**
+   * test that batch sizes from the DAO capabilities flow through the behavior class correctly,
+   * that user config can reduce but not increase beyond the DAO max,
+   * and that invalid batch sizes are rejected by validation
+   */
+  public void testBatchSizeConfiguration() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    // test 1: default batch sizes from TDX DAO capabilities
+    TeamDynamixProvisionerTestUtils.configureProvisioner(new TeamDynamixProvisionerTestConfigInput());
+
+    GrouperStartup.startup();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("myTeamDynamixProvisioner");
+    attributeValue.setTargetName("myTeamDynamixProvisioner");
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    GrouperProvisioningBehavior behavior = grouperProvisioner.retrieveGrouperProvisioningBehavior();
+
+    // TDX DAO sets insertMemberships=400, deleteMemberships=400, default stays at 20
+    assertEquals(400, behavior.getProvisionerBatchingInsertMemberships());
+    assertEquals(400, behavior.getProvisionerBatchingDeleteMemberships());
+    // these fall back to DAO defaultBatchSize of 20
+    assertEquals(20, behavior.getProvisionerBatchingUpdateGroups());
+    assertEquals(20, behavior.getProvisionerBatchingRetrieveGroups());
+    assertEquals(20, behavior.getProvisionerBatchingRetrieveEntities());
+    assertEquals(20, behavior.getProvisionerBatchingInsertGroups());
+
+    // verify batch sizes are in the debug map
+    Map<String, Object> debugMap = grouperProvisioner.getDebugMap();
+    assertEquals(400, debugMap.get("provisionerBatchingInsertMemberships"));
+
+    // test 2: user config can reduce batch sizes
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_teamdynamix_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_teamdynamix_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_teamdynamix_user").executeSql();
+
+    TeamDynamixProvisionerTestUtils.configureProvisioner(
+        new TeamDynamixProvisionerTestConfigInput()
+            .addExtraConfig("provisionerBatchingInsertMemberships", "50")
+            .addExtraConfig("provisionerBatchingDefault", "5")
+    );
+
+    fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    behavior = grouperProvisioner.retrieveGrouperProvisioningBehavior();
+
+    // user set insertMemberships to 50, which is less than DAO's 400, so it should be 50
+    assertEquals(50, behavior.getProvisionerBatchingInsertMemberships());
+    // user set default to 5, which is less than DAO's 20, so it should be 5
+    assertEquals(5, behavior.getProvisionerBatchingDefault());
+    // updateGroups was not configured by user, but default is now 5 (min of 5 and 20)
+    assertEquals(5, behavior.getProvisionerBatchingUpdateGroups());
+
+    // test 3: user config cannot increase beyond DAO max
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_teamdynamix_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_teamdynamix_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_teamdynamix_user").executeSql();
+
+    TeamDynamixProvisionerTestUtils.configureProvisioner(
+        new TeamDynamixProvisionerTestConfigInput()
+            .addExtraConfig("provisionerBatchingInsertMemberships", "999")
+    );
+
+    fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    behavior = grouperProvisioner.retrieveGrouperProvisioningBehavior();
+
+    // user set 999 but DAO max is 400, so effective should be 400
+    assertEquals(400, behavior.getProvisionerBatchingInsertMemberships());
+
+    // test 4: invalid batch size (0) is rejected by validation
+    GrouperProvisioningConfigurationValidation validation = new GrouperProvisioningConfigurationValidation();
+    validation.getSuffixToConfigValue().put("provisionerBatchingInsertMemberships", "0");
+    validation.validateBatchSizes();
+    assertTrue(validation.getProvisioningValidationIssues().size() > 0);
+
+    // test 5: valid batch size passes validation
+    GrouperProvisioningConfigurationValidation validation2 = new GrouperProvisioningConfigurationValidation();
+    validation2.getSuffixToConfigValue().put("provisionerBatchingInsertMemberships", "100");
+    validation2.validateBatchSizes();
+    assertEquals(0, validation2.getProvisioningValidationIssues().size());
+  }
+
   private void validateNoErrors(GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer) {
     String[] lines = grouperProvisioningDiagnosticsContainer.getReportFinal().split("\n"); 
     List<String> errorLines = new ArrayList<String>();
