@@ -64,6 +64,191 @@ public abstract class GrouperProvisioningConfiguration {
   private int threadPoolSize = 5;
 
   /**
+   * user configured default batch size for all operations, -1 means use DAO capability value
+   */
+  private int provisionerBatchingDefault = -1;
+
+  /**
+   * user configured batch size for inserting memberships, -1 means use DAO capability value
+   */
+  private int provisionerBatchingInsertMemberships = -1;
+
+  /**
+   * user configured batch size for deleting memberships, -1 means use DAO capability value
+   */
+  private int provisionerBatchingDeleteMemberships = -1;
+
+  /**
+   * user configured batch size for inserting groups, -1 means use DAO capability value
+   */
+  private int provisionerBatchingInsertGroups = -1;
+
+  /**
+   * user configured batch size for deleting groups, -1 means use DAO capability value
+   */
+  private int provisionerBatchingDeleteGroups = -1;
+
+  /**
+   * user configured batch size for inserting entities, -1 means use DAO capability value
+   */
+  private int provisionerBatchingInsertEntities = -1;
+
+  /**
+   * user configured batch size for deleting entities, -1 means use DAO capability value
+   */
+  private int provisionerBatchingDeleteEntities = -1;
+
+  /**
+   * user configured batch size for updating groups, -1 means use DAO capability value
+   */
+  private int provisionerBatchingUpdateGroups = -1;
+
+  /**
+   * user configured batch size for updating entities, -1 means use DAO capability value
+   */
+  private int provisionerBatchingUpdateEntities = -1;
+
+  /**
+   * user configured batch size for updating memberships, -1 means use DAO capability value
+   */
+  private int provisionerBatchingUpdateMemberships = -1;
+
+  /**
+   * user configured batch size for retrieving groups, -1 means use DAO capability value
+   */
+  private int provisionerBatchingRetrieveGroups = -1;
+
+  /**
+   * user configured batch size for retrieving entities, -1 means use DAO capability value
+   */
+  private int provisionerBatchingRetrieveEntities = -1;
+
+  /**
+   * user configured batch size for retrieving memberships, -1 means use DAO capability value
+   */
+  private int provisionerBatchingRetrieveMemberships = -1;
+
+  public int getProvisionerBatchingDefault() {
+    return provisionerBatchingDefault;
+  }
+
+  public void setProvisionerBatchingDefault(int provisionerBatchingDefault) {
+    this.provisionerBatchingDefault = provisionerBatchingDefault;
+  }
+
+  public int getProvisionerBatchingInsertMemberships() {
+    return provisionerBatchingInsertMemberships;
+  }
+
+  public void setProvisionerBatchingInsertMemberships(int provisionerBatchingInsertMemberships) {
+    this.provisionerBatchingInsertMemberships = provisionerBatchingInsertMemberships;
+  }
+
+  public int getProvisionerBatchingDeleteMemberships() {
+    return provisionerBatchingDeleteMemberships;
+  }
+
+  public void setProvisionerBatchingDeleteMemberships(int provisionerBatchingDeleteMemberships) {
+    this.provisionerBatchingDeleteMemberships = provisionerBatchingDeleteMemberships;
+  }
+
+  public int getProvisionerBatchingInsertGroups() {
+    return provisionerBatchingInsertGroups;
+  }
+
+  public void setProvisionerBatchingInsertGroups(int provisionerBatchingInsertGroups) {
+    this.provisionerBatchingInsertGroups = provisionerBatchingInsertGroups;
+  }
+
+  public int getProvisionerBatchingDeleteGroups() {
+    return provisionerBatchingDeleteGroups;
+  }
+
+  public void setProvisionerBatchingDeleteGroups(int provisionerBatchingDeleteGroups) {
+    this.provisionerBatchingDeleteGroups = provisionerBatchingDeleteGroups;
+  }
+
+  public int getProvisionerBatchingInsertEntities() {
+    return provisionerBatchingInsertEntities;
+  }
+
+  public void setProvisionerBatchingInsertEntities(int provisionerBatchingInsertEntities) {
+    this.provisionerBatchingInsertEntities = provisionerBatchingInsertEntities;
+  }
+
+  public int getProvisionerBatchingDeleteEntities() {
+    return provisionerBatchingDeleteEntities;
+  }
+
+  public void setProvisionerBatchingDeleteEntities(int provisionerBatchingDeleteEntities) {
+    this.provisionerBatchingDeleteEntities = provisionerBatchingDeleteEntities;
+  }
+
+  public int getProvisionerBatchingUpdateGroups() {
+    return provisionerBatchingUpdateGroups;
+  }
+
+  public void setProvisionerBatchingUpdateGroups(int provisionerBatchingUpdateGroups) {
+    this.provisionerBatchingUpdateGroups = provisionerBatchingUpdateGroups;
+  }
+
+  public int getProvisionerBatchingUpdateEntities() {
+    return provisionerBatchingUpdateEntities;
+  }
+
+  public void setProvisionerBatchingUpdateEntities(int provisionerBatchingUpdateEntities) {
+    this.provisionerBatchingUpdateEntities = provisionerBatchingUpdateEntities;
+  }
+
+  public int getProvisionerBatchingUpdateMemberships() {
+    return provisionerBatchingUpdateMemberships;
+  }
+
+  public void setProvisionerBatchingUpdateMemberships(int provisionerBatchingUpdateMemberships) {
+    this.provisionerBatchingUpdateMemberships = provisionerBatchingUpdateMemberships;
+  }
+
+  public int getProvisionerBatchingRetrieveGroups() {
+    return provisionerBatchingRetrieveGroups;
+  }
+
+  public void setProvisionerBatchingRetrieveGroups(int provisionerBatchingRetrieveGroups) {
+    this.provisionerBatchingRetrieveGroups = provisionerBatchingRetrieveGroups;
+  }
+
+  public int getProvisionerBatchingRetrieveEntities() {
+    return provisionerBatchingRetrieveEntities;
+  }
+
+  public void setProvisionerBatchingRetrieveEntities(int provisionerBatchingRetrieveEntities) {
+    this.provisionerBatchingRetrieveEntities = provisionerBatchingRetrieveEntities;
+  }
+
+  public int getProvisionerBatchingRetrieveMemberships() {
+    return provisionerBatchingRetrieveMemberships;
+  }
+
+  public void setProvisionerBatchingRetrieveMemberships(int provisionerBatchingRetrieveMemberships) {
+    this.provisionerBatchingRetrieveMemberships = provisionerBatchingRetrieveMemberships;
+  }
+
+  /**
+   * retrieve a batching config int, validate it is >= 1 if set, default to -1 (not set)
+   * @param configKey
+   * @return the value or -1
+   */
+  private int retrieveBatchingConfigInt(String configKey) {
+    Integer value = this.retrieveConfigInt(configKey, false);
+    if (value == null) {
+      return -1;
+    }
+    if (value < 1) {
+      throw new RuntimeException(configKey + " must be greater than or equal to 1 but was: " + value);
+    }
+    return value;
+  }
+
+  /**
    * log information about these subject ids (comma separated less than 10)
    */
   private Set<String> logAllObjectsVerboseForTheseSubjectIds = new HashSet<String>();
@@ -3504,7 +3689,22 @@ public abstract class GrouperProvisioningConfiguration {
     assignAutoTranslatedGroupsConfiguration();
 
     assignAutoTranslatedEntitiesConfiguration();
-    
+
+    // batching configuration
+    this.provisionerBatchingDefault = retrieveBatchingConfigInt("provisionerBatchingDefault");
+    this.provisionerBatchingInsertMemberships = retrieveBatchingConfigInt("provisionerBatchingInsertMemberships");
+    this.provisionerBatchingDeleteMemberships = retrieveBatchingConfigInt("provisionerBatchingDeleteMemberships");
+    this.provisionerBatchingInsertGroups = retrieveBatchingConfigInt("provisionerBatchingInsertGroups");
+    this.provisionerBatchingDeleteGroups = retrieveBatchingConfigInt("provisionerBatchingDeleteGroups");
+    this.provisionerBatchingInsertEntities = retrieveBatchingConfigInt("provisionerBatchingInsertEntities");
+    this.provisionerBatchingDeleteEntities = retrieveBatchingConfigInt("provisionerBatchingDeleteEntities");
+    this.provisionerBatchingUpdateGroups = retrieveBatchingConfigInt("provisionerBatchingUpdateGroups");
+    this.provisionerBatchingUpdateEntities = retrieveBatchingConfigInt("provisionerBatchingUpdateEntities");
+    this.provisionerBatchingUpdateMemberships = retrieveBatchingConfigInt("provisionerBatchingUpdateMemberships");
+    this.provisionerBatchingRetrieveGroups = retrieveBatchingConfigInt("provisionerBatchingRetrieveGroups");
+    this.provisionerBatchingRetrieveEntities = retrieveBatchingConfigInt("provisionerBatchingRetrieveEntities");
+    this.provisionerBatchingRetrieveMemberships = retrieveBatchingConfigInt("provisionerBatchingRetrieveMemberships");
+
   }
   
   private boolean groupMatchingAttributeSameAsSearchAttribute;
