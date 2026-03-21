@@ -72,13 +72,9 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
     
-    //TODO think about batch sizes
-    grouperProvisionerDaoCapabilities.setDefaultBatchSize(1);
-    grouperProvisionerDaoCapabilities.setRetrieveEntitiesBatchSize(1);
-    grouperProvisionerDaoCapabilities.setRetrieveGroupsBatchSize(1);
-    grouperProvisionerDaoCapabilities.setRetrieveMembershipsBatchSize(1);
-//    grouperProvisionerDaoCapabilities.setInsertMembershipsBatchSize(400);
-    
+    grouperProvisionerDaoCapabilities.setInsertMembershipsBatchSize(400);
+    grouperProvisionerDaoCapabilities.setDeleteMembershipsBatchSize(400);
+
     grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
     
     grouperProvisionerDaoCapabilities.setCanDeleteEntity(true);
