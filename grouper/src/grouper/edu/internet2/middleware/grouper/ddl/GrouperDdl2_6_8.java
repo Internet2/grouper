@@ -192,7 +192,7 @@ public class GrouperDdl2_6_8 {
         COLUMN_GROUPER_PROV_DUO_USER_CONFIG_ID);
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperDuoTable.getName(), 
-        "grouper_duo_user_user_name_idx", true, 
+        "grouper_duo_user_user_name_idx", false,
         COLUMN_GROUPER_PROV_DUO_USER_NAME, COLUMN_GROUPER_PROV_DUO_USER_CONFIG_ID);
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperDuoTable.getName(), 
