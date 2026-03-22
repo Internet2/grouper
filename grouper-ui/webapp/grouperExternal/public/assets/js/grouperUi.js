@@ -3239,18 +3239,29 @@ function handleGuiV2LinkClick(event, url, options) {
 }
 
 function configurationFileExport(event, url, options) {
-    event.preventDefault(); // Prevent the default action (navigating to the URL)
-    
-    //id = config-source-filter
-    var sourceFilterValue = document.getElementById('config-source-filter').value;
-    if (sourceFilterValue === '') {
-        alert('Export isn’t available when All sources is selected. Please choose a specific source and try again.');
-        return;
-    }
-    
+    event.preventDefault();
     url += _addUrlOptions(url, options);
-    window.location.href = url;
-    
+
+    $.blockUI();
+
+    fetch(url, {
+      method: 'GET',
+      credentials: 'same-origin'
+    }).then(function(response) {
+      var contentType = response.headers.get('Content-Type') || '';
+      if (contentType.indexOf('application/octet-stream') !== -1) {
+        $.unblockUI();
+        window.location.href = url;
+      } else {
+        return response.json().then(function(json) {
+          guiProcessJsonResponse(json);
+          $.unblockUI();
+        });
+      }
+    }).catch(function() {
+      $.unblockUI();
+    });
+
     return false;
 }
 

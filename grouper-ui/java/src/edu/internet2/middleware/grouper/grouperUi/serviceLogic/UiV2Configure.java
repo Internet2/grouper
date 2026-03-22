@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGrouperConfigHibernate;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -449,6 +450,13 @@ public class UiV2Configure {
           String property = guiConfigProperty.getConfigItemMetadata().getKeyOrSampleKey();
           String value = guiConfigProperty.getPropertyValue();
           
+          String sourceOfValue = guiConfigProperty.getValueFromWhere();
+          if (StringUtils.isBlank(configSource) && StringUtils.isNotBlank(sourceOfValue) && sourceOfValue.endsWith("base.properties")) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("configurationFileExportBasePropertiesError")));
+            return;
+          }
+          
           if (guiConfigProperty.isFromDatabase()) {
             if (grouperConfigHibernateMap.containsKey(property) &&
                 grouperConfigHibernateMap.get(property) != null && grouperConfigHibernateMap.get(property).isConfigEncrypted()) {
@@ -489,6 +497,7 @@ public class UiV2Configure {
       } catch (IOException e) {
         throw new RuntimeException("Error occured while writing response");
       }
+      throw new ControllerDone();
     }
       
     finally {
