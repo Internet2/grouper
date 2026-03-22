@@ -74,7 +74,7 @@ public class GrouperProvisioningLogicIncremental {
    * in the same JVM and the cache might be stale
    */
   public static void clearProvisioningMessageQueuesWithMessagesCache() {
-    if (provisioningMessageQueuesWithMessages == null) {
+    if (provisioningMessageQueuesWithMessages != null) {
       provisioningMessageQueuesWithMessages.clear();
     }
   }
