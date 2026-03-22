@@ -5,7 +5,7 @@ import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Index;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 
 /**
- * DDL for removing grouper_duo_user_user_name_idx index.
+ * DDL for changing grouper_duo_user_user_name_idx from unique to non-unique.
  */
 public class GrouperDdl7_0_1 {
 
@@ -34,11 +34,11 @@ public class GrouperDdl7_0_1 {
   }
 
   /**
-   * remove grouper_duo_user_user_name_idx if it exists
+   * drop the unique grouper_duo_user_user_name_idx and recreate as non-unique
    * @param database
    * @param ddlVersionBean
    */
-  static void removeGrouperDuoUserUserNameIndex(Database database, DdlVersionBean ddlVersionBean) {
+  static void changeGrouperDuoUserUserNameIndexToNonUnique(Database database, DdlVersionBean ddlVersionBean) {
 
     if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
       return;
@@ -48,7 +48,7 @@ public class GrouperDdl7_0_1 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("v7_0_1_removeGrouperDuoUserUserNameIndex", true)) {
+    if (ddlVersionBean.didWeDoThis("v7_0_1_changeGrouperDuoUserUserNameIndexToNonUnique", true)) {
       return;
     }
 
@@ -59,6 +59,10 @@ public class GrouperDdl7_0_1 {
       Table table = GrouperDdlUtils.ddlutilsFindTable(database,
           GrouperDdl2_6_8.TABLE_GROUPER_PROV_DUO_USER, true);
       table.removeIndex(index);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+          "grouper_duo_user_user_name_idx", false,
+          GrouperDdl2_6_8.COLUMN_GROUPER_PROV_DUO_USER_NAME, GrouperDdl2_6_8.COLUMN_GROUPER_PROV_DUO_USER_CONFIG_ID);
     }
   }
 }
