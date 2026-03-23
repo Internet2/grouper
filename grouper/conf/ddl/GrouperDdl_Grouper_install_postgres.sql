@@ -8038,9 +8038,10 @@ COMMENT ON COLUMN grouper_lifecycle_event_config.group_internal_id IS 'group int
 COMMENT ON COLUMN grouper_lifecycle_event_config.stem_id_index IS 'folder id index';
 COMMENT ON COLUMN grouper_lifecycle_event_config.data_field_internal_id IS 'data field internal id';
 COMMENT ON COLUMN grouper_lifecycle_event_config.data_row_internal_id IS 'data row internal id';
+COMMENT ON COLUMN grouper_lifecycle_event_config.created_on_micros IS 'when this event config was created';
 
 
-COMMENT ON TABLE grouper_lifecycle_event IS 'table to store user lifecycle event configs';
+COMMENT ON TABLE grouper_lifecycle_event IS 'table to store user lifecycle events';
 
 COMMENT ON COLUMN grouper_lifecycle_event.internal_id IS 'integer id for this table';
 COMMENT ON COLUMN grouper_lifecycle_event.grpr_lcycl_evnt_cnfg_intrnl_id IS 'internal id of the grouper lifecycle config table';
