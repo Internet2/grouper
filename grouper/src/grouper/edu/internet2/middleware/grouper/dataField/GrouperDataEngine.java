@@ -833,7 +833,12 @@ public class GrouperDataEngine {
   }
   
   public String calculateHighestLevelAccess(GrouperPrivacyRealmConfig grouperPrivacyRealmConfig, Subject subject) {
-    
+
+    if (grouperPrivacyRealmConfig == null) {
+      LOG.warn("grouperPrivacyRealmConfig is null in calculateHighestLevelAccess for subject: " + (subject == null ? null : subject.getId()));
+      return "";
+    }
+
     Map<MultiKey, Boolean> sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess = sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccessCache.get(Boolean.TRUE);
     
     MultiKey sourceIdSubjectId = new MultiKey(subject.getSourceId(), subject.getId());
