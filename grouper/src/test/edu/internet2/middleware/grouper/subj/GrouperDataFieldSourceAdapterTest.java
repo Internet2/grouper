@@ -99,6 +99,126 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
   }
   
   /**
+   * test that search uses the correct search string based on security config.
+   * search_string0 is descriptionPrivate (all subjects have data).
+   * search_string1 is descriptionPublic (subjects 8 and 9 have null description_public).
+   * search_string0 is restricted to readersGroup (test.subject.1 and test.subject.2 are members).
+   */
+  public void testSearchStringAccess() {
+
+    setupData(GrouperDataProviderSyncType.fullSyncFull);
+
+    // configure defaultIndexOrder to fall back to index 1 if index 0 is not accessible
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("member.search.defaultIndexOrder").value("0,1").store();
+    ConfigPropertiesCascadeBase.clearCache();
+
+    // ---- Test 1: root user (wheel) has access to search_string0, should find results ----
+    Set<Subject> subjects = SubjectFinder.findAll("test 0", "dataFieldSubjectSource");
+    assertEquals("root should find subject via search_string0", 1, subjects.size());
+    assertEquals("my name is test.subject.0", subjects.iterator().next().getName());
+
+    // root can find subject.8 via search_string0 (descriptionPrivate has data for all subjects)
+    Set<Subject> subjects8root = SubjectFinder.findAll("test.subject.8", "dataFieldSubjectSource");
+    assertEquals("root should find subject.8 via search_string0 (descriptionPrivate)", 1, subjects8root.size());
+
+    // ---- Test 2: reader (test.subject.1, member of readersGroup) uses search_string0 ----
+    GrouperSession.callbackGrouperSessionBySubjectId("test.subject.1", "jdbc", new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        // reader has access to search_string0, should find test.subject.0
+        Set<Subject> readerSubjects = SubjectFinder.findAll("test 0", "dataFieldSubjectSource");
+        assertEquals("reader should find subject via search_string0", 1, readerSubjects.size());
+
+        // reader can find subject.8 via search_string0 (descriptionPrivate has data)
+        Set<Subject> readerSubjects8 = SubjectFinder.findAll("test.subject.8", "dataFieldSubjectSource");
+        assertEquals("reader should find subject.8 via search_string0 (descriptionPrivate)", 1, readerSubjects8.size());
+
+        return null;
+      }
+    });
+
+    // ---- Test 3: non-reader (test.subject.0) falls back to search_string1 (descriptionPublic) ----
+    GrouperSession.callbackGrouperSessionBySubjectId("test.subject.0", "jdbc", new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        // search_string0 restricted, falls back to search_string1 (descriptionPublic)
+        // test.subject.0 has descriptionPublic data, so should be findable
+        Set<Subject> nonReaderSubjects = SubjectFinder.findAll("test 0", "dataFieldSubjectSource");
+        assertNotNull(nonReaderSubjects);
+
+        // test.subject.8 has null description_public, so search_string1 has no data for it
+        // searching via search_string1 should NOT find subject.8
+        Set<Subject> nonReaderSubjects8 = SubjectFinder.findAll("test.subject.8", "dataFieldSubjectSource");
+        assertEquals("non-reader should NOT find subject.8 via search_string1 (descriptionPublic is null)", 0, GrouperUtil.length(nonReaderSubjects8));
+
+        return null;
+      }
+    });
+
+    // ---- Test 4: restrict search_string0 to a different group, verify access changes ----
+    Group searchGroup = new GroupSave(GrouperSession.staticGrouperSession()).assignName("test:searchAccessGroup").assignCreateParentStemsIfNotExist(true).save();
+    searchGroup.addMember(SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true));
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("security.member.search.string0.allowOnlyGroup").value(searchGroup.getName()).store();
+    ConfigPropertiesCascadeBase.clearCache();
+
+    // test.subject.3 is in searchGroup, should use search_string0
+    GrouperSession.callbackGrouperSessionBySubjectId("test.subject.3", "jdbc", new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        // has access to search_string0, can find subject.8 (descriptionPrivate has data)
+        Set<Subject> groupMemberSubjects8 = SubjectFinder.findAll("test.subject.8", "dataFieldSubjectSource");
+        assertEquals("searchGroup member should find subject.8 via search_string0", 1, groupMemberSubjects8.size());
+
+        return null;
+      }
+    });
+
+    // test.subject.4 is NOT in searchGroup, falls back to search_string1
+    GrouperSession.callbackGrouperSessionBySubjectId("test.subject.4", "jdbc", new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        // falls back to search_string1, subject.8 has null descriptionPublic
+        Set<Subject> nonGroupMemberSubjects8 = SubjectFinder.findAll("test.subject.8", "dataFieldSubjectSource");
+        assertEquals("non-searchGroup member should NOT find subject.8 via search_string1", 0, GrouperUtil.length(nonGroupMemberSubjects8));
+
+        return null;
+      }
+    });
+
+    // ---- Test 5: restrict both search strings, no search possible ----
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("security.member.search.string1.wheelOnly").value("true").store();
+    ConfigPropertiesCascadeBase.clearCache();
+
+    GrouperSession.callbackGrouperSessionBySubjectId("test.subject.0", "jdbc", new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        // both search strings restricted, should return empty
+        Set<Subject> noAccessSubjects = SubjectFinder.findAll("test 0", "dataFieldSubjectSource");
+        assertEquals("no accessible search strings should return empty", 0, GrouperUtil.length(noAccessSubjects));
+
+        return null;
+      }
+    });
+
+    // ---- Test 6: root still has access even when wheelOnly is set ----
+    GrouperSession.startRootSession();
+    Set<Subject> rootStillWorks = SubjectFinder.findAll("test 0", "dataFieldSubjectSource");
+    assertEquals("root should still find subject when wheelOnly is set", 1, rootStillWorks.size());
+
+  }
+
+  /**
    * make sure subject source cache is not caching data field subjects
    */
   public void testGetSubjectCache() {
