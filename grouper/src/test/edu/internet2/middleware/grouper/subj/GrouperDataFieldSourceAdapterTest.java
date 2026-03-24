@@ -9,8 +9,13 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderSyncType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.TestgrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob;
@@ -266,6 +271,82 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
     
   }
   
+  /**
+   * Test that a SQL_GROUP_LIST loader using SUBJECT_IDENTIFIER with the data field subject source
+   * properly loads members, and that if the identifier lookup throws an exception (simulating a
+   * database timeout), the loader fails with an error instead of silently removing members.
+   */
+  public void testLoaderWithIdentifierException() {
+
+    setupData(GrouperDataProviderSyncType.fullSyncFull);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // Create a loader table with group_name and subject_identifier (the loginid/netId)
+    // The data field source identifiers are like "id.test.subject.0" (from loginid)
+    // Ensure the testgrouper_loader table exists
+    edu.internet2.middleware.grouper.app.loader.GrouperLoaderTest.ensureTestgrouperLoaderTables();
+    HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader").executeUpdate();
+
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    testDataList.add(new TestgrouperLoader("test:loaderGroup1", "id.test.subject.0", null));
+    testDataList.add(new TestgrouperLoader("test:loaderGroup1", "id.test.subject.1", null));
+    testDataList.add(new TestgrouperLoader("test:loaderGroup1", "id.test.subject.2", null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    // Create loader group using GroupType approach (like existing loader tests)
+    Group loaderGroup = Group.saveGroup(grouperSession, null, null, "test:loaderOwner", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY,
+        "select col1 as GROUP_NAME, col2 as SUBJECT_IDENTIFIER from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "START_TO_START_INTERVAL");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_INTERVAL_SECONDS, "86400");
+
+    // Run the loader - should succeed and populate the group
+    GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
+
+    // Verify members were loaded
+    Group loadedGroup = GroupFinder.findByName(grouperSession, "test:loaderGroup1", true);
+    assertEquals("loader should have loaded 3 members", 3, loadedGroup.getMembers().size());
+
+    // Add new subjects that weren't in the first run, so they won't be cached
+    // and must be resolved fresh through the data field source adapter
+    List<TestgrouperLoader> newDataList = new ArrayList<TestgrouperLoader>();
+    newDataList.add(new TestgrouperLoader("test:loaderGroup1", "id.test.subject.3", null));
+    newDataList.add(new TestgrouperLoader("test:loaderGroup1", "id.test.subject.4", null));
+    HibernateSession.byObjectStatic().saveOrUpdate(newDataList);
+
+    // Now simulate a database timeout by setting the test flag
+    GrouperDataFieldSourceAdapter.testingThrowExceptionOnGetSubjectsByIdentifiers = true;
+
+    try {
+      // Run the loader again via runOnceByJobName (like the daemon does - catches exceptions internally)
+      String jobName = "SQL_GROUP_LIST__" + loaderGroup.getName() + "__" + loaderGroup.getUuid();
+      boolean exceptionThrown = false;
+      try {
+        GrouperLoader.runOnceByJobName(grouperSession, jobName, false);
+      } catch (Exception e) {
+        exceptionThrown = true;
+      }
+
+      // Check the loader log for ERROR status
+      if (!exceptionThrown) {
+        Hib3GrouperLoaderLog loaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+        assertTrue("Loader should have ERROR status, not: " + loaderLog.getStatus(),
+            loaderLog.getStatus().contains("ERROR"));
+      }
+      
+      // Most importantly, the group should still have its original 3 members (not emptied out)
+      loadedGroup = GroupFinder.findByName(grouperSession, "test:loaderGroup1", true);
+      assertEquals("group should still have 3 members after failed loader run", 3, loadedGroup.getMembers().size());
+
+    } finally {
+      GrouperDataFieldSourceAdapter.testingThrowExceptionOnGetSubjectsByIdentifiers = false;
+    }
+  }
+
   public void setupData(GrouperDataProviderSyncType syncType) {
     
     try {      
