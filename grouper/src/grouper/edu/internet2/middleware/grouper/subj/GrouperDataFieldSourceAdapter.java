@@ -38,9 +38,15 @@ import edu.internet2.middleware.subject.provider.InvalidQueryRuntimeException;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
-  
+
   /** logger */
   private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperDataFieldSourceAdapter.class);
+
+  /**
+   * for testing only, if true then getSubjectsByIdentifiers will throw a RuntimeException
+   * to simulate a database timeout
+   */
+  public static boolean testingThrowExceptionOnGetSubjectsByIdentifiers = false;
   
   @Override
   public boolean isEditable() {
@@ -223,8 +229,12 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
   @Override
   public Map<String, Subject> getSubjectsByIdentifiers(Collection<String> identifiers) {
 
+    if (testingThrowExceptionOnGetSubjectsByIdentifiers) {
+      throw new RuntimeException("Test simulated database timeout in getSubjectsByIdentifiers");
+    }
+
     Map<String, Subject> results = new HashMap<String, Subject>();
-    
+
     if (GrouperUtil.length(identifiers) == 0) {
       return results;
     }
