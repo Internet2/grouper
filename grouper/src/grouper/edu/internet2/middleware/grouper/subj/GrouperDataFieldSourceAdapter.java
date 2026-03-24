@@ -17,6 +17,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.member.SearchStringEnum;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
@@ -690,19 +691,25 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
       return subjects;
     }
     
+    // find the default search string the user has access to
+    SearchStringEnum searchStringEnum = SearchStringEnum.getDefaultSearchString();
+    if (searchStringEnum == null) {
+      return subjects;
+    }
+
     //lets split by any whitespace space
     String[] terms = searchValue.split("\\s+");
-        
+
     //retrieve all the member ids that match the identifiers
     StringBuilder subjectIdsQuery = new StringBuilder("select gm.subject_id from grouper_members gm where "
         + " gm.subject_source = ? and ");
-    
+
     GcDbAccess gcDbAccess = new GcDbAccess();
-    
+
     gcDbAccess.addBindVar(this.getId());
-    
+
     for (int i = 0; i < terms.length; i++) {
-      subjectIdsQuery.append(" gm.search_string0 like ?");
+      subjectIdsQuery.append(" gm.search_string" + searchStringEnum.getIndex() + " like ?");
       gcDbAccess.addBindVar("%" + terms[i].toLowerCase() + "%");
       if (i != terms.length - 1) {
         subjectIdsQuery.append(" and ");
