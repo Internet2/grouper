@@ -675,7 +675,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     //make result
     Set<Subject> subjects = new HashSet<Subject>();
     
-    if (StringUtils.isBlank(searchValue)) {
+    if (StringUtils.isBlank(searchValue) || searchValue.trim().length() < 2) {
       return subjects;
     }
     
@@ -715,8 +715,12 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         subjectIdsQuery.append(" and ");
       }
     }
-    
-    List<String> subjectIds = gcDbAccess.sql(subjectIdsQuery.toString()).selectList(String.class);
+
+    // limit the number of results from the search (min 5, default 100, max 500)
+    int maxSearchResults = this.maxResults != null ? this.maxResults : 100;
+    maxSearchResults = Math.max(5, Math.min(500, maxSearchResults));
+
+    List<String> subjectIds = gcDbAccess.sql(subjectIdsQuery.toString()).paging(1, maxSearchResults).selectList(String.class);
     if (GrouperUtil.length(subjectIds) == 0) {
      return subjects; 
     }
@@ -780,9 +784,8 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
   }
 
   
-  /** if there is a limit to the number of results */
-  //TODO: take these into account
-  private Integer maxResults;
+  /** if there is a limit to the number of results (min 5, default 100, max 500) */
+  Integer maxResults;
 
   private Integer maxPage;
   

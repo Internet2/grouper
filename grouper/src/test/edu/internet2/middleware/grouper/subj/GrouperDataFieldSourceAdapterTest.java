@@ -219,6 +219,39 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
   }
 
   /**
+   * test search min length and max results limits
+   */
+  public void testSearchLimits() {
+
+    setupData(GrouperDataProviderSyncType.fullSyncFull);
+
+    // ---- Test min search length (must be at least 2 chars) ----
+
+    // single character search should return empty
+    Set<Subject> tooShort = SubjectFinder.findAll("a", "dataFieldSubjectSource");
+    assertEquals("single char search should return empty", 0, GrouperUtil.length(tooShort));
+
+    // blank search should return empty
+    Set<Subject> blank = SubjectFinder.findAll("", "dataFieldSubjectSource");
+    assertEquals("blank search should return empty", 0, GrouperUtil.length(blank));
+
+    // spaces only should return empty
+    Set<Subject> spaces = SubjectFinder.findAll("   ", "dataFieldSubjectSource");
+    assertEquals("spaces-only search should return empty", 0, GrouperUtil.length(spaces));
+
+    // 2 characters should work
+    Set<Subject> twoChars = SubjectFinder.findAll("te", "dataFieldSubjectSource");
+    assertTrue("2 char search should return results", GrouperUtil.length(twoChars) > 0);
+
+    // ---- Test max results limit (maxResults=5 set in setupData) ----
+
+    // search for "test subject" which matches all 10, but maxResults=5 should cap it
+    Set<Subject> cappedSubjects = SubjectFinder.findAll("test subject", "dataFieldSubjectSource");
+    assertEquals("maxResults=5 should cap results to 5", 5, GrouperUtil.length(cappedSubjects));
+
+  }
+
+  /**
    * make sure subject source cache is not caching data field subjects
    */
   public void testGetSubjectCache() {
@@ -504,6 +537,7 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
         new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.param.emailAttributeName.value").value("email").store();
         new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.param.netId.value").value("netId").store();
         new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.param.subjectIdentifierAttribute0.value").value("netId").store();
+        new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.param.maxResults.value").value("5").store();
         new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.searchAttribute.0.attributeName").value("descriptionPrivate").store();
         new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.searchAttribute.1.attributeName").value("descriptionPublic").store();
         new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.searchAttributeCount").value("2").store();
