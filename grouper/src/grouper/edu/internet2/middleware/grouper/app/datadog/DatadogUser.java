@@ -225,9 +225,8 @@ public class DatadogUser {
   public static DatadogUser fromProvisioningEntity(ProvisioningEntity targetEntity, Set<String> fieldNamesToSet) {
     DatadogUser datadogUser = new DatadogUser();
 
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {
-      datadogUser.setId(targetEntity.getId());
-    }
+    // always set id since it's needed for update/delete URLs
+    datadogUser.setId(targetEntity.getId());
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("email")) {
       datadogUser.setEmail(targetEntity.retrieveAttributeValueString("email"));
