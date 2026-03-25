@@ -1058,15 +1058,15 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
 
     batchBindVars.clear();
     
-    batchBindVars.add(GrouperUtil.toList("test.subject.0", "staff", "T", "engl", 135));
-    batchBindVars.add(GrouperUtil.toList("test.subject.0", "alum", "T", "math", 246));
-    batchBindVars.add(GrouperUtil.toList("test.subject.1", "stu", "F", "comp", null));
-    batchBindVars.add(GrouperUtil.toList("test.subject.1", "contr", "T", "phys", 468));
-    batchBindVars.add(GrouperUtil.toList("test.subject.2", "staff", "F", "span", 579));
-    batchBindVars.add(GrouperUtil.toList("test.subject.3", "fac", "T", "engl", 135));
-    batchBindVars.add(GrouperUtil.toList("test.subject.3", "emer", "T", null, 246));
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "staff", "T", "engl", 135, "staff", 135));
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "alum", "T", "math", 246, "staff", 200));
+    batchBindVars.add(GrouperUtil.toList("test.subject.1", "stu", "F", "comp", null, "stu", null));
+    batchBindVars.add(GrouperUtil.toList("test.subject.1", "contr", "T", "phys", 468, "staff", 468));
+    batchBindVars.add(GrouperUtil.toList("test.subject.2", "staff", "F", "span", 579, "fac", 580));
+    batchBindVars.add(GrouperUtil.toList("test.subject.3", "fac", "T", "engl", 135, "fac", 135));
+    batchBindVars.add(GrouperUtil.toList("test.subject.3", "emer", "T", null, 246, "staff", 100));
 
-    new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org, dept_number) values (?, ?, ?, ?, ?)")
+    new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org, dept_number, affiliation_code_primary, dept_number_primary) values (?, ?, ?, ?, ?, ?, ?)")
       .batchBindVars(batchBindVars).executeBatchSql();
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
@@ -1125,14 +1125,27 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationDeptNumber.fieldPrivacyRealm").value("public").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationDeptNumber.descriptionHtml").value("<b>dept number</b>").store();
 
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCodePrimary.fieldAliases").value("affiliationCodePrimary").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCodePrimary.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCodePrimary.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCodePrimary.descriptionHtml").value("<b>affiliation code primary</b>").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationDeptNumberPrimary.fieldAliases").value("affiliationDeptNumberPrimary").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationDeptNumberPrimary.fieldDataType").value("integer").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationDeptNumberPrimary.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationDeptNumberPrimary.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationDeptNumberPrimary.descriptionHtml").value("<b>dept number primary</b>").store();
+
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowPrivacyRealm").value("public").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowAliases").value("affiliation").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowNumberOfDataFields").value("4").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowNumberOfDataFields").value("6").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.0.colDataFieldConfigId").value("affiliationCode").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.0.rowKeyField").value("true").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.1.colDataFieldConfigId").value("affiliationActive").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.2.colDataFieldConfigId").value("affiliationOrg").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.3.colDataFieldConfigId").value("affiliationDeptNumber").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.4.colDataFieldConfigId").value("affiliationCodePrimary").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.5.colDataFieldConfigId").value("affiliationDeptNumberPrimary").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.descriptionHtml").value("<b>description html </b>").store();
     
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.name").value("idm").store();
@@ -1186,13 +1199,13 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerConfigId").value("idm").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryType").value("sql").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySqlConfigId").value("grouper").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySqlQuery").value("select subject_id, affiliation_code, active, org, dept_number from testgrouper_field_row_affil").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySqlQuery").value("select subject_id, affiliation_code, active, org, dept_number, affiliation_code_primary, dept_number_primary from testgrouper_field_row_affil").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataStructure").value("row").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryRowConfigId").value("affiliation").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectIdAttribute").value("subject_id").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectIdType").value("subjectId").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectSourceId").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryNumberOfDataFields").value("4").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryNumberOfDataFields").value("6").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldConfigId").value("affiliationCode").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldMappingType").value("attribute").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldAttribute").value("affiliation_code").store();
@@ -1205,6 +1218,12 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.3.providerDataFieldConfigId").value("affiliationDeptNumber").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.3.providerDataFieldMappingType").value("attribute").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.3.providerDataFieldAttribute").value("dept_number").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.4.providerDataFieldConfigId").value("affiliationCodePrimary").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.4.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.4.providerDataFieldAttribute").value("affiliation_code_primary").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.5.providerDataFieldConfigId").value("affiliationDeptNumberPrimary").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.5.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.5.providerDataFieldAttribute").value("dept_number_primary").store();
 
 
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerConfigId").value("idm").store();
@@ -1948,6 +1967,226 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     }
     
   }
-  
-  
+
+  /**
+   * attributeCompare(affiliationCode == affiliationCodePrimary)
+   * sub0: staff==staff match, sub1: stu==stu match, sub2: staff!=fac no, sub3: fac==fac match
+   */
+  public void testAttributeCompareStringEquals() {
+    setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+
+    String script = "entity.hasRow('affiliation', 'attributeCompare(affiliationCode == affiliationCodePrimary)')";
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), script);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    // test analyze
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, script, null, null, true);
+    assertNull(analysis.getErrorMessage());
+
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, testSubject1, true);
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, testSubject3, true);
+
+    Set<Member> members = testGroup.getMembers();
+    assertEquals(3, members.size());
+
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member1));
+    assertTrue(members.contains(member3));
+  }
+
+  /**
+   * attributeCompare(affiliationCode != affiliationCodePrimary)
+   * all subjects have at least one row where code != codePrimary
+   */
+  public void testAttributeCompareStringNotEquals() {
+    setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+
+    String script = "entity.hasRow('affiliation', 'attributeCompare(affiliationCode != affiliationCodePrimary)')";
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), script);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    // test analyze
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, script, null, null, true);
+    assertNull(analysis.getErrorMessage());
+
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, testSubject1, true);
+    Subject testSubject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, testSubject2, true);
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, testSubject3, true);
+
+    Set<Member> members = testGroup.getMembers();
+    assertEquals(4, members.size());
+
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member1));
+    assertTrue(members.contains(member2));
+    assertTrue(members.contains(member3));
+  }
+
+  /**
+   * attributeCompare(affiliationDeptNumber == affiliationDeptNumberPrimary)
+   * sub0: 135==135 yes, sub1: 468==468 yes (null==null is false in SQL), sub2: 579!=580 no, sub3: 135==135 yes
+   */
+  public void testAttributeCompareIntegerEquals() {
+    setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+
+    String script = "entity.hasRow('affiliation', 'attributeCompare(affiliationDeptNumber == affiliationDeptNumberPrimary)')";
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), script);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    // test analyze
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, script, null, null, true);
+    assertNull(analysis.getErrorMessage());
+
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, testSubject1, true);
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, testSubject3, true);
+
+    Set<Member> members = testGroup.getMembers();
+    assertEquals(3, members.size());
+
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member1));
+    assertTrue(members.contains(member3));
+  }
+
+  /**
+   * attributeCompare(affiliationDeptNumber < affiliationDeptNumberPrimary)
+   * sub0: 135<135 no, 246<200 no; sub1: null no, 468<468 no; sub2: 579<580 yes; sub3: 135<135 no, 246<100 no
+   */
+  public void testAttributeCompareIntegerLessThan() {
+    setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+
+    String script = "entity.hasRow('affiliation', 'attributeCompare(affiliationDeptNumber < affiliationDeptNumberPrimary)')";
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), script);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    // test analyze
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, script, null, null, true);
+    assertNull(analysis.getErrorMessage());
+
+    Subject testSubject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, testSubject2, true);
+
+    Set<Member> members = testGroup.getMembers();
+    assertEquals(1, members.size());
+
+    assertTrue(members.contains(member2));
+  }
+
+  /**
+   * attributeCompare(affiliationDeptNumber - 1 <= affiliationDeptNumberPrimary)
+   * sub0: 134<=135 yes; sub1: 467<=468 yes; sub2: 578<=580 yes; sub3: 134<=135 yes
+   */
+  public void testAttributeCompareIntegerWithMath() {
+    setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+
+    String script = "entity.hasRow('affiliation', 'attributeCompare(affiliationDeptNumber - 1 <= affiliationDeptNumberPrimary)')";
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), script);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    // test analyze
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, script, null, null, true);
+    assertNull(analysis.getErrorMessage());
+
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, testSubject1, true);
+    Subject testSubject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, testSubject2, true);
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, testSubject3, true);
+
+    Set<Member> members = testGroup.getMembers();
+    assertEquals(4, members.size());
+
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member1));
+    assertTrue(members.contains(member2));
+    assertTrue(members.contains(member3));
+  }
+
+
 }
