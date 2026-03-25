@@ -292,12 +292,7 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
         fieldNamesToUpdate.add(fieldName);
       }
 
-      // exclude admins from fromProvisioningGroup since it's handled via ProvisioningObjectChange below
-      Set<String> fieldNamesToConvert = new HashSet<String>(fieldNamesToUpdate);
-      fieldNamesToConvert.remove("admins");
-      fieldNamesToConvert.add("id");
-      fieldNamesToConvert.add("groupType");
-      DatadogGroup datadogGroup = DatadogGroup.fromProvisioningGroup(targetGroup, fieldNamesToConvert);
+      DatadogGroup datadogGroup = DatadogGroup.fromProvisioningGroup(targetGroup, fieldNamesToUpdate);
 
       if ("team".equals(datadogGroup.getGroupType())) {
         DatadogApiCommands.updateTeam(configId, datadogSettings, datadogGroup, fieldNamesToUpdate);
