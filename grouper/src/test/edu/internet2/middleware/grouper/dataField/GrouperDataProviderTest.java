@@ -2655,6 +2655,8 @@ public class GrouperDataProviderTest extends GrouperTest {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "active", Types.VARCHAR, "1", false, true);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "org", Types.VARCHAR, "40", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "dept_number", Types.BIGINT, "12", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "affiliation_code_primary", Types.VARCHAR, "40", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "dept_number_primary", Types.BIGINT, "12", false, false);
         }
         
       });
