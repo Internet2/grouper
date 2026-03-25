@@ -35,6 +35,12 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupResponse;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
@@ -511,10 +517,120 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
+  public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
+
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
+
+    try {
+      DatadogProvisionerConfiguration datadogConfiguration = getDatadogConfiguration();
+      String configId = datadogConfiguration.getDatadogExternalSystemConfigId();
+      DatadogSettings datadogSettings = buildDatadogSettings();
+
+      DatadogUser datadogUser = DatadogUser.fromProvisioningEntity(targetEntity, null);
+
+      DatadogUser createdUser = DatadogApiCommands.createUser(configId, datadogSettings, datadogUser);
+
+      targetEntity.setId(createdUser.getId());
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoInsertEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("insertEntity", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoUpdateEntityResponse updateEntity(TargetDaoUpdateEntityRequest targetDaoUpdateEntityRequest) {
+
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoUpdateEntityRequest.getTargetEntity();
+
+    try {
+      DatadogProvisionerConfiguration datadogConfiguration = getDatadogConfiguration();
+      String configId = datadogConfiguration.getDatadogExternalSystemConfigId();
+      DatadogSettings datadogSettings = buildDatadogSettings();
+
+      Set<String> fieldNamesToUpdate = new LinkedHashSet<String>();
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        String fieldName = provisioningObjectChange.getAttributeName();
+        if (!StringUtils.isBlank(fieldName)) {
+          fieldNamesToUpdate.add(fieldName);
+        }
+      }
+
+      DatadogUser datadogUser = DatadogUser.fromProvisioningEntity(targetEntity, fieldNamesToUpdate);
+
+      DatadogApiCommands.updateUser(configId, datadogSettings, datadogUser, fieldNamesToUpdate);
+
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoUpdateEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("updateEntity", startNanos));
+    }
+  }
+
+  @Override
+  public TargetDaoDeleteEntityResponse deleteEntity(TargetDaoDeleteEntityRequest targetDaoDeleteEntityRequest) {
+
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoDeleteEntityRequest.getTargetEntity();
+
+    try {
+      DatadogProvisionerConfiguration datadogConfiguration = getDatadogConfiguration();
+      String configId = datadogConfiguration.getDatadogExternalSystemConfigId();
+      DatadogSettings datadogSettings = buildDatadogSettings();
+
+      DatadogUser datadogUser = DatadogUser.fromProvisioningEntity(targetEntity, null);
+
+      DatadogApiCommands.disableUser(configId, datadogSettings, datadogUser);
+
+      targetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+      return new TargetDaoDeleteEntityResponse();
+    } catch (Exception e) {
+      targetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(false);
+      }
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteEntity", startNanos));
+    }
+  }
+
+  @Override
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
+    grouperProvisionerDaoCapabilities.setCanDeleteEntity(true);
     grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
     grouperProvisionerDaoCapabilities.setCanDeleteMembership(true);
+    grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
     grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
     grouperProvisionerDaoCapabilities.setCanInsertMembership(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
@@ -522,6 +638,7 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
+    grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
   }
 

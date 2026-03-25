@@ -1468,4 +1468,195 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
     }
   }
 
+  // =============================================
+  // User (entity) CRUD via provisioner
+  // =============================================
+
+  public void testFullSyncUserInsert() {
+    userInsert(true);
+  }
+
+  public void testIncrementalUserInsert() {
+    userInsert(false);
+  }
+
+  /**
+   * Users who are members of provisionable groups should be created in Datadog
+   * if they don't already exist. Verify the provisioner calls createUser.
+   */
+  public void userInsert(boolean isFull) {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = setupProvisionerTest(teamProvisionerConfig());
+
+    try {
+      // no pre-created mock users - provisioner should create them
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      initIncrementalState(isFull);
+      attachProvisioningAttribute(stem);
+
+      // no users in mock DB yet
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_datadog_user").select(int.class));
+
+      fullProvision();
+
+      // provisioner should have created both users
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_datadog_user").select(int.class));
+
+      // verify user emails
+      String email0 = new GcDbAccess().connectionName("grouper")
+          .sql("select email from mock_datadog_user where email = ?")
+          .addBindVar("test.subject.0@somewhere.someSchool.edu").select(String.class);
+      assertNotNull(email0);
+
+      String email1 = new GcDbAccess().connectionName("grouper")
+          .sql("select email from mock_datadog_user where email = ?")
+          .addBindVar("test.subject.1@somewhere.someSchool.edu").select(String.class);
+      assertNotNull(email1);
+
+      // verify team was created and memberships established
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_datadog_group where group_type = 'team'").select(int.class));
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_datadog_membership").select(int.class));
+
+    } finally {
+
+    }
+  }
+
+  public void testFullSyncUserReEnable() {
+    userReEnable(true);
+  }
+
+  public void testIncrementalUserReEnable() {
+    userReEnable(false);
+  }
+
+  /**
+   * If a user exists in Datadog but is disabled, the provisioner should re-enable them
+   * when they are added to a provisionable group (createUser checks for existing disabled users).
+   */
+  public void userReEnable(boolean isFull) {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = setupProvisionerTest(teamProvisionerConfig());
+
+    try {
+      // pre-create a disabled user in the mock DB
+      String existingUserId = GrouperUuid.getUuid();
+      new GcDbAccess().connectionName("grouper").sql("insert into mock_datadog_user (id, email, name, title, disabled, service_account) values (?, ?, ?, ?, ?, ?)")
+          .addBindVar(existingUserId).addBindVar("test.subject.0@somewhere.someSchool.edu").addBindVar("my name is test.subject.0").addBindVar(null).addBindVar("T").addBindVar("F").executeSql();
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      initIncrementalState(isFull);
+      attachProvisioningAttribute(stem);
+
+      // user exists but is disabled
+      String disabledBefore = new GcDbAccess().connectionName("grouper")
+          .sql("select disabled from mock_datadog_user where id = ?")
+          .addBindVar(existingUserId).select(String.class);
+      assertEquals("T", disabledBefore);
+
+      fullProvision();
+
+      // user should be re-enabled (createUser finds existing disabled user and re-enables)
+      String disabledAfter = new GcDbAccess().connectionName("grouper")
+          .sql("select disabled from mock_datadog_user where id = ?")
+          .addBindVar(existingUserId).select(String.class);
+      assertEquals("F", disabledAfter);
+
+      // should still be only 1 user (not a duplicate)
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_datadog_user").select(int.class));
+
+      // membership should be established
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_datadog_membership").select(int.class));
+
+    } finally {
+
+    }
+  }
+
+  public void testFullSyncUserDisable() {
+    userDisable(true);
+  }
+
+  public void testIncrementalUserDisable() {
+    userDisable(false);
+  }
+
+  /**
+   * When a user is removed from all provisionable groups and deleteEntities is enabled,
+   * the provisioner should disable them in Datadog (soft delete).
+   */
+  public void userDisable(boolean isFull) {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    DatadogProvisionerTestConfigInput configInput = teamProvisionerConfig()
+        .addExtraConfig("deleteEntities", "true")
+        .addExtraConfig("deleteEntitiesIfNotExistInGrouper", "true");
+
+    GrouperSession grouperSession = setupProvisionerTest(configInput);
+
+    try {
+      // pre-create users in the target
+      String userId0 = GrouperUuid.getUuid();
+      String userId1 = GrouperUuid.getUuid();
+      createMockUsers(userId0, userId1, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      initIncrementalState(isFull);
+      attachProvisioningAttribute(stem);
+
+      fullProvision();
+
+      // both users active, both in team
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_datadog_membership").select(int.class));
+
+      // remove SUBJ1 from all groups (simulate user leaving)
+      testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+
+      provision(isFull);
+
+      // SUBJ1 should be disabled in Datadog
+      String disabled1 = new GcDbAccess().connectionName("grouper")
+          .sql("select disabled from mock_datadog_user where id = ?")
+          .addBindVar(userId1).select(String.class);
+      assertEquals("T", disabled1);
+
+      // SUBJ0 should still be active
+      String disabled0 = new GcDbAccess().connectionName("grouper")
+          .sql("select disabled from mock_datadog_user where id = ?")
+          .addBindVar(userId0).select(String.class);
+      assertEquals("F", disabled0);
+
+      // only 1 membership remaining
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_datadog_membership").select(int.class));
+
+    } finally {
+
+    }
+  }
+
 }
