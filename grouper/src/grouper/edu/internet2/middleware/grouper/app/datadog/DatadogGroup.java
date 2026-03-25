@@ -224,9 +224,8 @@ public class DatadogGroup {
   public static DatadogGroup fromProvisioningGroup(ProvisioningGroup targetGroup, Set<String> fieldNamesToSet) {
     DatadogGroup datadogGroup = new DatadogGroup();
 
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {
-      datadogGroup.setId(targetGroup.getId());
-    }
+    // always set id since it's needed for update/delete URLs
+    datadogGroup.setId(targetGroup.getId());
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("name")) {
       datadogGroup.setName(targetGroup.retrieveAttributeValueString("name"));
@@ -240,15 +239,13 @@ public class DatadogGroup {
       datadogGroup.setDescription(targetGroup.retrieveAttributeValueString("description"));
     }
 
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupType")) {
-      datadogGroup.setGroupType(targetGroup.retrieveAttributeValueString("groupType"));
-    }
+    // always set groupType since it determines which API (team vs role) to use
+    datadogGroup.setGroupType(targetGroup.retrieveAttributeValueString("groupType"));
 
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("admins")) {
-      @SuppressWarnings("unchecked")
-      Set<String> admins = (Set<String>) targetGroup.retrieveAttributeValueSet("admins");
-      datadogGroup.setAdmins(admins);
-    }
+    // always set admins
+    @SuppressWarnings("unchecked")
+    Set<String> admins = (Set<String>) targetGroup.retrieveAttributeValueSet("admins");
+    datadogGroup.setAdmins(admins);
 
     return datadogGroup;
   }
