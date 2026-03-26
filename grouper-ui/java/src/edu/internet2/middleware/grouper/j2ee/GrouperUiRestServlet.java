@@ -135,6 +135,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2GrouperReport.class.getSimpleName() + ".downloadReportForGroup",
       UiV2GrouperLoader.class.getSimpleName() + ".recentMembershipsGroupFromFilter",
       UiV2Configure.class.getSimpleName() + ".configurationFileExport",
+      UiV2Stem.class.getSimpleName() + ".groupMembershipsInFolderExport",
       UiV2GrouperLoader.class.getSimpleName() + ".exportLoaderConfig",
       UiV2OAuth.class.getSimpleName() + ".authorize"
   );

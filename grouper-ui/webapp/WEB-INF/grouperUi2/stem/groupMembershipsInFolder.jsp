@@ -161,6 +161,8 @@ ${grouper:titleFromKeyAndText('groupMembershipsInFolderPageTitle', grouperReques
     
                     <div class="span4" id="groupFilterSubmitDiv"><input type="submit" class="btn" aria-controls="groupFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
                         onclick="ajax('../app/UiV2Stem.groupMembershipsInFolderFilter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;"> 
+                      <input type="button" class="btn" value="${textContainer.textEscapeDouble['stemGroupMembershipsInFolderExportButton'] }"
+                        onclick="return configurationFileExport(event, '../app/UiV2Stem.groupMembershipsInFolderExport?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {optionalFormElementNamesToSend: 'membershipType,filterText,membershipEnabledDisabledOptions,membershipPITOptions,membershipPITFromDate,membershipPITToDate,membershipCustomCompositeOptions'}); return false;" />
                       <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#custom-composite-filter').val('nothing'); $('#enabled-disabled-filter').val('nothing'); $('#pit-filter').val('no'); $('#pit-filter').trigger('change'); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
                       <a id="advanced-button" role="button" class="btn groupMembersAdvancedHide">${textContainer.text['groupAdvancedButton'] }</a>
                     </div>

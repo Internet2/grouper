@@ -80,6 +80,8 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPITMembershipView;
@@ -1525,6 +1527,218 @@ public class UiV2Stem {
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMembershipsInFolderResultsId", 
         "/WEB-INF/grouperUi2/stem/groupMembershipsInFolderContents.jsp"));
   
+  }
+
+  /**
+   * export group memberships in folder to CSV
+   * @param request
+   * @param response
+   */
+  public void groupMembershipsInFolderExport(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    Stem stem = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      stem = retrieveStemHelper(request, false).getStem();
+
+      if (stem == null) {
+        return;
+      }
+
+      String filterText = request.getParameter("filterText");
+      String membershipEnabledDisabledOptions = request.getParameter("membershipEnabledDisabledOptions");
+      String membershipPITOptions = request.getParameter("membershipPITOptions");
+      String membershipPITToDate = request.getParameter("membershipPITToDate");
+      String membershipPITFromDate = request.getParameter("membershipPITFromDate");
+      String membershipCustomCompositeOptions = request.getParameter("membershipCustomCompositeOptions");
+
+      String membershipTypeString = request.getParameter("membershipType");
+      MembershipType membershipType = null;
+      if (!StringUtils.isBlank(membershipTypeString)) {
+        membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
+      }
+
+      MembershipFinder membershipFinder = new MembershipFinder()
+        .assignStem(stem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true)
+        .assignHasFieldForMember(false)
+        .assignSplitScopeForMember(true);
+
+      if (!StringUtils.isBlank(filterText)) {
+        membershipFinder.assignScopeForMember(filterText);
+      }
+
+      if ("yes".equals(membershipPITOptions)) {
+
+        if (StringUtils.isNotBlank(membershipPITFromDate)) {
+          membershipFinder.assignPointInTimeFrom(GrouperUtil.stringToTimestamp(membershipPITFromDate));
+        }
+
+        if (StringUtils.isNotBlank(membershipPITToDate)) {
+          membershipFinder.assignPointInTimeTo(GrouperUtil.stringToTimestamp(membershipPITToDate));
+        }
+
+        Set<Object[]> result = membershipFinder.findPITMembershipsMembers();
+
+        Map<String, Subject> memberIdToSubject = new HashMap<String, Subject>();
+
+        {
+          Map<String, SubjectBean> memberIdToSubjectBean = new HashMap<String, SubjectBean>();
+          Set<SubjectBean> subjectBeans = new HashSet<SubjectBean>();
+          for (Object[] membershipResult : result) {
+            Member member = (Member)membershipResult[3];
+            SubjectBean subjectBean = new SubjectBean(member.getSubjectId(), member.getSubjectSourceId());
+            memberIdToSubjectBean.put(member.getUuid(), subjectBean);
+            subjectBeans.add(subjectBean);
+          }
+          Map<SubjectBean, Subject> subjectBeanToSubject = SubjectFinder.findBySubjectBeans(subjectBeans);
+
+          for (String memberId : memberIdToSubjectBean.keySet()) {
+            SubjectBean subjectBean = memberIdToSubjectBean.get(memberId);
+            Subject subject = subjectBeanToSubject.get(subjectBean);
+
+            if (subject == null) {
+              subject = new UnresolvableSubject(subjectBean.getId(), null, subjectBean.getSourceId());
+            }
+
+            memberIdToSubject.put(memberId, subject);
+          }
+        }
+
+        Set<GuiPITMembershipView> guiPITMembershipViews = new LinkedHashSet<GuiPITMembershipView>();
+
+        for (Object[] membershipResult : result) {
+          PITMembershipView pitMembershipView = (PITMembershipView)membershipResult[0];
+          GuiPITMembershipView guiPITMembershipView = new GuiPITMembershipView(pitMembershipView);
+          String memberId = pitMembershipView.getPITMember().getSourceId();
+          Subject subject = memberIdToSubject.get(memberId);
+          guiPITMembershipView.setGuiSubject(new GuiSubject(subject));
+          guiPITMembershipView.setMemberId(memberId);
+          guiPITMembershipViews.add(guiPITMembershipView);
+        }
+
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "inline;filename=\"groupMembershipsInFolder_" 
+            + GrouperUiUtils.stripNonFilenameChars(stem.getDisplayExtension()) + ".csv\"");
+
+        try {
+          PrintWriter out = response.getWriter();
+          CSVPrinter csvPrinter = new CSVPrinter(out, CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL));
+          csvPrinter.printRecord(
+              TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEntityName"),
+              TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportFolderName"),
+              TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportGroupName"),
+              TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportStartTime"),
+              TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEndTime"));
+          for (GuiPITMembershipView guiPITMembershipView : guiPITMembershipViews) {
+            String entityName = guiPITMembershipView.getGuiSubject().getScreenLabelShort2noLink();
+            GuiGroup ownerGuiGroup = guiPITMembershipView.getOwnerGuiGroup();
+            String folderName = ownerGuiGroup != null && ownerGuiGroup.getParentGuiStem() != null 
+                ? ownerGuiGroup.getParentGuiStem().getStem().getDisplayName() : "";
+            String groupName = ownerGuiGroup != null ? ownerGuiGroup.getGroup().getDisplayName() : "";
+            String startTime = guiPITMembershipView.getStartTimeLabel() != null ? guiPITMembershipView.getStartTimeLabel() : "";
+            String endTime = guiPITMembershipView.getEndTimeLabel() != null ? guiPITMembershipView.getEndTimeLabel() : "";
+            csvPrinter.printRecord(entityName, folderName, groupName, startTime, endTime);
+          }
+          csvPrinter.close();
+        } catch (IOException e) {
+          throw new RuntimeException("Error occurred while writing response", e);
+        }
+
+      } else {
+
+        membershipFinder.assignHasMembershipTypeForMember(false);
+
+        if (membershipType != null) {
+          membershipFinder.assignMembershipType(membershipType);
+        }
+
+        boolean showEnabledStatus = false;
+
+        if ("status".equals(membershipEnabledDisabledOptions)) {
+          membershipFinder.assignEnabled(null);
+          showEnabledStatus = true;
+        } else if ("disabled_dates".equals(membershipEnabledDisabledOptions)) {
+          membershipFinder.assignHasDisabledDate(true);
+          showEnabledStatus = true;
+        } else if ("enabled_dates".equals(membershipEnabledDisabledOptions)) {
+          membershipFinder.assignHasEnabledDate(true);
+          showEnabledStatus = true;
+        } else {
+          membershipFinder.assignEnabled(true);
+        }
+
+        if (!StringUtils.isBlank(membershipCustomCompositeOptions) && !"nothing".equals(membershipCustomCompositeOptions)) {
+          String groupName = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.groupName." + membershipCustomCompositeOptions, null);
+          String compositeType = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.compositeType." + membershipCustomCompositeOptions, null);
+          Group customCompositeGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
+          CompositeType customCompositeType = CompositeType.valueOfIgnoreCase(compositeType);
+          membershipFinder.assignCustomCompositeGroup(customCompositeGroup).assignCustomCompositeType(customCompositeType);
+        }
+
+        Set<MembershipSubjectContainer> results = membershipFinder
+            .findMembershipResult().getMembershipSubjectContainers();
+
+        Set<GuiMembershipSubjectContainer> guiResults = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results);
+
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "inline;filename=\"groupMembershipsInFolder_" 
+            + GrouperUiUtils.stripNonFilenameChars(stem.getDisplayExtension()) + ".csv\"");
+
+        try {
+          PrintWriter out = response.getWriter();
+          CSVPrinter csvPrinter = new CSVPrinter(out, CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL));
+          if (showEnabledStatus) {
+            csvPrinter.printRecord(
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEntityName"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportFolderName"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportGroupName"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEnabledDisabled"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportStartDate"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEndDate"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportMembership"));
+          } else {
+            csvPrinter.printRecord(
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEntityName"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportFolderName"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportGroupName"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportMembership"));
+          }
+          for (GuiMembershipSubjectContainer guiMembershipSubjectContainer : guiResults) {
+            GuiMembershipContainer guiMembershipContainer = guiMembershipSubjectContainer.getGuiMembershipContainers().get("members");
+            String entityName = guiMembershipSubjectContainer.getGuiSubject().getSubject().getName();
+            String folderName = guiMembershipSubjectContainer.getGuiGroup() != null && guiMembershipSubjectContainer.getGuiGroup().getParentGuiStem() != null
+                ? guiMembershipSubjectContainer.getGuiGroup().getParentGuiStem().getStem().getDisplayName() : "";
+            String groupDisplayName = guiMembershipSubjectContainer.getGuiGroup() != null
+                ? guiMembershipSubjectContainer.getGuiGroup().getGroup().getDisplayName() : "";
+            String membershipTypeLabel = guiMembershipContainer != null 
+                ? guiMembershipContainer.getMembershipContainer().getMembershipAssignType().name() : "";
+            if (showEnabledStatus) {
+              String enabledLabel = guiMembershipContainer != null ? guiMembershipContainer.getImmediateMembershipEnabledLabel() : "";
+              String startDate = guiMembershipContainer != null && guiMembershipContainer.getImmediateMembershipStartDateLabel() != null
+                  ? guiMembershipContainer.getImmediateMembershipStartDateLabel() : "";
+              String endDate = guiMembershipContainer != null && guiMembershipContainer.getImmediateMembershipEndDateLabel() != null
+                  ? guiMembershipContainer.getImmediateMembershipEndDateLabel() : "";
+              csvPrinter.printRecord(entityName, folderName, groupDisplayName, enabledLabel, startDate, endDate, membershipTypeLabel);
+            } else {
+              csvPrinter.printRecord(entityName, folderName, groupDisplayName, membershipTypeLabel);
+            }
+          }
+          csvPrinter.close();
+        } catch (IOException e) {
+          throw new RuntimeException("Error occurred while writing response", e);
+        }
+      }
+
+      throw new ControllerDone();
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
   
   /**
