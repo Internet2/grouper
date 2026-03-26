@@ -257,10 +257,15 @@ public class UiV2SubjectSource {
         Set<Subject> subjects = enabledSource.search(searchString);
         enabledSourceFindAll.put(searchString, subjects);
       }
+      
+      Map<String, Subject> enabledSourceFindByIdsUsingIdentifiers = subjectIdentifiersList.size() == 0 ? new HashMap<>() : enabledSource.getSubjectsByIds(subjectIdentifiersList);
+      Map<String, Subject> enabledSourceFindByIdentifiersUsingIds = subjectIdsList.size() == 0 ? new HashMap<>() : enabledSource.getSubjectsByIdentifiers(subjectIdsList);
 
       Map<String, Subject> disabledSourceFindByIds;
       Map<String, Subject> disabledSourceFindByIdentifiers;
       Map<String, Set<Subject>> disabledSourceFindAll;
+      Map<String, Subject> disabledSourceFindByIdsUsingIdentifiers;
+      Map<String, Subject> disabledSourceFindByIdentifiersUsingIds;
       
       String disabledSourceIdToSet = null;
       
@@ -272,6 +277,10 @@ public class UiV2SubjectSource {
         
         disabledSourceFindByIds = subjectIdsList.size() == 0 ? new HashMap<>() : disabledSource.getSubjectsByIds(subjectIdsList);
         disabledSourceFindByIdentifiers = subjectIdentifiersList.size() == 0 ? new HashMap<>() : disabledSource.getSubjectsByIdentifiers(subjectIdentifiersList);
+        
+        disabledSourceFindByIdsUsingIdentifiers = subjectIdentifiersList.size() == 0 ? new HashMap<>() : disabledSource.getSubjectsByIds(subjectIdentifiersList);
+        disabledSourceFindByIdentifiersUsingIds = subjectIdsList.size() == 0 ? new HashMap<>() : disabledSource.getSubjectsByIdentifiers(subjectIdsList);
+
         disabledSourceFindAll = new HashMap<>();
         for (String searchString : subjectSearchStringsList) {
           Set<Subject> subjects = disabledSource.search(searchString);
@@ -313,6 +322,21 @@ public class UiV2SubjectSource {
           
           report.append("<br />\n");
         }
+        
+        for (String subjectId : subjectIdsList) {
+          Subject enabledSubject = enabledSourceFindByIdentifiersUsingIds.get(subjectId);
+          Subject disabledSubject = disabledSourceFindByIdentifiersUsingIds.get(subjectId);
+
+          if (enabledSubject == null && disabledSubject == null) {
+            report.append("<font color='green'>SUCCESS:</font> Subject ID " + GrouperUtil.xmlEscape(subjectId) + " wasn't found in either source when querying by subject identifier\n");
+          } else if (enabledSubject == null && disabledSubject != null) {
+            report.append("<font color='red'>ERROR:</font> Subject ID " + GrouperUtil.xmlEscape(subjectId) + " only found in source " + disabledSource.getId() + " when querying by subject identifier\n");
+          } else if (enabledSubject != null && disabledSubject == null) {
+            report.append("<font color='red'>ERROR:</font> Subject ID " + GrouperUtil.xmlEscape(subjectId) + " only found in source " + enabledSource.getId() + " when querying by subject identifier\n");
+          } else {
+            report.append("<font color='green'>SUCCESS:</font> Subject ID " + GrouperUtil.xmlEscape(subjectId) + " found in both sources when querying by subject identifier\n");
+          }          
+        }
       }
       report.append("</pre>\n");
       
@@ -343,6 +367,21 @@ public class UiV2SubjectSource {
           }
           
           report.append("<br />\n");
+        }
+        
+        for (String subjectIdentifier : subjectIdentifiersList) {
+          Subject enabledSubject = enabledSourceFindByIdsUsingIdentifiers.get(subjectIdentifier);
+          Subject disabledSubject = disabledSourceFindByIdsUsingIdentifiers.get(subjectIdentifier);
+          
+          if (enabledSubject == null && disabledSubject == null) {
+            report.append("<font color='green'>SUCCESS:</font> Subject Identifier " + GrouperUtil.xmlEscape(subjectIdentifier) + " wasn't found in either source when querying by subject id\n");
+          } else if (enabledSubject == null && disabledSubject != null) {
+            report.append("<font color='red'>ERROR:</font> Subject Identifier " + GrouperUtil.xmlEscape(subjectIdentifier) + " only found in source " + disabledSource.getId() + " when querying by subject id\n");
+          } else if (enabledSubject != null && disabledSubject == null) {
+            report.append("<font color='red'>ERROR:</font> Subject Identifier " + GrouperUtil.xmlEscape(subjectIdentifier) + " only found in source " + enabledSource.getId() + " when querying by subject id\n");
+          } else {
+            report.append("<font color='green'>SUCCESS:</font> Subject Identifier " + GrouperUtil.xmlEscape(subjectIdentifier) + " found in both sources when querying by subject id\n");
+          }          
         }
       }
       report.append("</pre>\n");
