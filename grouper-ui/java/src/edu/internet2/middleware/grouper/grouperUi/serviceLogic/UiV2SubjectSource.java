@@ -307,6 +307,7 @@ public class UiV2SubjectSource {
           if (disabledSubject != null) {
             // correct source id so that virtual attributes resolve correctly
             ((SubjectImpl)disabledSubject).setSourceId(disabledSource.getId());
+            ((SubjectImpl)disabledSubject).attributesInittedClear();
           }
           
           if (enabledSubject == null && disabledSubject == null) {
@@ -353,6 +354,7 @@ public class UiV2SubjectSource {
           if (disabledSubject != null) {
             // correct source id so that virtual attributes resolve correctly
             ((SubjectImpl)disabledSubject).setSourceId(disabledSource.getId());
+            ((SubjectImpl)disabledSubject).attributesInittedClear();
           }
           
           if (enabledSubject == null && disabledSubject == null) {
@@ -420,6 +422,7 @@ public class UiV2SubjectSource {
               if (disabledSubject != null) {
                 // correct source id so that virtual attributes resolve correctly
                 ((SubjectImpl)disabledSubject).setSourceId(disabledSource.getId());
+                ((SubjectImpl)disabledSubject).attributesInittedClear();
               }
               
               if (enabledSubject == null && disabledSubject != null) {
