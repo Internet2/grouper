@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcJdbcConnectionProvider;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -300,7 +301,9 @@ public class SubjectSourceDiagnostics {
         
         if (theSubject != null && originalSourceIdToReset != null) {
           // correct source id so that virtual attributes resolve correctly
-          ((SubjectImpl)theSubject).setSourceId(source.getId());
+          ((SubjectImpl)theSubject).setSourceId(originalSourceIdToReset);
+          ExpirableCache.clearAll();
+          ((SubjectImpl)theSubject).attributesInittedClear();
         }
         
         if (theSubject == null) {
