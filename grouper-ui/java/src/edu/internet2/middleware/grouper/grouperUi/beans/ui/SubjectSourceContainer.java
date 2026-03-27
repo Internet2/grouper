@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.internet2.middleware.grouper.app.subectSource.SubjectSourceConfiguration;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.subj.GrouperDataFieldSourceAdapter;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -129,6 +130,12 @@ public class SubjectSourceContainer {
     this.subjectSourceId = subjectSourceId;
   }
   
-  
+  public boolean isDisabledGrouperDataFieldSource() {
+    if (source != null && source instanceof GrouperDataFieldSourceAdapter && !source.isEnabled()) {
+      return true;
+    }
+    
+    return false;
+  }
   
 }
