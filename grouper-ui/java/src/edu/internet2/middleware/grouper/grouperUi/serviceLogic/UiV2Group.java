@@ -4791,6 +4791,187 @@ public class UiV2Group {
   }
 
   /**
+   * export group audit log entries to CSV
+   * @param request
+   * @param response
+   */
+  public void viewAuditsExport(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    Group group = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+
+      if (group == null) {
+        return;
+      }
+
+      String filterTypeString = request.getParameter("filterType");
+
+      if (StringUtils.isBlank(filterTypeString)) {
+        filterTypeString = "all";
+      }
+
+      String filterFromDateString = request.getParameter("filterFromDate");
+      String filterToDateString = request.getParameter("filterToDate");
+
+      if (StringUtils.equals(filterTypeString, "all")) {
+        filterFromDateString = null;
+        filterToDateString = null;
+      } else if (StringUtils.equals(filterTypeString, "on")) {
+        if (StringUtils.isBlank(filterFromDateString) && StringUtils.isNotBlank(filterToDateString)) {
+          filterFromDateString = filterToDateString;
+        }
+        filterToDateString = null;
+      } else if (StringUtils.equals(filterTypeString, "before")) {
+        if (StringUtils.isBlank(filterFromDateString) && StringUtils.isNotBlank(filterToDateString)) {
+          filterFromDateString = filterToDateString;
+        }
+        filterToDateString = null;
+      } else if (StringUtils.equals(filterTypeString, "between")) {
+        // keep both
+      } else if (StringUtils.equals(filterTypeString, "since")) {
+        if (StringUtils.isBlank(filterFromDateString) && StringUtils.isNotBlank(filterToDateString)) {
+          filterFromDateString = filterToDateString;
+        }
+        filterToDateString = null;
+      }
+
+      Date filterFromDate = null;
+      Date filterToDate = null;
+
+      if (StringUtils.equals(filterTypeString, "on") || StringUtils.equals(filterTypeString, "before")
+          || StringUtils.equals(filterTypeString, "between") || StringUtils.equals(filterTypeString, "since")) {
+        if (!StringUtils.isBlank(filterFromDateString)) {
+          filterFromDate = GrouperUtil.stringToTimestamp(filterFromDateString);
+        }
+      }
+      if (StringUtils.equals(filterTypeString, "between")) {
+        if (!StringUtils.isBlank(filterToDateString)) {
+          filterToDate = GrouperUtil.stringToTimestamp(filterToDateString);
+        }
+      }
+
+      boolean extendedResults = GrouperUtil.booleanValue(request.getParameter("showExtendedResults"), false);
+
+      UserAuditQuery query = new UserAuditQuery();
+
+      if (StringUtils.equals(filterTypeString, "on")) {
+        query.setOnDate(filterFromDate);
+      } else if (StringUtils.equals(filterTypeString, "between")) {
+        query.setFromDate(filterFromDate);
+        query.setToDate(filterToDate);
+      } else if (StringUtils.equals(filterTypeString, "since")) {
+        query.setFromDate(filterFromDate);
+      } else if (StringUtils.equals(filterTypeString, "before")) {
+        query.setToDate(filterFromDate);
+      }
+
+      QueryOptions queryOptions = new QueryOptions();
+      queryOptions.sortDesc("lastUpdatedDb");
+
+      int maxExportEntries = GrouperConfig.retrieveConfig().propertyValueInt("grouper.audit.export.maximumGroupExportEntries", 10000);
+      if (maxExportEntries != -1) {
+        queryOptions.paging(maxExportEntries, 1, false);
+      }
+
+      query.setQueryOptions(queryOptions);
+
+      String auditType = request.getParameter("auditType");
+      Subject subj = SubjectFinder.findById(group.getUuid(), true);
+      Member member = MemberFinder.findBySubject(grouperSession, subj, false);
+
+      if ("membership".equals(auditType)) {
+        query.addAuditTypeFieldValue("memberId", member.getUuid());
+      } else if ("actions".equals(auditType)) {
+        query = query.loggedInMember(member);
+        query = query.actAsMember(member);
+      } else if ("privileges".equals(auditType)) {
+        query = query.addAuditTypeCategory("privilege").addAuditTypeFieldValue("memberId", member.getUuid());
+      } else {
+        query.addAuditTypeFieldValue("groupId", group.getId());
+      }
+
+      List<AuditEntry> auditEntries = query.execute();
+
+      Set<GuiAuditEntry> guiAuditEntries = GuiAuditEntry.convertFromAuditEntries(auditEntries);
+
+      response.setContentType("application/octet-stream");
+      response.setHeader("Content-Disposition", "inline;filename=\"groupAuditLog_"
+          + GrouperUiUtils.stripNonFilenameChars(group.getDisplayExtension()) + ".csv\"");
+
+      try {
+        PrintWriter out = response.getWriter();
+        CSVPrinter csvPrinter = new CSVPrinter(out, CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL));
+        if (extendedResults) {
+          csvPrinter.printRecord(
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportDate"),
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportActor"),
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportEngine"),
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportSummary"),
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportDuration"),
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportQueryCount"),
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportServerUsername"),
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportServer"),
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportUserIpAddress"),
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportEntryId"),
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportRawDescription"));
+        } else {
+          csvPrinter.printRecord(
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportDate"),
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportActor"),
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportEngine"),
+              TextContainer.retrieveFromRequest().getText().get("groupAuditLogExportSummary"));
+        }
+        for (GuiAuditEntry guiAuditEntry : guiAuditEntries) {
+          AuditEntry auditEntry = guiAuditEntry.getAuditEntry();
+          String dateLabel = guiAuditEntry.getGuiDate();
+          String actorLabel = guiAuditEntry.getGuiSubjectPerformedAction() != null
+              ? guiAuditEntry.getGuiSubjectPerformedAction().getScreenLabel(): "";
+          String engineLabel = guiAuditEntry.getGrouperEngineLabel() != null
+              ? guiAuditEntry.getGrouperEngineLabel() : "";
+          String summary = auditEntry.getDescription() != null
+              ? auditEntry.getDescription() : "";
+          if (extendedResults) {
+            String durationLabel = guiAuditEntry.getDurationLabel() != null
+                ? guiAuditEntry.getDurationLabel() : "";
+            String queryCount = String.valueOf(auditEntry.getQueryCount());
+            String serverUserName = auditEntry.getServerUserName() != null
+                ? auditEntry.getServerUserName() : "";
+            String serverHost = auditEntry.getServerHost() != null
+                ? auditEntry.getServerHost() : "";
+            String userIpAddress = auditEntry.getUserIpAddress() != null
+                ? auditEntry.getUserIpAddress() : "";
+            String entryId = auditEntry.getId() != null
+                ? auditEntry.getId() : "";
+            String rawDescription = auditEntry.getDescription() != null
+                ? auditEntry.getDescription() : "";
+            csvPrinter.printRecord(dateLabel, actorLabel, engineLabel, summary,
+                durationLabel, queryCount, serverUserName, serverHost,
+                userIpAddress, entryId, rawDescription);
+          } else {
+            csvPrinter.printRecord(dateLabel, actorLabel, engineLabel, summary);
+          }
+        }
+        csvPrinter.close();
+      } catch (IOException e) {
+        throw new RuntimeException("Error occurred while writing response", e);
+      }
+
+      throw new ControllerDone();
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
    * remove all members submit
    * @param request
    * @param response

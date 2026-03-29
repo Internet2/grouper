@@ -3580,6 +3580,165 @@ public class UiV2Stem {
         "/WEB-INF/grouperUi2/stem/stemViewAuditsContents.jsp"));
   
   }
+
+  /**
+   * export stem audit log entries to CSV
+   * @param request
+   * @param response
+   */
+  public void viewAuditsExport(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    Stem stem = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      stem = retrieveStemHelper(request, false).getStem();
+
+      if (stem == null) {
+        return;
+      }
+
+      String filterTypeString = request.getParameter("filterType");
+
+      if (StringUtils.isBlank(filterTypeString)) {
+        filterTypeString = "all";
+      }
+
+      String filterFromDateString = request.getParameter("filterFromDate");
+      String filterToDateString = request.getParameter("filterToDate");
+
+      if (StringUtils.equals(filterTypeString, "all")) {
+        filterFromDateString = null;
+        filterToDateString = null;
+      } else if (StringUtils.equals(filterTypeString, "on")) {
+        filterToDateString = null;
+      } else if (StringUtils.equals(filterTypeString, "before")) {
+        filterToDateString = null;
+      } else if (StringUtils.equals(filterTypeString, "between")) {
+        // keep both
+      } else if (StringUtils.equals(filterTypeString, "since")) {
+        filterToDateString = null;
+      }
+
+      Date filterFromDate = null;
+      Date filterToDate = null;
+
+      if (StringUtils.equals(filterTypeString, "on") || StringUtils.equals(filterTypeString, "before")
+          || StringUtils.equals(filterTypeString, "between") || StringUtils.equals(filterTypeString, "since")) {
+        if (!StringUtils.isBlank(filterFromDateString)) {
+          filterFromDate = GrouperUtil.stringToTimestamp(filterFromDateString);
+        }
+      }
+      if (StringUtils.equals(filterTypeString, "between")) {
+        if (!StringUtils.isBlank(filterToDateString)) {
+          filterToDate = GrouperUtil.stringToTimestamp(filterToDateString);
+        }
+      }
+
+      boolean extendedResults = GrouperUtil.booleanValue(request.getParameter("showExtendedResults"), false);
+
+      UserAuditQuery query = new UserAuditQuery();
+
+      if (StringUtils.equals(filterTypeString, "on")) {
+        query.setOnDate(filterFromDate);
+      } else if (StringUtils.equals(filterTypeString, "between")) {
+        query.setFromDate(filterFromDate);
+        query.setToDate(filterToDate);
+      } else if (StringUtils.equals(filterTypeString, "since")) {
+        query.setFromDate(filterFromDate);
+      } else if (StringUtils.equals(filterTypeString, "before")) {
+        query.setToDate(filterToDate);
+      }
+
+      QueryOptions queryOptions = new QueryOptions();
+      queryOptions.sortDesc("lastUpdatedDb");
+
+      int maxExportEntries = GrouperConfig.retrieveConfig().propertyValueInt("grouper.audit.export.maximumStemExportEntries", 10000);
+      if (maxExportEntries != -1) {
+        queryOptions.paging(maxExportEntries, 1, false);
+      }
+
+      query.setQueryOptions(queryOptions);
+
+      query.addAuditTypeFieldValue("stemId", stem.getId());
+
+      List<AuditEntry> auditEntries = query.execute();
+
+      Set<GuiAuditEntry> guiAuditEntries = GuiAuditEntry.convertFromAuditEntries(auditEntries);
+
+      response.setContentType("application/octet-stream");
+      response.setHeader("Content-Disposition", "inline;filename=\"stemAuditLog_"
+          + GrouperUiUtils.stripNonFilenameChars(stem.getDisplayExtension()) + ".csv\"");
+
+      try {
+        PrintWriter out = response.getWriter();
+        CSVPrinter csvPrinter = new CSVPrinter(out, CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL));
+        if (extendedResults) {
+          csvPrinter.printRecord(
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportDate"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportActor"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportEngine"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportSummary"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportDuration"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportQueryCount"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportServerUsername"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportServer"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportUserIpAddress"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportEntryId"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportRawDescription"));
+        } else {
+          csvPrinter.printRecord(
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportDate"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportActor"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportEngine"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportSummary"));
+        }
+        for (GuiAuditEntry guiAuditEntry : guiAuditEntries) {
+          AuditEntry auditEntry = guiAuditEntry.getAuditEntry();
+          String dateLabel = guiAuditEntry.getGuiDate();
+          String actorLabel = guiAuditEntry.getGuiSubjectPerformedAction() != null
+              ? guiAuditEntry.getGuiSubjectPerformedAction().getScreenLabel() : "";
+          String engineLabel = guiAuditEntry.getGrouperEngineLabel() != null
+              ? guiAuditEntry.getGrouperEngineLabel() : "";
+          String summary = auditEntry.getDescription() != null
+              ? auditEntry.getDescription() : "";
+          if (extendedResults) {
+            String durationLabel = guiAuditEntry.getDurationLabel() != null
+                ? guiAuditEntry.getDurationLabel() : "";
+            String queryCount = String.valueOf(auditEntry.getQueryCount());
+            String serverUserName = auditEntry.getServerUserName() != null
+                ? auditEntry.getServerUserName() : "";
+            String serverHost = auditEntry.getServerHost() != null
+                ? auditEntry.getServerHost() : "";
+            String userIpAddress = auditEntry.getUserIpAddress() != null
+                ? auditEntry.getUserIpAddress() : "";
+            String entryId = auditEntry.getId() != null
+                ? auditEntry.getId() : "";
+            String rawDescription = auditEntry.getDescription() != null
+                ? auditEntry.getDescription() : "";
+            csvPrinter.printRecord(dateLabel, actorLabel, engineLabel, summary,
+                durationLabel, queryCount, serverUserName, serverHost,
+                userIpAddress, entryId, rawDescription);
+          } else {
+            csvPrinter.printRecord(dateLabel, actorLabel, engineLabel, summary);
+          }
+        }
+        csvPrinter.close();
+      } catch (IOException e) {
+        throw new RuntimeException("Error occurred while writing response", e);
+      }
+
+      throw new ControllerDone();
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
   
   /**
    * view this stem privileges inherited from folders

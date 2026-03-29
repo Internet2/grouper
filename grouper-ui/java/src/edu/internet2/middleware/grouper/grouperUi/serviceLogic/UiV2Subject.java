@@ -15,6 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +37,9 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -100,6 +105,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
@@ -2526,6 +2532,179 @@ public class UiV2Subject {
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#subjectAuditFilterResultsId", 
         "/WEB-INF/grouperUi2/subject/subjectViewAuditsContents.jsp"));
   
+  }
+
+  /**
+   * export subject audit log entries to CSV
+   * @param request
+   * @param response
+   */
+  public void viewAuditsExport(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      Subject subject = retrieveSubjectHelper(request);
+
+      if (subject == null) {
+        return;
+      }
+
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      if (!grouperRequestContainer.getSubjectContainer().isCanSeeAudits()) {
+        throw new RuntimeException("Not allowed to see audits for subject!");
+      }
+
+      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+
+      String filterTypeString = request.getParameter("filterType");
+
+      if (StringUtils.isBlank(filterTypeString)) {
+        filterTypeString = "all";
+      }
+
+      String filterFromDateString = request.getParameter("filterFromDate");
+      String filterToDateString = request.getParameter("filterToDate");
+
+      if (StringUtils.equals(filterTypeString, "all")) {
+        filterFromDateString = null;
+        filterToDateString = null;
+      } else if (StringUtils.equals(filterTypeString, "on")) {
+        filterToDateString = null;
+      } else if (StringUtils.equals(filterTypeString, "before")) {
+        filterToDateString = null;
+      } else if (StringUtils.equals(filterTypeString, "between")) {
+        // keep both
+      } else if (StringUtils.equals(filterTypeString, "since")) {
+        filterToDateString = null;
+      }
+
+      Date filterFromDate = null;
+      Date filterToDate = null;
+
+      if (StringUtils.equals(filterTypeString, "on") || StringUtils.equals(filterTypeString, "before")
+          || StringUtils.equals(filterTypeString, "between") || StringUtils.equals(filterTypeString, "since")) {
+        if (!StringUtils.isBlank(filterFromDateString)) {
+          filterFromDate = GrouperUtil.stringToTimestamp(filterFromDateString);
+        }
+      }
+      if (StringUtils.equals(filterTypeString, "between")) {
+        if (!StringUtils.isBlank(filterToDateString)) {
+          filterToDate = GrouperUtil.stringToTimestamp(filterToDateString);
+        }
+      }
+
+      boolean extendedResults = GrouperUtil.booleanValue(request.getParameter("showExtendedResults"), false);
+
+      UserAuditQuery query = new UserAuditQuery();
+
+      if (StringUtils.equals(filterTypeString, "on")) {
+        query.setOnDate(filterFromDate);
+      } else if (StringUtils.equals(filterTypeString, "between")) {
+        query.setFromDate(filterFromDate);
+        query.setToDate(filterToDate);
+      } else if (StringUtils.equals(filterTypeString, "since")) {
+        query.setFromDate(filterFromDate);
+      } else if (StringUtils.equals(filterTypeString, "before")) {
+        query.setToDate(filterToDate);
+      }
+
+      QueryOptions queryOptions = new QueryOptions();
+      queryOptions.sortDesc("lastUpdatedDb");
+
+      int maxExportEntries = GrouperConfig.retrieveConfig().propertyValueInt("grouper.audit.export.maximumSubjectExportEntries", 10000);
+      if (maxExportEntries != -1) {
+        queryOptions.paging(maxExportEntries, 1, false);
+      }
+
+      query.setQueryOptions(queryOptions);
+
+      String auditType = request.getParameter("auditType");
+
+      if ("actions".equals(auditType)) {
+        query = query.loggedInMember(member);
+        query = query.actAsMember(member);
+      } else if ("privileges".equals(auditType)) {
+        query = query.addAuditTypeCategory("privilege").addAuditTypeFieldValue("memberId", member.getUuid());
+      } else {
+        query.addAuditTypeCategory("membership").addAuditTypeFieldValue("memberId", member.getUuid());
+      }
+
+      List<AuditEntry> auditEntries = query.execute();
+
+      Set<GuiAuditEntry> guiAuditEntries = GuiAuditEntry.convertFromAuditEntries(auditEntries);
+
+      response.setContentType("application/octet-stream");
+      response.setHeader("Content-Disposition", "inline;filename=\"subjectAuditLog_"
+          + GrouperUiUtils.stripNonFilenameChars(subject.getName()) + ".csv\"");
+
+      try {
+        PrintWriter out = response.getWriter();
+        CSVPrinter csvPrinter = new CSVPrinter(out, CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL));
+        if (extendedResults) {
+          csvPrinter.printRecord(
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportDate"),
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportActor"),
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportEngine"),
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportSummary"),
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportDuration"),
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportQueryCount"),
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportServerUsername"),
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportServer"),
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportUserIpAddress"),
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportEntryId"),
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportRawDescription"));
+        } else {
+          csvPrinter.printRecord(
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportDate"),
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportActor"),
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportEngine"),
+              TextContainer.retrieveFromRequest().getText().get("subjectAuditLogExportSummary"));
+        }
+        for (GuiAuditEntry guiAuditEntry : guiAuditEntries) {
+          AuditEntry auditEntry = guiAuditEntry.getAuditEntry();
+          String dateLabel = guiAuditEntry.getGuiDate();
+          String actorLabel = guiAuditEntry.getGuiSubjectPerformedAction() != null
+              ? guiAuditEntry.getGuiSubjectPerformedAction().getScreenLabel() : "";
+          String engineLabel = guiAuditEntry.getGrouperEngineLabel() != null
+              ? guiAuditEntry.getGrouperEngineLabel() : "";
+          String summary = auditEntry.getDescription() != null
+              ? auditEntry.getDescription() : "";
+          if (extendedResults) {
+            String durationLabel = guiAuditEntry.getDurationLabel() != null
+                ? guiAuditEntry.getDurationLabel() : "";
+            String queryCount = String.valueOf(auditEntry.getQueryCount());
+            String serverUserName = auditEntry.getServerUserName() != null
+                ? auditEntry.getServerUserName() : "";
+            String serverHost = auditEntry.getServerHost() != null
+                ? auditEntry.getServerHost() : "";
+            String userIpAddress = auditEntry.getUserIpAddress() != null
+                ? auditEntry.getUserIpAddress() : "";
+            String entryId = auditEntry.getId() != null
+                ? auditEntry.getId() : "";
+            String rawDescription = auditEntry.getDescription() != null
+                ? auditEntry.getDescription() : "";
+            csvPrinter.printRecord(dateLabel, actorLabel, engineLabel, summary,
+                durationLabel, queryCount, serverUserName, serverHost,
+                userIpAddress, entryId, rawDescription);
+          } else {
+            csvPrinter.printRecord(dateLabel, actorLabel, engineLabel, summary);
+          }
+        }
+        csvPrinter.close();
+      } catch (IOException e) {
+        throw new RuntimeException("Error occurred while writing response", e);
+      }
+
+      throw new ControllerDone();
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
   
   /**
