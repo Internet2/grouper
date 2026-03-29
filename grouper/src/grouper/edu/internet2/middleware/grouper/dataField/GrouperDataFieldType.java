@@ -89,9 +89,12 @@ public enum GrouperDataFieldType {
 
     @Override
     public Object convertValueHelper(Long theNumber, String theString) {
-      return theNumber;
+      // GRP-6825: return Timestamp instead of raw Long so it matches the type returned by
+      // convertValueHelper(Object) on the provider side. Previously returned theNumber (Long),
+      // which would cause key/value mismatches during sync comparison (Long != Timestamp).
+      return theNumber == null ? null : new Timestamp(theNumber);
     }
-    
+
     @Override
     public Object convertValueHelper(Object value) {
       Timestamp theTimestamp = GrouperUtil.timestampObjectValue(value, true);

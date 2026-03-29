@@ -47,7 +47,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testJexlMemberOfAny"));
+    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testRowAttributeIntegerBetween"));
   }
   
   /**
@@ -1025,8 +1025,128 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     
   }
   
+  /**
+   * GRP-6828: ordering comparisons on string fields should throw an exception
+   */
+  public void testRowAttributeStringLessThanThrowsException() {
+    setupDataFields();
+    GrouperSession.startRootSession();
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    try {
+      GrouperLoaderJexlScriptFullSync.analyzeJexlScript(
+          grouperDataEngine,
+          "entity.hasRow('affiliation', \"affiliationOrg <= 'math'\")");
+      fail("Expected exception for ordering comparison on string field");
+    } catch (RuntimeException e) {
+      assertTrue(e.getMessage().contains("Ordering comparisons"));
+      assertTrue(e.getMessage().contains("hasAttributeBetween"));
+    }
+  }
+
+  /**
+   * GRP-6828: test hasAttributeBetween on string field in hasRow (inclusive both ends)
+   * 'engl' <= affiliationOrg, affiliationOrg <= 'math' matches engl, math => subjects 0,3
+   */
+  public void testRowAttributeStringBetween() {
+    setupDataFields();
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), "entity.hasRow('affiliation', \"hasAttributeBetween('engl' <= affiliationOrg, affiliationOrg <= 'math')\")");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, testSubject3, true);
+
+    Set<Member> members = testGroup.getMembers();
+    assertEquals(2, members.size());
+
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member3));
+  }
+
+  /**
+   * GRP-6828: test hasAttributeBetween on string field with exclusive lower bound
+   * 'comp' < affiliationOrg, affiliationOrg <= 'math' matches engl, math (not comp) => subjects 0,3
+   */
+  public void testRowAttributeStringBetweenExclusiveLower() {
+    setupDataFields();
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), "entity.hasRow('affiliation', \"hasAttributeBetween('comp' < affiliationOrg, affiliationOrg <= 'math')\")");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, testSubject3, true);
+
+    Set<Member> members = testGroup.getMembers();
+    assertEquals(2, members.size());
+
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member3));
+  }
+
+  /**
+   * GRP-6828: test hasAttributeBetween on integer field in hasRow (inclusive both ends)
+   * 200 <= affiliationDeptNumber, affiliationDeptNumber <= 468 => rows with 246(subj0), 468(subj1), 246(subj3) => subjects 0,1,3
+   */
+  public void testRowAttributeIntegerBetween() {
+    setupDataFields();
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), "entity.hasRow('affiliation', 'hasAttributeBetween(200 <= affiliationDeptNumber, affiliationDeptNumber <= 468)')");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, testSubject1, true);
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, testSubject3, true);
+
+    Set<Member> members = testGroup.getMembers();
+    assertEquals(3, members.size());
+
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member1));
+    assertTrue(members.contains(member3));
+  }
+
   private void setupDataFields() {
-    
+
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     GrouperDataProviderTest.createTableAffiliation();

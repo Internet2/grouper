@@ -1268,6 +1268,154 @@ public class GrouperDataProviderTest extends GrouperTest {
   /**
    * 
    */
+  /**
+   * Test that boolean key fields, timestamp key fields, and timestamp non-key fields
+   * do not cause thrashing (unnecessary deletes/inserts) on a second full sync.
+   * This verifies the fix for the type mismatch in row key comparison where
+   * the provider side used convertValue(Object) returning Boolean/Timestamp but
+   * the existing side returned Long for non-string fields.
+   */
+  public void testRowKeyFieldTypesNoThrashing() {
+
+    GrouperSession.startRootSession();
+
+    // create the test table with boolean and timestamp columns
+    String tableName = "testgrouper_row_key_types";
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          Database database = ddlVersionBean.getDatabase();
+          Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "subject_id", Types.VARCHAR, "40", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "row_code", Types.VARCHAR, "40", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "is_primary", Types.VARCHAR, "1", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "some_timestamp", Types.TIMESTAMP, null, false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "description", Types.VARCHAR, "40", false, false);
+        }
+      });
+    }
+    new GcDbAccess().sql("delete from " + tableName).executeSql();
+
+    // insert test data
+    // is_primary is T/F (will be boolean key), some_timestamp is a timestamp key, row_code is string key
+    Timestamp timestamp1 = new Timestamp(1700000000000L);
+    Timestamp timestamp2 = new Timestamp(1700100000000L);
+    Timestamp timestamp3 = new Timestamp(1700200000000L);
+
+    List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "codeA", "T", timestamp1, "desc1"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "codeB", "F", timestamp2, "desc2"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.1", "codeA", "T", timestamp3, "desc3"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.2", "codeC", "F", timestamp1, "desc4"));
+
+    new GcDbAccess().sql("insert into " + tableName + " (subject_id, row_code, is_primary, some_timestamp, description) values (?, ?, ?, ?, ?)")
+      .batchBindVars(batchBindVars).executeBatchSql();
+
+    // configure daemon job
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProviderKeyTypes.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProviderKeyTypes.dataProviderConfigId").value("keyTypes").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
+
+    // configure data fields
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktRowCode.fieldAliases").value("ktRowCode").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktRowCode.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktRowCode.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktRowCode.descriptionHtml").value("test").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktIsPrimary.fieldAliases").value("ktIsPrimary").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktIsPrimary.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktIsPrimary.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktIsPrimary.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktIsPrimary.descriptionHtml").value("test").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktTimestampKey.fieldAliases").value("ktTimestampKey").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktTimestampKey.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktTimestampKey.fieldDataType").value("timestamp").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktTimestampKey.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktTimestampKey.descriptionHtml").value("test").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktDescription.fieldAliases").value("ktDescription").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktDescription.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktDescription.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.ktDescription.descriptionHtml").value("test").store();
+
+    // configure data row with boolean key, timestamp key, string key, and non-key fields
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.keyTypesRow.rowPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.keyTypesRow.rowAliases").value("keyTypesRow").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.keyTypesRow.descriptionHtml").value("test").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.keyTypesRow.rowNumberOfDataFields").value("4").store();
+    // field 0: string key
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.keyTypesRow.rowDataField.0.colDataFieldConfigId").value("ktRowCode").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.keyTypesRow.rowDataField.0.rowKeyField").value("true").store();
+    // field 1: boolean key
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.keyTypesRow.rowDataField.1.colDataFieldConfigId").value("ktIsPrimary").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.keyTypesRow.rowDataField.1.rowKeyField").value("true").store();
+    // field 2: timestamp key
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.keyTypesRow.rowDataField.2.colDataFieldConfigId").value("ktTimestampKey").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.keyTypesRow.rowDataField.2.rowKeyField").value("true").store();
+    // field 3: non-key description
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.keyTypesRow.rowDataField.3.colDataFieldConfigId").value("ktDescription").store();
+
+    // configure data provider
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.keyTypes.name").value("keyTypes").store();
+
+    // configure query
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerConfigId").value("keyTypes").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryType").value("sql").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQuerySqlConfigId").value("grouper").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQuerySqlQuery").value("select subject_id, row_code, is_primary, some_timestamp, description from " + tableName).store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryDataStructure").value("row").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryRowConfigId").value("keyTypesRow").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQuerySubjectIdAttribute").value("subject_id").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQuerySubjectIdType").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQuerySubjectSourceId").value("jdbc").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryNumberOfDataFields").value("4").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryDataField.0.providerDataFieldConfigId").value("ktRowCode").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryDataField.0.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryDataField.0.providerDataFieldAttribute").value("row_code").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryDataField.1.providerDataFieldConfigId").value("ktIsPrimary").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryDataField.1.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryDataField.1.providerDataFieldAttribute").value("is_primary").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryDataField.2.providerDataFieldConfigId").value("ktTimestampKey").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryDataField.2.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryDataField.2.providerDataFieldAttribute").value("some_timestamp").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryDataField.3.providerDataFieldConfigId").value("ktDescription").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryDataField.3.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.keyTypesQuery.providerQueryDataField.3.providerDataFieldAttribute").value("description").store();
+
+    // ===== FIRST SYNC - should insert all data =====
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProviderKeyTypes");
+
+    // verify data was loaded
+    assertEquals(4, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where data_row_config_id = 'keyTypesRow'").select(int.class).intValue());
+    assertEquals(16, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where data_row_config_id = 'keyTypesRow'").select(int.class).intValue());
+
+    // verify boolean key value stored correctly
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'ktIsPrimary' and data_row_assign_internal_id = (select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'ktRowCode' and value_text = 'codeA')").select(int.class).intValue());
+
+    // verify timestamp key value stored correctly (stored as epoch millis in value_integer)
+    assertEquals(timestamp1.getTime(), new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'ktTimestampKey' and data_row_assign_internal_id = (select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'ktRowCode' and value_text = 'codeA')").select(long.class).longValue());
+
+    // snapshot row assign internal IDs before second sync
+    List<Long> rowAssignIdsBefore = new GcDbAccess().sql("select gdra.internal_id from grouper_data_row_assign gdra, grouper_data_row gdr where gdra.data_row_internal_id = gdr.internal_id and gdr.config_id = 'keyTypesRow' order by gdra.internal_id").selectList(Long.class);
+    assertEquals(4, rowAssignIdsBefore.size());
+
+    // ===== SECOND SYNC - should have zero inserts and zero deletes (no thrashing) =====
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProviderKeyTypes");
+
+    // verify row assign IDs are identical (no deletes/re-inserts)
+    List<Long> rowAssignIdsAfter = new GcDbAccess().sql("select gdra.internal_id from grouper_data_row_assign gdra, grouper_data_row gdr where gdra.data_row_internal_id = gdr.internal_id and gdr.config_id = 'keyTypesRow' order by gdra.internal_id").selectList(Long.class);
+    assertEquals("Row assign count should not change on second sync (no thrashing)", rowAssignIdsBefore.size(), rowAssignIdsAfter.size());
+    assertEquals("Row assign IDs should be identical on second sync (no thrashing)", rowAssignIdsBefore, rowAssignIdsAfter);
+
+    // verify field assigns are also unchanged
+    assertEquals(16, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where data_row_config_id = 'keyTypesRow'").select(int.class).intValue());
+  }
+
   public void testSqlProviderFullSyncFailsafe() {
         
     GrouperSession grouperSession = GrouperSession.startRootSession();
