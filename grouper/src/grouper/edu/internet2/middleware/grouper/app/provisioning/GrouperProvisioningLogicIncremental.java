@@ -1624,15 +1624,16 @@ public class GrouperProvisioningLogicIncremental {
       }
       
       if (recalcGroupMembershipIds.contains((String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(0))) {
-        
+
         if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForGroup()) {
           iterator.remove();
           this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().remove(provisioningMembershipWrapper.getGroupIdMemberId());
           filterNonRecalcActionsCapturedByRecalc++;
+          continue;
         }
-        
+
       }
-      
+
       if (recalcEntityMembershipIds.contains((String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(1))) {
         
         if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForEntity()) {
