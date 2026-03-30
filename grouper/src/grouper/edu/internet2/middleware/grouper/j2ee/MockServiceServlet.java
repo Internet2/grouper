@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.app.scim2Provisioning.GithubScim2MockSer
 import edu.internet2.middleware.grouper.app.datadog.DatadogMockServiceHandler;
 import edu.internet2.middleware.grouper.app.freshServiceRequester.FreshRequesterMockServiceHandler;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixMockServiceHandler;
+import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryMockServiceHandler;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -65,7 +66,8 @@ public class MockServiceServlet extends HttpServlet {
       "okta", OktaMockServiceHandler.class.getName(),
       "remedy", RemedyMockServiceHandler.class.getName(),
       "digitalMarketplace", DigitalMarketplaceMockServiceHandler.class.getName(),
-      "teamdynamix", TeamDynamixMockServiceHandler.class.getName()
+      "teamdynamix", TeamDynamixMockServiceHandler.class.getName(),
+      "truefoundry", TrueFoundryMockServiceHandler.class.getName()
       );
   
   static {

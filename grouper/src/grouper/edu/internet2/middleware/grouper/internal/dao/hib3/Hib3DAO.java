@@ -59,6 +59,9 @@ import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxMembership;
 import edu.internet2.middleware.grouper.app.datadog.DatadogGroup;
 import edu.internet2.middleware.grouper.app.datadog.DatadogMembership;
 import edu.internet2.middleware.grouper.app.datadog.DatadogUser;
+import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryGroup;
+import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryMembership;
+import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryUser;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoGroup;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoMembership;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoUser;
@@ -308,6 +311,10 @@ public abstract class Hib3DAO {
         addClass(configuration, DatadogGroup.class);
         addClass(configuration, DatadogUser.class);
         addClass(configuration, DatadogMembership.class);
+
+        addClass(configuration, TrueFoundryGroup.class);
+        addClass(configuration, TrueFoundryUser.class);
+        addClass(configuration, TrueFoundryMembership.class);
 
       }
       addClass(configuration, Hib3MemberDAO.class);

@@ -1,0 +1,16 @@
+<hibernate-mapping package="edu.internet2.middleware.grouper.app.truefoundry" default-lazy="false">
+  <class name="TrueFoundryUser" table="mock_truefoundry_user">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <id name="id" column="id">
+      <generator class="assigned" />
+    </id>
+
+    <property name="email" column="email" />
+    <property name="displayName" column="display_name" />
+    <property name="activeString" column="active" />
+
+  </class>
+</hibernate-mapping>
