@@ -62,8 +62,8 @@ public class DatadogApiCommands {
     String testRoleName = "grouperTestRole_" + System.currentTimeMillis();
     String testTeamName = "grouperTestTeam_" + System.currentTimeMillis();
     String testTeamHandle = "grouper-test-team-" + System.currentTimeMillis();
-    String testUserEmail = "saraceni@upenn.edu";
-    String testUserName = "Andrew Saraceni";
+    String testUserEmail = "a@b.c";
+    String testUserName = "Test User";
 
     try {
 

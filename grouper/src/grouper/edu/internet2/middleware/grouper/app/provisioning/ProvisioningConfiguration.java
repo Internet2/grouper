@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalM
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -111,6 +112,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     configClassNamesList.add(DigitalMarketplaceProvisionerConfiguration.class.getName());
     configClassNamesList.add(SqlProvisionerConfiguration.class.getName());
     configClassNamesList.add(TeamDynamixProvisionerConfiguration.class.getName());
+    configClassNamesList.add(TrueFoundryProvisioningConfiguration.class.getName());
     configClassNamesList.add(BoxProvisionerConfiguration.class.getName());
 //    provisionerConfigClassNames.add("edu.internet2.middleware.grouperBox.BoxProvisionerConfiguration");
     
@@ -140,7 +142,9 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
    * @return
    */
   public static List<ProvisioningConfiguration> retrieveAllProvisioningConfigurationTypes() {
-    return (List<ProvisioningConfiguration>) (Object) retrieveAllConfigurationTypesHelper(provisionerConfigClassNames);
+    List<ProvisioningConfiguration> result = (List<ProvisioningConfiguration>) (Object) retrieveAllConfigurationTypesHelper(provisionerConfigClassNames);
+    result.sort(Comparator.comparing(pc -> pc.getTitle().toLowerCase()));
+    return result;
   }
   
   /**
