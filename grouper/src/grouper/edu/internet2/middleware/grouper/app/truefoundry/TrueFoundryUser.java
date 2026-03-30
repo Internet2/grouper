@@ -121,6 +121,36 @@ public class TrueFoundryUser {
   }
 
   /**
+   * Convert to a JSON representation of this user for MCP/admin display purposes.
+   * @param fieldNamesToSet field names to include, or null for all
+   * @return the user as a JSON ObjectNode
+   */
+  public ObjectNode toJson(Set<String> fieldNamesToSet) {
+    ObjectNode userNode = GrouperUtil.jsonJacksonNode();
+
+    if (this.id != null) {
+      userNode.put("id", this.id);
+    }
+
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("email")) {
+      if (this.email != null) {
+        userNode.put("email", this.email);
+      }
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {
+      if (this.displayName != null) {
+        userNode.put("displayName", this.displayName);
+      }
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {
+      if (this.active != null) {
+        userNode.put("active", this.active);
+      }
+    }
+    return userNode;
+  }
+
+  /**
    * Convert to JSON for the register endpoint (POST /api/svc/v1/users/register).
    * Only email is sent; no ID is returned in the response.
    * @return the register request body

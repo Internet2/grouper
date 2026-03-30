@@ -63,6 +63,8 @@ import edu.internet2.middleware.grouper.app.scim2Provisioning.ScimSettings;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixApiCommands;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixExternalSystem;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixUser;
+import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryApiCommands;
+import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryUser;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
@@ -72,7 +74,7 @@ import edu.internet2.middleware.grouperDuo.DuoGrouperExternalSystem;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * MCP admin tool for looking up users in configured external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters).
+ * MCP admin tool for looking up users in configured external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, TrueFoundry).
  * Supports two actions:
  * <ul>
  *   <li>{@code listExternalSystems} - list external systems configured for MCP user lookups</li>
@@ -102,7 +104,7 @@ public class GrouperMcpAdminExternalSystemGet {
     ObjectNode tool = objectMapper.createObjectNode();
     tool.put("name", "admin_external_system_get");
     tool.put("description",
-        "Look up users in external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters) configured in Grouper. "
+        "Look up users in external systems (Azure, Datadog, Duo, SCIM, Box, Google, Remedy, Remedy Digital Marketplace, TeamDynamix, FreshService Requesters, TrueFoundry) configured in Grouper. "
         + "Use action 'listExternalSystems' to discover which external systems are configured "
         + "for user lookups. "
         + "Use action 'getUser' with an externalSystemConfigId and a Grouper subjectIdOrIdentifier "
@@ -290,9 +292,9 @@ public class GrouperMcpAdminExternalSystemGet {
     String type = detectExternalSystemType(externalSystemConfigId);
     if (type == null) {
       return buildErrorResult("External system '" + externalSystemConfigId
-          + "' could not be identified as a supported type (azure, datadog, duo, scim, box, google, remedy, remedyDigitalMarketplace, teamDynamix, freshserviceRequesters). "
+          + "' could not be identified as a supported type (azure, datadog, duo, scim, box, google, remedy, remedyDigitalMarketplace, teamDynamix, freshserviceRequesters, trueFoundry). "
           + "Verify the external system connector is configured. For WsBearerToken-based systems "
-          + "(SCIM, FreshService) you may need to set grouper.mcp.adminExternalSystem."
+          + "(SCIM, FreshService, Datadog, TrueFoundry) you may need to set grouper.mcp.adminExternalSystem."
           + externalSystemConfigId + ".externalSystemType");
     }
 
@@ -365,6 +367,8 @@ public class GrouperMcpAdminExternalSystemGet {
       return getUserTeamDynamix(externalSystemConfigId, lookupField, externalUserId, resultNode);
     } else if ("freshserviceRequesters".equals(type)) {
       return getUserFreshserviceRequesters(externalSystemConfigId, lookupField, externalUserId, resultNode);
+    } else if ("trueFoundry".equals(type)) {
+      return getUserTrueFoundry(externalSystemConfigId, lookupField, externalUserId, resultNode);
     }
 
     return buildErrorResult("Unsupported external system type: " + type);
@@ -792,6 +796,31 @@ public class GrouperMcpAdminExternalSystemGet {
   }
 
   /**
+   * look up a user in TrueFoundry by email.
+   * TrueFoundry is email-based so email is the only supported lookup field.
+   */
+  private static ObjectNode getUserTrueFoundry(String configId, String lookupField,
+      String lookupValue, ObjectNode resultNode) throws Exception {
+
+    TrueFoundryUser trueFoundryUser = TrueFoundryApiCommands.retrieveUserByEmail(
+        configId, lookupValue, true);
+
+    if (trueFoundryUser == null) {
+      resultNode.put("userFound", false);
+      String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+          .writeValueAsString(resultNode);
+      return buildSuccessResult(resultText);
+    }
+
+    resultNode.put("userFound", true);
+    resultNode.set("user", trueFoundryUser.toJson(null));
+
+    String resultText = objectMapper.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(resultNode);
+    return buildSuccessResult(resultText);
+  }
+
+  /**
    * find all external system config IDs that have MCP configuration
    * by scanning config for grouper.mcp.adminExternalSystem.&lt;id&gt;.subjectIdTranslationJexl
    * @return ordered set of config IDs
@@ -815,12 +844,12 @@ public class GrouperMcpAdminExternalSystemGet {
   }
 
   /**
-   * detect the type of external system (azure, datadog, duo, scim, box, freshserviceRequesters)
+   * detect the type of external system (azure, datadog, duo, scim, box, freshserviceRequesters, trueFoundry)
    * by checking if an explicit type is configured, or by matching against configured connectors.
-   * An explicit type is needed when auto-detection is ambiguous (e.g. SCIM, FreshService, and Datadog
-   * all use WsBearerTokenExternalSystem).
+   * An explicit type is needed when auto-detection is ambiguous (e.g. SCIM, FreshService, Datadog,
+   * and TrueFoundry all use WsBearerTokenExternalSystem).
    * @param configId the external system config ID
-   * @return "azure", "datadog", "duo", "scim", "box", "freshserviceRequesters", or null if not detected
+   * @return "azure", "datadog", "duo", "scim", "box", "freshserviceRequesters", "trueFoundry", or null if not detected
    */
   static String detectExternalSystemType(String configId) {
 
