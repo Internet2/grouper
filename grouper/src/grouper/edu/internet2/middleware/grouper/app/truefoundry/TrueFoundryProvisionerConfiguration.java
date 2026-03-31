@@ -37,6 +37,13 @@ public class TrueFoundryProvisionerConfiguration extends GrouperProvisioningConf
   private String trueFoundryTeamManagerMetadataName;
 
   /**
+   * the group metadata attribute name that holds the Grouper group path of the managers group.
+   * only used when trueFoundryAddTeamManagerMetadata=true.
+   * defaults to "md_trueFoundryManagerGroupName"
+   */
+  private String trueFoundryManagerGroupMetadataName;
+
+  /**
    * comma-separated list of user emails to ignore during provisioning.
    * these users will be filtered out of retrieve operations and will not be created, updated, or deleted.
    */
@@ -107,6 +114,14 @@ public class TrueFoundryProvisionerConfiguration extends GrouperProvisioningConf
     this.trueFoundryTeamManagerMetadataName = trueFoundryTeamManagerMetadataName;
   }
 
+  public String getTrueFoundryManagerGroupMetadataName() {
+    return trueFoundryManagerGroupMetadataName;
+  }
+
+  public void setTrueFoundryManagerGroupMetadataName(String trueFoundryManagerGroupMetadataName) {
+    this.trueFoundryManagerGroupMetadataName = trueFoundryManagerGroupMetadataName;
+  }
+
   public String getTrueFoundryIgnoreUserEmails() {
     return trueFoundryIgnoreUserEmails;
   }
@@ -171,6 +186,8 @@ public class TrueFoundryProvisionerConfiguration extends GrouperProvisioningConf
         this.retrieveConfigString("trueFoundryAddTeamManagerMetadata", false), false);
     this.trueFoundryTeamManagerMetadataName = GrouperUtil.defaultIfBlank(
         this.retrieveConfigString("trueFoundryTeamManagerMetadataName", false), "md_trueFoundryTeamManager");
+    this.trueFoundryManagerGroupMetadataName = GrouperUtil.defaultIfBlank(
+        this.retrieveConfigString("trueFoundryManagerGroupMetadataName", false), "md_trueFoundryManagerGroupName");
     this.trueFoundryScimTenantName = this.retrieveConfigString("trueFoundryScimTenantName", false);
     this.trueFoundryScimSsoId = this.retrieveConfigString("trueFoundryScimSsoId", false);
     this.trueFoundryDefaultTeamMemberEmail = this.retrieveConfigString("trueFoundryDefaultTeamMemberEmail", false);

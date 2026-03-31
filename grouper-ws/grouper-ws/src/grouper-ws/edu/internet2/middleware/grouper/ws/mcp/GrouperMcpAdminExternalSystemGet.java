@@ -64,6 +64,7 @@ import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixApiCommands;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixExternalSystem;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixUser;
 import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryApiCommands;
+import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundrySettings;
 import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryUser;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -803,7 +804,7 @@ public class GrouperMcpAdminExternalSystemGet {
       String lookupValue, ObjectNode resultNode) throws Exception {
 
     TrueFoundryUser trueFoundryUser = TrueFoundryApiCommands.retrieveUserByEmail(
-        configId, lookupValue, true);
+        configId, new TrueFoundrySettings(), lookupValue, true);
 
     if (trueFoundryUser == null) {
       resultNode.put("userFound", false);

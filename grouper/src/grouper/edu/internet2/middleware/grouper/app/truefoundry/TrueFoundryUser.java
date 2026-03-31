@@ -194,11 +194,8 @@ public class TrueFoundryUser {
   public ProvisioningEntity toProvisioningEntity() {
     ProvisioningEntity targetEntity = new ProvisioningEntity(false);
 
-    // email is the entity ID — TrueFoundry is email-based.
-    // Use assignAttributeValue("id", email) so that ProvisioningEntity.getId()
-    // (which reads from retrieveAttributeValueString("id")) returns the email.
-    // This is required for the framework to populate membership.provisioningEntityId.
-    targetEntity.assignAttributeValue("id", this.email);
+    // id is the native TrueFoundry user ID (e.g. "pt3vuwlxupmefpk8i9cj11du").
+    targetEntity.assignAttributeValue("id", this.id);
 
     targetEntity.assignAttributeValue("email", this.email);
     if (this.displayName != null) {
@@ -221,11 +218,9 @@ public class TrueFoundryUser {
   public static TrueFoundryUser fromProvisioningEntity(ProvisioningEntity targetEntity, Set<String> fieldNamesToSet) {
     TrueFoundryUser trueFoundryUser = new TrueFoundryUser();
 
-    // entity ID = email
-    String email = targetEntity.getId();
-    if (GrouperClientUtils.isBlank(email)) {
-      email = targetEntity.retrieveAttributeValueString("email");
-    }
+    // entity ID is the native TrueFoundry user ID; email is a separate attribute
+    trueFoundryUser.setId(targetEntity.getId());
+    String email = targetEntity.retrieveAttributeValueString("email");
     trueFoundryUser.setEmail(email);
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {

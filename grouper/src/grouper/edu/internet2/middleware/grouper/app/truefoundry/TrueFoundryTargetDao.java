@@ -50,18 +50,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * TrueFoundry TargetDao — manages users, teams, roles, and team memberships
  * via the TrueFoundry native REST API.
  *
- * Entity ID note: TrueFoundry is email-based, so the provisioning entity ID
- * is the user's email address. The email is also used as the SCIM user identifier
- * for display name updates (PATCH /scim/v2/{tenant}/{sso}/Users/{email}).
+ * Entity ID note: The provisioning entity ID is the native TrueFoundry user ID
+ * (e.g. "pt3vuwlxupmefpk8i9cj11du").  The email address is stored as a separate
+ * attribute and is used for API calls (register, deactivate, role assignment, team
+ * membership).  The native ID is used for SCIM display name updates
+ * (PATCH /scim/v2/{tenant}/{sso}/Users/{nativeId}).
  *
  * Team membership note: TrueFoundry has no individual add/remove member endpoints.
  * Team membership is managed by replacing the full member list via PUT /teams.
  * insertMembership and deleteMembership for teams both retrieve the current team
  * state, modify the member list, and PUT the full manifest back.
  *
- * Role membership note: There is no API to read current role assignments.
- * insertMembership assigns a role to a user; deleteMembership assigns the
- * configured default role.  The provisioner always pushes on full sync.
+ * Role membership note: Role assignments are read from the rolesWithResource array
+ * on each user returned by the subjects endpoint.  insertMembership assigns a role
+ * to a user; deleteMembership assigns the configured default role.
  */
 public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
 
@@ -82,11 +84,17 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
         .retrieveGrouperProvisioningConfiguration();
   }
 
+  private TrueFoundrySettings getTrueFoundrySettings() {
+    TrueFoundrySettings settings = new TrueFoundrySettings();
+    settings.loadFromConfiguration(getTrueFoundryConfiguration());
+    return settings;
+  }
+
   // ============================
   // Retrieve all data: users + teams + roles + team memberships in one call.
   // The subjects endpoint (GET /subjects) returns users AND all teams with their
-  // members and managers embedded.  Roles are fetched separately via retrieveRoles().
-  // Role memberships are not returned (no read API exists; provisioner always pushes on full sync).
+  // members and managers embedded, plus rolesWithResource on each user for role memberships.
+  // Roles are fetched separately via retrieveRoles().
   // ============================
 
   @Override
@@ -102,25 +110,27 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       TrueFoundryProvisionerConfiguration config = getTrueFoundryConfiguration();
       String configId = config.getTrueFoundryExternalSystemConfigId();
-
-      Set<String> ignoreEmails = TrueFoundryApiCommands.parseIgnoreSet(config.getTrueFoundryIgnoreUserEmails());
-      Set<String> ignoreRoles = TrueFoundryApiCommands.parseIgnoreSet(config.getTrueFoundryIgnoreRoles());
+      TrueFoundrySettings settings = getTrueFoundrySettings();
 
       // one subjects call returns active users + all teams with members/managers
       TrueFoundryApiCommands.SubjectsData subjectsData =
-          TrueFoundryApiCommands.retrieveSubjectsData(configId, ignoreEmails);
+          TrueFoundryApiCommands.retrieveSubjectsData(configId, settings);
 
-      // build entities from users
+      // build entities from users and build email-to-nativeId map for membership translation
       List<ProvisioningEntity> provisioningEntities = new ArrayList<ProvisioningEntity>();
+      Map<String, String> emailToNativeId = new LinkedHashMap<String, String>();
       for (TrueFoundryUser user : GrouperUtil.nonNull(subjectsData.users)) {
         provisioningEntities.add(user.toProvisioningEntity());
+        if (StringUtils.isNotBlank(user.getEmail()) && StringUtils.isNotBlank(user.getId())) {
+          emailToNativeId.put(user.getEmail(), user.getId());
+        }
       }
       targetData.setProvisioningEntities(provisioningEntities);
 
       // build groups: roles + teams
       List<ProvisioningGroup> provisioningGroups = new ArrayList<ProvisioningGroup>();
 
-      List<TrueFoundryGroup> roles = TrueFoundryApiCommands.retrieveRoles(configId, ignoreRoles);
+      List<TrueFoundryGroup> roles = TrueFoundryApiCommands.retrieveRoles(configId, settings);
       for (TrueFoundryGroup role : GrouperUtil.nonNull(roles)) {
         provisioningGroups.add(role.toProvisioningGroup());
       }
@@ -132,6 +142,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       targetData.setProvisioningGroups(provisioningGroups);
 
       // build team memberships from manifest members/managers
+      // TrueFoundry uses emails in team manifests; translate to native IDs for entity matching
       List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
 
       boolean addManagerMetadata = config.isTrueFoundryAddTeamManagerMetadata();
@@ -145,9 +156,13 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
           if (StringUtils.isBlank(memberEmail)) {
             continue;
           }
+          String nativeId = emailToNativeId.get(memberEmail);
+          if (StringUtils.isBlank(nativeId)) {
+            continue;
+          }
           ProvisioningMembership membership = new ProvisioningMembership(false);
           membership.setProvisioningGroupId(teamId);
-          membership.setProvisioningEntityId(memberEmail);
+          membership.setProvisioningEntityId(nativeId);
           if (addManagerMetadata) {
             membership.assignAttributeValue(managerMetadataName,
                 String.valueOf(managerSet.contains(memberEmail)));
@@ -156,7 +171,22 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
         }
       }
 
-      // role memberships are not returned (no read API; provisioner always pushes on full sync)
+      // build role memberships from rolesWithResource on each user
+      // rolesWithResource uses roleId (already native) and user email (translate to native ID)
+      Map<String, Set<String>> roleMembershipsByRoleId = subjectsData.roleMembershipsByRoleId;
+      for (Map.Entry<String, Set<String>> entry : roleMembershipsByRoleId.entrySet()) {
+        String roleId = entry.getKey();
+        for (String userEmail : entry.getValue()) {
+          String nativeId = emailToNativeId.get(userEmail);
+          if (StringUtils.isBlank(nativeId)) {
+            continue;
+          }
+          ProvisioningMembership membership = new ProvisioningMembership(false);
+          membership.setProvisioningGroupId(roleId);
+          membership.setProvisioningEntityId(nativeId);
+          provisioningMemberships.add(membership);
+        }
+      }
 
       targetData.setProvisioningMemberships(provisioningMemberships);
 
@@ -179,6 +209,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       TrueFoundryProvisionerConfiguration config = getTrueFoundryConfiguration();
       String configId = config.getTrueFoundryExternalSystemConfigId();
+      TrueFoundrySettings settings = getTrueFoundrySettings();
 
       String searchAttribute = targetDaoRetrieveEntityRequest.getSearchAttribute();
       String searchValue = GrouperUtil.stringValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue());
@@ -187,7 +218,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
 
       // TrueFoundry supports search by email only (search by ID is not supported)
       if (StringUtils.equals("id", searchAttribute) || StringUtils.equals("email", searchAttribute)) {
-        foundUser = TrueFoundryApiCommands.retrieveUserByEmail(configId, searchValue, false);
+        foundUser = TrueFoundryApiCommands.retrieveUserByEmail(configId, settings, searchValue, false);
       }
 
       ProvisioningEntity targetEntity = foundUser == null ? null : foundUser.toProvisioningEntity();
@@ -211,6 +242,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       TrueFoundryProvisionerConfiguration config = getTrueFoundryConfiguration();
       String configId = config.getTrueFoundryExternalSystemConfigId();
+      TrueFoundrySettings settings = getTrueFoundrySettings();
 
       ProvisioningGroup grouperTargetGroup = targetDaoRetrieveGroupRequest.getTargetGroup();
       String groupType = grouperTargetGroup == null ? null
@@ -222,10 +254,10 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
 
       if (TrueFoundryGroup.GROUP_TYPE_TEAM.equals(groupType)) {
         if (StringUtils.equals("id", searchAttribute)) {
-          foundGroup = TrueFoundryApiCommands.getTeamById(configId, searchValue);
+          foundGroup = TrueFoundryApiCommands.getTeamById(configId, settings, searchValue);
         } else {
           // search by name — retrieve all teams and find by name
-          List<TrueFoundryGroup> teams = TrueFoundryApiCommands.retrieveTeams(configId);
+          List<TrueFoundryGroup> teams = TrueFoundryApiCommands.retrieveTeams(configId, settings);
           for (TrueFoundryGroup team : GrouperUtil.nonNull(teams)) {
             if (StringUtils.equals("name", searchAttribute)
                 && StringUtils.equals(team.getName(), searchValue)) {
@@ -236,8 +268,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
         }
       } else if (TrueFoundryGroup.GROUP_TYPE_ROLE.equals(groupType)) {
         // retrieve all roles and find by id or name
-        Set<String> ignoreRoles = TrueFoundryApiCommands.parseIgnoreSet(config.getTrueFoundryIgnoreRoles());
-        List<TrueFoundryGroup> roles = TrueFoundryApiCommands.retrieveRoles(configId, ignoreRoles);
+        List<TrueFoundryGroup> roles = TrueFoundryApiCommands.retrieveRoles(configId, settings);
         for (TrueFoundryGroup role : GrouperUtil.nonNull(roles)) {
           if (StringUtils.equals("id", searchAttribute)
               && StringUtils.equals(role.getId(), searchValue)) {
@@ -274,6 +305,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       TrueFoundryProvisionerConfiguration config = getTrueFoundryConfiguration();
       String configId = config.getTrueFoundryExternalSystemConfigId();
+      TrueFoundrySettings settings = getTrueFoundrySettings();
 
       TrueFoundryGroup trueFoundryGroup = TrueFoundryGroup.fromProvisioningGroup(targetGroup, null);
       String groupType = trueFoundryGroup.getGroupType();
@@ -282,12 +314,11 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
 
       if (TrueFoundryGroup.GROUP_TYPE_TEAM.equals(groupType)) {
         // create team — memberships are added via insertMembership after creation
-        createdGroup = TrueFoundryApiCommands.createTeam(configId, trueFoundryGroup,
-            config.getTrueFoundryDefaultTeamMemberEmail());
+        createdGroup = TrueFoundryApiCommands.createTeam(configId, settings, trueFoundryGroup);
       } else if (TrueFoundryGroup.GROUP_TYPE_ROLE.equals(groupType)) {
         // roles are managed in the TrueFoundry UI by administrators
         // creating roles via the provisioner is not supported in normal operation
-        createdGroup = TrueFoundryApiCommands.createOrUpdateRole(configId, trueFoundryGroup);
+        createdGroup = TrueFoundryApiCommands.createOrUpdateRole(configId, settings, trueFoundryGroup);
       } else {
         throw new RuntimeException("Invalid groupType: '" + groupType + "', expected 'team' or 'role'");
       }
@@ -328,6 +359,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       TrueFoundryProvisionerConfiguration config = getTrueFoundryConfiguration();
       String configId = config.getTrueFoundryExternalSystemConfigId();
+      TrueFoundrySettings settings = getTrueFoundrySettings();
 
       Set<String> fieldNamesToUpdate = new HashSet<String>();
       for (ProvisioningObjectChange change : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
@@ -343,9 +375,9 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       if (TrueFoundryGroup.GROUP_TYPE_TEAM.equals(groupType)) {
         // for teams, re-PUT the manifest to update name or other group-level fields
         // membership changes are handled via insertMembership/deleteMembership
-        TrueFoundryApiCommands.updateTeam(configId, trueFoundryGroup);
+        TrueFoundryApiCommands.updateTeam(configId, settings, trueFoundryGroup);
       } else if (TrueFoundryGroup.GROUP_TYPE_ROLE.equals(groupType)) {
-        TrueFoundryApiCommands.createOrUpdateRole(configId, trueFoundryGroup);
+        TrueFoundryApiCommands.createOrUpdateRole(configId, settings, trueFoundryGroup);
       } else {
         throw new RuntimeException("Invalid groupType: '" + groupType + "', expected 'team' or 'role'");
       }
@@ -380,14 +412,15 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       TrueFoundryProvisionerConfiguration config = getTrueFoundryConfiguration();
       String configId = config.getTrueFoundryExternalSystemConfigId();
+      TrueFoundrySettings settings = getTrueFoundrySettings();
 
       TrueFoundryGroup trueFoundryGroup = TrueFoundryGroup.fromProvisioningGroup(targetGroup, null);
       String groupType = trueFoundryGroup.getGroupType();
 
       if (TrueFoundryGroup.GROUP_TYPE_TEAM.equals(groupType)) {
-        TrueFoundryApiCommands.deleteTeam(configId, trueFoundryGroup.getId());
+        TrueFoundryApiCommands.deleteTeam(configId, settings, trueFoundryGroup.getId());
       } else if (TrueFoundryGroup.GROUP_TYPE_ROLE.equals(groupType)) {
-        TrueFoundryApiCommands.deleteRole(configId, trueFoundryGroup.getId());
+        TrueFoundryApiCommands.deleteRole(configId, settings, trueFoundryGroup.getId());
       } else {
         throw new RuntimeException("Invalid groupType: '" + groupType + "', expected 'team' or 'role'");
       }
@@ -422,6 +455,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       TrueFoundryProvisionerConfiguration config = getTrueFoundryConfiguration();
       String configId = config.getTrueFoundryExternalSystemConfigId();
+      TrueFoundrySettings settings = getTrueFoundrySettings();
 
       TrueFoundryUser trueFoundryUser = TrueFoundryUser.fromProvisioningEntity(targetEntity, null);
       String email = trueFoundryUser.getEmail();
@@ -431,11 +465,11 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       // create the user (or reactivate if inactive), set display name if SCIM is configured
-      TrueFoundryApiCommands.createUser(configId, trueFoundryUser,
-          config.getTrueFoundryScimTenantName(), config.getTrueFoundryScimSsoId());
+      TrueFoundryUser createdUser = TrueFoundryApiCommands.createUser(configId, settings, trueFoundryUser);
 
-      // entity ID = email (TrueFoundry is email-based)
-      targetEntity.setId(email);
+      // entity ID = native TrueFoundry user ID
+      String nativeId = createdUser != null ? createdUser.getId() : null;
+      targetEntity.setId(StringUtils.defaultIfBlank(nativeId, email));
       targetEntity.setProvisioned(true);
 
       for (ProvisioningObjectChange change : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
@@ -467,6 +501,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       TrueFoundryProvisionerConfiguration config = getTrueFoundryConfiguration();
       String configId = config.getTrueFoundryExternalSystemConfigId();
+      TrueFoundrySettings settings = getTrueFoundrySettings();
 
       Set<String> fieldNamesToUpdate = new LinkedHashSet<String>();
       for (ProvisioningObjectChange change : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
@@ -478,15 +513,13 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       TrueFoundryUser trueFoundryUser = TrueFoundryUser.fromProvisioningEntity(targetEntity,
           fieldNamesToUpdate);
 
-      // update display name via SCIM PATCH (only if SCIM is configured and userId is available)
+      // update display name via SCIM PATCH (only if SCIM is configured)
+      // Uses the native TrueFoundry user ID (from the entity's id attribute) in the SCIM URL path
       if (fieldNamesToUpdate.contains("displayName") && config.isScimDisplayNameConfigured()) {
-        String userId = trueFoundryUser.getId();
-        if (StringUtils.isNotBlank(userId)) {
-          TrueFoundryApiCommands.updateUserDisplayName(configId,
-              config.getTrueFoundryScimTenantName(),
-              config.getTrueFoundryScimSsoId(),
-              userId,
-              trueFoundryUser.getDisplayName());
+        String nativeId = targetEntity.getId();
+        if (StringUtils.isNotBlank(nativeId)) {
+          TrueFoundryApiCommands.updateUserDisplayName(configId, settings,
+              nativeId, trueFoundryUser.getDisplayName());
         }
       }
 
@@ -496,9 +529,9 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
         if (StringUtils.isNotBlank(email)) {
           Boolean active = trueFoundryUser.getActive();
           if (active != null && active) {
-            TrueFoundryApiCommands.activateUser(configId, email);
+            TrueFoundryApiCommands.activateUser(configId, settings, email);
           } else {
-            TrueFoundryApiCommands.deactivateUser(configId, email);
+            TrueFoundryApiCommands.deactivateUser(configId, settings, email);
           }
         }
       }
@@ -534,6 +567,8 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       TrueFoundryProvisionerConfiguration config = getTrueFoundryConfiguration();
       String configId = config.getTrueFoundryExternalSystemConfigId();
 
+      TrueFoundrySettings settings = getTrueFoundrySettings();
+
       TrueFoundryUser trueFoundryUser = TrueFoundryUser.fromProvisioningEntity(targetEntity, null);
       String email = trueFoundryUser.getEmail();
 
@@ -542,7 +577,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       // deactivate instead of hard delete — hard delete is blocked if user has team memberships
-      TrueFoundryApiCommands.deactivateUser(configId, email);
+      TrueFoundryApiCommands.deactivateUser(configId, settings, email);
 
       targetEntity.setProvisioned(true);
       for (ProvisioningObjectChange change : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
@@ -578,6 +613,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       TrueFoundryProvisionerConfiguration config = getTrueFoundryConfiguration();
       String configId = config.getTrueFoundryExternalSystemConfigId();
+      TrueFoundrySettings settings = getTrueFoundrySettings();
 
       // group team memberships by teamId: teamId -> (managerEmails, regularMemberEmails, memberships)
       Map<String, List<String>> teamManagerEmails = new LinkedHashMap<String, List<String>>();
@@ -590,7 +626,10 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
         String groupType = provisioningGroup == null ? null
             : provisioningGroup.retrieveAttributeValueString("groupType");
         String groupId = targetMembership.getProvisioningGroupId();
-        String userEmail = targetMembership.getProvisioningEntityId();
+        // entity ID is the native TrueFoundry ID; get the email from the entity's email attribute
+        ProvisioningEntity provisioningEntity = targetMembership.getProvisioningEntity();
+        String userEmail = provisioningEntity == null ? null
+            : provisioningEntity.retrieveAttributeValueString("email");
 
         if (TrueFoundryGroup.GROUP_TYPE_TEAM.equals(groupType)) {
           boolean isManager = false;
@@ -618,7 +657,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
           // role assignment — no batch API, process individually
           String roleName = provisioningGroup.retrieveAttributeValueString("name");
           try {
-            TrueFoundryApiCommands.assignUserRole(configId, userEmail, roleName);
+            TrueFoundryApiCommands.assignUserRole(configId, settings, userEmail, roleName);
             targetMembership.setProvisioned(true);
             for (ProvisioningObjectChange change : GrouperUtil.nonNull(
                 targetMembership.getInternal_objectChanges())) {
@@ -642,7 +681,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       for (String teamId : teamMemberships.keySet()) {
         List<ProvisioningMembership> memberships = teamMemberships.get(teamId);
         try {
-          TrueFoundryApiCommands.addTeamMembers(configId, teamId,
+          TrueFoundryApiCommands.addTeamMembers(configId, settings, teamId,
               teamManagerEmails.get(teamId), teamRegularMemberEmails.get(teamId));
           for (ProvisioningMembership m : memberships) {
             m.setProvisioned(true);
@@ -685,6 +724,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       TrueFoundryProvisionerConfiguration config = getTrueFoundryConfiguration();
       String configId = config.getTrueFoundryExternalSystemConfigId();
+      TrueFoundrySettings settings = getTrueFoundrySettings();
 
       // group team memberships by teamId: teamId -> (emailsToRemove, memberships)
       Map<String, List<String>> teamEmailsToRemove = new LinkedHashMap<String, List<String>>();
@@ -696,7 +736,10 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
         String groupType = provisioningGroup == null ? null
             : provisioningGroup.retrieveAttributeValueString("groupType");
         String groupId = targetMembership.getProvisioningGroupId();
-        String userEmail = targetMembership.getProvisioningEntityId();
+        // entity ID is the native TrueFoundry ID; get the email from the entity's email attribute
+        ProvisioningEntity provisioningEntity = targetMembership.getProvisioningEntity();
+        String userEmail = provisioningEntity == null ? null
+            : provisioningEntity.retrieveAttributeValueString("email");
 
         if (TrueFoundryGroup.GROUP_TYPE_TEAM.equals(groupType)) {
           if (!teamMemberships.containsKey(groupId)) {
@@ -729,8 +772,8 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       for (String teamId : teamMemberships.keySet()) {
         List<ProvisioningMembership> memberships = teamMemberships.get(teamId);
         try {
-          TrueFoundryApiCommands.removeTeamMembers(configId, teamId,
-              teamEmailsToRemove.get(teamId), config.getTrueFoundryDefaultTeamMemberEmail());
+          TrueFoundryApiCommands.removeTeamMembers(configId, settings, teamId,
+              teamEmailsToRemove.get(teamId));
           for (ProvisioningMembership m : memberships) {
             m.setProvisioned(true);
             for (ProvisioningObjectChange change : GrouperUtil.nonNull(
