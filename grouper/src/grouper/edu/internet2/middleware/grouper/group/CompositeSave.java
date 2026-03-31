@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.misc.SaveResultType;
 
 
 /**
@@ -244,7 +245,15 @@ public class CompositeSave {
   }
 
   /**
-   * 
+   * get the save type
+   * @return save type
+   */
+  public SaveResultType getSaveResultType() {
+    return this.compositeSaveDelegate.getSaveResultType();
+  }
+
+  /**
+   *
    * @return the composite
    */
   public Composite getComposite() {
