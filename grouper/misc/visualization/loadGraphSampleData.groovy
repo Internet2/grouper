@@ -48,7 +48,7 @@
 // imports needed when executing from a file evaluation
 import edu.internet2.middleware.grouper.*
 import edu.internet2.middleware.grouper.attr.*
-import edu.internet2.middleware.grouper.group.CompositeSave;
+import edu.internet2.middleware.grouper.CompositeSave;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveResultType;

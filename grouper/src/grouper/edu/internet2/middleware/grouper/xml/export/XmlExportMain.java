@@ -324,7 +324,7 @@ public class XmlExportMain {
       writer.write("import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;\n");
       writer.write("import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;\n");
       writer.write("import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;\n");
-      writer.write("import edu.internet2.middleware.grouper.group.CompositeSave;\n");
+      writer.write("import edu.internet2.middleware.grouper.CompositeSave;\n");
       writer.write("import edu.internet2.middleware.grouper.group.TypeOfGroup;\n");
       writer.write("import edu.internet2.middleware.grouper.misc.CompositeType;\n");
       writer.write("import edu.internet2.middleware.grouper.misc.SaveResultType;\n");
