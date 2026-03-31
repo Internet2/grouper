@@ -5,6 +5,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBeha
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
 public class TrueFoundryProvisioner extends GrouperProvisioner {
@@ -22,6 +23,11 @@ public class TrueFoundryProvisioner extends GrouperProvisioner {
   @Override
   protected Class<? extends GrouperProvisioningObjectMetadata> grouperProvisioningObjectMetadataClass() {
     return TrueFoundrySyncObjectMetadata.class;
+  }
+
+  @Override
+  protected Class<? extends GrouperProvisioningTranslator> grouperTranslatorClass() {
+    return TrueFoundryProvisioningTranslator.class;
   }
 
   @Override

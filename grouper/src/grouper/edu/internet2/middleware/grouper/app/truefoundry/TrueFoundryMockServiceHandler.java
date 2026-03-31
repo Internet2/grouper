@@ -167,7 +167,8 @@ public class TrueFoundryMockServiceHandler extends MockServiceHandler {
 
   /**
    * Build a user JSON object in TrueFoundry subjects API format.
-   * Format: {"id": "...", "email": "...", "active": true, "metadata": {"displayName": "..."}}
+   * Format: {"id": "...", "email": "...", "active": true, "metadata": {"displayName": "..."},
+   *          "rolesWithResource": [{"roleId": "...", "resourceType": "account", "resourceId": "..."}]}
    */
   private ObjectNode buildUserJson(TrueFoundryUser user) {
     ObjectNode userNode = GrouperUtil.jsonJacksonNode();
@@ -180,6 +181,31 @@ public class TrueFoundryMockServiceHandler extends MockServiceHandler {
       metadataNode.put("displayName", user.getDisplayName());
       userNode.set("metadata", metadataNode);
     }
+
+    // include rolesWithResource from role memberships for this user
+    ArrayNode rolesWithResourceArray = GrouperUtil.jsonJacksonArrayNode();
+    List<TrueFoundryMembership> roleMemberships = HibernateSession.byHqlStatic()
+        .createQuery("from TrueFoundryMembership where userEmail = :theEmail and groupId in "
+            + "(select id from TrueFoundryGroup where groupType = :theType)")
+        .setString("theEmail", user.getEmail())
+        .setString("theType", TrueFoundryGroup.GROUP_TYPE_ROLE)
+        .list(TrueFoundryMembership.class);
+    for (TrueFoundryMembership roleMembership : GrouperUtil.nonNull(roleMemberships)) {
+      // look up the role to get its resourceType
+      List<TrueFoundryGroup> roles = HibernateSession.byHqlStatic()
+          .createQuery("from TrueFoundryGroup where id = :theId")
+          .setString("theId", roleMembership.getGroupId())
+          .list(TrueFoundryGroup.class);
+      if (GrouperUtil.length(roles) > 0) {
+        TrueFoundryGroup role = roles.get(0);
+        ObjectNode roleWithResource = GrouperUtil.jsonJacksonNode();
+        roleWithResource.put("roleId", role.getId());
+        roleWithResource.put("resourceType", StringUtils.defaultIfBlank(role.getResourceType(), "account"));
+        roleWithResource.put("resourceId", "mock-resource-id");
+        rolesWithResourceArray.add(roleWithResource);
+      }
+    }
+    userNode.set("rolesWithResource", rolesWithResourceArray);
 
     return userNode;
   }

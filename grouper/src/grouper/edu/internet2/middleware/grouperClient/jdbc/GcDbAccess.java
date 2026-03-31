@@ -216,7 +216,34 @@ public class GcDbAccess {
     this.batchSize = theBatchSize;
     return this;
   }
-  
+
+  /**
+   * page number (1-based) for paging results.
+   * use with pageSize via the paging() method.
+   */
+  private Integer pageNumber;
+
+  /**
+   * page size for paging results.
+   * use with pageNumber via the paging() method.
+   */
+  private Integer pageSize;
+
+  /**
+   * set paging parameters for the query.
+   * Page numbers are 1-based (first page is 1).
+   * This appends vendor-appropriate LIMIT/OFFSET or FETCH FIRST/OFFSET
+   * syntax to the SQL at execution time.
+   * @param thePageNumber 1-based page number
+   * @param thePageSize number of rows per page
+   * @return this for chaining
+   */
+  public GcDbAccess paging(int thePageNumber, int thePageSize) {
+    this.pageNumber = thePageNumber;
+    this.pageSize = thePageSize;
+    return this;
+  }
+
   /**
    * If we're doing a batch store and there's an exception, should we retry
    * @param retryBatchStoreFailures
@@ -3129,10 +3156,16 @@ public class GcDbAccess {
       // Make a new connection.
       this.connection = connectionBean.getConnection();
 
+      // apply paging to the SQL if requested
+      String sqlToUse = this.sql;
+      if (this.pageSize != null && this.pageNumber != null) {
+        sqlToUse = addPagingSql(this.connection, sqlToUse, this.pageNumber, this.pageSize);
+      }
+
       // Get the statement object that we are going to use.
-      preparedStatement = this.connection.prepareStatement(this.sql);
+      preparedStatement = this.connection.prepareStatement(sqlToUse);
       preparedStatement.setFetchSize(1000);
-      String sqltoRecord = this.sql;
+      String sqltoRecord = sqlToUse;
 
 
       // Set the query timeout if there is one.
@@ -4015,6 +4048,33 @@ public class GcDbAccess {
       }
       
     });
-    
+
+  }
+
+  /**
+   * add paging (LIMIT/OFFSET) to a SQL query, vendor-appropriate.
+   * Detects the database vendor from the JDBC connection metadata.
+   * Page numbers are 1-based (first page is 1).
+   * @param connection the JDBC connection (used for vendor detection)
+   * @param sql the SQL query
+   * @param thePageNumber 1-based page number
+   * @param thePageSize number of rows per page
+   * @return the SQL with paging appended
+   */
+  static String addPagingSql(Connection connection, String sql, int thePageNumber, int thePageSize) {
+    int offset = (thePageNumber - 1) * thePageSize;
+    boolean isOracle = false;
+    try {
+      String productName = connection.getMetaData().getDatabaseProductName();
+      isOracle = productName != null && productName.toLowerCase().contains("oracle");
+    } catch (Exception e) {
+      // fall through to default (LIMIT/OFFSET)
+    }
+    if (isOracle) {
+      // Oracle 12c+ supports OFFSET/FETCH (SQL:2008 standard)
+      return sql + " OFFSET " + offset + " ROWS FETCH NEXT " + thePageSize + " ROWS ONLY";
+    }
+    // PostgreSQL and MySQL both support LIMIT/OFFSET
+    return sql + " LIMIT " + thePageSize + " OFFSET " + offset;
   }
 }

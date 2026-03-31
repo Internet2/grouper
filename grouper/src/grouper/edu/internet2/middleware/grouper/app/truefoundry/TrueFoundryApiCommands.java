@@ -172,6 +172,8 @@ public class TrueFoundryApiCommands {
     public List<TrueFoundryUser> users = new ArrayList<TrueFoundryUser>();
     /** All teams returned by the subjects endpoint, deduplicated by ID. */
     public List<TrueFoundryGroup> teams = new ArrayList<TrueFoundryGroup>();
+    /** Role memberships extracted from rolesWithResource on each user: roleId -> set of user emails. */
+    public Map<String, Set<String>> roleMembershipsByRoleId = new LinkedHashMap<String, Set<String>>();
   }
 
   /**
@@ -179,10 +181,12 @@ public class TrueFoundryApiCommands {
    * (with their members and managers) from GET /api/svc/v1/subjects.
    * Teams are deduplicated by ID across pages.
    * @param configId the external system config id
-   * @param ignoreUserEmails set of email addresses to filter out, or null to skip
+   * @param settings TrueFoundry settings (uses ignoreUserEmails)
    * @return SubjectsData with users and teams lists
    */
-  public static SubjectsData retrieveSubjectsData(String configId, Set<String> ignoreUserEmails) {
+  public static SubjectsData retrieveSubjectsData(String configId, TrueFoundrySettings settings) {
+
+    Set<String> ignoreUserEmails = settings == null ? null : settings.getIgnoreUserEmails();
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "retrieveSubjectsData");
@@ -214,7 +218,8 @@ public class TrueFoundryApiCommands {
         int returnedCount = usersArray == null ? 0 : usersArray.size();
 
         for (int i = 0; i < returnedCount; i++) {
-          TrueFoundryUser user = TrueFoundryUser.fromJson(usersArray.get(i));
+          JsonNode userNode = usersArray.get(i);
+          TrueFoundryUser user = TrueFoundryUser.fromJson(userNode);
           if (user == null) {
             continue;
           }
@@ -225,6 +230,23 @@ public class TrueFoundryApiCommands {
             continue;
           }
           subjectsData.users.add(user);
+
+          // extract role memberships from rolesWithResource
+          ArrayNode rolesWithResource = (ArrayNode) GrouperUtil.jsonJacksonGetNode(userNode, "rolesWithResource");
+          if (rolesWithResource != null) {
+            for (int j = 0; j < rolesWithResource.size(); j++) {
+              JsonNode roleWithResource = rolesWithResource.get(j);
+              String roleId = GrouperUtil.jsonJacksonGetString(roleWithResource, "roleId");
+              if (StringUtils.isNotBlank(roleId)) {
+                Set<String> emails = subjectsData.roleMembershipsByRoleId.get(roleId);
+                if (emails == null) {
+                  emails = new LinkedHashSet<String>();
+                  subjectsData.roleMembershipsByRoleId.put(roleId, emails);
+                }
+                emails.add(user.getEmail());
+              }
+            }
+          }
         }
 
         // extract teams (deduplicated by ID across pages — teams are included on every page)
@@ -262,11 +284,13 @@ public class TrueFoundryApiCommands {
    * Filters to the users array only (excludes teams, virtualAccounts, externalIdentities).
    * @param configId the external system config id
    * @param includeInactiveUsers true to include deactivated users, false to filter them out
-   * @param ignoreUserEmails set of email addresses to filter out (case-insensitive), or null to skip
+   * @param settings TrueFoundry settings (uses ignoreUserEmails)
    * @return list of TrueFoundryUser objects
    */
   public static List<TrueFoundryUser> retrieveUsers(String configId, boolean includeInactiveUsers,
-      Set<String> ignoreUserEmails) {
+      TrueFoundrySettings settings) {
+
+    Set<String> ignoreUserEmails = settings == null ? null : settings.getIgnoreUserEmails();
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "retrieveUsers");
@@ -334,12 +358,13 @@ public class TrueFoundryApiCommands {
    * Uses GET /api/svc/v1/subjects?query={email}.
    * Returns null if not found (totalUsers=0).
    * @param configId the external system config id
+   * @param settings TrueFoundry settings
    * @param email the email to search for
    * @param includeInactiveUsers true to include deactivated users, false to filter them out
    * @return the matching TrueFoundryUser, or null if not found
    */
-  public static TrueFoundryUser retrieveUserByEmail(String configId, String email,
-      boolean includeInactiveUsers) {
+  public static TrueFoundryUser retrieveUserByEmail(String configId, TrueFoundrySettings settings,
+      String email, boolean includeInactiveUsers) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "retrieveUserByEmail");
@@ -403,13 +428,15 @@ public class TrueFoundryApiCommands {
    * If the user has a displayName and SCIM is configured (tenantName and ssoId are not blank),
    * the display name is set via SCIM PATCH after creation.
    * @param configId the external system config id
+   * @param settings TrueFoundry settings (uses tenantName, ssoId for SCIM display name, defaultTeamMemberEmail for delete cleanup)
    * @param user the user to create (must have email set; displayName is optional)
-   * @param tenantName the SCIM tenant name (or null/blank to skip display name update)
-   * @param ssoId the SCIM SSO ID (or null/blank to skip display name update)
    * @return the created or reactivated TrueFoundryUser with id populated
    */
-  public static TrueFoundryUser createUser(String configId, TrueFoundryUser user,
-      String tenantName, String ssoId) {
+  public static TrueFoundryUser createUser(String configId, TrueFoundrySettings settings,
+      TrueFoundryUser user) {
+
+    String tenantName = settings == null ? null : settings.getTenantName();
+    String ssoId = settings == null ? null : settings.getSsoId();
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "createUser");
@@ -426,7 +453,7 @@ public class TrueFoundryApiCommands {
       String email = user.getEmail();
 
       // check if user already exists (including inactive)
-      TrueFoundryUser existingUser = retrieveUserByEmail(configId, email, true);
+      TrueFoundryUser existingUser = retrieveUserByEmail(configId, settings, email, true);
 
       if (existingUser != null) {
         debugMap.put("existingUserFound", true);
@@ -434,16 +461,17 @@ public class TrueFoundryApiCommands {
         // reactivate if inactive
         if (existingUser.getActive() != null && !existingUser.getActive()) {
           debugMap.put("reActivatingUser", true);
-          boolean activated = activateUser(configId, email);
+          boolean activated = activateUser(configId, settings, email);
           if (activated) {
             existingUser.setActive(true);
             return existingUser;
           }
           // 404 means the user was hard-deleted in TrueFoundry despite still
           // appearing in the subjects search.  Delete the stale record and re-register.
+          // deleteUser removes the user from all teams first so the delete can succeed.
           debugMap.put("activateUser404", "user was hard-deleted, deleting and re-registering");
           if (StringUtils.isNotBlank(existingUser.getId())) {
-            deleteUser(configId, existingUser.getId());
+            deleteUser(configId, settings, existingUser.getId(), email);
           }
         } else {
           return existingUser;
@@ -454,13 +482,12 @@ public class TrueFoundryApiCommands {
       registerUser(configId, user);
 
       // look up by email to get the assigned TrueFoundry user ID
-      TrueFoundryUser createdUser = retrieveUserByEmail(configId, email, true);
+      TrueFoundryUser createdUser = retrieveUserByEmail(configId, settings, email, true);
 
       // set display name via SCIM if configured and displayName is provided
       if (createdUser != null && !StringUtils.isBlank(user.getDisplayName())
           && !StringUtils.isBlank(tenantName) && !StringUtils.isBlank(ssoId)) {
-        updateUserDisplayName(configId, tenantName, ssoId, createdUser.getId(),
-            user.getDisplayName());
+        updateUserDisplayName(configId, settings, createdUser.getId(), user.getDisplayName());
         createdUser.setDisplayName(user.getDisplayName());
       }
 
@@ -514,9 +541,10 @@ public class TrueFoundryApiCommands {
    * Deactivate a user in TrueFoundry via PATCH /api/svc/v1/users/deactivate.
    * Sets active=false on the user. Use activateUser to re-enable.
    * @param configId the external system config id
+   * @param settings TrueFoundry settings
    * @param email the email of the user to deactivate
    */
-  public static void deactivateUser(String configId, String email) {
+  public static void deactivateUser(String configId, TrueFoundrySettings settings, String email) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "deactivateUser");
@@ -547,10 +575,11 @@ public class TrueFoundryApiCommands {
   /**
    * Activate (re-enable) a previously deactivated user via PATCH /api/svc/v1/users/activate.
    * @param configId the external system config id
+   * @param settings TrueFoundry settings
    * @param email the email of the user to activate
    * @return true if activated successfully, false if user not found (404)
    */
-  public static boolean activateUser(String configId, String email) {
+  public static boolean activateUser(String configId, TrueFoundrySettings settings, String email) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "activateUser");
@@ -587,13 +616,15 @@ public class TrueFoundryApiCommands {
    * Only call this if both tenantName and ssoId are configured.
    * Do NOT use SCIM to create users — only PATCH existing natively-registered users.
    * @param configId the external system config id
-   * @param tenantName the TrueFoundry tenant name (e.g. "upenn-prod")
-   * @param ssoId the SCIM SSO ID segment
+   * @param settings TrueFoundry settings (uses tenantName and ssoId)
    * @param id the native TrueFoundry user ID (not email) used in the SCIM URL
    * @param displayName the new display name to set
    */
-  public static void updateUserDisplayName(String configId, String tenantName, String ssoId,
+  public static void updateUserDisplayName(String configId, TrueFoundrySettings settings,
       String id, String displayName) {
+
+    String tenantName = settings == null ? null : settings.getTenantName();
+    String ssoId = settings == null ? null : settings.getSsoId();
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "updateUserDisplayName");
@@ -653,10 +684,11 @@ public class TrueFoundryApiCommands {
    * The "team-manager" role is system-managed and cannot be assigned via the provisioner.
    * Note: role assignment does not work for SCIM-created users (isEditable=false).
    * @param configId the external system config id
+   * @param settings TrueFoundry settings
    * @param email the email of the user to assign the role to
    * @param roleName the role name (e.g. "member", "read-only-member", "tenant-admin", or a custom role name)
    */
-  public static void assignUserRole(String configId, String email, String roleName) {
+  public static void assignUserRole(String configId, TrueFoundrySettings settings, String email, String roleName) {
 
     if (ROLE_NAME_TEAM_MANAGER.equals(roleName)) {
       throw new RuntimeException("The 'team-manager' role is managed internally by TrueFoundry "
@@ -709,10 +741,12 @@ public class TrueFoundryApiCommands {
    * No paging — all roles returned in one call.
    * Filters to roles with resourceType "account" or "tenant" (provisioner-managed).
    * @param configId the external system config id
-   * @param ignoreRoleNames set of role names to filter out (case-insensitive), or null to skip
+   * @param settings TrueFoundry settings (uses ignoreRoleNames)
    * @return list of TrueFoundryGroup objects with groupType=role
    */
-  public static List<TrueFoundryGroup> retrieveRoles(String configId, Set<String> ignoreRoleNames) {
+  public static List<TrueFoundryGroup> retrieveRoles(String configId, TrueFoundrySettings settings) {
+
+    Set<String> ignoreRoleNames = settings == null ? null : settings.getIgnoreRoleNames();
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "retrieveRoles");
@@ -774,10 +808,11 @@ public class TrueFoundryApiCommands {
    * Note: roles should be managed by administrators in the TrueFoundry UI; role create/update
    * is provided for completeness but is generally not invoked by the provisioner.
    * @param configId the external system config id
+   * @param settings TrueFoundry settings
    * @param role the role to create or update
    * @return the created/updated TrueFoundryGroup with assigned id
    */
-  public static TrueFoundryGroup createOrUpdateRole(String configId, TrueFoundryGroup role) {
+  public static TrueFoundryGroup createOrUpdateRole(String configId, TrueFoundrySettings settings, TrueFoundryGroup role) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "createOrUpdateRole");
@@ -863,9 +898,10 @@ public class TrueFoundryApiCommands {
    * Note: roles should be managed by administrators in the TrueFoundry UI; role delete
    * is provided for completeness but is generally not invoked by the provisioner.
    * @param configId the external system config id
+   * @param settings TrueFoundry settings
    * @param roleId the TrueFoundry role ID
    */
-  public static void deleteRole(String configId, String roleId) {
+  public static void deleteRole(String configId, TrueFoundrySettings settings, String roleId) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "deleteRole");
@@ -900,9 +936,10 @@ public class TrueFoundryApiCommands {
    * Retrieve all teams from TrueFoundry via GET /api/svc/v1/teams/user.
    * Uses limit/offset paging. pagination.total used to detect end of pages.
    * @param configId the external system config id
+   * @param settings TrueFoundry settings
    * @return list of TrueFoundryGroup objects with groupType=team
    */
-  public static List<TrueFoundryGroup> retrieveTeams(String configId) {
+  public static List<TrueFoundryGroup> retrieveTeams(String configId, TrueFoundrySettings settings) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "retrieveTeams");
@@ -963,10 +1000,11 @@ public class TrueFoundryApiCommands {
    * Get a single team by its ID via GET /api/svc/v1/teams/{id}.
    * Returns null if the team is not found (404).
    * @param configId the external system config id
+   * @param settings TrueFoundry settings
    * @param teamId the TrueFoundry team ID
    * @return the TrueFoundryGroup, or null if not found
    */
-  public static TrueFoundryGroup getTeamById(String configId, String teamId) {
+  public static TrueFoundryGroup getTeamById(String configId, TrueFoundrySettings settings, String teamId) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "getTeamById");
@@ -1004,12 +1042,14 @@ public class TrueFoundryApiCommands {
    * If defaultTeamMemberEmailAddress is provided it is added as the initial member.
    * Memberships are added afterward via addTeamMembers.
    * @param configId the external system config id
+   * @param settings TrueFoundry settings (uses defaultTeamMemberEmail)
    * @param team the team (must have name set)
-   * @param defaultTeamMemberEmailAddress email of the required default member (e.g. a service account); may be blank
    * @return the created TrueFoundryGroup with assigned id, or null if 409
    */
-  public static TrueFoundryGroup createTeam(String configId, TrueFoundryGroup team,
-      String defaultTeamMemberEmailAddress) {
+  public static TrueFoundryGroup createTeam(String configId, TrueFoundrySettings settings,
+      TrueFoundryGroup team) {
+
+    String defaultTeamMemberEmailAddress = settings == null ? null : settings.getDefaultTeamMemberEmail();
     assertNotEveryoneTeam(team);
     List<String> initialMembers = null;
     if (!StringUtils.isBlank(defaultTeamMemberEmailAddress)) {
@@ -1023,12 +1063,13 @@ public class TrueFoundryApiCommands {
    * Update group-level fields on an existing team (e.g. name) while preserving
    * the current member and manager lists.
    * @param configId the external system config id
+   * @param settings TrueFoundry settings
    * @param team the team with updated fields (must have id and name set)
    * @return the updated TrueFoundryGroup, or null if 409
    */
-  public static TrueFoundryGroup updateTeam(String configId, TrueFoundryGroup team) {
+  public static TrueFoundryGroup updateTeam(String configId, TrueFoundrySettings settings, TrueFoundryGroup team) {
     assertNotEveryoneTeam(team);
-    TrueFoundryGroup currentTeam = getTeamById(configId, team.getId());
+    TrueFoundryGroup currentTeam = getTeamById(configId, settings, team.getId());
     List<String> currentMembers = currentTeam != null ? currentTeam.getMembers() : null;
     List<String> currentManagers = currentTeam != null ? currentTeam.getManagers() : null;
     return createOrUpdateTeam(configId, team, currentMembers, currentManagers);
@@ -1040,15 +1081,16 @@ public class TrueFoundryApiCommands {
    * Regular members are added to the members list; managers are added to both lists.
    * If an email appears in regularMemberEmails and was previously a manager, it is demoted.
    * @param configId the external system config id
+   * @param settings TrueFoundry settings
    * @param teamId the team id
    * @param managerEmails emails to add as team managers (also added to members list)
    * @param regularMemberEmails emails to add as regular members (removed from managers if present)
    * @return the updated TrueFoundryGroup, or null if 409
    */
-  public static TrueFoundryGroup addTeamMembers(String configId, String teamId,
-      List<String> managerEmails, List<String> regularMemberEmails) {
+  public static TrueFoundryGroup addTeamMembers(String configId, TrueFoundrySettings settings,
+      String teamId, List<String> managerEmails, List<String> regularMemberEmails) {
 
-    TrueFoundryGroup currentTeam = getTeamById(configId, teamId);
+    TrueFoundryGroup currentTeam = getTeamById(configId, settings, teamId);
     if (currentTeam == null) {
       throw new RuntimeException("Team not found for addTeamMembers, teamId: " + teamId);
     }
@@ -1085,15 +1127,17 @@ public class TrueFoundryApiCommands {
    * team always has at least one member.  The service team is responsible for keeping at least
    * one real person in each team; the default member is a safety net only.
    * @param configId the external system config id
+   * @param settings TrueFoundry settings (uses defaultTeamMemberEmail)
    * @param teamId the team id
    * @param emailsToRemove emails to remove from both members and managers lists
-   * @param defaultTeamMemberEmailAddress email of the required default member; kept when the list would otherwise be empty; may be blank
    * @return the updated TrueFoundryGroup, or null if team not found
    */
-  public static TrueFoundryGroup removeTeamMembers(String configId, String teamId,
-      List<String> emailsToRemove, String defaultTeamMemberEmailAddress) {
+  public static TrueFoundryGroup removeTeamMembers(String configId, TrueFoundrySettings settings,
+      String teamId, List<String> emailsToRemove) {
 
-    TrueFoundryGroup currentTeam = getTeamById(configId, teamId);
+    String defaultTeamMemberEmailAddress = settings == null ? null : settings.getDefaultTeamMemberEmail();
+
+    TrueFoundryGroup currentTeam = getTeamById(configId, settings, teamId);
     if (currentTeam == null) {
       // team already gone — memberships effectively deleted
       return null;
@@ -1218,9 +1262,10 @@ public class TrueFoundryApiCommands {
    * Returns 200 on success.
    * Returns 404 if not found — treated as non-fatal (already deleted).
    * @param configId the external system config id
+   * @param settings TrueFoundry settings
    * @param teamId the TrueFoundry team ID
    */
-  public static void deleteTeam(String configId, String teamId) {
+  public static void deleteTeam(String configId, TrueFoundrySettings settings, String teamId) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "deleteTeam");
@@ -1234,7 +1279,7 @@ public class TrueFoundryApiCommands {
         throw new RuntimeException("teamId is required for deleteTeam");
       }
 
-      TrueFoundryGroup team = getTeamById(configId, teamId);
+      TrueFoundryGroup team = getTeamById(configId, settings, teamId);
       if (team == null) {
         debugMap.put("notFound", "team not found, treating as already deleted");
         return;
@@ -1259,13 +1304,18 @@ public class TrueFoundryApiCommands {
 
   /**
    * Delete a user by their internal TrueFoundry user ID via DELETE /api/svc/v1/users/{userId}.
-   * FOR TESTING/CLEANUP USE ONLY — not called by the DAO or provisioner.
-   * TrueFoundry normally only deactivates users; this hard-deletes for test cleanup.
+   * TrueFoundry blocks deletion when the user has team memberships, so this method
+   * first retrieves the user's teams via GET /subjects?query={email} and removes the
+   * user from all teams before issuing the DELETE.
    * Returns 200 on success. 404 is treated as non-fatal (already deleted).
    * @param configId the external system config id
+   * @param settings TrueFoundry settings (uses defaultTeamMemberEmail for team cleanup)
    * @param userId the internal TrueFoundry user ID (not email)
+   * @param email the user's email address, used to find and remove team memberships
+   *              before deleting; if null, skip team removal
    */
-  private static void deleteUser(String configId, String userId) {
+  private static void deleteUser(String configId, TrueFoundrySettings settings,
+      String userId, String email) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("method", "deleteUser");
@@ -1277,6 +1327,36 @@ public class TrueFoundryApiCommands {
 
       if (StringUtils.isBlank(userId)) {
         throw new RuntimeException("userId is required for deleteUser");
+      }
+
+      // remove user from all teams so the hard delete can succeed
+      if (StringUtils.isNotBlank(email)) {
+        String urlSuffix = "/api/svc/v1/subjects?query=" + GrouperUtil.escapeUrlEncode(email)
+            + "&limit=25&offset=0&showInvalidUsers=true";
+        JsonNode jsonNode = executeMethod(debugMap, "deleteUser_getSubjects", "GET", configId,
+            urlSuffix, GrouperUtil.toSet(200), new int[] { -1 }, null);
+
+        if (jsonNode != null) {
+          ArrayNode teamsArray = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "teams");
+          if (teamsArray != null) {
+            List<String> emailsToRemove = new ArrayList<String>();
+            emailsToRemove.add(email);
+            int teamsRemoved = 0;
+            for (int i = 0; i < teamsArray.size(); i++) {
+              TrueFoundryGroup team = TrueFoundryGroup.fromTeamJson(teamsArray.get(i));
+              if (team == null || StringUtils.isBlank(team.getId())) {
+                continue;
+              }
+              boolean isMember = GrouperUtil.nonNull(team.getMembers()).contains(email);
+              boolean isManager = GrouperUtil.nonNull(team.getManagers()).contains(email);
+              if (isMember || isManager) {
+                removeTeamMembers(configId, settings, team.getId(), emailsToRemove);
+                teamsRemoved++;
+              }
+            }
+            debugMap.put("teamsRemovedFrom", teamsRemoved);
+          }
+        }
       }
 
       executeMethod(debugMap, "deleteUser", "DELETE", configId, "/api/svc/v1/users/" + userId,
@@ -1306,19 +1386,20 @@ public class TrueFoundryApiCommands {
     String configId = "trueFoundryProd";
     String testUserEmail = "pgtest1@upenn.edu";
     String testUserDisplayName = "PG Test User 1";
-    String scimTenantName = "upenn-prod";
-    String scimSsoId = "cmn51z1g108e401py6ct1fd2o";
-    // TrueFoundry requires at least one member per team; this service account is always kept
-    String defaultTeamMemberEmail = "mchyzer@upenn.edu";
     String testTeamName = "test-team-" + System.currentTimeMillis();
     String testRoleName = "test-role-" + System.currentTimeMillis();
+
+    TrueFoundrySettings settings = new TrueFoundrySettings();
+    settings.setTenantName("upenn-prod");
+    settings.setSsoId("cmn51z1g108e401py6ct1fd2o");
+    settings.setDefaultTeamMemberEmail("mchyzer@upenn.edu");
 
     try {
 
       // clean up any pre-existing test data from a previous failed run
-      TrueFoundryUser existingTestUser = retrieveUserByEmail(configId, testUserEmail, true);
+      TrueFoundryUser existingTestUser = retrieveUserByEmail(configId, settings, testUserEmail, true);
       if (existingTestUser != null && StringUtils.isNotBlank(existingTestUser.getId())) {
-        deleteUser(configId, existingTestUser.getId());
+        deleteUser(configId, settings, existingTestUser.getId(), testUserEmail);
         System.out.println("Cleaned up pre-existing test user: " + testUserEmail);
       }
 
@@ -1327,14 +1408,14 @@ public class TrueFoundryApiCommands {
       // ============================
 
       System.out.println("\n====== RETRIEVE USERS ======");
-      List<TrueFoundryUser> allUsers = retrieveUsers(configId, false, null);
+      List<TrueFoundryUser> allUsers = retrieveUsers(configId, false, settings);
       System.out.println("Total active users: " + GrouperUtil.length(allUsers));
 
       System.out.println("\n====== CREATE USER (with display name) ======");
       TrueFoundryUser newUser = new TrueFoundryUser();
       newUser.setEmail(testUserEmail);
       newUser.setDisplayName(testUserDisplayName);
-      TrueFoundryUser createdUser = createUser(configId, newUser, scimTenantName, scimSsoId);
+      TrueFoundryUser createdUser = createUser(configId, settings, newUser);
       System.out.println("Created user: " + createdUser);
       GrouperUtil.assertion(createdUser != null, "Created user should not be null");
       GrouperUtil.assertion(StringUtils.isNotBlank(createdUser.getId()), "Created user should have an id");
@@ -1344,7 +1425,7 @@ public class TrueFoundryApiCommands {
       System.out.println("Created user id: " + userId);
 
       System.out.println("\n====== RETRIEVE USERS (verify created user appears) ======");
-      List<TrueFoundryUser> usersAfterCreate = retrieveUsers(configId, false, null);
+      List<TrueFoundryUser> usersAfterCreate = retrieveUsers(configId, false, settings);
       boolean foundInAll = false;
       for (TrueFoundryUser u : GrouperUtil.nonNull(usersAfterCreate)) {
         if (StringUtils.equalsIgnoreCase(testUserEmail, u.getEmail())) {
@@ -1356,23 +1437,23 @@ public class TrueFoundryApiCommands {
       System.out.println("Found created user in retrieveUsers: true");
 
       System.out.println("\n====== RETRIEVE USER BY EMAIL (active) ======");
-      TrueFoundryUser foundUser = retrieveUserByEmail(configId, testUserEmail, false);
+      TrueFoundryUser foundUser = retrieveUserByEmail(configId, settings, testUserEmail, false);
       GrouperUtil.assertion(foundUser != null, "Should find user by email (active only)");
       GrouperUtil.assertion(StringUtils.equals(userId, foundUser.getId()), "Found user id should match");
       System.out.println("Found active user: " + foundUser);
 
       System.out.println("\n====== DEACTIVATE USER ======");
-      deactivateUser(configId, testUserEmail);
+      deactivateUser(configId, settings, testUserEmail);
       System.out.println("Deactivated user: " + testUserEmail);
 
       System.out.println("\n====== RETRIEVE USER BY EMAIL (active only, should not find) ======");
-      TrueFoundryUser shouldBeNull = retrieveUserByEmail(configId, testUserEmail, false);
+      TrueFoundryUser shouldBeNull = retrieveUserByEmail(configId, settings, testUserEmail, false);
       GrouperUtil.assertion(shouldBeNull == null,
           "Should NOT find deactivated user with includeInactiveUsers=false");
       System.out.println("Verified deactivated user not found with includeInactiveUsers=false: true");
 
       System.out.println("\n====== RETRIEVE USER BY EMAIL (include inactive) ======");
-      TrueFoundryUser inactiveUser = retrieveUserByEmail(configId, testUserEmail, true);
+      TrueFoundryUser inactiveUser = retrieveUserByEmail(configId, settings, testUserEmail, true);
       GrouperUtil.assertion(inactiveUser != null,
           "Should find deactivated user with includeInactiveUsers=true");
       GrouperUtil.assertion(inactiveUser.getActive() != null && !inactiveUser.getActive(),
@@ -1383,7 +1464,7 @@ public class TrueFoundryApiCommands {
       TrueFoundryUser reactivateUser = new TrueFoundryUser();
       reactivateUser.setEmail(testUserEmail);
       reactivateUser.setDisplayName(testUserDisplayName);
-      TrueFoundryUser reactivatedByCreate = createUser(configId, reactivateUser, scimTenantName, scimSsoId);
+      TrueFoundryUser reactivatedByCreate = createUser(configId, settings, reactivateUser);
       GrouperUtil.assertion(reactivatedByCreate != null, "createUser should reactivate the deactivated user");
       GrouperUtil.assertion(reactivatedByCreate.getActive(), "createUser should reactivate the deactivated user");
       System.out.println("createUser reactivated: " + reactivatedByCreate);
@@ -1392,7 +1473,7 @@ public class TrueFoundryApiCommands {
       userId = reactivatedByCreate.getId();
 
       System.out.println("\n====== RETRIEVE USER BY EMAIL (verify reactivated) ======");
-      TrueFoundryUser reactivatedUser = retrieveUserByEmail(configId, testUserEmail, false);
+      TrueFoundryUser reactivatedUser = retrieveUserByEmail(configId, settings, testUserEmail, false);
       GrouperUtil.assertion(reactivatedUser != null, "Should find reactivated user");
       GrouperUtil.assertion(reactivatedUser.getActive() == null || reactivatedUser.getActive(),
           "Reactivated user should be active");
@@ -1403,7 +1484,7 @@ public class TrueFoundryApiCommands {
       // ============================
 
       System.out.println("\n====== RETRIEVE ROLES ======");
-      List<TrueFoundryGroup> allRoles = retrieveRoles(configId, null);
+      List<TrueFoundryGroup> allRoles = retrieveRoles(configId, settings);
       System.out.println("Total roles: " + GrouperUtil.length(allRoles));
       for (TrueFoundryGroup role : GrouperUtil.nonNull(allRoles)) {
         System.out.println("  role: id=" + role.getId() + ", name=" + role.getName()
@@ -1412,19 +1493,19 @@ public class TrueFoundryApiCommands {
       GrouperUtil.assertion(GrouperUtil.length(allRoles) > 0, "Should have at least one role");
 
       System.out.println("\n====== ASSIGN USER ROLE (member) ======");
-      assignUserRole(configId, testUserEmail, "member");
+      assignUserRole(configId, settings, testUserEmail, "member");
       System.out.println("Assigned role 'member' to: " + testUserEmail);
 
       System.out.println("\n====== ASSIGN USER ROLE (read-only-member) ======");
-      assignUserRole(configId, testUserEmail, "read-only-member");
+      assignUserRole(configId, settings, testUserEmail, "read-only-member");
       System.out.println("Assigned role 'read-only-member' to: " + testUserEmail);
 
       System.out.println("\n====== ASSIGN USER ROLE (tenant-admin) ======");
-      assignUserRole(configId, testUserEmail, "tenant-admin");
+      assignUserRole(configId, settings, testUserEmail, "tenant-admin");
       System.out.println("Assigned role 'tenant-admin' to: " + testUserEmail);
 
       // put user back to member
-      assignUserRole(configId, testUserEmail, "member");
+      assignUserRole(configId, settings, testUserEmail, "member");
 
       System.out.println("\n====== CREATE ROLE ======");
       TrueFoundryGroup newRole = new TrueFoundryGroup();
@@ -1433,7 +1514,7 @@ public class TrueFoundryApiCommands {
       newRole.setDescription("Test role created by Grouper integration test");
       newRole.setGroupType(TrueFoundryGroup.GROUP_TYPE_ROLE);
       newRole.setResourceType("account");
-      TrueFoundryGroup createdRole = createOrUpdateRole(configId, newRole);
+      TrueFoundryGroup createdRole = createOrUpdateRole(configId, settings, newRole);
       System.out.println("Created role: " + createdRole);
       GrouperUtil.assertion(createdRole != null, "Created role should not be null");
       GrouperUtil.assertion(StringUtils.isNotBlank(createdRole.getId()), "Created role should have an id");
@@ -1443,23 +1524,23 @@ public class TrueFoundryApiCommands {
 
       System.out.println("\n====== UPDATE ROLE ======");
       newRole.setDescription("Updated description");
-      TrueFoundryGroup updatedRole = createOrUpdateRole(configId, newRole);
+      TrueFoundryGroup updatedRole = createOrUpdateRole(configId, settings, newRole);
       System.out.println("Updated role: " + updatedRole);
       GrouperUtil.assertion(updatedRole != null, "Updated role should not be null");
 
       System.out.println("\n====== ASSIGN USER TO CUSTOM ROLE ======");
-      assignUserRole(configId, testUserEmail, testRoleName);
+      assignUserRole(configId, settings, testUserEmail, testRoleName);
       System.out.println("Assigned role '" + testRoleName + "' to: " + testUserEmail);
 
       // put user back to member before deleting the custom role
-      assignUserRole(configId, testUserEmail, "member");
+      assignUserRole(configId, settings, testUserEmail, "member");
 
       System.out.println("\n====== DELETE ROLE ======");
-      deleteRole(configId, roleId);
+      deleteRole(configId, settings, roleId);
       System.out.println("Deleted role: " + roleId);
 
       System.out.println("\n====== VERIFY ROLE DELETED ======");
-      List<TrueFoundryGroup> rolesAfterDelete = retrieveRoles(configId, null);
+      List<TrueFoundryGroup> rolesAfterDelete = retrieveRoles(configId, settings);
       boolean roleStillExists = false;
       for (TrueFoundryGroup r : GrouperUtil.nonNull(rolesAfterDelete)) {
         if (StringUtils.equals(roleId, r.getId())) {
@@ -1475,7 +1556,7 @@ public class TrueFoundryApiCommands {
       // ============================
 
       System.out.println("\n====== RETRIEVE SUBJECTS DATA ======");
-      SubjectsData subjectsData = retrieveSubjectsData(configId, null);
+      SubjectsData subjectsData = retrieveSubjectsData(configId, settings);
       System.out.println("Subjects data: " + GrouperUtil.length(subjectsData.users) + " users, "
           + GrouperUtil.length(subjectsData.teams) + " teams");
       boolean foundTestUserInSubjects = false;
@@ -1493,13 +1574,13 @@ public class TrueFoundryApiCommands {
       // ============================
 
       System.out.println("\n====== RETRIEVE TEAMS ======");
-      List<TrueFoundryGroup> allTeams = retrieveTeams(configId);
+      List<TrueFoundryGroup> allTeams = retrieveTeams(configId, settings);
       System.out.println("Total teams: " + GrouperUtil.length(allTeams));
 
       System.out.println("\n====== CREATE TEAM ======");
       TrueFoundryGroup newTeam = new TrueFoundryGroup();
       newTeam.setName(testTeamName);
-      TrueFoundryGroup createdTeam = createTeam(configId, newTeam, defaultTeamMemberEmail);
+      TrueFoundryGroup createdTeam = createTeam(configId, settings, newTeam);
       System.out.println("Created team: " + createdTeam);
       GrouperUtil.assertion(createdTeam != null, "Created team should not be null");
       GrouperUtil.assertion(StringUtils.isNotBlank(createdTeam.getId()),
@@ -1510,15 +1591,15 @@ public class TrueFoundryApiCommands {
       System.out.println("Created team id: " + teamId);
 
       System.out.println("\n====== GET TEAM BY ID (verify default member present after create) ======");
-      TrueFoundryGroup teamAfterCreate = getTeamById(configId, teamId);
+      TrueFoundryGroup teamAfterCreate = getTeamById(configId, settings, teamId);
       boolean defaultMemberInTeam = teamAfterCreate != null
           && teamAfterCreate.getMembers() != null
-          && teamAfterCreate.getMembers().contains(defaultTeamMemberEmail);
+          && teamAfterCreate.getMembers().contains(settings.getDefaultTeamMemberEmail());
       GrouperUtil.assertion(defaultMemberInTeam, "Default team member should be in team after create");
       System.out.println("Default member present after create: true");
 
       System.out.println("\n====== GET TEAM BY ID ======");
-      TrueFoundryGroup fetchedTeam = getTeamById(configId, teamId);
+      TrueFoundryGroup fetchedTeam = getTeamById(configId, settings, teamId);
       GrouperUtil.assertion(fetchedTeam != null, "Should find team by id");
       GrouperUtil.assertion(StringUtils.equals(teamId, fetchedTeam.getId()),
           "Fetched team id should match");
@@ -1528,7 +1609,7 @@ public class TrueFoundryApiCommands {
       TrueFoundryGroup updateTeamObj = new TrueFoundryGroup();
       updateTeamObj.setId(teamId);
       updateTeamObj.setName(testTeamName + "u");
-      TrueFoundryGroup updatedTeam = updateTeam(configId, updateTeamObj);
+      TrueFoundryGroup updatedTeam = updateTeam(configId, settings, updateTeamObj);
       System.out.println("Updated team: " + updatedTeam);
       GrouperUtil.assertion(updatedTeam != null, "Updated team should not be null");
       GrouperUtil.assertion(StringUtils.equals(testTeamName + "u", updatedTeam.getName()),
@@ -1537,11 +1618,11 @@ public class TrueFoundryApiCommands {
       System.out.println("\n====== ADD TEAM MEMBERS (test user as regular member) ======");
       List<String> regularMembers = new ArrayList<String>();
       regularMembers.add(testUserEmail);
-      TrueFoundryGroup teamAfterAddMember = addTeamMembers(configId, teamId, null, regularMembers);
+      TrueFoundryGroup teamAfterAddMember = addTeamMembers(configId, settings, teamId, null, regularMembers);
       System.out.println("Team after adding regular member: " + teamAfterAddMember);
 
       System.out.println("\n====== GET TEAM BY ID (verify regular member added) ======");
-      TrueFoundryGroup teamWithMember = getTeamById(configId, teamId);
+      TrueFoundryGroup teamWithMember = getTeamById(configId, settings, teamId);
       boolean foundMemberInTeam = teamWithMember != null
           && teamWithMember.getMembers() != null
           && teamWithMember.getMembers().contains(testUserEmail);
@@ -1551,11 +1632,11 @@ public class TrueFoundryApiCommands {
       System.out.println("\n====== ADD TEAM MEMBERS (test user as manager) ======");
       List<String> managerEmails = new ArrayList<String>();
       managerEmails.add(testUserEmail);
-      TrueFoundryGroup teamAfterAddManager = addTeamMembers(configId, teamId, managerEmails, null);
+      TrueFoundryGroup teamAfterAddManager = addTeamMembers(configId, settings, teamId, managerEmails, null);
       System.out.println("Team after adding as manager: " + teamAfterAddManager);
 
       System.out.println("\n====== GET TEAM BY ID (verify manager added) ======");
-      TrueFoundryGroup teamWithManager = getTeamById(configId, teamId);
+      TrueFoundryGroup teamWithManager = getTeamById(configId, settings, teamId);
       boolean foundManagerInTeam = teamWithManager != null
           && teamWithManager.getManagers() != null
           && teamWithManager.getManagers().contains(testUserEmail);
@@ -1565,23 +1646,23 @@ public class TrueFoundryApiCommands {
       System.out.println("\n====== REMOVE TEAM MEMBERS ======");
       List<String> emailsToRemove = new ArrayList<String>();
       emailsToRemove.add(testUserEmail);
-      removeTeamMembers(configId, teamId, emailsToRemove, defaultTeamMemberEmail);
+      removeTeamMembers(configId, settings, teamId, emailsToRemove);
       System.out.println("Removed test user from team: " + testUserEmail);
 
       System.out.println("\n====== GET TEAM BY ID (verify member removed, default still present) ======");
-      TrueFoundryGroup teamAfterRemove = getTeamById(configId, teamId);
+      TrueFoundryGroup teamAfterRemove = getTeamById(configId, settings, teamId);
       boolean stillInTeam = teamAfterRemove != null
           && teamAfterRemove.getMembers() != null
           && teamAfterRemove.getMembers().contains(testUserEmail);
       GrouperUtil.assertion(!stillInTeam, "Test user should NOT be in team members after removal");
       boolean defaultStillInTeam = teamAfterRemove != null
           && teamAfterRemove.getMembers() != null
-          && teamAfterRemove.getMembers().contains(defaultTeamMemberEmail);
+          && teamAfterRemove.getMembers().contains(settings.getDefaultTeamMemberEmail());
       GrouperUtil.assertion(defaultStillInTeam, "Default team member should still be in team after removal");
       System.out.println("Verified test user removed and default member retained: true");
 
       System.out.println("\n====== RETRIEVE TEAMS (verify created team appears) ======");
-      List<TrueFoundryGroup> teamsAfterCreate = retrieveTeams(configId);
+      List<TrueFoundryGroup> teamsAfterCreate = retrieveTeams(configId, settings);
       boolean foundTeamInAll = false;
       for (TrueFoundryGroup t : GrouperUtil.nonNull(teamsAfterCreate)) {
         if (StringUtils.equals(teamId, t.getId())) {
@@ -1597,32 +1678,32 @@ public class TrueFoundryApiCommands {
       // ============================
 
       System.out.println("\n====== DELETE TEAM ======");
-      deleteTeam(configId, teamId);
+      deleteTeam(configId, settings, teamId);
       System.out.println("Deleted team: " + teamId);
 
       System.out.println("\n====== DELETE TEAM (not found, should not error) ======");
-      deleteTeam(configId, teamId);
+      deleteTeam(configId, settings, teamId);
       System.out.println("Delete team again (404 accepted): ok");
 
       System.out.println("\n====== VERIFY TEAM DELETED ======");
-      TrueFoundryGroup deletedTeam = getTeamById(configId, teamId);
+      TrueFoundryGroup deletedTeam = getTeamById(configId, settings, teamId);
       GrouperUtil.assertion(deletedTeam == null, "Team should not exist after delete");
       System.out.println("Verified team deleted: true");
 
       GrouperUtil.sleep(5000);
       
       System.out.println("\n====== DELETE USER ======");
-      deleteUser(configId, userId);
+      deleteUser(configId, settings, userId, testUserEmail);
       System.out.println("Deleted user: " + userId);
 
       GrouperUtil.sleep(5000);
 
       System.out.println("\n====== DELETE USER (not found, should not error) ======");
-      deleteUser(configId, userId);
+      deleteUser(configId, settings, userId, null);
       System.out.println("Delete user again (404 accepted): ok");
       GrouperUtil.sleep(5000);
       System.out.println("\n====== VERIFY USER DELETED ======");
-      TrueFoundryUser deletedUser = retrieveUserByEmail(configId, testUserEmail, true);
+      TrueFoundryUser deletedUser = retrieveUserByEmail(configId, settings, testUserEmail, true);
       GrouperUtil.assertion(deletedUser == null, "User should not exist after delete");
       System.out.println("Verified user deleted: true");
 
