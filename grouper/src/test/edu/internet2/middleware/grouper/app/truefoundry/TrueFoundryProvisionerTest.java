@@ -17,11 +17,16 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundrySettings;
 import junit.textui.TestRunner;
 
 public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
 
   private static final String CONFIG_ID = "trueFoundryDev";
+
+  private static TrueFoundrySettings testSettings() {
+    return new TrueFoundrySettings();
+  }
 
   public static void main(String[] args) {
 
@@ -73,13 +78,13 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_user (id, email, display_name, active) values (?, ?, ?, ?)")
         .addBindVar(userId3).addBindVar("inactive@example.com").addBindVar("Inactive User").addBindVar("F").executeSql();
 
-    List<TrueFoundryUser> allUsers = TrueFoundryApiCommands.retrieveUsers(CONFIG_ID, true, null);
+    List<TrueFoundryUser> allUsers = TrueFoundryApiCommands.retrieveUsers(CONFIG_ID, true, testSettings());
 
     // all 3 should be returned when including inactive
     assertEquals(3, allUsers.size());
 
     // only active users when not including inactive
-    List<TrueFoundryUser> activeUsers = TrueFoundryApiCommands.retrieveUsers(CONFIG_ID, false, null);
+    List<TrueFoundryUser> activeUsers = TrueFoundryApiCommands.retrieveUsers(CONFIG_ID, false, testSettings());
     assertEquals(2, activeUsers.size());
 
     Map<String, TrueFoundryUser> userById = new HashMap<String, TrueFoundryUser>();
@@ -110,14 +115,14 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_user (id, email, display_name, active) values (?, ?, ?, ?)")
         .addBindVar(userId1).addBindVar("john.doe@example.com").addBindVar("John Doe").addBindVar("T").executeSql();
 
-    TrueFoundryUser user = TrueFoundryApiCommands.retrieveUserByEmail(CONFIG_ID, "john.doe@example.com", false);
+    TrueFoundryUser user = TrueFoundryApiCommands.retrieveUserByEmail(CONFIG_ID, testSettings(), "john.doe@example.com", false);
 
     assertNotNull(user);
     assertEquals(userId1, user.getId());
     assertEquals("john.doe@example.com", user.getEmail());
 
     // non-existent email should return null
-    TrueFoundryUser notFound = TrueFoundryApiCommands.retrieveUserByEmail(CONFIG_ID, "nonexistent@example.com", false);
+    TrueFoundryUser notFound = TrueFoundryApiCommands.retrieveUserByEmail(CONFIG_ID, testSettings(), "nonexistent@example.com", false);
     assertNull(notFound);
   }
 
@@ -128,7 +133,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     TrueFoundryUser newUser = new TrueFoundryUser();
     newUser.setEmail("new.user@example.com");
 
-    TrueFoundryUser created = TrueFoundryApiCommands.createUser(CONFIG_ID, newUser, null, null);
+    TrueFoundryUser created = TrueFoundryApiCommands.createUser(CONFIG_ID, testSettings(), newUser);
 
     assertNotNull(created);
     assertNotNull(created.getId());
@@ -154,7 +159,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     TrueFoundryUser newUser = new TrueFoundryUser();
     newUser.setEmail("existing@example.com");
 
-    TrueFoundryUser result = TrueFoundryApiCommands.createUser(CONFIG_ID, newUser, null, null);
+    TrueFoundryUser result = TrueFoundryApiCommands.createUser(CONFIG_ID, testSettings(), newUser);
 
     assertNotNull(result);
     assertEquals(existingId, result.getId());
@@ -182,8 +187,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     newUser.setDisplayName("Display Test User");
 
     // SCIM tenant/sso are set to mock values for the test
-    TrueFoundryUser created = TrueFoundryApiCommands.createUser(CONFIG_ID, newUser,
-        "test-tenant", "test-sso");
+    TrueFoundryUser created = TrueFoundryApiCommands.createUser(CONFIG_ID, testSettings(), newUser);
 
     assertNotNull(created);
     assertEquals("display.test@example.com", created.getEmail());
@@ -205,7 +209,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_user (id, email, display_name, active) values (?, ?, ?, ?)")
         .addBindVar(userId1).addBindVar("john.doe@example.com").addBindVar("John Doe").addBindVar("T").executeSql();
 
-    TrueFoundryApiCommands.deactivateUser(CONFIG_ID, "john.doe@example.com");
+    TrueFoundryApiCommands.deactivateUser(CONFIG_ID, testSettings(), "john.doe@example.com");
 
     String active = new GcDbAccess().connectionName("grouper")
         .sql("select active from mock_truefoundry_user where id = ?")
@@ -222,7 +226,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_user (id, email, display_name, active) values (?, ?, ?, ?)")
         .addBindVar(userId1).addBindVar("john.doe@example.com").addBindVar("John Doe").addBindVar("F").executeSql();
 
-    TrueFoundryApiCommands.activateUser(CONFIG_ID, "john.doe@example.com");
+    TrueFoundryApiCommands.activateUser(CONFIG_ID, testSettings(), "john.doe@example.com");
 
     String active = new GcDbAccess().connectionName("grouper")
         .sql("select active from mock_truefoundry_user where id = ?")
@@ -250,7 +254,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_group (id, name, display_name, description, group_type, resource_type, is_default) values (?, ?, ?, ?, ?, ?, ?)")
         .addBindVar(roleId3).addBindVar("ws-role").addBindVar("Workspace Role").addBindVar("A workspace role").addBindVar("role").addBindVar("workspace").addBindVar("F").executeSql();
 
-    List<TrueFoundryGroup> roles = TrueFoundryApiCommands.retrieveRoles(CONFIG_ID, null);
+    List<TrueFoundryGroup> roles = TrueFoundryApiCommands.retrieveRoles(CONFIG_ID, testSettings());
 
     // only account and tenant scoped roles returned
     assertEquals(2, roles.size());
@@ -286,7 +290,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     role.setGroupType(TrueFoundryGroup.GROUP_TYPE_ROLE);
     role.setResourceType("account");
 
-    TrueFoundryGroup created = TrueFoundryApiCommands.createOrUpdateRole(CONFIG_ID, role);
+    TrueFoundryGroup created = TrueFoundryApiCommands.createOrUpdateRole(CONFIG_ID, testSettings(), role);
 
     assertNotNull(created);
     assertNotNull(created.getId());
@@ -308,7 +312,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_group (id, name, display_name, description, group_type, resource_type, is_default) values (?, ?, ?, ?, ?, ?, ?)")
         .addBindVar(roleId).addBindVar("delete-me").addBindVar("Delete Me").addBindVar("To be deleted").addBindVar("role").addBindVar("account").addBindVar("F").executeSql();
 
-    TrueFoundryApiCommands.deleteRole(CONFIG_ID, roleId);
+    TrueFoundryApiCommands.deleteRole(CONFIG_ID, testSettings(), roleId);
 
     int count = new GcDbAccess().connectionName("grouper")
         .sql("select count(*) from mock_truefoundry_group where id = ?")
@@ -338,7 +342,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_membership (id, group_id, user_email, role) values (?, ?, ?, ?)")
         .addBindVar(GrouperUuid.getUuid()).addBindVar(teamId1).addBindVar("manager1@example.com").addBindVar("manager").executeSql();
 
-    List<TrueFoundryGroup> teams = TrueFoundryApiCommands.retrieveTeams(CONFIG_ID);
+    List<TrueFoundryGroup> teams = TrueFoundryApiCommands.retrieveTeams(CONFIG_ID, testSettings());
 
     assertEquals(2, teams.size());
 
@@ -383,7 +387,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_membership (id, group_id, user_email, role) values (?, ?, ?, ?)")
         .addBindVar(GrouperUuid.getUuid()).addBindVar(teamId).addBindVar("jane.smith@example.com").addBindVar("manager").executeSql();
 
-    TrueFoundryApiCommands.SubjectsData data = TrueFoundryApiCommands.retrieveSubjectsData(CONFIG_ID, null);
+    TrueFoundryApiCommands.SubjectsData data = TrueFoundryApiCommands.retrieveSubjectsData(CONFIG_ID, testSettings());
 
     // verify users
     assertEquals(2, data.users.size());
@@ -411,16 +415,31 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals(1, GrouperUtil.nonNull(team.getManagers()).size());
     assertEquals("jane.smith@example.com", team.getManagers().get(0));
 
+    // verify role memberships from rolesWithResource
+    String roleId = GrouperUuid.getUuid();
+    new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_group (id, name, group_type, resource_type, is_default) values (?, ?, ?, ?, ?)")
+        .addBindVar(roleId).addBindVar("member").addBindVar("role").addBindVar("account").addBindVar("T").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_membership (id, group_id, user_email, role) values (?, ?, ?, ?)")
+        .addBindVar(GrouperUuid.getUuid()).addBindVar(roleId).addBindVar("john.doe@example.com").addBindVar(null).executeSql();
+
+    TrueFoundryApiCommands.SubjectsData dataWithRoles = TrueFoundryApiCommands.retrieveSubjectsData(CONFIG_ID, testSettings());
+    assertEquals(1, dataWithRoles.roleMembershipsByRoleId.size());
+    assertTrue(dataWithRoles.roleMembershipsByRoleId.containsKey(roleId));
+    assertTrue(dataWithRoles.roleMembershipsByRoleId.get(roleId).contains("john.doe@example.com"));
+    assertEquals(1, dataWithRoles.roleMembershipsByRoleId.get(roleId).size());
+
     // inactive users should be filtered out
     String inactiveId = GrouperUuid.getUuid();
     new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_user (id, email, display_name, active) values (?, ?, ?, ?)")
         .addBindVar(inactiveId).addBindVar("inactive@example.com").addBindVar("Inactive").addBindVar("F").executeSql();
-    TrueFoundryApiCommands.SubjectsData dataWithInactive = TrueFoundryApiCommands.retrieveSubjectsData(CONFIG_ID, null);
+    TrueFoundryApiCommands.SubjectsData dataWithInactive = TrueFoundryApiCommands.retrieveSubjectsData(CONFIG_ID, testSettings());
     assertEquals(2, dataWithInactive.users.size()); // inactive still filtered
 
     // ignored emails should be filtered out
+    TrueFoundrySettings filteredSettings = new TrueFoundrySettings();
+    filteredSettings.setIgnoreUserEmails(GrouperUtil.toSet("john.doe@example.com"));
     TrueFoundryApiCommands.SubjectsData dataFiltered = TrueFoundryApiCommands.retrieveSubjectsData(
-        CONFIG_ID, GrouperUtil.toSet("john.doe@example.com"));
+        CONFIG_ID, filteredSettings);
     assertEquals(1, dataFiltered.users.size());
     assertEquals("jane.smith@example.com", dataFiltered.users.get(0).getEmail());
     // teams are still returned regardless of ignore filter
@@ -437,7 +456,9 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     team.setName("new-team");
     team.setGroupType(TrueFoundryGroup.GROUP_TYPE_TEAM);
 
-    TrueFoundryGroup created = TrueFoundryApiCommands.createTeam(CONFIG_ID, team, defaultMemberEmail);
+    TrueFoundrySettings teamSettings = new TrueFoundrySettings();
+    teamSettings.setDefaultTeamMemberEmail(defaultMemberEmail);
+    TrueFoundryGroup created = TrueFoundryApiCommands.createTeam(CONFIG_ID, teamSettings, team);
 
     assertNotNull(created);
     assertNotNull(created.getId());
@@ -465,7 +486,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_group (id, name, group_type) values (?, ?, ?)")
         .addBindVar(teamId).addBindVar("delete-team").addBindVar("team").executeSql();
 
-    TrueFoundryApiCommands.deleteTeam(CONFIG_ID, teamId);
+    TrueFoundryApiCommands.deleteTeam(CONFIG_ID, testSettings(), teamId);
 
     int count = new GcDbAccess().connectionName("grouper")
         .sql("select count(*) from mock_truefoundry_group where id = ?")
@@ -491,19 +512,21 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     // create a team with the default member as the initial member
     TrueFoundryGroup team = new TrueFoundryGroup();
     team.setName("test-keep-default");
-    TrueFoundryGroup created = TrueFoundryApiCommands.createTeam(CONFIG_ID, team, defaultMemberEmail);
+    TrueFoundrySettings teamSettings = new TrueFoundrySettings();
+    teamSettings.setDefaultTeamMemberEmail(defaultMemberEmail);
+    TrueFoundryGroup created = TrueFoundryApiCommands.createTeam(CONFIG_ID, teamSettings, team);
     assertNotNull(created);
     String teamId = created.getId();
 
     // add a regular member too
-    TrueFoundryApiCommands.addTeamMembers(CONFIG_ID, teamId, null,
+    TrueFoundryApiCommands.addTeamMembers(CONFIG_ID, teamSettings, teamId, null,
         GrouperUtil.toList(regularMemberEmail));
 
     // remove the regular member — default member should be kept since it's the only one left
-    TrueFoundryApiCommands.removeTeamMembers(CONFIG_ID, teamId,
-        GrouperUtil.toList(regularMemberEmail), defaultMemberEmail);
+    TrueFoundryApiCommands.removeTeamMembers(CONFIG_ID, teamSettings, teamId,
+        GrouperUtil.toList(regularMemberEmail));
 
-    TrueFoundryGroup afterRemove = TrueFoundryApiCommands.getTeamById(CONFIG_ID, teamId);
+    TrueFoundryGroup afterRemove = TrueFoundryApiCommands.getTeamById(CONFIG_ID, testSettings(), teamId);
     assertNotNull(afterRemove);
     assertFalse("Regular member should be removed",
         afterRemove.getMembers() != null && afterRemove.getMembers().contains(regularMemberEmail));
@@ -511,10 +534,10 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
         afterRemove.getMembers() != null && afterRemove.getMembers().contains(defaultMemberEmail));
 
     // now try removing the default member itself — it should be re-added because the list would be empty
-    TrueFoundryApiCommands.removeTeamMembers(CONFIG_ID, teamId,
-        GrouperUtil.toList(defaultMemberEmail), defaultMemberEmail);
+    TrueFoundryApiCommands.removeTeamMembers(CONFIG_ID, teamSettings, teamId,
+        GrouperUtil.toList(defaultMemberEmail));
 
-    TrueFoundryGroup afterRemoveDefault = TrueFoundryApiCommands.getTeamById(CONFIG_ID, teamId);
+    TrueFoundryGroup afterRemoveDefault = TrueFoundryApiCommands.getTeamById(CONFIG_ID, testSettings(), teamId);
     assertNotNull(afterRemoveDefault);
     assertTrue("Default member should be kept even when explicitly removed (prevents empty team)",
         afterRemoveDefault.getMembers() != null && afterRemoveDefault.getMembers().contains(defaultMemberEmail));
@@ -529,14 +552,14 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_group (id, name, group_type) values (?, ?, ?)")
         .addBindVar(teamId).addBindVar("lookup-team").addBindVar("team").executeSql();
 
-    TrueFoundryGroup team = TrueFoundryApiCommands.getTeamById(CONFIG_ID, teamId);
+    TrueFoundryGroup team = TrueFoundryApiCommands.getTeamById(CONFIG_ID, testSettings(), teamId);
 
     assertNotNull(team);
     assertEquals(teamId, team.getId());
     assertEquals("lookup-team", team.getName());
 
     // non-existent team should return null
-    TrueFoundryGroup notFound = TrueFoundryApiCommands.getTeamById(CONFIG_ID, GrouperUuid.getUuid());
+    TrueFoundryGroup notFound = TrueFoundryApiCommands.getTeamById(CONFIG_ID, testSettings(), GrouperUuid.getUuid());
     assertNull(notFound);
   }
 
@@ -556,7 +579,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_group (id, name, display_name, description, group_type, resource_type, is_default) values (?, ?, ?, ?, ?, ?, ?)")
         .addBindVar(roleId).addBindVar("member").addBindVar("Member").addBindVar("Default member role").addBindVar("role").addBindVar("account").addBindVar("T").executeSql();
 
-    TrueFoundryApiCommands.assignUserRole(CONFIG_ID, "user@example.com", "member");
+    TrueFoundryApiCommands.assignUserRole(CONFIG_ID, testSettings(), "user@example.com", "member");
 
     // verify membership was created in mock DB
     int count = new GcDbAccess().connectionName("grouper")
@@ -1222,7 +1245,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
           .addBindVar(teamId).addBindVar("testTeam").addBindVar("team").executeSql();
 
       // add SUBJ0 as manager and SUBJ1 as regular member via the API
-      TrueFoundryApiCommands.addTeamMembers(CONFIG_ID, teamId,
+      TrueFoundryApiCommands.addTeamMembers(CONFIG_ID, testSettings(), teamId,
           GrouperUtil.toList("test.subject.0@somewhere.someSchool.edu"),
           GrouperUtil.toList("test.subject.1@somewhere.someSchool.edu"));
 
@@ -1238,7 +1261,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("member", user1Role);
 
       // verify retrieveSubjectsData returns the correct manager/member split
-      TrueFoundryApiCommands.SubjectsData data = TrueFoundryApiCommands.retrieveSubjectsData(CONFIG_ID, null);
+      TrueFoundryApiCommands.SubjectsData data = TrueFoundryApiCommands.retrieveSubjectsData(CONFIG_ID, testSettings());
       assertEquals(1, data.teams.size());
       TrueFoundryGroup team = data.teams.get(0);
       assertEquals(2, GrouperUtil.nonNull(team.getMembers()).size());

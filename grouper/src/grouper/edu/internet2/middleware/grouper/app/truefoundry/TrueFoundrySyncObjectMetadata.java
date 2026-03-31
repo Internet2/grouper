@@ -37,6 +37,25 @@ public class TrueFoundrySyncObjectMetadata extends GrouperProvisioningObjectMeta
 
         this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
       }
+
+      String managerGroupMetadataName = config.getTrueFoundryManagerGroupMetadataName();
+
+      if (!this.containsMetadataItemByName(managerGroupMetadataName)) {
+
+        GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
+
+        grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataTrueFoundryManagerGroupNameLabel");
+        grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataTrueFoundryManagerGroupNameDescription");
+        grouperProvisioningObjectMetadataItem.setName(managerGroupMetadataName);
+        grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+        grouperProvisioningObjectMetadataItem.setCanChange(true);
+        grouperProvisioningObjectMetadataItem.setCanUpdate(true);
+
+        grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.STRING);
+        grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.TEXT);
+
+        this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
+      }
     }
   }
 }
