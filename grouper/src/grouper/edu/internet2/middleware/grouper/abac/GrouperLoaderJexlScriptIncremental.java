@@ -109,6 +109,11 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
     
     try {
 
+      boolean readOnly = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.grouperLoaderJexlScriptFullSync.jexlDaemonsReadonly", false);
+      if (readOnly) {
+        debugMap.put("readOnly", true);
+      }
+
       long currentTime = System.currentTimeMillis();
 
       // group ids to do a full group recalc, e.g. if a script changes or too many memberships change
@@ -573,7 +578,7 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
             @Override
             public Void callLogic() {
 
-              syncIncrementalGroup(debugMap, hib3GrouperLoaderLog, grouperDataEngine, attributeAssign, group, memberInternalIds);
+              syncIncrementalGroup(debugMap, hib3GrouperLoaderLog, grouperDataEngine, attributeAssign, group, memberInternalIds, readOnly);
               
               return null;
             }
@@ -653,7 +658,7 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
 
               GrouperLoaderJexlScriptFullSync.syncFullGroup(debugMap, hib3GrouperLoaderLog, grouperDataEngine,
                   attributeAssign, group, allMshipHistoryAbacSqlCacheDependenciesMap,
-                  sqlCacheGroupInternalIdsStillNeedingMshipHistory);
+                  sqlCacheGroupInternalIdsStillNeedingMshipHistory, readOnly);
               
               // assign the last group sync attribute
               attributeAssign.getAttributeValueDelegate().assignValue(jexlLastGroupSyncNameOfAttributeDefName, 
@@ -719,7 +724,7 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
   
   public static void syncIncrementalGroup(Map<String, Object> debugMap,
       Hib3GrouperLoaderLog hib3GrouperLoaderLog, GrouperDataEngine grouperDataEngine,
-      AttributeAssign attributeAssign, Group group,Set<Long> memberInternalIds) {
+      AttributeAssign attributeAssign, Group group, Set<Long> memberInternalIds, boolean readOnly) {
     Group theGroup = group;
     
     GcDbAccess gcDbAccessOrig = new GcDbAccess();
@@ -788,31 +793,33 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
         memberIdToUser.put(member.getId(), member);
       }
       
-      for (String memberId : insertMemberIds) {
-        try {
-          Member member = memberIdToUser.get(memberId);
-          theGroup.addMember(member.getSubject(), false);
-        } catch (RuntimeException re) {
-          int errIndex = GrouperUtil.intValue(debugMap.get("errorsAddMember"), 0);
-          GrouperUtil.mapAddValue(debugMap, "errorsAddMember", 1);
-          if (errIndex < 20) {
-            debugMap.put("errInsert_" + errIndex, "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + re.getMessage() + ", " + GrouperUtil.stack(re));
+      if (!readOnly) {
+        for (String memberId : insertMemberIds) {
+          try {
+            Member member = memberIdToUser.get(memberId);
+            theGroup.addMember(member.getSubject(), false);
+          } catch (RuntimeException re) {
+            int errIndex = GrouperUtil.intValue(debugMap.get("errorsAddMember"), 0);
+            GrouperUtil.mapAddValue(debugMap, "errorsAddMember", 1);
+            if (errIndex < 20) {
+              debugMap.put("errInsert_" + errIndex, "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + re.getMessage() + ", " + GrouperUtil.stack(re));
+            }
+            LOG.error("Error adding memberId '" + memberId + "' to group: '" + theGroup.getName() + "'", re);
           }
-          LOG.error("Error adding memberId '" + memberId + "' to group: '" + theGroup.getName() + "'", re);
         }
-      }
 
-      for (String memberId : deleteMemberIds) {
-        try {
-          Member member = memberIdToUser.get(memberId);
-          theGroup.deleteMember(member.getSubject(), false);
-        } catch (RuntimeException re) {
-          int errIndex = GrouperUtil.intValue(debugMap.get("errorsDeleteMember"), 0);
-          GrouperUtil.mapAddValue(debugMap, "errorsDeleteMember", 1);
-          if (errIndex < 20) {
-            debugMap.put("errDelete_" + errIndex, "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + re.getMessage() + ", " + GrouperUtil.stack(re));
+        for (String memberId : deleteMemberIds) {
+          try {
+            Member member = memberIdToUser.get(memberId);
+            theGroup.deleteMember(member.getSubject(), false);
+          } catch (RuntimeException re) {
+            int errIndex = GrouperUtil.intValue(debugMap.get("errorsDeleteMember"), 0);
+            GrouperUtil.mapAddValue(debugMap, "errorsDeleteMember", 1);
+            if (errIndex < 20) {
+              debugMap.put("errDelete_" + errIndex, "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + re.getMessage() + ", " + GrouperUtil.stack(re));
+            }
+            LOG.error("Error deleting memberId '" + memberId + "' from group: '" + theGroup.getName() + "'", re);
           }
-          LOG.error("Error deleting memberId '" + memberId + "' from group: '" + theGroup.getName() + "'", re);
         }
       }
       
