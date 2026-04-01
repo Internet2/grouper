@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationDaemonLogic;
@@ -798,6 +799,12 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
           try {
             Member member = memberIdToUser.get(memberId);
             theGroup.addMember(member.getSubject(), false);
+          } catch (HookVeto hv) {
+            GrouperUtil.mapAddValue(debugMap, "vetoesAddMember", 1);
+            if (GrouperUtil.intValue(debugMap.get("vetoesAddMember"), 0) <= 20) {
+              debugMap.put("vetoInsert_" + GrouperUtil.intValue(debugMap.get("vetoesAddMember"), 0), "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + hv.getMessage());
+            }
+            LOG.warn("Veto adding memberId '" + memberId + "' to group: '" + theGroup.getName() + "': " + hv.getMessage());
           } catch (RuntimeException re) {
             int errIndex = GrouperUtil.intValue(debugMap.get("errorsAddMember"), 0);
             GrouperUtil.mapAddValue(debugMap, "errorsAddMember", 1);
@@ -812,6 +819,12 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
           try {
             Member member = memberIdToUser.get(memberId);
             theGroup.deleteMember(member.getSubject(), false);
+          } catch (HookVeto hv) {
+            GrouperUtil.mapAddValue(debugMap, "vetoesDeleteMember", 1);
+            if (GrouperUtil.intValue(debugMap.get("vetoesDeleteMember"), 0) <= 20) {
+              debugMap.put("vetoDelete_" + GrouperUtil.intValue(debugMap.get("vetoesDeleteMember"), 0), "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + hv.getMessage());
+            }
+            LOG.warn("Veto deleting memberId '" + memberId + "' from group: '" + theGroup.getName() + "': " + hv.getMessage());
           } catch (RuntimeException re) {
             int errIndex = GrouperUtil.intValue(debugMap.get("errorsDeleteMember"), 0);
             GrouperUtil.mapAddValue(debugMap, "errorsDeleteMember", 1);
