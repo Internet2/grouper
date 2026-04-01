@@ -15123,14 +15123,22 @@ public class GrouperUtil {
    * @return the couple of lines of stack
    */
   public static String stack() {
-    Exception exception = new Exception();
+    return stack(new Exception());
+  }
+
+  /**
+   * get a short stack trace from a throwable, only edu.internet2 lines
+   * @param throwable
+   * @return the couple of lines of stack
+   */
+  public static String stack(Throwable throwable) {
     //get the stack
-    String stack = getFullStackTrace(exception);
+    String stack = getFullStackTrace(throwable);
     //split into an array of strings (on newline)
     String[] stackLines = splitTrim(stack, "\n");
-    
+
     StringBuffer result = new StringBuffer();
-    
+
     for (int i=0;i<stackLines.length;i++) {
       String current = stackLines[i];
       if (current.startsWith("at edu.internet2") && !current.startsWith("at edu.internet2.middleware.grouper.util.GrouperUtil.stack(")) {

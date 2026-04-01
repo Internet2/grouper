@@ -2141,22 +2141,26 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         }
       }
 
+      // remove internal count keys used for example tracking
+      debugMap.remove("insertExamples_count");
+      debugMap.remove("deleteExamples_count");
+
       otherJobInput.getHib3GrouperLoaderLog().setJobMessage(GrouperUtil.mapToString(debugMap));
-      
+
       if (LOG.isDebugEnabled()) {
         LOG.debug(GrouperUtil.mapToString(debugMap));
       }
-      
+
     }
 
-      
+
     if (GrouperUtil.intValue(debugMap.get("errors"), 0) > 0) {
       throw new RuntimeException("Had " + debugMap.get("errors") + " errors, check logs");
     }
     return null;
   }
-  
-  
+
+
   public static void syncFullGroup(Map<String, Object> debugMap,
       Hib3GrouperLoaderLog hib3GrouperLoaderLog, GrouperDataEngine grouperDataEngine,
       AttributeAssign attributeAssign, Group group,
@@ -2343,23 +2347,25 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         Member member = memberIdToUser.get(memberId);
         theGroup.addMember(member.getSubject(), false);
       } catch (RuntimeException re) {
+        int errIndex = GrouperUtil.intValue(debugMap.get("errorsAddMember"), 0);
         GrouperUtil.mapAddValue(debugMap, "errorsAddMember", 1);
-        debugMap.put("exceptionAddGroupName", theGroup.getName());
-        debugMap.put("exceptionAddMemberId", memberId);
-        debugMap.put("exceptionAddMember", GrouperUtil.getFullStackTrace(re));
+        if (errIndex < 20) {
+          debugMap.put("errInsert_" + errIndex, "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + re.getMessage() + ", " + GrouperUtil.stack(re));
+        }
         LOG.error("Error adding memberId '" + memberId + "' to group: '" + theGroup.getName() + "'", re);
       }
     }
- 
+
     for (String memberId : deleteMemberIds) {
       try {
         Member member = memberIdToUser.get(memberId);
         theGroup.deleteMember(member.getSubject(), false);
       } catch (RuntimeException re) {
+        int errIndex = GrouperUtil.intValue(debugMap.get("errorsDeleteMember"), 0);
         GrouperUtil.mapAddValue(debugMap, "errorsDeleteMember", 1);
-        debugMap.put("exceptionDeleteGroupName", theGroup.getName());
-        debugMap.put("exceptionDeleteMemberId", memberId);
-        debugMap.put("exceptionDeleteMember", GrouperUtil.getFullStackTrace(re));
+        if (errIndex < 20) {
+          debugMap.put("errDelete_" + errIndex, "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + re.getMessage() + ", " + GrouperUtil.stack(re));
+        }
         LOG.error("Error deleting memberId '" + memberId + "' from group: '" + theGroup.getName() + "'", re);
       }
     }
@@ -2371,6 +2377,33 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     GrouperUtil.mapAddValue(debugMap, "deletes", deleteMemberIds.size());
     if (hib3GrouperLoaderLog != null) {
       hib3GrouperLoaderLog.addDeleteCount(deleteMemberIds.size());
+    }
+
+    // add examples of inserts and deletes to the debug map (up to 20 each)
+    {
+      int maxExamples = 20;
+
+      for (String memberId : insertMemberIds) {
+        int index = GrouperUtil.intValue(debugMap.get("insertExamples_count"), 0);
+        if (index >= maxExamples) {
+          break;
+        }
+        Member member = memberIdToUser.get(memberId);
+        String subjectId = member != null ? member.getSubjectId() : memberId;
+        debugMap.put("insert_" + index, "group: " + theGroup.getName() + ", subjectId: " + subjectId);
+        debugMap.put("insertExamples_count", index + 1);
+      }
+
+      for (String memberId : deleteMemberIds) {
+        int index = GrouperUtil.intValue(debugMap.get("deleteExamples_count"), 0);
+        if (index >= maxExamples) {
+          break;
+        }
+        Member member = memberIdToUser.get(memberId);
+        String subjectId = member != null ? member.getSubjectId() : memberId;
+        debugMap.put("delete_" + index, "group: " + theGroup.getName() + ", subjectId: " + subjectId);
+        debugMap.put("deleteExamples_count", index + 1);
+      }
     }
   }
 
