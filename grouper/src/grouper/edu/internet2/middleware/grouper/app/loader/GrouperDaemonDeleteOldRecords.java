@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSett
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderLogic;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -259,6 +260,17 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
 
       GrouperDaemonUtils.stopProcessingIfJobPaused();
       
+      try {
+        GrouperDataProviderLogic.deleteOldDataFieldRowHistory(jobMessage, hib3GrouploaderLog);
+      } catch (Exception e) {
+        LOG.error("Error in deleteOldDataFieldRowHistory", e);
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInDeleteOldDataFieldRowHistory", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError in deleteOldDataFieldRowHistory: " +ExceptionUtils.getStackTrace(e)  + "\n");
+        error = true;
+      }
+
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       try {
         deleteOldSyncData(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
