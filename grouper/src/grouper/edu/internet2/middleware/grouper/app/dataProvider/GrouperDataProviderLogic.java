@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.OtherJobException;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntryTemp;
@@ -213,10 +214,7 @@ public class GrouperDataProviderLogic {
     
     calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex, true);
 
-    if (!grouperDataProviderSync.isReadOnly()) {
-      // TODO should this be a separate daemon or handled somewhere else?  It would do the same thing for every provider full sync.
-      deleteOldHistory();
-    }
+    // old history cleanup is handled by OTHER_JOB_cleanLogs (GrouperDaemonDeleteOldRecords)
   }
   
   /**
@@ -2194,8 +2192,17 @@ public class GrouperDataProviderLogic {
     }
   }
 
-  private void deleteOldHistory() {
-    GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
+  /**
+   * delete old data field and data row history records based on configured retention.
+   * called from OTHER_JOB_cleanLogs (GrouperDaemonDeleteOldRecords)
+   * @param jobMessage
+   * @param hib3GrouploaderLog
+   */
+  public static void deleteOldDataFieldRowHistory(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
+    GrouperDataEngine dataEngine = new GrouperDataEngine();
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+    dataEngine.loadFieldsAndRows(grouperConfig);
+
     Set<Long> grouperDataFieldInternalIdsNoHistoryConfigured = new LinkedHashSet<>();
     Set<Long> grouperDataRowInternalIdsNoHistoryConfigured = new LinkedHashSet<>();
     List<GrouperDataFieldAssignHst> grouperDataFieldAssignHstsToDelete = new ArrayList<>();
@@ -2212,10 +2219,9 @@ public class GrouperDataProviderLogic {
         long endTimeBeforeMicros = System.currentTimeMillis() * 1000L - days * 24 * 60 * 60 * 1000 * 1000;
         grouperDataFieldAssignHstsToDelete.addAll(GrouperDataFieldAssignHstDao.selectByDataFieldInternalIdAndEndTimeBefore(grouperDataField.getInternalId(), endTimeBeforeMicros));
       }
-      
       GrouperDaemonUtils.stopProcessingIfJobPaused();
     }
-    
+
     for (GrouperDataRowConfig grouperDataRowConfig : dataEngine.getRowConfigByConfigId().values()) {
       GrouperDataRow grouperDataRow = dataEngine.getGrouperDataProviderIndex().getRowWrapperByConfigId().get(grouperDataRowConfig.getConfigId()).getGrouperDataRow();
       if (!grouperDataRowConfig.isRowDataStorePit()) {
@@ -2227,27 +2233,25 @@ public class GrouperDataProviderLogic {
         long endTimeBeforeMicros = System.currentTimeMillis() * 1000L - days * 24 * 60 * 60 * 1000 * 1000;
         grouperDataRowAssignHstsToDelete.addAll(GrouperDataRowAssignHstDao.selectByDataRowInternalIdAndEndTimeBefore(grouperDataRow.getInternalId(), endTimeBeforeMicros));
       }
-      
       GrouperDaemonUtils.stopProcessingIfJobPaused();
     }
-    
+
     if (grouperDataFieldInternalIdsNoHistoryConfigured.size() > 0) {
       grouperDataFieldAssignHstsToDelete.addAll(GrouperDataFieldAssignHstDao.selectByDataFieldInternalIds(grouperDataFieldInternalIdsNoHistoryConfigured));
     }
-    
+
     if (grouperDataRowInternalIdsNoHistoryConfigured.size() > 0) {
       grouperDataRowAssignHstsToDelete.addAll(GrouperDataRowAssignHstDao.selectByDataRowInternalIds(grouperDataRowInternalIdsNoHistoryConfigured));
     }
-    
+
+    int totalDeleted = 0;
+
     if (grouperDataFieldAssignHstsToDelete.size() > 0) {
       GrouperDataFieldAssignHstDao.delete(grouperDataFieldAssignHstsToDelete);
-      
-      if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
-        grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(grouperDataFieldAssignHstsToDelete.size());
-      }
+      totalDeleted += grouperDataFieldAssignHstsToDelete.size();
       GrouperDaemonUtils.stopProcessingIfJobPaused();
     }
-    
+
     if (grouperDataRowAssignHstsToDelete.size() > 0) {
       // delete row fields first
       Set<Long> grouperDataRowAssignHstInternalIds = new LinkedHashSet<>();
@@ -2255,20 +2259,21 @@ public class GrouperDataProviderLogic {
         grouperDataRowAssignHstInternalIds.add(grouperDataRowAssignHst.getInternalId());
       }
       List<GrouperDataRowFieldAssignHst> grouperDataRowFieldAssignHstsToDelete = GrouperDataRowFieldAssignHstDao.selectByDataRowAssignHstInternalIds(grouperDataRowAssignHstInternalIds);
-      
+
       GrouperDataRowFieldAssignHstDao.delete(grouperDataRowFieldAssignHstsToDelete);
-      
-      if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
-        grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(grouperDataRowFieldAssignHstsToDelete.size());
-      }
+      totalDeleted += grouperDataRowFieldAssignHstsToDelete.size();
       GrouperDaemonUtils.stopProcessingIfJobPaused();
-      
+
       GrouperDataRowAssignHstDao.delete(grouperDataRowAssignHstsToDelete);
-      
-      if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
-        grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(grouperDataRowAssignHstsToDelete.size());
-      }
+      totalDeleted += grouperDataRowAssignHstsToDelete.size();
       GrouperDaemonUtils.stopProcessingIfJobPaused();
+    }
+
+    if (hib3GrouploaderLog != null) {
+      hib3GrouploaderLog.addDeleteCount(totalDeleted);
+    }
+    if (jobMessage != null) {
+      jobMessage.append("Deleted " + totalDeleted + " old data field/row history records.\n");
     }
   }
 }
