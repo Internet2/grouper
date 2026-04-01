@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperLoaderJexlScriptFullSync;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderChangeLogQuery;
+import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderLogic;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderSync;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderSyncType;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTestUtils;
@@ -1252,8 +1253,9 @@ public class GrouperDataProviderTest extends GrouperTest {
       
       grouperDataRowAssignHst.setEndTime(System.currentTimeMillis() * 1000L - 801L * 24 * 60 * 60 * 1000 * 1000);
       GrouperDataRowAssignHstDao.store(grouperDataRowAssignHst);
-      
-      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+
+      // history cleanup is now handled by cleanLogs daemon, not by the data provider full sync
+      GrouperDataProviderLogic.deleteOldDataFieldRowHistory(null, null);
 
       assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_hst").select(int.class).intValue());
       assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_hst").select(int.class).intValue());
@@ -2809,30 +2811,37 @@ public class GrouperDataProviderTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldAliases").value("active").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldDataType").value("boolean").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.descriptionHtml").value("<b>description html </b>").store();
 
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldAliases").value("twoStepEnrolled").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldDataType").value("boolean").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.descriptionHtml").value("<b>description html </b>").store();
 
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldAliases").value("employee").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldDataType").value("boolean").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.descriptionHtml").value("<b>description html </b>").store();
 
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.fieldAliases").value("affiliationCode").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.fieldDataStructure").value("rowColumn").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.descriptionHtml").value("<b>description html </b>").store();
 
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldAliases").value("affiliationActive").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldDataStructure").value("rowColumn").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldDataType").value("boolean").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.descriptionHtml").value("<b>description html </b>").store();
 
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.fieldAliases").value("affiliationOrg").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.fieldDataStructure").value("rowColumn").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.descriptionHtml").value("<b>description html </b>").store();
 
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowPrivacyRealm").value("public").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowAliases").value("affiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.descriptionHtml").value("<b>description html </b>").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowNumberOfDataFields").value("3").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.0.colDataFieldConfigId").value("affiliationCode").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.0.rowKeyField").value("true").store();
@@ -2898,7 +2907,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     String jobMessage = new GcDbAccess().sql("select job_message from grouper_loader_log where job_name = 'OTHER_JOB_dataProvider1' order by started_time desc")
       .select(String.class);
     assertTrue("job message should contain READONLY: " + jobMessage, jobMessage.contains("READONLY MODE"));
-    assertTrue("job message should contain examples: " + jobMessage, jobMessage.contains("fieldAssignInsertExamples"));
+    assertTrue("job message should contain examples: " + jobMessage, jobMessage.contains("fieldAssignInserts"));
 
     // insert count should be > 0 (tracking what would have been done)
     int insertCount = new GcDbAccess().sql("select insert_count from grouper_loader_log where job_name = 'OTHER_JOB_dataProvider1' order by started_time desc")
@@ -2953,8 +2962,8 @@ public class GrouperDataProviderTest extends GrouperTest {
     // check the job message contains examples
     String jobMessage = new GcDbAccess().sql("select job_message from grouper_loader_log where job_name = 'OTHER_JOB_dataProvider1' order by started_time desc")
       .select(String.class);
-    assertTrue("job message should contain examples: " + jobMessage, jobMessage.contains("fieldAssignInsertExamples"));
-    assertTrue("job message should contain row examples: " + jobMessage, jobMessage.contains("rowAssignInsertExamples"));
+    assertTrue("job message should contain examples: " + jobMessage, jobMessage.contains("fieldAssignInserts"));
+    assertTrue("job message should contain row examples: " + jobMessage, jobMessage.contains("rowAssignInserts"));
     assertFalse("job message should NOT contain READONLY: " + jobMessage, jobMessage.contains("READONLY MODE"));
   }
 

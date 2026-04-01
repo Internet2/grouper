@@ -1417,7 +1417,9 @@ public class GrouperDataProviderLogic {
                   MultiKey rowKey = new MultiKey(keyValues);
                   Map<Long, List<Object>> existingValue = providerDataRowKeyToDataFieldInternalIdsAndValues.put(rowKey, providerDataFieldInternalIdToValues);
                   if (existingValue != null) {
-                    LOG.warn("Found duplicate keys for member internal id: " + grouperDataMemberWrapper.getInternalId());
+                    LOG.warn("Found duplicate keys for row: " + grouperDataRowConfig.getConfigId()
+                        + ", key: " + rowKey + ", subjectId: " + grouperDataMemberWrapper.getMember().getSubjectId()
+                        + ", subjectSourceId: " + grouperDataMemberWrapper.getMember().getSubjectSourceId());
                     numberOfDuplicateRowKeysFoundInSource++;
                   }
                 } else {
