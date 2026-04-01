@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderSync;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderSyncType;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -44,7 +45,8 @@ public class GrouperDataProviderIncrementalSyncJob extends OtherJobBase {
         
         try {
           Map<String, Object> debugMap = loadIncremental(jobName, dataProviderConfigId, otherJobInput.getHib3GrouperLoaderLog());
-          otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running incremental for dataProviderConfigId=" + dataProviderConfigId + "\n" + GrouperUtil.mapToString(debugMap));
+          String readOnlyPrefix = GrouperUtil.booleanValue(debugMap.get("readOnly"), false) ? "READONLY MODE - no changes were made\n" : "";
+          otherJobInput.getHib3GrouperLoaderLog().setJobMessage(readOnlyPrefix + "Finished successfully running incremental for dataProviderConfigId=" + dataProviderConfigId + "\n" + GrouperUtil.mapToString(debugMap));
         } catch (Exception e) {
           LOG.warn("Error while running incremental for dataProviderConfigId=" + dataProviderConfigId, e);
           otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running incremental for dataProviderConfigId=" + dataProviderConfigId + " with an error: " + ExceptionUtils.getStackTrace(e));
@@ -70,7 +72,19 @@ public class GrouperDataProviderIncrementalSyncJob extends OtherJobBase {
     final GrouperDataProviderSync grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync(dataProviderConfigId);
     grouperDataProviderSync.setJobName(jobName);
     grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    
+
+    {
+      Boolean readOnlyPerProvider = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDataProvider." + dataProviderConfigId + ".readOnly");
+      if (readOnlyPerProvider != null) {
+        grouperDataProviderSync.setReadOnly(readOnlyPerProvider);
+      } else {
+        grouperDataProviderSync.setReadOnly(GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDataProviderDefault.readOnly", false));
+      }
+      if (grouperDataProviderSync.isReadOnly()) {
+        grouperDataProviderSync.getDebugMap().put("readOnly", true);
+      }
+    }
+
     GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
     grouperDataEngine.setDebugMap(grouperDataProviderSync.getDebugMap());
     grouperDataProviderSync.setGrouperDataEngine(grouperDataEngine);

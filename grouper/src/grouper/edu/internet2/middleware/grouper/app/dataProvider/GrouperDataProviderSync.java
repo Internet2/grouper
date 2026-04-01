@@ -50,6 +50,8 @@ public class GrouperDataProviderSync {
    */
   private Integer failsafeMaxOverallPercentFieldAssignRemove;
   
+  private boolean readOnly;
+
   private String jobName;
   
   private Set<String> syncSubjectsSubjectIds;
@@ -251,6 +253,14 @@ public class GrouperDataProviderSync {
     this.failsafeMaxOverallPercentFieldAssignRemove = failsafeMaxOverallPercentFieldAssignRemove;
   }
   
+  public boolean isReadOnly() {
+    return readOnly;
+  }
+
+  public void setReadOnly(boolean readOnly) {
+    this.readOnly = readOnly;
+  }
+
   public String getJobName() {
     return jobName;
   }
