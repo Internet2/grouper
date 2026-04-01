@@ -212,9 +212,11 @@ public class GrouperDataProviderLogic {
     retrieveSourceData(queryConfigIdToLowerColumnNameToZeroIndex, true);
     
     calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex, true);
-    
-    // TODO should this be a separate daemon or handled somewhere else?  It would do the same thing for every provider full sync.
-    deleteOldHistory();
+
+    if (!grouperDataProviderSync.isReadOnly()) {
+      // TODO should this be a separate daemon or handled somewhere else?  It would do the same thing for every provider full sync.
+      deleteOldHistory();
+    }
   }
   
   /**
@@ -1035,6 +1037,13 @@ public class GrouperDataProviderLogic {
     int numberOfDuplicateRowKeysFoundInSource = 0;
     int membersProcessed = 0;
 
+    // collect up to 20 examples of each change type for the job message
+    int maxExamples = 20;
+    int fieldAssignInsertCount = 0;
+    int fieldAssignDeleteCount = 0;
+    int rowAssignInsertCount = 0;
+    int rowAssignDeleteCount = 0;
+
     int numberOfMemberBatches = GrouperUtil.batchNumberOfBatches(allMemberWrappers.size(), memberBatchSize, false);
 
     for (int memberBatchIndex = 0; memberBatchIndex < numberOfMemberBatches; memberBatchIndex++) {
@@ -1293,20 +1302,20 @@ public class GrouperDataProviderLogic {
               
               Set<Object> dataToDelete = new HashSet<>(dataFromGrouper);
               dataToDelete.removeAll(dataFromProvider);
-              
+
               for (Object value : dataToDelete) {
                 GrouperDataFieldAssignWrapper grouperDataFieldAssignWrapper = valueToFieldAssignWrapper.get(value);
-                
+
                 GrouperDataFieldAssign grouperDataFieldAssign = grouperDataFieldAssignWrapper.getGrouperDataFieldAssign();
-                
+
                 fieldAssignIdToGrouperDataFieldAssignsToDelete.put(grouperDataFieldAssign.getInternalId(), grouperDataFieldAssign);
                 fieldAssignInternalIdToMemberInternalId.put(grouperDataFieldAssign.getInternalId(), grouperDataFieldAssign.getMemberInternalId());
-  
-                Long valueOrInternalId = grouperDataFieldAssign.getValueInteger() != null ? 
-                    grouperDataFieldAssign.getValueInteger() 
+
+                Long valueOrInternalId = grouperDataFieldAssign.getValueInteger() != null ?
+                    grouperDataFieldAssign.getValueInteger()
                     : grouperDataFieldAssign.getValueDictionaryInternalId();
-                
-                fieldAssignIdToChangeLogEntriesDataFieldAssignsToDelete.put(grouperDataFieldAssign.getInternalId(), 
+
+                fieldAssignIdToChangeLogEntriesDataFieldAssignsToDelete.put(grouperDataFieldAssign.getInternalId(),
                     new ChangeLogEntryTemp(ChangeLogTypeBuiltin.DATA_FIELD_ASSIGN_DELETE,
                     ChangeLogLabels.DATA_FIELD_ASSIGN_DELETE.id.name(),
                     GrouperUtil.stringValue(grouperDataFieldAssign.getInternalId()),
@@ -1316,13 +1325,19 @@ public class GrouperDataProviderLogic {
                     GrouperUtil.stringValue(grouperDataFieldAssign.getMemberInternalId()),
                     ChangeLogLabels.DATA_FIELD_ASSIGN_DELETE.valueOrInternalId.name(),
                     GrouperUtil.stringValue(valueOrInternalId)));
-  
+
+                if (fieldAssignDeleteCount < maxExamples) {
+                  String subjectId = grouperDataMemberWrapper.getMember() != null ? grouperDataMemberWrapper.getMember().getSubjectId() : String.valueOf(grouperDataMemberWrapper.getInternalId());
+                  grouperDataProviderSync.getDebugMap().put("fieldAssignDelete_" + fieldAssignDeleteCount, "subjectId=" + subjectId + ", field=" + grouperDataFieldConfig.getConfigId() + ", value=" + GrouperUtil.stringValue(value));
+                }
+                fieldAssignDeleteCount++;
+
               }
-              
+
               Set<Object> dataToInsert = new HashSet<>(dataFromProvider);
               dataToInsert.removeAll(dataFromGrouper);
-      
-              
+
+
               for (Object value : dataToInsert) {
                 GrouperDataFieldAssign grouperDataFieldAssign = new GrouperDataFieldAssign();
                 grouperDataFieldAssign.setDataFieldInternalId(dataFieldInternalId);
@@ -1330,6 +1345,12 @@ public class GrouperDataProviderLogic {
                 grouperDataFieldAssign.setMemberInternalId(grouperDataMemberWrapper.getInternalId());
                 grouperDataFieldConfig.getFieldDataType().assignValue(grouperDataFieldAssign, value, dataEngine.getGrouperDataProviderIndex().getDictionaryTextByString());
                 grouperDataFieldAssignsToInsert.add(grouperDataFieldAssign);
+
+                if (fieldAssignInsertCount < maxExamples) {
+                  String subjectId = grouperDataMemberWrapper.getMember() != null ? grouperDataMemberWrapper.getMember().getSubjectId() : String.valueOf(grouperDataMemberWrapper.getInternalId());
+                  grouperDataProviderSync.getDebugMap().put("fieldAssignInsert_" + fieldAssignInsertCount, "subjectId=" + subjectId + ", field=" + grouperDataFieldConfig.getConfigId() + ", value=" + GrouperUtil.stringValue(value));
+                }
+                fieldAssignInsertCount++;
               }
             }
           }
@@ -1462,7 +1483,13 @@ public class GrouperDataProviderLogic {
                       GrouperUtil.stringValue(grouperDataRowAssign.getDataRowInternalId()),
                       ChangeLogLabels.DATA_ROW_ASSIGN_DELETE.memberInternalId.name(),
                       GrouperUtil.stringValue(grouperDataRowAssign.getMemberInternalId())));
-  
+
+              if (rowAssignDeleteCount < maxExamples) {
+                String subjectId = grouperDataMemberWrapper.getMember() != null ? grouperDataMemberWrapper.getMember().getSubjectId() : String.valueOf(grouperDataMemberWrapper.getInternalId());
+                grouperDataProviderSync.getDebugMap().put("rowAssignDelete_" + rowAssignDeleteCount, "subjectId=" + subjectId + ", row=" + grouperDataRowConfig.getConfigId() + ", key=" + rowKeyFieldsToDelete);
+              }
+              rowAssignDeleteCount++;
+
             }
   
             Set<MultiKey> rowKeyFieldsToInserts = new HashSet<>(providerDataRowKeyToDataFieldInternalIdsAndValues.keySet());
@@ -1474,9 +1501,15 @@ public class GrouperDataProviderLogic {
               grouperDataRowAssign.setDataRowInternalId(dataRowInternalId);
               grouperDataRowAssign.setDataProviderInternalId(grouperDataProvider.getInternalId());
               grouperDataRowAssign.setMemberInternalId(grouperDataMemberWrapper.getInternalId());
-              
+
               grouperDataRowAssignsToInsert.add(grouperDataRowAssign);
-              
+
+              if (rowAssignInsertCount < maxExamples) {
+                String subjectId = grouperDataMemberWrapper.getMember() != null ? grouperDataMemberWrapper.getMember().getSubjectId() : String.valueOf(grouperDataMemberWrapper.getInternalId());
+                grouperDataProviderSync.getDebugMap().put("rowAssignInsert_" + rowAssignInsertCount, "subjectId=" + subjectId + ", row=" + grouperDataRowConfig.getConfigId() + ", key=" + rowKeyFieldsToInsert);
+              }
+              rowAssignInsertCount++;
+
               Map<Long, List<Object>> dataFieldInternalIdToValues = providerDataRowKeyToDataFieldInternalIdsAndValues.get(rowKeyFieldsToInsert);
               for (Long dataFieldInternalId : GrouperUtil.nonNull(dataFieldInternalIdToValues.keySet())) {
   
@@ -1641,6 +1674,23 @@ public class GrouperDataProviderLogic {
         }
       }
       
+      // in readonly mode, track counts but skip all writes (ID generation, member inserts, DAO calls)
+      if (grouperDataProviderSync.isReadOnly()) {
+        if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(grouperDataFieldAssignsToInsert.size());
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(fieldAssignIdToGrouperDataFieldAssignsToDelete.size());
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(grouperDataRowAssignsToInsert.size());
+          int rowFieldDeleteCount = 0;
+          for (List<GrouperDataRowFieldAssign> list : rowAssignInternalIdToGrouperDataRowFieldAssignsToDelete.values()) {
+            rowFieldDeleteCount += list.size();
+          }
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(rowAssignInternalIdToGrouperDataRowAssignsToDelete.size() + rowFieldDeleteCount);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(grouperDataRowFieldAssignsToInsert.size());
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addUpdateCount(rowAssignInternalIdToGrouperDataRowAssignsToUpdate.size());
+        }
+        continue;
+      }
+
       // --- step 3: generate internal IDs and build change log entries for inserts ---
       // new field assigns, row assigns, and row field assigns need internal IDs reserved
       // before they can be written. also build the change log entry for each insert.
@@ -2127,6 +2177,20 @@ public class GrouperDataProviderLogic {
       if (grouperDataProviderSync.getDebugMap() != null) {
         grouperDataProviderSync.getDebugMap().put("numberOfDuplicateRowKeysFoundInSource", numberOfDuplicateRowKeysFoundInSource);
       }
+    }
+
+    // add change counts to debugMap for the daemon job message
+    if (fieldAssignInsertCount > 0) {
+      grouperDataProviderSync.getDebugMap().put("fieldAssignInserts", fieldAssignInsertCount);
+    }
+    if (fieldAssignDeleteCount > 0) {
+      grouperDataProviderSync.getDebugMap().put("fieldAssignDeletes", fieldAssignDeleteCount);
+    }
+    if (rowAssignInsertCount > 0) {
+      grouperDataProviderSync.getDebugMap().put("rowAssignInserts", rowAssignInsertCount);
+    }
+    if (rowAssignDeleteCount > 0) {
+      grouperDataProviderSync.getDebugMap().put("rowAssignDeletes", rowAssignDeleteCount);
     }
   }
 
