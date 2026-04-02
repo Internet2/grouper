@@ -48,9 +48,37 @@ public class GrouperDataFieldSourceAdapterTest extends GrouperTest {
   public void testGetSubjectFull() {
     internal_testGetSubject(GrouperDataProviderSyncType.fullSyncFull);
   }
-  
+
   public void testGetSubjectIncremental() {
     internal_testGetSubject(GrouperDataProviderSyncType.incrementalSyncChangeLog);
+  }
+
+  public void testSubjectIdResolvedAsIdentifier() {
+
+    setupData(GrouperDataProviderSyncType.fullSyncFull);
+
+    // without the config, looking up by subject_id as an identifier should not find the subject
+    // (since "test.subject.0" is not a netId identifier value, it's a subject_id)
+    Subject subject = SubjectFinder.findByIdentifierAndSource("test.subject.0", "dataFieldSubjectSource", false);
+    assertNull(subject);
+
+    // enable subjectIdResolvedAsIdentifier
+    new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.dataFieldSubjectSource.subjectIdResolvedAsIdentifier").value("true").store();
+    SubjectConfig.clearCache();
+    ConfigPropertiesCascadeBase.clearCache();
+    SourceManager.getInstance().reloadSource("dataFieldSubjectSource");
+    SourceManager.getInstance().loadSource(SubjectConfig.retrieveConfig().retrieveSourceConfigs().get("dataFieldSubjectSource"));
+
+    // now looking up by subject_id as an identifier should work
+    subject = SubjectFinder.findByIdentifierAndSource("test.subject.0", "dataFieldSubjectSource", false);
+    assertNotNull(subject);
+    assertEquals("test.subject.0", subject.getId());
+    assertEquals("my name is test.subject.0", subject.getName());
+
+    // regular identifier lookup should still work
+    Subject subjectByIdentifier = SubjectFinder.findByIdentifierAndSource("id.test.subject.0", "dataFieldSubjectSource", false);
+    assertNotNull(subjectByIdentifier);
+    assertEquals("test.subject.0", subjectByIdentifier.getId());
   }
   
   private void internal_testGetSubject(GrouperDataProviderSyncType syncType) {
