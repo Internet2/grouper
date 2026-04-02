@@ -83,6 +83,8 @@ User-managed configuration are in corresponding files without the `.base` in the
 
 There is also configuration in the database which takes precedence over the non base config files.  This is edited in the UI since history in kept in another table, so this should not be edited in the database but it could be viewed in the database or there is an MCP tool to look at configuration (preferred).
 
+When editing configuration that shows up in the UI as a wizard, add externalized text for the label and description.
+
 ## Git Repository Information
 
 - Current branch: GROUPER_7_BRANCH
