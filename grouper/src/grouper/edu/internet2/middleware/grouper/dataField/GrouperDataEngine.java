@@ -572,6 +572,16 @@ public class GrouperDataEngine {
     return grouperDataProviderIndex;
   }
 
+  /**
+   * replace the provider index with a fresh instance.
+   * used between subject ID batches in full sync to release per-batch state
+   * (member wrappers, assigns, dictionary text, members to add).
+   * @param grouperDataProviderIndex the new index
+   */
+  public void setGrouperDataProviderIndex(GrouperDataProviderIndex grouperDataProviderIndex) {
+    this.grouperDataProviderIndex = grouperDataProviderIndex;
+  }
+
   public void loadFieldsAndRows(GrouperConfig grouperConfig) {
     if (grouperConfig == null) {
       grouperConfig = GrouperConfig.retrieveConfig();

@@ -1069,6 +1069,56 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Set<Long> selectByDataProviderAndSubjectIdRange(Long dataProviderInternalId, String fromSubjectIdLower, String toSubjectIdLower) {
+
+    if (dataProviderInternalId == null) {
+      throw new NullPointerException("dataProviderInternalId is required");
+    }
+
+    List<Long> memberInternalIds = new GcDbAccess()
+        .sql("(select gm.internal_id from grouper_members gm where gm.internal_id in ( "
+            + " select gdfa.member_internal_id from grouper_data_field_assign gdfa where data_provider_internal_id = ? ) "
+            + " and lower(gm.subject_id) >= ? and lower(gm.subject_id) <= ?) union "
+            + " (select gm.internal_id from grouper_members gm where gm.internal_id in ( "
+            + " select gdra.member_internal_id "
+            + " from grouper_data_row_assign gdra where gdra.data_provider_internal_id = ?) "
+            + " and lower(gm.subject_id) >= ? and lower(gm.subject_id) <= ?)")
+        .addBindVar(dataProviderInternalId)
+        .addBindVar(fromSubjectIdLower)
+        .addBindVar(toSubjectIdLower)
+        .addBindVar(dataProviderInternalId)
+        .addBindVar(fromSubjectIdLower)
+        .addBindVar(toSubjectIdLower)
+        .selectList(Long.class);
+
+    return new HashSet<Long>(GrouperUtil.nonNull(memberInternalIds));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<String> selectDistinctSubjectIdsByDataProvider(Long dataProviderInternalId) {
+
+    if (dataProviderInternalId == null) {
+      throw new NullPointerException("dataProviderInternalId is required");
+    }
+
+    return new GcDbAccess()
+        .sql("select distinct lower(gm.subject_id) from grouper_members gm where gm.internal_id in ( "
+            + " select gdfa.member_internal_id from grouper_data_field_assign gdfa where data_provider_internal_id = ? "
+            + " union "
+            + " select gdra.member_internal_id from grouper_data_row_assign gdra where gdra.data_provider_internal_id = ?) "
+            + " order by 1")
+        .addBindVar(dataProviderInternalId)
+        .addBindVar(dataProviderInternalId)
+        .selectList(String.class);
+  }
+
+  /**
    * @see MemberDAO#findByIds(Collection, QueryOptions)
    */
   @Override

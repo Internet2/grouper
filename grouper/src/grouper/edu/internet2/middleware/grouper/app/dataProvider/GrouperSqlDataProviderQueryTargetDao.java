@@ -16,6 +16,77 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperSqlDataProviderQueryTargetDao extends GrouperDataProviderQueryTargetDao {
 
+  /**
+   * {@inheritDoc}
+   * wraps the configured query as a subquery and selects distinct lowercased subject ids,
+   * ordered by the database: SELECT DISTINCT LOWER(col) FROM (...) innerQuery ORDER BY 1
+   */
+  @Override
+  public List<String> selectDistinctSubjectIds() {
+    GrouperSqlDataProviderQueryConfig grouperDataProviderQueryConfig = (GrouperSqlDataProviderQueryConfig)this.getGrouperDataProviderQuery().retrieveGrouperDataProviderQueryConfig();
+
+    String subjectIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectIdAttribute();
+    String sql = "SELECT DISTINCT LOWER(" + subjectIdAttribute + ") FROM (" + grouperDataProviderQueryConfig.getProviderQuerySqlQuery() + ") innerQuery ORDER BY 1";
+
+    return new GcDbAccess().connectionName(grouperDataProviderQueryConfig.getProviderQuerySqlConfigId()).sql(sql).selectList(String.class);
+  }
+
+  /**
+   * {@inheritDoc}
+   * wraps the configured query as a subquery and filters with
+   * WHERE LOWER(col) >= ? AND LOWER(col) <= ? using bind variables for the range bounds
+   */
+  @Override
+  public List<Object[]> selectDataBySubjectIdRange(Map<String, Integer> lowerColumnNameToZeroIndex, String fromSubjectIdLower, String toSubjectIdLower) {
+    GrouperSqlDataProviderQueryConfig grouperDataProviderQueryConfig = (GrouperSqlDataProviderQueryConfig)this.getGrouperDataProviderQuery().retrieveGrouperDataProviderQueryConfig();
+
+    String subjectIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectIdAttribute();
+    String sql = "SELECT * FROM (" + grouperDataProviderQueryConfig.getProviderQuerySqlQuery() + ") innerQuery WHERE LOWER(" + subjectIdAttribute + ") >= ? AND LOWER(" + subjectIdAttribute + ") <= ?";
+
+    List<Object[]> rows = GrouperUtil.nonNull(new GcDbAccess().connectionName(grouperDataProviderQueryConfig.getProviderQuerySqlConfigId())
+        .sql(sql).addBindVar(fromSubjectIdLower).addBindVar(toSubjectIdLower).selectList(Object[].class));
+
+    retrieveMetadata(lowerColumnNameToZeroIndex);
+    return rows;
+  }
+
+  /**
+   * {@inheritDoc}
+   * wraps the configured query as a subquery and filters with
+   * WHERE LOWER(col) IN (?,?,...). batches in groups of 800 to stay within
+   * database bind variable limits (e.g. Oracle's 1000 limit)
+   */
+  @Override
+  public List<Object[]> selectDataBySubjectIds(Map<String, Integer> lowerColumnNameToZeroIndex, List<String> subjectIdsLower) {
+    GrouperSqlDataProviderQueryConfig grouperDataProviderQueryConfig = (GrouperSqlDataProviderQueryConfig)this.getGrouperDataProviderQuery().retrieveGrouperDataProviderQueryConfig();
+
+    List<Object[]> rows = new ArrayList<Object[]>();
+
+    if (subjectIdsLower.size() > 0) {
+      String subjectIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectIdAttribute();
+      int batchSize = 800;
+
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjectIdsLower.size(), batchSize, true);
+      for (int i = 0; i < numberOfBatches; i++) {
+        List<String> batchSubjectIds = GrouperUtil.batchList(subjectIdsLower, batchSize, i);
+
+        StringBuilder sql = new StringBuilder("SELECT * FROM (" + grouperDataProviderQueryConfig.getProviderQuerySqlQuery() + ") innerQuery WHERE LOWER(" + subjectIdAttribute + ") IN (");
+        GrouperClientUtils.appendQuestions(sql, batchSubjectIds.size());
+        sql.append(")");
+
+        GcDbAccess gcDbAccess = new GcDbAccess().connectionName(grouperDataProviderQueryConfig.getProviderQuerySqlConfigId());
+        for (String subjectId : batchSubjectIds) {
+          gcDbAccess.addBindVar(subjectId);
+        }
+
+        rows.addAll(GrouperUtil.nonNull(gcDbAccess.sql(sql.toString()).selectList(Object[].class)));
+      }
+    }
+
+    retrieveMetadata(lowerColumnNameToZeroIndex);
+    return rows;
+  }
+
   @Override
   public List<Object[]> selectData(Map<String, Integer> lowerColumnNameToZeroIndex) {
     GrouperSqlDataProviderQueryConfig grouperDataProviderQueryConfig = (GrouperSqlDataProviderQueryConfig)this.getGrouperDataProviderQuery().retrieveGrouperDataProviderQueryConfig();
