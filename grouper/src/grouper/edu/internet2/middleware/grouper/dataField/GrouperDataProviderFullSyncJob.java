@@ -88,6 +88,9 @@ public class GrouperDataProviderFullSyncJob extends OtherJobBase {
 
     Integer failsafeMaxOverallPercentFieldAssignRemove = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob." + daemonName + ".failsafeMaxOverallPercentFieldAssignRemove");
     grouperDataProviderSync.setFailsafeMaxOverallPercentFieldAssignRemove(failsafeMaxOverallPercentFieldAssignRemove);
+
+    Integer failsafeMinSubjectCount = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob." + daemonName + ".failsafeMinSubjectCount");
+    grouperDataProviderSync.setFailsafeMinSubjectCount(failsafeMinSubjectCount);
     
     GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
     grouperDataEngine.setDebugMap(grouperDataProviderSync.getDebugMap());

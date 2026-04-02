@@ -84,7 +84,7 @@ public class GrouperDataProviderTest extends GrouperTest {
    */
   public void testInsert() {
     Long internalId = GrouperDataProviderDao.findOrAdd("test");
-    System.out.println(internalId);
+    assertNotNull(internalId);
   }
   
   /**
@@ -2965,6 +2965,397 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertTrue("job message should contain examples: " + jobMessage, jobMessage.contains("fieldAssignInserts"));
     assertTrue("job message should contain row examples: " + jobMessage, jobMessage.contains("rowAssignInserts"));
     assertFalse("job message should NOT contain READONLY: " + jobMessage, jobMessage.contains("READONLY MODE"));
+  }
+
+  /**
+   * test that full sync produces the same results when batching by subject id.
+   * uses a batch size of 2 so the 4 test subjects are split across 2 batches.
+   * debug map assertions are in the standalone 9-subject test instead, since
+   * internal_testSqlProvider runs the sync twice and overwrites the debug map.
+   */
+  public void testSqlProviderFullBatchBySubjectId() {
+    // set a small batch size so the 4 test subjects require multiple batches
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.fullSyncSubjectIdBatchSize").value("2").store();
+
+    internal_testSqlProvider(GrouperDataProviderSyncType.fullSyncFull);
+  }
+
+  /**
+   * test that full sync works with a batch size of 1, the most extreme batching scenario.
+   * each subject gets its own batch.
+   */
+  public void testSqlProviderFullBatchBySubjectIdSizeOne() {
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.fullSyncSubjectIdBatchSize").value("1").store();
+
+    internal_testSqlProvider(GrouperDataProviderSyncType.fullSyncFull);
+  }
+
+  /**
+   * test that full sync with one-row-per-subject works with subject id batching.
+   */
+  public void testSqlProviderOneRowPerSubjectFullBatchBySubjectId() {
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.fullSyncSubjectIdBatchSize").value("2").store();
+
+    internal_testSqlProviderOneRowPerSubject(GrouperDataProviderSyncType.fullSyncFull);
+  }
+
+  /**
+   * test batching with 9 subjects and a batch size of 2, resulting in 5 batches.
+   * verifies field assigns and row assigns are correct for all subjects across batches.
+   */
+  public void testSqlProviderFullBatchBySubjectIdNineSubjects() {
+
+    GrouperSession.startRootSession();
+
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+
+    // insert 9 subjects with boolean field data
+    List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "T", "F", "T"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.1", "F", "T", "F"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.2", "T", "T", "T"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.3", "F", "F", "F"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.4", "T", "F", "T"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.5", "F", "T", "F"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.6", "T", "T", "T"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.7", "F", "F", "F"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.8", "T", "F", "T"));
+
+    new GcDbAccess().sql("insert into testgrouper_field_attr (subject_id, active, two_step_enrolled, employee) values (?, ?, ?, ?)")
+        .batchBindVars(batchBindVars).executeBatchSql();
+
+    // insert row data (affiliations) for some subjects
+    batchBindVars.clear();
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "staff", "T", "engl"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.2", "alum", "F", "math"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.4", "stu", "T", "comp"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.6", "fac", "T", "phys"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.8", "contr", "F", "span"));
+
+    new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org) values (?, ?, ?, ?)")
+        .batchBindVars(batchBindVars).executeBatchSql();
+
+    // configure daemon job
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.dataProviderConfigId").value("idm").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
+
+    // configure data fields
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldAliases").value("active").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.descriptionHtml").value("is active").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldAliases").value("twoStepEnrolled").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.descriptionHtml").value("two step enrolled").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldAliases").value("employee").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.descriptionHtml").value("employee").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.fieldAliases").value("affiliationCode").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.descriptionHtml").value("affiliation code").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldAliases").value("affiliationActive").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.descriptionHtml").value("affiliation active").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.fieldAliases").value("affiliationOrg").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.descriptionHtml").value("affiliation org").store();
+
+    // configure data row
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowAliases").value("affiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.descriptionHtml").value("affiliation row").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowNumberOfDataFields").value("3").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.0.colDataFieldConfigId").value("affiliationCode").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.0.rowKeyField").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.1.colDataFieldConfigId").value("affiliationActive").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.2.colDataFieldConfigId").value("affiliationOrg").store();
+
+    // configure data provider
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.name").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.fullSyncSubjectIdBatchSize").value("2").store();
+
+    // configure queries
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryType").value("sql").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySqlConfigId").value("grouper").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySqlQuery").value("select subject_id, active, two_step_enrolled, employee from testgrouper_field_attr").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataStructure").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySubjectIdAttribute").value("subject_id").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySubjectIdType").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySubjectSourceId").value("jdbc").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryNumberOfDataFields").value("3").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.0.providerDataFieldConfigId").value("isActive").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.0.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.0.providerDataFieldAttribute").value("active").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.1.providerDataFieldConfigId").value("twoStep").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.1.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.1.providerDataFieldAttribute").value("two_step_enrolled").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.2.providerDataFieldConfigId").value("employee").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.2.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.2.providerDataFieldAttribute").value("employee").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryType").value("sql").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySqlConfigId").value("grouper").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySqlQuery").value("select subject_id, affiliation_code, active, org from testgrouper_field_row_affil").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataStructure").value("row").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryRowConfigId").value("affiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectIdAttribute").value("subject_id").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectIdType").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectSourceId").value("jdbc").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryNumberOfDataFields").value("3").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldConfigId").value("affiliationCode").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldAttribute").value("affiliation_code").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.1.providerDataFieldConfigId").value("affiliationActive").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.1.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.1.providerDataFieldAttribute").value("active").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldConfigId").value("affiliationOrg").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldAttribute").value("org").store();
+
+    GrouperDataProviderLogic.testingDebugMap = null;
+
+    // run the sync (9 subjects, batch size 2 = 5 batches)
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+
+    // verify all 9 subjects have field assigns (3 boolean fields each = 27 field assigns)
+    assertEquals(27, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where data_field_config_id in ('isActive', 'twoStep', 'employee')").select(int.class).intValue());
+
+    // verify specific subjects (3 field assigns each)
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.4'").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.8'").select(int.class).intValue());
+
+    // verify field values for a few subjects
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'isActive'").select(int.class).intValue());
+    assertEquals(0, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
+    assertEquals(0, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.7' and data_field_config_id = 'isActive'").select(int.class).intValue());
+
+    // verify row assigns (5 subjects have affiliations = 5 row assigns)
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where data_row_config_id = 'affiliation'").select(int.class).intValue());
+
+    // verify row field assigns (5 rows x 3 fields = 15 row field assigns)
+    assertEquals(15, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v").select(int.class).intValue());
+
+    // verify specific row data
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.4' and data_field_config_id = 'affiliationCode' and value_text = 'stu'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.6' and data_field_config_id = 'affiliationOrg' and value_text = 'phys'").select(int.class).intValue());
+
+    // verify debug map accumulated across all 5 batches
+    assertNotNull("testingDebugMap should be set", GrouperDataProviderLogic.testingDebugMap);
+    assertEquals(27, ((Number)GrouperDataProviderLogic.testingDebugMap.get("fieldAssignInserts")).intValue());
+    assertEquals(5, ((Number)GrouperDataProviderLogic.testingDebugMap.get("rowAssignInserts")).intValue());
+  }
+
+  /**
+   * test LDAP data provider full sync with subject id batching.
+   * uses a batch size of 2 so the 5 LDAP test subjects are split across 3 batches.
+   */
+  public void testLdapProviderFullBatchBySubjectId() {
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.ldap.fullSyncSubjectIdBatchSize").value("2").store();
+
+    GrouperDataProviderLogic.testingDebugMap = null;
+
+    internal_testLdapProvider(GrouperDataProviderSyncType.fullSyncFull);
+
+    assertNotNull("testingDebugMap should be set after LDAP full sync", GrouperDataProviderLogic.testingDebugMap);
+    assertTrue("should have fieldAssignInserts in debug map",
+        GrouperDataProviderLogic.testingDebugMap.containsKey("fieldAssignInserts"));
+  }
+
+  /**
+   * test failsafe check #1: subject id count check.
+   * load data for 4 subjects, then remove 2 from the source and re-sync with a low threshold.
+   * the subject id count failsafe should trigger before any batches run.
+   */
+  public void testSqlProviderFullSyncFailsafeSubjectIdCount() {
+
+    GrouperSession.startRootSession();
+
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+
+    // insert 4 subjects
+    List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "T", "F", "T"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.1", "F", "T", "F"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.2", "T", "T", "T"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.3", "F", "F", "F"));
+
+    new GcDbAccess().sql("insert into testgrouper_field_attr (subject_id, active, two_step_enrolled, employee) values (?, ?, ?, ?)")
+        .batchBindVars(batchBindVars).executeBatchSql();
+
+    // configure with failsafe at 30% and minimum subject count of 1 (so it applies to small datasets)
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.dataProviderConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.failsafeMaxOverallPercentFieldAssignRemove").value("30").store();
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.failsafeMinSubjectCount").value("1").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldAliases").value("active").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.descriptionHtml").value("is active").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldAliases").value("twoStepEnrolled").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.descriptionHtml").value("two step").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldAliases").value("employee").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.descriptionHtml").value("employee").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.name").value("idm").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryType").value("sql").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySqlConfigId").value("grouper").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySqlQuery").value("select subject_id, active, two_step_enrolled, employee from testgrouper_field_attr").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataStructure").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySubjectIdAttribute").value("subject_id").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySubjectIdType").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySubjectSourceId").value("jdbc").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryNumberOfDataFields").value("3").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.0.providerDataFieldConfigId").value("isActive").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.0.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.0.providerDataFieldAttribute").value("active").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.1.providerDataFieldConfigId").value("twoStep").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.1.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.1.providerDataFieldAttribute").value("two_step_enrolled").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.2.providerDataFieldConfigId").value("employee").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.2.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.2.providerDataFieldAttribute").value("employee").store();
+
+    // first sync loads all 4 subjects
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+
+    assertEquals(12, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v").select(int.class).intValue());
+
+    // remove 2 subjects from source (50% missing > 30% threshold)
+    new GcDbAccess().sql("delete from testgrouper_field_attr where subject_id in ('test.subject.2', 'test.subject.3')").executeSql();
+
+    // second sync should fail with subject id count failsafe
+    try {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+      fail("Expected failsafe exception due to missing subject ids");
+    } catch (Exception e) {
+      assertTrue("Should be failsafe error: " + e.getMessage(), e.getMessage().contains("missing from source"));
+    }
+
+    // no changes should have been made
+    assertEquals(12, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v").select(int.class).intValue());
+  }
+
+  /**
+   * test failsafe check #2: per-batch field assign remove check.
+   * load data for 4 subjects, then modify data to trigger removes within a batch.
+   * uses batch size of 2 so the per-batch check applies to smaller groups.
+   */
+  public void testSqlProviderFullSyncFailsafePerBatch() {
+
+    GrouperSession.startRootSession();
+
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+
+    // insert 4 subjects with 3 boolean fields each (12 field assigns total after first sync)
+    List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "T", "F", "T"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.1", "F", "T", "F"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.2", "T", "T", "T"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.3", "F", "F", "F"));
+
+    new GcDbAccess().sql("insert into testgrouper_field_attr (subject_id, active, two_step_enrolled, employee) values (?, ?, ?, ?)")
+        .batchBindVars(batchBindVars).executeBatchSql();
+
+    // configure with failsafe at 30%, batch size 2
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.dataProviderConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.failsafeMaxOverallPercentFieldAssignRemove").value("30").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.fullSyncSubjectIdBatchSize").value("2").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldAliases").value("active").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.descriptionHtml").value("is active").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldAliases").value("twoStepEnrolled").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.descriptionHtml").value("two step").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldAliases").value("employee").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.descriptionHtml").value("employee").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.name").value("idm").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryType").value("sql").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySqlConfigId").value("grouper").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySqlQuery").value("select subject_id, active, two_step_enrolled, employee from testgrouper_field_attr").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataStructure").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySubjectIdAttribute").value("subject_id").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySubjectIdType").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQuerySubjectSourceId").value("jdbc").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryNumberOfDataFields").value("3").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.0.providerDataFieldConfigId").value("isActive").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.0.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.0.providerDataFieldAttribute").value("active").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.1.providerDataFieldConfigId").value("twoStep").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.1.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.1.providerDataFieldAttribute").value("two_step_enrolled").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.2.providerDataFieldConfigId").value("employee").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.2.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryDataField.2.providerDataFieldAttribute").value("employee").store();
+
+    // first sync loads all 4 subjects (12 field assigns)
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+
+    assertEquals(12, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v").select(int.class).intValue());
+
+    // change ALL values for test.subject.0 and test.subject.1 (these will be in the same batch)
+    // each subject has 3 field assigns, all changing = 6 removes out of 6 in-batch = 100% > 30%
+    new GcDbAccess().sql("update testgrouper_field_attr set active='F', two_step_enrolled='T', employee='F' where subject_id='test.subject.0'").executeSql();
+    new GcDbAccess().sql("update testgrouper_field_attr set active='T', two_step_enrolled='F', employee='T' where subject_id='test.subject.1'").executeSql();
+
+    // second sync should fail with per-batch failsafe
+    try {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+      fail("Expected failsafe exception due to per-batch field assign removes");
+    } catch (Exception e) {
+      assertTrue("Should be failsafe error: " + e.getMessage(), e.getMessage().contains("field assigns being removed"));
+    }
+
+    // the batch with test.subject.0 and test.subject.1 should NOT have been written
+    // (failsafe triggers before writing)
+    // but we can't easily assert which batch ran first since subject id ordering may vary
+    // just verify total count didn't decrease
+    int fieldAssignCount = new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v").select(int.class).intValue();
+    assertTrue("field assign count should not have decreased from 12, got " + fieldAssignCount, fieldAssignCount >= 12);
   }
 
   public static void createTableAffiliation() {

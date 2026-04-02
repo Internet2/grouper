@@ -71,6 +71,24 @@ public interface MemberDAO extends GrouperDAO {
    * @return the members by internal id
    */
   Set<Long> selectByDataProvider(Long dataProviderInternalId);
+
+  /**
+   * get member internal ids for members assigned in a data provider whose lowercased
+   * subject id falls within the given range (inclusive).
+   * @param dataProviderInternalId the data provider
+   * @param fromSubjectIdLower lower bound (inclusive), lowercased
+   * @param toSubjectIdLower upper bound (inclusive), lowercased
+   * @return member internal ids in the range
+   */
+  Set<Long> selectByDataProviderAndSubjectIdRange(Long dataProviderInternalId, String fromSubjectIdLower, String toSubjectIdLower);
+
+  /**
+   * get distinct lowercased subject ids for all members assigned in a data provider,
+   * ordered ascending.
+   * @param dataProviderInternalId the data provider
+   * @return ordered list of distinct lowercased subject ids
+   */
+  List<String> selectDistinctSubjectIdsByDataProvider(Long dataProviderInternalId);
   
   /**
    * find by ids secure
