@@ -84,6 +84,34 @@ class Hib3RegistryDAO implements RegistryDAO {
   public void reset(final boolean includeTypesAndFields) 
     throws  GrouperDAOException {
 
+    
+    new GcDbAccess().sql("delete from grouper_sql_cache_mship_hst").executeSql();
+    new GcDbAccess().sql("delete from grouper_sql_cache_mship").executeSql();
+    new GcDbAccess().sql("delete from grouper_sql_cache_group").executeSql();
+    new GcDbAccess().sql("delete from grouper_sql_cache_dependency").executeSql();
+    new GcDbAccess().sql("delete from grouper_sql_cache_depend_type").executeSql();
+
+    new GcDbAccess().sql("delete from grouper_mcp_tool_log").executeSql();
+    new GcDbAccess().sql("delete from grouper_oauth_code").executeSql();
+    new GcDbAccess().sql("delete from grouper_oauth_pend_authz_req").executeSql();
+    new GcDbAccess().sql("delete from grouper_oauth_client").executeSql();
+
+    new GcDbAccess().sql("delete from grouper_failsafe").executeSql();
+    new GcDbAccess().sql("delete from grouper_last_login").executeSql();
+    new GcDbAccess().sql("delete from grouper_stem_view_privilege").executeSql();
+    new GcDbAccess().sql("delete from grouper_prov_zoom_user").executeSql();
+    new GcDbAccess().sql("delete from grouper_prov_duo_user").executeSql();
+    new GcDbAccess().sql("delete from grouper_prov_scim_user_attr").executeSql();
+    new GcDbAccess().sql("delete from grouper_prov_scim_user").executeSql();
+    new GcDbAccess().sql("delete from grouper_prov_azure_user").executeSql();
+    new GcDbAccess().sql("delete from grouper_prov_adobe_user").executeSql();
+    new GcDbAccess().sql("delete from grouper_prov_adobe_group").executeSql();
+    new GcDbAccess().sql("delete from grouper_prov_adobe_membership").executeSql();
+
+    new GcDbAccess().sql("delete from grouper_lifecycle_event").executeSql();
+    new GcDbAccess().sql("delete from grouper_lifecycle_event_config").executeSql();
+    GrouperMembershipRequireChangeDao.deleteAllRecords();
+
     // this doesnt need tx right?
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
@@ -93,39 +121,25 @@ class Hib3RegistryDAO implements RegistryDAO {
               throws GrouperDAOException {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
-            new GcDbAccess().sql("delete from grouper_sql_cache_mship_hst").executeSql();
-            new GcDbAccess().sql("delete from grouper_sql_cache_mship").executeSql();
-            new GcDbAccess().sql("delete from grouper_sql_cache_group").executeSql();
-            new GcDbAccess().sql("delete from grouper_sql_cache_dependency").executeSql();
-            new GcDbAccess().sql("delete from grouper_sql_cache_depend_type").executeSql();
-
-            new GcDbAccess().sql("delete from grouper_mcp_tool_log").executeSql();
-            new GcDbAccess().sql("delete from grouper_oauth_code").executeSql();
-            new GcDbAccess().sql("delete from grouper_oauth_pend_authz_req").executeSql();
-            new GcDbAccess().sql("delete from grouper_oauth_client").executeSql();
-
-            new GcDbAccess().sql("delete from grouper_failsafe").executeSql();
-            new GcDbAccess().sql("delete from grouper_last_login").executeSql();
-            new GcDbAccess().sql("delete from grouper_stem_view_privilege").executeSql();
-            new GcDbAccess().sql("delete from grouper_prov_zoom_user").executeSql();
-            new GcDbAccess().sql("delete from grouper_prov_duo_user").executeSql();
-            new GcDbAccess().sql("delete from grouper_prov_scim_user_attr").executeSql();
-            new GcDbAccess().sql("delete from grouper_prov_scim_user").executeSql();
-            new GcDbAccess().sql("delete from grouper_prov_azure_user").executeSql();
-            new GcDbAccess().sql("delete from grouper_prov_adobe_user").executeSql();
-            new GcDbAccess().sql("delete from grouper_prov_adobe_group").executeSql();
-            new GcDbAccess().sql("delete from grouper_prov_adobe_membership").executeSql();
-
-            new GcDbAccess().sql("delete from grouper_lifecycle_event").executeSql();
-            new GcDbAccess().sql("delete from grouper_lifecycle_event_config").executeSql();
-            GrouperMembershipRequireChangeDao.deleteAllRecords();
-            hibernateSession.getSession().flush();
-            
             Hib3TableIndexDAO.reset(hibernateSession);
             Hib3RoleSetDAO.reset(hibernateSession);
             Hib3AttributeAssignValueDAO.reset(hibernateSession);
             Hib3AttributeAssignActionSetDAO.reset(hibernateSession);
             Hib3AttributeDefScopeDAO.reset(hibernateSession);
+
+
+            return null;
+          }
+      
+    });
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+
             Hib3AttributeAssignDAO.reset(hibernateSession);
             Hib3AttributeAssignActionDAO.reset(hibernateSession);
             Hib3AttributeDefNameSetDAO.reset(hibernateSession);
@@ -140,13 +154,26 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3GrouperLoaderLog.reset(hibernateSession);
             Hib3GrouperPasswordRecentlyUsedDAO.reset(hibernateSession);
             Hib3GrouperPasswordDAO.reset(hibernateSession);
-            
-            GcGrouperSyncDependencyGroupGroup.reset();
-            GcGrouperSyncDependencyGroupUser.reset();
+
+            return null;
+          }
+
+    });
+
+    GcGrouperSyncDependencyGroupGroup.reset();
+    GcGrouperSyncDependencyGroupUser.reset();
+
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Hib3GroupSetDAO.reset(hibernateSession);
             Hib3MembershipDAO.reset(hibernateSession);
-            Hib3AttributeDefDAO.reset(hibernateSession);            
+            Hib3AttributeDefDAO.reset(hibernateSession);
             Hib3CompositeDAO.reset(hibernateSession);
             Hib3GroupDAO.reset(hibernateSession);
             Hib3StemSetDAO.reset(hibernateSession);
@@ -155,15 +182,26 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3MessageDAO.reset(hibernateSession);
             Hib3GrouperFileDAO.reset(hibernateSession);
 
-            GcGrouperSyncLog.reset();
-            GcGrouperSyncMembership.reset();
-            GcGrouperSyncGroup.reset();
-            GcGrouperSyncMember.reset();
-            GcGrouperSyncJob.reset();
-            GcGrouperSync.reset();
-            
-            //we need to flush since the next query will run a sql
-            hibernateSession.getSession().flush();
+            return null;
+          }
+
+    });
+
+    GcGrouperSyncLog.reset();
+    GcGrouperSyncMembership.reset();
+    GcGrouperSyncGroup.reset();
+    GcGrouperSyncMember.reset();
+    GcGrouperSyncJob.reset();
+    GcGrouperSync.reset();
+
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+
 //            Hib3MemberDAO.reset(hibernateSession);
             Hib3RegistrySubjectAttributeDAO.reset(hibernateSession);
             Hib3RegistrySubjectDAO.reset(hibernateSession);
@@ -175,7 +213,7 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3PITAttributeAssignActionDAO.reset(hibernateSession);
             Hib3PITAttributeDefNameSetDAO.reset(hibernateSession);
             Hib3PITAttributeDefNameDAO.reset(hibernateSession);
-            
+
             Hib3PITMembershipDAO.reset(hibernateSession);
             Hib3PITGroupSetDAO.reset(hibernateSession);
             Hib3PITGroupDAO.reset(hibernateSession);
@@ -187,34 +225,48 @@ class Hib3RegistryDAO implements RegistryDAO {
 
             Hib3ExternalSubjectAttributeDAO.reset(hibernateSession);
             Hib3ExternalSubjectDAO.reset(hibernateSession);
-            
-            new GcDbAccess().sql("delete from grouper_recent_mships_conf").executeSql();
-            new GcDbAccess().sql("delete from grouper_stem_view_privilege").executeSql();
-            new GcDbAccess().sql("delete from grouper_last_login").executeSql();
-            
-            new edu.internet2.middleware.grouper.misc.AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
-            
-            GrouperDataRowFieldAssignHstDao.reset();
-            GrouperDataFieldAssignHstDao.reset();
-            GrouperDataRowAssignHstDao.reset();
-            
-            GrouperDataRowFieldAssignDao.reset();
-            GrouperDataFieldAssignDao.reset();
-            GrouperDataRowAssignDao.reset();
-            GrouperDataAliasDao.reset();
-            GrouperDataGlobalAssignDao.reset();
-            GrouperDataFieldDao.reset();
-            GrouperDataRowDao.reset();
-            GrouperDataProviderDao.reset();
+
+            return null;
+          }
+
+    });
+
+    new GcDbAccess().sql("delete from grouper_recent_mships_conf").executeSql();
+    new GcDbAccess().sql("delete from grouper_stem_view_privilege").executeSql();
+    new GcDbAccess().sql("delete from grouper_last_login").executeSql();
+
+    new edu.internet2.middleware.grouper.misc.AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
+
+    GrouperDataRowFieldAssignHstDao.reset();
+    GrouperDataFieldAssignHstDao.reset();
+    GrouperDataRowAssignHstDao.reset();
+
+    GrouperDataRowFieldAssignDao.reset();
+    GrouperDataFieldAssignDao.reset();
+    GrouperDataRowAssignDao.reset();
+    GrouperDataAliasDao.reset();
+    GrouperDataGlobalAssignDao.reset();
+    GrouperDataFieldDao.reset();
+    GrouperDataRowDao.reset();
+    GrouperDataProviderDao.reset();
+
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Hib3MemberDAO.reset(hibernateSession);
             Hib3PITMemberDAO.reset(hibernateSession);
-            GrouperDictionaryDao.reset();
-            
+
             return null;
           }
-      
+
     });
+
+    GrouperDictionaryDao.reset();
     
   } 
 
