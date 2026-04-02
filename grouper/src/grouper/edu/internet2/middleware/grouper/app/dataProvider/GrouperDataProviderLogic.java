@@ -1927,11 +1927,17 @@ public class GrouperDataProviderLogic {
         if (batchOfMembersToAdd.size() > 0) {
           try {
             HibernateSession.byObjectStatic().saveBatch(batchOfMembersToAdd);
+            if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+              grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfMembersToAdd.size());
+            }
           } catch (Exception e) {
             // try each one individually
             for (Member memberToAdd : batchOfMembersToAdd) {
               try {
                 HibernateSession.byObjectStatic().save(memberToAdd);
+                if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+                  grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(1);
+                }
               } catch (Exception e2) {
                 LOG.error("Error adding member", e2);
                 
@@ -2053,6 +2059,9 @@ public class GrouperDataProviderLogic {
 
             // 1. field assign history (must be written before the field assign is deleted)
             GrouperDataFieldAssignHstDao.store(batchOfGrouperDataFieldAssignHstsToInsert);
+            if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+              grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataFieldAssignHstsToInsert.size());
+            }
 
             // 2. field assign deletes
             GrouperDataFieldAssignDao.delete(batchOfGrouperDataFieldAssignsToDelete);
@@ -2070,34 +2079,40 @@ public class GrouperDataProviderLogic {
 
             // 4. row assign history (row-level and row-field-level)
             GrouperDataRowAssignHstDao.store(batchOfGrouperDataRowAssignHstsToInsert);
+            if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+              grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataRowAssignHstsToInsert.size());
+            }
             GrouperDataRowFieldAssignHstDao.store(batchOfGrouperDataRowFieldAssignHstsToInsert);
+            if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+              grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataRowFieldAssignHstsToInsert.size());
+            }
 
             // 5. row field assign deletes (must happen before row assign deletes due to FK)
             GrouperDataRowFieldAssignDao.delete(batchOfGrouperDataRowFieldAssignsToDelete);
             ChangeLogEntryTempDao.store(batchOfChangeLogEntriesDataRowFieldAssignsToDelete);
             if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
-              grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(batchOfGrouperDataRowFieldAssignsToDelete.size());
+              grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(batchOfChangeLogEntriesDataRowFieldAssignsToDelete.size());
             }
 
             // 6. row assign deletes (after row field assign deletes)
             GrouperDataRowAssignDao.delete(batchOfGrouperDataRowAssignsToDelete);
             ChangeLogEntryTempDao.store(batchOfChangeLogEntriesDataRowAssignsToDelete);
             if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
-              grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(batchOfGrouperDataRowAssignsToDelete.size());
+              grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(batchOfChangeLogEntriesDataRowAssignsToDelete.size());
             }
 
             // 7. row assign inserts (before row field assign inserts due to FK)
             GrouperDataRowAssignDao.store(batchOfGrouperDataRowAssignsToInsert);
             ChangeLogEntryTempDao.store(batchOfChangeLogEntriesDataRowAssignsToInsert);
             if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
-              grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataRowAssignsToInsert.size());
+              grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfChangeLogEntriesDataRowAssignsToInsert.size());
             }
 
             // 8. row field assign inserts
             GrouperDataRowFieldAssignDao.store(batchOfGrouperDataRowFieldAssignsToInsert);
             ChangeLogEntryTempDao.store(batchOfChangeLogEntriesDataRowFieldAssignsToInsert);
             if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
-              grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataRowFieldAssignsToInsert.size());
+              grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfChangeLogEntriesDataRowFieldAssignsToInsert.size());
             }
 
             // 9. row assign updates (last_updated timestamp for rows with field changes)
