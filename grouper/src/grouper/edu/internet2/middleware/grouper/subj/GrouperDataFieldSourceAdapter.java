@@ -393,9 +393,9 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           overallSubjectIdentifierToSubjectId.put(subjectIdentifierValue, subjectId);
         }
         
-        // if there are no subject ids, then return empty map
+        // if there are no subject ids in this batch, skip to the next batch
         if (GrouperUtil.length(subjectIdToSubjectIdentifier) == 0) {
-          return results;
+          continue;
         }
 
         List<Object> args = new ArrayList<Object>();
@@ -471,9 +471,20 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         }
       }
     }
+
+    // fall back to searching by subject ID for any identifiers not yet resolved
+    Set<String> unresolvedIdentifiers = new HashSet<String>(identifiers);
+    unresolvedIdentifiers.removeAll(results.keySet());
+    if (unresolvedIdentifiers.size() > 0) {
+      Map<String, Subject> idResults = getSubjectsByIds(unresolvedIdentifiers);
+      for (Map.Entry<String, Subject> entry : idResults.entrySet()) {
+        results.put(entry.getKey(), entry.getValue());
+      }
+    }
+
     return results;
   }
-  
+
   @Override
   public Subject getSubject(String subjectId) throws SubjectNotFoundException, SubjectNotUniqueException {
     
