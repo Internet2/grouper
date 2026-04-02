@@ -393,9 +393,9 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           overallSubjectIdentifierToSubjectId.put(subjectIdentifierValue, subjectId);
         }
         
-        // if there are no subject ids, then return empty map
+        // if there are no subject ids in this batch, skip to the next batch
         if (GrouperUtil.length(subjectIdToSubjectIdentifier) == 0) {
-          return results;
+          continue;
         }
 
         List<Object> args = new ArrayList<Object>();
@@ -471,6 +471,19 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         }
       }
     }
+
+    // if configured, also try to resolve any remaining identifiers as subject IDs
+    if (dataFieldCache.subjectIdResolvedAsIdentifier) {
+      Set<String> unresolvedIdentifiers = new HashSet<String>(identifiers);
+      unresolvedIdentifiers.removeAll(results.keySet());
+      if (unresolvedIdentifiers.size() > 0) {
+        Map<String, Subject> idResults = getSubjectsByIds(unresolvedIdentifiers);
+        for (Map.Entry<String, Subject> entry : idResults.entrySet()) {
+          results.put(entry.getKey(), entry.getValue());
+        }
+      }
+    }
+
     return results;
   }
   
@@ -819,6 +832,8 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     
     private Map<String, List<String>> attributeNameToListOfPrioritizedPrivacyAttributeNames = new HashMap<String, List<String>>();
 
+    private boolean subjectIdResolvedAsIdentifier = false;
+
     /** cache of data field config_id to grouper_data_field.internal_id */
     private Map<String, Long> dataFieldConfigIdToInternalId = new HashMap<String, Long>();
 
@@ -902,7 +917,9 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           
         }
       }
-      
+
+      this.subjectIdResolvedAsIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + source.getConfigId() + ".subjectIdResolvedAsIdentifier", false);
+
       Set<GrouperDataFieldConfig> dataFieldConfigs = new HashSet<GrouperDataFieldConfig>();
       for (String fieldConfigId: dataFieldConfigIds) {
         if (fieldConfigByConfigId.containsKey(fieldConfigId)) {
