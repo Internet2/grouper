@@ -89,8 +89,9 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    * @param hibernateSession
    */
   static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("delete from AttributeAssign where ownerAttributeAssignId is not null").executeUpdate();
-    hibernateSession.byHql().createQuery("delete from AttributeAssign").executeUpdate();
+    hibernateSession.getSession().flush();
+    new GcDbAccess().sql("delete from grouper_attribute_assign where owner_attribute_assign_id is not null").executeSql();
+    new GcDbAccess().sql("delete from grouper_attribute_assign").executeSql();
   }
 
   /**
