@@ -1533,8 +1533,14 @@ public class GrouperAzureApiCommands {
       String urlSuffix, boolean securityEnabledOnly, Set<String> result) {
     
     int[] returnCode = new int[] {-1};
-    JsonNode jsonNode = executeMethod(debugMap, debugLabel(debugMap, "retrieveAzureUserGroups"), "POST", configId, urlSuffix, GrouperUtil.toSet(200, 429), returnCode,
+    JsonNode jsonNode = executeMethod(debugMap, debugLabel(debugMap, "retrieveAzureUserGroups"), "POST", configId, urlSuffix, GrouperUtil.toSet(200, 404, 429), returnCode,
         "{\"securityEnabledOnly\": " + securityEnabledOnly + "}");
+
+    if (returnCode[0] == 404) {
+      // user does not exist in Azure, so they are in no groups
+      debugMap.put("userNotFoundInAzure", true);
+      return;
+    }
 
     if (returnCode[0] == 429) {
       int secondsToSleep = retrieveSecondsToSleep(null);

@@ -2968,5 +2968,102 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   public void testAddEntityFailsTranslationCheckIncremental() {
     addEntityFailsTranslationCheckHelper(false);
   }
-  
+
+  /**
+   * GRP-6865: when a user is deleted from Azure but still a member of a Grouper group,
+   * incremental sync should handle the 404 from getMemberGroups gracefully
+   * instead of throwing an exception
+   */
+  public void testEntityDeletedFromAzureIncrementalHandles404() {
+
+    GrouperStartup.startup();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
+
+    AzureProvisionerTestUtils.configureAzureProvisioner(
+        new AzureProvisionerTestConfigInput().assignGroupAttributeCount(3).assignEntityAttributeCount(2)
+          .assignRealAzure(false)
+          .assignProvisioningStrategy("michiganAzure")
+          .addExtraConfig("errorHandlingShow", "true")
+          .addExtraConfig("errorHandlingTargetObjectDoesNotExistIsAnError", "false")
+        );
+
+    RegistrySubject.add(grouperSession, "Fred400", "person", "Fred400");
+    Subject fred = SubjectFinder.findById("Fred400", true);
+
+    RegistrySubject.add(grouperSession, "Fred401", "person", "Fred401");
+    Subject fred2 = SubjectFinder.findById("Fred401", true);
+
+    // create user in mock Azure
+    GrouperAzureUser grouperAzureUser = new GrouperAzureUser();
+    grouperAzureUser.setUserPrincipalName(fred.getId() + "@" + domain);
+    grouperAzureUser.setDisplayName("Fred400");
+    grouperAzureUser.setMailNickname("Fred400");
+    GrouperAzureApiCommands.createAzureUsers("myAzure", GrouperUtil.toList(grouperAzureUser), null);
+
+    GrouperAzureUser grouperAzureUser2 = new GrouperAzureUser();
+    grouperAzureUser2.setUserPrincipalName(fred2.getId() + "@" + domain);
+    grouperAzureUser2.setDisplayName("Fred401");
+    grouperAzureUser2.setMailNickname("Fred401");
+    GrouperAzureApiCommands.createAzureUsers("myAzure", GrouperUtil.toList(grouperAzureUser2), null);
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+    Group testGroup = new GroupSave(grouperSession).assignName("test:test0").save();
+    testGroup.addMember(fred, false);
+
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("myAzureProvisioner");
+    attributeValue.setTargetName("myAzureProvisioner");
+    attributeValue.setStemScopeString("sub");
+    Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+    metadataNameValues.put("md_grouper_azureGroupType", "security");
+    attributeValue.setMetadataNameValues(metadataNameValues);
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // full provision to sync everything
+    fullProvision();
+    GrouperUtil.sleep(10000);
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+    assertTrue(1 <= grouperProvisioningOutput.getInsert());
+
+    List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false, new HashSet<String>());
+    assertEquals(1, grouperAzureGroups.size());
+
+    Set<String> userIds = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", grouperAzureGroups.get(0).getId());
+    assertEquals(1, GrouperUtil.length(userIds));
+
+    // delete Fred400 from mock Azure only (not from the Grouper group)
+    List<GrouperAzureUser> azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
+    assertEquals(1, azureUsers.size());
+    GrouperAzureApiCommands.deleteAzureUsers("myAzure", azureUsers);
+
+    // verify user is gone from Azure
+    azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
+    assertEquals(0, azureUsers.size());
+
+    // add another member to trigger incremental sync activity
+    testGroup.addMember(fred2, false);
+
+    // run incremental - this should NOT throw an exception even though Fred400
+    // no longer exists in Azure and getMemberGroups returns 404
+    incrementalProvision();
+
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+
+    // the provisioner should have completed successfully
+    // Fred401 should be added to the Azure group
+    grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false, new HashSet<String>());
+    assertEquals(1, grouperAzureGroups.size());
+
+    // verify retrieveAzureUserGroups handles 404 by returning empty set
+    Set<String> deletedUserGroups = GrouperAzureApiCommands.retrieveAzureUserGroups("myAzure", "nonExistentUserId12345");
+    assertEquals(0, deletedUserGroups.size());
+  }
+
 }
