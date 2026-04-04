@@ -53,12 +53,15 @@ public class GrouperMcpWellKnownServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     try {
-      String baseUrl = request.getScheme() + "://" + request.getServerName();
-      if (("http".equals(request.getScheme()) && request.getServerPort() != 80)
-          || ("https".equals(request.getScheme()) && request.getServerPort() != 443)) {
-        baseUrl += ":" + request.getServerPort();
+      String baseUrl = GrouperConfig.getGrouperWsUrl(false);
+      if (StringUtils.isBlank(baseUrl)) {
+        baseUrl = request.getScheme() + "://" + request.getServerName();
+        if (("http".equals(request.getScheme()) && request.getServerPort() != 80)
+            || ("https".equals(request.getScheme()) && request.getServerPort() != 443)) {
+          baseUrl += ":" + request.getServerPort();
+        }
+        baseUrl += request.getContextPath();
       }
-      baseUrl += request.getContextPath();
 
       // authorization endpoint is in the Grouper UI (user authenticates and sees consent page there)
       String uiUrl = GrouperConfig.getGrouperUiUrl(false);
