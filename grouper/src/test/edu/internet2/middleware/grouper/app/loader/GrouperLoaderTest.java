@@ -55,9 +55,11 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -143,7 +145,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testIncrementalLoaderListGroupDoesntExist"));
+    TestRunner.run(new GrouperLoaderTest("testCleanupStaleLoaderMetadataAttributes"));
   }
 
   /**
@@ -5885,5 +5887,122 @@ public class GrouperLoaderTest extends GrouperTest {
     
     assertTrue(group4sor.hasMember(SubjectTestHelper.SUBJ5));
     assertTrue(group4sor.hasMember(SubjectTestHelper.SUBJ6));
+  }
+  
+  /**
+   * test cleanupStaleLoaderMetadataAttributes removes metadata in the right scenarios:
+   * 1. loader group no longer has loader configured
+   * 2. grouperLoaderMetadataLoaded is false
+   * 3. last full load older than 6 months
+   * 4. healthy group should NOT have metadata removed
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testCleanupStaleLoaderMetadataAttributes() throws Exception {
+    
+    String loaderMetadataStemName = GrouperCheckConfig.loaderMetadataStemName();
+    
+    // look up the loaderMetadata attribute def names
+    AttributeDefName loaderMetadataMarker = AttributeDefNameFinder.findByName(
+        loaderMetadataStemName + ":" + GrouperLoader.LOADER_METADATA_VALUE_DEF, true);
+    AttributeDefName loaderMetadataLoaded = AttributeDefNameFinder.findByName(
+        loaderMetadataStemName + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED, true);
+    AttributeDefName loaderMetadataGroupId = AttributeDefNameFinder.findByName(
+        loaderMetadataStemName + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, true);
+    AttributeDefName loaderMetadataLastFullMillis = AttributeDefNameFinder.findByName(
+        loaderMetadataStemName + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS, true);
+    
+    // create a real loader group (has loader configured)
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null,
+        "loader:realLoaderGroup", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY,
+        "select col1 as SUBJECT_ID from testgrouper_loader");
+    
+    // create a non-loader group (no loader configured)
+    Group nonLoaderGroup = new GroupSave(this.grouperSession).assignName("loader:nonLoaderGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    // --- Scenario 1: managed group pointing to a group with no loader configured ---
+    Group managedGroupNoLoader = new GroupSave(this.grouperSession).assignName("loader:managedNoLoader")
+        .assignCreateParentStemsIfNotExist(true).save();
+    managedGroupNoLoader.getAttributeDelegate().assignAttribute(loaderMetadataMarker);
+    AttributeAssign assignNoLoader = managedGroupNoLoader.getAttributeDelegate()
+        .retrieveAssignment(null, loaderMetadataMarker, false, false);
+    assignNoLoader.getAttributeValueDelegate().assignValue(loaderMetadataLoaded.getName(), "true");
+    assignNoLoader.getAttributeValueDelegate().assignValue(loaderMetadataGroupId.getName(), nonLoaderGroup.getId());
+    assignNoLoader.getAttributeValueDelegate().assignValue(loaderMetadataLastFullMillis.getName(), 
+        String.valueOf(System.currentTimeMillis()));
+    
+    // --- Scenario 2: managed group with loaded=false ---
+    Group managedGroupLoadedFalse = new GroupSave(this.grouperSession).assignName("loader:managedLoadedFalse")
+        .assignCreateParentStemsIfNotExist(true).save();
+    managedGroupLoadedFalse.getAttributeDelegate().assignAttribute(loaderMetadataMarker);
+    AttributeAssign assignLoadedFalse = managedGroupLoadedFalse.getAttributeDelegate()
+        .retrieveAssignment(null, loaderMetadataMarker, false, false);
+    assignLoadedFalse.getAttributeValueDelegate().assignValue(loaderMetadataLoaded.getName(), "false");
+    assignLoadedFalse.getAttributeValueDelegate().assignValue(loaderMetadataGroupId.getName(), loaderGroup.getId());
+    
+    // --- Scenario 3: managed group with last full load > 6 months ago ---
+    Group managedGroupOldLoad = new GroupSave(this.grouperSession).assignName("loader:managedOldLoad")
+        .assignCreateParentStemsIfNotExist(true).save();
+    managedGroupOldLoad.getAttributeDelegate().assignAttribute(loaderMetadataMarker);
+    AttributeAssign assignOldLoad = managedGroupOldLoad.getAttributeDelegate()
+        .retrieveAssignment(null, loaderMetadataMarker, false, false);
+    assignOldLoad.getAttributeValueDelegate().assignValue(loaderMetadataLoaded.getName(), "true");
+    assignOldLoad.getAttributeValueDelegate().assignValue(loaderMetadataGroupId.getName(), loaderGroup.getId());
+    // set last full millis to 7 months ago
+    long sevenMonthsAgoMillis = System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 210);
+    assignOldLoad.getAttributeValueDelegate().assignValue(loaderMetadataLastFullMillis.getName(), 
+        String.valueOf(sevenMonthsAgoMillis));
+    
+    // --- Scenario 4: healthy managed group (should NOT be removed) ---
+    Group managedGroupHealthy = new GroupSave(this.grouperSession).assignName("loader:managedHealthy")
+        .assignCreateParentStemsIfNotExist(true).save();
+    managedGroupHealthy.getAttributeDelegate().assignAttribute(loaderMetadataMarker);
+    AttributeAssign assignHealthy = managedGroupHealthy.getAttributeDelegate()
+        .retrieveAssignment(null, loaderMetadataMarker, false, false);
+    assignHealthy.getAttributeValueDelegate().assignValue(loaderMetadataLoaded.getName(), "true");
+    assignHealthy.getAttributeValueDelegate().assignValue(loaderMetadataGroupId.getName(), loaderGroup.getId());
+    assignHealthy.getAttributeValueDelegate().assignValue(loaderMetadataLastFullMillis.getName(), 
+        String.valueOf(System.currentTimeMillis()));
+    
+    // verify all 4 groups have loaderMetadata before cleanup
+    assertTrue(managedGroupNoLoader.getAttributeDelegate().hasAttribute(loaderMetadataMarker));
+    assertTrue(managedGroupLoadedFalse.getAttributeDelegate().hasAttribute(loaderMetadataMarker));
+    assertTrue(managedGroupOldLoad.getAttributeDelegate().hasAttribute(loaderMetadataMarker));
+    assertTrue(managedGroupHealthy.getAttributeDelegate().hasAttribute(loaderMetadataMarker));
+    
+    // run cleanup
+    StringBuilder jobMessage = new StringBuilder();
+    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+    GrouperLoaderType.cleanupStaleLoaderMetadataAttributes(jobMessage, hib3GrouploaderLog);
+    
+    // re-read groups to pick up attribute changes
+    managedGroupNoLoader = GroupFinder.findByName(this.grouperSession, "loader:managedNoLoader", true);
+    managedGroupLoadedFalse = GroupFinder.findByName(this.grouperSession, "loader:managedLoadedFalse", true);
+    managedGroupOldLoad = GroupFinder.findByName(this.grouperSession, "loader:managedOldLoad", true);
+    managedGroupHealthy = GroupFinder.findByName(this.grouperSession, "loader:managedHealthy", true);
+    
+    // scenario 1: should be removed (loader group has no loader configured)
+    assertFalse("Metadata should be removed when loader group has no loader configured",
+        managedGroupNoLoader.getAttributeDelegate().hasAttribute(loaderMetadataMarker));
+    
+    // scenario 2: should be removed (loaded=false)
+    assertFalse("Metadata should be removed when grouperLoaderMetadataLoaded is false",
+        managedGroupLoadedFalse.getAttributeDelegate().hasAttribute(loaderMetadataMarker));
+    
+    // scenario 3: should be removed (last full load > 6 months ago)
+    assertFalse("Metadata should be removed when last full load is older than 6 months",
+        managedGroupOldLoad.getAttributeDelegate().hasAttribute(loaderMetadataMarker));
+    
+    // scenario 4: should NOT be removed (healthy)
+    assertTrue("Metadata should NOT be removed for healthy managed group",
+        managedGroupHealthy.getAttributeDelegate().hasAttribute(loaderMetadataMarker));
+    
+    // verify delete count (3 removed)
+    assertEquals(3, (long) hib3GrouploaderLog.getDeleteCount());
+    
+    assertTrue(jobMessage.toString().contains("Removed 3 stale loaderMetadata attributes"));
   }
 }

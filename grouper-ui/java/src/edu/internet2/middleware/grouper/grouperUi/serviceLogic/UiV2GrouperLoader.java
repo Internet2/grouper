@@ -1018,6 +1018,8 @@ public class UiV2GrouperLoader {
                 TextContainer.retrieveFromRequest().getText().get("grouperLoaderRecentMembershipsEditRemoved")));
           }
         }
+        // remove loaderMetadata from this loader group and all previously managed groups
+        GrouperLoaderType.removeLoaderMetadataFromGroupAndManagedGroups(group);
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));
 
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 

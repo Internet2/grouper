@@ -259,6 +259,17 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
       }
 
       GrouperDaemonUtils.stopProcessingIfJobPaused();
+
+      try {
+        GrouperLoaderType.cleanupStaleLoaderMetadataAttributes(jobMessage, hib3GrouploaderLog);
+      } catch (Exception e) {
+        LOG.error("Error cleaning up stale loaderMetadata attributes", e);
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInCleanupStaleLoaderMetadata", ExceptionUtils.getStackTrace(e));
+        jobMessage.append("\nError cleaning up stale loaderMetadata attributes: " +ExceptionUtils.getStackTrace(e)  + "\n");
+        error = true;
+      }
+
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       try {
         GrouperDataProviderLogic.deleteOldDataFieldRowHistory(jobMessage, hib3GrouploaderLog);
