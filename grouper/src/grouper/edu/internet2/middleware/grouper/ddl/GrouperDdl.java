@@ -2933,10 +2933,12 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdl7_0_0.addGrouperMcpToolLogTable(database, ddlVersionBean);
         GrouperDdl7_0_0.addGrouperMcpToolLogIndex(ddlVersionBean, database);
         GrouperDdl7_0_0.addGrouperMcpToolLogComments(database, ddlVersionBean);
-        
+
+        GrouperDdl6_2_0.addGrouperDataFieldAssignIndexes(ddlVersionBean, database);
+
     }
   }
-  //DON'T ADD ANY MORE Vs
+  //DON'T ADD ANY MORE Vs, we are only doing UpgradeTaskX going forward
   ;
   
   

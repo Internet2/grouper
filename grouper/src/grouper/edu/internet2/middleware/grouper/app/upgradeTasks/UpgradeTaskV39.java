@@ -13,16 +13,26 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class UpgradeTaskV39 implements UpgradeTasksInterface {
-  
-  
+
+
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(UpgradeTaskV39.class);
-  
+
+  @Override
+  public boolean doesUpgradeTaskHaveDdlWorkToDo() {
+    return true;
+  }
+
+  @Override
+  public boolean upgradeTaskIsDdl() {
+    return true;
+  }
+
   @Override
   public GrouperVersion versionIntroduced() {
     return GrouperVersion.valueOfIgnoreCase("6.2.0");
   }
-  
+
   @Override
   public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -61,6 +71,22 @@ public class UpgradeTaskV39 implements UpgradeTasksInterface {
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added comments for grouper_lifecycle_event");
           }
 
+        }
+
+        if (!GrouperDdlUtils.assertIndexExists("grouper_data_field_assign", "fld_assgn_field_dict_idx")) {
+          new GcDbAccess().sql("CREATE INDEX fld_assgn_field_dict_idx ON grouper_data_field_assign (data_field_internal_id, value_dictionary_internal_id)").executeSql();
+          if (otherJobInput != null) {
+            otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index fld_assgn_field_dict_idx");
+          }
+        }
+
+        if (!GrouperDdlUtils.assertIndexExists("grouper_data_field_assign", "fld_assgn_field_int_idx")) {
+          new GcDbAccess().sql("CREATE INDEX fld_assgn_field_int_idx ON grouper_data_field_assign (data_field_internal_id, value_integer)").executeSql();
+          if (otherJobInput != null) {
+            otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index fld_assgn_field_int_idx");
+          }
         }
         
         return null;
