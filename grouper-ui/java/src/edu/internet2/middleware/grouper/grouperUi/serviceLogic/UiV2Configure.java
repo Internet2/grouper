@@ -906,9 +906,13 @@ public class UiV2Configure {
 
       configurationContainer.setCurrentGuiConfigProperty(guiConfigProperty);
       String sourceOfValue = guiConfigProperty.getValueFromWhere();
-      //this is to make sure a property value can be edited when there's a key in the non-base and also in base
+      //this is to make sure a property value can be edited when there's a key in the non-base and also in base.
+      //clone the metadata so we dont mutate the cached ConfigItemMetadata shared across requests
       if (StringUtils.isNotBlank(sourceOfValue) && !sourceOfValue.endsWith("base.properties")) {
-        guiConfigProperty.getConfigItemMetadata().setKey(guiConfigProperty.getConfigItemMetadata().getKeyOrSampleKey());
+        ConfigItemMetadata metadataCopy = GrouperUtil.clone(guiConfigProperty.getConfigItemMetadata(),
+            GrouperUtil.fieldNames(ConfigItemMetadata.class, null, null, true, false, false));
+        metadataCopy.setKey(guiConfigProperty.getConfigItemMetadata().getKeyOrSampleKey());
+        guiConfigProperty.setConfigItemMetadata(metadataCopy);
       }
       
       Integer index = GrouperUtil.intObjectValue(request.getParameter("index"), true);
