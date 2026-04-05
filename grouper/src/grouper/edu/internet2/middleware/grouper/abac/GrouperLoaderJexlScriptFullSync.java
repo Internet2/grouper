@@ -243,8 +243,23 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
    * @param readOnly - true if only analyzing; false if about to save the script
    * @return
    */
-  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript, 
+  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript,
       Subject subject, Subject loggedInSubject, boolean readOnly) {
+    return analyzeJexlScriptHtml(grouperDataEngine, jexlScript, subject, loggedInSubject, readOnly, null);
+  }
+
+  /**
+   * analyze a jexl script and return the analysis with counts and subject checks
+   * @param grouperDataEngine
+   * @param jexlScript
+   * @param subject
+   * @param loggedInSubject
+   * @param readOnly - true if only analyzing; false if about to save the script
+   * @param effectiveSourceIds - the effective subject source IDs to use for the count query, or null for global defaults
+   * @return
+   */
+  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript,
+      Subject subject, Subject loggedInSubject, boolean readOnly, Set<String> effectiveSourceIds) {
     
     Member member = subject != null ? MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true): null;
     
@@ -423,12 +438,23 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         }
         argumentIndex++;
       }
-      String sql = "select count(1) from grouper_members gm where gm.subject_source != 'g:gsa' and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( " + whereClause + " )";
-  
+      MultiKey sourceInClause = GrouperAbac.subjectSourceInClause(effectiveSourceIds);
+      String sourceInSql = (String)sourceInClause.getKey(0);
+      List<String> sourceBindVars = (List<String>)sourceInClause.getKey(1);
+
+      // prepend source bind vars before the existing ones
+      List<Object> allBindVars = new ArrayList<Object>();
+      allBindVars.addAll(sourceBindVars);
+      if (gcDbAccess.getBindVars() != null) {
+        allBindVars.addAll(gcDbAccess.getBindVars());
+      }
+
+      String sql = "select count(1) from grouper_members gm where " + sourceInSql + " and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( " + whereClause + " )";
+
   //    System.out.println(script);
   //    System.out.println(sql);
-      
-      int count = gcDbAccess.sql(sql).select(Integer.class);
+
+      int count = gcDbAccess.bindVars(allBindVars).sql(sql).select(Integer.class);
       grouperJexlScriptPart.setPopulationCount(count);
 
       if (partsHaveMissingGroup) {
@@ -439,7 +465,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
       if (subject != null) {
         sql += " and gm.id = ?";
-        count = gcDbAccess.sql(sql).addBindVar(member.getId()).select(Integer.class);
+        allBindVars.add(member.getId());
+        count = gcDbAccess.bindVars(allBindVars).sql(sql).select(Integer.class);
         grouperJexlScriptPart.setContainsSubject(count>0);
       }
       
@@ -1100,17 +1127,17 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   private static void analyzeJexlMemberOf(GrouperJexlScriptPart grouperJexlScriptPart,
       String groupName) {
     grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_sql_cache_mship gscm where gscm.sql_cache_group_internal_id = ? "
-        + " and gscm.member_internal_id = gm.internal_id and gm.subject_source != 'g:gsa') ");
+        + " and gscm.member_internal_id = gm.internal_id) ");
     grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
     grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisMemberOfGroup"))
       .append(" '").append(GrouperUtil.xmlEscape(groupName)).append("'");
   }
-  
+
   private static void analyzeJexlMemberOfAny(GrouperJexlScriptPart grouperJexlScriptPart,
       Set<String> groupNames) {
     grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_sql_cache_mship gscm "
         + "where gscm.sql_cache_group_internal_id in (" + GrouperClientUtils.appendQuestions(groupNames.size()) + ") "
-        + " and gscm.member_internal_id = gm.internal_id and gm.subject_source != 'g:gsa') ");
+        + " and gscm.member_internal_id = gm.internal_id) ");
     
     grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisMemberOfAnyGroup"));
 
@@ -1155,12 +1182,12 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     
     grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_sql_cache_mship_hst gscmh where gscmh.sql_cache_group_internal_id = ? "
         + " and gscmh.end_time >= ? "
-        + " and gscmh.member_internal_id = gm.internal_id and gm.subject_source != 'g:gsa') ");
+        + " and gscmh.member_internal_id = gm.internal_id) ");
     grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
     grouperJexlScriptPart.getArguments().add(new MultiKey("bindVar", (System.currentTimeMillis() * 1000L) - timePeriodMicros));
-    
+
     grouperJexlScriptPart.getWhereClause().append("and not exists (select 1 from grouper_sql_cache_mship gscm where gscm.sql_cache_group_internal_id = ? "
-        + " and gscm.member_internal_id = gm.internal_id and gm.subject_source != 'g:gsa') ");
+        + " and gscm.member_internal_id = gm.internal_id) ");
     grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
     
     grouperJexlScriptPart.getWhereClause().append(")");
@@ -2179,9 +2206,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     GrouperJexlScriptAnalysis analyzeJexlScript = analyzeJexlScript(grouperDataEngine, script);
 
     
-    //  String includeInternalSourcesString = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES);
-    //  boolean includeInternalSources = GrouperUtil.booleanValue(includeInternalSourcesString, false);
-    
+    String perGroupSourceIds = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_SUBJECT_SOURCE_IDS);
+    Set<String> effectiveSourceIds = GrouperAbac.effectiveSubjectSourceIds(perGroupSourceIds);
+
     //System.out.println(script);
     
     
@@ -2312,12 +2339,23 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       addMembershipHistoryAbacDependencies(sqlCacheDependencyTypeMshipHistoryAbac, sqlCacheGroupsToCheck, allMshipHistoryAbacSqlCacheDependenciesMap);                
     }
     
-    String sql = "select id from grouper_members gm where gm.subject_source != 'g:gsa' and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( " + grouperJexlScriptSql.getWhereClause() + " )";
- 
+    MultiKey sourceInClause = GrouperAbac.subjectSourceInClause(effectiveSourceIds);
+    String sourceInSql = (String)sourceInClause.getKey(0);
+    List<String> sourceBindVars = (List<String>)sourceInClause.getKey(1);
+
+    // prepend source bind vars before the existing ones
+    List<Object> allBindVars = new ArrayList<Object>();
+    allBindVars.addAll(sourceBindVars);
+    if (gcDbAccess.getBindVars() != null) {
+      allBindVars.addAll(gcDbAccess.getBindVars());
+    }
+
+    String sql = "select id from grouper_members gm where " + sourceInSql + " and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( " + grouperJexlScriptSql.getWhereClause() + " )";
+
  //        System.out.println(script);
  //        System.out.println(sql);
- 
-    Set<String> memberIds = new HashSet<String>(gcDbAccess.sql(sql).selectList(String.class));
+
+    Set<String> memberIds = new HashSet<String>(gcDbAccess.bindVars(allBindVars).sql(sql).selectList(String.class));
     
     Set<String> previousMemberIds = new HashSet<String>(new GcDbAccess().sql("select member_id from grouper_memberships gm "
         + "where owner_group_id = ? and field_id = ? and mship_type = 'immediate'")

@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -1174,12 +1175,7 @@ public class UiV2GrouperLoader {
               
               if (!hasError) {
                 String abacScript = gshTemplateExecOutput.getGshTemplateOutput().getAbacScript();
-                Boolean includeInternalSubjectSources = gshTemplateExecOutput.getGshTemplateOutput().getAbacIncludeInternalSubjectSources();
-                if (includeInternalSubjectSources == null) {
-                  includeInternalSubjectSources = false;
-                }
                 grouperLoaderContainer.setEditLoaderJexlScriptJexlScript(abacScript);
-                grouperLoaderContainer.setEditLoaderJexlScriptIncludeInternalSources(includeInternalSubjectSources);
                 grouperLoaderContainer.setEditLoaderConstructScript("inputScript");
                 guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
                     "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));
@@ -1213,7 +1209,11 @@ public class UiV2GrouperLoader {
                 + "<br />" + StringUtils.replace(GrouperUtil.xmlEscape(errorMessage), "\n", "<br />")));
             hasError = true;
           }
-          GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), null, loggedInSubject, false);
+          Set<String> saveSourceIds = grouperLoaderContainer.getEditLoaderJexlScriptSubjectSourceIds();
+          if (saveSourceIds == null || saveSourceIds.isEmpty()) {
+            saveSourceIds = GrouperAbac.globalDefaultSubjectSourceIds();
+          }
+          GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), null, loggedInSubject, false, saveSourceIds);
           if (jexlScriptAnalysis != null && 
               (StringUtils.isNotBlank(jexlScriptAnalysis.getErrorMessage()) || StringUtils.isNotBlank(jexlScriptAnalysis.getWarningMessage()))) {
             throw new RuntimeException("not allowed");
@@ -1675,15 +1675,19 @@ public class UiV2GrouperLoader {
                     GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_SCRIPT, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript());
                 
                 {
-                  String jexlScriptIncludeInternalSourcesAttributeDefName = GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES;
-                  if (grouperLoaderContainer.getEditLoaderJexlScriptIncludeInternalSources() == null) {
-                    if (!StringUtils.isBlank(attributeAssign.getAttributeValueDelegate().retrieveValueString(jexlScriptIncludeInternalSourcesAttributeDefName))) {
-                      attributeAssign.getAttributeDelegate().removeAttributeByName(jexlScriptIncludeInternalSourcesAttributeDefName);
+                  String jexlScriptSubjectSourceIdsAttributeDefName = GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_SUBJECT_SOURCE_IDS;
+                  Set<String> editSourceIds = grouperLoaderContainer.getEditLoaderJexlScriptSubjectSourceIds();
+                  Set<String> globalDefaults = GrouperAbac.globalDefaultSubjectSourceIds();
+                  // if null or matches defaults, remove the attribute
+                  if (editSourceIds == null || editSourceIds.equals(globalDefaults)) {
+                    if (!StringUtils.isBlank(attributeAssign.getAttributeValueDelegate().retrieveValueString(jexlScriptSubjectSourceIdsAttributeDefName))) {
+                      attributeAssign.getAttributeDelegate().removeAttributeByName(jexlScriptSubjectSourceIdsAttributeDefName);
                     }
                   } else {
+                    // store alphabetically sorted comma-separated
+                    String sortedSourceIds = GrouperUtil.join(new TreeSet<String>(editSourceIds).iterator(), ", ");
                     attributeAssign.getAttributeValueDelegate().assignValue(
-                        jexlScriptIncludeInternalSourcesAttributeDefName, 
-                        GrouperUtil.booleanValue(grouperLoaderContainer.getEditLoaderJexlScriptIncludeInternalSources(), false) ? "T" : "F");
+                        jexlScriptSubjectSourceIdsAttributeDefName, sortedSourceIds);
                   }
                 }                
                 return null;
@@ -1987,10 +1991,18 @@ public class UiV2GrouperLoader {
 
       grouperDataEngine.loadFieldsAndRows(grouperConfig);
 
-      GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderJexlScript, subject, loggedInSubject, true);
-      
+      Set<String> analyzeSourceIds = null;
+      Set<String> editSourceIds = grouperLoaderContainer.getEditLoaderJexlScriptSubjectSourceIds();
+      if (editSourceIds != null && !editSourceIds.isEmpty()) {
+        analyzeSourceIds = editSourceIds;
+      } else {
+        analyzeSourceIds = GrouperAbac.globalDefaultSubjectSourceIds();
+      }
+
+      GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderJexlScript, subject, loggedInSubject, true, analyzeSourceIds);
+
       GuiSubject guiSubject = subject != null ? new GuiSubject(subject): null;
-      
+
       grouperLoaderContainer.setGrouperJexlScriptAnalysis(jexlScriptAnalysis);
       grouperLoaderContainer.setGuiSubject(guiSubject);
       
@@ -2182,7 +2194,7 @@ public class UiV2GrouperLoader {
         } else if (StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType())) {
 
             grouperLoaderContainer.setEditLoaderJexlScriptJexlScript(grouperLoaderContainer.getJexlScriptJexlScript());
-            grouperLoaderContainer.setEditLoaderJexlScriptIncludeInternalSources(grouperLoaderContainer.getJexlScriptIncludeInternalSources());
+            grouperLoaderContainer.setEditLoaderJexlScriptSubjectSourceIds(grouperLoaderContainer.getJexlScriptSubjectSourceIds());
             grouperLoaderContainer.setEditLoaderConstructScript("inputScript");
             
         } else if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType())) {
@@ -2457,9 +2469,25 @@ public class UiV2GrouperLoader {
         }
 
         {
-          final String grouperLoaderIncludeInternalSourcesNameString = request.getParameter("grouperLoaderIncludeInternalSourcesName");
-          if (!error) {
-            grouperLoaderContainer.setEditLoaderJexlScriptIncludeInternalSources(GrouperUtil.booleanObjectValue(grouperLoaderIncludeInternalSourcesNameString));
+          if (!error && GrouperAbac.showSubjectSourcePicker()) {
+            String overrideSourceIds = request.getParameter("grouperLoaderOverrideSubjectSourceIdsName");
+            if (GrouperUtil.booleanValue(overrideSourceIds, false)) {
+              Set<String> selectedSourceIds = new TreeSet<String>();
+              for (String availableSourceId : GrouperAbac.availableSubjectSourceIds()) {
+                String paramValue = request.getParameter("grouperLoaderSubjectSourceId_" + availableSourceId);
+                if (GrouperUtil.booleanValue(paramValue, false)) {
+                  selectedSourceIds.add(availableSourceId);
+                }
+              }
+              if (selectedSourceIds.isEmpty()) {
+                guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+                    TextContainer.retrieveFromRequest().getText().get("grouperLoaderSubjectSourceIdsMustSelectOne")));
+                error = true;
+              }
+              grouperLoaderContainer.setEditLoaderJexlScriptSubjectSourceIds(selectedSourceIds);
+            } else {
+              grouperLoaderContainer.setEditLoaderJexlScriptSubjectSourceIds(null);
+            }
           }
 
         }

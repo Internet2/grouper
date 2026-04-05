@@ -12,6 +12,7 @@ public class AllAbacTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.app.abac");
     //$JUnit-BEGIN$
+    suite.addTestSuite(GrouperAbacScriptTest.class);
     suite.addTestSuite(GrouperLoaderJexlScriptFullSyncTest.class);
     //$JUnit-END$
     return suite;
