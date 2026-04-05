@@ -966,11 +966,11 @@ public class UiV2GrouperLoader {
 
         }
         if (grouperLoaderContainer.isGrouperJexlScriptLoader()) {
-          
-          if (!grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader()) {
+
+          if (!grouperLoaderContainer.isCanEditAbacLoader()) {
             throw new RuntimeException("Not enough privileges");
           }
-          
+
           AttributeDefName grouperJexlScript = GrouperDAOFactory.getFactory().getAttributeDefName()
               .findByNameSecure(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, false);
           
@@ -1003,8 +1003,8 @@ public class UiV2GrouperLoader {
 
         }
         if (grouperLoaderContainer.isGrouperRecentMembershipsLoader()) {
-          
-          if (!grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader()) {
+
+          if (!grouperLoaderContainer.isCanEditRecentMembershipsLoader()) {
             throw new RuntimeException("Not enough privileges");
           }
           
@@ -1035,8 +1035,8 @@ public class UiV2GrouperLoader {
       }
 
       if (StringUtils.equals("RECENT_MEMBERSHIPS", grouperLoaderContainer.getEditLoaderType())) {
-        
-        if (!grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader()) {
+
+        if (!grouperLoaderContainer.isCanEditRecentMembershipsLoader()) {
           throw new RuntimeException("Not enough privileges");
         }
         
@@ -1103,8 +1103,8 @@ public class UiV2GrouperLoader {
         }
 
       } else if (StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType())) {
-        
-        if (!grouperLoaderContainer.isCanEditAbacOrRecentMembershipsLoader()) {
+
+        if (!grouperLoaderContainer.isCanEditAbacLoader()) {
           throw new RuntimeException("Not enough privileges");
         }
         

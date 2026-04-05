@@ -1266,7 +1266,59 @@ public class PrivilegeHelper {
   }
 
   /**
-   * 
+   * Is this subject allowed to edit ABAC (scripted) groups on the given group?
+   * Wheel/root always allowed. Otherwise must have admin privilege on the group.
+   * If grouper.abac.edit.if.in.group is configured, must also be a member of that group.
+   * @param subject
+   * @param group
+   * @return boolean
+   */
+  public static boolean canEditAbacLoader(Subject subject, Group group) {
+    if (isWheelOrRoot(subject)) {
+      return true;
+    }
+    if (!group.hasAdmin(subject)) {
+      return false;
+    }
+    String allowedGroupName = GrouperConfig.retrieveConfig().propertyValueString("grouper.abac.edit.if.in.group");
+    if (StringUtils.isNotBlank(allowedGroupName)) {
+      Group allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
+          .internal_getRootSession(), allowedGroupName, false);
+      if (allowedGroup == null || !allowedGroup.hasMember(subject)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Is this subject allowed to edit recent memberships loader on the given group?
+   * Wheel/root always allowed. Otherwise must have admin privilege on the group.
+   * If grouper.recentMemberships.edit.if.in.group is configured, must also be a member of that group.
+   * @param subject
+   * @param group
+   * @return boolean
+   */
+  public static boolean canEditRecentMembershipsLoader(Subject subject, Group group) {
+    if (isWheelOrRoot(subject)) {
+      return true;
+    }
+    if (!group.hasAdmin(subject)) {
+      return false;
+    }
+    String allowedGroupName = GrouperConfig.retrieveConfig().propertyValueString("grouper.recentMemberships.edit.if.in.group");
+    if (StringUtils.isNotBlank(allowedGroupName)) {
+      Group allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
+          .internal_getRootSession(), allowedGroupName, false);
+      if (allowedGroup == null || !allowedGroup.hasMember(subject)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   *
    * @param s
    * @param attributeDef
    * @param subj
