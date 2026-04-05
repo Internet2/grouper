@@ -565,6 +565,48 @@ public class StemContainer {
   private int successCount;
 
   /**
+   * total count of memberships for export error message
+   */
+  private int exportTotalCount;
+
+  /**
+   * max entries allowed for export error message
+   */
+  private int exportMaxEntries;
+
+  /**
+   * total count of memberships for export error message
+   * @return count
+   */
+  public int getExportTotalCount() {
+    return this.exportTotalCount;
+  }
+
+  /**
+   * total count of memberships for export error message
+   * @param exportTotalCount1
+   */
+  public void setExportTotalCount(int exportTotalCount1) {
+    this.exportTotalCount = exportTotalCount1;
+  }
+
+  /**
+   * max entries allowed for export error message
+   * @return max
+   */
+  public int getExportMaxEntries() {
+    return this.exportMaxEntries;
+  }
+
+  /**
+   * max entries allowed for export error message
+   * @param exportMaxEntries1
+   */
+  public void setExportMaxEntries(int exportMaxEntries1) {
+    this.exportMaxEntries = exportMaxEntries1;
+  }
+
+  /**
    * when searching for parent stems, these are the results
    * @return stems
    */

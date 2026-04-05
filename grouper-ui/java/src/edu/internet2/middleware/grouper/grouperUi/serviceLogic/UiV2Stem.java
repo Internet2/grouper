@@ -1563,6 +1563,8 @@ public class UiV2Stem {
         membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
       }
 
+      int maxExportEntries = GrouperConfig.retrieveConfig().propertyValueInt("grouper.membership.export.maximumFolderExportEntries", 800000);
+
       MembershipFinder membershipFinder = new MembershipFinder()
         .assignStem(stem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true)
         .assignHasFieldForMember(false)
@@ -1580,6 +1582,20 @@ public class UiV2Stem {
 
         if (StringUtils.isNotBlank(membershipPITToDate)) {
           membershipFinder.assignPointInTimeTo(GrouperUtil.stringToTimestamp(membershipPITToDate));
+        }
+
+        // check count before fetching all results
+        if (maxExportEntries != -1) {
+          int totalCount = membershipFinder.findCountForMember();
+          if (totalCount > maxExportEntries) {
+            GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+            StemContainer stemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer();
+            stemContainer.setExportTotalCount(totalCount);
+            stemContainer.setExportMaxEntries(maxExportEntries);
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportTooManyEntries")));
+            return;
+          }
         }
 
         Set<Object[]> result = membershipFinder.findPITMembershipsMembers();
@@ -1678,6 +1694,20 @@ public class UiV2Stem {
           Group customCompositeGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
           CompositeType customCompositeType = CompositeType.valueOfIgnoreCase(compositeType);
           membershipFinder.assignCustomCompositeGroup(customCompositeGroup).assignCustomCompositeType(customCompositeType);
+        }
+
+        // check count before fetching all results
+        if (maxExportEntries != -1) {
+          int totalCount = membershipFinder.findCountForMember();
+          if (totalCount > maxExportEntries) {
+            GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+            StemContainer stemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer();
+            stemContainer.setExportTotalCount(totalCount);
+            stemContainer.setExportMaxEntries(maxExportEntries);
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportTooManyEntries")));
+            return;
+          }
         }
 
         Set<MembershipSubjectContainer> results = membershipFinder
