@@ -353,9 +353,8 @@ public class TrueFoundryGroup {
     // always set id since it's needed for update/delete URLs
     trueFoundryGroup.setId(targetGroup.getId());
 
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("name")) {
-      trueFoundryGroup.setName(targetGroup.retrieveAttributeValueString("name"));
-    }
+    // always set name since it's required for team API calls
+    trueFoundryGroup.setName(targetGroup.retrieveAttributeValueString("name"));
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {
       trueFoundryGroup.setDisplayName(targetGroup.retrieveAttributeValueString("displayName"));
