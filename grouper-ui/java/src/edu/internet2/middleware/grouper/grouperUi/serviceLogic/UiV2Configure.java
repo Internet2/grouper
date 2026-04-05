@@ -880,6 +880,11 @@ public class UiV2Configure {
       GuiConfigProperty guiConfigProperty = guiConfigFile.findGuiConfigProperty(propertyNameString, true);
 
       configurationContainer.setCurrentGuiConfigProperty(guiConfigProperty);
+      String sourceOfValue = guiConfigProperty.getValueFromWhere();
+      //this is to make sure a property value can be edited when there's a key in the non-base and also in base
+      if (StringUtils.isNotBlank(sourceOfValue) && !sourceOfValue.endsWith("base.properties")) {
+        guiConfigProperty.getConfigItemMetadata().setKey(guiConfigProperty.getConfigItemMetadata().getKeyOrSampleKey());
+      }
       
       Integer index = GrouperUtil.intObjectValue(request.getParameter("index"), true);
       if (StringUtils.isBlank(propertyNameString)) {
