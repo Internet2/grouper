@@ -343,6 +343,8 @@ CREATE INDEX group_set_sowner_member_idx ON grouper_group_set (owner_stem_id, me
 
 CREATE INDEX group_set_aowner_member_idx ON grouper_group_set (owner_attr_def_id, member_attr_def_id, field_id, depth);
 
+CREATE INDEX group_set_member_member_field_idx ON grouper_group_set (member_id, member_field_id);
+
 CREATE TABLE grouper_stems
 (
     id VARCHAR(40) NOT NULL,

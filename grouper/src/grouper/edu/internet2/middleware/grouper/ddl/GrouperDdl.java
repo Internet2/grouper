@@ -12604,8 +12604,11 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
         "group_set_sowner_member_idx", false, "owner_stem_id", "member_stem_id", "field_id", "depth");
     
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(),
         "group_set_aowner_member_idx", false, "owner_attr_def_id", "member_attr_def_id", "field_id", "depth");
+
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(),
+        "group_set_member_member_field_idx", false, "member_id", "member_field_id");
   }
 
   /**
