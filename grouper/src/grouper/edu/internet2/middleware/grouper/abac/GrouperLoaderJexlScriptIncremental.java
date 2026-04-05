@@ -133,17 +133,21 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
       // sourceId and subjectId to look up
       Set<MultiKey> sourceIdSubjectIds = new HashSet<MultiKey>();
       
+      String jexlScriptSourceIdsNameOfAttributeDefName = jexlScriptStemName + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_SUBJECT_SOURCE_IDS;
+
       // go through each event, see what objects have changed
       for (EsbEventContainer esbEventContainer : esbEventContainers) {
 
         EsbEvent esbEvent = esbEventContainer.getEsbEvent();
         EsbEventType esbEventType = esbEventContainer.getEsbEventType();
-        
-        // see if the script was changed so we can recalculate the group
+
+        // see if the script or subject source IDs were changed so we can recalculate the group
         // etc:attribute:abacJexlScript:grouperJexlScriptJexlScript
+        // etc:attribute:abacJexlScript:grouperJexlScriptSubjectSourceIds
         if (esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_ADD || esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_DELETE) {
           String attributeDefNameName = esbEvent.getAttributeDefNameName();
-          if (!StringUtils.equals(jexlScriptNameOfAttributeDefName, attributeDefNameName)) {
+          if (!StringUtils.equals(jexlScriptNameOfAttributeDefName, attributeDefNameName)
+              && !StringUtils.equals(jexlScriptSourceIdsNameOfAttributeDefName, attributeDefNameName)) {
             continue;
           }
           
@@ -733,32 +737,43 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
     GrouperJexlScriptAnalysis analyzeJexlScript = GrouperLoaderJexlScriptFullSync.analyzeJexlScript(grouperDataEngine, script);
 
     
-    //  String includeInternalSourcesString = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES);
-    //  boolean includeInternalSources = GrouperUtil.booleanValue(includeInternalSourcesString, false);
-    
+    String perGroupSourceIds = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_SUBJECT_SOURCE_IDS);
+    Set<String> effectiveSourceIds = GrouperAbac.effectiveSubjectSourceIds(perGroupSourceIds);
+
     //System.out.println(script);
-    
-    
-    GrouperJexlScriptSql grouperJexlScriptSql = GrouperLoaderJexlScriptFullSync.generateJexlSql(grouperDataEngine, gcDbAccessOrig, analyzeJexlScript); 
-    
+
+
+    GrouperJexlScriptSql grouperJexlScriptSql = GrouperLoaderJexlScriptFullSync.generateJexlSql(grouperDataEngine, gcDbAccessOrig, analyzeJexlScript);
+
+    MultiKey sourceInClause = GrouperAbac.subjectSourceInClause(effectiveSourceIds);
+    String sourceInSql = (String)sourceInClause.getKey(0);
+    List<String> sourceBindVars = (List<String>)sourceInClause.getKey(1);
+
     List<Long> memberInternalIdsList = new ArrayList<Long>(memberInternalIds);
     // batch these up in batches of 200
-    
+
     int batchSize = 200;
     int batchCount = GrouperUtil.batchNumberOfBatches(memberInternalIdsList, batchSize, false);
-    
+
     List<Object> originalBindVars = gcDbAccessOrig.getBindVars();
-    
+
     for (int i = 0; i < batchCount; i++) {
       List<Long> memberInternalIdsBatch = GrouperUtil.batchList(memberInternalIdsList, batchSize, i);
       GcDbAccess gcDbAccessBatch = gcDbAccessOrig.cloneDbAccess();
-      gcDbAccessBatch.bindVars(originalBindVars);
-      String sql = "select id from grouper_members gm where gm.subject_source != 'g:gsa' and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and  ( " + grouperJexlScriptSql.getWhereClause() 
+
+      // prepend source bind vars, then original bind vars, then batch bind vars
+      List<Object> allBindVars = new ArrayList<Object>();
+      allBindVars.addAll(sourceBindVars);
+      if (originalBindVars != null) {
+        allBindVars.addAll(originalBindVars);
+      }
+
+      String sql = "select id from grouper_members gm where " + sourceInSql + " and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and  ( " + grouperJexlScriptSql.getWhereClause()
         + " ) and gm.internal_id in (" + GrouperClientUtils.appendQuestions(GrouperUtil.length(memberInternalIdsBatch)) + ")";
       for (Long memberInternalId : memberInternalIdsBatch) {
-        gcDbAccessBatch.addBindVar(memberInternalId);
+        allBindVars.add(memberInternalId);
       }
-      Set<String> memberIdsInJexl = new HashSet<String>(gcDbAccessBatch.sql(sql).selectList(String.class));
+      Set<String> memberIdsInJexl = new HashSet<String>(gcDbAccessBatch.bindVars(allBindVars).sql(sql).selectList(String.class));
       
       GcDbAccess gcDbAccessPrevious = new GcDbAccess().sql("select distinct gms.member_id from grouper_memberships gms, grouper_members gm "
           + "where owner_group_id = ? and field_id = ? and mship_type = 'immediate' and gms.member_id = gm.id "

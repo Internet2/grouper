@@ -4950,8 +4950,8 @@ public class GrouperCheckConfig {
             //add some names
             checkAttribute(jexlScriptStem, jexlScriptValueDef, GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_SCRIPT, 
                 "jexl script", attributeDefNameSaves);
-            checkAttribute(jexlScriptStem, jexlScriptValueDef, GrouperAbac.GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES,
-                "true or false if the script should include subjects from internal sources", attributeDefNameSaves);
+            checkAttribute(jexlScriptStem, jexlScriptValueDef, GrouperAbac.GROUPER_JEXL_SCRIPT_SUBJECT_SOURCE_IDS,
+                "comma separated list of subject source IDs to include, blank for global default", attributeDefNameSaves);
 
             String jexlScriptJexlLastGroupSyncDefName = jexlScriptRootStemName + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_LAST_GROUP_SYNC_DEF;
             AttributeDef jexlScriptJexlLastGroupSyncDef = nameOfAttributeDefToAttributeDef.get(jexlScriptJexlLastGroupSyncDefName); 

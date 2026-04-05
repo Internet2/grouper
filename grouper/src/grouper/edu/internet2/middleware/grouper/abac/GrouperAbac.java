@@ -1,9 +1,14 @@
 package edu.internet2.middleware.grouper.abac;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,6 +19,11 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * 
@@ -34,7 +44,7 @@ public class GrouperAbac {
 
   public static final String GROUPER_JEXL_SCRIPT_JEXL_LAST_GROUP_SYNC = "grouperJexlScriptJexlLastGroupSync";
 
-  public static final String GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES = "grouperJexlScriptIncludeInternalSources";
+  public static final String GROUPER_JEXL_SCRIPT_SUBJECT_SOURCE_IDS = "grouperJexlScriptSubjectSourceIds";
 
   /**
    * 
@@ -45,15 +55,190 @@ public class GrouperAbac {
   }
 
   /**
-   * 
+   * cache the global default subject source ids for 10 minutes
+   */
+  private static ExpirableCache<Boolean, Set<String>> globalDefaultSubjectSourceIdsCache = new ExpirableCache<>(2);
+
+  /**
+   * get the global default subject source ids for ABAC.
+   * if the config is blank, return all non-internal and non-grouper subject source ids
+   * (excludes g:gsa, g:isa, grouperEntities, grouperExternal).
+   * if the config is populated, return exactly those source ids.
+   * @return the set of subject source ids
+   */
+  public static Set<String> globalDefaultSubjectSourceIds() {
+    Set<String> result = globalDefaultSubjectSourceIdsCache.get(Boolean.TRUE);
+    if (result != null) {
+      return result;
+    }
+
+    String configValue = GrouperConfig.retrieveConfig().propertyValueString("grouper.abac.globalDefaultSubjectSourceIds");
+
+    result = new LinkedHashSet<String>();
+
+    if (StringUtils.isNotBlank(configValue)) {
+      for (String sourceId : GrouperUtil.splitTrim(configValue, ",")) {
+        result.add(sourceId);
+      }
+    } else {
+      Collection<Source> sources = SourceManager.getInstance().getSources();
+      for (Source source : sources) {
+        if (!internalSourceId(source.getId())
+            && !StringUtils.equals(source.getId(), "grouperEntities")
+            && !StringUtils.equals(source.getId(), "grouperExternal")) {
+          result.add(source.getId());
+        }
+      }
+    }
+
+    globalDefaultSubjectSourceIdsCache.put(Boolean.TRUE, result);
+    return result;
+  }
+
+  /**
+   * cache the allow user override setting for 10 minutes
+   */
+  private static ExpirableCache<Boolean, Boolean> allowUserOverrideSubjectSourceIdsCache = new ExpirableCache<>(2);
+
+  /**
+   * whether users can override the default subject source ids on a per-group basis
+   * @return true if allowed
+   */
+  public static boolean allowUserOverrideSubjectSourceIds() {
+    Boolean result = allowUserOverrideSubjectSourceIdsCache.get(Boolean.TRUE);
+    if (result != null) {
+      return result;
+    }
+    result = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.abac.allowUserOverrideSubjectSourceIds", false);
+    allowUserOverrideSubjectSourceIdsCache.put(Boolean.TRUE, result);
+    return result;
+  }
+
+  /**
+   * cache the available subject source ids for 10 minutes
+   */
+  private static ExpirableCache<Boolean, Set<String>> availableSubjectSourceIdsCache = new ExpirableCache<>(2);
+
+  /**
+   * get the available subject source ids that users can pick from.
+   * if the config is blank, returns empty set (no UI picker).
+   * @return the set of available subject source ids
+   */
+  public static Set<String> availableSubjectSourceIds() {
+    Set<String> result = availableSubjectSourceIdsCache.get(Boolean.TRUE);
+    if (result != null) {
+      return result;
+    }
+
+    String configValue = GrouperConfig.retrieveConfig().propertyValueString("grouper.abac.availableSubjectSourceIds");
+
+    result = new LinkedHashSet<String>();
+
+    if (StringUtils.isNotBlank(configValue)) {
+      for (String sourceId : GrouperUtil.splitTrim(configValue, ",")) {
+        // only block g:gsa and g:isa
+        if (!StringUtils.equals(sourceId, "g:gsa") && !StringUtils.equals(sourceId, "g:isa")) {
+          result.add(sourceId);
+        }
+      }
+    }
+
+    availableSubjectSourceIdsCache.put(Boolean.TRUE, result);
+    return result;
+  }
+
+  /**
+   * whether the UI should show the subject source picker for a given group.
+   * requires: allowUserOverride is true, available list is not blank, and available list has more than 1 item.
+   * @return true if the picker should be shown
+   */
+  public static boolean showSubjectSourcePicker() {
+    if (!allowUserOverrideSubjectSourceIds()) {
+      return false;
+    }
+    Set<String> available = availableSubjectSourceIds();
+    if (GrouperUtil.length(available) <= 1) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * get the effective subject source ids for a given group.
+   * considers all 3 global configs and the per-group attribute.
+   * always removes g:gsa and g:isa.
+   * @param perGroupSourceIds comma-separated per-group source IDs from the attribute, or null
+   * @return the set of subject source ids to use
+   */
+  public static Set<String> effectiveSubjectSourceIds(String perGroupSourceIds) {
+
+    Set<String> result = new LinkedHashSet<String>();
+
+    // if override is not allowed or available list is blank, always use global defaults
+    if (!allowUserOverrideSubjectSourceIds() || GrouperUtil.length(availableSubjectSourceIds()) == 0) {
+      result.addAll(globalDefaultSubjectSourceIds());
+    } else if (StringUtils.isNotBlank(perGroupSourceIds)) {
+      Set<String> available = availableSubjectSourceIds();
+      for (String sourceId : GrouperUtil.splitTrim(perGroupSourceIds, ",")) {
+        // only allow sources that are in the available list
+        if (available.contains(sourceId)) {
+          result.add(sourceId);
+        }
+      }
+      // if nothing valid remains, fall back to global defaults
+      if (result.isEmpty()) {
+        result.addAll(globalDefaultSubjectSourceIds());
+      }
+    } else {
+      result.addAll(globalDefaultSubjectSourceIds());
+    }
+
+    // never include g:gsa or g:isa
+    result.remove("g:gsa");
+    result.remove("g:isa");
+
+    return result;
+  }
+
+  /**
+   * generate a SQL IN clause fragment and bind variables for subject source filtering.
+   * e.g. returns "gm.subject_source in (?, ?)" and ["pennperson", "pennCommunity"]
+   * @param sourceIds the source IDs to include, or null to use global defaults
+   * @return MultiKey where key(0) is the SQL fragment string and key(1) is a List of bind variable strings
+   */
+  public static MultiKey subjectSourceInClause(Set<String> sourceIds) {
+    if (sourceIds == null || sourceIds.size() == 0) {
+      sourceIds = globalDefaultSubjectSourceIds();
+    }
+
+    // always remove g:gsa and g:isa
+    Set<String> filtered = new LinkedHashSet<String>(sourceIds);
+    filtered.remove("g:gsa");
+    filtered.remove("g:isa");
+
+    String sqlFragment = "gm.subject_source in (" + GrouperClientUtils.appendQuestions(filtered.size()) + ")";
+    List<String> bindVars = new ArrayList<String>(filtered);
+
+    return new MultiKey(sqlFragment, bindVars);
+  }
+
+  /**
+   * clear all expirable caches, useful for testing
+   */
+  public static void clearCaches() {
+    globalDefaultSubjectSourceIdsCache.clear();
+    allowUserOverrideSubjectSourceIdsCache.clear();
+    availableSubjectSourceIdsCache.clear();
+  }
+
+  /**
+   *
    * @param sourceId
    * @return true
    */
   public static boolean internalSourceId(String sourceId) {
-    return StringUtils.equals(sourceId, "g:gsa") 
-        || StringUtils.equals(sourceId, "g:isa") 
-        || StringUtils.equals(sourceId, "grouperEntities")
-        || StringUtils.equals(sourceId, "grouperExternal");
+    return StringUtils.equals(sourceId, "g:gsa")
+        || StringUtils.equals(sourceId, "g:isa");
   }
   
   /**
