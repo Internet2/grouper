@@ -2935,6 +2935,7 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdl7_0_0.addGrouperMcpToolLogComments(database, ddlVersionBean);
 
         GrouperDdl6_2_0.addGrouperDataFieldAssignIndexes(ddlVersionBean, database);
+        GrouperDdl6_2_0.addGrouperGroupSetMemberIndex(ddlVersionBean, database);
 
     }
   }

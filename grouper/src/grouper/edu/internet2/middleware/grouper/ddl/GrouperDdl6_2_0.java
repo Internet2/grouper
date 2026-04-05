@@ -62,4 +62,27 @@ public class GrouperDdl6_2_0 {
         "data_field_internal_id", "value_integer");
   }
 
+  /**
+   * add index on grouper_group_set for member_id and member_field_id
+   * @param ddlVersionBean
+   * @param database
+   */
+  static void addGrouperGroupSetMemberIndex(DdlVersionBean ddlVersionBean, Database database) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("v6_2_0_addGrouperGroupSetMemberIndex", true)) {
+      return;
+    }
+
+    Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+        "grouper_group_set");
+
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+        "group_set_member_member_field_idx", false,
+        "member_id", "member_field_id");
+  }
+
 }
