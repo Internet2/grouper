@@ -2718,37 +2718,25 @@ public class GrouperLoaderContainer {
   }
   
   public boolean isCanEditAbacLoader() {
-    
+    if (isGrouperSqlLoader() || isGrouperLdapLoader() || isGrouperRecentMembershipsLoader()) {
+      return false;
+    }
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-      return true;
-    }
-    
-    // it's either jexl or not set
-    if (!isGrouperSqlLoader() && !isGrouperLdapLoader() && !isGrouperRecentMembershipsLoader() && 
-        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
-      return true;
-    }
-    
-    return false;
-    
+    Group group = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    return PrivilegeHelper.canEditAbacLoader(loggedInSubject, group);
   }
-  
-  public boolean isCanEditAbacOrRecentMembershipsLoader() {
-    
+
+  public boolean isCanEditRecentMembershipsLoader() {
+    if (isGrouperSqlLoader() || isGrouperLdapLoader() || isGrouperJexlScriptLoader()) {
+      return false;
+    }
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-      return true;
-    }
-    
-    // it's either jexl/recent_memberships or not set
-    if (!isGrouperSqlLoader() && !isGrouperLdapLoader() && 
-        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
-      return true;
-    }
-    
-    return false;
-    
+    Group group = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    return PrivilegeHelper.canEditRecentMembershipsLoader(loggedInSubject, group);
+  }
+
+  public boolean isCanEditAbacOrRecentMembershipsLoader() {
+    return isCanEditAbacLoader() || isCanEditRecentMembershipsLoader();
   }
   
   /**
