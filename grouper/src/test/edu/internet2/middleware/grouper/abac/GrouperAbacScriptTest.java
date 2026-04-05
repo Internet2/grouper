@@ -1206,4 +1206,65 @@ public class GrouperAbacScriptTest extends GrouperTest {
     assertTrue(members.contains(member3));
   }
 
+  /**
+   * test that analysis warns about unresolvable/deleted subjects matching the script
+   */
+  public void testAnalysisUnresolvableSubjectsWarning() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+
+    // this script matches test.subject.0 and test.subject.2 (the ones with active=true)
+    String script = "entity.hasAttribute('active')";
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), script);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    // first, analyze with all subjects resolvable - no warning expected
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+    Subject loggedInSubject = grouperSession.getSubject();
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, script, null, loggedInSubject, true);
+    assertNull(analysis.getErrorMessage());
+    assertNull(analysis.getWarningMessage());
+
+    // mark test.subject.0 as unresolvable in grouper_members
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+    new GcDbAccess().sql("update grouper_members set subject_resolution_resolvable = 'F' where id = ?")
+        .addBindVar(member0.getId()).executeSql();
+
+    // analyze again - should now warn about 1 unresolvable subject
+    analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, script, null, loggedInSubject, true);
+    assertNull(analysis.getErrorMessage());
+    assertNotNull(analysis.getWarningMessage());
+    assertTrue(analysis.getWarningMessage(), analysis.getWarningMessage().contains("1"));
+    assertTrue(analysis.getWarningMessage(), analysis.getWarningMessage().contains("test.subject.0"));
+
+    // also mark test.subject.2 as deleted
+    Subject testSubject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, testSubject2, true);
+    new GcDbAccess().sql("update grouper_members set subject_resolution_deleted = 'T' where id = ?")
+        .addBindVar(member2.getId()).executeSql();
+
+    // analyze again - should now warn about 2 unresolvable/deleted subjects
+    analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, script, null, loggedInSubject, true);
+    assertNull(analysis.getErrorMessage());
+    assertNotNull(analysis.getWarningMessage());
+    assertTrue(analysis.getWarningMessage(), analysis.getWarningMessage().contains("2"));
+    assertTrue(analysis.getWarningMessage(), analysis.getWarningMessage().contains("test.subject.0"));
+    assertTrue(analysis.getWarningMessage(), analysis.getWarningMessage().contains("test.subject.2"));
+  }
+
 }

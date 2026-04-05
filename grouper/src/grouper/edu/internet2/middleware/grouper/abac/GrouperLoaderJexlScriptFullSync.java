@@ -471,11 +471,67 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       }
       
     }
+
+    // check for unresolvable or deleted subjects matching the overall script
+    {
+      GcDbAccess gcDbAccessUnresolvable = new GcDbAccess();
+      GrouperJexlScriptSql grouperJexlScriptSqlUnresolvable = generateJexlSql(grouperDataEngine, gcDbAccessUnresolvable, grouperJexlScriptAnalysis);
+
+      MultiKey sourceInClauseUnresolvable = GrouperAbac.subjectSourceInClause(effectiveSourceIds);
+      String sourceInSqlUnresolvable = (String)sourceInClauseUnresolvable.getKey(0);
+      List<String> sourceBindVarsUnresolvable = (List<String>)sourceInClauseUnresolvable.getKey(1);
+
+      List<Object> allBindVarsUnresolvable = new ArrayList<Object>();
+      allBindVarsUnresolvable.addAll(sourceBindVarsUnresolvable);
+      if (gcDbAccessUnresolvable.getBindVars() != null) {
+        allBindVarsUnresolvable.addAll(gcDbAccessUnresolvable.getBindVars());
+      }
+
+      String unresolvableSql = "select count(1) from grouper_members gm where " + sourceInSqlUnresolvable
+          + " and (gm.subject_resolution_deleted = 'T' or gm.subject_resolution_resolvable = 'F')"
+          + " and ( " + grouperJexlScriptSqlUnresolvable.getWhereClause() + " )";
+
+      int unresolvableCount = new GcDbAccess().bindVars(allBindVarsUnresolvable).sql(unresolvableSql).select(Integer.class);
+
+      if (unresolvableCount > 0) {
+        // get up to 10 example subject IDs
+        String exampleSql = "select gm.subject_id from grouper_members gm where " + sourceInSqlUnresolvable
+            + " and (gm.subject_resolution_deleted = 'T' or gm.subject_resolution_resolvable = 'F')"
+            + " and ( " + grouperJexlScriptSqlUnresolvable.getWhereClause() + " )";
+
+        List<Object> exampleBindVars = new ArrayList<Object>();
+        exampleBindVars.addAll(sourceBindVarsUnresolvable);
+        if (gcDbAccessUnresolvable.getBindVars() != null) {
+          exampleBindVars.addAll(gcDbAccessUnresolvable.getBindVars());
+        }
+
+        List<String> unresolvableSubjectIds = new GcDbAccess().bindVars(exampleBindVars).sql(exampleSql).selectList(String.class);
+        int exampleCount = Math.min(unresolvableSubjectIds.size(), 10);
+        List<String> examples = unresolvableSubjectIds.subList(0, exampleCount);
+
+        String warningText = GrouperTextContainer.textOrNull("jexlAnalysisUnresolvableSubjectsWarning");
+        if (StringUtils.isBlank(warningText)) {
+          warningText = "There are " + unresolvableCount + " unresolvable or deleted entities matching this script, first " + exampleCount + ": " + StringUtils.join(examples, ", ");
+        } else {
+          warningText = StringUtils.replace(warningText, "##unresolvableCount##", String.valueOf(unresolvableCount));
+          warningText = StringUtils.replace(warningText, "##exampleCount##", String.valueOf(exampleCount));
+          warningText = StringUtils.replace(warningText, "##subjectIds##", StringUtils.join(examples, ", "));
+        }
+
+        String existingWarning = grouperJexlScriptAnalysis.getWarningMessage();
+        if (StringUtils.isNotBlank(existingWarning)) {
+          grouperJexlScriptAnalysis.setWarningMessage(existingWarning + "<br />" + warningText);
+        } else {
+          grouperJexlScriptAnalysis.setWarningMessage(warningText);
+        }
+      }
+    }
+
     return grouperJexlScriptAnalysis;
   }
-  
+
   /**
-   * 
+   *
    * @param jexlStript
    * @param arguments first one is type (e.g. group), second is list (e.g. members), third is name (e.g. test:testGroup).  Used for bind variables
    * @return the sql
