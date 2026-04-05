@@ -20,7 +20,7 @@ public class UpgradeTaskV39 implements UpgradeTasksInterface {
   
   @Override
   public GrouperVersion versionIntroduced() {
-    return GrouperVersion.valueOfIgnoreCase("7.1.0");
+    return GrouperVersion.valueOfIgnoreCase("6.2.0");
   }
   
   @Override
