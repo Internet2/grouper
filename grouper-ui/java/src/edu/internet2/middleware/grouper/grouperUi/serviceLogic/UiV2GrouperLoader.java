@@ -5619,6 +5619,7 @@ public class UiV2GrouperLoader {
       } else {
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GrouperLoader.loader&groupId=" + group.getId() + "')"));
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("grouperLoaderImportConfigSuccess")));
+        guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.info, TextContainer.retrieveFromRequest().getText().get("grouperLoaderImportConfigWarnScheduleDaemonJobs")));
       }
       
     } finally {
