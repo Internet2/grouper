@@ -22,6 +22,9 @@
                     <br /><br /><a id="miscAttestationLink" href="?operation=UiV2Attestation.attestationOverall" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Attestation.attestationOverall');" style="white-space: nowrap;"
                       >${textContainer.text['miscAttestationLink'] }</a>
                       
+                    <br /><br /><a id="miscCustomUiLink" href="?operation=UiV2CustomUiConfig.viewCustomUiConfigsForAll" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUiConfig.viewCustomUiConfigsForAll');" style="white-space: nowrap;"
+                      >${textContainer.text['customUiMiscLinkUser'] }</a>
+                      
                     <br /><br /><a href="?operation=UiV2EntityDataFields.viewDataFieldAndRowDictionary" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewDataFieldAndRowDictionary');" style="white-space: nowrap;"
                       >${textContainer.text['miscAttestationDataFieldAndRowDictionaryLink'] }</a>
                       

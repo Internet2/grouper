@@ -383,7 +383,11 @@ public class CustomUiContainer {
    */
   public boolean isManager() {
     
-    if (this.manager == null && this.customUiEngine != null) {
+    if (this.customUiEngine == null) {
+      return false;
+    }
+    
+    if (this.manager == null) {
       
       boolean turnOffManager = GrouperUtil.booleanValue(this.customUiEngine.getUrlParameters().get("cu_grouperTurnOffManager"), false) ;
       if (turnOffManager) {
