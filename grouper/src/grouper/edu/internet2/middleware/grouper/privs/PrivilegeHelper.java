@@ -45,7 +45,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -80,6 +79,7 @@ import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -1535,23 +1535,39 @@ public class PrivilegeHelper {
   }
 
   /**
-   * Check if a subject can invite external users to a group
+   * Check if a subject can invite external users to a group. Lenient version that just checks without logging errors
    * @param s the grouper session
    * @param g the group
    * @param subj the subject
    * @return true if the subject can invite external users to the group
    */
   public static boolean canInviteExternalUsers(GrouperSession s, Group g, Subject subj) {
+    return canInviteExternalUsers(s, g, subj, false);
+  }
+
+  /**
+   * Check if a subject can invite external users to a group
+   * @param s the grouper session
+   * @param g the group
+   * @param subj the subject
+   * @param logErrorIfNotAllowed whether to be verbose about issues
+   * @return true if the subject can invite external users to the group
+   */
+  public static boolean canInviteExternalUsers(GrouperSession s, Group g, Subject subj, boolean logErrorIfNotAllowed) {
     // Check if invitation is enabled in config
-    boolean enableInvitation = GrouperConfig.retrieveConfig().propertyValueBoolean("inviteExternalMembers.enableInvitation", false);
+    boolean enableInvitation = GrouperUiConfigInApi.retrieveConfig().propertyValueBoolean("inviteExternalMembers.enableInvitation", false);
     if (!enableInvitation) {
-      LOG.error("Cannot invite: inviteExternalMembers.enableInvitation is false");
+      if (logErrorIfNotAllowed) {
+        LOG.error("Cannot invite: inviteExternalMembers.enableInvitation is false");
+      }
       return false;
     }
 
     // Check if group is null
     if (g == null) {
-      LOG.error("Cannot invite: group is null");
+      if (logErrorIfNotAllowed) {
+        LOG.error("Cannot invite: group is null");
+      }
       return false;
     }
 
@@ -1560,18 +1576,24 @@ public class PrivilegeHelper {
     boolean useWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.use", false);
     String wheelName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
     if (!allowWheel && useWheel && !StringUtils.isBlank(wheelName) && StringUtils.equals(wheelName, g.getName())) {
-      LOG.error("Cannot invite: wheel group needs inviteExternalMembers.allowWheelInInvite");
+      if (logErrorIfNotAllowed) {
+        LOG.error("Cannot invite: wheel group needs inviteExternalMembers.allowWheelInInvite");
+      }
       return false;
     }
 
     // Check if user can manage members (has UPDATE privilege and group is not composite)
     if (!g.canHavePrivilege(s.getSubject(), AccessPrivilege.UPDATE.getName(), false)) {
-      LOG.error("Cannot invite: subject [" + s.getSubject() + "] does not have update privilege on group " + g.getName());
+      if (logErrorIfNotAllowed) {
+        LOG.error("Cannot invite: subject [" + s.getSubject() + "] does not have update privilege on group " + g.getName());
+      }
       return false;
     }
 
     if (g.isHasComposite()) {
-      LOG.error("Cannot invite: group " + g.getName() + " is a composite");
+      if (logErrorIfNotAllowed) {
+        LOG.error("Cannot invite: group " + g.getName() + " is a composite");
+      }
       return false;
     }
 
@@ -1581,11 +1603,16 @@ public class PrivilegeHelper {
       try {
         Group requireGroup = GroupFinder.findByNameAsGrouperSystem(requireGroupName, true);
         if (!requireGroup.hasMemberAsGrouperSystem(s.getSubject())) {
-          LOG.error("Cannot invite: subject [" + s.getSubject() + "] not in require group " + requireGroup.getName());
+          if (logErrorIfNotAllowed) {
+            LOG.error("Cannot invite: subject [" + s.getSubject() + "] not in require group " + requireGroup.getName());
+          }
           return false;
         }
       } catch (Exception e) {
-        LOG.error("Cannot invite: error finding require group " + requireGroupName, e);
+        if (logErrorIfNotAllowed) {
+          LOG.error("Cannot invite: error finding require group " + requireGroupName, e);
+        }
+        return false;
       }
     }
 
@@ -1597,7 +1624,9 @@ public class PrivilegeHelper {
 
       // If restricting all, don't allow invites
       if (restrictSourceForGroup.isRestrict() && restrictSourceForGroup.getGroup() == null) {
-        LOG.error("Cannot invite, source is restricted");
+        if (logErrorIfNotAllowed) {
+          LOG.error("Cannot invite, source is restricted");
+        }
         return false;
       }
     }

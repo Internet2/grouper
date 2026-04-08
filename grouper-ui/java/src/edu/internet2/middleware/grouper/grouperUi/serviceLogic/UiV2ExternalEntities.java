@@ -56,6 +56,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -578,15 +579,11 @@ public class UiV2ExternalEntities {
       }
       
       if (group != null) {
-        GuiGroup guiGroup = new GuiGroup(group);
-        if (!guiGroup.isCanInviteExternalUsers()) {
-          
-          GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setGuiGroup(null);
-          
+        if (!PrivilegeHelper.canInviteExternalUsers(GrouperSession.staticGrouperSession(), group, loggedInSubject, true)) {
           //thats not good, cant invite externals on this group
+          GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setGuiGroup(null);
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
               TextContainer.retrieveFromRequest().getText().get("inviteExternalCantFindGroup")));
-          
         }
       }
       
