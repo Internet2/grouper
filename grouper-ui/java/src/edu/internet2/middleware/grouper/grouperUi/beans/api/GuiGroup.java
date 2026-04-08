@@ -83,19 +83,17 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    * @return true if the logged in user can invite external users for this group
    */
   public boolean isCanInviteExternalUsers() {
+    if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("inviteExternalPeople.link-from-new-ui", false)) {
+      boolean canInviteOthers = PrivilegeHelper.canInviteExternalUsers(
+              GrouperSession.staticGrouperSession(),
+              this.group,
+              GrouperSession.staticGrouperSession().getSubject());
 
-    boolean canInviteOthers = PrivilegeHelper.canInviteExternalUsers(
-        GrouperSession.staticGrouperSession(),
-        this.group,
-        GrouperSession.staticGrouperSession().getSubject());
-
-    //see if we can invite
-    // since the lite UI uses jsp to check property settings, it's safe to check for just the new UI property
-    if (canInviteOthers && GrouperUiConfig.retrieveConfig().propertyValueBoolean(
-        "inviteExternalPeople.link-from-new-ui", false)) {
-
-      return true;
-    
+      //see if we can invite
+      // since the lite UI uses jsp to check property settings, it's safe to check for just the new UI property
+      if (canInviteOthers) {
+        return true;
+      }
     }
 
     return false;
