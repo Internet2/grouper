@@ -1941,21 +1941,34 @@ public class GrouperProvisioningCompare {
             || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanInsertMemberships(), false));
         }
         if (shouldReplace) {
-          
-          ProvisioningGroup provisioningGroup = provisioningMembershipWrapper.getGrouperTargetMembership().getProvisioningGroup();
+
+          // for target-only memberships (in target, not in grouper) the grouperTargetMembership
+          // is null; fall back to the wrapper's group wrapper so we can still key by the
+          // grouperTargetGroup (same key non-null cases would use) and skip the membership add
+          ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
+          ProvisioningGroup provisioningGroup;
+          if (grouperTargetMembership != null) {
+            provisioningGroup = grouperTargetMembership.getProvisioningGroup();
+          } else {
+            ProvisioningGroupWrapper groupWrapper = provisioningMembershipWrapper.getProvisioningGroupWrapper();
+            provisioningGroup = groupWrapper == null ? null : groupWrapper.getGrouperTargetGroup();
+          }
+          if (provisioningGroup == null) {
+            continue;
+          }
           if (provisioningGroup.getProvisioningGroupWrapper().getProvisioningStateGroup().isDelete()) {
             continue;
           }
-          List<ProvisioningMembership> provisioningMemberships = provisioningMembershipsToReplace.get(provisioningGroup);
-          if (provisioningMemberships == null) {
-            provisioningMemberships = new ArrayList<ProvisioningMembership>();
+          if (grouperTargetMembership != null
+              && !provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
+            List<ProvisioningMembership> provisioningMemberships = provisioningMembershipsToReplace.get(provisioningGroup);
+            if (provisioningMemberships == null) {
+              provisioningMemberships = new ArrayList<ProvisioningMembership>();
+            }
+            provisioningMemberships.add(grouperTargetMembership);
+            provisioningMembershipsToReplace.put(provisioningGroup, provisioningMemberships);
           }
-          
-          if (!provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
-            provisioningMemberships.add(provisioningMembershipWrapper.getGrouperTargetMembership());
-          }
-          provisioningMembershipsToReplace.put(provisioningGroup, provisioningMemberships);
-          
+
         }
       }
       
