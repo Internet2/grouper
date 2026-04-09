@@ -1273,4 +1273,238 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     }
   }
 
+  // =============================================
+  // Team managers via provisioner translator + replaceMemberships
+  // =============================================
+
+  public void testFullSyncTeamManagersFromManagerGroup() {
+    teamManagersFromManagerGroup(true);
+  }
+
+  public void testIncrementalTeamManagersFromManagerGroup() {
+    teamManagersFromManagerGroup(false);
+  }
+
+  /**
+   * End-to-end test of the team manager flow:
+   *   - team group has md_trueFoundryManagerGroupName metadata pointing at a separate Grouper group
+   *   - the managers group is also a member of the team group (so managers are team members too)
+   *   - TrueFoundryProvisioningTranslator populates the target group's "managers" attribute
+   *     (set of native TF entity IDs) from that managers group
+   *   - replaceGroupMemberships (full sync, replaceMemberships=true) consumes the attribute and
+   *     PUTs the team manifest with the correct member/manager split
+   *   - insertMemberships (incremental) does the same check for new memberships
+   * Also verifies demotion: removing a user from the managers group should demote them to a
+   * regular team member on the next sync.
+   */
+  public void teamManagersFromManagerGroup(boolean isFull) {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    TrueFoundryProvisionerTestConfigInput configInput = provisionerConfig()
+        .addExtraConfig("trueFoundryAddTeamManagerMetadata", "true")
+        .addExtraConfig("replaceMemberships", "true")
+        // expose "managers" as a multivalued group attribute so the translator's
+        // grouperTargetGroup.assignAttributeValue("managers", ...) is retained through the diff
+        .addExtraConfig("numberOfGroupAttributes", "4")
+        .addExtraConfig("targetGroupAttribute.3.name", "managers")
+        .addExtraConfig("targetGroupAttribute.3.multiValued", "true")
+        .addExtraConfig("targetGroupAttribute.3.showAdvancedAttribute", "true")
+        .addExtraConfig("targetGroupAttribute.3.showAttributeValueSettings", "true");
+
+    GrouperSession grouperSession = setupProvisionerTest(configInput);
+
+    try {
+      String userId0 = GrouperUuid.getUuid();
+      String userId1 = GrouperUuid.getUuid();
+      String userId2 = GrouperUuid.getUuid();
+      createMockUsers(userId0, userId1, userId2);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+      // team group (will be provisioned as a TF team)
+      Group teamGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:teams:testTeam").save();
+
+      // managers group lives outside the provisioned stem so it is NOT provisioned as a team.
+      // Its membership drives the team manager list via the md_trueFoundryManagerGroupName metadata.
+      Group managersGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("aux:teamManagers:testTeam_managers").save();
+
+      // All three subjects are direct team members; SUBJ2 is also the initial manager.
+      // The managers group is also added as a member of the team group so any manager who
+      // isn't already a direct team member still ends up as a team member.
+      teamGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      teamGroup.addMember(SubjectTestHelper.SUBJ1, false);
+      teamGroup.addMember(SubjectTestHelper.SUBJ2, false);
+      managersGroup.addMember(SubjectTestHelper.SUBJ2, false);
+      teamGroup.addMember(managersGroup.toSubject(), false);
+
+      initIncrementalState(isFull);
+
+      // attach provisioning to the team stem (not aux — so the managers group stays unprovisioned)
+      attachProvisioningAttribute(stem);
+
+      // set the managers-group metadata on the team group
+      final GrouperProvisioningAttributeValue teamValue = new GrouperProvisioningAttributeValue();
+      teamValue.setDirectAssignment(true);
+      teamValue.setDoProvision("trueFoundryProvisioner");
+      teamValue.setTargetName("trueFoundryProvisioner");
+      Map<String, Object> metadata = new HashMap<String, Object>();
+      metadata.put("md_trueFoundryManagerGroupName", "aux:teamManagers:testTeam_managers");
+      teamValue.setMetadataNameValues(metadata);
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(teamValue, teamGroup);
+
+      fullProvision();
+
+      // one team created
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_group where group_type = 'team'").select(int.class));
+
+      String teamId = new GcDbAccess().connectionName("grouper")
+          .sql("select id from mock_truefoundry_group where name = 'testTeam'").select(String.class);
+      assertNotNull(teamId);
+
+      // SUBJ0 and SUBJ1 are regular members; SUBJ2 is a manager
+      assertEquals("member", new GcDbAccess().connectionName("grouper")
+          .sql("select role from mock_truefoundry_membership where group_id = ? and user_email = ?")
+          .addBindVar(teamId).addBindVar("test.subject.0@somewhere.someSchool.edu").select(String.class));
+      assertEquals("member", new GcDbAccess().connectionName("grouper")
+          .sql("select role from mock_truefoundry_membership where group_id = ? and user_email = ?")
+          .addBindVar(teamId).addBindVar("test.subject.1@somewhere.someSchool.edu").select(String.class));
+      assertEquals("manager", new GcDbAccess().connectionName("grouper")
+          .sql("select role from mock_truefoundry_membership where group_id = ? and user_email = ?")
+          .addBindVar(teamId).addBindVar("test.subject.2@somewhere.someSchool.edu").select(String.class));
+
+      // Promote SUBJ0 to manager, demote SUBJ2 to regular member
+      managersGroup.deleteMember(SubjectTestHelper.SUBJ2);
+      managersGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      provision(isFull);
+
+      assertEquals("manager", new GcDbAccess().connectionName("grouper")
+          .sql("select role from mock_truefoundry_membership where group_id = ? and user_email = ?")
+          .addBindVar(teamId).addBindVar("test.subject.0@somewhere.someSchool.edu").select(String.class));
+      assertEquals("member", new GcDbAccess().connectionName("grouper")
+          .sql("select role from mock_truefoundry_membership where group_id = ? and user_email = ?")
+          .addBindVar(teamId).addBindVar("test.subject.1@somewhere.someSchool.edu").select(String.class));
+      assertEquals("member", new GcDbAccess().connectionName("grouper")
+          .sql("select role from mock_truefoundry_membership where group_id = ? and user_email = ?")
+          .addBindVar(teamId).addBindVar("test.subject.2@somewhere.someSchool.edu").select(String.class));
+
+    } finally {
+
+    }
+  }
+
+  // =============================================
+  // Role default-role fallback
+  // =============================================
+
+  public void testFullSyncRoleDefaultFallback() {
+    roleDefaultFallback(true);
+  }
+
+  public void testIncrementalRoleDefaultFallback() {
+    roleDefaultFallback(false);
+  }
+
+  /**
+   * A user removed from all provisioned role groups should be demoted to the configured
+   * default role in TrueFoundry (rather than keeping their previous role forever).
+   * Also verifies the X→Y transition is not clobbered by the default-role fallback.
+   */
+  public void roleDefaultFallback(boolean isFull) {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = setupProvisionerTest(provisionerConfig());
+
+    try {
+      createDefaultRole();
+
+      String userId0 = GrouperUuid.getUuid();
+      String userId1 = GrouperUuid.getUuid();
+      createMockUsers(userId0, userId1, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+      Group roleA = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:roles:roleA").save();
+      Group roleB = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:roles:roleB").save();
+
+      roleA.addMember(SubjectTestHelper.SUBJ0, false);
+      roleA.addMember(SubjectTestHelper.SUBJ1, false);
+
+      initIncrementalState(isFull);
+      attachProvisioningAttribute(stem);
+
+      fullProvision();
+
+      String roleAId = new GcDbAccess().connectionName("grouper")
+          .sql("select id from mock_truefoundry_group where name = 'roleA'").select(String.class);
+      String defaultRoleId = new GcDbAccess().connectionName("grouper")
+          .sql("select id from mock_truefoundry_group where name = 'read-only-member'").select(String.class);
+      assertNotNull(roleAId);
+      assertNotNull(defaultRoleId);
+
+      // both users on roleA, nobody on default
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership where group_id = ?")
+          .addBindVar(roleAId).select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership where group_id = ?")
+          .addBindVar(defaultRoleId).select(int.class));
+
+      // remove SUBJ0 from all role groups — should fall back to default role
+      roleA.deleteMember(SubjectTestHelper.SUBJ0);
+
+      provision(isFull);
+
+      // SUBJ0 now on default role
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership where group_id = ? and user_email = ?")
+          .addBindVar(defaultRoleId)
+          .addBindVar("test.subject.0@somewhere.someSchool.edu").select(int.class));
+      // SUBJ0 is no longer on roleA
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership where group_id = ? and user_email = ?")
+          .addBindVar(roleAId)
+          .addBindVar("test.subject.0@somewhere.someSchool.edu").select(int.class));
+      // SUBJ1 still on roleA
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership where group_id = ? and user_email = ?")
+          .addBindVar(roleAId)
+          .addBindVar("test.subject.1@somewhere.someSchool.edu").select(int.class));
+
+      // Now move SUBJ1 from roleA to roleB — should land on roleB, NOT default
+      roleA.deleteMember(SubjectTestHelper.SUBJ1);
+      roleB.addMember(SubjectTestHelper.SUBJ1, false);
+
+      provision(isFull);
+
+      String roleBId = new GcDbAccess().connectionName("grouper")
+          .sql("select id from mock_truefoundry_group where name = 'roleB'").select(String.class);
+      assertNotNull(roleBId);
+
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership where group_id = ? and user_email = ?")
+          .addBindVar(roleBId)
+          .addBindVar("test.subject.1@somewhere.someSchool.edu").select(int.class));
+      // SUBJ1 should NOT have been demoted to default
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership where group_id = ? and user_email = ?")
+          .addBindVar(defaultRoleId)
+          .addBindVar("test.subject.1@somewhere.someSchool.edu").select(int.class));
+
+    } finally {
+
+    }
+  }
+
 }
