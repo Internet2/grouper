@@ -1161,6 +1161,58 @@ public class TrueFoundryApiCommands {
   }
 
   /**
+   * Replace the full member and manager lists on a team with a single PUT.
+   * Used by the provisioner's replaceGroupMemberships path (replaceMemberships=true on full sync).
+   * The team must already exist. TrueFoundry requires at least one member per team, so the
+   * defaultTeamMemberEmailAddress is added if the resulting member list would be empty.
+   * Managers that are not also in memberEmails are dropped (TrueFoundry requires managers to
+   * be members).
+   * @param configId the external system config id
+   * @param settings TrueFoundry settings (uses defaultTeamMemberEmail)
+   * @param teamId the team id
+   * @param memberEmails the full list of desired member emails (managers are typically included too)
+   * @param managerEmails the full list of desired manager emails (may be null or empty)
+   * @return the updated TrueFoundryGroup, or null if team not found
+   */
+  public static TrueFoundryGroup replaceTeamMembers(String configId, TrueFoundrySettings settings,
+      String teamId, List<String> memberEmails, List<String> managerEmails) {
+
+    String defaultTeamMemberEmailAddress = settings == null ? null : settings.getDefaultTeamMemberEmail();
+
+    TrueFoundryGroup currentTeam = getTeamById(configId, settings, teamId);
+    if (currentTeam == null) {
+      throw new RuntimeException("Team not found for replaceTeamMembers, teamId: " + teamId);
+    }
+
+    List<String> members = new ArrayList<String>();
+    if (memberEmails != null) {
+      for (String email : memberEmails) {
+        if (!StringUtils.isBlank(email) && !members.contains(email)) {
+          members.add(email);
+        }
+      }
+    }
+
+    // TrueFoundry requires at least one member per team — keep the default if the list is empty
+    if (members.isEmpty() && !StringUtils.isBlank(defaultTeamMemberEmailAddress)) {
+      members.add(defaultTeamMemberEmailAddress);
+    }
+
+    List<String> managers = new ArrayList<String>();
+    if (managerEmails != null) {
+      for (String email : managerEmails) {
+        // managers must also be members
+        if (!StringUtils.isBlank(email) && members.contains(email) && !managers.contains(email)) {
+          managers.add(email);
+        }
+      }
+    }
+
+    return createOrUpdateTeam(configId, currentTeam, members,
+        managers.isEmpty() ? null : managers);
+  }
+
+  /**
    * Low-level PUT /api/svc/v1/teams — sends the full manifest with members and managers.
    * Callers should use createTeam, updateTeam, addTeamMembers, or removeTeamMembers instead.
    * @param configId the external system config id
