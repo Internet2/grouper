@@ -3918,13 +3918,13 @@ public class GrouperProvisioningLogic {
     
     GrouperProvisioningReplacesObjects targetObjectReplaces = this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectReplaces();
     Set<ProvisioningMembershipWrapper> provisioningMembershipWrappers = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers();
-    if (targetObjectReplaces != null) {    
+    if (targetObjectReplaces != null) {
       for (ProvisioningGroup provisioningGroup : targetObjectReplaces.getProvisioningMemberships().keySet()) {
-        
+
         Timestamp inTargetStart = provisioningGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup().getInTargetStart();
         Timestamp inTargetEnd = provisioningGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup().getInTargetEnd();
         if (inTargetStart != null && inTargetStart.getTime() >= this.getGrouperProvisioner().getMillisWhenSyncStarted()) {
-          this.grouperProvisioner.retrieveGrouperProvisioningOutput().addInsert(1);  
+          this.grouperProvisioner.retrieveGrouperProvisioningOutput().addInsert(1);
         }
         if (inTargetEnd != null && inTargetEnd.getTime() >= this.getGrouperProvisioner().getMillisWhenSyncStarted()) {
           this.grouperProvisioner.retrieveGrouperProvisioningOutput().addDelete(1);
@@ -3933,19 +3933,23 @@ public class GrouperProvisioningLogic {
         for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(memberships)) {
           inTargetStart = provisioningMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership().getInTargetStart();
           if (inTargetStart != null && inTargetStart.getTime() >= this.getGrouperProvisioner().getMillisWhenSyncStarted()) {
-            this.grouperProvisioner.retrieveGrouperProvisioningOutput().addInsert(1);  
+            this.grouperProvisioner.retrieveGrouperProvisioningOutput().addInsert(1);
           }
         }
-        
-        for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(provisioningMembershipWrappers)) {
-          inTargetEnd = provisioningMembershipWrapper.getGcGrouperSyncMembership().getInTargetEnd();
-          if (inTargetEnd != null && inTargetEnd.getTime() >= this.getGrouperProvisioner().getMillisWhenSyncStarted()) {
+      }
 
-            this.grouperProvisioner.retrieveGrouperProvisioningOutput().addDelete(1);
-          }
+      // Count membership deletes driven by replace: any wrapper whose inTargetEnd was set at
+      // or after sync start. Run once across all wrappers (not per replaced group) to avoid
+      // N× over-counting, and skip wrappers with no sync row (target-only orphans).
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(provisioningMembershipWrappers)) {
+        GcGrouperSyncMembership syncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+        if (syncMembership == null) {
+          continue;
         }
-        
-        
+        Timestamp inTargetEnd = syncMembership.getInTargetEnd();
+        if (inTargetEnd != null && inTargetEnd.getTime() >= this.getGrouperProvisioner().getMillisWhenSyncStarted()) {
+          this.grouperProvisioner.retrieveGrouperProvisioningOutput().addDelete(1);
+        }
       }
     }
   }
