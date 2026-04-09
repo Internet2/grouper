@@ -31,6 +31,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInse
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertMembershipsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoReplaceGroupMembershipsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoReplaceGroupMembershipsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntityRequest;
@@ -69,6 +71,18 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
 
   private static final Log LOG = LogFactory.getLog(TrueFoundryTargetDao.class);
 
+  /**
+   * roleId → set of user emails that had this role in TrueFoundry at the start of this sync.
+   * Populated in retrieveAllData; read by replaceGroupMemberships to detect users losing a role.
+   */
+  private Map<String, Set<String>> startOfSyncRoleIdToUserEmails = new LinkedHashMap<String, Set<String>>();
+
+  /**
+   * Emails of users that have been (re)assigned a role during this sync.
+   * Used by the role delete/replace paths to avoid clobbering a just-assigned role with the default.
+   */
+  private Set<String> usersAssignedRoleThisSync = new HashSet<String>();
+
   @Override
   public boolean loggingStart() {
     return GrouperHttpClient.logStart(new GrouperHttpClientLog());
@@ -77,6 +91,17 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public String loggingStop() {
     return GrouperHttpClient.logEnd();
+  }
+
+  /**
+   * Assign a TrueFoundry role to a user and track that we touched their role in this sync.
+   */
+  private void assignUserRoleTracked(String configId, TrueFoundrySettings settings,
+      String userEmail, String roleName) {
+    TrueFoundryApiCommands.assignUserRole(configId, settings, userEmail, roleName);
+    if (!StringUtils.isBlank(userEmail)) {
+      this.usersAssignedRoleThisSync.add(userEmail);
+    }
   }
 
   private TrueFoundryProvisionerConfiguration getTrueFoundryConfiguration() {
@@ -115,6 +140,17 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       // one subjects call returns active users + all teams with members/managers
       TrueFoundryApiCommands.SubjectsData subjectsData =
           TrueFoundryApiCommands.retrieveSubjectsData(configId, settings);
+
+      // cache start-of-sync role memberships so the role delete/replace paths can
+      // detect users losing their role and fall back to the default role
+      this.startOfSyncRoleIdToUserEmails.clear();
+      this.usersAssignedRoleThisSync.clear();
+      if (subjectsData.roleMembershipsByRoleId != null) {
+        for (Map.Entry<String, Set<String>> entry : subjectsData.roleMembershipsByRoleId.entrySet()) {
+          this.startOfSyncRoleIdToUserEmails.put(entry.getKey(),
+              new LinkedHashSet<String>(GrouperUtil.nonNull(entry.getValue())));
+        }
+      }
 
       // build entities from users and build email-to-nativeId map for membership translation
       List<ProvisioningEntity> provisioningEntities = new ArrayList<ProvisioningEntity>();
@@ -633,12 +669,17 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
 
         if (TrueFoundryGroup.GROUP_TYPE_TEAM.equals(groupType)) {
           boolean isManager = false;
-          if (config.isTrueFoundryAddTeamManagerMetadata()) {
-            String managerMetadata = targetMembership
-                .retrieveAttributeValueString(config.getTrueFoundryTeamManagerMetadataName());
-            isManager = "true".equalsIgnoreCase(managerMetadata)
-                || "T".equalsIgnoreCase(managerMetadata)
-                || "1".equals(managerMetadata);
+          if (config.isTrueFoundryAddTeamManagerMetadata() && provisioningGroup != null) {
+            // The translator populates the target group's "managers" attribute
+            // with the set of native TrueFoundry user IDs that should be managers
+            // (derived from the md_trueFoundryManagerGroupName group metadata).
+            // Check whether this membership's native entity ID is in that set.
+            Set<?> managerEntityIds = provisioningGroup.retrieveAttributeValueSet("managers");
+            String nativeEntityId = targetMembership.getProvisioningEntityId();
+            if (managerEntityIds != null && nativeEntityId != null
+                && managerEntityIds.contains(nativeEntityId)) {
+              isManager = true;
+            }
           }
 
           if (!teamMemberships.containsKey(groupId)) {
@@ -657,7 +698,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
           // role assignment — no batch API, process individually
           String roleName = provisioningGroup.retrieveAttributeValueString("name");
           try {
-            TrueFoundryApiCommands.assignUserRole(configId, settings, userEmail, roleName);
+            assignUserRoleTracked(configId, settings, userEmail, roleName);
             targetMembership.setProvisioned(true);
             for (ProvisioningObjectChange change : GrouperUtil.nonNull(
                 targetMembership.getInternal_objectChanges())) {
@@ -750,9 +791,25 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
           teamMemberships.get(groupId).add(targetMembership);
 
         } else if (TrueFoundryGroup.GROUP_TYPE_ROLE.equals(groupType)) {
-          // role delete is a no-op — TrueFoundry users always have exactly one role,
-          // and assigning a new role (via insertMemberships) replaces the old one.
-          // There is no need to explicitly remove a role assignment.
+          // TrueFoundry users always have exactly one role. A role delete means the user
+          // should no longer have this role; fall back to the configured default role unless
+          // an insert earlier in this sync already assigned them a different role.
+          if (!StringUtils.isBlank(userEmail)
+              && !this.usersAssignedRoleThisSync.contains(userEmail)) {
+            String defaultRole = config.getTrueFoundryDefaultRole();
+            if (!StringUtils.isBlank(defaultRole)) {
+              try {
+                assignUserRoleTracked(configId, settings, userEmail, defaultRole);
+              } catch (Exception e) {
+                targetMembership.setProvisioned(false);
+                for (ProvisioningObjectChange change : GrouperUtil.nonNull(
+                    targetMembership.getInternal_objectChanges())) {
+                  change.setProvisioned(false);
+                }
+                continue;
+              }
+            }
+          }
           targetMembership.setProvisioned(true);
           for (ProvisioningObjectChange change : GrouperUtil.nonNull(
               targetMembership.getInternal_objectChanges())) {
@@ -799,6 +856,152 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   // ============================
+  // Replace all memberships for a group (called when replaceMemberships=true on full sync)
+  //   teams: compute the full member/manager split from the supplied list and PUT the manifest
+  //   roles: assign the role to each user via PATCH /users/roles (TF users have at most one role)
+  // ============================
+
+  @Override
+  public TargetDaoReplaceGroupMembershipsResponse replaceGroupMemberships(
+      TargetDaoReplaceGroupMembershipsRequest targetDaoReplaceGroupMembershipsRequest) {
+
+    long startNanos = System.nanoTime();
+    ProvisioningGroup targetGroup = targetDaoReplaceGroupMembershipsRequest.getTargetGroup();
+    List<ProvisioningMembership> targetMemberships =
+        targetDaoReplaceGroupMembershipsRequest.getTargetMemberships();
+
+    try {
+      TrueFoundryProvisionerConfiguration config = getTrueFoundryConfiguration();
+      String configId = config.getTrueFoundryExternalSystemConfigId();
+      TrueFoundrySettings settings = getTrueFoundrySettings();
+
+      String groupType = targetGroup == null ? null
+          : targetGroup.retrieveAttributeValueString("groupType");
+
+      if (TrueFoundryGroup.GROUP_TYPE_TEAM.equals(groupType)) {
+        String teamId = targetGroup.getId();
+
+        // The translator populates the target group's "managers" attribute with the set of
+        // native TrueFoundry user IDs that should be managers (derived from the
+        // md_trueFoundryManagerGroupName group metadata).
+        Set<?> managerEntityIds = null;
+        if (config.isTrueFoundryAddTeamManagerMetadata()) {
+          managerEntityIds = targetGroup.retrieveAttributeValueSet("managers");
+        }
+
+        List<String> memberEmails = new ArrayList<String>();
+        List<String> managerEmails = new ArrayList<String>();
+
+        for (ProvisioningMembership targetMembership : GrouperUtil.nonNull(targetMemberships)) {
+          ProvisioningEntity provisioningEntity = targetMembership.getProvisioningEntity();
+          String userEmail = provisioningEntity == null ? null
+              : provisioningEntity.retrieveAttributeValueString("email");
+          if (StringUtils.isBlank(userEmail)) {
+            continue;
+          }
+          memberEmails.add(userEmail);
+
+          if (managerEntityIds != null) {
+            String nativeEntityId = targetMembership.getProvisioningEntityId();
+            if (nativeEntityId != null && managerEntityIds.contains(nativeEntityId)) {
+              managerEmails.add(userEmail);
+            }
+          }
+        }
+
+        try {
+          TrueFoundryApiCommands.replaceTeamMembers(configId, settings, teamId,
+              memberEmails, managerEmails.isEmpty() ? null : managerEmails);
+          for (ProvisioningMembership m : GrouperUtil.nonNull(targetMemberships)) {
+            m.setProvisioned(true);
+            for (ProvisioningObjectChange change : GrouperUtil.nonNull(
+                m.getInternal_objectChanges())) {
+              change.setProvisioned(true);
+            }
+          }
+        } catch (Exception e) {
+          for (ProvisioningMembership m : GrouperUtil.nonNull(targetMemberships)) {
+            m.setProvisioned(false);
+            for (ProvisioningObjectChange change : GrouperUtil.nonNull(
+                m.getInternal_objectChanges())) {
+              change.setProvisioned(false);
+            }
+          }
+          throw e;
+        }
+
+      } else if (TrueFoundryGroup.GROUP_TYPE_ROLE.equals(groupType)) {
+        // roles: each user has exactly one role; assign this role to each listed user.
+        // After assigning the desired users, any user who had this role at the start of the
+        // sync but isn't in the desired list — and hasn't been assigned a different role
+        // earlier in this sync — is demoted to the configured default role.
+        String roleName = targetGroup.retrieveAttributeValueString("name");
+        String roleId = targetGroup.getId();
+
+        Set<String> desiredUserEmails = new LinkedHashSet<String>();
+        for (ProvisioningMembership targetMembership : GrouperUtil.nonNull(targetMemberships)) {
+          ProvisioningEntity provisioningEntity = targetMembership.getProvisioningEntity();
+          String userEmail = provisioningEntity == null ? null
+              : provisioningEntity.retrieveAttributeValueString("email");
+          if (StringUtils.isBlank(userEmail)) {
+            continue;
+          }
+          desiredUserEmails.add(userEmail);
+          try {
+            assignUserRoleTracked(configId, settings, userEmail, roleName);
+            targetMembership.setProvisioned(true);
+            for (ProvisioningObjectChange change : GrouperUtil.nonNull(
+                targetMembership.getInternal_objectChanges())) {
+              change.setProvisioned(true);
+            }
+          } catch (Exception e) {
+            targetMembership.setProvisioned(false);
+            for (ProvisioningObjectChange change : GrouperUtil.nonNull(
+                targetMembership.getInternal_objectChanges())) {
+              change.setProvisioned(false);
+            }
+          }
+        }
+
+        // demote users leaving this role to the default role
+        String defaultRole = config.getTrueFoundryDefaultRole();
+        if (!StringUtils.isBlank(defaultRole) && roleId != null) {
+          Set<String> startOfSyncUsers = this.startOfSyncRoleIdToUserEmails.get(roleId);
+          if (startOfSyncUsers != null) {
+            for (String startUserEmail : startOfSyncUsers) {
+              if (StringUtils.isBlank(startUserEmail)) {
+                continue;
+              }
+              if (desiredUserEmails.contains(startUserEmail)) {
+                continue;
+              }
+              // skip if an earlier replace/insert already assigned this user a role
+              if (this.usersAssignedRoleThisSync.contains(startUserEmail)) {
+                continue;
+              }
+              try {
+                assignUserRoleTracked(configId, settings, startUserEmail, defaultRole);
+              } catch (Exception e) {
+                // log and continue — this demotion is best-effort
+                LOG.warn("TrueFoundry: failed to demote user '" + startUserEmail
+                    + "' from role '" + roleName + "' to default role '" + defaultRole + "'", e);
+              }
+            }
+          }
+        }
+
+      } else {
+        throw new RuntimeException(
+            "Invalid groupType: '" + groupType + "' for replaceGroupMemberships, expected 'team' or 'role'");
+      }
+
+      return new TargetDaoReplaceGroupMembershipsResponse();
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("replaceGroupMemberships", startNanos));
+    }
+  }
+
+  // ============================
   // DAO capabilities
   // ============================
 
@@ -811,6 +1014,7 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
     grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
     grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
+    grouperProvisionerDaoCapabilities.setCanReplaceGroupMemberships(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllData(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
