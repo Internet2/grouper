@@ -417,9 +417,13 @@ public abstract class Hib3DAO {
         //this is ok
       }
       
-      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
-          LifecycleHooks.METHOD_HIBERNATE_INIT, HooksLifecycleHibInitBean.class, 
-          configuration, Configuration.class, null);
+      try {
+        GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE,
+            LifecycleHooks.METHOD_HIBERNATE_INIT, HooksLifecycleHibInitBean.class,
+            configuration, Configuration.class, null);
+      } catch (Throwable t) {
+        LOG.error("Error calling lifecycle hooks for hibernate init, continuing with session factory setup", t);
+      }
       
       // And finally create our session factory
       //trying to avoid warning of using the same dir
