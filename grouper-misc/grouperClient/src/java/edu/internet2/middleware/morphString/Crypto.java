@@ -177,9 +177,12 @@ public class Crypto {
    * @return the decrypted string
    */
   public String decrypt(String cipherText) {
-    try {      
+    try {
         byte[] cipherBytes = cipherText.getBytes();
         byte[] decodedBytes = Base64.decodeBase64(cipherBytes);
+        if (decodedBytes == null || decodedBytes.length == 0) {
+          throw new RuntimeException("Base64 decode returned empty bytes, input is not valid ciphertext");
+        }
         this.initCipher(false);
         byte[] clearBytes = this.cipher.doFinal(decodedBytes);
         return new String(clearBytes);
