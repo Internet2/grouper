@@ -333,7 +333,6 @@ public class UiV2SubjectSource {
             addSubjectComparisonToReport(enabledSource, disabledSource, enabledSubject, disabledSubject, report);
           }
           
-          report.append("<br />\n");
         }
         
         for (String subjectId : subjectIdsList) {
@@ -380,7 +379,6 @@ public class UiV2SubjectSource {
             addSubjectComparisonToReport(enabledSource, disabledSource, enabledSubject, disabledSubject, report);
           }
           
-          report.append("<br />\n");
         }
         
         for (String subjectIdentifier : subjectIdentifiersList) {
@@ -446,11 +444,8 @@ public class UiV2SubjectSource {
                 addSubjectComparisonToReport(enabledSource, disabledSource, enabledSubject, disabledSubject, report);
               }
               
-              report.append("<br />\n");
             }
           }
-          
-          report.append("<br />\n");
         }
       }
       report.append("</pre>\n");
