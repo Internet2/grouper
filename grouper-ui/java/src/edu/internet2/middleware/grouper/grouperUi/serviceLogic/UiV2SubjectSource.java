@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,9 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.subectSource.SubjectSourceConfiguration;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -37,8 +38,8 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.provider.SubjectImpl;
 import edu.internet2.middleware.subject.provider.SourceManager;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 public class UiV2SubjectSource {
   
@@ -137,6 +138,11 @@ public class UiV2SubjectSource {
       List<Source> allSources = new ArrayList<Source>(SubjectFinder.getSources(false));
       List<Source> otherSources = new ArrayList<Source>();
       for (Source theSource : allSources) {
+        if (GrouperAbac.internalSourceId(theSource.getId())
+            || StringUtils.equals("grouperEntities", theSource.getId())
+            || StringUtils.equals("grouperExternal", theSource.getId())) {
+          continue;
+        }
         if (source.isEnabled() != theSource.isEnabled()) {
           otherSources.add(theSource);
         }
@@ -218,6 +224,12 @@ public class UiV2SubjectSource {
       Source disabledSource = SubjectFinder.getSource(sourceId1).isEnabled() ? SubjectFinder.getSource(sourceId2) : SubjectFinder.getSource(sourceId1);
       
       if (!enabledSource.isEnabled() || disabledSource.isEnabled()) {
+        throw new RuntimeException("Unexpected");
+      }
+
+      if (GrouperAbac.internalSourceId(disabledSource.getId())
+          || StringUtils.equals("grouperEntities", disabledSource.getId())
+          || StringUtils.equals("grouperExternal", disabledSource.getId())) {
         throw new RuntimeException("Unexpected");
       }
       
