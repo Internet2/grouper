@@ -2070,13 +2070,31 @@ public class GrouperProvisioningCompare {
     
       // memberships to delete
       Set<Object> groupIdEntityIdsToDelete = new HashSet<Object>();
+      int membershipDeleteSkipsDueToGroupError = 0;
+      int membershipDeleteSkipsDueToEntityError = 0;
       for (Object key : targetMatchingIdToTargetMembership.keySet()) {
         ProvisioningMembership grouperTargetMembership = targetMatchingIdToTargetMembership.get(key);
         if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isSelectResultProcessed()
             && (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()
                 || grouperTargetMembership.getProvisioningMembershipWrapper().getGrouperTargetMembership() == null)) {
+          ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningGroupWrapper();
+          if (provisioningGroupWrapper != null && provisioningGroupWrapper.getErrorCode() != null) {
+            membershipDeleteSkipsDueToGroupError++;
+            continue;
+          }
+          ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningEntityWrapper();
+          if (provisioningEntityWrapper != null && provisioningEntityWrapper.getErrorCode() != null) {
+            membershipDeleteSkipsDueToEntityError++;
+            continue;
+          }
           groupIdEntityIdsToDelete.add(key);
         }
+      }
+      if (membershipDeleteSkipsDueToGroupError > 0) {
+        GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "membershipDeleteSkipsDueToGroupError", membershipDeleteSkipsDueToGroupError);
+      }
+      if (membershipDeleteSkipsDueToEntityError > 0) {
+        GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "membershipDeleteSkipsDueToEntityError", membershipDeleteSkipsDueToEntityError);
       }
       for (Object key : grouperMatchingIdToTargetMembership.keySet()) {
         ProvisioningMembership grouperTargetMembership = grouperMatchingIdToTargetMembership.get(key);
