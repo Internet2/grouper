@@ -2492,6 +2492,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     if (hib3GrouperLoaderLog != null) {
       hib3GrouperLoaderLog.addDeleteCount(deleteMemberIds.size());
     }
+    
+    if (hib3GrouperLoaderLog != null) {
+      hib3GrouperLoaderLog.addTotalCount(insertMemberIds.size() + deleteMemberIds.size());
+    }
 
     // add examples of inserts and deletes to the debug map (up to 20 each)
     {
