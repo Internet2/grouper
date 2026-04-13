@@ -81,13 +81,26 @@ public class GrouperJexlScriptAnalysis {
   }
 
   private GrouperDataEngine grouperDataEngine;
-  
+
   public void setGrouperDataEngine(GrouperDataEngine grouperDataEngine) {
     this.grouperDataEngine = grouperDataEngine;
   }
-  
+
   public GrouperDataEngine getGrouperDataEngine() {
     return grouperDataEngine;
   }
-  
+
+  /**
+   * tree of ABAC references extracted from the JEXL script for visualization
+   */
+  private List<AbacReference> visualizationReferences;
+
+  public List<AbacReference> getVisualizationReferences() {
+    return visualizationReferences;
+  }
+
+  public void setVisualizationReferences(List<AbacReference> visualizationReferences) {
+    this.visualizationReferences = visualizationReferences;
+  }
+
 }

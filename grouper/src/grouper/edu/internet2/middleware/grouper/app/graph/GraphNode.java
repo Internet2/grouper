@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.visualization.StyleObjectType;
@@ -29,7 +30,9 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.subject.Subject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -61,6 +64,11 @@ public class GraphNode {
   private boolean provisionerTarget;
   private boolean intersectGroup;
   private boolean complementGroup;
+  private boolean abacGroup;
+  private boolean dataAttribute;
+  private boolean dataRow;
+  private boolean compoundOr;
+  private boolean compoundAnd;
   private boolean startNode;
   private StyleObjectType styleObjectType;
 
@@ -74,6 +82,9 @@ public class GraphNode {
   private Set<GraphNode> childNodes;
 
   private Boolean subjectIsMember = null;;
+  private Long populationCount = null;
+  
+  private String abacScript;
 
   /**
    * Constructor that also marks the node as the starting node for the graph
@@ -143,11 +154,18 @@ public class GraphNode {
     this.simpleLoaderGroup = false;
     this.intersectGroup = false;
     this.complementGroup = false;
+    this.abacGroup = false;
+    this.dataAttribute = false;
+    this.dataRow = false;
+    this.compoundOr = false;
+    this.compoundAnd = false;
     this.provisionerTarget = false;
 
     if (grouperObject instanceof Group) {
       final Group theGroup = (Group)grouperObject;
       this.group = true;
+      
+      Subject currentSubject = GrouperSession.staticGrouperSession().getSubject();
 
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
@@ -175,6 +193,22 @@ public class GraphNode {
             }
           }
 
+          // is it an ABAC/jexl scripted group?
+          if (RelationGraph.getAbacAttributeDefName() != null) {
+            AttributeAssign abacAttrAssign = theGroup.getAttributeDelegate().retrieveAssignment(null, RelationGraph.getAbacAttributeDefName(), false, false);
+            if (abacAttrAssign != null) {
+              GraphNode.this.abacGroup = true;
+              
+              // only getting the jexl script if the user is an admin of the group - trying to be consistent with the group summary page
+              if (isStartNode() && theGroup.hasAdmin(currentSubject)) {
+                String script = abacAttrAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_SCRIPT);
+                if (!StringUtils.isEmpty(script)) {
+                  GraphNode.this.abacScript = script;
+                }
+              }
+            }
+          }
+          
           return null;
         }
       });
@@ -188,7 +222,6 @@ public class GraphNode {
           this.intersectGroup = true;
         }
       }
-
     }
 
     if (grouperObject instanceof Stem) {
@@ -201,6 +234,22 @@ public class GraphNode {
 
     if (grouperObject instanceof GrouperObjectProvisionerWrapper) {
       this.provisionerTarget = true;
+    }
+
+    if (grouperObject instanceof GrouperObjectDataAttributeWrapper) {
+      this.dataAttribute = true;
+    }
+
+    if (grouperObject instanceof GrouperObjectDataRowWrapper) {
+      this.dataRow = true;
+    }
+
+    if (grouperObject instanceof GrouperObjectCompoundWrapper) {
+      if (((GrouperObjectCompoundWrapper) grouperObject).isCompoundAnd()) {
+        this.compoundAnd = true;
+      } else {
+        this.compoundOr = true;
+      }
     }
   }
   
@@ -240,6 +289,46 @@ public class GraphNode {
         styleObjectType = StyleObjectType.COMPLEMENT_GROUP_IS_MEMBER;
       } else {
         styleObjectType = StyleObjectType.COMPLEMENT_GROUP_IS_NOT_MEMBER;
+      }
+    } else if (abacGroup) {
+      if (this.subjectIsMember == null) {
+        styleObjectType = StyleObjectType.ABAC_GROUP;
+      } else if (this.subjectIsMember) {
+        styleObjectType = StyleObjectType.ABAC_GROUP_IS_MEMBER;
+      } else {
+        styleObjectType = StyleObjectType.ABAC_GROUP_IS_NOT_MEMBER;
+      }
+    } else if (dataAttribute) {
+      if (this.subjectIsMember == null) {
+        styleObjectType = StyleObjectType.DATA_ATTRIBUTE;
+      } else if (this.subjectIsMember) {
+        styleObjectType = StyleObjectType.DATA_ATTRIBUTE_IS_MEMBER;
+      } else {
+        styleObjectType = StyleObjectType.DATA_ATTRIBUTE_IS_NOT_MEMBER;
+      }
+    } else if (dataRow) {
+      if (this.subjectIsMember == null) {
+        styleObjectType = StyleObjectType.DATA_ROW;
+      } else if (this.subjectIsMember) {
+        styleObjectType = StyleObjectType.DATA_ROW_IS_MEMBER;
+      } else {
+        styleObjectType = StyleObjectType.DATA_ROW_IS_NOT_MEMBER;
+      }
+    } else if (compoundOr) {
+      if (this.subjectIsMember == null) {
+        styleObjectType = StyleObjectType.COMPOUND_OR;
+      } else if (this.subjectIsMember) {
+        styleObjectType = StyleObjectType.COMPOUND_OR_IS_MEMBER;
+      } else {
+        styleObjectType = StyleObjectType.COMPOUND_OR_IS_NOT_MEMBER;
+      }
+    } else if (compoundAnd) {
+      if (this.subjectIsMember == null) {
+        styleObjectType = StyleObjectType.COMPOUND_AND;
+      } else if (this.subjectIsMember) {
+        styleObjectType = StyleObjectType.COMPOUND_AND_IS_MEMBER;
+      } else {
+        styleObjectType = StyleObjectType.COMPOUND_AND_IS_NOT_MEMBER;
       }
     } else if (group) {
       if (this.subjectIsMember == null) {
@@ -294,6 +383,25 @@ public class GraphNode {
    */
   public long getDirectMemberCount() {
     return directMemberCount;
+  }
+
+  /**
+   * The ABAC population count for this node, if applicable.
+   * Null if not an ABAC reference or if counts were not computed.
+   *
+   * @return the population count, or null
+   */
+  public Long getPopulationCount() {
+    return populationCount;
+  }
+
+  /**
+   * Sets the ABAC population count for this node.
+   *
+   * @param populationCount the population count
+   */
+  public void setPopulationCount(Long populationCount) {
+    this.populationCount = populationCount;
   }
 
   /**
@@ -512,6 +620,42 @@ public class GraphNode {
   }
 
   /**
+   * True if the underlying Grouper object is a group with a JEXL/ABAC scripted membership definition
+   *
+   * @return whether the Grouper object is an ABAC group
+   */
+  public boolean isAbacGroup() {
+    return abacGroup;
+  }
+
+  /**
+   * True if the underlying Grouper object is a {@link GrouperObjectDataAttributeWrapper}
+   *
+   * @return whether the Grouper object is a data attribute pseudo-object
+   */
+  public boolean isDataAttribute() {
+    return dataAttribute;
+  }
+
+  /**
+   * True if the underlying Grouper object is a {@link GrouperObjectDataRowWrapper}
+   *
+   * @return whether the Grouper object is a data row pseudo-object
+   */
+  public boolean isDataRow() {
+    return dataRow;
+  }
+
+  /**
+   * True if the underlying Grouper object is a {@link GrouperObjectCompoundWrapper}
+   *
+   * @return whether the Grouper object is a compound OR/AND pseudo-object
+   */
+  public boolean isCompoundOr() {
+    return compoundOr;
+  }
+
+  /**
    * True if this is the starting node. Set by the caller
    *
    * @return whether this is the starting node
@@ -582,6 +726,10 @@ public class GraphNode {
    */
   public void setSubjectIsMember(Boolean subjectIsMember) {
     this.subjectIsMember = subjectIsMember;
+  }
+  
+  public String getAbacScript() {
+    return abacScript;
   }
 
   public String toString() {

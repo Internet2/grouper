@@ -31,12 +31,29 @@ public enum StyleObjectType {
   COMPLEMENT_GROUP("complement_group"), INTERSECT_GROUP("intersect_group"),
   COMPLEMENT_GROUP_IS_MEMBER("complement_group_is_member"), INTERSECT_GROUP_IS_MEMBER("intersect_group_is_member"),
   COMPLEMENT_GROUP_IS_NOT_MEMBER("complement_group_is_not_member"), INTERSECT_GROUP_IS_NOT_MEMBER("intersect_group_is_not_member"),
+  ABAC_GROUP("abac_group"),
+  ABAC_GROUP_IS_MEMBER("abac_group_is_member"),
+  ABAC_GROUP_IS_NOT_MEMBER("abac_group_is_not_member"),
+  DATA_ATTRIBUTE("data_attribute"),
+  DATA_ATTRIBUTE_IS_MEMBER("data_attribute_is_member"),
+  DATA_ATTRIBUTE_IS_NOT_MEMBER("data_attribute_is_not_member"),
+  DATA_ROW("data_row"),
+  DATA_ROW_IS_MEMBER("data_row_is_member"),
+  DATA_ROW_IS_NOT_MEMBER("data_row_is_not_member"),
+  COMPOUND_OR("compound_or"),
+  COMPOUND_OR_IS_MEMBER("compound_or_is_member"),
+  COMPOUND_OR_IS_NOT_MEMBER("compound_or_is_not_member"),
+  COMPOUND_AND("compound_and"),
+  COMPOUND_AND_IS_MEMBER("compound_and_is_member"),
+  COMPOUND_AND_IS_NOT_MEMBER("compound_and_is_not_member"),
   SUBJECT("subject"), START_SUBJECT("start_subject"),
   PROVISIONER("provisioner"),
   EDGE("edge"), EDGE_FROM_LOADER("edge_loader"), EDGE_TO_PROVISIONER("edge_provisioner"),
   EDGE_FROM_STEM("edge_stem"), EDGE_MEMBERSHIP("edge_membership"),
   EDGE_COMPLEMENT_LEFT("edge_complement_left"), EDGE_COMPLEMENT_RIGHT("edge_complement_right"),
-  EDGE_INTERSECT_LEFT("edge_intersect_left"), EDGE_INTERSECT_RIGHT("edge_intersect_right");
+  EDGE_INTERSECT_LEFT("edge_intersect_left"), EDGE_INTERSECT_RIGHT("edge_intersect_right"),
+  EDGE_ABAC_AND("edge_abac_and"), EDGE_ABAC_AND_NOT("edge_abac_and_not"),
+  EDGE_ABAC_OR("edge_abac_or"), EDGE_ABAC_OR_NOT("edge_abac_or_not");
 
   private String name;
 
