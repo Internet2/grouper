@@ -212,6 +212,7 @@ public class UiV2Visualization {
     private String linkType;
     private long allMemberCount = 0;
     private long directMemberCount = 0;
+    private Long populationCount = null;
     private List<String> objectTypes;
     private String compositeLeftFactorId;
     private String compositeRightFactorId;
@@ -277,6 +278,14 @@ public class UiV2Visualization {
 
     public long getDirectMemberCount() {
       return directMemberCount;
+    }
+
+    public Long getPopulationCount() {
+      return populationCount;
+    }
+
+    protected void setPopulationCount(Long populationCount) {
+      this.populationCount = populationCount;
     }
 
     public String getCompositeLeftFactorId() {
@@ -835,6 +844,10 @@ public class UiV2Visualization {
 
       addCustomTypeTags(node, graphNode);
 
+      if (graphNode.getPopulationCount() != null) {
+        node.setPopulationCount(graphNode.getPopulationCount());
+      }
+
       if (compositeLeftFactors.containsKey(graphNode)) {
         node.setCompositeLeftFactorId(compositeLeftFactors.get(graphNode));
       }
@@ -875,6 +888,11 @@ public class UiV2Visualization {
     // to detect which ones are actually being used
     for (String styleName: new String[]{"group", "edge_complement_left", "edge_complement_right", "edge_intersect_left",
             "edge_intersect_right", "simple_loader_group", "loader_group", "edge_loader", "start_group", "intersect_group", "complement_group",
+            "abac_group", "edge_abac_and", "edge_abac_and_not", "edge_abac_or", "edge_abac_or_not",
+            "data_attribute", "data_attribute_is_member", "data_attribute_is_not_member",
+            "data_row", "data_row_is_member", "data_row_is_not_member",
+            "compound_or", "compound_or_is_member", "compound_or_is_not_member",
+            "compound_and", "compound_and_is_member", "compound_and_is_not_member",
             "group_is_not_member", "group_is_member"}) {
       for (String propertyName: new String[]{"shape", "style", "nodestyle", "color", "fontcolor", "border", "arrowtail",
               "dir", "headlabel", "labeldistance", "fillcolor"}) {
@@ -946,6 +964,10 @@ public class UiV2Visualization {
         indent);
 
       addCustomTypeTags(node, graphNode);
+
+      if (graphNode.getPopulationCount() != null) {
+        node.setPopulationCount(graphNode.getPopulationCount());
+      }
 
       styleTypes.add(graphNode.getStyleObjectType());
 

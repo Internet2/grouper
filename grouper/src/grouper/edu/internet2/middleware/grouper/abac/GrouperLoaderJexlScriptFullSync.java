@@ -126,7 +126,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       Subject subject = SubjectFinder.findById("test.subject.1", true);
       
       //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('penn:ref:mfaEnrolled')", subject, grouperSession.getSubject()));
-      System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "'penn:ref:mfaEnrolled' && 'penn:ref:mfaEnrolled2'", subject, grouperSession.getSubject(), false));
+      System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "'penn:ref:mfaEnrolled' && 'penn:ref:mfaEnrolled2'", subject, grouperSession.getSubject(), false, null, false));
 
       
       
@@ -245,7 +245,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
    */
   public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript,
       Subject subject, Subject loggedInSubject, boolean readOnly) {
-    return analyzeJexlScriptHtml(grouperDataEngine, jexlScript, subject, loggedInSubject, readOnly, null);
+    return analyzeJexlScriptHtml(grouperDataEngine, jexlScript, subject, loggedInSubject, readOnly, null, false);
   }
 
   /**
@@ -256,10 +256,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
    * @param loggedInSubject
    * @param readOnly - true if only analyzing; false if about to save the script
    * @param effectiveSourceIds - the effective subject source IDs to use for the count query, or null for global defaults
+   * @param buildVisualization - true if this is being called to build visualization
    * @return
    */
   public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript,
-      Subject subject, Subject loggedInSubject, boolean readOnly, Set<String> effectiveSourceIds) {
+      Subject subject, Subject loggedInSubject, boolean readOnly, Set<String> effectiveSourceIds, boolean buildVisualization) {
     
     Member member = subject != null ? MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true): null;
     
@@ -526,6 +527,17 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         }
       }
     }
+    
+    if (buildVisualization) {
+      // Build visualization tree after population counts are computed
+      try {
+        grouperJexlScriptAnalysis.setVisualizationReferences(
+            buildVisualizationTreeFromParts(grouperJexlScriptAnalysis.getGrouperJexlScriptParts()));
+      } catch (Exception e) {
+        LOG.warn("Error building visualization references: " + e.getMessage(), e);
+        grouperJexlScriptAnalysis.setVisualizationReferences(new ArrayList<AbacReference>());
+      }
+    }
 
     return grouperJexlScriptAnalysis;
   }
@@ -557,9 +569,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = new GrouperJexlScriptAnalysis();
     grouperJexlScriptAnalysis.setGrouperDataEngine(grouperDataEngine);
     GrouperJexlScriptPart grouperJexlScriptPart = new GrouperJexlScriptPart();
+    grouperJexlScriptPart.setPartRole(GrouperJexlScriptPart.PartRole.FULL_EXPRESSION);
     grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPart);
-    
+
     analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, astJexlScript, true);
+
     for (GrouperJexlScriptPart currentGrouperJexlScriptPart : grouperJexlScriptAnalysis.getGrouperJexlScriptParts()) {
       if (currentGrouperJexlScriptPart.getDisplayDescription().length() > 0) {
         currentGrouperJexlScriptPart.getDisplayDescription().setCharAt(0, Character.toUpperCase(currentGrouperJexlScriptPart.getDisplayDescription().charAt(0)));
@@ -568,7 +582,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     return grouperJexlScriptAnalysis;
   }
 
-  public static void analyzeJexlScriptToSqlHelper(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, 
+  public static void analyzeJexlScriptToSqlHelper(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis,
       GrouperJexlScriptPart theGrouperJexlScriptPart, JexlNode jexlNode, boolean clonePart) {
     GrouperJexlScriptPart grouperJexlScriptPartClone = null;
     if (jexlNode instanceof ASTJexlScript && 1==jexlNode.jjtGetNumChildren()) {
@@ -587,7 +601,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       }
       throw new RuntimeException("Not expecting literal: '" + literal + "'");
     }
-    
+
     if (jexlNode instanceof ASTReferenceExpression && 1==jexlNode.jjtGetNumChildren()) {
       theGrouperJexlScriptPart.getWhereClause().append("(");
       theGrouperJexlScriptPart.getDisplayDescription().append("(");
@@ -604,9 +618,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     } else if (jexlNode instanceof ASTNotNode && 1==jexlNode.jjtGetNumChildren()) {
       theGrouperJexlScriptPart.getWhereClause().append(" not ");
       theGrouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisNot")).append(" ");
+      theGrouperJexlScriptPart.setNegated(true);
       analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(0), clonePart);
       if (clonePart) {
         grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+        grouperJexlScriptPartClone.setPartRole(GrouperJexlScriptPart.PartRole.NOT_POSITIVE);
         grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
         analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, jexlNode.jjtGetChild(0), false);
       }
@@ -619,13 +635,14 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(j), clonePart);
         if (clonePart) {
           grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+          grouperJexlScriptPartClone.setPartRole(GrouperJexlScriptPart.PartRole.AND_CHILD);
           grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
           analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, jexlNode.jjtGetChild(j), false);
         }
       }
       return;
     } else if (jexlNode instanceof ASTOrNode) {
-      
+
       for (int j=0;j<jexlNode.jjtGetNumChildren(); j++) {
         if (j>0) {
           theGrouperJexlScriptPart.getWhereClause().append(" or ");
@@ -634,6 +651,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(j), clonePart);
         if (clonePart) {
           grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+          grouperJexlScriptPartClone.setPartRole(GrouperJexlScriptPart.PartRole.OR_CHILD);
           grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
           analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, jexlNode.jjtGetChild(j), false);
         }
@@ -642,7 +660,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     } else {
       throw new RuntimeException("Not expecting node type: " + jexlNode.getClass().getName() + ", children: " + jexlNode.jjtGetNumChildren());
     }
-    
+
   }
 
   /**
@@ -744,8 +762,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         JexlNode jjtGetChild = astArrayLiteral.jjtGetChild(i);
         
         GrouperJexlScriptPart grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+        grouperJexlScriptPartClone.setPartRole(GrouperJexlScriptPart.PartRole.HAS_ATTRIBUTE_ANY_DETAIL);
         grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
-        
+
         grouperJexlScriptPartClone.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
             + "and gdfa.member_internal_id = gm.internal_id and gdfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPartClone.getArguments().size()+1) + "$$ = ?) ");
         grouperJexlScriptPartClone.getArguments().add(new MultiKey("attribute", attributeAlias));
@@ -2657,6 +2676,185 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         return null;
       }
     });
+  }
+
+  /**
+   * Builds the visualization reference tree from the annotated analysis parts.
+   * Each part has a PartRole set during the analyzeJexlScriptToSqlHelper walk.
+   * This avoids any duplicate JEXL AST parsing.
+   *
+   * The algorithm:
+   * - Only process OR_CHILD and AND_CHILD parts; skip all others
+   * - Buffer consecutive OR_CHILD parts
+   * - On AND_CHILD: if OR buffer non-empty, create compound OR with buffered children; else create leaf
+   * - At end: remaining OR_CHILD buffer becomes top-level leaves (pure OR expression)
+   *
+   * @param parts the annotated analysis parts
+   * @return list of AbacReference objects forming the visualization tree
+   */
+  static List<AbacReference> buildVisualizationTreeFromParts(List<GrouperJexlScriptPart> parts) {
+    List<AbacReference> result = new ArrayList<AbacReference>();
+    List<AbacReference> orBuffer = new ArrayList<AbacReference>();
+
+    for (int i = 0; i < parts.size(); i++) {
+      GrouperJexlScriptPart part = parts.get(i);
+      GrouperJexlScriptPart.PartRole role = part.getPartRole();
+
+      if (role == GrouperJexlScriptPart.PartRole.OR_CHILD) {
+        AbacReference orLeaf = createAbacReferenceFromPart(part, AbacReference.Connective.OR);
+        if (orLeaf != null) {
+          orBuffer.add(orLeaf);
+        }
+        continue;
+      }
+
+      if (role == GrouperJexlScriptPart.PartRole.AND_CHILD) {
+        if (!orBuffer.isEmpty()) {
+          // This AND_CHILD is the compound summary for the preceding OR children
+          AbacReference compound = new AbacReference(AbacReference.Connective.OR, part.isNegated(), AbacReference.Connective.AND);
+          for (AbacReference orChild : orBuffer) {
+            compound.addChild(orChild);
+          }
+          compound.setPopulationCount(part.getPopulationCount());
+          compound.setContainsSubject(part.isContainsSubject());
+          String desc = part.getDisplayDescription().toString().trim();
+          if (desc.length() > 0) {
+            compound.setDisplayDescription(desc);
+          }
+          result.add(compound);
+          orBuffer.clear();
+        } else {
+          AbacReference leaf = createAbacReferenceFromPart(part, AbacReference.Connective.AND);
+          if (leaf != null) {
+            result.add(leaf);
+          }
+        }
+      }
+    }
+
+    // Remaining OR buffer = top-level pure OR expression
+    if (!orBuffer.isEmpty()) {
+      for (AbacReference orChild : orBuffer) {
+        result.add(orChild);
+      }
+      orBuffer.clear();
+    }
+
+    // Single expression with no AND/OR: create a leaf from part 0
+    if (result.isEmpty() && !parts.isEmpty()
+        && parts.get(0).getPartRole() == GrouperJexlScriptPart.PartRole.FULL_EXPRESSION) {
+      AbacReference leaf = createAbacReferenceFromPart(parts.get(0), AbacReference.Connective.AND);
+      if (leaf != null) {
+        result.add(leaf);
+      }
+    }
+
+    // Handle outer NOT wrapping a compound: !(A && B) or !(A || B).
+    // Part 0 (FULL_EXPRESSION) is negated but none of the individual children are,
+    // meaning the NOT wraps the whole compound, not individual parts.
+    // Wrap the children in a single negated compound node to preserve the correct semantics.
+    if (result.size() > 1 && !parts.isEmpty()
+        && parts.get(0).getPartRole() == GrouperJexlScriptPart.PartRole.FULL_EXPRESSION
+        && parts.get(0).isNegated()) {
+      boolean anyChildNegated = false;
+      for (AbacReference ref : result) {
+        if (ref.isNegated()) {
+          anyChildNegated = true;
+          break;
+        }
+      }
+      if (!anyChildNegated) {
+        // Determine compound type from the children's connective
+        AbacReference.Connective compoundConnective = result.get(0).getConnective();
+        // negated=true to show red minus edge, matching the convention for negated leaves like !entity.memberOfAny(...)
+        AbacReference compound = new AbacReference(compoundConnective, true, AbacReference.Connective.AND);
+        String desc = parts.get(0).getDisplayDescription().toString().trim();
+        if (desc.length() > 0) {
+          compound.setDisplayDescription(desc);
+        }
+        compound.setPopulationCount(parts.get(0).getPopulationCount());
+        compound.setContainsSubject(parts.get(0).isContainsSubject());
+        for (AbacReference child : result) {
+          compound.addChild(child);
+        }
+        result.clear();
+        result.add(compound);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Creates an AbacReference leaf from an analysis part by inspecting its arguments.
+   *
+   * @param part the analysis part
+   * @param connective the connective context (AND or OR)
+   * @return the AbacReference, or null if the part has no recognizable arguments
+   */
+  private static AbacReference createAbacReferenceFromPart(GrouperJexlScriptPart part, AbacReference.Connective connective) {
+    List<MultiKey> arguments = part.getArguments();
+    if (arguments == null || arguments.isEmpty()) {
+      return null;
+    }
+
+    String firstArgType = (String) arguments.get(0).getKey(0);
+    String desc = part.getDisplayDescription().toString().trim();
+
+    if ("group".equals(firstArgType)) {
+      // Count how many group arguments there are
+      List<String> groupNames = new ArrayList<String>();
+      for (MultiKey arg : arguments) {
+        if ("group".equals(arg.getKey(0)) && "members".equals(arg.getKey(1))) {
+          groupNames.add((String) arg.getKey(2));
+        }
+      }
+
+      AbacReference ref;
+      if (groupNames.size() > 1) {
+        // memberOfAny: use first group name as the node name, value holds display description
+        ref = new AbacReference(AbacReference.RefType.GROUP, groupNames.get(0),
+            desc.length() > 0 ? desc : null, part.isNegated(), connective);
+      } else if (groupNames.size() == 1) {
+        ref = new AbacReference(AbacReference.RefType.GROUP, groupNames.get(0), null, part.isNegated(), connective);
+      } else {
+        return null;
+      }
+      ref.setPopulationCount(part.getPopulationCount());
+      ref.setContainsSubject(part.isContainsSubject());
+      if (desc.length() > 0) {
+        ref.setDisplayDescription(desc);
+      }
+      return ref;
+    } else if ("attribute".equals(firstArgType)) {
+      String attributeAlias = (String) arguments.get(0).getKey(1);
+      // Collect attribute values for display
+      String value = null;
+      for (MultiKey arg : arguments) {
+        if ("attributeValue".equals(arg.getKey(0))) {
+          value = String.valueOf(arg.getKey(1));
+          break;
+        }
+      }
+      AbacReference ref = new AbacReference(AbacReference.RefType.ATTRIBUTE, attributeAlias, value, part.isNegated(), connective);
+      ref.setPopulationCount(part.getPopulationCount());
+      ref.setContainsSubject(part.isContainsSubject());
+      if (desc.length() > 0) {
+        ref.setDisplayDescription(desc);
+      }
+      return ref;
+    } else if ("row".equals(firstArgType)) {
+      String rowAlias = (String) arguments.get(0).getKey(1);
+      AbacReference ref = new AbacReference(AbacReference.RefType.ROW, rowAlias, null, part.isNegated(), connective);
+      ref.setPopulationCount(part.getPopulationCount());
+      ref.setContainsSubject(part.isContainsSubject());
+      if (desc.length() > 0) {
+        ref.setDisplayDescription(desc);
+      }
+      return ref;
+    }
+
+    return null;
   }
 
   /** logger */

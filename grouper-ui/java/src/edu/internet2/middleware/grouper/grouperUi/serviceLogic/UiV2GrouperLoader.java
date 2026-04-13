@@ -1213,7 +1213,7 @@ public class UiV2GrouperLoader {
           if (saveSourceIds == null || saveSourceIds.isEmpty()) {
             saveSourceIds = GrouperAbac.globalDefaultSubjectSourceIds();
           }
-          GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), null, loggedInSubject, false, saveSourceIds);
+          GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), null, loggedInSubject, false, saveSourceIds, false);
           if (jexlScriptAnalysis != null && 
               (StringUtils.isNotBlank(jexlScriptAnalysis.getErrorMessage()) || StringUtils.isNotBlank(jexlScriptAnalysis.getWarningMessage()))) {
             throw new RuntimeException("not allowed");
@@ -1999,7 +1999,7 @@ public class UiV2GrouperLoader {
         analyzeSourceIds = GrouperAbac.globalDefaultSubjectSourceIds();
       }
 
-      GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderJexlScript, subject, loggedInSubject, true, analyzeSourceIds);
+      GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderJexlScript, subject, loggedInSubject, true, analyzeSourceIds, false);
 
       GuiSubject guiSubject = subject != null ? new GuiSubject(subject): null;
 

@@ -58,10 +58,18 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.abac.AbacReference;
+import edu.internet2.middleware.grouper.abac.GrouperAbac;
+import edu.internet2.middleware.grouper.abac.GrouperJexlScriptAnalysis;
+import edu.internet2.middleware.grouper.abac.GrouperLoaderJexlScriptFullSync;
+import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -99,6 +107,7 @@ public class RelationGraph {
   private static AttributeDefName provisionToPspngAttributeDefName;
   private static String loaderGroupIdAttrDefNameId;
   private static AttributeDefName sqlLoaderAttributeDefName; // used by graph nodes to determine if loader job
+  private static AttributeDefName abacAttributeDefName; // used by graph nodes to determine if ABAC/jexl scripted group
   private static Set<Source> nonGroupSourcesCache = null;
   private static String objectTypeAttributeId = null;
   private static String objectTypeAttributeValueId = null;
@@ -1094,6 +1103,72 @@ public class RelationGraph {
           LOG.debug("Failed to find left composite factor of group " + theGroup.getName() + "; maybe no privileges?");
         }
       }
+
+      // Show groups, data attributes, and data rows referenced by ABAC/jexl script (only for the start group)
+      if (fromNode.isAbacGroup() && fromNode.isStartNode()) {
+        try {
+          if (!StringUtils.isEmpty(fromNode.getAbacScript())) {
+            // Single analysis call gets both tree structure and population counts
+            GrouperJexlScriptAnalysis analysis = runAbacAnalysis(fromNode.getAbacScript());
+            List<AbacReference> references = analysis != null && analysis.getVisualizationReferences() != null
+                ? analysis.getVisualizationReferences() : new ArrayList<AbacReference>();
+
+            for (AbacReference ref : references) {
+              if (ref.getRefType() == AbacReference.RefType.COMPOUND) {
+                // Create a compound pseudo-node and add edges from it to its children
+                boolean isCompoundAnd = "and".equals(ref.getName());
+                GrouperObjectCompoundWrapper compoundWrapper = new GrouperObjectCompoundWrapper(
+                    ref.computeId(), ref.computeDisplayLabel(), isCompoundAnd);
+                GraphNode compoundNode = fetchOrCreateNode(compoundWrapper);
+                if (ref.getPopulationCount() >= 0) {
+                  compoundNode.setPopulationCount((long) ref.getPopulationCount());
+                }
+                if (subjectForIsMemberCheck != null) {
+                  compoundNode.setSubjectIsMember(ref.isContainsSubject());
+                }
+                nodesToVisit.add(compoundNode);
+                compositeStyleTypes.put(compoundNode, determineAbacEdgeStyle(ref));
+
+                // Add child nodes under the compound
+                if (ref.getChildren() != null) {
+                  for (AbacReference childRef : ref.getChildren()) {
+                    GraphNode childNode = createAbacLeafNode(childRef, theGroup);
+                    if (childNode != null) {
+                      if (childRef.getPopulationCount() >= 0) {
+                        childNode.setPopulationCount((long) childRef.getPopulationCount());
+                      }
+                      if (subjectForIsMemberCheck != null) {
+                        childNode.setSubjectIsMember(childRef.isContainsSubject());
+                      }
+                      GraphEdge childEdge = new GraphEdge(compoundNode, childNode, determineAbacEdgeStyle(childRef));
+                      if (!edges.contains(childEdge)) {
+                        edges.add(childEdge);
+                        childNode.setDistanceFromStartNode(level + 1);
+                        visitNode(childNode, level + 1, false, isRecursive);
+                      }
+                    }
+                  }
+                }
+              } else {
+                // Simple leaf reference - direct child of ABAC group
+                GraphNode refNode = createAbacLeafNode(ref, theGroup);
+                if (refNode != null) {
+                  if (ref.getPopulationCount() >= 0) {
+                    refNode.setPopulationCount((long) ref.getPopulationCount());
+                  }
+                  if (subjectForIsMemberCheck != null) {
+                    refNode.setSubjectIsMember(ref.isContainsSubject());
+                  }
+                  nodesToVisit.add(refNode);
+                  compositeStyleTypes.put(refNode, determineAbacEdgeStyle(ref));
+                }
+              }
+            }
+          }
+        } catch (Exception e) {
+          LOG.warn("Error processing ABAC script for group " + theGroup.getName() + " during visualization", e);
+        }
+      }
     }
 
     boolean didAddEdges = false;
@@ -1507,6 +1582,13 @@ public class RelationGraph {
     }
 
     try {
+      abacAttributeDefName = AttributeDefNameFinder.findByNameAsRoot(
+          GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, false);
+    } catch (Exception e) {
+      LOG.info("Unable to retrieve ABAC jexl script marker attribute; ABAC groups will not be detected in visualization", e);
+    }
+
+    try {
       // get the attribute IDs
       // note, there is a helper function for the marker but not the metadata
       AttributeDefName typeMarkerAttributeDefName = GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase();
@@ -1538,5 +1620,92 @@ public class RelationGraph {
     }
     return sqlLoaderAttributeDefName;
   }
+
+  /**
+   * should be only useful for {@link GraphNode} nodes needing the ABAC/jexl script marker attribute
+   * within the context of the user session
+   *
+   * @return the ABAC jexl script marker attribute def name, or null if not found
+   */
+  public static AttributeDefName getAbacAttributeDefName() {
+    if (!attemptedInitLookupFields) {
+      initLookupFields();
+    }
+    return abacAttributeDefName;
+  }
+
+  /**
+   * Creates a graph node for a leaf ABAC reference (group, attribute, or row).
+   *
+   * @param ref the leaf reference
+   * @param theGroup the ABAC group (for logging)
+   * @return the graph node, or null if the reference could not be resolved
+   */
+  private GraphNode createAbacLeafNode(AbacReference ref, Group theGroup) {
+    if (ref.getRefType() == AbacReference.RefType.GROUP) {
+      if (ref.getValue() != null) {
+        // memberOfAny: multiple groups as a single leaf pseudo-node
+        GrouperObjectDataAttributeWrapper wrapper = new GrouperObjectDataAttributeWrapper(
+            ref.computeId(), ref.computeDisplayLabel());
+        return fetchOrCreateNode(wrapper);
+      }
+      try {
+        Group referencedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), ref.getName(), false);
+        if (referencedGroup != null && !matchesFilter(referencedGroup)) {
+          return fetchOrCreateNode(referencedGroup);
+        }
+      } catch (Exception e) {
+        LOG.debug("Failed to find ABAC referenced group " + ref.getName() + " for group " + theGroup.getName());
+      }
+    } else if (ref.getRefType() == AbacReference.RefType.ATTRIBUTE) {
+      GrouperObjectDataAttributeWrapper wrapper = new GrouperObjectDataAttributeWrapper(
+          ref.computeId(), ref.computeDisplayLabel());
+      return fetchOrCreateNode(wrapper);
+    } else if (ref.getRefType() == AbacReference.RefType.ROW) {
+      GrouperObjectDataRowWrapper wrapper = new GrouperObjectDataRowWrapper(
+          ref.computeId(), ref.computeDisplayLabel());
+      return fetchOrCreateNode(wrapper);
+    }
+    return null;
+  }
+
+  /**
+   * Runs the ABAC analysis on a script using a root session. Returns the analysis result
+   * which contains both the flat parts list (with population counts and descriptions) and
+   * the visualization reference tree (built from the same parsed AST).
+   *
+   * @param script the JEXL script
+   * @return the analysis, or null if an error occurred
+   */
+  private GrouperJexlScriptAnalysis runAbacAnalysis(String script) {
+    try {
+      GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+      grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+      GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, script, subjectForIsMemberCheck, GrouperSession.staticGrouperSession().getSubject(), true, null, true);
+
+      if (analysis != null && analysis.getErrorMessage() != null) {
+        LOG.warn("ABAC analysis returned error: " + analysis.getErrorMessage());
+      }
+      return analysis;
+    } catch (Exception e) {
+      LOG.warn("Error in root session for ABAC analysis: " + e.getMessage());
+      return null;
+    }
+  }
+
+  /**
+   * Determines the appropriate edge StyleObjectType for an ABAC reference based on
+   * its connective context (AND/OR) and negation state.
+   */
+  private static StyleObjectType determineAbacEdgeStyle(AbacReference ref) {
+    if (ref.getConnective() == AbacReference.Connective.OR) {
+      return ref.isNegated() ? StyleObjectType.EDGE_ABAC_OR_NOT : StyleObjectType.EDGE_ABAC_OR;
+    } else {
+      return ref.isNegated() ? StyleObjectType.EDGE_ABAC_AND_NOT : StyleObjectType.EDGE_ABAC_AND;
+    }
+  }
+
+
 
 }
