@@ -299,6 +299,12 @@ public class ChangeLogTempToEntity {
     final boolean includeNonFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeNonFlattenedMemberships", false);
     final boolean includeNonFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeNonFlattenedPrivileges", false);
     final int tooManyChangeLogUpdatesSize = GrouperLoaderConfig.retrieveConfig().propertyValueIntRequired("changeLog.tooManyChangeLogUpdatesSize");
+
+    // GRP-XXXX: Max batch size for pass-through change log entries (e.g. ABAC data entries) that have
+    // no per-row processing (no PIT updates, no cache sync, no flattening). Consecutive pass-through
+    // entries are accumulated and saved in a single batch for better performance.
+    final int passThroughBatchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
+        "changeLog.changeLogTempToChangeLog.passThroughBatchSize", 1000);
     
     ChangeLogEntry.clearNextSequenceNumberCache();
         
@@ -321,18 +327,32 @@ public class ChangeLogTempToEntity {
                 throws GrouperDAOException {
                   
               List<ChangeLogEntry> tempChangeLogEntryListProcessed = new ArrayList<ChangeLogEntry>();
-              
+
               List<ChangeLogEntry> changeLogEntriesToSave = new ArrayList<ChangeLogEntry>();
-  
+
+              // GRP-XXXX: Accumulator for pass-through change log entries (entries that don't match any
+              // specific processing type, e.g. ABAC data entries). These are batched together for
+              // better performance since they have no per-row Java processing (no PIT, no cache sync).
+              List<ChangeLogEntry> passThroughBatch = new ArrayList<ChangeLogEntry>();
+
               for (int i = 0; i < tempChangeLogEntryList.size(); i++) {
                 GrouperDaemonUtils.stopProcessingIfJobPaused();
 
                 ChangeLogEntry CHANGE_LOG_ENTRY = tempChangeLogEntryList.get(i);
+
+                // Track whether this entry has specific processing (PIT, flattening, etc.)
+                // or is a pass-through that can be batched
+                boolean isPassThrough = false;
+
                 List<ChangeLogEntry> currentTempChangeLogEntriesBatch = new ArrayList<ChangeLogEntry>();
                 currentTempChangeLogEntriesBatch.add(CHANGE_LOG_ENTRY);
-                
+
                 if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {
-                  
+
+                  // Flush any accumulated pass-through entries before processing a specific type
+                  // to maintain correct ordering in the change log
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
+
                   for (int j = i + 1; j < tempChangeLogEntryList.size(); j++) {
                     ChangeLogEntry NEXT_CHANGE_LOG_ENTRY = tempChangeLogEntryList.get(j);
                     if (NEXT_CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {
@@ -342,11 +362,13 @@ public class ChangeLogTempToEntity {
                       break;
                     }
                   }
-                  
+
                   int numberProcessed = ChangeLogTempToEntity.processMembershipAdd(currentTempChangeLogEntriesBatch, changeLogEntriesToSave);
                   currentTempChangeLogEntriesBatch.subList(numberProcessed, currentTempChangeLogEntriesBatch.size()).clear();
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
-  
+
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
+
                   for (int j = i + 1; j < tempChangeLogEntryList.size(); j++) {
                     ChangeLogEntry NEXT_CHANGE_LOG_ENTRY = tempChangeLogEntryList.get(j);
                     if (NEXT_CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
@@ -356,119 +378,176 @@ public class ChangeLogTempToEntity {
                       break;
                     }
                   }
-                  
+
                   int numberProcessed = ChangeLogTempToEntity.processMembershipDelete(currentTempChangeLogEntriesBatch, changeLogEntriesToSave);
                   currentTempChangeLogEntriesBatch.subList(numberProcessed, currentTempChangeLogEntriesBatch.size()).clear();
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD)
                     || CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processGroupAdd(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_UPDATE)
                     || CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_UPDATE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processGroupUpdate(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE)
                     || CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processGroupDelete(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processStemAdd(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_UPDATE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processStemUpdate(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processStemDelete(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeDefAdd(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_UPDATE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeDefUpdate(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeDefDelete(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processFieldAdd(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_UPDATE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processFieldUpdate(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processFieldDelete(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_ASSIGN)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processGroupTypeAssign(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_UNASSIGN)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processGroupTypeUnassign(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processMemberAdd(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_UPDATE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processMemberUpdate(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processMemberDelete(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processPrivilegeAdd(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processPrivilegeDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeAssignAdd(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeAssignDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeDefNameAdd(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_UPDATE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeDefNameUpdate(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeDefNameDelete(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeAssignActionAdd(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_UPDATE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeAssignActionUpdate(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeAssignActionDelete(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeAssignActionSetAdd(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeAssignActionSetDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeDefNameSetAdd(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeDefNameSetDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ROLE_SET_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processRoleSetAdd(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ROLE_SET_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processRoleSetDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeAssignValueAdd(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processAttributeAssignValueDelete(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_SET_ADD)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processGroupSetAdd(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_SET_DELETE)) {
+                  flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   ChangeLogTempToEntity.processGroupSetDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
-                }
-                
-                for (ChangeLogEntry currentChangeLogEntry : currentTempChangeLogEntriesBatch) {
-                  if (currentChangeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) ||
-                      currentChangeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
-                    
-                    if (includeNonFlattenedMemberships) {
-                      //insert into the non temp table
-                      currentChangeLogEntry.setTempObject(false);
-                      changeLogEntriesToSave.add(currentChangeLogEntry);
-                    }
-                  } else if (currentChangeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_ADD) ||
-                      currentChangeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_DELETE)) {
-                    
-                    if (includeNonFlattenedPrivileges) {
-                      //insert into the non temp table
-                      currentChangeLogEntry.setTempObject(false);
-                      changeLogEntriesToSave.add(currentChangeLogEntry);
-                    }
-                  } else {
-                    
-                    //insert into the non temp table
-                    currentChangeLogEntry.setTempObject(false);
-                    changeLogEntriesToSave.add(currentChangeLogEntry);
+                } else {
+
+                  // GRP-XXXX: This is a pass-through entry (e.g. ABAC data entries like
+                  // dataRowFieldAssign, dataRowAssign, dataFieldAssign). It has no per-row
+                  // processing, so accumulate it in a batch for better performance.
+                  isPassThrough = true;
+                  CHANGE_LOG_ENTRY.setTempObject(false);
+                  passThroughBatch.add(CHANGE_LOG_ENTRY);
+
+                  // Flush the batch when it reaches the configured max size
+                  if (passThroughBatch.size() >= passThroughBatchSize) {
+                    flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
                   }
                 }
-                
-                tempChangeLogEntryListProcessed.addAll(currentTempChangeLogEntriesBatch);
-                
-                if (changeLogEntriesToSave.size() > tooManyChangeLogUpdatesSize) {
+
+                // For non-pass-through entries, handle the save to entity table and track as processed.
+                // Pass-through entries are handled by the batch flush above.
+                if (!isPassThrough) {
+                  for (ChangeLogEntry currentChangeLogEntry : currentTempChangeLogEntriesBatch) {
+                    if (currentChangeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) ||
+                        currentChangeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
+
+                      if (includeNonFlattenedMemberships) {
+                        //insert into the non temp table
+                        currentChangeLogEntry.setTempObject(false);
+                        changeLogEntriesToSave.add(currentChangeLogEntry);
+                      }
+                    } else if (currentChangeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_ADD) ||
+                        currentChangeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_DELETE)) {
+
+                      if (includeNonFlattenedPrivileges) {
+                        //insert into the non temp table
+                        currentChangeLogEntry.setTempObject(false);
+                        changeLogEntriesToSave.add(currentChangeLogEntry);
+                      }
+                    } else {
+
+                      //insert into the non temp table
+                      currentChangeLogEntry.setTempObject(false);
+                      changeLogEntriesToSave.add(currentChangeLogEntry);
+                    }
+                  }
+
+                  tempChangeLogEntryListProcessed.addAll(currentTempChangeLogEntriesBatch);
+                }
+
+                if (changeLogEntriesToSave.size() + passThroughBatch.size() > tooManyChangeLogUpdatesSize) {
                   break;
                 }
               }
+
+              // Flush any remaining pass-through entries after the loop ends
+              flushPassThroughBatch(passThroughBatch, changeLogEntriesToSave, tempChangeLogEntryListProcessed);
               
               if (changeLogEntriesToSave.size() > 0) {
                 // save to real change log
@@ -538,6 +617,25 @@ public class ChangeLogTempToEntity {
     return count;
   }
   
+  /**
+   * GRP-XXXX: Flush accumulated pass-through change log entries into the save and processed lists.
+   * Pass-through entries are those that don't match any specific processing type (e.g. ABAC data
+   * entries like dataRowFieldAssign). They have no per-row Java processing so they can be
+   * batched together for better performance.
+   * @param passThroughBatch the accumulated entries to flush
+   * @param changeLogEntriesToSave list to add entries to for saving to the entity table
+   * @param tempChangeLogEntryListProcessed list to add entries to for deletion from the temp table
+   */
+  private static void flushPassThroughBatch(List<ChangeLogEntry> passThroughBatch,
+      List<ChangeLogEntry> changeLogEntriesToSave, List<ChangeLogEntry> tempChangeLogEntryListProcessed) {
+    if (passThroughBatch.size() == 0) {
+      return;
+    }
+    changeLogEntriesToSave.addAll(passThroughBatch);
+    tempChangeLogEntryListProcessed.addAll(passThroughBatch);
+    passThroughBatch.clear();
+  }
+
   private static void syncCacheTables(Connection connection, List<ChangeLogEntry> changeLogEntriesToSave) {
     if (changeLogEntriesToSave.size() == 0) {
       return;

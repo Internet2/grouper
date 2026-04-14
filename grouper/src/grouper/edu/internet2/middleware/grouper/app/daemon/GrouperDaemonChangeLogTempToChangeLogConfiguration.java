@@ -12,6 +12,11 @@ public class GrouperDaemonChangeLogTempToChangeLogConfiguration extends GrouperD
     this.extraConfigKeys.add("changeLog.includeNonFlattenedMemberships");
     this.extraConfigKeys.add("changeLog.includeNonFlattenedPrivileges");
     this.extraConfigKeys.add("changeLog.tooManyChangeLogUpdatesSize");
+    this.extraConfigKeys.add("changeLog.changeLogTempToChangeLog.longRunning");
+    this.extraConfigKeys.add("changeLog.changeLogTempToChangeLog.longRunningSleepInBetweenMillis");
+    this.extraConfigKeys.add("changeLog.changeLogTempToChangeLog.longRunningRuntimeSeconds");
+    this.extraConfigKeys.add("changeLog.changeLogTempToChangeLog.longRunningNewLoaderLogIntervalSeconds");
+    this.extraConfigKeys.add("changeLog.changeLogTempToChangeLog.passThroughBatchSize");
 
   }
 
