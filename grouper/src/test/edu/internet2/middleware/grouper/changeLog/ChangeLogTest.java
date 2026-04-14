@@ -11446,12 +11446,175 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(14, newChangeLogCount);
   }
   
+  /**
+   * GRP-XXXX: Test that pass-through change log entries (e.g. ABAC data entries) are batched
+   * correctly during the temp-to-entity conversion. Tests three scenarios:
+   * 1. Batch size 3 with 7 entries (hits the batch limit multiple times)
+   * 2. Interleaved pass-through and non-pass-through entries (verifies ordering and PIT)
+   * 3. Batch size 1 (effectively disables batching, same behavior as before)
+   */
+  public void testPassThroughBatching() throws Exception {
+
+    // Clear any existing change log entries
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    // ======== Scenario 1: Batch size 3, with 7 ABAC entries ========
+
+    // Set batch size to 3 so we exercise the flush-at-limit logic
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
+        "changeLog.changeLogTempToChangeLog.passThroughBatchSize", "3");
+
+    // Insert 7 DATA_ROWFIELD_ASSIGN_ADD temp entries
+    for (int i = 0; i < 7; i++) {
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROWFIELD_ASSIGN_ADD,
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.id.name(), String.valueOf(100 + i),
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataRowInternalId.name(), "1000",
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataRowAssignInternalId.name(), String.valueOf(2000 + i),
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataFieldInternalId.name(), "3000",
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.memberInternalId.name(), "4000",
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.valueOrInternalId.name(), "value_" + i
+      ).save();
+    }
+
+    int tempCount = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_change_log_entry_temp");
+    assertEquals("Should have 7 temp entries", 7, tempCount);
+
+    // Convert and verify
+    ChangeLogTempToEntity.convertRecords();
+
+    tempCount = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_change_log_entry_temp");
+    assertEquals("Temp table should be empty after conversion", 0, tempCount);
+
+    int entityCount = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_change_log_entry");
+    assertEquals("All 7 entries should be in entity table", 7, entityCount);
+
+    // Verify sequence numbers are assigned and in order
+    List<String> sequenceNumberStrings = HibernateSession.bySqlStatic().listSelect(String.class,
+        "select cast(sequence_number as varchar(40)) from grouper_change_log_entry order by sequence_number", null, null);
+    assertEquals(7, sequenceNumberStrings.size());
+    for (int i = 1; i < sequenceNumberStrings.size(); i++) {
+      assertTrue("Sequence numbers should be ascending",
+          Long.parseLong(sequenceNumberStrings.get(i)) > Long.parseLong(sequenceNumberStrings.get(i - 1)));
+    }
+
+    // ======== Scenario 2: Interleaved pass-through and non-pass-through ========
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    // Use a large batch size so all pass-throughs fit in one batch
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
+        "changeLog.changeLogTempToChangeLog.passThroughBatchSize", "1000");
+
+    // Insert 3 ABAC entries, then a GROUP_ADD (which has PIT processing), then 3 more ABAC entries.
+    // The pass-through batch must be flushed before the GROUP_ADD to maintain ordering.
+    for (int i = 0; i < 3; i++) {
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROW_ASSIGN_ADD,
+          ChangeLogLabels.DATA_ROW_ASSIGN_ADD.id.name(), String.valueOf(200 + i),
+          ChangeLogLabels.DATA_ROW_ASSIGN_ADD.dataRowInternalId.name(), "5000",
+          ChangeLogLabels.DATA_ROW_ASSIGN_ADD.memberInternalId.name(), "6000"
+      ).save();
+    }
+
+    // Create a group to trigger a GROUP_ADD change log entry
+    Group testGroup = edu.addChildGroup("testPassThroughGroup", "testPassThroughGroup");
+
+    // Verify the GROUP_ADD temp entry was created
+    int groupAddTempCount = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_change_log_entry_temp where change_log_type_id = '"
+            + ChangeLogTypeBuiltin.GROUP_ADD.getChangeLogType().getId() + "'");
+    assertTrue("Should have at least one GROUP_ADD temp entry", groupAddTempCount > 0);
+
+    // Add 3 more ABAC entries after the GROUP_ADD
+    for (int i = 0; i < 3; i++) {
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_FIELD_ASSIGN_ADD,
+          ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.id.name(), String.valueOf(300 + i),
+          ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.dataFieldInternalId.name(), "7000",
+          ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.memberInternalId.name(), "8000",
+          ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.valueOrInternalId.name(), "val_" + i
+      ).save();
+    }
+
+    tempCount = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_change_log_entry_temp");
+    // 3 DATA_ROW_ASSIGN_ADD + GROUP_ADD (and possibly related entries) + 3 DATA_FIELD_ASSIGN_ADD
+    assertTrue("Should have temp entries", tempCount >= 7);
+
+    ChangeLogTempToEntity.convertRecords();
+
+    tempCount = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_change_log_entry_temp");
+    assertEquals("Temp table should be empty", 0, tempCount);
+
+    entityCount = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_change_log_entry");
+    assertTrue("Should have all entries in entity table", entityCount >= 7);
+
+    // Verify the GROUP_ADD triggered PIT processing (PITGroup should exist)
+    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(testGroup.getUuid(), false);
+    assertNotNull("PIT group should exist for the GROUP_ADD entry", pitGroup);
+
+    // Verify ordering: DATA_ROW_ASSIGN_ADD entries should have lower sequence numbers than GROUP_ADD,
+    // and GROUP_ADD should have lower sequence numbers than DATA_FIELD_ASSIGN_ADD
+    String dataRowAssignAddTypeId = ChangeLogTypeBuiltin.DATA_ROW_ASSIGN_ADD.getChangeLogType().getId();
+    String groupAddTypeId = ChangeLogTypeBuiltin.GROUP_ADD.getChangeLogType().getId();
+    String dataFieldAssignAddTypeId = ChangeLogTypeBuiltin.DATA_FIELD_ASSIGN_ADD.getChangeLogType().getId();
+
+    long maxDataRowSeq = HibernateSession.bySqlStatic().select(int.class,
+        "select max(sequence_number) from grouper_change_log_entry where change_log_type_id = '" + dataRowAssignAddTypeId + "'");
+    long groupAddSeq = HibernateSession.bySqlStatic().select(int.class,
+        "select min(sequence_number) from grouper_change_log_entry where change_log_type_id = '" + groupAddTypeId + "'");
+    long minDataFieldSeq = HibernateSession.bySqlStatic().select(int.class,
+        "select min(sequence_number) from grouper_change_log_entry where change_log_type_id = '" + dataFieldAssignAddTypeId + "'");
+
+    assertTrue("DATA_ROW entries should come before GROUP_ADD", maxDataRowSeq < groupAddSeq);
+    assertTrue("GROUP_ADD should come before DATA_FIELD entries", groupAddSeq < minDataFieldSeq);
+
+    // ======== Scenario 3: Batch size 1 (effectively disabled) ========
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    // Set batch size to 1 to effectively disable batching (each entry flushed individually)
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
+        "changeLog.changeLogTempToChangeLog.passThroughBatchSize", "1");
+
+    for (int i = 0; i < 5; i++) {
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROWFIELD_ASSIGN_DELETE,
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.id.name(), String.valueOf(400 + i),
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.dataRowInternalId.name(), "9000",
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.dataRowAssignInternalId.name(), String.valueOf(9100 + i),
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.dataFieldInternalId.name(), "9200",
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.memberInternalId.name(), "9300",
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.valueOrInternalId.name(), "del_" + i
+      ).save();
+    }
+
+    ChangeLogTempToEntity.convertRecords();
+
+    tempCount = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_change_log_entry_temp");
+    assertEquals("Temp table should be empty", 0, tempCount);
+
+    entityCount = HibernateSession.bySqlStatic().select(int.class,
+        "select count(1) from grouper_change_log_entry");
+    assertEquals("All 5 entries should be in entity table", 5, entityCount);
+
+    // Clean up config override
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove(
+        "changeLog.changeLogTempToChangeLog.passThroughBatchSize");
+  }
+
   /** top level stem */
   private Stem edu;
 
   /** root session */
   private GrouperSession grouperSession = null;
-  
+
   /** root stem */
   private Stem root;
 
