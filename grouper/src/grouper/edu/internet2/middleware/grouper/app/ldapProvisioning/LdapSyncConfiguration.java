@@ -59,6 +59,7 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfiguration {
           this.folderRdnAttribute = GrouperUtil.defaultIfNull(this.retrieveConfigString("folderRdnAttribute", false), "ou");
           String objectClassesString = GrouperUtil.defaultIfNull(this.retrieveConfigString("folderObjectClasses", false), "top, organizationalUnit");
           this.folderObjectClasses = GrouperUtil.splitTrimToSet(objectClassesString, ",");
+          this.bushyFolderPreserveCase = GrouperUtil.booleanValue(this.retrieveConfigString("bushyFolderPreserveCase", false), false);
         } else {
           throw new RuntimeException("Invalid groupDnType: '" + groupDnTypeString + "'");
         }
@@ -68,6 +69,27 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfiguration {
     this.onlyLdapGroupDnOverride = GrouperUtil.booleanValue(this.retrieveConfigString("onlyLdapGroupDnOverride", false), false);
   }
   
+  /**
+   * when doing bushy provisioning, preserve the case of folder DNs as they are in Grouper
+   */
+  private boolean bushyFolderPreserveCase;
+
+  /**
+   * when doing bushy provisioning, preserve the case of folder DNs as they are in Grouper
+   * @return preserve case
+   */
+  public boolean isBushyFolderPreserveCase() {
+    return this.bushyFolderPreserveCase;
+  }
+
+  /**
+   * when doing bushy provisioning, preserve the case of folder DNs as they are in Grouper
+   * @param bushyFolderPreserveCase1
+   */
+  public void setBushyFolderPreserveCase(boolean bushyFolderPreserveCase1) {
+    this.bushyFolderPreserveCase = bushyFolderPreserveCase1;
+  }
+
   /**
    * If you want a metadata item on groups to allow a DN override
    */

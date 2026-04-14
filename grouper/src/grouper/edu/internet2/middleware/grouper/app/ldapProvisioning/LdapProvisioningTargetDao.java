@@ -1505,10 +1505,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   }
   
   private void createParentFolders(LdapSyncConfiguration ldapSyncConfiguration, LdapSyncDaoForLdap ldapSyncDaoForLdap, String groupDnString) {
-    
+
     if (ldapSyncConfiguration.getGroupDnType() != LdapSyncGroupDnType.bushy) {
       return;
     }
+
+    boolean preserveCase = ldapSyncConfiguration.isBushyFolderPreserveCase();
 
     List<Dn> ldapDnsToCreate = new ArrayList<>();
 
@@ -1522,7 +1524,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
     // see if the parent dn exists.  If it does, nothing to do here.
     try {
-      ldapSyncDaoForLdap.search(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDn.format(), "(objectClass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<>());
+      ldapSyncDaoForLdap.search(ldapSyncConfiguration.getLdapExternalSystemConfigId(), formatDn(parentDn, preserveCase), "(objectClass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<>());
       return;
     } catch (Exception e) {
       if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
@@ -1543,7 +1545,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         break;
       }
 
-      String parentDnString = parentDn.format();
+      String parentDnString = formatDn(parentDn, preserveCase);
       try {
         ldapSyncDaoForLdap.search(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDnString, "(objectClass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<>());
         break;
@@ -1558,7 +1560,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
     // now create the DNs
     for (Dn ldapDnToCreate : ldapDnsToCreate) {
-      LdapEntry folderLdapEntry = new LdapEntry(ldapDnToCreate.format());
+      LdapEntry folderLdapEntry = new LdapEntry(formatDn(ldapDnToCreate, preserveCase));
       folderLdapEntry.addAttribute(new LdapAttribute(ldapDnToCreate.getRDn().getNameValue().getName(), ldapDnToCreate.getRDn().getNameValue().getStringValue()));
 
       LdapAttribute objectClassLdapAttribute = new LdapAttribute("objectClass");
@@ -1568,6 +1570,21 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
       ldapSyncDaoForLdap.create(ldapSyncConfiguration.getLdapExternalSystemConfigId(), folderLdapEntry);
     }
+  }
+
+  /**
+   * format a DN, optionally preserving case. If preserveCase is false, uses the default
+   * ldaptive format which lowercases attribute names and values. If true, uses identity
+   * functions to preserve the original case.
+   * @param dn
+   * @param preserveCase
+   * @return formatted DN string
+   */
+  private static String formatDn(Dn dn, boolean preserveCase) {
+    if (preserveCase) {
+      return dn.format(new DefaultRDnNormalizer(new MinimalAttributeValueEscaper(), s -> s, s -> s));
+    }
+    return dn.format();
   }
 
   /**
