@@ -1222,4 +1222,65 @@ public class LdapProvisionerBushyTest extends GrouperProvisioningBaseTest {
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=organizationalUnit)", new String[] {"objectClass"}, null);
     assertEquals(1, ldapEntries.size());
   }
+
+  /**
+   * test that bushy DN folder creation preserves case when bushyFolderPreserveCase is true
+   */
+  public void testFullLdapBushyPreserveCase() {
+
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+        .assignGroupAttributeCount(6)
+        .assignEntityAttributeCount(2)
+        .assignGroupDnTypeBushy(true)
+        .addExtraConfig("logCommandsAlways", "true")
+        .addExtraConfig("bushyFolderPreserveCase", "true")
+        .assignTranslateFromGrouperProvisioningGroupField("extension")
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignUpdateGroupsAndDn(true));
+
+    // use mixed-case stem names to verify case preservation
+    Stem testStem = new StemSave(this.grouperSession).assignName("TestStem").save();
+    Stem deepStem = new StemSave(this.grouperSession).assignName("TestStem:SubFolder:DeepFolder").assignCreateParentStemsIfNotExist(true).save();
+
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("ldapProvTest");
+    attributeValue.setTargetName("ldapProvTest");
+    attributeValue.setStemScopeString("sub");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, testStem);
+
+    Group testGroup = new GroupSave(this.grouperSession).assignName("TestStem:myGroup").save();
+    Group deepGroup = new GroupSave(this.grouperSession).assignName("TestStem:SubFolder:DeepFolder:deepGroup").save();
+
+    Subject jsmith = SubjectFinder.findById("jsmith", true);
+    testGroup.addMember(jsmith, false);
+
+    fullProvision();
+
+    // verify the OU for TestStem preserves case
+    List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=organizationalUnit)", new String[] {"objectClass", "ou"}, null);
+    // ou=Groups, TestStem, SubFolder, DeepFolder = 4 OUs
+    assertEquals(4, ldapEntries.size());
+
+    LdapEntry ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=TestStem,ou=Groups,dc=example,dc=edu", LdapSearchScope.OBJECT_SCOPE, "(objectClass=*)", new String[] {"objectClass", "ou"}, null).get(0);
+    // verify the DN preserves the case
+    assertTrue(ldapEntry.getDn().contains("ou=TestStem") || ldapEntry.getDn().contains("OU=TestStem"));
+    assertTrue(ldapEntry.getAttribute("ou").getStringValues().contains("TestStem"));
+
+    ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=SubFolder,ou=TestStem,ou=Groups,dc=example,dc=edu", LdapSearchScope.OBJECT_SCOPE, "(objectClass=*)", new String[] {"objectClass", "ou"}, null).get(0);
+    assertTrue(ldapEntry.getAttribute("ou").getStringValues().contains("SubFolder"));
+
+    ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=DeepFolder,ou=SubFolder,ou=TestStem,ou=Groups,dc=example,dc=edu", LdapSearchScope.OBJECT_SCOPE, "(objectClass=*)", new String[] {"objectClass", "ou"}, null).get(0);
+    assertTrue(ldapEntry.getAttribute("ou").getStringValues().contains("DeepFolder"));
+
+    // verify the group is in the right place with preserved case
+    ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "cn=myGroup,ou=TestStem,ou=Groups,dc=example,dc=edu", LdapSearchScope.OBJECT_SCOPE, "(objectClass=*)", new String[] {"objectClass", "cn", "member"}, null).get(0);
+    assertEquals("myGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertTrue(ldapEntry.getAttribute("member").getStringValues().contains("uid=jsmith,ou=People,dc=example,dc=edu"));
+
+    ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "cn=deepGroup,ou=DeepFolder,ou=SubFolder,ou=TestStem,ou=Groups,dc=example,dc=edu", LdapSearchScope.OBJECT_SCOPE, "(objectClass=*)", new String[] {"objectClass", "cn", "member"}, null).get(0);
+    assertEquals("deepGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+  }
 }
