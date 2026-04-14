@@ -50,6 +50,8 @@ public class GrouperDataProviderSync {
    */
   private Integer failsafeMaxOverallPercentFieldAssignRemove;
   
+  private boolean readOnly;
+
   private String jobName;
   
   private Set<String> syncSubjectsSubjectIds;
@@ -250,7 +252,30 @@ public class GrouperDataProviderSync {
       Integer failsafeMaxOverallPercentFieldAssignRemove) {
     this.failsafeMaxOverallPercentFieldAssignRemove = failsafeMaxOverallPercentFieldAssignRemove;
   }
-  
+
+  private Integer failsafeMinSubjectCount;
+
+  /**
+   * minimum number of subjects in grouper before the subject id count failsafe check applies.
+   * if null, the subject id count failsafe is disabled.
+   * @return the min subject count or null
+   */
+  public Integer getFailsafeMinSubjectCount() {
+    return failsafeMinSubjectCount;
+  }
+
+  public void setFailsafeMinSubjectCount(Integer failsafeMinSubjectCount) {
+    this.failsafeMinSubjectCount = failsafeMinSubjectCount;
+  }
+
+  public boolean isReadOnly() {
+    return readOnly;
+  }
+
+  public void setReadOnly(boolean readOnly) {
+    this.readOnly = readOnly;
+  }
+
   public String getJobName() {
     return jobName;
   }

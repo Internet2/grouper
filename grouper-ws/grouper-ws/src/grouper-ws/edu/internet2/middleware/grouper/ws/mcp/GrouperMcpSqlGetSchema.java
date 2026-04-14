@@ -216,7 +216,8 @@ public class GrouperMcpSqlGetSchema {
 
     } catch (Exception e) {
       LOG.error("Error getting schema info", e);
-      return buildErrorResult("Error getting schema info: " + e.getMessage());
+      return buildErrorResult("Error getting schema info: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

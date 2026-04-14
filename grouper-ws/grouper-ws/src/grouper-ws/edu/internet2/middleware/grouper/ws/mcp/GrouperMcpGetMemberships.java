@@ -64,7 +64,7 @@ public class GrouperMcpGetMemberships {
     tool.put("description",
         "Get memberships and privileges from Grouper. Returns membership details including "
         + "start date (startTime), end date (endTime), membership type, and list name. "
-        + "Can query by group names, subject IDs/identifiers, stem names, and/or attribute "
+        + "Can query by group names, subjectIdOrIdentifiers, stem names, and/or attribute "
         + "definition names. Supports point-in-time queries for historical membership data. "
         + "Use this tool when you need membership dates or detailed membership/privilege information.");
 
@@ -84,25 +84,18 @@ public class GrouperMcpGetMemberships {
         + "(e.g., ['stem1:stem2:groupName']).");
     properties.set("groupNames", groupNamesProp);
 
-    // subjectIds - array of subject IDs
-    ObjectNode subjectIdsProp = objectMapper.createObjectNode();
-    subjectIdsProp.put("type", "array");
-    ObjectNode subjectIdsItemsNode = objectMapper.createObjectNode();
-    subjectIdsItemsNode.put("type", "string");
-    subjectIdsProp.set("items", subjectIdsItemsNode);
-    subjectIdsProp.put("description",
-        "Array of subject IDs to query memberships for.");
-    properties.set("subjectIds", subjectIdsProp);
+    // subjectIdOrIdentifiers - array of subject IDs or identifiers
+    ObjectNode subjectIdOrIdentifiersProp = objectMapper.createObjectNode();
+    subjectIdOrIdentifiersProp.put("type", "array");
+    ObjectNode subjectIdOrIdentifiersItemsNode = objectMapper.createObjectNode();
+    subjectIdOrIdentifiersItemsNode.put("type", "string");
+    subjectIdOrIdentifiersProp.set("items", subjectIdOrIdentifiersItemsNode);
+    subjectIdOrIdentifiersProp.put("description",
+        "Array of subject IDs or identifiers to query memberships for.");
+    properties.set("subjectIdOrIdentifiers", subjectIdOrIdentifiersProp);
 
-    // subjectIdentifiers - array of subject identifiers
-    ObjectNode subjectIdentifiersProp = objectMapper.createObjectNode();
-    subjectIdentifiersProp.put("type", "array");
-    ObjectNode subjectIdentifiersItemsNode = objectMapper.createObjectNode();
-    subjectIdentifiersItemsNode.put("type", "string");
-    subjectIdentifiersProp.set("items", subjectIdentifiersItemsNode);
-    subjectIdentifiersProp.put("description",
-        "Array of subject identifiers (e.g., usernames) to query memberships for.");
-    properties.set("subjectIdentifiers", subjectIdentifiersProp);
+    // subjectIdType - how to interpret the subject values
+    GrouperMcpSubjectUtils.addSubjectIdTypeProperty(properties);
 
     // subjectSourceIds - array of source IDs to restrict subject lookup
     ObjectNode subjectSourceIdsProp = objectMapper.createObjectNode();
@@ -268,27 +261,23 @@ public class GrouperMcpGetMemberships {
       }
     }
 
-    // parse subjectIds and subjectIdentifiers arrays into WsSubjectLookup[]
+    // parse subjectIdOrIdentifiers array into WsSubjectLookup[]
     WsSubjectLookup[] wsSubjectLookups = null;
-    JsonNode subjectIdsArray = arguments != null && arguments.has("subjectIds")
-        ? arguments.get("subjectIds") : null;
-    JsonNode subjectIdentifiersArray = arguments != null && arguments.has("subjectIdentifiers")
-        ? arguments.get("subjectIdentifiers") : null;
-    int subjectIdCount = subjectIdsArray != null && subjectIdsArray.isArray() ? subjectIdsArray.size() : 0;
-    int subjectIdentifierCount = subjectIdentifiersArray != null && subjectIdentifiersArray.isArray()
-        ? subjectIdentifiersArray.size() : 0;
-    if (subjectIdCount + subjectIdentifierCount > 0) {
-      wsSubjectLookups = new WsSubjectLookup[subjectIdCount + subjectIdentifierCount];
-      int idx = 0;
-      for (int i = 0; i < subjectIdCount; i++) {
-        WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
-        wsSubjectLookup.setSubjectId(subjectIdsArray.get(i).asText());
-        wsSubjectLookups[idx++] = wsSubjectLookup;
-      }
-      for (int i = 0; i < subjectIdentifierCount; i++) {
-        WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
-        wsSubjectLookup.setSubjectIdentifier(subjectIdentifiersArray.get(i).asText());
-        wsSubjectLookups[idx++] = wsSubjectLookup;
+    String subjectIdType = arguments != null && arguments.has("subjectIdType")
+        ? arguments.get("subjectIdType").asText() : null;
+    // validate subjectIdType if provided
+    String subjectIdTypeError = GrouperMcpSubjectUtils.validateSubjectIdType(subjectIdType);
+    if (subjectIdTypeError != null) {
+      return buildErrorResult(subjectIdTypeError);
+    }
+    JsonNode subjectIdOrIdentifiersArray = arguments != null && arguments.has("subjectIdOrIdentifiers")
+        ? arguments.get("subjectIdOrIdentifiers") : null;
+    if (subjectIdOrIdentifiersArray != null && subjectIdOrIdentifiersArray.isArray()
+        && subjectIdOrIdentifiersArray.size() > 0) {
+      wsSubjectLookups = new WsSubjectLookup[subjectIdOrIdentifiersArray.size()];
+      for (int i = 0; i < subjectIdOrIdentifiersArray.size(); i++) {
+        wsSubjectLookups[i] = GrouperMcpSubjectUtils.createSubjectLookup(
+            subjectIdOrIdentifiersArray.get(i).asText(), subjectIdType, null);
       }
     }
 
@@ -499,7 +488,8 @@ public class GrouperMcpGetMemberships {
 
     } catch (Exception e) {
       LOG.error("Error getting memberships", e);
-      return buildErrorResult("Error getting memberships: " + e.getMessage());
+      return buildErrorResult("Error getting memberships: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

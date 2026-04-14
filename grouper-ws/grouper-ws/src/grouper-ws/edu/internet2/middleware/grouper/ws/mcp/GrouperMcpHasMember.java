@@ -60,8 +60,8 @@ public class GrouperMcpHasMember {
     tool.put("name", "group_has_member");
     tool.put("description",
         "Check if one or more subjects are members of a Grouper group. "
-        + "Each subject is identified by subjectId or subjectIdentifier "
-        + "(and optionally sourceId). Returns the membership status "
+        + "Each subject is identified by subjectIdOrIdentifier "
+        + "(and optionally sourceId and subjectIdType). Returns the membership status "
         + "(IS_MEMBER or IS_NOT_MEMBER) for each subject. "
         + "Supports point-in-time queries to check historical membership.");
 
@@ -83,30 +83,13 @@ public class GrouperMcpHasMember {
     subjectsItemsNode.put("type", "object");
     ObjectNode subjectProperties = objectMapper.createObjectNode();
 
-    ObjectNode subjectIdProp = objectMapper.createObjectNode();
-    subjectIdProp.put("type", "string");
-    subjectIdProp.put("description",
-        "The subject ID. Mutually exclusive with subjectIdentifier.");
-    subjectProperties.set("subjectId", subjectIdProp);
-
-    ObjectNode subjectIdentifierProp = objectMapper.createObjectNode();
-    subjectIdentifierProp.put("type", "string");
-    subjectIdentifierProp.put("description",
-        "The subject identifier (e.g., login ID or eppn). "
-        + "Mutually exclusive with subjectId.");
-    subjectProperties.set("subjectIdentifier", subjectIdentifierProp);
-
-    ObjectNode sourceIdProp = objectMapper.createObjectNode();
-    sourceIdProp.put("type", "string");
-    sourceIdProp.put("description",
-        "Optional source ID to restrict the subject lookup to a specific source.");
-    subjectProperties.set("sourceId", sourceIdProp);
+    GrouperMcpSubjectUtils.addSubjectArrayItemProperties(subjectProperties);
 
     subjectsItemsNode.set("properties", subjectProperties);
     subjectsProp.set("items", subjectsItemsNode);
     subjectsProp.put("description",
-        "Array of subjects to check membership for. Each subject must have either "
-        + "subjectId or subjectIdentifier (and optionally sourceId).");
+        "Array of subjects to check membership for. Each subject must have a "
+        + "subjectIdOrIdentifier (and optionally sourceId and subjectIdType).");
     properties.set("subjects", subjectsProp);
 
     ObjectNode memberFilterProp = objectMapper.createObjectNode();
@@ -212,25 +195,27 @@ public class GrouperMcpHasMember {
 
     for (int i = 0; i < subjectsArray.size(); i++) {
       JsonNode subjectNode = subjectsArray.get(i);
-      String subjectId = subjectNode.has("subjectId")
-          ? subjectNode.get("subjectId").asText() : null;
-      String subjectIdentifier = subjectNode.has("subjectIdentifier")
-          ? subjectNode.get("subjectIdentifier").asText() : null;
+      String subjectIdOrIdentifier = subjectNode.has("subjectIdOrIdentifier")
+          ? subjectNode.get("subjectIdOrIdentifier").asText() : null;
+      String subjectIdType = subjectNode.has("subjectIdType")
+          ? subjectNode.get("subjectIdType").asText() : null;
       String sourceId = subjectNode.has("sourceId")
           ? subjectNode.get("sourceId").asText() : null;
 
-      if (StringUtils.isBlank(subjectId) && StringUtils.isBlank(subjectIdentifier)) {
+      if (StringUtils.isBlank(subjectIdOrIdentifier)) {
         return buildErrorResult(
-            "Each subject must have either subjectId or subjectIdentifier "
-            + "(subject at index " + i + " has neither).");
-      }
-      if (StringUtils.isNotBlank(subjectId) && StringUtils.isNotBlank(subjectIdentifier)) {
-        return buildErrorResult(
-            "Each subject must have either subjectId or subjectIdentifier, not both "
-            + "(subject at index " + i + " has both).");
+            "Each subject must have a subjectIdOrIdentifier "
+            + "(subject at index " + i + " is missing it).");
       }
 
-      subjectLookupList.add(new WsSubjectLookup(subjectId, sourceId, subjectIdentifier));
+      // validate subjectIdType if provided
+      String subjectIdTypeError = GrouperMcpSubjectUtils.validateSubjectIdType(subjectIdType);
+      if (subjectIdTypeError != null) {
+        return buildErrorResult(subjectIdTypeError + " (subject at index " + i + ").");
+      }
+
+      subjectLookupList.add(GrouperMcpSubjectUtils.createSubjectLookup(
+          subjectIdOrIdentifier, subjectIdType, sourceId));
     }
 
     WsSubjectLookup[] subjectLookups =
@@ -303,7 +288,8 @@ public class GrouperMcpHasMember {
 
     } catch (Exception e) {
       LOG.error("Error checking membership in group: " + groupName, e);
-      return buildErrorResult("Error checking membership in group: " + e.getMessage());
+      return buildErrorResult("Error checking membership in group: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

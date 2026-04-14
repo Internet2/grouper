@@ -61,19 +61,22 @@ public class GrouperLoaderJexlScriptGroup {
     return script;
   }
 
-  public boolean isIncludeInternalSubjectSourceForEntities() {
-    return includeInternalSubjectSourceForEntities;
+  /**
+   * comma-separated list of subject source IDs for this group, or null for global defaults
+   */
+  public String getSubjectSourceIds() {
+    return subjectSourceIds;
   }
 
-  public void setIncludeInternalSubjectSourceForEntities(boolean includeInternalSubjectSourceForEntities) {
-    this.includeInternalSubjectSourceForEntities = includeInternalSubjectSourceForEntities;
+  public void setSubjectSourceIds(String subjectSourceIds) {
+    this.subjectSourceIds = subjectSourceIds;
   }
 
   public void setScript(String script) {
     this.script = script;
   }
-  
-  private boolean includeInternalSubjectSourceForEntities;
+
+  private String subjectSourceIds;
   
   private Set<String> scriptContainsGroupNames = new HashSet<String>();
 

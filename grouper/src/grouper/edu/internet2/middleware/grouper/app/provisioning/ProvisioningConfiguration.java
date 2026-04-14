@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.app.adobe.AdobeProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.azure.AzureProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.boxProvisioner.BoxProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.app.datadog.DatadogProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonOtherJobProvisioningFullSyncConfiguration;
@@ -45,6 +46,7 @@ import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalM
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -94,6 +96,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     
     configClassNamesList.add(AzureProvisionerConfiguration.class.getName());
     configClassNamesList.add(AdobeProvisionerConfiguration.class.getName());
+    configClassNamesList.add(DatadogProvisioningConfiguration.class.getName());
     configClassNamesList.add(DuoProvisionerConfiguration.class.getName());
     configClassNamesList.add(DuoRoleProvisionerConfiguration.class.getName());
     configClassNamesList.add(FreshRequesterProvisionerConfiguration.class.getName());
@@ -109,6 +112,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     configClassNamesList.add(DigitalMarketplaceProvisionerConfiguration.class.getName());
     configClassNamesList.add(SqlProvisionerConfiguration.class.getName());
     configClassNamesList.add(TeamDynamixProvisionerConfiguration.class.getName());
+    configClassNamesList.add(TrueFoundryProvisioningConfiguration.class.getName());
     configClassNamesList.add(BoxProvisionerConfiguration.class.getName());
 //    provisionerConfigClassNames.add("edu.internet2.middleware.grouperBox.BoxProvisionerConfiguration");
     
@@ -138,7 +142,9 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
    * @return
    */
   public static List<ProvisioningConfiguration> retrieveAllProvisioningConfigurationTypes() {
-    return (List<ProvisioningConfiguration>) (Object) retrieveAllConfigurationTypesHelper(provisionerConfigClassNames);
+    List<ProvisioningConfiguration> result = (List<ProvisioningConfiguration>) (Object) retrieveAllConfigurationTypesHelper(provisionerConfigClassNames);
+    result.sort(Comparator.comparing(pc -> pc.getTitle().toLowerCase()));
+    return result;
   }
   
   /**

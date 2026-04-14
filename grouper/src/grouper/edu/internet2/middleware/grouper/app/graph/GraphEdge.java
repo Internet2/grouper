@@ -53,6 +53,12 @@ public class GraphEdge {
       throw new RuntimeException("Exception creating a graph edge from a complement group -- should call overloaded method setting left and right group");
     } else if (fromNode.isIntersectGroup()) {
       throw new RuntimeException("Exception creating a graph edge from an intersect group -- should call overloaded method setting left and right group");
+    } else if (fromNode.isAbacGroup() && (toNode.isDataAttribute() || toNode.isDataRow() || toNode.isCompoundOr())) {
+      // ABAC edges to data/compound nodes should use explicit style types via the overloaded constructor
+      throw new RuntimeException("Exception creating a graph edge from an ABAC group to a data/compound node -- should call overloaded method setting explicit style type");
+    } else if (fromNode.isCompoundOr()) {
+      // Edges from compound OR nodes should use explicit style types via the overloaded constructor
+      throw new RuntimeException("Exception creating a graph edge from a compound OR node -- should call overloaded method setting explicit style type");
     } else if (toNode.isGroup()) {
       styleObjectType = StyleObjectType.EDGE_MEMBERSHIP;
     } else if (toNode.isSubject()) {

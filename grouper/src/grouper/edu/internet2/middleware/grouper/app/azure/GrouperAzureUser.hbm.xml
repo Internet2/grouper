@@ -36,6 +36,14 @@
     <property name="onPremisesImmutableId" column="on_premises_immutable_id" />
     <property name="userPrincipalName" column="user_principal_name" />
 
+    <!-- extended attributes for MCP admin tool -->
+    <property name="mail" column="mail" />
+    <property name="userType" column="user_type" />
+    <property name="onPremisesSamAccountName" column="on_premises_sam_account_name" />
+    <property name="onPremisesLastSyncDateTime" column="on_premises_last_sync_date_time" />
+    <property name="proxyAddresses" column="proxy_addresses" />
+    <property name="showInAddressList" column="show_in_address_list" />
+
   </class>
 </hibernate-mapping>
 

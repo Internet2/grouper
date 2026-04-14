@@ -408,23 +408,22 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                           
                           </td>
                         </tr>
-                        <%--
                         <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderIncludeInternalSources']}</strong></td>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSubjectSourceIds']}</strong></td>
                           <td style="vertical-align: top;">
-                            <c:choose>
-                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.jexlScriptIncludeInternalSources ? grouperRequestContainer.grouperLoaderContainer.jexlScriptIncludeInternalSources : false}">
-                                ${textContainer.text['grouperLoaderIncludeInternalSourcesTrue']}
-                              </c:when>
-                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.jexlScriptIncludeInternalSources ? !grouperRequestContainer.grouperLoaderContainer.jexlScriptIncludeInternalSources : true}">
-                                ${textContainer.text['grouperLoaderIncludeInternalSourcesFalse']}
-                              </c:when>
-                            </c:choose>
-                            <br /><span class="description">${textContainer.text['grouperLoaderIncludeInternalSourcesDescription']}</span>
-                          
+                            <c:set var="viewChecked" value="${grouperRequestContainer.grouperLoaderContainer.effectiveSourceIdCheckedString}" />
+                            <c:forEach items="${grouperRequestContainer.grouperLoaderContainer.allNonInternalSubjectSourceIdsWithNames}" var="sourceConfig">
+                              <div>
+                                <label class="checkbox">
+                                  <input type="checkbox" disabled="disabled"
+                                    <c:if test="${viewChecked.contains(','.concat(sourceConfig.id).concat(','))}">checked="checked"</c:if>
+                                  />
+                                  ${grouper:escapeHtml(sourceConfig.name)}
+                                </label>
+                              </div>
+                            </c:forEach>
                           </td>
                         </tr>
-                         --%>
                       </tbody>
                     </table>
                   </c:when>

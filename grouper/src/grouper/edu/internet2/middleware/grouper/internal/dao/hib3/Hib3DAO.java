@@ -56,6 +56,12 @@ import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxAuth;
 import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxGroup;
 import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxUser;
 import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxMembership;
+import edu.internet2.middleware.grouper.app.datadog.DatadogGroup;
+import edu.internet2.middleware.grouper.app.datadog.DatadogMembership;
+import edu.internet2.middleware.grouper.app.datadog.DatadogUser;
+import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryGroup;
+import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryMembership;
+import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryUser;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoGroup;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoMembership;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoUser;
@@ -302,6 +308,14 @@ public abstract class Hib3DAO {
         addClass(configuration, FreshRequesterUser.class);
         addClass(configuration, FreshRequesterMembership.class);
 
+        addClass(configuration, DatadogGroup.class);
+        addClass(configuration, DatadogUser.class);
+        addClass(configuration, DatadogMembership.class);
+
+        addClass(configuration, TrueFoundryGroup.class);
+        addClass(configuration, TrueFoundryUser.class);
+        addClass(configuration, TrueFoundryMembership.class);
+
       }
       addClass(configuration, Hib3MemberDAO.class);
       addClass(configuration, Hib3MembershipDAO.class);
@@ -403,9 +417,13 @@ public abstract class Hib3DAO {
         //this is ok
       }
       
-      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
-          LifecycleHooks.METHOD_HIBERNATE_INIT, HooksLifecycleHibInitBean.class, 
-          configuration, Configuration.class, null);
+      try {
+        GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE,
+            LifecycleHooks.METHOD_HIBERNATE_INIT, HooksLifecycleHibInitBean.class,
+            configuration, Configuration.class, null);
+      } catch (Throwable t) {
+        LOG.error("Error calling lifecycle hooks for hibernate init, continuing with session factory setup", t);
+      }
       
       // And finally create our session factory
       //trying to avoid warning of using the same dir

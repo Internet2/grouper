@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.dataField;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -113,9 +114,30 @@ public class GrouperDataProviderIndex {
   public Map<String, Long> getDictionaryTextByString() {
     return dictionaryTextByString;
   }
-  
+
   public void setDictionaryTextByString(Map<String, Long> dictionaryTextByString) {
     this.dictionaryTextByString = dictionaryTextByString;
   }
-  
+
+  /**
+   * new members to insert, keyed by subject id.
+   * populated during source data retrieval for subject source providers,
+   * consumed during write phase.
+   */
+  private Map<String, Member> membersToAddBySubjectId = new LinkedHashMap<>();
+
+  public Map<String, Member> getMembersToAddBySubjectId() {
+    return membersToAddBySubjectId;
+  }
+
+  /**
+   * subjects that could not be resolved but already have a member row (e.g. from a previous sync).
+   * populated during source data retrieval, consumed during write phase.
+   */
+  private Map<String, Member> unresolvedSubjectsWithMembersBySubjectId = new LinkedHashMap<>();
+
+  public Map<String, Member> getUnresolvedSubjectsWithMembersBySubjectId() {
+    return unresolvedSubjectsWithMembersBySubjectId;
+  }
+
 }

@@ -161,24 +161,24 @@ public class GrouperLoaderContainer {
   }
 
   /**
-   * T or F to include internal sources
+   * subject source IDs for the ABAC script on this group (edit mode)
    */
-  private Boolean editLoaderJexlScriptIncludeInternalSources;
+  private Set<String> editLoaderJexlScriptSubjectSourceIds;
 
   /**
-   * T or F to include internal sources
-   * @return T or F
+   * subject source IDs for the ABAC script on this group (edit mode)
+   * @return the set of source IDs
    */
-  public Boolean getEditLoaderJexlScriptIncludeInternalSources() {
-    return this.editLoaderJexlScriptIncludeInternalSources;
+  public Set<String> getEditLoaderJexlScriptSubjectSourceIds() {
+    return this.editLoaderJexlScriptSubjectSourceIds;
   }
 
   /**
-   * T or F to include internal sources
-   * @param editLoaderJexlScriptIncludeInternalSources1
+   * subject source IDs for the ABAC script on this group (edit mode)
+   * @param editLoaderJexlScriptSubjectSourceIds1
    */
-  public void setEditLoaderJexlScriptIncludeInternalSources(Boolean editLoaderJexlScriptIncludeInternalSources1) {
-    this.editLoaderJexlScriptIncludeInternalSources = editLoaderJexlScriptIncludeInternalSources1;
+  public void setEditLoaderJexlScriptSubjectSourceIds(Set<String> editLoaderJexlScriptSubjectSourceIds1) {
+    this.editLoaderJexlScriptSubjectSourceIds = editLoaderJexlScriptSubjectSourceIds1;
   }
 
   /**
@@ -1071,15 +1071,16 @@ public class GrouperLoaderContainer {
   }
 
   /**
-   * 
-   * @return T if internal sources
+   * get the subject source IDs configured on the ABAC group attribute, or null if not set
+   * @return set of source IDs or null
    */
-  public Boolean getJexlScriptIncludeInternalSources() {
-    
+  @SuppressWarnings("unchecked")
+  public Set<String> getJexlScriptSubjectSourceIds() {
+
     final Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
-    
-    Boolean includeInternalSources = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-      
+
+    return (Set<String>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
@@ -1093,19 +1094,173 @@ public class GrouperLoaderContainer {
           throw new RuntimeException("Not expecting multiple jexl script attribute assignments! " + jobGroup.getName());
         }
         AttributeAssign theAttributeAssign = attributeAssigns.iterator().next();
-        String theIncludeSources = theAttributeAssign.getAttributeValueDelegate().retrieveValueString(
-            GrouperAbac.jexlScriptStemName() + ":" 
-                + GrouperAbac.GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES);
-        return GrouperUtil.booleanObjectValue(theIncludeSources);
+        String sourceIdsString = theAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+            GrouperAbac.jexlScriptStemName() + ":"
+                + GrouperAbac.GROUPER_JEXL_SCRIPT_SUBJECT_SOURCE_IDS);
+        if (StringUtils.isBlank(sourceIdsString)) {
+          return null;
+        }
+        Set<String> result = new TreeSet<String>();
+        for (String sourceId : GrouperUtil.splitTrim(sourceIdsString, ",")) {
+          result.add(sourceId);
+        }
+        return result;
       }
     });
-    
-    return includeInternalSources;
 
   }
 
   /**
-   * 
+   * whether the subject source picker should be shown in the edit UI
+   * @return true if it should be shown
+   */
+  public boolean isShowSubjectSourcePicker() {
+    return GrouperAbac.showSubjectSourcePicker();
+  }
+
+  /**
+   * get the available subject source IDs for the picker
+   * @return the available source IDs
+   */
+  public Set<String> getAvailableSubjectSourceIds() {
+    return GrouperAbac.availableSubjectSourceIds();
+  }
+
+  /**
+   * get the global default subject source IDs
+   * @return the default source IDs
+   */
+  public Set<String> getGlobalDefaultSubjectSourceIds() {
+    return GrouperAbac.globalDefaultSubjectSourceIds();
+  }
+
+  /**
+   * get the global default subject source IDs as a comma-separated string for display
+   * @return e.g. "jdbc, grouperEntities"
+   */
+  public String getGlobalDefaultSubjectSourceIdsCommaSeparated() {
+    return GrouperUtil.join(GrouperAbac.globalDefaultSubjectSourceIds().iterator(), ", ");
+  }
+
+  /**
+   * get the available subject source IDs with display names (id - name) for the picker.
+   * returns a list of ConfigName objects (id, displayName) in the order of available sources.
+   * @return list of ConfigName
+   */
+  public List<ConfigName> getAvailableSubjectSourceIdsWithNames() {
+    Set<ConfigName> sorted = new TreeSet<ConfigName>();
+    Set<String> available = GrouperAbac.availableSubjectSourceIds();
+    Collection<Source> sources = SourceManager.getInstance().getSources();
+    for (Source source : sources) {
+      if (available.contains(source.getId())) {
+        sorted.add(new ConfigName(source.getId(), source.getId() + " (" + source.getName() + ")"));
+      }
+    }
+    return new ArrayList<ConfigName>(sorted);
+  }
+
+  /**
+   * get all non-internal subject source IDs with display names for showing checkboxes.
+   * includes all sources except g:gsa and g:isa.
+   * @return list of ConfigName
+   */
+  public List<ConfigName> getAllNonInternalSubjectSourceIdsWithNames() {
+    Set<ConfigName> sorted = new TreeSet<ConfigName>();
+    Collection<Source> sources = SourceManager.getInstance().getSources();
+    for (Source source : sources) {
+      if (!GrouperAbac.internalSourceId(source.getId())) {
+        sorted.add(new ConfigName(source.getId(), source.getId() + " (" + source.getName() + ")"));
+      }
+    }
+    return new ArrayList<ConfigName>(sorted);
+  }
+
+  /**
+   * comma-delimited string of effective source IDs (per-group if set, otherwise global defaults),
+   * with commas on both ends for easy contains check.
+   * e.g. ",jdbc,grouperEntities,"
+   * @return string, never empty
+   */
+  public String getEffectiveSourceIdCheckedString() {
+    Set<String> viewSourceIds = getJexlScriptSubjectSourceIds();
+    Set<String> effective;
+    if (viewSourceIds != null) {
+      effective = viewSourceIds;
+    } else {
+      effective = GrouperAbac.globalDefaultSubjectSourceIds();
+    }
+    StringBuilder sb = new StringBuilder(",");
+    for (String sourceId : effective) {
+      sb.append(sourceId).append(",");
+    }
+    return sb.toString();
+  }
+
+  /**
+   * comma-delimited string of global default source IDs, with commas on both ends for easy contains check.
+   * used by the edit screen's disabled default checkboxes to show what the defaults are.
+   * e.g. ",jdbc,"
+   * @return string, never empty
+   */
+  public String getGlobalDefaultSourceIdCheckedString() {
+    Set<String> defaults = GrouperAbac.globalDefaultSubjectSourceIds();
+    StringBuilder sb = new StringBuilder(",");
+    for (String sourceId : defaults) {
+      sb.append(sourceId).append(",");
+    }
+    return sb.toString();
+  }
+
+  /**
+   * whether the override radio should default to true (because group has non-default sources)
+   * @return true if override should be shown as active
+   */
+  public boolean isEditLoaderSubjectSourceIdsOverrideActive() {
+    Set<String> editSourceIds = this.editLoaderJexlScriptSubjectSourceIds;
+    if (editSourceIds == null) {
+      return false;
+    }
+    return !editSourceIds.equals(GrouperAbac.globalDefaultSubjectSourceIds());
+  }
+
+  /**
+   * comma-delimited string of checked source IDs for the edit form, with commas on both ends for easy contains check.
+   * e.g. ",jdbc,grouperEntities,"
+   * @return string
+   */
+  public String getEditSourceIdCheckedString() {
+    Set<String> checked;
+    if (isEditLoaderSubjectSourceIdsOverrideActive() && this.editLoaderJexlScriptSubjectSourceIds != null) {
+      checked = this.editLoaderJexlScriptSubjectSourceIds;
+    } else {
+      checked = GrouperAbac.globalDefaultSubjectSourceIds();
+    }
+    StringBuilder sb = new StringBuilder(",");
+    for (String sourceId : checked) {
+      sb.append(sourceId).append(",");
+    }
+    return sb.toString();
+  }
+
+  /**
+   * comma-delimited string of checked source IDs for the view page, with commas on both ends for easy contains check.
+   * e.g. ",jdbc,grouperEntities,"
+   * @return string or empty if not set
+   */
+  public String getViewSourceIdCheckedString() {
+    Set<String> viewSourceIds = getJexlScriptSubjectSourceIds();
+    if (viewSourceIds == null) {
+      return "";
+    }
+    StringBuilder sb = new StringBuilder(",");
+    for (String sourceId : viewSourceIds) {
+      sb.append(sourceId).append(",");
+    }
+    return sb.toString();
+  }
+
+  /**
+   *
    * @return "T", "F" or null
    */
   public String getRecentIncludeCurrent() {
@@ -2563,37 +2718,25 @@ public class GrouperLoaderContainer {
   }
   
   public boolean isCanEditAbacLoader() {
-    
+    if (isGrouperSqlLoader() || isGrouperLdapLoader() || isGrouperRecentMembershipsLoader()) {
+      return false;
+    }
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-      return true;
-    }
-    
-    // it's either jexl or not set
-    if (!isGrouperSqlLoader() && !isGrouperLdapLoader() && !isGrouperRecentMembershipsLoader() && 
-        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
-      return true;
-    }
-    
-    return false;
-    
+    Group group = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    return PrivilegeHelper.canEditAbacLoader(loggedInSubject, group);
   }
-  
-  public boolean isCanEditAbacOrRecentMembershipsLoader() {
-    
+
+  public boolean isCanEditRecentMembershipsLoader() {
+    if (isGrouperSqlLoader() || isGrouperLdapLoader() || isGrouperJexlScriptLoader()) {
+      return false;
+    }
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-      return true;
-    }
-    
-    // it's either jexl/recent_memberships or not set
-    if (!isGrouperSqlLoader() && !isGrouperLdapLoader() && 
-        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
-      return true;
-    }
-    
-    return false;
-    
+    Group group = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    return PrivilegeHelper.canEditRecentMembershipsLoader(loggedInSubject, group);
+  }
+
+  public boolean isCanEditAbacOrRecentMembershipsLoader() {
+    return isCanEditAbacLoader() || isCanEditRecentMembershipsLoader();
   }
   
   /**

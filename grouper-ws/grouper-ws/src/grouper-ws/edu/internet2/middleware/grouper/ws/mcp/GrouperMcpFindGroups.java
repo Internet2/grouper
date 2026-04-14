@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
@@ -67,6 +68,12 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
  * grouper.membershipRequirement.* properties. These requirements restrict who can
  * be a member of the group (members must also be in a specified population group).
  * The result is returned as a comma-separated string of configIds.</p>
+ *
+ * <p>When includeCompositeInfo is true, we check each group to see if it is a
+ * composite (factor) group. A composite group's membership is defined by a set
+ * operation (union, intersection, or complement) on two other groups (the left
+ * and right factors). If a group is composite, we include the composite type and
+ * the names of the left and right factor groups in the response.</p>
  *
  * <p>When includeProvisioning is true, we look up which provisioning targets
  * (e.g., LDAP, Active Directory, Google) are actively provisioning each group.
@@ -217,6 +224,15 @@ public class GrouperMcpFindGroups {
         + "Returned as a comma-separated string. Defaults to false.");
     properties.set("includeProvisioning", includeProvisioningProp);
 
+    ObjectNode includeCompositeInfoProp = objectMapper.createObjectNode();
+    includeCompositeInfoProp.put("type", "boolean");
+    includeCompositeInfoProp.put("description",
+        "If true, include composite (factor) information for each group. "
+        + "If a group is a composite group, the response will include "
+        + "compositeType (union, intersection, or complement) and the names "
+        + "of the left and right factor groups. Defaults to false.");
+    properties.set("includeCompositeInfo", includeCompositeInfoProp);
+
     inputSchema.set("properties", properties);
 
     ArrayNode required = objectMapper.createArrayNode();
@@ -240,7 +256,9 @@ public class GrouperMcpFindGroups {
    *    to look up membership requirement configIds for each group
    * 5. If includeProvisioning is requested, look up provisioning targets for each group
    *    and filter by the user's view privilege on each target
-   * 6. Build a clean JSON response with group details and optional enrichment info</p>
+   * 6. If includeCompositeInfo is requested, check each group for composite ownership
+   *    and include composite type and left/right factor group names
+   * 7. Build a clean JSON response with group details and optional enrichment info</p>
    *
    * @param arguments the tool arguments from the MCP request (JSON object)
    * @param authUser the authenticated user (used for access control upstream)
@@ -279,6 +297,9 @@ public class GrouperMcpFindGroups {
     boolean includeProvisioning = arguments != null
         && arguments.has("includeProvisioning")
         && arguments.get("includeProvisioning").asBoolean(false);
+    boolean includeCompositeInfo = arguments != null
+        && arguments.has("includeCompositeInfo")
+        && arguments.get("includeCompositeInfo").asBoolean(false);
 
     if (StringUtils.isBlank(queryFilterType)) {
       return buildErrorResult("queryFilterType is required.");
@@ -350,7 +371,7 @@ public class GrouperMcpFindGroups {
       // the actual Group objects from the database (the WS only returns WsGroup DTOs).
       // We fetch them once and share across both lookups to avoid duplicate queries.
       Map<String, Group> groupObjectsByName = null;
-      if ((includeGdgTypes || includeProvisioning) && groupCount > 0) {
+      if ((includeGdgTypes || includeProvisioning || includeCompositeInfo) && groupCount > 0) {
         Set<String> groupNames = new HashSet<>();
         for (WsGroup wsGroup : groups) {
           if (StringUtils.isNotBlank(wsGroup.getName())) {
@@ -462,6 +483,37 @@ public class GrouperMcpFindGroups {
         }
       }
 
+      // Optionally look up composite (factor) information for each group.
+      // A composite group is one whose membership is defined by a set operation
+      // (union, intersection, or complement) on two other groups (left and right factors).
+      // Uses Group.getComposite(false) to check if a group is a composite owner,
+      // and if so retrieves the composite type and the left/right factor group names.
+      Map<String, ObjectNode> groupNameToCompositeInfo = null;
+      if (includeCompositeInfo && groupObjectsByName != null && groupObjectsByName.size() > 0) {
+        groupNameToCompositeInfo = new HashMap<>();
+        for (Map.Entry<String, Group> entry : groupObjectsByName.entrySet()) {
+          Group groupObject = entry.getValue();
+          Composite composite = groupObject.getComposite(false);
+          if (composite != null) {
+            ObjectNode compositeNode = objectMapper.createObjectNode();
+            compositeNode.put("compositeType", composite.getType().toString());
+            try {
+              compositeNode.put("leftFactorGroupName", composite.getLeftGroup().getName());
+            } catch (Exception e) {
+              LOG.warn("Could not resolve left factor group for composite on group: "
+                  + entry.getKey(), e);
+            }
+            try {
+              compositeNode.put("rightFactorGroupName", composite.getRightGroup().getName());
+            } catch (Exception e) {
+              LOG.warn("Could not resolve right factor group for composite on group: "
+                  + entry.getKey(), e);
+            }
+            groupNameToCompositeInfo.put(entry.getKey(), compositeNode);
+          }
+        }
+      }
+
       // build the response array with each group's details
       ArrayNode groupsArray = objectMapper.createArrayNode();
       if (groupCount > 0) {
@@ -512,6 +564,17 @@ public class GrouperMcpFindGroups {
               groupNode.put("provisioning", provisioning);
             }
           }
+          // append composite info (compositeType, leftFactorGroupName, rightFactorGroupName)
+          // if requested and the group is a composite group
+          if (groupNameToCompositeInfo != null && StringUtils.isNotBlank(group.getName())) {
+            ObjectNode compositeInfo = groupNameToCompositeInfo.get(group.getName());
+            if (compositeInfo != null) {
+              groupNode.put("isComposite", true);
+              groupNode.set("compositeInfo", compositeInfo);
+            } else {
+              groupNode.put("isComposite", false);
+            }
+          }
           groupsArray.add(groupNode);
         }
       }
@@ -523,7 +586,8 @@ public class GrouperMcpFindGroups {
 
     } catch (Exception e) {
       LOG.error("Error finding groups", e);
-      return buildErrorResult("Error finding groups: " + e.getMessage());
+      return buildErrorResult("Error finding groups: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

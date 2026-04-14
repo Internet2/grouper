@@ -89,8 +89,7 @@ public class GrouperOktaApiCommands {
       
       @Override
       public boolean setupThrottlingCallback(GrouperHttpClient httpClient) {
-        boolean isThrottle = httpClient.getResponseCode() == 403 
-            || httpClient.getResponseCode() == 429 || httpClient.getResponseCode() == 503;
+        boolean isThrottle = httpClient.getResponseCode() == 429 || httpClient.getResponseCode() == 503;
         if (isThrottle) {                
           GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
         }
@@ -298,8 +297,9 @@ public class GrouperOktaApiCommands {
    * @param configId
    * @param groupId
    * @param userId
+   * @return true if membership was created successfully, false if user is not in active status (E0000038)
    */
-  public static void createOktaMembership(String configId,
+  public static boolean createOktaMembership(String configId,
       String groupId, String userId) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -316,9 +316,26 @@ public class GrouperOktaApiCommands {
 
       //groups/00gmvgcs9mpZKSfAX697/users/00umxoh7cgDm3zD9v697
       String urlSuffix = "groups/"+groupId+"/users/"+userId;
-
-      executeMethod(debugMap, "createOktaMembership", "PUT", configId, urlSuffix, GrouperUtil.toSet(204), 
-          new int[] { -1 }, jsonStringToSend);
+      
+      int[] returnStatusCode = new int[] {-1};
+      JsonNode response = executeMethod(debugMap, "createOktaMembership", "PUT", configId, urlSuffix, GrouperUtil.toSet(204, 403), 
+          returnStatusCode, jsonStringToSend);
+      
+      if (returnStatusCode[0] == 403) {
+        // e.g. {"errorCode":"E0000038","errorSummary":"This operation is not allowed in the user's current status.","errorLink":"E0000038","errorId":"...","errorCauses":[]}
+        String errorCode = null;
+        if (response != null && response.has("data")) {
+          JsonNode dataNode = response.get("data");
+          errorCode = GrouperUtil.jsonJacksonGetString(dataNode, "errorCode");
+        }
+        if (StringUtils.equals("E0000038", errorCode)) {
+          return false;
+        }
+        throw new RuntimeException("Invalid return code '403' for createOktaMembership. "
+            + "errorCode: '" + errorCode + "', groupId: '" + groupId + "', userId: '" + userId + "'");
+      }
+      
+      return true;
       
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));

@@ -1877,5 +1877,208 @@ public class TestMembershipFinder extends GrouperTest {
     assertEquals("test.subject.8", memberships.get(1).getMember().getSubjectId());
     assertEquals("test.subject.7", memberships.get(2).getMember().getSubjectId());
   }
+
+  /**
+   * test {@link MembershipFinder#findCountForMember()} for regular memberships
+   */
+  public void testFindCountForMember() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem testStem = new StemSave(grouperSession).assignName("testExportStem").assignCreateParentStemsIfNotExist(true).save();
+    Group groupA = new GroupSave(grouperSession).assignName("testExportStem:groupA").assignCreateParentStemsIfNotExist(true).save();
+    Group groupB = new GroupSave(grouperSession).assignName("testExportStem:groupB").assignCreateParentStemsIfNotExist(true).save();
+
+    Subject subj0 = SubjectFinder.findById("test.subject.0", true);
+    Subject subj1 = SubjectFinder.findById("test.subject.1", true);
+    Subject subj2 = SubjectFinder.findById("test.subject.2", true);
+    Subject subj3 = SubjectFinder.findById("test.subject.3", true);
+    Subject subj4 = SubjectFinder.findById("test.subject.4", true);
+
+    groupA.addMember(subj0);
+    groupA.addMember(subj1);
+    groupA.addMember(subj2);
+    groupB.addMember(subj3);
+    groupB.addMember(subj4);
+
+    // test count for a single group
+    {
+      MembershipFinder membershipFinder = new MembershipFinder()
+        .addGroup(groupA)
+        .assignCheckSecurity(true)
+        .assignHasFieldForMember(false);
+
+      int count = membershipFinder.findCountForMember();
+      assertEquals("groupA should have 3 members", 3, count);
+    }
+
+    // test count across a stem
+    {
+      MembershipFinder membershipFinder = new MembershipFinder()
+        .assignStem(testStem)
+        .assignStemScope(Stem.Scope.SUB)
+        .assignCheckSecurity(true)
+        .assignHasFieldForMember(false)
+        .assignSplitScopeForMember(true);
+
+      int count = membershipFinder.findCountForMember();
+      assertEquals("stem should have 5 memberships total", 5, count);
+    }
+
+    // test that finder is reusable after findCountForMember (queryOptions restored)
+    {
+      MembershipFinder membershipFinder = new MembershipFinder()
+        .addGroup(groupA)
+        .assignCheckSecurity(true)
+        .assignHasFieldForMember(false);
+
+      int count = membershipFinder.findCountForMember();
+      assertEquals(3, count);
+
+      // now use the same finder to get actual results
+      Set<MembershipSubjectContainer> results = membershipFinder
+          .findMembershipResult().getMembershipSubjectContainers();
+      assertEquals("should still get all 3 results after count query", 3, results.size());
+    }
+
+    // test count with filter text
+    {
+      MembershipFinder membershipFinder = new MembershipFinder()
+        .assignStem(testStem)
+        .assignStemScope(Stem.Scope.SUB)
+        .assignCheckSecurity(true)
+        .assignHasFieldForMember(false)
+        .assignSplitScopeForMember(true)
+        .assignScopeForMember("test.subject.0");
+
+      int count = membershipFinder.findCountForMember();
+      assertEquals("filtered count should be 1", 1, count);
+    }
+
+    // test count returns 0 for empty group
+    {
+      Group emptyGroup = new GroupSave(grouperSession).assignName("testExportStem:emptyGroup").assignCreateParentStemsIfNotExist(true).save();
+
+      MembershipFinder membershipFinder = new MembershipFinder()
+        .addGroup(emptyGroup)
+        .assignCheckSecurity(true)
+        .assignHasFieldForMember(false);
+
+      int count = membershipFinder.findCountForMember();
+      assertEquals("empty group should have 0 members", 0, count);
+    }
+  }
+
+  /**
+   * test {@link MembershipFinder#findCountForMember()} for point-in-time memberships
+   */
+  public void testFindCountForMemberPIT() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group group = new GroupSave(grouperSession).assignName("testPitExportStem:pitGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    Subject subj0 = SubjectFinder.findById("test.subject.0", true);
+    Subject subj1 = SubjectFinder.findById("test.subject.1", true);
+    Subject subj2 = SubjectFinder.findById("test.subject.2", true);
+
+    group.addMember(subj0);
+    group.addMember(subj1);
+    group.addMember(subj2);
+
+    // process change log so PIT tables are populated
+    ChangeLogTempToEntity.convertRecords();
+
+    Stem testStem = StemFinder.findByName(grouperSession, "testPitExportStem", true);
+
+    // test PIT count
+    {
+      MembershipFinder membershipFinder = new MembershipFinder()
+        .assignStem(testStem)
+        .assignStemScope(Stem.Scope.SUB)
+        .assignCheckSecurity(true)
+        .assignHasFieldForMember(false)
+        .assignSplitScopeForMember(true)
+        .assignPointInTimeFrom(new Timestamp(System.currentTimeMillis() - 60000))
+        .assignPointInTimeTo(new Timestamp(System.currentTimeMillis() + 60000));
+
+      int count = membershipFinder.findCountForMember();
+      assertEquals("PIT count should be 3", 3, count);
+    }
+
+    // test PIT finder is reusable after count
+    {
+      MembershipFinder membershipFinder = new MembershipFinder()
+        .assignStem(testStem)
+        .assignStemScope(Stem.Scope.SUB)
+        .assignCheckSecurity(true)
+        .assignHasFieldForMember(false)
+        .assignSplitScopeForMember(true)
+        .assignPointInTimeFrom(new Timestamp(System.currentTimeMillis() - 60000))
+        .assignPointInTimeTo(new Timestamp(System.currentTimeMillis() + 60000));
+
+      int count = membershipFinder.findCountForMember();
+      assertEquals(3, count);
+
+      // now use the same finder to get actual results
+      Set<Object[]> results = membershipFinder.findPITMembershipsMembers();
+      assertEquals("should still get all 3 PIT results after count query", 3, results.size());
+    }
+  }
+
+  /**
+   * test that security is enforced in findCountForMember - non-privileged user
+   * should only see memberships on groups they can READ
+   */
+  public void testFindCountForMemberSecurity() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem testStem = new StemSave(grouperSession).assignName("testCountSecStem").assignCreateParentStemsIfNotExist(true).save();
+    Group groupReadable = new GroupSave(grouperSession).assignName("testCountSecStem:readable").assignCreateParentStemsIfNotExist(true).save();
+    Group groupHidden = new GroupSave(grouperSession).assignName("testCountSecStem:hidden").assignCreateParentStemsIfNotExist(true).save();
+
+    Subject subj0 = SubjectFinder.findById("test.subject.0", true);
+    Subject subj1 = SubjectFinder.findById("test.subject.1", true);
+    Subject subj2 = SubjectFinder.findById("test.subject.2", true);
+    Subject testUser = SubjectFinder.findById("test.subject.9", true);
+
+    groupReadable.addMember(subj0);
+    groupReadable.addMember(subj1);
+    groupHidden.addMember(subj2);
+
+    // grant read on the readable group to testUser
+    groupReadable.grantPriv(testUser, AccessPrivilege.READ);
+
+    // revoke default read/view from All on the hidden group
+    groupHidden.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    groupHidden.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+
+    // as root, count should be 3
+    {
+      MembershipFinder membershipFinder = new MembershipFinder()
+        .assignStem(testStem)
+        .assignStemScope(Stem.Scope.SUB)
+        .assignCheckSecurity(true)
+        .assignHasFieldForMember(false)
+        .assignSplitScopeForMember(true);
+
+      int count = membershipFinder.findCountForMember();
+      assertEquals("root should see all 3 memberships", 3, count);
+    }
+
+    // as testUser, count should only be 2 (only readable group)
+    GrouperSession.stopQuietly(grouperSession);
+    GrouperSession testSession = GrouperSession.start(testUser);
+    {
+      MembershipFinder membershipFinder = new MembershipFinder()
+        .assignStem(testStem)
+        .assignStemScope(Stem.Scope.SUB)
+        .assignCheckSecurity(true)
+        .assignHasFieldForMember(false)
+        .assignSplitScopeForMember(true);
+
+      int count = membershipFinder.findCountForMember();
+      assertEquals("testUser should only see 2 memberships from the readable group", 2, count);
+    }
+    GrouperSession.stopQuietly(testSession);
+  }
 }
 

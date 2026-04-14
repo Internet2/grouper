@@ -498,6 +498,9 @@ public class GrouperDataEngine {
       aliasesToAdd.removeAll(GrouperUtil.nonNull(configIdToGrouperDataFieldAliasesInDb.get(configId)));
       
       GrouperDataField grouperDataField = configIdToGrouperDataFieldInDb.get(configId);
+      if (grouperDataField == null) {
+        continue;
+      }
       GrouperDataAliasDao.insertMissingAliases(grouperDataField.getInternalId(), null, aliasesToAdd);
     }
     
@@ -567,6 +570,16 @@ public class GrouperDataEngine {
   
   public GrouperDataProviderIndex getGrouperDataProviderIndex() {
     return grouperDataProviderIndex;
+  }
+
+  /**
+   * replace the provider index with a fresh instance.
+   * used between subject ID batches in full sync to release per-batch state
+   * (member wrappers, assigns, dictionary text, members to add).
+   * @param grouperDataProviderIndex the new index
+   */
+  public void setGrouperDataProviderIndex(GrouperDataProviderIndex grouperDataProviderIndex) {
+    this.grouperDataProviderIndex = grouperDataProviderIndex;
   }
 
   public void loadFieldsAndRows(GrouperConfig grouperConfig) {
@@ -830,7 +843,12 @@ public class GrouperDataEngine {
   }
   
   public String calculateHighestLevelAccess(GrouperPrivacyRealmConfig grouperPrivacyRealmConfig, Subject subject) {
-    
+
+    if (grouperPrivacyRealmConfig == null) {
+      LOG.warn("grouperPrivacyRealmConfig is null in calculateHighestLevelAccess for subject: " + (subject == null ? null : subject.getId()));
+      return "";
+    }
+
     Map<MultiKey, Boolean> sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccess = sourceIdSubjectIdPrivacyRealmConfigIdRoleToHasAccessCache.get(Boolean.TRUE);
     
     MultiKey sourceIdSubjectId = new MultiKey(subject.getSourceId(), subject.getId());

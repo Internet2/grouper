@@ -107,7 +107,7 @@ public class GrouperMcpHasMemberTest extends GrouperTest {
     arguments.put("groupName", groupName);
     ArrayNode subjects = arguments.putArray("subjects");
     ObjectNode subjectNode = subjects.addObject();
-    subjectNode.put("subjectId", subjectId);
+    subjectNode.put("subjectIdOrIdentifier", subjectId);
     return arguments;
   }
 
@@ -216,9 +216,9 @@ public class GrouperMcpHasMemberTest extends GrouperTest {
       arguments.put("groupName", "test:mcpHasMemberGroup3");
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subj0Node = subjects.addObject();
-      subj0Node.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      subj0Node.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
       ObjectNode subj1Node = subjects.addObject();
-      subj1Node.put("subjectId", SubjectTestHelper.SUBJ1.getId());
+      subj1Node.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ1.getId());
 
       ObjectNode result = GrouperMcpHasMember.execute(arguments, authUser);
 
@@ -317,7 +317,7 @@ public class GrouperMcpHasMemberTest extends GrouperTest {
       arguments.put("groupName", "test:mcpHasMemberGroup5");
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subjectNode = subjects.addObject();
-      subjectNode.put("subjectIdentifier", "id.test.subject.0");
+      subjectNode.put("subjectIdOrIdentifier", "id.test.subject.0");
 
       ObjectNode result = GrouperMcpHasMember.execute(arguments, authUser);
 
@@ -348,7 +348,7 @@ public class GrouperMcpHasMemberTest extends GrouperTest {
       ObjectNode arguments = objectMapper.createObjectNode();
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subjectNode = subjects.addObject();
-      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      subjectNode.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpHasMember.execute(arguments, authUser);
 
@@ -424,7 +424,7 @@ public class GrouperMcpHasMemberTest extends GrouperTest {
 
       assertTrue("Expected error", result.get("isError").asBoolean());
       String text = result.get("content").get(0).get("text").asText();
-      assertTrue(text.contains("must have either subjectId or subjectIdentifier"));
+      assertTrue(text.contains("must have subjectIdOrIdentifier"));
     } finally {
       GrouperSession.stopQuietly(session);
     }
@@ -443,8 +443,7 @@ public class GrouperMcpHasMemberTest extends GrouperTest {
       arguments.put("groupName", "test:someGroup");
       ArrayNode subjects = arguments.putArray("subjects");
       ObjectNode subjectNode = subjects.addObject();
-      subjectNode.put("subjectId", SubjectTestHelper.SUBJ0.getId());
-      subjectNode.put("subjectIdentifier", "id.test.subject.0");
+      subjectNode.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpHasMember.execute(arguments, authUser);
 

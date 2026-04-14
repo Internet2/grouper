@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderSync;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderSyncType;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -45,7 +46,8 @@ public class GrouperDataProviderFullSyncJob extends OtherJobBase {
         
         try {
           Map<String, Object> debugMap = loadFull(jobName, daemonName, dataProviderConfigId, otherJobInput.getHib3GrouperLoaderLog());
-          otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running full sync for dataProviderConfigId=" + dataProviderConfigId + "\n" + GrouperUtil.mapToString(debugMap));
+          String readOnlyPrefix = GrouperUtil.booleanValue(debugMap.get("readOnly"), false) ? "READONLY MODE - no changes were made\n" : "";
+          otherJobInput.getHib3GrouperLoaderLog().setJobMessage(readOnlyPrefix + "Finished successfully running full sync for dataProviderConfigId=" + dataProviderConfigId + "\n" + GrouperUtil.mapToString(debugMap));
         } catch (Exception e) {
           LOG.warn("Error while running full sync for dataProviderConfigId=" + dataProviderConfigId, e);
           otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running full sync for dataProviderConfigId=" + dataProviderConfigId + " with an error: " + ExceptionUtils.getStackTrace(e));
@@ -71,9 +73,24 @@ public class GrouperDataProviderFullSyncJob extends OtherJobBase {
     final GrouperDataProviderSync grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync(dataProviderConfigId);
     grouperDataProviderSync.setJobName(jobName);
     grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    
+
+    {
+      Boolean readOnlyPerProvider = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDataProvider." + dataProviderConfigId + ".readOnly");
+      if (readOnlyPerProvider != null) {
+        grouperDataProviderSync.setReadOnly(readOnlyPerProvider);
+      } else {
+        grouperDataProviderSync.setReadOnly(GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDataProviderDefault.readOnly", false));
+      }
+      if (grouperDataProviderSync.isReadOnly()) {
+        grouperDataProviderSync.getDebugMap().put("readOnly", true);
+      }
+    }
+
     Integer failsafeMaxOverallPercentFieldAssignRemove = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob." + daemonName + ".failsafeMaxOverallPercentFieldAssignRemove");
     grouperDataProviderSync.setFailsafeMaxOverallPercentFieldAssignRemove(failsafeMaxOverallPercentFieldAssignRemove);
+
+    Integer failsafeMinSubjectCount = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob." + daemonName + ".failsafeMinSubjectCount");
+    grouperDataProviderSync.setFailsafeMinSubjectCount(failsafeMinSubjectCount);
     
     GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
     grouperDataEngine.setDebugMap(grouperDataProviderSync.getDebugMap());

@@ -45,6 +45,9 @@ import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTest
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderTest;
+import edu.internet2.middleware.grouper.app.loader.TestgrouperIncrementalLoader;
 import edu.internet2.middleware.grouper.app.loader.TestgrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerTest;
@@ -76,7 +79,7 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LoaderLdapElUtilsTest("testLoaderShouldAbortListWithoutChangingMembershipsOverallMinMemberships2"));
+    TestRunner.run(new LoaderLdapElUtilsTest("testLoaderIncremental"));
   }
   
   /**
@@ -88,6 +91,16 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
   
   protected void setUp () {
     super.setUp();
+    
+    try {
+      GrouperLoaderTest.ensureTestgrouperLoaderTables();
+  
+      HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader").executeUpdate();
+      HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoaderGroups").executeUpdate();
+      HibernateSession.byHqlStatic().createQuery("delete from TestgrouperIncrementalLoader").executeUpdate();      
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
 
   }
 
@@ -364,6 +377,249 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
       groups = new GroupFinder().assignParentStemId(stem.getId()).assignStemScope(Scope.SUB).findGroups();
       assertTrue(""+groups.size(), groups.size() < 10 && groups.size() > 0);
       
+    } finally {
+      teardownLdap();
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  public void testLoaderIncremental() throws Exception {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    setupLdap();
+
+    try {
+
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
+
+      Group group = new GroupSave(grouperSession).assignName("test:testLdap").assignCreateParentStemsIfNotExist(true).save();
+
+      AttributeAssign attributeAssign = group.getAttributeDelegate().assignAttribute(LoaderLdapUtils.grouperLoaderLdapAttributeDefName()).getAttributeAssign();
+
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(&(uid=b*)(|(sn=brown)(sn=butler)))");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), "0 0 6 * * ?");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), "ou=People,dc=example,dc=edu");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), "SUBTREE_SCOPE");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapServerIdName(), "personLdap");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), "personLdapSource");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uid");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapTypeName(), "LDAP_GROUPS_FROM_ATTRIBUTES");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupAttributeName(), "sn");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), "someFolder:${groupAttributes['sn']}");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), "test:someFolder:%");
+
+      // add incremental table rows for each LDAP subject
+      List<TestgrouperIncrementalLoader> testIncrementalDataList = new ArrayList<TestgrouperIncrementalLoader>();
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(1, "bbutler", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(2, "bbutler437", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(3, "bbutler843", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(4, "bbrown", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(5, "bbrown705", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(6, "bbrown721", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      HibernateSession.byObjectStatic().saveOrUpdate(testIncrementalDataList);
+      
+      Group brownGroup = new GroupSave(grouperSession).assignName("test:someFolder:Brown").assignCreateParentStemsIfNotExist(true).save();
+      Group butlerGroup = new GroupSave(grouperSession).assignName("test:someFolder:Butler").assignCreateParentStemsIfNotExist(true).save();
+
+      GrouperLoaderIncrementalJob.runJob(grouperSession, "OTHER_JOB_incrementalLoader1");
+
+      Subject bbutler = SubjectFinder.findByIdAndSource("bbutler", "personLdapSource", true);
+      Subject bbutler437 = SubjectFinder.findByIdAndSource("bbutler437", "personLdapSource", true);
+      Subject bbutler843 = SubjectFinder.findByIdAndSource("bbutler843", "personLdapSource", true);
+      Subject bbrown = SubjectFinder.findByIdAndSource("bbrown", "personLdapSource", true);
+      Subject bbrown705 = SubjectFinder.findByIdAndSource("bbrown705", "personLdapSource", true);
+      Subject bbrown721 = SubjectFinder.findByIdAndSource("bbrown721", "personLdapSource", true);
+
+      assertEquals(3, brownGroup.getMembers().size());
+      assertEquals(3, butlerGroup.getMembers().size());
+      assertTrue(butlerGroup.hasMember(bbutler));
+      assertTrue(butlerGroup.hasMember(bbutler437));
+      assertTrue(butlerGroup.hasMember(bbutler843));
+      assertTrue(brownGroup.hasMember(bbrown));
+      assertTrue(brownGroup.hasMember(bbrown705));
+      assertTrue(brownGroup.hasMember(bbrown721));
+
+    } finally {
+      teardownLdap();
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  public void testLoaderIncrementalGroupDoesntExistWithMetadata() throws Exception {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog", false);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_compositeMemberships", false);
+
+    setupLdap();
+
+    try {
+
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.runFullSyncIfGroupDoesntExist", "false");
+
+      // create security groups for privilege testing
+      Group admins = new GroupSave(grouperSession).assignName("loaderSecurity:admins").assignCreateParentStemsIfNotExist(true).save();
+      Group readers = new GroupSave(grouperSession).assignName("loaderSecurity:readers").assignCreateParentStemsIfNotExist(true).save();
+      Group viewers = new GroupSave(grouperSession).assignName("loaderSecurity:viewers").assignCreateParentStemsIfNotExist(true).save();
+
+      Group loaderGroup = new GroupSave(grouperSession).assignName("test:testLdap").assignCreateParentStemsIfNotExist(true).save();
+
+      AttributeAssign attributeAssign = loaderGroup.getAttributeDelegate().assignAttribute(LoaderLdapUtils.grouperLoaderLdapAttributeDefName()).getAttributeAssign();
+
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(&(uid=b*)(|(sn=brown)(sn=butler)))");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), "0 0 6 * * ?");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), "ou=People,dc=example,dc=edu");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), "SUBTREE_SCOPE");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapServerIdName(), "personLdap");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), "personLdapSource");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uid");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapTypeName(), "LDAP_GROUPS_FROM_ATTRIBUTES");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupAttributeName(), "sn");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), "someFolder:${groupAttributes['sn']}");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), "test:someFolder:%");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionName(), "someFolder:The ${groupAttributes['sn']}");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName(), "${groupAttributes['sn']} group description");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapAdminsName(), "loaderSecurity:admins");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapReadersName(), "loaderSecurity:readers");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapViewersName(), "loaderSecurity:viewers");
+
+      // add incremental table rows for each LDAP subject
+      List<TestgrouperIncrementalLoader> testIncrementalDataList = new ArrayList<TestgrouperIncrementalLoader>();
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(1, "bbutler", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(2, "bbutler437", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(3, "bbutler843", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(4, "bbrown", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(5, "bbrown705", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(6, "bbrown721", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      HibernateSession.byObjectStatic().saveOrUpdate(testIncrementalDataList);
+
+      GrouperLoaderIncrementalJob.runJob(grouperSession, "OTHER_JOB_incrementalLoader1");
+      GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog", false);
+      GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_compositeMemberships", false);
+
+      Stem stem = StemFinder.findByName(grouperSession, "test:someFolder", true);
+      Set<Group> groups = new GroupFinder().assignParentStemId(stem.getId()).assignStemScope(Scope.SUB).findGroups();
+      assertEquals(2, groups.size());
+      
+      // verify the groups were created
+      Group brownGroup = GroupFinder.findByName(grouperSession, "test:someFolder:Brown", true);
+      Group butlerGroup = GroupFinder.findByName(grouperSession, "test:someFolder:Butler", true);
+
+      // verify display names
+      assertEquals("test:someFolder:The Brown", brownGroup.getDisplayName());
+      assertEquals("test:someFolder:The Butler", butlerGroup.getDisplayName());
+
+      // verify descriptions
+      assertEquals("Brown group description", brownGroup.getDescription());
+      assertEquals("Butler group description", butlerGroup.getDescription());
+
+      Subject bbutler = SubjectFinder.findByIdAndSource("bbutler", "personLdapSource", true);
+      Subject bbutler437 = SubjectFinder.findByIdAndSource("bbutler437", "personLdapSource", true);
+      Subject bbutler843 = SubjectFinder.findByIdAndSource("bbutler843", "personLdapSource", true);
+      Subject bbrown = SubjectFinder.findByIdAndSource("bbrown", "personLdapSource", true);
+      Subject bbrown705 = SubjectFinder.findByIdAndSource("bbrown705", "personLdapSource", true);
+      Subject bbrown721 = SubjectFinder.findByIdAndSource("bbrown721", "personLdapSource", true);
+
+      // verify memberships on the overall groups (via composite)
+      assertEquals(3, brownGroup.getMembers().size());
+      assertEquals(3, butlerGroup.getMembers().size());
+      assertTrue(butlerGroup.hasMember(bbutler));
+      assertTrue(butlerGroup.hasMember(bbutler437));
+      assertTrue(butlerGroup.hasMember(bbutler843));
+      assertTrue(brownGroup.hasMember(bbrown));
+      assertTrue(brownGroup.hasMember(bbrown705));
+      assertTrue(brownGroup.hasMember(bbrown721));
+
+      // verify privileges on the overall groups
+      assertTrue(brownGroup.hasAdmin(admins.toSubject()));
+      assertTrue(brownGroup.hasRead(readers.toSubject()));
+      assertTrue(brownGroup.hasView(viewers.toSubject()));
+      assertTrue(butlerGroup.hasAdmin(admins.toSubject()));
+      assertTrue(butlerGroup.hasRead(readers.toSubject()));
+      assertTrue(butlerGroup.hasView(viewers.toSubject()));
+    } finally {
+      teardownLdap();
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  public void testLoaderIncrementalGroupDoesntExist() throws Exception {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    setupLdap();
+
+    try {
+
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.runFullSyncIfGroupDoesntExist", "false");
+
+      Group group = new GroupSave(grouperSession).assignName("test:testLdap").assignCreateParentStemsIfNotExist(true).save();
+
+      AttributeAssign attributeAssign = group.getAttributeDelegate().assignAttribute(LoaderLdapUtils.grouperLoaderLdapAttributeDefName()).getAttributeAssign();
+
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(&(uid=b*)(|(sn=brown)(sn=butler)))");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), "0 0 6 * * ?");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), "ou=People,dc=example,dc=edu");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), "SUBTREE_SCOPE");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapServerIdName(), "personLdap");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), "personLdapSource");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uid");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapTypeName(), "LDAP_GROUPS_FROM_ATTRIBUTES");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupAttributeName(), "sn");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), "someFolder:${groupAttributes['sn']}");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), "test:someFolder:%");
+
+      // add incremental table rows for each LDAP subject
+      List<TestgrouperIncrementalLoader> testIncrementalDataList = new ArrayList<TestgrouperIncrementalLoader>();
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(1, "bbutler", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(2, "bbutler437", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(3, "bbutler843", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(4, "bbrown", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(5, "bbrown705", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      testIncrementalDataList.add(new TestgrouperIncrementalLoader(6, "bbrown721", null, null, "personLdapSource", "test:testLdap", System.currentTimeMillis(), null));
+      HibernateSession.byObjectStatic().saveOrUpdate(testIncrementalDataList);
+
+      GrouperLoaderIncrementalJob.runJob(grouperSession, "OTHER_JOB_incrementalLoader1");
+
+      Stem stem = StemFinder.findByName(grouperSession, "test:someFolder", true);
+      Set<Group> groups = new GroupFinder().assignParentStemId(stem.getId()).assignStemScope(Scope.SUB).findGroups();
+      assertEquals(2, groups.size());
+
+      Group brownGroup = GroupFinder.findByName(grouperSession, "test:someFolder:Brown", true);
+      Group butlerGroup = GroupFinder.findByName(grouperSession, "test:someFolder:Butler", true);
+
+      Subject bbutler = SubjectFinder.findByIdAndSource("bbutler", "personLdapSource", true);
+      Subject bbutler437 = SubjectFinder.findByIdAndSource("bbutler437", "personLdapSource", true);
+      Subject bbutler843 = SubjectFinder.findByIdAndSource("bbutler843", "personLdapSource", true);
+      Subject bbrown = SubjectFinder.findByIdAndSource("bbrown", "personLdapSource", true);
+      Subject bbrown705 = SubjectFinder.findByIdAndSource("bbrown705", "personLdapSource", true);
+      Subject bbrown721 = SubjectFinder.findByIdAndSource("bbrown721", "personLdapSource", true);
+
+      assertEquals(3, brownGroup.getMembers().size());
+      assertEquals(3, butlerGroup.getMembers().size());
+      assertTrue(butlerGroup.hasMember(bbutler));
+      assertTrue(butlerGroup.hasMember(bbutler437));
+      assertTrue(butlerGroup.hasMember(bbutler843));
+      assertTrue(brownGroup.hasMember(bbrown));
+      assertTrue(brownGroup.hasMember(bbrown705));
+      assertTrue(brownGroup.hasMember(bbrown721));
+
     } finally {
       teardownLdap();
       GrouperSession.stopQuietly(grouperSession);

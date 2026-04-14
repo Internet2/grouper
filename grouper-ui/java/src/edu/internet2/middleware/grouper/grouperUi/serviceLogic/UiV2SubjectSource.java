@@ -1,9 +1,11 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,9 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.subectSource.SubjectSourceConfiguration;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -36,8 +38,8 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.provider.SubjectImpl;
 import edu.internet2.middleware.subject.provider.SourceManager;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 public class UiV2SubjectSource {
   
@@ -136,6 +138,11 @@ public class UiV2SubjectSource {
       List<Source> allSources = new ArrayList<Source>(SubjectFinder.getSources(false));
       List<Source> otherSources = new ArrayList<Source>();
       for (Source theSource : allSources) {
+        if (GrouperAbac.internalSourceId(theSource.getId())
+            || StringUtils.equals("grouperEntities", theSource.getId())
+            || StringUtils.equals("grouperExternal", theSource.getId())) {
+          continue;
+        }
         if (source.isEnabled() != theSource.isEnabled()) {
           otherSources.add(theSource);
         }
@@ -203,6 +210,7 @@ public class UiV2SubjectSource {
       // want to make sure we're not using old cached data (e.g. virtual attribute config)
       ExpirableCache.clearAll();
       
+      String actAsSubjectIdOrIdentifier = StringUtils.trim(request.getParameter("actAsName"));
       String sourceId1 = StringUtils.trim(request.getParameter("subjectApiSourceIdName"));
       String sourceId2 = StringUtils.trim(request.getParameter("otherSubjectApiSourceIdId"));
       String subjectIds = StringUtils.trim(request.getParameter("subjectIdsName"));
@@ -216,6 +224,12 @@ public class UiV2SubjectSource {
       Source disabledSource = SubjectFinder.getSource(sourceId1).isEnabled() ? SubjectFinder.getSource(sourceId2) : SubjectFinder.getSource(sourceId1);
       
       if (!enabledSource.isEnabled() || disabledSource.isEnabled()) {
+        throw new RuntimeException("Unexpected");
+      }
+
+      if (GrouperAbac.internalSourceId(disabledSource.getId())
+          || StringUtils.equals("grouperEntities", disabledSource.getId())
+          || StringUtils.equals("grouperExternal", disabledSource.getId())) {
         throw new RuntimeException("Unexpected");
       }
       
@@ -242,6 +256,12 @@ public class UiV2SubjectSource {
         subjectIdsList = new GcDbAccess().sql(sql).addBindVar(enabledSource.getId()).selectList(String.class);
       }
       
+      if (!GrouperUtil.isBlank(actAsSubjectIdOrIdentifier)) {
+        Subject actAsSubject = SubjectFinder.findByIdOrIdentifier(actAsSubjectIdOrIdentifier, true);
+        GrouperSession.stopQuietly(grouperSession);
+        grouperSession = GrouperSession.start(actAsSubject);
+      }
+      
       Map<String, Subject> enabledSourceFindByIds = subjectIdsList.size() == 0 ? new HashMap<>() : enabledSource.getSubjectsByIds(subjectIdsList);
       Map<String, Subject> enabledSourceFindByIdentifiers = subjectIdentifiersList.size() == 0 ? new HashMap<>() : enabledSource.getSubjectsByIdentifiers(subjectIdentifiersList);
       Map<String, Set<Subject>> enabledSourceFindAll = new HashMap<>();
@@ -249,10 +269,15 @@ public class UiV2SubjectSource {
         Set<Subject> subjects = enabledSource.search(searchString);
         enabledSourceFindAll.put(searchString, subjects);
       }
+      
+      Map<String, Subject> enabledSourceFindByIdsUsingIdentifiers = subjectIdentifiersList.size() == 0 ? new HashMap<>() : enabledSource.getSubjectsByIds(subjectIdentifiersList);
+      Map<String, Subject> enabledSourceFindByIdentifiersUsingIds = subjectIdsList.size() == 0 ? new HashMap<>() : enabledSource.getSubjectsByIdentifiers(subjectIdsList);
 
       Map<String, Subject> disabledSourceFindByIds;
       Map<String, Subject> disabledSourceFindByIdentifiers;
       Map<String, Set<Subject>> disabledSourceFindAll;
+      Map<String, Subject> disabledSourceFindByIdsUsingIdentifiers;
+      Map<String, Subject> disabledSourceFindByIdentifiersUsingIds;
       
       String disabledSourceIdToSet = null;
       
@@ -264,6 +289,10 @@ public class UiV2SubjectSource {
         
         disabledSourceFindByIds = subjectIdsList.size() == 0 ? new HashMap<>() : disabledSource.getSubjectsByIds(subjectIdsList);
         disabledSourceFindByIdentifiers = subjectIdentifiersList.size() == 0 ? new HashMap<>() : disabledSource.getSubjectsByIdentifiers(subjectIdentifiersList);
+        
+        disabledSourceFindByIdsUsingIdentifiers = subjectIdentifiersList.size() == 0 ? new HashMap<>() : disabledSource.getSubjectsByIds(subjectIdentifiersList);
+        disabledSourceFindByIdentifiersUsingIds = subjectIdsList.size() == 0 ? new HashMap<>() : disabledSource.getSubjectsByIdentifiers(subjectIdsList);
+
         disabledSourceFindAll = new HashMap<>();
         for (String searchString : subjectSearchStringsList) {
           Set<Subject> subjects = disabledSource.search(searchString);
@@ -290,6 +319,7 @@ public class UiV2SubjectSource {
           if (disabledSubject != null) {
             // correct source id so that virtual attributes resolve correctly
             ((SubjectImpl)disabledSubject).setSourceId(disabledSource.getId());
+            ((SubjectImpl)disabledSubject).attributesInittedClear();
           }
           
           if (enabledSubject == null && disabledSubject == null) {
@@ -303,7 +333,21 @@ public class UiV2SubjectSource {
             addSubjectComparisonToReport(enabledSource, disabledSource, enabledSubject, disabledSubject, report);
           }
           
-          report.append("<br />\n");
+        }
+        
+        for (String subjectId : subjectIdsList) {
+          Subject enabledSubject = enabledSourceFindByIdentifiersUsingIds.get(subjectId);
+          Subject disabledSubject = disabledSourceFindByIdentifiersUsingIds.get(subjectId);
+
+          if (enabledSubject == null && disabledSubject == null) {
+            report.append("<font color='green'>SUCCESS:</font> Subject ID " + GrouperUtil.xmlEscape(subjectId) + " wasn't found in either source when querying by subject identifier\n");
+          } else if (enabledSubject == null && disabledSubject != null) {
+            report.append("<font color='red'>ERROR:</font> Subject ID " + GrouperUtil.xmlEscape(subjectId) + " only found in source " + disabledSource.getId() + " when querying by subject identifier\n");
+          } else if (enabledSubject != null && disabledSubject == null) {
+            report.append("<font color='red'>ERROR:</font> Subject ID " + GrouperUtil.xmlEscape(subjectId) + " only found in source " + enabledSource.getId() + " when querying by subject identifier\n");
+          } else {
+            report.append("<font color='green'>SUCCESS:</font> Subject ID " + GrouperUtil.xmlEscape(subjectId) + " found in both sources when querying by subject identifier\n");
+          }          
         }
       }
       report.append("</pre>\n");
@@ -321,6 +365,7 @@ public class UiV2SubjectSource {
           if (disabledSubject != null) {
             // correct source id so that virtual attributes resolve correctly
             ((SubjectImpl)disabledSubject).setSourceId(disabledSource.getId());
+            ((SubjectImpl)disabledSubject).attributesInittedClear();
           }
           
           if (enabledSubject == null && disabledSubject == null) {
@@ -334,7 +379,21 @@ public class UiV2SubjectSource {
             addSubjectComparisonToReport(enabledSource, disabledSource, enabledSubject, disabledSubject, report);
           }
           
-          report.append("<br />\n");
+        }
+        
+        for (String subjectIdentifier : subjectIdentifiersList) {
+          Subject enabledSubject = enabledSourceFindByIdsUsingIdentifiers.get(subjectIdentifier);
+          Subject disabledSubject = disabledSourceFindByIdsUsingIdentifiers.get(subjectIdentifier);
+          
+          if (enabledSubject == null && disabledSubject == null) {
+            report.append("<font color='green'>SUCCESS:</font> Subject Identifier " + GrouperUtil.xmlEscape(subjectIdentifier) + " wasn't found in either source when querying by subject id\n");
+          } else if (enabledSubject == null && disabledSubject != null) {
+            report.append("<font color='red'>ERROR:</font> Subject Identifier " + GrouperUtil.xmlEscape(subjectIdentifier) + " only found in source " + disabledSource.getId() + " when querying by subject id\n");
+          } else if (enabledSubject != null && disabledSubject == null) {
+            report.append("<font color='red'>ERROR:</font> Subject Identifier " + GrouperUtil.xmlEscape(subjectIdentifier) + " only found in source " + enabledSource.getId() + " when querying by subject id\n");
+          } else {
+            report.append("<font color='green'>SUCCESS:</font> Subject Identifier " + GrouperUtil.xmlEscape(subjectIdentifier) + " found in both sources when querying by subject id\n");
+          }          
         }
       }
       report.append("</pre>\n");
@@ -373,6 +432,7 @@ public class UiV2SubjectSource {
               if (disabledSubject != null) {
                 // correct source id so that virtual attributes resolve correctly
                 ((SubjectImpl)disabledSubject).setSourceId(disabledSource.getId());
+                ((SubjectImpl)disabledSubject).attributesInittedClear();
               }
               
               if (enabledSubject == null && disabledSubject != null) {
@@ -384,11 +444,8 @@ public class UiV2SubjectSource {
                 addSubjectComparisonToReport(enabledSource, disabledSource, enabledSubject, disabledSubject, report);
               }
               
-              report.append("<br />\n");
             }
           }
-          
-          report.append("<br />\n");
         }
       }
       report.append("</pre>\n");
@@ -413,12 +470,29 @@ public class UiV2SubjectSource {
       report.append("<font color='red'>ERROR:</font> description mismatch, source " + enabledSource.getId() + "=" + GrouperUtil.xmlEscape(enabledSubject.getDescription()) + ", " + disabledSource.getId() + "=" + GrouperUtil.xmlEscape(disabledSubject.getDescription()) + "\n"); 
     }
     
-    Set<String> attributeNames = new HashSet<>(enabledSubject.getAttributes(false).keySet());
-    attributeNames.addAll(new HashSet<>(disabledSubject.getAttributes(false).keySet()));
+    // use getAttributes(true) to exclude internal attributes (name, description, etc.)
+    Set<String> attributeNames = new HashSet<>(enabledSubject.getAttributes(true).keySet());
+    attributeNames.addAll(new HashSet<>(disabledSubject.getAttributes(true).keySet()));
     for (String attributeName : attributeNames) {
-      Set<String> enabledSubjectAttributeValues = GrouperUtil.nonNull(enabledSubject.getAttributes(false).get(attributeName));
-      Set<String> disabledSubjectAttributeValues = GrouperUtil.nonNull(disabledSubject.getAttributes(false).get(attributeName));
-      
+      Set<String> enabledSubjectAttributeValues = new HashSet<>(GrouperUtil.nonNull(enabledSubject.getAttributes(true).get(attributeName)));
+      Set<String> disabledSubjectAttributeValues = new HashSet<>(GrouperUtil.nonNull(disabledSubject.getAttributes(true).get(attributeName)));
+
+      // remove blank values so that {} and {""} are treated as equivalent
+      Iterator<String> enabledIterator = enabledSubjectAttributeValues.iterator();
+      while (enabledIterator.hasNext()) {
+        String value = enabledIterator.next();
+        if (value == null || StringUtils.isBlank(value)) {
+          enabledIterator.remove();
+        }
+      }
+      Iterator<String> disabledIterator = disabledSubjectAttributeValues.iterator();
+      while (disabledIterator.hasNext()) {
+        String value = disabledIterator.next();
+        if (value == null || StringUtils.isBlank(value)) {
+          disabledIterator.remove();
+        }
+      }
+
       String enabledValuesString = GrouperUtil.join(enabledSubjectAttributeValues.iterator(), ",");
       String disabledValuesString = GrouperUtil.join(disabledSubjectAttributeValues.iterator(), ",");
       if (GrouperUtil.equals(enabledSubjectAttributeValues, disabledSubjectAttributeValues)) {

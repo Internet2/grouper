@@ -90,6 +90,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -110,6 +112,7 @@ import org.apache.commons.jexl2.Script;
 import org.apache.commons.jexl2.parser.JexlNode;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JxltEngine;
+import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.commons.jexl3.JxltEngine.Template;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -12021,6 +12024,9 @@ public class GrouperUtil {
       if (object1 instanceof Date && object2 instanceof Date) {
         return ((Date)object1).getTime() == ((Date)object2).getTime();
       }
+      if (object1 instanceof Set && object2 instanceof Set) {
+        return equalsSet((Set<?>)object1, (Set<?>)object2);
+      }
       return object1.equals(object2);
   }
 
@@ -14978,13 +14984,45 @@ public class GrouperUtil {
   /**
    * threadpool
    */
-  private static ExecutorService executorService = Executors.newCachedThreadPool(new DaemonThreadFactory());
+  private static ExecutorService executorService = null;
 
   /**
-   * might want to use GrouperCallable with this
+   * might want to use GrouperCallable with this.
+   * Lazy-initialized so that config properties are available.
+   * Bounded thread pool with bounded queue and CallerRunsPolicy for backpressure.
+   * Up to maxThreads run concurrently, up to queueSize tasks are queued,
+   * and if the queue is full the calling thread runs the task itself.
+   * Idle threads are terminated after keepAliveSeconds.
+   * Configurable via grouper.properties:
+   *   grouper.executorService.maxThreads (default 100)
+   *   grouper.executorService.keepAliveSeconds (default 60)
+   *   grouper.executorService.queueSize (default 10000)
    * @return executor service
    */
   public static ExecutorService retrieveExecutorService() {
+    if (executorService == null) {
+      synchronized (GrouperUtil.class) {
+        if (executorService == null) {
+          int maxThreads = 100;
+          int keepAliveSeconds = 60;
+          int queueSize = 10000;
+          try {
+            maxThreads = GrouperConfig.retrieveConfig().propertyValueInt("grouper.executorService.maxThreads", 100);
+            keepAliveSeconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.executorService.keepAliveSeconds", 60);
+            queueSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.executorService.queueSize", 10000);
+          } catch (Exception e) {
+            // config not available yet, use defaults
+          }
+          ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+              maxThreads, maxThreads, keepAliveSeconds, TimeUnit.SECONDS,
+              new java.util.concurrent.LinkedBlockingQueue<Runnable>(queueSize),
+              new DaemonThreadFactory(),
+              new ThreadPoolExecutor.CallerRunsPolicy());
+          threadPoolExecutor.allowCoreThreadTimeOut(true);
+          executorService = threadPoolExecutor;
+        }
+      }
+    }
     return executorService;
   }
 
@@ -15087,14 +15125,22 @@ public class GrouperUtil {
    * @return the couple of lines of stack
    */
   public static String stack() {
-    Exception exception = new Exception();
+    return stack(new Exception());
+  }
+
+  /**
+   * get a short stack trace from a throwable, only edu.internet2 lines
+   * @param throwable
+   * @return the couple of lines of stack
+   */
+  public static String stack(Throwable throwable) {
     //get the stack
-    String stack = getFullStackTrace(exception);
+    String stack = getFullStackTrace(throwable);
     //split into an array of strings (on newline)
     String[] stackLines = splitTrim(stack, "\n");
-    
+
     StringBuffer result = new StringBuffer();
-    
+
     for (int i=0;i<stackLines.length;i++) {
       String current = stackLines[i];
       if (current.startsWith("at edu.internet2") && !current.startsWith("at edu.internet2.middleware.grouper.util.GrouperUtil.stack(")) {
@@ -15620,25 +15666,25 @@ public class GrouperUtil {
           { 
             Boolean silent = true;
             Boolean lenient = true;
-            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).permissions(JexlPermissions.UNRESTRICTED).create();
             jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
           }
           {
             Boolean silent = false;
             Boolean lenient = true;
-            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).permissions(JexlPermissions.UNRESTRICTED).create();
             jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
           }
           {
             Boolean silent = true;
             Boolean lenient = false;
-            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).permissions(JexlPermissions.UNRESTRICTED).create();
             jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
           }
           {
             Boolean silent = false;
             Boolean lenient = false;
-            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).create();
+            final org.apache.commons.jexl3.JexlEngine jexlEngine = new JexlBuilder().silent(silent).strict(!lenient).cache(cacheSize).permissions(JexlPermissions.UNRESTRICTED).create();
             jexlEngines3.put(new MultiKey(silent, lenient), jexlEngine);
           }
           

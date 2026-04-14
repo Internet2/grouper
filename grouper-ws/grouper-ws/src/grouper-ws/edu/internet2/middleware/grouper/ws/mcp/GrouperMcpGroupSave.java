@@ -287,9 +287,12 @@ public class GrouperMcpGroupSave {
     // note: composite factor group names (leftGroupName, rightGroupName) are not
     // checked because they are only referenced (read), not modified.
     if (authUser.isOAuthAuthenticated()) {
+      if (!authUser.hasGroupOrFolderReadwriteScope()) {
+        return buildErrorResult("Access denied: your OAuth scope does not include groups or folders.");
+      }
       if (!authUser.isGroupInReadwriteScope(groupName)) {
-        return buildErrorResult("Access denied: group '" + groupName
-            + "' is outside your consented read-write scope.");
+        return buildErrorResult(
+            authUser.buildReadwriteScopeDeniedError("group", groupName));
       }
     }
 
@@ -328,7 +331,8 @@ public class GrouperMcpGroupSave {
       }
     } catch (Exception e) {
       LOG.error("Error in group_save action '" + action + "' for group: " + groupName, e);
-      return buildErrorResult("Error in group_save action '" + action + "': " + e.getMessage());
+      return buildErrorResult("Error in group_save action '" + action + "': " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

@@ -73,22 +73,31 @@ public class GrouperDataProviderQueryConfiguration extends GrouperConfigurationM
       numberOfQueryAttributesLength = GrouperUtil.intValue(numberOfQueryAttributes.getValueOrExpressionEvaluationValue(), 0);
       
       Set<String> attributeNames = new HashSet<String>();
-      
+
+      GrouperDataEngine dataEngine = new GrouperDataEngine();
+      dataEngine.loadFieldsAndRows(null);
+
       for (int i=0; i<numberOfQueryAttributesLength; i++) {
-        
+
         GrouperConfigurationModuleAttribute attribute = this.retrieveAttributes().get("providerQueryDataField."+i+".providerDataFieldConfigId");
         String attributeName = attribute.getValueOrExpressionEvaluationValue();
 
         if (!StringUtils.isBlank(attributeName)) {
-          
+
           if (attributeNames.contains(attributeName)) {
             String errorMessage = GrouperTextContainer.textOrNull("providerQueryDataFieldErrorUsingDuplicateAttributeNames") + " " + attributeName;
             errorsToDisplay.add(errorMessage);
             return;
           }
-          
+
           attributeNames.add(attributeName);
-          
+
+          // validate that the data field config exists
+          if (!dataEngine.getFieldConfigByConfigId().containsKey(attributeName)) {
+            errorsToDisplay.add("Data field config 'grouperDataField." + attributeName + ".*' not found, referenced by grouperDataProviderQuery." + this.getConfigId() + ".providerQueryDataField." + i + ".providerDataFieldConfigId");
+            return;
+          }
+
         }
       }
     }

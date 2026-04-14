@@ -32,6 +32,8 @@ ${grouper:titleFromKeyAndText('subjectViewAuditsPageTitle', grouperRequestContai
                   <button type="submit" class="btn" id="auditLogSubmitButtonId"
                   onclick="ajax('../app/UiV2Subject.viewAuditsFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}', {formIds: 'subjectFilterAuditFormId,subjectPagingAuditFormId,subjectQuerySortAscendingFormId'}); return false;"
                   >${textContainer.text['subjectAuditLogFilterFindEntriesButton']}</button>
+                  <input type="button" class="btn" value="${textContainer.textEscapeDouble['subjectAuditLogExportButton'] }"
+                    onclick="return configurationFileExport(event, '../app/UiV2Subject.viewAuditsExport?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}', {optionalFormElementNamesToSend: 'auditType,filterType,filterFromDate,filterToDate,showExtendedResults'}); return false;" />
                 </form>
 
 

@@ -25,7 +25,11 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import org.quartz.JobKey;
+
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
@@ -52,9 +56,11 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGrouperConfigHibernate;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -449,6 +455,13 @@ public class UiV2Configure {
           String property = guiConfigProperty.getConfigItemMetadata().getKeyOrSampleKey();
           String value = guiConfigProperty.getPropertyValue();
           
+          String sourceOfValue = guiConfigProperty.getValueFromWhere();
+          if (StringUtils.isBlank(configSource) && StringUtils.isNotBlank(sourceOfValue) && sourceOfValue.endsWith("base.properties")) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("configurationFileExportBasePropertiesError")));
+            return;
+          }
+          
           if (guiConfigProperty.isFromDatabase()) {
             if (grouperConfigHibernateMap.containsKey(property) &&
                 grouperConfigHibernateMap.get(property) != null && grouperConfigHibernateMap.get(property).isConfigEncrypted()) {
@@ -489,6 +502,7 @@ public class UiV2Configure {
       } catch (IOException e) {
         throw new RuntimeException("Error occured while writing response");
       }
+      throw new ControllerDone();
     }
       
     finally {
@@ -896,6 +910,15 @@ public class UiV2Configure {
       GuiConfigProperty guiConfigProperty = guiConfigFile.findGuiConfigProperty(propertyNameString, true);
 
       configurationContainer.setCurrentGuiConfigProperty(guiConfigProperty);
+      String sourceOfValue = guiConfigProperty.getValueFromWhere();
+      //this is to make sure a property value can be edited when there's a key in the non-base and also in base.
+      //clone the metadata so we dont mutate the cached ConfigItemMetadata shared across requests
+      if (StringUtils.isNotBlank(sourceOfValue) && !sourceOfValue.endsWith("base.properties")) {
+        ConfigItemMetadata metadataCopy = GrouperUtil.clone(guiConfigProperty.getConfigItemMetadata(),
+            GrouperUtil.fieldNames(ConfigItemMetadata.class, null, null, true, false, false));
+        metadataCopy.setKey(guiConfigProperty.getConfigItemMetadata().getKeyOrSampleKey());
+        guiConfigProperty.setConfigItemMetadata(metadataCopy);
+      }
       
       Integer index = GrouperUtil.intObjectValue(request.getParameter("index"), true);
       if (StringUtils.isBlank(propertyNameString)) {
@@ -1097,6 +1120,9 @@ public class UiV2Configure {
 
     ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
 
+    ConfigFileName configFileName = null;
+    Properties propertiesToImport = new Properties();
+
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
@@ -1109,9 +1135,6 @@ public class UiV2Configure {
       
       // get the type first
       String howToAdd = grouperRequestWrapper.getParameter("configurationImportHowAdd");
-      
-      ConfigFileName configFileName = null;
-      Properties propertiesToImport = new Properties();
       
       if (StringUtils.equals(howToAdd, "file")) {
         if (!grouperRequestWrapper.isMultipart()) {
@@ -1227,6 +1250,40 @@ public class UiV2Configure {
       GrouperSession.stopQuietly(grouperSession);
     }
 
+    boolean hasUnscheduledLoaderJobs = false;
+    // check if loader config was imported and warn about unscheduled jobs
+    if (configFileName == ConfigFileName.GROUPER_LOADER_PROPERTIES) {
+      try {
+        org.quartz.Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+        for (Object keyObject : propertiesToImport.keySet()) {
+          String key = ((String) keyObject).trim();
+          String jobName = null;
+
+          Matcher changeLogMatcher = GrouperCheckConfig.grouperLoaderConsumerPattern.matcher(key);
+          if (changeLogMatcher.matches() && "class".equals(changeLogMatcher.group(2))) {
+            jobName = GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + changeLogMatcher.group(1);
+          }
+
+          Matcher otherJobMatcher = GrouperCheckConfig.grouperLoaderOtherJobPattern.matcher(key);
+          if (jobName == null && otherJobMatcher.matches() && "class".equals(otherJobMatcher.group(2))) {
+            jobName = GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX + otherJobMatcher.group(1);
+          }
+
+          Matcher messagingMatcher = GrouperCheckConfig.messagingListenerConsumerPattern.matcher(key);
+          if (jobName == null && messagingMatcher.matches() && key.endsWith(".class")) {
+            jobName = GrouperLoaderType.GROUPER_MESSAGING_LISTENER_PREFIX + messagingMatcher.group(1);
+          }
+
+          if (jobName != null && !scheduler.checkExists(JobKey.jobKey(jobName))) {
+            hasUnscheduledLoaderJobs = true;
+            break;
+          }
+        }
+      } catch (Exception e) {
+        LOG.warn("Error checking scheduler for unscheduled loader jobs after config import", e);
+      }
+    }
+
     buildConfigFileAndMetadata(null, null);
 
     guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Configure.configure&configFile=" + configurationContainer.getConfigFileName().name() + "')"));
@@ -1235,6 +1292,10 @@ public class UiV2Configure {
     boolean error = configurationContainer.getCountWarning() > 0 || configurationContainer.getCountError() > 0;
 
     guiResponseJs.addAction(GuiScreenAction.newMessage(success ? GuiMessageType.success : (error ? GuiMessageType.error : GuiMessageType.info), message.toString()));
+    
+    if (hasUnscheduledLoaderJobs) {
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.info, TextContainer.retrieveFromRequest().getText().get("configurationImportLoaderJobsWarning")));
+    }
 
   }
 
@@ -1274,8 +1335,8 @@ public class UiV2Configure {
       // add all the possible ones
       for (Object keyObject : propertiesToImport.keySet()) {
       
-        String key = (String)keyObject;
-        
+        String key = StringUtils.trim((String)keyObject);
+
         MultiKey configFileNameAndKey = new MultiKey(configFileName.getConfigFileName(), key);
         configFileNameAndKeys.add(configFileNameAndKey);
 
@@ -1289,6 +1350,7 @@ public class UiV2Configure {
           countProperties++;
           String key = (String)keyObject;
           String value = propertiesToImport.getProperty(key);
+          key = StringUtils.trim(key);
 
           String propertyNameString = GrouperUtil.stripSuffix(key, ".elConfig");
           Set<GrouperConfigHibernate> grouperConfigHibernates = keyToConfigHibernate.get(propertyNameString);

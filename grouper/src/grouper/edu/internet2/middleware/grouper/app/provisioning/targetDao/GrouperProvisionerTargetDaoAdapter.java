@@ -558,7 +558,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateGroups(), false)) {
       
-      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getUpdateGroupsBatchSize();
+      int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingUpdateGroups();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
@@ -676,7 +676,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteMemberships(), false)) {
       
-      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getDeleteMembershipsBatchSize();
+      int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingDeleteMemberships();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetMemberships, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
@@ -1261,7 +1261,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroups(), false)) {
       
-      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getRetrieveGroupsBatchSize();
+      int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveGroups();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
@@ -1492,7 +1492,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroups(), false)) {
       
-      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getRetrieveGroupsBatchSize();
+      int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveGroups();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
@@ -1812,7 +1812,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntities(), false)) {
       
-      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getRetrieveEntitiesBatchSize();
+      int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveEntities();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
@@ -2164,7 +2164,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public void retrieveMembershipsGroupAttributesOnePlural(
       List<GrouperCallable<Void>> grouperCallables, List<ProvisioningGroup> inputGroupsWithOneMembership, List<ProvisioningGroup> resultGroupsWithOneMembership) {
     
-    int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getRetrieveGroupsBatchSize();
+    int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveGroups();
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(inputGroupsWithOneMembership, batchSize, true);
 
     for (int i=0;i<numberOfBatches;i++) {
@@ -2312,7 +2312,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
 
     
-    int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getRetrieveGroupsBatchSize();
+    int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveGroups();
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
     for (int i=0;i<numberOfBatches;i++) {
@@ -2346,7 +2346,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
 
     
-    int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getRetrieveEntitiesBatchSize();
+    int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveEntities();
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
     for (int i=0;i<numberOfBatches;i++) {
@@ -2422,7 +2422,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
 
 
-    int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getRetrieveMembershipsBatchSize();
+    int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveMemberships();
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetMemberships, batchSize, true);
  
     for (int i=0;i<numberOfBatches;i++) {
@@ -2648,7 +2648,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveEntities(), false)) {
       
-      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getRetrieveEntitiesBatchSize();
+      int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveEntities();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
@@ -3078,7 +3078,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertGroups(), false)) {
       
-      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getInsertGroupsBatchSize();
+      int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingInsertGroups();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
@@ -3386,7 +3386,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteEntities(), false)) {
       
-      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getDeleteEntitiesBatchSize();
+      int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingDeleteEntities();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
@@ -3552,7 +3552,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertEntities(), false)) {
       
-      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getInsertEntitiesBatchSize();
+      int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingInsertEntities();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
@@ -3818,7 +3818,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateEntities(), false)) {
       
-      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getUpdateEntitiesBatchSize();
+      int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingUpdateEntities();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
@@ -3939,7 +3939,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteGroups(), false)) {
       
-      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getDeleteGroupsBatchSize();
+      int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingDeleteGroups();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
@@ -4191,7 +4191,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertMemberships(), false)) {
       
-      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getInsertMembershipsBatchSize();
+      int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingInsertMemberships();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetMemberships, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
@@ -4344,7 +4344,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateMemberships(), false)) {
       
-      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getUpdateMembershipsBatchSize();
+      int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingUpdateMemberships();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetMemberships, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
@@ -4636,7 +4636,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public void retrieveMembershipsEntityAttributesOnePlural(
       List<GrouperCallable<Void>> GrouperCallables, List<ProvisioningEntity> inputEntitiesWithOneMembership, List<ProvisioningEntity> resultEntitiesWithOneMembership) {
     
-    int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getRetrieveEntitiesBatchSize();
+    int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveEntities();
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(inputEntitiesWithOneMembership, batchSize, true);
   
     for (int i=0;i<numberOfBatches;i++) {

@@ -57,6 +57,7 @@ public class AllPrivsTests {
     suite.addTestSuite(PrivilegeStemInheritanceFinderTest.class);
     suite.addTestSuite(PrivilegeGroupInheritanceFinderTest.class);
     suite.addTestSuite(PrivilegeAttributeDefInheritanceFinderTest.class);
+    suite.addTestSuite(PrivilegeHelperLoaderEditTest.class);
     //$JUnit-END$
     return suite;
   }

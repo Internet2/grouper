@@ -29,6 +29,9 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthClient;
+import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -39,6 +42,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiOAuthClient;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.McpContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.mcp.GrouperMcpToolLog;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -160,6 +164,20 @@ public class UiV2Mcp extends UiServiceLogicBase {
         }
         if (mcpContainer.isAllowedAdminReadwrite()) {
           mcpContainer.setAllowedAdminReadonly(true);
+        }
+
+        // confidential OAuth client registration: allowed for sysadmins or group members
+        if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+          mcpContainer.setAllowedConfidentialClientRegistration(true);
+        } else {
+          String confidentialClientGroupName = GrouperConfig.retrieveConfig()
+              .propertyValueString("grouper.mcp.users.canRegisterConfidentialOAuthClient");
+          if (StringUtils.isNotBlank(confidentialClientGroupName)) {
+            Group confidentialClientGroup = GroupFinder.findByName(rootSession, confidentialClientGroupName, false);
+            if (confidentialClientGroup != null && confidentialClientGroup.hasMember(loggedInSubject)) {
+              mcpContainer.setAllowedConfidentialClientRegistration(true);
+            }
+          }
         }
 
       } finally {
@@ -354,6 +372,133 @@ public class UiV2Mcp extends UiServiceLogicBase {
 
       // re-render the registrations table
       mcpOAuthRegistrations(request, response);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * AJAX endpoint to register a confidential OAuth client (with client_secret).
+   * The user must be in the canRegisterConfidentialOAuthClient group.
+   * Shows the client_id, client_secret, authorization URL, and token URL.
+   * @param request
+   * @param response
+   */
+  public void mcpRegisterConfidentialClient(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      GrouperRequestContainer grouperRequestContainer =
+          GrouperRequestContainer.retrieveFromRequestOrCreate();
+
+      McpContainer mcpContainer = grouperRequestContainer.getMcpContainer();
+
+      // security check: sysadmins or members of the confidential client registration group
+      boolean allowed = PrivilegeHelper.isWheelOrRoot(loggedInSubject);
+      if (!allowed) {
+        GrouperSession rootSession = GrouperSession.startRootSession();
+        try {
+          String confidentialClientGroupName = GrouperConfig.retrieveConfig()
+              .propertyValueString("grouper.mcp.users.canRegisterConfidentialOAuthClient");
+          if (StringUtils.isNotBlank(confidentialClientGroupName)) {
+            Group confidentialClientGroup = GroupFinder.findByName(rootSession, confidentialClientGroupName, false);
+            if (confidentialClientGroup != null && confidentialClientGroup.hasMember(loggedInSubject)) {
+              allowed = true;
+            }
+          }
+        } finally {
+          GrouperSession.stopQuietly(rootSession);
+        }
+      }
+
+      if (!allowed) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("mcpInfoConfidentialClientNotAllowed")));
+        return;
+      }
+
+      // get the client name from the request
+      String clientName = request.getParameter("confidentialClientName");
+      if (StringUtils.isBlank(clientName)) {
+        clientName = "confidentialClient";
+      }
+
+      // get redirect URI from the request
+      String redirectUri = request.getParameter("confidentialClientRedirectUri");
+      if (StringUtils.isBlank(redirectUri)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("mcpInfoConfidentialClientRedirectUriRequired")));
+        return;
+      }
+
+      // validate redirect URI against configured patterns
+      java.util.Set<String> redirectUris = new java.util.LinkedHashSet<String>();
+      redirectUris.add(redirectUri);
+      String redirectUriError = GrouperOAuthStore.validateRedirectUrisAllowed(redirectUris);
+      if (redirectUriError != null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            redirectUriError));
+        return;
+      }
+
+      // create the client with a secret
+      String plainTextSecret = GrouperOAuthStore.generateId();
+
+      GrouperOAuthClient client = new GrouperOAuthClient();
+      client.setClientId(GrouperOAuthStore.generateId());
+      client.setRedirectUris(redirectUris);
+      client.setClientName(clientName);
+      client.setClientSecret(plainTextSecret);
+      client.setRegisteredMicros(System.currentTimeMillis() * 1000L);
+
+      // set the member who registered
+      Member member = MemberFinder.findBySubject(grouperSession, loggedInSubject, true);
+      client.setMemberInternalId(member.getInternalId());
+
+      GrouperOAuthStore.registerClient(client);
+
+      // audit
+      GrouperSession rootSession = GrouperSession.startRootSession();
+      try {
+        AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.OAUTH_CLIENT_REGISTER,
+            "clientId", client.getClientId(),
+            "clientName", clientName);
+        auditEntry.setDescription("Confidential OAuth client registered via UI: clientId=" + client.getClientId()
+            + ", clientName=" + clientName + ", by=" + loggedInSubject.getId());
+        auditEntry.saveOrUpdate(true);
+      } finally {
+        GrouperSession.stopQuietly(rootSession);
+      }
+
+      LOG.info("Confidential OAuth client registered via UI: clientId=" + client.getClientId()
+          + ", clientName=" + clientName + ", by=" + loggedInSubject.getId());
+
+      // build the URLs
+      String wsUrl = GrouperConfig.getGrouperWsUrl(false);
+      String uiUrl = GrouperConfig.getGrouperUiUrl(false);
+
+      // uiUrl from getGrouperUiUrl has a trailing slash (e.g. "https://server/grouper/")
+      // authorization endpoint matches the well-known pattern: uiUrl + "grouperUi/app/..."
+      mcpContainer.setRegisteredClientId(client.getClientId());
+      mcpContainer.setRegisteredClientSecret(plainTextSecret);
+      mcpContainer.setRegisteredAuthorizationUrl(uiUrl + "grouperUi/app/UiV2OAuth.authorize");
+      mcpContainer.setRegisteredTokenUrl(wsUrl + "/mcp/oauth/token");
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp(
+          "#mcpConfidentialClientResultId",
+          "/WEB-INF/grouperUi2/mcp/mcpConfidentialClientResult.jsp"));
+
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("mcpInfoConfidentialClientSuccess")));
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);

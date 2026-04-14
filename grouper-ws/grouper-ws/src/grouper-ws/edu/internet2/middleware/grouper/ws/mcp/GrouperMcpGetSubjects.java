@@ -56,8 +56,8 @@ public class GrouperMcpGetSubjects {
     ObjectNode tool = objectMapper.createObjectNode();
     tool.put("name", "entity_get");
     tool.put("description",
-        "Look up Grouper subjects by subject ID, subject identifier, or search string. "
-        + "Provide exactly one of subjectId, subjectIdentifier, or searchString. "
+        "Look up Grouper subjects by subjectIdOrIdentifier or searchString. "
+        + "Provide exactly one of subjectIdOrIdentifier or searchString. "
         + "Can optionally filter to members of a specific group. "
         + "Returns subject details including name, source, "
         + "and optionally extended subject attributes.");
@@ -67,24 +67,16 @@ public class GrouperMcpGetSubjects {
 
     ObjectNode properties = objectMapper.createObjectNode();
 
-    ObjectNode subjectIdProp = objectMapper.createObjectNode();
-    subjectIdProp.put("type", "string");
-    subjectIdProp.put("description",
-        "The subject ID to look up. Mutually exclusive with subjectIdentifier and searchString.");
-    properties.set("subjectId", subjectIdProp);
-
-    ObjectNode subjectIdentifierProp = objectMapper.createObjectNode();
-    subjectIdentifierProp.put("type", "string");
-    subjectIdentifierProp.put("description",
-        "The subject identifier to look up (e.g., login ID or eppn). "
-        + "Mutually exclusive with subjectId and searchString.");
-    properties.set("subjectIdentifier", subjectIdentifierProp);
+    GrouperMcpSubjectUtils.addSubjectIdOrIdentifierProperty(properties,
+        "The subject ID or identifier to look up (e.g., login ID, pennkey, eppn, or subject ID). "
+        + "Mutually exclusive with searchString.");
+    GrouperMcpSubjectUtils.addSubjectIdTypeProperty(properties);
 
     ObjectNode searchStringProp = objectMapper.createObjectNode();
     searchStringProp.put("type", "string");
     searchStringProp.put("description",
         "Free-form search string to find subjects (e.g., name or partial match). "
-        + "May return multiple results. Mutually exclusive with subjectId and subjectIdentifier.");
+        + "May return multiple results. Mutually exclusive with subjectIdOrIdentifier.");
     properties.set("searchString", searchStringProp);
 
     ObjectNode sourceIdsProp = objectMapper.createObjectNode();
@@ -157,7 +149,7 @@ public class GrouperMcpGetSubjects {
 
     inputSchema.set("properties", properties);
 
-    // no required fields - one of subjectId, subjectIdentifier, or searchString must be provided
+    // no required fields - one of subjectIdOrIdentifier or searchString must be provided
     // but that is validated in execute()
 
     tool.set("inputSchema", inputSchema);
@@ -173,10 +165,10 @@ public class GrouperMcpGetSubjects {
    */
   public static ObjectNode execute(JsonNode arguments, GrouperMcpAuthUser authUser) {
 
-    String subjectId = arguments != null && arguments.has("subjectId")
-        ? arguments.get("subjectId").asText() : null;
-    String subjectIdentifier = arguments != null && arguments.has("subjectIdentifier")
-        ? arguments.get("subjectIdentifier").asText() : null;
+    String subjectIdOrIdentifier = arguments != null && arguments.has("subjectIdOrIdentifier")
+        ? arguments.get("subjectIdOrIdentifier").asText() : null;
+    String subjectIdType = arguments != null && arguments.has("subjectIdType")
+        ? arguments.get("subjectIdType").asText() : null;
     String searchString = arguments != null && arguments.has("searchString")
         ? arguments.get("searchString").asText() : null;
     boolean includeSubjectDetail = arguments != null && arguments.has("includeSubjectDetail")
@@ -212,26 +204,33 @@ public class GrouperMcpGetSubjects {
       fieldNameString = arguments.get("fieldName").asText();
     }
 
-    // validate that exactly one of subjectId, subjectIdentifier, or searchString is provided
-    int lookupCount = (StringUtils.isNotBlank(subjectId) ? 1 : 0)
-        + (StringUtils.isNotBlank(subjectIdentifier) ? 1 : 0)
+    // validate that exactly one of subjectIdOrIdentifier or searchString is provided
+    int lookupCount = (StringUtils.isNotBlank(subjectIdOrIdentifier) ? 1 : 0)
         + (StringUtils.isNotBlank(searchString) ? 1 : 0);
     if (lookupCount == 0) {
       return buildErrorResult(
-          "One of subjectId, subjectIdentifier, or searchString is required.");
+          "One of subjectIdOrIdentifier or searchString is required.");
     }
     if (lookupCount > 1) {
       return buildErrorResult(
-          "Only one of subjectId, subjectIdentifier, or searchString may be provided.");
+          "Only one of subjectIdOrIdentifier or searchString may be provided.");
+    }
+
+    // validate subjectIdType if provided
+    String subjectIdTypeError = GrouperMcpSubjectUtils.validateSubjectIdType(subjectIdType);
+    if (subjectIdTypeError != null) {
+      return buildErrorResult(subjectIdTypeError);
     }
 
     try {
 
-      // build the subject lookup (for subjectId or subjectIdentifier)
+      // build the subject lookup (for subjectIdOrIdentifier)
       WsSubjectLookup[] wsSubjectLookups = null;
-      if (StringUtils.isNotBlank(subjectId) || StringUtils.isNotBlank(subjectIdentifier)) {
+      if (StringUtils.isNotBlank(subjectIdOrIdentifier)) {
+        // use the first sourceId from sourceIds array if available
+        String firstSourceId = (sourceIds != null && sourceIds.length > 0) ? sourceIds[0] : null;
         wsSubjectLookups = new WsSubjectLookup[] {
-          new WsSubjectLookup(subjectId, null, subjectIdentifier)
+          GrouperMcpSubjectUtils.createSubjectLookup(subjectIdOrIdentifier, subjectIdType, firstSourceId)
         };
       }
 
@@ -276,8 +275,7 @@ public class GrouperMcpGetSubjects {
 
       WsSubject[] wsSubjects = wsResults.getWsSubjects();
       if (GrouperUtil.length(wsSubjects) == 0) {
-        String lookupDescription = StringUtils.isNotBlank(subjectId) ? subjectId
-            : StringUtils.isNotBlank(subjectIdentifier) ? subjectIdentifier : searchString;
+        String lookupDescription = StringUtils.isNotBlank(subjectIdOrIdentifier) ? subjectIdOrIdentifier : searchString;
         return buildErrorResult("No subjects found for: " + lookupDescription);
       }
 
@@ -302,10 +300,11 @@ public class GrouperMcpGetSubjects {
       }
 
     } catch (Exception e) {
-      String lookupDescription = StringUtils.isNotBlank(subjectId) ? subjectId
-          : StringUtils.isNotBlank(subjectIdentifier) ? subjectIdentifier : searchString;
+      String lookupDescription = StringUtils.isNotBlank(subjectIdOrIdentifier)
+          ? subjectIdOrIdentifier : searchString;
       LOG.error("Error looking up subject: " + lookupDescription, e);
-      return buildErrorResult("Error looking up subject: " + e.getMessage());
+      return buildErrorResult("Error looking up subject: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

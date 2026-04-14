@@ -301,6 +301,92 @@ public class McpContainer {
   }
 
   /**
+   * whether the user is allowed to register confidential OAuth clients (with client_secret)
+   */
+  private boolean allowedConfidentialClientRegistration;
+
+  /**
+   * @return the allowedConfidentialClientRegistration
+   */
+  public boolean isAllowedConfidentialClientRegistration() {
+    return this.allowedConfidentialClientRegistration;
+  }
+
+  /**
+   * @param allowedConfidentialClientRegistration the allowedConfidentialClientRegistration to set
+   */
+  public void setAllowedConfidentialClientRegistration(boolean allowedConfidentialClientRegistration) {
+    this.allowedConfidentialClientRegistration = allowedConfidentialClientRegistration;
+  }
+
+  /**
+   * registration result fields (set after registering a confidential client)
+   */
+  private String registeredClientId;
+
+  /**
+   * @return the registeredClientId
+   */
+  public String getRegisteredClientId() {
+    return this.registeredClientId;
+  }
+
+  /**
+   * @param registeredClientId the registeredClientId to set
+   */
+  public void setRegisteredClientId(String registeredClientId) {
+    this.registeredClientId = registeredClientId;
+  }
+
+  private String registeredClientSecret;
+
+  /**
+   * @return the registeredClientSecret
+   */
+  public String getRegisteredClientSecret() {
+    return this.registeredClientSecret;
+  }
+
+  /**
+   * @param registeredClientSecret the registeredClientSecret to set
+   */
+  public void setRegisteredClientSecret(String registeredClientSecret) {
+    this.registeredClientSecret = registeredClientSecret;
+  }
+
+  private String registeredAuthorizationUrl;
+
+  /**
+   * @return the registeredAuthorizationUrl
+   */
+  public String getRegisteredAuthorizationUrl() {
+    return this.registeredAuthorizationUrl;
+  }
+
+  /**
+   * @param registeredAuthorizationUrl the registeredAuthorizationUrl to set
+   */
+  public void setRegisteredAuthorizationUrl(String registeredAuthorizationUrl) {
+    this.registeredAuthorizationUrl = registeredAuthorizationUrl;
+  }
+
+  private String registeredTokenUrl;
+
+  /**
+   * @return the registeredTokenUrl
+   */
+  public String getRegisteredTokenUrl() {
+    return this.registeredTokenUrl;
+  }
+
+  /**
+   * @param registeredTokenUrl the registeredTokenUrl to set
+   */
+  public void setRegisteredTokenUrl(String registeredTokenUrl) {
+    this.registeredTokenUrl = registeredTokenUrl;
+  }
+
+  /**
    * list of MCP tool log entries for the logged-in user (most recent first)
    */
   private List<GuiMcpToolLog> guiMcpToolLogs;

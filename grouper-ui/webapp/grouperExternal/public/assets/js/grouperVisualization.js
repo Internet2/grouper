@@ -155,6 +155,11 @@ function drawGraphModuleText() {
       contents += "Direct member count: " + node.directMemberCount + "<br/>";
     }
 
+    // ABAC population count
+    if (node.populationCount != null && node.populationCount !== undefined) {
+      contents += "Population count: " + node.populationCount + "<br/>";
+    }
+
     // contains (for stem), group direct members (group)
     if (node.linkType === "group" || node.baseType === "stem") {
       contents += (node.linkType === "stem" ? "Contains: " : "Direct group members: ");
@@ -392,6 +397,30 @@ function getGraphModuleD3Legend(graph) {
 
   }
 
+  // abac (scripted) group -- script references --> referenced groups, data attributes, data rows
+  if (graph.styles.hasOwnProperty("abac_group") || graph.styles.hasOwnProperty("abac_group_is_member") || graph.styles.hasOwnProperty("abac_group_is_not_member")) {
+    theLegend += '  abac_group [' + getStyleStringForType(graph, nodeStyles, 'abac_group', ['label="scripted group"']) + '];\n';
+    theLegend += '  abac_ref_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="referenced group"']) + '];\n';
+    theLegend += '  abac_group -> abac_ref_group [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_and', ['label="must be in"']) + '];\n';
+    theLegend += '  abac_not_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="excluded"']) + '];\n';
+    theLegend += '  abac_group -> abac_not_group [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_and_not', ['label="must not be in"']) + '];\n';
+  }
+
+  // compound or node (OR subexpression) with OR edges
+  if (graph.styles.hasOwnProperty("compound_or")) {
+    theLegend += '  compound_or_legend [' + getStyleStringForType(graph, nodeStyles, 'compound_or', ['label="or condition"']) + '];\n';
+    theLegend += '  compound_or_child [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="or option"']) + '];\n';
+    theLegend += '  compound_or_legend -> compound_or_child [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_or', ['label="any of these"']) + '];\n';
+  }
+
+  // data attribute and data row nodes
+  if (graph.styles.hasOwnProperty("data_attribute")) {
+    theLegend += '  data_attr_legend [' + getStyleStringForType(graph, nodeStyles, 'data_attribute', ['label="entity attribute"']) + '];\n';
+  }
+  if (graph.styles.hasOwnProperty("data_row")) {
+    theLegend += '  data_row_legend [' + getStyleStringForType(graph, nodeStyles, 'data_row', ['label="entity data row"']) + '];\n';
+  }
+
   // provisioned group -- provisions to --> provisioner target
   if (graph.styles.hasOwnProperty("provisioner") /* && graph.styles.hasOwnProperty("group") */ && graph.styles.hasOwnProperty("edge_provisioner")) {
     theLegend += '  provisioner_source [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="provisioned group"']) + '];\n';
@@ -411,12 +440,12 @@ function getGraphModuleD3Legend(graph) {
   }
 
   // is member
-  if (graph.styles.hasOwnProperty("group_is_member") || graph.styles.hasOwnProperty("start_group_is_member") || graph.styles.hasOwnProperty("loader_group_is_member") || graph.styles.hasOwnProperty("start_loader_group_is_member") || graph.styles.hasOwnProperty("simple_loader_group_is_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_member") || graph.styles.hasOwnProperty("complement_group_is_member") || graph.styles.hasOwnProperty("intersect_group_is_member")) {
+  if (graph.styles.hasOwnProperty("group_is_member") || graph.styles.hasOwnProperty("start_group_is_member") || graph.styles.hasOwnProperty("loader_group_is_member") || graph.styles.hasOwnProperty("start_loader_group_is_member") || graph.styles.hasOwnProperty("simple_loader_group_is_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_member") || graph.styles.hasOwnProperty("complement_group_is_member") || graph.styles.hasOwnProperty("intersect_group_is_member") || graph.styles.hasOwnProperty("abac_group_is_member") || graph.styles.hasOwnProperty("data_attribute_is_member") || graph.styles.hasOwnProperty("data_row_is_member") || graph.styles.hasOwnProperty("compound_or_is_member") || graph.styles.hasOwnProperty("compound_and_is_member")) {
     theLegend += '  group_is_member [' + getStyleStringForType(graph, nodeStyles, 'group_is_member', ['label="entity is member of group"']) + '];\n';
   }
 
   // is not member
-  if (graph.styles.hasOwnProperty("group_is_not_member") || graph.styles.hasOwnProperty("start_group_is_not_member") || graph.styles.hasOwnProperty("loader_group_is_not_member") || graph.styles.hasOwnProperty("start_loader_group_is_not_member") || graph.styles.hasOwnProperty("simple_loader_group_is_not_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_not_member") || graph.styles.hasOwnProperty("complement_group_is_not_member") || graph.styles.hasOwnProperty("intersect_group_is_not_member")) {
+  if (graph.styles.hasOwnProperty("group_is_not_member") || graph.styles.hasOwnProperty("start_group_is_not_member") || graph.styles.hasOwnProperty("loader_group_is_not_member") || graph.styles.hasOwnProperty("start_loader_group_is_not_member") || graph.styles.hasOwnProperty("simple_loader_group_is_not_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_not_member") || graph.styles.hasOwnProperty("complement_group_is_not_member") || graph.styles.hasOwnProperty("intersect_group_is_not_member") || graph.styles.hasOwnProperty("abac_group_is_not_member") || graph.styles.hasOwnProperty("data_attribute_is_not_member") || graph.styles.hasOwnProperty("data_row_is_not_member") || graph.styles.hasOwnProperty("compound_or_is_not_member") || graph.styles.hasOwnProperty("compound_and_is_not_member")) {
     theLegend += '  group_is_not_member [' + getStyleStringForType(graph, nodeStyles, 'group_is_not_member', ['label="entity is not member of group"']) + '];\n';
   }
 
@@ -471,7 +500,30 @@ function drawGraphModuleD3() {
 
         // a stem or group can have multiple rows in the label, depending on whether showing object types or counts
         var labelRows = [];
-        labelRows.push(getObjectNameUsingPrefs(node));
+        var nodeName = getObjectNameUsingPrefs(node);
+        // For compound OR nodes, insert line breaks between each condition
+        if ((node.baseType === "compound_or" || node.type === "compound_or_is_member" || node.type === "compound_or_is_not_member") && nodeName.length > 60) {
+          var orParts = nodeName.split(/ or /i);
+          if (orParts.length > 1) {
+            for (var oi = 0; oi < orParts.length; oi++) {
+              labelRows.push(oi === 0 ? orParts[oi] : "or " + orParts[oi]);
+            }
+          } else {
+            labelRows.push(nodeName);
+          }
+        // For compound AND nodes, insert line breaks between each condition
+        } else if ((node.baseType === "compound_and" || node.type === "compound_and_is_member" || node.type === "compound_and_is_not_member") && nodeName.length > 60) {
+          var andParts = nodeName.split(/ and /i);
+          if (andParts.length > 1) {
+            for (var ai = 0; ai < andParts.length; ai++) {
+              labelRows.push(ai === 0 ? andParts[ai] : "and " + andParts[ai]);
+            }
+          } else {
+            labelRows.push(nodeName);
+          }
+        } else {
+          labelRows.push(nodeName);
+        }
 
         if (showObjectTypesLabel) {
           if (node.objectTypes && node.objectTypes.length > 0) {
@@ -482,7 +534,7 @@ function drawGraphModuleD3() {
         if (showCountLabel) {
           var labelCounts = [];
 
-          if (node.baseType === "group" || node.baseType === "complement_group" || node.baseType === "intersect_group"
+          if (node.baseType === "group" || node.baseType === "complement_group" || node.baseType === "intersect_group" || node.baseType === "abac_group"
                || node.type === "simple_loader_group" || node.type === "start_simple_loader_group"
                || node.type === "simple_loader_group_is_member" || node.type === "simple_loader_group_is_not_member"
                || node.type === "start_simple_loader_group_is_member" || node.type === "start_simple_loader_group_is_not_member") {
@@ -497,6 +549,11 @@ function drawGraphModuleD3() {
           if (labelCounts.length > 0) {
             labelRows.push(labelCounts.join(", "));
           }
+        }
+
+        // ABAC population count for data attribute, data row, and ABAC-referenced group nodes
+        if (node.populationCount != null && node.populationCount !== undefined) {
+          labelRows.push("population: " + node.populationCount);
         }
 
         if (labelRows.length <= 1) {
@@ -537,6 +594,18 @@ function drawGraphModuleD3() {
             factorType = "right";
           }
           props.push('edgetooltip="' + graph.styles[source.type].displayTag + " " + getObjectNameUsingPrefs(graph.nodes[link.source]) + ' has group '+ getObjectNameUsingPrefs(graph.nodes[link.target]) + " as a " + factorType + ' factor"');
+        } else if (source.baseType === "abac_group") {
+          var refTypeLabel = target.baseType === "data_attribute" ? "data attribute" : target.baseType === "data_row" ? "data row" : target.baseType === "compound_or" ? "or condition" : target.baseType === "compound_and" ? "and condition" : "group";
+          var negLabel = (link.type === "edge_abac_and_not" || link.type === "edge_abac_or_not") ? "NOT " : "";
+          props.push('edgetooltip="scripted group ' + getObjectNameUsingPrefs(source) + ' references ' + negLabel + refTypeLabel + ' ' + getObjectNameUsingPrefs(target) + '"');
+        } else if (source.baseType === "compound_or") {
+          var refTypeLabel = target.baseType === "data_attribute" ? "data attribute" : target.baseType === "data_row" ? "data row" : "group";
+          var negLabel = (link.type === "edge_abac_or_not") ? "NOT " : "";
+          props.push('edgetooltip="OR condition references ' + negLabel + refTypeLabel + ' ' + getObjectNameUsingPrefs(target) + '"');
+        } else if (source.baseType === "compound_and") {
+          var refTypeLabel = target.baseType === "data_attribute" ? "data attribute" : target.baseType === "data_row" ? "data row" : "group";
+          var negLabel = (link.type === "edge_abac_and_not") ? "NOT " : "";
+          props.push('edgetooltip="and condition references ' + negLabel + refTypeLabel + ' ' + getObjectNameUsingPrefs(target) + '"');
         } else if (source.baseType === "group") {
           if (target.baseType === "provisioner") {
             props.push('edgetooltip="group ' + getObjectNameUsingPrefs(source) + " provisions to " + getObjectNameUsingPrefs(target) + '"');

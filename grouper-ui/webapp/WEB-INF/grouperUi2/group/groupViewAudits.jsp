@@ -37,6 +37,8 @@ ${grouper:titleFromKeyAndText('groupAuditsPageTitle', grouperRequestContainer.gr
                   <button type="submit" class="btn" id="auditLogSubmitButtonId"
                   onclick="ajax('../app/UiV2Group.viewAuditsFilter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterAuditFormId,groupPagingAuditFormId,groupQuerySortAscendingFormId'}); return false;"
                   >${textContainer.text['groupAuditLogFilterFindEntriesButton']}</button>
+                  <input type="button" class="btn" value="${textContainer.textEscapeDouble['groupAuditLogExportButton'] }"
+                    onclick="return configurationFileExport(event, '../app/UiV2Group.viewAuditsExport?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {optionalFormElementNamesToSend: 'auditType,filterType,filterFromDate,filterToDate,showExtendedResults'}); return false;" />
                 </form>
 
 

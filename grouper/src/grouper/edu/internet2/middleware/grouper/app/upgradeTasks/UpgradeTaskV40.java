@@ -1,26 +1,29 @@
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
+/**
+ * Upgrade task to drop and recreate grouper_duo_user_user_name_idx as non-unique,
+ * and add group_set_member_member_field_idx on grouper_group_set.
+ * @author mchyzer
+ */
 public class UpgradeTaskV40 implements UpgradeTasksInterface {
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(UpgradeTaskV40.class);
 
   @Override
   public boolean doesUpgradeTaskHaveDdlWorkToDo() {
-    if (!(GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle())) {
-      return false;
-    }
-    if (!GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event_config")) {
-      return false;
-    }
-    if (!GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event")) {
-      return false;
-    }
     return true;
   }
 
@@ -31,7 +34,8 @@ public class UpgradeTaskV40 implements UpgradeTasksInterface {
 
   @Override
   public GrouperVersion versionIntroduced() {
-    return GrouperVersion.valueOfIgnoreCase("7.0.0");
+    // and v7.1.0 and v6.2.0
+    return GrouperVersion.valueOfIgnoreCase("4.23.0");
   }
 
   @Override
@@ -41,28 +45,33 @@ public class UpgradeTaskV40 implements UpgradeTasksInterface {
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
-        if ((GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle())
-            && GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event_config")
-            && GrouperDdlUtils.assertTableThere(true, "grouper_lifecycle_event")) {
-          new GcDbAccess().sql("COMMENT ON TABLE grouper_lifecycle_event_config IS 'table to store user lifecycle event configs'").executeSql();
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_lifecycle_event_config.internal_id IS 'integer id for this table'").executeSql();
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_lifecycle_event_config.config_id IS 'unique user friendly id for the config'").executeSql();
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_lifecycle_event_config.group_internal_id IS 'group internal id'").executeSql();
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_lifecycle_event_config.stem_id_index IS 'folder id index'").executeSql();
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_lifecycle_event_config.data_field_internal_id IS 'data field internal id'").executeSql();
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_lifecycle_event_config.data_row_internal_id IS 'data row internal id'").executeSql();
-
-          new GcDbAccess().sql("COMMENT ON TABLE grouper_lifecycle_event IS 'table to store user lifecycle event configs'").executeSql();
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_lifecycle_event.internal_id IS 'integer id for this table'").executeSql();
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_lifecycle_event.grpr_lcycl_evnt_cnfg_intrnl_id IS 'internal id of the grouper lifecycle config table'").executeSql();
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_lifecycle_event.member_internal_id IS 'member internal id'").executeSql();
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_lifecycle_event.event_micros IS 'when the event occurred'").executeSql();
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_lifecycle_event.ntrl_lng_priv_dic_intrnl_id IS 'dictionary table internal id'").executeSql();
-          new GcDbAccess().sql("COMMENT ON COLUMN grouper_lifecycle_event.ntrl_lng_unpriv_dic_intrnl_id IS 'dictionary table internal id'").executeSql();
-
+        // ==================== grouper_duo_user_user_name_idx ====================
+        // drop and recreate as non-unique (was previously unique)
+        if (GrouperDdlUtils.assertTableThere(true, "grouper_prov_duo_user")) {
+          if (GrouperDdlUtils.assertIndexExists("grouper_prov_duo_user", "grouper_duo_user_user_name_idx")) {
+            if (GrouperDdlUtils.isMysql()) {
+              new GcDbAccess().sql("DROP INDEX grouper_duo_user_user_name_idx ON grouper_prov_duo_user").executeSql();
+            } else {
+              new GcDbAccess().sql("DROP INDEX grouper_duo_user_user_name_idx").executeSql();
+            }
+          }
+          if (GrouperDdlUtils.isMysql()) {
+            new GcDbAccess().sql("CREATE INDEX grouper_duo_user_user_name_idx ON grouper_prov_duo_user (user_name(100), config_id)").executeSql();
+          } else {
+            new GcDbAccess().sql("CREATE INDEX grouper_duo_user_user_name_idx ON grouper_prov_duo_user (user_name, config_id)").executeSql();
+          }
           if (otherJobInput != null) {
-            otherJobInput.getHib3GrouperLoaderLog().addInsertCount(14);
-            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added comments for lifecycle event tables");
+            otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", recreated index grouper_duo_user_user_name_idx as non-unique");
+          }
+        }
+
+        // ==================== group_set_member_member_field_idx ====================
+        if (!GrouperDdlUtils.assertIndexExists("grouper_group_set", "group_set_member_member_field_idx")) {
+          new GcDbAccess().sql("CREATE INDEX group_set_member_member_field_idx ON grouper_group_set (member_id, member_field_id)").executeSql();
+          if (otherJobInput != null) {
+            otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index group_set_member_member_field_idx");
           }
         }
 
@@ -70,4 +79,5 @@ public class UpgradeTaskV40 implements UpgradeTasksInterface {
       }
     });
   }
+
 }

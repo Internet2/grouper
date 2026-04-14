@@ -247,7 +247,8 @@ public class GrouperMcpGetAttributeAssignmentsLite {
 
     } catch (Exception e) {
       LOG.error("Error getting attribute assignments", e);
-      return buildErrorResult("Error getting attribute assignments: " + e.getMessage());
+      return buildErrorResult("Error getting attribute assignments: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 
@@ -259,6 +260,9 @@ public class GrouperMcpGetAttributeAssignmentsLite {
   private static ObjectNode convertAttributeAssignToJson(WsAttributeAssign wsAttrAssign) {
     ObjectNode resultNode = objectMapper.createObjectNode();
 
+    if (StringUtils.isNotBlank(wsAttrAssign.getId())) {
+      resultNode.put("attributeAssignId", wsAttrAssign.getId());
+    }
     if (StringUtils.isNotBlank(wsAttrAssign.getAttributeAssignType())) {
       resultNode.put("attributeAssignType", wsAttrAssign.getAttributeAssignType());
     }

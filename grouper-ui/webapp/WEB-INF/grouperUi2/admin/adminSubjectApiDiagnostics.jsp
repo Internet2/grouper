@@ -28,6 +28,25 @@
                     </div>
                   </div>
 
+                  <c:if test="${grouperRequestContainer.subjectSourceContainer.disabledGrouperDataFieldSource}">
+                    <div class="control-group">
+                      <label for="otherSubjectApiSourceIdId" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsOtherSourceId'] }</label>
+                      <div class="controls">
+                        <select name="otherSubjectApiSourceIdId" id="otherSubjectApiSourceIdId">
+                          <option value=""></option>
+                          <c:forEach items="${grouperRequestContainer.subjectSourceContainer.sources}" var="source" >
+                            <option value="${grouper:escapeHtml(source.id)}">
+                              ${grouper:escapeHtml(source.id)} (${grouper:escapeHtml(source.name)})
+                            </option>
+                          </c:forEach>
+                        </select>
+                        <span class="help-block">
+                          ${textContainer.text['adminSubjectApiDiagnosticsOtherSourceIdLabel'] }
+                        </span>
+                      </div>
+                    </div>
+                  </c:if>
+
                   <div class="control-group">
                     <label for="subjectIdId" class="control-label">${textContainer.text['adminSubjectApiDiagnosticsSubjectId'] }</label>
                     <div class="controls">

@@ -871,6 +871,29 @@ public class MembershipFinder {
   }
   
   /**
+   * find the total count of memberships matching the current finder criteria.
+   * Uses a count-only query (page size 1 with total count enabled) so it does not
+   * load all rows into memory. Works for both regular and point-in-time queries.
+   * Saves and restores the existing queryOptionsForMember so the finder can be reused.
+   * @return the total count of matching memberships
+   */
+  public int findCountForMember() {
+    QueryOptions savedQueryOptions = this.queryOptionsForMember;
+    try {
+      QueryOptions countOptions = new QueryOptions().paging(1, 1, true);
+      this.queryOptionsForMember = countOptions;
+      if (this.pointInTimeFrom != null || this.pointInTimeTo != null) {
+        this.findPITMembershipsMembers();
+      } else {
+        this.findMembershipResult();
+      }
+      return countOptions.getQueryPaging().getTotalRecordCount();
+    } finally {
+      this.queryOptionsForMember = savedQueryOptions;
+    }
+  }
+
+  /**
    * membership result gives helper methods in processing the results
    * @return the membership result
    */

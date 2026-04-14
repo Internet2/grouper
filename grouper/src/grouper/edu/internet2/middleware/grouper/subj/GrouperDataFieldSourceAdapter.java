@@ -17,6 +17,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.member.SearchStringEnum;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
@@ -37,9 +38,15 @@ import edu.internet2.middleware.subject.provider.InvalidQueryRuntimeException;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
-  
+
   /** logger */
   private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperDataFieldSourceAdapter.class);
+
+  /**
+   * for testing only, if true then getSubjectsByIdentifiers will throw a RuntimeException
+   * to simulate a database timeout
+   */
+  public static boolean testingThrowExceptionOnGetSubjectsByIdentifiers = false;
   
   @Override
   public boolean isEditable() {
@@ -144,28 +151,30 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
       
       for (int i=0;i<numberOfBatches;i++) {
 
-        List<String> idsBatch = GrouperUtil.batchList(idsList, batchSize, i);        
+        List<String> idsBatch = GrouperUtil.batchList(idsList, batchSize, i);
 
-        List<String> args = new ArrayList<String>();
-       
+        List<Object> args = new ArrayList<Object>();
+
         StringBuilder query = new StringBuilder("""
-            SELECT 
-              gm.subject_id, 
-              gdf.config_id AS data_field_config_id, 
+            SELECT
+              gm.subject_id,
+              gdf.config_id AS data_field_config_id,
               gd.the_text AS value_text
-          FROM 
-              grouper_data_field gdf,
-              grouper_members gm,
-              grouper_data_field_assign gdfa 
-          LEFT JOIN 
-              grouper_dictionary gd 
+          FROM
+              grouper_members gm
+          INNER JOIN
+              grouper_data_field_assign gdfa
+              ON gdfa.member_internal_id = gm.internal_id
+          INNER JOIN
+              grouper_data_field gdf
+              ON gdfa.data_field_internal_id = gdf.internal_id
+          LEFT JOIN
+              grouper_dictionary gd
               ON gdfa.value_dictionary_internal_id = gd.internal_id
-          WHERE 
-              gdfa.member_internal_id = gm.internal_id
-              AND gdfa.data_field_internal_id = gdf.internal_id
-              AND gm.subject_source = ? and (
+          WHERE
+              gm.subject_source = ? and (
             """);
-        
+
         args.add(this.getId());
         
         for (int j = 0; j<idsBatch.size(); j++) {
@@ -179,14 +188,33 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           
         }
         
-        query.append(" ) and gdf.config_id in ("+ GrouperClientUtils.appendQuestions(GrouperUtil.length(fieldConfigs)) + ")");
-        
-        for (String configId: fieldConfigs) {
-          args.add(configId);
+        // Use internal IDs for data field filtering when available
+        {
+          List<Long> fieldInternalIds = new ArrayList<Long>();
+          List<String> fieldConfigsWithoutInternalId = new ArrayList<String>();
+          for (String configId : fieldConfigs) {
+            Long internalId = dataFieldCache.dataFieldConfigIdToInternalId.get(configId);
+            if (internalId != null) {
+              fieldInternalIds.add(internalId);
+            } else {
+              fieldConfigsWithoutInternalId.add(configId);
+            }
+          }
+          if (fieldConfigsWithoutInternalId.isEmpty()) {
+            query.append(" ) and gdfa.data_field_internal_id in (" + GrouperClientUtils.appendQuestions(fieldInternalIds.size()) + ")");
+            for (Long internalId : fieldInternalIds) {
+              args.add(internalId);
+            }
+          } else {
+            query.append(" ) and gdf.config_id in ("+ GrouperClientUtils.appendQuestions(GrouperUtil.length(fieldConfigs)) + ")");
+            for (String configId: fieldConfigs) {
+              args.add(configId);
+            }
+          }
         }
-        
+
         Set<Subject> subjects = search(query.toString(), args, false, false, null, null, dataFieldCache);
-        
+
         for (Subject subject : GrouperUtil.nonNull(subjects)) {
           results.put(subject.getId(), subject);
         }
@@ -194,15 +222,19 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     }
     return results;
   }
-  
+
   /**
    * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubjectsByIdentifiers(java.util.Collection)
    */
   @Override
   public Map<String, Subject> getSubjectsByIdentifiers(Collection<String> identifiers) {
 
+    if (testingThrowExceptionOnGetSubjectsByIdentifiers) {
+      throw new RuntimeException("Test simulated database timeout in getSubjectsByIdentifiers");
+    }
+
     Map<String, Subject> results = new HashMap<String, Subject>();
-    
+
     if (GrouperUtil.length(identifiers) == 0) {
       return results;
     }
@@ -236,50 +268,107 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
       
       for (int i=0;i<numberOfBatches; i++) {
 
-        List<String> identifierBatch = GrouperUtil.batchList(identifiersList, batchSize, i);        
-        
-        //retrieve all the member ids that match the identifiers
-        StringBuilder subjectIdsQuery =  new StringBuilder("""
-            SELECT 
-                gm.subject_id, 
-                gdf.config_id AS data_field_config_id, 
-                gd.the_text AS value_text
-            FROM 
-                grouper_data_field gdf,
-                grouper_members gm,
-                grouper_data_field_assign gdfa 
-            LEFT JOIN 
-                grouper_dictionary gd 
-                ON gdfa.value_dictionary_internal_id = gd.internal_id
-            WHERE 
-                gdfa.member_internal_id = gm.internal_id
-                AND gdfa.data_field_internal_id = gdf.internal_id
-                AND gm.subject_source = ?
-                AND (
-            """);
-        
-        GcDbAccess gcDbAccess = new GcDbAccess();
-        
-        gcDbAccess.addBindVar(this.getId());
-        
-        Map<String, String> subjectIdToSubjectIdentifier = new HashMap<String, String>();
-        boolean first = true;
-        for (int j = 0; j<identifierBatch.size(); j++) {
-          
-          for (String dataFieldConfigId: identifierDataFieldConfigIds) {
-            
-            if (!first) {
-              subjectIdsQuery.append(" or ");
-            } 
-            first = false;
-            subjectIdsQuery.append(" (gdf.config_id = ? and gd.the_text = ?) ");
-            gcDbAccess.addBindVar(dataFieldConfigId);
-            gcDbAccess.addBindVar(identifierBatch.get(j));
+        List<String> identifierBatch = GrouperUtil.batchList(identifiersList, batchSize, i);
+
+        // Resolve identifier text values to dictionary internal_ids
+        Map<Long, String> dictInternalIdToText = new HashMap<Long, String>();
+        {
+          int dictBatchSize = 800;
+          int dictNumberOfBatches = GrouperUtil.batchNumberOfBatches(identifierBatch, dictBatchSize, false);
+          for (int db = 0; db < dictNumberOfBatches; db++) {
+            List<String> dictBatch = GrouperUtil.batchList(identifierBatch, dictBatchSize, db);
+            StringBuilder dictQuery = new StringBuilder("SELECT internal_id, the_text FROM grouper_dictionary WHERE the_text IN (");
+            dictQuery.append(GrouperClientUtils.appendQuestions(dictBatch.size()));
+            dictQuery.append(")");
+            GcDbAccess dictAccess = new GcDbAccess().sql(dictQuery.toString());
+            for (String text : dictBatch) {
+              dictAccess.addBindVar(text);
+            }
+            List<Object[]> dictRows = dictAccess.selectList(Object[].class);
+            for (Object[] row : dictRows) {
+              dictInternalIdToText.put(GrouperUtil.longObjectValue(row[0], false), GrouperUtil.stringValue(row[1]));
+            }
           }
         }
-        
+
+        // Build reverse lookup: text -> dictionary internal_id
+        Map<String, Long> textToDictInternalId = new HashMap<String, Long>();
+        for (Map.Entry<Long, String> entry : dictInternalIdToText.entrySet()) {
+          textToDictInternalId.put(entry.getValue(), entry.getKey());
+        }
+
+        // Build query using resolved integer IDs for point lookups on fld_assgn_field_dict_idx
+        StringBuilder subjectIdsQuery = new StringBuilder("""
+            SELECT
+                gm.subject_id,
+                gdf.config_id AS data_field_config_id,
+                gd.the_text AS value_text
+            FROM
+                grouper_data_field_assign gdfa
+            INNER JOIN
+                grouper_members gm
+                ON gdfa.member_internal_id = gm.internal_id
+            INNER JOIN
+                grouper_data_field gdf
+                ON gdfa.data_field_internal_id = gdf.internal_id
+            LEFT JOIN
+                grouper_dictionary gd
+                ON gdfa.value_dictionary_internal_id = gd.internal_id
+            WHERE
+                gm.subject_source = ?
+                AND (
+            """);
+
+        GcDbAccess gcDbAccess = new GcDbAccess();
+
+        gcDbAccess.addBindVar(this.getId());
+
+        Map<String, String> subjectIdToSubjectIdentifier = new HashMap<String, String>();
+        boolean first = true;
+        boolean hasAnyConditions = false;
+        for (int j = 0; j<identifierBatch.size(); j++) {
+
+          String identifierText = identifierBatch.get(j);
+          Long dictInternalId = textToDictInternalId.get(identifierText);
+
+          // If the identifier doesn't exist in the dictionary, skip it
+          if (dictInternalId == null) {
+            continue;
+          }
+
+          for (String dataFieldConfigId: identifierDataFieldConfigIds) {
+
+            Long fieldInternalId = dataFieldCache.dataFieldConfigIdToInternalId.get(dataFieldConfigId);
+            if (fieldInternalId == null) {
+              // might not be cached yet if data field was created after cache was built, try to resolve it
+              List<Object[]> fieldRows = new GcDbAccess().sql("SELECT internal_id FROM grouper_data_field WHERE config_id = ?").addBindVar(dataFieldConfigId).selectList(Object[].class);
+              if (GrouperUtil.length(fieldRows) > 0) {
+                fieldInternalId = GrouperUtil.longObjectValue(fieldRows.get(0)[0], false);
+                dataFieldCache.dataFieldConfigIdToInternalId.put(dataFieldConfigId, fieldInternalId);
+              }
+            }
+            if (fieldInternalId == null) {
+              continue;
+            }
+
+            if (!first) {
+              subjectIdsQuery.append(" or ");
+            }
+            first = false;
+            hasAnyConditions = true;
+            subjectIdsQuery.append(" (gdfa.data_field_internal_id = ? and gdfa.value_dictionary_internal_id = ?) ");
+            gcDbAccess.addBindVar(fieldInternalId);
+            gcDbAccess.addBindVar(dictInternalId);
+          }
+        }
+
+        // If no identifiers resolved to dictionary entries, skip this batch
+        if (!hasAnyConditions) {
+          continue;
+        }
+
         subjectIdsQuery.append(" ) ");
-        
+
         List<Object[]> subjectIdsResult = gcDbAccess.sql(subjectIdsQuery.toString()).selectList(Object[].class);
         
         //loop through the member ids result and populate the map of member id to subject identifier
@@ -304,57 +393,77 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           overallSubjectIdentifierToSubjectId.put(subjectIdentifierValue, subjectId);
         }
         
-        // if there are no subject ids, then return empty map
+        // if there are no subject ids in this batch, skip to the next batch
         if (GrouperUtil.length(subjectIdToSubjectIdentifier) == 0) {
-          return results;
+          continue;
         }
 
-        List<String> args = new ArrayList<String>();
-        
+        List<Object> args = new ArrayList<Object>();
+
         StringBuilder query = new StringBuilder("""
-            SELECT 
-                gm.subject_id, 
-                gdf.config_id AS data_field_config_id, 
+            SELECT
+                gm.subject_id,
+                gdf.config_id AS data_field_config_id,
                 gd.the_text AS value_text
-            FROM 
-                grouper_members gm,
+            FROM
+                grouper_members gm
+            INNER JOIN
                 grouper_data_field_assign gdfa
-            JOIN 
-                grouper_data_field gdf 
+                ON gdfa.member_internal_id = gm.internal_id
+            INNER JOIN
+                grouper_data_field gdf
                 ON gdfa.data_field_internal_id = gdf.internal_id
-            LEFT JOIN 
-                grouper_dictionary gd 
+            LEFT JOIN
+                grouper_dictionary gd
                 ON gdfa.value_dictionary_internal_id = gd.internal_id
-            WHERE 
-                gdfa.member_internal_id = gm.internal_id
-                AND gm.subject_source = ?
+            WHERE
+                gm.subject_source = ?
                 AND (
 
             """);
-       
+
         args.add(this.getId());
-        
+
         // make a list of subject ids
         List<String> subjectIds = new ArrayList<String>(subjectIdToSubjectIdentifier.keySet());
         for (int j = 0; j<subjectIds.size(); j++) {
-          
+
           if (j>0) {
             query.append(" or ");
-          } 
+          }
           query.append(" gm.subject_id = ? ");
-          
+
           args.add(subjectIds.get(j));
-          
+
         }
-        
-        query.append(" ) and gdf.config_id in ("+ GrouperClientUtils.appendQuestions(GrouperUtil.length(fieldConfigs)) + ")");
-        
-        for (String configId: fieldConfigs) {
-          args.add(configId);
+
+        // Use internal IDs for data field filtering when available
+        {
+          List<Long> fieldInternalIds = new ArrayList<Long>();
+          List<String> fieldConfigsWithoutInternalId = new ArrayList<String>();
+          for (String configId : fieldConfigs) {
+            Long internalId = dataFieldCache.dataFieldConfigIdToInternalId.get(configId);
+            if (internalId != null) {
+              fieldInternalIds.add(internalId);
+            } else {
+              fieldConfigsWithoutInternalId.add(configId);
+            }
+          }
+          if (fieldConfigsWithoutInternalId.isEmpty()) {
+            query.append(" ) and gdfa.data_field_internal_id in (" + GrouperClientUtils.appendQuestions(fieldInternalIds.size()) + ")");
+            for (Long internalId : fieldInternalIds) {
+              args.add(internalId);
+            }
+          } else {
+            query.append(" ) and gdf.config_id in ("+ GrouperClientUtils.appendQuestions(GrouperUtil.length(fieldConfigs)) + ")");
+            for (String configId: fieldConfigs) {
+              args.add(configId);
+            }
+          }
         }
-        
+
         Set<Subject> subjects = search(query.toString(), args, false, false, null, null, dataFieldCache);
-        
+
         for (Subject subject : GrouperUtil.nonNull(subjects)) {
           String subjectId = subject.getId();
           String subjectIdentifier = subjectIdToSubjectIdentifier.get(subjectId);
@@ -362,6 +471,19 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
         }
       }
     }
+
+    // if configured, also try to resolve any remaining identifiers as subject IDs
+    if (dataFieldCache.subjectIdResolvedAsIdentifier) {
+      Set<String> unresolvedIdentifiers = new HashSet<String>(identifiers);
+      unresolvedIdentifiers.removeAll(results.keySet());
+      if (unresolvedIdentifiers.size() > 0) {
+        Map<String, Subject> idResults = getSubjectsByIds(unresolvedIdentifiers);
+        for (Map.Entry<String, Subject> entry : idResults.entrySet()) {
+          results.put(entry.getKey(), entry.getValue());
+        }
+      }
+    }
+
     return results;
   }
   
@@ -403,7 +525,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
    * @throws SubjectNotUniqueException
    * @throws InvalidQueryRuntimeException 
    */
-  private Set<Subject> search(String query, List<String> args, boolean expectSingle, 
+  private Set<Subject> search(String query, List<Object> args, boolean expectSingle,
       boolean exceptionIfNull,
       Collection<String> identifiersForIdentifierToMap, Map<String, Subject> resultIdentifierToSubject, DataFieldCache dataFieldCache)
       throws SubjectNotFoundException, SubjectNotUniqueException,
@@ -421,7 +543,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
       
       GcDbAccess gcDbAccess = new GcDbAccess().sql(query);
       
-      for (String arg: GrouperUtil.nonNull(args)) {
+      for (Object arg: GrouperUtil.nonNull(args)) {
         gcDbAccess.addBindVar(arg);
       }
       
@@ -576,7 +698,7 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     //make result
     Set<Subject> subjects = new HashSet<Subject>();
     
-    if (StringUtils.isBlank(searchValue)) {
+    if (StringUtils.isBlank(searchValue) || searchValue.trim().length() < 2) {
       return subjects;
     }
     
@@ -592,32 +714,42 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
       return subjects;
     }
     
+    // find the default search string the user has access to
+    SearchStringEnum searchStringEnum = SearchStringEnum.getDefaultSearchString();
+    if (searchStringEnum == null) {
+      return subjects;
+    }
+
     //lets split by any whitespace space
     String[] terms = searchValue.split("\\s+");
-        
+
     //retrieve all the member ids that match the identifiers
     StringBuilder subjectIdsQuery = new StringBuilder("select gm.subject_id from grouper_members gm where "
         + " gm.subject_source = ? and ");
-    
+
     GcDbAccess gcDbAccess = new GcDbAccess();
-    
+
     gcDbAccess.addBindVar(this.getId());
-    
+
     for (int i = 0; i < terms.length; i++) {
-      subjectIdsQuery.append(" gm.search_string0 like ?");
+      subjectIdsQuery.append(" gm.search_string" + searchStringEnum.getIndex() + " like ?");
       gcDbAccess.addBindVar("%" + terms[i].toLowerCase() + "%");
       if (i != terms.length - 1) {
         subjectIdsQuery.append(" and ");
       }
     }
-    
-    List<String> subjectIds = gcDbAccess.sql(subjectIdsQuery.toString()).selectList(String.class);
+
+    // limit the number of results from the search (min 5, default 100, max 500)
+    int maxSearchResults = this.maxResults != null ? this.maxResults : 100;
+    maxSearchResults = Math.max(5, Math.min(500, maxSearchResults));
+
+    List<String> subjectIds = gcDbAccess.sql(subjectIdsQuery.toString()).paging(1, maxSearchResults).selectList(String.class);
     if (GrouperUtil.length(subjectIds) == 0) {
      return subjects; 
     }
         
-    List<String> args = new ArrayList<String>();
-       
+    List<Object> args = new ArrayList<Object>();
+
     StringBuilder query = new StringBuilder("""
         SELECT gm.subject_id, gdf.config_id AS data_field_config_id, gd.the_text AS value_text
         FROM grouper_members gm,
@@ -630,35 +762,53 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           AND gm.subject_source = ?
           AND (
         """);
-    
+
     args.add(this.getId());
-    
+
     // make a list of subject ids
     for (int j = 0; j<subjectIds.size(); j++) {
-      
+
       if (j>0) {
         query.append(" or ");
-      } 
+      }
       query.append(" gm.subject_id = ? ");
-      
+
       args.add(subjectIds.get(j));
-      
+
     }
-    
-    query.append(" ) and gdf.config_id in ("+ GrouperClientUtils.appendQuestions(GrouperUtil.length(fieldConfigs)) + ")");
-    
-    for (String configId: fieldConfigs) {
-      args.add(configId);
+
+    // Use internal IDs for data field filtering when available
+    {
+      List<Long> fieldInternalIds = new ArrayList<Long>();
+      List<String> fieldConfigsWithoutInternalId = new ArrayList<String>();
+      for (String configId : fieldConfigs) {
+        Long internalId = dataFieldCache.dataFieldConfigIdToInternalId.get(configId);
+        if (internalId != null) {
+          fieldInternalIds.add(internalId);
+        } else {
+          fieldConfigsWithoutInternalId.add(configId);
+        }
+      }
+      if (fieldConfigsWithoutInternalId.isEmpty()) {
+        query.append(" ) and gdfa.data_field_internal_id in (" + GrouperClientUtils.appendQuestions(fieldInternalIds.size()) + ")");
+        for (Long internalId : fieldInternalIds) {
+          args.add(internalId);
+        }
+      } else {
+        query.append(" ) and gdf.config_id in ("+ GrouperClientUtils.appendQuestions(GrouperUtil.length(fieldConfigs)) + ")");
+        for (String configId: fieldConfigs) {
+          args.add(configId);
+        }
+      }
     }
-        
+
     subjects = search(query.toString(), args, false, false, null, null, dataFieldCache);
     return subjects;
   }
 
   
-  /** if there is a limit to the number of results */
-  //TODO: take these into account
-  private Integer maxResults;
+  /** if there is a limit to the number of results (min 5, default 100, max 500) */
+  Integer maxResults;
 
   private Integer maxPage;
   
@@ -681,7 +831,12 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
     private Map<MultiKey, Set<String>> sourceIdSubjectIdToDataFieldConfigIds = new HashMap<MultiKey, Set<String>>();
     
     private Map<String, List<String>> attributeNameToListOfPrioritizedPrivacyAttributeNames = new HashMap<String, List<String>>();
-    
+
+    private boolean subjectIdResolvedAsIdentifier = false;
+
+    /** cache of data field config_id to grouper_data_field.internal_id */
+    private Map<String, Long> dataFieldConfigIdToInternalId = new HashMap<String, Long>();
+
     private Set<GrouperDataFieldConfig> retrieveAllDataFieldConfigIds(Source source) {
       
       Map<String, GrouperDataFieldConfig> fieldConfigByConfigId = dataEngine.getFieldConfigByConfigId();
@@ -762,7 +917,9 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           
         }
       }
-      
+
+      this.subjectIdResolvedAsIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + source.getConfigId() + ".subjectIdResolvedAsIdentifier", false);
+
       Set<GrouperDataFieldConfig> dataFieldConfigs = new HashSet<GrouperDataFieldConfig>();
       for (String fieldConfigId: dataFieldConfigIds) {
         if (fieldConfigByConfigId.containsKey(fieldConfigId)) {
@@ -772,7 +929,22 @@ public class GrouperDataFieldSourceAdapter extends BaseSourceAdapter {
           throw new RuntimeException("Found invalid config id: '"+fieldConfigId+"', Source id: '"+source.getId()+"'");
         }
       }
-      
+
+      // Pre-resolve data field config_ids to grouper_data_field.internal_id for optimized queries
+      if (dataFieldConfigIds.size() > 0) {
+        StringBuilder fieldIdQuery = new StringBuilder("SELECT config_id, internal_id FROM grouper_data_field WHERE config_id IN (");
+        fieldIdQuery.append(GrouperClientUtils.appendQuestions(dataFieldConfigIds.size()));
+        fieldIdQuery.append(")");
+        GcDbAccess fieldIdAccess = new GcDbAccess().sql(fieldIdQuery.toString());
+        for (String configId : dataFieldConfigIds) {
+          fieldIdAccess.addBindVar(configId);
+        }
+        List<Object[]> fieldIdRows = fieldIdAccess.selectList(Object[].class);
+        for (Object[] row : fieldIdRows) {
+          this.dataFieldConfigIdToInternalId.put(GrouperUtil.stringValue(row[0]), GrouperUtil.longObjectValue(row[1], false));
+        }
+      }
+
       return dataFieldConfigs;
     }
     

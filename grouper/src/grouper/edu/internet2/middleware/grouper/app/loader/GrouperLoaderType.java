@@ -1795,6 +1795,10 @@ public enum GrouperLoaderType {
       if (LOG.isDebugEnabled()) {
         LOG.debug(groupNameOverall + ": done syncing membership");
       }
+      
+      //clean up loaderMetadata attribute from groups where the grouperLoaderMetadataGroupId no longer is loader group
+      //this is now handled by the maintenance daemon (GrouperDaemonDeleteOldRecords)
+      
 
     } finally {
       hib3GrouploaderLogOverall.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
@@ -2194,6 +2198,227 @@ public enum GrouperLoaderType {
     }
   }
     
+  /**
+   * find all groups with loaderMetadata where grouperLoaderMetadataLoaded is true,
+   * check if the referenced loader group (grouperLoaderMetadataGroupId) still has loader configured,
+   * and if not, remove the loaderMetadata attribute from the managed group.
+   * @param jobMessage optional, append status messages
+   * @param hib3GrouploaderLog optional, update delete count
+   */
+  public static void cleanupStaleLoaderMetadataAttributes(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
+    
+    try {
+      
+      AttributeDefName loaderMetadataLoadedAttributeDefName = AttributeDefNameFinder.findByName(
+          GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED, false);
+      
+      if (loaderMetadataLoadedAttributeDefName == null) {
+        return;
+      }
+      
+      AttributeDefName loaderMetadataGroupIdAttributeDefName = AttributeDefNameFinder.findByName(
+          GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
+      
+      if (loaderMetadataGroupIdAttributeDefName == null) {
+        return;
+      }
+      
+      AttributeDefName loaderMetadataMarkerAttributeDefName = AttributeDefNameFinder.findByName(
+          GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.LOADER_METADATA_VALUE_DEF, false);
+      
+      if (loaderMetadataMarkerAttributeDefName == null) {
+        return;
+      }
+      
+      AttributeDefName loaderMetadataLastFullMillisAttributeDefName = AttributeDefNameFinder.findByName(
+          GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_FULL_MILLIS, false);
+      
+      // 6 months in millis
+      long sixMonthsAgoMillis = System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 180);
+      
+      // find all groups where grouperLoaderMetadataLoaded = "true"
+      Set<Group> groupsWithLoaderMetadata = new GroupFinder().assignPrivileges(null)
+          .assignIdOfAttributeDefName(loaderMetadataLoadedAttributeDefName.getId())
+          .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType("true"))
+          .assignAttributeCheckReadOnAttributeDef(false)
+          .findGroups();
+      
+      // cache loader group id -> whether it still has loader configured
+      Map<String, Boolean> loaderGroupIdToHasLoader = new HashMap<String, Boolean>();
+      int deleteCount = 0;
+      
+      for (Group groupWithMetadata : groupsWithLoaderMetadata) {
+        
+        try {
+          
+          AttributeAssign attributeAssign = groupWithMetadata.getAttributeDelegate()
+              .retrieveAssignment(null, loaderMetadataMarkerAttributeDefName, false, false);
+          
+          if (attributeAssign == null) {
+            continue;
+          }
+          
+          String loaderGroupId = attributeAssign.getAttributeValueDelegate()
+              .retrieveValueString(loaderMetadataGroupIdAttributeDefName.getName());
+          
+          if (StringUtils.isBlank(loaderGroupId)) {
+            continue;
+          }
+          
+          boolean shouldRemove = false;
+          String removeReason = null;
+          
+          if (!loaderGroupIdToHasLoader.containsKey(loaderGroupId)) {
+            loaderGroupIdToHasLoader.put(loaderGroupId, isLoaderConfiguredOnGroup(loaderGroupId));
+          }
+          
+          boolean loaderStillConfigured = loaderGroupIdToHasLoader.get(loaderGroupId);
+          
+          if (!loaderStillConfigured) {
+            shouldRemove = true;
+            removeReason = "loader group no longer has loader configured";
+          }
+          
+          // also check if last full load was more than 6 months ago
+          if (!shouldRemove && loaderMetadataLastFullMillisAttributeDefName != null) {
+            String lastFullMillisString = attributeAssign.getAttributeValueDelegate()
+                .retrieveValueString(loaderMetadataLastFullMillisAttributeDefName.getName());
+            if (!StringUtils.isBlank(lastFullMillisString)) {
+              try {
+                long lastFullMillis = Long.parseLong(lastFullMillisString);
+                if (lastFullMillis < sixMonthsAgoMillis) {
+                  shouldRemove = true;
+                  removeReason = "last full load was more than 6 months ago (" + lastFullMillisString + ")";
+                }
+              } catch (NumberFormatException nfe) {
+                LOG.warn("Invalid grouperLoaderMetadataLastFullMillisSince1970 value on group: " 
+                    + groupWithMetadata.getName() + ", value: " + lastFullMillisString);
+              }
+            }
+          }
+          
+          if (shouldRemove) {
+            groupWithMetadata.getAttributeDelegate().removeAttribute(loaderMetadataMarkerAttributeDefName);
+            deleteCount++;
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Removed stale loaderMetadata from group: " + groupWithMetadata.getName() 
+                  + " (referenced loader group id: " + loaderGroupId + ", reason: " + removeReason + ")");
+            }
+          }
+          
+        } catch (Exception e) {
+          LOG.warn("Non-fatal error cleaning up stale loaderMetadata on group: " + groupWithMetadata.getName(), e);
+        }
+      }
+      
+      // second pass: remove loaderMetadata where grouperLoaderMetadataLoaded is "false"
+      Set<Group> groupsWithLoadedFalse = new GroupFinder().assignPrivileges(null)
+          .assignIdOfAttributeDefName(loaderMetadataLoadedAttributeDefName.getId())
+          .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType("false"))
+          .assignAttributeCheckReadOnAttributeDef(false)
+          .findGroups();
+      
+      for (Group groupWithLoadedFalse : GrouperUtil.nonNull(groupsWithLoadedFalse)) {
+        try {
+          groupWithLoadedFalse.getAttributeDelegate().removeAttribute(loaderMetadataMarkerAttributeDefName);
+          deleteCount++;
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Removed loaderMetadata from group with loaded=false: " + groupWithLoadedFalse.getName());
+          }
+        } catch (Exception e) {
+          LOG.warn("Non-fatal error removing loaderMetadata from group with loaded=false: " + groupWithLoadedFalse.getName(), e);
+        }
+      }
+      
+      if (hib3GrouploaderLog != null) {
+        hib3GrouploaderLog.addDeleteCount(deleteCount);
+      }
+      if (jobMessage != null) {
+        jobMessage.append("Removed " + deleteCount + " stale loaderMetadata attributes.\n");
+      }
+      
+    } catch (Exception e) {
+      LOG.warn("Non-fatal error during stale loaderMetadata cleanup", e);
+    }
+  }
+  
+  /**
+   * remove loaderMetadata attribute from the given loader group and from all groups
+   * previously managed by this loader (where grouperLoaderMetadataGroupId matches the loader group id).
+   * @param loaderGroup the loader group whose config is being removed
+   */
+  public static void removeLoaderMetadataFromGroupAndManagedGroups(Group loaderGroup) {
+    
+    AttributeDefName loaderMetadataDefName = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByNameSecure(GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.LOADER_METADATA_VALUE_DEF, false);
+    
+    if (loaderMetadataDefName == null) {
+      return;
+    }
+    
+    // remove from the loader group itself
+    if (loaderGroup.getAttributeDelegate().hasAttribute(loaderMetadataDefName)) {
+      loaderGroup.getAttributeDelegate().removeAttribute(loaderMetadataDefName);
+    }
+    
+    // remove from all previously managed groups where grouperLoaderMetadataGroupId matches this loader group
+    AttributeDefName loaderMetadataGroupIdDefName = AttributeDefNameFinder.findByName(
+        GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, false);
+    
+    if (loaderMetadataGroupIdDefName == null) {
+      return;
+    }
+    
+    Set<Group> managedGroups = new GroupFinder().assignPrivileges(null)
+        .assignIdOfAttributeDefName(loaderMetadataGroupIdDefName.getId())
+        .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType(loaderGroup.getId()))
+        .assignAttributeCheckReadOnAttributeDef(false)
+        .findGroups();
+    
+    for (Group managedGroup : GrouperUtil.nonNull(managedGroups)) {
+      try {
+        managedGroup.getAttributeDelegate().removeAttribute(loaderMetadataDefName);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Removed loaderMetadata from managed group: " + managedGroup.getName()
+              + " (loader group: " + loaderGroup.getName() + ")");
+        }
+      } catch (Exception e) {
+        LOG.warn("Non-fatal error removing loaderMetadata from managed group: " + managedGroup.getName(), e);
+      }
+    }
+  }
+  
+  /**
+   * check if a group (by uuid) still has loader configured (SQL or LDAP)
+   * @param groupId
+   * @return true if loader is configured on the group, false otherwise (including if the group does not exist)
+   */
+  static boolean isLoaderConfiguredOnGroup(String groupId) {
+    
+    Group loaderGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, false);
+    
+    if (loaderGroup == null) {
+      return false;
+    }
+    
+    // check SQL loader
+    AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") 
+            + ":legacy:attribute:legacyGroupType_grouperLoader", false);
+    if (grouperLoader != null && loaderGroup.getAttributeDelegate().hasAttribute(grouperLoader)) {
+      return true;
+    }
+    
+    // check LDAP loader
+    AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
+    if (grouperLoaderLdapName != null && loaderGroup.getAttributeDelegate().hasAttribute(grouperLoaderLdapName)) {
+      return true;
+    }
+    
+    return false;
+  }
+
   /**
    * if this job name is for this type
    * @param jobName

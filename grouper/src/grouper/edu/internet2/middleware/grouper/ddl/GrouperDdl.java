@@ -2933,9 +2933,13 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdl7_0_0.addGrouperMcpToolLogTable(database, ddlVersionBean);
         GrouperDdl7_0_0.addGrouperMcpToolLogIndex(ddlVersionBean, database);
         GrouperDdl7_0_0.addGrouperMcpToolLogComments(database, ddlVersionBean);
+
+        GrouperDdl6_2_0.addGrouperDataFieldAssignIndexes(ddlVersionBean, database);
+        GrouperDdl6_2_0.addGrouperGroupSetMemberIndex(ddlVersionBean, database);
+
     }
   }
-  //DON'T ADD ANY MORE Vs
+  //DON'T ADD ANY MORE Vs, we are only doing UpgradeTaskX going forward
   ;
   
   
@@ -12603,8 +12607,11 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
         "group_set_sowner_member_idx", false, "owner_stem_id", "member_stem_id", "field_id", "depth");
     
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(),
         "group_set_aowner_member_idx", false, "owner_attr_def_id", "member_attr_def_id", "field_id", "depth");
+
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(),
+        "group_set_member_member_field_idx", false, "member_id", "member_field_id");
   }
 
   /**

@@ -51,6 +51,8 @@ import org.quartz.impl.matchers.GroupMatcher;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.util.Collections;
+import java.util.Comparator;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
@@ -1523,6 +1525,7 @@ public class UiV2Admin extends UiServiceLogicBase {
         }
         
         SubjectSourceContainer subjectSourceContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getSubjectSourceContainer();
+        subjectSourceContainer.setSource(source);
         subjectSourceContainer.setSubjectSourceId(sourceId);
         
         subjectId = source.getInitParam("subjectIdToFindOnCheckConfig");
@@ -1533,6 +1536,29 @@ public class UiV2Admin extends UiServiceLogicBase {
 
         searchString = source.getInitParam("stringToFindOnCheckConfig");
         searchString = StringUtils.defaultIfBlank(searchString, "first last");
+        
+        if (subjectSourceContainer.isDisabledGrouperDataFieldSource()) {
+          List<Source> allSources = new ArrayList<Source>(SubjectFinder.getSources(true));
+          List<Source> otherSources = new ArrayList<Source>();
+          for (Source theSource : allSources) {
+            if (!"g:gsa".equals(theSource.getId()) &&
+                !"g:isa".equals(theSource.getId()) &&
+                !"grouperEntities".equals(theSource.getId()) &&
+                !"grouperExternal".equals(theSource.getId())) {
+              otherSources.add(theSource);
+            }
+          }
+          
+          Collections.sort(otherSources, new Comparator<Source>() {
+
+            @Override
+            public int compare(Source o1, Source o2) {
+              return GrouperUtil.compare(o1.getId().toLowerCase(), o2.getId().toLowerCase());
+            }
+          });
+          
+          subjectSourceContainer.setSources(otherSources);
+        }
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -1770,8 +1796,10 @@ public class UiV2Admin extends UiServiceLogicBase {
       String subjectId = StringUtils.trim(request.getParameter("subjectIdName"));
       String subjectIdentifier = StringUtils.trim(request.getParameter("subjectIdentifierName"));
       String searchString = StringUtils.trim(request.getParameter("searchStringName"));
+      String oldSourceId = StringUtils.trim(request.getParameter("otherSubjectApiSourceIdId"));
       
       StringBuilder subjectApiReport = new SubjectSourceDiagnostics().assignSourceId(sourceId)
+          .assignOldSourceId(oldSourceId)
           .assignSubjectId(subjectId).assignSubjectIdentifier(subjectIdentifier).assignSearchString(searchString)
           .subjectSourceDiagnostics();
       

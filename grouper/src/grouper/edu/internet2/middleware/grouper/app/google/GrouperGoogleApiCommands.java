@@ -203,54 +203,83 @@ public class GrouperGoogleApiCommands {
   }
   
   /**
+   * Google tokens typically expire in 60 minutes. Cache well under that to avoid
+   * expired tokens during long-running provisioning jobs with throttling delays.
+   * If expiry > 35 min, cap at 30 min. If 6-35 min, use expiry minus a 5 min buffer. Otherwise use as-is.
+   * @param expiresInSeconds token expiry from Google
+   * @return cache time to live in minutes
+   */
+  static int tokenCacheMinutes(int expiresInSeconds) {
+    int expiresInMinutes = expiresInSeconds / 60;
+    return expiresInMinutes > 35 ? 30 : (expiresInMinutes > 5 ? expiresInMinutes - 5 : expiresInMinutes);
+  }
+
+  /**
    * get bearer token for google config id
    * @param configId
    * @return the bearer token
    */
   private static String retrieveBearerTokenForGoogleConfigId(Map<String, Object> debugMap, String configId) {
-    
+
     String encryptedBearerToken = configKeyToExpiresOnAndBearerToken.get(configId);
-  
+
     if (StringUtils.isNotBlank(encryptedBearerToken)) {
       if (debugMap != null) {
         debugMap.put("googleCachedAccessToken", true);
       }
       return Morph.decrypt(encryptedBearerToken);
     }
-    
-    Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId, 
-        "https://www.googleapis.com/auth/admin.directory.user https://www.googleapis.com/auth/admin.directory.group https://www.googleapis.com/auth/admin.directory.group.member");
-    
-    String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
-    int expiresInSeconds = (Integer) accessTokenAndExpiry[1] - 5; // subtracting 5 just in case if there are network delays
-    int timeToLive = expiresInSeconds/60;
-    configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), timeToLive - 5);
-    return accessToken;
+
+    // synchronize to avoid multiple threads generating redundant tokens on a cache miss
+    synchronized (configKeyToExpiresOnAndBearerToken) {
+      // check again now that we have the lock, another thread may have populated the cache
+      encryptedBearerToken = configKeyToExpiresOnAndBearerToken.get(configId);
+      if (StringUtils.isNotBlank(encryptedBearerToken)) {
+        if (debugMap != null) {
+          debugMap.put("googleCachedAccessToken", true);
+        }
+        return Morph.decrypt(encryptedBearerToken);
+      }
+
+      Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId,
+          "https://www.googleapis.com/auth/admin.directory.user https://www.googleapis.com/auth/admin.directory.group https://www.googleapis.com/auth/admin.directory.group.member");
+
+      String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
+      configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), tokenCacheMinutes((Integer) accessTokenAndExpiry[1]));
+      return accessToken;
+    }
   }
-  
+
   /**
    * get bearer token for google settings config id
    * @param configId
    * @return the bearer token
    */
   public static String retrieveBearerTokenForGoogleSettingsConfigId(Map<String, Object> debugMap, String configId) {
-    
+
     String encryptedBearerToken = configKeyToExpiresOnAndSettingsToken.get(configId);
-    
+
     if (StringUtils.isNotBlank(encryptedBearerToken)) {
       if (debugMap != null) {
         debugMap.put("googleCachedAccessTokenForSettings", true);
       }
       return Morph.decrypt(encryptedBearerToken);
     }
-  
-    Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId, "https://www.googleapis.com/auth/apps.groups.settings");
-    
-    String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
-    int expiresInSeconds = (Integer) accessTokenAndExpiry[1] - 5; // subtracting 5 just in case if there are network delays
-    int timeToLive = expiresInSeconds/60;
-    configKeyToExpiresOnAndSettingsToken.put(configId, Morph.encrypt(accessToken), timeToLive);
-    return accessToken;
+
+    // synchronize to avoid multiple threads generating redundant tokens on a cache miss
+    synchronized (configKeyToExpiresOnAndSettingsToken) {
+      // check again now that we have the lock, another thread may have populated the cache
+      encryptedBearerToken = configKeyToExpiresOnAndSettingsToken.get(configId);
+      if (StringUtils.isNotBlank(encryptedBearerToken)) {
+        return Morph.decrypt(encryptedBearerToken);
+      }
+
+      Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId, "https://www.googleapis.com/auth/apps.groups.settings");
+
+      String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
+      configKeyToExpiresOnAndSettingsToken.put(configId, Morph.encrypt(accessToken), tokenCacheMinutes((Integer) accessTokenAndExpiry[1]));
+      return accessToken;
+    }
   }
   
   public static JsonNode executeGetMethod(Map<String, Object> debugMap, String debugLabel, String configId, String urlSuffix, boolean useSettingsBearerToken) {
@@ -266,13 +295,56 @@ public class GrouperGoogleApiCommands {
     return jsonNode;
   }
 
+  private static int[] buildAndExecuteHttpCall(Map<String, Object> debugMap, String debugLabel,
+      String httpMethodName, String url, String bearerToken, String proxyUrl, String proxyType,
+      String body, String[] jsonHolder) {
+
+    GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
+    grouperHttpCall.assignDebugMap(debugMap);
+    grouperHttpCall.assignProxyUrl(proxyUrl);
+    grouperHttpCall.assignProxyType(proxyType);
+    grouperHttpCall.assignUrl(url);
+    grouperHttpCall.assignGrouperHttpMethod(httpMethodName);
+    grouperHttpCall.addHeader("Content-Type", "application/json");
+    grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
+    grouperHttpCall.assignBody(body);
+
+    grouperHttpCall.setRetryForThrottlingOrNetworkIssuesSleepMillis(120*1000L); // 2mins
+
+    grouperHttpCall.setThrottlingCallback(new GrouperHttpThrottlingCallback() {
+
+      @Override
+      public boolean setupThrottlingCallback(GrouperHttpClient httpClient) {
+        boolean isThrottle = httpClient.getResponseCode() == 403
+            || httpClient.getResponseCode() == 429 || httpClient.getResponseCode() == 503;
+        if (isThrottle) {
+          GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
+        }
+        return isThrottle;
+      }
+    });
+
+    long httpCallStartMillis = System.currentTimeMillis();
+    try {
+      grouperHttpCall.executeRequest();
+    } finally {
+      GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
+          System.currentTimeMillis() - httpCallStartMillis);
+    }
+
+    try {
+      int code = grouperHttpCall.getResponseCode();
+      jsonHolder[0] = grouperHttpCall.getResponseBody();
+      return new int[] { code };
+    } catch (Exception e) {
+      throw new RuntimeException("Error connecting to '" + url + "'", e);
+    }
+  }
+
   public static JsonNode executeMethod(Map<String, Object> debugMap, String debugLabel,
       String httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body, boolean useSettingsBearerToken) {
 
-    GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
-    grouperHttpCall.assignDebugMap(debugMap);
-    
     String bearerToken = null;
     String url =  null;
     if (useSettingsBearerToken) {
@@ -290,55 +362,39 @@ public class GrouperGoogleApiCommands {
       url = directoryApiBaseUrl + urlSuffix;
       bearerToken = retrieveBearerTokenForGoogleConfigId(debugMap, configId);
     }
-    
+
     String proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".proxyUrl");
     String proxyType = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".proxyType");
-    
-    grouperHttpCall.assignProxyUrl(proxyUrl);
-    grouperHttpCall.assignProxyType(proxyType);
-    
+
     debugMap.put("url", url);
 
-    grouperHttpCall.assignUrl(url);
-    grouperHttpCall.assignGrouperHttpMethod(httpMethodName);
-    
-    grouperHttpCall.addHeader("Content-Type", "application/json");
-    grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
-    grouperHttpCall.assignBody(body);
-    
-    grouperHttpCall.setRetryForThrottlingOrNetworkIssuesSleepMillis(120*1000L); // 2mins
-    
-    grouperHttpCall.setThrottlingCallback(new GrouperHttpThrottlingCallback() {
-      
-      @Override
-      public boolean setupThrottlingCallback(GrouperHttpClient httpClient) {
-        boolean isThrottle = httpClient.getResponseCode() == 403 
-            || httpClient.getResponseCode() == 429 || httpClient.getResponseCode() == 503;
-        if (isThrottle) {                
-          GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
-        }
-        return isThrottle;
-      }
-    });
-    
-    long httpCallStartMillis = System.currentTimeMillis();
-    try {
-      grouperHttpCall.executeRequest();
-    } finally {
-      GrouperProvisioner.incrementCommandsCallsStats(debugLabel, 1,
-          System.currentTimeMillis() - httpCallStartMillis);
-    }
-    
-    int code = -1;
-    String json = null;
+    String[] jsonHolder = new String[] { null };
+    int code = buildAndExecuteHttpCall(debugMap, debugLabel, httpMethodName, url, bearerToken,
+        proxyUrl, proxyType, body, jsonHolder)[0];
+    returnCode[0] = code;
 
-    try {
-      code = grouperHttpCall.getResponseCode();
+    //mid session if we start receiving 401, we need to retrieve the auth token again and continue
+    if (code == 401) {
+      GrouperUtil.mapAddValue(debugMap, "tokenRefreshOn401", 1);
+      if (useSettingsBearerToken) {
+        configKeyToExpiresOnAndSettingsToken.remove(configId);
+        bearerToken = retrieveBearerTokenForGoogleSettingsConfigId(debugMap, configId);
+      } else {
+        configKeyToExpiresOnAndBearerToken.remove(configId);
+        bearerToken = retrieveBearerTokenForGoogleConfigId(debugMap, configId);
+      }
+
+      jsonHolder[0] = null;
+      code = buildAndExecuteHttpCall(debugMap, debugLabel, httpMethodName, url, bearerToken,
+          proxyUrl, proxyType, body, jsonHolder)[0];
       returnCode[0] = code;
-      json = grouperHttpCall.getResponseBody();
-    } catch (Exception e) {
-      throw new RuntimeException("Error connecting to '" + debugMap.get("url") + "'", e);
+
+      if (code == 401) {
+        debugMap.put("tokenRefreshFailed", true);
+      }
     }
+
+    String json = jsonHolder[0];
 
     if (!allowedReturnCodes.contains(code)) {
       throw new RuntimeException(

@@ -2219,7 +2219,264 @@ public class GrouperProvisioningBehavior {
   
     this.selectGroupsInGeneral = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups();
     return this.selectGroupsInGeneral;
-  
+
   }
-  
+
+  // ---- batch sizes ----
+
+  private Integer provisionerBatchingDefault;
+  private Integer provisionerBatchingInsertMemberships;
+  private Integer provisionerBatchingDeleteMemberships;
+  private Integer provisionerBatchingInsertGroups;
+  private Integer provisionerBatchingDeleteGroups;
+  private Integer provisionerBatchingInsertEntities;
+  private Integer provisionerBatchingDeleteEntities;
+  private Integer provisionerBatchingUpdateGroups;
+  private Integer provisionerBatchingUpdateEntities;
+  private Integer provisionerBatchingUpdateMemberships;
+  private Integer provisionerBatchingRetrieveGroups;
+  private Integer provisionerBatchingRetrieveEntities;
+  private Integer provisionerBatchingRetrieveMemberships;
+
+  /**
+   * resolve an effective batch size from the DAO capability value and the user config value.
+   * user can only reduce, not increase beyond what the DAO registered.
+   * @param daoValue
+   * @param configValue -1 means not configured
+   * @param debugMapKey
+   * @return the effective batch size
+   */
+  /**
+   * resolve an effective batch size from the DAO capability value, the user config value,
+   * and the user default config value.
+   * user can only reduce, not increase beyond what the DAO registered.
+   * if no specific config value is set, the user default is used (if set).
+   * @param daoValue
+   * @param configValue -1 means not configured
+   * @param debugMapKey
+   * @param useDefault true to also consider getProvisionerBatchingDefault()
+   * @return the effective batch size
+   */
+  private int resolveBatchSize(int daoValue, int configValue, String debugMapKey, boolean useDefault) {
+    int effectiveValue = daoValue;
+    if (configValue != -1) {
+      effectiveValue = Math.min(configValue, daoValue);
+    } else if (useDefault && this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingDefault() != -1) {
+      int defaultValue = this.getProvisionerBatchingDefault();
+      effectiveValue = Math.min(defaultValue, daoValue);
+    }
+    effectiveValue = Math.max(effectiveValue, 1);
+    this.getGrouperProvisioner().getDebugMap().put(debugMapKey, effectiveValue);
+    return effectiveValue;
+  }
+
+  public int getProvisionerBatchingDefault() {
+    if (this.provisionerBatchingDefault != null) {
+      return this.provisionerBatchingDefault;
+    }
+    int daoValue = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getDefaultBatchSize();
+    int configValue = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingDefault();
+    this.provisionerBatchingDefault = resolveBatchSize(daoValue, configValue, "provisionerBatchingDefault", false);
+    return this.provisionerBatchingDefault;
+  }
+
+  public void setProvisionerBatchingDefault(Integer provisionerBatchingDefault) {
+    this.provisionerBatchingDefault = provisionerBatchingDefault;
+  }
+
+  public int getProvisionerBatchingInsertMemberships() {
+    if (this.provisionerBatchingInsertMemberships != null) {
+      return this.provisionerBatchingInsertMemberships;
+    }
+    int daoValue = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getInsertMembershipsBatchSize();
+    int configValue = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingInsertMemberships();
+    this.provisionerBatchingInsertMemberships = resolveBatchSize(daoValue, configValue, "provisionerBatchingInsertMemberships", true);
+    return this.provisionerBatchingInsertMemberships;
+  }
+
+  public void setProvisionerBatchingInsertMemberships(Integer provisionerBatchingInsertMemberships) {
+    this.provisionerBatchingInsertMemberships = provisionerBatchingInsertMemberships;
+  }
+
+  public int getProvisionerBatchingDeleteMemberships() {
+    if (this.provisionerBatchingDeleteMemberships != null) {
+      return this.provisionerBatchingDeleteMemberships;
+    }
+    int daoValue = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getDeleteMembershipsBatchSize();
+    int configValue = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingDeleteMemberships();
+    this.provisionerBatchingDeleteMemberships = resolveBatchSize(daoValue, configValue, "provisionerBatchingDeleteMemberships", true);
+    return this.provisionerBatchingDeleteMemberships;
+  }
+
+  public void setProvisionerBatchingDeleteMemberships(Integer provisionerBatchingDeleteMemberships) {
+    this.provisionerBatchingDeleteMemberships = provisionerBatchingDeleteMemberships;
+  }
+
+  public int getProvisionerBatchingInsertGroups() {
+    if (this.provisionerBatchingInsertGroups != null) {
+      return this.provisionerBatchingInsertGroups;
+    }
+    int daoValue = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getInsertGroupsBatchSize();
+    int configValue = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingInsertGroups();
+    this.provisionerBatchingInsertGroups = resolveBatchSize(daoValue, configValue, "provisionerBatchingInsertGroups", true);
+    return this.provisionerBatchingInsertGroups;
+  }
+
+  public void setProvisionerBatchingInsertGroups(Integer provisionerBatchingInsertGroups) {
+    this.provisionerBatchingInsertGroups = provisionerBatchingInsertGroups;
+  }
+
+  public int getProvisionerBatchingDeleteGroups() {
+    if (this.provisionerBatchingDeleteGroups != null) {
+      return this.provisionerBatchingDeleteGroups;
+    }
+    int daoValue = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getDeleteGroupsBatchSize();
+    int configValue = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingDeleteGroups();
+    this.provisionerBatchingDeleteGroups = resolveBatchSize(daoValue, configValue, "provisionerBatchingDeleteGroups", true);
+    return this.provisionerBatchingDeleteGroups;
+  }
+
+  public void setProvisionerBatchingDeleteGroups(Integer provisionerBatchingDeleteGroups) {
+    this.provisionerBatchingDeleteGroups = provisionerBatchingDeleteGroups;
+  }
+
+  public int getProvisionerBatchingInsertEntities() {
+    if (this.provisionerBatchingInsertEntities != null) {
+      return this.provisionerBatchingInsertEntities;
+    }
+    int daoValue = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getInsertEntitiesBatchSize();
+    int configValue = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingInsertEntities();
+    this.provisionerBatchingInsertEntities = resolveBatchSize(daoValue, configValue, "provisionerBatchingInsertEntities", true);
+    return this.provisionerBatchingInsertEntities;
+  }
+
+  public void setProvisionerBatchingInsertEntities(Integer provisionerBatchingInsertEntities) {
+    this.provisionerBatchingInsertEntities = provisionerBatchingInsertEntities;
+  }
+
+  public int getProvisionerBatchingDeleteEntities() {
+    if (this.provisionerBatchingDeleteEntities != null) {
+      return this.provisionerBatchingDeleteEntities;
+    }
+    int daoValue = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getDeleteEntitiesBatchSize();
+    int configValue = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingDeleteEntities();
+    this.provisionerBatchingDeleteEntities = resolveBatchSize(daoValue, configValue, "provisionerBatchingDeleteEntities", true);
+    return this.provisionerBatchingDeleteEntities;
+  }
+
+  public void setProvisionerBatchingDeleteEntities(Integer provisionerBatchingDeleteEntities) {
+    this.provisionerBatchingDeleteEntities = provisionerBatchingDeleteEntities;
+  }
+
+  public int getProvisionerBatchingUpdateGroups() {
+    if (this.provisionerBatchingUpdateGroups != null) {
+      return this.provisionerBatchingUpdateGroups;
+    }
+    int daoValue = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getUpdateGroupsBatchSize();
+    int configValue = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingUpdateGroups();
+    this.provisionerBatchingUpdateGroups = resolveBatchSize(daoValue, configValue, "provisionerBatchingUpdateGroups", true);
+    return this.provisionerBatchingUpdateGroups;
+  }
+
+  public void setProvisionerBatchingUpdateGroups(Integer provisionerBatchingUpdateGroups) {
+    this.provisionerBatchingUpdateGroups = provisionerBatchingUpdateGroups;
+  }
+
+  public int getProvisionerBatchingUpdateEntities() {
+    if (this.provisionerBatchingUpdateEntities != null) {
+      return this.provisionerBatchingUpdateEntities;
+    }
+    int daoValue = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getUpdateEntitiesBatchSize();
+    int configValue = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingUpdateEntities();
+    this.provisionerBatchingUpdateEntities = resolveBatchSize(daoValue, configValue, "provisionerBatchingUpdateEntities", true);
+    return this.provisionerBatchingUpdateEntities;
+  }
+
+  public void setProvisionerBatchingUpdateEntities(Integer provisionerBatchingUpdateEntities) {
+    this.provisionerBatchingUpdateEntities = provisionerBatchingUpdateEntities;
+  }
+
+  public int getProvisionerBatchingUpdateMemberships() {
+    if (this.provisionerBatchingUpdateMemberships != null) {
+      return this.provisionerBatchingUpdateMemberships;
+    }
+    int daoValue = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getUpdateMembershipsBatchSize();
+    int configValue = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingUpdateMemberships();
+    this.provisionerBatchingUpdateMemberships = resolveBatchSize(daoValue, configValue, "provisionerBatchingUpdateMemberships", true);
+    return this.provisionerBatchingUpdateMemberships;
+  }
+
+  public void setProvisionerBatchingUpdateMemberships(Integer provisionerBatchingUpdateMemberships) {
+    this.provisionerBatchingUpdateMemberships = provisionerBatchingUpdateMemberships;
+  }
+
+  public int getProvisionerBatchingRetrieveGroups() {
+    if (this.provisionerBatchingRetrieveGroups != null) {
+      return this.provisionerBatchingRetrieveGroups;
+    }
+    int daoValue = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getRetrieveGroupsBatchSize();
+    int configValue = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingRetrieveGroups();
+    this.provisionerBatchingRetrieveGroups = resolveBatchSize(daoValue, configValue, "provisionerBatchingRetrieveGroups", true);
+    return this.provisionerBatchingRetrieveGroups;
+  }
+
+  public void setProvisionerBatchingRetrieveGroups(Integer provisionerBatchingRetrieveGroups) {
+    this.provisionerBatchingRetrieveGroups = provisionerBatchingRetrieveGroups;
+  }
+
+  public int getProvisionerBatchingRetrieveEntities() {
+    if (this.provisionerBatchingRetrieveEntities != null) {
+      return this.provisionerBatchingRetrieveEntities;
+    }
+    int daoValue = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getRetrieveEntitiesBatchSize();
+    int configValue = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingRetrieveEntities();
+    this.provisionerBatchingRetrieveEntities = resolveBatchSize(daoValue, configValue, "provisionerBatchingRetrieveEntities", true);
+    return this.provisionerBatchingRetrieveEntities;
+  }
+
+  public void setProvisionerBatchingRetrieveEntities(Integer provisionerBatchingRetrieveEntities) {
+    this.provisionerBatchingRetrieveEntities = provisionerBatchingRetrieveEntities;
+  }
+
+  public int getProvisionerBatchingRetrieveMemberships() {
+    if (this.provisionerBatchingRetrieveMemberships != null) {
+      return this.provisionerBatchingRetrieveMemberships;
+    }
+    int daoValue = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getRetrieveMembershipsBatchSize();
+    int configValue = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+        .getProvisionerBatchingRetrieveMemberships();
+    this.provisionerBatchingRetrieveMemberships = resolveBatchSize(daoValue, configValue, "provisionerBatchingRetrieveMemberships", true);
+    return this.provisionerBatchingRetrieveMemberships;
+  }
+
+  public void setProvisionerBatchingRetrieveMemberships(Integer provisionerBatchingRetrieveMemberships) {
+    this.provisionerBatchingRetrieveMemberships = provisionerBatchingRetrieveMemberships;
+  }
+
 }

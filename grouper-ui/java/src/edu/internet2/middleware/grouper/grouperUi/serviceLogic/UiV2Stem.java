@@ -80,6 +80,8 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPITMembershipView;
@@ -1525,6 +1527,248 @@ public class UiV2Stem {
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMembershipsInFolderResultsId", 
         "/WEB-INF/grouperUi2/stem/groupMembershipsInFolderContents.jsp"));
   
+  }
+
+  /**
+   * export group memberships in folder to CSV
+   * @param request
+   * @param response
+   */
+  public void groupMembershipsInFolderExport(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    Stem stem = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      stem = retrieveStemHelper(request, false).getStem();
+
+      if (stem == null) {
+        return;
+      }
+
+      String filterText = request.getParameter("filterText");
+      String membershipEnabledDisabledOptions = request.getParameter("membershipEnabledDisabledOptions");
+      String membershipPITOptions = request.getParameter("membershipPITOptions");
+      String membershipPITToDate = request.getParameter("membershipPITToDate");
+      String membershipPITFromDate = request.getParameter("membershipPITFromDate");
+      String membershipCustomCompositeOptions = request.getParameter("membershipCustomCompositeOptions");
+
+      String membershipTypeString = request.getParameter("membershipType");
+      MembershipType membershipType = null;
+      if (!StringUtils.isBlank(membershipTypeString)) {
+        membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
+      }
+
+      int maxExportEntries = GrouperConfig.retrieveConfig().propertyValueInt("grouper.membership.export.maximumFolderExportEntries", 800000);
+
+      MembershipFinder membershipFinder = new MembershipFinder()
+        .assignStem(stem).assignStemScope(Stem.Scope.SUB).assignCheckSecurity(true)
+        .assignHasFieldForMember(false)
+        .assignSplitScopeForMember(true);
+
+      if (!StringUtils.isBlank(filterText)) {
+        membershipFinder.assignScopeForMember(filterText);
+      }
+
+      if ("yes".equals(membershipPITOptions)) {
+
+        if (StringUtils.isNotBlank(membershipPITFromDate)) {
+          membershipFinder.assignPointInTimeFrom(GrouperUtil.stringToTimestamp(membershipPITFromDate));
+        }
+
+        if (StringUtils.isNotBlank(membershipPITToDate)) {
+          membershipFinder.assignPointInTimeTo(GrouperUtil.stringToTimestamp(membershipPITToDate));
+        }
+
+        // check count before fetching all results
+        if (maxExportEntries != -1) {
+          int totalCount = membershipFinder.findCountForMember();
+          if (totalCount > maxExportEntries) {
+            GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+            StemContainer stemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer();
+            stemContainer.setExportTotalCount(totalCount);
+            stemContainer.setExportMaxEntries(maxExportEntries);
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportTooManyEntries")));
+            return;
+          }
+        }
+
+        Set<Object[]> result = membershipFinder.findPITMembershipsMembers();
+
+        Map<String, Subject> memberIdToSubject = new HashMap<String, Subject>();
+
+        {
+          Map<String, SubjectBean> memberIdToSubjectBean = new HashMap<String, SubjectBean>();
+          Set<SubjectBean> subjectBeans = new HashSet<SubjectBean>();
+          for (Object[] membershipResult : result) {
+            Member member = (Member)membershipResult[3];
+            SubjectBean subjectBean = new SubjectBean(member.getSubjectId(), member.getSubjectSourceId());
+            memberIdToSubjectBean.put(member.getUuid(), subjectBean);
+            subjectBeans.add(subjectBean);
+          }
+          Map<SubjectBean, Subject> subjectBeanToSubject = SubjectFinder.findBySubjectBeans(subjectBeans);
+
+          for (String memberId : memberIdToSubjectBean.keySet()) {
+            SubjectBean subjectBean = memberIdToSubjectBean.get(memberId);
+            Subject subject = subjectBeanToSubject.get(subjectBean);
+
+            if (subject == null) {
+              subject = new UnresolvableSubject(subjectBean.getId(), null, subjectBean.getSourceId());
+            }
+
+            memberIdToSubject.put(memberId, subject);
+          }
+        }
+
+        Set<GuiPITMembershipView> guiPITMembershipViews = new LinkedHashSet<GuiPITMembershipView>();
+
+        for (Object[] membershipResult : result) {
+          PITMembershipView pitMembershipView = (PITMembershipView)membershipResult[0];
+          GuiPITMembershipView guiPITMembershipView = new GuiPITMembershipView(pitMembershipView);
+          String memberId = pitMembershipView.getPITMember().getSourceId();
+          Subject subject = memberIdToSubject.get(memberId);
+          guiPITMembershipView.setGuiSubject(new GuiSubject(subject));
+          guiPITMembershipView.setMemberId(memberId);
+          guiPITMembershipViews.add(guiPITMembershipView);
+        }
+
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "inline;filename=\"groupMembershipsInFolder_" 
+            + GrouperUiUtils.stripNonFilenameChars(stem.getDisplayExtension()) + ".csv\"");
+
+        try {
+          PrintWriter out = response.getWriter();
+          CSVPrinter csvPrinter = new CSVPrinter(out, CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL));
+          csvPrinter.printRecord(
+              TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEntityName"),
+              TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportFolderName"),
+              TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportGroupName"),
+              TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportStartTime"),
+              TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEndTime"));
+          for (GuiPITMembershipView guiPITMembershipView : guiPITMembershipViews) {
+            String entityName = guiPITMembershipView.getGuiSubject().getScreenLabelShort2noLink();
+            GuiGroup ownerGuiGroup = guiPITMembershipView.getOwnerGuiGroup();
+            String folderName = ownerGuiGroup != null && ownerGuiGroup.getParentGuiStem() != null 
+                ? ownerGuiGroup.getParentGuiStem().getStem().getDisplayName() : "";
+            String groupName = ownerGuiGroup != null ? ownerGuiGroup.getGroup().getDisplayName() : "";
+            String startTime = guiPITMembershipView.getStartTimeLabel() != null ? guiPITMembershipView.getStartTimeLabel() : "";
+            String endTime = guiPITMembershipView.getEndTimeLabel() != null ? guiPITMembershipView.getEndTimeLabel() : "";
+            csvPrinter.printRecord(entityName, folderName, groupName, startTime, endTime);
+          }
+          csvPrinter.close();
+        } catch (IOException e) {
+          throw new RuntimeException("Error occurred while writing response", e);
+        }
+
+      } else {
+
+        membershipFinder.assignHasMembershipTypeForMember(false);
+
+        if (membershipType != null) {
+          membershipFinder.assignMembershipType(membershipType);
+        }
+
+        boolean showEnabledStatus = false;
+
+        if ("status".equals(membershipEnabledDisabledOptions)) {
+          membershipFinder.assignEnabled(null);
+          showEnabledStatus = true;
+        } else if ("disabled_dates".equals(membershipEnabledDisabledOptions)) {
+          membershipFinder.assignHasDisabledDate(true);
+          showEnabledStatus = true;
+        } else if ("enabled_dates".equals(membershipEnabledDisabledOptions)) {
+          membershipFinder.assignHasEnabledDate(true);
+          showEnabledStatus = true;
+        } else {
+          membershipFinder.assignEnabled(true);
+        }
+
+        if (!StringUtils.isBlank(membershipCustomCompositeOptions) && !"nothing".equals(membershipCustomCompositeOptions)) {
+          String groupName = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.groupName." + membershipCustomCompositeOptions, null);
+          String compositeType = GrouperConfig.retrieveConfig().getProperty("grouper.membership.customComposite.compositeType." + membershipCustomCompositeOptions, null);
+          Group customCompositeGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
+          CompositeType customCompositeType = CompositeType.valueOfIgnoreCase(compositeType);
+          membershipFinder.assignCustomCompositeGroup(customCompositeGroup).assignCustomCompositeType(customCompositeType);
+        }
+
+        // check count before fetching all results
+        if (maxExportEntries != -1) {
+          int totalCount = membershipFinder.findCountForMember();
+          if (totalCount > maxExportEntries) {
+            GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+            StemContainer stemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer();
+            stemContainer.setExportTotalCount(totalCount);
+            stemContainer.setExportMaxEntries(maxExportEntries);
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportTooManyEntries")));
+            return;
+          }
+        }
+
+        Set<MembershipSubjectContainer> results = membershipFinder
+            .findMembershipResult().getMembershipSubjectContainers();
+
+        Set<GuiMembershipSubjectContainer> guiResults = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results);
+
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "inline;filename=\"groupMembershipsInFolder_" 
+            + GrouperUiUtils.stripNonFilenameChars(stem.getDisplayExtension()) + ".csv\"");
+
+        try {
+          PrintWriter out = response.getWriter();
+          CSVPrinter csvPrinter = new CSVPrinter(out, CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL));
+          if (showEnabledStatus) {
+            csvPrinter.printRecord(
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEntityName"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportFolderName"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportGroupName"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEnabledDisabled"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportStartDate"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEndDate"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportMembership"));
+          } else {
+            csvPrinter.printRecord(
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEntityName"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportFolderName"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportGroupName"),
+                TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportMembership"));
+          }
+          for (GuiMembershipSubjectContainer guiMembershipSubjectContainer : guiResults) {
+            GuiMembershipContainer guiMembershipContainer = guiMembershipSubjectContainer.getGuiMembershipContainers().get("members");
+            String entityName = guiMembershipSubjectContainer.getGuiSubject().getSubject().getName();
+            String folderName = guiMembershipSubjectContainer.getGuiGroup() != null && guiMembershipSubjectContainer.getGuiGroup().getParentGuiStem() != null
+                ? guiMembershipSubjectContainer.getGuiGroup().getParentGuiStem().getStem().getDisplayName() : "";
+            String groupDisplayName = guiMembershipSubjectContainer.getGuiGroup() != null
+                ? guiMembershipSubjectContainer.getGuiGroup().getGroup().getDisplayName() : "";
+            String membershipTypeLabel = guiMembershipContainer != null 
+                ? guiMembershipContainer.getMembershipContainer().getMembershipAssignType().name() : "";
+            if (showEnabledStatus) {
+              String enabledLabel = guiMembershipContainer != null ? guiMembershipContainer.getImmediateMembershipEnabledLabel() : "";
+              String startDate = guiMembershipContainer != null && guiMembershipContainer.getImmediateMembershipStartDateLabel() != null
+                  ? guiMembershipContainer.getImmediateMembershipStartDateLabel() : "";
+              String endDate = guiMembershipContainer != null && guiMembershipContainer.getImmediateMembershipEndDateLabel() != null
+                  ? guiMembershipContainer.getImmediateMembershipEndDateLabel() : "";
+              csvPrinter.printRecord(entityName, folderName, groupDisplayName, enabledLabel, startDate, endDate, membershipTypeLabel);
+            } else {
+              csvPrinter.printRecord(entityName, folderName, groupDisplayName, membershipTypeLabel);
+            }
+          }
+          csvPrinter.close();
+        } catch (IOException e) {
+          throw new RuntimeException("Error occurred while writing response", e);
+        }
+      }
+
+      throw new ControllerDone();
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
   
   /**
@@ -3365,6 +3609,165 @@ public class UiV2Stem {
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemAuditFilterResultsId", 
         "/WEB-INF/grouperUi2/stem/stemViewAuditsContents.jsp"));
   
+  }
+
+  /**
+   * export stem audit log entries to CSV
+   * @param request
+   * @param response
+   */
+  public void viewAuditsExport(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    Stem stem = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      stem = retrieveStemHelper(request, false).getStem();
+
+      if (stem == null) {
+        return;
+      }
+
+      String filterTypeString = request.getParameter("filterType");
+
+      if (StringUtils.isBlank(filterTypeString)) {
+        filterTypeString = "all";
+      }
+
+      String filterFromDateString = request.getParameter("filterFromDate");
+      String filterToDateString = request.getParameter("filterToDate");
+
+      if (StringUtils.equals(filterTypeString, "all")) {
+        filterFromDateString = null;
+        filterToDateString = null;
+      } else if (StringUtils.equals(filterTypeString, "on")) {
+        filterToDateString = null;
+      } else if (StringUtils.equals(filterTypeString, "before")) {
+        filterToDateString = null;
+      } else if (StringUtils.equals(filterTypeString, "between")) {
+        // keep both
+      } else if (StringUtils.equals(filterTypeString, "since")) {
+        filterToDateString = null;
+      }
+
+      Date filterFromDate = null;
+      Date filterToDate = null;
+
+      if (StringUtils.equals(filterTypeString, "on") || StringUtils.equals(filterTypeString, "before")
+          || StringUtils.equals(filterTypeString, "between") || StringUtils.equals(filterTypeString, "since")) {
+        if (!StringUtils.isBlank(filterFromDateString)) {
+          filterFromDate = GrouperUtil.stringToTimestamp(filterFromDateString);
+        }
+      }
+      if (StringUtils.equals(filterTypeString, "between")) {
+        if (!StringUtils.isBlank(filterToDateString)) {
+          filterToDate = GrouperUtil.stringToTimestamp(filterToDateString);
+        }
+      }
+
+      boolean extendedResults = GrouperUtil.booleanValue(request.getParameter("showExtendedResults"), false);
+
+      UserAuditQuery query = new UserAuditQuery();
+
+      if (StringUtils.equals(filterTypeString, "on")) {
+        query.setOnDate(filterFromDate);
+      } else if (StringUtils.equals(filterTypeString, "between")) {
+        query.setFromDate(filterFromDate);
+        query.setToDate(filterToDate);
+      } else if (StringUtils.equals(filterTypeString, "since")) {
+        query.setFromDate(filterFromDate);
+      } else if (StringUtils.equals(filterTypeString, "before")) {
+        query.setToDate(filterToDate);
+      }
+
+      QueryOptions queryOptions = new QueryOptions();
+      queryOptions.sortDesc("lastUpdatedDb");
+
+      int maxExportEntries = GrouperConfig.retrieveConfig().propertyValueInt("grouper.audit.export.maximumStemExportEntries", 10000);
+      if (maxExportEntries != -1) {
+        queryOptions.paging(maxExportEntries, 1, false);
+      }
+
+      query.setQueryOptions(queryOptions);
+
+      query.addAuditTypeFieldValue("stemId", stem.getId());
+
+      List<AuditEntry> auditEntries = query.execute();
+
+      Set<GuiAuditEntry> guiAuditEntries = GuiAuditEntry.convertFromAuditEntries(auditEntries);
+
+      response.setContentType("application/octet-stream");
+      response.setHeader("Content-Disposition", "inline;filename=\"stemAuditLog_"
+          + GrouperUiUtils.stripNonFilenameChars(stem.getDisplayExtension()) + ".csv\"");
+
+      try {
+        PrintWriter out = response.getWriter();
+        CSVPrinter csvPrinter = new CSVPrinter(out, CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL));
+        if (extendedResults) {
+          csvPrinter.printRecord(
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportDate"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportActor"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportEngine"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportSummary"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportDuration"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportQueryCount"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportServerUsername"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportServer"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportUserIpAddress"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportEntryId"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportRawDescription"));
+        } else {
+          csvPrinter.printRecord(
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportDate"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportActor"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportEngine"),
+              TextContainer.retrieveFromRequest().getText().get("stemAuditLogExportSummary"));
+        }
+        for (GuiAuditEntry guiAuditEntry : guiAuditEntries) {
+          AuditEntry auditEntry = guiAuditEntry.getAuditEntry();
+          String dateLabel = guiAuditEntry.getGuiDate();
+          String actorLabel = guiAuditEntry.getGuiSubjectPerformedAction() != null
+              ? guiAuditEntry.getGuiSubjectPerformedAction().getScreenLabel() : "";
+          String engineLabel = guiAuditEntry.getGrouperEngineLabel() != null
+              ? guiAuditEntry.getGrouperEngineLabel() : "";
+          String summary = auditEntry.getDescription() != null
+              ? auditEntry.getDescription() : "";
+          if (extendedResults) {
+            String durationLabel = guiAuditEntry.getDurationLabel() != null
+                ? guiAuditEntry.getDurationLabel() : "";
+            String queryCount = String.valueOf(auditEntry.getQueryCount());
+            String serverUserName = auditEntry.getServerUserName() != null
+                ? auditEntry.getServerUserName() : "";
+            String serverHost = auditEntry.getServerHost() != null
+                ? auditEntry.getServerHost() : "";
+            String userIpAddress = auditEntry.getUserIpAddress() != null
+                ? auditEntry.getUserIpAddress() : "";
+            String entryId = auditEntry.getId() != null
+                ? auditEntry.getId() : "";
+            String rawDescription = auditEntry.getDescription() != null
+                ? auditEntry.getDescription() : "";
+            csvPrinter.printRecord(dateLabel, actorLabel, engineLabel, summary,
+                durationLabel, queryCount, serverUserName, serverHost,
+                userIpAddress, entryId, rawDescription);
+          } else {
+            csvPrinter.printRecord(dateLabel, actorLabel, engineLabel, summary);
+          }
+        }
+        csvPrinter.close();
+      } catch (IOException e) {
+        throw new RuntimeException("Error occurred while writing response", e);
+      }
+
+      throw new ControllerDone();
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
   
   /**

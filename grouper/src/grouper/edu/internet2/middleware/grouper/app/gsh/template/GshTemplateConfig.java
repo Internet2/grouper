@@ -139,7 +139,11 @@ public class GshTemplateConfig {
   private boolean showInMoreActions;
   
   private boolean displayErrorOutput;
-  
+
+  private boolean mcpEnabled;
+
+  private boolean mcpReadonly;
+
   private List<GshTemplateInputConfig> gshTemplateInputConfigs = new ArrayList<GshTemplateInputConfig>();
   
   private String gshTemplateSourceType;
@@ -365,6 +369,14 @@ public class GshTemplateConfig {
 
   public boolean isDisplayErrorOutput() {
     return displayErrorOutput;
+  }
+
+  public boolean isMcpEnabled() {
+    return mcpEnabled;
+  }
+
+  public boolean isMcpReadonly() {
+    return mcpReadonly;
   }
 
   /**
@@ -765,7 +777,13 @@ public class GshTemplateConfig {
           }
           GrouperUtil.assertion(groupThatCanRun != null, "could not find group for groupUuidOrNameCanRun: "+groupUuidOrNameCanRun);
         }
-        
+
+        mcpEnabled = grouperConfig.propertyValueBoolean(configPrefix+"mcpEnabled", false);
+
+        if (mcpEnabled) {
+          mcpReadonly = grouperConfig.propertyValueBoolean(configPrefix+"mcpReadonly", false);
+        }
+
         if (gshTemplateSecurityRunType == GshTemplateSecurityRunType.privilegeOnObject && showOnGroups) {
           gshTemplateRequireGroupPrivilege =  GshTemplateRequireGroupPrivilege.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"requireGroupPrivilege"), true);
         }
@@ -891,10 +909,16 @@ public class GshTemplateConfig {
           }
           
           
+          // MCP scope type for this input (only applicable when mcpEnabled and not mcpReadonly)
+          if (mcpEnabled && !mcpReadonly) {
+            String mcpScopeType = grouperConfig.propertyValueString(inputPrefix + "mcpScopeType", null);
+            gshTemplateInputConfig.setMcpScopeType(mcpScopeType);
+          }
+
           gshTemplateInputConfigs.add(gshTemplateInputConfig);
-          
+
         }
-        
+
         return null;
       }
     });

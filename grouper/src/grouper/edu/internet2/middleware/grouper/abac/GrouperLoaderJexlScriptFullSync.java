@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.internal.Engine;
+import org.apache.commons.jexl3.parser.ASTAddNode;
 import org.apache.commons.jexl3.parser.ASTAndNode;
 import org.apache.commons.jexl3.parser.ASTArguments;
 import org.apache.commons.jexl3.parser.ASTArrayLiteral;
@@ -39,6 +40,7 @@ import org.apache.commons.jexl3.parser.ASTOrNode;
 import org.apache.commons.jexl3.parser.ASTReference;
 import org.apache.commons.jexl3.parser.ASTReferenceExpression;
 import org.apache.commons.jexl3.parser.ASTStringLiteral;
+import org.apache.commons.jexl3.parser.ASTSubNode;
 import org.apache.commons.jexl3.parser.ASTUnaryMinusNode;
 import org.apache.commons.jexl3.parser.JexlNode;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +48,7 @@ import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -123,7 +126,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       Subject subject = SubjectFinder.findById("test.subject.1", true);
       
       //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('penn:ref:mfaEnrolled')", subject, grouperSession.getSubject()));
-      System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "'penn:ref:mfaEnrolled' && 'penn:ref:mfaEnrolled2'", subject, grouperSession.getSubject(), false));
+      System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "'penn:ref:mfaEnrolled' && 'penn:ref:mfaEnrolled2'", subject, grouperSession.getSubject(), false, null, false));
 
       
       
@@ -240,8 +243,24 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
    * @param readOnly - true if only analyzing; false if about to save the script
    * @return
    */
-  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript, 
+  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript,
       Subject subject, Subject loggedInSubject, boolean readOnly) {
+    return analyzeJexlScriptHtml(grouperDataEngine, jexlScript, subject, loggedInSubject, readOnly, null, false);
+  }
+
+  /**
+   * analyze a jexl script and return the analysis with counts and subject checks
+   * @param grouperDataEngine
+   * @param jexlScript
+   * @param subject
+   * @param loggedInSubject
+   * @param readOnly - true if only analyzing; false if about to save the script
+   * @param effectiveSourceIds - the effective subject source IDs to use for the count query, or null for global defaults
+   * @param buildVisualization - true if this is being called to build visualization
+   * @return
+   */
+  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript,
+      Subject subject, Subject loggedInSubject, boolean readOnly, Set<String> effectiveSourceIds, boolean buildVisualization) {
     
     Member member = subject != null ? MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true): null;
     
@@ -389,7 +408,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           } else if (fieldDataType == GrouperDataFieldType.string) {
 
             if (grouperDataFieldAssign.getValueDictionaryInternalId() != null) {
-              
+
               gcDbAccess.addBindVar(grouperDataFieldAssign.getValueDictionaryInternalId());
 
             }
@@ -405,15 +424,38 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           
           Object value = argument.getKey(1);
           gcDbAccess.addBindVar(value);
+        } else if (StringUtils.equals(argumentString, "attributeCompareLeft") || StringUtils.equals(argumentString, "attributeCompareRight")) {
+
+          String fieldAlias = (String)argument.getKey(1);
+          Long mathOffset = (Long)argument.getKey(2);
+
+          GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(fieldAlias.toLowerCase());
+          GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
+          gcDbAccess.addBindVar(grouperDataField.getInternalId());
+
+          if (mathOffset != null) {
+            gcDbAccess.addBindVar(mathOffset);
+          }
         }
         argumentIndex++;
-      }   
-      String sql = "select count(1) from grouper_members gm where gm.subject_source != 'g:gsa' and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( " + whereClause + " )";
-  
+      }
+      MultiKey sourceInClause = GrouperAbac.subjectSourceInClause(effectiveSourceIds);
+      String sourceInSql = (String)sourceInClause.getKey(0);
+      List<String> sourceBindVars = (List<String>)sourceInClause.getKey(1);
+
+      // prepend source bind vars before the existing ones
+      List<Object> allBindVars = new ArrayList<Object>();
+      allBindVars.addAll(sourceBindVars);
+      if (gcDbAccess.getBindVars() != null) {
+        allBindVars.addAll(gcDbAccess.getBindVars());
+      }
+
+      String sql = "select count(1) from grouper_members gm where " + sourceInSql + " and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( " + whereClause + " )";
+
   //    System.out.println(script);
   //    System.out.println(sql);
-      
-      int count = gcDbAccess.sql(sql).select(Integer.class);
+
+      int count = gcDbAccess.bindVars(allBindVars).sql(sql).select(Integer.class);
       grouperJexlScriptPart.setPopulationCount(count);
 
       if (partsHaveMissingGroup) {
@@ -424,16 +466,84 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
       if (subject != null) {
         sql += " and gm.id = ?";
-        count = gcDbAccess.sql(sql).addBindVar(member.getId()).select(Integer.class);
+        allBindVars.add(member.getId());
+        count = gcDbAccess.bindVars(allBindVars).sql(sql).select(Integer.class);
         grouperJexlScriptPart.setContainsSubject(count>0);
       }
       
     }
+
+    // check for unresolvable or deleted subjects matching the overall script
+    {
+      GcDbAccess gcDbAccessUnresolvable = new GcDbAccess();
+      GrouperJexlScriptSql grouperJexlScriptSqlUnresolvable = generateJexlSql(grouperDataEngine, gcDbAccessUnresolvable, grouperJexlScriptAnalysis);
+
+      MultiKey sourceInClauseUnresolvable = GrouperAbac.subjectSourceInClause(effectiveSourceIds);
+      String sourceInSqlUnresolvable = (String)sourceInClauseUnresolvable.getKey(0);
+      List<String> sourceBindVarsUnresolvable = (List<String>)sourceInClauseUnresolvable.getKey(1);
+
+      List<Object> allBindVarsUnresolvable = new ArrayList<Object>();
+      allBindVarsUnresolvable.addAll(sourceBindVarsUnresolvable);
+      if (gcDbAccessUnresolvable.getBindVars() != null) {
+        allBindVarsUnresolvable.addAll(gcDbAccessUnresolvable.getBindVars());
+      }
+
+      String unresolvableSql = "select count(1) from grouper_members gm where " + sourceInSqlUnresolvable
+          + " and (gm.subject_resolution_deleted = 'T' or gm.subject_resolution_resolvable = 'F')"
+          + " and ( " + grouperJexlScriptSqlUnresolvable.getWhereClause() + " )";
+
+      int unresolvableCount = new GcDbAccess().bindVars(allBindVarsUnresolvable).sql(unresolvableSql).select(Integer.class);
+
+      if (unresolvableCount > 0) {
+        // get up to 10 example subject IDs
+        String exampleSql = "select gm.subject_id from grouper_members gm where " + sourceInSqlUnresolvable
+            + " and (gm.subject_resolution_deleted = 'T' or gm.subject_resolution_resolvable = 'F')"
+            + " and ( " + grouperJexlScriptSqlUnresolvable.getWhereClause() + " )";
+
+        List<Object> exampleBindVars = new ArrayList<Object>();
+        exampleBindVars.addAll(sourceBindVarsUnresolvable);
+        if (gcDbAccessUnresolvable.getBindVars() != null) {
+          exampleBindVars.addAll(gcDbAccessUnresolvable.getBindVars());
+        }
+
+        List<String> unresolvableSubjectIds = new GcDbAccess().bindVars(exampleBindVars).sql(exampleSql).selectList(String.class);
+        int exampleCount = Math.min(unresolvableSubjectIds.size(), 10);
+        List<String> examples = unresolvableSubjectIds.subList(0, exampleCount);
+
+        String warningText = GrouperTextContainer.textOrNull("jexlAnalysisUnresolvableSubjectsWarning");
+        if (StringUtils.isBlank(warningText)) {
+          warningText = "There are " + unresolvableCount + " unresolvable or deleted entities matching this script, first " + exampleCount + ": " + StringUtils.join(examples, ", ");
+        } else {
+          warningText = StringUtils.replace(warningText, "##unresolvableCount##", String.valueOf(unresolvableCount));
+          warningText = StringUtils.replace(warningText, "##exampleCount##", String.valueOf(exampleCount));
+          warningText = StringUtils.replace(warningText, "##subjectIds##", StringUtils.join(examples, ", "));
+        }
+
+        String existingWarning = grouperJexlScriptAnalysis.getWarningMessage();
+        if (StringUtils.isNotBlank(existingWarning)) {
+          grouperJexlScriptAnalysis.setWarningMessage(existingWarning + "<br />" + warningText);
+        } else {
+          grouperJexlScriptAnalysis.setWarningMessage(warningText);
+        }
+      }
+    }
+    
+    if (buildVisualization) {
+      // Build visualization tree after population counts are computed
+      try {
+        grouperJexlScriptAnalysis.setVisualizationReferences(
+            buildVisualizationTreeFromParts(grouperJexlScriptAnalysis.getGrouperJexlScriptParts()));
+      } catch (Exception e) {
+        LOG.warn("Error building visualization references: " + e.getMessage(), e);
+        grouperJexlScriptAnalysis.setVisualizationReferences(new ArrayList<AbacReference>());
+      }
+    }
+
     return grouperJexlScriptAnalysis;
   }
-  
+
   /**
-   * 
+   *
    * @param jexlStript
    * @param arguments first one is type (e.g. group), second is list (e.g. members), third is name (e.g. test:testGroup).  Used for bind variables
    * @return the sql
@@ -459,9 +569,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = new GrouperJexlScriptAnalysis();
     grouperJexlScriptAnalysis.setGrouperDataEngine(grouperDataEngine);
     GrouperJexlScriptPart grouperJexlScriptPart = new GrouperJexlScriptPart();
+    grouperJexlScriptPart.setPartRole(GrouperJexlScriptPart.PartRole.FULL_EXPRESSION);
     grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPart);
-    
+
     analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, astJexlScript, true);
+
     for (GrouperJexlScriptPart currentGrouperJexlScriptPart : grouperJexlScriptAnalysis.getGrouperJexlScriptParts()) {
       if (currentGrouperJexlScriptPart.getDisplayDescription().length() > 0) {
         currentGrouperJexlScriptPart.getDisplayDescription().setCharAt(0, Character.toUpperCase(currentGrouperJexlScriptPart.getDisplayDescription().charAt(0)));
@@ -470,7 +582,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     return grouperJexlScriptAnalysis;
   }
 
-  public static void analyzeJexlScriptToSqlHelper(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, 
+  public static void analyzeJexlScriptToSqlHelper(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis,
       GrouperJexlScriptPart theGrouperJexlScriptPart, JexlNode jexlNode, boolean clonePart) {
     GrouperJexlScriptPart grouperJexlScriptPartClone = null;
     if (jexlNode instanceof ASTJexlScript && 1==jexlNode.jjtGetNumChildren()) {
@@ -489,7 +601,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       }
       throw new RuntimeException("Not expecting literal: '" + literal + "'");
     }
-    
+
     if (jexlNode instanceof ASTReferenceExpression && 1==jexlNode.jjtGetNumChildren()) {
       theGrouperJexlScriptPart.getWhereClause().append("(");
       theGrouperJexlScriptPart.getDisplayDescription().append("(");
@@ -506,9 +618,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     } else if (jexlNode instanceof ASTNotNode && 1==jexlNode.jjtGetNumChildren()) {
       theGrouperJexlScriptPart.getWhereClause().append(" not ");
       theGrouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisNot")).append(" ");
+      theGrouperJexlScriptPart.setNegated(true);
       analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(0), clonePart);
       if (clonePart) {
         grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+        grouperJexlScriptPartClone.setPartRole(GrouperJexlScriptPart.PartRole.NOT_POSITIVE);
         grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
         analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, jexlNode.jjtGetChild(0), false);
       }
@@ -521,13 +635,14 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(j), clonePart);
         if (clonePart) {
           grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+          grouperJexlScriptPartClone.setPartRole(GrouperJexlScriptPart.PartRole.AND_CHILD);
           grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
           analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, jexlNode.jjtGetChild(j), false);
         }
       }
       return;
     } else if (jexlNode instanceof ASTOrNode) {
-      
+
       for (int j=0;j<jexlNode.jjtGetNumChildren(); j++) {
         if (j>0) {
           theGrouperJexlScriptPart.getWhereClause().append(" or ");
@@ -536,6 +651,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(j), clonePart);
         if (clonePart) {
           grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+          grouperJexlScriptPartClone.setPartRole(GrouperJexlScriptPart.PartRole.OR_CHILD);
           grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
           analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, jexlNode.jjtGetChild(j), false);
         }
@@ -544,7 +660,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     } else {
       throw new RuntimeException("Not expecting node type: " + jexlNode.getClass().getName() + ", children: " + jexlNode.jjtGetNumChildren());
     }
-    
+
   }
 
   /**
@@ -646,8 +762,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         JexlNode jjtGetChild = astArrayLiteral.jjtGetChild(i);
         
         GrouperJexlScriptPart grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+        grouperJexlScriptPartClone.setPartRole(GrouperJexlScriptPart.PartRole.HAS_ATTRIBUTE_ANY_DETAIL);
         grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
-        
+
         grouperJexlScriptPartClone.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
             + "and gdfa.member_internal_id = gm.internal_id and gdfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPartClone.getArguments().size()+1) + "$$ = ?) ");
         grouperJexlScriptPartClone.getArguments().add(new MultiKey("attribute", attributeAlias));
@@ -747,6 +864,12 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         throw new RuntimeException("Not expecting method: " + astIdentifierAccess.getName());
       }
 
+      // GRP-6828: ordering comparisons on string fields are not supported; use hasAttributeBetween() instead
+      GrouperDataFieldConfig grouperDataFieldConfigCheck = grouperJexlScriptAnalysis.getGrouperDataEngine().getFieldConfigByAlias().get(attributeAlias.toLowerCase());
+      if (grouperDataFieldConfigCheck != null && grouperDataFieldConfigCheck.getFieldDataType() == GrouperDataFieldType.string) {
+        throw new RuntimeException("Ordering comparisons (<, <=, >, >=) are not supported on string fields. "
+            + "Use hasAttributeBetween() for string range queries. Field: '" + attributeAlias + "'");
+      }
 
       grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
           + "and gdfa.member_internal_id = gm.internal_id and gdfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ " + operator + " ?) ");
@@ -754,7 +877,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       if (astArguments.jjtGetChild(1) instanceof ASTStringLiteral) {
         String value = ((ASTStringLiteral)astArguments.jjtGetChild(1)).getLiteral();
         grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value));
-        
+
         grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
           .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull(label)).append(" '")
           .append(GrouperUtil.xmlEscape(value)).append("'");
@@ -762,7 +885,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       } else if (astArguments.jjtGetChild(1) instanceof ASTNumberLiteral) {
         Number value = ((ASTNumberLiteral)astArguments.jjtGetChild(1)).getLiteral();
         grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value));
-        
+
         grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
           .append(" '").append(attributeAlias).append("' ").append(GrouperTextContainer.textOrNull(label)).append(" ")
           .append(value);
@@ -780,6 +903,65 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       }
 
       
+    } else if (StringUtils.equals("hasAttributeBetween", astIdentifierAccess.getName())) {
+
+      ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
+      if (astArguments.jjtGetNumChildren() != 2) {
+        throw new RuntimeException("hasAttributeBetween expects 2 comparison arguments, e.g. hasAttributeBetween('low' <= field, field <= 'high'), got: " + astArguments.jjtGetNumChildren());
+      }
+
+      MultiKey lowerParsed = parseBetweenComparisonArg(astArguments.jjtGetChild(0));
+      MultiKey upperParsed = parseBetweenComparisonArg(astArguments.jjtGetChild(1));
+
+      String lowerFieldAlias = (String) lowerParsed.getKey(0);
+      String lowerValue = (String) lowerParsed.getKey(1);
+      String lowerOp = (String) lowerParsed.getKey(2);
+
+      String upperFieldAlias = (String) upperParsed.getKey(0);
+      String upperValue = (String) upperParsed.getKey(1);
+      String upperOp = (String) upperParsed.getKey(2);
+
+      if (!StringUtils.equalsIgnoreCase(lowerFieldAlias, upperFieldAlias)) {
+        throw new RuntimeException("hasAttributeBetween both comparisons must reference the same field, got: '"
+            + lowerFieldAlias + "' and '" + upperFieldAlias + "'");
+      }
+
+      // lowerOp should be > or >= (lower bound), upperOp should be < or <= (upper bound)
+      if (!StringUtils.equals(lowerOp, ">") && !StringUtils.equals(lowerOp, ">=")) {
+        throw new RuntimeException("hasAttributeBetween first argument must establish a lower bound (field > value or field >= value), got operator: " + lowerOp);
+      }
+      if (!StringUtils.equals(upperOp, "<") && !StringUtils.equals(upperOp, "<=")) {
+        throw new RuntimeException("hasAttributeBetween second argument must establish an upper bound (field < value or field <= value), got operator: " + upperOp);
+      }
+
+      String attributeAlias = lowerFieldAlias;
+      GrouperDataFieldConfig grouperDataFieldConfig = grouperJexlScriptAnalysis.getGrouperDataEngine().getFieldConfigByAlias().get(attributeAlias.toLowerCase());
+      if (grouperDataFieldConfig == null) {
+        throw new RuntimeException("hasAttributeBetween field not found: '" + attributeAlias + "'");
+      }
+      GrouperDataFieldType fieldDataType = grouperDataFieldConfig.getFieldDataType();
+
+      if (fieldDataType == GrouperDataFieldType.string) {
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
+            + "and gdfa.member_internal_id = gm.internal_id and gdfa.value_dictionary_internal_id in "
+            + "(select gd.internal_id from grouper_dictionary gd where gd.the_text " + lowerOp + " ? and gd.the_text " + upperOp + " ?)) ");
+      } else if (fieldDataType == GrouperDataFieldType.integer || fieldDataType == GrouperDataFieldType.timestamp) {
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
+            + "and gdfa.member_internal_id = gm.internal_id and gdfa.value_integer " + lowerOp + " ? and gdfa.value_integer " + upperOp + " ?) ");
+      } else {
+        throw new RuntimeException("hasAttributeBetween not supported for type: " + fieldDataType.name());
+      }
+
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", attributeAlias));
+      grouperJexlScriptPart.getArguments().add(new MultiKey("bindVar", fieldDataType == GrouperDataFieldType.string ? lowerValue : GrouperUtil.longObjectValue(lowerValue, true)));
+      grouperJexlScriptPart.getArguments().add(new MultiKey("bindVar", fieldDataType == GrouperDataFieldType.string ? upperValue : GrouperUtil.longObjectValue(upperValue, true)));
+
+      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
+        .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ")
+        .append(lowerOp).append(" '").append(GrouperUtil.xmlEscape(lowerValue)).append("' ")
+        .append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeBetweenAnd"))
+        .append(" ").append(upperOp).append(" '").append(GrouperUtil.xmlEscape(upperValue)).append("'");
+
     } else if (StringUtils.equals("hasAttribute", astIdentifierAccess.getName())) {
       ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
       if (astArguments.jjtGetNumChildren() != 1 && astArguments.jjtGetNumChildren() != 2) {
@@ -789,7 +971,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
       }
       String attributeAlias = null;
-      
+
       if (astArguments.jjtGetChild(0) instanceof ASTStringLiteral) {
         ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
         attributeAlias = astStringLiteral.getLiteral();
@@ -1020,17 +1202,17 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   private static void analyzeJexlMemberOf(GrouperJexlScriptPart grouperJexlScriptPart,
       String groupName) {
     grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_sql_cache_mship gscm where gscm.sql_cache_group_internal_id = ? "
-        + " and gscm.member_internal_id = gm.internal_id and gm.subject_source != 'g:gsa') ");
+        + " and gscm.member_internal_id = gm.internal_id) ");
     grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
     grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisMemberOfGroup"))
       .append(" '").append(GrouperUtil.xmlEscape(groupName)).append("'");
   }
-  
+
   private static void analyzeJexlMemberOfAny(GrouperJexlScriptPart grouperJexlScriptPart,
       Set<String> groupNames) {
     grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_sql_cache_mship gscm "
         + "where gscm.sql_cache_group_internal_id in (" + GrouperClientUtils.appendQuestions(groupNames.size()) + ") "
-        + " and gscm.member_internal_id = gm.internal_id and gm.subject_source != 'g:gsa') ");
+        + " and gscm.member_internal_id = gm.internal_id) ");
     
     grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisMemberOfAnyGroup"));
 
@@ -1075,12 +1257,12 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     
     grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_sql_cache_mship_hst gscmh where gscmh.sql_cache_group_internal_id = ? "
         + " and gscmh.end_time >= ? "
-        + " and gscmh.member_internal_id = gm.internal_id and gm.subject_source != 'g:gsa') ");
+        + " and gscmh.member_internal_id = gm.internal_id) ");
     grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
     grouperJexlScriptPart.getArguments().add(new MultiKey("bindVar", (System.currentTimeMillis() * 1000L) - timePeriodMicros));
-    
+
     grouperJexlScriptPart.getWhereClause().append("and not exists (select 1 from grouper_sql_cache_mship gscm where gscm.sql_cache_group_internal_id = ? "
-        + " and gscm.member_internal_id = gm.internal_id and gm.subject_source != 'g:gsa') ");
+        + " and gscm.member_internal_id = gm.internal_id) ");
     grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
     
     grouperJexlScriptPart.getWhereClause().append(")");
@@ -1205,18 +1387,85 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
       
     } else if (jexlNode instanceof ASTFunctionNode && jexlNode.jjtGetNumChildren() > 0
-        && jexlNode.jjtGetChild(0) instanceof ASTIdentifier 
-        && StringUtils.equalsIgnoreCase("hasAttributeLike", ((ASTIdentifier)jexlNode.jjtGetChild(0)).getName())) {
-      
+        && jexlNode.jjtGetChild(0) instanceof ASTIdentifier
+        && StringUtils.equalsIgnoreCase("hasAttributeBetween", ((ASTIdentifier)jexlNode.jjtGetChild(0)).getName())) {
+
       if (jexlNode.jjtGetNumChildren() != 2 || (!(jexlNode.jjtGetChild(1) instanceof ASTArguments))) {
-        throw new RuntimeException("Expecting two JEXL children: " + jexlNode.getClass().getName() + ", children: " 
+        throw new RuntimeException("Expecting two JEXL children: " + jexlNode.getClass().getName() + ", children: "
             + jexlNode.jjtGetNumChildren() + ", jexlNode: " + jexlNode);
       }
-      
+
       ASTArguments astArguments = (ASTArguments)jexlNode.jjtGetChild(1);
 
       if (astArguments.jjtGetNumChildren() != 2) {
-        throw new RuntimeException("Expecting two arguments: " + astArguments.getClass().getName() + ", children: " 
+        throw new RuntimeException("hasAttributeBetween expects 2 comparison arguments, e.g. hasAttributeBetween('low' <= field, field <= 'high'), got: "
+            + astArguments.jjtGetNumChildren() + ", jexlNode: " + jexlNode);
+      }
+
+      MultiKey lowerParsed = parseBetweenComparisonArg(astArguments.jjtGetChild(0));
+      MultiKey upperParsed = parseBetweenComparisonArg(astArguments.jjtGetChild(1));
+
+      String lowerFieldAlias = (String) lowerParsed.getKey(0);
+      String lowerValue = (String) lowerParsed.getKey(1);
+      String lowerOp = (String) lowerParsed.getKey(2);
+
+      String upperFieldAlias = (String) upperParsed.getKey(0);
+      String upperValue = (String) upperParsed.getKey(1);
+      String upperOp = (String) upperParsed.getKey(2);
+
+      if (!StringUtils.equalsIgnoreCase(lowerFieldAlias, upperFieldAlias)) {
+        throw new RuntimeException("hasAttributeBetween both comparisons must reference the same field, got: '"
+            + lowerFieldAlias + "' and '" + upperFieldAlias + "'");
+      }
+
+      if (!StringUtils.equals(lowerOp, ">") && !StringUtils.equals(lowerOp, ">=")) {
+        throw new RuntimeException("hasAttributeBetween first argument must establish a lower bound (field > value or field >= value), got operator: " + lowerOp);
+      }
+      if (!StringUtils.equals(upperOp, "<") && !StringUtils.equals(upperOp, "<=")) {
+        throw new RuntimeException("hasAttributeBetween second argument must establish an upper bound (field < value or field <= value), got operator: " + upperOp);
+      }
+
+      String attributeAlias = lowerFieldAlias;
+      GrouperDataFieldConfig grouperDataFieldConfig = grouperJexlScriptAnalysis.getGrouperDataEngine().getFieldConfigByAlias().get(attributeAlias.toLowerCase());
+      if (grouperDataFieldConfig == null) {
+        throw new RuntimeException("hasAttributeBetween field not found: '" + attributeAlias + "'");
+      }
+      GrouperDataFieldType fieldDataType = grouperDataFieldConfig.getFieldDataType();
+
+      if (fieldDataType == GrouperDataFieldType.string) {
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where gdrfa.data_field_internal_id = ? "
+            + "and data_row_assign_internal_id = gdra.internal_id and gdrfa.value_dictionary_internal_id in "
+            + "(select gd.internal_id from grouper_dictionary gd where gd.the_text " + lowerOp + " ? and gd.the_text " + upperOp + " ?)) ");
+      } else if (fieldDataType == GrouperDataFieldType.integer || fieldDataType == GrouperDataFieldType.timestamp) {
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where gdrfa.data_field_internal_id = ? "
+            + "and data_row_assign_internal_id = gdra.internal_id and gdrfa.value_integer " + lowerOp + " ? and gdrfa.value_integer " + upperOp + " ?) ");
+      } else {
+        throw new RuntimeException("hasAttributeBetween not supported for type: " + fieldDataType.name());
+      }
+
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", attributeAlias));
+      grouperJexlScriptPart.getArguments().add(new MultiKey("bindVar", fieldDataType == GrouperDataFieldType.string ? lowerValue : GrouperUtil.longObjectValue(lowerValue, true)));
+      grouperJexlScriptPart.getArguments().add(new MultiKey("bindVar", fieldDataType == GrouperDataFieldType.string ? upperValue : GrouperUtil.longObjectValue(upperValue, true)));
+
+      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
+        .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ")
+        .append(lowerOp).append(" '").append(GrouperUtil.xmlEscape(lowerValue)).append("' ")
+        .append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeBetweenAnd"))
+        .append(" ").append(upperOp).append(" '").append(GrouperUtil.xmlEscape(upperValue)).append("'");
+
+    } else if (jexlNode instanceof ASTFunctionNode && jexlNode.jjtGetNumChildren() > 0
+        && jexlNode.jjtGetChild(0) instanceof ASTIdentifier
+        && StringUtils.equalsIgnoreCase("hasAttributeLike", ((ASTIdentifier)jexlNode.jjtGetChild(0)).getName())) {
+
+      if (jexlNode.jjtGetNumChildren() != 2 || (!(jexlNode.jjtGetChild(1) instanceof ASTArguments))) {
+        throw new RuntimeException("Expecting two JEXL children: " + jexlNode.getClass().getName() + ", children: "
+            + jexlNode.jjtGetNumChildren() + ", jexlNode: " + jexlNode);
+      }
+
+      ASTArguments astArguments = (ASTArguments)jexlNode.jjtGetChild(1);
+
+      if (astArguments.jjtGetNumChildren() != 2) {
+        throw new RuntimeException("Expecting two arguments: " + astArguments.getClass().getName() + ", children: "
             + astArguments.jjtGetNumChildren() + ", jexlNode: " + jexlNode);
       }
       String attributeAlias = null;
@@ -1224,10 +1473,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       if (astArguments.jjtGetChild(0) instanceof ASTIdentifier) {
         attributeAlias = ((ASTIdentifier)astArguments.jjtGetChild(0)).getName();
       } else {
-        throw new RuntimeException("Expecting first argument to be identifer: " 
+        throw new RuntimeException("Expecting first argument to be identifer: "
             + astArguments.jjtGetChild(0).getClass().getName() + ", jexlNode: " + jexlNode);
       }
-      
+
       String likeString = null;
 
       if (astArguments.jjtGetChild(1) instanceof ASTStringLiteral) {
@@ -1260,8 +1509,175 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeLikeValue")).append(" '")
         .append(GrouperUtil.xmlEscape(likeString)).append("'");
 
-      
-      
+
+
+    } else if (jexlNode instanceof ASTFunctionNode && jexlNode.jjtGetNumChildren() > 0
+        && jexlNode.jjtGetChild(0) instanceof ASTIdentifier
+        && StringUtils.equalsIgnoreCase("attributeCompare", ((ASTIdentifier)jexlNode.jjtGetChild(0)).getName())) {
+
+      if (jexlNode.jjtGetNumChildren() != 2 || (!(jexlNode.jjtGetChild(1) instanceof ASTArguments))) {
+        throw new RuntimeException("Expecting two JEXL children for attributeCompare: " + jexlNode.getClass().getName() + ", children: "
+            + jexlNode.jjtGetNumChildren() + ", jexlNode: " + jexlNode);
+      }
+
+      ASTArguments astArguments = (ASTArguments)jexlNode.jjtGetChild(1);
+
+      if (astArguments.jjtGetNumChildren() != 1) {
+        throw new RuntimeException("Expecting one argument (a comparison expression) for attributeCompare: " + astArguments.getClass().getName() + ", children: "
+            + astArguments.jjtGetNumChildren() + ", jexlNode: " + jexlNode);
+      }
+
+      JexlNode comparisonNode = astArguments.jjtGetChild(0);
+
+      // must be a comparison operator
+      if (!(comparisonNode instanceof ASTEQNode) && !(comparisonNode instanceof ASTNENode)
+          && !(comparisonNode instanceof ASTLTNode) && !(comparisonNode instanceof ASTLENode)
+          && !(comparisonNode instanceof ASTGTNode) && !(comparisonNode instanceof ASTGENode)) {
+        throw new RuntimeException("Expecting a comparison operator (==, !=, <, <=, >, >=) inside attributeCompare, but got: "
+            + comparisonNode.getClass().getName() + ", jexlNode: " + jexlNode);
+      }
+
+      if (comparisonNode.jjtGetNumChildren() != 2) {
+        throw new RuntimeException("Expecting two children in comparison for attributeCompare: " + comparisonNode.getClass().getName()
+            + ", children: " + comparisonNode.jjtGetNumChildren() + ", jexlNode: " + jexlNode);
+      }
+
+      // parse left side: either ASTIdentifier or ASTAddNode/ASTSubNode(ASTIdentifier, ASTNumberLiteral)
+      String leftFieldAlias = null;
+      Long leftMathOffset = null;
+      JexlNode leftNode = comparisonNode.jjtGetChild(0);
+      if (leftNode instanceof ASTIdentifier) {
+        leftFieldAlias = ((ASTIdentifier)leftNode).getName();
+      } else if (leftNode instanceof ASTAddNode && leftNode.jjtGetNumChildren() == 2
+          && leftNode.jjtGetChild(0) instanceof ASTIdentifier && leftNode.jjtGetChild(1) instanceof ASTNumberLiteral) {
+        leftFieldAlias = ((ASTIdentifier)leftNode.jjtGetChild(0)).getName();
+        leftMathOffset = ((ASTNumberLiteral)leftNode.jjtGetChild(1)).getLiteral().longValue();
+      } else if (leftNode instanceof ASTSubNode && leftNode.jjtGetNumChildren() == 2
+          && leftNode.jjtGetChild(0) instanceof ASTIdentifier && leftNode.jjtGetChild(1) instanceof ASTNumberLiteral) {
+        leftFieldAlias = ((ASTIdentifier)leftNode.jjtGetChild(0)).getName();
+        leftMathOffset = -1L * ((ASTNumberLiteral)leftNode.jjtGetChild(1)).getLiteral().longValue();
+      } else {
+        throw new RuntimeException("Left side of attributeCompare must be a field alias or field alias +/- number, but got: "
+            + leftNode.getClass().getName() + ", jexlNode: " + jexlNode);
+      }
+
+      // parse right side: same pattern
+      String rightFieldAlias = null;
+      Long rightMathOffset = null;
+      JexlNode rightNode = comparisonNode.jjtGetChild(1);
+      if (rightNode instanceof ASTIdentifier) {
+        rightFieldAlias = ((ASTIdentifier)rightNode).getName();
+      } else if (rightNode instanceof ASTAddNode && rightNode.jjtGetNumChildren() == 2
+          && rightNode.jjtGetChild(0) instanceof ASTIdentifier && rightNode.jjtGetChild(1) instanceof ASTNumberLiteral) {
+        rightFieldAlias = ((ASTIdentifier)rightNode.jjtGetChild(0)).getName();
+        rightMathOffset = ((ASTNumberLiteral)rightNode.jjtGetChild(1)).getLiteral().longValue();
+      } else if (rightNode instanceof ASTSubNode && rightNode.jjtGetNumChildren() == 2
+          && rightNode.jjtGetChild(0) instanceof ASTIdentifier && rightNode.jjtGetChild(1) instanceof ASTNumberLiteral) {
+        rightFieldAlias = ((ASTIdentifier)rightNode.jjtGetChild(0)).getName();
+        rightMathOffset = -1L * ((ASTNumberLiteral)rightNode.jjtGetChild(1)).getLiteral().longValue();
+      } else {
+        throw new RuntimeException("Right side of attributeCompare must be a field alias or field alias +/- number, but got: "
+            + rightNode.getClass().getName() + ", jexlNode: " + jexlNode);
+      }
+
+      // validate both fields exist and are row columns
+      GrouperDataFieldConfig leftFieldConfig = grouperJexlScriptAnalysis.getGrouperDataEngine().getFieldConfigByAlias().get(leftFieldAlias.toLowerCase());
+      if (leftFieldConfig == null) {
+        throw new RuntimeException("attributeCompare left field not found: '" + leftFieldAlias + "'");
+      }
+      GrouperDataFieldConfig rightFieldConfig = grouperJexlScriptAnalysis.getGrouperDataEngine().getFieldConfigByAlias().get(rightFieldAlias.toLowerCase());
+      if (rightFieldConfig == null) {
+        throw new RuntimeException("attributeCompare right field not found: '" + rightFieldAlias + "'");
+      }
+
+      GrouperDataFieldType leftFieldType = leftFieldConfig.getFieldDataType();
+      GrouperDataFieldType rightFieldType = rightFieldConfig.getFieldDataType();
+
+      // validate types are compatible
+      boolean leftIsInteger = (leftFieldType == GrouperDataFieldType.integer || leftFieldType == GrouperDataFieldType.timestamp || leftFieldType == GrouperDataFieldType.bool);
+      boolean rightIsInteger = (rightFieldType == GrouperDataFieldType.integer || rightFieldType == GrouperDataFieldType.timestamp || rightFieldType == GrouperDataFieldType.bool);
+      boolean leftIsString = (leftFieldType == GrouperDataFieldType.string);
+      boolean rightIsString = (rightFieldType == GrouperDataFieldType.string);
+
+      if (leftIsInteger != rightIsInteger) {
+        throw new RuntimeException("attributeCompare fields must be compatible types. Left: " + leftFieldAlias + " (" + leftFieldType
+            + "), Right: " + rightFieldAlias + " (" + rightFieldType + ")");
+      }
+
+      // math only allowed on integer types
+      if (leftMathOffset != null && !leftIsInteger) {
+        throw new RuntimeException("Math expressions (+/-) are only allowed on integer/timestamp/boolean fields in attributeCompare. Field: " + leftFieldAlias + " (" + leftFieldType + ")");
+      }
+      if (rightMathOffset != null && !rightIsInteger) {
+        throw new RuntimeException("Math expressions (+/-) are only allowed on integer/timestamp/boolean fields in attributeCompare. Field: " + rightFieldAlias + " (" + rightFieldType + ")");
+      }
+
+      // determine operator
+      String operator = null;
+      String label = null;
+      if (comparisonNode instanceof ASTEQNode) {
+        operator = "=";
+        label = "=";
+      } else if (comparisonNode instanceof ASTNENode) {
+        operator = "!=";
+        label = "!=";
+      } else if (comparisonNode instanceof ASTLTNode) {
+        operator = "<";
+        label = "<";
+      } else if (comparisonNode instanceof ASTLENode) {
+        operator = "<=";
+        label = "<=";
+      } else if (comparisonNode instanceof ASTGTNode) {
+        operator = ">";
+        label = ">";
+      } else if (comparisonNode instanceof ASTGENode) {
+        operator = ">=";
+        label = ">=";
+      }
+
+      // build SQL
+      // bind var order must match execution order: left_field_id, [left_offset], right_field_id, [right_offset]
+      boolean isOrderingComparison = (comparisonNode instanceof ASTLTNode || comparisonNode instanceof ASTLENode
+          || comparisonNode instanceof ASTGTNode || comparisonNode instanceof ASTGENode);
+
+      // GRP-6828: ordering comparisons on string fields are not supported; use hasAttributeBetween() instead
+      if (leftIsString && isOrderingComparison) {
+        throw new RuntimeException("Ordering comparisons (<, <=, >, >=) are not supported on string fields in attributeCompare. "
+            + "Use hasAttributeBetween() for string range queries. Fields: '" + leftFieldAlias + "', '" + rightFieldAlias + "'");
+      }
+
+      String leftCol = leftIsString ? "value_dictionary_internal_id" : "value_integer";
+      String rightCol = rightIsString ? "value_dictionary_internal_id" : "value_integer";
+
+      String leftExpr = "gdrfa_cc1." + leftCol;
+      if (leftMathOffset != null) {
+        leftExpr = "(" + leftExpr + " + ?)";
+      }
+      String rightExpr = "gdrfa_cc2." + rightCol;
+      if (rightMathOffset != null) {
+        rightExpr = "(" + rightExpr + " + ?)";
+      }
+
+      // SQL: left_field_id bind, then left_offset bind (if any), then comparison with right subquery
+      // right_field_id bind, then right_offset bind (if any)
+      grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa_cc1 "
+          + "where gdrfa_cc1.data_row_assign_internal_id = gdra.internal_id "
+          + "and gdrfa_cc1.data_field_internal_id = ? "
+          + "and " + leftExpr + " " + operator + " "
+          + "(select gdrfa_cc2." + rightCol + (rightMathOffset != null ? " + ?" : "")
+          + " from grouper_data_row_field_assign gdrfa_cc2 "
+          + "where gdrfa_cc2.data_row_assign_internal_id = gdra.internal_id "
+          + "and gdrfa_cc2.data_field_internal_id = ?)) ");
+
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attributeCompareLeft", leftFieldAlias, leftMathOffset));
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attributeCompareRight", rightFieldAlias, rightMathOffset));
+
+      // build display description
+      String leftDisplay = leftFieldAlias + (leftMathOffset != null ? (leftMathOffset >= 0 ? " + " + leftMathOffset : " - " + (-leftMathOffset)) : "");
+      String rightDisplay = rightFieldAlias + (rightMathOffset != null ? (rightMathOffset >= 0 ? " + " + rightMathOffset : " - " + (-rightMathOffset)) : "");
+      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisAttributeCompare"))
+        .append(" ").append(GrouperUtil.xmlEscape(leftDisplay)).append(" ").append(label).append(" ").append(GrouperUtil.xmlEscape(rightDisplay));
+
     } else if ((jexlNode instanceof ASTEQNode) && 2==jexlNode.jjtGetNumChildren() && jexlNode.jjtGetChild(1) instanceof ASTNullLiteral) {
       if (!(jexlNode.jjtGetChild(0) instanceof ASTIdentifier)) {
         throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(0).getClass().getName() 
@@ -1328,8 +1744,17 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         operator = ">=";
         label = "jexlAnalysisHasRowAttributeValueGreaterThanEqual2";
       } else {
-        throw new RuntimeException("Not expecting node type: " + jexlNode 
+        throw new RuntimeException("Not expecting node type: " + jexlNode
             + ", children: " + jexlNode.jjtGetNumChildren());
+      }
+      boolean isOrderingOperator = (jexlNode instanceof ASTLTNode || jexlNode instanceof ASTLENode
+          || jexlNode instanceof ASTGTNode || jexlNode instanceof ASTGENode);
+      if (isOrderingOperator) {
+        GrouperDataFieldConfig grouperDataFieldConfigCheck = grouperJexlScriptAnalysis.getGrouperDataEngine().getFieldConfigByAlias().get(leftPart.getName().toLowerCase());
+        if (grouperDataFieldConfigCheck != null && grouperDataFieldConfigCheck.getFieldDataType() == GrouperDataFieldType.string) {
+          throw new RuntimeException("Ordering comparisons (<, <=, >, >=) are not supported on string fields in hasRow. "
+              + "Use hasAttributeBetween() for string range queries. Field: '" + leftPart.getName() + "'");
+        }
       }
       grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
           + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ " + operator + " ?) ");
@@ -1570,6 +1995,86 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   
 
 
+  /**
+   * extract a string value from a JEXL literal node (string, number, or negative number)
+   */
+  private static String extractLiteralValue(JexlNode node) {
+    if (node instanceof ASTStringLiteral) {
+      return ((ASTStringLiteral) node).getLiteral();
+    } else if (node instanceof ASTNumberLiteral) {
+      return GrouperUtil.stringValue(((ASTNumberLiteral) node).getLiteral());
+    } else if (node instanceof ASTUnaryMinusNode && node.jjtGetNumChildren() == 1
+        && node.jjtGetChild(0) instanceof ASTNumberLiteral) {
+      return GrouperUtil.stringValue(negate((ASTNumberLiteral) node.jjtGetChild(0)));
+    } else if (node instanceof ASTIdentifier) {
+      return ((ASTIdentifier) node).getName();
+    }
+    throw new RuntimeException("Expected a literal value, got: " + node.getClass().getName());
+  }
+
+  /**
+   * Parse a hasAttributeBetween comparison argument.
+   * Supports patterns like: 'value' < field, 'value' <= field, field < 'value', field <= 'value',
+   * field > 'value', field >= 'value', 'value' > field, 'value' >= field.
+   * @return MultiKey with (fieldAlias, literalValue, sqlOperator) where sqlOperator is the operator
+   *   relative to the field (e.g., ">=" for inclusive lower bound, "<" for exclusive upper bound)
+   */
+  private static MultiKey parseBetweenComparisonArg(JexlNode node) {
+    if (!(node instanceof ASTLTNode) && !(node instanceof ASTLENode)
+        && !(node instanceof ASTGTNode) && !(node instanceof ASTGENode)) {
+      throw new RuntimeException("hasAttributeBetween arguments must be comparison expressions (<, <=, >, >=), got: "
+          + node.getClass().getName());
+    }
+    if (node.jjtGetNumChildren() != 2) {
+      throw new RuntimeException("hasAttributeBetween comparison must have 2 children, got: " + node.jjtGetNumChildren());
+    }
+
+    JexlNode left = node.jjtGetChild(0);
+    JexlNode right = node.jjtGetChild(1);
+
+    boolean leftIsField = (left instanceof ASTIdentifier);
+    boolean rightIsField = (right instanceof ASTIdentifier);
+
+    if (leftIsField == rightIsField) {
+      throw new RuntimeException("hasAttributeBetween comparison must have one field and one literal value");
+    }
+
+    String fieldAlias;
+    String literalValue;
+    String sqlOperator;
+
+    if (leftIsField) {
+      // field op literal: e.g., affiliationOrg <= 'math'
+      fieldAlias = ((ASTIdentifier) left).getName();
+      literalValue = extractLiteralValue(right);
+      if (node instanceof ASTLTNode) {
+        sqlOperator = "<";
+      } else if (node instanceof ASTLENode) {
+        sqlOperator = "<=";
+      } else if (node instanceof ASTGTNode) {
+        sqlOperator = ">";
+      } else {
+        sqlOperator = ">=";
+      }
+    } else {
+      // literal op field: e.g., 'engl' < affiliationOrg  =>  affiliationOrg > 'engl'
+      fieldAlias = ((ASTIdentifier) right).getName();
+      literalValue = extractLiteralValue(left);
+      // flip the operator since we're reversing the sides
+      if (node instanceof ASTLTNode) {
+        sqlOperator = ">";
+      } else if (node instanceof ASTLENode) {
+        sqlOperator = ">=";
+      } else if (node instanceof ASTGTNode) {
+        sqlOperator = "<";
+      } else {
+        sqlOperator = "<=";
+      }
+    }
+
+    return new MultiKey(fieldAlias, literalValue, sqlOperator);
+  }
+
   private static Number negate(ASTNumberLiteral jjtGetChild) {
     if (jjtGetChild.isInteger()) {
       return -1 * jjtGetChild.getLiteral().longValue();
@@ -1611,10 +2116,15 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         gcGrouperSyncHeartbeat.runHeartbeatThread();
       }
 
+      boolean readOnly = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.grouperLoaderJexlScriptFullSync.jexlDaemonsReadonly", false);
+      if (readOnly) {
+        debugMap.put("readOnly", true);
+      }
+
       // all scripts and sync them with dependency tables
-      
+
       //  GrouperDaemonUtils.stopProcessingIfJobPaused();
-    
+
       GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
       
       GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
@@ -1684,8 +2194,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
             syncFullGroup(debugMap, hib3GrouperLoaderLog, grouperDataEngine,
                 attributeAssign, group, allMshipHistoryAbacSqlCacheDependenciesMap,
-                sqlCacheGroupInternalIdsStillNeedingMshipHistory);
-            
+                sqlCacheGroupInternalIdsStillNeedingMshipHistory, readOnly);
+
             return null;
           }
         };
@@ -1739,27 +2249,31 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         }
       }
 
+      // remove internal count keys used for example tracking
+      debugMap.remove("insertExamples_count");
+      debugMap.remove("deleteExamples_count");
+
       otherJobInput.getHib3GrouperLoaderLog().setJobMessage(GrouperUtil.mapToString(debugMap));
-      
+
       if (LOG.isDebugEnabled()) {
         LOG.debug(GrouperUtil.mapToString(debugMap));
       }
-      
+
     }
 
-      
+
     if (GrouperUtil.intValue(debugMap.get("errors"), 0) > 0) {
       throw new RuntimeException("Had " + debugMap.get("errors") + " errors, check logs");
     }
     return null;
   }
-  
-  
+
+
   public static void syncFullGroup(Map<String, Object> debugMap,
       Hib3GrouperLoaderLog hib3GrouperLoaderLog, GrouperDataEngine grouperDataEngine,
       AttributeAssign attributeAssign, Group group,
       Map<MultiKey, SqlCacheDependency> allMshipHistoryAbacSqlCacheDependenciesMap,
-      Set<Long> sqlCacheGroupInternalIdsStillNeedingMshipHistory) {
+      Set<Long> sqlCacheGroupInternalIdsStillNeedingMshipHistory, boolean readOnly) {
     Group theGroup = group;
     
     GcDbAccess gcDbAccess = new GcDbAccess();
@@ -1767,9 +2281,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     GrouperJexlScriptAnalysis analyzeJexlScript = analyzeJexlScript(grouperDataEngine, script);
 
     
-    //  String includeInternalSourcesString = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES);
-    //  boolean includeInternalSources = GrouperUtil.booleanValue(includeInternalSourcesString, false);
-    
+    String perGroupSourceIds = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_SUBJECT_SOURCE_IDS);
+    Set<String> effectiveSourceIds = GrouperAbac.effectiveSubjectSourceIds(perGroupSourceIds);
+
     //System.out.println(script);
     
     
@@ -1900,12 +2414,23 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       addMembershipHistoryAbacDependencies(sqlCacheDependencyTypeMshipHistoryAbac, sqlCacheGroupsToCheck, allMshipHistoryAbacSqlCacheDependenciesMap);                
     }
     
-    String sql = "select id from grouper_members gm where gm.subject_source != 'g:gsa' and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( " + grouperJexlScriptSql.getWhereClause() + " )";
- 
+    MultiKey sourceInClause = GrouperAbac.subjectSourceInClause(effectiveSourceIds);
+    String sourceInSql = (String)sourceInClause.getKey(0);
+    List<String> sourceBindVars = (List<String>)sourceInClause.getKey(1);
+
+    // prepend source bind vars before the existing ones
+    List<Object> allBindVars = new ArrayList<Object>();
+    allBindVars.addAll(sourceBindVars);
+    if (gcDbAccess.getBindVars() != null) {
+      allBindVars.addAll(gcDbAccess.getBindVars());
+    }
+
+    String sql = "select id from grouper_members gm where " + sourceInSql + " and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and ( " + grouperJexlScriptSql.getWhereClause() + " )";
+
  //        System.out.println(script);
  //        System.out.println(sql);
- 
-    Set<String> memberIds = new HashSet<String>(gcDbAccess.sql(sql).selectList(String.class));
+
+    Set<String> memberIds = new HashSet<String>(gcDbAccess.bindVars(allBindVars).sql(sql).selectList(String.class));
     
     Set<String> previousMemberIds = new HashSet<String>(new GcDbAccess().sql("select member_id from grouper_memberships gm "
         + "where owner_group_id = ? and field_id = ? and mship_type = 'immediate'")
@@ -1936,29 +2461,45 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       memberIdToUser.put(member.getId(), member);
     }
 
-    for (String memberId : insertMemberIds) {
-      try {
-        Member member = memberIdToUser.get(memberId);
-        theGroup.addMember(member.getSubject(), false);
-      } catch (RuntimeException re) {
-        GrouperUtil.mapAddValue(debugMap, "errorsAddMember", 1);
-        debugMap.put("exceptionAddGroupName", theGroup.getName());
-        debugMap.put("exceptionAddMemberId", memberId);
-        debugMap.put("exceptionAddMember", GrouperUtil.getFullStackTrace(re));
-        LOG.error("Error adding memberId '" + memberId + "' to group: '" + theGroup.getName() + "'", re);
+    if (!readOnly) {
+      for (String memberId : insertMemberIds) {
+        try {
+          Member member = memberIdToUser.get(memberId);
+          theGroup.addMember(member.getSubject(), false);
+        } catch (HookVeto hv) {
+          GrouperUtil.mapAddValue(debugMap, "vetoesAddMember", 1);
+          if (GrouperUtil.intValue(debugMap.get("vetoesAddMember"), 0) <= 20) {
+            debugMap.put("vetoInsert_" + GrouperUtil.intValue(debugMap.get("vetoesAddMember"), 0), "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + hv.getMessage());
+          }
+          LOG.warn("Veto adding memberId '" + memberId + "' to group: '" + theGroup.getName() + "': " + hv.getMessage());
+        } catch (RuntimeException re) {
+          int errIndex = GrouperUtil.intValue(debugMap.get("errorsAddMember"), 0);
+          GrouperUtil.mapAddValue(debugMap, "errorsAddMember", 1);
+          if (errIndex < 20) {
+            debugMap.put("errInsert_" + errIndex, "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + re.getMessage() + ", " + GrouperUtil.stack(re));
+          }
+          LOG.error("Error adding memberId '" + memberId + "' to group: '" + theGroup.getName() + "'", re);
+        }
       }
-    }
- 
-    for (String memberId : deleteMemberIds) {
-      try {
-        Member member = memberIdToUser.get(memberId);
-        theGroup.deleteMember(member.getSubject(), false);
-      } catch (RuntimeException re) {
-        GrouperUtil.mapAddValue(debugMap, "errorsDeleteMember", 1);
-        debugMap.put("exceptionDeleteGroupName", theGroup.getName());
-        debugMap.put("exceptionDeleteMemberId", memberId);
-        debugMap.put("exceptionDeleteMember", GrouperUtil.getFullStackTrace(re));
-        LOG.error("Error deleting memberId '" + memberId + "' from group: '" + theGroup.getName() + "'", re);
+
+      for (String memberId : deleteMemberIds) {
+        try {
+          Member member = memberIdToUser.get(memberId);
+          theGroup.deleteMember(member.getSubject(), false);
+        } catch (HookVeto hv) {
+          GrouperUtil.mapAddValue(debugMap, "vetoesDeleteMember", 1);
+          if (GrouperUtil.intValue(debugMap.get("vetoesDeleteMember"), 0) <= 20) {
+            debugMap.put("vetoDelete_" + GrouperUtil.intValue(debugMap.get("vetoesDeleteMember"), 0), "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + hv.getMessage());
+          }
+          LOG.warn("Veto deleting memberId '" + memberId + "' from group: '" + theGroup.getName() + "': " + hv.getMessage());
+        } catch (RuntimeException re) {
+          int errIndex = GrouperUtil.intValue(debugMap.get("errorsDeleteMember"), 0);
+          GrouperUtil.mapAddValue(debugMap, "errorsDeleteMember", 1);
+          if (errIndex < 20) {
+            debugMap.put("errDelete_" + errIndex, "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + re.getMessage() + ", " + GrouperUtil.stack(re));
+          }
+          LOG.error("Error deleting memberId '" + memberId + "' from group: '" + theGroup.getName() + "'", re);
+        }
       }
     }
     
@@ -1969,6 +2510,37 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     GrouperUtil.mapAddValue(debugMap, "deletes", deleteMemberIds.size());
     if (hib3GrouperLoaderLog != null) {
       hib3GrouperLoaderLog.addDeleteCount(deleteMemberIds.size());
+    }
+    
+    if (hib3GrouperLoaderLog != null) {
+      hib3GrouperLoaderLog.addTotalCount(memberIds.size());
+    }
+
+    // add examples of inserts and deletes to the debug map (up to 20 each)
+    {
+      int maxExamples = 20;
+
+      for (String memberId : insertMemberIds) {
+        int index = GrouperUtil.intValue(debugMap.get("insertExamples_count"), 0);
+        if (index >= maxExamples) {
+          break;
+        }
+        Member member = memberIdToUser.get(memberId);
+        String subjectId = member != null ? member.getSubjectId() : memberId;
+        debugMap.put("insert_" + index, "group: " + theGroup.getName() + ", subjectId: " + subjectId);
+        debugMap.put("insertExamples_count", index + 1);
+      }
+
+      for (String memberId : deleteMemberIds) {
+        int index = GrouperUtil.intValue(debugMap.get("deleteExamples_count"), 0);
+        if (index >= maxExamples) {
+          break;
+        }
+        Member member = memberIdToUser.get(memberId);
+        String subjectId = member != null ? member.getSubjectId() : memberId;
+        debugMap.put("delete_" + index, "group: " + theGroup.getName() + ", subjectId: " + subjectId);
+        debugMap.put("deleteExamples_count", index + 1);
+      }
     }
   }
 
@@ -2048,14 +2620,28 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           if (grouperDataFieldAssign.getValueDictionaryInternalId() != null) {
             gcDbAccess.addBindVar(grouperDataFieldAssign.getValueDictionaryInternalId());
           }
-          if (isAttribute) {                
+          if (isAttribute) {
             grouperJexlScriptSql.setWhereClause(StringUtils.replace(grouperJexlScriptSql.getWhereClause(), "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_dictionary_internal_id"));
           }
- 
+
         } else {
           throw new RuntimeException("not expecting type: " + fieldDataType.getClass().getName());
         }
- 
+
+      } else if (StringUtils.equals(argumentString, "attributeCompareLeft") || StringUtils.equals(argumentString, "attributeCompareRight")) {
+
+        String fieldAlias = (String)argument.getKey(1);
+        Long mathOffset = (Long)argument.getKey(2);
+
+        GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(fieldAlias.toLowerCase());
+        GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
+        gcDbAccess.addBindVar(grouperDataField.getInternalId());
+        grouperJexlScriptSql.getAttributeInternalIds().add(grouperDataField.getInternalId());
+
+        if (mathOffset != null) {
+          gcDbAccess.addBindVar(mathOffset);
+        }
+
       } else {
         throw new RuntimeException("not expecting argument string: " + argumentString);
       }
@@ -2090,6 +2676,185 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         return null;
       }
     });
+  }
+
+  /**
+   * Builds the visualization reference tree from the annotated analysis parts.
+   * Each part has a PartRole set during the analyzeJexlScriptToSqlHelper walk.
+   * This avoids any duplicate JEXL AST parsing.
+   *
+   * The algorithm:
+   * - Only process OR_CHILD and AND_CHILD parts; skip all others
+   * - Buffer consecutive OR_CHILD parts
+   * - On AND_CHILD: if OR buffer non-empty, create compound OR with buffered children; else create leaf
+   * - At end: remaining OR_CHILD buffer becomes top-level leaves (pure OR expression)
+   *
+   * @param parts the annotated analysis parts
+   * @return list of AbacReference objects forming the visualization tree
+   */
+  static List<AbacReference> buildVisualizationTreeFromParts(List<GrouperJexlScriptPart> parts) {
+    List<AbacReference> result = new ArrayList<AbacReference>();
+    List<AbacReference> orBuffer = new ArrayList<AbacReference>();
+
+    for (int i = 0; i < parts.size(); i++) {
+      GrouperJexlScriptPart part = parts.get(i);
+      GrouperJexlScriptPart.PartRole role = part.getPartRole();
+
+      if (role == GrouperJexlScriptPart.PartRole.OR_CHILD) {
+        AbacReference orLeaf = createAbacReferenceFromPart(part, AbacReference.Connective.OR);
+        if (orLeaf != null) {
+          orBuffer.add(orLeaf);
+        }
+        continue;
+      }
+
+      if (role == GrouperJexlScriptPart.PartRole.AND_CHILD) {
+        if (!orBuffer.isEmpty()) {
+          // This AND_CHILD is the compound summary for the preceding OR children
+          AbacReference compound = new AbacReference(AbacReference.Connective.OR, part.isNegated(), AbacReference.Connective.AND);
+          for (AbacReference orChild : orBuffer) {
+            compound.addChild(orChild);
+          }
+          compound.setPopulationCount(part.getPopulationCount());
+          compound.setContainsSubject(part.isContainsSubject());
+          String desc = part.getDisplayDescription().toString().trim();
+          if (desc.length() > 0) {
+            compound.setDisplayDescription(desc);
+          }
+          result.add(compound);
+          orBuffer.clear();
+        } else {
+          AbacReference leaf = createAbacReferenceFromPart(part, AbacReference.Connective.AND);
+          if (leaf != null) {
+            result.add(leaf);
+          }
+        }
+      }
+    }
+
+    // Remaining OR buffer = top-level pure OR expression
+    if (!orBuffer.isEmpty()) {
+      for (AbacReference orChild : orBuffer) {
+        result.add(orChild);
+      }
+      orBuffer.clear();
+    }
+
+    // Single expression with no AND/OR: create a leaf from part 0
+    if (result.isEmpty() && !parts.isEmpty()
+        && parts.get(0).getPartRole() == GrouperJexlScriptPart.PartRole.FULL_EXPRESSION) {
+      AbacReference leaf = createAbacReferenceFromPart(parts.get(0), AbacReference.Connective.AND);
+      if (leaf != null) {
+        result.add(leaf);
+      }
+    }
+
+    // Handle outer NOT wrapping a compound: !(A && B) or !(A || B).
+    // Part 0 (FULL_EXPRESSION) is negated but none of the individual children are,
+    // meaning the NOT wraps the whole compound, not individual parts.
+    // Wrap the children in a single negated compound node to preserve the correct semantics.
+    if (result.size() > 1 && !parts.isEmpty()
+        && parts.get(0).getPartRole() == GrouperJexlScriptPart.PartRole.FULL_EXPRESSION
+        && parts.get(0).isNegated()) {
+      boolean anyChildNegated = false;
+      for (AbacReference ref : result) {
+        if (ref.isNegated()) {
+          anyChildNegated = true;
+          break;
+        }
+      }
+      if (!anyChildNegated) {
+        // Determine compound type from the children's connective
+        AbacReference.Connective compoundConnective = result.get(0).getConnective();
+        // negated=true to show red minus edge, matching the convention for negated leaves like !entity.memberOfAny(...)
+        AbacReference compound = new AbacReference(compoundConnective, true, AbacReference.Connective.AND);
+        String desc = parts.get(0).getDisplayDescription().toString().trim();
+        if (desc.length() > 0) {
+          compound.setDisplayDescription(desc);
+        }
+        compound.setPopulationCount(parts.get(0).getPopulationCount());
+        compound.setContainsSubject(parts.get(0).isContainsSubject());
+        for (AbacReference child : result) {
+          compound.addChild(child);
+        }
+        result.clear();
+        result.add(compound);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Creates an AbacReference leaf from an analysis part by inspecting its arguments.
+   *
+   * @param part the analysis part
+   * @param connective the connective context (AND or OR)
+   * @return the AbacReference, or null if the part has no recognizable arguments
+   */
+  private static AbacReference createAbacReferenceFromPart(GrouperJexlScriptPart part, AbacReference.Connective connective) {
+    List<MultiKey> arguments = part.getArguments();
+    if (arguments == null || arguments.isEmpty()) {
+      return null;
+    }
+
+    String firstArgType = (String) arguments.get(0).getKey(0);
+    String desc = part.getDisplayDescription().toString().trim();
+
+    if ("group".equals(firstArgType)) {
+      // Count how many group arguments there are
+      List<String> groupNames = new ArrayList<String>();
+      for (MultiKey arg : arguments) {
+        if ("group".equals(arg.getKey(0)) && "members".equals(arg.getKey(1))) {
+          groupNames.add((String) arg.getKey(2));
+        }
+      }
+
+      AbacReference ref;
+      if (groupNames.size() > 1) {
+        // memberOfAny: use first group name as the node name, value holds display description
+        ref = new AbacReference(AbacReference.RefType.GROUP, groupNames.get(0),
+            desc.length() > 0 ? desc : null, part.isNegated(), connective);
+      } else if (groupNames.size() == 1) {
+        ref = new AbacReference(AbacReference.RefType.GROUP, groupNames.get(0), null, part.isNegated(), connective);
+      } else {
+        return null;
+      }
+      ref.setPopulationCount(part.getPopulationCount());
+      ref.setContainsSubject(part.isContainsSubject());
+      if (desc.length() > 0) {
+        ref.setDisplayDescription(desc);
+      }
+      return ref;
+    } else if ("attribute".equals(firstArgType)) {
+      String attributeAlias = (String) arguments.get(0).getKey(1);
+      // Collect attribute values for display
+      String value = null;
+      for (MultiKey arg : arguments) {
+        if ("attributeValue".equals(arg.getKey(0))) {
+          value = String.valueOf(arg.getKey(1));
+          break;
+        }
+      }
+      AbacReference ref = new AbacReference(AbacReference.RefType.ATTRIBUTE, attributeAlias, value, part.isNegated(), connective);
+      ref.setPopulationCount(part.getPopulationCount());
+      ref.setContainsSubject(part.isContainsSubject());
+      if (desc.length() > 0) {
+        ref.setDisplayDescription(desc);
+      }
+      return ref;
+    } else if ("row".equals(firstArgType)) {
+      String rowAlias = (String) arguments.get(0).getKey(1);
+      AbacReference ref = new AbacReference(AbacReference.RefType.ROW, rowAlias, null, part.isNegated(), connective);
+      ref.setPopulationCount(part.getPopulationCount());
+      ref.setContainsSubject(part.isContainsSubject());
+      if (desc.length() > 0) {
+        ref.setDisplayDescription(desc);
+      }
+      return ref;
+    }
+
+    return null;
   }
 
   /** logger */

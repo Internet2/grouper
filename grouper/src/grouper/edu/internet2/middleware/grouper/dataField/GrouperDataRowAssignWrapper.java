@@ -112,11 +112,13 @@ public class GrouperDataRowAssignWrapper {
         if (GrouperUtil.length(grouperDataRowFieldAssignWrappers) == 1) {
           foundNotNullKey = true;
           
-          if (grouperDataFieldConfig.getFieldDataType() == GrouperDataFieldType.string) {
-            keyValues[i] = grouperDataRowFieldAssignWrappers.get(0).getTextValue();
-          } else {
-            keyValues[i] = grouperDataRowFieldAssignWrappers.get(0).getGrouperDataRowFieldAssign().getValueInteger();
-          }
+          // GRP-6825: use convertValue() to get the proper typed value (e.g. Boolean for boolean fields,
+          // Timestamp for timestamp fields) so it matches the type returned by the provider side's
+          // convertValue(Object). Previously this used raw getValueInteger() for non-string fields,
+          // which returned Long, causing key mismatches (Long(1) != Boolean(true)) and sync thrashing.
+          keyValues[i] = grouperDataFieldConfig.getFieldDataType().convertValue(
+              grouperDataRowFieldAssignWrappers.get(0).getGrouperDataRowFieldAssign().getValueInteger(),
+              grouperDataRowFieldAssignWrappers.get(0).getTextValue());
         } else {
           keyValues[i] = null;
         }

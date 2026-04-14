@@ -338,6 +338,8 @@ CREATE INDEX group_set_sowner_member_idx ON grouper_group_set (owner_stem_id, me
 
 CREATE INDEX group_set_aowner_member_idx ON grouper_group_set (owner_attr_def_id, member_attr_def_id, field_id, depth);
 
+CREATE INDEX group_set_member_member_field_idx ON grouper_group_set (member_id, member_field_id);
+
 CREATE TABLE grouper_stems
 (
     id VARCHAR(40) NOT NULL,
@@ -1907,7 +1909,7 @@ CREATE TABLE grouper_prov_duo_user
 
 CREATE INDEX grouper_duo_user_config_id_idx ON grouper_prov_duo_user (config_id);
 
-CREATE UNIQUE INDEX grouper_duo_user_user_name_idx ON grouper_prov_duo_user (user_name(100), config_id);
+CREATE INDEX grouper_duo_user_user_name_idx ON grouper_prov_duo_user (user_name(100), config_id);
 
 CREATE TABLE grouper_prov_scim_user
 (
@@ -2295,6 +2297,8 @@ CREATE INDEX fld_assgn_prvdr_intrnl_id_idx ON grouper_data_field_assign (data_pr
 CREATE INDEX fld_assgn_field_intrnl_id_idx ON grouper_data_field_assign (data_field_internal_id);
 CREATE INDEX fld_assgn_mbrs_intrnl_id_idx ON grouper_data_field_assign (member_internal_id);
 CREATE INDEX fld_assgn_mem_df_dict_idx ON grouper_data_field_assign (member_internal_id, data_field_internal_id, value_dictionary_internal_id);
+CREATE INDEX fld_assgn_field_dict_idx ON grouper_data_field_assign (data_field_internal_id, value_dictionary_internal_id);
+CREATE INDEX fld_assgn_field_int_idx ON grouper_data_field_assign (data_field_internal_id, value_integer);
 CREATE UNIQUE INDEX fld_assgn_mbr_intrnl_id_idx ON grouper_data_field_assign (member_internal_id, data_field_internal_id, value_integer, value_dictionary_internal_id, data_provider_internal_id);
 
 ALTER TABLE  grouper_data_field_assign ADD CONSTRAINT grouper_data_field_assign_fk FOREIGN KEY (data_field_internal_id) REFERENCES  grouper_data_field(internal_id);

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -362,8 +363,16 @@ private static boolean mockTablesThere = false;
     String username = GrouperUtil.jsonJacksonGetString(userPassword, "id");
     String password = GrouperUtil.jsonJacksonGetString(userPassword, "password");
     
-    String expectedUsername = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyDigitalMarketplaceConnector."+configId+".username");
-    String expectedPassword = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyDigitalMarketplaceConnector."+configId+".password");
+    String expectedUsername = GrouperConfig.retrieveConfig().propertyValueString("grouper.remedyDigitalMarketplaceConnector."+configId+".username");
+    if (StringUtils.isBlank(expectedUsername)) {
+      ConfigPropertiesCascadeBase.clearCache();
+      expectedUsername = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyDigitalMarketplaceConnector."+configId+".username");
+    }
+    String expectedPassword = GrouperConfig.retrieveConfig().propertyValueString("grouper.remedyDigitalMarketplaceConnector."+configId+".password");
+    if (StringUtils.isBlank(expectedPassword)) {
+      ConfigPropertiesCascadeBase.clearCache();
+      expectedPassword = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyDigitalMarketplaceConnector."+configId+".password");
+    }
     
     if (StringUtils.equals(username, expectedUsername) && StringUtils.equals(password, expectedPassword)) {
       String jwtToken = GrouperUuid.getUuid();

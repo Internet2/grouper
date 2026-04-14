@@ -247,7 +247,7 @@ public class GrouperMcpGetAuditEntriesTest extends GrouperTest {
       GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
       ObjectNode arguments = objectMapper.createObjectNode();
-      arguments.put("subjectId", SubjectTestHelper.SUBJ0.getId());
+      arguments.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ0.getId());
 
       ObjectNode result = GrouperMcpGetAuditEntries.execute(arguments, authUser);
 
@@ -445,7 +445,7 @@ public class GrouperMcpGetAuditEntriesTest extends GrouperTest {
 
       // SUBJ0 trying to look at SUBJ1's audit entries
       ObjectNode arguments = objectMapper.createObjectNode();
-      arguments.put("subjectId", SubjectTestHelper.SUBJ1.getId());
+      arguments.put("subjectIdOrIdentifier", SubjectTestHelper.SUBJ1.getId());
 
       ObjectNode result = GrouperMcpGetAuditEntries.execute(arguments, authUser);
 
@@ -522,9 +522,9 @@ public class GrouperMcpGetAuditEntriesTest extends GrouperTest {
     assertNotNull(properties.get("auditType"));
     assertNotNull(properties.get("groupName"));
     assertNotNull(properties.get("stemName"));
-    assertNotNull(properties.get("subjectId"));
-    assertNotNull(properties.get("subjectSourceId"));
-    assertNotNull(properties.get("actionsPerformedBySubjectId"));
+    assertNotNull(properties.get("subjectIdOrIdentifier"));
+    assertNotNull(properties.get("sourceId"));
+    assertNotNull(properties.get("actionsPerformedBySubjectIdOrIdentifier"));
     assertNotNull(properties.get("actionsPerformedBySubjectSourceId"));
     assertNotNull(properties.get("fromDate"));
     assertNotNull(properties.get("toDate"));

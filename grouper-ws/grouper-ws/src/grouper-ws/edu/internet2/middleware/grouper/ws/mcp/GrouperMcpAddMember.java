@@ -59,8 +59,8 @@ public class GrouperMcpAddMember {
     tool.put("name", "group_add_member");
     tool.put("description",
         "Add one or more subjects as members of a Grouper group. "
-        + "Each subject is identified by subjectId or subjectIdentifier "
-        + "(and optionally sourceId). Supports setting membership "
+        + "Each subject is identified by subjectIdOrIdentifier "
+        + "(and optionally sourceId and subjectIdType). Supports setting membership "
         + "enabled/disabled dates for future provisioning.");
 
     ObjectNode inputSchema = objectMapper.createObjectNode();
@@ -81,30 +81,13 @@ public class GrouperMcpAddMember {
     subjectsItemsNode.put("type", "object");
     ObjectNode subjectProperties = objectMapper.createObjectNode();
 
-    ObjectNode subjectIdProp = objectMapper.createObjectNode();
-    subjectIdProp.put("type", "string");
-    subjectIdProp.put("description",
-        "The subject ID. Mutually exclusive with subjectIdentifier.");
-    subjectProperties.set("subjectId", subjectIdProp);
-
-    ObjectNode subjectIdentifierProp = objectMapper.createObjectNode();
-    subjectIdentifierProp.put("type", "string");
-    subjectIdentifierProp.put("description",
-        "The subject identifier (e.g., login ID or eppn). "
-        + "Mutually exclusive with subjectId.");
-    subjectProperties.set("subjectIdentifier", subjectIdentifierProp);
-
-    ObjectNode sourceIdProp = objectMapper.createObjectNode();
-    sourceIdProp.put("type", "string");
-    sourceIdProp.put("description",
-        "Optional source ID to restrict the subject lookup to a specific source.");
-    subjectProperties.set("sourceId", sourceIdProp);
+    GrouperMcpSubjectUtils.addSubjectArrayItemProperties(subjectProperties);
 
     subjectsItemsNode.set("properties", subjectProperties);
     subjectsProp.set("items", subjectsItemsNode);
     subjectsProp.put("description",
-        "Array of subjects to add to the group. Each subject must have either "
-        + "subjectId or subjectIdentifier (and optionally sourceId).");
+        "Array of subjects to add to the group. Each subject must have a "
+        + "subjectIdOrIdentifier (and optionally sourceId and subjectIdType).");
     properties.set("subjects", subjectsProp);
 
     ObjectNode replaceAllExistingProp = objectMapper.createObjectNode();
@@ -182,8 +165,8 @@ public class GrouperMcpAddMember {
     // check readwrite scope restrictions (OAuth only)
     if (authUser.isOAuthAuthenticated()) {
       if (!authUser.isGroupInReadwriteScope(groupName)) {
-        return buildErrorResult("Access denied: group '" + groupName
-            + "' is outside your consented read-write scope.");
+        return buildErrorResult(
+            authUser.buildReadwriteScopeDeniedError("group", groupName));
       }
     }
 
@@ -199,34 +182,35 @@ public class GrouperMcpAddMember {
 
     for (int i = 0; i < subjectsArray.size(); i++) {
       JsonNode subjectNode = subjectsArray.get(i);
-      String subjectId = subjectNode.has("subjectId")
-          ? subjectNode.get("subjectId").asText() : null;
-      String subjectIdentifier = subjectNode.has("subjectIdentifier")
-          ? subjectNode.get("subjectIdentifier").asText() : null;
+      String subjectIdOrIdentifier = subjectNode.has("subjectIdOrIdentifier")
+          ? subjectNode.get("subjectIdOrIdentifier").asText() : null;
+      String subjectIdType = subjectNode.has("subjectIdType")
+          ? subjectNode.get("subjectIdType").asText() : null;
       String sourceId = subjectNode.has("sourceId")
           ? subjectNode.get("sourceId").asText() : null;
 
-      if (StringUtils.isBlank(subjectId) && StringUtils.isBlank(subjectIdentifier)) {
+      if (StringUtils.isBlank(subjectIdOrIdentifier)) {
         return buildErrorResult(
-            "Each subject must have either subjectId or subjectIdentifier "
-            + "(subject at index " + i + " has neither).");
+            "Each subject must have a subjectIdOrIdentifier "
+            + "(subject at index " + i + " is missing it).");
       }
-      if (StringUtils.isNotBlank(subjectId) && StringUtils.isNotBlank(subjectIdentifier)) {
-        return buildErrorResult(
-            "Each subject must have either subjectId or subjectIdentifier, not both "
-            + "(subject at index " + i + " has both).");
+
+      // validate subjectIdType if provided
+      String subjectIdTypeError = GrouperMcpSubjectUtils.validateSubjectIdType(subjectIdType);
+      if (subjectIdTypeError != null) {
+        return buildErrorResult(subjectIdTypeError + " (subject at index " + i + ").");
       }
 
       // check readwrite scope restrictions on subject (OAuth only)
       if (authUser.isOAuthAuthenticated()) {
-        String subjectValue = StringUtils.isNotBlank(subjectId) ? subjectId : subjectIdentifier;
-        if (subjectValue != null && !authUser.isSubjectInReadwriteScope(subjectValue)) {
-          return buildErrorResult("Access denied: subject '" + subjectValue
-              + "' is outside your consented read-write scope.");
+        if (!authUser.isSubjectInReadwriteScope(subjectIdOrIdentifier)) {
+          return buildErrorResult(
+              authUser.buildReadwriteScopeDeniedError("subject", subjectIdOrIdentifier));
         }
       }
 
-      subjectLookupList.add(new WsSubjectLookup(subjectId, sourceId, subjectIdentifier));
+      subjectLookupList.add(GrouperMcpSubjectUtils.createSubjectLookup(
+          subjectIdOrIdentifier, subjectIdType, sourceId));
     }
 
     WsSubjectLookup[] subjectLookups =
@@ -295,7 +279,8 @@ public class GrouperMcpAddMember {
 
     } catch (Exception e) {
       LOG.error("Error adding members to group: " + groupName, e);
-      return buildErrorResult("Error adding members to group: " + e.getMessage());
+      return buildErrorResult("Error adding members to group: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 

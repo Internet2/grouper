@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationDaemonLogic;
@@ -109,6 +110,11 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
     
     try {
 
+      boolean readOnly = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("otherJob.grouperLoaderJexlScriptFullSync.jexlDaemonsReadonly", false);
+      if (readOnly) {
+        debugMap.put("readOnly", true);
+      }
+
       long currentTime = System.currentTimeMillis();
 
       // group ids to do a full group recalc, e.g. if a script changes or too many memberships change
@@ -127,17 +133,21 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
       // sourceId and subjectId to look up
       Set<MultiKey> sourceIdSubjectIds = new HashSet<MultiKey>();
       
+      String jexlScriptSourceIdsNameOfAttributeDefName = jexlScriptStemName + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_SUBJECT_SOURCE_IDS;
+
       // go through each event, see what objects have changed
       for (EsbEventContainer esbEventContainer : esbEventContainers) {
 
         EsbEvent esbEvent = esbEventContainer.getEsbEvent();
         EsbEventType esbEventType = esbEventContainer.getEsbEventType();
-        
-        // see if the script was changed so we can recalculate the group
+
+        // see if the script or subject source IDs were changed so we can recalculate the group
         // etc:attribute:abacJexlScript:grouperJexlScriptJexlScript
+        // etc:attribute:abacJexlScript:grouperJexlScriptSubjectSourceIds
         if (esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_ADD || esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_DELETE) {
           String attributeDefNameName = esbEvent.getAttributeDefNameName();
-          if (!StringUtils.equals(jexlScriptNameOfAttributeDefName, attributeDefNameName)) {
+          if (!StringUtils.equals(jexlScriptNameOfAttributeDefName, attributeDefNameName)
+              && !StringUtils.equals(jexlScriptSourceIdsNameOfAttributeDefName, attributeDefNameName)) {
             continue;
           }
           
@@ -573,7 +583,7 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
             @Override
             public Void callLogic() {
 
-              syncIncrementalGroup(debugMap, hib3GrouperLoaderLog, grouperDataEngine, attributeAssign, group, memberInternalIds);
+              syncIncrementalGroup(debugMap, hib3GrouperLoaderLog, grouperDataEngine, attributeAssign, group, memberInternalIds, readOnly);
               
               return null;
             }
@@ -653,7 +663,7 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
 
               GrouperLoaderJexlScriptFullSync.syncFullGroup(debugMap, hib3GrouperLoaderLog, grouperDataEngine,
                   attributeAssign, group, allMshipHistoryAbacSqlCacheDependenciesMap,
-                  sqlCacheGroupInternalIdsStillNeedingMshipHistory);
+                  sqlCacheGroupInternalIdsStillNeedingMshipHistory, readOnly);
               
               // assign the last group sync attribute
               attributeAssign.getAttributeValueDelegate().assignValue(jexlLastGroupSyncNameOfAttributeDefName, 
@@ -698,13 +708,17 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
         }
       }
       
+      // remove internal count keys used for example tracking
+      debugMap.remove("insertExamples_count");
+      debugMap.remove("deleteExamples_count");
+
       if (LOG.isDebugEnabled()) {
         LOG.debug(GrouperUtil.mapToString(debugMap));
       }
-      
+
     }
 
-    
+
     ProvisioningSyncConsumerResult provisioningSyncConsumerResult = new ProvisioningSyncConsumerResult();
     
     provisioningSyncConsumerResult.setLastProcessedSequenceNumber(esbEventContainers.get(esbEventContainers.size()-1).getSequenceNumber());
@@ -715,7 +729,7 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
   
   public static void syncIncrementalGroup(Map<String, Object> debugMap,
       Hib3GrouperLoaderLog hib3GrouperLoaderLog, GrouperDataEngine grouperDataEngine,
-      AttributeAssign attributeAssign, Group group,Set<Long> memberInternalIds) {
+      AttributeAssign attributeAssign, Group group, Set<Long> memberInternalIds, boolean readOnly) {
     Group theGroup = group;
     
     GcDbAccess gcDbAccessOrig = new GcDbAccess();
@@ -723,32 +737,43 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
     GrouperJexlScriptAnalysis analyzeJexlScript = GrouperLoaderJexlScriptFullSync.analyzeJexlScript(grouperDataEngine, script);
 
     
-    //  String includeInternalSourcesString = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES);
-    //  boolean includeInternalSources = GrouperUtil.booleanValue(includeInternalSourcesString, false);
-    
+    String perGroupSourceIds = attributeAssign.getAttributeValueDelegate().retrieveValueString(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_SUBJECT_SOURCE_IDS);
+    Set<String> effectiveSourceIds = GrouperAbac.effectiveSubjectSourceIds(perGroupSourceIds);
+
     //System.out.println(script);
-    
-    
-    GrouperJexlScriptSql grouperJexlScriptSql = GrouperLoaderJexlScriptFullSync.generateJexlSql(grouperDataEngine, gcDbAccessOrig, analyzeJexlScript); 
-    
+
+
+    GrouperJexlScriptSql grouperJexlScriptSql = GrouperLoaderJexlScriptFullSync.generateJexlSql(grouperDataEngine, gcDbAccessOrig, analyzeJexlScript);
+
+    MultiKey sourceInClause = GrouperAbac.subjectSourceInClause(effectiveSourceIds);
+    String sourceInSql = (String)sourceInClause.getKey(0);
+    List<String> sourceBindVars = (List<String>)sourceInClause.getKey(1);
+
     List<Long> memberInternalIdsList = new ArrayList<Long>(memberInternalIds);
     // batch these up in batches of 200
-    
+
     int batchSize = 200;
     int batchCount = GrouperUtil.batchNumberOfBatches(memberInternalIdsList, batchSize, false);
-    
+
     List<Object> originalBindVars = gcDbAccessOrig.getBindVars();
-    
+
     for (int i = 0; i < batchCount; i++) {
       List<Long> memberInternalIdsBatch = GrouperUtil.batchList(memberInternalIdsList, batchSize, i);
       GcDbAccess gcDbAccessBatch = gcDbAccessOrig.cloneDbAccess();
-      gcDbAccessBatch.bindVars(originalBindVars);
-      String sql = "select id from grouper_members gm where gm.subject_source != 'g:gsa' and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and  ( " + grouperJexlScriptSql.getWhereClause() 
+
+      // prepend source bind vars, then original bind vars, then batch bind vars
+      List<Object> allBindVars = new ArrayList<Object>();
+      allBindVars.addAll(sourceBindVars);
+      if (originalBindVars != null) {
+        allBindVars.addAll(originalBindVars);
+      }
+
+      String sql = "select id from grouper_members gm where " + sourceInSql + " and gm.subject_resolution_deleted = 'F' and gm.subject_resolution_resolvable = 'T' and  ( " + grouperJexlScriptSql.getWhereClause()
         + " ) and gm.internal_id in (" + GrouperClientUtils.appendQuestions(GrouperUtil.length(memberInternalIdsBatch)) + ")";
       for (Long memberInternalId : memberInternalIdsBatch) {
-        gcDbAccessBatch.addBindVar(memberInternalId);
+        allBindVars.add(memberInternalId);
       }
-      Set<String> memberIdsInJexl = new HashSet<String>(gcDbAccessBatch.sql(sql).selectList(String.class));
+      Set<String> memberIdsInJexl = new HashSet<String>(gcDbAccessBatch.bindVars(allBindVars).sql(sql).selectList(String.class));
       
       GcDbAccess gcDbAccessPrevious = new GcDbAccess().sql("select distinct gms.member_id from grouper_memberships gms, grouper_members gm "
           + "where owner_group_id = ? and field_id = ? and mship_type = 'immediate' and gms.member_id = gm.id "
@@ -784,29 +809,45 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
         memberIdToUser.put(member.getId(), member);
       }
       
-      for (String memberId : insertMemberIds) {
-        try {
-          Member member = memberIdToUser.get(memberId);
-          theGroup.addMember(member.getSubject(), false);
-        } catch (RuntimeException re) {
-          GrouperUtil.mapAddValue(debugMap, "errorsAddMember", 1);
-          debugMap.put("exceptionAddGroupName", theGroup.getName());
-          debugMap.put("exceptionAddMemberId", memberId);
-          debugMap.put("exceptionAddMember", GrouperUtil.getFullStackTrace(re));
-          LOG.error("Error adding memberId '" + memberId + "' to group: '" + theGroup.getName() + "'", re);
+      if (!readOnly) {
+        for (String memberId : insertMemberIds) {
+          try {
+            Member member = memberIdToUser.get(memberId);
+            theGroup.addMember(member.getSubject(), false);
+          } catch (HookVeto hv) {
+            GrouperUtil.mapAddValue(debugMap, "vetoesAddMember", 1);
+            if (GrouperUtil.intValue(debugMap.get("vetoesAddMember"), 0) <= 20) {
+              debugMap.put("vetoInsert_" + GrouperUtil.intValue(debugMap.get("vetoesAddMember"), 0), "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + hv.getMessage());
+            }
+            LOG.warn("Veto adding memberId '" + memberId + "' to group: '" + theGroup.getName() + "': " + hv.getMessage());
+          } catch (RuntimeException re) {
+            int errIndex = GrouperUtil.intValue(debugMap.get("errorsAddMember"), 0);
+            GrouperUtil.mapAddValue(debugMap, "errorsAddMember", 1);
+            if (errIndex < 20) {
+              debugMap.put("errInsert_" + errIndex, "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + re.getMessage() + ", " + GrouperUtil.stack(re));
+            }
+            LOG.error("Error adding memberId '" + memberId + "' to group: '" + theGroup.getName() + "'", re);
+          }
         }
-      }
-   
-      for (String memberId : deleteMemberIds) {
-        try {
-          Member member = memberIdToUser.get(memberId);
-          theGroup.deleteMember(member.getSubject(), false);
-        } catch (RuntimeException re) {
-          GrouperUtil.mapAddValue(debugMap, "errorsDeleteMember", 1);
-          debugMap.put("exceptionDeleteGroupName", theGroup.getName());
-          debugMap.put("exceptionDeleteMemberId", memberId);
-          debugMap.put("exceptionDeleteMember", GrouperUtil.getFullStackTrace(re));
-          LOG.error("Error deleting memberId '" + memberId + "' from group: '" + theGroup.getName() + "'", re);
+
+        for (String memberId : deleteMemberIds) {
+          try {
+            Member member = memberIdToUser.get(memberId);
+            theGroup.deleteMember(member.getSubject(), false);
+          } catch (HookVeto hv) {
+            GrouperUtil.mapAddValue(debugMap, "vetoesDeleteMember", 1);
+            if (GrouperUtil.intValue(debugMap.get("vetoesDeleteMember"), 0) <= 20) {
+              debugMap.put("vetoDelete_" + GrouperUtil.intValue(debugMap.get("vetoesDeleteMember"), 0), "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + hv.getMessage());
+            }
+            LOG.warn("Veto deleting memberId '" + memberId + "' from group: '" + theGroup.getName() + "': " + hv.getMessage());
+          } catch (RuntimeException re) {
+            int errIndex = GrouperUtil.intValue(debugMap.get("errorsDeleteMember"), 0);
+            GrouperUtil.mapAddValue(debugMap, "errorsDeleteMember", 1);
+            if (errIndex < 20) {
+              debugMap.put("errDelete_" + errIndex, "group: " + theGroup.getName() + ", subjectId: " + memberId + ", " + re.getMessage() + ", " + GrouperUtil.stack(re));
+            }
+            LOG.error("Error deleting memberId '" + memberId + "' from group: '" + theGroup.getName() + "'", re);
+          }
         }
       }
       
@@ -818,9 +859,36 @@ public class GrouperLoaderJexlScriptIncremental extends EsbListenerBase{
       if (hib3GrouperLoaderLog != null) {
         hib3GrouperLoaderLog.addDeleteCount(deleteMemberIds.size());
       }
-      
+
+      // add examples of inserts and deletes to the debug map (up to 20 each)
+      {
+        int maxExamples = 20;
+
+        for (String memberId : insertMemberIds) {
+          int index = GrouperUtil.intValue(debugMap.get("insertExamples_count"), 0);
+          if (index >= maxExamples) {
+            break;
+          }
+          Member member = memberIdToUser.get(memberId);
+          String subjectId = member != null ? member.getSubjectId() : memberId;
+          debugMap.put("insert_" + index, "group: " + theGroup.getName() + ", subjectId: " + subjectId);
+          debugMap.put("insertExamples_count", index + 1);
+        }
+
+        for (String memberId : deleteMemberIds) {
+          int index = GrouperUtil.intValue(debugMap.get("deleteExamples_count"), 0);
+          if (index >= maxExamples) {
+            break;
+          }
+          Member member = memberIdToUser.get(memberId);
+          String subjectId = member != null ? member.getSubjectId() : memberId;
+          debugMap.put("delete_" + index, "group: " + theGroup.getName() + ", subjectId: " + subjectId);
+          debugMap.put("deleteExamples_count", index + 1);
+        }
+      }
+
     }
-    
+
   }
 
 

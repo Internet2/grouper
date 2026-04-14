@@ -224,27 +224,6 @@ public enum UpgradeTasks {
     }
     
   },
-  V38{
-    @Override
-    public UpgradeTasksInterface upgradeTask() {
-      return new UpgradeTaskV38();
-    }
-    
-  },
-  V39{
-    @Override
-    public UpgradeTasksInterface upgradeTask() {
-      return new UpgradeTaskV39();
-    }
-    
-  },
-  V40{
-    @Override
-    public UpgradeTasksInterface upgradeTask() {
-      return new UpgradeTaskV40();
-    }
-    
-  },
   V21 {
     @Override
     public UpgradeTasksInterface upgradeTask() {
@@ -347,6 +326,32 @@ public enum UpgradeTasks {
     }
 
   },
+  V38{
+    @Override
+    public UpgradeTasksInterface upgradeTask() {
+      return new UpgradeTaskV38();
+    }
+  },
+  V39{
+    @Override
+    public UpgradeTasksInterface upgradeTask() {
+      return new UpgradeTaskV39();
+    }
+  },
+  V40{
+    @Override
+    public UpgradeTasksInterface upgradeTask() {
+      return new UpgradeTaskV40();
+    }
+  },
+  V41{
+    @Override
+    public UpgradeTasksInterface upgradeTask() {
+      return new UpgradeTaskV41();
+    }
+  }
+  // Update https://spaces.at.internet2.edu/spaces/Grouper/pages/318572008/Grouper+upgrade+tasks when new upgrade tasks are added
+  ,
   /**
    * remove old maintenance jobs
    */

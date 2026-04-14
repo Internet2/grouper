@@ -158,12 +158,16 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                               <select name="grouperLoaderTypeName" id="grouperLoaderTypeId" style="width: 15em"
                                 onchange="ajax('../app/UiV2GrouperLoader.editGrouperLoader', {formIds: 'editLoaderFormId'}); return false;">
                                 <option value="" ></option>
-                                <option value="JEXL_SCRIPT" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'JEXL_SCRIPT' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderJexlScript']}</option>
+                                <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditAbacLoader}">
+                                  <option value="JEXL_SCRIPT" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'JEXL_SCRIPT' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderJexlScript']}</option>
+                                </c:if>
                                 <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader}">
                                   <option value="LDAP" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'LDAP' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderLdap']}</option>
                                   <option value="SQL" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'SQL' ? 'selected="selected"' : '' } >${textContainer.textEscapeXml['grouperLoaderSql']}</option>
                                 </c:if>
-                                <option value="RECENT_MEMBERSHIPS" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'RECENT_MEMBERSHIPS' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderRecentMemberships']}</option>
+                                <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditRecentMembershipsLoader}">
+                                  <option value="RECENT_MEMBERSHIPS" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'RECENT_MEMBERSHIPS' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderRecentMemberships']}</option>
+                                </c:if>
                               </select>
                               <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                 data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
@@ -308,25 +312,76 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                                 <span class="description">${textContainer.text["grouperLoaderEntityJexlScriptDescription"]}</span>
                               </td>
                             </tr>
-                            <%--
                             <tr>
-                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderIncludeInternalSourcesId">${textContainer.text['grouperLoaderIncludeInternalSources']}</label></strong></td>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSubjectSourceIds']}</strong></td>
                               <td>
-                                <span style="white-space: nowrap">
-                                  <select name="grouperLoaderIncludeInternalSourcesName" id="grouperLoaderIncludeInternalSourcesId" style="width: 40em">
-                                    <option value="" ></option>
-                                    <option value="false" ${grouperRequestContainer.grouperLoaderContainer.editLoaderJexlScriptIncludeInternalSources == 'false' ? 'selected="selected"' : '' }
-                                      >${textContainer.textEscapeXml['grouperLoaderIncludeInternalSourcesFalse']}</option>
-                                    <option value="true" ${grouperRequestContainer.grouperLoaderContainer.editLoaderJexlScriptIncludeInternalSources == 'true' ? 'selected="selected"' : '' } 
-                                      >${textContainer.textEscapeXml['grouperLoaderIncludeInternalSourcesTrue']}</option>
-                                                                          
-                                  </select>
-                                </span>
-                                <br />
-                                <span class="description">${textContainer.text["grouperLoaderIncludeInternalSourcesDescription"]}</span>
+                                <c:choose>
+                                  <c:when test="${grouperRequestContainer.grouperLoaderContainer.showSubjectSourcePicker}">
+                                    <label class="radio inline">
+                                      <input type="radio" name="grouperLoaderOverrideSubjectSourceIdsName" value="false"
+                                        ${grouperRequestContainer.grouperLoaderContainer.editLoaderSubjectSourceIdsOverrideActive ? '' : 'checked="checked"'}
+                                        onchange="hideCustomPrivilege('grouperLoaderSubjectSourceIdsDiv'); showCustomPrivilege('grouperLoaderSubjectSourceIdsDefaultDiv')" />
+                                      ${textContainer.textEscapeXml['grouperLoaderSubjectSourceIdsOverrideFalse']}
+                                    </label>
+                                    <label class="radio inline">
+                                      <input type="radio" name="grouperLoaderOverrideSubjectSourceIdsName" value="true"
+                                        ${grouperRequestContainer.grouperLoaderContainer.editLoaderSubjectSourceIdsOverrideActive ? 'checked="checked"' : ''}
+                                        onchange="showCustomPrivilege('grouperLoaderSubjectSourceIdsDiv'); hideCustomPrivilege('grouperLoaderSubjectSourceIdsDefaultDiv')" />
+                                      ${textContainer.textEscapeXml['grouperLoaderSubjectSourceIdsOverrideTrue']}
+                                    </label>
+                                    <br />
+                                    <span class="description">${textContainer.text['grouperLoaderSubjectSourceIdsDescription']} ${grouperRequestContainer.grouperLoaderContainer.globalDefaultSubjectSourceIdsCommaSeparated}</span>
+                                    <%-- disabled checkboxes showing defaults when "use defaults" is selected --%>
+                                    <div id="grouperLoaderSubjectSourceIdsDefaultDiv"
+                                      class="${grouperRequestContainer.grouperLoaderContainer.editLoaderSubjectSourceIdsOverrideActive ? 'hide' : ''}">
+                                      <br />
+                                      <c:set var="defaultChecked" value="${grouperRequestContainer.grouperLoaderContainer.globalDefaultSourceIdCheckedString}" />
+                                      <c:forEach items="${grouperRequestContainer.grouperLoaderContainer.allNonInternalSubjectSourceIdsWithNames}" var="sourceConfig">
+                                        <div>
+                                          <label class="checkbox">
+                                            <input type="checkbox" disabled="disabled"
+                                              <c:if test="${defaultChecked.contains(','.concat(sourceConfig.id).concat(','))}">checked="checked"</c:if>
+                                            />
+                                            ${grouper:escapeHtml(sourceConfig.name)}
+                                          </label>
+                                        </div>
+                                      </c:forEach>
+                                    </div>
+                                    <%-- editable checkboxes when "customize" is selected --%>
+                                    <div id="grouperLoaderSubjectSourceIdsDiv"
+                                      class="${grouperRequestContainer.grouperLoaderContainer.editLoaderSubjectSourceIdsOverrideActive ? '' : 'hide'}"
+                                      aria-live="polite" aria-expanded="${grouperRequestContainer.grouperLoaderContainer.editLoaderSubjectSourceIdsOverrideActive ? 'true' : 'false'}">
+                                      <br />
+                                      <c:set var="editChecked" value="${grouperRequestContainer.grouperLoaderContainer.editSourceIdCheckedString}" />
+                                      <c:forEach items="${grouperRequestContainer.grouperLoaderContainer.availableSubjectSourceIdsWithNames}" var="sourceConfig">
+                                        <div>
+                                          <label class="checkbox">
+                                            <input type="checkbox" name="grouperLoaderSubjectSourceId_${grouper:escapeHtml(sourceConfig.id)}" value="true"
+                                              <c:if test="${editChecked.contains(','.concat(sourceConfig.id).concat(','))}">checked="checked"</c:if>
+                                            />
+                                            ${grouper:escapeHtml(sourceConfig.name)}
+                                          </label>
+                                        </div>
+                                      </c:forEach>
+                                    </div>
+                                  </c:when>
+                                  <c:otherwise>
+                                    <%-- override not allowed, show disabled checkboxes with effective sources --%>
+                                    <c:set var="defaultChecked" value="${grouperRequestContainer.grouperLoaderContainer.globalDefaultSourceIdCheckedString}" />
+                                    <c:forEach items="${grouperRequestContainer.grouperLoaderContainer.allNonInternalSubjectSourceIdsWithNames}" var="sourceConfig">
+                                      <div>
+                                        <label class="checkbox">
+                                          <input type="checkbox" disabled="disabled"
+                                            <c:if test="${defaultChecked.contains(','.concat(sourceConfig.id).concat(','))}">checked="checked"</c:if>
+                                          />
+                                          ${grouper:escapeHtml(sourceConfig.name)}
+                                        </label>
+                                      </div>
+                                    </c:forEach>
+                                  </c:otherwise>
+                                </c:choose>
                               </td>
                             </tr>
-                             --%>
                           </c:if>
                          
                         </c:if>

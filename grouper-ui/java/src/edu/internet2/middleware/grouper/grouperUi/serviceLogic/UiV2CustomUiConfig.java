@@ -65,6 +65,45 @@ public class UiV2CustomUiConfig {
    * @param request
    * @param response
    */
+  public void viewCustomUiConfigsForAll(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      CustomUiContainer customUiContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getCustomUiContainer();
+      
+      List<CustomUiConfiguration> customUiConfigs = CustomUiConfiguration.retrieveAllCustomUiConfigs();
+      
+      List<GuiCustomUiConfiguration> guiCustomUiConfigs = new ArrayList<GuiCustomUiConfiguration>();
+      
+      for (CustomUiConfiguration customUiConfiguration: customUiConfigs) {
+        if (customUiConfiguration.isEnabled()) {
+          GuiCustomUiConfiguration guiCustomUiConfig = GuiCustomUiConfiguration.convertFromCustomUiConfiguration(customUiConfiguration);
+          guiCustomUiConfigs.add(guiCustomUiConfig);
+        }
+      }
+      
+      customUiContainer.setGuiCustomUiConfigurations(guiCustomUiConfigs);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/customUi/customUiConfigsAll.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    } 
+  }
+  
+  /**
+   * @param request
+   * @param response
+   */
   public void addCustomUiConfig(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();

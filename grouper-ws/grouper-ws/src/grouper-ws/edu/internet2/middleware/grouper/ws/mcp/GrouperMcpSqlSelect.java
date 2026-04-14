@@ -53,13 +53,13 @@ public class GrouperMcpSqlSelect {
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
   /** maximum page size (rows per page) */
-  static final int MAX_ROWS = 2000;
+  static final int MAX_ROWS = 5000;
 
   /** default page size */
-  static final int DEFAULT_PAGE_SIZE = 200;
+  static final int DEFAULT_PAGE_SIZE = 500;
 
   /** maximum characters in the response text */
-  static final int MAX_RESPONSE_CHARS = 100000;
+  static final int MAX_RESPONSE_CHARS = 1000000;
 
   /**
    * return the MCP tool definition for sql_select
@@ -209,7 +209,8 @@ public class GrouperMcpSqlSelect {
 
     } catch (Exception e) {
       LOG.error("Error executing SQL count query via MCP", e);
-      return buildErrorResult("Error executing SQL count query: " + e.getMessage());
+      return buildErrorResult("Error executing SQL count query: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 
@@ -290,7 +291,8 @@ public class GrouperMcpSqlSelect {
 
     } catch (Exception e) {
       LOG.error("Error executing SQL query via MCP", e);
-      return buildErrorResult("Error executing SQL query: " + e.getMessage());
+      return buildErrorResult("Error executing SQL query: " + e.getMessage()
+          + "\n\n" + GrouperUtil.getFullStackTrace(e));
     }
   }
 
