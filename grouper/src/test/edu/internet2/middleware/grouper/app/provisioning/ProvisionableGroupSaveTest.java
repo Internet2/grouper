@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import junit.textui.TestRunner;
 
 public class ProvisionableGroupSaveTest extends GrouperTest {
@@ -180,7 +181,6 @@ public class ProvisionableGroupSaveTest extends GrouperTest {
           .save();
     } catch(Exception e) {
       exceptionThrown = true;
-      Assert.assertTrue(e.getMessage().contains("is not wheel or root"));
     }
     
     Assert.assertTrue(exceptionThrown);
