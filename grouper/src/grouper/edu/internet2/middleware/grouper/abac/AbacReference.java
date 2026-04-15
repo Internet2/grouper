@@ -22,6 +22,7 @@ public class AbacReference {
   private int populationCount = -1;
   private String displayDescription;
   private boolean containsSubject = false;
+  private boolean memberOfAny = false;
   /**
    * Constructor for leaf references (group, attribute, row).
    *
@@ -70,6 +71,10 @@ public class AbacReference {
     return negated;
   }
 
+  public void setNegated(boolean negated) {
+    this.negated = negated;
+  }
+
   public Connective getConnective() {
     return connective;
   }
@@ -113,12 +118,23 @@ public class AbacReference {
     this.containsSubject = containsSubject;
   }
 
+  public boolean isMemberOfAny() {
+    return memberOfAny;
+  }
+
+  public void setMemberOfAny(boolean memberOfAny) {
+    this.memberOfAny = memberOfAny;
+  }
+
   /**
    * Returns a unique identifier for this reference, suitable for use as a node ID.
    */
   public String computeId() {
     switch (refType) {
       case GROUP:
+        if (displayDescription != null) {
+          return "abac_group_ref:" + displayDescription;
+        }
         return "abac_group_ref:" + name + (value != null ? ":" + value : "");
       case ATTRIBUTE:
         if (displayDescription != null) {
@@ -178,10 +194,6 @@ public class AbacReference {
         }
         return name;
       case GROUP:
-        // value is set for memberOfAny to hold the combined group names
-        if (value != null) {
-          return value;
-        }
         return name;
       default:
         return name;

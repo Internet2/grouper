@@ -2,9 +2,12 @@ package edu.internet2.middleware.grouper.abac;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.jexl3.parser.JexlNode;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
@@ -101,6 +104,31 @@ public class GrouperJexlScriptAnalysis {
 
   public void setVisualizationReferences(List<AbacReference> visualizationReferences) {
     this.visualizationReferences = visualizationReferences;
+  }
+
+  /**
+   * map from JEXL AST node to the analysis part that carries its description and population count.
+   * Used by the visualization tree builder to attach metadata during a direct AST walk.
+   * Keyed by reference identity so different AST nodes with the same content are not merged.
+   */
+  private Map<JexlNode, GrouperJexlScriptPart> astNodeToPart = new IdentityHashMap<JexlNode, GrouperJexlScriptPart>();
+
+  public Map<JexlNode, GrouperJexlScriptPart> getAstNodeToPart() {
+    return astNodeToPart;
+  }
+
+  /**
+   * root AST node of the parsed JEXL script; retained so the visualization builder can walk
+   * the tree directly rather than reconstructing it from a flat parts list.
+   */
+  private JexlNode rootAstNode;
+
+  public JexlNode getRootAstNode() {
+    return rootAstNode;
+  }
+
+  public void setRootAstNode(JexlNode rootAstNode) {
+    this.rootAstNode = rootAstNode;
   }
 
 }

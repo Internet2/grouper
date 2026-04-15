@@ -58,11 +58,9 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.abac.AbacReference;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.abac.GrouperJexlScriptAnalysis;
@@ -1129,26 +1127,8 @@ public class RelationGraph {
                 nodesToVisit.add(compoundNode);
                 compositeStyleTypes.put(compoundNode, determineAbacEdgeStyle(ref));
 
-                // Add child nodes under the compound
-                if (ref.getChildren() != null) {
-                  for (AbacReference childRef : ref.getChildren()) {
-                    GraphNode childNode = createAbacLeafNode(childRef, theGroup);
-                    if (childNode != null) {
-                      if (childRef.getPopulationCount() >= 0) {
-                        childNode.setPopulationCount((long) childRef.getPopulationCount());
-                      }
-                      if (subjectForIsMemberCheck != null) {
-                        childNode.setSubjectIsMember(childRef.isContainsSubject());
-                      }
-                      GraphEdge childEdge = new GraphEdge(compoundNode, childNode, determineAbacEdgeStyle(childRef));
-                      if (!edges.contains(childEdge)) {
-                        edges.add(childEdge);
-                        childNode.setDistanceFromStartNode(level + 1);
-                        visitNode(childNode, level + 1, false, isRecursive);
-                      }
-                    }
-                  }
-                }
+                // Add child nodes under the compound (recursively for nested compounds)
+                processAbacCompoundChildren(compoundNode, ref, theGroup, level + 1, isRecursive);
               } else {
                 // Simple leaf reference - direct child of ABAC group
                 GraphNode refNode = createAbacLeafNode(ref, theGroup);
@@ -1641,9 +1621,49 @@ public class RelationGraph {
    * @param theGroup the ABAC group (for logging)
    * @return the graph node, or null if the reference could not be resolved
    */
+  /**
+   * Recursively adds children of an ABAC compound reference under the given parent compound node.
+   * Nested compound children become nested compound nodes with their own children attached.
+   */
+  private void processAbacCompoundChildren(GraphNode parentCompoundNode, AbacReference parentRef,
+                                           Group theGroup, long level, boolean isRecursive) {
+    if (parentRef.getChildren() == null) {
+      return;
+    }
+    for (AbacReference childRef : parentRef.getChildren()) {
+      GraphNode childNode;
+      if (childRef.getRefType() == AbacReference.RefType.COMPOUND) {
+        boolean isCompoundAnd = "and".equals(childRef.getName());
+        GrouperObjectCompoundWrapper compoundWrapper = new GrouperObjectCompoundWrapper(
+            childRef.computeId(), childRef.computeDisplayLabel(), isCompoundAnd);
+        childNode = fetchOrCreateNode(compoundWrapper);
+      } else {
+        childNode = createAbacLeafNode(childRef, theGroup);
+      }
+      if (childNode == null) {
+        continue;
+      }
+      if (childRef.getPopulationCount() >= 0) {
+        childNode.setPopulationCount((long) childRef.getPopulationCount());
+      }
+      if (subjectForIsMemberCheck != null) {
+        childNode.setSubjectIsMember(childRef.isContainsSubject());
+      }
+      GraphEdge childEdge = new GraphEdge(parentCompoundNode, childNode, determineAbacEdgeStyle(childRef));
+      if (!edges.contains(childEdge)) {
+        edges.add(childEdge);
+        childNode.setDistanceFromStartNode(level);
+        visitNode(childNode, level, false, isRecursive);
+        if (childRef.getRefType() == AbacReference.RefType.COMPOUND) {
+          processAbacCompoundChildren(childNode, childRef, theGroup, level + 1, isRecursive);
+        }
+      }
+    }
+  }
+
   private GraphNode createAbacLeafNode(AbacReference ref, Group theGroup) {
     if (ref.getRefType() == AbacReference.RefType.GROUP) {
-      if (ref.getValue() != null) {
+      if (ref.isMemberOfAny()) {
         // memberOfAny: multiple groups as a single leaf pseudo-node
         GrouperObjectDataAttributeWrapper wrapper = new GrouperObjectDataAttributeWrapper(
             ref.computeId(), ref.computeDisplayLabel());
