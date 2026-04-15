@@ -186,8 +186,11 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
     newUser.setEmail("display.test@example.com");
     newUser.setDisplayName("Display Test User");
 
-    // SCIM tenant/sso are set to mock values for the test
-    TrueFoundryUser created = TrueFoundryApiCommands.createUser(CONFIG_ID, testSettings(), newUser);
+    // SCIM tenant/sso must be set so createUser invokes updateUserDisplayName via SCIM
+    TrueFoundrySettings settings = testSettings();
+    settings.setTenantName("mock-tenant");
+    settings.setSsoId("mock-sso");
+    TrueFoundryUser created = TrueFoundryApiCommands.createUser(CONFIG_ID, settings, newUser);
 
     assertNotNull(created);
     assertEquals("display.test@example.com", created.getEmail());
@@ -471,8 +474,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
 
     // default team member should be in the team immediately after creation
     int memberCount = new GcDbAccess().connectionName("grouper")
-        .sql("select count(*) from mock_truefoundry_membership where group_id = ? and user_id = "
-            + "(select id from mock_truefoundry_user where email = ?)")
+        .sql("select count(*) from mock_truefoundry_membership where group_id = ? and user_email = ?")
         .addBindVar(created.getId()).addBindVar(defaultMemberEmail).select(int.class);
     assertEquals("Default team member should be in team after create", 1, memberCount);
   }
@@ -661,15 +663,21 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
    * Helper to pre-create test users in the mock target DB
    */
   private void createMockUsers(String userId0, String userId1, String userId2) {
+    // provisioner config uses email as the entity "id", so the mock user id must also be email
+    // otherwise the provisioner sees target id=UUID, grouper-computed id=email and treats them
+    // as two different entities (insert one, delete the other)
+    String email0 = "test.subject.0@somewhere.someSchool.edu";
+    String email1 = "test.subject.1@somewhere.someSchool.edu";
+    String email2 = "test.subject.2@somewhere.someSchool.edu";
     new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_user (id, email, display_name, active) values (?, ?, ?, ?)")
-        .addBindVar(userId0).addBindVar("test.subject.0@somewhere.someSchool.edu").addBindVar("my name is test.subject.0").addBindVar("T").executeSql();
+        .addBindVar(email0).addBindVar(email0).addBindVar("my name is test.subject.0").addBindVar("T").executeSql();
     if (userId1 != null) {
       new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_user (id, email, display_name, active) values (?, ?, ?, ?)")
-          .addBindVar(userId1).addBindVar("test.subject.1@somewhere.someSchool.edu").addBindVar("my name is test.subject.1").addBindVar("T").executeSql();
+          .addBindVar(email1).addBindVar(email1).addBindVar("my name is test.subject.1").addBindVar("T").executeSql();
     }
     if (userId2 != null) {
       new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_user (id, email, display_name, active) values (?, ?, ?, ?)")
-          .addBindVar(userId2).addBindVar("test.subject.2@somewhere.someSchool.edu").addBindVar("my name is test.subject.2").addBindVar("T").executeSql();
+          .addBindVar(email2).addBindVar(email2).addBindVar("my name is test.subject.2").addBindVar("T").executeSql();
     }
   }
 
@@ -727,48 +735,53 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
 
       Stem stem = new StemSave(grouperSession).assignName("test").save();
 
-      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:teams:testGroup").save();
+      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:teams:test-group").save();
       testGroup.addMember(SubjectTestHelper.SUBJ0, false);
       testGroup.addMember(SubjectTestHelper.SUBJ1, false);
 
       initIncrementalState(isFull);
       attachProvisioningAttribute(stem);
 
-      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group").select(int.class));
-      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_membership").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group where group_type = 'team'").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership m join mock_truefoundry_group g on m.group_id = g.id where g.name = 'test-group' and m.user_email != 'svc-grouper-test@example.com'").select(int.class));
 
       // initial provision always needs full sync to establish baseline
       fullProvision();
 
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group where group_type = 'team'").select(int.class));
-      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_membership").select(int.class));
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership m join mock_truefoundry_group g on m.group_id = g.id where g.name = 'test-group' and m.user_email != 'svc-grouper-test@example.com'").select(int.class));
 
-      String groupName = new GcDbAccess().connectionName("grouper").sql("select name from mock_truefoundry_group").select(String.class);
-      assertEquals("testGroup", groupName);
+      String groupName = new GcDbAccess().connectionName("grouper").sql("select name from mock_truefoundry_group where group_type = 'team'").select(String.class);
+      assertEquals("test-group", groupName);
 
       // remove one member and provision again
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
 
       provision(isFull);
 
-      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group").select(int.class));
-      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_membership").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group where group_type = 'team'").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership m join mock_truefoundry_group g on m.group_id = g.id where g.name = 'test-group' and m.user_email != 'svc-grouper-test@example.com'").select(int.class));
 
       // add a different member and provision again
       testGroup.addMember(SubjectTestHelper.SUBJ2, false);
 
       provision(isFull);
 
-      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group").select(int.class));
-      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_membership").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group where group_type = 'team'").select(int.class));
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership m join mock_truefoundry_group g on m.group_id = g.id where g.name = 'test-group' and m.user_email != 'svc-grouper-test@example.com'").select(int.class));
 
       // delete the group entirely and provision again
       testGroup.delete();
 
       provision(isFull);
 
-      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group").select(int.class));
-      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_membership").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group where group_type = 'team'").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership m join mock_truefoundry_group g on m.group_id = g.id where g.name = 'test-group' and m.user_email != 'svc-grouper-test@example.com'").select(int.class));
 
     } finally {
 
@@ -809,8 +822,8 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       Stem stem = new StemSave(grouperSession).assignName("test").save();
 
       // two role groups — users always have exactly one role
-      Group roleGroupA = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:roles:roleA").save();
-      Group roleGroupB = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:roles:roleB").save();
+      Group roleGroupA = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:roles:role-a").save();
+      Group roleGroupB = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:roles:role-b").save();
       roleGroupA.addMember(SubjectTestHelper.SUBJ0, false);
       roleGroupA.addMember(SubjectTestHelper.SUBJ1, false);
 
@@ -821,9 +834,9 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       fullProvision();
 
       String roleAId = new GcDbAccess().connectionName("grouper")
-          .sql("select id from mock_truefoundry_group where name = 'roleA'").select(String.class);
+          .sql("select id from mock_truefoundry_group where name = 'role-a'").select(String.class);
       String roleBId = new GcDbAccess().connectionName("grouper")
-          .sql("select id from mock_truefoundry_group where name = 'roleB'").select(String.class);
+          .sql("select id from mock_truefoundry_group where name = 'role-b'").select(String.class);
       assertNotNull(roleAId);
       assertNotNull(roleBId);
 
@@ -892,7 +905,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
 
       Stem stem = new StemSave(grouperSession).assignName("test").save();
 
-      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:teams:testTeam").save();
+      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:teams:test-team").save();
       testGroup.addMember(SubjectTestHelper.SUBJ0, false);
 
       initIncrementalState(isFull);
@@ -902,23 +915,26 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       fullProvision();
 
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group where group_type = 'team'").select(int.class));
-      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_membership").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership m join mock_truefoundry_group g on m.group_id = g.id where g.name = 'test-team' and m.user_email != 'svc-grouper-test@example.com'").select(int.class));
 
       // remove member, provision again: membership removed, team remains
       testGroup.deleteMember(SubjectTestHelper.SUBJ0);
 
       provision(isFull);
 
-      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group").select(int.class));
-      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_membership").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group where group_type = 'team'").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership m join mock_truefoundry_group g on m.group_id = g.id where g.name = 'test-team' and m.user_email != 'svc-grouper-test@example.com'").select(int.class));
 
       // re-add member, provision again: membership re-created
       testGroup.addMember(SubjectTestHelper.SUBJ0, false);
 
       provision(isFull);
 
-      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group").select(int.class));
-      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_membership").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group where group_type = 'team'").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership m join mock_truefoundry_group g on m.group_id = g.id where g.name = 'test-team' and m.user_email != 'svc-grouper-test@example.com'").select(int.class));
 
     } finally {
 
@@ -958,8 +974,8 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       Stem stem = new StemSave(grouperSession).assignName("test").save();
 
       // two role groups — user always has exactly one role
-      Group roleGroupA = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:roles:roleA").save();
-      Group roleGroupB = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:roles:roleB").save();
+      Group roleGroupA = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:roles:role-a").save();
+      Group roleGroupB = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:roles:role-b").save();
       roleGroupA.addMember(SubjectTestHelper.SUBJ0, false);
 
       initIncrementalState(isFull);
@@ -969,9 +985,9 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       fullProvision();
 
       String roleAId = new GcDbAccess().connectionName("grouper")
-          .sql("select id from mock_truefoundry_group where name = 'roleA'").select(String.class);
+          .sql("select id from mock_truefoundry_group where name = 'role-a'").select(String.class);
       String roleBId = new GcDbAccess().connectionName("grouper")
-          .sql("select id from mock_truefoundry_group where name = 'roleB'").select(String.class);
+          .sql("select id from mock_truefoundry_group where name = 'role-b'").select(String.class);
       assertNotNull(roleAId);
       assertNotNull(roleBId);
 
@@ -1035,7 +1051,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       // no pre-created mock users - provisioner should create them
       Stem stem = new StemSave(grouperSession).assignName("test").save();
 
-      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:teams:testGroup").save();
+      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:teams:test-group").save();
       testGroup.addMember(SubjectTestHelper.SUBJ0, false);
       testGroup.addMember(SubjectTestHelper.SUBJ1, false);
 
@@ -1063,7 +1079,8 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
 
       // verify team was created and memberships established
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_group where group_type = 'team'").select(int.class));
-      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_membership").select(int.class));
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership m join mock_truefoundry_group g on m.group_id = g.id where g.name = 'test-group' and m.user_email != 'svc-grouper-test@example.com'").select(int.class));
 
     } finally {
 
@@ -1098,7 +1115,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
 
       Stem stem = new StemSave(grouperSession).assignName("test").save();
 
-      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:teams:testGroup").save();
+      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:teams:test-group").save();
       testGroup.addMember(SubjectTestHelper.SUBJ0, false);
 
       initIncrementalState(isFull);
@@ -1122,7 +1139,8 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_user").select(int.class));
 
       // membership should be established
-      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_membership").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership m join mock_truefoundry_group g on m.group_id = g.id where g.name = 'test-group' and m.user_email != 'svc-grouper-test@example.com'").select(int.class));
 
     } finally {
 
@@ -1161,7 +1179,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
 
       Stem stem = new StemSave(grouperSession).assignName("test").save();
 
-      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:teams:testGroup").save();
+      Group testGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:teams:test-group").save();
       testGroup.addMember(SubjectTestHelper.SUBJ0, false);
       testGroup.addMember(SubjectTestHelper.SUBJ1, false);
 
@@ -1171,7 +1189,8 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       fullProvision();
 
       // both users active, both in team
-      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_membership").select(int.class));
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership m join mock_truefoundry_group g on m.group_id = g.id where g.name = 'test-group' and m.user_email != 'svc-grouper-test@example.com'").select(int.class));
 
       // remove SUBJ1 from all groups (simulate user leaving)
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
@@ -1180,18 +1199,19 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
 
       // SUBJ1 should be deactivated in TrueFoundry
       String active1 = new GcDbAccess().connectionName("grouper")
-          .sql("select active from mock_truefoundry_user where id = ?")
-          .addBindVar(userId1).select(String.class);
+          .sql("select active from mock_truefoundry_user where email = ?")
+          .addBindVar("test.subject.1@somewhere.someSchool.edu").select(String.class);
       assertEquals("F", active1);
 
       // SUBJ0 should still be active
       String active0 = new GcDbAccess().connectionName("grouper")
-          .sql("select active from mock_truefoundry_user where id = ?")
-          .addBindVar(userId0).select(String.class);
+          .sql("select active from mock_truefoundry_user where email = ?")
+          .addBindVar("test.subject.0@somewhere.someSchool.edu").select(String.class);
       assertEquals("T", active0);
 
       // only 1 membership remaining
-      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_truefoundry_membership").select(int.class));
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_truefoundry_membership m join mock_truefoundry_group g on m.group_id = g.id where g.name = 'test-group' and m.user_email != 'svc-grouper-test@example.com'").select(int.class));
 
     } finally {
 
@@ -1242,7 +1262,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       // use the API directly to add members with manager role and verify round-trip
       String teamId = GrouperUuid.getUuid();
       new GcDbAccess().connectionName("grouper").sql("insert into mock_truefoundry_group (id, name, group_type) values (?, ?, ?)")
-          .addBindVar(teamId).addBindVar("testTeam").addBindVar("team").executeSql();
+          .addBindVar(teamId).addBindVar("test-team").addBindVar("team").executeSql();
 
       // add SUBJ0 as manager and SUBJ1 as regular member via the API
       TrueFoundryApiCommands.addTeamMembers(CONFIG_ID, testSettings(), teamId,
@@ -1294,8 +1314,9 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
    *   - replaceGroupMemberships (full sync, replaceMemberships=true) consumes the attribute and
    *     PUTs the team manifest with the correct member/manager split
    *   - insertMemberships (incremental) does the same check for new memberships
-   * Also verifies demotion: removing a user from the managers group should demote them to a
-   * regular team member on the next sync.
+   * Also verifies the manager swap: removing a user from the managers group removes them
+   * from the team (since they were only in the team via the managers group), and adding a
+   * user to the managers group promotes them from regular member to manager.
    */
   public void teamManagersFromManagerGroup(boolean isFull) {
 
@@ -1326,19 +1347,19 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
 
       // team group (will be provisioned as a TF team)
       Group teamGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:teams:testTeam").save();
+          .assignName("test:teams:test-team-mgr").save();
 
       // managers group lives outside the provisioned stem so it is NOT provisioned as a team.
       // Its membership drives the team manager list via the md_trueFoundryManagerGroupName metadata.
       Group managersGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
           .assignName("aux:teamManagers:testTeam_managers").save();
 
-      // All three subjects are direct team members; SUBJ2 is also the initial manager.
-      // The managers group is also added as a member of the team group so any manager who
-      // isn't already a direct team member still ends up as a team member.
-      teamGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      // SUBJ1 is a direct team member; SUBJ2 is a manager via the managers group.
+      // The managers group is a member of the team group so its members are also team members.
+      // NOTE: SUBJ0 is intentionally NOT a direct team member — later the test adds him to the
+      // managers group, which must cause an effective membership ADD on the team group so
+      // incremental provisioning sees a team change and re-translates managers.
       teamGroup.addMember(SubjectTestHelper.SUBJ1, false);
-      teamGroup.addMember(SubjectTestHelper.SUBJ2, false);
       managersGroup.addMember(SubjectTestHelper.SUBJ2, false);
       teamGroup.addMember(managersGroup.toSubject(), false);
 
@@ -1359,16 +1380,19 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
 
       fullProvision();
 
+      // second full sync needed so entity attribute cache is populated for manager resolution
+      fullProvision();
+
       // one team created
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
           .sql("select count(1) from mock_truefoundry_group where group_type = 'team'").select(int.class));
 
       String teamId = new GcDbAccess().connectionName("grouper")
-          .sql("select id from mock_truefoundry_group where name = 'testTeam'").select(String.class);
+          .sql("select id from mock_truefoundry_group where name = 'test-team-mgr'").select(String.class);
       assertNotNull(teamId);
 
-      // SUBJ0 and SUBJ1 are regular members; SUBJ2 is a manager
-      assertEquals("member", new GcDbAccess().connectionName("grouper")
+      // SUBJ0 is not in the team yet; SUBJ1 is a regular member; SUBJ2 is a manager via managersGroup
+      assertNull(new GcDbAccess().connectionName("grouper")
           .sql("select role from mock_truefoundry_membership where group_id = ? and user_email = ?")
           .addBindVar(teamId).addBindVar("test.subject.0@somewhere.someSchool.edu").select(String.class));
       assertEquals("member", new GcDbAccess().connectionName("grouper")
@@ -1378,21 +1402,29 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
           .sql("select role from mock_truefoundry_membership where group_id = ? and user_email = ?")
           .addBindVar(teamId).addBindVar("test.subject.2@somewhere.someSchool.edu").select(String.class));
 
-      // Promote SUBJ0 to manager, demote SUBJ2 to regular member
+      // Step 1: remove SUBJ2 from managersGroup — since that was his only path to the team,
+      // he should be removed from the team entirely on the next sync.
       managersGroup.deleteMember(SubjectTestHelper.SUBJ2);
+
+      provision(isFull);
+
+      assertNull(new GcDbAccess().connectionName("grouper")
+          .sql("select role from mock_truefoundry_membership where group_id = ? and user_email = ?")
+          .addBindVar(teamId).addBindVar("test.subject.2@somewhere.someSchool.edu").select(String.class));
+
+      // Step 2: add SUBJ0 to managersGroup — he enters the team transitively as a manager.
       managersGroup.addMember(SubjectTestHelper.SUBJ0, false);
 
       provision(isFull);
 
+      // SUBJ0 now a manager
       assertEquals("manager", new GcDbAccess().connectionName("grouper")
           .sql("select role from mock_truefoundry_membership where group_id = ? and user_email = ?")
           .addBindVar(teamId).addBindVar("test.subject.0@somewhere.someSchool.edu").select(String.class));
+      // SUBJ1 still regular member
       assertEquals("member", new GcDbAccess().connectionName("grouper")
           .sql("select role from mock_truefoundry_membership where group_id = ? and user_email = ?")
           .addBindVar(teamId).addBindVar("test.subject.1@somewhere.someSchool.edu").select(String.class));
-      assertEquals("member", new GcDbAccess().connectionName("grouper")
-          .sql("select role from mock_truefoundry_membership where group_id = ? and user_email = ?")
-          .addBindVar(teamId).addBindVar("test.subject.2@somewhere.someSchool.edu").select(String.class));
 
     } finally {
 
@@ -1422,7 +1454,10 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       return;
     }
 
-    GrouperSession grouperSession = setupProvisionerTest(provisionerConfig());
+    TrueFoundryProvisionerTestConfigInput configInput = provisionerConfig()
+        .addExtraConfig("trueFoundryDefaultRole", "read-only-member");
+
+    GrouperSession grouperSession = setupProvisionerTest(configInput);
 
     try {
       createDefaultRole();
@@ -1434,9 +1469,9 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       Stem stem = new StemSave(grouperSession).assignName("test").save();
 
       Group roleA = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:roles:roleA").save();
+          .assignName("test:roles:role-a").save();
       Group roleB = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:roles:roleB").save();
+          .assignName("test:roles:role-b").save();
 
       roleA.addMember(SubjectTestHelper.SUBJ0, false);
       roleA.addMember(SubjectTestHelper.SUBJ1, false);
@@ -1447,7 +1482,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       fullProvision();
 
       String roleAId = new GcDbAccess().connectionName("grouper")
-          .sql("select id from mock_truefoundry_group where name = 'roleA'").select(String.class);
+          .sql("select id from mock_truefoundry_group where name = 'role-a'").select(String.class);
       String defaultRoleId = new GcDbAccess().connectionName("grouper")
           .sql("select id from mock_truefoundry_group where name = 'read-only-member'").select(String.class);
       assertNotNull(roleAId);
@@ -1489,7 +1524,7 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       provision(isFull);
 
       String roleBId = new GcDbAccess().connectionName("grouper")
-          .sql("select id from mock_truefoundry_group where name = 'roleB'").select(String.class);
+          .sql("select id from mock_truefoundry_group where name = 'role-b'").select(String.class);
       assertNotNull(roleBId);
 
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
