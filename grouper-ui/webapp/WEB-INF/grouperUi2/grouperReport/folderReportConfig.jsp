@@ -99,18 +99,18 @@ ${grouper:titleFromKeyAndText('stemReportConfigPageTitle', grouperRequestContain
                              <span class="caret"></span>
                            </a>
                            <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-                             
+
+                             <c:if test="${grouperRequestContainer.adminContainer.daemonJobsShow}">
+                               <li><a href="?operation=UiV2Admin.viewLogs&jobName=grouper_report_${grouperRequestContainer.stemContainer.guiStem.stem.id}_${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewLogs&jobName=grouper_report_${grouperRequestContainer.stemContainer.guiStem.stem.id}_${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}');">${textContainer.text['grouperReportConfigTableReportActionsReportLogs'] }</a></li>
+                             </c:if>
+
                              <c:if test="${not empty guiReportConfig.mostRecentReportInstance}">
                                <li><a href="../app/UiV2GrouperReport.downloadReportForFolder?attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}">${textContainer.text['grouperReportConfigTableReportActionsDownloadMostRecent'] }</a></li>
                                <li><a href="?operation=UiV2GrouperReport.viewReportInstanceDetailsForFolder&attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportInstanceDetailsForFolder&attributeAssignId=${guiReportConfig.mostRecentReportInstance.attributeAssignId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">${textContainer.text['grouperReportConfigTableReportActionsViewMostRecent'] }</a></li>
                                <li><a href="?operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');">${textContainer.text['grouperReportConfigTableReportActionsReportInstances'] }</a></li>
-                               
-                               <c:if test="${grouperRequestContainer.grouperReportContainer.canWriteGrouperReports}">                               
-                                 <li><a href="?operation=UiV2Admin.viewLogs&jobName=grouper_report_${grouperRequestContainer.stemContainer.guiStem.stem.id}_${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewLogs&jobName=grouper_report_${grouperRequestContainer.stemContainer.guiStem.stem.id}_${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}');">${textContainer.text['grouperReportConfigTableReportActionsReportLogs'] }</a></li>
-                               </c:if>
-                               
+
                              </c:if>
-                             
+
                              <c:if test="${grouperRequestContainer.grouperReportContainer.canWriteGrouperReports}">
                                <c:choose>
 	                               <c:when test="${guiReportConfig.reportConfigBean.reportConfigEnabled}">
