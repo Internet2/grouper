@@ -216,6 +216,7 @@ public class UiV2Visualization {
     private List<String> objectTypes;
     private String compositeLeftFactorId;
     private String compositeRightFactorId;
+    private String abacTopConnective;
 
     private Node(String id, String name, String displayExtension, String description, String type,
                  String baseType, String linkType, long allMemberCount, long directMemberCount, List<String> objectTypes) {
@@ -302,6 +303,14 @@ public class UiV2Visualization {
 
     protected void setCompositeRightFactorId(String compositeRightFactorId) {
       this.compositeRightFactorId = compositeRightFactorId;
+    }
+
+    public String getAbacTopConnective() {
+      return abacTopConnective;
+    }
+
+    protected void setAbacTopConnective(String abacTopConnective) {
+      this.abacTopConnective = abacTopConnective;
     }
 
   }
@@ -848,6 +857,11 @@ public class UiV2Visualization {
         node.setPopulationCount(graphNode.getPopulationCount());
       }
 
+      String abacTopConnective = determineAbacTopConnective(relationGraph, graphNode);
+      if (abacTopConnective != null) {
+        node.setAbacTopConnective(abacTopConnective);
+      }
+
       if (compositeLeftFactors.containsKey(graphNode)) {
         node.setCompositeLeftFactorId(compositeLeftFactors.get(graphNode));
       }
@@ -969,6 +983,11 @@ public class UiV2Visualization {
         node.setPopulationCount(graphNode.getPopulationCount());
       }
 
+      String abacTopConnective = determineAbacTopConnective(relationGraph, graphNode);
+      if (abacTopConnective != null) {
+        node.setAbacTopConnective(abacTopConnective);
+      }
+
       styleTypes.add(graphNode.getStyleObjectType());
 
       for (GraphNode n: graphNode.getParentNodes()) {
@@ -1015,6 +1034,37 @@ public class UiV2Visualization {
     if (graphNode.isIntersectGroup()) {
       node.addObjectTypeName("intersection");
     }
+  }
+
+  /**
+   * For an ABAC scripted group node, returns "or" if any outgoing edge is OR-typed,
+   * "and" if any outgoing edge is AND-typed, or null if the node is not an ABAC group
+   * or has no ABAC edges.
+   */
+  private String determineAbacTopConnective(RelationGraph relationGraph, GraphNode abacGroupNode) {
+    if (!abacGroupNode.isAbacGroup()) {
+      return null;
+    }
+    boolean hasOr = false;
+    boolean hasAnd = false;
+    for (GraphEdge edge : relationGraph.getEdges()) {
+      if (edge.getFromNode() != abacGroupNode) {
+        continue;
+      }
+      StyleObjectType style = edge.getStyleObjectType();
+      if (style == StyleObjectType.EDGE_ABAC_OR || style == StyleObjectType.EDGE_ABAC_OR_NOT) {
+        hasOr = true;
+      } else if (style == StyleObjectType.EDGE_ABAC_AND || style == StyleObjectType.EDGE_ABAC_AND_NOT) {
+        hasAnd = true;
+      }
+    }
+    if (hasOr) {
+      return "or";
+    }
+    if (hasAnd) {
+      return "and";
+    }
+    return null;
   }
 
   // loads lookup maps from a node to left/right factors, based on the edges that are composite types

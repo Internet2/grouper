@@ -162,7 +162,13 @@ function drawGraphModuleText() {
 
     // contains (for stem), group direct members (group)
     if (node.linkType === "group" || node.baseType === "stem") {
-      contents += (node.linkType === "stem" ? "Contains: " : "Direct group members: ");
+      if (node.linkType === "stem") {
+        contents += "Contains: ";
+      } else if (node.baseType === "abac_group") {
+        contents += node.abacTopConnective === "or" ? "Any of these must match: " : "All of these must match: ";
+      } else {
+        contents += "Direct group members: ";
+      }
       var childContents = [];
       node.childNodeIds.forEach(function(id) {
           var obj = graph.nodes[id];
@@ -400,7 +406,7 @@ function getGraphModuleD3Legend(graph) {
   // abac (scripted) group -- script references --> referenced groups, data attributes, data rows
   if (graph.styles.hasOwnProperty("abac_group") || graph.styles.hasOwnProperty("abac_group_is_member") || graph.styles.hasOwnProperty("abac_group_is_not_member")) {
     theLegend += '  abac_group [' + getStyleStringForType(graph, nodeStyles, 'abac_group', ['label="scripted group"']) + '];\n';
-    theLegend += '  abac_ref_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="referenced group"']) + '];\n';
+    theLegend += '  abac_ref_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="required"']) + '];\n';
     theLegend += '  abac_group -> abac_ref_group [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_and', ['label="must be in"']) + '];\n';
     theLegend += '  abac_not_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="excluded"']) + '];\n';
     theLegend += '  abac_group -> abac_not_group [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_and_not', ['label="must not be in"']) + '];\n';

@@ -121,27 +121,6 @@ public class GrouperJexlScriptPart {
   private boolean containsSubject = false;
 
   /**
-   * role of this part in the analysis, for visualization tree building
-   */
-  public enum PartRole {
-    FULL_EXPRESSION,
-    AND_CHILD,
-    OR_CHILD,
-    NOT_POSITIVE,
-    HAS_ATTRIBUTE_ANY_DETAIL
-  }
-
-  private PartRole partRole;
-
-  public PartRole getPartRole() {
-    return partRole;
-  }
-
-  public void setPartRole(PartRole partRole) {
-    this.partRole = partRole;
-  }
-
-  /**
    * whether this part represents a negated (NOT) condition
    */
   private boolean negated = false;
