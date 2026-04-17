@@ -2718,18 +2718,12 @@ public class GrouperLoaderContainer {
   }
   
   public boolean isCanEditAbacLoader() {
-    if (isGrouperSqlLoader() || isGrouperLdapLoader() || isGrouperRecentMembershipsLoader()) {
-      return false;
-    }
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     Group group = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
     return PrivilegeHelper.canEditAbacLoader(loggedInSubject, group);
   }
 
   public boolean isCanEditRecentMembershipsLoader() {
-    if (isGrouperSqlLoader() || isGrouperLdapLoader() || isGrouperJexlScriptLoader()) {
-      return false;
-    }
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     Group group = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
     return PrivilegeHelper.canEditRecentMembershipsLoader(loggedInSubject, group);
