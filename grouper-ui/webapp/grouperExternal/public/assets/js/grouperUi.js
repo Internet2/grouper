@@ -3033,6 +3033,12 @@ function grouperRegisterCombobox(jquerySelector, url, additionalFormElementNames
         return;
       }
 
+      // If the dropdown is open and an option is highlighted, let TomSelect's
+      // native Enter handling select that option (keyboard accessibility).
+      if (ts.isOpen && ts.activeOption) {
+        return;
+      }
+
       var inputEl = ts.control_input || (e.target && e.target.tagName && e.target.tagName.toUpperCase() === 'INPUT' ? e.target : null);
       if (!inputEl) {
         return;
