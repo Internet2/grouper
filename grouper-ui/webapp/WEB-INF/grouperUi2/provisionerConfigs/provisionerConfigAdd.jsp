@@ -70,6 +70,15 @@
               <tbody>
                 <%@ include file="provisionerConfigAddHelper.jsp" %>
                 <tr>
+                 <c:if test="${not empty grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration['class'].name}">
+                  <td colspan="3" style="padding-top: 1em; padding-bottom: 0em;">
+                    <div class="alert alert-info">
+                      ${textContainer.text['provisionerConfigAddFormProvisionableReminder']}
+                    </div>
+                  </td>
+                 </c:if>
+                </tr>
+                <tr>
                   <td>
                     <input type="hidden" name="mode" value="add">
                   </td>
