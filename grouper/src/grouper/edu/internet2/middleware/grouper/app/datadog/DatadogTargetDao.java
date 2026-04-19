@@ -317,7 +317,7 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
             } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
               String userId = (String) provisioningObjectChange.getOldValue();
               if (StringUtils.isNotBlank(userId)) {
-                DatadogApiCommands.updateTeamMembershipRole(configId, datadogSettings, datadogGroup.getId(), userId, "member");
+                DatadogApiCommands.updateTeamMembershipRole(configId, datadogSettings, datadogGroup.getId(), userId, null);
               }
             }
           }
