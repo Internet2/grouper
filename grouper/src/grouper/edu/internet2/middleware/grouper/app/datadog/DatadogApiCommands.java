@@ -1472,7 +1472,7 @@ public class DatadogApiCommands {
    * @param datadogSettings the settings, or null to skip ignore checks
    * @param teamId the UUID of the team
    * @param userId the UUID of the user
-   * @param role the role to set ("admin" or "member")
+   * @param role the role to set ("admin"), or null/blank to remove admin privileges (Datadog API only supports "admin"; omit role to demote)
    */
   public static void updateTeamMembershipRole(String configId, DatadogSettings datadogSettings, String teamId, String userId, String role) {
 
@@ -1489,8 +1489,8 @@ public class DatadogApiCommands {
       if (StringUtils.isBlank(userId)) {
         throw new RuntimeException("userId is required");
       }
-      if (!"admin".equals(role) && !"member".equals(role)) {
-        throw new RuntimeException("role must be 'admin' or 'member', was: '" + role + "'");
+      if (StringUtils.isNotBlank(role) && !"admin".equals(role)) {
+        throw new RuntimeException("role must be 'admin' or blank (to remove admin), was: '" + role + "'");
       }
 
       ObjectNode rootNode = GrouperUtil.jsonJacksonNode();
@@ -1498,7 +1498,9 @@ public class DatadogApiCommands {
       dataNode.put("type", "team_memberships");
 
       ObjectNode attributesNode = GrouperUtil.jsonJacksonNode();
-      attributesNode.put("role", role);
+      if (StringUtils.isNotBlank(role)) {
+        attributesNode.put("role", role);
+      }
       dataNode.set("attributes", attributesNode);
 
       rootNode.set("data", dataNode);
