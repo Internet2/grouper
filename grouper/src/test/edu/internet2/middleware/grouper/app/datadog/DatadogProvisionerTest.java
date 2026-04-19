@@ -888,8 +888,8 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
         .addBindVar(teamId).addBindVar(userId).select(String.class);
     assertEquals("admin", role);
 
-    // demote back to member
-    DatadogApiCommands.updateTeamMembershipRole(CONFIG_ID, null, teamId, userId, "member");
+    // demote back to member (omit role; Datadog API only accepts "admin" or omitted)
+    DatadogApiCommands.updateTeamMembershipRole(CONFIG_ID, null, teamId, userId, null);
 
     role = new GcDbAccess().connectionName("grouper")
         .sql("select role from mock_datadog_membership where group_id = ? and user_id = ?")
@@ -965,8 +965,8 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals(3, adminUserIds.size());
     assertTrue(adminUserIds.contains(userId3));
 
-    // demote user1 back to member
-    DatadogApiCommands.updateTeamMembershipRole(CONFIG_ID, null, teamId, userId1, "member");
+    // demote user1 back to member (omit role; Datadog API only accepts "admin" or omitted)
+    DatadogApiCommands.updateTeamMembershipRole(CONFIG_ID, null, teamId, userId1, null);
 
     memberships = DatadogApiCommands.getTeamMemberships(CONFIG_ID, null, teamId);
     adminUserIds = new LinkedHashSet<String>();
@@ -1414,14 +1414,19 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
 
       Stem stem = new StemSave(grouperSession).assignName("test").save();
 
-      // the team group: SUBJ0 and SUBJ1 are team members
-      Group testTeam = new GroupSave(grouperSession).assignName("test:testTeam").save();
-      testTeam.addMember(SubjectTestHelper.SUBJ0, false);
-      testTeam.addMember(SubjectTestHelper.SUBJ1, false);
-
       // the admin group: only SUBJ0 is an admin
       Group adminGroup = new GroupSave(grouperSession).assignName("test:testTeamAdmins").save();
       adminGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      // the team group: SUBJ0 and SUBJ1 are team members. SUBJ0 and SUBJ1 are added directly
+      // so that swapping admin group membership does not change effective team membership.
+      // The admin group is also nested as a member so that admin-group membership changes
+      // generate change-log entries on the team group, enabling incremental provisioning
+      // to detect admin role changes (matching the expected production pattern).
+      Group testTeam = new GroupSave(grouperSession).assignName("test:testTeam").save();
+      testTeam.addMember(SubjectTestHelper.SUBJ0, false);
+      testTeam.addMember(SubjectTestHelper.SUBJ1, false);
+      testTeam.addMember(adminGroup.toSubject(), false);
 
       initIncrementalState(isFull);
 
@@ -1451,7 +1456,7 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
       // verify both users are team members
       assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_datadog_membership where group_id = ?").addBindVar(teamId).select(int.class));
 
-      // verify SUBJ0 (userId0) is admin
+      // verify SUBJ0 (userId0) is admin (promoted)
       String user0Role = new GcDbAccess().connectionName("grouper")
           .sql("select role from mock_datadog_membership where group_id = ? and user_id = ?")
           .addBindVar(teamId).addBindVar(userId0).select(String.class);
@@ -1462,6 +1467,33 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
           .sql("select role from mock_datadog_membership where group_id = ? and user_id = ?")
           .addBindVar(teamId).addBindVar(userId1).select(String.class);
       assertEquals("member", user1Role);
+
+      // now swap admin membership: demote SUBJ0, promote SUBJ1
+      adminGroup.deleteMember(SubjectTestHelper.SUBJ0, false);
+      adminGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      // provision again - compare should detect the admins attribute difference and
+      // issue two updateTeamMembershipRole calls: one to demote SUBJ0 (omit role),
+      // one to promote SUBJ1 (role=admin). Use fullProvision because an admin swap does
+      // not change effective team membership (both users are still members via direct
+      // assignment), so incremental provisioning has no change-log entry to process.
+      // Admin role changes are picked up by the hourly full sync.
+      fullProvision();
+
+      // verify SUBJ0 (userId0) is now demoted to regular member
+      user0Role = new GcDbAccess().connectionName("grouper")
+          .sql("select role from mock_datadog_membership where group_id = ? and user_id = ?")
+          .addBindVar(teamId).addBindVar(userId0).select(String.class);
+      assertEquals("member", user0Role);
+
+      // verify SUBJ1 (userId1) is now promoted to admin
+      user1Role = new GcDbAccess().connectionName("grouper")
+          .sql("select role from mock_datadog_membership where group_id = ? and user_id = ?")
+          .addBindVar(teamId).addBindVar(userId1).select(String.class);
+      assertEquals("admin", user1Role);
+
+      // team membership count should be unchanged - demote/promote should not add or remove memberships
+      assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_datadog_membership where group_id = ?").addBindVar(teamId).select(int.class));
 
     } finally {
 

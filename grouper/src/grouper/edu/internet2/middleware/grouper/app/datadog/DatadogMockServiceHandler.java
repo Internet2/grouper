@@ -1200,6 +1200,17 @@ public class DatadogMockServiceHandler extends MockServiceHandler {
     JsonNode attributesNode = GrouperUtil.jsonJacksonGetNode(dataNode, "attributes");
     String role = GrouperUtil.jsonJacksonGetString(attributesNode, "role");
 
+    // Datadog API only accepts "admin" or omitted role (to remove admin)
+    if (StringUtils.isNotBlank(role) && !"admin".equals(role)) {
+      mockServiceResponse.setResponseCode(400);
+      mockServiceResponse.setContentType("application/json");
+      mockServiceResponse.setResponseBody("{\"errors\":[{\"status\":\"400\",\"title\":\"Bad Request\",\"detail\":\"invalid role value: " + role + ". Only 'admin' is supported, or omit role to remove admin privileges\"}]}");
+      return;
+    }
+
+    if (StringUtils.isBlank(role)) {
+      role = "member";
+    }
     membership.setRole(role);
     HibernateSession.byObjectStatic().saveOrUpdate(membership);
 
