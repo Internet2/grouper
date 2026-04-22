@@ -34,7 +34,7 @@ public class AdobeProvisionerTestUtils {
       
     } else {
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.adobe.tokenUrl").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/adobe/token/").store();
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.adobe.serviceUrl").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/adobe/").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.adobe.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/adobe/").store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.adobe.scopes").value("openid,AdobeID,user_management_sdk").store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.adobe.httpAuthnType").value("oauthClientCredentials").store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.adobe.grantType").value("client_credentials").store();

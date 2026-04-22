@@ -58,7 +58,7 @@ public class GrouperOktaApiCommands {
       
       GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
       
-      String tenantDomain = grouperLoaderConfig.propertyValueStringRequired("grouper.wsBearerToken." + configId + ".serviceUrl");
+      String tenantDomain = grouperLoaderConfig.propertyValueStringRequired("grouper.wsBearerToken." + configId + ".endpoint");
 
     WsBearerTokenExternalSystem.attachAuthenticationToHttpClient(grouperHttpCall, configId, grouperLoaderConfig, debugMap);
 

@@ -472,11 +472,7 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
     GrouperLoaderConfig config = GrouperLoaderConfig.retrieveConfig();
     String configPrefix = "grouper.wsBearerToken." + this.getConfigId() + ".";
 
-    String httpAuthnType = config
-        .propertyValueString(
-            configPrefix + "httpAuthnType", "bearerToken");
-
-    String endpointProperty = configPrefix + (StringUtils.equals("oauthClientCredentials", httpAuthnType) ? "serviceUrl" : "endpoint");
+    String endpointProperty = configPrefix + "endpoint";
     String endpoint = config.propertyValueString(endpointProperty);
     if (GrouperUtil.isBlank(endpoint)) {
       ret.add("Undefined or blank property: " + endpointProperty);
