@@ -22,7 +22,16 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                 
                 <div class="row-fluid">
                   <c:if test="${fn:length(grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptAnalysis.grouperJexlScriptParts) > 0}">
-                    
+                    <br />
+                    <div class="span12">
+                      <ul class="nav nav-tabs" id="abacAnalyzeTabs">
+                        <li class="active"><a href="#abacAnalyzeTab" data-toggle="tab">${textContainer.text['grouperLoaderEditTabAnalyze']}</a></li>
+                        <li><a href="#abacVisualizeTab" data-toggle="tab" id="abacVisualizeTabLink">${textContainer.text['grouperLoaderEditTabVisualize']}</a></li>
+                      </ul>
+
+                      <div class="tab-content">
+                        <div class="tab-pane active" id="abacAnalyzeTab">
+
                     <div id="analyze-member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade lead span12">
                       <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
                         <h3 id="member-search-label">${textContainer.text['groupSearchForEntityButton'] }</h3>
@@ -34,7 +43,7 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                           <br />
                           <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
                           <br />
-                          <span style="white-space: nowrap;">${textContainer.text['find.search-source'] } 
+                          <span style="white-space: nowrap;">${textContainer.text['find.search-source'] }
                           <select name="sourceId">
                             <option value="all">${textContainer.textEscapeXml['find.search-all-sources'] }</option>
                             <c:forEach items="${grouperRequestContainer.subjectContainer.sources}" var="source" >
@@ -44,7 +53,7 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                                     <c:if test="${typeStatus.count>1}">, </c:if>
                                     ${grouper:escapeHtml(subjectType)}
                                   </c:forEach>
-                                )                               
+                                )
                               </option>
                             </c:forEach>
                           </select></span>
@@ -56,34 +65,34 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                         <button data-dismiss="modal" aria-hidden="true" class="btn">${textContainer.text['groupSearchCloseButton']}</button>
                       </div>
                     </div>
-                    
+
                      <form id="editLoaderJexlSubjectAnalyzeFormId" class="form-horizontal form-highlight">
-                      <div class="control-group" id="add-member-control-group" aria-live="polite" aria-expanded="false">
+                      <div class="control-group" aria-live="polite" aria-expanded="false">
                         <label for="analyzeAddMemberComboId" class="control-label">${textContainer.text['groupSearchMemberOrId'] }</label>
                         <div class="controls">
-                          <div id="add-members-container">
-                           
+                          <div>
+
                             <%-- placeholder: Enter the name of a person, group, or other entity --%>
                             <grouper:combobox2 idBase="analyzeAddMemberCombo" style="width: 30em"
                               filterOperation="../app/UiV2Group.addMemberFilter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}"/>
                             ${textContainer.text['groupSearchLabelPreComboLink']} <a href="#analyze-member-search" onclick="$('#addAnalyzeMemberResults').empty();" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['groupSearchForEntityLink']}</a>
-                           
+
                           </div>
                         </div>
                       </div>
                      </form>
                     <div class="span10" style="margin-left: 180px; margin-bottom: 20px;">
-                      <input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="analyzeSubjectId" 
+                      <input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="analyzeSubjectId"
                           value="${textContainer.text['grouperLoaderEditButtonAnalyze'] }"
                           onclick="ajax('../app/UiV2GrouperLoader.editGrouperLoaderAnalyze', {formIds: 'editLoaderFormId, editLoaderJexlSubjectAnalyzeFormId'}); return false;">
                     </div>
-                    
+
                     <div class="span10">The overall JEXL analysis is the first row.</div>
-                    
+
                     <div class="row-fluid">
-                      
+
                       <table class="table table-hover table-bordered table-striped table-condensed data-table">
-                      <thead>        
+                      <thead>
                         <tr>
                           <th style="white-space: nowrap; text-align: center; width: 5em; vertical-align: top;">Population count</th>
                           <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiSubject != null}">
@@ -91,22 +100,22 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                             <br/>
                              ${grouperRequestContainer.grouperLoaderContainer.guiSubject.shortLinkWithIcon}</th>
                           </c:if>
-                          
+
                           <th style="vertical-align: top;">ABAC script description</th>
                          </tr>
                         </thead>
                     <tbody>
                     <c:forEach items="${grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptAnalysis.grouperJexlScriptParts}" var="scriptPart">
-                    
+
                       <tr>
                          <td style="white-space: nowrap; text-align: center; width: 5em;">
                           ${scriptPart.populationCount}
                          </td>
-                         
+
                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiSubject != null}">
                             <td style="white-space: nowrap; text-align: center; width: 5em;">${scriptPart.containsSubject}</td>
                           </c:if>
-                         
+
                          <td>
                           ${scriptPart.displayDescription}
                          </td>
@@ -115,25 +124,47 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                      </c:forEach>
                       </tbody>
                       </table>
-                    
+
                     </div>
-                    <div class="lead span12">
-                    
-                    <c:if test="${grouper:isBlank(grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptAnalysis.warningMessage)}">
-                      <input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="filterSubmitId" 
-                            value="${textContainer.text['grouperLoaderEditButtonSave'] }" 
-                            onclick="ajax('../app/UiV2GrouperLoader.editGrouperLoaderSave', {formIds: 'editLoaderFormId'}); return false;">
-                    </c:if>
-                      &nbsp; 
-                      <a class="btn btn-cancel" role="button" 
-                        onclick="return guiV2link('operation=UiV2GrouperLoader.loader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                        >${textContainer.text['grouperLoaderEditButtonCancel'] }</a>
+
+                        </div>
+                        <div class="tab-pane" id="abacVisualizeTab">
+                          <%@ include file="../visualization/visualizationMain.jsp" %>
+                        </div>
+                      </div>
+
+                      <script type="text/javascript">
+                        (function() {
+                          var visualizationFetched = false;
+                          $('#abacVisualizeTabLink').on('shown', function () {
+                            if (!visualizationFetched) {
+                              visualizationFetched = true;
+                              var script = $('textarea[name="grouperLoaderJexlScriptName"]').val();
+                              $('#vis-override-abac-script').val(script || '');
+                              fetchGraph();
+                            }
+                          });
+                        })();
+                      </script>
+
+                      <div class="lead span12">
+
+                      <c:if test="${grouper:isBlank(grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptAnalysis.warningMessage)}">
+                        <input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="filterSubmitId"
+                              value="${textContainer.text['grouperLoaderEditButtonSave'] }"
+                              onclick="ajax('../app/UiV2GrouperLoader.editGrouperLoaderSave', {formIds: 'editLoaderFormId'}); return false;">
+                      </c:if>
+                        &nbsp;
+                        <a class="btn btn-cancel" role="button"
+                          onclick="return guiV2link('operation=UiV2GrouperLoader.loader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          >${textContainer.text['grouperLoaderEditButtonCancel'] }</a>
+                      </div>
                     </div>
-                    
+
                   </c:if>
-                
+
                 </div>
-                
+
                 <form class="form-inline form-small form-filter" id="editLoaderFormId">
                   <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
                   <table class="table table-condensed table-striped">

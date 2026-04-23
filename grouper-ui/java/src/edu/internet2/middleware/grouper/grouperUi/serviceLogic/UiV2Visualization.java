@@ -526,15 +526,28 @@ public class UiV2Visualization {
 
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-      visualizationHelper(loggedInSubject, request, visualizationContainer, true);
+
+      String overrideAbacScript = request.getParameter("overrideAbacScript");
+      boolean isAbacPreview = !StringUtils.isEmpty(overrideAbacScript);
+
+      if (!isAbacPreview) {
+        visualizationHelper(loggedInSubject, request, visualizationContainer, true);
+      } else {
+        visualizationContainer.setObjectId(request.getParameter("objectId"));
+        visualizationContainer.setObjectType(request.getParameter("objectType"));
+        visualizationContainer.setOperation("UiV2Visualization.groupView");
+        visualizationContainer.setDrawModule("d3", "d3");
+        visualizationContainer.setDrawObjectNameType("displayExtension", "displayExtension");
+        visualizationContainer.setDrawShowLegend(true);
+      }
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
       String searchSubjectString = request.getParameter("visualizationAddMemberComboName");
-      
+
       Subject isMemberSubject = null;
       if (StringUtils.isNotBlank(searchSubjectString)) {
-        
+
         if (searchSubjectString != null && searchSubjectString.contains("||")) {
           String sourceId = GrouperUtil.prefixOrSuffix(searchSubjectString, "||", true);
           String subjectId = GrouperUtil.prefixOrSuffix(searchSubjectString, "||", false);
@@ -545,29 +558,30 @@ public class UiV2Visualization {
           } catch (SubjectNotUniqueException snue) {
             //ignore
           }
-            
+
         }
 
         if (isMemberSubject == null) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
               TextContainer.retrieveFromRequest().getText().get("groupAddMemberCantFindSubject")));
           return;
-        }    
+        }
       }
 
       RelationGraph relationGraph = new RelationGraph()
               .assignStartObject(visualizationContainer.getGrouperObject())
-              .assignParentLevels(visualizationContainer.getDrawNumParentsLevels())
-              .assignChildLevels(visualizationContainer.getDrawNumChildrenLevels())
-              .assignShowStems(visualizationContainer.isDrawShowStems())
-              .assignShowLoaderJobs(visualizationContainer.isDrawShowLoaders())
-              .assignShowProvisionTargets(visualizationContainer.isDrawShowProvisioners())
-              .assignShowAllMemberCounts(visualizationContainer.isDrawShowAllMemberCounts())
-              .assignShowDirectMemberCounts(visualizationContainer.isDrawShowDirectMemberCounts())
-              .assignMaxSiblings(visualizationContainer.getDrawMaxSiblings())
-              .assignShowObjectTypes(visualizationContainer.isDrawShowObjectTypes())
-              .assignIncludeGroupsInMemberCounts(visualizationContainer.isDrawIncludeGroupsInMemberCounts())
-              .assignSubjectForIsMemberCheck(isMemberSubject);
+              .assignParentLevels(isAbacPreview ? 0 : visualizationContainer.getDrawNumParentsLevels())
+              .assignChildLevels(isAbacPreview ? -1 : visualizationContainer.getDrawNumChildrenLevels())
+              .assignShowStems(isAbacPreview ? false : visualizationContainer.isDrawShowStems())
+              .assignShowLoaderJobs(isAbacPreview ? true : visualizationContainer.isDrawShowLoaders())
+              .assignShowProvisionTargets(isAbacPreview ? true : visualizationContainer.isDrawShowProvisioners())
+              .assignShowAllMemberCounts(isAbacPreview ? true : visualizationContainer.isDrawShowAllMemberCounts())
+              .assignShowDirectMemberCounts(isAbacPreview ? false : visualizationContainer.isDrawShowDirectMemberCounts())
+              .assignMaxSiblings(isAbacPreview ? -1 : visualizationContainer.getDrawMaxSiblings())
+              .assignShowObjectTypes(isAbacPreview ? false : visualizationContainer.isDrawShowObjectTypes())
+              .assignIncludeGroupsInMemberCounts(isAbacPreview ? false : visualizationContainer.isDrawIncludeGroupsInMemberCounts())
+              .assignSubjectForIsMemberCheck(isMemberSubject)
+              .assignOverrideAbacScript(overrideAbacScript);
 
       // filters on stems and groups (e.g., skip etc and the root folder by default).
       // future enhancement to make this configurable?
@@ -631,6 +645,7 @@ public class UiV2Visualization {
             graph.addSetting("showAllMemberCounts", relationGraph.isShowAllMemberCounts());
             graph.addSetting("showDirectMemberCounts", relationGraph.isShowDirectMemberCounts());
             graph.addSetting("showObjectTypes", relationGraph.isShowObjectTypes());
+            graph.addSetting("abacScriptPreview", !StringUtils.isEmpty(overrideAbacScript));
 
  
             GrouperUtil.sleep(1000L * GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.visualization.pauseInActionSeconds", 0));

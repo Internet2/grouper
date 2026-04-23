@@ -95,6 +95,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupStemTemplateCont
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GshTemplateContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.VisualizationContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiLoaderManagedGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -2011,11 +2012,16 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      if (StringUtils.isNotBlank(jexlScriptAnalysis.getWarningMessage())) {        
+      if (StringUtils.isNotBlank(jexlScriptAnalysis.getWarningMessage())) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.info, "#grouperLoaderJexlScriptId", jexlScriptAnalysis.getWarningMessage()));
       }
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+
+      VisualizationContainer visualizationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getVisualizationContainer();
+      visualizationContainer.setObjectId(group.getId());
+      visualizationContainer.setObjectType("group");
+      visualizationContainer.setOperation("UiV2Visualization.groupView");
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));
       
       

@@ -64,6 +64,7 @@ import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.abac.AbacReference;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.abac.GrouperJexlScriptAnalysis;
+import edu.internet2.middleware.grouper.abac.GrouperJexlScriptPart;
 import edu.internet2.middleware.grouper.abac.GrouperLoaderJexlScriptFullSync;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -148,6 +149,9 @@ public class RelationGraph {
   private Set<GraphNode> leafChildNodes;
   
   private Subject subjectForIsMemberCheck;
+
+  private String overrideAbacScript;
+  private Boolean overrideAbacContainsSubject;
 
   /**
    * Create a new graph with default settings. Caller should call the various
@@ -327,6 +331,11 @@ public class RelationGraph {
    */
   public RelationGraph assignMaxSiblings(long theMaxSiblings) {
     this.maxSiblings = theMaxSiblings;
+    return this;
+  }
+
+  public RelationGraph assignOverrideAbacScript(String theOverrideAbacScript) {
+    this.overrideAbacScript = theOverrideAbacScript;
     return this;
   }
 
@@ -1108,6 +1117,20 @@ public class RelationGraph {
           if (!StringUtils.isEmpty(fromNode.getAbacScript())) {
             // Single analysis call gets both tree structure and population counts
             GrouperJexlScriptAnalysis analysis = runAbacAnalysis(fromNode.getAbacScript());
+
+            if (!StringUtils.isEmpty(overrideAbacScript) && analysis != null
+                && analysis.getGrouperJexlScriptParts() != null
+                && analysis.getGrouperJexlScriptParts().size() > 0) {
+              GrouperJexlScriptPart overallPart = analysis.getGrouperJexlScriptParts().get(0);
+              int overallCount = overallPart.getPopulationCount();
+              if (overallCount >= 0) {
+                fromNode.setPopulationCount((long) overallCount);
+              }
+              if (subjectForIsMemberCheck != null) {
+                overrideAbacContainsSubject = overallPart.isContainsSubject();
+              }
+            }
+
             List<AbacReference> references = analysis != null && analysis.getVisualizationReferences() != null
                 ? analysis.getVisualizationReferences() : new ArrayList<AbacReference>();
 
@@ -1283,6 +1306,11 @@ public class RelationGraph {
     startNode = fetchOrCreateNode(startObject);
     startNode.setStartNode(true);
 
+    if (!StringUtils.isEmpty(overrideAbacScript)) {
+      startNode.setAbacGroup(true);
+      startNode.setAbacScript(overrideAbacScript);
+    }
+
     // always put the start node, even if that type is skipped
     objectToNodeMap.put(startObject, startNode);
 
@@ -1310,7 +1338,11 @@ public class RelationGraph {
     queryObjectTypeNames();
 
     queryGroupMemberships();
-    
+
+    if (overrideAbacContainsSubject != null) {
+      startNode.setSubjectIsMember(overrideAbacContainsSubject);
+    }
+
     // take care of the styles now
     for (GraphNode node : getNodes()) {
       node.determineStyles();
