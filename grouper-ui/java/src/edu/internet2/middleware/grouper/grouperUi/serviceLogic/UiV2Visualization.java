@@ -536,9 +536,28 @@ public class UiV2Visualization {
         visualizationContainer.setObjectId(request.getParameter("objectId"));
         visualizationContainer.setObjectType(request.getParameter("objectType"));
         visualizationContainer.setOperation("UiV2Visualization.groupView");
-        visualizationContainer.setDrawModule("d3", "d3");
-        visualizationContainer.setDrawObjectNameType("displayExtension", "displayExtension");
-        visualizationContainer.setDrawShowLegend(true);
+        visualizationContainer.setDrawModule(request.getParameter("drawModule"), "d3");
+        visualizationContainer.setDrawObjectNameType(request.getParameter("drawObjectNameType"), "displayExtension");
+        visualizationContainer.setDrawShowStems(GrouperUtil.booleanValue(request.getParameter("drawShowStems"), false));
+        visualizationContainer.setDrawShowLoaders(GrouperUtil.booleanValue(request.getParameter("drawShowLoaders"), false));
+        visualizationContainer.setDrawShowProvisioners(GrouperUtil.booleanValue(request.getParameter("drawShowProvisioners"), false));
+        visualizationContainer.setDrawShowAllMemberCounts(GrouperUtil.booleanValue(request.getParameter("drawShowAllMemberCounts"), false));
+        visualizationContainer.setDrawShowDirectMemberCounts(GrouperUtil.booleanValue(request.getParameter("drawShowDirectMemberCounts"), false));
+        visualizationContainer.setDrawShowObjectTypes(GrouperUtil.booleanValue(request.getParameter("drawShowObjectTypes"), false));
+        visualizationContainer.setDrawIncludeGroupsInMemberCounts(GrouperUtil.booleanValue(request.getParameter("drawIncludeGroupsInMemberCounts"), false));
+        visualizationContainer.setDrawShowLegend(GrouperUtil.booleanValue(request.getParameter("drawShowLegend"), false));
+
+        long drawNumChildLevels = GrouperUtil.longValue(request.getParameter("drawNumChildrenLevels"), -1);
+        if (GrouperUtil.booleanValue(request.getParameter("drawNumChildrenAll"), false)) {
+          drawNumChildLevels = -1;
+        }
+        visualizationContainer.setDrawNumChildrenLevels(drawNumChildLevels);
+
+        long drawMaxSiblings = GrouperUtil.longValue(request.getParameter("drawMaxSiblings"), -1);
+        if (GrouperUtil.booleanValue(request.getParameter("drawMaxSiblingsAll"), false)) {
+          drawMaxSiblings = -1;
+        }
+        visualizationContainer.setDrawMaxSiblings(drawMaxSiblings);
       }
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -571,15 +590,15 @@ public class UiV2Visualization {
       RelationGraph relationGraph = new RelationGraph()
               .assignStartObject(visualizationContainer.getGrouperObject())
               .assignParentLevels(isAbacPreview ? 0 : visualizationContainer.getDrawNumParentsLevels())
-              .assignChildLevels(isAbacPreview ? -1 : visualizationContainer.getDrawNumChildrenLevels())
-              .assignShowStems(isAbacPreview ? false : visualizationContainer.isDrawShowStems())
-              .assignShowLoaderJobs(isAbacPreview ? true : visualizationContainer.isDrawShowLoaders())
-              .assignShowProvisionTargets(isAbacPreview ? true : visualizationContainer.isDrawShowProvisioners())
-              .assignShowAllMemberCounts(isAbacPreview ? true : visualizationContainer.isDrawShowAllMemberCounts())
-              .assignShowDirectMemberCounts(isAbacPreview ? false : visualizationContainer.isDrawShowDirectMemberCounts())
-              .assignMaxSiblings(isAbacPreview ? -1 : visualizationContainer.getDrawMaxSiblings())
-              .assignShowObjectTypes(isAbacPreview ? false : visualizationContainer.isDrawShowObjectTypes())
-              .assignIncludeGroupsInMemberCounts(isAbacPreview ? false : visualizationContainer.isDrawIncludeGroupsInMemberCounts())
+              .assignChildLevels(visualizationContainer.getDrawNumChildrenLevels())
+              .assignShowStems(visualizationContainer.isDrawShowStems())
+              .assignShowLoaderJobs(visualizationContainer.isDrawShowLoaders())
+              .assignShowProvisionTargets(visualizationContainer.isDrawShowProvisioners())
+              .assignShowAllMemberCounts(visualizationContainer.isDrawShowAllMemberCounts())
+              .assignShowDirectMemberCounts(visualizationContainer.isDrawShowDirectMemberCounts())
+              .assignMaxSiblings(visualizationContainer.getDrawMaxSiblings())
+              .assignShowObjectTypes(visualizationContainer.isDrawShowObjectTypes())
+              .assignIncludeGroupsInMemberCounts(visualizationContainer.isDrawIncludeGroupsInMemberCounts())
               .assignSubjectForIsMemberCheck(isMemberSubject)
               .assignOverrideAbacScript(overrideAbacScript);
 

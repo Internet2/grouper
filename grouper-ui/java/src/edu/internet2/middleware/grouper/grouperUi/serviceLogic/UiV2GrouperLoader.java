@@ -2020,6 +2020,19 @@ public class UiV2GrouperLoader {
       visualizationContainer.setObjectId(group.getId());
       visualizationContainer.setObjectType("group");
       visualizationContainer.setOperation("UiV2Visualization.groupView");
+      visualizationContainer.setDrawModule("d3", "d3");
+      visualizationContainer.setDrawObjectNameType("displayExtension", "displayExtension");
+      visualizationContainer.setDrawNumParentsLevels(0);
+      visualizationContainer.setDrawNumChildrenLevels(-1);
+      visualizationContainer.setDrawMaxSiblings(-1);
+      visualizationContainer.setDrawShowStems(false);
+      visualizationContainer.setDrawShowLoaders(true);
+      visualizationContainer.setDrawShowProvisioners(true);
+      visualizationContainer.setDrawShowAllMemberCounts(true);
+      visualizationContainer.setDrawShowDirectMemberCounts(false);
+      visualizationContainer.setDrawShowObjectTypes(false);
+      visualizationContainer.setDrawIncludeGroupsInMemberCounts(false);
+      visualizationContainer.setDrawShowLegend(true);
 
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));
