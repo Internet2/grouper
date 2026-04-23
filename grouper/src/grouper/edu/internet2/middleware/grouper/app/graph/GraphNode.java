@@ -732,6 +732,14 @@ public class GraphNode {
     return abacScript;
   }
 
+  public void setAbacScript(String abacScript) {
+    this.abacScript = abacScript;
+  }
+
+  public void setAbacGroup(boolean abacGroup) {
+    this.abacGroup = abacGroup;
+  }
+
   public String toString() {
     return this.getClass().getSimpleName() + ": {" + grouperObject + ", distanceFromStartNode=" + distanceFromStartNode + "}";
   }

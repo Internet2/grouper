@@ -146,7 +146,9 @@ function drawGraphModuleText() {
     }
 
     // All member count
-    if (graph.settings.showAllMemberCounts && node.baseType === "group") {
+    if (graph.settings.abacScriptPreview && node.baseType === "abac_group" && node.populationCount != null && node.populationCount !== undefined) {
+      contents += "Member count (if saved): " + node.populationCount + "<br/>";
+    } else if (graph.settings.showAllMemberCounts && node.baseType === "group") {
       contents += "Total member count: " + node.allMemberCount + "<br/>";
     }
 
@@ -540,7 +542,9 @@ function drawGraphModuleD3() {
         if (showCountLabel) {
           var labelCounts = [];
 
-          if (node.baseType === "group" || node.baseType === "complement_group" || node.baseType === "intersect_group" || node.baseType === "abac_group"
+          if (graph.settings.abacScriptPreview && node.baseType === "abac_group" && node.populationCount != null && node.populationCount !== undefined) {
+            labelCounts.push(node.populationCount + " member" + (node.populationCount === 1 ? "" : "s") + " (if saved)");
+          } else if (node.baseType === "group" || node.baseType === "complement_group" || node.baseType === "intersect_group" || node.baseType === "abac_group"
                || node.type === "simple_loader_group" || node.type === "start_simple_loader_group"
                || node.type === "simple_loader_group_is_member" || node.type === "simple_loader_group_is_not_member"
                || node.type === "start_simple_loader_group_is_member" || node.type === "start_simple_loader_group_is_not_member") {
@@ -558,7 +562,8 @@ function drawGraphModuleD3() {
         }
 
         // ABAC population count for data attribute, data row, and ABAC-referenced group nodes
-        if (node.populationCount != null && node.populationCount !== undefined) {
+        if (node.populationCount != null && node.populationCount !== undefined
+            && !(graph.settings.abacScriptPreview && node.baseType === "abac_group")) {
           labelRows.push("population: " + node.populationCount);
         }
 
