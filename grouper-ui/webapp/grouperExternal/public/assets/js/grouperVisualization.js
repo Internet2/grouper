@@ -148,17 +148,21 @@ function drawGraphModuleText() {
     // All member count
     if (graph.settings.abacScriptPreview && node.baseType === "abac_group" && node.populationCount != null && node.populationCount !== undefined) {
       contents += "Member count (if saved): " + node.populationCount + "<br/>";
+    } else if (node.populationCount != null && node.populationCount !== undefined) {
+      // skip regular member counts for nodes with population counts; population is shown separately below
     } else if (graph.settings.showAllMemberCounts && node.baseType === "group") {
       contents += "Total member count: " + node.allMemberCount + "<br/>";
     }
 
-    // Direct member count
-    if (graph.settings.showDirectMemberCounts && node.baseType === "group") {
+    // Direct member count (skip for nodes with population counts)
+    if (!(node.populationCount != null && node.populationCount !== undefined)
+        && graph.settings.showDirectMemberCounts && node.baseType === "group") {
       contents += "Direct member count: " + node.directMemberCount + "<br/>";
     }
 
-    // ABAC population count
-    if (node.populationCount != null && node.populationCount !== undefined) {
+    // ABAC population count (skip for abac_group since member count already shows this)
+    if (node.populationCount != null && node.populationCount !== undefined
+        && node.baseType !== "abac_group") {
       contents += "Population count: " + node.populationCount + "<br/>";
     }
 
@@ -544,6 +548,8 @@ function drawGraphModuleD3() {
 
           if (graph.settings.abacScriptPreview && node.baseType === "abac_group" && node.populationCount != null && node.populationCount !== undefined) {
             labelCounts.push(node.populationCount + " member" + (node.populationCount === 1 ? "" : "s") + " (if saved)");
+          } else if (node.populationCount != null && node.populationCount !== undefined) {
+            // skip regular member counts for nodes with population counts; population is shown separately below
           } else if (node.baseType === "group" || node.baseType === "complement_group" || node.baseType === "intersect_group" || node.baseType === "abac_group"
                || node.type === "simple_loader_group" || node.type === "start_simple_loader_group"
                || node.type === "simple_loader_group_is_member" || node.type === "simple_loader_group_is_not_member"
@@ -561,9 +567,9 @@ function drawGraphModuleD3() {
           }
         }
 
-        // ABAC population count for data attribute, data row, and ABAC-referenced group nodes
+        // ABAC population count (skip for abac_group since member count already shows this)
         if (node.populationCount != null && node.populationCount !== undefined
-            && !(graph.settings.abacScriptPreview && node.baseType === "abac_group")) {
+            && node.baseType !== "abac_group") {
           labelRows.push("population: " + node.populationCount);
         }
 
