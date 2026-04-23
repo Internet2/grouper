@@ -18,15 +18,16 @@ public class GrouperSqlDataProviderQueryTargetDao extends GrouperDataProviderQue
 
   /**
    * {@inheritDoc}
-   * wraps the configured query as a subquery and selects distinct lowercased subject ids,
-   * ordered by the database: SELECT DISTINCT LOWER(col) FROM (...) innerQuery ORDER BY 1
+   * wraps the configured query as a subquery, projects only the subject id column,
+   * and selects distinct lowercased subject ids, ordered by the database:
+   * SELECT DISTINCT LOWER(col) FROM (SELECT col FROM (...) innerQuery) outerQuery ORDER BY 1
    */
   @Override
   public List<String> selectDistinctSubjectIds() {
     GrouperSqlDataProviderQueryConfig grouperDataProviderQueryConfig = (GrouperSqlDataProviderQueryConfig)this.getGrouperDataProviderQuery().retrieveGrouperDataProviderQueryConfig();
 
     String subjectIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectIdAttribute();
-    String sql = "SELECT DISTINCT LOWER(" + subjectIdAttribute + ") FROM (" + grouperDataProviderQueryConfig.getProviderQuerySqlQuery() + ") innerQuery ORDER BY 1";
+    String sql = "SELECT DISTINCT LOWER(" + subjectIdAttribute + ") FROM (SELECT " + subjectIdAttribute + " FROM (" + grouperDataProviderQueryConfig.getProviderQuerySqlQuery() + ") innerQuery) outerQuery ORDER BY 1";
 
     return new GcDbAccess().connectionName(grouperDataProviderQueryConfig.getProviderQuerySqlConfigId()).sql(sql).selectList(String.class);
   }
