@@ -26,8 +26,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -53,12 +55,15 @@ public class GrouperMcpProtectedResourceServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     try {
-      String baseUrl = request.getScheme() + "://" + request.getServerName();
-      if (("http".equals(request.getScheme()) && request.getServerPort() != 80)
-          || ("https".equals(request.getScheme()) && request.getServerPort() != 443)) {
-        baseUrl += ":" + request.getServerPort();
+      String baseUrl = GrouperConfig.getGrouperWsUrl(false);
+      if (StringUtils.isBlank(baseUrl)) {
+        baseUrl = request.getScheme() + "://" + request.getServerName();
+        if (("http".equals(request.getScheme()) && request.getServerPort() != 80)
+            || ("https".equals(request.getScheme()) && request.getServerPort() != 443)) {
+          baseUrl += ":" + request.getServerPort();
+        }
+        baseUrl += request.getContextPath();
       }
-      baseUrl += request.getContextPath();
 
       // resource must match the MCP server URL the client connects to
       String mcpUrl = baseUrl + "/mcp";
