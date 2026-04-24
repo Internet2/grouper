@@ -61,7 +61,7 @@ ${grouper:titleFromKeyAndText('stemEditPageTitle', grouperRequestContainer.stemC
                   <div id="setAlternateNameIfRenameDiv" class="control-group" style="display: none">
                     <label for="stemRenameUpdateAlternateName" class="control-label">${textContainer.text['stemRenameUpdateAlternateNameLabel'] }</label>
                     <div class="controls">
-                      <input type="checkbox" id="stemRenameUpdateAlternateName" name="setAlternateNameIfRename" checked="checked" value="true" /><span class="help-block">${textContainer.text['stemRenameUpdateAlternateNameDescription']}</span>
+                      <input type="checkbox" id="stemRenameUpdateAlternateName" name="setAlternateNameIfRename" value="true" /><span class="help-block">${textContainer.text['stemRenameUpdateAlternateNameDescription']}</span>
                     </div>
                   </div>
                   <div class="control-group">
