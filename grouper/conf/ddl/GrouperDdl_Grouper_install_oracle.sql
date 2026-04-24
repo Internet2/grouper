@@ -2588,6 +2588,7 @@ ALTER TABLE grouper_sql_cache_dependency ADD CONSTRAINT grouper_sql_cache_dep_fk
 
 ALTER TABLE grouper_fields ADD CONSTRAINT grouper_fie_internal_id_unq unique (internal_id);
 ALTER TABLE grouper_groups ADD CONSTRAINT grouper_grp_internal_id_unq unique (internal_id);
+ALTER TABLE grouper_sync ADD CONSTRAINT grouper_sync_internal_id_unq unique (internal_id);
 
 ALTER TABLE grouper_data_global_assign ADD CONSTRAINT grouper_data_global_assign_fk FOREIGN KEY (data_field_internal_id) REFERENCES grouper_data_field(internal_id);
 ALTER TABLE grouper_data_global_assign ADD CONSTRAINT grouper_data_global_diction_fk FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id);
