@@ -447,6 +447,8 @@ public class UiV2Configure {
       
       StringBuilder contents = new StringBuilder();
       
+      Map<String, String> keyValues = new TreeMap<String, String>();
+      
       List<GuiConfigSection> guiConfigSections = configurationContainer.getGuiConfigFile().getGuiConfigSections();
       for (GuiConfigSection guiConfigSection: guiConfigSections) {
         List<GuiConfigProperty> guiConfigProperties = guiConfigSection.getGuiConfigProperties();
@@ -485,10 +487,14 @@ public class UiV2Configure {
             value = GrouperUtil.replace(value, "\n", "\\n\\\n");
           }
           
-          contents.append(property + " = " + value);
-          contents.append("\n");
+          keyValues.put(property, value);
           
         }
+      }
+      
+      for (String property: keyValues.keySet()) {        
+        contents.append(property + " = " + keyValues.get(property));
+        contents.append("\n");
       }
       
       
