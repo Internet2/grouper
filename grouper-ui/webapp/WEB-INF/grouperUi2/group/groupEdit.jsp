@@ -60,7 +60,7 @@ ${grouper:titleFromKeyAndText('groupEditPageTitle', grouperRequestContainer.grou
                   <div id="setAlternateNameIfRenameDiv" class="control-group" style="display: none">
                     <label for="groupRenameUpdateAlternateName" class="control-label">${textContainer.text['groupRenameUpdateAlternateNameLabel'] }</label>
                     <div class="controls">
-                      <input type="checkbox" id="groupRenameUpdateAlternateName" name="setAlternateNameIfRename" checked="checked" value="true" /><span class="help-block">${textContainer.text['groupRenameUpdateAlternateNameDescription']}</span>
+                      <input type="checkbox" id="groupRenameUpdateAlternateName" name="setAlternateNameIfRename" value="true" /><span class="help-block">${textContainer.text['groupRenameUpdateAlternateNameDescription']}</span>
                     </div>
                   </div>
                   <div class="control-group">
