@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
@@ -26,6 +27,7 @@ import edu.internet2.middleware.grouper.app.scim2Provisioning.ScimProvisioningSt
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -35,7 +37,7 @@ import junit.textui.TestRunner;
 public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperGithubProvisionerTest("testFullProvisionLoadEntitiesIntoScimUsersTable"));
+    TestRunner.run(new GrouperGithubProvisionerTest("testGithubIncrementalAddToPopulation"));
 
   }
   
@@ -143,6 +145,129 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
     }
   }
   
+  /**
+   * Mimics the PennGroups ChatGPT setup:
+   *  - centerGroup holds the actual users (e.g. chatGPT_isc)
+   *  - usersAllowGroup is the umbrella "policy" group that contains the centerGroups (chatGPT_users_allow)
+   *  - deprovisionGroup holds users we want to keep out of the target
+   *  - provisionGroup is the composite (usersAllowGroup MINUS deprovisionGroup) used as groupOfUsersToProvision
+   *
+   * Full sync correctly creates the account when a user lands in the population. This test asserts
+   * the same is true for incrementals: when a user is removed from the deprovision group (so the
+   * composite recompute adds them to the population), the next incremental should create the SCIM
+   * account, not wait for the next hourly full sync.
+   */
+  public void testGithubIncrementalAddToPopulation() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // baseline: drain pending changelog and register the composite consumer so it has a sequence
+    // baseline; otherwise its first run treats current sequence as already-processed and skips events
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships");
+
+    new StemSave(grouperSession).assignName("test").save();
+    new StemSave(grouperSession).assignName("test2").save();
+
+    // center group with the actual users
+    Group centerGroup = new GroupSave(grouperSession).assignName("test:centerGroup").save();
+
+    // umbrella "allow" group (chatGPT_users_allow): contains the center group(s)
+    Group usersAllowGroup = new GroupSave(grouperSession).assignName("test2:usersAllowGroup").save();
+
+    // deprovision group: users in here should NOT be provisioned
+    Group deprovisionGroup = new GroupSave(grouperSession).assignName("test2:deprovisionGroup").save();
+
+    // composite: usersAllow MINUS deprovision -> this is what we provision
+    Group provisionGroup = new GroupSave(grouperSession).assignName("test2:provisionGroup").save();
+    provisionGroup.addCompositeMember(CompositeType.COMPLEMENT, usersAllowGroup, deprovisionGroup);
+
+    centerGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    centerGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    // center group is a transitive member of the allow group
+    usersAllowGroup.addMember(centerGroup.toSubject(), false);
+
+    // SUBJ1 is in the deprovision group, so the composite excludes them
+    deprovisionGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    // run the composite chain so provisionGroup's effective members make it into the SQL cache before fullProvision
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+
+    ScimProvisionerTestUtils.setupGithubExternalSystem(true);
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignConfigId("githubProvisioner").assignChangelogConsumerConfigId("githubScimProvTestCLC")
+        .assignAcceptHeader("application/vnd.github.v3+json")
+        .assignBearerTokenExternalSystemConfigId("githubExternalSystem")
+        .assignSubjectLinkCache0("${subject.getAttributeValue('email')}")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupOfUsersToProvision(provisionGroup)
+        .assignScimType("Github")
+        .assignSelectAllEntities(true)
+        .assignGroupAttributeCount(0)
+        .assignEntityAttribute4name("emailValue")
+        // mirror chatgpt_prod: configure the population group by NAME, not UUID, to exercise the name-resolution path
+        .addExtraConfig("groupIdOfUsersToProvision", provisionGroup.getName())
+        );
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    try {
+      // create scim tables
+      GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem", null);
+
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_user").executeSql();
+
+      // initial full sync: only SUBJ0 should be provisioned (SUBJ1 is in deprovision)
+      fullProvision();
+      GrouperUtil.sleep(2000);
+
+      incrementalProvision();
+
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+
+      // remove SUBJ1 from the deprovision group -> composite recompute puts them back in provisionGroup
+      deprovisionGroup.deleteMember(SubjectTestHelper.SUBJ1);
+
+      // run the composite chain so the flattened MEMBERSHIP_ADD on provisionGroup is in change_log_entry
+      // before the provisioner incremental runs (mirrors production timing).
+      GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+      GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships");
+      GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+
+      // incremental should create the SCIM user, not wait for the next full sync
+      incrementalProvision();
+
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+
+      // a follow-up full sync should keep the same 2 users (sanity check)
+      fullProvision();
+      GrouperUtil.sleep(2000);
+
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+
+    } finally {
+
+    }
+  }
+
   public void testGithubActiveAttributeFullSync() {
     if (!tomcatRunTests()) {
       return;

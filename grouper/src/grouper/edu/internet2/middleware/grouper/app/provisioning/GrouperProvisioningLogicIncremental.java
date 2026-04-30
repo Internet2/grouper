@@ -1337,10 +1337,12 @@ public class GrouperProvisioningLogicIncremental {
         }
         
         String groupIdOfUsersToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupIdOfUsersToProvision();
-        
-        // it's group of users and should be treated as member sync
+
+        // it's group of users and should be treated as member sync.
+        // groupIdOfUsersToProvision config can be either a UUID or a group name, so match against either.
         if (StringUtils.isNotBlank(groupIdOfUsersToProvision) &&
-            StringUtils.equals(esbEvent.getGroupId(), groupIdOfUsersToProvision)) {
+            (StringUtils.equals(esbEvent.getGroupId(), groupIdOfUsersToProvision)
+                || StringUtils.equals(esbEvent.getGroupName(), groupIdOfUsersToProvision))) {
                     
           this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalEntity(esbEvent.getMemberId(), this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesForRecalc()
               , this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntityMembershipsForRecalc(), createdOnMillis, null);
