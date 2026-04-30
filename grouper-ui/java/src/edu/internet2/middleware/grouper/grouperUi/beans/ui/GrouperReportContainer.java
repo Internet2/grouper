@@ -38,6 +38,11 @@ public class GrouperReportContainer {
   private List<GuiReportConfig> guiReportConfigs = new ArrayList<GuiReportConfig>();
   
   /**
+   * report configs for the global (across all groups and folders) gui view
+   */
+  private List<GuiReportConfigOverall> guiReportConfigsOverall = new ArrayList<GuiReportConfigOverall>();
+  
+  /**
    * encapsulates config and all instances together
    */
   private GrouperReportConfigInstance grouperReportConfigInstance;
@@ -147,6 +152,31 @@ public class GrouperReportContainer {
    */
   public void setGuiReportConfigs(List<GuiReportConfig> guiReportConfigs) {
     this.guiReportConfigs = guiReportConfigs;
+  }
+  
+  /**
+   * @return report configs for the global (across all groups and folders) gui view
+   */
+  public List<GuiReportConfigOverall> getGuiReportConfigsOverall() {
+    return guiReportConfigsOverall;
+  }
+  
+  /**
+   * report configs for the global (across all groups and folders) gui view
+   * @param guiReportConfigsOverall
+   */
+  public void setGuiReportConfigsOverall(List<GuiReportConfigOverall> guiReportConfigsOverall) {
+    this.guiReportConfigsOverall = guiReportConfigsOverall;
+  }
+  
+  /**
+   * can the logged in subject see all report configs across all groups and folders.
+   * Only wheel/root admins can see all reports from the miscellaneous page.
+   * @return true if can see all report configs
+   */
+  public boolean isCanSeeAllReports() {
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    return PrivilegeHelper.isWheelOrRoot(loggedInSubject);
   }
 
   /**

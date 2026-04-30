@@ -400,6 +400,22 @@ public class GrouperReportConfigService {
   }
   
   /**
+   * @return all attribute assigns for report configs across all groups and folders
+   */
+  public static Set<AttributeAssign> getAllAttributeAssignsForReportConfigs() {
+    return GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameId(retrieveAttributeDefNameBase().getId());
+  }
+  
+  /**
+   * build a report config bean from an attribute assign that represents a report config marker
+   * @param attributeAssign
+   * @return GrouperReportConfigurationBean
+   */
+  public static GrouperReportConfigurationBean buildGrouperReportConfigurationBeanFromAssign(AttributeAssign attributeAssign) {
+    return buildGrouperReportConfigurationBean(attributeAssign);
+  }
+  
+  /**
    * @param attributeAssigns
    * @param reportConfigName
    * @return

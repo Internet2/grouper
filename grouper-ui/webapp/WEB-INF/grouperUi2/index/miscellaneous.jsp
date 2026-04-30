@@ -70,9 +70,14 @@
                 <c:if test="${grouperRequestContainer.adminContainer.administrationLinksShow}">
                 	<div class="row-fluid">
                 	<h4 style="color: #1c6070; margin-top: 25px; ">${textContainer.text['miscellaneousPageAdministrationHeader'] }</h4>
-                	
+                		
+                     <c:if test="${grouperRequestContainer.grouperReportContainer.canSeeAllReports}">
+                      <br /><a id="miscAllReportsLink" href="?operation=UiV2GrouperReport.viewAllReportConfigs" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportConfigs');" style="white-space: nowrap;">
+                      ${textContainer.text['miscAllReportsLink'] }</a>
+                     </c:if>
+                                       
                 	 <c:if test="${grouperRequestContainer.authenticationContainer.canViewAuthentication}">
-                      <br /><a id="miscAuthenticationPrivilegesLink" href="?operation=UiV2AuthenticationConfig.index" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AuthenticationConfig.index');" style="white-space: nowrap;">
+                      <br /><br /><a id="miscAuthenticationPrivilegesLink" href="?operation=UiV2AuthenticationConfig.index" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AuthenticationConfig.index');" style="white-space: nowrap;">
                         ${textContainer.text['adminAuthenticationLink'] }</a>
                     </c:if>
                 	

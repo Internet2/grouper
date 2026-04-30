@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigService;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstance;
@@ -30,6 +31,7 @@ import edu.internet2.middleware.grouper.app.reports.GrouperReportLogic;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.app.reports.ReportConfigFormat;
 import edu.internet2.middleware.grouper.app.reports.ReportConfigType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -40,6 +42,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperReportConfigIn
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperReportContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiReportConfig;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiReportConfigOverall;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiReportInstance;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -153,6 +156,50 @@ public class UiV2GrouperReport {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/grouperReport/groupReportConfig.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * view all report configs across all groups and folders. This is reachable from the
+   * miscellaneous page and only available to wheel/root admins.
+   * @param request
+   * @param response
+   */
+  public void viewAllReportConfigs(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      final GrouperReportContainer grouperReportContainer = grouperRequestContainer.getGrouperReportContainer();
+      
+      if (!checkReportConfigActive()) {
+        return;
+      }
+      
+      if (!grouperReportContainer.isCanSeeAllReports()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("grouperReportNotAllowedToViewAll")));
+        return;
+      }
+      
+      List<GuiReportConfigOverall> guiReportConfigsOverall = buildGuiReportConfigsOverall();
+      
+      grouperReportContainer.setGuiReportConfigsOverall(guiReportConfigsOverall);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/grouperReport/allReportConfigs.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1815,6 +1862,65 @@ public class UiV2GrouperReport {
       
     });
     return guiReportConfigs;
+  }
+  
+  /**
+   * build the list of GuiReportConfigOverall across all groups and folders that have a report
+   * config. This is admin-only, so we use a root session and skip any orphan assignments
+   * whose owning group or folder cannot be found.
+   * @return list of overall report configs
+   */
+  private List<GuiReportConfigOverall> buildGuiReportConfigsOverall() {
+    
+    @SuppressWarnings("unchecked")
+    List<GuiReportConfigOverall> guiReportConfigsOverall = (List<GuiReportConfigOverall>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        List<GuiReportConfigOverall> result = new ArrayList<GuiReportConfigOverall>();
+        
+        for (AttributeAssign attributeAssign : GrouperReportConfigService.getAllAttributeAssignsForReportConfigs()) {
+          
+          GrouperObject owner = null;
+          Group ownerGroup = null;
+          Stem ownerStem = null;
+          
+          if (StringUtils.isNotBlank(attributeAssign.getOwnerGroupId())) {
+            ownerGroup = GroupFinder.findByUuid(grouperSession, attributeAssign.getOwnerGroupId(), false);
+            owner = ownerGroup;
+          } else if (StringUtils.isNotBlank(attributeAssign.getOwnerStemId())) {
+            ownerStem = StemFinder.findByUuid(grouperSession, attributeAssign.getOwnerStemId(), false);
+            owner = ownerStem;
+          }
+          
+          if (owner == null) {
+            continue;
+          }
+          
+          GrouperReportConfigurationBean configBean = GrouperReportConfigService.buildGrouperReportConfigurationBeanFromAssign(attributeAssign);
+          GrouperReportInstance mostRecentReportInstance = GrouperReportInstanceService.getMostRecentReportInstance(owner, configBean.getAttributeAssignmentMarkerId());
+          
+          GuiReportConfig guiReportConfig = new GuiReportConfig(configBean, mostRecentReportInstance);
+          result.add(new GuiReportConfigOverall(guiReportConfig, ownerGroup, ownerStem));
+        }
+        
+        result.sort((o1, o2) -> {
+          String name1 = StringUtils.defaultString(o1.getOwnerDisplayName());
+          String name2 = StringUtils.defaultString(o2.getOwnerDisplayName());
+          int byOwner = name1.compareToIgnoreCase(name2);
+          if (byOwner != 0) {
+            return byOwner;
+          }
+          String reportName1 = StringUtils.defaultString(o1.getReportConfigBean() == null ? null : o1.getReportConfigBean().getReportConfigName());
+          String reportName2 = StringUtils.defaultString(o2.getReportConfigBean() == null ? null : o2.getReportConfigBean().getReportConfigName());
+          return reportName1.compareToIgnoreCase(reportName2);
+        });
+        
+        return result;
+      }
+      
+    });
+    return guiReportConfigsOverall;
   }
 
   
