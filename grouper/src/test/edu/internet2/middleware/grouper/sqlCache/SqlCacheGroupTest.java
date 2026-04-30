@@ -59,7 +59,7 @@ public class SqlCacheGroupTest extends GrouperTest {
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
 
     // make sure nothing is out of sync to begin with
-    runRullSync(true);
+    runFullSync(true);
 
     long originalSize =  new GcDbAccess().sql("select count(*) from grouper_sql_cache_group").select(Long.class);
 
@@ -87,28 +87,28 @@ public class SqlCacheGroupTest extends GrouperTest {
     verifyInitialAttributeDefs(testAttrDef, testAttrDef2, pitTestAttrDef, pitTestAttrDef2, sqlCacheGroupQuery, true);
     
     // full sync should see no changes
-    runRullSync(false);
+    runFullSync(false);
     
     // make some changes and verify that it's all corrected by the full sync
     assertEquals(2, new GcDbAccess().sql("delete from grouper_sql_cache_mship where sql_cache_group_internal_id in (select internal_id from grouper_sql_cache_group where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('attributeDef')))").addBindVar(testAttrDef.getIdIndex()).executeSql());
     assertEquals(8, new GcDbAccess().sql("delete from grouper_sql_cache_group where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('attributeDef'))").addBindVar(testAttrDef.getIdIndex()).executeSql());
     assertEquals(8, new GcDbAccess().sql("update grouper_sql_cache_group set disabled_on = null where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('attributeDef'))").addBindVar(testAttrDef2.getIdIndex()).executeSql());
-    runRullSync(true);
+    runFullSync(true);
     verifyInitialAttributeDefs(testAttrDef, testAttrDef2, pitTestAttrDef, pitTestAttrDef2, sqlCacheGroupQuery, false);
-    runRullSync(false);
+    runFullSync(false);
     
     // make some more changes and verify that it's all corrected by the full sync
     assertEquals(8, new GcDbAccess().sql("update grouper_sql_cache_group set disabled_on = ? where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('attributeDef'))").addBindVar(new Timestamp(System.currentTimeMillis())).addBindVar(testAttrDef.getIdIndex()).executeSql());
-    runRullSync(true);
+    runFullSync(true);
     verifyInitialAttributeDefs(testAttrDef, testAttrDef2, pitTestAttrDef, pitTestAttrDef2, sqlCacheGroupQuery, false);
-    runRullSync(false);
+    runFullSync(false);
     
     // make some more changes and verify that it's all corrected by the full sync
     assertEquals(8, new GcDbAccess().sql("update grouper_sql_cache_group set membership_size = '999' where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('attributeDef'))").addBindVar(testAttrDef.getIdIndex()).executeSql());
     assertEquals(8, new GcDbAccess().sql("update grouper_sql_cache_group set membership_size = '999' where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('attributeDef'))").addBindVar(testAttrDef2.getIdIndex()).executeSql());
-    runRullSync(true);
+    runFullSync(true);
     verifyInitialAttributeDefs(testAttrDef, testAttrDef2, pitTestAttrDef, pitTestAttrDef2, sqlCacheGroupQuery, false);
-    runRullSync(false);
+    runFullSync(false);
     
     // adjust membership counts
     testAttrDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
@@ -169,7 +169,7 @@ public class SqlCacheGroupTest extends GrouperTest {
     }
     
     // full sync should see no changes
-    runRullSync(false);
+    runFullSync(false);
     
     // delete the group
     testAttrDef.delete();
@@ -229,7 +229,7 @@ public class SqlCacheGroupTest extends GrouperTest {
     }
     
     // full sync should see no changes
-    runRullSync(false);
+    runFullSync(false);
   }
 
   private void verifyInitialAttributeDefs(AttributeDef testAttrDef, AttributeDef testAttrDef2, PITAttributeDef pitTestAttrDef, PITAttributeDef pitTestAttrDef2, String sqlCacheGroupQuery, boolean verifyDisabledTime) {
@@ -365,7 +365,7 @@ public class SqlCacheGroupTest extends GrouperTest {
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
 
     // make sure nothing is out of sync to begin with
-    runRullSync(true);
+    runFullSync(true);
 
     long originalSize =  new GcDbAccess().sql("select count(*) from grouper_sql_cache_group").select(Long.class);
 
@@ -393,28 +393,28 @@ public class SqlCacheGroupTest extends GrouperTest {
     verifyInitialStems(testStem, testStem2, pitTestStem, pitTestStem2, sqlCacheGroupQuery, true);
     
     // full sync should see no changes
-    runRullSync(false);
+    runFullSync(false);
     
     // make some changes and verify that it's all corrected by the full sync
     assertEquals(2, new GcDbAccess().sql("delete from grouper_sql_cache_mship where sql_cache_group_internal_id in (select internal_id from grouper_sql_cache_group where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('naming')))").addBindVar(testStem.getIdIndex()).executeSql());
     assertEquals(5, new GcDbAccess().sql("delete from grouper_sql_cache_group where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('naming'))").addBindVar(testStem.getIdIndex()).executeSql());
     assertEquals(5, new GcDbAccess().sql("update grouper_sql_cache_group set disabled_on = null where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('naming'))").addBindVar(testStem2.getIdIndex()).executeSql());
-    runRullSync(true);
+    runFullSync(true);
     verifyInitialStems(testStem, testStem2, pitTestStem, pitTestStem2, sqlCacheGroupQuery, false);
-    runRullSync(false);
+    runFullSync(false);
     
     // make some more changes and verify that it's all corrected by the full sync
     assertEquals(5, new GcDbAccess().sql("update grouper_sql_cache_group set disabled_on = ? where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('naming'))").addBindVar(new Timestamp(System.currentTimeMillis())).addBindVar(testStem.getIdIndex()).executeSql());
-    runRullSync(true);
+    runFullSync(true);
     verifyInitialStems(testStem, testStem2, pitTestStem, pitTestStem2, sqlCacheGroupQuery, false);
-    runRullSync(false);
+    runFullSync(false);
     
     // make some more changes and verify that it's all corrected by the full sync
     assertEquals(5, new GcDbAccess().sql("update grouper_sql_cache_group set membership_size = '999' where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('naming'))").addBindVar(testStem.getIdIndex()).executeSql());
     assertEquals(5, new GcDbAccess().sql("update grouper_sql_cache_group set membership_size = '999' where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('naming'))").addBindVar(testStem2.getIdIndex()).executeSql());
-    runRullSync(true);
+    runFullSync(true);
     verifyInitialStems(testStem, testStem2, pitTestStem, pitTestStem2, sqlCacheGroupQuery, false);
-    runRullSync(false);
+    runFullSync(false);
     
     // adjust membership counts
     testStem.revokePriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_READ);
@@ -460,7 +460,7 @@ public class SqlCacheGroupTest extends GrouperTest {
     }
     
     // full sync should see no changes
-    runRullSync(false);
+    runFullSync(false);
     
     // delete the group
     testStem.delete();
@@ -505,7 +505,7 @@ public class SqlCacheGroupTest extends GrouperTest {
     }
     
     // full sync should see no changes
-    runRullSync(false);
+    runFullSync(false);
   }
 
   private void verifyInitialStems(Stem testStem, Stem testStem2, PITStem pitTestStem, PITStem pitTestStem2, String sqlCacheGroupQuery, boolean verifyDisabledTime) {
@@ -601,7 +601,7 @@ public class SqlCacheGroupTest extends GrouperTest {
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
 
     // make sure nothing is out of sync to begin with
-    runRullSync(true);
+    runFullSync(true);
 
     long originalSize =  new GcDbAccess().sql("select count(*) from grouper_sql_cache_group").select(Long.class);
 
@@ -629,28 +629,28 @@ public class SqlCacheGroupTest extends GrouperTest {
     verifyInitialGroups(testGroup, testGroup2, pitTestGroup, pitTestGroup2, sqlCacheGroupQuery, true);
     
     // full sync should see no changes
-    runRullSync(false);
+    runFullSync(false);
     
     // make some changes and verify that it's all corrected by the full sync
     assertEquals(4, new GcDbAccess().sql("delete from grouper_sql_cache_mship where sql_cache_group_internal_id in (select internal_id from grouper_sql_cache_group where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('list','access')))").addBindVar(testGroup.getInternalId()).executeSql());
     assertEquals(9, new GcDbAccess().sql("delete from grouper_sql_cache_group where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('list','access'))").addBindVar(testGroup.getInternalId()).executeSql());
     assertEquals(9, new GcDbAccess().sql("update grouper_sql_cache_group set disabled_on = null where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('list','access'))").addBindVar(testGroup2.getInternalId()).executeSql());
-    runRullSync(true);
+    runFullSync(true);
     verifyInitialGroups(testGroup, testGroup2, pitTestGroup, pitTestGroup2, sqlCacheGroupQuery, false);    
-    runRullSync(false);
+    runFullSync(false);
     
     // make some more changes and verify that it's all corrected by the full sync
     assertEquals(9, new GcDbAccess().sql("update grouper_sql_cache_group set disabled_on = ? where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('list','access'))").addBindVar(new Timestamp(System.currentTimeMillis())).addBindVar(testGroup.getInternalId()).executeSql());
-    runRullSync(true);
+    runFullSync(true);
     verifyInitialGroups(testGroup, testGroup2, pitTestGroup, pitTestGroup2, sqlCacheGroupQuery, false);    
-    runRullSync(false);
+    runFullSync(false);
     
     // make some more changes and verify that it's all corrected by the full sync
     assertEquals(9, new GcDbAccess().sql("update grouper_sql_cache_group set membership_size = '999' where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('list','access'))").addBindVar(testGroup.getInternalId()).executeSql());
     assertEquals(9, new GcDbAccess().sql("update grouper_sql_cache_group set membership_size = '999' where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('list','access'))").addBindVar(testGroup2.getInternalId()).executeSql());
-    runRullSync(true);
+    runFullSync(true);
     verifyInitialGroups(testGroup, testGroup2, pitTestGroup, pitTestGroup2, sqlCacheGroupQuery, false);    
-    runRullSync(false);
+    runFullSync(false);
     
     // adjust membership counts
     testGroup.deleteMember(SubjectTestHelper.SUBJ0);
@@ -716,7 +716,7 @@ public class SqlCacheGroupTest extends GrouperTest {
     }
     
     // full sync should see no changes
-    runRullSync(false);
+    runFullSync(false);
     
     // delete the group
     testGroup.delete();
@@ -781,7 +781,7 @@ public class SqlCacheGroupTest extends GrouperTest {
     }
     
     // full sync should see no changes
-    runRullSync(false);
+    runFullSync(false);
   }
 
   private void verifyInitialGroups(Group testGroup, Group testGroup2, PITGroup pitTestGroup, PITGroup pitTestGroup2, String sqlCacheGroupQuery, boolean verifyDisabledTime) {
@@ -933,7 +933,7 @@ public class SqlCacheGroupTest extends GrouperTest {
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
 
     // make sure nothing is out of sync to begin with
-    runRullSync(true);
+    runFullSync(true);
 
     long originalSize =  new GcDbAccess().sql("select count(*) from grouper_sql_cache_group").select(Long.class);
 
@@ -961,28 +961,28 @@ public class SqlCacheGroupTest extends GrouperTest {
     verifyInitialEntities(testGroup, testGroup2, pitTestGroup, pitTestGroup2, sqlCacheGroupQuery, true);
     
     // full sync should see no changes
-    runRullSync(false);
+    runFullSync(false);
     
     // make some changes and verify that it's all corrected by the full sync
     assertEquals(2, new GcDbAccess().sql("delete from grouper_sql_cache_mship where sql_cache_group_internal_id in (select internal_id from grouper_sql_cache_group where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('list','access')))").addBindVar(testGroup.getInternalId()).executeSql());
     assertEquals(4, new GcDbAccess().sql("delete from grouper_sql_cache_group where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('list','access'))").addBindVar(testGroup.getInternalId()).executeSql());
     assertEquals(4, new GcDbAccess().sql("update grouper_sql_cache_group set disabled_on = null where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('list','access'))").addBindVar(testGroup2.getInternalId()).executeSql());
-    runRullSync(true);
+    runFullSync(true);
     verifyInitialEntities(testGroup, testGroup2, pitTestGroup, pitTestGroup2, sqlCacheGroupQuery, false);
-    runRullSync(false);
+    runFullSync(false);
     
     // make some more changes and verify that it's all corrected by the full sync
     assertEquals(4, new GcDbAccess().sql("update grouper_sql_cache_group set disabled_on = ? where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('list','access'))").addBindVar(new Timestamp(System.currentTimeMillis())).addBindVar(testGroup.getInternalId()).executeSql());
-    runRullSync(true);
+    runFullSync(true);
     verifyInitialEntities(testGroup, testGroup2, pitTestGroup, pitTestGroup2, sqlCacheGroupQuery, false);
-    runRullSync(false);
+    runFullSync(false);
     
     // make some more changes and verify that it's all corrected by the full sync
     assertEquals(4, new GcDbAccess().sql("update grouper_sql_cache_group set membership_size = '999' where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('list','access'))").addBindVar(testGroup.getInternalId()).executeSql());
     assertEquals(4, new GcDbAccess().sql("update grouper_sql_cache_group set membership_size = '999' where group_internal_id = ? and field_internal_id in (select internal_id from grouper_fields gf where gf.type in ('list','access'))").addBindVar(testGroup2.getInternalId()).executeSql());
-    runRullSync(true);
+    runFullSync(true);
     verifyInitialEntities(testGroup, testGroup2, pitTestGroup, pitTestGroup2, sqlCacheGroupQuery, false);
-    runRullSync(false);
+    runFullSync(false);
     
     // adjust membership counts
     testGroup.revokePriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_READ);
@@ -1023,7 +1023,7 @@ public class SqlCacheGroupTest extends GrouperTest {
     }
     
     // full sync should see no changes
-    runRullSync(false);
+    runFullSync(false);
     
     // delete the group
     testGroup.delete();
@@ -1063,7 +1063,7 @@ public class SqlCacheGroupTest extends GrouperTest {
     }
     
     // full sync should see no changes
-    runRullSync(false);
+    runFullSync(false);
   }
 
   private void verifyInitialEntities(Group testGroup, Group testGroup2, PITGroup pitTestGroup, PITGroup pitTestGroup2, String sqlCacheGroupQuery, boolean verifyDisabledTime) {
@@ -1136,7 +1136,7 @@ public class SqlCacheGroupTest extends GrouperTest {
     }
   }
   
-  private Hib3GrouperLoaderLog runRullSync(boolean expectChanges) {
+  private Hib3GrouperLoaderLog runFullSync(boolean expectChanges) {
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
     OtherJobInput otherJobInput = new OtherJobInput();
     otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);

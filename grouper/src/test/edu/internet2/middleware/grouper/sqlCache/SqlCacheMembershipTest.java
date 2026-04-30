@@ -92,6 +92,48 @@ public class SqlCacheMembershipTest extends GrouperTest {
     assertTrue(millisPostAdd > GrouperUtil.longObjectValue(groupNameFieldNameSubjectIdSourceIdInDbs.get(0)[4], false));
   }
   
+  /**
+   * compositeGroup = leftGroup MINUS rightGroup. After SUBJ0 is added to leftGroup, the
+   * composite-driven membership should land in grouper_sql_cache_mship for compositeGroup
+   * once the standard daemon chain has run: temp-to-changelog → compositeMemberships
+   * consumer → temp-to-changelog. The prelude registers the consumer so it has a sequence
+   * baseline; without it, its first run skips all prior events and the chain stalls.
+   */
+  public void testCacheCompositeMembershipsFlattened() {
+
+    GrouperSession.startRootSession();
+
+    // baseline: drain pending changelog, full-sync the sql cache, register the composite consumer so
+    // its first run doesn't skip events by treating the current sequence as already-processed.
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+    runFullSync(true);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships");
+
+    Group leftGroup = new GroupSave().assignName("test:leftGroup").assignCreateParentStemsIfNotExist(true).save();
+    Group rightGroup = new GroupSave().assignName("test:rightGroup").assignCreateParentStemsIfNotExist(false).save();
+    Group compositeGroup = new GroupSave().assignName("test:compositeGroup").assignCreateParentStemsIfNotExist(false).save();
+
+    compositeGroup.addCompositeMember(edu.internet2.middleware.grouper.misc.CompositeType.COMPLEMENT, leftGroup, rightGroup);
+
+    leftGroup.addMember(SubjectTestHelper.SUBJ0);
+
+    // promote the immediate MEMBERSHIP_ADD on leftGroup
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+    // recompute the composite — produces a composite-type Membership row for compositeGroup
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships");
+    // promote the composite-type MEMBERSHIP_ADD; PITMembership flattening writes the cache row
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+
+    String sqlMembershipView = "select gscmv.group_name, gscmv.list_name, gscmv.subject_source, gscmv.subject_id "
+        + "from grouper_sql_cache_mship_v gscmv where gscmv.group_name = ? and gscmv.list_name = 'members'";
+
+    List<Object[]> leftRows = new GcDbAccess().sql(sqlMembershipView).addBindVar(leftGroup.getName()).selectList(Object[].class);
+    List<Object[]> compositeRows = new GcDbAccess().sql(sqlMembershipView).addBindVar(compositeGroup.getName()).selectList(Object[].class);
+
+    assertEquals("leftGroup direct membership should be cached", 1, GrouperUtil.length(leftRows));
+    assertEquals("compositeGroup effective membership should be cached", 1, GrouperUtil.length(compositeRows));
+  }
+
   public void testCacheMembershipsFlattened() {
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
@@ -104,7 +146,7 @@ public class SqlCacheMembershipTest extends GrouperTest {
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
 
     // make sure nothing is out of sync to begin with
-    runRullSync(true);
+    runFullSync(true);
     
     Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(false).save();
     Stem testStem = new StemSave().assignName("test:testStem").assignCreateParentStemsIfNotExist(false).save();
@@ -161,7 +203,7 @@ public class SqlCacheMembershipTest extends GrouperTest {
     assertEquals(0, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
 
     // should add it all back
-    runRullSync(true);
+    runFullSync(true);
     assertEquals(originalSize + 4, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
 
     String sql = "select gscm.flattened_add_timestamp from grouper_sql_cache_mship gscm, grouper_sql_cache_group gscg, grouper_fields gf where gscm.sql_cache_group_internal_id=gscg.internal_id and gscg.field_internal_id=gf.internal_id and gscg.group_internal_id = ? and gf.name = ? and gscm.member_internal_id = ?";
@@ -194,7 +236,7 @@ public class SqlCacheMembershipTest extends GrouperTest {
     assertEquals(0, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
 
     // should add it all back
-    runRullSync(true);
+    runFullSync(true);
     assertEquals(originalSize + 2, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
 
     timestampStemToSubj1 = new GcDbAccess().sql(sql).addBindVar(testStem.getIdIndex()).addBindVar("stemAdmins").addBindVar(member1.getInternalId()).select(Long.class);
@@ -219,7 +261,7 @@ public class SqlCacheMembershipTest extends GrouperTest {
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
 
     // make sure nothing is out of sync to begin with
-    runRullSync(true);
+    runFullSync(true);
     
     Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(false).save();
     Stem testStem = new StemSave().assignName("test:testStem").assignCreateParentStemsIfNotExist(false).save();
@@ -270,7 +312,7 @@ public class SqlCacheMembershipTest extends GrouperTest {
 
     assertEquals(originalSize + 4, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
     
-    runRullSync(false);
+    runFullSync(false);
 
     String sql = "select gscm.flattened_add_timestamp from grouper_sql_cache_mship gscm, grouper_sql_cache_group gscg, grouper_fields gf where gscm.sql_cache_group_internal_id=gscg.internal_id and gscg.field_internal_id=gf.internal_id and gscg.group_internal_id = ? and gf.name = ? and gscm.member_internal_id = ?";
 
@@ -296,7 +338,7 @@ public class SqlCacheMembershipTest extends GrouperTest {
     assertTrue(timestampTestGroupToSubj1 < time2);
     
     // and have it fixed
-    runRullSync(true);
+    runFullSync(true);
     
     assertEquals(originalSize + 4, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
 
@@ -315,7 +357,7 @@ public class SqlCacheMembershipTest extends GrouperTest {
     assertNull(new GcDbAccess().sql(sql).addBindVar(testStem.getIdIndex()).addBindVar("stemAdmins").addBindVar(member2.getInternalId()).select(Long.class));
 
     // and have it fixed
-    runRullSync(true);
+    runFullSync(true);
     
     assertEquals(originalSize + 4, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
 
@@ -341,7 +383,7 @@ public class SqlCacheMembershipTest extends GrouperTest {
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
 
     // make sure nothing is out of sync to begin with
-    runRullSync(true);
+    runFullSync(true);
     
     Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(false).save();
     Group testGroup2 = new GroupSave().assignName("test:testGroup2").assignCreateParentStemsIfNotExist(false).save();
@@ -416,7 +458,7 @@ public class SqlCacheMembershipTest extends GrouperTest {
     verifyMemberships(testGroup, testGroup2, testEntity, testEntity2, testStem, testAttrDef, testAttrDef2);
     
     // should be no changes
-    runRullSync(false);
+    runFullSync(false);
     
     
     
@@ -425,13 +467,13 @@ public class SqlCacheMembershipTest extends GrouperTest {
     assertEquals(0, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
 
     // should add it all back
-    runRullSync(true);
+    runFullSync(true);
     assertEquals(originalSize + 13, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
 
     verifyMemberships(testGroup, testGroup2, testEntity, testEntity2, testStem, testAttrDef, testAttrDef2);
     
     // should be no changes
-    runRullSync(false);
+    runFullSync(false);
     
     
     
@@ -451,7 +493,7 @@ public class SqlCacheMembershipTest extends GrouperTest {
     verifyMemberships(testGroup, testGroup2, testEntity, testEntity2, testStem, testAttrDef, testAttrDef2);
 
     // should be no changes
-    runRullSync(false);
+    runFullSync(false);
     
     
     // add some bad memberships that need to be deleted
@@ -460,14 +502,14 @@ public class SqlCacheMembershipTest extends GrouperTest {
     new GcDbAccess().sql("update grouper_sql_cache_mship set member_internal_id = ? where member_internal_id = ?").addBindVar(member3.getInternalId()).addBindVar(member5.getInternalId()).executeSql();
     
     // fix
-    runRullSync(true);
+    runFullSync(true);
     
     assertEquals(originalSize + 13, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
 
     verifyMemberships(testGroup, testGroup2, testEntity, testEntity2, testStem, testAttrDef, testAttrDef2);
     
     // should be no changes
-    runRullSync(false);
+    runFullSync(false);
     
     
     // delete everything now
@@ -489,7 +531,7 @@ public class SqlCacheMembershipTest extends GrouperTest {
     assertEquals(originalSize, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
     
     // should be no changes
-    runRullSync(false);
+    runFullSync(false);
   }
   
   public void verifyMemberships(Group testGroup, Group testGroup2, Group testEntity, Group testEntity2, Stem testStem, AttributeDef testAttrDef, AttributeDef testAttrDef2) {
@@ -574,7 +616,7 @@ public class SqlCacheMembershipTest extends GrouperTest {
     }
   }
   
-  private Hib3GrouperLoaderLog runRullSync(boolean expectChanges) {
+  private Hib3GrouperLoaderLog runFullSync(boolean expectChanges) {
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
     OtherJobInput otherJobInput = new OtherJobInput();
     otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
