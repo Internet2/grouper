@@ -638,9 +638,9 @@ public class UiV2OAuth extends UiServiceLogicBase {
     if (StringUtils.isBlank(input)) {
       return result;
     }
-    for (String part : GrouperUtil.splitTrim(input, ",")) {
+    for (String part : GrouperUtil.split(input, ", \t\n\r")) {
       if (StringUtils.isNotBlank(part)) {
-        result.add(part);
+        result.add(part.trim());
       }
     }
     return result;
