@@ -79,20 +79,26 @@ public enum GcTableSyncSubtype {
      */
     @Override
     public Integer syncData(Map<String, Object> debugMap, GcTableSync gcTableSync) {
-      
-      int[] results = runInsertsUpdatesDeletes(debugMap, gcTableSync, gcTableSync.getDataBeanFrom().getDataInitialQuery(), 
-          gcTableSync.getDataBeanTo().getDataInitialQuery());     
-      
+      return this.syncData(debugMap, gcTableSync, GcTableSyncPhase.INSERTS_UPDATES_DELETES);
+    }
+
+    @Override
+    public Integer syncData(Map<String, Object> debugMap, GcTableSync gcTableSync, GcTableSyncPhase phase) {
+
+      int[] results = runInsertsUpdatesDeletes(debugMap, gcTableSync, gcTableSync.getDataBeanFrom().getDataInitialQuery(),
+          gcTableSync.getDataBeanTo().getDataInitialQuery(),
+          phase == null ? GcTableSyncPhase.INSERTS_UPDATES_DELETES : phase);
+
       if (!GrouperClientUtils.isBlank(gcTableSync.getGcTableSyncConfiguration().getIncrementalAllColumnsColumnString())) {
         assignIncrementalIndex(gcTableSync.getDataBeanFrom().getDataInitialQuery(), gcTableSync.getDataBeanFrom().getTableMetadata().getIncrementalAllCoumnsColumn());
       } else if (!GrouperClientUtils.isBlank(gcTableSync.getGcTableSyncConfiguration().getIncrementalProgressColumnString())) {
         assignIncrementalIndex(gcTableSync.getDataBeanFrom().getDataInitialQuery(), null);
       }
-      
+
       int recordsChanged = results[0] + results[1] + results[2];
 
       return  recordsChanged;
-            
+
     }
 
 
@@ -1505,6 +1511,21 @@ public enum GcTableSyncSubtype {
   public abstract Integer syncData(Map<String, Object> debugMap, GcTableSync gcTableSync);
 
   /**
+   * phase-controlled variant of syncData. Default implementation only honors
+   * INSERTS_UPDATES_DELETES; subtypes that support partial-phase sync should override.
+   * @param debugMap
+   * @param gcTableSync
+   * @param phase which DML phases to execute
+   * @return records changed
+   */
+  public Integer syncData(Map<String, Object> debugMap, GcTableSync gcTableSync, GcTableSyncPhase phase) {
+    if (phase == null || phase == GcTableSyncPhase.INSERTS_UPDATES_DELETES) {
+      return this.syncData(debugMap, gcTableSync);
+    }
+    throw new UnsupportedOperationException("Phase " + phase + " not supported by " + this);
+  }
+
+  /**
    * find inserts/udpates/deletes based on queries for change flag
    * @param debugMap
    * @param gcTableSync
@@ -1737,12 +1758,23 @@ public enum GcTableSyncSubtype {
    */
   private static int[] runInsertsUpdatesDeletes(Map<String, Object> debugMap,
       GcTableSync gcTableSync, GcTableSyncTableData gcTableSyncTableDataFrom, GcTableSyncTableData gcTableSyncTableDataTo) {
-    
+    return runInsertsUpdatesDeletes(debugMap, gcTableSync, gcTableSyncTableDataFrom, gcTableSyncTableDataTo,
+        GcTableSyncPhase.INSERTS_UPDATES_DELETES);
+  }
+
+  private static int[] runInsertsUpdatesDeletes(Map<String, Object> debugMap,
+      GcTableSync gcTableSync, GcTableSyncTableData gcTableSyncTableDataFrom, GcTableSyncTableData gcTableSyncTableDataTo,
+      GcTableSyncPhase phase) {
+
     int[] results = new int[3];
-    
+
+    boolean runInsertsUpdates = phase == GcTableSyncPhase.INSERTS_UPDATES_DELETES
+        || phase == GcTableSyncPhase.INSERTS_UPDATES_ONLY;
+    boolean runDeletes = phase == GcTableSyncPhase.INSERTS_UPDATES_DELETES
+        || phase == GcTableSyncPhase.DELETES_ONLY;
+
     // delete ones which arent there
-    int deletes = -1;
-    {
+    if (runDeletes) {
       Set<MultiKey> primaryKeysToDelete = new HashSet<MultiKey>(gcTableSyncTableDataTo.allPrimaryKeys());
       primaryKeysToDelete.removeAll(gcTableSyncTableDataFrom.allPrimaryKeys());
       if (GrouperClientUtils.length(primaryKeysToDelete) > 0) {
@@ -1754,15 +1786,14 @@ public enum GcTableSyncSubtype {
           }
         }
       }
-      deletes = runDeletes(debugMap, gcTableSync.getDataBeanTo(), primaryKeysToDelete, "deletes");
+      int deletes = runDeletes(debugMap, gcTableSync.getDataBeanTo(), primaryKeysToDelete, "deletes");
       results[2] = deletes;
-    }      
-    
-    int inserts = -1;
-    {
+    }
+
+    if (runInsertsUpdates) {
       Set<MultiKey> primaryKeysToInsert = new HashSet<MultiKey>(gcTableSyncTableDataFrom.allPrimaryKeys());
       primaryKeysToInsert.removeAll(gcTableSyncTableDataTo.allPrimaryKeys());
-      
+
       if (GrouperClientUtils.length(primaryKeysToInsert) > 0) {
         int count=0;
         for (MultiKey key : primaryKeysToInsert) {
@@ -1773,17 +1804,14 @@ public enum GcTableSyncSubtype {
         }
       }
 
-      inserts = runInserts(debugMap, gcTableSync.getDataBeanTo(), primaryKeysToInsert, 
+      int inserts = runInserts(debugMap, gcTableSync.getDataBeanTo(), primaryKeysToInsert,
           gcTableSyncTableDataFrom.allIndexByPrimaryKey(), "inserts");
       results[0] = inserts;
-    }      
-    
-    int updates = -1;
-    {
+
       Set<MultiKey> primaryKeysToUpdate = new HashSet<MultiKey>();
       for (MultiKey multiKey : gcTableSyncTableDataFrom.allPrimaryKeys()) {
         GcTableSyncRowData gcTableSyncRowData = gcTableSyncTableDataTo.allIndexByPrimaryKey().get(multiKey);
-        
+
         // this is an insert
         if (gcTableSyncRowData == null) {
           continue;
@@ -1795,7 +1823,6 @@ public enum GcTableSyncSubtype {
         }
         // must be an update
         primaryKeysToUpdate.add(multiKey);
-        
       }
 
       if (GrouperClientUtils.length(primaryKeysToUpdate) > 0) {
@@ -1808,7 +1835,7 @@ public enum GcTableSyncSubtype {
         }
       }
 
-      updates = runUpdates(debugMap, gcTableSync.getDataBeanTo(), primaryKeysToUpdate, 
+      int updates = runUpdates(debugMap, gcTableSync.getDataBeanTo(), primaryKeysToUpdate,
           gcTableSyncTableDataFrom.allIndexByPrimaryKey(), "updates");
       results[1] = updates;
     }

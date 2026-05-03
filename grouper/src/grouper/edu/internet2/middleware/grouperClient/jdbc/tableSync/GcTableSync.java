@@ -71,7 +71,33 @@ public class GcTableSync {
    * output object
    */
   private GcTableSyncOutput gcTableSyncOutput;
-  
+
+  /**
+   * which DML phases to execute on this sync (default: all)
+   */
+  private GcTableSyncPhase gcTableSyncPhase = GcTableSyncPhase.INSERTS_UPDATES_DELETES;
+
+  /**
+   * which DML phases to execute on this sync.
+   * Defaults to INSERTS_UPDATES_DELETES (standard behavior).
+   * @return phase
+   */
+  public GcTableSyncPhase getGcTableSyncPhase() {
+    return this.gcTableSyncPhase;
+  }
+
+  /**
+   * which DML phases to execute on this sync. Useful for parent/child FK
+   * ordering: call once with INSERTS_UPDATES_ONLY before child sync,
+   * call again with DELETES_ONLY after child sync, all without cascade.
+   * @param gcTableSyncPhase phase, or null for default
+   * @return this for chaining
+   */
+  public GcTableSync setGcTableSyncPhase(GcTableSyncPhase gcTableSyncPhase) {
+    this.gcTableSyncPhase = gcTableSyncPhase == null ? GcTableSyncPhase.INSERTS_UPDATES_DELETES : gcTableSyncPhase;
+    return this;
+  }
+
   /**
    * output object
    * @return output
@@ -403,7 +429,7 @@ public class GcTableSync {
         // step 3
         debugMap.put("state", "syncData");
         {
-          Integer recordsChanged = this.gcTableSyncConfiguration.getGcTableSyncSubtype().syncData(debugMap, this);
+          Integer recordsChanged = this.gcTableSyncConfiguration.getGcTableSyncSubtype().syncData(debugMap, this, this.gcTableSyncPhase);
           if (recordsChanged != null) {
             this.gcGrouperSyncLog.setRecordsChanged(recordsChanged);
             this.gcGrouperSyncJob.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis()));

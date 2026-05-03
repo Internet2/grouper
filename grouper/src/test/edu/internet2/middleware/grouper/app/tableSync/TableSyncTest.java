@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata.ColumnType;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncOutput;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncPhase;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncSubtype;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableBean;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
@@ -985,7 +986,92 @@ public class TableSyncTest extends GrouperTest {
     }
 
   /**
-     * 
+   * exercise the phase-split behavior of GcTableSync: INSERTS_UPDATES_ONLY
+   * skips deletes, DELETES_ONLY skips inserts/updates. Lets callers preserve
+   * FK integrity across parent/child tables without ON DELETE CASCADE.
+   */
+  public void testPersonSyncFullPhases() {
+
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseFrom", "grouper");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableFrom", "testgrouper_sync_subject_from");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.databaseTo", "grouper");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.tableTo", "testgrouper_sync_subject_to");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.columns", "*");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.syncTable.personSourceTest.primaryKeyColumns", "person_id");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.person_source_test_full.class", "edu.internet2.middleware.grouper.app.tableSync.TableSyncOtherJob");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.person_source_test_full.quartzCron", "0 0 2 * * ?");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.person_source_test_full.grouperClientTableSyncConfigKey", "personSourceTest");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.person_source_test_full.syncType", "fullSyncFull");
+
+    // build desired state in `from`: persons 1, 2, 3, 4
+    List<TestgrouperSyncSubjectFrom> froms = new ArrayList<TestgrouperSyncSubjectFrom>();
+    for (long id : new long[] { 1L, 2L, 3L, 4L }) {
+      TestgrouperSyncSubjectFrom row = new TestgrouperSyncSubjectFrom();
+      row.setPersonId((int)id);
+      row.setNetId("netId_" + id);
+      row.setSomeInt((int)id);
+      froms.add(row);
+    }
+    HibernateSession.byObjectStatic().saveBatch(froms);
+
+    // pre-seed `to` with: 2 (unchanged), 3 (stale netId, will be update), 5 (will be delete)
+    List<TestgrouperSyncSubjectTo> tos = new ArrayList<TestgrouperSyncSubjectTo>();
+    for (Object[] each : new Object[][] {
+        { 2L, "netId_2", 2 },
+        { 3L, "netId_OLD", 3 },
+        { 5L, "netId_5", 5 } }) {
+      TestgrouperSyncSubjectTo row = new TestgrouperSyncSubjectTo();
+      row.setPersonId((Long)each[0]);
+      row.setNetId((String)each[1]);
+      row.setSomeInt((Integer)each[2]);
+      tos.add(row);
+    }
+    HibernateSession.byObjectStatic().saveBatch(tos);
+
+    // phase 1: INSERTS_UPDATES_ONLY — should insert 1 and 4, update 3, but NOT delete 5
+    GcTableSync gcTableSync = new GcTableSync();
+    GcTableSyncOutput out = gcTableSync.setGcTableSyncPhase(GcTableSyncPhase.INSERTS_UPDATES_ONLY)
+        .sync("personSourceTest", GcTableSyncSubtype.fullSyncFull);
+
+    assertEquals(2, out.getInsert());
+    assertEquals(1, out.getUpdate());
+    assertEquals(0, out.getDelete());
+
+    // person 5 should still be in `to` because deletes were skipped
+    int countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
+    assertEquals(5, countTo);
+    int count5 = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to where person_id = 5");
+    assertEquals(1, count5);
+    // person 3's netId should now match `from`
+    String netId3 = HibernateSession.bySqlStatic().select(String.class, "select net_id from testgrouper_sync_subject_to where person_id = 3");
+    assertEquals("netId_3", netId3);
+
+    // phase 2: DELETES_ONLY — should delete 5, no inserts/updates
+    gcTableSync = new GcTableSync();
+    out = gcTableSync.setGcTableSyncPhase(GcTableSyncPhase.DELETES_ONLY)
+        .sync("personSourceTest", GcTableSyncSubtype.fullSyncFull);
+
+    assertEquals(0, out.getInsert());
+    assertEquals(0, out.getUpdate());
+    assertEquals(1, out.getDelete());
+
+    countTo = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to");
+    assertEquals(4, countTo);
+    count5 = HibernateSession.bySqlStatic().select(int.class, "select count(*) from testgrouper_sync_subject_to where person_id = 5");
+    assertEquals(0, count5);
+
+    // phase 3: default INSERTS_UPDATES_DELETES on already-synced state — should be a no-op
+    gcTableSync = new GcTableSync();
+    out = gcTableSync.sync("personSourceTest", GcTableSyncSubtype.fullSyncFull);
+
+    assertEquals(0, out.getInsert());
+    assertEquals(0, out.getUpdate());
+    assertEquals(0, out.getDelete());
+  }
+
+  /**
+     *
      */
     public void testPersonSyncFullGroupings() {
       
