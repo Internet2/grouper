@@ -69,6 +69,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncConfiguration;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncOutput;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncRowData;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncPhase;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncSubtype;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableBean;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableData;
@@ -1526,14 +1527,15 @@ public class GrouperProvisioningLogic {
         grouperSyncInternalId,
         groupAttributeValueRowData, debugMap, "loadGenericGroupAttrValues");
     
-    // sync membership roles
+    // sync membership roles: insert/update first so mship can reference new roles
     this.syncGenericProvisionerTable("grouper_prov_mship_role",
         "internal_id,role_name,grouper_sync_internal_id,last_updated",
         "internal_id",
         "select internal_id,role_name,grouper_sync_internal_id,last_updated from grouper_prov_mship_role where grouper_sync_internal_id = ?",
         grouperSyncInternalId,
-        roleRowData, debugMap, "loadGenericMshipRoles");
-    
+        roleRowData, debugMap, "loadGenericMshipRolesIns",
+        GcTableSyncPhase.INSERTS_UPDATES_ONLY);
+
     // sync memberships
     this.syncGenericProvisionerTable("grouper_prov_mship",
         "internal_id,grouper_sync_internal_id,prov_user_internal_id,prov_group_internal_id,prov_mship_role_internal_id,last_updated",
@@ -1541,6 +1543,15 @@ public class GrouperProvisioningLogic {
         "select internal_id,grouper_sync_internal_id,prov_user_internal_id,prov_group_internal_id,prov_mship_role_internal_id,last_updated from grouper_prov_mship where grouper_sync_internal_id = ?",
         grouperSyncInternalId,
         membershipRowData, debugMap, "loadGenericMemberships");
+
+    // delete obsolete roles after mship sync removed any rows that referenced them
+    this.syncGenericProvisionerTable("grouper_prov_mship_role",
+        "internal_id,role_name,grouper_sync_internal_id,last_updated",
+        "internal_id",
+        "select internal_id,role_name,grouper_sync_internal_id,last_updated from grouper_prov_mship_role where grouper_sync_internal_id = ?",
+        grouperSyncInternalId,
+        roleRowData, debugMap, "loadGenericMshipRolesDel",
+        GcTableSyncPhase.DELETES_ONLY);
   }
   
   private void loadDataToGenericProvisionerTablesIncremental() {
@@ -2355,6 +2366,13 @@ public class GrouperProvisioningLogic {
   private void syncGenericProvisionerTable(String tableName, String columns, String primaryKeyColumns,
       String selectSql, long selectBindVar, List<Object[]> targetRowData,
       Map<String, Object> debugMap, String debugKeyPrefix) {
+    syncGenericProvisionerTable(tableName, columns, primaryKeyColumns, selectSql, selectBindVar,
+        targetRowData, debugMap, debugKeyPrefix, GcTableSyncPhase.INSERTS_UPDATES_DELETES);
+  }
+
+  private void syncGenericProvisionerTable(String tableName, String columns, String primaryKeyColumns,
+      String selectSql, long selectBindVar, List<Object[]> targetRowData,
+      Map<String, Object> debugMap, String debugKeyPrefix, GcTableSyncPhase phase) {
     
     // set up the GcTableSync
     GcTableSync gcTableSync = new GcTableSync();
@@ -2407,10 +2425,10 @@ public class GrouperProvisioningLogic {
     GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
     gcTableSync.setGcTableSyncConfiguration(gcTableSyncConfiguration);
     gcTableSync.setGcTableSyncOutput(new GcTableSyncOutput());
-    
+
     Map<String, Object> debugMapLocal = new LinkedHashMap<String, Object>();
-    GcTableSyncSubtype.fullSyncFull.syncData(debugMapLocal, gcTableSync);
-    
+    GcTableSyncSubtype.fullSyncFull.syncData(debugMapLocal, gcTableSync, phase);
+
     // merge the debug maps
     for (String key : debugMapLocal.keySet()) {
       Object newValue = debugMapLocal.get(key);
