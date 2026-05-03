@@ -869,6 +869,7 @@ public class UiV2Group {
     String membershipPITToDate = request.getParameter("membershipPITToDate");
     String membershipPITFromDate = request.getParameter("membershipPITFromDate");
     String membershipCustomCompositeOptions = request.getParameter("membershipCustomCompositeOptions");
+    String membershipSubjectSourceId = request.getParameter("membershipSubjectSourceId");
     GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
     
     //if filtering by subjects that have a certain type
@@ -891,6 +892,10 @@ public class UiV2Group {
     
     if (!StringUtils.isBlank(filterText)) {
       membershipFinder.assignScopeForMember(filterText);
+    }
+    
+    if (!StringUtils.isBlank(membershipSubjectSourceId)) {
+      membershipFinder.addSourceId(membershipSubjectSourceId);
     }
     
     if ("yes".equals(membershipPITOptions)) {

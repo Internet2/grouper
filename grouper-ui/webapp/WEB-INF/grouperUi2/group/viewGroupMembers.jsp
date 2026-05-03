@@ -148,6 +148,20 @@ ${grouper:titleFromKeyAndText('groupPageTitle', grouperRequestContainer.groupCon
                           </tr>
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;">
+                              <label for="subject-source-filter">${textContainer.text['groupFilterSubjectSource'] }</label>
+                            </td>
+                            <td>
+                              <select id="subject-source-filter" name="membershipSubjectSourceId">
+                                <option value=""></option>
+                                <c:forEach items="${grouperRequestContainer.subjectContainer.sources}" var="source">
+                                  <option value="${grouper:escapeHtml(source.id)}">${grouper:escapeHtml(source.id)} (${grouper:escapeHtml(source.name)})</option>
+                                </c:forEach>
+                              </select>
+                              <br /><span class="description">${textContainer.text['groupFilterSubjectSourceDescription'] }</span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;">
                               <label for="enabled-disabled-filter">${textContainer.text['groupFilterEnabledDisabledOptions'] }</label>
                             </td>
                             <td>
@@ -211,7 +225,7 @@ ${grouper:titleFromKeyAndText('groupPageTitle', grouperRequestContainer.groupCon
     
                         <div class="span4" id="groupFilterSubmitDiv"><input type="submit" class="btn" aria-controls="groupFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
                             onclick="ajax('../app/UiV2Group.filter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;"> 
-                          <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#custom-composite-filter').val('nothing'); $('#enabled-disabled-filter').val('nothing'); $('#pit-filter').val('no'); $('#pit-filter').trigger('change'); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
+                          <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#custom-composite-filter').val('nothing'); $('#subject-source-filter').val(''); $('#enabled-disabled-filter').val('nothing'); $('#pit-filter').val('no'); $('#pit-filter').trigger('change'); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
                           <a id="advanced-button" role="button" class="btn groupMembersAdvancedHide">${textContainer.text['groupAdvancedButton'] }</a>
                         </div>
                         
