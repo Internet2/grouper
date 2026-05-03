@@ -105,6 +105,17 @@ Released versions are tagged in the format GROUPER_RELEASE_a.b.c, where a.b.c is
 - Format: `GRP-XXXX: [exact JIRA title]`
 - Example: `GRP-5599: Script daemon output remove info about script type and source code`
 
+### SQL Batching
+- When writing code that performs SQL inserts/updates/deletes across multiple rows, use batched execution.
+- In Grouper, use `GcDbAccess.batchBindVars(List<List<Object>>).executeBatchSql()` instead of calling `executeSql()` in a loop.
+- If batching is genuinely not possible (e.g., each row needs a different SQL string, or results from one row drive the next), stop and discuss with the user before falling back to row-by-row.
+
+### DDL Comments
+- Any DDL change — new table, new column, or new view — must ship with `COMMENT ON TABLE`/`COMMENT ON VIEW`/`COMMENT ON COLUMN` statements.
+- Add the comments to both `GrouperDdl_Grouper_install_postgres.sql` and `GrouperDdl_Grouper_install_oracle.sql`. MySQL does not support `COMMENT ON`, so skip the mysql install file.
+- For views: postgres uses `COMMENT ON VIEW <name>`, oracle uses `COMMENT ON TABLE <name>` (oracle treats views as tables for comments).
+- Mirror the same comments in the Java upgrade task, wrapped in `if (GrouperDdlUtils.isPostgres() || GrouperDdlUtils.isOracle()) { ... }`, using `GrouperDdlUtils.isPostgres() ? "VIEW" : "TABLE"` when commenting a view.
+
 ## Primary Build Commands
 
 **Maven (Recommended)**:
