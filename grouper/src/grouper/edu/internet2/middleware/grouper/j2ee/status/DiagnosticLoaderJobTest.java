@@ -105,18 +105,22 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
         
         this.appendSuccessTextLine("Found the most recent success: " + GrouperUtil.dateStringValue(lastSuccess) 
             + ", expecting one in the last " + minutesSinceLastSuccess + " minutes");
+        loaderResultsCache.put(this.jobName, lastSuccess);
       } else if (!isJobEnabled(this.jobName)) {
         this.appendSuccessTextLine("Job is not enabled");
+        loaderResultsCache.put(this.jobName, lastSuccess);
       } else {
         loaderResultsCache.remove(this.jobName);
         if (lastSuccess == null) {
-          throw new RuntimeException("Cant find a success in job " + this.jobName + ", expecting one in the last " + minutesSinceLastSuccess + " minutes");
+          this.appendFailureTextLine("Cant find a success in job " + this.jobName + ", expecting one in the last " + minutesSinceLastSuccess + " minutes");
+          return false;
+        } else {
+          this.appendFailureTextLine("Cant find a success in job " + this.jobName + " since: " + GrouperUtil.dateStringValue(lastSuccess) 
+          + ", expecting one in the last " + minutesSinceLastSuccess + " minutes");
+          return false;
         }
-        throw new RuntimeException("Cant find a success in job " + this.jobName + " since: " + GrouperUtil.dateStringValue(lastSuccess) 
-            + ", expecting one in the last " + minutesSinceLastSuccess + " minutes");
       }
       
-      loaderResultsCache.put(this.jobName, lastSuccess);
     }
         
     return true;
