@@ -1697,6 +1697,7 @@ CREATE TABLE grouper_sync
     last_full_sync_run TIMESTAMP,
     last_full_metadata_sync_start TIMESTAMP,
     last_full_metadata_sync_run TIMESTAMP,
+    internal_id BIGINT NOT NULL,
     last_updated TIMESTAMP NOT NULL,
     PRIMARY KEY (id)
 );
@@ -1704,6 +1705,8 @@ CREATE TABLE grouper_sync
 CREATE UNIQUE INDEX grouper_sync_eng_idx ON grouper_sync (sync_engine, provisioner_name);
 
 CREATE UNIQUE INDEX grouper_sync_eng_prov_idx ON grouper_sync (provisioner_name);
+
+CREATE UNIQUE INDEX grouper_sync_internal_id_idx ON grouper_sync (internal_id);
 
 CREATE TABLE grouper_sync_job
 (
@@ -2228,6 +2231,233 @@ CREATE UNIQUE INDEX grouper_sync_dep_grp_grp_idx1 ON grouper_sync_dep_group_grou
 CREATE INDEX grouper_sync_dep_grp_grp_idx2 ON grouper_sync_dep_group_group (grouper_sync_id,provisionable_group_id);
 
 CREATE INDEX grouper_sync_dep_grp_grp_idx3 ON grouper_sync_dep_group_group (grouper_sync_id,group_id,field_id);
+
+CREATE TABLE grouper_prov_group (
+  internal_id BIGINT NOT NULL,
+  grouper_sync_internal_id BIGINT NOT NULL,
+  group_internal_id BIGINT,
+  target_group_id VARCHAR(256) NOT NULL,
+  last_updated BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX grouper_prov_grp_idx0 ON grouper_prov_group (grouper_sync_internal_id);
+
+CREATE INDEX grouper_prov_grp_idx1 ON grouper_prov_group (group_internal_id);
+
+CREATE TABLE grouper_prov_group_attr (
+  internal_id BIGINT NOT NULL,
+  attribute_name VARCHAR(500) NOT NULL,
+  grouper_prov_group_internal_id BIGINT NOT NULL,
+  attribute_type VARCHAR(20) NOT NULL,
+  last_updated BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX grouper_prov_grpat_idx0 ON grouper_prov_group_attr (grouper_prov_group_internal_id);
+
+CREATE INDEX grouper_prov_grpat_idx1 ON grouper_prov_group_attr (grouper_prov_group_internal_id, attribute_name);
+
+CREATE TABLE grouper_prov_group_attr_value (
+  internal_id BIGINT NOT NULL,
+  prov_group_attr_internal_id BIGINT NOT NULL,
+  prov_group_internal_id BIGINT NOT NULL,
+  value_integer BIGINT,
+  value_dictionary_internal_id BIGINT,
+  last_updated BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX grouper_prov_grpatv_idx0 ON grouper_prov_group_attr_value (prov_group_attr_internal_id);
+
+CREATE INDEX grouper_prov_grpatv_idx1 ON grouper_prov_group_attr_value (prov_group_internal_id);
+
+CREATE INDEX grouper_prov_grpatv_idx2 ON grouper_prov_group_attr_value (value_dictionary_internal_id);
+
+CREATE TABLE grouper_prov_user (
+  internal_id BIGINT NOT NULL,
+  grouper_sync_internal_id BIGINT NOT NULL,
+  member_internal_id BIGINT,
+  target_user_id VARCHAR(256) NOT NULL,
+  last_updated BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX grouper_prov_user_idx0 ON grouper_prov_user (grouper_sync_internal_id);
+
+CREATE INDEX grouper_prov_user_idx1 ON grouper_prov_user (member_internal_id);
+
+CREATE TABLE grouper_prov_user_attr (
+  internal_id BIGINT NOT NULL,
+  attribute_name VARCHAR(500) NOT NULL,
+  grouper_prov_user_internal_id BIGINT NOT NULL,
+  attribute_type VARCHAR(20) NOT NULL,
+  last_updated BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX grouper_prov_userat_idx0 ON grouper_prov_user_attr (grouper_prov_user_internal_id);
+
+CREATE INDEX grouper_prov_userat_idx1 ON grouper_prov_user_attr (grouper_prov_user_internal_id, attribute_name);
+
+CREATE TABLE grouper_prov_user_attr_value (
+  internal_id BIGINT NOT NULL,
+  prov_user_attr_internal_id BIGINT NOT NULL,
+  prov_user_internal_id BIGINT NOT NULL,
+  value_integer BIGINT,
+  value_dictionary_internal_id BIGINT,
+  last_updated BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX grouper_prov_useratv_idx0 ON grouper_prov_user_attr_value (prov_user_attr_internal_id);
+
+CREATE INDEX grouper_prov_useratv_idx1 ON grouper_prov_user_attr_value (prov_user_internal_id);
+
+CREATE INDEX grouper_prov_useratv_idx2 ON grouper_prov_user_attr_value (value_dictionary_internal_id);
+
+CREATE TABLE grouper_prov_mship_role (
+  internal_id BIGINT NOT NULL,
+  role_name VARCHAR(30) NOT NULL,
+  grouper_sync_internal_id BIGINT NOT NULL,
+  last_updated BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX grouper_prov_mshipr_idx0 ON grouper_prov_mship_role (grouper_sync_internal_id);
+
+CREATE INDEX grouper_prov_mshipr_idx1 ON grouper_prov_mship_role (grouper_sync_internal_id, role_name);
+
+CREATE TABLE grouper_prov_mship (
+  internal_id BIGINT NOT NULL,
+  grouper_sync_internal_id BIGINT NOT NULL,
+  prov_user_internal_id BIGINT NOT NULL,
+  prov_group_internal_id BIGINT NOT NULL,
+  prov_mship_role_internal_id BIGINT NOT NULL,
+  last_updated BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX grouper_prov_mship_idx0 ON grouper_prov_mship (grouper_sync_internal_id);
+
+CREATE INDEX grouper_prov_mship_idx1 ON grouper_prov_mship (prov_user_internal_id);
+
+CREATE INDEX grouper_prov_mship_idx2 ON grouper_prov_mship (prov_group_internal_id);
+
+CREATE VIEW grouper_prov_user_attr_v AS
+SELECT
+    gs.provisioner_name,
+    gm.subject_source             AS subject_source_id,
+    gm.subject_id,
+    gm.subject_identifier0,
+    gm.subject_identifier1,
+    pua.attribute_name,
+    gd.the_text                   AS value_string,
+    puav.value_integer,
+    pua.attribute_type,
+    gm.name                       AS member_name,
+    gm.description                AS member_description,
+    gsm.provisionable,
+    gsm.in_target,
+    gsm.in_target_insert_or_exists,
+    gsm.provisionable_start,
+    gsm.provisionable_end,
+    gsm.in_target_start,
+    gsm.in_target_end,
+    gs.sync_engine,
+    pu.target_user_id,
+    gs.id                         AS grouper_sync_id,
+    pu.last_updated               AS user_last_updated,
+    puav.last_updated             AS value_last_updated,
+    pu.internal_id                AS prov_user_internal_id,
+    pu.grouper_sync_internal_id,
+    gm.id                         AS member_id,
+    gm.id_index                   AS member_id_index,
+    pu.member_internal_id
+FROM            grouper_prov_user            pu
+  LEFT JOIN     grouper_sync                 gs   ON gs.internal_id = pu.grouper_sync_internal_id
+  LEFT JOIN     grouper_members              gm   ON gm.internal_id = pu.member_internal_id
+  LEFT JOIN     grouper_sync_member          gsm  ON gsm.grouper_sync_id = gs.id AND gsm.member_id = gm.id
+  LEFT JOIN     grouper_prov_user_attr       pua  ON pua.grouper_prov_user_internal_id = pu.internal_id
+  LEFT JOIN     grouper_prov_user_attr_value puav ON puav.prov_user_attr_internal_id = pua.internal_id
+  LEFT JOIN     grouper_dictionary           gd   ON gd.internal_id = puav.value_dictionary_internal_id;
+
+CREATE VIEW grouper_prov_group_attr_v AS
+SELECT
+    gs.provisioner_name,
+    gg.name                       AS group_name,
+    pga.attribute_name,
+    gd.the_text                   AS value_string,
+    pgav.value_integer,
+    pga.attribute_type,
+    gsg.provisionable,
+    gsg.in_target,
+    gsg.in_target_insert_or_exists,
+    gsg.provisionable_start,
+    gsg.provisionable_end,
+    gsg.in_target_start,
+    gsg.in_target_end,
+    gg.description                AS group_description,
+    gg.extension                  AS group_extension,
+    gg.display_extension          AS group_display_extension,
+    gs.sync_engine,
+    pg.target_group_id,
+    gs.id                         AS grouper_sync_id,
+    pg.last_updated               AS group_last_updated,
+    pgav.last_updated             AS value_last_updated,
+    pg.internal_id                AS prov_group_internal_id,
+    pg.grouper_sync_internal_id,
+    gg.id                         AS group_id,
+    gg.id_index                   AS group_id_index,
+    pg.group_internal_id
+FROM            grouper_prov_group            pg
+  LEFT JOIN     grouper_sync                  gs   ON gs.internal_id = pg.grouper_sync_internal_id
+  LEFT JOIN     grouper_groups                gg   ON gg.internal_id = pg.group_internal_id
+  LEFT JOIN     grouper_sync_group            gsg  ON gsg.grouper_sync_id = gs.id AND gsg.group_id = gg.id
+  LEFT JOIN     grouper_prov_group_attr       pga  ON pga.grouper_prov_group_internal_id = pg.internal_id
+  LEFT JOIN     grouper_prov_group_attr_value pgav ON pgav.prov_group_attr_internal_id = pga.internal_id
+  LEFT JOIN     grouper_dictionary            gd   ON gd.internal_id = pgav.value_dictionary_internal_id;
+
+CREATE VIEW grouper_prov_mship_v AS
+SELECT
+    gs.provisioner_name,
+    gm.subject_source             AS subject_source_id,
+    gm.subject_id,
+    gm.subject_identifier0,
+    gm.subject_identifier1,
+    gm.name                       AS member_name,
+    gg.name                       AS group_name,
+    pmr.role_name,
+    gsms.in_target,
+    gsms.in_target_insert_or_exists,
+    gsms.in_target_start,
+    gsms.in_target_end,
+    pm.last_updated               AS mship_last_updated,
+    gs.sync_engine,
+    pu.target_user_id,
+    pg.target_group_id,
+    gs.id                         AS grouper_sync_id,
+    gsms.membership_id            AS grouper_sync_mship_id,
+    pm.internal_id                AS prov_mship_internal_id,
+    pm.prov_user_internal_id,
+    pm.prov_group_internal_id,
+    pm.grouper_sync_internal_id,
+    gm.id                         AS member_id,
+    gm.id_index                   AS member_id_index,
+    pu.member_internal_id,
+    gg.id                         AS group_id,
+    gg.id_index                   AS group_id_index,
+    pg.group_internal_id
+FROM            grouper_prov_mship            pm
+  LEFT JOIN     grouper_prov_user             pu    ON pu.internal_id = pm.prov_user_internal_id
+  LEFT JOIN     grouper_prov_group            pg    ON pg.internal_id = pm.prov_group_internal_id
+  LEFT JOIN     grouper_prov_mship_role       pmr   ON pmr.internal_id = pm.prov_mship_role_internal_id
+  LEFT JOIN     grouper_sync                  gs    ON gs.internal_id = pm.grouper_sync_internal_id
+  LEFT JOIN     grouper_members               gm    ON gm.internal_id = pu.member_internal_id
+  LEFT JOIN     grouper_groups                gg    ON gg.internal_id = pg.group_internal_id
+  LEFT JOIN     grouper_sync_member           gsm_u ON gsm_u.grouper_sync_id = gs.id AND gsm_u.member_id = gm.id
+  LEFT JOIN     grouper_sync_group            gsg   ON gsg.grouper_sync_id = gs.id AND gsg.group_id = gg.id
+  LEFT JOIN     grouper_sync_membership       gsms  ON gsms.grouper_sync_id = gs.id AND gsms.grouper_sync_group_id = gsg.id AND gsms.grouper_sync_member_id = gsm_u.id;
 
 CREATE TABLE grouper_dictionary (
   internal_id BIGINT NOT NULL,
@@ -7997,7 +8227,180 @@ COMMENT ON COLUMN grouper_sql_dependency_row_v.depen_field_name IS 'field name e
 COMMENT ON COLUMN grouper_sql_dependency_row_v.depen_field_type IS 'field type e.g. access of the dependent group of the dependency';
 COMMENT ON COLUMN grouper_sql_dependency_row_v.depen_field_internal_id IS 'field internal id of the dependent group of the dependency';
 
-insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
+CREATE TABLE grouper_lifecycle_event_config (
+  internal_id BIGINT NOT NULL,
+  config_id varchar(100) NOT NULL,
+  group_internal_id BIGINT,
+  stem_id_index BIGINT,
+  data_field_internal_id BIGINT,
+  data_row_internal_id BIGINT,
+  created_on_micros BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_lcycle_evnt_cnfg_idx ON grouper_lifecycle_event_config (config_id);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT group_internal_id_fk FOREIGN KEY (group_internal_id) REFERENCES  grouper_groups(internal_id);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT stem_id_index_fk FOREIGN KEY (stem_id_index) REFERENCES  grouper_stems(id_index);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_field_internal_id_fk FOREIGN KEY (data_field_internal_id) REFERENCES  grouper_data_field(internal_id);
+ALTER TABLE  grouper_lifecycle_event_config ADD CONSTRAINT data_row_internal_id_fk FOREIGN KEY (data_row_internal_id) REFERENCES  grouper_data_row(internal_id);
+
+COMMENT ON TABLE grouper_lifecycle_event_config IS 'table to store user lifecycle event configs';
+COMMENT ON COLUMN grouper_lifecycle_event_config.internal_id IS 'integer id for this table';
+COMMENT ON COLUMN grouper_lifecycle_event_config.config_id IS 'unique user friendly id for the config';
+COMMENT ON COLUMN grouper_lifecycle_event_config.group_internal_id IS 'group internal id';
+COMMENT ON COLUMN grouper_lifecycle_event_config.stem_id_index IS 'folder id index';
+COMMENT ON COLUMN grouper_lifecycle_event_config.data_field_internal_id IS 'data field internal id';
+COMMENT ON COLUMN grouper_lifecycle_event_config.data_row_internal_id IS 'data row internal id';
+COMMENT ON COLUMN grouper_lifecycle_event_config.created_on_micros IS 'when this event config was created';
+
+CREATE TABLE grouper_lifecycle_event (
+  internal_id BIGINT NOT NULL,
+  grpr_lcycl_evnt_cnfg_intrnl_id BIGINT NOT NULL,
+  member_internal_id BIGINT NOT NULL,
+  event_micros BIGINT NOT NULL,
+  ntrl_lng_priv_dic_intrnl_id BIGINT,
+  ntrl_lng_unpriv_dic_intrnl_id BIGINT,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_lifecycle_event_uniq_idx ON grouper_lifecycle_event (grpr_lcycl_evnt_cnfg_intrnl_id, member_internal_id, event_micros);
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lcycl_evnt_cnfg_intrnl_id_fk FOREIGN KEY (grpr_lcycl_evnt_cnfg_intrnl_id) REFERENCES  grouper_lifecycle_event_config(internal_id);
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT member_internal_id_fk FOREIGN KEY (member_internal_id) REFERENCES  grouper_members(internal_id);
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_priv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_priv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id);
+ALTER TABLE  grouper_lifecycle_event ADD CONSTRAINT lng_unpriv_dic_intrnl_id_fk FOREIGN KEY (ntrl_lng_unpriv_dic_intrnl_id) REFERENCES  grouper_dictionary(internal_id);
+
+COMMENT ON TABLE grouper_lifecycle_event IS 'table to store user lifecycle events';
+COMMENT ON COLUMN grouper_lifecycle_event.internal_id IS 'integer id for this table';
+COMMENT ON COLUMN grouper_lifecycle_event.grpr_lcycl_evnt_cnfg_intrnl_id IS 'internal id of the grouper lifecycle config table';
+COMMENT ON COLUMN grouper_lifecycle_event.member_internal_id IS 'member internal id';
+COMMENT ON COLUMN grouper_lifecycle_event.event_micros IS 'when the event occurred';
+COMMENT ON COLUMN grouper_lifecycle_event.ntrl_lng_priv_dic_intrnl_id IS 'dictionary table internal id';
+COMMENT ON COLUMN grouper_lifecycle_event.ntrl_lng_unpriv_dic_intrnl_id IS 'dictionary table internal id';
+
+CREATE TABLE grouper_oauth_client
+(
+  internal_id BIGINT NOT NULL,
+  client_id VARCHAR(255) NOT NULL,
+  client_name VARCHAR(255),
+  redirect_uris VARCHAR(4000) NOT NULL,
+  client_secret VARCHAR(4000),
+  registered_micros BIGINT NOT NULL,
+  member_internal_id BIGINT,
+  code_count BIGINT,
+  last_code_micros BIGINT,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_oauth_client_idx ON grouper_oauth_client (client_id);
+
+COMMENT ON TABLE grouper_oauth_client IS 'table to store dynamically registered OAuth clients';
+COMMENT ON COLUMN grouper_oauth_client.internal_id IS 'auto-incrementing bigint primary key';
+COMMENT ON COLUMN grouper_oauth_client.client_id IS 'unique OAuth client identifier';
+COMMENT ON COLUMN grouper_oauth_client.client_name IS 'display name for the client';
+COMMENT ON COLUMN grouper_oauth_client.redirect_uris IS 'comma-separated list of registered redirect URIs';
+COMMENT ON COLUMN grouper_oauth_client.client_secret IS 'encrypted client secret';
+COMMENT ON COLUMN grouper_oauth_client.registered_micros IS 'micros since 1970 when the client was registered';
+COMMENT ON COLUMN grouper_oauth_client.member_internal_id IS 'member internal id of the first user who got an authorization code (nullable)';
+COMMENT ON COLUMN grouper_oauth_client.code_count IS 'number of authorization codes issued for this client';
+COMMENT ON COLUMN grouper_oauth_client.last_code_micros IS 'micros since 1970 when the last authorization code was issued';
+
+CREATE TABLE grouper_oauth_code
+(
+  internal_id BIGINT NOT NULL,
+  code VARCHAR(255) NOT NULL,
+  oauth_client_internal_id BIGINT NOT NULL,
+  redirect_uri VARCHAR(4000),
+  code_challenge VARCHAR(255) NOT NULL,
+  code_challenge_method VARCHAR(10) NOT NULL,
+  member_internal_id BIGINT NOT NULL,
+  is_used VARCHAR(1) NOT NULL,
+  created_micros BIGINT NOT NULL,
+  expires_micros BIGINT,
+  consent_details VARCHAR(4000),
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_oauth_code_idx ON grouper_oauth_code (code);
+CREATE INDEX grouper_oauth_code_exp_idx ON grouper_oauth_code (expires_micros);
+CREATE INDEX grp_oauth_code_client_idx ON grouper_oauth_code (oauth_client_internal_id);
+
+COMMENT ON TABLE grouper_oauth_code IS 'table to store issued OAuth authorization codes';
+COMMENT ON COLUMN grouper_oauth_code.internal_id IS 'auto-incrementing bigint primary key';
+COMMENT ON COLUMN grouper_oauth_code.code IS 'unique authorization code';
+COMMENT ON COLUMN grouper_oauth_code.oauth_client_internal_id IS 'internal id from grouper_oauth_client (soft link, not a FK)';
+COMMENT ON COLUMN grouper_oauth_code.redirect_uri IS 'redirect URI provided in the authorization request';
+COMMENT ON COLUMN grouper_oauth_code.code_challenge IS 'PKCE code challenge (S256)';
+COMMENT ON COLUMN grouper_oauth_code.code_challenge_method IS 'PKCE code challenge method (S256)';
+COMMENT ON COLUMN grouper_oauth_code.member_internal_id IS 'member internal id of the user who approved';
+COMMENT ON COLUMN grouper_oauth_code.is_used IS 'T or F whether this code has been exchanged for a token';
+COMMENT ON COLUMN grouper_oauth_code.created_micros IS 'micros since 1970 when the code was created';
+COMMENT ON COLUMN grouper_oauth_code.expires_micros IS 'micros since 1970 when the code expires';
+COMMENT ON COLUMN grouper_oauth_code.consent_details IS 'JSON object with consent details (granted scopes, etc.)';
+
+CREATE TABLE grouper_oauth_pend_authz_req
+(
+  internal_id BIGINT NOT NULL,
+  request_id VARCHAR(255) NOT NULL,
+  oauth_client_internal_id BIGINT NOT NULL,
+  redirect_uri VARCHAR(4000),
+  code_challenge VARCHAR(255) NOT NULL,
+  code_challenge_method VARCHAR(10) NOT NULL,
+  state VARCHAR(4000),
+  scope VARCHAR(4000),
+  created_micros BIGINT NOT NULL,
+  expires_micros BIGINT,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grp_oauth_pend_req_idx ON grouper_oauth_pend_authz_req (request_id);
+CREATE INDEX grp_oauth_pend_exp_idx ON grouper_oauth_pend_authz_req (expires_micros);
+CREATE INDEX grp_oauth_pend_client_idx ON grouper_oauth_pend_authz_req (oauth_client_internal_id);
+
+COMMENT ON TABLE grouper_oauth_pend_authz_req IS 'table to store pending OAuth authorization requests awaiting user approval';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.internal_id IS 'auto-incrementing bigint primary key';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.request_id IS 'unique public-facing request identifier';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.oauth_client_internal_id IS 'internal id from grouper_oauth_client (soft link, not a FK)';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.redirect_uri IS 'redirect URI for the response';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.code_challenge IS 'PKCE code challenge (S256)';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.code_challenge_method IS 'PKCE code challenge method (S256)';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.state IS 'OAuth state parameter passed through to redirect';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.scope IS 'requested OAuth scope';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.created_micros IS 'micros since 1970 when the request was created';
+COMMENT ON COLUMN grouper_oauth_pend_authz_req.expires_micros IS 'micros since 1970 when the request expires';
+
+CREATE TABLE grouper_mcp_tool_log
+(
+    internal_id BIGINT NOT NULL,
+    oauth_client_internal_id BIGINT,
+    member_internal_id BIGINT NOT NULL,
+    tool_name VARCHAR(255) NOT NULL,
+    tool_category VARCHAR(64) NOT NULL,
+    request VARCHAR(4000),
+    response_or_error VARCHAR(4000),
+    is_error VARCHAR(1) NOT NULL,
+    started_micros BIGINT NOT NULL,
+    duration_micros BIGINT,
+    PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX grp_mcp_tool_log_member_idx ON grouper_mcp_tool_log (member_internal_id);
+CREATE INDEX grp_mcp_tool_log_started_idx ON grouper_mcp_tool_log (started_micros);
+CREATE INDEX grp_mcp_tool_log_name_idx ON grouper_mcp_tool_log (tool_name);
+CREATE INDEX grp_mcp_tool_log_oauth_idx ON grouper_mcp_tool_log (oauth_client_internal_id);
+
+COMMENT ON TABLE grouper_mcp_tool_log IS 'audit log of MCP tool calls including request, response, timing, and error info';
+COMMENT ON COLUMN grouper_mcp_tool_log.internal_id IS 'auto-incrementing bigint primary key';
+COMMENT ON COLUMN grouper_mcp_tool_log.oauth_client_internal_id IS 'internal id from grouper_oauth_client (soft link, not a FK, so audits survive client deletion)';
+COMMENT ON COLUMN grouper_mcp_tool_log.member_internal_id IS 'member internal id of the authenticated user who called the tool';
+COMMENT ON COLUMN grouper_mcp_tool_log.tool_name IS 'name of the MCP tool that was called';
+COMMENT ON COLUMN grouper_mcp_tool_log.tool_category IS 'category of the MCP tool';
+COMMENT ON COLUMN grouper_mcp_tool_log.request IS 'request payload (truncated to 4000 chars)';
+COMMENT ON COLUMN grouper_mcp_tool_log.response_or_error IS 'response or error message (truncated to 4000 chars)';
+COMMENT ON COLUMN grouper_mcp_tool_log.is_error IS 'T if the call resulted in an error, F otherwise';
+COMMENT ON COLUMN grouper_mcp_tool_log.started_micros IS 'micros since 1970 when the call started';
+COMMENT ON COLUMN grouper_mcp_tool_log.duration_micros IS 'duration of the call in microseconds';
+
+insert into grouper_ddl (id, object_name, db_version, last_updated, history) values
 ('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
 to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V47, ');
 commit;

@@ -2197,6 +2197,28 @@ public class GrouperProvisioningBehavior {
     return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLoadEntitiesToGrouperTable();
   }
 
+  public boolean isLoadEntitiesToGenericGrouperTable() {
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLoadEntitiesToGenericGrouperTable()) {
+      return false;
+    }
+    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false);
+  }
+
+  public boolean isLoadGroupsToGenericGrouperTable() {
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLoadGroupsToGenericGrouperTable()) {
+      return false;
+    }
+    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllGroups(), false);
+  }
+
+  public boolean isLoadMembershipsToGenericGrouperTable() {
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLoadMembershipsToGenericGrouperTable()) {
+      return false;
+    }
+    return this.isLoadEntitiesToGenericGrouperTable()
+        && this.isLoadGroupsToGenericGrouperTable();
+  }
+
   public boolean isSelectGroupsInGeneral() {
     if (this.selectGroupsInGeneral != null) {
       return this.selectGroupsInGeneral;

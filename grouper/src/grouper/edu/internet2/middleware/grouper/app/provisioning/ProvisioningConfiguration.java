@@ -52,7 +52,9 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
@@ -61,6 +63,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public abstract class ProvisioningConfiguration extends GrouperConfigurationModuleBase {
@@ -422,7 +425,73 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
       }
     }
     
+    long grouperSyncInternalId = grouperSync.getInternalId();
+
+    {
+      int rows = chunkedDeleteByGrouperSyncInternalId("grouper_prov_mship", grouperSyncInternalId);
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(rows);
+      }
+      if (jobMessage != null && rows > 0) {
+        jobMessage.append("Deleted " + rows + " prov memberships from provisioner " + configId + "\n");
+      }
+    }
+
+    {
+      int rows = chunkedDeleteByGrouperSyncInternalId("grouper_prov_mship_role", grouperSyncInternalId);
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(rows);
+      }
+      if (jobMessage != null && rows > 0) {
+        jobMessage.append("Deleted " + rows + " prov membership roles from provisioner " + configId + "\n");
+      }
+    }
+
+    {
+      int rows = chunkedDeleteByGrouperSyncInternalId("grouper_prov_user", grouperSyncInternalId);
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(rows);
+      }
+      if (jobMessage != null && rows > 0) {
+        jobMessage.append("Deleted " + rows + " prov users from provisioner " + configId + "\n");
+      }
+    }
+
+    {
+      int rows = chunkedDeleteByGrouperSyncInternalId("grouper_prov_group", grouperSyncInternalId);
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(rows);
+      }
+      if (jobMessage != null && rows > 0) {
+        jobMessage.append("Deleted " + rows + " prov groups from provisioner " + configId + "\n");
+      }
+    }
+
     grouperSync.getGcGrouperSyncDao().delete();
+  }
+
+  // chunked delete to bound transaction size; cascading FKs drop child rows automatically
+  private static int chunkedDeleteByGrouperSyncInternalId(String tableName, long grouperSyncInternalId) {
+    int total = 0;
+    while (true) {
+      String selectSql = "select internal_id from " + tableName + " where grouper_sync_internal_id = ? "
+          + (GrouperDdlUtils.isOracle() ? "and rownum <= 1000" : "limit 1000");
+      List<Long> ids = new GcDbAccess().connectionName("grouper")
+          .sql(selectSql)
+          .addBindVar(grouperSyncInternalId)
+          .selectList(Long.class);
+      if (GrouperUtil.length(ids) == 0) {
+        return total;
+      }
+      String inClause = GrouperClientUtils.appendQuestions(ids.size());
+      GcDbAccess delete = new GcDbAccess().connectionName("grouper")
+          .sql("delete from " + tableName + " where internal_id in (" + inClause + ")");
+      for (Long id : ids) {
+        delete.addBindVar(id);
+      }
+      delete.executeSql();
+      total += ids.size();
+    }
   }
 
   /**

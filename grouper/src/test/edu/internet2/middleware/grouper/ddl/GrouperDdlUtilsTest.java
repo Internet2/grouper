@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import junit.textui.TestRunner;
 
 
@@ -2720,6 +2721,136 @@ public class GrouperDdlUtilsTest extends GrouperTest {
 
     assertEquals(
         grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  }
+
+  /**
+   * test upgrade from pre-V41 (7.0.0) to current:
+   * - adds grouper_sync.internal_id column (backfilled and NOT NULL)
+   * - creates grouper_prov_* tables
+   * - creates grouper_prov_user_attr_v, grouper_prov_group_attr_v, grouper_prov_mship_v views
+   */
+  public void testUpgradeFrom7_0_0_pre_V41ddlUtils() {
+
+    // bring DB to current install state so the baseline assertions hold even
+    // if the test DB predates the V47/GrouperDdl7_2_0 wiring
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+
+    //lets make sure everything is there on install
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync", "internal_id"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_group"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_group_attr"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_group_attr_value"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_user"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_user_attr"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_user_attr_value"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_mship_role"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_mship"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_user_attr_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_group_attr_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_mship_v"));
+
+    // capture baseline deep-check error/warning counts so we can assert the upgrade
+    // doesn't introduce NEW issues (some pre-existing FK gaps in the install schema
+    // are unrelated to V41)
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    int baselineErrorCount = grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount();
+    int baselineWarningCount = grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount();
+
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+
+    // load pre-V41 DDL (no grouper_sync.internal_id, no grouper_prov_* tables/views)
+    File scriptToGetToPreV41 = retrieveScriptFile("GrouperDdl_7_0_0_pre_V41_" + GrouperDdlUtils.databaseType() + ".sql");
+
+    GrouperDdlUtils.sqlRun(scriptToGetToPreV41, true, true);
+
+    // baseline does not include grouper_ddl_worker; recreate it like other baseline tests do
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+
+    // stuff gone
+    assertFalse(GrouperDdlUtils.assertColumnThere(true, "grouper_sync", "internal_id"));
+    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_prov_group"));
+    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_prov_user"));
+    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_prov_mship"));
+    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_prov_user_attr_v"));
+    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_prov_group_attr_v"));
+    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_prov_mship_v"));
+
+    // insert a grouper_sync row so backfill of internal_id is exercised
+    String testSyncId = GrouperUuid.getUuid();
+    new GcDbAccess()
+      .sql("insert into grouper_sync (id, provisioner_name, last_updated) values (?, ?, ?)")
+      .bindVars(testSyncId, "testProvV41Upgrade", new java.sql.Timestamp(System.currentTimeMillis()))
+      .executeSql();
+
+    // run all in-flight upgrade tasks that the pre-V41 baseline does not yet include
+    UpgradeTasks.V39.upgradeTask().updateVersionFromPrevious(null);
+    UpgradeTasks.V40.upgradeTask().updateVersionFromPrevious(null);
+    UpgradeTasks.V41.upgradeTask().updateVersionFromPrevious(null);
+
+    // pick up any residual auto-DDL not covered by V41 (matches the pattern of
+    // other upgrade tests in this file)
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+
+    //lets make sure everything is there on upgrade
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync", "internal_id"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_group"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_group_attr"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_group_attr_value"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_user"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_user_attr"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_user_attr_value"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_mship_role"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_mship"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_user_attr_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_group_attr_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_mship_v"));
+
+    // the pre-existing row should have a backfilled internal_id
+    Long backfilledInternalId = new GcDbAccess()
+      .sql("select internal_id from grouper_sync where id = ?")
+      .bindVars(testSyncId)
+      .select(Long.class);
+    assertNotNull("internal_id should be backfilled for existing grouper_sync row", backfilledInternalId);
+
+    // and the column should be NOT NULL — inserting a new row without it must fail
+    try {
+      new GcDbAccess()
+        .sql("insert into grouper_sync (id, provisioner_name, last_updated) values (?, ?, ?)")
+        .bindVars(GrouperUuid.getUuid(), "testProvV41UpgradeNotNull", new java.sql.Timestamp(System.currentTimeMillis()))
+        .executeSql();
+      fail("expected NOT NULL violation on grouper_sync.internal_id");
+    } catch (Exception e) {
+      // expected
+    }
+
+    scriptToGetToPreV41.delete();
+
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+
+    // upgrade should not introduce NEW errors/warnings beyond the install baseline
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getResult() + " "
+            + grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors (baseline "
+            + baselineErrorCount + ")",
+        baselineErrorCount,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings (baseline "
+            + baselineWarningCount + ")",
+        baselineWarningCount,
         grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
   }
 }

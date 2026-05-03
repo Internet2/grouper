@@ -2937,6 +2937,44 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdl6_2_0.addGrouperDataFieldAssignIndexes(ddlVersionBean, database);
         GrouperDdl6_2_0.addGrouperGroupSetMemberIndex(ddlVersionBean, database);
 
+        GrouperDdl7_2_0.addGrouperSyncInternalId(database, ddlVersionBean);
+        GrouperDdl7_2_0.addGrouperSyncInternalIdIndex(ddlVersionBean, database);
+        GrouperDdl7_2_0.addGrouperSyncInternalIdComment(database, ddlVersionBean);
+
+        GrouperDdl7_2_0.addGrouperProvGroupTable(database, ddlVersionBean);
+        GrouperDdl7_2_0.addGrouperProvGroupIndexes(ddlVersionBean, database);
+        GrouperDdl7_2_0.addGrouperProvGroupComments(database, ddlVersionBean);
+
+        GrouperDdl7_2_0.addGrouperProvGroupAttrTable(database, ddlVersionBean);
+        GrouperDdl7_2_0.addGrouperProvGroupAttrIndexes(ddlVersionBean, database);
+        GrouperDdl7_2_0.addGrouperProvGroupAttrComments(database, ddlVersionBean);
+
+        GrouperDdl7_2_0.addGrouperProvGroupAttrValueTable(database, ddlVersionBean);
+        GrouperDdl7_2_0.addGrouperProvGroupAttrValueIndexes(ddlVersionBean, database);
+        GrouperDdl7_2_0.addGrouperProvGroupAttrValueComments(database, ddlVersionBean);
+
+        GrouperDdl7_2_0.addGrouperProvUserTable(database, ddlVersionBean);
+        GrouperDdl7_2_0.addGrouperProvUserIndexes(ddlVersionBean, database);
+        GrouperDdl7_2_0.addGrouperProvUserComments(database, ddlVersionBean);
+
+        GrouperDdl7_2_0.addGrouperProvUserAttrTable(database, ddlVersionBean);
+        GrouperDdl7_2_0.addGrouperProvUserAttrIndexes(ddlVersionBean, database);
+        GrouperDdl7_2_0.addGrouperProvUserAttrComments(database, ddlVersionBean);
+
+        GrouperDdl7_2_0.addGrouperProvUserAttrValueTable(database, ddlVersionBean);
+        GrouperDdl7_2_0.addGrouperProvUserAttrValueIndexes(ddlVersionBean, database);
+        GrouperDdl7_2_0.addGrouperProvUserAttrValueComments(database, ddlVersionBean);
+
+        GrouperDdl7_2_0.addGrouperProvMshipRoleTable(database, ddlVersionBean);
+        GrouperDdl7_2_0.addGrouperProvMshipRoleIndexes(ddlVersionBean, database);
+        GrouperDdl7_2_0.addGrouperProvMshipRoleComments(database, ddlVersionBean);
+
+        GrouperDdl7_2_0.addGrouperProvMshipTable(database, ddlVersionBean);
+        GrouperDdl7_2_0.addGrouperProvMshipIndexes(ddlVersionBean, database);
+        GrouperDdl7_2_0.addGrouperProvMshipComments(database, ddlVersionBean);
+
+        GrouperDdl7_2_0.addProvViews(database, ddlVersionBean);
+
     }
   }
   //DON'T ADD ANY MORE Vs, we are only doing UpgradeTaskX going forward
@@ -3351,6 +3389,10 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_sql_dependency_group_v", false);
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_sql_dependency_attr_v", false);
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_sql_dependency_row_v", false);
+
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_prov_mship_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_prov_group_attr_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_prov_user_attr_v", false);
 
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attributes_v", false);
 

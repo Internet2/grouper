@@ -81,9 +81,14 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  *
  */
 public class GrouperProvisioningLogic {
-  
+
   /**
-   * 
+   * default role name for memberships that do not specify a role
+   */
+  public static final String DEFAULT_MSHIP_ROLE_NAME = "members";
+
+  /**
+   *
    */
   public void provision() {
 
@@ -1169,9 +1174,10 @@ public class GrouperProvisioningLogic {
 
   private static class GenericProvisioningUserRecord implements GenericProvisioningRecord {
     private long internalId;
+    private Long memberInternalId;
     private final String targetId;
     private final Map<String, List<Object>> attributeNameToValues = new LinkedHashMap<String, List<Object>>();
-    
+
     private GenericProvisioningUserRecord(String targetId) {
       this.targetId = targetId;
     }
@@ -1184,6 +1190,8 @@ public class GrouperProvisioningLogic {
     public String getTargetId() { return targetId; }
     @Override
     public Map<String, List<Object>> getAttributeNameToValues() { return attributeNameToValues; }
+    public Long getMemberInternalId() { return memberInternalId; }
+    public void setMemberInternalId(Long memberInternalId) { this.memberInternalId = memberInternalId; }
 
     @Override
     public boolean equals(Object obj) {
@@ -1209,9 +1217,10 @@ public class GrouperProvisioningLogic {
 
   private static class GenericProvisioningGroupRecord implements GenericProvisioningRecord {
     private long internalId;
+    private Long groupInternalId;
     private final String targetId;
     private final Map<String, List<Object>> attributeNameToValues = new LinkedHashMap<String, List<Object>>();
-    
+
     private GenericProvisioningGroupRecord(String targetId) {
       this.targetId = targetId;
     }
@@ -1224,6 +1233,8 @@ public class GrouperProvisioningLogic {
     public String getTargetId() { return targetId; }
     @Override
     public Map<String, List<Object>> getAttributeNameToValues() { return attributeNameToValues; }
+    public Long getGroupInternalId() { return groupInternalId; }
+    public void setGroupInternalId(Long groupInternalId) { this.groupInternalId = groupInternalId; }
 
     @Override
     public boolean equals(Object obj) {
@@ -1293,7 +1304,14 @@ public class GrouperProvisioningLogic {
   }
   
   private void loadDataToGenericProvisionerTables() {
-    
+
+    GrouperProvisioningBehavior behavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
+    if (!behavior.isLoadEntitiesToGenericGrouperTable()
+        && !behavior.isLoadGroupsToGenericGrouperTable()
+        && !behavior.isLoadMembershipsToGenericGrouperTable()) {
+      return;
+    }
+
     GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
     if (gcGrouperSync == null || gcGrouperSync.getInternalId() == null) {
       return;
@@ -1320,13 +1338,16 @@ public class GrouperProvisioningLogic {
         userRecord = new GenericProvisioningUserRecord(targetUserId);
         targetUserIdToRecord.put(targetUserId, userRecord);
       }
-      
+      if (userRecord.getMemberInternalId() == null && targetProvisioningEntity.getInternalId() != null) {
+        userRecord.setMemberInternalId(targetProvisioningEntity.getInternalId());
+      }
+
       for (ProvisioningAttribute provisioningAttribute : targetProvisioningEntity.retrieveAttributes().values()) {
         String attributeName = provisioningAttribute.getName();
         this.addProvisioningAttributeValue(userRecord, attributeName, provisioningAttribute.getValue());
       }
     }
-    
+
     Map<String, GenericProvisioningGroupRecord> targetGroupIdToRecord = new LinkedHashMap<String, GenericProvisioningGroupRecord>();
     for (ProvisioningGroup targetProvisioningGroup : targetProvisioningGroups) {
       String targetGroupId = this.normalizeTargetId(targetProvisioningGroup.getId());
@@ -1338,7 +1359,10 @@ public class GrouperProvisioningLogic {
         groupRecord = new GenericProvisioningGroupRecord(targetGroupId);
         targetGroupIdToRecord.put(targetGroupId, groupRecord);
       }
-      
+      if (groupRecord.getGroupInternalId() == null && targetProvisioningGroup.getGroupInternalId() != null) {
+        groupRecord.setGroupInternalId(targetProvisioningGroup.getGroupInternalId());
+      }
+
       for (ProvisioningAttribute provisioningAttribute : targetProvisioningGroup.retrieveAttributes().values()) {
         String attributeName = provisioningAttribute.getName();
         this.addProvisioningAttributeValue(groupRecord, attributeName, provisioningAttribute.getValue());
@@ -1391,43 +1415,42 @@ public class GrouperProvisioningLogic {
     // build user row data
     List<Object[]> userRowData = new ArrayList<Object[]>();
     for (GenericProvisioningUserRecord userRecord : targetUserIdToRecord.values()) {
-      userRowData.add(new Object[] {userRecord.getInternalId(), grouperSyncInternalId, null, userRecord.getTargetId(), nowMicros});
+      userRowData.add(new Object[] {userRecord.getInternalId(), grouperSyncInternalId, userRecord.getMemberInternalId(), userRecord.getTargetId(), nowMicros});
     }
-    
+
     // build group row data
     List<Object[]> groupRowData = new ArrayList<Object[]>();
     for (GenericProvisioningGroupRecord groupRecord : targetGroupIdToRecord.values()) {
-      groupRowData.add(new Object[] {groupRecord.getInternalId(), grouperSyncInternalId, null, groupRecord.getTargetId(), nowMicros});
+      groupRowData.add(new Object[] {groupRecord.getInternalId(), grouperSyncInternalId, groupRecord.getGroupInternalId(), groupRecord.getTargetId(), nowMicros});
     }
-    
+
     // build user attribute row data
     List<Object[]> userAttributeRowData = this.buildProvisioningAttributeRowData(userAttributeRecords, nowMicros);
-    
+
     // build group attribute row data
     List<Object[]> groupAttributeRowData = this.buildProvisioningAttributeRowData(groupAttributeRecords, nowMicros);
-    
+
     // build user attribute value row data
     List<Object[]> userAttributeValueRowData = this.buildProvisioningAttributeValueRowData(
         userAttributeRecords, TableIndexType.provUserAttrValue, valueStringToDictionaryInternalId, nowMicros);
-    
+
     // build group attribute value row data
     List<Object[]> groupAttributeValueRowData = this.buildProvisioningAttributeValueRowData(
         groupAttributeRecords, TableIndexType.provGroupAttrValue, valueStringToDictionaryInternalId, nowMicros);
-    
-    // build role row data
+
+    // build role row data - always include the default role so every membership has a non-null role FK
     Map<String, Long> roleNameToInternalId = new LinkedHashMap<String, Long>();
     Set<String> roleNames = new LinkedHashSet<String>();
+    roleNames.add(DEFAULT_MSHIP_ROLE_NAME);
     for (GenericProvisioningMembershipRecord membershipRecord : membershipRecords) {
       if (membershipRecord.roleName != null) {
         roleNames.add(membershipRecord.roleName);
       }
     }
-    if (GrouperUtil.length(roleNames) > 0) {
-      List<String> roleNamesList = new ArrayList<String>(roleNames);
-      List<Long> roleInternalIds = TableIndex.reserveIds(TableIndexType.provMshipRole, roleNamesList.size());
-      for (int i = 0; i < roleNamesList.size(); i++) {
-        roleNameToInternalId.put(roleNamesList.get(i), roleInternalIds.get(i));
-      }
+    List<String> roleNamesList = new ArrayList<String>(roleNames);
+    List<Long> roleInternalIds = TableIndex.reserveIds(TableIndexType.provMshipRole, roleNamesList.size());
+    for (int i = 0; i < roleNamesList.size(); i++) {
+      roleNameToInternalId.put(roleNamesList.get(i), roleInternalIds.get(i));
     }
     
     List<Object[]> roleRowData = new ArrayList<Object[]>();
@@ -1443,7 +1466,8 @@ public class GrouperProvisioningLogic {
         GenericProvisioningMembershipRecord membershipRecord = membershipRecords.get(i);
         GenericProvisioningUserRecord userRecord = targetUserIdToRecord.get(membershipRecord.targetUserId);
         GenericProvisioningGroupRecord groupRecord = targetGroupIdToRecord.get(membershipRecord.targetGroupId);
-        Long roleInternalId = membershipRecord.roleName != null ? roleNameToInternalId.get(membershipRecord.roleName) : null;
+        String effectiveRoleName = membershipRecord.roleName != null ? membershipRecord.roleName : DEFAULT_MSHIP_ROLE_NAME;
+        Long roleInternalId = roleNameToInternalId.get(effectiveRoleName);
         if (userRecord == null || groupRecord == null) {
           continue;
         }
@@ -1520,7 +1544,14 @@ public class GrouperProvisioningLogic {
   }
   
   private void loadDataToGenericProvisionerTablesIncremental() {
-    
+
+    GrouperProvisioningBehavior behavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
+    if (!behavior.isLoadEntitiesToGenericGrouperTable()
+        && !behavior.isLoadGroupsToGenericGrouperTable()
+        && !behavior.isLoadMembershipsToGenericGrouperTable()) {
+      return;
+    }
+
     GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
     if (gcGrouperSync == null || gcGrouperSync.getInternalId() == null) {
       return;
@@ -1547,7 +1578,10 @@ public class GrouperProvisioningLogic {
         userRecord = new GenericProvisioningUserRecord(targetUserId);
         targetUserIdToRecord.put(targetUserId, userRecord);
       }
-      
+      if (userRecord.getMemberInternalId() == null && targetProvisioningEntity.getInternalId() != null) {
+        userRecord.setMemberInternalId(targetProvisioningEntity.getInternalId());
+      }
+
       for (ProvisioningAttribute provisioningAttribute : targetProvisioningEntity.retrieveAttributes().values()) {
         String attributeName = provisioningAttribute.getName();
         if (StringUtils.equalsIgnoreCase("id", attributeName)) {
@@ -1574,7 +1608,10 @@ public class GrouperProvisioningLogic {
         groupRecord = new GenericProvisioningGroupRecord(targetGroupId);
         targetGroupIdToRecord.put(targetGroupId, groupRecord);
       }
-      
+      if (groupRecord.getGroupInternalId() == null && targetProvisioningGroup.getGroupInternalId() != null) {
+        groupRecord.setGroupInternalId(targetProvisioningGroup.getGroupInternalId());
+      }
+
       for (ProvisioningAttribute provisioningAttribute : targetProvisioningGroup.retrieveAttributes().values()) {
         String attributeName = provisioningAttribute.getName();
         if (StringUtils.equalsIgnoreCase("id", attributeName)) {
@@ -1843,50 +1880,50 @@ public class GrouperProvisioningLogic {
     // build user row data
     List<Object[]> userRowData = new ArrayList<Object[]>();
     for (GenericProvisioningUserRecord userRecord : targetUserIdToRecord.values()) {
-      userRowData.add(new Object[] {userRecord.getInternalId(), grouperSyncInternalId, null, userRecord.getTargetId(), nowMicros});
+      userRowData.add(new Object[] {userRecord.getInternalId(), grouperSyncInternalId, userRecord.getMemberInternalId(), userRecord.getTargetId(), nowMicros});
     }
-    
+
     // build group row data
     List<Object[]> groupRowData = new ArrayList<Object[]>();
     for (GenericProvisioningGroupRecord groupRecord : targetGroupIdToRecord.values()) {
-      groupRowData.add(new Object[] {groupRecord.getInternalId(), grouperSyncInternalId, null, groupRecord.getTargetId(), nowMicros});
+      groupRowData.add(new Object[] {groupRecord.getInternalId(), grouperSyncInternalId, groupRecord.getGroupInternalId(), groupRecord.getTargetId(), nowMicros});
     }
-    
+
     // build user attribute row data
     List<Object[]> userAttributeRowData = this.buildProvisioningAttributeRowData(userAttributeRecords, nowMicros);
-    
+
     // build group attribute row data
     List<Object[]> groupAttributeRowData = this.buildProvisioningAttributeRowData(groupAttributeRecords, nowMicros);
-    
+
     // build user attribute value row data
     List<Object[]> userAttributeValueRowData = this.buildProvisioningAttributeValueRowData(
         userAttributeRecords, TableIndexType.provUserAttrValue, valueStringToDictionaryInternalId, nowMicros);
-    
+
     // build group attribute value row data
     List<Object[]> groupAttributeValueRowData = this.buildProvisioningAttributeValueRowData(
         groupAttributeRecords, TableIndexType.provGroupAttrValue, valueStringToDictionaryInternalId, nowMicros);
-    
+
     // build role row data (roles only accumulate, no deletes)
+    // always include the default role so every membership has a non-null role FK
     Map<String, Long> roleNameToInternalId = new LinkedHashMap<String, Long>();
     Set<String> roleNames = new LinkedHashSet<String>();
+    roleNames.add(DEFAULT_MSHIP_ROLE_NAME);
     for (GenericProvisioningMembershipRecord membershipRecord : membershipRecords) {
       if (membershipRecord.roleName != null) {
         roleNames.add(membershipRecord.roleName);
       }
     }
-    
+
     // look up existing roles first
     Map<String, Long> existingRoleNameToInternalId = new LinkedHashMap<String, Long>();
-    if (GrouperUtil.length(roleNames) > 0) {
-      List<Object[]> existingRoles = new GcDbAccess().connectionName("grouper")
-          .sql("select internal_id, role_name from grouper_prov_mship_role where grouper_sync_internal_id = ?")
-          .addBindVar(grouperSyncInternalId).selectList(Object[].class);
-      for (Object[] row : existingRoles) {
-        Long internalId = GrouperUtil.longObjectValue(row[0], false);
-        String roleName = GrouperUtil.stringValue(row[1]);
-        if (internalId != null && !StringUtils.isBlank(roleName)) {
-          existingRoleNameToInternalId.put(roleName, internalId);
-        }
+    List<Object[]> existingRoles = new GcDbAccess().connectionName("grouper")
+        .sql("select internal_id, role_name from grouper_prov_mship_role where grouper_sync_internal_id = ?")
+        .addBindVar(grouperSyncInternalId).selectList(Object[].class);
+    for (Object[] row : existingRoles) {
+      Long internalId = GrouperUtil.longObjectValue(row[0], false);
+      String roleName = GrouperUtil.stringValue(row[1]);
+      if (internalId != null && !StringUtils.isBlank(roleName)) {
+        existingRoleNameToInternalId.put(roleName, internalId);
       }
     }
     
@@ -1997,7 +2034,8 @@ public class GrouperProvisioningLogic {
           groupInternalId = membershipGroupTargetIdToInternalId.get(membershipRecord.targetGroupId);
         }
         
-        Long roleInternalId = membershipRecord.roleName != null ? roleNameToInternalId.get(membershipRecord.roleName) : null;
+        String effectiveRoleName = membershipRecord.roleName != null ? membershipRecord.roleName : DEFAULT_MSHIP_ROLE_NAME;
+        Long roleInternalId = roleNameToInternalId.get(effectiveRoleName);
         if (userInternalId == null || groupInternalId == null) {
           continue;
         }
@@ -2559,7 +2597,8 @@ public class GrouperProvisioningLogic {
       return null;
     }
     result.attributeType = "string";
-    result.stringValue = stringValue;
+    // grouper_dictionary.the_text is varchar(4000); leave headroom for multi-byte chars
+    result.stringValue = GrouperUtil.abbreviate(stringValue, 3800);
     return result;
   }
   

@@ -716,6 +716,12 @@ public abstract class GrouperProvisioningConfiguration {
   
   private boolean loadEntitiesToGrouperTable;
 
+  private boolean loadEntitiesToGenericGrouperTable;
+
+  private boolean loadGroupsToGenericGrouperTable;
+
+  private boolean loadMembershipsToGenericGrouperTable;
+
 
   private String entityAttributesSqlExternalSystem;
   private String entityAttributesTableViewName;
@@ -997,6 +1003,18 @@ public abstract class GrouperProvisioningConfiguration {
   
   public boolean isLoadEntitiesToGrouperTable() {
     return loadEntitiesToGrouperTable;
+  }
+
+  public boolean isLoadEntitiesToGenericGrouperTable() {
+    return loadEntitiesToGenericGrouperTable;
+  }
+
+  public boolean isLoadGroupsToGenericGrouperTable() {
+    return loadGroupsToGenericGrouperTable;
+  }
+
+  public boolean isLoadMembershipsToGenericGrouperTable() {
+    return loadMembershipsToGenericGrouperTable;
   }
 
   /**
@@ -3403,6 +3421,9 @@ public abstract class GrouperProvisioningConfiguration {
     this.searchAttributeNameToRetrieveEntities = this.retrieveConfigString("searchAttributeNameToRetrieveEntities", false);
     
     this.loadEntitiesToGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadEntitiesToGrouperTable", false), false);
+    this.loadEntitiesToGenericGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadEntitiesToGenericGrouperTable", false), false);
+    this.loadGroupsToGenericGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadGroupsToGenericGrouperTable", false), false);
+    this.loadMembershipsToGenericGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadMembershipsToGenericGrouperTable", false), false);
     
     this.hasEntityAttributes = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.entityAttributesNotInSubjectSource", false), false);
     this.resolveAttributesWithSql = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.resolveAttributesWithSQL", false), false);
@@ -4404,6 +4425,18 @@ public abstract class GrouperProvisioningConfiguration {
   
   public void setLoadEntitiesToGrouperTable(boolean loadEntitiesToGrouperTable) {
     this.loadEntitiesToGrouperTable = loadEntitiesToGrouperTable;
+  }
+
+  public void setLoadEntitiesToGenericGrouperTable(boolean loadEntitiesToGenericGrouperTable) {
+    this.loadEntitiesToGenericGrouperTable = loadEntitiesToGenericGrouperTable;
+  }
+
+  public void setLoadGroupsToGenericGrouperTable(boolean loadGroupsToGenericGrouperTable) {
+    this.loadGroupsToGenericGrouperTable = loadGroupsToGenericGrouperTable;
+  }
+
+  public void setLoadMembershipsToGenericGrouperTable(boolean loadMembershipsToGenericGrouperTable) {
+    this.loadMembershipsToGenericGrouperTable = loadMembershipsToGenericGrouperTable;
   }
 
   

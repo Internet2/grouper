@@ -121,6 +121,22 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
   }
 
   /**
+   * grouper_groups.internal_id for the matched Grouper group
+   * @return group internal id
+   */
+  public Long getGroupInternalId() {
+    return this.retrieveAttributeValueLong("groupInternalId");
+  }
+
+  /**
+   * grouper_groups.internal_id for the matched Grouper group
+   * @param groupInternalId
+   */
+  public void setGroupInternalId(Long groupInternalId) {
+    this.assignAttributeValue("groupInternalId", groupInternalId);
+  }
+
+  /**
    * display name (optional)
    * @return display name
    */

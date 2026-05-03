@@ -62,20 +62,21 @@ public class GrouperProvisioningGrouperDao {
       return results;
     }
     
-    String sqlInitial = "select " + 
-        "    gg.id, " + 
-        "    gg.name, " + 
-        "    gg.display_name, " + 
-        "    gg.description, " + 
+    String sqlInitial = "select " +
+        "    gg.id, " +
+        "    gg.name, " +
+        "    gg.display_name, " +
+        "    gg.description, " +
         "    gg.id_index, " +
+        "    gg.internal_id, " +
         "    gsg.metadata_json " +
-        "from " + 
-        "    grouper_groups gg, " + 
-        "    grouper_sync_group gsg " + 
-        "where " + 
+        "from " +
+        "    grouper_groups gg, " +
+        "    grouper_sync_group gsg " +
+        "where " +
         "    gsg.grouper_sync_id = ? " +
         "    and gg.id = gsg.group_id " +
-        "    and gg.type_of_group != 'entity' " + 
+        "    and gg.type_of_group != 'entity' " +
         "    and gsg.provisionable = 'T' ";
     
     List<Object> paramsInitial = new ArrayList<Object>();
@@ -132,20 +133,21 @@ public class GrouperProvisioningGrouperDao {
 
     List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
     
-    String sqlInitial = "select " + 
-        "    gg.id, " + 
-        "    gg.name, " + 
-        "    gg.display_name, " + 
-        "    gg.description, " + 
+    String sqlInitial = "select " +
+        "    gg.id, " +
+        "    gg.name, " +
+        "    gg.display_name, " +
+        "    gg.description, " +
         "    gg.id_index, " +
+        "    gg.internal_id, " +
         "    gsg.metadata_json " +
-        "from " + 
-        "    grouper_groups gg, " + 
-        "    grouper_sync_group gsg " + 
-        "where " + 
+        "from " +
+        "    grouper_groups gg, " +
+        "    grouper_sync_group gsg " +
+        "where " +
         "    gsg.grouper_sync_id = ? " +
         "    and gg.id = gsg.group_id " +
-        "    and gg.type_of_group != 'entity' " + 
+        "    and gg.type_of_group != 'entity' " +
         "    and gsg.provisionable = 'T' ";
     
     List<Object> paramsInitial = new ArrayList<Object>();
@@ -670,7 +672,8 @@ public class GrouperProvisioningGrouperDao {
               "    gm.subject_identifier2, " + 
               "    gm.id_index, " + 
               "    gm.subject_resolution_resolvable, " +
-              "    gm.internal_id ");
+              "    gm.internal_id, " +
+              "    gg.internal_id ");
       
       for (int i = 0; i < numberOfBatches; i++) {
         List<MultiKey> currentBatchIds = GrouperUtil.batchList(groupUuidsMemberUuidsList, 450, i);
@@ -1001,13 +1004,17 @@ public class GrouperProvisioningGrouperDao {
       String displayName = queryResult[2];
       String description = queryResult[3];
       String idIndex = queryResult[4];
-      String jsonMetadata = queryResult[5];
-      
+      String groupInternalId = queryResult[5];
+      String jsonMetadata = queryResult[6];
+
       ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup(true);
       grouperProvisioningGroup.setId(id);
       grouperProvisioningGroup.setName(name);
       grouperProvisioningGroup.setDisplayName(displayName);
       grouperProvisioningGroup.setIdIndex(Long.parseLong(idIndex));
+      if (!StringUtils.isBlank(groupInternalId)) {
+        grouperProvisioningGroup.setGroupInternalId(Long.parseLong(groupInternalId));
+      }
       grouperProvisioningGroup.assignAttributeValue("description", description);
       
       JsonNode jsonMetadatNode = null;
@@ -1137,6 +1144,7 @@ public class GrouperProvisioningGrouperDao {
       Long memberIdIndex = GrouperUtil.longObjectValue(queryResult[14], false);
       Boolean subjectResolutionResolvable = GrouperUtil.booleanObjectValue(queryResult[15]);
       Long memberInternalId = GrouperUtil.longObjectValue(queryResult[16], false);
+      Long groupInternalId = GrouperUtil.longObjectValue(queryResult[17], false);
 
       // check if skipping unresolvable subjects
       if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsRemove() && !subjectResolutionResolvable) {
@@ -1172,6 +1180,7 @@ public class GrouperProvisioningGrouperDao {
         targetGroup.assignAttributeValue("description", groupDescription);
 
         targetGroup.setIdIndex(groupIdIndex);
+        targetGroup.setGroupInternalId(groupInternalId);
         grouperProvisioningMembership.setProvisioningGroup(targetGroup);
         grouperProvisioningMembership.setProvisioningGroupId(groupId);
       }
