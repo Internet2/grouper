@@ -40,6 +40,7 @@ public class AllLdapProvisioningTests {
     suite.addTestSuite(LdapProvisionerJDBCSubjectSourceTest.class);
     suite.addTestSuite(LdapProvisionerMultipleTest.class);
     suite.addTestSuite(LdapProvisionerDiagnosticsTest.class);
+    suite.addTestSuite(LdapProvisionerGenericTableTest.class);
     //$JUnit-END$
     return suite;
   }

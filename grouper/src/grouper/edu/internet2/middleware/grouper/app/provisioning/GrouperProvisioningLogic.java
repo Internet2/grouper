@@ -1266,11 +1266,25 @@ public class GrouperProvisioningLogic {
   }
   
   private static class GenericProvisioningAttributeRecord {
-    private long internalId;
+    private long internalId;     // FK to catalog row in grouper_prov_*_attr (per-name, per-provisioner)
     private long objectInternalId;
     private String attributeName;
     private String attributeType;
     private final List<GenericProvisioningTypedValue> values = new ArrayList<GenericProvisioningTypedValue>();
+  }
+
+  /**
+   * one row per (provisioner, attribute_name) — backs grouper_prov_user_attr / grouper_prov_group_attr.
+   * value rows reference this catalog by internal_id; type is coerced to "string" when the same name
+   * has been observed with multiple non-empty types across objects in the run. All-empty records
+   * (preserved for "attribute present, value empty") do not influence catalog type.
+   */
+  private static class GenericProvisioningAttrCatalog {
+    private long internalId;
+    private String attributeName;
+    private String attributeType;
+    /** true once we've observed at least one non-empty value for this attribute name */
+    private boolean hasNonEmptyValue;
   }
   
   private static class GenericProvisioningMembershipRecord {
@@ -1320,13 +1334,13 @@ public class GrouperProvisioningLogic {
     
     long grouperSyncInternalId = gcGrouperSync.getInternalId();
     long nowMicros = System.currentTimeMillis() * 1000L;
-    
-    List<ProvisioningEntity> targetProvisioningEntities = GrouperUtil.nonNull(
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities());
-    List<ProvisioningGroup> targetProvisioningGroups = GrouperUtil.nonNull(
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups());
-    List<ProvisioningMembership> targetProvisioningMemberships = GrouperUtil.nonNull(
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships());
+
+    // prefer native-target values (from selectAll on the target system); fall back to the
+    // grouper-translated outbound view for provisioners that don't run a target select
+    // (e.g. selectGroups=false). Reporting captures whatever we know.
+    List<ProvisioningEntity> targetProvisioningEntities = collectEntitiesForGenericReporting();
+    List<ProvisioningGroup> targetProvisioningGroups = collectGroupsForGenericReporting();
+    List<ProvisioningMembership> targetProvisioningMemberships = collectMembershipsForGenericReporting();
     
     Map<String, GenericProvisioningUserRecord> targetUserIdToRecord = new LinkedHashMap<String, GenericProvisioningUserRecord>();
     for (ProvisioningEntity targetProvisioningEntity : targetProvisioningEntities) {
@@ -1404,15 +1418,20 @@ public class GrouperProvisioningLogic {
     
     this.assignProvisioningObjectInternalIds(targetUserIdToRecord, TableIndexType.provUser);
     this.assignProvisioningObjectInternalIds(targetGroupIdToRecord, TableIndexType.provGroup);
-    
-    List<GenericProvisioningAttributeRecord> userAttributeRecords = this.buildProvisioningAttributeRecords(targetUserIdToRecord, TableIndexType.provUserAttr);
-    List<GenericProvisioningAttributeRecord> groupAttributeRecords = this.buildProvisioningAttributeRecords(targetGroupIdToRecord, TableIndexType.provGroupAttr);
-    
+
+    Map<String, GenericProvisioningAttrCatalog> userAttrCatalog = new LinkedHashMap<String, GenericProvisioningAttrCatalog>();
+    Map<String, GenericProvisioningAttrCatalog> groupAttrCatalog = new LinkedHashMap<String, GenericProvisioningAttrCatalog>();
+
+    List<GenericProvisioningAttributeRecord> userAttributeRecords = this.buildProvisioningAttributeRecords(
+        targetUserIdToRecord, userAttrCatalog, TableIndexType.provUserAttr);
+    List<GenericProvisioningAttributeRecord> groupAttributeRecords = this.buildProvisioningAttributeRecords(
+        targetGroupIdToRecord, groupAttrCatalog, TableIndexType.provGroupAttr);
+
     Set<String> stringValues = new LinkedHashSet<String>();
     this.addProvisioningStringValues(userAttributeRecords, stringValues);
     this.addProvisioningStringValues(groupAttributeRecords, stringValues);
-    Map<String, Long> valueStringToDictionaryInternalId = GrouperDictionaryDao.findOrAdd(stringValues); 
-    
+    Map<String, Long> valueStringToDictionaryInternalId = GrouperDictionaryDao.findOrAdd(stringValues);
+
     // build user row data
     List<Object[]> userRowData = new ArrayList<Object[]>();
     for (GenericProvisioningUserRecord userRecord : targetUserIdToRecord.values()) {
@@ -1425,11 +1444,11 @@ public class GrouperProvisioningLogic {
       groupRowData.add(new Object[] {groupRecord.getInternalId(), grouperSyncInternalId, groupRecord.getGroupInternalId(), groupRecord.getTargetId(), nowMicros});
     }
 
-    // build user attribute row data
-    List<Object[]> userAttributeRowData = this.buildProvisioningAttributeRowData(userAttributeRecords, nowMicros);
+    // build user attribute catalog row data (one row per distinct attribute_name)
+    List<Object[]> userAttributeRowData = this.buildProvisioningAttrCatalogRowData(userAttrCatalog, grouperSyncInternalId, nowMicros);
 
-    // build group attribute row data
-    List<Object[]> groupAttributeRowData = this.buildProvisioningAttributeRowData(groupAttributeRecords, nowMicros);
+    // build group attribute catalog row data (one row per distinct attribute_name)
+    List<Object[]> groupAttributeRowData = this.buildProvisioningAttrCatalogRowData(groupAttrCatalog, grouperSyncInternalId, nowMicros);
 
     // build user attribute value row data
     List<Object[]> userAttributeValueRowData = this.buildProvisioningAttributeValueRowData(
@@ -1487,14 +1506,15 @@ public class GrouperProvisioningLogic {
         grouperSyncInternalId,
         userRowData, debugMap, "loadGenericUsers");
     
-    // sync user attributes
+    // sync user attribute catalog: insert/update first so value rows can reference catalog rows
     this.syncGenericProvisionerTable("grouper_prov_user_attr",
-        "internal_id,attribute_name,grouper_prov_user_internal_id,attribute_type,last_updated",
+        "internal_id,grouper_sync_internal_id,attribute_name,attribute_type,last_updated",
         "internal_id",
-        "select internal_id,attribute_name,grouper_prov_user_internal_id,attribute_type,last_updated from grouper_prov_user_attr where grouper_prov_user_internal_id in (select internal_id from grouper_prov_user where grouper_sync_internal_id = ?)",
+        "select internal_id,grouper_sync_internal_id,attribute_name,attribute_type,last_updated from grouper_prov_user_attr where grouper_sync_internal_id = ?",
         grouperSyncInternalId,
-        userAttributeRowData, debugMap, "loadGenericUserAttrs");
-    
+        userAttributeRowData, debugMap, "loadGenericUserAttrsIns",
+        GcTableSyncPhase.INSERTS_UPDATES_ONLY);
+
     // sync user attribute values
     this.syncGenericProvisionerTable("grouper_prov_user_attr_value",
         "internal_id,prov_user_attr_internal_id,prov_user_internal_id,value_integer,value_dictionary_internal_id,last_updated",
@@ -1502,7 +1522,16 @@ public class GrouperProvisioningLogic {
         "select internal_id,prov_user_attr_internal_id,prov_user_internal_id,value_integer,value_dictionary_internal_id,last_updated from grouper_prov_user_attr_value where prov_user_internal_id in (select internal_id from grouper_prov_user where grouper_sync_internal_id = ?)",
         grouperSyncInternalId,
         userAttributeValueRowData, debugMap, "loadGenericUserAttrValues");
-    
+
+    // delete obsolete catalog entries after value sync removed any rows that referenced them
+    this.syncGenericProvisionerTable("grouper_prov_user_attr",
+        "internal_id,grouper_sync_internal_id,attribute_name,attribute_type,last_updated",
+        "internal_id",
+        "select internal_id,grouper_sync_internal_id,attribute_name,attribute_type,last_updated from grouper_prov_user_attr where grouper_sync_internal_id = ?",
+        grouperSyncInternalId,
+        userAttributeRowData, debugMap, "loadGenericUserAttrsDel",
+        GcTableSyncPhase.DELETES_ONLY);
+
     // sync groups
     this.syncGenericProvisionerTable("grouper_prov_group",
         "internal_id,grouper_sync_internal_id,group_internal_id,target_group_id,last_updated",
@@ -1510,15 +1539,16 @@ public class GrouperProvisioningLogic {
         "select internal_id,grouper_sync_internal_id,group_internal_id,target_group_id,last_updated from grouper_prov_group where grouper_sync_internal_id = ?",
         grouperSyncInternalId,
         groupRowData, debugMap, "loadGenericGroups");
-    
-    // sync group attributes
+
+    // sync group attribute catalog: insert/update first so value rows can reference catalog rows
     this.syncGenericProvisionerTable("grouper_prov_group_attr",
-        "internal_id,attribute_name,grouper_prov_group_internal_id,attribute_type,last_updated",
+        "internal_id,grouper_sync_internal_id,attribute_name,attribute_type,last_updated",
         "internal_id",
-        "select internal_id,attribute_name,grouper_prov_group_internal_id,attribute_type,last_updated from grouper_prov_group_attr where grouper_prov_group_internal_id in (select internal_id from grouper_prov_group where grouper_sync_internal_id = ?)",
+        "select internal_id,grouper_sync_internal_id,attribute_name,attribute_type,last_updated from grouper_prov_group_attr where grouper_sync_internal_id = ?",
         grouperSyncInternalId,
-        groupAttributeRowData, debugMap, "loadGenericGroupAttrs");
-    
+        groupAttributeRowData, debugMap, "loadGenericGroupAttrsIns",
+        GcTableSyncPhase.INSERTS_UPDATES_ONLY);
+
     // sync group attribute values
     this.syncGenericProvisionerTable("grouper_prov_group_attr_value",
         "internal_id,prov_group_attr_internal_id,prov_group_internal_id,value_integer,value_dictionary_internal_id,last_updated",
@@ -1526,6 +1556,15 @@ public class GrouperProvisioningLogic {
         "select internal_id,prov_group_attr_internal_id,prov_group_internal_id,value_integer,value_dictionary_internal_id,last_updated from grouper_prov_group_attr_value where prov_group_internal_id in (select internal_id from grouper_prov_group where grouper_sync_internal_id = ?)",
         grouperSyncInternalId,
         groupAttributeValueRowData, debugMap, "loadGenericGroupAttrValues");
+
+    // delete obsolete catalog entries after value sync removed any rows that referenced them
+    this.syncGenericProvisionerTable("grouper_prov_group_attr",
+        "internal_id,grouper_sync_internal_id,attribute_name,attribute_type,last_updated",
+        "internal_id",
+        "select internal_id,grouper_sync_internal_id,attribute_name,attribute_type,last_updated from grouper_prov_group_attr where grouper_sync_internal_id = ?",
+        grouperSyncInternalId,
+        groupAttributeRowData, debugMap, "loadGenericGroupAttrsDel",
+        GcTableSyncPhase.DELETES_ONLY);
     
     // sync membership roles: insert/update first so mship can reference new roles
     this.syncGenericProvisionerTable("grouper_prov_mship_role",
@@ -1553,7 +1592,59 @@ public class GrouperProvisioningLogic {
         roleRowData, debugMap, "loadGenericMshipRolesDel",
         GcTableSyncPhase.DELETES_ONLY);
   }
-  
+
+  /**
+   * Collect entities for the generic reporting tables: prefer the native-target view (from a
+   * target select), fall back to the grouper-translated outbound view for provisioners that
+   * don't run a target select.
+   */
+  private List<ProvisioningEntity> collectEntitiesForGenericReporting() {
+    List<ProvisioningEntity> result = new ArrayList<ProvisioningEntity>();
+    for (ProvisioningEntityWrapper wrapper : GrouperUtil.nonNull(
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+      ProvisioningEntity entity = wrapper.getTargetProvisioningEntity();
+      if (entity == null) {
+        entity = wrapper.getGrouperTargetEntity();
+      }
+      if (entity != null) {
+        result.add(entity);
+      }
+    }
+    return result;
+  }
+
+  /** group counterpart of collectEntitiesForGenericReporting */
+  private List<ProvisioningGroup> collectGroupsForGenericReporting() {
+    List<ProvisioningGroup> result = new ArrayList<ProvisioningGroup>();
+    for (ProvisioningGroupWrapper wrapper : GrouperUtil.nonNull(
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+      ProvisioningGroup group = wrapper.getTargetProvisioningGroup();
+      if (group == null) {
+        group = wrapper.getGrouperTargetGroup();
+      }
+      if (group != null) {
+        result.add(group);
+      }
+    }
+    return result;
+  }
+
+  /** membership counterpart of collectEntitiesForGenericReporting */
+  private List<ProvisioningMembership> collectMembershipsForGenericReporting() {
+    List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
+    for (ProvisioningMembershipWrapper wrapper : GrouperUtil.nonNull(
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
+      ProvisioningMembership mship = wrapper.getTargetProvisioningMembership();
+      if (mship == null) {
+        mship = wrapper.getGrouperTargetMembership();
+      }
+      if (mship != null) {
+        result.add(mship);
+      }
+    }
+    return result;
+  }
+
   private void loadDataToGenericProvisionerTablesIncremental() {
 
     GrouperProvisioningBehavior behavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
@@ -1880,14 +1971,19 @@ public class GrouperProvisioningLogic {
       }
     }
     
-    List<GenericProvisioningAttributeRecord> userAttributeRecords = this.buildProvisioningAttributeRecords(targetUserIdToRecord, TableIndexType.provUserAttr);
-    List<GenericProvisioningAttributeRecord> groupAttributeRecords = this.buildProvisioningAttributeRecords(targetGroupIdToRecord, TableIndexType.provGroupAttr);
-    
+    Map<String, GenericProvisioningAttrCatalog> userAttrCatalog = new LinkedHashMap<String, GenericProvisioningAttrCatalog>();
+    Map<String, GenericProvisioningAttrCatalog> groupAttrCatalog = new LinkedHashMap<String, GenericProvisioningAttrCatalog>();
+
+    List<GenericProvisioningAttributeRecord> userAttributeRecords = this.buildProvisioningAttributeRecords(
+        targetUserIdToRecord, userAttrCatalog, TableIndexType.provUserAttr);
+    List<GenericProvisioningAttributeRecord> groupAttributeRecords = this.buildProvisioningAttributeRecords(
+        targetGroupIdToRecord, groupAttrCatalog, TableIndexType.provGroupAttr);
+
     Set<String> stringValues = new LinkedHashSet<String>();
     this.addProvisioningStringValues(userAttributeRecords, stringValues);
     this.addProvisioningStringValues(groupAttributeRecords, stringValues);
     Map<String, Long> valueStringToDictionaryInternalId = GrouperDictionaryDao.findOrAdd(stringValues);
-    
+
     // build user row data
     List<Object[]> userRowData = new ArrayList<Object[]>();
     for (GenericProvisioningUserRecord userRecord : targetUserIdToRecord.values()) {
@@ -1900,11 +1996,11 @@ public class GrouperProvisioningLogic {
       groupRowData.add(new Object[] {groupRecord.getInternalId(), grouperSyncInternalId, groupRecord.getGroupInternalId(), groupRecord.getTargetId(), nowMicros});
     }
 
-    // build user attribute row data
-    List<Object[]> userAttributeRowData = this.buildProvisioningAttributeRowData(userAttributeRecords, nowMicros);
+    // build user attribute catalog row data (one row per distinct attribute_name)
+    List<Object[]> userAttributeRowData = this.buildProvisioningAttrCatalogRowData(userAttrCatalog, grouperSyncInternalId, nowMicros);
 
-    // build group attribute row data
-    List<Object[]> groupAttributeRowData = this.buildProvisioningAttributeRowData(groupAttributeRecords, nowMicros);
+    // build group attribute catalog row data (one row per distinct attribute_name)
+    List<Object[]> groupAttributeRowData = this.buildProvisioningAttrCatalogRowData(groupAttrCatalog, grouperSyncInternalId, nowMicros);
 
     // build user attribute value row data
     List<Object[]> userAttributeValueRowData = this.buildProvisioningAttributeValueRowData(
@@ -2064,20 +2160,22 @@ public class GrouperProvisioningLogic {
           userRowData, debugMap, "loadGenericIncrUsers");
     }
     
-    // sync user attributes (scoped to the user internal IDs involved)
+    // sync user attribute catalog (per provisioner): insert/update only — never delete in incremental
+    if (GrouperUtil.length(userAttributeRowData) > 0) {
+      this.syncGenericProvisionerTable("grouper_prov_user_attr",
+          "internal_id,grouper_sync_internal_id,attribute_name,attribute_type,last_updated",
+          "internal_id",
+          "select internal_id,grouper_sync_internal_id,attribute_name,attribute_type,last_updated from grouper_prov_user_attr where grouper_sync_internal_id = ?",
+          grouperSyncInternalId,
+          userAttributeRowData, debugMap, "loadGenericIncrUserAttrs",
+          GcTableSyncPhase.INSERTS_UPDATES_ONLY);
+    }
+
+    // sync user attribute values (scoped to the user internal IDs involved)
     Set<Long> allUserInternalIds = new LinkedHashSet<Long>();
     for (GenericProvisioningUserRecord userRecord : targetUserIdToRecord.values()) {
       allUserInternalIds.add(userRecord.getInternalId());
     }
-    if (GrouperUtil.length(allUserInternalIds) > 0) {
-      this.syncGenericProvisionerTableByInternalIds("grouper_prov_user_attr",
-          "internal_id,attribute_name,grouper_prov_user_internal_id,attribute_type,last_updated",
-          "internal_id",
-          "grouper_prov_user_internal_id", allUserInternalIds,
-          userAttributeRowData, debugMap, "loadGenericIncrUserAttrs");
-    }
-    
-    // sync user attribute values (scoped to the user internal IDs involved)
     if (GrouperUtil.length(allUserInternalIds) > 0) {
       this.syncGenericProvisionerTableByInternalIds("grouper_prov_user_attr_value",
           "internal_id,prov_user_attr_internal_id,prov_user_internal_id,value_integer,value_dictionary_internal_id,last_updated",
@@ -2085,7 +2183,7 @@ public class GrouperProvisioningLogic {
           "prov_user_internal_id", allUserInternalIds,
           userAttributeValueRowData, debugMap, "loadGenericIncrUserAttrValues");
     }
-    
+
     // sync groups (scoped to the target IDs involved)
     if (GrouperUtil.length(allGroupTargetIds) > 0) {
       this.syncGenericProvisionerTableIncremental("grouper_prov_group",
@@ -2094,21 +2192,23 @@ public class GrouperProvisioningLogic {
           grouperSyncInternalId, "target_group_id", allGroupTargetIds,
           groupRowData, debugMap, "loadGenericIncrGroups");
     }
-    
-    // sync group attributes (scoped to the group internal IDs involved)
+
+    // sync group attribute catalog (per provisioner): insert/update only — never delete in incremental
+    if (GrouperUtil.length(groupAttributeRowData) > 0) {
+      this.syncGenericProvisionerTable("grouper_prov_group_attr",
+          "internal_id,grouper_sync_internal_id,attribute_name,attribute_type,last_updated",
+          "internal_id",
+          "select internal_id,grouper_sync_internal_id,attribute_name,attribute_type,last_updated from grouper_prov_group_attr where grouper_sync_internal_id = ?",
+          grouperSyncInternalId,
+          groupAttributeRowData, debugMap, "loadGenericIncrGroupAttrs",
+          GcTableSyncPhase.INSERTS_UPDATES_ONLY);
+    }
+
+    // sync group attribute values (scoped to the group internal IDs involved)
     Set<Long> allGroupInternalIds = new LinkedHashSet<Long>();
     for (GenericProvisioningGroupRecord groupRecord : targetGroupIdToRecord.values()) {
       allGroupInternalIds.add(groupRecord.getInternalId());
     }
-    if (GrouperUtil.length(allGroupInternalIds) > 0) {
-      this.syncGenericProvisionerTableByInternalIds("grouper_prov_group_attr",
-          "internal_id,attribute_name,grouper_prov_group_internal_id,attribute_type,last_updated",
-          "internal_id",
-          "grouper_prov_group_internal_id", allGroupInternalIds,
-          groupAttributeRowData, debugMap, "loadGenericIncrGroupAttrs");
-    }
-    
-    // sync group attribute values (scoped to the group internal IDs involved)
     if (GrouperUtil.length(allGroupInternalIds) > 0) {
       this.syncGenericProvisionerTableByInternalIds("grouper_prov_group_attr_value",
           "internal_id,prov_group_attr_internal_id,prov_group_internal_id,value_integer,value_dictionary_internal_id,last_updated",
@@ -2443,11 +2543,18 @@ public class GrouperProvisioningLogic {
     }
   }
   
-  private List<Object[]> buildProvisioningAttributeRowData(List<GenericProvisioningAttributeRecord> attributeRecords, long nowMicros) {
+  /**
+   * build rows for the per-provisioner attribute-name catalog
+   * (grouper_prov_user_attr / grouper_prov_group_attr).
+   * Columns: internal_id, grouper_sync_internal_id, attribute_name, attribute_type, last_updated.
+   */
+  private List<Object[]> buildProvisioningAttrCatalogRowData(
+      Map<String, GenericProvisioningAttrCatalog> attributeNameToCatalog,
+      long grouperSyncInternalId, long nowMicros) {
     List<Object[]> result = new ArrayList<Object[]>();
-    for (GenericProvisioningAttributeRecord attributeRecord : attributeRecords) {
-      result.add(new Object[] {attributeRecord.internalId, attributeRecord.attributeName,
-          attributeRecord.objectInternalId, attributeRecord.attributeType, nowMicros});
+    for (GenericProvisioningAttrCatalog catalog : attributeNameToCatalog.values()) {
+      result.add(new Object[] {catalog.internalId, grouperSyncInternalId, catalog.attributeName,
+          catalog.attributeType, nowMicros});
     }
     return result;
   }
@@ -2478,10 +2585,13 @@ public class GrouperProvisioningLogic {
         Long valueDictionaryInternalId = null;
         if (StringUtils.equals("string", typedValue.attributeType)) {
           valueInteger = null;
-          valueDictionaryInternalId = valueStringToDictionaryInternalId.get(typedValue.stringValue);
-          if (valueDictionaryInternalId == null) {
-            continue;
+          if (typedValue.stringValue != null) {
+            valueDictionaryInternalId = valueStringToDictionaryInternalId.get(typedValue.stringValue);
+            if (valueDictionaryInternalId == null) {
+              continue;
+            }
           }
+          // else: empty string value → emit row with both value columns NULL
         }
         result.add(new Object[] {internalIds.get(currentIndex++), attributeRecord.internalId,
             attributeRecord.objectInternalId, valueInteger, valueDictionaryInternalId, nowMicros});
@@ -2503,23 +2613,37 @@ public class GrouperProvisioningLogic {
     }
   }
   
+  /**
+   * Build per-(object, attribute_name) records AND populate the catalog map keyed by attribute_name.
+   * The catalog has one entry per distinct attribute_name; if the same name appears with different
+   * types across objects in the run, the catalog entry's type is coerced to "string" and all of that
+   * name's value rows are re-coerced to string.
+   *
+   * @param targetIdToObjectRecord     in: object records from this run
+   * @param attributeNameToCatalog     out: filled with one entry per distinct attribute_name
+   * @param catalogTableIndexType      table-index type used to reserve catalog internal_ids
+   * @return per-(object, attribute_name) records, with internalId set to the catalog row's internal_id
+   *         (i.e. the FK that goes into grouper_prov_*_attr_value.prov_*_attr_internal_id)
+   */
   private List<GenericProvisioningAttributeRecord> buildProvisioningAttributeRecords(
-      Map<String, ? extends GenericProvisioningRecord> targetIdToObjectRecord, TableIndexType tableIndexType) {
-    
+      Map<String, ? extends GenericProvisioningRecord> targetIdToObjectRecord,
+      Map<String, GenericProvisioningAttrCatalog> attributeNameToCatalog,
+      TableIndexType catalogTableIndexType) {
+
     List<GenericProvisioningAttributeRecord> result = new ArrayList<GenericProvisioningAttributeRecord>();
-    
+
     for (GenericProvisioningRecord objectRecord : targetIdToObjectRecord.values()) {
       for (String attributeName : objectRecord.getAttributeNameToValues().keySet()) {
         String normalizedAttributeName = StringUtils.trimToNull(attributeName);
         if (StringUtils.isBlank(normalizedAttributeName)) {
           continue;
         }
-        
+
         List<Object> rawValues = objectRecord.getAttributeNameToValues().get(attributeName);
         if (GrouperUtil.length(rawValues) == 0) {
           continue;
         }
-        
+
         List<GenericProvisioningTypedValue> typedValues = new ArrayList<GenericProvisioningTypedValue>();
         for (Object rawValue : rawValues) {
           GenericProvisioningTypedValue typedValue = this.convertProvisioningValue(rawValue);
@@ -2528,11 +2652,11 @@ public class GrouperProvisioningLogic {
           }
           typedValues.add(typedValue);
         }
-        
+
         if (GrouperUtil.length(typedValues) == 0) {
           continue;
         }
-        
+
         String attributeType = typedValues.get(0).attributeType;
         boolean allSameType = true;
         for (GenericProvisioningTypedValue typedValue : typedValues) {
@@ -2541,82 +2665,136 @@ public class GrouperProvisioningLogic {
             break;
           }
         }
-        
+
         if (!allSameType) {
           attributeType = "string";
-          List<GenericProvisioningTypedValue> normalizedTypedValues = new ArrayList<GenericProvisioningTypedValue>();
-          for (GenericProvisioningTypedValue typedValue : typedValues) {
-            GenericProvisioningTypedValue normalizedTypedValue = new GenericProvisioningTypedValue();
-            normalizedTypedValue.attributeType = "string";
-            if (!StringUtils.isBlank(typedValue.stringValue)) {
-              normalizedTypedValue.stringValue = typedValue.stringValue;
-            } else {
-              normalizedTypedValue.stringValue = GrouperUtil.stringValue(typedValue.valueInteger);
-            }
-            normalizedTypedValues.add(normalizedTypedValue);
-          }
-          typedValues = normalizedTypedValues;
+          typedValues = coerceTypedValuesToString(typedValues);
         }
-        
+
         GenericProvisioningAttributeRecord attributeRecord = new GenericProvisioningAttributeRecord();
         attributeRecord.objectInternalId = objectRecord.getInternalId();
         attributeRecord.attributeName = normalizedAttributeName;
         attributeRecord.attributeType = attributeType;
         attributeRecord.values.addAll(typedValues);
         result.add(attributeRecord);
+
+        // does this record contribute any non-empty value? all-empty records don't influence catalog typing.
+        boolean recordHasNonEmptyValue = false;
+        for (GenericProvisioningTypedValue tv : typedValues) {
+          if (tv.stringValue != null || tv.valueInteger != null) {
+            recordHasNonEmptyValue = true;
+            break;
+          }
+        }
+
+        // catalog dedup: same name with different non-empty types across objects → coerce catalog to string
+        GenericProvisioningAttrCatalog catalog = attributeNameToCatalog.get(normalizedAttributeName);
+        if (catalog == null) {
+          catalog = new GenericProvisioningAttrCatalog();
+          catalog.attributeName = normalizedAttributeName;
+          catalog.attributeType = attributeType;
+          catalog.hasNonEmptyValue = recordHasNonEmptyValue;
+          attributeNameToCatalog.put(normalizedAttributeName, catalog);
+        } else if (recordHasNonEmptyValue) {
+          if (!catalog.hasNonEmptyValue) {
+            // first non-empty observation overrides the placeholder type from earlier all-empty records
+            catalog.attributeType = attributeType;
+            catalog.hasNonEmptyValue = true;
+          } else if (!StringUtils.equals(catalog.attributeType, attributeType)) {
+            catalog.attributeType = "string";
+          }
+        }
+        // else: empty-only record never changes catalog type
       }
     }
-    
+
     if (GrouperUtil.length(result) == 0) {
       return result;
     }
-    
-    List<Long> internalIds = TableIndex.reserveIds(tableIndexType, result.size());
-    for (int i = 0; i < result.size(); i++) {
-      result.get(i).internalId = internalIds.get(i);
+
+    // re-coerce non-empty values for records whose catalog type ended up as "string" due to cross-object mismatch
+    for (GenericProvisioningAttributeRecord attributeRecord : result) {
+      GenericProvisioningAttrCatalog catalog = attributeNameToCatalog.get(attributeRecord.attributeName);
+      if (StringUtils.equals("string", catalog.attributeType) && !StringUtils.equals("string", attributeRecord.attributeType)) {
+        attributeRecord.attributeType = "string";
+        List<GenericProvisioningTypedValue> coerced = coerceTypedValuesToString(attributeRecord.values);
+        attributeRecord.values.clear();
+        attributeRecord.values.addAll(coerced);
+      }
     }
-    
+
+    // assign catalog internal_ids (one per distinct attribute_name)
+    if (GrouperUtil.length(attributeNameToCatalog) > 0) {
+      List<Long> catalogInternalIds = TableIndex.reserveIds(catalogTableIndexType, attributeNameToCatalog.size());
+      int idx = 0;
+      for (GenericProvisioningAttrCatalog catalog : attributeNameToCatalog.values()) {
+        catalog.internalId = catalogInternalIds.get(idx++);
+      }
+    }
+
+    // link each per-(object, attribute) record to its catalog row's internal_id
+    for (GenericProvisioningAttributeRecord attributeRecord : result) {
+      attributeRecord.internalId = attributeNameToCatalog.get(attributeRecord.attributeName).internalId;
+    }
+
     return result;
+  }
+
+  private static List<GenericProvisioningTypedValue> coerceTypedValuesToString(List<GenericProvisioningTypedValue> typedValues) {
+    List<GenericProvisioningTypedValue> normalizedTypedValues = new ArrayList<GenericProvisioningTypedValue>();
+    for (GenericProvisioningTypedValue typedValue : typedValues) {
+      GenericProvisioningTypedValue normalizedTypedValue = new GenericProvisioningTypedValue();
+      normalizedTypedValue.attributeType = "string";
+      if (!StringUtils.isBlank(typedValue.stringValue)) {
+        normalizedTypedValue.stringValue = typedValue.stringValue;
+      } else if (typedValue.valueInteger != null) {
+        normalizedTypedValue.stringValue = GrouperUtil.stringValue(typedValue.valueInteger);
+      }
+      // else: empty value preserved (both stringValue and valueInteger null)
+      normalizedTypedValues.add(normalizedTypedValue);
+    }
+    return normalizedTypedValues;
   }
   
   private GenericProvisioningTypedValue convertProvisioningValue(Object rawValue) {
-    if (rawValue == null || GrouperUtil.isBlank(rawValue)) {
+    if (rawValue == null) {
       return null;
     }
-    
+
     GenericProvisioningTypedValue result = new GenericProvisioningTypedValue();
-    
+
     if (rawValue instanceof Boolean) {
       result.attributeType = "boolean";
       result.valueInteger = ((Boolean)rawValue) ? 1L : 0L;
       return result;
     }
-    
+
     if (rawValue instanceof Timestamp) {
       result.attributeType = "timestamp";
       result.valueInteger = ((Timestamp)rawValue).getTime() * 1000L;
       return result;
     }
-    
+
     if (rawValue instanceof Date) {
       result.attributeType = "timestamp";
       result.valueInteger = ((Date)rawValue).getTime() * 1000L;
       return result;
     }
-    
+
     if (rawValue instanceof Byte || rawValue instanceof Short || rawValue instanceof Integer || rawValue instanceof Long) {
       result.attributeType = "int";
       result.valueInteger = ((Number)rawValue).longValue();
       return result;
     }
-    
+
+    // string fallback: blanks become "empty value" rows (both value columns NULL) rather than dropped,
+    // so reporting can distinguish "user has attribute X with empty value" from "user has no attribute X"
     String stringValue = StringUtils.trimToNull(GrouperUtil.stringValue(rawValue));
-    if (StringUtils.isBlank(stringValue)) {
-      return null;
-    }
     result.attributeType = "string";
-    // grouper_dictionary.the_text is varchar(4000); leave headroom for multi-byte chars
-    result.stringValue = GrouperUtil.abbreviate(stringValue, 3800);
+    if (stringValue != null) {
+      // grouper_dictionary.the_text is varchar(4000); leave headroom for multi-byte chars
+      result.stringValue = GrouperUtil.abbreviate(stringValue, 3800);
+    }
     return result;
   }
   
@@ -2637,31 +2815,33 @@ public class GrouperProvisioningLogic {
     if (StringUtils.isBlank(normalizedAttributeName) || this.isSystemProvisioningColumnName(normalizedAttributeName)) {
       return;
     }
-    
-    if (attributeValue == null || GrouperUtil.isBlank(attributeValue)) {
+
+    // skip if upstream didn't provide the attribute at all (null);
+    // empty/blank values ARE preserved so reporting can show "attribute present, value empty"
+    if (attributeValue == null) {
       return;
     }
-    
+
     List<Object> values = objectRecord.getAttributeNameToValues().get(normalizedAttributeName);
     if (values == null) {
       values = new ArrayList<Object>();
       objectRecord.getAttributeNameToValues().put(normalizedAttributeName, values);
     }
-    
+
     if (attributeValue instanceof Collection) {
       for (Object eachValue : GrouperUtil.nonNull((Collection<?>)attributeValue)) {
-        if (eachValue != null && !GrouperUtil.isBlank(eachValue)) {
+        if (eachValue != null) {
           values.add(eachValue);
         }
       }
       return;
     }
-    
+
     if (attributeValue.getClass().isArray()) {
       int length = java.lang.reflect.Array.getLength(attributeValue);
       for (int i = 0; i < length; i++) {
         Object eachValue = java.lang.reflect.Array.get(attributeValue, i);
-        if (eachValue != null && !GrouperUtil.isBlank(eachValue)) {
+        if (eachValue != null) {
           values.add(eachValue);
         }
       }

@@ -2236,7 +2236,7 @@ CREATE TABLE grouper_prov_group (
   internal_id NUMBER(38) NOT NULL,
   grouper_sync_internal_id NUMBER(38) NOT NULL,
   group_internal_id NUMBER(38),
-  target_group_id VARCHAR2(256) NOT NULL,
+  target_group_id VARCHAR2(1000) NOT NULL,
   last_updated NUMBER(38) NOT NULL,
   PRIMARY KEY (internal_id)
 );
@@ -2247,16 +2247,16 @@ CREATE INDEX grouper_prov_grp_idx1 ON grouper_prov_group (group_internal_id);
 
 CREATE TABLE grouper_prov_group_attr (
   internal_id NUMBER(38) NOT NULL,
+  grouper_sync_internal_id NUMBER(38) NOT NULL,
   attribute_name VARCHAR2(500) NOT NULL,
-  grouper_prov_group_internal_id NUMBER(38) NOT NULL,
   attribute_type VARCHAR2(20) NOT NULL,
   last_updated NUMBER(38) NOT NULL,
   PRIMARY KEY (internal_id)
 );
 
-CREATE INDEX grouper_prov_grpat_idx0 ON grouper_prov_group_attr (grouper_prov_group_internal_id);
+CREATE INDEX grouper_prov_grpat_idx0 ON grouper_prov_group_attr (grouper_sync_internal_id);
 
-CREATE INDEX grouper_prov_grpat_idx1 ON grouper_prov_group_attr (grouper_prov_group_internal_id, attribute_name);
+CREATE UNIQUE INDEX grouper_prov_grpat_idx1 ON grouper_prov_group_attr (grouper_sync_internal_id, attribute_name);
 
 CREATE TABLE grouper_prov_group_attr_value (
   internal_id NUMBER(38) NOT NULL,
@@ -2278,7 +2278,7 @@ CREATE TABLE grouper_prov_user (
   internal_id NUMBER(38) NOT NULL,
   grouper_sync_internal_id NUMBER(38) NOT NULL,
   member_internal_id NUMBER(38),
-  target_user_id VARCHAR2(256) NOT NULL,
+  target_user_id VARCHAR2(1000) NOT NULL,
   last_updated NUMBER(38) NOT NULL,
   PRIMARY KEY (internal_id)
 );
@@ -2289,16 +2289,16 @@ CREATE INDEX grouper_prov_user_idx1 ON grouper_prov_user (member_internal_id);
 
 CREATE TABLE grouper_prov_user_attr (
   internal_id NUMBER(38) NOT NULL,
+  grouper_sync_internal_id NUMBER(38) NOT NULL,
   attribute_name VARCHAR2(500) NOT NULL,
-  grouper_prov_user_internal_id NUMBER(38) NOT NULL,
   attribute_type VARCHAR2(20) NOT NULL,
   last_updated NUMBER(38) NOT NULL,
   PRIMARY KEY (internal_id)
 );
 
-CREATE INDEX grouper_prov_userat_idx0 ON grouper_prov_user_attr (grouper_prov_user_internal_id);
+CREATE INDEX grouper_prov_userat_idx0 ON grouper_prov_user_attr (grouper_sync_internal_id);
 
-CREATE INDEX grouper_prov_userat_idx1 ON grouper_prov_user_attr (grouper_prov_user_internal_id, attribute_name);
+CREATE UNIQUE INDEX grouper_prov_userat_idx1 ON grouper_prov_user_attr (grouper_sync_internal_id, attribute_name);
 
 CREATE TABLE grouper_prov_user_attr_value (
   internal_id NUMBER(38) NOT NULL,
@@ -2941,10 +2941,10 @@ alter table grouper_prov_group
     add CONSTRAINT grouper_prov_grp_fk1 FOREIGN KEY (grouper_sync_internal_id) REFERENCES grouper_sync(internal_id);
 
 alter table grouper_prov_group
-    add CONSTRAINT grouper_prov_grp_fk2 FOREIGN KEY (group_internal_id) REFERENCES grouper_groups(internal_id);
+    add CONSTRAINT grouper_prov_grp_fk2 FOREIGN KEY (group_internal_id) REFERENCES grouper_groups(internal_id) on delete set null;
 
 alter table grouper_prov_group_attr
-    add CONSTRAINT grouper_prov_grpat_fk1 FOREIGN KEY (grouper_prov_group_internal_id) REFERENCES grouper_prov_group(internal_id) on delete cascade;
+    add CONSTRAINT grouper_prov_grpat_fk1 FOREIGN KEY (grouper_sync_internal_id) REFERENCES grouper_sync(internal_id);
 
 alter table grouper_prov_group_attr_value
     add CONSTRAINT grouper_prov_grpatv_fk1 FOREIGN KEY (prov_group_attr_internal_id) REFERENCES grouper_prov_group_attr(internal_id) on delete cascade;
@@ -2959,10 +2959,10 @@ alter table grouper_prov_user
     add CONSTRAINT grouper_prov_user_fk1 FOREIGN KEY (grouper_sync_internal_id) REFERENCES grouper_sync(internal_id);
 
 alter table grouper_prov_user
-    add CONSTRAINT grouper_prov_user_fk2 FOREIGN KEY (member_internal_id) REFERENCES grouper_members(internal_id);
+    add CONSTRAINT grouper_prov_user_fk2 FOREIGN KEY (member_internal_id) REFERENCES grouper_members(internal_id) on delete set null;
 
 alter table grouper_prov_user_attr
-    add CONSTRAINT grouper_prov_userat_fk1 FOREIGN KEY (grouper_prov_user_internal_id) REFERENCES grouper_prov_user(internal_id) on delete cascade;
+    add CONSTRAINT grouper_prov_userat_fk1 FOREIGN KEY (grouper_sync_internal_id) REFERENCES grouper_sync(internal_id);
 
 alter table grouper_prov_user_attr_value
     add CONSTRAINT grouper_prov_useratv_fk1 FOREIGN KEY (prov_user_attr_internal_id) REFERENCES grouper_prov_user_attr(internal_id) on delete cascade;
@@ -2984,6 +2984,9 @@ alter table grouper_prov_mship
 
 alter table grouper_prov_mship
     add CONSTRAINT grouper_prov_mship_fk3 FOREIGN KEY (prov_group_internal_id) REFERENCES grouper_prov_group(internal_id) on delete cascade;
+
+alter table grouper_prov_mship
+    add CONSTRAINT grouper_prov_mship_fk4 FOREIGN KEY (prov_mship_role_internal_id) REFERENCES grouper_prov_mship_role(internal_id);
 
 CREATE VIEW grouper_prov_user_attr_v AS
 SELECT
@@ -3019,8 +3022,8 @@ FROM            grouper_prov_user            pu
   LEFT JOIN     grouper_sync                 gs   ON gs.internal_id = pu.grouper_sync_internal_id
   LEFT JOIN     grouper_members              gm   ON gm.internal_id = pu.member_internal_id
   LEFT JOIN     grouper_sync_member          gsm  ON gsm.grouper_sync_id = gs.id AND gsm.member_id = gm.id
-  LEFT JOIN     grouper_prov_user_attr       pua  ON pua.grouper_prov_user_internal_id = pu.internal_id
-  LEFT JOIN     grouper_prov_user_attr_value puav ON puav.prov_user_attr_internal_id = pua.internal_id
+  LEFT JOIN     grouper_prov_user_attr_value puav ON puav.prov_user_internal_id = pu.internal_id
+  LEFT JOIN     grouper_prov_user_attr       pua  ON pua.internal_id = puav.prov_user_attr_internal_id
   LEFT JOIN     grouper_dictionary           gd   ON gd.internal_id = puav.value_dictionary_internal_id;
 
 
@@ -3056,8 +3059,8 @@ FROM            grouper_prov_group            pg
   LEFT JOIN     grouper_sync                  gs   ON gs.internal_id = pg.grouper_sync_internal_id
   LEFT JOIN     grouper_groups                gg   ON gg.internal_id = pg.group_internal_id
   LEFT JOIN     grouper_sync_group            gsg  ON gsg.grouper_sync_id = gs.id AND gsg.group_id = gg.id
-  LEFT JOIN     grouper_prov_group_attr       pga  ON pga.grouper_prov_group_internal_id = pg.internal_id
-  LEFT JOIN     grouper_prov_group_attr_value pgav ON pgav.prov_group_attr_internal_id = pga.internal_id
+  LEFT JOIN     grouper_prov_group_attr_value pgav ON pgav.prov_group_internal_id = pg.internal_id
+  LEFT JOIN     grouper_prov_group_attr       pga  ON pga.internal_id = pgav.prov_group_attr_internal_id
   LEFT JOIN     grouper_dictionary            gd   ON gd.internal_id = pgav.value_dictionary_internal_id;
 
 
@@ -8002,7 +8005,7 @@ COMMENT ON COLUMN grouper_prov_group_attr.internal_id IS 'internal integer id fo
 
 COMMENT ON COLUMN grouper_prov_group_attr.attribute_name IS 'group attribute name e.g. group_name or group_description';
 
-COMMENT ON COLUMN grouper_prov_group_attr.grouper_prov_group_internal_id IS 'foreign key to grouper_prov_group.internal_id';
+COMMENT ON COLUMN grouper_prov_group_attr.grouper_sync_internal_id IS 'foreign key to grouper_sync.internal_id; the catalog of group attribute names is scoped per provisioner';
 
 COMMENT ON COLUMN grouper_prov_group_attr.attribute_type IS 'attribute type e.g. string, int, boolean, timestamp';
 
@@ -8040,7 +8043,7 @@ COMMENT ON COLUMN grouper_prov_user_attr.internal_id IS 'internal integer id for
 
 COMMENT ON COLUMN grouper_prov_user_attr.attribute_name IS 'user attribute name e.g. user_name or user_email';
 
-COMMENT ON COLUMN grouper_prov_user_attr.grouper_prov_user_internal_id IS 'foreign key to grouper_prov_user.internal_id';
+COMMENT ON COLUMN grouper_prov_user_attr.grouper_sync_internal_id IS 'foreign key to grouper_sync.internal_id; the catalog of user attribute names is scoped per provisioner';
 
 COMMENT ON COLUMN grouper_prov_user_attr.attribute_type IS 'attribute type e.g. string, int, boolean, timestamp';
 

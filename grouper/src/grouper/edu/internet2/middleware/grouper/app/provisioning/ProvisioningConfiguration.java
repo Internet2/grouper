@@ -467,6 +467,28 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
       }
     }
 
+    // attribute-name catalogs are scoped to grouper_sync directly (no cascade from prov_user / prov_group),
+    // so they need explicit cleanup after the parent rows are gone
+    {
+      int rows = chunkedDeleteByGrouperSyncInternalId("grouper_prov_user_attr", grouperSyncInternalId);
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(rows);
+      }
+      if (jobMessage != null && rows > 0) {
+        jobMessage.append("Deleted " + rows + " prov user attr names from provisioner " + configId + "\n");
+      }
+    }
+
+    {
+      int rows = chunkedDeleteByGrouperSyncInternalId("grouper_prov_group_attr", grouperSyncInternalId);
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(rows);
+      }
+      if (jobMessage != null && rows > 0) {
+        jobMessage.append("Deleted " + rows + " prov group attr names from provisioner " + configId + "\n");
+      }
+    }
+
     grouperSync.getGcGrouperSyncDao().delete();
   }
 

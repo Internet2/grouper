@@ -99,7 +99,7 @@ public class GrouperDdl7_2_0 {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "group_internal_id",
         Types.BIGINT, "20", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "target_group_id",
-        Types.VARCHAR, "256", false, true);
+        Types.VARCHAR, "1000", false, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "last_updated",
         Types.BIGINT, "20", false, true);
   }
@@ -150,10 +150,10 @@ public class GrouperDdl7_2_0 {
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "internal_id",
         Types.BIGINT, "20", true, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "grouper_sync_internal_id",
+        Types.BIGINT, "20", false, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "attribute_name",
         Types.VARCHAR, "500", false, true);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "grouper_prov_group_internal_id",
-        Types.BIGINT, "20", false, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "attribute_type",
         Types.VARCHAR, "20", false, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "last_updated",
@@ -168,9 +168,9 @@ public class GrouperDdl7_2_0 {
       return;
     }
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_prov_group_attr",
-        "grouper_prov_grpat_idx0", false, "grouper_prov_group_internal_id");
+        "grouper_prov_grpat_idx0", false, "grouper_sync_internal_id");
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_prov_group_attr",
-        "grouper_prov_grpat_idx1", false, "grouper_prov_group_internal_id", "attribute_name");
+        "grouper_prov_grpat_idx1", true, "grouper_sync_internal_id", "attribute_name");
   }
 
   static void addGrouperProvGroupAttrComments(Database database, DdlVersionBean ddlVersionBean) {
@@ -182,12 +182,12 @@ public class GrouperDdl7_2_0 {
     }
     final String t = "grouper_prov_group_attr";
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, t,
-        "Provisioner group attributes metadata");
+        "Provisioner group attribute name catalog (one row per provisioner per attribute name)");
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "internal_id", INTERNAL_ID_COMMENT);
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "grouper_sync_internal_id",
+        "foreign key to grouper_sync.internal_id; the catalog of group attribute names is scoped per provisioner");
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "attribute_name",
         "group attribute name e.g. group_name or group_description");
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "grouper_prov_group_internal_id",
-        "foreign key to grouper_prov_group.internal_id");
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "attribute_type",
         "attribute type e.g. string, int, boolean, timestamp");
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "last_updated", LAST_UPDATED_COMMENT);
@@ -274,7 +274,7 @@ public class GrouperDdl7_2_0 {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "member_internal_id",
         Types.BIGINT, "20", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "target_user_id",
-        Types.VARCHAR, "256", false, true);
+        Types.VARCHAR, "1000", false, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "last_updated",
         Types.BIGINT, "20", false, true);
   }
@@ -324,10 +324,10 @@ public class GrouperDdl7_2_0 {
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "internal_id",
         Types.BIGINT, "20", true, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "grouper_sync_internal_id",
+        Types.BIGINT, "20", false, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "attribute_name",
         Types.VARCHAR, "500", false, true);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "grouper_prov_user_internal_id",
-        Types.BIGINT, "20", false, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "attribute_type",
         Types.VARCHAR, "20", false, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "last_updated",
@@ -342,9 +342,9 @@ public class GrouperDdl7_2_0 {
       return;
     }
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_prov_user_attr",
-        "grouper_prov_userat_idx0", false, "grouper_prov_user_internal_id");
+        "grouper_prov_userat_idx0", false, "grouper_sync_internal_id");
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_prov_user_attr",
-        "grouper_prov_userat_idx1", false, "grouper_prov_user_internal_id", "attribute_name");
+        "grouper_prov_userat_idx1", true, "grouper_sync_internal_id", "attribute_name");
   }
 
   static void addGrouperProvUserAttrComments(Database database, DdlVersionBean ddlVersionBean) {
@@ -356,12 +356,12 @@ public class GrouperDdl7_2_0 {
     }
     final String t = "grouper_prov_user_attr";
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, t,
-        "Provisioner user attributes metadata");
+        "Provisioner user attribute name catalog (one row per provisioner per attribute name)");
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "internal_id", INTERNAL_ID_COMMENT);
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "grouper_sync_internal_id",
+        "foreign key to grouper_sync.internal_id; the catalog of user attribute names is scoped per provisioner");
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "attribute_name",
         "user attribute name e.g. user_name or user_email");
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "grouper_prov_user_internal_id",
-        "foreign key to grouper_prov_user.internal_id");
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "attribute_type",
         "attribute type e.g. string, int, boolean, timestamp");
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "last_updated", LAST_UPDATED_COMMENT);
@@ -607,8 +607,8 @@ public class GrouperDdl7_2_0 {
             + "left join grouper_sync gs on gs.internal_id = pu.grouper_sync_internal_id "
             + "left join grouper_members gm on gm.internal_id = pu.member_internal_id "
             + "left join grouper_sync_member gsm on gsm.grouper_sync_id = gs.id and gsm.member_id = gm.id "
-            + "left join grouper_prov_user_attr pua on pua.grouper_prov_user_internal_id = pu.internal_id "
-            + "left join grouper_prov_user_attr_value puav on puav.prov_user_attr_internal_id = pua.internal_id "
+            + "left join grouper_prov_user_attr_value puav on puav.prov_user_internal_id = pu.internal_id "
+            + "left join grouper_prov_user_attr pua on pua.internal_id = puav.prov_user_attr_internal_id "
             + "left join grouper_dictionary gd on gd.internal_id = puav.value_dictionary_internal_id");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_prov_group_attr_v",
@@ -664,8 +664,8 @@ public class GrouperDdl7_2_0 {
             + "left join grouper_sync gs on gs.internal_id = pg.grouper_sync_internal_id "
             + "left join grouper_groups gg on gg.internal_id = pg.group_internal_id "
             + "left join grouper_sync_group gsg on gsg.grouper_sync_id = gs.id and gsg.group_id = gg.id "
-            + "left join grouper_prov_group_attr pga on pga.grouper_prov_group_internal_id = pg.internal_id "
-            + "left join grouper_prov_group_attr_value pgav on pgav.prov_group_attr_internal_id = pga.internal_id "
+            + "left join grouper_prov_group_attr_value pgav on pgav.prov_group_internal_id = pg.internal_id "
+            + "left join grouper_prov_group_attr pga on pga.internal_id = pgav.prov_group_attr_internal_id "
             + "left join grouper_dictionary gd on gd.internal_id = pgav.value_dictionary_internal_id");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_prov_mship_v",
