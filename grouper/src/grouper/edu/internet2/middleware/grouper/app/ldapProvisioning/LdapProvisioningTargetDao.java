@@ -181,15 +181,15 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       if (!StringUtils.isBlank(groupSearchBaseDn)) {
         Set<String> groupSearchAttributeNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
         groupSearchAttributeNames.addAll(ldapSyncConfiguration.getGroupSelectAttributes());
-          
+
         Set<String> groupAttributesMultivalued = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
         if (ldapSyncConfiguration.getGroupAttributesMultivalued() != null) {
           groupAttributesMultivalued.addAll(ldapSyncConfiguration.getGroupAttributesMultivalued());
         }
-        
+
         //groupSearchAttributeNames.add("objectClass");
         groupAttributesMultivalued.add("objectClass");
-        
+
         String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupMembershipAttributeName();
         if (!StringUtils.isBlank(groupAttributeNameForMemberships)) {
           if (includeAllMembershipsIfApplicable) {
@@ -200,21 +200,44 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             groupAttributesMultivalued.remove(groupAttributeNameForMemberships);
           }
         }
-        
+
+        // widen the search attribute list with any native-attribute paths so the directory
+        // returns report-only attrs alongside the configured ones (single round-trip)
+        boolean populateNativeGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadGroupsToGenericGrouperTable();
+        if (populateNativeGroups) {
+          LdapProvisioningTargetNativeBuilder.widenLdapAttributeNamesForGroups(
+              groupSearchAttributeNames, ldapSyncConfiguration.getNativeAttributesGroups());
+        }
+        // memberships extracted from each group's membership attribute (group-target style)
+        boolean populateNativeMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()
+            && !StringUtils.isBlank(groupAttributeNameForMemberships)
+            && groupSearchAttributeNames.contains(groupAttributeNameForMemberships);
+
         LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
-  
+
         int count = 0;
-        
+
         List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, groupSearchBaseDn, groupSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
         for (LdapEntry ldapEntry : ldapEntries) {
-          
+
+          // populate the native-target reporting list while the LdapEntry is still in scope
+          if (populateNativeGroups) {
+            this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeGroups()
+                .add(LdapProvisioningTargetNativeBuilder.buildNativeGroup(ldapEntry));
+          }
+          if (populateNativeMemberships) {
+            LdapProvisioningTargetNativeBuilder.appendNativeMembershipsFromGroupEntry(
+                this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeMemberships(),
+                ldapEntry, groupAttributeNameForMemberships);
+          }
+
           // conserve memory
           ldapEntries.set(count, null);
           count++;
-          
+
           ProvisioningGroup targetGroup = new ProvisioningGroup(false);
           targetGroup.assignAttributeValue(ldap_dn, ldapEntry.getDn());
-          
+
           for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
             if (ldapAttribute.getValues().size() > 0) {
               Object value = null;
@@ -223,12 +246,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
               } else if (ldapAttribute.getValues().size() == 1) {
                 value = ldapAttribute.getValues().iterator().next();
               }
-              
+
               value = ldapConvertAdAttributeToString(ldapAttribute.getName(), value);
               targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
             }
           }
-          
+
           //targetGroup.assignAttributeValue("dn", ldapEntry.getDn());
           results.add(targetGroup);
         }
@@ -820,7 +843,19 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           groupAttributesMultivalued.remove(groupAttributeNameForMemberships);
         }
       }
-      
+
+      // widen the search attribute list with any native-attribute paths so report-only
+      // attrs come back alongside the configured ones (single round-trip)
+      boolean populateNativeGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadGroupsToGenericGrouperTable();
+      if (populateNativeGroups) {
+        LdapProvisioningTargetNativeBuilder.widenLdapAttributeNamesForGroups(
+            groupSearchAttributeNames, ldapSyncConfiguration.getNativeAttributesGroups());
+      }
+      // memberships extracted from each group's membership attribute (group-target style)
+      boolean populateNativeMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()
+          && !StringUtils.isBlank(groupAttributeNameForMemberships)
+          && groupSearchAttributeNames.contains(groupAttributeNameForMemberships);
+
       int batchSize = LdapConfiguration.getConfig(ldapConfigId).getQueryBatchSize();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(values, batchSize, false);
       for (int i = 0; i < numberOfBatches; i++) {
@@ -829,32 +864,43 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         try {
           List<Object> batchValues = GrouperUtil.batchList(values, batchSize, i);
           StringBuilder filterBuilder = new StringBuilder();
-          
+
           if (!StringUtils.isBlank(targetDaoRetrieveGroupsRequest.getSearchAttribute())) {
             for (Object attributeValueObject : GrouperUtil.nonNull(batchValues)) {
-              
+
               String value = GrouperUtil.stringValue(attributeValueObject);
               String searchFilter = "(" + targetDaoRetrieveGroupsRequest.getSearchAttribute() + "=" + ldapFilterValue(targetDaoRetrieveGroupsRequest.getSearchAttribute(), value) + ")";
-    
+
               filterBuilder.append(searchFilter);
-    
+
             }
-    
+
             String filter = filterBuilder.toString();
-            
+
             if (GrouperUtil.length(batchValues) > 1) {
               filter = "(|" + filter + ")";
             }
-            
+
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
             List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, groupSearchBaseDn, filter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
             int count = 0;
-            
+
             for (LdapEntry ldapEntry : ldapEntries) {
+              // populate the native-target reporting list while the LdapEntry is in scope
+              if (populateNativeGroups) {
+                this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeGroups()
+                    .add(LdapProvisioningTargetNativeBuilder.buildNativeGroup(ldapEntry));
+              }
+              if (populateNativeMemberships) {
+                LdapProvisioningTargetNativeBuilder.appendNativeMembershipsFromGroupEntry(
+                    this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeMemberships(),
+                    ldapEntry, groupAttributeNameForMemberships);
+              }
+
               // conserve memory
               ldapEntries.set(count, null);
               count++;
-              
+
               ProvisioningGroup targetGroup = new ProvisioningGroup(false);
               targetGroup.assignAttributeValue(ldap_dn, ldapEntry.getDn());
               
@@ -944,14 +990,37 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           userAttributesMultivalued.remove(userAttributeNameForMemberships);
         }
       }
-      
+
+      // widen the search attribute list with any native-attribute paths so the directory
+      // returns report-only attrs alongside the configured ones (single round-trip)
+      boolean populateNativeUsers = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGenericGrouperTable();
+      if (populateNativeUsers) {
+        LdapProvisioningTargetNativeBuilder.widenLdapAttributeNamesForEntities(
+            entitySearchAttributeNames, ldapSyncConfiguration.getNativeAttributesEntities());
+      }
+      // memberships extracted from each user's membership attribute (entity-attribute style)
+      boolean populateNativeMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()
+          && !StringUtils.isBlank(userAttributeNameForMemberships)
+          && entitySearchAttributeNames.contains(userAttributeNameForMemberships);
+
       LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
       List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, userSearchBaseDn, userSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(entitySearchAttributeNames));
 
       int count = 0;
 
       for (LdapEntry ldapEntry : ldapEntries) {
-        
+
+        // populate the native-target reporting list while the LdapEntry is still in scope
+        if (populateNativeUsers) {
+          this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeUsers()
+              .add(LdapProvisioningTargetNativeBuilder.buildNativeUser(ldapEntry));
+        }
+        if (populateNativeMemberships) {
+          LdapProvisioningTargetNativeBuilder.appendNativeMembershipsFromEntityEntry(
+              this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeMemberships(),
+              ldapEntry, userAttributeNameForMemberships);
+        }
+
         // conserve memory
         ldapEntries.set(count, null);
         count++;
@@ -1021,7 +1090,19 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           entityAttributesMultivalued.remove(entityAttributeNameForMemberships);
         }
       }
-      
+
+      // widen the search attribute list with any native-attribute paths so report-only
+      // attrs come back alongside the configured ones (single round-trip)
+      boolean populateNativeUsers = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGenericGrouperTable();
+      if (populateNativeUsers) {
+        LdapProvisioningTargetNativeBuilder.widenLdapAttributeNamesForEntities(
+            entitySearchAttributeNames, ldapSyncConfiguration.getNativeAttributesEntities());
+      }
+      // memberships extracted from each user's membership attribute (entity-attribute style)
+      boolean populateNativeMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()
+          && !StringUtils.isBlank(entityAttributeNameForMemberships)
+          && entitySearchAttributeNames.contains(entityAttributeNameForMemberships);
+
       int batchSize = LdapConfiguration.getConfig(ldapConfigId).getQueryBatchSize();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(values, batchSize, false);
       for (int i = 0; i < numberOfBatches; i++) {
@@ -1030,34 +1111,45 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         try {
           List<Object> batchValues = GrouperUtil.batchList(values, batchSize, i);
           StringBuilder filterBuilder = new StringBuilder();
-          
+
           if (!StringUtils.isBlank(targetDaoRetrieveEntitiesRequest.getSearchAttribute())) {
             for (Object attributeValueObject : GrouperUtil.nonNull(batchValues)) {
-              
+
               String value = GrouperUtil.stringValue(attributeValueObject);
               String searchFilter = "(" + targetDaoRetrieveEntitiesRequest.getSearchAttribute() + "=" + ldapFilterValue(targetDaoRetrieveEntitiesRequest.getSearchAttribute(), value) + ")";
-    
+
               filterBuilder.append(searchFilter);
-    
+
             }
-    
+
             String filter = filterBuilder.toString();
-            
+
             if (GrouperUtil.length(batchValues) > 1) {
               filter = "(|" + filter + ")";
             }
-            
+
             filter = generateUserSearchFilter(filter);
-            
+
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
             List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, entitySearchBaseDn, filter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(entitySearchAttributeNames));
             int count = 0;
-            
+
             for (LdapEntry ldapEntry : ldapEntries) {
+              // populate the native-target reporting list while the LdapEntry is in scope
+              if (populateNativeUsers) {
+                this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeUsers()
+                    .add(LdapProvisioningTargetNativeBuilder.buildNativeUser(ldapEntry));
+              }
+              if (populateNativeMemberships) {
+                LdapProvisioningTargetNativeBuilder.appendNativeMembershipsFromEntityEntry(
+                    this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeMemberships(),
+                    ldapEntry, entityAttributeNameForMemberships);
+              }
+
               // conserve memory
               ldapEntries.set(count, null);
               count++;
-              
+
               ProvisioningEntity targetEntity = new ProvisioningEntity(false);
               targetEntity.assignAttributeValue(ldap_dn, ldapEntry.getDn());
               

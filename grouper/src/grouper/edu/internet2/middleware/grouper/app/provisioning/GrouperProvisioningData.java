@@ -294,6 +294,48 @@ public class GrouperProvisioningData {
    */
   private Set<ProvisioningMembershipWrapper> provisioningMembershipWrappers = new HashSet<ProvisioningMembershipWrapper>();
 
+  /**
+   * native-target users from the most recent target select; populated only when the DAO
+   * actually fetches users from the target. Drives grouper_prov_user reporting writes.
+   */
+  private List<GrouperProvisioningTargetNativeUser> targetNativeUsers = new ArrayList<GrouperProvisioningTargetNativeUser>();
+
+  /**
+   * native-target groups from the most recent target select; populated only when the DAO
+   * actually fetches groups from the target. Drives grouper_prov_group reporting writes.
+   */
+  private List<GrouperProvisioningTargetNativeGroup> targetNativeGroups = new ArrayList<GrouperProvisioningTargetNativeGroup>();
+
+  /**
+   * native-target memberships from the most recent target select; populated only when the DAO
+   * actually fetches memberships from the target. Drives grouper_prov_mship reporting writes.
+   */
+  private List<GrouperProvisioningTargetNativeMembership> targetNativeMemberships = new ArrayList<GrouperProvisioningTargetNativeMembership>();
+
+  public List<GrouperProvisioningTargetNativeUser> getTargetNativeUsers() {
+    return targetNativeUsers;
+  }
+
+  public void setTargetNativeUsers(List<GrouperProvisioningTargetNativeUser> targetNativeUsers) {
+    this.targetNativeUsers = targetNativeUsers == null ? new ArrayList<GrouperProvisioningTargetNativeUser>() : targetNativeUsers;
+  }
+
+  public List<GrouperProvisioningTargetNativeGroup> getTargetNativeGroups() {
+    return targetNativeGroups;
+  }
+
+  public void setTargetNativeGroups(List<GrouperProvisioningTargetNativeGroup> targetNativeGroups) {
+    this.targetNativeGroups = targetNativeGroups == null ? new ArrayList<GrouperProvisioningTargetNativeGroup>() : targetNativeGroups;
+  }
+
+  public List<GrouperProvisioningTargetNativeMembership> getTargetNativeMemberships() {
+    return targetNativeMemberships;
+  }
+
+  public void setTargetNativeMemberships(List<GrouperProvisioningTargetNativeMembership> targetNativeMemberships) {
+    this.targetNativeMemberships = targetNativeMemberships == null ? new ArrayList<GrouperProvisioningTargetNativeMembership>() : targetNativeMemberships;
+  }
+
   private GrouperProvisioner grouperProvisioner;
 
   private Set<Object> membershipValuesThatExistInGrouperLowercaseIfNeeded = new HashSet<>();

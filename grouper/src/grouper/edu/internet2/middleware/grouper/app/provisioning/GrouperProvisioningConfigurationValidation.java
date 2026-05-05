@@ -332,6 +332,31 @@ public class GrouperProvisioningConfigurationValidation {
     validateMatchingAttributes();
     validateMembershipAttributesAreNotCached();
     validateMembershipAttributeDoesNotMatchSearchOrMatchingAttribute();
+    validateNativeAttributesJson();
+  }
+
+  /**
+   * Validate the native-attributes JSON textareas (entities and groups). Each is optional;
+   * if present, must parse and conform to the documented shape. Errors are attached to the
+   * corresponding form field via jqueryHandle so the UI can highlight the bad textarea.
+   */
+  public void validateNativeAttributesJson() {
+    validateNativeAttributesJsonField("nativeAttributesJsonEntities");
+    validateNativeAttributesJsonField("nativeAttributesJsonGroups");
+  }
+
+  private void validateNativeAttributesJsonField(String suffix) {
+    String json = suffixToConfigValue.get(suffix);
+    if (StringUtils.isBlank(json)) {
+      return;
+    }
+    try {
+      GrouperProvisioningNativeAttributeConfig.parseAndValidate(json, suffix);
+    } catch (RuntimeException re) {
+      this.addErrorMessage(new ProvisioningValidationIssue()
+          .assignMessage(re.getMessage())
+          .assignJqueryHandle(suffix));
+    }
   }
 
   

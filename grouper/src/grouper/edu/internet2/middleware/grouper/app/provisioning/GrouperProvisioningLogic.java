@@ -1335,16 +1335,16 @@ public class GrouperProvisioningLogic {
     long grouperSyncInternalId = gcGrouperSync.getInternalId();
     long nowMicros = System.currentTimeMillis() * 1000L;
 
-    // prefer native-target values (from selectAll on the target system); fall back to the
-    // grouper-translated outbound view for provisioners that don't run a target select
-    // (e.g. selectGroups=false). Reporting captures whatever we know.
-    List<ProvisioningEntity> targetProvisioningEntities = collectEntitiesForGenericReporting();
-    List<ProvisioningGroup> targetProvisioningGroups = collectGroupsForGenericReporting();
-    List<ProvisioningMembership> targetProvisioningMemberships = collectMembershipsForGenericReporting();
-    
+    // strict native-target view: only what the target select actually returned. If a provisioner
+    // doesn't fetch a given axis (e.g. selectGroups=false), no rows are written for that axis.
+    GrouperProvisioningData grouperProvisioningData = this.getGrouperProvisioner().retrieveGrouperProvisioningData();
+    List<GrouperProvisioningTargetNativeUser> targetNativeUsers = GrouperUtil.nonNull(grouperProvisioningData.getTargetNativeUsers());
+    List<GrouperProvisioningTargetNativeGroup> targetNativeGroups = GrouperUtil.nonNull(grouperProvisioningData.getTargetNativeGroups());
+    List<GrouperProvisioningTargetNativeMembership> targetNativeMemberships = GrouperUtil.nonNull(grouperProvisioningData.getTargetNativeMemberships());
+
     Map<String, GenericProvisioningUserRecord> targetUserIdToRecord = new LinkedHashMap<String, GenericProvisioningUserRecord>();
-    for (ProvisioningEntity targetProvisioningEntity : targetProvisioningEntities) {
-      String targetUserId = this.normalizeTargetId(targetProvisioningEntity.getId());
+    for (GrouperProvisioningTargetNativeUser grouperProvisioningTargetNativeUser : targetNativeUsers) {
+      String targetUserId = this.normalizeTargetId(grouperProvisioningTargetNativeUser.getTargetId());
       if (StringUtils.isBlank(targetUserId)) {
         continue;
       }
@@ -1353,19 +1353,17 @@ public class GrouperProvisioningLogic {
         userRecord = new GenericProvisioningUserRecord(targetUserId);
         targetUserIdToRecord.put(targetUserId, userRecord);
       }
-      if (userRecord.getMemberInternalId() == null && targetProvisioningEntity.getInternalId() != null) {
-        userRecord.setMemberInternalId(targetProvisioningEntity.getInternalId());
+      if (userRecord.getMemberInternalId() == null && grouperProvisioningTargetNativeUser.getMemberInternalId() != null) {
+        userRecord.setMemberInternalId(grouperProvisioningTargetNativeUser.getMemberInternalId());
       }
-
-      for (ProvisioningAttribute provisioningAttribute : targetProvisioningEntity.retrieveAttributes().values()) {
-        String attributeName = provisioningAttribute.getName();
-        this.addProvisioningAttributeValue(userRecord, attributeName, provisioningAttribute.getValue());
+      for (Map.Entry<String, Object> attributeEntry : GrouperUtil.nonNull(grouperProvisioningTargetNativeUser.getAttributes()).entrySet()) {
+        this.addProvisioningAttributeValue(userRecord, attributeEntry.getKey(), attributeEntry.getValue());
       }
     }
 
     Map<String, GenericProvisioningGroupRecord> targetGroupIdToRecord = new LinkedHashMap<String, GenericProvisioningGroupRecord>();
-    for (ProvisioningGroup targetProvisioningGroup : targetProvisioningGroups) {
-      String targetGroupId = this.normalizeTargetId(targetProvisioningGroup.getId());
+    for (GrouperProvisioningTargetNativeGroup grouperProvisioningTargetNativeGroup : targetNativeGroups) {
+      String targetGroupId = this.normalizeTargetId(grouperProvisioningTargetNativeGroup.getTargetId());
       if (StringUtils.isBlank(targetGroupId)) {
         continue;
       }
@@ -1374,41 +1372,39 @@ public class GrouperProvisioningLogic {
         groupRecord = new GenericProvisioningGroupRecord(targetGroupId);
         targetGroupIdToRecord.put(targetGroupId, groupRecord);
       }
-      if (groupRecord.getGroupInternalId() == null && targetProvisioningGroup.getGroupInternalId() != null) {
-        groupRecord.setGroupInternalId(targetProvisioningGroup.getGroupInternalId());
+      if (groupRecord.getGroupInternalId() == null && grouperProvisioningTargetNativeGroup.getGroupInternalId() != null) {
+        groupRecord.setGroupInternalId(grouperProvisioningTargetNativeGroup.getGroupInternalId());
       }
-
-      for (ProvisioningAttribute provisioningAttribute : targetProvisioningGroup.retrieveAttributes().values()) {
-        String attributeName = provisioningAttribute.getName();
-        this.addProvisioningAttributeValue(groupRecord, attributeName, provisioningAttribute.getValue());
+      for (Map.Entry<String, Object> attributeEntry : GrouperUtil.nonNull(grouperProvisioningTargetNativeGroup.getAttributes()).entrySet()) {
+        this.addProvisioningAttributeValue(groupRecord, attributeEntry.getKey(), attributeEntry.getValue());
       }
     }
-    
+
     List<GenericProvisioningMembershipRecord> membershipRecords = new ArrayList<GenericProvisioningMembershipRecord>();
     Set<MultiKey> membershipDedup = new HashSet<MultiKey>();
-    for (ProvisioningMembership targetProvisioningMembership : targetProvisioningMemberships) {
-      String targetGroupId = this.resolveMembershipGroupId(targetProvisioningMembership);
-      String targetUserId = this.resolveMembershipUserId(targetProvisioningMembership);
+    for (GrouperProvisioningTargetNativeMembership grouperProvisioningTargetNativeMembership : targetNativeMemberships) {
+      String targetGroupId = StringUtils.trimToNull(grouperProvisioningTargetNativeMembership.getTargetGroupId());
+      String targetUserId = StringUtils.trimToNull(grouperProvisioningTargetNativeMembership.getTargetUserId());
       if (StringUtils.isBlank(targetGroupId) || StringUtils.isBlank(targetUserId)) {
         continue;
       }
-      
+
       GenericProvisioningGroupRecord groupRecord = targetGroupIdToRecord.get(targetGroupId);
       if (groupRecord == null) {
         continue;
       }
-      
+
       GenericProvisioningUserRecord userRecord = targetUserIdToRecord.get(targetUserId);
       if (userRecord == null) {
         continue;
       }
-      
-      String roleName = this.resolveMembershipRoleName(targetProvisioningMembership);
+
+      String roleName = StringUtils.trimToNull(grouperProvisioningTargetNativeMembership.getRoleName());
       MultiKey membershipKey = new MultiKey(targetGroupId, targetUserId, roleName);
       if (!membershipDedup.add(membershipKey)) {
         continue;
       }
-      
+
       GenericProvisioningMembershipRecord membershipRecord = new GenericProvisioningMembershipRecord();
       membershipRecord.targetGroupId = targetGroupId;
       membershipRecord.targetUserId = targetUserId;
@@ -1593,58 +1589,6 @@ public class GrouperProvisioningLogic {
         GcTableSyncPhase.DELETES_ONLY);
   }
 
-  /**
-   * Collect entities for the generic reporting tables: prefer the native-target view (from a
-   * target select), fall back to the grouper-translated outbound view for provisioners that
-   * don't run a target select.
-   */
-  private List<ProvisioningEntity> collectEntitiesForGenericReporting() {
-    List<ProvisioningEntity> result = new ArrayList<ProvisioningEntity>();
-    for (ProvisioningEntityWrapper wrapper : GrouperUtil.nonNull(
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
-      ProvisioningEntity entity = wrapper.getTargetProvisioningEntity();
-      if (entity == null) {
-        entity = wrapper.getGrouperTargetEntity();
-      }
-      if (entity != null) {
-        result.add(entity);
-      }
-    }
-    return result;
-  }
-
-  /** group counterpart of collectEntitiesForGenericReporting */
-  private List<ProvisioningGroup> collectGroupsForGenericReporting() {
-    List<ProvisioningGroup> result = new ArrayList<ProvisioningGroup>();
-    for (ProvisioningGroupWrapper wrapper : GrouperUtil.nonNull(
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
-      ProvisioningGroup group = wrapper.getTargetProvisioningGroup();
-      if (group == null) {
-        group = wrapper.getGrouperTargetGroup();
-      }
-      if (group != null) {
-        result.add(group);
-      }
-    }
-    return result;
-  }
-
-  /** membership counterpart of collectEntitiesForGenericReporting */
-  private List<ProvisioningMembership> collectMembershipsForGenericReporting() {
-    List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
-    for (ProvisioningMembershipWrapper wrapper : GrouperUtil.nonNull(
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
-      ProvisioningMembership mship = wrapper.getTargetProvisioningMembership();
-      if (mship == null) {
-        mship = wrapper.getGrouperTargetMembership();
-      }
-      if (mship != null) {
-        result.add(mship);
-      }
-    }
-    return result;
-  }
-
   private void loadDataToGenericProvisionerTablesIncremental() {
 
     GrouperProvisioningBehavior behavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
@@ -1661,17 +1605,17 @@ public class GrouperProvisioningLogic {
     
     long grouperSyncInternalId = gcGrouperSync.getInternalId();
     long nowMicros = System.currentTimeMillis() * 1000L;
-    
-    String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
-    GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior()
-        .getGrouperProvisioningBehaviorMembershipType();
-    
-    // collect target IDs to upsert from target provisioning data
+
+    // strict native-target view: incremental sync reads the same native lists populated by
+    // the DAO during its scoped target select. Empty list = nothing to do for that axis.
+    GrouperProvisioningData grouperProvisioningData = this.getGrouperProvisioner().retrieveGrouperProvisioningData();
+    List<GrouperProvisioningTargetNativeUser> targetNativeUsers = GrouperUtil.nonNull(grouperProvisioningData.getTargetNativeUsers());
+    List<GrouperProvisioningTargetNativeGroup> targetNativeGroups = GrouperUtil.nonNull(grouperProvisioningData.getTargetNativeGroups());
+    List<GrouperProvisioningTargetNativeMembership> targetNativeMemberships = GrouperUtil.nonNull(grouperProvisioningData.getTargetNativeMemberships());
+
     Map<String, GenericProvisioningUserRecord> targetUserIdToRecord = new LinkedHashMap<String, GenericProvisioningUserRecord>();
-    List<ProvisioningEntity> targetProvisioningEntities = GrouperUtil.nonNull(
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities());
-    for (ProvisioningEntity targetProvisioningEntity : targetProvisioningEntities) {
-      String targetUserId = this.normalizeTargetId(targetProvisioningEntity.getId());
+    for (GrouperProvisioningTargetNativeUser grouperProvisioningTargetNativeUser : targetNativeUsers) {
+      String targetUserId = this.normalizeTargetId(grouperProvisioningTargetNativeUser.getTargetId());
       if (StringUtils.isBlank(targetUserId)) {
         continue;
       }
@@ -1680,28 +1624,17 @@ public class GrouperProvisioningLogic {
         userRecord = new GenericProvisioningUserRecord(targetUserId);
         targetUserIdToRecord.put(targetUserId, userRecord);
       }
-      if (userRecord.getMemberInternalId() == null && targetProvisioningEntity.getInternalId() != null) {
-        userRecord.setMemberInternalId(targetProvisioningEntity.getInternalId());
+      if (userRecord.getMemberInternalId() == null && grouperProvisioningTargetNativeUser.getMemberInternalId() != null) {
+        userRecord.setMemberInternalId(grouperProvisioningTargetNativeUser.getMemberInternalId());
       }
-
-      for (ProvisioningAttribute provisioningAttribute : targetProvisioningEntity.retrieveAttributes().values()) {
-        String attributeName = provisioningAttribute.getName();
-        if (StringUtils.equalsIgnoreCase("id", attributeName)) {
-          continue;
-        }
-        if (membershipType == GrouperProvisioningBehaviorMembershipType.entityAttributes
-            && StringUtils.equals(attributeName, membershipAttributeName)) {
-          continue;
-        }
-        this.addProvisioningAttributeValue(userRecord, attributeName, provisioningAttribute.getValue());
+      for (Map.Entry<String, Object> attributeEntry : GrouperUtil.nonNull(grouperProvisioningTargetNativeUser.getAttributes()).entrySet()) {
+        this.addProvisioningAttributeValue(userRecord, attributeEntry.getKey(), attributeEntry.getValue());
       }
     }
-    
+
     Map<String, GenericProvisioningGroupRecord> targetGroupIdToRecord = new LinkedHashMap<String, GenericProvisioningGroupRecord>();
-    List<ProvisioningGroup> targetProvisioningGroups = GrouperUtil.nonNull(
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups());
-    for (ProvisioningGroup targetProvisioningGroup : targetProvisioningGroups) {
-      String targetGroupId = this.normalizeTargetId(targetProvisioningGroup.getId());
+    for (GrouperProvisioningTargetNativeGroup grouperProvisioningTargetNativeGroup : targetNativeGroups) {
+      String targetGroupId = this.normalizeTargetId(grouperProvisioningTargetNativeGroup.getTargetId());
       if (StringUtils.isBlank(targetGroupId)) {
         continue;
       }
@@ -1710,41 +1643,23 @@ public class GrouperProvisioningLogic {
         groupRecord = new GenericProvisioningGroupRecord(targetGroupId);
         targetGroupIdToRecord.put(targetGroupId, groupRecord);
       }
-      if (groupRecord.getGroupInternalId() == null && targetProvisioningGroup.getGroupInternalId() != null) {
-        groupRecord.setGroupInternalId(targetProvisioningGroup.getGroupInternalId());
+      if (groupRecord.getGroupInternalId() == null && grouperProvisioningTargetNativeGroup.getGroupInternalId() != null) {
+        groupRecord.setGroupInternalId(grouperProvisioningTargetNativeGroup.getGroupInternalId());
       }
-
-      for (ProvisioningAttribute provisioningAttribute : targetProvisioningGroup.retrieveAttributes().values()) {
-        String attributeName = provisioningAttribute.getName();
-        if (StringUtils.equalsIgnoreCase("id", attributeName)) {
-          continue;
-        }
-        if (membershipType == GrouperProvisioningBehaviorMembershipType.groupAttributes
-            && StringUtils.equals(attributeName, membershipAttributeName)) {
-          continue;
-        }
-        this.addProvisioningAttributeValue(groupRecord, attributeName, provisioningAttribute.getValue());
+      for (Map.Entry<String, Object> attributeEntry : GrouperUtil.nonNull(grouperProvisioningTargetNativeGroup.getAttributes()).entrySet()) {
+        this.addProvisioningAttributeValue(groupRecord, attributeEntry.getKey(), attributeEntry.getValue());
       }
     }
-    
+
     List<GenericProvisioningMembershipRecord> membershipRecords = new ArrayList<GenericProvisioningMembershipRecord>();
-    for (ProvisioningMembershipWrapper provisioningMembershipWrapper :
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
-      if (provisioningMembershipWrapper.getProvisioningStateMembership().isDeleteResultProcessed()) {
-        continue;
-      }
-      ProvisioningMembership membershipForRecord = provisioningMembershipWrapper.getGrouperTargetMembership();
-      if (membershipForRecord == null) {
-        continue;
-      }
-      String targetGroupId = this.resolveMembershipGroupId(membershipForRecord);
-      String targetUserId = this.resolveMembershipUserId(membershipForRecord);
+    for (GrouperProvisioningTargetNativeMembership grouperProvisioningTargetNativeMembership : targetNativeMemberships) {
+      String targetGroupId = StringUtils.trimToNull(grouperProvisioningTargetNativeMembership.getTargetGroupId());
+      String targetUserId = StringUtils.trimToNull(grouperProvisioningTargetNativeMembership.getTargetUserId());
       if (StringUtils.isBlank(targetGroupId) || StringUtils.isBlank(targetUserId)) {
         continue;
       }
-      
-      String roleName = this.resolveMembershipRoleName(membershipForRecord);
-      
+      String roleName = StringUtils.trimToNull(grouperProvisioningTargetNativeMembership.getRoleName());
+
       GenericProvisioningMembershipRecord membershipRecord = new GenericProvisioningMembershipRecord();
       membershipRecord.targetGroupId = targetGroupId;
       membershipRecord.targetUserId = targetUserId;

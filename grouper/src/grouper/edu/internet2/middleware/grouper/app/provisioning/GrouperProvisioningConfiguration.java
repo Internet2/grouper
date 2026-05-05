@@ -722,6 +722,18 @@ public abstract class GrouperProvisioningConfiguration {
 
   private boolean loadMembershipsToGenericGrouperTable;
 
+  /** raw JSON string from config; null/blank if not set */
+  private String nativeAttributesJsonEntities;
+
+  /** raw JSON string from config; null/blank if not set */
+  private String nativeAttributesJsonGroups;
+
+  /** parsed from {@link #nativeAttributesJsonEntities}; never null after configure */
+  private List<GrouperProvisioningNativeAttributeConfig> nativeAttributesEntities = new ArrayList<GrouperProvisioningNativeAttributeConfig>();
+
+  /** parsed from {@link #nativeAttributesJsonGroups}; never null after configure */
+  private List<GrouperProvisioningNativeAttributeConfig> nativeAttributesGroups = new ArrayList<GrouperProvisioningNativeAttributeConfig>();
+
 
   private String entityAttributesSqlExternalSystem;
   private String entityAttributesTableViewName;
@@ -1015,6 +1027,34 @@ public abstract class GrouperProvisioningConfiguration {
 
   public boolean isLoadMembershipsToGenericGrouperTable() {
     return loadMembershipsToGenericGrouperTable;
+  }
+
+  /** raw JSON string from config; null/blank if not set */
+  public String getNativeAttributesJsonEntities() {
+    return nativeAttributesJsonEntities;
+  }
+
+  public void setNativeAttributesJsonEntities(String nativeAttributesJsonEntities) {
+    this.nativeAttributesJsonEntities = nativeAttributesJsonEntities;
+  }
+
+  /** raw JSON string from config; null/blank if not set */
+  public String getNativeAttributesJsonGroups() {
+    return nativeAttributesJsonGroups;
+  }
+
+  public void setNativeAttributesJsonGroups(String nativeAttributesJsonGroups) {
+    this.nativeAttributesJsonGroups = nativeAttributesJsonGroups;
+  }
+
+  /** parsed native-attribute entries for entities; never null after configure */
+  public List<GrouperProvisioningNativeAttributeConfig> getNativeAttributesEntities() {
+    return nativeAttributesEntities;
+  }
+
+  /** parsed native-attribute entries for groups; never null after configure */
+  public List<GrouperProvisioningNativeAttributeConfig> getNativeAttributesGroups() {
+    return nativeAttributesGroups;
   }
 
   /**
@@ -3424,7 +3464,16 @@ public abstract class GrouperProvisioningConfiguration {
     this.loadEntitiesToGenericGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadEntitiesToGenericGrouperTable", false), false);
     this.loadGroupsToGenericGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadGroupsToGenericGrouperTable", false), false);
     this.loadMembershipsToGenericGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadMembershipsToGenericGrouperTable", false), false);
-    
+
+    this.nativeAttributesJsonEntities = this.retrieveConfigString("nativeAttributesJsonEntities", false);
+    this.nativeAttributesJsonGroups = this.retrieveConfigString("nativeAttributesJsonGroups", false);
+    // parse + validate; throws on bad JSON so the daemon job fails fast with a clear error
+    this.nativeAttributesEntities = GrouperProvisioningNativeAttributeConfig.parseAndValidate(
+        this.nativeAttributesJsonEntities, "nativeAttributesJsonEntities");
+    this.nativeAttributesGroups = GrouperProvisioningNativeAttributeConfig.parseAndValidate(
+        this.nativeAttributesJsonGroups, "nativeAttributesJsonGroups");
+
+
     this.hasEntityAttributes = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.entityAttributesNotInSubjectSource", false), false);
     this.resolveAttributesWithSql = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.resolveAttributesWithSQL", false), false);
     this.resolveAttributesWithLdap = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.resolveAttributesWithLDAP", false), false);

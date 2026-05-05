@@ -115,6 +115,8 @@ public class GrouperDdl7_2_0 {
         "grouper_prov_grp_idx0", false, "grouper_sync_internal_id");
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_prov_group",
         "grouper_prov_grp_idx1", false, "group_internal_id");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_prov_group",
+        "grouper_prov_grp_idx2", false, "target_group_id");
   }
 
   static void addGrouperProvGroupComments(Database database, DdlVersionBean ddlVersionBean) {
@@ -290,6 +292,8 @@ public class GrouperDdl7_2_0 {
         "grouper_prov_user_idx0", false, "grouper_sync_internal_id");
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_prov_user",
         "grouper_prov_user_idx1", false, "member_internal_id");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_prov_user",
+        "grouper_prov_user_idx2", false, "target_user_id");
   }
 
   static void addGrouperProvUserComments(Database database, DdlVersionBean ddlVersionBean) {
