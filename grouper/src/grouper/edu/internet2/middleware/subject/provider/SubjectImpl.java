@@ -195,18 +195,24 @@ public class SubjectImpl implements Subject {
     }
     
     if (subject instanceof SubjectImpl) {
-      
-      SubjectImpl clonedSubject = new SubjectImpl(); 
-      clonedSubject.id = ((SubjectImpl)subject).id;
-      clonedSubject.typeName = ((SubjectImpl)subject).typeName;
-      clonedSubject.sourceId = ((SubjectImpl)subject).sourceId;
-      clonedSubject.nameAttribute = ((SubjectImpl)subject).nameAttribute;
-      clonedSubject.descriptionAttribute = ((SubjectImpl)subject).descriptionAttribute;
-      clonedSubject.nameOverride = ((SubjectImpl)subject).nameOverride;
-      clonedSubject.descriptionOverride = ((SubjectImpl)subject).descriptionOverride;
-      clonedSubject.attributes = 
-          new SubjectCaseInsensitiveMapImpl<String, Set<String>>(GrouperUtil.nonNull(((SubjectImpl)subject).attributes));
-      clonedSubject.translationMap = new CaseInsensitiveMap(GrouperUtil.nonNull(((SubjectImpl)subject).translationMap));
+
+      SubjectImpl source = (SubjectImpl) subject;
+      SubjectImpl clonedSubject = new SubjectImpl();
+      // synchronize on the source: initAttributesIfNeeded() mutates 'attributes'
+      // under synchronized(this), so without this lock a concurrent virtual-attribute
+      // init can throw ConcurrentModificationException while we iterate it here.
+      synchronized (source) {
+        clonedSubject.id = source.id;
+        clonedSubject.typeName = source.typeName;
+        clonedSubject.sourceId = source.sourceId;
+        clonedSubject.nameAttribute = source.nameAttribute;
+        clonedSubject.descriptionAttribute = source.descriptionAttribute;
+        clonedSubject.nameOverride = source.nameOverride;
+        clonedSubject.descriptionOverride = source.descriptionOverride;
+        clonedSubject.attributes =
+            new SubjectCaseInsensitiveMapImpl<String, Set<String>>(GrouperUtil.nonNull(source.attributes));
+        clonedSubject.translationMap = new CaseInsensitiveMap(GrouperUtil.nonNull(source.translationMap));
+      }
       clonedSubject.attributesInitted = false;
       return clonedSubject;
     }
