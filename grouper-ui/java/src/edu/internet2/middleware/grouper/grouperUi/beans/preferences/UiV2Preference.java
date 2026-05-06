@@ -87,5 +87,27 @@ public class UiV2Preference {
    * GroupsImanage, MyFavorites, MyMemberships, MyServices, RecentlyUsed, StemsImanage
    */
   private String indexCol2;
-  
+
+  /**
+   * if true, the group Members tab filter defaults to direct memberships only on initial load.
+   * null/false means the global default behavior (show all members) is unchanged.
+   */
+  private Boolean groupMembersDefaultDirect;
+
+  /**
+   * if true, the group Members tab filter defaults to direct memberships only on initial load.
+   * @return the groupMembersDefaultDirect
+   */
+  public Boolean getGroupMembersDefaultDirect() {
+    return this.groupMembersDefaultDirect;
+  }
+
+  /**
+   * if true, the group Members tab filter defaults to direct memberships only on initial load.
+   * @param groupMembersDefaultDirect1 the groupMembersDefaultDirect to set
+   */
+  public void setGroupMembersDefaultDirect(Boolean groupMembersDefaultDirect1) {
+    this.groupMembersDefaultDirect = groupMembersDefaultDirect1;
+  }
+
 }

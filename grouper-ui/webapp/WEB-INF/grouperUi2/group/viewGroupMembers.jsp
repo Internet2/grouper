@@ -58,7 +58,6 @@ ${grouper:titleFromKeyAndText('groupPageTitle', grouperRequestContainer.groupCon
               $("#advanced-button").on('click', function(e) {
                 e.preventDefault();
                 $('#groupFilterSubmitDiv').appendTo('#groupFilterAdvancedButtonRowDiv');
-                $('#peopleFilterLabel').appendTo('#peopleFilterLabelCell');
                 $('#people-filter').prependTo('#peopleFilterSelectCell');
                 $('#table-filter').prependTo('#peopleFilterMemberNameCell');
                 $('#table-filter').removeClass("span12");
@@ -80,7 +79,7 @@ ${grouper:titleFromKeyAndText('groupPageTitle', grouperRequestContainer.groupCon
                 <c:choose>
                   <c:when test="${grouperRequestContainer.groupContainer.canRead}">
 
-                    <p class="lead">${textContainer.text['groupViewMembersDescription'] }</p>
+                    <p class="lead"><c:choose><c:when test="${grouperRequestContainer.groupContainer.groupMembersDefaultDirect}">${textContainer.text['groupViewMembersDirectDescription']}</c:when><c:otherwise>${textContainer.text['groupViewMembersDescription']}</c:otherwise></c:choose></p>
                     
                     <c:if test="${!grouperRequestContainer.groupContainer.guiGroup.group.isEnabled()}">
                       <p class="lead" style="color: red">${textContainer.text['groupViewGroupDisabled'] }
@@ -119,15 +118,19 @@ ${grouper:titleFromKeyAndText('groupPageTitle', grouperRequestContainer.groupCon
                       <table class="table table-condensed table-striped groupMembersAdvancedShow" style="display: none">
                         <tbody>
                           <tr>
-                            <td id="peopleFilterLabelCell"></td>
+                            <td id="peopleFilterLabelCell" style="vertical-align: top; white-space: nowrap;">
+                              <label for="people-filter">${textContainer.text['groupFilterMembershipType']}</label>
+                            </td>
                             <td id="peopleFilterSelectCell">
                               <br /><span class="description">${textContainer.text['groupFilterForDescription'] }</span>
                             </td>
                           </tr>
                           <tr>
-                            <td>&nbsp;</td>
+                            <td style="vertical-align: top; white-space: nowrap;">
+                              <label for="table-filter">${textContainer.text['groupFilterMemberSearch']}</label>
+                            </td>
                             <td id="peopleFilterMemberNameCell">
-                              <br /><span class="description">${textContainer.text['groupFilterMemberNameDescription'] }</span>
+                              <br /><span class="description">${textContainer.text['groupFilterMemberSearchDescription']}</span>
                             </td>
                           </tr>
                           <tr>
@@ -214,13 +217,12 @@ ${grouper:titleFromKeyAndText('groupPageTitle', grouperRequestContainer.groupCon
                         <div class="span4">
                           <select id="people-filter" name="membershipType">
                             <option value="">${textContainer.text['groupFilterAllAssignments']}</option>
-                            <option value="IMMEDIATE">${textContainer.text['groupFilterDirectAssignments']}</option>
+                            <option value="IMMEDIATE" ${grouperRequestContainer.groupContainer.groupMembersDefaultDirect ? 'selected="selected"' : ''}>${textContainer.text['groupFilterDirectAssignments']}</option>
                             <option value="NONIMMEDIATE">${textContainer.text['groupFilterIndirectAssignments']}</option>
                           </select>
                         </div>
                         <div class="span3" id="groupFilterTextDiv">
-                          <input type="text" placeholder="${textContainer.textEscapeXml['groupFilterFormPlaceholder']}" 
-                             name="filterText" id="table-filter" class="span12"/>
+                          <input type="text" name="filterText" id="table-filter" class="span12"/>
                         </div>
     
                         <div class="span4" id="groupFilterSubmitDiv"><input type="submit" class="btn" aria-controls="groupFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"

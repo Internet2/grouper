@@ -1121,4 +1121,52 @@ public class IndexContainer {
     return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.refresh.menu.on.view", false);
   }
 
+  /**
+   * cached per-user UI preference loaded on demand within a request so JSPs that reference it
+   * multiple times don't re-hit the user-data store.
+   */
+  private UiV2Preference uiV2Preference;
+
+  /**
+   * tracks whether we have already attempted to load the preference; null is a valid loaded value
+   * (user has not saved any preference yet) so we cannot use uiV2Preference != null as the gate.
+   */
+  private boolean uiV2PreferenceLoaded;
+
+  /**
+   * lazily load the per-user UI preference for the logged in subject so the My preferences page
+   * and any related lookups can read the saved values. May return null if nothing has been saved.
+   * @return the UiV2Preference for the logged in subject, or null
+   */
+  public UiV2Preference getUiV2Preference() {
+    if (!this.uiV2PreferenceLoaded) {
+      Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      this.uiV2Preference = GrouperUserDataApi.preferences(
+          GrouperUiUserData.grouperUiGroupNameForUserData(),
+          loggedInSubject, UiV2Preference.class);
+      this.uiV2PreferenceLoaded = true;
+    }
+    return this.uiV2Preference;
+  }
+
+  /**
+   * allow callers (e.g. the My preferences submit handler) to overwrite the cached preference
+   * after a save so a subsequent JSP render in the same response sees the new value.
+   * @param uiV2Preference1
+   */
+  public void setUiV2Preference(UiV2Preference uiV2Preference1) {
+    this.uiV2Preference = uiV2Preference1;
+    this.uiV2PreferenceLoaded = true;
+  }
+
+  /**
+   * derived convenience: whether the saved preference is to default the group Members tab
+   * to direct memberships only. Returns false when the user has no saved preference.
+   * @return true when the user has chosen direct memberships only as their default
+   */
+  public boolean isGroupMembersDefaultDirect() {
+    UiV2Preference pref = getUiV2Preference();
+    return pref != null && Boolean.TRUE.equals(pref.getGroupMembersDefaultDirect());
+  }
+
 }

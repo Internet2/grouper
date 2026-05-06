@@ -1373,6 +1373,30 @@ public class GroupContainer {
   
   private boolean showPointInTimeAudit;
 
+  /**
+   * if true, the user's per-user UI preference asks the group Members tab to default
+   * the filter to direct memberships only on initial load.
+   */
+  private boolean groupMembersDefaultDirect;
+
+  /**
+   * if true, the user's per-user UI preference asks the group Members tab to default
+   * the filter to direct memberships only on initial load.
+   * @return the groupMembersDefaultDirect
+   */
+  public boolean isGroupMembersDefaultDirect() {
+    return this.groupMembersDefaultDirect;
+  }
+
+  /**
+   * if true, the user's per-user UI preference asks the group Members tab to default
+   * the filter to direct memberships only on initial load.
+   * @param groupMembersDefaultDirect1 the groupMembersDefaultDirect to set
+   */
+  public void setGroupMembersDefaultDirect(boolean groupMembersDefaultDirect1) {
+    this.groupMembersDefaultDirect = groupMembersDefaultDirect1;
+  }
+
   
   /**
    * @return the showEnabledStatus

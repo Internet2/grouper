@@ -1374,6 +1374,81 @@ public class UiV2Main extends UiServiceLogicBase {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+  
+  /**
+   * my preferences page: shows the logged in subject's per-user UI preferences and lets them edit
+   * @param request
+   * @param response
+   */
+  public void myPreferences(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      //the JSP reads grouperRequestContainer.indexContainer.groupMembersDefaultDirect to pre-select
+      //the saved option; the IndexContainer lazy-loads the UiV2Preference on first access
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/index/myPreferences.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * persist the My preferences form. Currently saves the per-user "default membership type"
+   * preference (true means default the group Members tab to direct memberships only on initial load).
+   * Future preferences on this page would be added alongside.
+   * @param request
+   * @param response
+   */
+  public void myPreferencesSubmit(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      String defaultMembershipTypeParam = request.getParameter("defaultMembershipType");
+      boolean newDefaultDirect = "IMMEDIATE".equalsIgnoreCase(defaultMembershipTypeParam);
+
+      UiV2Preference uiV2Preference = GrouperUserDataApi.preferences(
+          GrouperUiUserData.grouperUiGroupNameForUserData(),
+          loggedInSubject, UiV2Preference.class);
+
+      if (uiV2Preference == null) {
+        uiV2Preference = new UiV2Preference();
+      }
+      uiV2Preference.setGroupMembersDefaultDirect(newDefaultDirect);
+
+      GrouperUserDataApi.preferencesAssign(
+          GrouperUiUserData.grouperUiGroupNameForUserData(),
+          loggedInSubject, uiV2Preference);
+
+      //refresh the cached value on the request-scoped IndexContainer so any later rendering in
+      //this response sees the new pref instead of a stale lazy-loaded one
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer()
+          .setUiV2Preference(uiV2Preference);
+
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("myPreferencesSavedSuccess")));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
 
   /**
    * my services

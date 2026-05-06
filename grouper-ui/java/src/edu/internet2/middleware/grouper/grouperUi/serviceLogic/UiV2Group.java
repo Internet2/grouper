@@ -115,6 +115,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
+import edu.internet2.middleware.grouper.grouperUi.beans.preferences.UiV2Preference;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupSummaryContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupTypeForEdit;
@@ -578,7 +579,19 @@ public class UiV2Group {
       if (retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup() != null) {
         UiV2Attestation.setupAttestation(group);            
       }
-      
+
+      //load the per-user UI preference into the container BEFORE rendering viewGroupMembers.jsp,
+      //so the membership-type dropdown and the lead description reflect the saved pref on navigation.
+      //GuiScreenAction.newInnerHtmlFromJsp renders the JSP to a string at addAction-call time, so the
+      //container must be populated by this point. filterHelper re-loads it for the other render paths.
+      UiV2Preference uiV2Preference = GrouperUserDataApi.preferences(
+          GrouperUiUserData.grouperUiGroupNameForUserData(),
+          loggedInSubject, UiV2Preference.class);
+      boolean defaultDirect = uiV2Preference != null
+          && Boolean.TRUE.equals(uiV2Preference.getGroupMembersDefaultDirect());
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer()
+          .setGroupMembersDefaultDirect(defaultDirect);
+
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/viewGroupMembers.jsp"));
 
@@ -871,12 +884,32 @@ public class UiV2Group {
     String membershipCustomCompositeOptions = request.getParameter("membershipCustomCompositeOptions");
     String membershipSubjectSourceId = request.getParameter("membershipSubjectSourceId");
     GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+
+    //load per-user UI preference so the membership-type dropdown, lead description, and the
+    //default-to-direct filter behavior all reflect the saved state on every render path.
+    //The preference itself is edited on the dedicated My preferences page (UiV2Main.myPreferences),
+    //not from this filter form.
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    UiV2Preference uiV2Preference = GrouperUserDataApi.preferences(
+        GrouperUiUserData.grouperUiGroupNameForUserData(),
+        loggedInSubject, UiV2Preference.class);
+    boolean defaultDirect = uiV2Preference != null
+        && Boolean.TRUE.equals(uiV2Preference.getGroupMembersDefaultDirect());
+    groupContainer.setGroupMembersDefaultDirect(defaultDirect);
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("filterHelper loaded groupMembersDefaultDirect=" + defaultDirect
+          + " for subject=" + GrouperUtil.subjectToString(loggedInSubject));
+    }
     
     //if filtering by subjects that have a certain type
     String membershipTypeString = request.getParameter("membershipType");
     MembershipType membershipType = null;
     if (!StringUtils.isBlank(membershipTypeString)) {
       membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
+    } else if (membershipTypeString == null && groupContainer.isGroupMembersDefaultDirect()) {
+      //no membershipType param submitted (initial load) and per-user pref is set: default to direct only
+      membershipType = MembershipType.IMMEDIATE;
     }
 
     GuiPaging guiPaging = groupContainer.getGuiPaging();
