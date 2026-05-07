@@ -3,7 +3,7 @@
 
 <c:choose>
   <c:when test="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig != null}">
-    <form id="newStemTemplateFormId" class="form-horizontal" method="post" action="UiV2Template.customTemplateExecute" enctype = "multipart/form-data">
+    <form id="newStemTemplateFormId" class="form-horizontal" method="post" action="UiV2Template.customTemplateExecute" enctype="multipart/form-data" onsubmit="return false;" onkeydown="if(event.key==='Enter' && event.target.tagName.toLowerCase() !== 'textarea'){if($('#newStemTemplateFormId a.btn-primary').length){guiSubmitFileForm(event, '#newStemTemplateFormId', '../app/UiV2Template.customTemplateExecute');}}">
   </c:when>
   <c:otherwise>
     <form id="newStemTemplateFormId" class="form-horizontal">
