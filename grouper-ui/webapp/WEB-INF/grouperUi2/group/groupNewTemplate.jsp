@@ -1,7 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 
-<form id="newGroupTemplateFormId" class="form-horizontal" method="post" action="UiV2Template.customTemplateExecute" enctype = "multipart/form-data">
+<form id="newGroupTemplateFormId" class="form-horizontal" method="post" action="UiV2Template.customTemplateExecute" enctype="multipart/form-data" onsubmit="return false;" onkeydown="if(event.key==='Enter' && event.target.tagName.toLowerCase() !== 'textarea'){if($('#newGroupTemplateFormId a.btn-primary').length){guiSubmitFileForm(event, '#newGroupTemplateFormId', '../app/UiV2Template.customTemplateExecute');}}">
   <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
 
   <grouper:browserPage jspName="newTemplate" />
