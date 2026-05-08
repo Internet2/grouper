@@ -311,7 +311,14 @@ public class GrouperLoaderIncrementalJob implements Job {
         
         // loader group name -> list of groups being managed by this loader group
         final Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates = new HashMap<String, Set<Group>>();
-        
+
+        String groupTableName = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + jobProperty + ".groupTableName", null);
+        if (!StringUtils.isBlank(groupTableName)) {
+          processGroupSyncRows(grouperSession, connection, grouperLoaderDb, groupTableName, fullSyncThreshold,
+              skipIfFullSyncDisabled, hib3GrouperloaderLog, nonFatalWarnings, groupsRequiringLoaderMetadataUpdates,
+              useThreads, threadPoolSize);
+        }
+
         for (String loaderGroupName : rowsByGroup.keySet()) {
           GrouperDaemonUtils.stopProcessingIfJobPaused();
 
@@ -473,13 +480,6 @@ public class GrouperLoaderIncrementalJob implements Job {
         GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
         
         deleteRowsCompleted(connection, tableName);
-
-        String groupTableName = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + jobProperty + ".groupTableName", null);
-        if (!StringUtils.isBlank(groupTableName)) {
-          processGroupSyncRows(grouperSession, connection, grouperLoaderDb, groupTableName, fullSyncThreshold,
-              skipIfFullSyncDisabled, hib3GrouperloaderLog, nonFatalWarnings, groupsRequiringLoaderMetadataUpdates,
-              useThreads, threadPoolSize);
-        }
 
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("processOneRow") {
           @Override
