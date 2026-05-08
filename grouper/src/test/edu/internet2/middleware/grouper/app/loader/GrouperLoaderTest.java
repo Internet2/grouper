@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -6510,6 +6511,10 @@ public class GrouperLoaderTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.groupTableName", "testgrouper_incremental_loader_group");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
 
+    new StemSave(this.grouperSession).assignName("loaderSecurity")
+      .assignSaveMode(SaveMode.INSERT_OR_UPDATE).save();
+    Group readers = Group.saveGroup(this.grouperSession, null, null, "loaderSecurity:readers", null, null, null, true);
+
     List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
     testDataList.add(new TestgrouperLoader("loader:group1x", SubjectTestHelper.SUBJ0_ID, "jdbc"));
     testDataList.add(new TestgrouperLoader("loader:group1x", SubjectTestHelper.SUBJ1_ID, "jdbc"));
@@ -6531,12 +6536,19 @@ public class GrouperLoaderTest extends GrouperTest {
     assertEquals("Group 1 original description", group1x.getDescription());
     assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ1));
+    assertFalse(group1x.getReaders().contains(readers.toSubject()));
 
-    // Change metadata AND membership in source
+    // Change metadata AND membership in source, and add privilege columns to group query
     HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoaderGroups where groupName='loader:group1x'").executeUpdate();
     testDataList = new ArrayList<GrouperAPI>();
     testDataList.add(new TestgrouperLoaderGroups("loader:group1x", "Group 1 Updated Display", "Group 1 updated description"));
     HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+        "select group_name, group_display_name, group_description, "
+        + "'loaderSecurity:readers' as readers "
+        + "from testgrouper_loader_groups");
+    loaderGroup.store();
 
     HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader where col1='loader:group1x' and col2='test.subject.0'").executeUpdate();
     testDataList = new ArrayList<GrouperAPI>();
@@ -6557,6 +6569,9 @@ public class GrouperLoaderTest extends GrouperTest {
     assertEquals("Group 1 Updated Display", group1x.getDisplayExtension());
     assertEquals("Group 1 updated description", group1x.getDescription());
 
+    // Verify privileges were applied (metadata includes privileges)
+    assertTrue(group1x.getReaders().contains(readers.toSubject()));
+
     // Verify memberships were NOT changed (still old state since sync_type=metadata)
     assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ1));
@@ -6574,6 +6589,10 @@ public class GrouperLoaderTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.groupTableName", "testgrouper_incremental_loader_group");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
 
+    new StemSave(this.grouperSession).assignName("loaderSecurity")
+      .assignSaveMode(SaveMode.INSERT_OR_UPDATE).save();
+    Group readers = Group.saveGroup(this.grouperSession, null, null, "loaderSecurity:readers", null, null, null, true);
+
     List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
     testDataList.add(new TestgrouperLoader("loader:group1x", SubjectTestHelper.SUBJ0_ID, "jdbc"));
     testDataList.add(new TestgrouperLoader("loader:group1x", SubjectTestHelper.SUBJ1_ID, "jdbc"));
@@ -6586,7 +6605,9 @@ public class GrouperLoaderTest extends GrouperTest {
         "select col1 as GROUP_NAME, col2 as SUBJECT_ID, col3 as SUBJECT_SOURCE_ID from testgrouper_loader");
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%x");
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
-        "select group_name, group_display_name, group_description from testgrouper_loader_groups");
+        "select group_name, group_display_name, group_description, "
+        + "'loaderSecurity:readers' as readers "
+        + "from testgrouper_loader_groups");
 
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
 
@@ -6595,6 +6616,12 @@ public class GrouperLoaderTest extends GrouperTest {
     assertEquals("Group 1 original description", group1x.getDescription());
     assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(group1x.getReaders().contains(readers.toSubject()));
+
+    // Remove the readers privilege manually so we can verify sync_type=memberships does NOT restore it
+    group1x.revokePriv(readers.toSubject(), AccessPrivilege.READ);
+    group1x = GroupFinder.findByName(grouperSession, "loader:group1x", true);
+    assertFalse(group1x.getReaders().contains(readers.toSubject()));
 
     // Change metadata AND membership in source
     HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoaderGroups where groupName='loader:group1x'").executeUpdate();
@@ -6626,6 +6653,9 @@ public class GrouperLoaderTest extends GrouperTest {
     assertEquals("Group 1 Original Display", group1x.getDisplayExtension());
     assertEquals("Group 1 original description", group1x.getDescription());
 
+    // Verify privileges were NOT restored (sync_type=memberships should not touch privileges)
+    assertFalse(group1x.getReaders().contains(readers.toSubject()));
+
     long uncompletedCount = new GcDbAccess().sql("select count(*) from testgrouper_incremental_loader_group where completed_timestamp is null").select(long.class);
     assertEquals(0, uncompletedCount);
   }
@@ -6637,6 +6667,10 @@ public class GrouperLoaderTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.groupTableName", "testgrouper_incremental_loader_group");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
+
+    new StemSave(this.grouperSession).assignName("loaderSecurity")
+      .assignSaveMode(SaveMode.INSERT_OR_UPDATE).save();
+    Group readers = Group.saveGroup(this.grouperSession, null, null, "loaderSecurity:readers", null, null, null, true);
 
     List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
     testDataList.add(new TestgrouperLoader("loader:group1x", SubjectTestHelper.SUBJ0_ID, "jdbc"));
@@ -6659,12 +6693,19 @@ public class GrouperLoaderTest extends GrouperTest {
     assertEquals("Group 1 original description", group1x.getDescription());
     assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ1));
+    assertFalse(group1x.getReaders().contains(readers.toSubject()));
 
-    // Change metadata AND membership in source
+    // Change metadata AND membership in source, and add privilege columns to group query
     HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoaderGroups where groupName='loader:group1x'").executeUpdate();
     testDataList = new ArrayList<GrouperAPI>();
     testDataList.add(new TestgrouperLoaderGroups("loader:group1x", "Group 1 Updated Display", "Group 1 updated description"));
     HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+        "select group_name, group_display_name, group_description, "
+        + "'loaderSecurity:readers' as readers "
+        + "from testgrouper_loader_groups");
+    loaderGroup.store();
 
     HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader where col1='loader:group1x' and col2='test.subject.0'").executeUpdate();
     testDataList = new ArrayList<GrouperAPI>();
@@ -6687,6 +6728,9 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(group1x.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ1));
     assertTrue(group1x.hasMember(SubjectTestHelper.SUBJ2));
+
+    // Verify privileges were applied (sync_type=all includes metadata)
+    assertTrue(group1x.getReaders().contains(readers.toSubject()));
 
     long uncompletedCount = new GcDbAccess().sql("select count(*) from testgrouper_incremental_loader_group where completed_timestamp is null").select(long.class);
     assertEquals(0, uncompletedCount);
