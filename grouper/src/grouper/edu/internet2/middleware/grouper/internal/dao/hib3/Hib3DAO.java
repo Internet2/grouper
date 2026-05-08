@@ -382,6 +382,12 @@ public abstract class Hib3DAO {
         //this is ok
       }
       try {
+        hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperIncrementalLoaderGroup");
+        addClass(configuration, hibernatableClass);
+      } catch (ClassNotFoundException cnfe) {
+        //this is ok
+      }
+      try {
         
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.subj.TestgrouperSubjAttr");
         addClass(configuration, hibernatableClass);

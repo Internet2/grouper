@@ -189,7 +189,7 @@ public class GrouperRecentMembershipsChangeLogConsumer extends EsbListenerBase {
           String sourceId = (String)subjectSourceIdAndSubjectId.getKey(0);
           String subjectId = (String)subjectSourceIdAndSubjectId.getKey(1);
           Long createdOn = subjectSourceIdAndSubjectIdToCreatedOn.get(subjectSourceIdAndSubjectId);
-          Row row = new Row(1, createdOn, groupName, subjectId, null, null, sourceId, "subject_id", subjectId);
+          Row row = new Row(1, createdOn, groupName, subjectId, null, null, sourceId, "subject_id", subjectId, null, null);
           
           Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates = new HashMap<String, Set<Group>>();
           

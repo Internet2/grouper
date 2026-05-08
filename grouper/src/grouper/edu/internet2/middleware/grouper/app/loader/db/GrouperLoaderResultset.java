@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.app.loader.db;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -480,27 +481,39 @@ public class GrouperLoaderResultset {
    */
   public GrouperLoaderResultset(GrouperLoaderDb grouperLoaderDb, String query,
       String jobName, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    this(grouperLoaderDb, query, jobName, hib3GrouperLoaderLog, null);
+  }
+
+  /**
+   * @param grouperLoaderDb
+   * @param query
+   * @param jobName
+   * @param hib3GrouperLoaderLog
+   * @param bindVars
+   */
+  public GrouperLoaderResultset(GrouperLoaderDb grouperLoaderDb, String query,
+      String jobName, Hib3GrouperLoaderLog hib3GrouperLoaderLog, List<Object> bindVars) {
 
     this.dataIndex = null;
-    
+
     {
-      //small security check (not failsafe, but better than nothing)
       String trimQuery = query.toLowerCase().trim();
       if (trimQuery.startsWith("insert") || trimQuery.startsWith("update") || trimQuery.startsWith("delete")) {
         throw new RuntimeException("Invalid query, should start with select: " + query);
       }
     }
     Connection connection = null;
-    Statement statement = null;
+    PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
     try {
       connection = grouperLoaderDb.connection();
       try {
-        // create and execute a SELECT
-        statement = connection.createStatement();
-        resultSet = statement.executeQuery(query);
+        preparedStatement = connection.prepareStatement(query);
+        for (int i = 0; i < GrouperUtil.length(bindVars); i++) {
+          preparedStatement.setObject(i + 1, bindVars.get(i));
+        }
+        resultSet = preparedStatement.executeQuery();
 
-        //lets get some column info and stuff
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
 
         int columnCount = resultSetMetaData.getColumnCount();
@@ -515,7 +528,6 @@ public class GrouperLoaderResultset {
           Object[] rowData = new Object[columnCount];
           row.setRowData(rowData);
           this.data.add(row);
-          //at this point, assume everything is either a string or a timestamp
           for (int i = 0; i < columnCount; i++) {
             if (this.columnTypes.get(i) == Types.TIMESTAMP) {
               rowData[i] = resultSet.getTimestamp(i + 1);
@@ -523,10 +535,8 @@ public class GrouperLoaderResultset {
               rowData[i] = resultSet.getString(i + 1);
             }
           }
-
         }
       } finally {
-        //this is important so no one sneaks some delete statement in there
         GrouperUtil.rollbackQuietly(connection);
       }
     } catch (SQLException se) {
@@ -534,7 +544,7 @@ public class GrouperLoaderResultset {
           + grouperLoaderDb, se);
     } finally {
       GrouperUtil.closeQuietly(resultSet);
-      GrouperUtil.closeQuietly(statement);
+      GrouperUtil.closeQuietly(preparedStatement);
       GrouperUtil.closeQuietly(connection);
     }
     this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, null);

@@ -41,6 +41,10 @@ public class TestgrouperIncrementalLoader extends GrouperAPI implements Hib3Grou
 
   private Long completedTimestamp;
 
+  private String mshipRecalcGroupName;
+
+  private String mshipRecalcType;
+
 
   /**
    * @param id
@@ -55,6 +59,24 @@ public class TestgrouperIncrementalLoader extends GrouperAPI implements Hib3Grou
   public TestgrouperIncrementalLoader(long id, String subjectId, String subjectIdentifier,
       String subjectIdOrIdentifier, String sourceId, String loaderGroupName,
       long timestamp, Long completedTimestamp) {
+    this(id, subjectId, subjectIdentifier, subjectIdOrIdentifier, sourceId, loaderGroupName, timestamp, completedTimestamp, null, null);
+  }
+
+  /**
+   * @param id
+   * @param subjectId
+   * @param subjectIdentifier
+   * @param subjectIdOrIdentifier
+   * @param sourceId
+   * @param loaderGroupName
+   * @param timestamp
+   * @param completedTimestamp
+   * @param mshipRecalcGroupName
+   * @param mshipRecalcType
+   */
+  public TestgrouperIncrementalLoader(long id, String subjectId, String subjectIdentifier,
+      String subjectIdOrIdentifier, String sourceId, String loaderGroupName,
+      long timestamp, Long completedTimestamp, String mshipRecalcGroupName, String mshipRecalcType) {
     this.id = id;
     this.subjectId = subjectId;
     this.subjectIdentifier = subjectIdentifier;
@@ -63,6 +85,8 @@ public class TestgrouperIncrementalLoader extends GrouperAPI implements Hib3Grou
     this.loaderGroupName = loaderGroupName;
     this.timestamp = timestamp;
     this.completedTimestamp = completedTimestamp;
+    this.mshipRecalcGroupName = mshipRecalcGroupName;
+    this.mshipRecalcType = mshipRecalcType;
   }
 
 
@@ -73,7 +97,7 @@ public class TestgrouperIncrementalLoader extends GrouperAPI implements Hib3Grou
    */
   @Override
   public GrouperAPI clone() {
-    return new TestgrouperIncrementalLoader(this.id, this.subjectId, this.subjectIdentifier, this.subjectIdOrIdentifier, this.sourceId, this.loaderGroupName, this.timestamp, this.completedTimestamp);
+    return new TestgrouperIncrementalLoader(this.id, this.subjectId, this.subjectIdentifier, this.subjectIdOrIdentifier, this.sourceId, this.loaderGroupName, this.timestamp, this.completedTimestamp, this.mshipRecalcGroupName, this.mshipRecalcType);
   }
   
   
@@ -256,5 +280,33 @@ public class TestgrouperIncrementalLoader extends GrouperAPI implements Hib3Grou
    */
   public void setCompletedTimestamp(Long completedTimestamp) {
     this.completedTimestamp = completedTimestamp;
-  } 
+  }
+
+  /**
+   * @return the mshipRecalcGroupName
+   */
+  public String getMshipRecalcGroupName() {
+    return mshipRecalcGroupName;
+  }
+
+  /**
+   * @param mshipRecalcGroupName the mshipRecalcGroupName to set
+   */
+  public void setMshipRecalcGroupName(String mshipRecalcGroupName) {
+    this.mshipRecalcGroupName = mshipRecalcGroupName;
+  }
+
+  /**
+   * @return the mshipRecalcType
+   */
+  public String getMshipRecalcType() {
+    return mshipRecalcType;
+  }
+
+  /**
+   * @param mshipRecalcType the mshipRecalcType to set
+   */
+  public void setMshipRecalcType(String mshipRecalcType) {
+    this.mshipRecalcType = mshipRecalcType;
+  }
 }

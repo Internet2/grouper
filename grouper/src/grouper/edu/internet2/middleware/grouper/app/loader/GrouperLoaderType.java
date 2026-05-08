@@ -2978,6 +2978,36 @@ public enum GrouperLoaderType {
       final GrouperLoaderResultset grouperLoaderResultset, boolean groupList,
       final GrouperSession grouperSession, List<Group> andGroups, List<GroupType> groupTypes,
       Map<Privilege,List<Subject>> groupPrivsToAdd, GrouperFailsafeBean grouperFailsafeBean) {
+    syncOneGroupMembership(groupName, loaderGroupName, groupDisplayNameForInsert, groupDescription,
+        hib3GrouploaderLog, startTime, grouperLoaderResultset, groupList, grouperSession,
+        andGroups, groupTypes, groupPrivsToAdd, grouperFailsafeBean, true, true);
+  }
+
+  /**
+   * @param groupName
+   * @param loaderGroupName
+   * @param groupDisplayNameForInsert
+   * @param groupDescription
+   * @param hib3GrouploaderLog
+   * @param startTime
+   * @param grouperLoaderResultset
+   * @param groupList
+   * @param grouperSession
+   * @param andGroups
+   * @param groupTypes
+   * @param groupPrivsToAdd
+   * @param grouperFailsafeBean
+   * @param syncMetadata if true, sync display name, description, privileges, group types
+   * @param syncMemberships if true, sync memberships
+   */
+  protected static void syncOneGroupMembership(final String groupName,
+      final String loaderGroupName,
+      final String groupDisplayNameForInsert, final String groupDescription,
+      final Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime,
+      final GrouperLoaderResultset grouperLoaderResultset, boolean groupList,
+      final GrouperSession grouperSession, List<Group> andGroups, List<GroupType> groupTypes,
+      Map<Privilege,List<Subject>> groupPrivsToAdd, GrouperFailsafeBean grouperFailsafeBean,
+      boolean syncMetadata, boolean syncMemberships) {
     
     //keep this separate so we can prepend stuff inside...
     final StringBuilder jobMessage = new StringBuilder(StringUtils.defaultString(hib3GrouploaderLog.getJobMessage()));
@@ -3008,63 +3038,68 @@ public enum GrouperLoaderType {
     try {
 
       final Group loaderGroup = GroupFinder.findByName(grouperSession, loaderGroupName, true);
-      int numberOfRows = grouperLoaderResultset.numberOfRows();
-      hib3GrouploaderLog.setTotalCount(numberOfRows);
+      int numberOfRows = 0;
+      if (syncMemberships) {
+        numberOfRows = grouperLoaderResultset.numberOfRows();
+        hib3GrouploaderLog.setTotalCount(numberOfRows);
 
-      if (LOG.isDebugEnabled()) {
-        LOG.debug(groupName + " syncing " + numberOfRows + " rows");
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(groupName + " syncing " + numberOfRows + " rows");
+        }
+        GrouperLoaderLogger.addLogEntry("overallOrSubjobLog", "rowsFromExternal", numberOfRows);
       }
-      GrouperLoaderLogger.addLogEntry("overallOrSubjobLog", "rowsFromExternal", numberOfRows);
       
-      String groupExtension = StringUtils.isBlank(groupDisplayNameForInsert) ? GrouperUtil.extensionFromName(groupName) : 
+      String groupExtension = StringUtils.isBlank(groupDisplayNameForInsert) ? GrouperUtil.extensionFromName(groupName) :
         GrouperUtil.extensionFromName(groupDisplayNameForInsert);
-      
-      //https://bugs.internet2.edu/jira/browse/GRP-1091
-      String[] displayNameChangesAllowedUnder = GrouperUtil.splitTrim(GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.allowStemDisplayNameChangesUnderStems", ""), ",");
-      if (!ArrayUtils.isEmpty(displayNameChangesAllowedUnder) && !StringUtils.isBlank(groupDisplayNameForInsert) 
-            && groupName.contains(":") && groupDisplayNameForInsert.contains(":")) {
-        String[] stems = groupName.split(":");
-        String[] displayNamesStems = groupDisplayNameForInsert.split(":");
-        if (stems.length == displayNamesStems.length) {
-          String stemName = "";
-          String displayName = "";
-          for(int i=0; i<stems.length; i++) {
-            stemName = stemName.equals("") ? stems[i]: (stemName+":"+stems[i]);
-            displayName = displayName.equals("") ? displayNamesStems[i]: (displayName+":"+displayNamesStems[i]);
-            Stem stem = StemFinder.findByName(grouperSession, stemName, false);
-            if (stem != null && !stem.getDisplayName().equals(displayName) && isChangeAllowed(displayNameChangesAllowedUnder, stemName)) {
-              
-              GrouperLoaderLogger.initializeThreadLocalMap("groupManagement");
 
-              try {
+      if (syncMetadata) {
+        //https://bugs.internet2.edu/jira/browse/GRP-1091
+        String[] displayNameChangesAllowedUnder = GrouperUtil.splitTrim(GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.allowStemDisplayNameChangesUnderStems", ""), ",");
+        if (!ArrayUtils.isEmpty(displayNameChangesAllowedUnder) && !StringUtils.isBlank(groupDisplayNameForInsert)
+              && groupName.contains(":") && groupDisplayNameForInsert.contains(":")) {
+          String[] stems = groupName.split(":");
+          String[] displayNamesStems = groupDisplayNameForInsert.split(":");
+          if (stems.length == displayNamesStems.length) {
+            String stemName = "";
+            String displayName = "";
+            for(int i=0; i<stems.length; i++) {
+              stemName = stemName.equals("") ? stems[i]: (stemName+":"+stems[i]);
+              displayName = displayName.equals("") ? displayNamesStems[i]: (displayName+":"+displayNamesStems[i]);
+              Stem stem = StemFinder.findByName(grouperSession, stemName, false);
+              if (stem != null && !stem.getDisplayName().equals(displayName) && isChangeAllowed(displayNameChangesAllowedUnder, stemName)) {
 
-                GrouperLoaderLogger.addLogEntry("groupManagement", "stemName", stem.getName());
-                GrouperLoaderLogger.addLogEntry("groupManagement", "operation", "updateStem");
+                GrouperLoaderLogger.initializeThreadLocalMap("groupManagement");
 
-                StemSave stemSave = new StemSave(grouperSession)
-                  .assignUuid(stem.getId())
-                  .assignName(stem.getName())
-                  .assignSaveMode(SaveMode.UPDATE)
-                  .assignDisplayName(displayName)
-                  .assignDisplayExtension(displayNamesStems[i]);
-                stem = stemSave.save();
+                try {
 
-                GrouperLoaderLogger.addLogEntry("groupManagement", "success", true);
-              } catch (RuntimeException re) {
-                GrouperLoaderLogger.addLogEntry("groupManagement", "success", false);
-                GrouperLoaderLogger.addLogEntry("groupManagement", "exception", ExceptionUtils.getStackTrace(re));
-              
-              } finally {
-                GrouperLoaderLogger.doTheLogging("groupManagement");
+                  GrouperLoaderLogger.addLogEntry("groupManagement", "stemName", stem.getName());
+                  GrouperLoaderLogger.addLogEntry("groupManagement", "operation", "updateStem");
+
+                  StemSave stemSave = new StemSave(grouperSession)
+                    .assignUuid(stem.getId())
+                    .assignName(stem.getName())
+                    .assignSaveMode(SaveMode.UPDATE)
+                    .assignDisplayName(displayName)
+                    .assignDisplayExtension(displayNamesStems[i]);
+                  stem = stemSave.save();
+
+                  GrouperLoaderLogger.addLogEntry("groupManagement", "success", true);
+                } catch (RuntimeException re) {
+                  GrouperLoaderLogger.addLogEntry("groupManagement", "success", false);
+                  GrouperLoaderLogger.addLogEntry("groupManagement", "exception", ExceptionUtils.getStackTrace(re));
+
+                } finally {
+                  GrouperLoaderLogger.doTheLogging("groupManagement");
+                }
+
               }
-              
             }
           }
         }
       }
-      
+
       Group theGroup = null;
-      if (groupList) {
+      if (groupList && syncMetadata) {
         GroupSave groupSave = new GroupSave(grouperSession);
         groupSave.assignGroupNameToEdit(groupName).assignName(groupName);
         groupSave.assignDisplayExtension(groupExtension);
@@ -3078,7 +3113,7 @@ public enum GrouperLoaderType {
         groupSave.assignDescription(theGroupDescription);
 
         groupSave.assignCreateParentStemsIfNotExist(true);
-        
+
         GrouperLoaderLogger.initializeThreadLocalMap("groupManagement");
 
         try {
@@ -3086,7 +3121,7 @@ public enum GrouperLoaderType {
           GrouperLoaderLogger.addLogEntry("groupManagement", "groupName", groupName);
 
           theGroup = groupSave.save();
-          
+
           GrouperLoaderLogger.addLogEntry("groupManagement", "operation", groupSave.getSaveResultType().name());
 
           GrouperLoaderLogger.addLogEntry("groupManagement", "success", true);
@@ -3110,23 +3145,25 @@ public enum GrouperLoaderType {
 
       final Group[] group = new Group[]{theGroup};
       
-      //see if we are adding types
-      if (GrouperUtil.length(groupTypes) > 0) {
-        for (GroupType groupType : groupTypes) {
-          boolean added = group[0].addType(groupType, false);
-          if (added) {
-            LOG.debug("Added type: " + groupType.getName() + " to group: " + group[0].getName());
-          } else {
-            if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.fixIncludeExcludes", false)) {
-              if (StringUtils.equals("addIncludeExclude", groupType.getName())) {
-                group[0].manageIncludesExcludesRequiredGroups(grouperSession, true);
+      if (syncMetadata) {
+        //see if we are adding types
+        if (GrouperUtil.length(groupTypes) > 0) {
+          for (GroupType groupType : groupTypes) {
+            boolean added = group[0].addType(groupType, false);
+            if (added) {
+              LOG.debug("Added type: " + groupType.getName() + " to group: " + group[0].getName());
+            } else {
+              if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.fixIncludeExcludes", false)) {
+                if (StringUtils.equals("addIncludeExclude", groupType.getName())) {
+                  group[0].manageIncludesExcludesRequiredGroups(grouperSession, true);
+                }
               }
             }
           }
         }
       }
-      
-      if (groupList) {
+
+      if (syncMetadata && groupList) {
         if (groupPrivsToAdd != null && groupPrivsToAdd.size() > 0) {
           
           Set<Group> groupsForPrivs = GroupTypeTupleIncludeExcludeHook.relatedGroups(theGroup);
@@ -3227,351 +3264,355 @@ public enum GrouperLoaderType {
       }
       hib3GrouploaderLog.setGroupUuid(group[0].getUuid());
 
-      Set<LoaderMemberWrapper> currentMembers = new LinkedHashSet<LoaderMemberWrapper>();
+      if (syncMemberships) {
 
-      //TODO put this in the DAO
-      StringBuilder sql = new StringBuilder("select m.subjectIdDb, m.subjectSourceIdDb, m.subjectIdentifier0, m.subjectIdentifier1, m.subjectIdentifier2 "
-          + " from Member m, MembershipEntry ms "
-          + " where ms.ownerGroupId = :ownerGroupId and ms.memberUuid = m.uuid "
-          + " and ms.type = 'immediate' and ms.enabledDb = 'T' "
-          + " and ms.fieldId = '" + Group.getDefaultList().getUuid() + "'");
-
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      Set<Object[]> results = HibernateSession.byHqlStatic().createQuery(sql.toString())
-        .setString("ownerGroupId", group[0].getId()).listSet(Object[].class);
-      
-      for (Object[] row : GrouperUtil.nonNull(results)) {
-        String subjectId = (String)row[0];
-        String sourceId = (String)row[1];
-        String subjectIdentifier0 = (String)row[2];
-        String subjectIdentifier1 = (String)row[3];
-        String subjectIdentifier2 = (String)row[4];
-        currentMembers.add(new LoaderMemberWrapper(subjectId, sourceId, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2));
-      }
-
-      GrouperLoaderLogger.addLogEntry("overallOrSubjobLog", "rowsFromGrouper", currentMembers.size());
-
-      int originalGroupSize = currentMembers.size();
-      
-      //now lets remove data from each since the member is there and is supposed to be there
-      Iterator<LoaderMemberWrapper> iterator = currentMembers.iterator();
-      
-      int count = 0;
-      
-      while (iterator.hasNext()) {
+        Set<LoaderMemberWrapper> currentMembers = new LinkedHashSet<LoaderMemberWrapper>();
+  
+        //TODO put this in the DAO
+        StringBuilder sql = new StringBuilder("select m.subjectIdDb, m.subjectSourceIdDb, m.subjectIdentifier0, m.subjectIdentifier1, m.subjectIdentifier2 "
+            + " from Member m, MembershipEntry ms "
+            + " where ms.ownerGroupId = :ownerGroupId and ms.memberUuid = m.uuid "
+            + " and ms.type = 'immediate' and ms.enabledDb = 'T' "
+            + " and ms.fieldId = '" + Group.getDefaultList().getUuid() + "'");
+  
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        Set<Object[]> results = HibernateSession.byHqlStatic().createQuery(sql.toString())
+          .setString("ownerGroupId", group[0].getId()).listSet(Object[].class);
         
-        LoaderMemberWrapper member = iterator.next();
-        //see if it is in the current list
-        Row row = grouperLoaderResultset.find(member.getSubjectId(), member.getSourceId(), member.getSubjectIdentifier0(), member.getSubjectIdentifier1(), member.getSubjectIdentifier2());
+        for (Object[] row : GrouperUtil.nonNull(results)) {
+          String subjectId = (String)row[0];
+          String sourceId = (String)row[1];
+          String subjectIdentifier0 = (String)row[2];
+          String subjectIdentifier1 = (String)row[3];
+          String subjectIdentifier2 = (String)row[4];
+          currentMembers.add(new LoaderMemberWrapper(subjectId, sourceId, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2));
+        }
+  
+        GrouperLoaderLogger.addLogEntry("overallOrSubjobLog", "rowsFromGrouper", currentMembers.size());
+  
+        int originalGroupSize = currentMembers.size();
         
-        //this means the member exists in query, and in membership, so maybe do nothing
-        if (row != null) {
-          boolean andGroupsDoesntHaveSubject = false;
-          if (GrouperUtil.nonNull(andGroups).size() > 0) {
-            Subject subject = row.getSubject(groupName);
-            if (subject == null) {
-              if (LOG.isDebugEnabled()) {
-                LOG.debug(groupName + " found unresolvable subject: " + row.getSubjectError() + ", " + count + " of " + numberOfRows + " subjects");
-              }
-              //keep track
-              hib3GrouploaderLog.addUnresolvableSubjectCount(1);
-              jobMessage.append(row.getSubjectError());
-              hib3GrouploaderLog.setJobMessage(jobStatus[0] + ", " + jobMessage);
-            } else {
-              for (Group andGroup : andGroups) {
-                if (!andGroup.hasMember(subject)) {
-                  if (LOG.isDebugEnabled()) {
-                    LOG.debug(groupName + " subject not in andGroup: " + subject.getSource().getName() + "/" + subject.getId() + ", " + count + " of " + numberOfRows + " subjects");
+        //now lets remove data from each since the member is there and is supposed to be there
+        Iterator<LoaderMemberWrapper> iterator = currentMembers.iterator();
+        
+        int count = 0;
+        
+        while (iterator.hasNext()) {
+          
+          LoaderMemberWrapper member = iterator.next();
+          //see if it is in the current list
+          Row row = grouperLoaderResultset.find(member.getSubjectId(), member.getSourceId(), member.getSubjectIdentifier0(), member.getSubjectIdentifier1(), member.getSubjectIdentifier2());
+          
+          //this means the member exists in query, and in membership, so maybe do nothing
+          if (row != null) {
+            boolean andGroupsDoesntHaveSubject = false;
+            if (GrouperUtil.nonNull(andGroups).size() > 0) {
+              Subject subject = row.getSubject(groupName);
+              if (subject == null) {
+                if (LOG.isDebugEnabled()) {
+                  LOG.debug(groupName + " found unresolvable subject: " + row.getSubjectError() + ", " + count + " of " + numberOfRows + " subjects");
+                }
+                //keep track
+                hib3GrouploaderLog.addUnresolvableSubjectCount(1);
+                jobMessage.append(row.getSubjectError());
+                hib3GrouploaderLog.setJobMessage(jobStatus[0] + ", " + jobMessage);
+              } else {
+                for (Group andGroup : andGroups) {
+                  if (!andGroup.hasMember(subject)) {
+                    if (LOG.isDebugEnabled()) {
+                      LOG.debug(groupName + " subject not in andGroup: " + subject.getSource().getName() + "/" + subject.getId() + ", " + count + " of " + numberOfRows + " subjects");
+                    }
+                    andGroupsDoesntHaveSubject = true;
+                    hib3GrouploaderLog.addTotalCount(-1);
+                    break;
                   }
-                  andGroupsDoesntHaveSubject = true;
-                  hib3GrouploaderLog.addTotalCount(-1);
-                  break;
                 }
               }
             }
+            if (!andGroupsDoesntHaveSubject) {
+              //if and groups is ok, then dont do anything with record
+              iterator.remove();
+            }
+            //either way, we are done with the record in the resultset
+            grouperLoaderResultset.remove(row);
           }
-          if (!andGroupsDoesntHaveSubject) {
-            //if and groups is ok, then dont do anything with record
-            iterator.remove();
+          count++;
+          totalCount++;
+          if (totalCount != 0 && totalCount % 500 == 0) {
+            String logStatus = groupName + " processed " + totalCount + " records, finding new members to remove, " + count + " of " + numberOfRows + " subjects";
+            LOG.info(logStatus);
+            jobStatus[0] = logStatus;
+            hib3GrouploaderLog.setJobMessage(jobStatus[0] + ", " + jobMessage);
+            hib3GrouploaderLog.store();
           }
-          //either way, we are done with the record in the resultset
-          grouperLoaderResultset.remove(row);
         }
-        count++;
-        totalCount++;
-        if (totalCount != 0 && totalCount % 500 == 0) {
-          String logStatus = groupName + " processed " + totalCount + " records, finding new members to remove, " + count + " of " + numberOfRows + " subjects";
-          LOG.info(logStatus);
-          jobStatus[0] = logStatus;
-          hib3GrouploaderLog.setJobMessage(jobStatus[0] + ", " + jobMessage);
-          hib3GrouploaderLog.store();
-        }
-      }
-      
-      //lets lookup the subjects first
-      final Set<Subject> subjectsToAdd = new HashSet<Subject>();
-      
-      //here are new members
-      numberOfRows = grouperLoaderResultset.numberOfRows();
-      
-      grouperLoaderResultset.bulkLookupSubjects();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count = 1;
-      for (int i=0;i<numberOfRows;i++) {
         
-        Row row = grouperLoaderResultset.retrieveRow(i);
-        Subject subject = row.getSubject(groupName);
-        if (subject != null) {
-          //make sure it is not in the restricted list
-          boolean andGroupsDoesntHaveSubject = false;
-          for (Group andGroup : GrouperUtil.nonNull(andGroups)) {
-            if (!andGroup.hasMember(subject)) {
-              andGroupsDoesntHaveSubject = true;
-              hib3GrouploaderLog.addTotalCount(-1);
-              break;
-            }
-          }
+        //lets lookup the subjects first
+        final Set<Subject> subjectsToAdd = new HashSet<Subject>();
+        
+        //here are new members
+        numberOfRows = grouperLoaderResultset.numberOfRows();
+        
+        grouperLoaderResultset.bulkLookupSubjects();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count = 1;
+        for (int i=0;i<numberOfRows;i++) {
           
-          boolean addSubject = GrouperDeprovisioningLogic.shouldAddSubject(grouperSession, loaderGroup, subject);
-          
-          if (!andGroupsDoesntHaveSubject && addSubject) {
-            if (LOG.isDebugEnabled()) {
-              LOG.debug(groupName + " will add subject to group: " + subject.getSource().getName() + "/" + subject.getId() + ", " + count + " of " + numberOfRows + " subjects");
+          Row row = grouperLoaderResultset.retrieveRow(i);
+          Subject subject = row.getSubject(groupName);
+          if (subject != null) {
+            //make sure it is not in the restricted list
+            boolean andGroupsDoesntHaveSubject = false;
+            for (Group andGroup : GrouperUtil.nonNull(andGroups)) {
+              if (!andGroup.hasMember(subject)) {
+                andGroupsDoesntHaveSubject = true;
+                hib3GrouploaderLog.addTotalCount(-1);
+                break;
+              }
             }
-            subjectsToAdd.add(subject);
+            
+            boolean addSubject = GrouperDeprovisioningLogic.shouldAddSubject(grouperSession, loaderGroup, subject);
+            
+            if (!andGroupsDoesntHaveSubject && addSubject) {
+              if (LOG.isDebugEnabled()) {
+                LOG.debug(groupName + " will add subject to group: " + subject.getSource().getName() + "/" + subject.getId() + ", " + count + " of " + numberOfRows + " subjects");
+              }
+              subjectsToAdd.add(subject);
+              count++;
+              totalCount++;
+            }
+          } else {
+            
+            //put something in log
+            hib3GrouploaderLog.appendJobMessage(row.getSubjectError());
+            hib3GrouploaderLog.addUnresolvableSubjectCount(1);  
             count++;
             totalCount++;
           }
-        } else {
           
-          //put something in log
-          hib3GrouploaderLog.appendJobMessage(row.getSubjectError());
-          hib3GrouploaderLog.addUnresolvableSubjectCount(1);  
-          count++;
-          totalCount++;
+          if (totalCount != 0 && totalCount % 500 == 0) {
+            String logStatus = groupName + " processed " + totalCount + " records, finding new members, " + count + " of " + numberOfRows + " subjects";
+            LOG.info(logStatus);
+            jobStatus[0] = logStatus;
+            hib3GrouploaderLog.setJobMessage(jobStatus[0] + ", " + jobMessage);
+            hib3GrouploaderLog.store();
+          }
+  
         }
         
-        if (totalCount != 0 && totalCount % 500 == 0) {
-          String logStatus = groupName + " processed " + totalCount + " records, finding new members, " + count + " of " + numberOfRows + " subjects";
-          LOG.info(logStatus);
-          jobStatus[0] = logStatus;
-          hib3GrouploaderLog.setJobMessage(jobStatus[0] + ", " + jobMessage);
-          hib3GrouploaderLog.store();
+        // If somebody has a case problem between loader data and subject source, we may be adding and removing the same subjects
+        // if the source is case insensitive.
+        // If so, delete them from both lists.
+        Map<MultiKey, Subject> subjectsToAddMap = new LinkedHashMap<MultiKey, Subject>();
+        for (Subject subject : subjectsToAdd) {
+          subjectsToAddMap.put(new MultiKey(subject.getSourceId(), subject.getId()), subject);
         }
-
-      }
-      
-      // If somebody has a case problem between loader data and subject source, we may be adding and removing the same subjects
-      // if the source is case insensitive.
-      // If so, delete them from both lists.
-      Map<MultiKey, Subject> subjectsToAddMap = new LinkedHashMap<MultiKey, Subject>();
-      for (Subject subject : subjectsToAdd) {
-        subjectsToAddMap.put(new MultiKey(subject.getSourceId(), subject.getId()), subject);
-      }
-
-      Iterator<LoaderMemberWrapper> currentMembersIter = currentMembers.iterator();
-      while (currentMembersIter.hasNext()) {
-        LoaderMemberWrapper member = currentMembersIter.next();
-        Subject subjectToAdd = subjectsToAddMap.get(new MultiKey(member.getSourceId(), member.getSubjectId()));
-        
-        if (subjectToAdd != null) {
-          subjectsToAdd.remove(subjectToAdd);
-          currentMembersIter.remove();
-          if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.log.subject.identifier.mismatch", true)) {
-            LOG.warn("Subject " + member.getSubjectId() + " marked to be added and removed from group " + groupName + ".  Possible case issue between subject source and loader source.  Or loading based on subject identifier and identifier is not cached in Grouper's grouper_members table.");
+  
+        Iterator<LoaderMemberWrapper> currentMembersIter = currentMembers.iterator();
+        while (currentMembersIter.hasNext()) {
+          LoaderMemberWrapper member = currentMembersIter.next();
+          Subject subjectToAdd = subjectsToAddMap.get(new MultiKey(member.getSourceId(), member.getSubjectId()));
+          
+          if (subjectToAdd != null) {
+            subjectsToAdd.remove(subjectToAdd);
+            currentMembersIter.remove();
+            if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.log.subject.identifier.mismatch", true)) {
+              LOG.warn("Subject " + member.getSubjectId() + " marked to be added and removed from group " + groupName + ".  Possible case issue between subject source and loader source.  Or loading based on subject identifier and identifier is not cached in Grouper's grouper_members table.");
+            }
           }
         }
-      }
-            
-      
-      //here are members to remove
-      final List<LoaderMemberWrapper> membersToRemove = new ArrayList<LoaderMemberWrapper>(currentMembers);
-   
-      // GRP-1130
-      if(grouperFailsafeBean != null && grouperFailsafeBean.shouldAbortDueToTooManyMembersRemoved(originalGroupSize, GrouperUtil.length(membersToRemove), GrouperUtil.length(subjectsToAdd))) {
-        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR_FAILSAFE.name());
-        hib3GrouploaderLog.insertJobMessage("Can't remove "
-            + GrouperUtil.length(membersToRemove) + " members from " + theGroup.getName() + " (originalGroupSize: "
-            + originalGroupSize + ") "
-            + " unless the failsafe is approved or settings are adjusted.");
-        hib3GrouploaderLog.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
-        hib3GrouploaderLog.store();
+              
         
-        // the group list will send one email
-        if (!groupList) {
-          grouperFailsafeBean.notifyEmailAboutFailsafe();
-        }
-        GrouperFailsafe.assignFailed(grouperFailsafeBean.getJobName());
-        return;
-      } 
-      
-      numberOfRows = currentMembers.size();
-      count = 1;
-      //first remove members
-      for (LoaderMemberWrapper loaderMemberWrapper : GrouperUtil.nonNull(membersToRemove)) {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug(groupName + " will remove subject from group: " + loaderMemberWrapper.getSourceId() + "/" + loaderMemberWrapper.getSubjectId() + ", " + count + " of " + numberOfRows + " members");
-        }
-        count++;
-      }
-      
-      //now the currentMembers is full of members to remove, and the grouperLoaderResultset is full
-      //of members to add
-      //start a transaction
-      final boolean useTransactions = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.use.transactions", false);
-
-      final boolean useThreads = !useTransactions && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.use.membershipThreads", true);
-      
-      final int[] TOTAL_COUNT = new int[]{totalCount};
-      final Hib3GrouperLoaderLog HIB3_GROUPER_LOADER_LOG = hib3GrouploaderLog;
-      final GrouperTransactionType grouperTransactionType = useTransactions ? GrouperTransactionType.READ_WRITE_OR_USE_EXISTING 
-          : GrouperTransactionType.NONE;
-      GrouperTransaction.callbackGrouperTransaction(grouperTransactionType, new GrouperTransactionHandler() {
-
-        public Object callback(GrouperTransaction grouperTransaction)
-            throws GrouperDAOException {
+        //here are members to remove
+        final List<LoaderMemberWrapper> membersToRemove = new ArrayList<LoaderMemberWrapper>(currentMembers);
+     
+        // GRP-1130
+        if(grouperFailsafeBean != null && grouperFailsafeBean.shouldAbortDueToTooManyMembersRemoved(originalGroupSize, GrouperUtil.length(membersToRemove), GrouperUtil.length(subjectsToAdd))) {
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR_FAILSAFE.name());
+          hib3GrouploaderLog.insertJobMessage("Can't remove "
+              + GrouperUtil.length(membersToRemove) + " members from " + theGroup.getName() + " (originalGroupSize: "
+              + originalGroupSize + ") "
+              + " unless the failsafe is approved or settings are adjusted.");
+          hib3GrouploaderLog.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
+          hib3GrouploaderLog.store();
           
-          try {
-            //see when threads are done processing
-            List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
-
-            //if there were thread problems, run those again
-            List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
-
-            int membershipThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.membershipThreadPoolSize", 10);
-
-            final String OVERALL_LOGGER_ID = GrouperLoaderLogger.retrieveOverallId();
-            final String SUBJOB_LOGGER_ID = GrouperLoaderLogger.retrieveSubjobId();
-            final Map<String, Object> OVERALL_LOG_MAP = GrouperLoaderLogger.retrieveMap("overallLog");
-            final Map<String, Object> SUBJOB_LOG_MAP = GrouperLoaderLogger.retrieveMap("subjobLog");
-
-            {
-              final int numberOfRows = membersToRemove.size();
-              final int[] count = new int[]{1};
-              //first remove members
-
-              for (final LoaderMemberWrapper member : membersToRemove) {
-                GrouperDaemonUtils.stopProcessingIfJobPaused();
-                
-                GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberDeleteMemberLogic: " + groupName + ", " + member.getSubjectId()) {
-
-                  @Override
-                  public Void callLogic() {
-                    
-                    
-                    GrouperLoaderLogger.assignSubjobId(SUBJOB_LOGGER_ID);
-                    GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
-                    
-                    GrouperLoaderLogger.initializeThreadLocalMap("overallLog", OVERALL_LOG_MAP);
-                    GrouperLoaderLogger.initializeThreadLocalMap("subjobLog", SUBJOB_LOG_MAP);
-
-                    syncOneMemberDeleteMemberLogic(groupName, GrouperSession.staticGrouperSession(),
-                        jobMessage, jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG,
-                        numberOfRows, count, member);
-                    return null;
-                  }
-
-                };
-                if (!useThreads || membershipThreadPoolSize == 1 || membershipThreadPoolSize == 0) {
-                  grouperCallable.callLogic();
-                } else {
-                  GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
-                  futures.add(future);
+          // the group list will send one email
+          if (!groupList) {
+            grouperFailsafeBean.notifyEmailAboutFailsafe();
+          }
+          GrouperFailsafe.assignFailed(grouperFailsafeBean.getJobName());
+          return;
+        } 
+        
+        numberOfRows = currentMembers.size();
+        count = 1;
+        //first remove members
+        for (LoaderMemberWrapper loaderMemberWrapper : GrouperUtil.nonNull(membersToRemove)) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(groupName + " will remove subject from group: " + loaderMemberWrapper.getSourceId() + "/" + loaderMemberWrapper.getSubjectId() + ", " + count + " of " + numberOfRows + " members");
+          }
+          count++;
+        }
+        
+        //now the currentMembers is full of members to remove, and the grouperLoaderResultset is full
+        //of members to add
+        //start a transaction
+        final boolean useTransactions = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.use.transactions", false);
+  
+        final boolean useThreads = !useTransactions && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.use.membershipThreads", true);
+        
+        final int[] TOTAL_COUNT = new int[]{totalCount};
+        final Hib3GrouperLoaderLog HIB3_GROUPER_LOADER_LOG = hib3GrouploaderLog;
+        final GrouperTransactionType grouperTransactionType = useTransactions ? GrouperTransactionType.READ_WRITE_OR_USE_EXISTING 
+            : GrouperTransactionType.NONE;
+        GrouperTransaction.callbackGrouperTransaction(grouperTransactionType, new GrouperTransactionHandler() {
+  
+          public Object callback(GrouperTransaction grouperTransaction)
+              throws GrouperDAOException {
+            
+            try {
+              //see when threads are done processing
+              List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+  
+              //if there were thread problems, run those again
+              List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
+  
+              int membershipThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.membershipThreadPoolSize", 10);
+  
+              final String OVERALL_LOGGER_ID = GrouperLoaderLogger.retrieveOverallId();
+              final String SUBJOB_LOGGER_ID = GrouperLoaderLogger.retrieveSubjobId();
+              final Map<String, Object> OVERALL_LOG_MAP = GrouperLoaderLogger.retrieveMap("overallLog");
+              final Map<String, Object> SUBJOB_LOG_MAP = GrouperLoaderLogger.retrieveMap("subjobLog");
+  
+              {
+                final int numberOfRows = membersToRemove.size();
+                final int[] count = new int[]{1};
+                //first remove members
+  
+                for (final LoaderMemberWrapper member : membersToRemove) {
+                  GrouperDaemonUtils.stopProcessingIfJobPaused();
                   
-                  GrouperFuture.waitForJob(futures, membershipThreadPoolSize, callablesWithProblems);
+                  GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberDeleteMemberLogic: " + groupName + ", " + member.getSubjectId()) {
+  
+                    @Override
+                    public Void callLogic() {
+                      
+                      
+                      GrouperLoaderLogger.assignSubjobId(SUBJOB_LOGGER_ID);
+                      GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
+                      
+                      GrouperLoaderLogger.initializeThreadLocalMap("overallLog", OVERALL_LOG_MAP);
+                      GrouperLoaderLogger.initializeThreadLocalMap("subjobLog", SUBJOB_LOG_MAP);
+  
+                      syncOneMemberDeleteMemberLogic(groupName, GrouperSession.staticGrouperSession(),
+                          jobMessage, jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG,
+                          numberOfRows, count, member);
+                      return null;
+                    }
+  
+                  };
+                  if (!useThreads || membershipThreadPoolSize == 1 || membershipThreadPoolSize == 0) {
+                    grouperCallable.callLogic();
+                  } else {
+                    GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
+                    futures.add(future);
+                    
+                    GrouperFuture.waitForJob(futures, membershipThreadPoolSize, callablesWithProblems);
+                  }
+                  
                 }
                 
+              }
+              {
+                final int numberOfRows = subjectsToAdd.size();
+                final int[] count = new int[]{1};
+                //then add new members
+  
+                for (final Subject subject : subjectsToAdd) {
+                  GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+                  GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberAddMemberLogic: " + groupName + ", " + subject.getId()) {
+                    
+                    public Void callLogic() {
+  
+                      GrouperLoaderLogger.assignSubjobId(SUBJOB_LOGGER_ID);
+                      GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
+                      
+                      GrouperLoaderLogger.initializeThreadLocalMap("overallLog", OVERALL_LOG_MAP);
+                      GrouperLoaderLogger.initializeThreadLocalMap("subjobLog", SUBJOB_LOG_MAP);
+                          
+                      syncOneMemberAddMemberLogic(groupName, GrouperSession.staticGrouperSession(), jobMessage,
+                          jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG, numberOfRows,
+                          count, subject);
+  
+                      return null;
+                    }
+                  };
+                  
+                  if (!useThreads) {
+                    
+                    grouperCallable.callLogic();
+  
+                  } else {
+  
+                    GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
+                    futures.add(future);
+  
+                    GrouperFuture.waitForJob(futures, membershipThreadPoolSize, callablesWithProblems);
+  
+                  }
+  
+                }
               }
               
-            }
-            {
-              final int numberOfRows = subjectsToAdd.size();
-              final int[] count = new int[]{1};
-              //then add new members
-
-              for (final Subject subject : subjectsToAdd) {
-                GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-                GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberAddMemberLogic: " + groupName + ", " + subject.getId()) {
-                  
-                  public Void callLogic() {
-
-                    GrouperLoaderLogger.assignSubjobId(SUBJOB_LOGGER_ID);
-                    GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
-                    
-                    GrouperLoaderLogger.initializeThreadLocalMap("overallLog", OVERALL_LOG_MAP);
-                    GrouperLoaderLogger.initializeThreadLocalMap("subjobLog", SUBJOB_LOG_MAP);
-                        
-                    syncOneMemberAddMemberLogic(groupName, GrouperSession.staticGrouperSession(), jobMessage,
-                        jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG, numberOfRows,
-                        count, subject);
-
-                    return null;
-                  }
-                };
-                
-                if (!useThreads) {
-                  
-                  grouperCallable.callLogic();
-
-                } else {
-
-                  GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
-                  futures.add(future);
-
-                  GrouperFuture.waitForJob(futures, membershipThreadPoolSize, callablesWithProblems);
-
-                }
-
+              //wait for the rest
+              GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+  
+              GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
+              
+              if (grouperTransactionType != GrouperTransactionType.NONE) {
+                grouperTransaction.commit(GrouperCommitType.COMMIT_IF_NEW_TRANSACTION);
               }
+            } catch (Exception e) {
+              throw new RuntimeException(e);
             }
             
-            //wait for the rest
-            GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
-
-            GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
             
-            if (grouperTransactionType != GrouperTransactionType.NONE) {
-              grouperTransaction.commit(GrouperCommitType.COMMIT_IF_NEW_TRANSACTION);
-            }
-          } catch (Exception e) {
-            throw new RuntimeException(e);
+            return null;
           }
           
-          
-          return null;
+        });
+        hib3GrouploaderLog.setInsertCount(subjectsToAdd.size());
+        hib3GrouploaderLog.setDeleteCount(membersToRemove.size());
+        hib3GrouploaderLog.setStatus(status.name());
+        //take out the job status
+        hib3GrouploaderLog.setJobMessage(jobMessage.toString());
+  
+        if (LOG.isInfoEnabled()) {
+          LOG.info(groupName + " done syncing membership, processed " + totalCount + " records.  Total members: " 
+              + hib3GrouploaderLog.getTotalCount() + ", inserts: " + hib3GrouploaderLog.getInsertCount()
+              + ", deletes: " + hib3GrouploaderLog.getDeleteCount());
         }
         
-      });
-      hib3GrouploaderLog.setInsertCount(subjectsToAdd.size());
-      hib3GrouploaderLog.setDeleteCount(membersToRemove.size());
-      hib3GrouploaderLog.setStatus(status.name());
-      //take out the job status
-      hib3GrouploaderLog.setJobMessage(jobMessage.toString());
-
-      if (LOG.isInfoEnabled()) {
-        LOG.info(groupName + " done syncing membership, processed " + totalCount + " records.  Total members: " 
-            + hib3GrouploaderLog.getTotalCount() + ", inserts: " + hib3GrouploaderLog.getInsertCount()
-            + ", deletes: " + hib3GrouploaderLog.getDeleteCount());
-      }
-      
-      final Group THE_GROUP = theGroup;
-      GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("processOneRow") {
-        @Override
-        public Void callLogic() {
-          updateLoaderMetadataAttributes(hib3GrouploaderLog, THE_GROUP, loaderGroup);
-          return null;
+        final Group THE_GROUP = theGroup;
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("processOneRow") {
+          @Override
+          public Void callLogic() {
+            updateLoaderMetadataAttributes(hib3GrouploaderLog, THE_GROUP, loaderGroup);
+            return null;
+          }
+        };
+        
+        GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+        
+        if (!status.isError() && grouperFailsafeBean != null) {
+          GrouperFailsafe.assignSuccess(grouperFailsafeBean.getJobName());
         }
-      };
-      
-      GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
-      
-      if (!status.isError() && grouperFailsafeBean != null) {
-        GrouperFailsafe.assignSuccess(grouperFailsafeBean.getJobName());
-      }
-      
+
+      } // end if syncMemberships
+
     } catch (Exception e) {
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
       hib3GrouploaderLog.insertJobMessage(ExceptionUtils.getStackTrace(e));

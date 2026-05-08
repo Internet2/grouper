@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
 
-    Copyright 2017 Internet2
+    Copyright 2016 Internet2
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.app.loader" default-lazy="false">
-  <class name="TestgrouperIncrementalLoader" table="testgrouper_incremental_loader">
+  <class name="TestgrouperIncrementalLoaderGroup" table="testgrouper_incremental_loader_group">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
@@ -32,15 +32,11 @@
 
     <property name="hibernateVersionNumber" column="hibernate_version_number" not-null="true" />
 
-    <property name="subjectId" column="subject_id" />
-    <property name="subjectIdentifier" column="subject_identifier" />
-    <property name="subjectIdOrIdentifier" column="subject_id_or_identifier" />
-    <property name="sourceId" column="subject_source_id" />
     <property name="loaderGroupName" column="loader_group_name" />
+    <property name="groupName" column="group_name" />
     <property name="timestamp" column="timestamp" />
     <property name="completedTimestamp" column="completed_timestamp" />
-    <property name="mshipRecalcGroupName" column="mship_recalc_group_name" />
-    <property name="mshipRecalcType" column="mship_recalc_type" />
+    <property name="syncType" column="sync_type" />
 
   </class>
 </hibernate-mapping>
