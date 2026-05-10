@@ -78,7 +78,7 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
     try {
       // we need to get another one
       GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
-      String loginEndpoint = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".loginEndpoint");
+      String loginEndpoint = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".loginEndpoint", "https://login.microsoftonline.com/");
       String directoryId = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".DirectoryID");
       final String url = loginEndpoint + "/" + directoryId + "/oauth2/token";
       grouperHttpClient.assignUrl(url);
@@ -99,7 +99,7 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
   
       grouperHttpClient.addBodyParameter("grant_type", "client_credentials");
   
-      String resource = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".resource");
+      String resource = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".resource", "https://graph.microsoft.com");
       grouperHttpClient.addBodyParameter("resource", resource);
   
       int code = -1;
@@ -167,9 +167,9 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       }
   
       String bearerToken = retrieveBearerTokenForAzureConfigId(configId);
-      String graphEndpoint = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".graphEndpoint");
+      String graphEndpoint = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".graphEndpoint", "https://graph.microsoft.com");
   
-      String graphVersion = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".graphVersion");
+      String graphVersion = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".graphVersion", "v1.0");
       String subjectIdValueFormat = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".subjectIdValueFormat");
   
       String requireSubjectAttribute = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".requireSubjectAttribute");
@@ -302,9 +302,9 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       }
   
       String bearerToken = retrieveBearerTokenForAzureConfigId(configId);
-      String graphEndpoint = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".graphEndpoint");
+      String graphEndpoint = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".graphEndpoint", "https://graph.microsoft.com");
   
-      String graphVersion = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".graphVersion");
+      String graphVersion = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".graphVersion", "v1.0");
       String subjectIdValueFormat = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".subjectIdValueFormat");
   
       String requireSubjectAttribute = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".requireSubjectAttribute");
@@ -454,9 +454,9 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       }
   
       String bearerToken = retrieveBearerTokenForAzureConfigId(configId);
-      String graphEndpoint = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".graphEndpoint");
+      String graphEndpoint = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".graphEndpoint", "https://graph.microsoft.com");
   
-      String graphVersion = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".graphVersion");
+      String graphVersion = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".graphVersion", "v1.0");
       String subjectIdValueFormat = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".subjectIdValueFormat");
   
       String requireSubjectAttribute = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".requireSubjectAttribute");
@@ -676,10 +676,10 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
 
     try {
       String bearerToken = retrieveBearerTokenForAzureConfigId(configId);
-      String graphEndpoint = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".graphEndpoint");
+      String graphEndpoint = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".graphEndpoint", "https://graph.microsoft.com");
   
-      String graphVersion = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".graphVersion");
-      String groupLookupAttribute = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".groupLookupAttribute");
+      String graphVersion = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".graphVersion", "v1.0");
+      String groupLookupAttribute = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".groupLookupAttribute", "displayName");
       String groupLookupValueFormat = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".groupLookupValueFormat");
       
       String groupLookupValue = CustomUiUtil.substituteExpressionLanguage(groupLookupValueFormat, group, null, null, null, null);

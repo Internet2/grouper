@@ -291,6 +291,61 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 
   }
   
+  /**
+   * Simple full-sync test that uses certificate-based auth against the mock Azure service.
+   * Confirms that the cert-auth flow (fresh keypair, signed JWT, v2.0 token endpoint, scope param)
+   * round-trips through retrieveBearerTokenForAzureConfigId and the Azure mock service handler.
+   */
+  public void testFullSyncAzureCertAuth() {
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    try {
+      // configure provisioner first (writes the standard config-secret setup)...
+      AzureProvisionerTestUtils.configureAzureProvisioner(new AzureProvisionerTestConfigInput()
+          .assignGroupAttributeCount(3));
+
+      // ...then flip the external system to cert-based auth
+      AzureProvisionerTestUtils.setupAzureExternalSystemCertAuth();
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroupCertAuth").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("myAzureProvisioner");
+      attributeValue.setTargetName("myAzureProvisioner");
+      attributeValue.setStemScopeString("sub");
+
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_azure_group").select(int.class));
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
+
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+
+      // group + 2 entities + 2 memberships should all have made it through cert-authenticated calls
+      assertTrue(1 <= grouperProvisioningOutput.getInsert());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership").list(GrouperAzureMembership.class).size());
+
+      GrouperAzureGroup grouperAzureGroup = HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).get(0);
+      assertEquals("test:testGroupCertAuth", grouperAzureGroup.getDisplayName());
+
+    } finally {
+    }
+  }
+
   public void testUdelFull() {
     udelHelper(true);
   }
