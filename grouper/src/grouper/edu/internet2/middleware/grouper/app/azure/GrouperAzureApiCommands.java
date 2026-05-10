@@ -178,8 +178,9 @@ public class GrouperAzureApiCommands {
     String bearerToken = AzureGrouperExternalSystem
         .retrieveBearerTokenForAzureConfigId(debugMap, configId);
     String graphEndpoint = GrouperLoaderConfig.retrieveConfig()
-        .propertyValueStringRequired(
-            "grouper.azureConnector." + configId + ".resourceEndpoint");
+        .propertyValueString(
+            "grouper.azureConnector." + configId + ".resourceEndpoint",
+            "https://graph.microsoft.com/v1.0/");
     String url = graphEndpoint;
     if (url.endsWith("/")) {
       url = url.substring(0, url.length() - 1);
@@ -622,8 +623,9 @@ public class GrouperAzureApiCommands {
       ObjectNode objectNode  = GrouperUtil.jsonJacksonNode();
 
       String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-          "grouper.azureConnector."+configId+".resourceEndpoint");
-      
+          "grouper.azureConnector."+configId+".resourceEndpoint",
+          "https://graph.microsoft.com/v1.0/");
+
       objectNode.put("@odata.id", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/" + GrouperUtil.escapeUrlEncode(userId));
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(objectNode);
       
@@ -692,8 +694,9 @@ public class GrouperAzureApiCommands {
       ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
       
       String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-          "grouper.azureConnector."+configId+".resourceEndpoint");
-      
+          "grouper.azureConnector."+configId+".resourceEndpoint",
+          "https://graph.microsoft.com/v1.0/");
+
       for (int i=0;i<GrouperUtil.length(batchOfUserIds);i++) {
         String userId = batchOfUserIds.get(i);
         arrayNode.add(GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/" + GrouperUtil.escapeUrlEncode(userId));
@@ -1659,8 +1662,9 @@ public class GrouperAzureApiCommands {
       retrieveAzureGroupMembersHelper(result, jsonNode);
       debugMap.put("calls", ++calls);
       
-      String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(
-          "grouper.azureConnector."+configId+".resourceEndpoint");
+      String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+          "grouper.azureConnector."+configId+".resourceEndpoint",
+          "https://graph.microsoft.com/v1.0/");
       
       for (int i=0; i<1000000; i++) {
         String nextLink = GrouperUtil.jsonJacksonGetString(jsonNode, "@odata.nextLink");

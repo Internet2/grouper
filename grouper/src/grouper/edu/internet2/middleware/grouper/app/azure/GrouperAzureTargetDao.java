@@ -320,7 +320,8 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
               ProvisioningEntity targetEntity = searchValueToTargetEntity.get(searchValue);
               String id = targetEntity.getId();
               String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-                  "grouper.azureConnector."+azureConfiguration.getAzureExternalSystemConfigId()+".resourceEndpoint");
+                  "grouper.azureConnector."+azureConfiguration.getAzureExternalSystemConfigId()+".resourceEndpoint",
+                  "https://graph.microsoft.com/v1.0/");
               String url = GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/users/"+id;
               ownersToBeSaved.add(url);
               ownerIdentifierToOwnerUrl.put(searchValue, url);
@@ -561,7 +562,8 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
             }
             for (String userId: usersToPrefixUrl) {
               String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-                  "grouper.azureConnector."+azureConfiguration.getAzureExternalSystemConfigId()+".resourceEndpoint");
+                  "grouper.azureConnector."+azureConfiguration.getAzureExternalSystemConfigId()+".resourceEndpoint",
+                  "https://graph.microsoft.com/v1.0/");
               String url = GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/users/"+userId;
               ownersToBeSaved.add(url);
             }
@@ -580,7 +582,8 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
             
             for (String userId: usersToPrefixUrl) {
               String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-                  "grouper.azureConnector."+azureConfiguration.getAzureExternalSystemConfigId()+".resourceEndpoint");
+                  "grouper.azureConnector."+azureConfiguration.getAzureExternalSystemConfigId()+".resourceEndpoint",
+                  "https://graph.microsoft.com/v1.0/");
               String url = GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/users/"+userId;
               ownersToBeDeleted.add(url);
             }
