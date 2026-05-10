@@ -48,7 +48,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   /**
    * 
    */
-  public static final Set<String> doNotLogParameters = GrouperUtil.toSet("client_secret");
+  public static final Set<String> doNotLogParameters = GrouperUtil.toSet("client_secret", "client_assertion");
 
   /**
    * 
@@ -789,7 +789,8 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
     
     String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector." + this.configId + ".resourceEndpoint");
+        "grouper.azureConnector." + this.configId + ".resourceEndpoint",
+        "https://graph.microsoft.com/v1.0/");
 
     resultNode.put("@odata.context", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/$metadata#groups");
     
@@ -852,7 +853,8 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
     
     String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector." + this.configId + ".resourceEndpoint");
+        "grouper.azureConnector." + this.configId + ".resourceEndpoint",
+        "https://graph.microsoft.com/v1.0/");
 
     resultNode.put("@odata.context", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/$metadata#groups");
     
@@ -960,57 +962,107 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   private static long lastDeleteMillis = -1;
   
   public void postAuth(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
-    
+
     String clientId = mockServiceRequest.getHttpServletRequest().getParameter("client_id");
     if (StringUtils.isBlank(clientId)) {
       throw new RuntimeException("client_id is required!");
     }
 
-    String clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + this.configId + ".clientSecret");
-    clientSecret = Morph.decryptIfFile(clientSecret);
-    if (!StringUtils.equals(clientSecret, mockServiceRequest.getHttpServletRequest().getParameter("client_secret"))) {
-      // let config propagate
-      GrouperUtil.sleep(10000);
-      
-      clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + this.configId + ".clientSecret");
+    String authenticationType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + this.configId + ".authenticationType", "clientSecret");
+    boolean useCertificate = StringUtils.equals(authenticationType, "certificate");
+
+    if (useCertificate) {
+      // cert auth: validate client_assertion_type and that a JWT-shaped client_assertion is present.
+      // Skip cryptographic signature verification — the mock isn't a real STS, and the v1 path
+      // didn't verify the secret cryptographically either; both flows trust matching against config.
+      String assertionType = mockServiceRequest.getHttpServletRequest().getParameter("client_assertion_type");
+      if (!StringUtils.equals("urn:ietf:params:oauth:client-assertion-type:jwt-bearer", assertionType)) {
+        throw new RuntimeException("Invalid request! client_assertion_type must equal 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'");
+      }
+      String clientAssertion = mockServiceRequest.getHttpServletRequest().getParameter("client_assertion");
+      if (StringUtils.isBlank(clientAssertion) || clientAssertion.split("\\.").length != 3) {
+        throw new RuntimeException("Invalid request! client_assertion must be a JWT (header.claims.signature)");
+      }
+      // also confirm the config has the cert-auth properties set, so misconfigurations surface in the mock
+      String thumbprint = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + this.configId + ".certificateThumbprint");
+      if (StringUtils.isBlank(thumbprint)) {
+        throw new RuntimeException("Cert auth selected but certificateThumbprint is not configured!");
+      }
+    } else {
+      String clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + this.configId + ".clientSecret");
       clientSecret = Morph.decryptIfFile(clientSecret);
       if (!StringUtils.equals(clientSecret, mockServiceRequest.getHttpServletRequest().getParameter("client_secret"))) {
-        throw new RuntimeException("Cant find client secret!");
+        // let config propagate
+        GrouperUtil.sleep(10000);
+
+        clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + this.configId + ".clientSecret");
+        clientSecret = Morph.decryptIfFile(clientSecret);
+        if (!StringUtils.equals(clientSecret, mockServiceRequest.getHttpServletRequest().getParameter("client_secret"))) {
+          throw new RuntimeException("Cant find client secret!");
+        }
       }
     }
-    
+
     String tenantId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + this.configId + ".tenantId");
     if (StringUtils.isBlank(tenantId)) {
       tenantId = "myTenant";
     }
-    
-    if (4 != mockServiceRequest.getPostMockNamePaths().length
-        || !StringUtils.equals(tenantId, mockServiceRequest.getPostMockNamePaths()[1])
-        || !StringUtils.equals("oauth2", mockServiceRequest.getPostMockNamePaths()[2])
-        || !StringUtils.equals("token", mockServiceRequest.getPostMockNamePaths()[3])
-        ) {
-      throw new RuntimeException("Invalid request! expecting: auth/<tenantId>/oauth2/token");
+
+    String[] paths = mockServiceRequest.getPostMockNamePaths();
+    boolean v1Path = paths.length == 4
+        && StringUtils.equals(tenantId, paths[1])
+        && StringUtils.equals("oauth2", paths[2])
+        && StringUtils.equals("token", paths[3]);
+    boolean v2Path = paths.length == 5
+        && StringUtils.equals(tenantId, paths[1])
+        && StringUtils.equals("oauth2", paths[2])
+        && StringUtils.equals("v2.0", paths[3])
+        && StringUtils.equals("token", paths[4]);
+    if (useCertificate) {
+      if (!v2Path) {
+        throw new RuntimeException("Invalid request! cert auth expecting: auth/<tenantId>/oauth2/v2.0/token");
+      }
+    } else {
+      if (!v1Path) {
+        throw new RuntimeException("Invalid request! expecting: auth/<tenantId>/oauth2/token");
+      }
     }
-    
+
     String grantType = mockServiceRequest.getHttpServletRequest().getParameter("grant_type");
     if (!StringUtils.equals("client_credentials", grantType)) {
       throw new RuntimeException("Invalid request! client_credentials must equal 'grant_type'");
     }
-    String resourceConfig = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + this.configId + ".resource");
-    String resourceHttp =  mockServiceRequest.getHttpServletRequest().getParameter("resource");
-    if (StringUtils.isBlank(resourceConfig) || !StringUtils.equals(resourceConfig, resourceHttp)) {
-      throw new RuntimeException("Invalid request! resource: '" + resourceHttp + "' must equal '" + resourceConfig + "'");
+
+    if (useCertificate) {
+      // v2.0 uses scope=<resource>/.default, not resource=
+      String resourceConfig = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + this.configId + ".resource", "https://graph.microsoft.com");
+      String expectedScope = resourceConfig + (resourceConfig.endsWith("/") ? "" : "/") + ".default";
+      String scopeHttp = mockServiceRequest.getHttpServletRequest().getParameter("scope");
+      if (StringUtils.isBlank(scopeHttp) || !StringUtils.equals(expectedScope, scopeHttp)) {
+        throw new RuntimeException("Invalid request! scope: '" + scopeHttp + "' must equal '" + expectedScope + "'");
+      }
+    } else {
+      String resourceConfig = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + this.configId + ".resource", "https://graph.microsoft.com");
+      String resourceHttp = mockServiceRequest.getHttpServletRequest().getParameter("resource");
+      if (StringUtils.isBlank(resourceConfig) || !StringUtils.equals(resourceConfig, resourceHttp)) {
+        throw new RuntimeException("Invalid request! resource: '" + resourceHttp + "' must equal '" + resourceConfig + "'");
+      }
     }
 
     mockServiceResponse.setResponseCode(200);
 
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    
+
     //expires in a minute
     long expiresOnSeconds = System.currentTimeMillis()/1000 + 60;
-    
-    resultNode.put("expires_on", expiresOnSeconds);
-    
+
+    if (useCertificate) {
+      // v2.0 returns expires_in (relative seconds), not expires_on
+      resultNode.put("expires_in", 60);
+    } else {
+      resultNode.put("expires_on", expiresOnSeconds);
+    }
+
     String accessToken = GrouperUuid.getUuid();
     
     GrouperAzureAuth grouperAzureAuth = new GrouperAzureAuth();
@@ -1462,7 +1514,8 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     int responseCode = 204;
     
     String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector." + this.configId + ".resourceEndpoint");
+        "grouper.azureConnector." + this.configId + ".resourceEndpoint",
+        "https://graph.microsoft.com/v1.0/");
     
     for (int i=0;i<membersNode.size();i++) {
 
@@ -1543,7 +1596,8 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     int responseCode = 204;
     
     String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector." + this.configId + ".resourceEndpoint");
+        "grouper.azureConnector." + this.configId + ".resourceEndpoint",
+        "https://graph.microsoft.com/v1.0/");
     
     for (int i=0;i<membersNode.size();i++) {
 
@@ -1591,7 +1645,8 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id")) > 0, "@odata.id is required");
 
     String resourceEndpointDirectoryObjects = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector." + this.configId + ".resourceEndpoint")) + "/directoryObjects/";
+        "grouper.azureConnector." + this.configId + ".resourceEndpoint",
+        "https://graph.microsoft.com/v1.0/")) + "/directoryObjects/";
     
     GrouperUtil.assertion(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id").startsWith(resourceEndpointDirectoryObjects), "@odata.id must start with " + resourceEndpointDirectoryObjects);
 
@@ -1647,7 +1702,8 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id")) > 0, "@odata.id is required");
 
     String resourceEndpointDirectoryObjects = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector." + this.configId + ".resourceEndpoint")) + "/directoryObjects/";
+        "grouper.azureConnector." + this.configId + ".resourceEndpoint",
+        "https://graph.microsoft.com/v1.0/")) + "/directoryObjects/";
     
     GrouperUtil.assertion(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id").startsWith(resourceEndpointDirectoryObjects), "@odata.id must start with " + resourceEndpointDirectoryObjects);
 
@@ -1820,7 +1876,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
       grouperAzureMemberships.remove(grouperAzureMemberships.size()-1);
       
       // e.g. http://localhost:8400/grouper/mockServices/azure
-      String azureLink = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + this.configId + ".resourceEndpoint"));
+      String azureLink = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + this.configId + ".resourceEndpoint", "https://graph.microsoft.com/v1.0/"));
 
       String odataNextLink = azureLink + "/groups/" + GrouperUtil.escapeUrlEncode(groupId) 
         + "/members?$skiptoken=" + GrouperUtil.escapeUrlEncode(grouperAzureMemberships.get(grouperAzureMemberships.size()-1).getUserId())
@@ -1834,7 +1890,8 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     }
 
     String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-        "grouper.azureConnector." + this.configId + ".resourceEndpoint");
+        "grouper.azureConnector." + this.configId + ".resourceEndpoint",
+        "https://graph.microsoft.com/v1.0/");
 
     resultNode.put("@odata.context", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/$metadata#directoryObjects");
 

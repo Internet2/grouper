@@ -1,5 +1,9 @@
 package edu.internet2.middleware.grouper.app.azure;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.util.Base64;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -16,6 +20,39 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
  */
 public class AzureProvisionerTestUtils {
   
+  /**
+   * Configure the myAzure external system to use certificate-based auth against the mock service.
+   * Generates a fresh RSA key pair, encodes the private key as PKCS#8 PEM, picks a dummy 40-hex
+   * thumbprint. The mock validates JWT shape only — no signature verification — so a fresh
+   * keypair without a real uploaded cert is sufficient for round-trip testing.
+   */
+  public static void setupAzureExternalSystemCertAuth() {
+
+    // start from the standard mock setup, then flip auth-related keys
+    setupAzureExternalSystem(false);
+
+    // remove the client_secret-flow value so we're truly exercising cert auth
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.clientSecret").value("").store();
+
+    String pkcs8Pem;
+    try {
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+      keyPairGenerator.initialize(2048);
+      KeyPair keyPair = keyPairGenerator.generateKeyPair();
+      String body = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
+      pkcs8Pem = "-----BEGIN PRIVATE KEY-----\n" + body + "\n-----END PRIVATE KEY-----";
+    } catch (Exception e) {
+      throw new RuntimeException("Could not generate RSA test keypair", e);
+    }
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.authenticationType").value("certificate").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.privateKey").value(pkcs8Pem).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.certificateThumbprint").value("CA35A1D2E70FB52DF518C980B6430F32E62DF013").store();
+
+    ConfigPropertiesCascadeBase.clearCache();
+    AzureGrouperExternalSystem.clearCache();
+  }
+
   public static void setupAzureExternalSystem(boolean realAzure) {
 
     if (realAzure) {
