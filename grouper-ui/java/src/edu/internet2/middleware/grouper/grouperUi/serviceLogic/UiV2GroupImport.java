@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
@@ -496,6 +497,8 @@ public class UiV2GroupImport {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
       final String bulkAddOption = request.getParameter("bulkAddOptions");
+
+      final String bulkAddGroupOption = request.getParameter("bulkAddGroupOptions");
   
       
       //TODO should this be called "groupsTheUserCanUpdate" ?
@@ -544,7 +547,73 @@ public class UiV2GroupImport {
       try {
         grouperSession = GrouperSession.start(loggedInSubject);
   
-        boolean success = groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, false, true, groups, false);
+        boolean success = true;
+
+        if (StringUtils.equals(bulkAddGroupOption, "input")) {
+
+          success = groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, false, true, groups, false);
+
+        } else if (StringUtils.equals(bulkAddGroupOption, "list")) {
+
+          Set<String> groupNamesOrIds = parseGroupNamesOrIdsFromTextarea(request.getParameter("groupList"));
+
+          debugMap.put("groupNamesOrIds", groupNamesOrIds.size());
+          if (groupNamesOrIds.isEmpty()) {
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+                "#groupListId",
+                TextContainer.retrieveFromRequest().getText().get("groupImportNoGroupsSpecified")));
+            return;
+          }
+
+          if (!lookupGroupsByNamesOrIds(loggedInSubject, groupNamesOrIds, groups, guiResponseJs)) {
+            return;
+          }
+
+        } else if (StringUtils.equals(bulkAddGroupOption, "import")) {
+
+          GrouperRequestWrapper grouperRequestWrapper = GrouperRequestWrapper.retrieveGrouperRequestWrapper(request);
+
+          FileItem importGroupCsvFile = grouperRequestWrapper.getParameterFileItem("importGroupCsvFile");
+
+          if (importGroupCsvFile == null) {
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+                "#importGroupCsvFileId",
+                TextContainer.retrieveFromRequest().getText().get("groupImportUploadFile")));
+            return;
+          }
+
+          Reader groupReader = new InputStreamReader(importGroupCsvFile.getInputStream());
+          String groupFileName = StringUtils.defaultString(importGroupCsvFile.getName());
+
+          List<CSVRecord> groupCsvEntries;
+          try {
+            groupCsvEntries = SimpleMembershipUpdateImportExport.parseCsvImportFileToCsv(groupReader, groupFileName);
+          } catch (GrouperImportException gie) {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("error in group import", gie);
+            }
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+                "#importGroupCsvFileId", GrouperUtil.xmlEscape(gie.getMessage())));
+            return;
+          }
+
+          Set<String> groupNamesOrIds = parseGroupNamesOrIdsFromCsv(groupCsvEntries);
+          debugMap.put("groupNamesOrIdsFromFile", groupNamesOrIds.size());
+
+          if (groupNamesOrIds.isEmpty()) {
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+                "#importGroupCsvFileId",
+                TextContainer.retrieveFromRequest().getText().get("groupImportNoGroupsSpecified")));
+            return;
+          }
+
+          if (!lookupGroupsByNamesOrIds(loggedInSubject, groupNamesOrIds, groups, guiResponseJs)) {
+            return;
+          }
+
+        } else {
+          throw new RuntimeException("Not expecting bulkAddGroupOption: '" + bulkAddGroupOption + "'");
+        }
         
         if (!success) {
           //error message already shown
@@ -1539,6 +1608,223 @@ public class UiV2GroupImport {
       }      
     }
     return success;
+  }
+
+  /**
+   * validate group list from textarea
+   * @param request
+   * @param response
+   */
+  public void groupImportValidateGroupList(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      Set<String> groupNamesOrIds = parseGroupNamesOrIdsFromTextarea(request.getParameter("groupList"));
+
+      if (groupNamesOrIds.isEmpty()) {
+
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#groupListId",
+            TextContainer.retrieveFromRequest().getText().get("groupImportNoGroupsSpecified")));
+        return;
+
+      }
+
+      if (groupNamesOrIds.size() > 100) {
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("groupImportTooManyGroupsToValidate")));
+        return;
+
+      }
+
+      Set<GuiGroup> extraGuiGroups = new LinkedHashSet<GuiGroup>();
+
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer().setGroupImportExtraGuiGroups(extraGuiGroups);
+
+      Set<Group> groups = new GroupFinder()
+      .assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+      .assignSubject(loggedInSubject)
+      .assignGroupNames(groupNamesOrIds)
+      .assignTypeOfGroups(TypeOfGroup.GROUP_OR_ROLE_SET)
+      .findGroups();
+      
+      if (groups.size() < groupNamesOrIds.size()) {
+        Set<Group> groupsByIds = new GroupFinder()
+            .assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+            .assignSubject(loggedInSubject)
+            .assignGroupIds(groupNamesOrIds)
+            .assignTypeOfGroups(TypeOfGroup.GROUP_OR_ROLE_SET)
+            .findGroups();
+        
+        groups.addAll(groupsByIds);
+      }
+      
+      for (Group group : groups) {
+        extraGuiGroups.add(new GuiGroup(group));
+      }
+      
+      if (groups.size() < groupNamesOrIds.size()) {
+        
+        Set<String> groupNamesFound = new HashSet<String>();
+        Set<String> groupIdsFound = new HashSet<String>();
+        for (Group group: groups) {
+          groupNamesFound.add(group.getName());
+          groupIdsFound.add(group.getId());
+        }
+        
+        List<String> notFoundGroupNamesOrIds = new ArrayList<String>();
+        
+        for (String groupNameOrId: groupNamesOrIds) {
+          if (!groupNamesFound.contains(groupNameOrId) && !groupIdsFound.contains(groupNameOrId)) {
+            notFoundGroupNamesOrIds.add(groupNameOrId);
+          }
+        }
+        
+        if (notFoundGroupNamesOrIds.size() > 0) {
+          GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer().setGroupNamesOrIdsNotFound(GrouperUtil.join(notFoundGroupNamesOrIds.iterator(), ", "));
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("groupImportGroupNamesOrIdsNotFound")));
+        }
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript(
+        "$('#groupImportGroupComboId')[0].tomselect.clear(true);"));
+
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("bulkAddGroupOptions", "input"));
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupImportExtraGroupsDivId",
+          "/WEB-INF/grouperUi2/groupImport/groupImportExtraGroups.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+
+  /**
+   * split a textarea value by comma, semicolon, or whitespace into a list of trimmed group names/ids
+   * @param groupListRaw the raw textarea content
+   * @return set of group names or ids (never null)
+   */
+  private static Set<String> parseGroupNamesOrIdsFromTextarea(String groupListRaw) {
+    String groupList = StringUtils.defaultString(groupListRaw);
+
+    groupList = StringUtils.replace(groupList, ",", " ");
+    groupList = StringUtils.replace(groupList, ";", " ");
+
+    String[] groupNamesOrIds = GrouperUtil.splitTrim(groupList, null, true);
+
+    Set<String> groupNamesOrIdsList = new HashSet<String>();
+    if (groupNamesOrIds != null) {
+      for (String groupNameOrId : groupNamesOrIds) {
+        if (!StringUtils.isBlank(groupNameOrId)) {
+          groupNamesOrIdsList.add(groupNameOrId);
+        }
+      }
+    }
+    return groupNamesOrIdsList;
+  }
+
+  /**
+   * parse group names/ids from csv records. Takes the first column of each row.
+   * If the first row's first cell equals 'groupNameOrId' (case-insensitive) it is skipped as a header.
+   * @param csvEntries
+   * @return list of group names or ids (never null)
+   */
+  private static Set<String> parseGroupNamesOrIdsFromCsv(List<CSVRecord> csvEntries) {
+    Set<String> groupNamesOrIds = new HashSet<String>();
+    if (GrouperUtil.length(csvEntries) == 0) {
+      return groupNamesOrIds;
+    }
+
+    int startIndex = 0;
+    CSVRecord firstRow = csvEntries.get(0);
+    if (firstRow.size() > 0 && "groupNameOrId".equalsIgnoreCase(StringUtils.trimToEmpty(firstRow.get(0)))) {
+      startIndex = 1;
+    }
+
+    for (int i = startIndex; i < csvEntries.size(); i++) {
+      CSVRecord row = csvEntries.get(i);
+      if (row.size() > 0) {
+        String groupNameOrId = StringUtils.trimToNull(row.get(0));
+        if (groupNameOrId != null) {
+          groupNamesOrIds.add(groupNameOrId);
+        }
+      }
+    }
+
+    return groupNamesOrIds;
+  }
+
+  /**
+   * look up groups by name or id, adding found ones to the groups set.
+   * Reports not-found via error message and returns false.
+   * @param loggedInSubject
+   * @param groupNamesOrIds
+   * @param groups output set
+   * @param guiResponseJs
+   * @return true if all found, false if any not found
+   */
+  private boolean lookupGroupsByNamesOrIds(Subject loggedInSubject,
+      Set<String> groupNamesOrIds, Set<Group> groups, GuiResponseJs guiResponseJs) {
+
+    List<String> notFoundGroupNamesOrIds = new ArrayList<String>();
+    
+    Set<Group> groupsByNames = new GroupFinder()
+        .assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+        .assignSubject(loggedInSubject)
+        .assignGroupNames(groupNamesOrIds)
+        .assignTypeOfGroups(TypeOfGroup.GROUP_OR_ROLE_SET)
+        .findGroups();
+    
+    groups.addAll(groupsByNames);
+        
+    if (groups.size() < groupNamesOrIds.size()) {
+      Set<Group> groupsByIds = new GroupFinder()
+          .assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+          .assignSubject(loggedInSubject)
+          .assignGroupIds(groupNamesOrIds)
+          .assignTypeOfGroups(TypeOfGroup.GROUP_OR_ROLE_SET)
+          .findGroups();
+      
+      groups.addAll(groupsByIds);
+    }
+    
+    
+    if (groups.size() < groupNamesOrIds.size()) {
+      
+      Set<String> groupNamesFound = new HashSet<String>();
+      Set<String> groupIdsFound = new HashSet<String>();
+      for (Group group: groups) {
+        groupNamesFound.add(group.getName());
+        groupIdsFound.add(group.getId());
+      }
+      
+      for (String groupNameOrId: groupNamesOrIds) {
+        if (!groupNamesFound.contains(groupNameOrId) && !groupIdsFound.contains(groupNameOrId)) {
+          notFoundGroupNamesOrIds.add(groupNameOrId);
+        }
+      }
+      
+      if (notFoundGroupNamesOrIds.size() > 0) {
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer().setGroupNamesOrIdsNotFound(GrouperUtil.join(notFoundGroupNamesOrIds.iterator(), ", "));
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("groupImportGroupNamesOrIdsNotFound")));
+        return false;
+      }
+      
+    }
+
+    return true;
   }
 
 }

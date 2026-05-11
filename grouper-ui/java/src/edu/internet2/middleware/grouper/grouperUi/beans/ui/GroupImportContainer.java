@@ -383,6 +383,27 @@ public class GroupImportContainer {
   }
 
   /**
+   * comma separated list of group names or ids not found
+   */
+  private String groupNamesOrIdsNotFound;
+
+  /**
+   * comma separated list of group names or ids not found
+   * @return list
+   */
+  public String getGroupNamesOrIdsNotFound() {
+    return this.groupNamesOrIdsNotFound;
+  }
+
+  /**
+   * comma separated list of group names or ids not found
+   * @param groupNamesOrIdsNotFound1
+   */
+  public void setGroupNamesOrIdsNotFound(String groupNamesOrIdsNotFound1) {
+    this.groupNamesOrIdsNotFound = groupNamesOrIdsNotFound1;
+  }
+
+  /**
    * gui groups in addition to the one in the combobox
    */
   private Set<GuiGroup> groupImportExtraGuiGroups;
