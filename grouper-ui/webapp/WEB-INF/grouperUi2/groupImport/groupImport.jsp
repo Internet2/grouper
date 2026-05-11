@@ -80,6 +80,31 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
                 </div>
                </c:if>
               
+              <div role="alert" class="alert alert-info">
+                  ${textContainer.text['groupImportMultipleGroupsInfo']}
+              </div>
+
+              <div class="control-group">
+                <label class="control-label">${textContainer.text['groupImportHowAddGroups'] }</label>
+                <div class="controls">
+                  <label class="radio">
+                    <input type="radio" name="bulkAddGroupOptions" value="input" checked="checked"
+                    onchange="$('.bulk-add-group-import-container').slideUp('fast'); $('.bulk-add-group-list-container').slideUp('fast'); $('.bulk-add-group-input-container').slideDown('fast'); return true;"
+                    >${textContainer.text['groupImportSearchForGroupsToAdd'] }
+                  </label>
+                  <label class="radio">
+                    <input type="radio" name="bulkAddGroupOptions" value="list"
+                      onchange="$('.bulk-add-group-import-container').slideUp('fast'); $('.bulk-add-group-list-container').slideDown('fast'); $('.bulk-add-group-input-container').slideUp('fast'); return true;"
+                    >${textContainer.text['groupImportCopyListOfGroupNamesOrIds'] }
+                  </label>
+                  <label class="radio">
+                    <input type="radio" name="bulkAddGroupOptions" value="import"
+                      onchange="$('.bulk-add-group-import-container').slideDown('fast'); $('.bulk-add-group-list-container').slideUp('fast'); $('.bulk-add-group-input-container').slideUp('fast'); return true;"
+                    >${textContainer.text['groupImportImportGroupFile'] }
+                  </label>
+                </div>
+              </div>
+
               <div class="bulk-add-group-input-container">
                 <div class="control-group bulk-add-group-block">
                   <label for="add-entities" style="position:absolute" class="control-label">${textContainer.text['groupImportAddMembersToGroupLabel'] }</label>
@@ -106,7 +131,31 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
                   </div>
                 </div>
               </div>
-              
+
+              <div class="bulk-add-group-list-container hide">
+                <div class="control-group">
+                  <label for="groupList" class="control-label">${textContainer.text['groupImportEnterListOfGroupNamesOrIds'] }</label>
+                  <div class="controls">
+                    <textarea rows="10" name="groupList" id="groupListId"></textarea>
+                    <br /><br />
+                    <a href="#"
+                      onclick="ajax('../app/UiV2GroupImport.groupImportValidateGroupList', {formIds: 'importGroupFormId'}); return false;"
+                      class="btn bulk-add-another-group" role="button">${textContainer.text['groupImportValidateGroupsButton']}</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bulk-add-group-import-container hide">
+                <div class="control-group">
+                  <label class="control-label">${textContainer.text['groupImportSelectGroupFileToImport'] }</label>
+                  <div class="controls">
+                    <input type="file" name="importGroupCsvFile" id="importGroupCsvFileId"><span class="help-block">
+                    ${textContainer.text['groupImportSelectGroupFileDescription']}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               <hr>
               <div class="control-group">
                 <label class="control-label">${textContainer.text['groupImportHowAdd'] }</label>
