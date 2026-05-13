@@ -2317,14 +2317,12 @@ public class GrouperUtil {
       LOG.debug("Start conversion of DN '" + dn + "'");
     }
   
-    // get the domain suffix, RDN attribute and RDN value from the DN
-    String domainSuffix = dn.substring(dn.toLowerCase().indexOf("dc="));
+    // get the RDN attribute and RDN value from the DN
     String rdnAttribute = StringUtils.substringBefore(dn,"=");
-    String rdnValue = ldapConvertDnToSpecificValue(dn);
+    String rdnValue = FilterUtils.escape(ldapConvertDnToSpecificValue(dn));
     
-    // searchBase is member DN minus suffix (domainSuffix) minus trailing comma
-    // This has to be done since LdapSession.list appends LDAP suffix to search base values
-    String searchBase = StringUtils.chop(StringUtils.removeEnd(dn.toLowerCase(),domainSuffix.toLowerCase()));
+    // searchBase is member DN 
+    String searchBase = dn;
     
     // Forward slash is a special character in JNDI. In case the dn contains one, this addresses it.
     // This may no longer be needed with patched versions of grouper. 
@@ -2374,7 +2372,7 @@ public class GrouperUtil {
       // Check that the member object is within the baseOu space
       if ( dn.toLowerCase().indexOf(baseOu.toLowerCase()) > 0 ) {
         // convert the DN to a grouper group
-        String groupName = convertDnToGroupName(dn, domainSuffix, grouperBaseStem); 
+        String groupName = ldapConvertDnToGroupName(dn, baseOu, grouperBaseStem);
       
         // see if the group exists
         Group group = GrouperDAOFactory.getFactory().getGroup().findByName(groupName, false, null) ;
