@@ -1380,5 +1380,617 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     }
   }
 
+  /**
+   * Builds a scripted group with a multi-row, parenthesized JEXL script that mirrors
+   * the shape of a complicated production ABAC policy: a 3-way top-level OR, where one
+   * branch is itself an OR of two hasRow leaves, plus one hasRow leaf with a nested
+   * inner OR. Each hasRow has multiple AND'd column predicates including =~ array
+   * matching. Intended primarily for viewing in the Visualization tab against a dev
+   * UI — assertions are intentionally minimal because the test data only populates
+   * the 'affiliation' row.
+   */
+  /**
+   * Builds test:GroupE as a scripted group with a policy that exercises every visualization
+   * shape we want to see: nested OR-of-hasRow, a hasRow whose predicate contains a parens-OR,
+   * an included group reference, and an excluded NOT-group reference.
+   *
+   * <p>Test data:
+   * <ul>
+   *   <li>test:GroupA members: test.subject.0, test.subject.1, test.subject.2</li>
+   *   <li>test:GroupB members: test.subject.3</li>
+   *   <li>No affiliation row data is loaded, so all three hasRow branches resolve to population 0.</li>
+   * </ul>
+   *
+   * <p>Resulting GroupE membership after full sync:
+   * <ul>
+   *   <li>test.subject.0: MEMBER (in GroupA, not in GroupB)</li>
+   *   <li>test.subject.1: MEMBER (in GroupA, not in GroupB)</li>
+   *   <li>test.subject.2: MEMBER (in GroupA, not in GroupB)</li>
+   *   <li>test.subject.3: NOT a member (excluded by !memberOf GroupB)</li>
+   * </ul>
+   *
+   * <p>Visualization expectations when opening test:GroupE:
+   * <ul>
+   *   <li>GroupE renders as a 3-member scripted-group start node.</li>
+   *   <li>The top-level AND flattens, so two edges leave GroupE:
+   *     <ul>
+   *       <li>a (+) "must be in" edge to the (hasRow-X OR hasRow-Y OR hasRow-Z OR GroupA)
+   *           OR-compound ellipse with population 3,</li>
+   *       <li>a (-) dashed "must not be in" edge directly to the GroupB excluded-group
+   *           node with population 1.</li>
+   *     </ul>
+   *   </li>
+   *   <li>The OR-compound has 4 children connected by (+or) edges:
+   *     <ul>
+   *       <li>hasRow-X box (affiliationCode IN ['staff','faculty','student','temp'] AND
+   *           affiliationDeptNumber==200 AND affiliationActive) with three inner per-attribute
+   *           AND-children (each population 0).</li>
+   *       <li>hasRow-Y box (affiliationCodePrimary IN ['staff','faculty'] AND
+   *           affiliationDeptNumberPrimary==200 AND affiliationActive) with three inner
+   *           per-attribute children.</li>
+   *       <li>hasRow-Z box (affiliationCode=='staff' AND affiliationActive AND
+   *           (affiliationDeptNumber==100 OR affiliationDeptNumberPrimary==100)) with three
+   *           inner AND-children — the third is itself an OR-compound ellipse with two leaves.</li>
+   *       <li>GroupA required-group node (population 3) connected via the (+or) "any-of-these" edge.</li>
+   *     </ul>
+   *   </li>
+   * </ul>
+   *
+   * <p>Visualization when filtering by subject on test:GroupE:
+   * <ul>
+   *   <li>subject.0 / subject.1 / subject.2: GroupA highlights "is member"; GroupB highlights
+   *       "is not member"; every hasRow attribute leaf highlights "is not member"; the
+   *       OR-compound and GroupE both highlight "is member".</li>
+   *   <li>subject.3: GroupA highlights "is not member"; GroupB highlights "is member"; GroupE
+   *       highlights "is not member" — the !GroupB branch excludes them.</li>
+   * </ul>
+   */
+  public void testVisualizationComplexHasRow() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group testGroupE = new GroupSave().assignName("test:GroupE").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupA = new GroupSave().assignName("test:GroupA").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupB = new GroupSave().assignName("test:GroupB").assignCreateParentStemsIfNotExist(true).save();
+
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Subject testSubject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+
+    // GroupA: subjects 0, 1, 2 (the included group in the policy)
+    testGroupA.addMember(testSubject0);
+    testGroupA.addMember(testSubject1);
+    testGroupA.addMember(testSubject2);
+
+    // GroupB: subject 3 (the excluded / NOT group in the policy)
+    testGroupB.addMember(testSubject3);
+
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroupE)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(),
+        """
+        (
+            (
+                entity.hasRow('affiliation', "
+                    affiliationCode =~ [
+                        'staff',
+                        'faculty',
+                        'student',
+                        'temp'
+                    ]
+                    && affiliationDeptNumber == 200
+                    && affiliationActive
+                ")
+
+                ||
+
+                entity.hasRow('affiliation', "
+                    affiliationCodePrimary =~ [
+                        'staff',
+                        'faculty'
+                    ]
+                    && affiliationDeptNumberPrimary == 200
+                    && affiliationActive
+                ")
+            )
+            ||
+            entity.hasRow('affiliation', "
+                affiliationCode == 'staff'
+                && affiliationActive
+                && (
+                    affiliationDeptNumber == 100
+                    ||
+                    affiliationDeptNumberPrimary == 100
+                )
+            ")
+            ||
+            entity.memberOf('test:GroupA')
+        )
+        && !entity.memberOf('test:GroupB')
+        """);
+
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    // No affiliation row data is loaded, so the hasRow branches contribute zero. Membership
+    // reduces to: (member of GroupA) AND NOT (member of GroupB).
+    //   GroupA = {0,1,2}, GroupB = {3}, so GroupE = {0,1,2}.
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, testSubject1, true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, testSubject2, true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, testSubject3, true);
+
+    Set<Member> members = testGroupE.getMembers();
+    assertEquals(3, members.size());
+    assertTrue(members.contains(member0));
+    assertTrue(members.contains(member1));
+    assertTrue(members.contains(member2));
+    assertFalse(members.contains(member3));
+  }
+
+  /**
+   * Verifies that the visualization tree exposes per-attribute sub-checks beneath a
+   * hasRow leaf — i.e. the inner predicate AST is parsed, registered in
+   * astNodeToPart, and recursed into by buildAbacReferenceFromAst.
+   */
+  public void testVisualizationHasRowExposesInnerAttributes() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Subject testSubject = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    String script = "entity.hasRow('affiliation', \"affiliationCode == 'staff' and affiliationActive\")";
+
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, script, testSubject, grouperSession.getSubject(), true, null, true);
+
+    List<AbacReference> refs = analysis.getVisualizationReferences();
+    assertNotNull("expected visualization references to be populated", refs);
+    assertEquals("expected a single top-level row reference", 1, refs.size());
+
+    AbacReference row = refs.get(0);
+    assertEquals(AbacReference.RefType.ROW, row.getRefType());
+
+    List<AbacReference> children = row.getChildren();
+    assertNotNull("hasRow leaf should have inner-attribute children", children);
+    assertEquals("expected two AND'd inner-attribute children", 2, children.size());
+  }
+
+  /**
+   * Same as the previous test but with the more complex shape we actually want to render:
+   * an AND that contains a parenthesized OR. Asserts the row leaf has 3 children
+   * (attr, attr, OR-compound) and the OR-compound itself has 2 children.
+   */
+  public void testVisualizationHasRowExposesInnerAttributesWithNestedOr() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Subject testSubject = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    String script = "entity.hasRow('affiliation', \"affiliationCode == 'staff' and affiliationActive and (affiliationDeptNumber == 100 or affiliationDeptNumberPrimary == 100)\")";
+
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, script, testSubject, grouperSession.getSubject(), true, null, true);
+
+    List<AbacReference> refs = analysis.getVisualizationReferences();
+    assertEquals(1, refs.size());
+
+    AbacReference row = refs.get(0);
+    assertEquals(AbacReference.RefType.ROW, row.getRefType());
+
+    List<AbacReference> children = row.getChildren();
+    assertNotNull(children);
+    assertEquals("expected 3 AND'd children (attr, attr, OR-group)", 3, children.size());
+
+    // The third child should be the OR-compound with 2 row-attribute leaves
+    AbacReference last = children.get(2);
+    assertEquals("third child should be the OR compound",
+        AbacReference.RefType.COMPOUND, last.getRefType());
+    assertNotNull(last.getChildren());
+    assertEquals("OR compound should have 2 children", 2, last.getChildren().size());
+
+    // Each leaf child must have a distinct, non-empty displayDescription so the
+    // RelationGraph computeId produces unique node IDs (otherwise fetchOrCreateNode
+    // dedupes them onto the same GraphNode and only one edge renders).
+    for (int i = 0; i < 2; i++) {
+      AbacReference leaf = children.get(i);
+      assertNotNull("leaf " + i + " should have a displayDescription",
+          leaf.getDisplayDescription());
+      assertTrue("leaf " + i + " displayDescription should be non-empty",
+          leaf.getDisplayDescription().length() > 0);
+    }
+    for (int i = 0; i < last.getChildren().size(); i++) {
+      AbacReference innerLeaf = last.getChildren().get(i);
+      assertNotNull("inner leaf " + i + " should have a displayDescription",
+          innerLeaf.getDisplayDescription());
+    }
+    // Computed IDs must all differ
+    java.util.Set<String> ids = new java.util.HashSet<String>();
+    for (AbacReference c : children) {
+      ids.add(c.computeId());
+    }
+    assertEquals("all top-level child IDs should be distinct", children.size(), ids.size());
+  }
+
+  /**
+   * Reproduces the live-visualization bug: with an outer OR wrapping two hasRow calls,
+   * the per-attribute inner clones of each hasRow must have parentPart pointing at THEIR
+   * hasRow leaf, not at the top-level OR root. Previously the inner AST root was bridged
+   * to whatever the accumulator was during the first recurse (= root), so parent walks
+   * resolved to root and the per-attribute clones appeared as direct children of the
+   * ABAC group instead of nested under their hasRow.
+   */
+  public void testVisualizationOuterOrEachHasRowKeepsItsInnerChildren() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Subject testSubject = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    String script = "entity.hasRow('affiliation', \"affiliationCode == 'staff' and affiliationActive\")"
+        + " || entity.hasRow('affiliation', \"affiliationCodePrimary == 'staff' and affiliationActive\")";
+
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, script, testSubject, grouperSession.getSubject(), true, null, true);
+
+    List<AbacReference> refs = analysis.getVisualizationReferences();
+    // Top-level compound is flattened, so we get the two ROW hasRow leaves directly.
+    assertEquals("expected 2 top-level hasRow leaves after flattening the outer OR", 2, refs.size());
+
+    for (int i = 0; i < refs.size(); i++) {
+      AbacReference row = refs.get(i);
+      assertEquals("ref " + i + " should be ROW", AbacReference.RefType.ROW, row.getRefType());
+      List<AbacReference> rowChildren = row.getChildren();
+      assertNotNull("ref " + i + " hasRow leaf must carry inner-attribute children", rowChildren);
+      assertEquals("ref " + i + " hasRow leaf should have 2 inner-attribute children",
+          2, rowChildren.size());
+    }
+  }
+
+  /**
+   * Exercises nested NOT shapes: double negation (!!X) should net to unnegated, and a
+   * NOT wrapping a compound (!(A and B)) should negate the compound itself, not its
+   * children. The check is on the AbacReference.isNegated() flag, which downstream
+   * drives the dashed-red excluded edge style.
+   */
+  public void testVisualizationNestedNot() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    new GroupSave().assignName("test:GroupA").assignCreateParentStemsIfNotExist(true).save();
+    new GroupSave().assignName("test:GroupB").assignCreateParentStemsIfNotExist(true).save();
+    new GroupSave().assignName("test:GroupC").assignCreateParentStemsIfNotExist(true).save();
+
+    Subject testSubject = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    // !!memberOf(A) → top is a single GROUP leaf, NOT NEGATED (double negation cancels).
+    GrouperJexlScriptAnalysis doubleNeg = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, "!!entity.memberOf('test:GroupA')",
+        testSubject, grouperSession.getSubject(), true, null, true);
+    List<AbacReference> doubleNegRefs = doubleNeg.getVisualizationReferences();
+    assertEquals(1, doubleNegRefs.size());
+    AbacReference doubleNegLeaf = doubleNegRefs.get(0);
+    assertEquals(AbacReference.RefType.GROUP, doubleNegLeaf.getRefType());
+    assertFalse("!!X should net to unnegated", doubleNegLeaf.isNegated());
+
+    // !(memberOf(A) && memberOf(B)) → top is a single negated COMPOUND AND with 2 children,
+    // and the children themselves are NOT marked negated (the NOT applies to the compound).
+    GrouperJexlScriptAnalysis notCompound = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, "!(entity.memberOf('test:GroupA') && entity.memberOf('test:GroupB'))",
+        testSubject, grouperSession.getSubject(), true, null, true);
+    List<AbacReference> notRefs = notCompound.getVisualizationReferences();
+    assertEquals(1, notRefs.size());
+    AbacReference notRef = notRefs.get(0);
+    assertEquals(AbacReference.RefType.COMPOUND, notRef.getRefType());
+    assertTrue("!(...) should mark the compound itself negated", notRef.isNegated());
+    assertNotNull(notRef.getChildren());
+    assertEquals(2, notRef.getChildren().size());
+    for (AbacReference child : notRef.getChildren()) {
+      assertFalse("compound's children are not individually negated", child.isNegated());
+    }
+  }
+
+  /**
+   * Pure-memberOf policy with no hasRow at all: outer AND of an included group and a
+   * NOT'd excluded group. Common policy shape for app gating (must be in role X, must
+   * not be in lockout). Verifies the visualization correctly identifies the included
+   * group and marks only the excluded one as negated.
+   */
+  public void testVisualizationPureMemberOfNoHasRow() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group groupA = new GroupSave().assignName("test:GroupA").assignCreateParentStemsIfNotExist(true).save();
+    Group groupB = new GroupSave().assignName("test:GroupB").assignCreateParentStemsIfNotExist(true).save();
+    Subject testSubject = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine,
+        "entity.memberOf('test:GroupA') && !entity.memberOf('test:GroupB')",
+        testSubject, grouperSession.getSubject(), true, null, true);
+
+    List<AbacReference> refs = analysis.getVisualizationReferences();
+    // Top AND flattens, so we get two top-level refs.
+    assertEquals(2, refs.size());
+
+    // One should be a non-negated GROUP for test:GroupA, the other a negated GROUP for test:GroupB.
+    boolean sawGroupA = false;
+    boolean sawNotGroupB = false;
+    for (AbacReference ref : refs) {
+      assertEquals(AbacReference.RefType.GROUP, ref.getRefType());
+      if ("test:GroupA".equals(ref.getName())) {
+        assertFalse("GroupA should be a positive (included) reference", ref.isNegated());
+        sawGroupA = true;
+      } else if ("test:GroupB".equals(ref.getName())) {
+        assertTrue("!GroupB should be marked negated", ref.isNegated());
+        sawNotGroupB = true;
+      }
+    }
+    assertTrue("expected a non-negated GroupA ref", sawGroupA);
+    assertTrue("expected a negated GroupB ref", sawNotGroupB);
+  }
+
+  /**
+   * memberOfAny([A,B,C]) collapses multiple group references into a single GROUP
+   * AbacReference with memberOfAny=true. Verifies the visualization renders it that
+   * way rather than producing one node per group.
+   */
+  public void testVisualizationMemberOfAny() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    new GroupSave().assignName("test:GroupA").assignCreateParentStemsIfNotExist(true).save();
+    new GroupSave().assignName("test:GroupB").assignCreateParentStemsIfNotExist(true).save();
+    new GroupSave().assignName("test:GroupC").assignCreateParentStemsIfNotExist(true).save();
+
+    Subject testSubject = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine,
+        "entity.memberOfAny(['test:GroupA', 'test:GroupB', 'test:GroupC'])",
+        testSubject, grouperSession.getSubject(), true, null, true);
+
+    List<AbacReference> refs = analysis.getVisualizationReferences();
+    assertEquals("memberOfAny should produce one collapsed GROUP ref", 1, refs.size());
+    AbacReference ref = refs.get(0);
+    assertEquals(AbacReference.RefType.GROUP, ref.getRefType());
+    assertTrue("memberOfAny flag should be set on the collapsed group ref", ref.isMemberOfAny());
+  }
+
+  /**
+   * recentMemberOf('group', '2 days') analyzes to a GROUP leaf. Verifies the
+   * visualization treats it like any other group reference.
+   */
+  public void testVisualizationRecentMemberOf() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    new GroupSave().assignName("test:GroupA").assignCreateParentStemsIfNotExist(true).save();
+
+    Subject testSubject = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, "entity.recentMemberOf('test:GroupA', '2 days')",
+        testSubject, grouperSession.getSubject(), true, null, true);
+
+    List<AbacReference> refs = analysis.getVisualizationReferences();
+    assertEquals(1, refs.size());
+    assertEquals(AbacReference.RefType.GROUP, refs.get(0).getRefType());
+    assertEquals("test:GroupA", refs.get(0).getName());
+  }
+
+  /**
+   * hasAttribute('alias', value) analyzes to an ATTRIBUTE leaf. Verifies the
+   * visualization produces an ATTRIBUTE reference type, distinct from the ROW type
+   * that hasRow produces.
+   */
+  public void testVisualizationHasAttribute() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Subject testSubject = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, "entity.hasAttribute('active', 'true')",
+        testSubject, grouperSession.getSubject(), true, null, true);
+
+    List<AbacReference> refs = analysis.getVisualizationReferences();
+    assertEquals(1, refs.size());
+    AbacReference ref = refs.get(0);
+    assertEquals(AbacReference.RefType.ATTRIBUTE, ref.getRefType());
+    assertEquals("active", ref.getName());
+  }
+
+  /**
+   * hasRow with a single boolean attribute (no AND/OR inside the predicate) should
+   * render as a ROW leaf with no children — there are no per-attribute sub-parts to
+   * break out because the predicate is already atomic.
+   */
+  public void testVisualizationHasRowSingleAttributePredicate() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Subject testSubject = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, "entity.hasRow('affiliation', \"affiliationActive\")",
+        testSubject, grouperSession.getSubject(), true, null, true);
+
+    List<AbacReference> refs = analysis.getVisualizationReferences();
+    assertEquals(1, refs.size());
+    AbacReference row = refs.get(0);
+    assertEquals(AbacReference.RefType.ROW, row.getRefType());
+    // Single-attribute predicate has no inner AND/OR, so no per-attribute clones get
+    // created and the leaf has no children.
+    assertTrue("single-attribute hasRow should have no children",
+        row.getChildren() == null || row.getChildren().isEmpty());
+  }
+
+  /**
+   * When the analyzer is given a {@code subjectForIsMemberCheck} subject, each leaf
+   * AbacReference must carry containsSubject=true if that subject satisfies the leaf's
+   * condition. This drives the "is member / is not member" highlighting in the
+   * visualization (e.g. green vs red node coloring).
+   */
+  public void testVisualizationContainsSubjectFlag() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group groupA = new GroupSave().assignName("test:GroupA").assignCreateParentStemsIfNotExist(true).save();
+    Group groupB = new GroupSave().assignName("test:GroupB").assignCreateParentStemsIfNotExist(true).save();
+
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Subject testSubject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+
+    // testSubject1 is in GroupA only; testSubject2 is in GroupB only.
+    groupA.addMember(testSubject1);
+    groupB.addMember(testSubject2);
+
+    // containsSubject is computed by running each part's SQL against grouper_sql_cache_mship.
+    // The membership add above doesn't populate that cache synchronously — running the
+    // change-log consumer + sql-cache full sync flushes it so the analysis can see the
+    // memberships.
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_sqlCacheFullSync");
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine,
+        "entity.memberOf('test:GroupA') || entity.memberOf('test:GroupB')",
+        testSubject1, grouperSession.getSubject(), true, null, true);
+
+    List<AbacReference> refs = analysis.getVisualizationReferences();
+    assertEquals("top-level OR flattens to two GROUP leaves", 2, refs.size());
+
+    boolean checkedA = false;
+    boolean checkedB = false;
+    for (AbacReference ref : refs) {
+      if ("test:GroupA".equals(ref.getName())) {
+        assertTrue("subject1 is in GroupA — leaf should be flagged containsSubject",
+            ref.isContainsSubject());
+        checkedA = true;
+      } else if ("test:GroupB".equals(ref.getName())) {
+        assertFalse("subject1 is NOT in GroupB — leaf must not be flagged",
+            ref.isContainsSubject());
+        checkedB = true;
+      }
+    }
+    assertTrue(checkedA);
+    assertTrue(checkedB);
+  }
+
+  /**
+   * For a negated group reference like {@code !entity.memberOf('test:GroupB')}, the
+   * registered clone's population count should be the count of MEMBERS of the group
+   * (un-negated), not the count of non-members (which is typically a huge number that
+   * makes no sense for visualization or the screen analysis table).
+   *
+   * <p>Also: the analyzer must NOT produce a second "orphan" part with the un-negated
+   * "Member of group X" description. Exactly one part per negated reference.
+   */
+  public void testVisualizationNegatedGroupShowsMemberCount() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group groupA = new GroupSave().assignName("test:GroupA").assignCreateParentStemsIfNotExist(true).save();
+    Group groupB = new GroupSave().assignName("test:GroupB").assignCreateParentStemsIfNotExist(true).save();
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Subject testSubject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+
+    // GroupB has 2 members so we expect the negated-leaf populationCount to be 2.
+    groupB.addMember(testSubject1);
+    groupB.addMember(testSubject2);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_sqlCacheFullSync");
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine,
+        "entity.memberOf('test:GroupA') && !entity.memberOf('test:GroupB')",
+        testSubject1, grouperSession.getSubject(), true, null, true);
+
+    // Visualization: AND flattens, so we have 2 top-level refs.
+    List<AbacReference> refs = analysis.getVisualizationReferences();
+    assertEquals(2, refs.size());
+
+    AbacReference negatedB = null;
+    for (AbacReference ref : refs) {
+      if ("test:GroupB".equals(ref.getName()) && ref.isNegated()) {
+        negatedB = ref;
+      }
+    }
+    assertNotNull("expected to find the negated test:GroupB ref", negatedB);
+    assertEquals("negated GROUP ref's populationCount should equal MEMBERS of the group, "
+        + "not subjects NOT in the group", 2, negatedB.getPopulationCount());
+
+    // Screen analysis table: among LEAF parts (skipping the combined root accumulator,
+    // whose description naturally mentions both sides), exactly one part should describe
+    // the negated GroupB condition. The prior implementation emitted both
+    // "Not member of group test:GroupB" and a second un-negated "Member of group
+    // test:GroupB" orphan; only the negated one should remain.
+    int negatedRowCount = 0;
+    int orphanPositiveRowCount = 0;
+    for (GrouperJexlScriptPart part : analysis.getGrouperJexlScriptParts()) {
+      if (part.getConnective() != GrouperJexlScriptPart.Connective.LEAF) {
+        continue;
+      }
+      String desc = part.getDisplayDescription().toString();
+      if (desc.contains("test:GroupB")) {
+        if (desc.toLowerCase().contains("not member of")) {
+          negatedRowCount++;
+        } else if (desc.toLowerCase().contains("member of")) {
+          orphanPositiveRowCount++;
+        }
+      }
+    }
+    assertEquals("expected one 'Not member of test:GroupB' LEAF part", 1, negatedRowCount);
+    assertEquals("there should be no orphan 'Member of test:GroupB' LEAF part",
+        0, orphanPositiveRowCount);
+  }
+
 
 }

@@ -1164,6 +1164,11 @@ public class RelationGraph {
                   }
                   nodesToVisit.add(refNode);
                   compositeStyleTypes.put(refNode, determineAbacEdgeStyle(ref));
+                  // hasRow leaves carry inner per-attribute children built from the predicate
+                  // AST; expose them as sub-nodes under the row.
+                  if (ref.getChildren() != null && !ref.getChildren().isEmpty()) {
+                    processAbacCompoundChildren(refNode, ref, theGroup, level + 1, isRecursive);
+                  }
                 }
               }
             }
@@ -1686,7 +1691,7 @@ public class RelationGraph {
         edges.add(childEdge);
         childNode.setDistanceFromStartNode(level);
         visitNode(childNode, level, false, isRecursive);
-        if (childRef.getRefType() == AbacReference.RefType.COMPOUND) {
+        if (childRef.getChildren() != null && !childRef.getChildren().isEmpty()) {
           processAbacCompoundChildren(childNode, childRef, theGroup, level + 1, isRecursive);
         }
       }

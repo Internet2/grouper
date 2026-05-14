@@ -9,6 +9,14 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperJexlScriptPart {
 
   /**
+   * Role of this part in the tree of script parts. LEAF parts are method calls
+   * (memberOf / hasRow / hasAttribute / ...). AND and OR parts are compounds whose
+   * children are the other parts that name them as parentPart.
+   */
+  public enum Connective { LEAF, AND, OR }
+
+
+  /**
    * 
    */
   @Override
@@ -131,6 +139,37 @@ public class GrouperJexlScriptPart {
 
   public void setNegated(boolean negated) {
     this.negated = negated;
+  }
+
+  /**
+   * Connective for this part. Default LEAF means this is a terminal method-call part.
+   * Set to AND or OR when the analyzer encounters an ASTAndNode / ASTOrNode while this
+   * part is the accumulator — i.e. when this part's combined description is being built
+   * from AND'd or OR'd children.
+   */
+  private Connective connective = Connective.LEAF;
+
+  public Connective getConnective() {
+    return connective;
+  }
+
+  public void setConnective(Connective connective) {
+    this.connective = connective;
+  }
+
+  /**
+   * The part that owns this one in the analysis tree. Null for the root part.
+   * Computed in a post-analysis pass that walks each part's AST node upward in the
+   * combined outer + per-hasRow inner ASTs.
+   */
+  private GrouperJexlScriptPart parentPart;
+
+  public GrouperJexlScriptPart getParentPart() {
+    return parentPart;
+  }
+
+  public void setParentPart(GrouperJexlScriptPart parentPart) {
+    this.parentPart = parentPart;
   }
 
 }

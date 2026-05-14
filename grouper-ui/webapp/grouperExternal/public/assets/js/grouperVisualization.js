@@ -69,6 +69,102 @@ function escapeHTML(unsafe) {
 }
 
 
+// Wraps a visualization label across multiple rows.
+//   Hard breaks (each forms a new line; never merged with neighbors):
+//     " or "  -> "or " starts the next line
+//     " and " -> "and " starts the next line
+//   For each resulting segment, width-wrap to targetWidth (50):
+//     1. prefer a ", " break at/before targetWidth (comma stays at end of line)
+//     2. else break at the last space at/before targetWidth; if that would
+//        leave an orphan tail (< 8 chars), back up to the prior space
+//     3. else extend the search forward; break at the next space if one
+//        appears within hardWidth (75)
+//     4. else hyphenate at hardWidth (only when a token has no spaces at all)
+function wrapVisualizationLabel(text, targetWidth, hardWidth) {
+  targetWidth = targetWidth || 50;
+  hardWidth = hardWidth || 75;
+  var segments = hardSplit(text);
+  var rows = [];
+  for (var i = 0; i < segments.length; i++) {
+    var wrapped = widthWrap(segments[i], targetWidth, hardWidth);
+    for (var j = 0; j < wrapped.length; j++) {
+      rows.push(wrapped[j]);
+    }
+  }
+  return rows;
+}
+
+function hardSplit(text) {
+  var segments = [text];
+  segments = applyKeywordSplit(segments, / or /i, "or ");
+  segments = applyKeywordSplit(segments, / and /i, "and ");
+  return segments;
+}
+
+function applyKeywordSplit(segments, regex, prefix) {
+  var out = [];
+  for (var i = 0; i < segments.length; i++) {
+    var parts = segments[i].split(regex);
+    for (var p = 0; p < parts.length; p++) {
+      out.push(p === 0 ? parts[p] : prefix + parts[p]);
+    }
+  }
+  return out;
+}
+
+var ORPHAN_TAIL = 8;
+
+function widthWrap(text, targetWidth, hardWidth) {
+  var rows = [];
+  var line = text;
+  while (line.length > targetWidth) {
+    var commaIdx = line.lastIndexOf(", ", targetWidth);
+    if (commaIdx > 0) {
+      rows.push(line.substring(0, commaIdx + 1));
+      line = line.substring(commaIdx + 2);
+      continue;
+    }
+    var spaceIdx = line.lastIndexOf(' ', targetWidth);
+    if (spaceIdx > 0) {
+      if (line.length - spaceIdx - 1 < ORPHAN_TAIL) {
+        var prior = line.lastIndexOf(' ', spaceIdx - 1);
+        if (prior > 0) {
+          spaceIdx = prior;
+        }
+      }
+      rows.push(line.substring(0, spaceIdx));
+      line = line.substring(spaceIdx + 1);
+      continue;
+    }
+    var laterSpace = line.indexOf(' ', targetWidth);
+    if (laterSpace > 0 && laterSpace <= hardWidth) {
+      rows.push(line.substring(0, laterSpace));
+      line = line.substring(laterSpace + 1);
+      continue;
+    }
+    if (line.length > hardWidth) {
+      rows.push(line.substring(0, hardWidth) + "-");
+      line = line.substring(hardWidth);
+      continue;
+    }
+    break;
+  }
+  if (line.length > 0) {
+    rows.push(line);
+  }
+  return rows;
+}
+
+
+function getRawObjectNameUsingPrefs(node) {
+  var objName = ($("#vis-settings-form input[name='drawObjectNameType']:checked").val() === "path") ? node.name : node.displayExtension;
+  if (node.baseType === "stem" && !objName) {
+    objName = "(Root folder)";
+  }
+  return objName;
+}
+
+
 function getObjectNameUsingPrefs(node) {
   //if (typeof node === "undefined") {
   //  return "unknown";
@@ -512,29 +608,14 @@ function drawGraphModuleD3() {
 
         // a stem or group can have multiple rows in the label, depending on whether showing object types or counts
         var labelRows = [];
-        var nodeName = getObjectNameUsingPrefs(node);
-        // For compound OR nodes, insert line breaks between each condition
-        if ((node.baseType === "compound_or" || node.type === "compound_or_is_member" || node.type === "compound_or_is_not_member") && nodeName.length > 60) {
-          var orParts = nodeName.split(/ or /i);
-          if (orParts.length > 1) {
-            for (var oi = 0; oi < orParts.length; oi++) {
-              labelRows.push(oi === 0 ? orParts[oi] : "or " + orParts[oi]);
-            }
-          } else {
-            labelRows.push(nodeName);
-          }
-        // For compound AND nodes, insert line breaks between each condition
-        } else if ((node.baseType === "compound_and" || node.type === "compound_and_is_member" || node.type === "compound_and_is_not_member") && nodeName.length > 60) {
-          var andParts = nodeName.split(/ and /i);
-          if (andParts.length > 1) {
-            for (var ai = 0; ai < andParts.length; ai++) {
-              labelRows.push(ai === 0 ? andParts[ai] : "and " + andParts[ai]);
-            }
-          } else {
-            labelRows.push(nodeName);
+        var rawNodeName = getRawObjectNameUsingPrefs(node);
+        if (rawNodeName.length > 60) {
+          var wrappedRows = wrapVisualizationLabel(rawNodeName);
+          for (var w = 0; w < wrappedRows.length; w++) {
+            labelRows.push(escapeHTML(wrappedRows[w]));
           }
         } else {
-          labelRows.push(nodeName);
+          labelRows.push(escapeHTML(rawNodeName));
         }
 
         if (showObjectTypesLabel) {

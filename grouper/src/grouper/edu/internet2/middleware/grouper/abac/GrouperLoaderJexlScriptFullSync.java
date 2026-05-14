@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -531,8 +532,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     if (buildVisualization) {
       // Build visualization tree after population counts are computed
       try {
+        wirePartParents(grouperJexlScriptAnalysis);
         grouperJexlScriptAnalysis.setVisualizationReferences(
-            buildVisualizationTreeFromAst(grouperJexlScriptAnalysis));
+            buildVisualizationTreeFromParts(grouperJexlScriptAnalysis));
       } catch (Exception e) {
         LOG.warn("Error building visualization references: " + e.getMessage(), e);
         grouperJexlScriptAnalysis.setVisualizationReferences(new ArrayList<AbacReference>());
@@ -570,6 +572,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     grouperJexlScriptAnalysis.setGrouperDataEngine(grouperDataEngine);
     grouperJexlScriptAnalysis.setRootAstNode(astJexlScript);
     GrouperJexlScriptPart grouperJexlScriptPart = new GrouperJexlScriptPart();
+    grouperJexlScriptPart.setConnective(connectiveOf(astJexlScript));
+    grouperJexlScriptPart.setNegated(isNegatedOf(astJexlScript));
     grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPart);
     grouperJexlScriptAnalysis.getAstNodeToPart().put(astJexlScript, grouperJexlScriptPart);
 
@@ -617,42 +621,59 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 //      }
 
     } else if (jexlNode instanceof ASTNotNode && 1==jexlNode.jjtGetNumChildren()) {
-      theGrouperJexlScriptPart.getWhereClause().append(" not ");
       theGrouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisNot")).append(" ");
-      theGrouperJexlScriptPart.setNegated(true);
-      analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(0), clonePart);
-      if (clonePart) {
-        grouperJexlScriptPartClone = new GrouperJexlScriptPart();
-        grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
-        analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, jexlNode.jjtGetChild(0), false);
+      // Append " not " to the SQL where-clause UNLESS this part IS the clone registered
+      // for this very ASTNotNode (i.e. the negated leaf itself). In that case we want the
+      // clone's populationCount to be the un-negated count — count of subjects matching
+      // the inner condition — so the screen shows e.g. "2 Not member of group X" rather
+      // than "1765754 Not member of group X". For accumulator passes (root) and for any
+      // outer compound clone that merely CONTAINS this NOT in its subtree, the " not "
+      // must be in the SQL for the count to be meaningful.
+      boolean isThisClonesOwnNot =
+          theGrouperJexlScriptPart == grouperJexlScriptAnalysis.getAstNodeToPart().get(jexlNode);
+      if (!isThisClonesOwnNot) {
+        theGrouperJexlScriptPart.getWhereClause().append(" not ");
       }
+      analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(0), clonePart);
+      // No orphan clone here: prior code added a second part with the un-negated description
+      // ("Member of group X") for the screen, which the user explicitly does not want.
     } else if (jexlNode instanceof ASTAndNode) {
       for (int j=0;j<jexlNode.jjtGetNumChildren(); j++) {
         if (j>0) {
           theGrouperJexlScriptPart.getWhereClause().append(" and ");
           theGrouperJexlScriptPart.getDisplayDescription().append(" ").append(GrouperTextContainer.textOrNull("jexlAnalysisAnd")).append(" ");
         }
-        analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(j), clonePart);
+        // Pre-create the clone for this child BEFORE the first (accumulator) recurse so that
+        // any per-hasRow inner-AST bridge inside can resolve its outer hasRow leaf by looking
+        // up the child's AST node in astNodeToPart.
         if (clonePart) {
           grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+          grouperJexlScriptPartClone.setConnective(connectiveOf(jexlNode.jjtGetChild(j)));
+          grouperJexlScriptPartClone.setNegated(isNegatedOf(jexlNode.jjtGetChild(j)));
           grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
           grouperJexlScriptAnalysis.getAstNodeToPart().put(jexlNode.jjtGetChild(j), grouperJexlScriptPartClone);
+        }
+        analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(j), clonePart);
+        if (clonePart) {
           analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, jexlNode.jjtGetChild(j), false);
         }
       }
       return;
     } else if (jexlNode instanceof ASTOrNode) {
-
       for (int j=0;j<jexlNode.jjtGetNumChildren(); j++) {
         if (j>0) {
           theGrouperJexlScriptPart.getWhereClause().append(" or ");
           theGrouperJexlScriptPart.getDisplayDescription().append(" ").append(GrouperTextContainer.textOrNull("jexlAnalysisOr")).append(" ");
         }
-        analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(j), clonePart);
         if (clonePart) {
           grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+          grouperJexlScriptPartClone.setConnective(connectiveOf(jexlNode.jjtGetChild(j)));
+          grouperJexlScriptPartClone.setNegated(isNegatedOf(jexlNode.jjtGetChild(j)));
           grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
           grouperJexlScriptAnalysis.getAstNodeToPart().put(jexlNode.jjtGetChild(j), grouperJexlScriptPartClone);
+        }
+        analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(j), clonePart);
+        if (clonePart) {
           analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, jexlNode.jjtGetChild(j), false);
         }
       }
@@ -1190,8 +1211,17 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
       grouperJexlScriptPart.getDisplayDescription().append(rowJexlScriptPart.getDisplayDescription());
 
-      analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, scriptLiteral.getLiteral(), clonePart);
-    
+      // Resolve the OUTER hasRow leaf clone (pre-registered by the enclosing AND/OR loop
+      // against this astReference). It's used as the inner-AST bridge target so that
+      // per-attribute clones under this hasRow always parent back to this leaf, regardless
+      // of which accumulator pass we're in. For a top-level single hasRow with no outer
+      // compound, no pre-registration exists, so fall back to the accumulator part itself.
+      GrouperJexlScriptPart outerHasRowLeaf = grouperJexlScriptAnalysis.getAstNodeToPart().get(astReference);
+      if (outerHasRowLeaf == null) {
+        outerHasRowLeaf = grouperJexlScriptPart;
+      }
+      analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, scriptLiteral.getLiteral(), clonePart, outerHasRowLeaf);
+
       grouperJexlScriptPart.getWhereClause().append(" ) ) ");
     } else {
       throw new RuntimeException("Not expecting method name: '" + astIdentifierAccess.getName() + "'");
@@ -1279,16 +1309,32 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
    * @param arguments first one is type (e.g. group), second is list (e.g. members), third is name (e.g. test:testGroup)
    * @return the sql
    */
-  public static void analyzeJexlRowToSqlHelper(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, 
+  public static void analyzeJexlRowToSqlHelper(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis,
       GrouperJexlScriptPart grouperJexlScriptPart, GrouperJexlScriptPart rowJexlScriptPart, String jexlStript, boolean clonePart) {
+    analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, jexlStript, clonePart, grouperJexlScriptPart);
+  }
+
+  /**
+   * Overload that lets the caller specify which part should own the inner-AST registrations
+   * (so per-attribute parent walks resolve correctly even when called from an accumulator
+   * pass where grouperJexlScriptPart is not the hasRow leaf).
+   */
+  public static void analyzeJexlRowToSqlHelper(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis,
+      GrouperJexlScriptPart grouperJexlScriptPart, GrouperJexlScriptPart rowJexlScriptPart, String jexlStript, boolean clonePart,
+      GrouperJexlScriptPart innerAstBridgeTarget) {
 
     jexlStript = jexlStript.trim();
-    
+
     JexlEngine jexlEngine = new Engine();
-    
+
     JexlExpression expression = (JexlExpression)jexlEngine.createExpression(jexlStript);
 
     ASTJexlScript astJexlScript = (ASTJexlScript)GrouperUtil.fieldValue(expression, "script");
+
+    // Bridge inner AST to the supplied target. Walking an inner AST node up via
+    // jjtGetParent eventually reaches this script root, and this registration lets the
+    // parent walk cross over to the outer hasRow leaf.
+    grouperJexlScriptAnalysis.getAstNodeToPart().put(astJexlScript, innerAstBridgeTarget);
 
     analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, astJexlScript, clonePart);
   }
@@ -1941,16 +1987,17 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       if (clonePart) {
         grouperJexlScriptPartClone = rowJexlScriptPart.clone();
         grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
+        grouperJexlScriptAnalysis.getAstNodeToPart().put(jexlNode.jjtGetChild(0), grouperJexlScriptPartClone);
         analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, rowJexlScriptPart, jexlNode.jjtGetChild(0), false);
-        
+
         // TODO improve this
-        grouperJexlScriptPartClone.getWhereClause().append(StringUtils.repeat(" ) ", 
+        grouperJexlScriptPartClone.getWhereClause().append(StringUtils.repeat(" ) ",
             StringUtils.countMatches(grouperJexlScriptPartClone.getWhereClause().toString(), "(")
             - StringUtils.countMatches(grouperJexlScriptPartClone.getWhereClause().toString(), ")")));
-        
+
       }
 
-      
+
     } else if (jexlNode instanceof ASTAndNode) {
       for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
         if (i>0) {
@@ -1960,16 +2007,17 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, jexlNode.jjtGetChild(i), clonePart);
         if (clonePart) {
           grouperJexlScriptPartClone = rowJexlScriptPart.clone();
+          grouperJexlScriptPartClone.setConnective(connectiveOf(jexlNode.jjtGetChild(i)));
           grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
+          grouperJexlScriptAnalysis.getAstNodeToPart().put(jexlNode.jjtGetChild(i), grouperJexlScriptPartClone);
           analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, rowJexlScriptPart, jexlNode.jjtGetChild(i), false);
           // TODO improve this
-          grouperJexlScriptPartClone.getWhereClause().append(StringUtils.repeat(" ) ", 
+          grouperJexlScriptPartClone.getWhereClause().append(StringUtils.repeat(" ) ",
               StringUtils.countMatches(grouperJexlScriptPartClone.getWhereClause().toString(), "(")
               - StringUtils.countMatches(grouperJexlScriptPartClone.getWhereClause().toString(), ")")));
         }
       }
     } else if (jexlNode instanceof ASTOrNode) {
-      
       for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
         if (i>0) {
           grouperJexlScriptPart.getWhereClause().append(" or ");
@@ -1978,10 +2026,12 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, jexlNode.jjtGetChild(i), clonePart);
         if (clonePart) {
           grouperJexlScriptPartClone = rowJexlScriptPart.clone();
+          grouperJexlScriptPartClone.setConnective(connectiveOf(jexlNode.jjtGetChild(i)));
           grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
+          grouperJexlScriptAnalysis.getAstNodeToPart().put(jexlNode.jjtGetChild(i), grouperJexlScriptPartClone);
           analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, rowJexlScriptPart, jexlNode.jjtGetChild(i), false);
           // TODO improve this
-          grouperJexlScriptPartClone.getWhereClause().append(StringUtils.repeat(" ) ", 
+          grouperJexlScriptPartClone.getWhereClause().append(StringUtils.repeat(" ) ",
               StringUtils.countMatches(grouperJexlScriptPartClone.getWhereClause().toString(), "(")
               - StringUtils.countMatches(grouperJexlScriptPartClone.getWhereClause().toString(), ")")));
         }
@@ -2678,118 +2728,190 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   }
 
   /**
-   * Builds the visualization reference tree by walking the JEXL AST directly, using the
-   * node-to-part map to attach population counts and display descriptions. This preserves
-   * the exact logical structure of the script for arbitrary nesting of AND/OR/NOT, which
-   * a flat parts list cannot represent unambiguously.
-   *
-   * Convention: a top-level unnegated compound is flattened to its children (so a simple
-   * top-level AND or OR shows edges directly from the ABAC group rather than through a
-   * redundant wrapper). A negated compound is preserved as a single node.
-   *
-   * @param analysis the completed analysis with AST, parts, and node-to-part map populated
-   * @return list of AbacReference objects forming the visualization tree
+   * Counts ASTNotNode wrappers between this node and the underlying logical content, and
+   * returns true if the count is odd (the subtree is overall negated). Used at clone
+   * creation to set the clone's negated flag from AST shape rather than relying on the
+   * accumulator-pattern setNegated calls which can wrongly mark the wrong part.
    */
-  static List<AbacReference> buildVisualizationTreeFromAst(GrouperJexlScriptAnalysis analysis) {
-    JexlNode root = analysis.getRootAstNode();
-    if (root == null) {
-      return new ArrayList<AbacReference>();
-    }
-
-    AbacReference topRef = buildAbacReferenceFromAst(
-        root, analysis.getAstNodeToPart(), AbacReference.Connective.AND, null, false);
-
-    List<AbacReference> result = new ArrayList<AbacReference>();
-    if (topRef == null) {
-      return result;
-    }
-
-    // Flatten top-level unnegated compound: the ABAC group itself plays the role of the
-    // outer connective, so a redundant wrapper node is unnecessary.
-    if (topRef.getRefType() == AbacReference.RefType.COMPOUND && !topRef.isNegated()
-        && topRef.getChildren() != null) {
-      for (AbacReference child : topRef.getChildren()) {
-        result.add(child);
+  static boolean isNegatedOf(JexlNode node) {
+    int notCount = 0;
+    JexlNode walker = node;
+    while (walker != null) {
+      if (walker instanceof ASTNotNode) {
+        notCount++;
       }
-    } else {
-      result.add(topRef);
+      if ((walker instanceof ASTJexlScript || walker instanceof ASTReferenceExpression
+            || walker instanceof ASTNotNode)
+          && walker.jjtGetNumChildren() == 1) {
+        walker = walker.jjtGetChild(0);
+        continue;
+      }
+      break;
     }
-    return result;
+    return notCount % 2 == 1;
   }
 
   /**
-   * Recursive AST walker that builds a single AbacReference for the given node. Pass-through
-   * nodes (ASTJexlScript, ASTReferenceExpression) propagate inherited metadata so that the
-   * compound or leaf underneath can attach counts and descriptions from the outer analysis part.
-   * Negation is tracked via the AST itself: ASTNotNode toggles a negatedContext flag that is
-   * applied to the compound or leaf it wraps. We do NOT read the negated flag from inherited
-   * parts, because the FULL_EXPRESSION part's negated flag gets set to true whenever any inner
-   * NOT exists anywhere in the script, which does not reflect whether the top-level node is
-   * negated.
-   *
-   * @param node current AST node
-   * @param nodeToPart map from AST nodes to their clone parts
-   * @param parentConnective connective context for edge styling on the returned reference
-   * @param inheritedPart metadata to apply when this node has no direct mapping
-   * @param negatedContext true if an odd number of NOTs have been passed through between the
-   *   nearest enclosing compound/leaf ancestor and this node
-   * @return the AbacReference representing this subtree, or null if it could not be built
+   * Walks past transparent AST wrappers (ASTJexlScript, ASTReferenceExpression, ASTNotNode)
+   * to find the underlying logical node, then maps that node to a part connective. Used at
+   * clone-creation time to label a freshly cloned part as a method-call LEAF or as an
+   * AND/OR compound based on what its subtree actually contains.
    */
-  private static AbacReference buildAbacReferenceFromAst(JexlNode node,
-      Map<JexlNode, GrouperJexlScriptPart> nodeToPart,
-      AbacReference.Connective parentConnective,
-      GrouperJexlScriptPart inheritedPart,
-      boolean negatedContext) {
-
-    GrouperJexlScriptPart mapped = nodeToPart.get(node);
-    GrouperJexlScriptPart metadataPart = mapped != null ? mapped : inheritedPart;
-
-    // Pass-through wrappers: descend with the current metadata
-    if (node instanceof ASTJexlScript && node.jjtGetNumChildren() == 1) {
-      return buildAbacReferenceFromAst(node.jjtGetChild(0), nodeToPart, parentConnective, metadataPart, negatedContext);
+  static GrouperJexlScriptPart.Connective connectiveOf(JexlNode node) {
+    JexlNode walker = node;
+    while (walker != null) {
+      if (walker instanceof ASTAndNode) {
+        return GrouperJexlScriptPart.Connective.AND;
+      }
+      if (walker instanceof ASTOrNode) {
+        return GrouperJexlScriptPart.Connective.OR;
+      }
+      if ((walker instanceof ASTJexlScript || walker instanceof ASTReferenceExpression
+            || walker instanceof ASTNotNode)
+          && walker.jjtGetNumChildren() == 1) {
+        walker = walker.jjtGetChild(0);
+        continue;
+      }
+      return GrouperJexlScriptPart.Connective.LEAF;
     }
-    if (node instanceof ASTReferenceExpression && node.jjtGetNumChildren() == 1) {
-      return buildAbacReferenceFromAst(node.jjtGetChild(0), nodeToPart, parentConnective, metadataPart, negatedContext);
-    }
-    if (node instanceof ASTNotNode && node.jjtGetNumChildren() == 1) {
-      return buildAbacReferenceFromAst(node.jjtGetChild(0), nodeToPart, parentConnective, metadataPart, !negatedContext);
+    return GrouperJexlScriptPart.Connective.LEAF;
+  }
+
+  /**
+   * Post-analysis pass that sets {@code parentPart} on every GrouperJexlScriptPart in the
+   * analysis by walking each part's AST node upward (via {@code jjtGetParent}) until
+   * another registered part is found. The outer AST and each hasRow's inner AST are
+   * stitched together by the registration of each inner ASTJexlScript root against its
+   * owning outer hasRow leaf part, so an inner clone walks up to the inner root and from
+   * there resolves to the outer leaf.
+   */
+  static void wirePartParents(GrouperJexlScriptAnalysis analysis) {
+    Map<JexlNode, GrouperJexlScriptPart> nodeToPart = analysis.getAstNodeToPart();
+    // Build a reverse map preferring an AST node that has a parent (the "outer" registration)
+    // over an inner-AST-root registration (which has no parent and would cut off upward walking).
+    Map<GrouperJexlScriptPart, JexlNode> partToNode = new IdentityHashMap<GrouperJexlScriptPart, JexlNode>();
+    for (Map.Entry<JexlNode, GrouperJexlScriptPart> entry : nodeToPart.entrySet()) {
+      GrouperJexlScriptPart part = entry.getValue();
+      JexlNode candidate = entry.getKey();
+      JexlNode existing = partToNode.get(part);
+      if (existing == null
+          || (existing.jjtGetParent() == null && candidate.jjtGetParent() != null)) {
+        partToNode.put(part, candidate);
+      }
     }
 
-    if (node instanceof ASTAndNode) {
-      AbacReference compound = new AbacReference(AbacReference.Connective.AND, negatedContext, parentConnective);
-      for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-        AbacReference child = buildAbacReferenceFromAst(
-            node.jjtGetChild(i), nodeToPart, AbacReference.Connective.AND, null, false);
-        if (child != null) {
-          compound.addChild(child);
+    for (GrouperJexlScriptPart part : analysis.getGrouperJexlScriptParts()) {
+      JexlNode node = partToNode.get(part);
+      if (node == null) {
+        continue;
+      }
+      JexlNode walker = node.jjtGetParent();
+      while (walker != null) {
+        GrouperJexlScriptPart candidate = nodeToPart.get(walker);
+        if (candidate != null && candidate != part) {
+          part.setParentPart(candidate);
+          break;
+        }
+        walker = walker.jjtGetParent();
+      }
+    }
+  }
+
+  /**
+   * Builds the visualization reference tree by walking the flat parts list. Each part
+   * becomes exactly one AbacReference; children are wired via {@code parentPart} that
+   * {@link #wirePartParents} has already populated. The screen analysis table shows
+   * one row per part, and this builder maintains that 1:1 correspondence — every row
+   * on the screen becomes a node in the graph.
+   *
+   * The top-level part (the one with no parent) is the root. If it has no method-call
+   * arguments and a compound connective, it's flattened: its children become the
+   * returned list, so a top-level AND or OR shows edges directly from the ABAC group.
+   */
+  static List<AbacReference> buildVisualizationTreeFromParts(GrouperJexlScriptAnalysis analysis) {
+    List<GrouperJexlScriptPart> parts = analysis.getGrouperJexlScriptParts();
+    List<AbacReference> result = new ArrayList<AbacReference>();
+    if (parts == null || parts.isEmpty()) {
+      return result;
+    }
+
+    // Some sub-passes of the analyzer (notably the outer ASTNotNode branch) add helper
+    // parts to the flat list that are NOT registered in astNodeToPart. They show up in the
+    // screen analysis table but have no logical position in the tree — they duplicate
+    // content already represented by a registered clone. Skip them here.
+    java.util.Set<GrouperJexlScriptPart> registeredParts = new java.util.HashSet<GrouperJexlScriptPart>();
+    for (GrouperJexlScriptPart p : analysis.getAstNodeToPart().values()) {
+      registeredParts.add(p);
+    }
+
+    Map<GrouperJexlScriptPart, AbacReference> partToRef = new IdentityHashMap<GrouperJexlScriptPart, AbacReference>();
+    for (GrouperJexlScriptPart part : parts) {
+      if (!registeredParts.contains(part)) {
+        continue;
+      }
+      AbacReference ref;
+      if (part.getConnective() == GrouperJexlScriptPart.Connective.LEAF) {
+        ref = createAbacReferenceFromPart(part, AbacReference.Connective.AND);
+        if (ref == null) {
+          // No recognizable method args — fall back to an AND-compound so the part is at
+          // least visible. In practice this shouldn't happen for LEAF parts.
+          ref = new AbacReference(AbacReference.Connective.AND, part.isNegated(), AbacReference.Connective.AND);
+          applyPartMetadata(ref, part);
+        }
+      } else {
+        // AND or OR compound part. Always render as COMPOUND, regardless of any row/group/
+        // attribute args that may have been inherited via cloning.
+        AbacReference.Connective compoundConn = part.getConnective() == GrouperJexlScriptPart.Connective.OR
+            ? AbacReference.Connective.OR : AbacReference.Connective.AND;
+        ref = new AbacReference(compoundConn, part.isNegated(), AbacReference.Connective.AND);
+        applyPartMetadata(ref, part);
+      }
+      partToRef.put(part, ref);
+    }
+
+    AbacReference rootRef = null;
+    GrouperJexlScriptPart rootPart = null;
+    for (GrouperJexlScriptPart part : parts) {
+      if (!registeredParts.contains(part)) {
+        continue;
+      }
+      AbacReference ref = partToRef.get(part);
+      GrouperJexlScriptPart parent = part.getParentPart();
+      if (parent != null) {
+        AbacReference parentRef = partToRef.get(parent);
+        if (parentRef != null) {
+          parentRef.addChild(ref);
+          AbacReference.Connective childConn = parent.getConnective() == GrouperJexlScriptPart.Connective.OR
+              ? AbacReference.Connective.OR : AbacReference.Connective.AND;
+          ref.setConnective(childConn);
+          continue;
         }
       }
-      applyPartMetadata(compound, metadataPart);
-      return compound;
+      if (rootRef == null) {
+        rootRef = ref;
+        rootPart = part;
+      }
     }
 
-    if (node instanceof ASTOrNode) {
-      AbacReference compound = new AbacReference(AbacReference.Connective.OR, negatedContext, parentConnective);
-      for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-        AbacReference child = buildAbacReferenceFromAst(
-            node.jjtGetChild(i), nodeToPart, AbacReference.Connective.OR, null, false);
-        if (child != null) {
-          compound.addChild(child);
-        }
-      }
-      applyPartMetadata(compound, metadataPart);
-      return compound;
+    if (rootRef == null) {
+      return result;
     }
 
-    // Leaf: method call (memberOf, hasAttribute, hasRow, etc.). Build from the metadata part.
-    if (metadataPart != null) {
-      AbacReference ref = createAbacReferenceFromPart(metadataPart, parentConnective);
-      if (ref != null) {
-        ref.setNegated(negatedContext);
+    // Flatten the top-level compound: a script whose top is a plain AND or OR (no method
+    // arguments) is conventionally rendered as edges directly off the ABAC group, not as a
+    // wrapper node. A method-call top (single hasRow etc.) is returned as-is.
+    if (rootRef.getRefType() == AbacReference.RefType.COMPOUND && !rootRef.isNegated()
+        && rootRef.getChildren() != null && !rootRef.getChildren().isEmpty()) {
+      AbacReference.Connective childConn = rootPart.getConnective() == GrouperJexlScriptPart.Connective.OR
+          ? AbacReference.Connective.OR : AbacReference.Connective.AND;
+      for (AbacReference child : rootRef.getChildren()) {
+        child.setConnective(childConn);
+        result.add(child);
       }
-      return ref;
+    } else {
+      result.add(rootRef);
     }
-    return null;
+    return result;
   }
 
   /**
@@ -2838,7 +2960,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         }
       }
       if (firstGroupName != null) {
-        ref = new AbacReference(AbacReference.RefType.GROUP, firstGroupName, null, false, connective);
+        ref = new AbacReference(AbacReference.RefType.GROUP, firstGroupName, null, part.isNegated(), connective);
         if (groupCount > 1) {
           ref.setMemberOfAny(true);
         }
@@ -2852,10 +2974,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           break;
         }
       }
-      ref = new AbacReference(AbacReference.RefType.ATTRIBUTE, attributeAlias, value, false, connective);
+      ref = new AbacReference(AbacReference.RefType.ATTRIBUTE, attributeAlias, value, part.isNegated(), connective);
     } else if ("row".equals(firstArgType)) {
       String rowAlias = (String) arguments.get(0).getKey(1);
-      ref = new AbacReference(AbacReference.RefType.ROW, rowAlias, null, false, connective);
+      ref = new AbacReference(AbacReference.RefType.ROW, rowAlias, null, part.isNegated(), connective);
     }
 
     if (ref != null) {
