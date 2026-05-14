@@ -30,8 +30,28 @@ import edu.internet2.middleware.morphString.Morph;
 
 public class AzureGrouperExternalSystem extends GrouperExternalSystem {
 
+  /** Microsoft Graph scope (default audience for most Azure connectors). */
+  public static final String SCOPE_GRAPH = "https://graph.microsoft.com/.default";
+
+  /** Power BI service scope. Use against https://api.powerbi.com/v1.0/myorg/... */
+  public static final String SCOPE_POWER_BI = "https://analysis.windows.net/powerbi/api/.default";
+
+  /** Microsoft Fabric REST API scope. Use against https://api.fabric.microsoft.com/v1/... */
+  public static final String SCOPE_FABRIC = "https://api.fabric.microsoft.com/.default";
+
+  /** Azure Resource Manager (ARM) scope. Use against https://management.azure.com/... */
+  public static final String SCOPE_AZURE_MANAGEMENT = "https://management.azure.com/.default";
+
+  /** Azure Key Vault scope. Use against https://&lt;vault&gt;.vault.azure.net/... */
+  public static final String SCOPE_KEY_VAULT = "https://vault.azure.net/.default";
+
+  /** Azure SQL Database scope (AAD token auth for SQL connections). */
+  public static final String SCOPE_AZURE_SQL = "https://database.windows.net/.default";
+
   /**
-   * cache of config key to expires on and encrypted bearer token
+   * cache of (configId|scope) to expires on and encrypted bearer token. Scope is
+   * included in the key so that one connector consented to multiple audiences
+   * (e.g. Graph + Power BI + Fabric) gets separate cached tokens per audience.
    */
   private static ExpirableCache<String, MultiKey> configKeyToExpiresOnAndBearerToken = new ExpirableCache<String, MultiKey>(60);
 
@@ -138,16 +158,42 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
   }
 
   /**
-   * get bearer token for azure config id
+   * Get a bearer token for an Azure config id at the default audience configured
+   * on that connector (configured "resource"). Equivalent to passing null for scope.
    * @param configId
    * @return the bearer token
    */
   public static String retrieveBearerTokenForAzureConfigId(Map<String, Object> debugMap, String configId) {
-    
+    return retrieveBearerTokenForAzureConfigId(debugMap, configId, null);
+  }
+
+  /**
+   * Get a bearer token for an Azure config id at a caller-supplied scope. Useful
+   * when one app registration is consented for multiple resource audiences
+   * (Graph, Power BI, Fabric, ...): Azure issues a separate token per audience,
+   * and tokens are cached separately per (configId, scope).
+   *
+   * When scope is blank, falls back to the connector's configured resource:
+   *   - cert path: scope = &lt;resource&gt;/.default at the v2.0 token endpoint
+   *   - secret path: resource form-param at the v1.0 token endpoint (legacy behavior)
+   *
+   * When scope is non-blank, both paths use the v2.0 token endpoint with the
+   * supplied scope form-param.
+   *
+   * @param debugMap optional debug map to record cache hits, errors, timings
+   * @param configId azure external system config id
+   * @param scope optional /.default-form scope (e.g. SCOPE_POWER_BI); when blank,
+   *   falls back to the configured resource
+   * @return the bearer token
+   */
+  public static String retrieveBearerTokenForAzureConfigId(Map<String, Object> debugMap, String configId, String scope) {
+
     long startedNanos = System.nanoTime();
-        
-    MultiKey expiresOnAndEncryptedBearerToken = configKeyToExpiresOnAndBearerToken.get(configId);
-  
+
+    String cacheKey = configId + "|" + StringUtils.defaultString(scope);
+
+    MultiKey expiresOnAndEncryptedBearerToken = configKeyToExpiresOnAndBearerToken.get(cacheKey);
+
     String encryptedBearerToken = null;
     if (expiresOnAndEncryptedBearerToken != null) {
       long expiresOnSeconds = (Long)expiresOnAndEncryptedBearerToken.getKey(0);
@@ -164,20 +210,23 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
       // we need to get another one
       GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
       grouperHttpClient.assignDoNotLogHeaders(AzureMockServiceHandler.doNotLogHeaders).assignDoNotLogParameters(AzureMockServiceHandler.doNotLogParameters);
-      
+
       boolean logAuthenticationResponseBody = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouper.azureConnector." + configId + ".logAuthenticationResponseBody", false);
       if (!logAuthenticationResponseBody) {
         grouperHttpClient.assignDoNotLogResponseBody(true);
       }
-      
+
       String loginEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".loginEndpoint", "https://login.microsoftonline.com/");
       String directoryId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".tenantId");
 
       String authenticationType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".authenticationType", "clientSecret");
       boolean useCertificate = StringUtils.equals(authenticationType, "certificate");
+      boolean explicitScope = StringUtils.isNotBlank(scope);
+      // cert auth and explicit-scope requests both require the v2.0 token endpoint;
+      // client_secret with no explicit scope keeps using v1.0 for back-compat
+      boolean useV2 = useCertificate || explicitScope;
 
-      // cert auth requires the v2.0 token endpoint; client_secret keeps using v1.0 for back-compat
-      final String url = loginEndpoint + (loginEndpoint.endsWith("/") ? "" : "/") + directoryId + (useCertificate ? "/oauth2/v2.0/token" : "/oauth2/token");
+      final String url = loginEndpoint + (loginEndpoint.endsWith("/") ? "" : "/") + directoryId + (useV2 ? "/oauth2/v2.0/token" : "/oauth2/token");
       grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
       grouperHttpClient.assignUrl(url);
 
@@ -209,33 +258,37 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
         grouperHttpClient.addBodyParameter("client_assertion", clientAssertion);
         grouperHttpClient.addBodyParameter("grant_type", "client_credentials");
 
-        String scope = resource + (resource.endsWith("/") ? "" : "/") + ".default";
-        grouperHttpClient.addBodyParameter("scope", scope);
+        String effectiveScope = explicitScope ? scope : (resource + (resource.endsWith("/") ? "" : "/") + ".default");
+        grouperHttpClient.addBodyParameter("scope", effectiveScope);
       } else {
         String clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".clientSecret");
         clientSecret = Morph.decryptIfFile(clientSecret);
         grouperHttpClient.addBodyParameter("client_secret", clientSecret);
         grouperHttpClient.addBodyParameter("grant_type", "client_credentials");
-        grouperHttpClient.addBodyParameter("resource", resource);
+        if (explicitScope) {
+          grouperHttpClient.addBodyParameter("scope", scope);
+        } else {
+          grouperHttpClient.addBodyParameter("resource", resource);
+        }
       }
-  
+
       int code = -1;
       String json = null;
-  
+
       try {
         grouperHttpClient.executeRequest();
         code = grouperHttpClient.getResponseCode();
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
-        
+
         json = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
-  
+
       if (code != 200) {
         throw new RuntimeException("Cant get access token from '" + url + "' " + code + ", " + json);
       }
-      
+
       JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
       // v1.0 returns absolute "expires_on"; v2.0 returns relative "expires_in" — handle both
       long expiresOn = GrouperUtil.jsonJacksonGetLong(jsonObject, "expires_on", -1L);
@@ -246,17 +299,17 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
         }
       }
       String accessToken = GrouperUtil.jsonJacksonGetString(jsonObject, "access_token");
-  
+
       expiresOnAndEncryptedBearerToken = new MultiKey(expiresOn, Morph.encrypt(accessToken));
-      configKeyToExpiresOnAndBearerToken.put(configId, expiresOnAndEncryptedBearerToken);
+      configKeyToExpiresOnAndBearerToken.put(cacheKey, expiresOnAndEncryptedBearerToken);
       return accessToken;
     } catch (RuntimeException re) {
-      
+
       if (debugMap != null) {
         debugMap.put("azureTokenError", GrouperUtil.getFullStackTrace(re));
       }
       throw re;
-  
+
     } finally {
       if (debugMap != null) {
         debugMap.put("azureTokenTookMillis", (System.nanoTime()-startedNanos)/1000000);
