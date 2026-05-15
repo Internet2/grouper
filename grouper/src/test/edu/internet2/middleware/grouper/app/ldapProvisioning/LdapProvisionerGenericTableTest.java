@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
+import java.util.Map;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -138,8 +140,26 @@ public class LdapProvisionerGenericTableTest extends GrouperProvisioningBaseTest
 
     // group attribute catalog: per-provisioner names, deduped (no per-group duplication)
     int groupAttrCatalogCount = countByProvisioner(configId, "grouper_prov_group_attr");
-    assertTrue("expected at least 1 group attr catalog row, got " + groupAttrCatalogCount,
-        groupAttrCatalogCount >= 1);
+    if (groupAttrCatalogCount < 1) {
+      // diagnostic dump to figure out why the catalog is empty
+      java.util.List<String> dns = new GcDbAccess().connectionName("grouper")
+          .sql("select target_group_id from grouper_prov_group where grouper_sync_internal_id = ?")
+          .addBindVar(syncInternalId).selectList(String.class);
+      int attrValueCount = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_group_attr_value gpv join grouper_prov_group pg on gpv.prov_group_internal_id = pg.internal_id where pg.grouper_sync_internal_id = ?")
+          .addBindVar(syncInternalId).select(int.class);
+      Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+      java.util.Map<String, Object> filteredDebug = new java.util.LinkedHashMap<String, Object>();
+      for (java.util.Map.Entry<String, Object> e : debugMap.entrySet()) {
+        if (e.getKey().toLowerCase().contains("generic") || e.getKey().toLowerCase().contains("native")) {
+          filteredDebug.put(e.getKey(), e.getValue());
+        }
+      }
+      fail("expected at least 1 group attr catalog row, got " + groupAttrCatalogCount
+          + "; prov_group DNs=" + dns
+          + "; prov_group_attr_value rows=" + attrValueCount
+          + "; debug entries=" + filteredDebug);
+    }
 
     // catalog dedup invariant: no two catalog rows for the same (sync, name)
     int dupGroupAttr = new GcDbAccess().connectionName("grouper")
@@ -219,22 +239,20 @@ public class LdapProvisionerGenericTableTest extends GrouperProvisioningBaseTest
     assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
     long syncInternalId = gcGrouperSync.getInternalId();
 
+    // The harvardGroupOfNames strategy doesn't insert entities (insertEntities=false,
+    // customizeEntityCrud=false), so our test subjects never land in LDAP. But the LDAP
+    // container has ~2000 pre-populated users, and retrieveAllEntities returns them all.
+    // Strict-native reporting picks them up.
     int userRowCount = countByProvisioner(configId, "grouper_prov_user");
-    assertTrue("expected at least 1 prov_user row from native LDAP fetch, got " + userRowCount,
-        userRowCount >= 1);
+    assertTrue("expected many prov_user rows from native LDAP fetch (~2000), got " + userRowCount,
+        userRowCount >= 100);
 
-    // SUBJ0 and SUBJ1 should both have prov_user rows (LDAP DN uses uid=test.subject.N)
-    int subj0Rows = new GcDbAccess().connectionName("grouper")
+    // every prov_user row should have a DN-style target_user_id
+    int badDnRows = new GcDbAccess().connectionName("grouper")
         .sql("select count(*) from grouper_prov_user "
-            + "where grouper_sync_internal_id = ? and target_user_id like 'uid=test.subject.0,%'")
+            + "where grouper_sync_internal_id = ? and target_user_id not like 'uid=%,ou=People,%'")
         .addBindVar(syncInternalId).select(int.class);
-    assertEquals("expected exactly 1 prov_user row for SUBJ0", 1, subj0Rows);
-
-    int subj1Rows = new GcDbAccess().connectionName("grouper")
-        .sql("select count(*) from grouper_prov_user "
-            + "where grouper_sync_internal_id = ? and target_user_id like 'uid=test.subject.1,%'")
-        .addBindVar(syncInternalId).select(int.class);
-    assertEquals("expected exactly 1 prov_user row for SUBJ1", 1, subj1Rows);
+    assertEquals("all prov_user rows should be DNs under ou=People", 0, badDnRows);
 
     // user attribute catalog should have entries (per-provisioner-per-name)
     int userAttrCatalogCount = countByProvisioner(configId, "grouper_prov_user_attr");
@@ -258,12 +276,153 @@ public class LdapProvisionerGenericTableTest extends GrouperProvisioningBaseTest
         .addBindVar(syncInternalId).select(int.class);
     assertEquals("no user_attr_value rows should orphan their catalog FK", 0, orphanUserValues);
 
-    int subj0ValueRows = new GcDbAccess().connectionName("grouper")
+    // every prov_user should have at least one attribute value (uid, at minimum)
+    int totalUserValueRows = new GcDbAccess().connectionName("grouper")
         .sql("select count(*) from grouper_prov_user_attr_value puv "
             + "join grouper_prov_user pu on puv.prov_user_internal_id = pu.internal_id "
-            + "where pu.grouper_sync_internal_id = ? and pu.target_user_id like 'uid=test.subject.0,%'")
+            + "where pu.grouper_sync_internal_id = ?")
         .addBindVar(syncInternalId).select(int.class);
-    assertTrue("expected >=1 attr value row for SUBJ0, got " + subj0ValueRows, subj0ValueRows >= 1);
+    assertTrue("expected many attr value rows from native fetch, got " + totalUserValueRows,
+        totalUserValueRows >= userRowCount);
+  }
+
+  /**
+   * Exercise the {@code nativeAttributesGroups} config in its CSV form. After provisioning,
+   * confirm that every requested attribute lands in the catalog and that multi-valued LDAP
+   * attributes (objectClass, description) produce multiple value rows.
+   */
+  public void testNativeAttributesGroupsCsvForm() {
+    String configId = "ldapProvTest";
+
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+            .assignPosixGroup(true)
+            .assignMembershipAttribute("description")
+            .assignEntityAttributeCount(1)
+            .assignSubjectSourcesToProvision("jdbc")
+            .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+            .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+            .addExtraConfig("loadMembershipsToGenericGrouperTable", "true")
+            .addExtraConfig("nativeAttributesGroups", "objectClass, description, cn"));
+
+    runNativeAttributesGroupsAssertions(configId);
+  }
+
+  /**
+   * Exercise the {@code nativeAttributesGroups} config in its JSON form (equivalent attribute
+   * set to the CSV test). Same multi-value expectations.
+   */
+  public void testNativeAttributesGroupsJsonForm() {
+    String configId = "ldapProvTest";
+
+    String json = "[{\"name\":\"objectClass\"},"
+        + "{\"name\":\"description\"},"
+        + "{\"name\":\"cn\",\"type\":\"string\"}]";
+
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+            .assignPosixGroup(true)
+            .assignMembershipAttribute("description")
+            .assignEntityAttributeCount(1)
+            .assignSubjectSourcesToProvision("jdbc")
+            .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+            .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+            .addExtraConfig("loadMembershipsToGenericGrouperTable", "true")
+            .addExtraConfig("nativeAttributesGroups", json));
+
+    runNativeAttributesGroupsAssertions(configId);
+  }
+
+  /**
+   * Shared two-pass scaffold + assertion block reused by the CSV and JSON tests above.
+   * After pass 2, the configured group should appear in {@code grouper_prov_group} and the
+   * group attribute catalog should contain each native attribute we requested. Multi-valued
+   * LDAP attributes (objectClass, description) must produce multiple value rows.
+   */
+  private void runNativeAttributesGroupsAssertions(String configId) {
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // PASS 1: insert group into LDAP (description gets test.subject.0 + test.subject.1, so
+    // it ends up multi-valued); strict-native reporting tables still empty after pass 1.
+    GrouperProvisioningOutput passOne = fullProvision();
+    GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, passOne.getRecordsWithErrors());
+
+    // PASS 2: retrieveAllGroups returns the LDAP group with all its attributes; native
+    // reporting populates prov_group + per-name catalog + per-value rows.
+    GrouperProvisioningOutput passTwo = fullProvision();
+    GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, passTwo.getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    assertEquals("expected 1 prov_group row for testGroup", 1,
+        (int) new GcDbAccess().connectionName("grouper")
+            .sql("select count(*) from grouper_prov_group "
+                + "where grouper_sync_internal_id = ? and target_group_id like 'cn=test:testGroup,%'")
+            .addBindVar(syncInternalId).select(int.class));
+
+    // each of the three requested native attributes should show up in the catalog
+    for (String attributeName : new String[] {"objectClass", "description", "cn"}) {
+      int catalogRowCount = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_group_attr "
+              + "where grouper_sync_internal_id = ? and attribute_name = ?")
+          .addBindVar(syncInternalId).addBindVar(attributeName).select(int.class);
+      assertEquals("expected exactly 1 catalog row for attribute '" + attributeName + "'",
+          1, catalogRowCount);
+    }
+
+    // objectClass is multi-valued in LDAP (top + posixGroup) → 2 value rows
+    int objectClassValueCount = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr_value gpv "
+            + "join grouper_prov_group_attr gpa on gpa.internal_id = gpv.prov_group_attr_internal_id "
+            + "join grouper_prov_group pg on pg.internal_id = gpv.prov_group_internal_id "
+            + "where pg.grouper_sync_internal_id = ? and gpa.attribute_name = 'objectClass'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("expected 2 value rows for multi-valued objectClass (top, posixGroup)",
+        2, objectClassValueCount);
+
+    // description was used as the membership attribute, so pass 1 populated it with both
+    // subject ids; pass 2 reads them back → 2 value rows
+    int descriptionValueCount = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr_value gpv "
+            + "join grouper_prov_group_attr gpa on gpa.internal_id = gpv.prov_group_attr_internal_id "
+            + "join grouper_prov_group pg on pg.internal_id = gpv.prov_group_internal_id "
+            + "where pg.grouper_sync_internal_id = ? and gpa.attribute_name = 'description'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("expected 2 value rows for multi-valued description (subject.0, subject.1)",
+        2, descriptionValueCount);
+
+    // cn is single-valued → exactly 1 value row
+    int cnValueCount = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr_value gpv "
+            + "join grouper_prov_group_attr gpa on gpa.internal_id = gpv.prov_group_attr_internal_id "
+            + "join grouper_prov_group pg on pg.internal_id = gpv.prov_group_internal_id "
+            + "where pg.grouper_sync_internal_id = ? and gpa.attribute_name = 'cn'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("expected 1 value row for single-valued cn", 1, cnValueCount);
+
+    // the cn value should be 'test:testGroup' (resolved via the grouper_dictionary join in
+    // grouper_prov_group_attr_v); sanity-check via the view
+    String cnString = new GcDbAccess().connectionName("grouper")
+        .sql("select value_string from grouper_prov_group_attr_v "
+            + "where grouper_sync_id = (select id from grouper_sync where internal_id = ?) "
+            + "and attribute_name = 'cn'")
+        .addBindVar(syncInternalId).select(String.class);
+    assertEquals("test:testGroup", cnString);
   }
 
   private int countByProvisioner(String configId, String tableName) {

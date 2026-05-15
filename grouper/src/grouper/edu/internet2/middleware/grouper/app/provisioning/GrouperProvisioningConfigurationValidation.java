@@ -332,26 +332,27 @@ public class GrouperProvisioningConfigurationValidation {
     validateMatchingAttributes();
     validateMembershipAttributesAreNotCached();
     validateMembershipAttributeDoesNotMatchSearchOrMatchingAttribute();
-    validateNativeAttributesJson();
+    validateNativeAttributes();
   }
 
   /**
-   * Validate the native-attributes JSON textareas (entities and groups). Each is optional;
-   * if present, must parse and conform to the documented shape. Errors are attached to the
-   * corresponding form field via jqueryHandle so the UI can highlight the bad textarea.
+   * Validate the native-attributes textareas (entities and groups). Each is optional; if
+   * present, must parse as either a comma-separated list of attribute names or a JSON array
+   * conforming to the documented shape. Errors are attached to the corresponding form field
+   * via jqueryHandle so the UI can highlight the bad textarea.
    */
-  public void validateNativeAttributesJson() {
-    validateNativeAttributesJsonField("nativeAttributesJsonEntities");
-    validateNativeAttributesJsonField("nativeAttributesJsonGroups");
+  public void validateNativeAttributes() {
+    validateNativeAttributesField("nativeAttributesEntities");
+    validateNativeAttributesField("nativeAttributesGroups");
   }
 
-  private void validateNativeAttributesJsonField(String suffix) {
-    String json = suffixToConfigValue.get(suffix);
-    if (StringUtils.isBlank(json)) {
+  private void validateNativeAttributesField(String suffix) {
+    String rawValue = suffixToConfigValue.get(suffix);
+    if (StringUtils.isBlank(rawValue)) {
       return;
     }
     try {
-      GrouperProvisioningNativeAttributeConfig.parseAndValidate(json, suffix);
+      GrouperProvisioningNativeAttributeConfig.parseAndValidate(rawValue, suffix);
     } catch (RuntimeException re) {
       this.addErrorMessage(new ProvisioningValidationIssue()
           .assignMessage(re.getMessage())

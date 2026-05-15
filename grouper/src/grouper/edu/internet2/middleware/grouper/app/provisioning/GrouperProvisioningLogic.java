@@ -1418,10 +1418,18 @@ public class GrouperProvisioningLogic {
     Map<String, GenericProvisioningAttrCatalog> userAttrCatalog = new LinkedHashMap<String, GenericProvisioningAttrCatalog>();
     Map<String, GenericProvisioningAttrCatalog> groupAttrCatalog = new LinkedHashMap<String, GenericProvisioningAttrCatalog>();
 
+    // pre-fetch existing catalog rows so we reuse internal_ids for names that already exist.
+    // unique constraint is on (grouper_sync_internal_id, attribute_name); reusing prevents
+    // duplicate-key collisions on subsequent runs.
+    Map<String, Long> existingUserAttrCatalogIds = this.fetchExistingAttrCatalogIds(
+        "grouper_prov_user_attr", grouperSyncInternalId);
+    Map<String, Long> existingGroupAttrCatalogIds = this.fetchExistingAttrCatalogIds(
+        "grouper_prov_group_attr", grouperSyncInternalId);
+
     List<GenericProvisioningAttributeRecord> userAttributeRecords = this.buildProvisioningAttributeRecords(
-        targetUserIdToRecord, userAttrCatalog, TableIndexType.provUserAttr);
+        targetUserIdToRecord, userAttrCatalog, TableIndexType.provUserAttr, existingUserAttrCatalogIds);
     List<GenericProvisioningAttributeRecord> groupAttributeRecords = this.buildProvisioningAttributeRecords(
-        targetGroupIdToRecord, groupAttrCatalog, TableIndexType.provGroupAttr);
+        targetGroupIdToRecord, groupAttrCatalog, TableIndexType.provGroupAttr, existingGroupAttrCatalogIds);
 
     Set<String> stringValues = new LinkedHashSet<String>();
     this.addProvisioningStringValues(userAttributeRecords, stringValues);
@@ -1889,10 +1897,18 @@ public class GrouperProvisioningLogic {
     Map<String, GenericProvisioningAttrCatalog> userAttrCatalog = new LinkedHashMap<String, GenericProvisioningAttrCatalog>();
     Map<String, GenericProvisioningAttrCatalog> groupAttrCatalog = new LinkedHashMap<String, GenericProvisioningAttrCatalog>();
 
+    // pre-fetch existing catalog rows so we reuse internal_ids for names that already exist.
+    // unique constraint is on (grouper_sync_internal_id, attribute_name); reusing prevents
+    // duplicate-key collisions on subsequent runs.
+    Map<String, Long> existingUserAttrCatalogIds = this.fetchExistingAttrCatalogIds(
+        "grouper_prov_user_attr", grouperSyncInternalId);
+    Map<String, Long> existingGroupAttrCatalogIds = this.fetchExistingAttrCatalogIds(
+        "grouper_prov_group_attr", grouperSyncInternalId);
+
     List<GenericProvisioningAttributeRecord> userAttributeRecords = this.buildProvisioningAttributeRecords(
-        targetUserIdToRecord, userAttrCatalog, TableIndexType.provUserAttr);
+        targetUserIdToRecord, userAttrCatalog, TableIndexType.provUserAttr, existingUserAttrCatalogIds);
     List<GenericProvisioningAttributeRecord> groupAttributeRecords = this.buildProvisioningAttributeRecords(
-        targetGroupIdToRecord, groupAttrCatalog, TableIndexType.provGroupAttr);
+        targetGroupIdToRecord, groupAttrCatalog, TableIndexType.provGroupAttr, existingGroupAttrCatalogIds);
 
     Set<String> stringValues = new LinkedHashSet<String>();
     this.addProvisioningStringValues(userAttributeRecords, stringValues);
@@ -2403,7 +2419,25 @@ public class GrouperProvisioningLogic {
     
     GcDbAccess gcDbAccess = new GcDbAccess().connectionName("grouper");
     List<Object[]> existingResults = gcDbAccess.sql(selectSql).addBindVar(selectBindVar).selectList(Object[].class);
-    
+
+    // Normalize DB-read numeric columns to Long so they match our in-memory FROM rows.
+    // GcDbAccess returns BIGINT as BigDecimal; if FROM rows use Long (the natural type for
+    // our id / micros columns) and TO rows use BigDecimal, the MultiKey-based PK and
+    // non-PK comparisons would fail because Long.equals(BigDecimal) is always false.
+    for (Object[] existingRow : GrouperUtil.nonNull(existingResults)) {
+      if (existingRow == null) {
+        continue;
+      }
+      for (int i = 0; i < existingRow.length; i++) {
+        if (existingRow[i] instanceof java.math.BigDecimal) {
+          java.math.BigDecimal bd = (java.math.BigDecimal) existingRow[i];
+          if (bd.scale() <= 0) {
+            existingRow[i] = bd.longValueExact();
+          }
+        }
+      }
+    }
+
     GcTableSyncTableData gcTableSyncTableDataSql = new GcTableSyncTableData();
     gcTableSyncTableDataSql.init(gcTableSyncTableBeanSql,
         gcTableSyncTableMetadata.lookupColumns(gcTableSyncTableBeanSql.getTableMetadata().columnListAll()),
@@ -2433,9 +2467,9 @@ public class GrouperProvisioningLogic {
       gcTableSyncRowData.setGcTableSyncTableData(gcTableSyncTableDataFrom);
       gcTableSyncRowData.setData(rowData);
     }
-    
+
     gcTableSyncTableDataFrom.setRows(gcTableSyncRowDatas);
-    
+
     // compare and sync
     GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
     gcTableSync.setGcTableSyncConfiguration(gcTableSyncConfiguration);
@@ -2540,10 +2574,42 @@ public class GrouperProvisioningLogic {
    * @return per-(object, attribute_name) records, with internalId set to the catalog row's internal_id
    *         (i.e. the FK that goes into grouper_prov_*_attr_value.prov_*_attr_internal_id)
    */
+  /**
+   * Pre-fetch existing catalog rows for a sync so we can reuse their internal_ids on
+   * subsequent runs (the table has a unique constraint on (grouper_sync_internal_id,
+   * attribute_name); allocating a fresh internal_id every run would collide).
+   *
+   * @return map of attribute_name -> existing internal_id; empty when no rows exist yet
+   */
+  private Map<String, Long> fetchExistingAttrCatalogIds(String tableName, long grouperSyncInternalId) {
+    Map<String, Long> attributeNameToInternalId = new LinkedHashMap<String, Long>();
+    List<Object[]> existingCatalogRows = new GcDbAccess().connectionName("grouper")
+        .sql("select internal_id, attribute_name from " + tableName + " where grouper_sync_internal_id = ?")
+        .addBindVar(grouperSyncInternalId).selectList(Object[].class);
+    for (Object[] row : GrouperUtil.nonNull(existingCatalogRows)) {
+      if (row == null || row.length < 2 || row[0] == null || row[1] == null) {
+        continue;
+      }
+      Long internalId = ((Number) row[0]).longValue();
+      String attributeName = row[1].toString();
+      attributeNameToInternalId.put(attributeName, internalId);
+    }
+    return attributeNameToInternalId;
+  }
+
   private List<GenericProvisioningAttributeRecord> buildProvisioningAttributeRecords(
       Map<String, ? extends GenericProvisioningRecord> targetIdToObjectRecord,
       Map<String, GenericProvisioningAttrCatalog> attributeNameToCatalog,
       TableIndexType catalogTableIndexType) {
+    return this.buildProvisioningAttributeRecords(targetIdToObjectRecord, attributeNameToCatalog,
+        catalogTableIndexType, Collections.<String, Long>emptyMap());
+  }
+
+  private List<GenericProvisioningAttributeRecord> buildProvisioningAttributeRecords(
+      Map<String, ? extends GenericProvisioningRecord> targetIdToObjectRecord,
+      Map<String, GenericProvisioningAttrCatalog> attributeNameToCatalog,
+      TableIndexType catalogTableIndexType,
+      Map<String, Long> existingAttributeNameToInternalId) {
 
     List<GenericProvisioningAttributeRecord> result = new ArrayList<GenericProvisioningAttributeRecord>();
 
@@ -2638,12 +2704,26 @@ public class GrouperProvisioningLogic {
       }
     }
 
-    // assign catalog internal_ids (one per distinct attribute_name)
+    // assign catalog internal_ids (one per distinct attribute_name). Reuse existing ids
+    // where the (sync, attribute_name) row is already in the DB; reserve fresh ids only
+    // for genuinely new attribute names. Without this, the unique constraint on
+    // (grouper_sync_internal_id, attribute_name) blocks re-runs.
     if (GrouperUtil.length(attributeNameToCatalog) > 0) {
-      List<Long> catalogInternalIds = TableIndex.reserveIds(catalogTableIndexType, attributeNameToCatalog.size());
-      int idx = 0;
+      List<GenericProvisioningAttrCatalog> catalogsNeedingNewIds = new ArrayList<GenericProvisioningAttrCatalog>();
       for (GenericProvisioningAttrCatalog catalog : attributeNameToCatalog.values()) {
-        catalog.internalId = catalogInternalIds.get(idx++);
+        Long existingInternalId = existingAttributeNameToInternalId == null ? null
+            : existingAttributeNameToInternalId.get(catalog.attributeName);
+        if (existingInternalId != null) {
+          catalog.internalId = existingInternalId;
+        } else {
+          catalogsNeedingNewIds.add(catalog);
+        }
+      }
+      if (!catalogsNeedingNewIds.isEmpty()) {
+        List<Long> freshInternalIds = TableIndex.reserveIds(catalogTableIndexType, catalogsNeedingNewIds.size());
+        for (int i = 0; i < catalogsNeedingNewIds.size(); i++) {
+          catalogsNeedingNewIds.get(i).internalId = freshInternalIds.get(i);
+        }
       }
     }
 

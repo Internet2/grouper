@@ -44,6 +44,7 @@ public class AllProvisioningTests {
     suite.addTestSuite(ProvisionableStemFinderTest.class);
     suite.addTestSuite(ProvisionableGroupFinderTest.class);
     suite.addTestSuite(ProvisioningGroupTest.class);
+    suite.addTestSuite(GrouperProvisioningNativeAttributeConfigTest.class);
     //$JUnit-END$
     return suite;
   }

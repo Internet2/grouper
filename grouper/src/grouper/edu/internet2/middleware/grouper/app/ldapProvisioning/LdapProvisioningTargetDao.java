@@ -206,7 +206,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         boolean populateNativeGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadGroupsToGenericGrouperTable();
         if (populateNativeGroups) {
           LdapProvisioningTargetNativeBuilder.widenLdapAttributeNamesForGroups(
-              groupSearchAttributeNames, ldapSyncConfiguration.getNativeAttributesGroups());
+              groupSearchAttributeNames, ldapSyncConfiguration.getNativeAttributeConfigsGroups());
         }
         // memberships extracted from each group's membership attribute (group-target style)
         boolean populateNativeMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()
@@ -849,7 +849,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       boolean populateNativeGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadGroupsToGenericGrouperTable();
       if (populateNativeGroups) {
         LdapProvisioningTargetNativeBuilder.widenLdapAttributeNamesForGroups(
-            groupSearchAttributeNames, ldapSyncConfiguration.getNativeAttributesGroups());
+            groupSearchAttributeNames, ldapSyncConfiguration.getNativeAttributeConfigsGroups());
       }
       // memberships extracted from each group's membership attribute (group-target style)
       boolean populateNativeMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()
@@ -996,7 +996,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       boolean populateNativeUsers = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGenericGrouperTable();
       if (populateNativeUsers) {
         LdapProvisioningTargetNativeBuilder.widenLdapAttributeNamesForEntities(
-            entitySearchAttributeNames, ldapSyncConfiguration.getNativeAttributesEntities());
+            entitySearchAttributeNames, ldapSyncConfiguration.getNativeAttributeConfigsEntities());
       }
       // memberships extracted from each user's membership attribute (entity-attribute style)
       boolean populateNativeMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()
@@ -1096,7 +1096,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       boolean populateNativeUsers = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGenericGrouperTable();
       if (populateNativeUsers) {
         LdapProvisioningTargetNativeBuilder.widenLdapAttributeNamesForEntities(
-            entitySearchAttributeNames, ldapSyncConfiguration.getNativeAttributesEntities());
+            entitySearchAttributeNames, ldapSyncConfiguration.getNativeAttributeConfigsEntities());
       }
       // memberships extracted from each user's membership attribute (entity-attribute style)
       boolean populateNativeMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()

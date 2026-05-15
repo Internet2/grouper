@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Convert LDAP entries into the generic native-target reporting beans, and compute the
  * additional LDAP attribute names that need to be requested from the directory based on
- * the provisioner's nativeAttributesJsonGroups / nativeAttributesJsonEntities config.
+ * the provisioner's nativeAttributesGroups / nativeAttributesEntities config.
  *
  * <p>The DAO uses these helpers in two places per select pass:
  * <ol>

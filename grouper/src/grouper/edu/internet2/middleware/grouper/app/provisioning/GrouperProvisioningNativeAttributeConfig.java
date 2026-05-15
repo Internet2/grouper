@@ -71,13 +71,33 @@ public class GrouperProvisioningNativeAttributeConfig {
   }
 
   /**
-   * parse and validate a native-attributes JSON string.
+   * parse and validate a native-attributes config string. Accepts two forms:
    *
-   * @param json the JSON array, may be null/blank (returns empty list)
+   * <p><b>1. Comma-separated list</b> (LDAP-style, simple attribute names only):
+   * <pre>
+   * sn, mail, telephoneNumber
+   * </pre>
+   * Each token becomes an entry with {@code name=path=token}, {@code type=null}
+   * (auto-detect). Use this when each attribute is a flat name with no nested
+   * path and no explicit type.
+   *
+   * <p><b>2. JSON array</b> (full form, supports nested paths and explicit types):
+   * <pre>
+   * [
+   *   { "name": "active" },
+   *   { "name": "displayName" },
+   *   { "name": "lastModified", "path": "/meta/lastModified", "type": "timestamp" }
+   * ]
+   * </pre>
+   *
+   * <p>Detection rule: input that starts with {@code [} (after trimming) is parsed
+   * as JSON; anything else is parsed as CSV.
+   *
+   * @param json the input (CSV or JSON array), may be null/blank (returns empty list)
    * @param configLabel a human-readable label used in error messages
-   *                    (e.g. "nativeAttributesJsonEntities")
+   *                    (e.g. "nativeAttributesEntities")
    * @return parsed entries; never null
-   * @throws RuntimeException if the JSON is malformed or any entry fails validation
+   * @throws RuntimeException if the input is malformed or any entry fails validation
    */
   public static List<GrouperProvisioningNativeAttributeConfig> parseAndValidate(
       String json, String configLabel) {
@@ -88,9 +108,35 @@ public class GrouperProvisioningNativeAttributeConfig {
       return result;
     }
 
+    String trimmed = json.trim();
+
+    // CSV form: bare comma-separated attribute names (LDAP-style)
+    if (!trimmed.startsWith("[")) {
+      Set<String> seenCsvNames = new HashSet<String>();
+      for (String rawToken : trimmed.split(",")) {
+        String token = StringUtils.trimToNull(rawToken);
+        if (token == null) {
+          continue;
+        }
+        if (token.startsWith("{") || token.startsWith("[") || token.contains("\"")) {
+          throw new RuntimeException(configLabel + ": value '" + token
+              + "' looks like JSON; either provide the whole value as a JSON array, "
+              + "or use a plain comma-separated list of attribute names");
+        }
+        if (!seenCsvNames.add(token)) {
+          throw new RuntimeException(configLabel + ": duplicate attribute name '" + token + "'");
+        }
+        GrouperProvisioningNativeAttributeConfig entry = new GrouperProvisioningNativeAttributeConfig();
+        entry.name = token;
+        result.add(entry);
+      }
+      return result;
+    }
+
+    // JSON array form
     JsonNode root;
     try {
-      root = GrouperUtil.jsonJacksonNode(json);
+      root = GrouperUtil.jsonJacksonNode(trimmed);
     } catch (Exception e) {
       throw new RuntimeException(configLabel + ": invalid JSON: " + e.getMessage(), e);
     }
