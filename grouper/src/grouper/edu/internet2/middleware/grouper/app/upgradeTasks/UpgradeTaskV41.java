@@ -519,7 +519,11 @@ public class UpgradeTaskV41 implements UpgradeTasksInterface {
         }
 
         if (!GrouperDdlUtils.assertIndexExists("grouper_prov_group", "grouper_prov_grp_idx2")) {
-          new GcDbAccess().sql("CREATE INDEX grouper_prov_grp_idx2 ON grouper_prov_group (target_group_id)").executeSql();
+          if (GrouperDdlUtils.isMysql()) {
+            new GcDbAccess().sql("CREATE INDEX grouper_prov_grp_idx2 ON grouper_prov_group (target_group_id(100))").executeSql();
+          } else {
+            new GcDbAccess().sql("CREATE INDEX grouper_prov_grp_idx2 ON grouper_prov_group (target_group_id)").executeSql();
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_prov_grp_idx2");
@@ -754,7 +758,11 @@ public class UpgradeTaskV41 implements UpgradeTasksInterface {
         }
 
         if (!GrouperDdlUtils.assertIndexExists("grouper_prov_user", "grouper_prov_user_idx2")) {
-          new GcDbAccess().sql("CREATE INDEX grouper_prov_user_idx2 ON grouper_prov_user (target_user_id)").executeSql();
+          if (GrouperDdlUtils.isMysql()) {
+            new GcDbAccess().sql("CREATE INDEX grouper_prov_user_idx2 ON grouper_prov_user (target_user_id(100))").executeSql();
+          } else {
+            new GcDbAccess().sql("CREATE INDEX grouper_prov_user_idx2 ON grouper_prov_user (target_user_id)").executeSql();
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_prov_user_idx2");

@@ -2128,7 +2128,7 @@ CREATE INDEX grouper_prov_grp_idx0 ON grouper_prov_group (grouper_sync_internal_
 
 CREATE INDEX grouper_prov_grp_idx1 ON grouper_prov_group (group_internal_id);
 
-CREATE INDEX grouper_prov_grp_idx2 ON grouper_prov_group (target_group_id);
+CREATE INDEX grouper_prov_grp_idx2 ON grouper_prov_group (target_group_id(100));
 
 CREATE TABLE grouper_prov_group_attr (
   internal_id BIGINT NOT NULL,
@@ -2172,7 +2172,7 @@ CREATE INDEX grouper_prov_user_idx0 ON grouper_prov_user (grouper_sync_internal_
 
 CREATE INDEX grouper_prov_user_idx1 ON grouper_prov_user (member_internal_id);
 
-CREATE INDEX grouper_prov_user_idx2 ON grouper_prov_user (target_user_id);
+CREATE INDEX grouper_prov_user_idx2 ON grouper_prov_user (target_user_id(100));
 
 CREATE TABLE grouper_prov_user_attr (
   internal_id BIGINT NOT NULL,
