@@ -1,6 +1,6 @@
 services:
   reverse-proxy:
-    image: library/traefik:v2.2
+    image: library/traefik:3.7
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
@@ -80,6 +80,7 @@ services:
       - reverse-proxy
       - directory
       - database
+      - shibboleth-idp
     command:
       - ui
     labels:
@@ -109,6 +110,11 @@ services:
       - ./shibboleth-idp/files-local/metadata/idp-metadata.xml:/opt/grouper/idp-metadata.xml
       - ./grouper/certs/unicon.local.pem:/opt/grouper/certs/client/unicon.local.pem
     environment:
+      GROUPER_TOMCAT_LOG_ACCESS: "true"
+      ## builtin auth: REMOTE_USER, grouperRemoteUser
+      ## pac4j: grouperRemoteUser
+      ## sidecar sso to auth header (not tested): %u
+      #GROUPER_TOMCAT_LOG_ACCESS_PATTERN: "catalina.out;%h %l %{grouperRemoteUser}r %t \\&quot;%r\\&quot; %s %b"
       GROUPER_DATABASE_URL: "jdbc:postgresql://database/grouper"
       GROUPER_DATABASE_USERNAME: "grouper"
       GROUPER_DATABASE_PASSWORD: "grouper"
@@ -117,6 +123,7 @@ services:
       GROUPER_TOMCAT_HTTP_PORT: 8080
       GROUPER_START_DELAY_SECONDS: 0
       GROUPER_UI_CONFIGURATION_EDITOR_SOURCEIPADDRESSES: "0.0.0.0/0"
+      #GROUPER_EXTRA_CATALINA_OPTS: "-Dorg.slf4j.simpleLogger.log.org.pac4j=DEBUG"
       #GROUPER_EXTRA_CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
       #GROUPER_UI_GROUPER_AUTH: "true"
 

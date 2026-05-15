@@ -1,3 +1,5 @@
+grouperUi.logout.redirectToUrl = https://idp.unicon.local/idp/profile/Logout
+
 grouper.is.extAuth.enabled = true
 external.authentication.grouperContextUrl = https://grouper-ui.unicon.local/grouper
 
