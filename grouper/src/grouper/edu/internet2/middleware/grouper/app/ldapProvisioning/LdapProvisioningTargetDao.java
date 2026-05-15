@@ -202,16 +202,16 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         }
 
         // widen the search attribute list with any native-attribute paths so the directory
-        // returns report-only attrs alongside the configured ones (single round-trip)
-        boolean populateNativeGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadGroupsToGenericGrouperTable();
-        if (populateNativeGroups) {
-          LdapProvisioningTargetNativeBuilder.widenLdapAttributeNamesForGroups(
-              groupSearchAttributeNames, ldapSyncConfiguration.getNativeAttributeConfigsGroups());
-        }
-        // memberships extracted from each group's membership attribute (group-target style)
-        boolean populateNativeMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()
-            && !StringUtils.isBlank(groupAttributeNameForMemberships)
-            && groupSearchAttributeNames.contains(groupAttributeNameForMemberships);
+        // returns report-only attrs alongside the configured ones (single round-trip). no-op
+        // if reporting is disabled.
+        LdapProvisioningTargetNativeSync nativeSync = (LdapProvisioningTargetNativeSync)
+            this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync();
+        nativeSync.widenLdapAttributeNamesForGroups(groupSearchAttributeNames);
+        // only capture native memberships when the membership attribute is actually being
+        // requested from the directory; otherwise the entry won't carry it anyway
+        String membershipAttrForCapture = !StringUtils.isBlank(groupAttributeNameForMemberships)
+            && groupSearchAttributeNames.contains(groupAttributeNameForMemberships)
+                ? groupAttributeNameForMemberships : null;
 
         LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
 
@@ -221,15 +221,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         for (LdapEntry ldapEntry : ldapEntries) {
 
           // populate the native-target reporting list while the LdapEntry is still in scope
-          if (populateNativeGroups) {
-            this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeGroups()
-                .add(LdapProvisioningTargetNativeBuilder.buildNativeGroup(ldapEntry));
-          }
-          if (populateNativeMemberships) {
-            LdapProvisioningTargetNativeBuilder.appendNativeMembershipsFromGroupEntry(
-                this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeMemberships(),
-                ldapEntry, groupAttributeNameForMemberships);
-          }
+          nativeSync.captureGroupEntry(ldapEntry, membershipAttrForCapture);
 
           // conserve memory
           ldapEntries.set(count, null);
@@ -588,14 +580,25 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         groupAttributesMultivalued.remove(groupAttributeNameForMemberships);
       }
     }
-    
+
+    // widen the search attribute list with any native-attribute paths so report-only
+    // attrs come back alongside the configured ones (single round-trip). this by-DN
+    // entry point is hit during incremental sync, so the capture wiring must mirror
+    // retrieveAllGroups / retrieveGroups.
+    LdapProvisioningTargetNativeSync nativeSync = (LdapProvisioningTargetNativeSync)
+        this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync();
+    nativeSync.widenLdapAttributeNamesForGroups(groupSearchAttributeNames);
+    String membershipAttrForCapture = !StringUtils.isBlank(groupAttributeNameForMemberships)
+        && groupSearchAttributeNames.contains(groupAttributeNameForMemberships)
+            ? groupAttributeNameForMemberships : null;
+
     long startNanos = System.nanoTime();
 
     try {
-      
+
       LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
       List<LdapEntry> ldapEntries = new ArrayList<LdapEntry>();
-      
+
       try {
         ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, dn, "(objectclass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
       } catch (Exception e) {
@@ -615,9 +618,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       if (GrouperUtil.length(ldapEntries) == 1) {
         LdapEntry ldapEntry = ldapEntries.get(0);
+
+        // populate the native-target reporting list while the LdapEntry is still in scope
+        nativeSync.captureGroupEntry(ldapEntry, membershipAttrForCapture);
+
         ProvisioningGroup targetGroup = new ProvisioningGroup(false);
         targetGroup.assignAttributeValue(ldap_dn, ldapEntry.getDn());
-        
+
         for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
           if (ldapAttribute.getValues().size() > 0) {
             Object value = null;
@@ -626,7 +633,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             } else if (ldapAttribute.getValues().size() == 1) {
               value = ldapAttribute.getValues().iterator().next();
             }
-            
+
             value = ldapConvertAdAttributeToString(ldapAttribute.getName(), value);
             targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
           }
@@ -642,7 +649,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     throw new RuntimeException("Why are we here?");
 
   }
-  
+
   /**
    * @param dn
    * @param includeAllMemberships
@@ -674,14 +681,25 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         entityAttributesMultivalued.remove(entityAttributeNameForMemberships);
       }
     }
-    
+
+    // widen the search attribute list with any native-attribute paths so report-only
+    // attrs come back alongside the configured ones. by-DN entry point is hit during
+    // incremental sync, so mirror the capture wiring used by retrieveAllEntities /
+    // retrieveEntities.
+    LdapProvisioningTargetNativeSync nativeSync = (LdapProvisioningTargetNativeSync)
+        this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync();
+    nativeSync.widenLdapAttributeNamesForEntities(entitySearchAttributeNames);
+    String membershipAttrForCapture = !StringUtils.isBlank(entityAttributeNameForMemberships)
+        && entitySearchAttributeNames.contains(entityAttributeNameForMemberships)
+            ? entityAttributeNameForMemberships : null;
+
     long startNanos = System.nanoTime();
 
     try {
-      
+
       LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
       List<LdapEntry> ldapEntries = new ArrayList<LdapEntry>();
-      
+
       try {
         ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, dn, "(objectclass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<String>(entitySearchAttributeNames));
       } catch (Exception e) {
@@ -701,9 +719,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       if (GrouperUtil.length(ldapEntries) == 1) {
         LdapEntry ldapEntry = ldapEntries.get(0);
+
+        // populate the native-target reporting list while the LdapEntry is still in scope
+        nativeSync.captureEntityEntry(ldapEntry, membershipAttrForCapture);
+
         ProvisioningEntity targetEntity = new ProvisioningEntity(false);
         targetEntity.assignAttributeValue(ldap_dn, ldapEntry.getDn());
-        
+
         for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
           if (ldapAttribute.getValues().size() > 0) {
             Object value = null;
@@ -712,7 +734,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             } else if (ldapAttribute.getValues().size() == 1) {
               value = ldapAttribute.getValues().iterator().next();
             }
-            
+
             value = ldapConvertAdAttributeToString(ldapAttribute.getName(), value);
             targetEntity.assignAttributeValue(ldapAttribute.getName(), value);
           }
@@ -845,16 +867,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       // widen the search attribute list with any native-attribute paths so report-only
-      // attrs come back alongside the configured ones (single round-trip)
-      boolean populateNativeGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadGroupsToGenericGrouperTable();
-      if (populateNativeGroups) {
-        LdapProvisioningTargetNativeBuilder.widenLdapAttributeNamesForGroups(
-            groupSearchAttributeNames, ldapSyncConfiguration.getNativeAttributeConfigsGroups());
-      }
-      // memberships extracted from each group's membership attribute (group-target style)
-      boolean populateNativeMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()
-          && !StringUtils.isBlank(groupAttributeNameForMemberships)
-          && groupSearchAttributeNames.contains(groupAttributeNameForMemberships);
+      // attrs come back alongside the configured ones (single round-trip). no-op if
+      // reporting is disabled.
+      LdapProvisioningTargetNativeSync nativeSync = (LdapProvisioningTargetNativeSync)
+          this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync();
+      nativeSync.widenLdapAttributeNamesForGroups(groupSearchAttributeNames);
+      String membershipAttrForCapture = !StringUtils.isBlank(groupAttributeNameForMemberships)
+          && groupSearchAttributeNames.contains(groupAttributeNameForMemberships)
+              ? groupAttributeNameForMemberships : null;
 
       int batchSize = LdapConfiguration.getConfig(ldapConfigId).getQueryBatchSize();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(values, batchSize, false);
@@ -887,15 +907,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
             for (LdapEntry ldapEntry : ldapEntries) {
               // populate the native-target reporting list while the LdapEntry is in scope
-              if (populateNativeGroups) {
-                this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeGroups()
-                    .add(LdapProvisioningTargetNativeBuilder.buildNativeGroup(ldapEntry));
-              }
-              if (populateNativeMemberships) {
-                LdapProvisioningTargetNativeBuilder.appendNativeMembershipsFromGroupEntry(
-                    this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeMemberships(),
-                    ldapEntry, groupAttributeNameForMemberships);
-              }
+              nativeSync.captureGroupEntry(ldapEntry, membershipAttrForCapture);
 
               // conserve memory
               ldapEntries.set(count, null);
@@ -992,16 +1004,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       // widen the search attribute list with any native-attribute paths so the directory
-      // returns report-only attrs alongside the configured ones (single round-trip)
-      boolean populateNativeUsers = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGenericGrouperTable();
-      if (populateNativeUsers) {
-        LdapProvisioningTargetNativeBuilder.widenLdapAttributeNamesForEntities(
-            entitySearchAttributeNames, ldapSyncConfiguration.getNativeAttributeConfigsEntities());
-      }
-      // memberships extracted from each user's membership attribute (entity-attribute style)
-      boolean populateNativeMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()
-          && !StringUtils.isBlank(userAttributeNameForMemberships)
-          && entitySearchAttributeNames.contains(userAttributeNameForMemberships);
+      // returns report-only attrs alongside the configured ones (single round-trip). no-op
+      // if reporting is disabled.
+      LdapProvisioningTargetNativeSync nativeSync = (LdapProvisioningTargetNativeSync)
+          this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync();
+      nativeSync.widenLdapAttributeNamesForEntities(entitySearchAttributeNames);
+      String membershipAttrForCapture = !StringUtils.isBlank(userAttributeNameForMemberships)
+          && entitySearchAttributeNames.contains(userAttributeNameForMemberships)
+              ? userAttributeNameForMemberships : null;
 
       LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
       List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, userSearchBaseDn, userSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(entitySearchAttributeNames));
@@ -1011,15 +1021,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       for (LdapEntry ldapEntry : ldapEntries) {
 
         // populate the native-target reporting list while the LdapEntry is still in scope
-        if (populateNativeUsers) {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeUsers()
-              .add(LdapProvisioningTargetNativeBuilder.buildNativeUser(ldapEntry));
-        }
-        if (populateNativeMemberships) {
-          LdapProvisioningTargetNativeBuilder.appendNativeMembershipsFromEntityEntry(
-              this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeMemberships(),
-              ldapEntry, userAttributeNameForMemberships);
-        }
+        nativeSync.captureEntityEntry(ldapEntry, membershipAttrForCapture);
 
         // conserve memory
         ldapEntries.set(count, null);
@@ -1092,16 +1094,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       // widen the search attribute list with any native-attribute paths so report-only
-      // attrs come back alongside the configured ones (single round-trip)
-      boolean populateNativeUsers = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGenericGrouperTable();
-      if (populateNativeUsers) {
-        LdapProvisioningTargetNativeBuilder.widenLdapAttributeNamesForEntities(
-            entitySearchAttributeNames, ldapSyncConfiguration.getNativeAttributeConfigsEntities());
-      }
-      // memberships extracted from each user's membership attribute (entity-attribute style)
-      boolean populateNativeMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()
-          && !StringUtils.isBlank(entityAttributeNameForMemberships)
-          && entitySearchAttributeNames.contains(entityAttributeNameForMemberships);
+      // attrs come back alongside the configured ones (single round-trip). no-op if
+      // reporting is disabled.
+      LdapProvisioningTargetNativeSync nativeSync = (LdapProvisioningTargetNativeSync)
+          this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync();
+      nativeSync.widenLdapAttributeNamesForEntities(entitySearchAttributeNames);
+      String membershipAttrForCapture = !StringUtils.isBlank(entityAttributeNameForMemberships)
+          && entitySearchAttributeNames.contains(entityAttributeNameForMemberships)
+              ? entityAttributeNameForMemberships : null;
 
       int batchSize = LdapConfiguration.getConfig(ldapConfigId).getQueryBatchSize();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(values, batchSize, false);
@@ -1136,15 +1136,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
             for (LdapEntry ldapEntry : ldapEntries) {
               // populate the native-target reporting list while the LdapEntry is in scope
-              if (populateNativeUsers) {
-                this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeUsers()
-                    .add(LdapProvisioningTargetNativeBuilder.buildNativeUser(ldapEntry));
-              }
-              if (populateNativeMemberships) {
-                LdapProvisioningTargetNativeBuilder.appendNativeMembershipsFromEntityEntry(
-                    this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetNativeMemberships(),
-                    ldapEntry, entityAttributeNameForMemberships);
-              }
+              nativeSync.captureEntityEntry(ldapEntry, membershipAttrForCapture);
 
               // conserve memory
               ldapEntries.set(count, null);

@@ -2,8 +2,8 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -11,52 +11,69 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningNativeAttributeConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeGroup;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeMembership;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeSync;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeUser;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * Convert LDAP entries into the generic native-target reporting beans, and compute the
- * additional LDAP attribute names that need to be requested from the directory based on
- * the provisioner's nativeAttributesGroups / nativeAttributesEntities config.
+ * LDAP-specific {@link GrouperProvisioningTargetNativeSync}: converts {@link LdapEntry}
+ * objects into the generic native-target reporting beans, widens the LDAP search-attribute
+ * set with the configured native-attribute names, and offers a per-entry capture convenience.
  *
- * <p>The DAO uses these helpers in two places per select pass:
+ * <p>Typical DAO usage per retrieval method (read paths only — write capture is a future
+ * opt-in via a {@code readAfterWrite} flag):
  * <ol>
  *   <li>Before issuing the LDAP search, call
- *       {@link #widenLdapAttributeNamesForGroups(Set, List)} or
- *       {@link #widenLdapAttributeNamesForEntities(Set, List)} so the directory returns
+ *       {@link #widenLdapAttributeNamesForGroups(Set)} or
+ *       {@link #widenLdapAttributeNamesForEntities(Set)} so the directory returns
  *       the report-only attributes alongside the configured ones.</li>
  *   <li>For each {@link LdapEntry} returned, call
- *       {@link #buildNativeGroup(LdapEntry)} or {@link #buildNativeUser(LdapEntry)} and
- *       append to {@code data.getTargetNativeGroups()} / {@code data.getTargetNativeUsers()}.</li>
+ *       {@link #captureGroupEntry(LdapEntry, String)} or
+ *       {@link #captureEntityEntry(LdapEntry, String)} to build + record the native bean
+ *       and (if applicable) the native memberships extracted from a membership attribute.</li>
  * </ol>
+ *
+ * <p>All methods no-op when the corresponding load flag is off, so callers do not need to
+ * flag-check at the call site.
  */
-public class LdapProvisioningTargetNativeBuilder {
+public class LdapProvisioningTargetNativeSync extends GrouperProvisioningTargetNativeSync {
+
+  // ----- widen --------------------------------------------------------------------------
 
   /**
-   * Add the LDAP attribute names called for by the group native-attribute config to
-   * the existing search attribute set. Set semantics dedup against already-configured names.
+   * Add the LDAP attribute names called for by {@code nativeAttributeConfigsGroups} to the
+   * caller's existing search-attribute set. No-op when reporting is disabled.
    */
-  public static void widenLdapAttributeNamesForGroups(Set<String> ldapAttributeNames,
-      List<GrouperProvisioningNativeAttributeConfig> nativeAttributesGroups) {
-    widenLdapAttributeNames(ldapAttributeNames, nativeAttributesGroups);
+  public void widenLdapAttributeNamesForGroups(Set<String> ldapAttributeNames) {
+    if (ldapAttributeNames == null) {
+      return;
+    }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadGroupsToGenericGrouperTable()) {
+      return;
+    }
+    widenLdapAttributeNames(ldapAttributeNames,
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getNativeAttributeConfigsGroups());
   }
 
   /**
-   * Add the LDAP attribute names called for by the entity native-attribute config to
-   * the existing search attribute set. Set semantics dedup against already-configured names.
+   * Add the LDAP attribute names called for by {@code nativeAttributeConfigsEntities} to the
+   * caller's existing search-attribute set. No-op when reporting is disabled.
    */
-  public static void widenLdapAttributeNamesForEntities(Set<String> ldapAttributeNames,
-      List<GrouperProvisioningNativeAttributeConfig> nativeAttributesEntities) {
-    widenLdapAttributeNames(ldapAttributeNames, nativeAttributesEntities);
+  public void widenLdapAttributeNamesForEntities(Set<String> ldapAttributeNames) {
+    if (ldapAttributeNames == null) {
+      return;
+    }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGenericGrouperTable()) {
+      return;
+    }
+    widenLdapAttributeNames(ldapAttributeNames,
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getNativeAttributeConfigsEntities());
   }
 
   private static void widenLdapAttributeNames(Set<String> ldapAttributeNames,
       List<GrouperProvisioningNativeAttributeConfig> nativeAttributes) {
-    if (ldapAttributeNames == null) {
-      return;
-    }
     for (GrouperProvisioningNativeAttributeConfig grouperProvisioningNativeAttributeConfig
         : GrouperUtil.nonNull(nativeAttributes)) {
       String ldapName = StringUtils.defaultIfBlank(
@@ -68,12 +85,13 @@ public class LdapProvisioningTargetNativeBuilder {
     }
   }
 
+  // ----- build --------------------------------------------------------------------------
+
   /**
    * Build a native group bean from an LDAP entry. {@code targetId} is the DN; attribute
-   * map collects all attributes returned by the LDAP search (the DAO is expected to have
-   * already widened the attribute list to include any report-only attrs).
+   * map collects all attributes returned by the LDAP search.
    */
-  public static GrouperProvisioningTargetNativeGroup buildNativeGroup(LdapEntry ldapEntry) {
+  public GrouperProvisioningTargetNativeGroup buildNativeGroup(LdapEntry ldapEntry) {
     GrouperProvisioningTargetNativeGroup grouperProvisioningTargetNativeGroup = new GrouperProvisioningTargetNativeGroup();
     grouperProvisioningTargetNativeGroup.setTargetId(ldapEntry == null ? null : ldapEntry.getDn());
     populateAttributesFromLdapEntry(grouperProvisioningTargetNativeGroup.getAttributes(), ldapEntry);
@@ -84,14 +102,14 @@ public class LdapProvisioningTargetNativeBuilder {
    * Build a native user bean from an LDAP entry. {@code targetId} is the DN; attribute
    * map collects all attributes returned by the LDAP search.
    */
-  public static GrouperProvisioningTargetNativeUser buildNativeUser(LdapEntry ldapEntry) {
+  public GrouperProvisioningTargetNativeUser buildNativeUser(LdapEntry ldapEntry) {
     GrouperProvisioningTargetNativeUser grouperProvisioningTargetNativeUser = new GrouperProvisioningTargetNativeUser();
     grouperProvisioningTargetNativeUser.setTargetId(ldapEntry == null ? null : ldapEntry.getDn());
     populateAttributesFromLdapEntry(grouperProvisioningTargetNativeUser.getAttributes(), ldapEntry);
     return grouperProvisioningTargetNativeUser;
   }
 
-  private static void populateAttributesFromLdapEntry(java.util.Map<String, Object> destination, LdapEntry ldapEntry) {
+  private static void populateAttributesFromLdapEntry(Map<String, Object> destination, LdapEntry ldapEntry) {
     if (destination == null || ldapEntry == null) {
       return;
     }
@@ -113,22 +131,14 @@ public class LdapProvisioningTargetNativeBuilder {
     }
   }
 
+  // ----- memberships --------------------------------------------------------------------
+
   /**
    * Extract native memberships from a group LdapEntry. For each value of
    * {@code groupMembershipAttributeName} on the group, append a {@link GrouperProvisioningTargetNativeMembership}
    * with {@code targetGroupId} = the group's DN and {@code targetUserId} = the membership value.
-   *
-   * <p>Whether a value matches a {@code grouper_prov_user.target_user_id} (typically a DN) depends on
-   * the provisioner's membership representation: groupOfNames-style {@code member} attributes hold DNs
-   * (matches), while posix-style {@code description} attributes hold subjectIds (won't match without a
-   * resolver). Unmatched memberships are dropped at load time — failsafe.
-   *
-   * @param destination          where new membership entries are appended; must be non-null
-   * @param groupLdapEntry       the LDAP group entry just retrieved
-   * @param groupMembershipAttributeName the attribute on the group that holds member references
-   *                             (e.g. "member", "uniqueMember", "description"); no-op if blank
    */
-  public static void appendNativeMembershipsFromGroupEntry(
+  public void appendNativeMembershipsFromGroupEntry(
       List<GrouperProvisioningTargetNativeMembership> destination,
       LdapEntry groupLdapEntry, String groupMembershipAttributeName) {
 
@@ -158,11 +168,11 @@ public class LdapProvisioningTargetNativeBuilder {
 
   /**
    * Extract native memberships from an entity LdapEntry. Mirror of
-   * {@link #appendNativeMembershipsFromGroupEntry} for the entity-attribute style:
-   * each value of {@code entityMembershipAttributeName} on the user becomes a membership
+   * {@link #appendNativeMembershipsFromGroupEntry}: each value of
+   * {@code entityMembershipAttributeName} on the user becomes a membership
    * with {@code targetUserId} = the user's DN and {@code targetGroupId} = the value.
    */
-  public static void appendNativeMembershipsFromEntityEntry(
+  public void appendNativeMembershipsFromEntityEntry(
       List<GrouperProvisioningTargetNativeMembership> destination,
       LdapEntry entityLdapEntry, String entityMembershipAttributeName) {
 
@@ -190,9 +200,41 @@ public class LdapProvisioningTargetNativeBuilder {
     }
   }
 
-  /** in-place de-dup helper exposed for tests / external consumers */
-  static Set<String> caseInsensitiveSet() {
-    return new LinkedHashSet<String>();
+  // ----- capture convenience (build + record in one call) ------------------------------
+
+  /**
+   * Full per-entry capture for a group: build the native group bean, record it, then
+   * extract and record any native memberships found on {@code groupMembershipAttributeName}.
+   * No-ops cascade through the recorder methods, so this is safe to call unconditionally.
+   */
+  public void captureGroupEntry(LdapEntry ldapEntry, String groupMembershipAttributeName) {
+    if (ldapEntry == null) {
+      return;
+    }
+    this.recordTargetNativeGroup(this.buildNativeGroup(ldapEntry));
+    if (!StringUtils.isBlank(groupMembershipAttributeName)) {
+      List<GrouperProvisioningTargetNativeMembership> memberships =
+          new ArrayList<GrouperProvisioningTargetNativeMembership>();
+      this.appendNativeMembershipsFromGroupEntry(memberships, ldapEntry, groupMembershipAttributeName);
+      this.recordTargetNativeMemberships(memberships);
+    }
+  }
+
+  /**
+   * Full per-entry capture for an entity (user): build the native user bean, record it,
+   * then extract and record any native memberships found on {@code entityMembershipAttributeName}.
+   */
+  public void captureEntityEntry(LdapEntry ldapEntry, String entityMembershipAttributeName) {
+    if (ldapEntry == null) {
+      return;
+    }
+    this.recordTargetNativeUser(this.buildNativeUser(ldapEntry));
+    if (!StringUtils.isBlank(entityMembershipAttributeName)) {
+      List<GrouperProvisioningTargetNativeMembership> memberships =
+          new ArrayList<GrouperProvisioningTargetNativeMembership>();
+      this.appendNativeMembershipsFromEntityEntry(memberships, ldapEntry, entityMembershipAttributeName);
+      this.recordTargetNativeMemberships(memberships);
+    }
   }
 
 }

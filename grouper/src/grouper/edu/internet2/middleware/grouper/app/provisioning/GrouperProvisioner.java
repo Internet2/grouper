@@ -1200,9 +1200,31 @@ public abstract class GrouperProvisioner {
   }
 
   private GrouperProvisioningMatchingIdIndex grouperProvisioningMatchingIdIndex;
-  
+
   protected Class<? extends GrouperProvisioningMatchingIdIndex> grouperProvisioningMatchingIdIndexClass() {
     return GrouperProvisioningMatchingIdIndex.class;
+  }
+
+  /**
+   * return the per-provisioner runtime helper that owns the "generic provisioner sync back"
+   * logic (recording native target objects so they end up in grouper_prov_*). Protocol
+   * subclasses (e.g. {@code LdapSync}) override {@link #grouperProvisioningTargetNativeSyncClass()}
+   * to return their own subclass with protocol-specific build / widen / capture methods;
+   * the default base class supports the generic recording side only.
+   * @return the sync helper
+   */
+  public GrouperProvisioningTargetNativeSync retrieveGrouperProvisioningTargetNativeSync() {
+    if (this.grouperProvisioningTargetNativeSync == null) {
+      this.grouperProvisioningTargetNativeSync = grouperProvisioningTargetNativeSyncInstance();
+      this.grouperProvisioningTargetNativeSync.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningTargetNativeSync;
+  }
+
+  private GrouperProvisioningTargetNativeSync grouperProvisioningTargetNativeSync;
+
+  protected Class<? extends GrouperProvisioningTargetNativeSync> grouperProvisioningTargetNativeSyncClass() {
+    return GrouperProvisioningTargetNativeSync.class;
   }
 
   /**
@@ -1459,6 +1481,10 @@ public abstract class GrouperProvisioner {
 
   protected GrouperProvisioningMatchingIdIndex grouperProvisioningMatchingIdIndexInstance() {
     return GrouperUtil.newInstance(grouperProvisioningMatchingIdIndexClass());
+  }
+
+  protected GrouperProvisioningTargetNativeSync grouperProvisioningTargetNativeSyncInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningTargetNativeSyncClass());
   }
 
   /**

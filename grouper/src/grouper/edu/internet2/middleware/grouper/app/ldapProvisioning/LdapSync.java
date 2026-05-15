@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConf
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogic;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeSync;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
@@ -70,6 +71,11 @@ public class LdapSync extends GrouperProvisioner {
   @Override
   protected Class<? extends GrouperProvisioningLogic> grouperProvisioningLogicClass() {
     return LdapSyncLogic.class;
-  } 
-  
+  }
+
+  @Override
+  protected Class<? extends GrouperProvisioningTargetNativeSync> grouperProvisioningTargetNativeSyncClass() {
+    return LdapProvisioningTargetNativeSync.class;
+  }
+
 }
