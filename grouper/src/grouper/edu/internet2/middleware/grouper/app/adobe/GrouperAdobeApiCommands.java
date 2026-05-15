@@ -99,7 +99,7 @@ public class GrouperAdobeApiCommands {
 
     WsBearerTokenExternalSystem.attachAuthenticationToHttpClient(grouperHttpCall, configId, grouperLoaderConfig, debugMap);
 
-    String url = grouperLoaderConfig.propertyValueStringRequired("grouper.wsBearerToken." + configId + ".serviceUrl");
+    String url = grouperLoaderConfig.propertyValueStringRequired("grouper.wsBearerToken." + configId + ".endpoint");
 
     if (url.endsWith("/")) {
       url = url.substring(0, url.length() - 1);
