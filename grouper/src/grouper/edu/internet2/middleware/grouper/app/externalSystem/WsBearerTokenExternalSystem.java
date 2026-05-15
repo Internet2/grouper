@@ -246,7 +246,15 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
         if (StringUtils.isNotBlank(scope)) {
           grouperHttpClient.addBodyParameter("scope", scope);
         }
-        
+
+        if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
+                "grouper.wsBearerToken." + configId + ".sendClientAuthorizationBasicHttpHeader", true)) {
+          // client_secret_basic : Authorization: Basic <base64(client_id:client_secret)>
+          final String secret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".clientSecret");
+          grouperHttpClient.assignUser(clientId);
+          grouperHttpClient.assignPassword(secret);
+        }
+
       } else {
         grouperHttpClient.addUrlParameter("grant_type", grantType);
         grouperHttpClient.addUrlParameter("client_id", clientId);
