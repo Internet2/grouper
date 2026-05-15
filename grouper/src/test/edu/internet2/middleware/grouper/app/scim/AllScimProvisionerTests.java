@@ -12,6 +12,8 @@ public class AllScimProvisionerTests extends TestCase {
     suite.addTestSuite(GrouperAwsProvisionerTest.class);
     suite.addTestSuite(GrouperAwsProvisionerTest2.class);
     suite.addTestSuite(GrouperGithubProvisionerTest.class);
+    suite.addTestSuite(GrouperScim2ProvisioningTargetNativeSyncTest.class);
+    suite.addTestSuite(ScimProvisionerGenericTableTest.class);
     //$JUnit-END$
     return suite;
   }

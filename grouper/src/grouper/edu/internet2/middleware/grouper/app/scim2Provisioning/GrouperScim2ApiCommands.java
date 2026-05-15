@@ -1119,6 +1119,9 @@ public class GrouperScim2ApiCommands {
           populateMembershipsFromUser(grouperScim2MembershipCache, jsonNode,
               grouperScimUser);
         }
+        // generic provisioner sync back: capture the fetched user against the current
+        // provisioner's reporting tables (no-op if reporting is off or no provisioner is active)
+        GrouperScim2ProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(jsonNode);
         return grouperScimUser;
       }
 
@@ -1126,24 +1129,25 @@ public class GrouperScim2ApiCommands {
         debugMap.put("found", false);
         return null;
       }
-      
+
       ArrayNode resourcesNode = (ArrayNode)jsonNode.get("Resources");
 
       if (resourcesNode.size() == 0) {
         debugMap.put("found", false);
         return null;
       }
-      
+
       if (resourcesNode.size() != 1) {
         throw new RuntimeException("Why is resourcesNode size " + resourcesNode.size() + " and not 1???? " + fieldName + ", " +  fieldValue);
       }
-      
+
       JsonNode userNode = resourcesNode.get(0);
       GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(userNode);
       debugMap.put("found", grouperScimUser != null);
       populateMembershipsFromUser(grouperScim2MembershipCache, userNode,
           grouperScimUser);
 
+      GrouperScim2ProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
       return grouperScimUser;
 
     } catch (RuntimeException re) {
@@ -1259,6 +1263,8 @@ public class GrouperScim2ApiCommands {
             idsRetreved.add(grouperScimUser.getId());
             foundNewUser = true;
             populateMembershipsFromUser(grouperScim2MembershipCache, userNode, grouperScimUser);
+            // generic provisioner sync back: capture per-resource while the userNode is in scope
+            GrouperScim2ProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
           }
         }
         
@@ -1281,6 +1287,10 @@ public class GrouperScim2ApiCommands {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
+      // generic provisioner sync back: per-resource user captures already happened inline
+      // (where each userNode is in scope). drain the membership cache here, after the
+      // entire bulk-fetch completes.
+      GrouperScim2ProvisioningTargetNativeSync.captureMembershipsFromCacheIfActive(grouperScim2MembershipCache);
       GrouperScim2Log.scimLog(debugMap, startTime);
     }
 
@@ -1466,31 +1476,34 @@ public class GrouperScim2ApiCommands {
           populateMembershipsFromGroup(grouperScim2MembershipCache, jsonNode,
               grouperScimGroup);
         }
-
+        // generic provisioner sync back: capture the fetched group against the current
+        // provisioner's reporting tables (no-op if reporting is off or no provisioner is active)
+        GrouperScim2ProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(jsonNode);
         return grouperScimGroup;
       }
-  
+
       if (!jsonNode.has("Resources")) {
         debugMap.put("found", false);
         return null;
       }
-      
+
       ArrayNode resourcesNode = (ArrayNode)jsonNode.get("Resources");
-  
+
       if (resourcesNode.size() == 0) {
         debugMap.put("found", false);
         return null;
       }
-      
+
       if (resourcesNode.size() != 1) {
         throw new RuntimeException("Why is resourcesNode size " + resourcesNode.size() + " and not 1???? " + fieldName + ", " +  fieldValue);
       }
-      
+
       JsonNode groupNode = resourcesNode.get(0);
       GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(groupNode);
       debugMap.put("found", grouperScimGroup != null);
       populateMembershipsFromGroup(grouperScim2MembershipCache, groupNode,
           grouperScimGroup);
+      GrouperScim2ProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
       return grouperScimGroup;
   
     } catch (RuntimeException re) {
@@ -1989,6 +2002,8 @@ public class GrouperScim2ApiCommands {
             idsRetreved.add(grouperScimGroup.getId());
             foundNewGroup = true;
             populateMembershipsFromGroup(grouperScim2MembershipCache, groupNode, grouperScimGroup);
+            // generic provisioner sync back: capture per-resource while the groupNode is in scope
+            GrouperScim2ProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
           }
         }
         
@@ -2008,6 +2023,10 @@ public class GrouperScim2ApiCommands {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
+      // generic provisioner sync back: per-resource group captures already happened inline
+      // (where each groupNode is in scope). drain the membership cache here, after the
+      // entire bulk-fetch completes.
+      GrouperScim2ProvisioningTargetNativeSync.captureMembershipsFromCacheIfActive(grouperScim2MembershipCache);
       GrouperScim2Log.scimLog(debugMap, startTime);
     }
 

@@ -396,8 +396,10 @@ public class GroupImportContainer {
   }
 
   /**
-   * comma separated list of group names or ids not found
-   * @param groupNamesOrIdsNotFound1
+   * comma separated list of group names or ids not found (populated when the import
+   * encounters group names/IDs that don't resolve to existing groups; surfaced to the
+   * user via an error message on the import screen).
+   * @param groupNamesOrIdsNotFound1 comma-joined list of unresolved names/ids
    */
   public void setGroupNamesOrIdsNotFound(String groupNamesOrIdsNotFound1) {
     this.groupNamesOrIdsNotFound = groupNamesOrIdsNotFound1;

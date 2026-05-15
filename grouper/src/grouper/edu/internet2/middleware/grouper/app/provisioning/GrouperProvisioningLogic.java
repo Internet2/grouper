@@ -1415,6 +1415,12 @@ public class GrouperProvisioningLogic {
     this.assignProvisioningObjectInternalIds(targetUserIdToRecord, TableIndexType.provUser);
     this.assignProvisioningObjectInternalIds(targetGroupIdToRecord, TableIndexType.provGroup);
 
+    // populate the Grouper-side linkage columns (member_internal_id / group_internal_id) on
+    // the records by looking up the in-memory wrappers. Target-side orphans (target_ids the
+    // daemon never processed) won't appear in the wrappers and stay null.
+    this.resolveGrouperMemberInternalIdsForUsers(targetUserIdToRecord);
+    this.resolveGrouperGroupInternalIdsForGroups(targetGroupIdToRecord);
+
     Map<String, GenericProvisioningAttrCatalog> userAttrCatalog = new LinkedHashMap<String, GenericProvisioningAttrCatalog>();
     Map<String, GenericProvisioningAttrCatalog> groupAttrCatalog = new LinkedHashMap<String, GenericProvisioningAttrCatalog>();
 
@@ -1893,7 +1899,13 @@ public class GrouperProvisioningLogic {
         }
       }
     }
-    
+
+    // populate the Grouper-side linkage columns (member_internal_id / group_internal_id) on
+    // the records by looking up the in-memory wrappers. Target-side orphans (target_ids the
+    // daemon never processed) won't appear in the wrappers and stay null.
+    this.resolveGrouperMemberInternalIdsForUsers(targetUserIdToRecord);
+    this.resolveGrouperGroupInternalIdsForGroups(targetGroupIdToRecord);
+
     Map<String, GenericProvisioningAttrCatalog> userAttrCatalog = new LinkedHashMap<String, GenericProvisioningAttrCatalog>();
     Map<String, GenericProvisioningAttrCatalog> groupAttrCatalog = new LinkedHashMap<String, GenericProvisioningAttrCatalog>();
 
@@ -2595,6 +2607,122 @@ public class GrouperProvisioningLogic {
       attributeNameToInternalId.put(attributeName, internalId);
     }
     return attributeNameToInternalId;
+  }
+
+  /**
+   * Populate {@code member_internal_id} on each user record by reading the in-memory
+   * {@link ProvisioningEntityWrapper}s the daemon already loaded for this run.
+   *
+   * <p>The Grouper-side internal id is taken from
+   * {@code wrapper.getGrouperProvisioningEntity().getInternalId()} (always populated by
+   * {@code GrouperProvisioningGrouperDao} when Grouper data is loaded). The target id is
+   * taken from the retrieved-from-target ProvisioningEntity first
+   * ({@code wrapper.getTargetProvisioningEntity().getId()} — the actual target id once the
+   * daemon matched Grouper ↔ target), falling back to the translated-Grouper view if the
+   * match hasn't happened yet.
+   *
+   * <p>Records whose {@code target_user_id} doesn't appear in any wrapper are target-side
+   * orphans and stay null. No DB query — the wrappers already have everything we need.
+   */
+  private void resolveGrouperMemberInternalIdsForUsers(
+      Map<String, GenericProvisioningUserRecord> targetUserIdToRecord) {
+    if (targetUserIdToRecord == null || targetUserIdToRecord.isEmpty()) {
+      return;
+    }
+    Map<String, Long> targetUserIdToMemberInternalId = new LinkedHashMap<String, Long>();
+    for (ProvisioningEntityWrapper provisioningEntityWrapper :
+        GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+      if (provisioningEntityWrapper == null) {
+        continue;
+      }
+      // grab the Grouper-side internal id from the Grouper data (always populated)
+      ProvisioningEntity grouperProvisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
+      if (grouperProvisioningEntity == null) {
+        continue;
+      }
+      Long memberInternalId = grouperProvisioningEntity.getInternalId();
+      if (memberInternalId == null) {
+        continue;
+      }
+      // target id: prefer the actual retrieved-from-target id (post-match), fall back to
+      // the translated-Grouper-as-target id if no target match yet
+      String targetUserId = null;
+      ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
+      if (targetProvisioningEntity != null) {
+        targetUserId = this.normalizeTargetId(targetProvisioningEntity.getId());
+      }
+      if (StringUtils.isBlank(targetUserId)) {
+        ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+        if (grouperTargetEntity != null) {
+          targetUserId = this.normalizeTargetId(grouperTargetEntity.getId());
+        }
+      }
+      if (StringUtils.isBlank(targetUserId)) {
+        continue;
+      }
+      // last write wins on duplicates (shouldn't happen — wrappers are per-Grouper-member)
+      targetUserIdToMemberInternalId.put(targetUserId, memberInternalId);
+    }
+    for (GenericProvisioningUserRecord userRecord : targetUserIdToRecord.values()) {
+      if (userRecord.getMemberInternalId() != null) {
+        continue;
+      }
+      Long resolved = targetUserIdToMemberInternalId.get(userRecord.getTargetId());
+      if (resolved != null) {
+        userRecord.setMemberInternalId(resolved);
+      }
+    }
+  }
+
+  /**
+   * Populate {@code group_internal_id} on each group record by reading the in-memory
+   * {@link ProvisioningGroupWrapper}s. Mirror of
+   * {@link #resolveGrouperMemberInternalIdsForUsers}.
+   */
+  private void resolveGrouperGroupInternalIdsForGroups(
+      Map<String, GenericProvisioningGroupRecord> targetGroupIdToRecord) {
+    if (targetGroupIdToRecord == null || targetGroupIdToRecord.isEmpty()) {
+      return;
+    }
+    Map<String, Long> targetGroupIdToGroupInternalId = new LinkedHashMap<String, Long>();
+    for (ProvisioningGroupWrapper provisioningGroupWrapper :
+        GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+      if (provisioningGroupWrapper == null) {
+        continue;
+      }
+      ProvisioningGroup grouperProvisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
+      if (grouperProvisioningGroup == null) {
+        continue;
+      }
+      Long groupInternalId = grouperProvisioningGroup.getGroupInternalId();
+      if (groupInternalId == null) {
+        continue;
+      }
+      String targetGroupId = null;
+      ProvisioningGroup targetProvisioningGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
+      if (targetProvisioningGroup != null) {
+        targetGroupId = this.normalizeTargetId(targetProvisioningGroup.getId());
+      }
+      if (StringUtils.isBlank(targetGroupId)) {
+        ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
+        if (grouperTargetGroup != null) {
+          targetGroupId = this.normalizeTargetId(grouperTargetGroup.getId());
+        }
+      }
+      if (StringUtils.isBlank(targetGroupId)) {
+        continue;
+      }
+      targetGroupIdToGroupInternalId.put(targetGroupId, groupInternalId);
+    }
+    for (GenericProvisioningGroupRecord groupRecord : targetGroupIdToRecord.values()) {
+      if (groupRecord.getGroupInternalId() != null) {
+        continue;
+      }
+      Long resolved = targetGroupIdToGroupInternalId.get(groupRecord.getTargetId());
+      if (resolved != null) {
+        groupRecord.setGroupInternalId(resolved);
+      }
+    }
   }
 
   private List<GenericProvisioningAttributeRecord> buildProvisioningAttributeRecords(

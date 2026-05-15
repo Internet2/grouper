@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -68,6 +69,53 @@ public class GrouperProvisioningTargetNativeSync {
     }
     this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetNativeUsers()
         .add(grouperProvisioningTargetNativeUser);
+  }
+
+  /**
+   * Effective list of native attribute configs to capture for entities (users). If the
+   * provisioner config has an explicit {@code nativeAttributesEntities} list, that wins;
+   * otherwise the protocol subclass's defaults from
+   * {@link #getDefaultNativeAttributeConfigsEntities()} are used.
+   */
+  public List<GrouperProvisioningNativeAttributeConfig> effectiveNativeAttributeConfigsEntities() {
+    List<GrouperProvisioningNativeAttributeConfig> configured =
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getNativeAttributeConfigsEntities();
+    if (configured != null && !configured.isEmpty()) {
+      return configured;
+    }
+    return this.getDefaultNativeAttributeConfigsEntities();
+  }
+
+  /**
+   * Effective list of native attribute configs to capture for groups. See
+   * {@link #effectiveNativeAttributeConfigsEntities()} for the resolution rule.
+   */
+  public List<GrouperProvisioningNativeAttributeConfig> effectiveNativeAttributeConfigsGroups() {
+    List<GrouperProvisioningNativeAttributeConfig> configured =
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getNativeAttributeConfigsGroups();
+    if (configured != null && !configured.isEmpty()) {
+      return configured;
+    }
+    return this.getDefaultNativeAttributeConfigsGroups();
+  }
+
+  /**
+   * Per-protocol sensible-default attribute list for entities (users) when the operator
+   * hasn't configured {@code nativeAttributesEntities}. Override in protocol subclasses to
+   * return a curated list (e.g. SCIM core schema fields). Default is empty — for LDAP this
+   * means "no extra capture beyond what the regular target query returned," which is the
+   * historical behavior.
+   */
+  protected List<GrouperProvisioningNativeAttributeConfig> getDefaultNativeAttributeConfigsEntities() {
+    return Collections.emptyList();
+  }
+
+  /**
+   * Per-protocol sensible-default attribute list for groups. See
+   * {@link #getDefaultNativeAttributeConfigsEntities()}.
+   */
+  protected List<GrouperProvisioningNativeAttributeConfig> getDefaultNativeAttributeConfigsGroups() {
+    return Collections.emptyList();
   }
 
   /**
