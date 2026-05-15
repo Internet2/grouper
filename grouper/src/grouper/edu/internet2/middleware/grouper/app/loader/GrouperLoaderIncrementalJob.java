@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -194,7 +195,8 @@ public class GrouperLoaderIncrementalJob implements Job {
       String query = "select * from " + tableName + " where completed_timestamp is null order by timestamp";
       List<String> columnNames = new ArrayList<String>();
       
-      Set<String> nonFatalWarnings = new LinkedHashSet<String>();
+      // synchronized: processGroupSyncRows writes to this from worker threads
+      Set<String> nonFatalWarnings = Collections.synchronizedSet(new LinkedHashSet<String>());
 
       try {
         connection = grouperLoaderDb.connection();
@@ -315,8 +317,9 @@ public class GrouperLoaderIncrementalJob implements Job {
         final Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates = new ConcurrentHashMap<String, Set<Group>>();
 
         // group names that already had memberships fully synced via the group table
-        // (any membership rows scoped to these groups via mshipRecalcGroupName are redundant)
-        final Set<String> groupsWithMembershipsFullySynced = new HashSet<String>();
+        // (any membership rows scoped to these groups via mshipRecalcGroupName are redundant).
+        // concurrent set because processGroupSyncRows processes group rows across threads.
+        final Set<String> groupsWithMembershipsFullySynced = ConcurrentHashMap.newKeySet();
 
         String groupTableName = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + jobProperty + ".groupTableName", null);
         if (!StringUtils.isBlank(groupTableName)) {
@@ -845,8 +848,8 @@ public class GrouperLoaderIncrementalJob implements Job {
     }
   }
   
-  public static void processOneSQLRow(GrouperSession grouperSession, GrouperLoaderDb grouperLoaderDb, Row row, String tableName, 
-      Group loaderGroup, String grouperLoaderType, 
+  public static void processOneSQLRow(GrouperSession grouperSession, GrouperLoaderDb grouperLoaderDb, Row row, String tableName,
+      Group loaderGroup, String grouperLoaderType,
       Hib3GrouperLoaderLog hib3GrouperloaderLog, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates,
       String grouperLoaderAndGroups, String grouperLoaderGroupsLike, String grouperLoaderGroupQuery, String grouperLoaderQuery, String grouperLoaderDbName,
       boolean caseInsensitiveSubjectLookupsInDataSource, boolean updateIncrementalTable, boolean runFullSyncIfGroupDoesntExist) {
@@ -997,8 +1000,8 @@ public class GrouperLoaderIncrementalJob implements Job {
           // membershipsInSource stays empty — handleGroupList will remove the member
           membershipsInSource = new LinkedHashSet<String>();
         } else {
-          // Recalc: source and Grouper queries are independent. Run source on a worker thread
-          // and Grouper in the current thread so wall-time = max(source, grouper) instead of sum.
+          // Recalc path. Source and Grouper queries are independent — run source on a worker
+          // thread and Grouper in the current thread so wall-time = max(source, grouper) instead of sum.
           final String finalSubjectColumn = subjectColumn;
           final String finalSubjectValue = subjectValue;
           final String finalSourceId = sourceId;
@@ -1173,14 +1176,14 @@ public class GrouperLoaderIncrementalJob implements Job {
     
     Set<String> membershipsInSourceAfterAndGroupsConsideration = new LinkedHashSet<String>(membershipsInSource);
     if (!StringUtils.isBlank(grouperLoaderAndGroups)) {
+      // the and-group check doesn't depend on the group name — if the subject is missing from
+      // any and-group, none of the source memberships count; if present in all, all of them do
       String[] andGroupNames = GrouperUtil.splitTrim(grouperLoaderAndGroups, ",");
-      for (String groupName : membershipsInSource) {
-        for (String andGroupName : andGroupNames) {
-          Group andGroup = GroupFinder.findByName(grouperSession, andGroupName, true);
-          if (!andGroup.hasMember(subject)) {
-            membershipsInSourceAfterAndGroupsConsideration.remove(groupName);
-            break;
-          }
+      for (String andGroupName : andGroupNames) {
+        Group andGroup = GroupFinder.findByName(grouperSession, andGroupName, true);
+        if (!andGroup.hasMember(subject)) {
+          membershipsInSourceAfterAndGroupsConsideration.clear();
+          break;
         }
       }
     }
@@ -1271,6 +1274,10 @@ public class GrouperLoaderIncrementalJob implements Job {
       Set<String> nonFatalWarnings, Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates,
       Set<String> groupsWithMembershipsFullySynced,
       boolean useThreads, int threadPoolSize) throws SQLException, SchedulerException {
+
+    List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+    List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
+    final String overallLoggerId = GrouperLoaderLogger.retrieveOverallId();
 
     Statement groupStatement = null;
     ResultSet groupResultSet = null;
@@ -1389,22 +1396,67 @@ public class GrouperLoaderIncrementalJob implements Job {
 
         GrouperLoaderDb grouperLoaderDbForLoaderSource = GrouperLoaderConfig.retrieveDbProfile(grouperLoaderDbName);
 
-        for (GroupRow groupRow : rowsByLoaderGroup.get(loaderGroupName).values()) {
-          try {
-            processOneGroupSyncRow(grouperSession, connection, grouperLoaderDbForLoaderSource,
-                groupRow, groupTableName, loaderGroup, hib3GrouperloaderLog,
-                groupsRequiringLoaderMetadataUpdates, groupsWithMembershipsFullySynced,
-                grouperLoaderQueryResolved,
-                grouperLoaderGroupQueryResolved, grouperLoaderAndGroups, grouperLoaderGroupsLike);
-          } catch (Exception e) {
-            LOG.error("Error processing incremental group sync row for group " + groupRow.getGroupName()
-                + " in loader " + loaderGroupName, e);
-            nonFatalWarnings.add("Error processing incremental group sync for group " + groupRow.getGroupName()
-                + ": " + e.getMessage());
-            setRowCompleted(connection, groupTableName, groupRow.getId(), true);
+        // each worker opens its own connection (JDBC Connection is not thread-safe) — the
+        // connection is only used by processOneGroupSyncRow to mark the group row completed
+        final String loaderGroupNameFinal = loaderGroupName;
+        final Group loaderGroupFinal = loaderGroup;
+        final String grouperLoaderQueryFinal = grouperLoaderQueryResolved;
+        final String grouperLoaderGroupQueryFinal = grouperLoaderGroupQueryResolved;
+        final String grouperLoaderAndGroupsFinal = grouperLoaderAndGroups;
+        final String grouperLoaderGroupsLikeFinal = grouperLoaderGroupsLike;
+        final GrouperLoaderDb grouperLoaderDbForLoaderSourceFinal = grouperLoaderDbForLoaderSource;
+
+        for (final GroupRow groupRow : rowsByLoaderGroup.get(loaderGroupName).values()) {
+          GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("processOneGroupSyncRow") {
+            @Override
+            public Void callLogic() {
+              GrouperLoaderLogger.assignOverallId(overallLoggerId);
+              Connection workerConnection = null;
+              try {
+                workerConnection = grouperLoaderDb.connection();
+                workerConnection.setAutoCommit(false);
+                // the same group can have both a metadata and a memberships row in one tick
+                // (dedup key is groupName|syncType) — serialize rows for the same group
+                synchronized (("GrouperLoaderIncrementalJob_groupSync_" + groupRow.getGroupName()).intern()) {
+                  processOneGroupSyncRow(grouperSession, workerConnection, grouperLoaderDbForLoaderSourceFinal,
+                      groupRow, groupTableName, loaderGroupFinal, hib3GrouperloaderLog,
+                      groupsRequiringLoaderMetadataUpdates, groupsWithMembershipsFullySynced,
+                      grouperLoaderQueryFinal, grouperLoaderGroupQueryFinal,
+                      grouperLoaderAndGroupsFinal, grouperLoaderGroupsLikeFinal);
+                }
+              } catch (Exception e) {
+                LOG.error("Error processing incremental group sync row for group " + groupRow.getGroupName()
+                    + " in loader " + loaderGroupNameFinal, e);
+                nonFatalWarnings.add("Error processing incremental group sync for group " + groupRow.getGroupName()
+                    + ": " + e.getMessage());
+                if (workerConnection != null) {
+                  try {
+                    setRowCompleted(workerConnection, groupTableName, groupRow.getId(), true);
+                  } catch (SQLException se) {
+                    LOG.error("Error marking incremental group sync row complete for group "
+                        + groupRow.getGroupName(), se);
+                  }
+                }
+              } finally {
+                GrouperUtil.closeQuietly(workerConnection);
+              }
+              return null;
+            }
+          };
+
+          if (!useThreads || threadPoolSize <= 1) {
+            grouperCallable.callLogic();
+          } else {
+            GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
+            futures.add(future);
+            GrouperFuture.waitForJob(futures, threadPoolSize, callablesWithProblems);
           }
         }
       }
+
+      // group rows must all finish before membership rows run — they populate groupsWithMembershipsFullySynced
+      GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+      GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
 
       deleteRowsCompleted(connection, groupTableName);
     } finally {
