@@ -248,7 +248,7 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
         }
 
         if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
-                "grouper.wsBearerToken." + configId + ".sendClientAuthorizationBasicHttpHeader", true)) {
+                "grouper.wsBearerToken." + configId + ".sendClientAuthorizationBasicHttpHeader", false)) {
           // client_secret_basic : Authorization: Basic <base64(client_id:client_secret)>
           final String secret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".clientSecret");
           grouperHttpClient.assignUser(clientId);
