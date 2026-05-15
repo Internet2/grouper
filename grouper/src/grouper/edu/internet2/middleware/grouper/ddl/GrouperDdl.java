@@ -2324,16 +2324,10 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
           "group_type_of_group_idx", false, "type_of_group");
-      
-      //do 12 string indexes
-      for (int i=1;i<=12;i++) {
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP, 
-            "change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') 
-            + "_idx", false, "string" + StringUtils.leftPad(i + "", 2, '0') + "(255)");
-        
-      }
-      
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP,
+          "change_log_temp_string01_idx", false, "string01(255)");
+
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,
           "audit_entry_act_as_created_idx", false, "act_as_member_id", "created_on");
       
@@ -13067,18 +13061,12 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
           "string11", Types.VARCHAR, "4000", false, false); 
 
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
-          "string12", Types.VARCHAR, "4000", false, false); 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable,
+          "string12", Types.VARCHAR, "4000", false, false);
 
-      //do 12 string indexes
-      for (int i=1;i<=12;i++) {
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogTempEntryTable.getName(),
+          "change_log_temp_string01_idx", false, "string01(255)");
 
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogTempEntryTable.getName(), 
-            "change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') 
-            + "_idx", false, "string" + StringUtils.leftPad(i + "", 2, '0') + "(255)");
-        
-      }
-      
       GrouperDdl2_4.addChangeLogEntryTempIndex(ddlVersionBean, database);
     }
 

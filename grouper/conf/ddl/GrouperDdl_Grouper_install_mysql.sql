@@ -3050,28 +3050,6 @@ CREATE INDEX audit_entry_string08_idx ON grouper_audit_entry (string08(255));
 
 CREATE INDEX change_log_temp_string01_idx ON grouper_change_log_entry_temp (string01(255));
 
-CREATE INDEX change_log_temp_string02_idx ON grouper_change_log_entry_temp (string02(255));
-
-CREATE INDEX change_log_temp_string03_idx ON grouper_change_log_entry_temp (string03(255));
-
-CREATE INDEX change_log_temp_string04_idx ON grouper_change_log_entry_temp (string04(255));
-
-CREATE INDEX change_log_temp_string05_idx ON grouper_change_log_entry_temp (string05(255));
-
-CREATE INDEX change_log_temp_string06_idx ON grouper_change_log_entry_temp (string06(255));
-
-CREATE INDEX change_log_temp_string07_idx ON grouper_change_log_entry_temp (string07(255));
-
-CREATE INDEX change_log_temp_string08_idx ON grouper_change_log_entry_temp (string08(255));
-
-CREATE INDEX change_log_temp_string09_idx ON grouper_change_log_entry_temp (string09(255));
-
-CREATE INDEX change_log_temp_string10_idx ON grouper_change_log_entry_temp (string10(255));
-
-CREATE INDEX change_log_temp_string11_idx ON grouper_change_log_entry_temp (string11(255));
-
-CREATE INDEX change_log_temp_string12_idx ON grouper_change_log_entry_temp (string12(255));
-
 CREATE INDEX change_log_entry_string01_idx ON grouper_change_log_entry (string01(255));
 
 CREATE INDEX change_log_entry_string02_idx ON grouper_change_log_entry (string02(255));

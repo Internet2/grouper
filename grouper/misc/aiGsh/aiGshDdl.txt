@@ -542,28 +542,6 @@ CREATE TABLE grouper_change_log_entry_temp
 
 CREATE INDEX change_log_temp_string01_idx ON grouper_change_log_entry_temp (string01);
 
-CREATE INDEX change_log_temp_string02_idx ON grouper_change_log_entry_temp (string02);
-
-CREATE INDEX change_log_temp_string03_idx ON grouper_change_log_entry_temp (string03);
-
-CREATE INDEX change_log_temp_string04_idx ON grouper_change_log_entry_temp (string04);
-
-CREATE INDEX change_log_temp_string05_idx ON grouper_change_log_entry_temp (string05);
-
-CREATE INDEX change_log_temp_string06_idx ON grouper_change_log_entry_temp (string06);
-
-CREATE INDEX change_log_temp_string07_idx ON grouper_change_log_entry_temp (string07);
-
-CREATE INDEX change_log_temp_string08_idx ON grouper_change_log_entry_temp (string08);
-
-CREATE INDEX change_log_temp_string09_idx ON grouper_change_log_entry_temp (string09);
-
-CREATE INDEX change_log_temp_string10_idx ON grouper_change_log_entry_temp (string10);
-
-CREATE INDEX change_log_temp_string11_idx ON grouper_change_log_entry_temp (string11);
-
-CREATE INDEX change_log_temp_string12_idx ON grouper_change_log_entry_temp (string12);
-
 CREATE INDEX change_log_temp_created_on_idx ON grouper_change_log_entry_temp (created_on);
 
 CREATE TABLE grouper_change_log_entry
