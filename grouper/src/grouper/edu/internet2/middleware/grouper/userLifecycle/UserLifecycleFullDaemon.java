@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.userLifecycle;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -78,19 +77,19 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
           continue;
         }
         
-        Map<String, Object> variableMap = new HashMap<>();
-        variableMap.put("groupName", GrouperUtil.stringValue(groupAttributes[0]));
-        variableMap.put("groupDisplayName", GrouperUtil.stringValue(groupAttributes[1]));
-        variableMap.put("groupExtension", GrouperUtil.stringValue(groupAttributes[2]));
-        variableMap.put("groupDisplayExtension", GrouperUtil.stringValue(groupAttributes[3]));
-        variableMap.put("groupDescription", GrouperUtil.stringValue(groupAttributes[4]));
-        
-        Object naturalLanguageDescriptionJexlPrivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlPrivileged, variableMap, true, false, true);
-        Object naturalLanguageDescriptionJexlUnprivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlUnprivileged, variableMap, true, false, true);
-        
-        Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlPrivilegedResult));
-        Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlUnprivilegedResult));
-        
+        Group groupForJexl = new Group();
+        groupForJexl.setNameDb(GrouperUtil.stringValue(groupAttributes[0]));
+        groupForJexl.setDisplayNameDb(GrouperUtil.stringValue(groupAttributes[1]));
+        groupForJexl.setExtensionDb(GrouperUtil.stringValue(groupAttributes[2]));
+        groupForJexl.setDisplayExtensionDb(GrouperUtil.stringValue(groupAttributes[3]));
+        groupForJexl.setDescriptionDb(GrouperUtil.stringValue(groupAttributes[4]));
+
+        String naturalLanguageDescriptionJexlPrivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlPrivileged, groupForJexl, null, null, null, null, true);
+        String naturalLanguageDescriptionJexlUnprivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlUnprivileged, groupForJexl, null, null, null, null, true);
+
+        Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlPrivilegedResult);
+        Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlUnprivilegedResult);
+
         StringBuilder membersFromMShipTable = new StringBuilder("""
             select  gscm.member_internal_id, gscm.flattened_add_timestamp  from grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm, grouper_fields gf where gf.internal_id = gscg.field_internal_id and 
             gscm.sql_cache_group_internal_id = gscg.internal_id and 
@@ -142,19 +141,19 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
           continue;
         }
         
-        Map<String, Object> variableMap = new HashMap<>();
-        variableMap.put("groupName", GrouperUtil.stringValue(groupAttributes[0]));
-        variableMap.put("groupDisplayName", GrouperUtil.stringValue(groupAttributes[1]));
-        variableMap.put("groupExtension", GrouperUtil.stringValue(groupAttributes[2]));
-        variableMap.put("groupDisplayExtension", GrouperUtil.stringValue(groupAttributes[3]));
-        variableMap.put("groupDescription", GrouperUtil.stringValue(groupAttributes[4]));
-        
-        Object naturalLanguageDescriptionJexlPrivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlPrivileged, variableMap, true, false, true);
-        Object naturalLanguageDescriptionJexlUnprivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlUnprivileged, variableMap, true, false, true);
-        
-        Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlPrivilegedResult));
-        Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlUnprivilegedResult));
-        
+        Group groupForJexl = new Group();
+        groupForJexl.setNameDb(GrouperUtil.stringValue(groupAttributes[0]));
+        groupForJexl.setDisplayNameDb(GrouperUtil.stringValue(groupAttributes[1]));
+        groupForJexl.setExtensionDb(GrouperUtil.stringValue(groupAttributes[2]));
+        groupForJexl.setDisplayExtensionDb(GrouperUtil.stringValue(groupAttributes[3]));
+        groupForJexl.setDescriptionDb(GrouperUtil.stringValue(groupAttributes[4]));
+
+        String naturalLanguageDescriptionJexlPrivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlPrivileged, groupForJexl, null, null, null, null, true);
+        String naturalLanguageDescriptionJexlUnprivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlUnprivileged, groupForJexl, null, null, null, null, true);
+
+        Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlPrivilegedResult);
+        Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlUnprivilegedResult);
+
         long microsUntilLastYear = (System.currentTimeMillis() - 365*24*60*60L*1000) * 1000 ;
         
         StringBuilder membersFromMShipHistoryTable = new StringBuilder("""
@@ -217,18 +216,11 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
           
           groupInternalIds.add(groupInternalId); //this is for later when we need to insert/delete entries from the sql cache dependency table
           
-          Map<String, Object> variableMap = new HashMap<>();
-          variableMap.put("groupName", group.getName());
-          variableMap.put("groupDisplayName", group.getDisplayName());
-          variableMap.put("groupExtension", group.getExtension());
-          variableMap.put("groupDisplayExtension", group.getDisplayExtension());
-          variableMap.put("groupDescription", group.getDescription());
-          
-          Object naturalLanguageDescriptionJexlPrivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlPrivileged, variableMap, true, false, true);
-          Object naturalLanguageDescriptionJexlUnprivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlUnprivileged, variableMap, true, false, true);
-          
-          Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlPrivilegedResult));
-          Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlUnprivilegedResult));
+          String naturalLanguageDescriptionJexlPrivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlPrivileged, group, stem, null, null, null, true);
+          String naturalLanguageDescriptionJexlUnprivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlUnprivileged, group, stem, null, null, null, true);
+
+          Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlPrivilegedResult);
+          Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlUnprivilegedResult);
           
           long microsUntilLastYear = (System.currentTimeMillis() - 365*24*60*60L*1000) * 1000 ;
           
@@ -291,7 +283,9 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
           continue;
         }
         
-        GrouperDataFieldConfig grouperDataFieldConfig = new GrouperDataEngine().getFieldConfigByAlias().get(dataField.getConfigId());
+        GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+        grouperDataEngine.loadFieldsAndRows(null);
+        GrouperDataFieldConfig grouperDataFieldConfig = grouperDataEngine.getFieldConfigByAlias().get(dataField.getConfigId());
         GrouperDataFieldStructure fieldDataStructure = grouperDataFieldConfig.getFieldDataStructure();
         
         
@@ -311,15 +305,12 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
               dictionaryInternalIds.add(assignHst.getValueDictionaryInternalId()); // not being used at the moment
               
               String stringValue = dictionary.getTheText();
-              Map<String, Object> variableMap = new HashMap<>();
-              variableMap.put("configId", dataField.getConfigId());
-              variableMap.put("value", stringValue);
-              Object naturalLanguageDescriptionJexlPrivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlPrivileged, variableMap, true, false, true);
-              Object naturalLanguageDescriptionJexlUnprivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlUnprivileged, variableMap, true, false, true);
-              
-              Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlPrivilegedResult));
-              Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlUnprivilegedResult));
-              
+              String naturalLanguageDescriptionJexlPrivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlPrivileged, null, null, dataField, stringValue, null, true);
+              String naturalLanguageDescriptionJexlUnprivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlUnprivileged, null, null, dataField, stringValue, null, true);
+
+              Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlPrivilegedResult);
+              Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlUnprivilegedResult);
+
               GrouperLifecycleEvent grouperLifecycleEvent = new GrouperLifecycleEvent();
               grouperLifecycleEvent.setGroupLifecycleEventConfigInternalId(lifecycleEventConfig.getInternalId());
               grouperLifecycleEvent.setMemberInternalId(assignHst.getMemberInternalId());
@@ -328,20 +319,17 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
               grouperLifecycleEvent.setNaturalLanguageUnPrivilegeDictionaryInternalId(dictionaryInternalIdForJexlUnPrivileged);
               lifecycleEventsToStore.add(grouperLifecycleEvent);
             }
-            
+
           } else if (fieldDataType == GrouperDataFieldType.integer) {
             // no need for dictionary in this case since the integer value is already in the GrouperDataFieldAssignHst table
-            
+
             for (GrouperDataFieldAssignHst assignHst: dataFieldAssingHistories) {
-              
-              Map<String, Object> variableMap = new HashMap<>();
-              variableMap.put("configId", dataField.getConfigId());
-              variableMap.put("value", assignHst.getValueInteger());
-              Object naturalLanguageDescriptionJexlPrivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlPrivileged, variableMap, true, false, true);
-              Object naturalLanguageDescriptionJexlUnprivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlUnprivileged, variableMap, true, false, true);
-              
-              Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlPrivilegedResult));
-              Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlUnprivilegedResult));
+
+              String naturalLanguageDescriptionJexlPrivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlPrivileged, null, null, dataField, assignHst.getValueInteger(), null, true);
+              String naturalLanguageDescriptionJexlUnprivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlUnprivileged, null, null, dataField, assignHst.getValueInteger(), null, true);
+
+              Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlPrivilegedResult);
+              Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlUnprivilegedResult);
               
               GrouperLifecycleEvent grouperLifecycleEvent = new GrouperLifecycleEvent();
               grouperLifecycleEvent.setGroupLifecycleEventConfigInternalId(lifecycleEventConfig.getInternalId());
@@ -373,17 +361,14 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
               dictionaryInternalIds.add(assignHst.getValueDictionaryInternalId()); // not being used at the moment
               
               String stringValue = dictionary.getTheText();
-              Map<String, Object> variableMap = new HashMap<>();
-              variableMap.put("configId", dataField.getConfigId());
-              variableMap.put("value", stringValue);
-              Object naturalLanguageDescriptionJexlPrivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlPrivileged, variableMap, true, false, true);
-              Object naturalLanguageDescriptionJexlUnprivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlUnprivileged, variableMap, true, false, true);
-              
-              Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlPrivilegedResult));
-              Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlUnprivilegedResult));
-              
+              String naturalLanguageDescriptionJexlPrivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlPrivileged, null, null, dataField, stringValue, null, true);
+              String naturalLanguageDescriptionJexlUnprivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlUnprivileged, null, null, dataField, stringValue, null, true);
+
+              Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlPrivilegedResult);
+              Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlUnprivilegedResult);
+
               GrouperDataRowAssignHst dataRowAssignHst = assignHst.getDataRowAssignHst();
-              
+
               GrouperLifecycleEvent grouperLifecycleEvent = new GrouperLifecycleEvent();
               grouperLifecycleEvent.setGroupLifecycleEventConfigInternalId(lifecycleEventConfig.getInternalId());
               grouperLifecycleEvent.setMemberInternalId(dataRowAssignHst.getMemberInternalId());
@@ -392,20 +377,17 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
               grouperLifecycleEvent.setNaturalLanguageUnPrivilegeDictionaryInternalId(dictionaryInternalIdForJexlUnPrivileged);
               lifecycleEventsToStore.add(grouperLifecycleEvent);
             }
-            
+
           } else if (fieldDataType == GrouperDataFieldType.integer) {
             // no need for dictionary in this case since the integer value is already in the GrouperDataFieldAssignHst table
-            
+
             for (GrouperDataRowFieldAssignHst assignHst: dataRowFieldAssingHistories) {
-              
-              Map<String, Object> variableMap = new HashMap<>();
-              variableMap.put("configId", dataField.getConfigId());
-              variableMap.put("value", assignHst.getValueInteger());
-              Object naturalLanguageDescriptionJexlPrivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlPrivileged, variableMap, true, false, true);
-              Object naturalLanguageDescriptionJexlUnprivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlUnprivileged, variableMap, true, false, true);
-              
-              Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlPrivilegedResult));
-              Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlUnprivilegedResult));
+
+              String naturalLanguageDescriptionJexlPrivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlPrivileged, null, null, dataField, assignHst.getValueInteger(), null, true);
+              String naturalLanguageDescriptionJexlUnprivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlUnprivileged, null, null, dataField, assignHst.getValueInteger(), null, true);
+
+              Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlPrivilegedResult);
+              Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlUnprivilegedResult);
               
               GrouperDataRowAssignHst dataRowAssignHst = assignHst.getDataRowAssignHst();
               
@@ -444,13 +426,11 @@ public class UserLifecycleFullDaemon extends OtherJobBase {
         
         for (GrouperDataRowAssignHst grouperDataRowAssignHst: dataRowAssignHists) {
           
-          Map<String, Object> variableMap = new HashMap<>();
-          variableMap.put("configId", dataRow.getConfigId());
-          Object naturalLanguageDescriptionJexlPrivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlPrivileged, variableMap, true, false, true);
-          Object naturalLanguageDescriptionJexlUnprivilegedResult = GrouperUtil.substituteExpressionLanguageScript(naturalLanguageDescriptionJexlUnprivileged, variableMap, true, false, true);
-          
-          Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlPrivilegedResult));
-          Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(GrouperUtil.stringValue(naturalLanguageDescriptionJexlUnprivilegedResult));
+          String naturalLanguageDescriptionJexlPrivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlPrivileged, null, null, null, null, dataRow, true);
+          String naturalLanguageDescriptionJexlUnprivilegedResult = UserLifecycleEngine.evaluateLifecycleJexl(naturalLanguageDescriptionJexlUnprivileged, null, null, null, null, dataRow, true);
+
+          Long dictionaryInternalIdForJexlPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlPrivilegedResult);
+          Long dictionaryInternalIdForJexlUnPrivileged = GrouperDictionaryDao.findOrAdd(naturalLanguageDescriptionJexlUnprivilegedResult);
           
           GrouperLifecycleEvent grouperLifecycleEvent = new GrouperLifecycleEvent();
           grouperLifecycleEvent.setGroupLifecycleEventConfigInternalId(lifecycleEventConfig.getInternalId());

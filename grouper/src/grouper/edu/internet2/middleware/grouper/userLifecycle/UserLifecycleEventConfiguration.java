@@ -11,9 +11,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.jexl3.JexlEngine;
-import org.apache.commons.jexl3.JexlExpression;
-import org.apache.commons.jexl3.internal.Engine;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -120,47 +117,62 @@ public class UserLifecycleEventConfiguration extends GrouperConfigurationModuleB
     
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
     
-    GrouperConfigurationModuleAttribute naturalLanguageDescriptionJexlPrivilegedAttribute = attributes.get("naturalLanguageDescriptionJexlPrivileged");
-    String jexlScript = naturalLanguageDescriptionJexlPrivilegedAttribute.getValueOrExpressionEvaluationValue();
-    
-    jexlScript = jexlScript.trim();
-    if (jexlScript.startsWith("${") && jexlScript.endsWith("}")) {
-      jexlScript = jexlScript.substring(2, jexlScript.length()-1);
-    }
-    
-    JexlEngine jexlEngine = new Engine();
+    // Build a stub matching the configured trigger so the validator runs the
+    // exact same code path the daemon will run at runtime. If the template
+    // evaluates against the stub it will evaluate against real data too.
+    GrouperConfigurationModuleAttribute triggerAttribute = attributes.get("trigger");
+    String triggerValue = triggerAttribute == null ? null : triggerAttribute.getValueOrExpressionEvaluationValue();
 
-    // TODO dont mess with values in strings
-    jexlScript = GrouperUtil.replace(jexlScript, "\n", " ");
-    jexlScript = GrouperUtil.replace(jexlScript, "\r", " ");
-    jexlScript = jexlScript.replaceAll("!\\s+", "!");
-    
-    try {      
-      JexlExpression expression = (JexlExpression)jexlEngine.createExpression(jexlScript);
-    } catch(Exception e) {
-      validationErrorsToDisplay.put(naturalLanguageDescriptionJexlPrivilegedAttribute.getHtmlForElementIdHandle(), "Invalid jexl script for naturalLanguageDescriptionJexlPrivileged");
+    Group stubGroup = null;
+    Stem stubStem = null;
+    GrouperDataField stubDataField = null;
+    Object stubDataFieldValue = null;
+    GrouperDataRow stubDataRow = null;
+
+    if (StringUtils.equals(triggerValue, "groupUserAdd")
+        || StringUtils.equals(triggerValue, "groupUserRemove")
+        || StringUtils.equals(triggerValue, "groupUserRemoveFromFolder")) {
+      stubGroup = new Group();
+      stubGroup.setNameDb("stub:group");
+      stubGroup.setDisplayNameDb("Stub Group");
+      stubGroup.setExtensionDb("group");
+      stubGroup.setDisplayExtensionDb("Stub Group");
+      stubGroup.setDescriptionDb("stub group description");
+
+      if (StringUtils.equals(triggerValue, "groupUserRemoveFromFolder")) {
+        stubStem = new Stem();
+        stubStem.setNameDb("stub");
+        stubStem.setDisplayNameDb("Stub");
+        stubStem.setExtensionDb("stub");
+        stubStem.setDisplayExtensionDb("Stub");
+        stubStem.setDescriptionDb("stub folder description");
+      }
+    } else if (StringUtils.equals(triggerValue, "dataFieldRemove")) {
+      stubDataField = new GrouperDataField();
+      stubDataField.setConfigId("stubDataField");
+      stubDataFieldValue = "stubValue";
+    } else if (StringUtils.equals(triggerValue, "dataRowRemove")) {
+      stubDataRow = new GrouperDataRow();
+      stubDataRow.setConfigId("stubDataRow");
+    }
+
+    GrouperConfigurationModuleAttribute naturalLanguageDescriptionJexlPrivilegedAttribute = attributes.get("naturalLanguageDescriptionJexlPrivileged");
+    String jexlTemplate = naturalLanguageDescriptionJexlPrivilegedAttribute.getValueOrExpressionEvaluationValue();
+    try {
+      UserLifecycleEngine.evaluateLifecycleJexl(jexlTemplate, stubGroup, stubStem, stubDataField, stubDataFieldValue, stubDataRow, false);
+    } catch (Exception e) {
+      validationErrorsToDisplay.put(naturalLanguageDescriptionJexlPrivilegedAttribute.getHtmlForElementIdHandle(),
+          "Invalid template for description shown to privileged viewers: " + e.getMessage());
       return;
     }
-    
-    GrouperConfigurationModuleAttribute naturalLanguageDescriptionJexlUnprivilegedAttribute = attributes.get("naturalLanguageDescriptionJexlUnprivileged");
-    jexlScript = naturalLanguageDescriptionJexlUnprivilegedAttribute.getValueOrExpressionEvaluationValue();
-    
-    jexlScript = jexlScript.trim();
-    if (jexlScript.startsWith("${") && jexlScript.endsWith("}")) {
-      jexlScript = jexlScript.substring(2, jexlScript.length()-1);
-    }
-    
-    jexlEngine = new Engine();
 
-    // TODO dont mess with values in strings
-    jexlScript = GrouperUtil.replace(jexlScript, "\n", " ");
-    jexlScript = GrouperUtil.replace(jexlScript, "\r", " ");
-    jexlScript = jexlScript.replaceAll("!\\s+", "!");
-    
-    try {      
-      JexlExpression expression = (JexlExpression)jexlEngine.createExpression(jexlScript);
-    } catch(Exception e) {
-      validationErrorsToDisplay.put(naturalLanguageDescriptionJexlPrivilegedAttribute.getHtmlForElementIdHandle(), "Invalid jexl script for naturalLanguageDescriptionJexlUnprivileged");
+    GrouperConfigurationModuleAttribute naturalLanguageDescriptionJexlUnprivilegedAttribute = attributes.get("naturalLanguageDescriptionJexlUnprivileged");
+    jexlTemplate = naturalLanguageDescriptionJexlUnprivilegedAttribute.getValueOrExpressionEvaluationValue();
+    try {
+      UserLifecycleEngine.evaluateLifecycleJexl(jexlTemplate, stubGroup, stubStem, stubDataField, stubDataFieldValue, stubDataRow, false);
+    } catch (Exception e) {
+      validationErrorsToDisplay.put(naturalLanguageDescriptionJexlUnprivilegedAttribute.getHtmlForElementIdHandle(),
+          "Invalid template for description shown to other viewers: " + e.getMessage());
       return;
     }
     
