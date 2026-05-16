@@ -434,15 +434,20 @@ td > .config-el-label {
   font-weight: 900;
   content: "\f07b";          /* fa-folder (closed) */
   color: #eecf69;          /* match the classic jsTree manila-folder yellow */
-  font-size: 16px;
+  font-size: 14px;
   line-height: 24px;
   position: absolute;
-  left: 2px;
+  left: 3px;
   top: 0;
 }
 #folderTree .jstree-default .jstree-open > .jstree-anchor > .jstree-icon.jstree-themeicon:before,
 #folderTreeContainerId .jstree-default .jstree-open > .jstree-anchor > .jstree-icon.jstree-themeicon:before {
   content: "\f07c";          /* fa-folder-open */
+}
+/* Pull the label 1px closer to the folder icon */
+#folderTree .jstree-default .jstree-icon.jstree-themeicon,
+#folderTreeContainerId .jstree-default .jstree-icon.jstree-themeicon {
+  margin-right: -1px;
 }
 
 /* Bootstrap defaults inline <code> to bright red (#d14), which fails
