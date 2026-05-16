@@ -516,9 +516,11 @@ public class GrouperReportLogic {
   public static void deleteFromFileSystem(GrouperReportInstance reportInstance) {
     
     String filePath = reportInstance.getReportInstanceFilePointer();
-    File file = new File(filePath);
-    if (file.exists()) {
-      file.delete();
+    if (StringUtils.isNoneBlank(filePath)) {
+      File file = new File(filePath);
+      if (file.exists()) {
+        file.delete();
+      }
     }
   }
   
