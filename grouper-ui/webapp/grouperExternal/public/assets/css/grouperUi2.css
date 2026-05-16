@@ -421,3 +421,36 @@ td > .config-el-label {
 .jstree-default .grouper-jstree-no-icon {
   display: none;
 }
+
+/* Replace the legacy jsTree sprite folder icons with flat Font Awesome folders */
+#folderTree .jstree-default .jstree-icon.jstree-themeicon,
+#folderTreeContainerId .jstree-default .jstree-icon.jstree-themeicon {
+  background-image: none !important;
+  position: relative;
+}
+#folderTree .jstree-default .jstree-icon.jstree-themeicon:before,
+#folderTreeContainerId .jstree-default .jstree-icon.jstree-themeicon:before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f07b";          /* fa-folder (closed) */
+  color: #eecf69;          /* match the classic jsTree manila-folder yellow */
+  font-size: 16px;
+  line-height: 24px;
+  position: absolute;
+  left: 2px;
+  top: 0;
+}
+#folderTree .jstree-default .jstree-open > .jstree-anchor > .jstree-icon.jstree-themeicon:before,
+#folderTreeContainerId .jstree-default .jstree-open > .jstree-anchor > .jstree-icon.jstree-themeicon:before {
+  content: "\f07c";          /* fa-folder-open */
+}
+
+/* Bootstrap defaults inline <code> to bright red (#d14), which fails
+   accessibility contrast on our light gray background and reads as an
+   error to users. Use a neutral dark color and let long tokens wrap. */
+code {
+  color: #2d2d2d;
+  background-color: #f5f5f5;
+  border: 1px solid #e1e1e8;
+  white-space: normal;
+}
