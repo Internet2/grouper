@@ -7,13 +7,24 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.dataField.GrouperDataField;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignHst;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignHstDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRow;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignHst;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignHstDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowDao;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheHistoryFullSyncDaemon;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -391,7 +402,146 @@ $$ }
     Set<Member> immediateMembers = adobeUsers.getImmediateMembers();
     assertEquals(1, immediateMembers.size());
     assertEquals("my name is test.subject.0", immediateMembers.iterator().next().getName());
-    
+
+  }
+
+  /**
+   * End-to-end test of the dataFieldRemove trigger: configures an integer data field,
+   * inserts a history row whose end_time is more than a year ago (matching the daemon's
+   * window), runs UserLifecycleFullDaemon, then verifies that a grouper_lifecycle_event
+   * row exists whose privileged dictionary entry holds the rendered (interpolated)
+   * template text — not the raw template string.
+   */
+  public void testDataFieldRemove() {
+
+    // 1. Configure the data field (integer type, attribute structure).
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.position.fieldAliases").value("position").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.position.fieldDataType").value("integer").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.position.fieldDataStorePit").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.position.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.position.descriptionHtml").value("position field").store();
+
+    // 2. Materialize a row in grouper_data_field for that config.
+    GrouperDataFieldDao.insertMissingConfigIds(GrouperUtil.toSet("position"));
+    GrouperDataField dataField = GrouperDataFieldDao.selectByText("position");
+    assertNotNull(dataField);
+
+    // 3. Resolve a member to attach the history row to.
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(),
+        SubjectFinder.findById("test.subject.0", true), true);
+
+    // 4. Insert a single hst row whose end_time matches the daemon's "older than a year" window.
+    long endTimeMicros = (System.currentTimeMillis() - 400L * 24 * 60 * 60 * 1000) * 1000L;
+    GrouperDataFieldAssignHst hst = new GrouperDataFieldAssignHst();
+    hst.setInternalId(TableIndex.reserveId(TableIndexType.dataFieldAssignHst));
+    hst.setDataFieldInternalId(dataField.getInternalId());
+    hst.setMemberInternalId(member.getInternalId());
+    hst.setValueInteger(42L);
+    hst.setStartTime(endTimeMicros - 1000L);
+    hst.setEndTime(endTimeMicros);
+    GrouperDataFieldAssignHstDao.store(hst);
+
+    // 5. Configure the lifecycle event with templates that interpolate ${configId} and ${value}.
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePosition.name").value("remove position").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePosition.description").value("position removed").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePosition.trigger").value("dataFieldRemove").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePosition.groupUserRemoveDataFieldConfigId").value("position").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePosition.naturalLanguageDescriptionJexlPrivileged").value("Lost ${configId} (value: ${value})").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePosition.naturalLanguageDescriptionJexlUnprivileged").value("Lost a data field").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePosition.naturalLanguageDescriptionJexlPrivilegedGroupIdOrName").value("etc:sysadmingroup").store();
+
+    UserLifecycleEngine.syncUserLifecycleEventConfigs(null);
+
+    // 6. Run the daemon.
+    OtherJobInput otherJobInput = new OtherJobInput();
+    Hib3GrouperLoaderLog log = new Hib3GrouperLoaderLog();
+    otherJobInput.setJobName("OTHER_JOB_userLifecycleFullDaemon");
+    otherJobInput.setHib3GrouperLoaderLog(log);
+    new UserLifecycleFullDaemon().run(otherJobInput);
+
+    // 7. Verify the lifecycle event exists and points at a dictionary entry holding the rendered text.
+    String privilegedText = new GcDbAccess().sql(
+        "select gd.the_text from grouper_lifecycle_event gle join grouper_dictionary gd "
+            + "on gd.internal_id = gle.ntrl_lng_priv_dic_intrnl_id "
+            + "where gle.member_internal_id = ?").addBindVar(member.getInternalId()).select(String.class);
+    assertEquals("Lost position (value: 42)", privilegedText);
+
+    String unprivilegedText = new GcDbAccess().sql(
+        "select gd.the_text from grouper_lifecycle_event gle join grouper_dictionary gd "
+            + "on gd.internal_id = gle.ntrl_lng_unpriv_dic_intrnl_id "
+            + "where gle.member_internal_id = ?").addBindVar(member.getInternalId()).select(String.class);
+    assertEquals("Lost a data field", unprivilegedText);
+  }
+
+  /**
+   * End-to-end test of the dataRowRemove trigger. Same shape as testDataFieldRemove but
+   * exercises grouper_data_row_assign_hst and the dataRow trigger branch of the daemon.
+   */
+  public void testDataRowRemove() {
+
+    // 1. Configure the data row.
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.pursual.rowAliases").value("pursual").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.pursual.rowPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.pursual.rowNumberOfDataFields").value("0").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.pursual.rowDataStorePit").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.pursual.descriptionHtml").value("pursual row").store();
+
+    // 2. Materialize a row in grouper_data_row for that config.
+    GrouperDataRowDao.insertMissingConfigIds(GrouperUtil.toSet("pursual"));
+    GrouperDataRow dataRow = GrouperDataRowDao.selectByConfigId("pursual");
+    assertNotNull(dataRow);
+
+    // 3. Resolve a member.
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(),
+        SubjectFinder.findById("test.subject.0", true), true);
+
+    // 4. Insert a single row-assign hst record older than the daemon's window.
+    long endTimeMicros = (System.currentTimeMillis() - 400L * 24 * 60 * 60 * 1000) * 1000L;
+    GrouperDataRowAssignHst hst = new GrouperDataRowAssignHst();
+    hst.setInternalId(TableIndex.reserveId(TableIndexType.dataRowAssignHst));
+    hst.setDataRowInternalId(dataRow.getInternalId());
+    hst.setDataRowAssignInternalId(TableIndex.reserveId(TableIndexType.dataRowAssign));
+    hst.setMemberInternalId(member.getInternalId());
+    hst.setStartTime(endTimeMicros - 1000L);
+    hst.setEndTime(endTimeMicros);
+    GrouperDataRowAssignHstDao.store(hst);
+
+    // 5. Configure the lifecycle event with a template that interpolates ${configId}.
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePursual.name").value("remove pursual").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePursual.description").value("pursual removed").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePursual.trigger").value("dataRowRemove").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePursual.groupUserRemoveDataRowConfigId").value("pursual").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePursual.naturalLanguageDescriptionJexlPrivileged").value("Lost ${configId} row").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePursual.naturalLanguageDescriptionJexlUnprivileged").value("Lost a data row").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperUserLifecycleEvent.removePursual.naturalLanguageDescriptionJexlPrivilegedGroupIdOrName").value("etc:sysadmingroup").store();
+
+    UserLifecycleEngine.syncUserLifecycleEventConfigs(null);
+
+    // 6. Run the daemon.
+    OtherJobInput otherJobInput = new OtherJobInput();
+    Hib3GrouperLoaderLog log = new Hib3GrouperLoaderLog();
+    otherJobInput.setJobName("OTHER_JOB_userLifecycleFullDaemon");
+    otherJobInput.setHib3GrouperLoaderLog(log);
+    new UserLifecycleFullDaemon().run(otherJobInput);
+
+    // 7. Verify the rendered text reached the dictionary.
+    String privilegedText = new GcDbAccess().sql(
+        "select gd.the_text from grouper_lifecycle_event gle join grouper_dictionary gd "
+            + "on gd.internal_id = gle.ntrl_lng_priv_dic_intrnl_id "
+            + "where gle.member_internal_id = ?").addBindVar(member.getInternalId()).select(String.class);
+    assertEquals("Lost pursual row", privilegedText);
+
+    String unprivilegedText = new GcDbAccess().sql(
+        "select gd.the_text from grouper_lifecycle_event gle join grouper_dictionary gd "
+            + "on gd.internal_id = gle.ntrl_lng_unpriv_dic_intrnl_id "
+            + "where gle.member_internal_id = ?").addBindVar(member.getInternalId()).select(String.class);
+    assertEquals("Lost a data row", unprivilegedText);
   }
 
 }

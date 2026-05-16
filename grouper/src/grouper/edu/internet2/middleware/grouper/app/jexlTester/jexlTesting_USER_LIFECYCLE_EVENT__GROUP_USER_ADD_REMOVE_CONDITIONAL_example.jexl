@@ -1,0 +1,1 @@
+Job loss from ${groupDisplayExtension}${groupDescription.contains('Restricted') ? ' (sensitive)' : ''}

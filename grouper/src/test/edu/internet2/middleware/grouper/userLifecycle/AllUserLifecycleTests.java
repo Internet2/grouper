@@ -9,6 +9,7 @@ public class AllUserLifecycleTests {
     TestSuite suite = new TestSuite(AllUserLifecycleTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(GroupPolicyUserLifecycleFullDaemonTest.class);
+    suite.addTestSuite(UserLifecycleEngineTest.class);
     //$JUnit-END$
     return suite;
   }

@@ -161,6 +161,26 @@ public enum ScriptType {
     public boolean hasNullCheckingOption() {
       return false;
     }
+  },
+
+  USER_LIFECYCLE_EVENT {
+
+    @Override
+    public Class<? extends ScriptExample> retrieveScriptExampleForType() {
+      return ScriptExampleForUserLifecycleEvent.class;
+    }
+
+    @Override
+    public Object runJexl(Map<String, Object> elVariableMap, String jexlScript) {
+      // Script-template mode: literal text passes through, each ${...} block is a JEXL
+      // script (multi-statement). Strict (lenient=false) so undefined variables surface.
+      return GrouperUtil.substituteExpressionLanguageScriptsNotExpressions(jexlScript, elVariableMap, true, false, false);
+    }
+
+    @Override
+    public boolean hasNullCheckingOption() {
+      return false;
+    }
   };
   
   /**
