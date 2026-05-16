@@ -427,7 +427,34 @@ public class GrouperUtilTest extends GrouperTest {
   }
   
   /**
-   * 
+   * substituteExpressionLanguageScriptsNotExpressions — same template framing as the
+   * expression variant (literal text passes through, ${...} blocks evaluate), but
+   * each block is a JEXL script (multi-statement, supports var declarations).
+   */
+  public void testSubstituteExpressionLanguageScriptTemplate() {
+
+    Map<String, Object> vars = new HashMap<String, Object>();
+    vars.put("groupDisplayExtension", "Accounting");
+
+    // Plain text with no ${...} blocks passes through verbatim.
+    assertEquals("Job loss",
+        GrouperUtil.substituteExpressionLanguageScriptsNotExpressions("Job loss", vars, true, false, true));
+
+    // Single-expression ${...} block — same behavior as substituteExpressionLanguage.
+    assertEquals("Job loss from Accounting",
+        GrouperUtil.substituteExpressionLanguageScriptsNotExpressions(
+            "Job loss from ${groupDisplayExtension}", vars, true, false, true));
+
+    // Multi-statement script inside ${...} — the capability this method adds over
+    // substituteExpressionLanguage. createExpression() would reject the semicolon.
+    assertEquals("Job loss from ACCOUNTING",
+        GrouperUtil.substituteExpressionLanguageScriptsNotExpressions(
+            "Job loss from ${ var n = groupDisplayExtension.toUpperCase(); n }",
+            vars, true, false, true));
+  }
+
+  /**
+   *
    */
   public void testAppendIfNotBlankString() {
     
