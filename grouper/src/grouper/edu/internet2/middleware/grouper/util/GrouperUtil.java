@@ -11910,9 +11910,36 @@ public class GrouperUtil {
    * then undefined variables are null
    * @return the string
    */
-  @SuppressWarnings("unchecked")
   public static String substituteExpressionLanguage(String stringToParse,
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
+    return substituteExpressionLanguageInternal(stringToParse, variableMap, allowStaticClasses, silent, lenient, false);
+  }
+
+  /**
+   * Template-mode substitution where each ${...} block is evaluated as a JEXL
+   * <i>script</i> (multi-statement, supports `var` declarations, can return a
+   * non-string value) rather than a single expression. Literal text outside
+   * ${...} passes through verbatim, same as {@link #substituteExpressionLanguage}.
+   *
+   * Use this when a ${...} block needs more than a single expression — e.g.
+   * <pre>${ var n = grouperUtil.escapeHtml(groupDisplayExtension, true); 'Job loss from ' + n }</pre>
+   *
+   * @param stringToParse template containing zero or more ${...} script blocks
+   * @param variableMap variables available to each script
+   * @param allowStaticClasses if true allow static classes not registered with context
+   * @param silent if silent mode, swallow exceptions (warn), and dont warn when variable not found
+   * @param lenient false if undefined variables should throw an exception
+   * @return the substituted string
+   */
+  public static String substituteExpressionLanguageScriptsNotExpressions(String stringToParse,
+      Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
+    return substituteExpressionLanguageInternal(stringToParse, variableMap, allowStaticClasses, silent, lenient, true);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static String substituteExpressionLanguageInternal(String stringToParse,
+      Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient,
+      boolean asScript) {
     variableMap = nonNull(variableMap);
     substituteExpressionInit();
     
@@ -11990,10 +12017,14 @@ public class GrouperUtil {
 //          
 //        } else {
           
-        Expression e = jexlEngines.get(new MultiKey(silent, lenient)).createExpression(script);
-
         try {
-          o = e.evaluate(jc);
+          if (asScript) {
+            Script e = jexlEngines.get(new MultiKey(silent, lenient)).createScript(script);
+            o = e.execute(jc);
+          } else {
+            Expression e = jexlEngines.get(new MultiKey(silent, lenient)).createExpression(script);
+            o = e.evaluate(jc);
+          }
         } catch (JexlException je) {
           //exception-scrape to see if missing variable
           if (!lenient && StringUtils.trimToEmpty(je.getMessage()).contains("undefined variable")) {
