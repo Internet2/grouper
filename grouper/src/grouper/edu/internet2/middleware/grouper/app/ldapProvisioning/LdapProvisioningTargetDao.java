@@ -1296,6 +1296,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     
     grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembership(true);
+    // read path captures LdapEntries through GrouperProvisioningTargetNativeSync.record*
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 
   @Override

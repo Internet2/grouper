@@ -333,6 +333,37 @@ public class GrouperProvisioningConfigurationValidation {
     validateMembershipAttributesAreNotCached();
     validateMembershipAttributeDoesNotMatchSearchOrMatchingAttribute();
     validateNativeAttributes();
+    validateLoadToGenericGrouperTableSupportedByDao();
+  }
+
+  /**
+   * If the operator enabled any of the load*ToGenericGrouperTable flags but the provisioner's
+   * DAO hasn't declared {@code canSyncBack}, emit a per-flag validation error so the operator
+   * sees an explicit message instead of a silently empty grouper_prov_* table. (The
+   * GrouperProvisioningBehavior accessors AND in canSyncBack so the runtime is already safe;
+   * this is the UI-facing surface.)
+   */
+  public void validateLoadToGenericGrouperTableSupportedByDao() {
+    GrouperProvisioningConfiguration configuration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    boolean canSyncBack = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().isCanSyncBack();
+    if (canSyncBack) {
+      return;
+    }
+    String errorMessage = GrouperTextContainer.textOrNull(
+        "provisioning.configuration.validation.loadGenericTable.notSupportedByProtocol");
+    if (configuration.isLoadEntitiesToGenericGrouperTable()) {
+      this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage)
+          .assignJqueryHandle("loadEntitiesToGenericGrouperTable"));
+    }
+    if (configuration.isLoadGroupsToGenericGrouperTable()) {
+      this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage)
+          .assignJqueryHandle("loadGroupsToGenericGrouperTable"));
+    }
+    if (configuration.isLoadMembershipsToGenericGrouperTable()) {
+      this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage)
+          .assignJqueryHandle("loadMembershipsToGenericGrouperTable"));
+    }
   }
 
   /**
@@ -353,11 +384,52 @@ public class GrouperProvisioningConfigurationValidation {
     }
     try {
       GrouperProvisioningNativeAttributeConfig.parseAndValidate(rawValue, suffix);
+    } catch (GrouperProvisioningNativeAttributeConfig.NativeAttributeConfigException nace) {
+      // render an externalized message keyed by the structured error code, then
+      // substitute the carried args. fall back to the exception's English message
+      // if the i18n key is missing.
+      String message = renderNativeAttributesValidationMessage(suffix, nace);
+      this.addErrorMessage(new ProvisioningValidationIssue()
+          .assignMessage(message)
+          .assignJqueryHandle(suffix));
     } catch (RuntimeException re) {
       this.addErrorMessage(new ProvisioningValidationIssue()
           .assignMessage(re.getMessage())
           .assignJqueryHandle(suffix));
     }
+  }
+
+  /**
+   * Resolve the externalized error message for a {@link GrouperProvisioningNativeAttributeConfig.NativeAttributeConfigException}.
+   * The i18n key is {@code provisioning.configuration.validation.nativeAttributes.<textKey>};
+   * {@code $$configLabel$$} resolves to the localized field label
+   * ({@code config.GenericConfiguration.attribute.<suffix>.label}) so the user
+   * sees "Native attributes (entities)" instead of the raw config suffix.
+   */
+  static String renderNativeAttributesValidationMessage(String suffix,
+      GrouperProvisioningNativeAttributeConfig.NativeAttributeConfigException nace) {
+    String i18nKey = "provisioning.configuration.validation.nativeAttributes." + nace.getTextKey();
+    String message = GrouperTextContainer.textOrNull(i18nKey);
+    if (StringUtils.isBlank(message)) {
+      // i18n missing → use the carried English fallback
+      return nace.getMessage();
+    }
+    // localize the configLabel arg before substituting, so the message shows the
+    // user-facing field label, not the raw config suffix
+    String localizedLabel = GrouperTextContainer.textOrNull(
+        "config.GenericConfiguration.attribute." + suffix + ".label");
+    if (StringUtils.isBlank(localizedLabel)) {
+      localizedLabel = suffix;
+    }
+    message = StringUtils.replace(message, "$$configLabel$$", localizedLabel);
+    for (Map.Entry<String, String> arg : nace.getArgs().entrySet()) {
+      if ("configLabel".equals(arg.getKey())) {
+        continue; // already replaced with the localized form
+      }
+      String value = arg.getValue() == null ? "" : arg.getValue();
+      message = StringUtils.replace(message, "$$" + arg.getKey() + "$$", value);
+    }
+    return message;
   }
 
   

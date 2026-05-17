@@ -2,7 +2,9 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +33,54 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * </ul>
  */
 public class GrouperProvisioningNativeAttributeConfig {
+
+  /**
+   * Thrown by {@link #parseAndValidate} on a structural problem. Carries a stable
+   * error {@link #textKey} (i18n suffix, e.g. {@code duplicateName}) plus named
+   * {@link #args} so the UI validator can render an externalized message via
+   * {@code provisioning.configuration.validation.nativeAttributes.<textKey>}.
+   * {@link Throwable#getMessage()} carries an English fallback so the daemon log
+   * stays readable when i18n lookup is unavailable.
+   */
+  public static class NativeAttributeConfigException extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
+    private final String textKey;
+    private final Map<String, String> args;
+
+    public NativeAttributeConfigException(String textKey, Map<String, String> args,
+        String englishFallbackMessage) {
+      super(englishFallbackMessage);
+      this.textKey = textKey;
+      this.args = args == null ? new LinkedHashMap<String, String>() : args;
+    }
+
+    public NativeAttributeConfigException(String textKey, Map<String, String> args,
+        String englishFallbackMessage, Throwable cause) {
+      super(englishFallbackMessage, cause);
+      this.textKey = textKey;
+      this.args = args == null ? new LinkedHashMap<String, String>() : args;
+    }
+
+    /** i18n suffix; full key is {@code provisioning.configuration.validation.nativeAttributes.<textKey>} */
+    public String getTextKey() {
+      return this.textKey;
+    }
+
+    /** named substitution args; UI validator replaces {@code $$name$$} tokens in the localized text */
+    public Map<String, String> getArgs() {
+      return this.args;
+    }
+  }
+
+  private static Map<String, String> argMap(String... namesAndValues) {
+    Map<String, String> map = new LinkedHashMap<String, String>();
+    for (int i = 0; i + 1 < namesAndValues.length; i += 2) {
+      map.put(namesAndValues[i], namesAndValues[i + 1] == null ? "" : namesAndValues[i + 1]);
+    }
+    return map;
+  }
 
   private static final Set<String> VALID_TYPES = new HashSet<String>();
   static {
@@ -119,12 +169,16 @@ public class GrouperProvisioningNativeAttributeConfig {
           continue;
         }
         if (token.startsWith("{") || token.startsWith("[") || token.contains("\"")) {
-          throw new RuntimeException(configLabel + ": value '" + token
-              + "' looks like JSON; either provide the whole value as a JSON array, "
-              + "or use a plain comma-separated list of attribute names");
+          throw new NativeAttributeConfigException("csvLooksLikeJson",
+              argMap("configLabel", configLabel, "token", token),
+              configLabel + ": value '" + token
+                  + "' looks like JSON; either provide the whole value as a JSON array, "
+                  + "or use a plain comma-separated list of attribute names");
         }
         if (!seenCsvNames.add(token)) {
-          throw new RuntimeException(configLabel + ": duplicate attribute name '" + token + "'");
+          throw new NativeAttributeConfigException("csvDuplicateName",
+              argMap("configLabel", configLabel, "name", token),
+              configLabel + ": duplicate attribute name '" + token + "'");
         }
         GrouperProvisioningNativeAttributeConfig entry = new GrouperProvisioningNativeAttributeConfig();
         entry.name = token;
@@ -138,11 +192,15 @@ public class GrouperProvisioningNativeAttributeConfig {
     try {
       root = GrouperUtil.jsonJacksonNode(trimmed);
     } catch (Exception e) {
-      throw new RuntimeException(configLabel + ": invalid JSON: " + e.getMessage(), e);
+      throw new NativeAttributeConfigException("invalidJson",
+          argMap("configLabel", configLabel, "detail", e.getMessage()),
+          configLabel + ": invalid JSON: " + e.getMessage(), e);
     }
 
     if (root == null || !root.isArray()) {
-      throw new RuntimeException(configLabel + ": top-level value must be a JSON array");
+      throw new NativeAttributeConfigException("notArray",
+          argMap("configLabel", configLabel),
+          configLabel + ": top-level value must be a JSON array");
     }
 
     Set<String> seenNames = new HashSet<String>();
@@ -150,24 +208,32 @@ public class GrouperProvisioningNativeAttributeConfig {
     for (int i = 0; i < root.size(); i++) {
       JsonNode entryNode = root.get(i);
       if (entryNode == null || !entryNode.isObject()) {
-        throw new RuntimeException(configLabel + ": entry " + i + " must be a JSON object");
+        throw new NativeAttributeConfigException("entryNotObject",
+            argMap("configLabel", configLabel, "index", String.valueOf(i)),
+            configLabel + ": entry " + i + " must be a JSON object");
       }
 
       String name = StringUtils.trimToNull(GrouperUtil.jsonJacksonGetString(entryNode, "name"));
       if (StringUtils.isBlank(name)) {
-        throw new RuntimeException(configLabel + ": entry " + i + " is missing required 'name'");
+        throw new NativeAttributeConfigException("missingName",
+            argMap("configLabel", configLabel, "index", String.valueOf(i)),
+            configLabel + ": entry " + i + " is missing required 'name'");
       }
       if (!seenNames.add(name)) {
-        throw new RuntimeException(configLabel + ": duplicate 'name' = '" + name + "' at entry " + i);
+        throw new NativeAttributeConfigException("duplicateName",
+            argMap("configLabel", configLabel, "name", name, "index", String.valueOf(i)),
+            configLabel + ": duplicate 'name' = '" + name + "' at entry " + i);
       }
 
       String path = StringUtils.trimToNull(GrouperUtil.jsonJacksonGetString(entryNode, "path"));
 
       String type = StringUtils.trimToNull(GrouperUtil.jsonJacksonGetString(entryNode, "type"));
       if (type != null && !VALID_TYPES.contains(type.toLowerCase())) {
-        throw new RuntimeException(configLabel + ": entry " + i + " (name='" + name
-            + "') has invalid 'type' = '" + type + "'; expected one of "
-            + VALID_TYPES);
+        throw new NativeAttributeConfigException("invalidType",
+            argMap("configLabel", configLabel, "index", String.valueOf(i),
+                "name", name, "type", type, "validTypes", VALID_TYPES.toString()),
+            configLabel + ": entry " + i + " (name='" + name
+                + "') has invalid 'type' = '" + type + "'; expected one of " + VALID_TYPES);
       }
 
       GrouperProvisioningNativeAttributeConfig entry = new GrouperProvisioningNativeAttributeConfig();

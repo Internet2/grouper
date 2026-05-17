@@ -1,8 +1,11 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -295,45 +298,93 @@ public class GrouperProvisioningData {
   private Set<ProvisioningMembershipWrapper> provisioningMembershipWrappers = new HashSet<ProvisioningMembershipWrapper>();
 
   /**
-   * native-target users from the most recent target select; populated only when the DAO
-   * actually fetches users from the target. Drives grouper_prov_user reporting writes.
+   * Native-target users from the most recent target select, keyed by their target id.
+   * Canonical store for sync-back capture — record/replace/remove on this map directly
+   * mutates the data that the end-of-run flush walks. Last-write-wins on duplicate ids
+   * (an artifact of write-shadowing where the same id may be captured by both the read
+   * pass and a later patch-response capture). Use {@link LinkedHashMap} to preserve
+   * insertion order, which keeps test assertions and debug dumps stable.
    */
-  private List<GrouperProvisioningTargetNativeUser> targetNativeUsers = new ArrayList<GrouperProvisioningTargetNativeUser>();
+  private Map<String, GrouperProvisioningTargetNativeUser> targetUserIdToNativeUser =
+      new LinkedHashMap<String, GrouperProvisioningTargetNativeUser>();
 
   /**
-   * native-target groups from the most recent target select; populated only when the DAO
-   * actually fetches groups from the target. Drives grouper_prov_group reporting writes.
+   * Native-target groups, keyed by their target id. Same semantics as
+   * {@link #targetUserIdToNativeUser}.
    */
-  private List<GrouperProvisioningTargetNativeGroup> targetNativeGroups = new ArrayList<GrouperProvisioningTargetNativeGroup>();
+  private Map<String, GrouperProvisioningTargetNativeGroup> targetGroupIdToNativeGroup =
+      new LinkedHashMap<String, GrouperProvisioningTargetNativeGroup>();
 
   /**
-   * native-target memberships from the most recent target select; populated only when the DAO
-   * actually fetches memberships from the target. Drives grouper_prov_mship reporting writes.
+   * Native-target memberships, keyed by {@code MultiKey(targetGroupId, targetUserId)}.
+   * Same semantics as {@link #targetUserIdToNativeUser}.
    */
-  private List<GrouperProvisioningTargetNativeMembership> targetNativeMemberships = new ArrayList<GrouperProvisioningTargetNativeMembership>();
+  private Map<MultiKey, GrouperProvisioningTargetNativeMembership>
+      targetGroupIdTargetUserIdToNativeMembership =
+          new LinkedHashMap<MultiKey, GrouperProvisioningTargetNativeMembership>();
 
+  /** the canonical user index — mutate this for record/replace/remove */
+  public Map<String, GrouperProvisioningTargetNativeUser> getTargetUserIdToNativeUser() {
+    return this.targetUserIdToNativeUser;
+  }
+
+  /** the canonical group index — mutate this for record/replace/remove */
+  public Map<String, GrouperProvisioningTargetNativeGroup> getTargetGroupIdToNativeGroup() {
+    return this.targetGroupIdToNativeGroup;
+  }
+
+  /** the canonical membership index — mutate this for record/replace/remove */
+  public Map<MultiKey, GrouperProvisioningTargetNativeMembership>
+      getTargetGroupIdTargetUserIdToNativeMembership() {
+    return this.targetGroupIdTargetUserIdToNativeMembership;
+  }
+
+  /**
+   * List view of the captured users for iteration (end-of-run flush, debug dumps, etc.).
+   * The returned list is a snapshot; mutations don't propagate back to the canonical map.
+   * Use the map directly for mutation.
+   */
   public List<GrouperProvisioningTargetNativeUser> getTargetNativeUsers() {
-    return targetNativeUsers;
+    return GrouperUtil.listFromCollection(this.targetUserIdToNativeUser.values());
   }
 
-  public void setTargetNativeUsers(List<GrouperProvisioningTargetNativeUser> targetNativeUsers) {
-    this.targetNativeUsers = targetNativeUsers == null ? new ArrayList<GrouperProvisioningTargetNativeUser>() : targetNativeUsers;
-  }
-
+  /** list view of the captured groups; see {@link #getTargetNativeUsers()} */
   public List<GrouperProvisioningTargetNativeGroup> getTargetNativeGroups() {
-    return targetNativeGroups;
+    return GrouperUtil.listFromCollection(this.targetGroupIdToNativeGroup.values());
   }
 
-  public void setTargetNativeGroups(List<GrouperProvisioningTargetNativeGroup> targetNativeGroups) {
-    this.targetNativeGroups = targetNativeGroups == null ? new ArrayList<GrouperProvisioningTargetNativeGroup>() : targetNativeGroups;
-  }
-
+  /** list view of the captured memberships; see {@link #getTargetNativeUsers()} */
   public List<GrouperProvisioningTargetNativeMembership> getTargetNativeMemberships() {
-    return targetNativeMemberships;
+    return GrouperUtil.listFromCollection(this.targetGroupIdTargetUserIdToNativeMembership.values());
   }
 
-  public void setTargetNativeMemberships(List<GrouperProvisioningTargetNativeMembership> targetNativeMemberships) {
-    this.targetNativeMemberships = targetNativeMemberships == null ? new ArrayList<GrouperProvisioningTargetNativeMembership>() : targetNativeMemberships;
+  /**
+   * Target user ids that have been written to the target this run but whose post-write
+   * state hasn't yet been captured back into {@link #targetUserIdToNativeUser}. Populated
+   * by write sites that don't get a response body (e.g. LDAP modify, SCIM PATCH returning
+   * 204), drained by a pre-flush re-read pass, and cleared by
+   * {@link GrouperProvisioningTargetNativeSync#recordTargetNativeUser} whenever the
+   * canonical map gets a fresh entry for an id — whether that fresh entry came from a read
+   * response, a write response, or the drain itself.
+   *
+   * <p>Kept package-private; external callers must go through
+   * {@code GrouperProvisioningTargetNativeSync.markSyncBackUserForRead /
+   * clearSyncBackUserForRead} so the behavior gate runs and any future logic (cap, dedup,
+   * etc.) has a single chokepoint.
+   */
+  private Set<String> syncBackUserNativeIdsToRead = new LinkedHashSet<String>();
+
+  /** see {@link #syncBackUserNativeIdsToRead} — same semantics for groups. */
+  private Set<String> syncBackGroupNativeIdsToRead = new LinkedHashSet<String>();
+
+  /** package-private accessor for {@code GrouperProvisioningTargetNativeSync} */
+  Set<String> getSyncBackUserNativeIdsToRead() {
+    return this.syncBackUserNativeIdsToRead;
+  }
+
+  /** package-private accessor for {@code GrouperProvisioningTargetNativeSync} */
+  Set<String> getSyncBackGroupNativeIdsToRead() {
+    return this.syncBackGroupNativeIdsToRead;
   }
 
   private GrouperProvisioner grouperProvisioner;

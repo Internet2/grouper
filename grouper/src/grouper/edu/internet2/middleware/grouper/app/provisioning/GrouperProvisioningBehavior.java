@@ -12,6 +12,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerDaoCapabilities;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -2201,18 +2202,31 @@ public class GrouperProvisioningBehavior {
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLoadEntitiesToGenericGrouperTable()) {
       return false;
     }
-    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false);
+    GrouperProvisionerDaoCapabilities daoCapabilities = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities();
+    // require both: the DAO must opt into sync-back (record* wired in its read path)
+    // AND it must be able to enumerate all entities so the flush has authoritative input.
+    if (!daoCapabilities.isCanSyncBack()) {
+      return false;
+    }
+    return GrouperUtil.booleanValue(daoCapabilities.getCanRetrieveAllEntities(), false);
   }
 
   public boolean isLoadGroupsToGenericGrouperTable() {
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLoadGroupsToGenericGrouperTable()) {
       return false;
     }
-    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllGroups(), false);
+    GrouperProvisionerDaoCapabilities daoCapabilities = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities();
+    if (!daoCapabilities.isCanSyncBack()) {
+      return false;
+    }
+    return GrouperUtil.booleanValue(daoCapabilities.getCanRetrieveAllGroups(), false);
   }
 
   public boolean isLoadMembershipsToGenericGrouperTable() {
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLoadMembershipsToGenericGrouperTable()) {
+      return false;
+    }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().isCanSyncBack()) {
       return false;
     }
     return this.isLoadEntitiesToGenericGrouperTable()

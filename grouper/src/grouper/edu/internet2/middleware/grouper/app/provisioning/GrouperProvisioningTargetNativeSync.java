@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.Collections;
 import java.util.List;
 
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+
 /**
  * Sibling of {@link GrouperProvisioningConfiguration} / {@link GrouperProvisioningBehavior} /
  * {@link GrouperProvisioningData} that owns the runtime "generic provisioner sync back"
@@ -51,8 +53,18 @@ public class GrouperProvisioningTargetNativeSync {
     if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isLoadGroupsToGenericGrouperTable()) {
       return;
     }
-    this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetNativeGroups()
-        .add(grouperProvisioningTargetNativeGroup);
+    String targetId = grouperProvisioningTargetNativeGroup.getTargetId();
+    if (targetId == null) {
+      // no key to index by; skip rather than crash. real responses always have an id.
+      return;
+    }
+    // last-write-wins on duplicate targetId — supports both read-pass capture and later
+    // write-shadowing (e.g. patch-response capture for the same id) without growing dups.
+    this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetGroupIdToNativeGroup()
+        .put(targetId, grouperProvisioningTargetNativeGroup);
+    // a fresh entry in the canonical map means any pending sync-back-read for this id is
+    // now satisfied — drop it from the dirty set so the drain doesn't re-fetch.
+    this.clearSyncBackGroupForRead(targetId);
   }
 
   /**
@@ -67,8 +79,15 @@ public class GrouperProvisioningTargetNativeSync {
     if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isLoadEntitiesToGenericGrouperTable()) {
       return;
     }
-    this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetNativeUsers()
-        .add(grouperProvisioningTargetNativeUser);
+    String targetId = grouperProvisioningTargetNativeUser.getTargetId();
+    if (targetId == null) {
+      return;
+    }
+    // last-write-wins; see recordTargetNativeGroup for rationale.
+    this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetUserIdToNativeUser()
+        .put(targetId, grouperProvisioningTargetNativeUser);
+    // satisfied any pending sync-back-read for this id; see recordTargetNativeGroup.
+    this.clearSyncBackUserForRead(targetId);
   }
 
   /**
@@ -131,8 +150,90 @@ public class GrouperProvisioningTargetNativeSync {
     if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()) {
       return;
     }
-    this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetNativeMemberships()
-        .addAll(grouperProvisioningTargetNativeMemberships);
+    java.util.Map<MultiKey, GrouperProvisioningTargetNativeMembership> index =
+        this.grouperProvisioner.retrieveGrouperProvisioningData()
+            .getTargetGroupIdTargetUserIdToNativeMembership();
+    for (GrouperProvisioningTargetNativeMembership grouperProvisioningTargetNativeMembership
+        : grouperProvisioningTargetNativeMemberships) {
+      if (grouperProvisioningTargetNativeMembership == null) {
+        continue;
+      }
+      String targetGroupId = grouperProvisioningTargetNativeMembership.getTargetGroupId();
+      String targetUserId = grouperProvisioningTargetNativeMembership.getTargetUserId();
+      if (targetGroupId == null || targetUserId == null) {
+        continue;
+      }
+      // last-write-wins on duplicate (gid,uid). same rationale as recordTargetNativeGroup.
+      index.put(new MultiKey(targetGroupId, targetUserId),
+          grouperProvisioningTargetNativeMembership);
+    }
+  }
+
+  // ===================== sync-back read set (mark/clear) =====================
+  // Write sites that don't get a response body (e.g. SCIM PATCH returning 204, LDAP modify)
+  // mark the affected target id with {@link #markSyncBackUserForRead} / {@link
+  // #markSyncBackGroupForRead}. A later drain phase re-reads each marked id, captures
+  // through {@link #recordTargetNativeUser} / {@link #recordTargetNativeGroup}, which
+  // clears the dirty entry. So the steady-state invariant at end-of-flush is: the set is
+  // empty (every dirty id was either drained, or never marked because the write got a body
+  // and the capture happened directly).
+  //
+  // Mark gates on the behavior flag — no point growing the set for an axis that won't be
+  // flushed. Clear is unconditional (cheap, idempotent set.remove).
+  //
+  // The drain itself is not implemented in this slice — these methods only set up the
+  // infrastructure so write sites and the eventual drain have a single chokepoint.
+
+  /**
+   * Register {@code targetId} as needing a sync-back re-read. Called from write sites that
+   * change an entity in the target without getting a response body to capture from.
+   * No-op when reporting is off for entities or when {@code targetId} is null.
+   */
+  public void markSyncBackUserForRead(String targetId) {
+    if (targetId == null) {
+      return;
+    }
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior()
+        .isLoadEntitiesToGenericGrouperTable()) {
+      return;
+    }
+    this.grouperProvisioner.retrieveGrouperProvisioningData()
+        .getSyncBackUserNativeIdsToRead().add(targetId);
+  }
+
+  /** see {@link #markSyncBackUserForRead}; same semantics for groups */
+  public void markSyncBackGroupForRead(String targetId) {
+    if (targetId == null) {
+      return;
+    }
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior()
+        .isLoadGroupsToGenericGrouperTable()) {
+      return;
+    }
+    this.grouperProvisioner.retrieveGrouperProvisioningData()
+        .getSyncBackGroupNativeIdsToRead().add(targetId);
+  }
+
+  /**
+   * Drop {@code targetId} from the user sync-back-read set. Called by
+   * {@link #recordTargetNativeUser} whenever a fresh entry lands in the canonical map —
+   * whether from a read response, a write response, or the drain.
+   */
+  public void clearSyncBackUserForRead(String targetId) {
+    if (targetId == null) {
+      return;
+    }
+    this.grouperProvisioner.retrieveGrouperProvisioningData()
+        .getSyncBackUserNativeIdsToRead().remove(targetId);
+  }
+
+  /** see {@link #clearSyncBackUserForRead}; same semantics for groups */
+  public void clearSyncBackGroupForRead(String targetId) {
+    if (targetId == null) {
+      return;
+    }
+    this.grouperProvisioner.retrieveGrouperProvisioningData()
+        .getSyncBackGroupNativeIdsToRead().remove(targetId);
   }
 
 }

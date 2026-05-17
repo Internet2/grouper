@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutp
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.AwsScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Membership;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -825,6 +826,464 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
         .addBindVar(syncInternalId).select(int.class);
     assertEquals("user attr catalog should still be deduped after multi-sync evolution",
         0, dupUserAttr);
+  }
+
+  /**
+   * Verify the {@code loadGroupsToGenericGrouperTable} flag is honored in isolation: when
+   * only groups capture is on, only {@code grouper_prov_group*} rows are written. The user
+   * and membership tables stay empty even though the daemon still retrieves users (for
+   * provisioning) and memberships (for diffing).
+   */
+  public void testLoadGroupsFlagInIsolation() {
+
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "false")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "false"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    assertTrue("expected >=1 prov_group row when groups capture is on",
+        countByProvisioner(configId, "grouper_prov_group") >= 1);
+    assertEquals("expected 0 prov_user rows when entities capture is off",
+        0, countByProvisioner(configId, "grouper_prov_user"));
+    int mshipRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_mship where grouper_sync_internal_id = ?")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("expected 0 prov_mship rows when memberships capture is off", 0, mshipRows);
+  }
+
+  /**
+   * Mirror of {@link #testLoadGroupsFlagInIsolation}: only the entities flag is on. Only
+   * {@code grouper_prov_user*} rows are written.
+   */
+  public void testLoadEntitiesFlagInIsolation() {
+
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "false")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "false"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    assertEquals("expected 0 prov_group rows when groups capture is off",
+        0, countByProvisioner(configId, "grouper_prov_group"));
+    assertTrue("expected >=2 prov_user rows (SUBJ0 + SUBJ1) when entities capture is on",
+        countByProvisioner(configId, "grouper_prov_user") >= 2);
+    int mshipRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_mship where grouper_sync_internal_id = ?")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("expected 0 prov_mship rows when memberships capture is off", 0, mshipRows);
+  }
+
+  /**
+   * With both object loads on but memberships off, the prov_* object tables populate but
+   * {@code grouper_prov_mship} stays empty. Proves the membership gate is independent of
+   * the object gates.
+   */
+  public void testLoadMembershipsFlagOff() {
+
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "false"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    assertTrue("expected >=1 prov_group row",
+        countByProvisioner(configId, "grouper_prov_group") >= 1);
+    assertTrue("expected >=2 prov_user rows (SUBJ0 + SUBJ1)",
+        countByProvisioner(configId, "grouper_prov_user") >= 2);
+    int mshipRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_mship where grouper_sync_internal_id = ?")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("expected 0 prov_mship rows when memberships capture is off", 0, mshipRows);
+  }
+
+  /**
+   * With {@code selectAllGroups=false} and {@code selectAllEntities=false}, the daemon
+   * fetches only the resources mapped to Grouper-provisioned objects (by id) instead of
+   * doing a server-wide listing. An orphan group/user that the target has but Grouper
+   * doesn't should NOT land in the reporting tables under this mode.
+   *
+   * <p>Contrast with {@link #testFullProvisionCapturesOrphanTargetEntities}, which is the
+   * selectAll=true case where the orphan IS captured.
+   */
+  public void testSelectAllFalseExcludesOrphans() {
+
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true")
+        .addExtraConfig("selectAllGroups", "false")
+        .addExtraConfig("selectAllEntities", "false"));
+
+    // pre-populate an orphan group + orphan user — must NOT appear in reporting because
+    // selectAll=false makes the daemon fetch only by id (Grouper-known resources only).
+    Timestamp now = new Timestamp(System.currentTimeMillis());
+
+    GrouperScim2Group orphanGroup = new GrouperScim2Group();
+    orphanGroup.setId("orphan-group-selnone-1");
+    orphanGroup.setDisplayName("orphanGroupSelectAllFalse");
+    orphanGroup.setExternalId("orphan-group-selnone-ext");
+    orphanGroup.setSchemas("urn:ietf:params:scim:schemas:core:2.0:Group");
+    orphanGroup.setCreated(now);
+    orphanGroup.setLastModified(now);
+    HibernateSession.byObjectStatic().save(orphanGroup);
+
+    GrouperScim2User orphanUser = new GrouperScim2User();
+    orphanUser.setId("orphan-user-selnone-1");
+    orphanUser.setUserName("orphan.user.selectAllFalse");
+    orphanUser.setDisplayName("Orphan User SelectAll False");
+    orphanUser.setExternalId("orphan-user-selnone-ext");
+    orphanUser.setEmailValue("orphan-selnone@example.edu");
+    orphanUser.setSchemas("urn:ietf:params:scim:schemas:core:2.0:User");
+    HibernateSession.byObjectStatic().save(orphanUser);
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // Grouper-known resources still captured
+    assertTrue("Grouper-provisioned testGroup should still be in prov_group",
+        countByProvisioner(configId, "grouper_prov_group") >= 1);
+    assertTrue("Grouper-provisioned SUBJ0/SUBJ1 should still be in prov_user",
+        countByProvisioner(configId, "grouper_prov_user") >= 2);
+
+    // orphans must NOT be in reporting (selectAll=false → no server-wide listing → no capture)
+    int orphanGroupRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id = ?")
+        .addBindVar(syncInternalId).addBindVar(orphanGroup.getId()).select(int.class);
+    assertEquals("orphan group must NOT be captured when selectAllGroups=false",
+        0, orphanGroupRows);
+
+    int orphanUserRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and target_user_id = ?")
+        .addBindVar(syncInternalId).addBindVar(orphanUser.getId()).select(int.class);
+    assertEquals("orphan user must NOT be captured when selectAllEntities=false",
+        0, orphanUserRows);
+  }
+
+  /**
+   * Strict-native completeness on the membership axis: when a group in the target has
+   * members but Grouper doesn't provision the group, those memberships should still be
+   * captured in {@code grouper_prov_mship} (with NULL Grouper-side linkage on the orphan
+   * side). This is the membership analogue of {@link #testFullProvisionCapturesOrphanTargetEntities}
+   * which only covered orphan objects, not orphan memberships.
+   */
+  public void testFullProvisionCapturesMembershipsFromOrphanGroup() {
+
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    // delete-types disabled so the orphan group + its membership row persist
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    Timestamp now = new Timestamp(System.currentTimeMillis());
+
+    // orphan group + orphan user — neither known to Grouper
+    GrouperScim2Group orphanGroup = new GrouperScim2Group();
+    orphanGroup.setId("orphan-mship-group-1");
+    orphanGroup.setDisplayName("orphanGroupWithMembers");
+    orphanGroup.setExternalId("orphan-mship-group-ext");
+    orphanGroup.setSchemas("urn:ietf:params:scim:schemas:core:2.0:Group");
+    orphanGroup.setCreated(now);
+    orphanGroup.setLastModified(now);
+    HibernateSession.byObjectStatic().save(orphanGroup);
+
+    GrouperScim2User orphanUser = new GrouperScim2User();
+    orphanUser.setId("orphan-mship-user-1");
+    orphanUser.setUserName("orphan.mship.user");
+    orphanUser.setDisplayName("Orphan Mship User");
+    orphanUser.setExternalId("orphan-mship-user-ext");
+    orphanUser.setEmailValue("orphan-mship@example.edu");
+    orphanUser.setSchemas("urn:ietf:params:scim:schemas:core:2.0:User");
+    HibernateSession.byObjectStatic().save(orphanUser);
+
+    // wire them as a membership in the SCIM mock — this is what the daemon will see when
+    // it lists groups and the mock includes the members array
+    GrouperScim2Membership orphanMembership = new GrouperScim2Membership();
+    orphanMembership.setId("orphan-mship-row-1");
+    orphanMembership.setGroupId(orphanGroup.getId());
+    orphanMembership.setUserId(orphanUser.getId());
+    HibernateSession.byObjectStatic().save(orphanMembership);
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // orphan group's membership lands in prov_mship — proves strict-native capture on the
+    // membership axis is independent of whether the group/user is Grouper-known.
+    // prov_mship has FK columns (prov_user_internal_id, prov_group_internal_id) — not
+    // target_*_id strings — so join through prov_user/prov_group to identify by target id.
+    int orphanMshipRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_mship pm "
+            + "join grouper_prov_group pg on pg.internal_id = pm.prov_group_internal_id "
+            + "join grouper_prov_user pu on pu.internal_id = pm.prov_user_internal_id "
+            + "where pm.grouper_sync_internal_id = ? "
+            + "and pg.target_group_id = ? and pu.target_user_id = ?")
+        .addBindVar(syncInternalId).addBindVar(orphanGroup.getId()).addBindVar(orphanUser.getId())
+        .select(int.class);
+    assertEquals("expected 1 prov_mship row for orphan group → orphan user",
+        1, orphanMshipRows);
+
+    // and Grouper's own memberships still land alongside (3 total: SUBJ0+SUBJ1 in testGroup,
+    // plus the orphan)
+    int totalMshipRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_mship where grouper_sync_internal_id = ?")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("expected 3 prov_mship rows total (2 from testGroup + 1 orphan)",
+        3, totalMshipRows);
+  }
+
+  /**
+   * Documents the "read-state, next-run convergence" contract: the daemon writes new
+   * users + groups to the SCIM target on run 1, but the end-of-run flush has already run
+   * against the empty pre-write read snapshot, so {@code grouper_prov_user/_group} are
+   * still empty after run 1. Run 2 reads the new resources back, captures them into the
+   * canonical maps, and the run-2 flush populates the tables.
+   *
+   * <p>This is the behavior write-shadow precision (TODO in
+   * {@code GrouperScim2ApiCommands.createScimUser/Group}) is meant to improve — once
+   * shadowing + flush-reorder land, the single-pass version of this assertion should
+   * pass and this test can be promoted to single-pass.
+   */
+  public void testCreateConvergesIntoSyncTablesOnNextRun() {
+
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // baseline
+    assertEquals(0, countByProvisioner(configId, "grouper_prov_group"));
+    assertEquals(0, countByProvisioner(configId, "grouper_prov_user"));
+
+    // ---- run 1: creates the SCIM target resources, but the end-of-run flush sees the
+    // pre-write read snapshot (empty), so grouper_prov_user/_group stay empty.
+    GrouperProvisioningOutput out1 = fullProvision();
+    GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, out1.getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    assertEquals("after run 1, prov_group is still empty — read snapshot was pre-create",
+        0, countByProvisioner(configId, "grouper_prov_group"));
+    assertEquals("after run 1, prov_user is still empty — read snapshot was pre-create",
+        0, countByProvisioner(configId, "grouper_prov_user"));
+
+    // ---- run 2: reads the newly created resources, captures them via the SCIM retrieve
+    // hooks, and the run-2 flush writes them to grouper_prov_*.
+    GrouperProvisioningOutput out2 = fullProvision();
+    assertEquals(0, out2.getRecordsWithErrors());
+
+    // ---- prov_group: testGroup row exists, linked to Grouper's group ----
+
+    int groupRows = countByProvisioner(configId, "grouper_prov_group");
+    assertEquals("expected exactly 1 prov_group row for testGroup after run 2", 1, groupRows);
+
+    int groupRowsLinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and group_internal_id is not null")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("captured testGroup prov_group row should be linked to its Grouper group",
+        1, groupRowsLinked);
+
+    // ---- prov_user: SUBJ0 + SUBJ1 rows exist, linked to Grouper members ----
+
+    int userRows = countByProvisioner(configId, "grouper_prov_user");
+    assertEquals("expected exactly 2 prov_user rows (SUBJ0 + SUBJ1) after run 2", 2, userRows);
+
+    int userRowsLinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and member_internal_id is not null")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("captured prov_user rows should be linked to their Grouper members",
+        2, userRowsLinked);
+
+    // ---- attribute values: SCIM defaults should be present from the run-2 read response
+
+    int displayNameValueRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr_value gpv "
+            + "join grouper_prov_group_attr gpa on gpa.internal_id = gpv.prov_group_attr_internal_id "
+            + "join grouper_prov_group pg on pg.internal_id = gpv.prov_group_internal_id "
+            + "where pg.grouper_sync_internal_id = ? and gpa.attribute_name = 'displayName'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertTrue("displayName should be captured from the run-2 read response, got "
+        + displayNameValueRows, displayNameValueRows >= 1);
+
+    int userNameValueRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user_attr_value puv "
+            + "join grouper_prov_user_attr pua on pua.internal_id = puv.prov_user_attr_internal_id "
+            + "join grouper_prov_user pu on pu.internal_id = puv.prov_user_internal_id "
+            + "where pu.grouper_sync_internal_id = ? and pua.attribute_name = 'userName'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("userName should be captured from the run-2 read response for both users",
+        2, userNameValueRows);
   }
 
   /** read (attribute_name -> internal_id) for an attr catalog of a single sync */

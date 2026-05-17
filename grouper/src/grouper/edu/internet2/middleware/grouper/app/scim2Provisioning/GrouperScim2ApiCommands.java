@@ -1033,6 +1033,14 @@ public class GrouperScim2ApiCommands {
       JsonNode jsonNode = executeMethod(debugMap, debugLabel(debugMap, "createScimUser"), GrouperHttpMethod.post, configId,
           "/Users", GrouperUtil.toSet(200, 201), new int[] { -1 }, jsonStringToSend, scimSettings);
 
+      // TODO write-shadow precision pass: SCIM POST returns the created resource and could
+      // shadow into the canonical native-user map here. Disabled today because the
+      // end-of-run flush in fullSyncLogic runs BEFORE create phases, so this capture would
+      // land in an already-flushed map. Re-enable once the flush is reordered to run after
+      // all create/update/delete phases. Until then, contract is "shadow reflects target
+      // state at read time; daemon writes converge on the NEXT run's read."
+      // GrouperScim2ProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(jsonNode);
+
       GrouperScim2User grouperScimUserResult = GrouperScim2User.fromJson(jsonNode);
 
       return grouperScimUserResult;
@@ -1371,7 +1379,13 @@ public class GrouperScim2ApiCommands {
       // robin returns 200 on create for some bad reason
       JsonNode jsonNode = executeMethod(debugMap, debugLabel(debugMap, "createScimGroup"), GrouperHttpMethod.post, configId,
           "/Groups", GrouperUtil.toSet(201, 200), new int[] { -1 }, jsonStringToSend, scimSettings);
-  
+
+      // TODO write-shadow precision pass: see matching TODO in createScimUser. SCIM POST
+      // returns the created resource and could shadow into the canonical native-group map
+      // here, but the end-of-run flush currently runs BEFORE create phases in
+      // fullSyncLogic. Re-enable once the flush is reordered.
+      // GrouperScim2ProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(jsonNode);
+
       GrouperScim2Group grouperScimGroupResult = GrouperScim2Group.fromJson(jsonNode);
 
       return grouperScimGroupResult;

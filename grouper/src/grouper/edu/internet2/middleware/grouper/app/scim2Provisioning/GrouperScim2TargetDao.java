@@ -810,8 +810,11 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
       grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
       grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
-      
+
     }
+    // read path captures JsonNode resources through GrouperProvisioningTargetNativeSync.record*
+    // and the membership cache drains at end of retrieveAllData
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 
   

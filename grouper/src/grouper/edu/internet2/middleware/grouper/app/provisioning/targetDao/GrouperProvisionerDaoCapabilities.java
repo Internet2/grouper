@@ -53,6 +53,27 @@ public class GrouperProvisionerDaoCapabilities {
     this.canRetrieveMembershipsWithEntity = canRetrieveMembershipWithEntity;
   }
 
+  /**
+   * Whether this DAO supports sync-back to the generic Grouper tables
+   * (grouper_prov_user / _group / _mship + their _attr / _attr_value sidecars).
+   * A protocol declares this true by wiring its read path (and any future write
+   * paths) to feed GrouperProvisioningTargetNativeSync.record*. Default false:
+   * the load*ToGenericGrouperTable behavior flags are forced to false unless a
+   * DAO has explicitly opted in, and the configuration validator emits a
+   * user-facing error when an operator tries to enable load* on a protocol
+   * whose DAO can't sync back.
+   */
+  private boolean canSyncBack = false;
+
+  /** see {@link #canSyncBack} */
+  public boolean isCanSyncBack() {
+    return canSyncBack;
+  }
+
+  /** see {@link #canSyncBack} */
+  public void setCanSyncBack(boolean canSyncBack) {
+    this.canSyncBack = canSyncBack;
+  }
 
 
   @Override
