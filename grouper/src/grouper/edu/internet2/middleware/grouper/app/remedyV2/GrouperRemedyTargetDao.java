@@ -152,8 +152,10 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperRemedyUser grouperRemedyUser : remedyUsers.values()) {
         ProvisioningEntity targetEntity = grouperRemedyUser.toProvisioningEntity();
         results.add(targetEntity);
+        // generic provisioner sync back: capture native user while the bean is in scope
+        GrouperRemedyProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperRemedyUser);
       }
-  
+
       return new TargetDaoRetrieveAllEntitiesResponse(results);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllEntities", startNanos));
@@ -203,6 +205,8 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
         permissionGroupToGroup.put(grouperRemedyGroup.getPermissionGroup(), grouperRemedyGroup);
         ProvisioningGroup targetGroup = grouperRemedyGroup.toProvisioningGroup();
         results.add(targetGroup);
+        // generic provisioner sync back: capture native group while the bean is in scope
+        GrouperRemedyProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperRemedyGroup);
       }
   
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -263,6 +267,11 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningEntity targetEntity = grouperRemedyUser == null ? null
           : grouperRemedyUser.toProvisioningEntity();
 
+      if (grouperRemedyUser != null) {
+        // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
+        GrouperRemedyProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperRemedyUser);
+      }
+
       TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = new TargetDaoRetrieveEntityResponse(targetEntity);
       if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
         targetDaoRetrieveEntityResponse.setTargetNativeEntity(grouperRemedyUser);
@@ -294,6 +303,11 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningGroup targetGroup = grouperRemedyGroup == null ? null
           : grouperRemedyGroup.toProvisioningGroup();
 
+      if (grouperRemedyGroup != null) {
+        // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
+        GrouperRemedyProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperRemedyGroup);
+      }
+
       TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = new TargetDaoRetrieveGroupResponse(targetGroup);
       targetDaoRetrieveGroupResponse.setTargetNativeGroup(grouperRemedyGroup);
       return targetDaoRetrieveGroupResponse;
@@ -318,7 +332,10 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       Long permissionGroupId = targetGroup.retrieveAttributeValueLong("permissionGroupId");
       GrouperUtil.assertion(permissionGroupId != null, "Permission group id is null for: " + targetGroup.retrieveAttributeValueString("permissionGroup"));
       List<GrouperRemedyMembership> remedyMembershipsForGroup = GrouperRemedyApiCommands.retrieveRemedyMembershipsForGroup(remedyExternalSystemConfigId, permissionGroupId);
-      
+
+      // generic provisioner sync back: capture native memberships while the beans are in scope
+      GrouperRemedyProvisioningTargetNativeSync.captureMembershipsFromCurrentProvisioner(remedyMembershipsForGroup);
+
       for (GrouperRemedyMembership remedyMembership : remedyMembershipsForGroup) {
         ProvisioningMembership targetMembership = new ProvisioningMembership();
         
@@ -355,6 +372,8 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
 //    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
 
+    // read path captures GrouperRemedyUser/Group/Membership beans through GrouperRemedyProvisioningTargetNativeSync.record*
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 
 }

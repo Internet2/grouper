@@ -5,6 +5,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBeha
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeSync;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
@@ -33,6 +34,11 @@ public class DatadogProvisioner extends GrouperProvisioner {
   @Override
   public void registerProvisioningBehaviors(GrouperProvisioningBehavior grouperProvisioningBehavior) {
     grouperProvisioningBehavior.setGrouperProvisioningBehaviorMembershipType(GrouperProvisioningBehaviorMembershipType.membershipObjects);
+  }
+
+  @Override
+  protected Class<? extends GrouperProvisioningTargetNativeSync> grouperProvisioningTargetNativeSyncClass() {
+    return DatadogProvisioningTargetNativeSync.class;
   }
 
 }

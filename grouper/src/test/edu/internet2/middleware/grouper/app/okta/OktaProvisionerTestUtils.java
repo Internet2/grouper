@@ -27,38 +27,62 @@ public class OktaProvisionerTestUtils {
     int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
     boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
 
-    
+    String tenantDomain;
+    String clientId;
+    String privateKey;
+    String publicKeyId;
+
     if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouper.okta.provisioning.real", false)) {
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.tenantDomain").
-        value(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.okta.provisioning.real.tenantDomain")).store();
-      
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.clientId")
-        .value(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.okta.provisioning.real.clientId")).store();
-      
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.privateKey")
-      .value(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.okta.provisioning.real.privateKey")).store();
-
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.publicKeyId")
-      .value(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.okta.provisioning.real.publicKeyId")).store();
-      
+      tenantDomain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.okta.provisioning.real.tenantDomain");
+      clientId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.okta.provisioning.real.clientId");
+      privateKey = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.okta.provisioning.real.privateKey");
+      publicKeyId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.okta.provisioning.real.publicKeyId");
     } else {
-      
+
       String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.clientId").value("testClientId").store();
+      // OktaMockServiceHandler strips 2 path segments off the front (lines 116-117), so we
+      // need 3+ segments after /mockServices/. Add /myOkta/api/ so the URL becomes
+      // mockServices/okta/myOkta/api/<resource> — stripping "okta" and "myOkta" leaves
+      // ["api", "<resource>"] (or just ["<resource>"] when the framework strips the handler
+      // name). With "api" as the second strip target, "groups"/"users"/"token" end up as
+      // mockNamePaths[0] like the handler expects.
+      tenantDomain = "http" + (ssl?"s":"") + "://" + domainName + ":" + port + "/grouper/mockServices/okta/myOkta/api/";
+      clientId = "testClientId";
 
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.tenantDomain").value("http" + (ssl?"s":"") + "://" + domainName + ":" + port + "/grouper/mockServices/okta/").store();
+      publicKeyId = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuaGc9tsPiKesuG4u534VbiLXIm55oAsV5PX+EaXRQ0Ah+B3VN2K/lO3lL3Dp8KJWiAaN0ItSpfRsWMBcjZgJVSK4Ah3DAejIpuiEU6BU5puukX/j9OuHgBwZ9KycFUZwUL2i//8ChL+2hvgSha3TtGRBLMrGU/HhY/UEBb5UoMmtiTim95YzuoIs0Q85+Ti5tL/JljAU3zjkYfhoGYjQj7EqQyROSjxB52xYFmABWR2FfXSzMJdyVi6w6QWJKt0VtwOzboiJqSl+QypiK6pdn8jKAB5uErYF5Zbf50K38rSF2BzhAqwNEIVWhrx/jB9iu9cyXNx328bWQw2hpDZ6hwIDAQAB";  // rsaKeypair[0];
+      privateKey = "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC5oZz22w+Ip6y4bi7nfhVuItcibnmgCxXk9f4RpdFDQCH4HdU3Yr+U7eUvcOnwolaIBo3Qi1Kl9GxYwFyNmAlVIrgCHcMB6Mim6IRToFTmm66Rf+P064eAHBn0rJwVRnBQvaL//wKEv7aG+BKFrdO0ZEEsysZT8eFj9QQFvlSgya2JOKb3ljO6gizRDzn5OLm0v8mWMBTfOORh+GgZiNCPsSpDJE5KPEHnbFgWYAFZHYV9dLMwl3JWLrDpBYkq3RW3A7NuiImpKX5DKmIrql2fyMoAHm4StgXllt/nQrfytIXYHOECrA0QhVaGvH+MH2K71zJc3HfbxtZDDaGkNnqHAgMBAAECggEBAKf061GLmT17ANMKlpPLx9YT3fWAYbmF7jRwwoXzMykXAOU/EOkBBvjYWpKXJoQcThDbZTr4pDoVsmaG/fb7Rg5q0HTRutyiY9Jo9Tm5Crhwyf1J6tZyuPIX+wAfoUW6qurS+oWHlR7JW3w5PoEHa1J/l1zQx6uyYc2QJiiQMoAbDUPIEQBJGAmZ3E72Kf/V1goFavanPXsrKS3tEwP9jTldqCCV6mS4o+k9pO+FGODlEVxexj3OvjpWg9MhpKlSjPoiGW0nQHV2BsoIz8YlNyUwU8qCTPJLta7q82upMMXwLVKQSKWpafTN5THOY0ISMinO1mtL0KwNEHIJPikwb2ECgYEA9Fmmo5wAqW0+gCqs+eNLWkplEorW2NJjuv6t7HS27BkFEmkO2TFV5EPi0B6IXkH+S4+jG4FJ6MANuh0d+I0MIypC3Q4QLtXuzIAHU1TpOuEAvMr/fLh4sL46BVDW6lHwofBcnioxdtGG7yIKaxPWiQz4ozxWMLew37NnR6AlPBcCgYEAwntI7WT19vJddjSzLWeoZp8eKUzQgbUK/NZ4Q2uE1lRJLbNQkb1OEDskyqkKF0+MddMaXaMHbNZntLAe+2ZFAKNsPidgOjNtsExmvYYOcqJb5EAd07QPu+JkU1e+tJ0AMmGNDaT1+b6rH8aYbBl0Rsr975Y4a7VqChikTwfrixECgYEAhA+f/HTn9qnQSbzG2Bd8NkRW8/qNu4mZ1QqoPU+nPVsYXqbhG4mKfmAiSZD26tqH8Zaj9M2fgGesA5aRCDBTCv5gPNDI9kcxVN0tGGCf3O6WU3LzOhkJQZzOBul1/hZjE2Kw69qp+Sms37lqIA0Mue2Ew9RsUNA2i/CONSvcc+kCgYAjeHrfmWdnB+NV+NypLlu/g8vrenAZCB0d6jv7B/QtZygFpsvOGPnQ6giW0efeQor6vmrzoxVqm1xEz06HSarSJ/xJBcN+Of0Kh5TBgl7GN6iM48jM4O1xtiPYM4u7w1rS1Yn1cB3Q1B6/5+fK54WWl9ViykI2GtthRgdJxscGEQKBgHX1e4cB+lXq4B9txTD24b/Nvs8jXZJ9BpY9L06/V/iFOhll9v65OKySExVTA5jbrVNlNQcOSCrjrDSNdjfaVk1U+0jl+FR0o4E2HDpJ8yfv22zDQ0keDPqyBc1Lfa9kMqemIuSEuqCgawlsyQevdXo1/VaJtCQAaUtXtbTWEvR9"; // rsaKeypair[1];
 
-      String publicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuaGc9tsPiKesuG4u534VbiLXIm55oAsV5PX+EaXRQ0Ah+B3VN2K/lO3lL3Dp8KJWiAaN0ItSpfRsWMBcjZgJVSK4Ah3DAejIpuiEU6BU5puukX/j9OuHgBwZ9KycFUZwUL2i//8ChL+2hvgSha3TtGRBLMrGU/HhY/UEBb5UoMmtiTim95YzuoIs0Q85+Ti5tL/JljAU3zjkYfhoGYjQj7EqQyROSjxB52xYFmABWR2FfXSzMJdyVi6w6QWJKt0VtwOzboiJqSl+QypiK6pdn8jKAB5uErYF5Zbf50K38rSF2BzhAqwNEIVWhrx/jB9iu9cyXNx328bWQw2hpDZ6hwIDAQAB";  // rsaKeypair[0];
-      String privateKey = "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC5oZz22w+Ip6y4bi7nfhVuItcibnmgCxXk9f4RpdFDQCH4HdU3Yr+U7eUvcOnwolaIBo3Qi1Kl9GxYwFyNmAlVIrgCHcMB6Mim6IRToFTmm66Rf+P064eAHBn0rJwVRnBQvaL//wKEv7aG+BKFrdO0ZEEsysZT8eFj9QQFvlSgya2JOKb3ljO6gizRDzn5OLm0v8mWMBTfOORh+GgZiNCPsSpDJE5KPEHnbFgWYAFZHYV9dLMwl3JWLrDpBYkq3RW3A7NuiImpKX5DKmIrql2fyMoAHm4StgXllt/nQrfytIXYHOECrA0QhVaGvH+MH2K71zJc3HfbxtZDDaGkNnqHAgMBAAECggEBAKf061GLmT17ANMKlpPLx9YT3fWAYbmF7jRwwoXzMykXAOU/EOkBBvjYWpKXJoQcThDbZTr4pDoVsmaG/fb7Rg5q0HTRutyiY9Jo9Tm5Crhwyf1J6tZyuPIX+wAfoUW6qurS+oWHlR7JW3w5PoEHa1J/l1zQx6uyYc2QJiiQMoAbDUPIEQBJGAmZ3E72Kf/V1goFavanPXsrKS3tEwP9jTldqCCV6mS4o+k9pO+FGODlEVxexj3OvjpWg9MhpKlSjPoiGW0nQHV2BsoIz8YlNyUwU8qCTPJLta7q82upMMXwLVKQSKWpafTN5THOY0ISMinO1mtL0KwNEHIJPikwb2ECgYEA9Fmmo5wAqW0+gCqs+eNLWkplEorW2NJjuv6t7HS27BkFEmkO2TFV5EPi0B6IXkH+S4+jG4FJ6MANuh0d+I0MIypC3Q4QLtXuzIAHU1TpOuEAvMr/fLh4sL46BVDW6lHwofBcnioxdtGG7yIKaxPWiQz4ozxWMLew37NnR6AlPBcCgYEAwntI7WT19vJddjSzLWeoZp8eKUzQgbUK/NZ4Q2uE1lRJLbNQkb1OEDskyqkKF0+MddMaXaMHbNZntLAe+2ZFAKNsPidgOjNtsExmvYYOcqJb5EAd07QPu+JkU1e+tJ0AMmGNDaT1+b6rH8aYbBl0Rsr975Y4a7VqChikTwfrixECgYEAhA+f/HTn9qnQSbzG2Bd8NkRW8/qNu4mZ1QqoPU+nPVsYXqbhG4mKfmAiSZD26tqH8Zaj9M2fgGesA5aRCDBTCv5gPNDI9kcxVN0tGGCf3O6WU3LzOhkJQZzOBul1/hZjE2Kw69qp+Sms37lqIA0Mue2Ew9RsUNA2i/CONSvcc+kCgYAjeHrfmWdnB+NV+NypLlu/g8vrenAZCB0d6jv7B/QtZygFpsvOGPnQ6giW0efeQor6vmrzoxVqm1xEz06HSarSJ/xJBcN+Of0Kh5TBgl7GN6iM48jM4O1xtiPYM4u7w1rS1Yn1cB3Q1B6/5+fK54WWl9ViykI2GtthRgdJxscGEQKBgHX1e4cB+lXq4B9txTD24b/Nvs8jXZJ9BpY9L06/V/iFOhll9v65OKySExVTA5jbrVNlNQcOSCrjrDSNdjfaVk1U+0jl+FR0o4E2HDpJ8yfv22zDQ0keDPqyBc1Lfa9kMqemIuSEuqCgawlsyQevdXo1/VaJtCQAaUtXtbTWEvR9"; // rsaKeypair[1];
-      
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouperTest.okta.mock.publicKeyId").value(publicKey).store();
+      // tell the mock servlet about its expected public key + config id so it can validate signed JWTs
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouperTest.okta.mock.publicKey").value(publicKeyId).store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouperTest.okta.mock.configId").value("myOkta").store();
-      
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.privateKey").value(privateKey).store();
     }
-    
+
+    // legacy oktaConnector keys (kept so anything still reading them is not broken)
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.tenantDomain").value(tenantDomain).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.clientId").value(clientId).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.privateKey").value(privateKey).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.publicKeyId").value(publicKeyId).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.enabled").value("true").store();
-    
+
+    // wsBearerToken external system config - this is what the okta API commands and WsBearerTokenExternalSystem
+    // actually read for auth. Okta uses OAuth2 client credentials with a JWT signed by a private key (publicPrivateKey),
+    // not a static accessTokenPassword. Set httpAuthnType=oauthClientCredentials and clientCredentialType=publicPrivateKey
+    // so WsBearerTokenExternalSystem.attachAuthenticationToHttpClient takes the JWT branch instead of demanding
+    // accessTokenPassword.
+    String tokenUrl = StringUtils.appendIfMissing(tenantDomain, "/") + "token";
+
+    // GrouperOktaApiCommands.executeMethod reads this as the base URL for all okta REST calls
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.myOkta.endpoint").value(tenantDomain).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.myOkta.httpAuthnType").value("oauthClientCredentials").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.myOkta.tokenUrl").value(tokenUrl).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.myOkta.grantType").value("client_credentials").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.myOkta.clientId").value(clientId).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.myOkta.clientCredentialType").value("publicPrivateKey").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.myOkta.privateKey").value(privateKey).store();
+    // publicKeyId is read from GrouperClientConfig (grouperClient.* prefix) by WsBearerTokenExternalSystem.generateAccessToken
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouperClient.wsBearerToken.myOkta.publicKeyId").value(publicKeyId).store();
+
+    ConfigPropertiesCascadeBase.clearCache();
   }
   
   /**

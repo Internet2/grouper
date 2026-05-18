@@ -1130,6 +1130,10 @@ public class GrouperScim2ApiCommands {
         // generic provisioner sync back: capture the fetched user against the current
         // provisioner's reporting tables (no-op if reporting is off or no provisioner is active)
         GrouperScim2ProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(jsonNode);
+        // drain any memberships that the populateMembershipsFromUser call above appended
+        // to the per-DAO cache. needed for selectAll=false flows where bulk retrieves never
+        // run and so the bulk-path drain in retrieveScimUsers never fires.
+        GrouperScim2ProvisioningTargetNativeSync.captureMembershipsFromCacheIfActive(grouperScim2MembershipCache);
         return grouperScimUser;
       }
 
@@ -1156,6 +1160,8 @@ public class GrouperScim2ApiCommands {
           grouperScimUser);
 
       GrouperScim2ProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
+      // drain scoped-path memberships (see note above)
+      GrouperScim2ProvisioningTargetNativeSync.captureMembershipsFromCacheIfActive(grouperScim2MembershipCache);
       return grouperScimUser;
 
     } catch (RuntimeException re) {
@@ -1493,6 +1499,10 @@ public class GrouperScim2ApiCommands {
         // generic provisioner sync back: capture the fetched group against the current
         // provisioner's reporting tables (no-op if reporting is off or no provisioner is active)
         GrouperScim2ProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(jsonNode);
+        // drain any memberships that the populateMembershipsFromGroup call above appended
+        // to the per-DAO cache. needed for selectAll=false flows where bulk retrieves never
+        // run and so the bulk-path drain in retrieveScimGroups never fires.
+        GrouperScim2ProvisioningTargetNativeSync.captureMembershipsFromCacheIfActive(grouperScim2MembershipCache);
         return grouperScimGroup;
       }
 
@@ -1518,6 +1528,8 @@ public class GrouperScim2ApiCommands {
       populateMembershipsFromGroup(grouperScim2MembershipCache, groupNode,
           grouperScimGroup);
       GrouperScim2ProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
+      // drain scoped-path memberships (see note above)
+      GrouperScim2ProvisioningTargetNativeSync.captureMembershipsFromCacheIfActive(grouperScim2MembershipCache);
       return grouperScimGroup;
   
     } catch (RuntimeException re) {

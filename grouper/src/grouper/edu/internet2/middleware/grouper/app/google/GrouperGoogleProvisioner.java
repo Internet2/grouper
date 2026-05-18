@@ -6,6 +6,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBeha
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeSync;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
 
@@ -13,6 +14,11 @@ public class GrouperGoogleProvisioner extends GrouperProvisioner {
 
   protected Class<? extends GrouperProvisionerTargetDaoBase> grouperTargetDaoClass() {
     return GrouperGoogleTargetDao.class;
+  }
+
+  @Override
+  protected Class<? extends GrouperProvisioningTargetNativeSync> grouperProvisioningTargetNativeSyncClass() {
+    return GrouperGoogleProvisioningTargetNativeSync.class;
   }
 
   @Override

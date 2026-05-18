@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
@@ -101,7 +103,10 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
 
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
-    
+
+    // read path captures TeamDynamixUser/Group beans through TeamDynamixProvisioningTargetNativeSync.record*
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
+
   }
 
   @Override
@@ -123,6 +128,8 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       for (TeamDynamixGroup teamDynamixGroup : teamDynamixGroups) {
         ProvisioningGroup targetGroup = teamDynamixGroup.toProvisioningGroup();
         results.add(targetGroup);
+        // generic provisioner sync back: capture native group while the bean is in scope
+        TeamDynamixProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(teamDynamixGroup);
       }
 
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -154,6 +161,8 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       for (TeamDynamixUser teamDynamixUser : teamDynamixUsers) {
         ProvisioningEntity targetEntity = teamDynamixUser.toProvisioningEntity();
         results.add(targetEntity);
+        // generic provisioner sync back: capture native user while the bean is in scope
+        TeamDynamixProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(teamDynamixUser);
       }
 
       return new TargetDaoRetrieveAllEntitiesResponse(results);
@@ -421,6 +430,11 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningEntity targetEntity = teamDynamixUser == null ? null
           : teamDynamixUser.toProvisioningEntity();
 
+      // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
+      if (teamDynamixUser != null) {
+        TeamDynamixProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(teamDynamixUser);
+      }
+
       TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = new TargetDaoRetrieveEntityResponse(targetEntity);
       if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
         targetDaoRetrieveEntityResponse.setTargetNativeEntity(teamDynamixUser);
@@ -459,6 +473,11 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       ProvisioningGroup targetGroup = teamDynamixGroup == null ? null : teamDynamixGroup.toProvisioningGroup();
+
+      // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
+      if (teamDynamixGroup != null) {
+        TeamDynamixProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(teamDynamixGroup);
+      }
 
       return new TargetDaoRetrieveGroupResponse(targetGroup);
 
@@ -508,15 +527,29 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       List<TeamDynamixGroup> teamDynamixGroups = TeamDynamixApiCommands.retrieveTeamDynamixGroupsByUser(teamDynamixConfiguration.getTeamDynamixExternalSystemConfigId(), targetEntityId);
       
       List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
-      
+      List<GrouperProvisioningTargetNativeMembership> nativeMemberships = new ArrayList<GrouperProvisioningTargetNativeMembership>();
+
       for (TeamDynamixGroup teamDynamixGroup : teamDynamixGroups) {
 
         ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(teamDynamixGroup.getId());
         targetMembership.setProvisioningEntityId(targetEntity.getId());
         provisioningMemberships.add(targetMembership);
+
+        // generic provisioner sync back: scoped membership-by-entity path
+        GrouperProvisioningTargetNativeMembership nativeMembership = new GrouperProvisioningTargetNativeMembership();
+        nativeMembership.setTargetGroupId(teamDynamixGroup.getId());
+        nativeMembership.setTargetUserId(targetEntityId);
+        nativeMemberships.add(nativeMembership);
       }
-  
+      if (!nativeMemberships.isEmpty()) {
+        GrouperProvisioner provisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (provisioner != null) {
+          provisioner.retrieveGrouperProvisioningTargetNativeSync()
+              .recordTargetNativeMemberships(nativeMemberships);
+        }
+      }
+
       return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByEntity", startNanos));
@@ -567,18 +600,21 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       
       List<TeamDynamixUser> teamDynamixUsers = TeamDynamixApiCommands.retrieveTeamDynamixUsersByGroup(teamDynamixConfiguration.getTeamDynamixExternalSystemConfigId(), targetGroupId);
-      
-      List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>(); 
-      
+
+      List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
+
       for (TeamDynamixUser teamDynamixUser : teamDynamixUsers) {
 
         ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(targetGroup.getId());
         targetMembership.setProvisioningEntityId(teamDynamixUser.getId());
         provisioningMemberships.add(targetMembership);
-        
+
       }
-  
+      // generic provisioner sync back: capture native memberships for this group
+      TeamDynamixProvisioningTargetNativeSync.captureMembershipsForGroupForCurrentProvisioner(
+          targetGroupId, teamDynamixUsers);
+
       return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));

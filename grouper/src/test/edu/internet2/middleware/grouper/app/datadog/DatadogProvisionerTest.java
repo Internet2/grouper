@@ -1691,4 +1691,128 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
     }
   }
 
+  // =============================================
+  // Generic provisioner sync-back tests
+  // =============================================
+
+  /** count rows for a given prov_* table scoped to a provisioner name */
+  private int countSyncBack(String configId, String tableName) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from " + tableName
+            + " where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(configId).select(int.class);
+  }
+
+  /**
+   * Sync-back smoke test: with all three load*ToGenericGrouperTable flags on, a full
+   * provision populates grouper_prov_user / _group / _mship from the Datadog read path.
+   * Asserts all three axes have rows. Framework-detail coverage (flag isolation,
+   * native-attribute config, validation) lives in the SCIM + LDAP suites.
+   */
+  public void testDatadogFullSyncPopulatesGenericTables() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "datadogProvisioner";
+    GrouperSession grouperSession = setupProvisionerTest(teamProvisionerConfig()
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    try {
+      String userId0 = GrouperUuid.getUuid();
+      String userId1 = GrouperUuid.getUuid();
+      createMockUsers(userId0, userId1, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      attachProvisioningAttribute(stem);
+
+      assertEquals(0, countSyncBack(configId, "grouper_prov_group"));
+      assertEquals(0, countSyncBack(configId, "grouper_prov_user"));
+      assertEquals(0, countSyncBack(configId, "grouper_prov_mship"));
+
+      // first pass writes the Datadog target; sync-back tables stay empty until the next
+      // read pass captures the new objects (read-state convergence contract).
+      fullProvision();
+
+      // second pass: reads back what we just wrote, captures through the sync hooks, flushes
+      fullProvision();
+
+      assertTrue("expected at least 1 prov_group row after sync-back",
+          countSyncBack(configId, "grouper_prov_group") >= 1);
+      assertTrue("expected at least 2 prov_user rows (SUBJ0 + SUBJ1)",
+          countSyncBack(configId, "grouper_prov_user") >= 2);
+      assertTrue("expected at least 2 prov_mship rows",
+          countSyncBack(configId, "grouper_prov_mship") >= 2);
+
+    } finally {
+
+    }
+  }
+
+  /**
+   * Sync-back smoke test for the scoped-retrieve path: same flow as the selectAll variant,
+   * but with {@code selectAllGroups=false} and {@code selectAllEntities=false} so the DAO
+   * uses the scoped {@code retrieveGroup} / {@code retrieveEntity} (per-id lookups)
+   * instead of {@code retrieveAllGroups} / {@code retrieveAllEntities}. Confirms the
+   * capture hooks on the scoped retrieve methods fire.
+   *
+   * <p>Incremental test coverage is intentionally deferred — the framework today only captures
+   * from reads, and writes converge on the next read pass. Closing that gap is the
+   * write-shadow precision pass tracked in section 10 of the sync-back doc.
+   */
+  public void testDatadogFullSyncSelectByIdsPopulatesGenericTables() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "datadogProvisioner";
+    GrouperSession grouperSession = setupProvisionerTest(teamProvisionerConfig()
+        .addExtraConfig("selectAllGroups", "false")
+        .addExtraConfig("selectAllEntities", "false")
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    try {
+      String userId0 = GrouperUuid.getUuid();
+      String userId1 = GrouperUuid.getUuid();
+      createMockUsers(userId0, userId1, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      attachProvisioningAttribute(stem);
+
+      assertEquals(0, countSyncBack(configId, "grouper_prov_group"));
+      assertEquals(0, countSyncBack(configId, "grouper_prov_user"));
+      assertEquals(0, countSyncBack(configId, "grouper_prov_mship"));
+
+      // pass 1 inserts target objects; pass 2 reads them back via scoped retrieve and flushes.
+      fullProvision();
+      fullProvision();
+
+      assertTrue("expected at least 1 prov_group row via scoped retrieve",
+          countSyncBack(configId, "grouper_prov_group") >= 1);
+      assertTrue("expected at least 2 prov_user rows via scoped retrieve",
+          countSyncBack(configId, "grouper_prov_user") >= 2);
+      assertTrue("expected at least 2 prov_mship rows via scoped retrieve",
+          countSyncBack(configId, "grouper_prov_mship") >= 2);
+
+    } finally {
+
+    }
+  }
+
 }

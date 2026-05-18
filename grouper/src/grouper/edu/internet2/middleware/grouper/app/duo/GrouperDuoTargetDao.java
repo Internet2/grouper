@@ -9,7 +9,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
@@ -87,6 +89,8 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperDuoGroup grouperDuoGroup : grouperDuoGroups) {
         ProvisioningGroup targetGroup = grouperDuoGroup.toProvisioningGroup();
         results.add(targetGroup);
+        // generic provisioner sync back: capture native group while the bean is in scope
+        GrouperDuoProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperDuoGroup);
       }
 
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -122,6 +126,8 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
         if (targetDaoRetrieveAllEntitiesRequest.isIncludeNativeEntity()) {
           targetEntityToTargetNativeEntity.put(targetEntity, grouperDuoUser);
         }
+        // generic provisioner sync back: capture native user while the bean is in scope
+        GrouperDuoProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperDuoUser);
       }
 
       return targetDaoRetrieveAllEntitiesResponse;
@@ -157,6 +163,11 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       
       ProvisioningEntity targetEntity = grouperDuoUser == null ? null
           : grouperDuoUser.toProvisioningEntity();
+
+      if (grouperDuoUser != null) {
+        // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
+        GrouperDuoProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperDuoUser);
+      }
 
       TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = new TargetDaoRetrieveEntityResponse(targetEntity);
       if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
@@ -213,6 +224,11 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       ProvisioningGroup targetGroup = grouperDuoGroup == null ? null : grouperDuoGroup.toProvisioningGroup();
+
+      if (grouperDuoGroup != null) {
+        // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
+        GrouperDuoProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperDuoGroup);
+      }
 
       return new TargetDaoRetrieveGroupResponse(targetGroup);
 
@@ -397,17 +413,31 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       List<GrouperDuoGroup> duoGroups = GrouperDuoApiCommands.retrieveDuoGroupsByUser(duoConfiguration.getDuoExternalSystemConfigId(), targetEntityId);
-      
+
       List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
-      
+      List<GrouperProvisioningTargetNativeMembership> nativeMemberships = new ArrayList<GrouperProvisioningTargetNativeMembership>();
+
       for (GrouperDuoGroup duoGroup : duoGroups) {
 
         ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(duoGroup.getGroup_id());
         targetMembership.setProvisioningEntityId(targetEntity.getId());
         provisioningMemberships.add(targetMembership);
+
+        // generic provisioner sync back: scoped membership-by-entity path
+        GrouperProvisioningTargetNativeMembership nativeMembership = new GrouperProvisioningTargetNativeMembership();
+        nativeMembership.setTargetGroupId(duoGroup.getGroup_id());
+        nativeMembership.setTargetUserId(targetEntityId);
+        nativeMemberships.add(nativeMembership);
       }
-  
+      if (!nativeMemberships.isEmpty()) {
+        GrouperProvisioner provisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (provisioner != null) {
+          provisioner.retrieveGrouperProvisioningTargetNativeSync()
+              .recordTargetNativeMemberships(nativeMemberships);
+        }
+      }
+
       return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByEntity", startNanos));
@@ -484,17 +514,31 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       
       List<GrouperDuoUser> duoUsers = GrouperDuoApiCommands.retrieveDuoUserIdsUserNamesByGroup(duoConfiguration.getDuoExternalSystemConfigId(), targetGroupId);
       
-      List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>(); 
-      
+      List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
+      List<GrouperProvisioningTargetNativeMembership> nativeMemberships =
+          new ArrayList<GrouperProvisioningTargetNativeMembership>();
+
       for (GrouperDuoUser duoUser : duoUsers) {
 
         ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(targetGroup.getId());
         targetMembership.setProvisioningEntityId(duoUser.getId());
         provisioningMemberships.add(targetMembership);
-        
+
+        // generic provisioner sync back: scoped membership-by-group path
+        GrouperProvisioningTargetNativeMembership nativeMembership = new GrouperProvisioningTargetNativeMembership();
+        nativeMembership.setTargetGroupId(targetGroupId);
+        nativeMembership.setTargetUserId(duoUser.getId());
+        nativeMemberships.add(nativeMembership);
       }
-  
+      if (!nativeMemberships.isEmpty()) {
+        GrouperProvisioner provisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (provisioner != null) {
+          provisioner.retrieveGrouperProvisioningTargetNativeSync()
+              .recordTargetNativeMemberships(nativeMemberships);
+        }
+      }
+
       return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
@@ -638,13 +682,19 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
            .getTargetEntityToTargetNativeEntity();
 
       for (GrouperDuoUser duoUser: duoUsers) {
-        
+
         ProvisioningEntity targetEntity = duoUser.toProvisioningEntity();
         targetEntities.add(targetEntity);
 
         if (targetDaoRetrieveAllDataRequest.isIncludeNativeEntity()) {
           targetEntityToTargetNativeEntity.put(targetEntity, duoUser);
         }
+
+        // generic provisioner sync back: capture native user + this user's memberships
+        // while the bean is in scope. Duo memberships are inline GrouperDuoGroup beans on
+        // the user (each carries its own group_id), so no name->id resolution is needed.
+        GrouperDuoProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(duoUser);
+        GrouperDuoProvisioningTargetNativeSync.captureMembershipsFromUserForCurrentProvisioner(duoUser);
 
         Set<GrouperDuoGroup> groupsPerUser = duoUser.getGroups();
         
@@ -682,6 +732,8 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+    // read path captures GrouperDuoUser/Group beans through GrouperDuoProvisioningTargetNativeSync.record*
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 
   //  @Override

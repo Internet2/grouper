@@ -3120,4 +3120,137 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals(0, deletedUserGroups.size());
   }
 
+  /**
+   * Sync-back smoke test: with all three load*ToGenericGrouperTable flags on, a full
+   * provision populates grouper_prov_user / _group / _mship from the Azure read path.
+   * Asserts all three axes have rows and at least one row per axis is linked back to
+   * its Grouper counterpart. Framework-detail coverage (flag isolation, native-attribute
+   * config, validation) lives in the SCIM + LDAP suites.
+   */
+  public void testAzureFullSyncPopulatesGenericTables() {
+
+    String configId = "myAzureProvisioner";
+    AzureProvisionerTestUtils.configureAzureProvisioner(new AzureProvisionerTestConfigInput()
+        .assignConfigId(configId)
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    GrouperStartup.startup();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals(0, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals(0, countSyncBack(configId, "grouper_prov_mship"));
+
+    // first pass writes the Azure target; sync-back tables stay empty until the next
+    // read pass captures the new objects (read-state convergence contract).
+    GrouperProvisioningOutput out1 = fullProvision();
+    assertEquals(0, out1.getRecordsWithErrors());
+
+    // second pass: reads back what we just wrote, captures through the sync hooks, flushes
+    GrouperProvisioningOutput out2 = fullProvision();
+    assertEquals(0, out2.getRecordsWithErrors());
+
+    assertTrue("expected at least 1 prov_group row after sync-back",
+        countSyncBack(configId, "grouper_prov_group") >= 1);
+    assertTrue("expected at least 2 prov_user rows (SUBJ0 + SUBJ1)",
+        countSyncBack(configId, "grouper_prov_user") >= 2);
+    assertTrue("expected at least 2 prov_mship rows",
+        countSyncBack(configId, "grouper_prov_mship") >= 2);
+
+    int linkedGroups = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?) "
+            + "and group_internal_id is not null")
+        .addBindVar(configId).select(int.class);
+    assertTrue("at least one prov_group row should be linked to a Grouper group", linkedGroups >= 1);
+
+    int linkedUsers = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?) "
+            + "and member_internal_id is not null")
+        .addBindVar(configId).select(int.class);
+    assertTrue("at least one prov_user row should be linked to a Grouper member", linkedUsers >= 1);
+  }
+
+  /**
+   * Sync-back smoke test for the scoped-retrieve path: same flow as the selectAll variant,
+   * but with {@code selectAllGroups=false} and {@code selectAllEntities=false} so the DAO
+   * uses the scoped {@code retrieveGroups} / {@code retrieveEntities} (per-id batch lookups)
+   * instead of {@code retrieveAllGroups} / {@code retrieveAllEntities}. Confirms the
+   * capture hooks on the scoped retrieve methods fire.
+   *
+   * <p>Incremental test coverage is intentionally deferred — the framework today only captures
+   * from reads, and writes converge on the next read pass. Closing that gap is the
+   * write-shadow precision pass tracked in section 10 of the sync-back doc.
+   */
+  public void testAzureFullSyncSelectByIdsPopulatesGenericTables() {
+
+    String configId = "myAzureProvisioner";
+    AzureProvisionerTestUtils.configureAzureProvisioner(new AzureProvisionerTestConfigInput()
+        .assignConfigId(configId)
+        .addExtraConfig("selectAllGroups", "false")
+        .addExtraConfig("selectAllEntities", "false")
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    GrouperStartup.startup();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals(0, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals(0, countSyncBack(configId, "grouper_prov_mship"));
+
+    // pass 1 inserts target objects; pass 2 reads them back via scoped retrieve and flushes.
+    GrouperProvisioningOutput out1 = fullProvision();
+    assertEquals(0, out1.getRecordsWithErrors());
+    GrouperProvisioningOutput out2 = fullProvision();
+    assertEquals(0, out2.getRecordsWithErrors());
+
+    assertTrue("expected at least 1 prov_group row via scoped retrieve",
+        countSyncBack(configId, "grouper_prov_group") >= 1);
+    assertTrue("expected at least 2 prov_user rows via scoped retrieve",
+        countSyncBack(configId, "grouper_prov_user") >= 2);
+    assertTrue("expected at least 2 prov_mship rows via scoped retrieve",
+        countSyncBack(configId, "grouper_prov_mship") >= 2);
+  }
+
+  /** count rows for a given prov_* table scoped to a provisioner name */
+  private int countSyncBack(String configId, String tableName) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from " + tableName
+            + " where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(configId).select(int.class);
+  }
+
 }

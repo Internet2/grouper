@@ -46,7 +46,7 @@ public class GrouperProvisioningTargetNativeSync {
    * grouper_prov_group / _attr / _attr_value. No-op when reporting is disabled or the DAO
    * doesn't support retrieving groups.
    */
-  public void recordTargetNativeGroup(GrouperProvisioningTargetNativeGroup grouperProvisioningTargetNativeGroup) {
+  public synchronized void recordTargetNativeGroup(GrouperProvisioningTargetNativeGroup grouperProvisioningTargetNativeGroup) {
     if (grouperProvisioningTargetNativeGroup == null) {
       return;
     }
@@ -72,7 +72,7 @@ public class GrouperProvisioningTargetNativeSync {
    * grouper_prov_user / _attr / _attr_value. No-op when reporting is disabled or the DAO
    * doesn't support retrieving entities.
    */
-  public void recordTargetNativeUser(GrouperProvisioningTargetNativeUser grouperProvisioningTargetNativeUser) {
+  public synchronized void recordTargetNativeUser(GrouperProvisioningTargetNativeUser grouperProvisioningTargetNativeUser) {
     if (grouperProvisioningTargetNativeUser == null) {
       return;
     }
@@ -142,7 +142,7 @@ public class GrouperProvisioningTargetNativeSync {
    * grouper_prov_mship. No-op when reporting is disabled, or when the membership load flag
    * is off, or when the input list is empty.
    */
-  public void recordTargetNativeMemberships(
+  public synchronized void recordTargetNativeMemberships(
       List<GrouperProvisioningTargetNativeMembership> grouperProvisioningTargetNativeMemberships) {
     if (grouperProvisioningTargetNativeMemberships == null || grouperProvisioningTargetNativeMemberships.isEmpty()) {
       return;

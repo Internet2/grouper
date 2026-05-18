@@ -507,9 +507,11 @@ public class GrouperProvisioningBehavior {
     if (this.selectEntitiesInGeneral != null) {
       return this.selectEntitiesInGeneral;
     }
+    // canRetrieveAllData implies canRetrieveAllEntities since it returns everything in one call
     if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveEntities(), false)
         && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveEntity(), false)
-        && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false)) {
+        && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false)
+        && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)) {
       selectEntitiesInGeneral = false;
       return selectEntitiesInGeneral;
     }
@@ -2202,24 +2204,22 @@ public class GrouperProvisioningBehavior {
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLoadEntitiesToGenericGrouperTable()) {
       return false;
     }
-    GrouperProvisionerDaoCapabilities daoCapabilities = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities();
     // require both: the DAO must opt into sync-back (record* wired in its read path)
-    // AND it must be able to enumerate all entities so the flush has authoritative input.
-    if (!daoCapabilities.isCanSyncBack()) {
+    // AND we must actually be selecting entities (in any form — retrieve-all, scoped, or all-data).
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().isCanSyncBack()) {
       return false;
     }
-    return GrouperUtil.booleanValue(daoCapabilities.getCanRetrieveAllEntities(), false);
+    return this.isSelectEntitiesInGeneral();
   }
 
   public boolean isLoadGroupsToGenericGrouperTable() {
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLoadGroupsToGenericGrouperTable()) {
       return false;
     }
-    GrouperProvisionerDaoCapabilities daoCapabilities = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities();
-    if (!daoCapabilities.isCanSyncBack()) {
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().isCanSyncBack()) {
       return false;
     }
-    return GrouperUtil.booleanValue(daoCapabilities.getCanRetrieveAllGroups(), false);
+    return this.isSelectGroupsInGeneral();
   }
 
   public boolean isLoadMembershipsToGenericGrouperTable() {
@@ -2229,6 +2229,11 @@ public class GrouperProvisioningBehavior {
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().isCanSyncBack()) {
       return false;
     }
+    // memberships may flow as a side-effect of user/group retrieves (e.g. Adobe captures
+    // group-name memberships inline from the user bean even with selectMemberships=false),
+    // so don't gate on isSelectMembershipsInGeneral — the two axis gates plus canSyncBack
+    // are sufficient: if we can capture either axis and sync-back is on, we can also
+    // capture memberships when the protocol's read path yields them.
     return this.isLoadEntitiesToGenericGrouperTable()
         && this.isLoadGroupsToGenericGrouperTable();
   }
@@ -2237,9 +2242,11 @@ public class GrouperProvisioningBehavior {
     if (this.selectGroupsInGeneral != null) {
       return this.selectGroupsInGeneral;
     }
+    // canRetrieveAllData implies canRetrieveAllGroups since it returns everything in one call
     if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveGroups(), false)
         && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveGroup(), false)
-        && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllGroups(), false)) {
+        && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllGroups(), false)
+        && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)) {
       selectGroupsInGeneral = false;
       return selectGroupsInGeneral;
     }

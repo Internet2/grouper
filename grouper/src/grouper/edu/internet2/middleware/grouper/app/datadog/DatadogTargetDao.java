@@ -88,6 +88,8 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
         role.setGroupType("role");
         ProvisioningGroup targetGroup = role.toProvisioningGroup();
         results.add(targetGroup);
+        // generic provisioner sync back: capture native group while the bean is in scope
+        DatadogProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(role);
       }
 
       // retrieve teams
@@ -107,6 +109,8 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
         }
         ProvisioningGroup targetGroup = team.toProvisioningGroup();
         results.add(targetGroup);
+        // generic provisioner sync back: capture native group while the bean is in scope
+        DatadogProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(team);
       }
 
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -134,6 +138,8 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
       for (DatadogUser datadogUser : GrouperUtil.nonNull(datadogUsers)) {
         ProvisioningEntity targetEntity = datadogUser.toProvisioningEntity();
         results.add(targetEntity);
+        // generic provisioner sync back: capture native user while the bean is in scope
+        DatadogProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(datadogUser);
       }
 
       return new TargetDaoRetrieveAllEntitiesResponse(results);
@@ -170,6 +176,11 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       ProvisioningEntity targetEntity = foundUser == null ? null : foundUser.toProvisioningEntity();
+
+      if (foundUser != null) {
+        // generic provisioner sync back: capture native user while the bean is in scope
+        DatadogProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(foundUser);
+      }
 
       return new TargetDaoRetrieveEntityResponse(targetEntity);
 
@@ -226,6 +237,11 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       ProvisioningGroup targetGroup = foundGroup == null ? null : foundGroup.toProvisioningGroup();
+
+      if (foundGroup != null) {
+        // generic provisioner sync back: capture native group while the bean is in scope
+        DatadogProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(foundGroup);
+      }
 
       return new TargetDaoRetrieveGroupResponse(targetGroup);
 
@@ -493,6 +509,8 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
           targetMembership.setProvisioningEntityId(membership.getUserId());
           provisioningMemberships.add(targetMembership);
         }
+        // generic provisioner sync back: capture team memberships while beans are in scope
+        DatadogProvisioningTargetNativeSync.captureTeamMembershipsFromCurrentProvisioner(groupId, teamMemberships);
       } else if ("role".equals(groupType)) {
         List<DatadogUser> roleUsers = DatadogApiCommands.getRoleUsers(configId, datadogSettings, groupId);
         for (DatadogUser user : GrouperUtil.nonNull(roleUsers)) {
@@ -500,6 +518,11 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
           targetMembership.setProvisioningGroupId(groupId);
           targetMembership.setProvisioningEntityId(user.getId());
           provisioningMemberships.add(targetMembership);
+        }
+        // role members also include the user beans; capture both the membership edge and the user
+        DatadogProvisioningTargetNativeSync.captureRoleMembershipsFromCurrentProvisioner(groupId, roleUsers);
+        for (DatadogUser user : GrouperUtil.nonNull(roleUsers)) {
+          DatadogProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(user);
         }
       } else {
         throw new RuntimeException("Invalid groupType: '" + groupType + "', expected 'team' or 'role'");
@@ -635,6 +658,8 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+    // read path captures DatadogUser/Group beans through DatadogProvisioningTargetNativeSync.record*
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 
 }

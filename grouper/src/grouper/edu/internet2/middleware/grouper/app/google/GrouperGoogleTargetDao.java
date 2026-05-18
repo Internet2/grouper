@@ -134,6 +134,8 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
         ProvisioningGroup targetGroup = grouperGoogleGroup.toProvisioningGroup();
         results.add(targetGroup);
+        // generic provisioner sync back: capture native group while the bean is in scope
+        GrouperGoogleProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperGoogleGroup);
       }
 
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -166,28 +168,35 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
         ProvisioningGroup targetGroup = grouperGoogleGroup.toProvisioningGroup();
         targetGroups.add(targetGroup);
+        // generic provisioner sync back: capture native group while the bean is in scope
+        GrouperGoogleProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperGoogleGroup);
       }
       targetData.setProvisioningGroups(targetGroups);
-      
+
       List<ProvisioningEntity> targetEntities = new ArrayList<ProvisioningEntity>();
       List<GrouperGoogleUser> googleUsers = GrouperGoogleApiCommands.retrieveGoogleUsers(googleConfiguration.getGoogleExternalSystemConfigId());
       for (GrouperGoogleUser googleUser: googleUsers) {
         targetEntities.add(googleUser.toProvisioningEntity());
+        // generic provisioner sync back: capture native user while the bean is in scope
+        GrouperGoogleProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(googleUser);
       }
       targetData.setProvisioningEntities(targetEntities);
-      
+
       List<ProvisioningMembership> targetMemberships = new ArrayList<>();
-      
+
       for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
         Set<String> groupMemberIds = GrouperGoogleApiCommands.retrieveGoogleGroupMembers(googleConfiguration.getGoogleExternalSystemConfigId(), grouperGoogleGroup.getId());
-        
+
         for (String groupMemberId: groupMemberIds) {
           ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
           provisioningMembership.setProvisioningGroupId(grouperGoogleGroup.getId());
           provisioningMembership.setProvisioningEntityId(groupMemberId);
           targetMemberships.add(provisioningMembership);
         }
-        
+        // generic provisioner sync back: record (groupId, userId) memberships for this group
+        GrouperGoogleProvisioningTargetNativeSync.captureMembershipsForGroupFromCurrentProvisioner(
+            grouperGoogleGroup.getId(), groupMemberIds);
+
       }
       
       targetData.setProvisioningMemberships(targetMemberships);
@@ -216,6 +225,8 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperGoogleUser grouperGoogleUser : grouperGoogleUsers) {
         ProvisioningEntity targetEntity = grouperGoogleUser.toProvisioningEntity();
         results.add(targetEntity);
+        // generic provisioner sync back: capture native user while the bean is in scope
+        GrouperGoogleProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperGoogleUser);
       }
 
       return new TargetDaoRetrieveAllEntitiesResponse(results);
@@ -259,6 +270,11 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       
       ProvisioningGroup targetGroup = grouperGoogleGroup == null ? null : grouperGoogleGroup.toProvisioningGroup();
 
+      if (grouperGoogleGroup != null) {
+        // generic provisioner sync back: capture native group from scoped retrieve
+        GrouperGoogleProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperGoogleGroup);
+      }
+
       return new TargetDaoRetrieveGroupResponse(targetGroup);
 
     } finally {
@@ -288,6 +304,11 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       ProvisioningEntity targetEntity = grouperGoogleUser == null ? null: grouperGoogleUser.toProvisioningEntity();
+
+      if (grouperGoogleUser != null) {
+        // generic provisioner sync back: capture native user from scoped retrieve
+        GrouperGoogleProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperGoogleUser);
+      }
 
       return new TargetDaoRetrieveEntityResponse(targetEntity);
     } finally {
@@ -469,9 +490,12 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
         targetMembership.setProvisioningGroupId(targetGroup.getId());
         targetMembership.setProvisioningEntityId(userId);
         provisioningMemberships.add(targetMembership);
-        
+
       }
-  
+      // generic provisioner sync back: record (groupId, userId) memberships for this group
+      GrouperGoogleProvisioningTargetNativeSync.captureMembershipsForGroupFromCurrentProvisioner(
+          targetGroupId, groupMembers);
+
       return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
@@ -681,6 +705,8 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+    // read path captures GrouperGoogleUser/Group beans through GrouperGoogleProvisioningTargetNativeSync.record*
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 
   private String resolveTargetEntityId(ProvisioningEntity targetEntity) {

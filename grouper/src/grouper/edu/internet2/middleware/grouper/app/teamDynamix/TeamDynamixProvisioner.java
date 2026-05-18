@@ -5,6 +5,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBeha
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeSync;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
 public class TeamDynamixProvisioner extends GrouperProvisioner {
@@ -27,5 +28,10 @@ public class TeamDynamixProvisioner extends GrouperProvisioner {
   protected Class<? extends GrouperProvisioningConfigurationValidation> grouperProvisioningConfigurationValidationClass() {
     return TeamDynamixProvisioningConfigurationValidation.class;
   }
-  
+
+  @Override
+  protected Class<? extends GrouperProvisioningTargetNativeSync> grouperProvisioningTargetNativeSyncClass() {
+    return TeamDynamixProvisioningTargetNativeSync.class;
+  }
+
 }

@@ -160,6 +160,8 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
         if (StringUtils.isNotBlank(user.getEmail()) && StringUtils.isNotBlank(user.getId())) {
           emailToNativeId.put(user.getEmail(), user.getId());
         }
+        // generic provisioner sync back: capture native user while the bean is in scope
+        TrueFoundryProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(user);
       }
       targetData.setProvisioningEntities(provisioningEntities);
 
@@ -169,10 +171,17 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       List<TrueFoundryGroup> roles = TrueFoundryApiCommands.retrieveRoles(configId, settings);
       for (TrueFoundryGroup role : GrouperUtil.nonNull(roles)) {
         provisioningGroups.add(role.toProvisioningGroup());
+        // generic provisioner sync back: capture native role while the bean is in scope
+        TrueFoundryProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(role);
       }
 
       for (TrueFoundryGroup team : GrouperUtil.nonNull(subjectsData.teams)) {
         provisioningGroups.add(team.toProvisioningGroup());
+        // generic provisioner sync back: capture native team + its embedded member list
+        // (team manifests carry member emails; translate to native ids via emailToNativeId)
+        TrueFoundryProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(team);
+        TrueFoundryProvisioningTargetNativeSync.captureMembershipsFromGroupForCurrentProvisioner(
+            team, emailToNativeId);
       }
 
       targetData.setProvisioningGroups(provisioningGroups);
@@ -258,6 +267,10 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       ProvisioningEntity targetEntity = foundUser == null ? null : foundUser.toProvisioningEntity();
+      if (foundUser != null) {
+        // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
+        TrueFoundryProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(foundUser);
+      }
       return new TargetDaoRetrieveEntityResponse(targetEntity);
 
     } finally {
@@ -321,6 +334,16 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       ProvisioningGroup targetGroup = foundGroup == null ? null : foundGroup.toProvisioningGroup();
+      if (foundGroup != null) {
+        // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
+        TrueFoundryProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(foundGroup);
+        // also capture embedded team memberships using the email -> target-user-id index built
+        // from native users captured by prior scoped retrieveEntity calls in this pass.
+        if (TrueFoundryGroup.GROUP_TYPE_TEAM.equals(groupType)) {
+          TrueFoundryProvisioningTargetNativeSync
+              .captureMembershipsFromGroupForCurrentProvisionerUsingCapturedUsers(foundGroup);
+        }
+      }
       return new TargetDaoRetrieveGroupResponse(targetGroup);
 
     } finally {
@@ -1020,6 +1043,8 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+    // read path captures TrueFoundryUser/Group beans through TrueFoundryProvisioningTargetNativeSync.record*
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 
 }

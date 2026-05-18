@@ -369,10 +369,143 @@ public class RemedyProvisionerTest extends GrouperProvisioningBaseTest {
 //      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperRemedyGroup").list(GrouperRemedyGroup.class).size());
 //      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperRemedyUser").list(GrouperRemedyUser.class).size());
 //      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperRemedyMembership").list(GrouperRemedyMembership.class).size());
-      
+
     } finally {
-      
+
     }
-    
+
+  }
+
+  /**
+   * Sync-back smoke test: with all three load*ToGenericGrouperTable flags on, a full
+   * provision populates grouper_prov_user / _group / _mship from the Remedy read path.
+   */
+  public void testRemedyFullSyncPopulatesGenericTables() {
+
+    String configId = "myRemedyProvisioner";
+    RemedyProvisionerTestUtils.setupRemedyExternalSystem();
+    RemedyProvisionerTestUtils.configureRemedyProvisioner(new RemedyProvisionerTestConfigInput()
+        .assignConfigId(configId)
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    GrouperStartup.startup();
+
+    // this will create tables
+    GrouperRemedyApiCommands.retrieveRemedyGroups("myRemedy");
+
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_remedy_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_remedy_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_remedy_user").executeSql();
+
+    new GcDbAccess().connectionName("grouper").sql("insert into mock_remedy_group values ('testGroup', 123456)").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("insert into mock_remedy_user values ('P123', 'id.test.subject.0')").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals(0, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals(0, countSyncBack(configId, "grouper_prov_mship"));
+
+    // first pass writes the Remedy target; sync-back fills on read.
+    GrouperProvisioningOutput out1 = fullProvision();
+    assertEquals(0, out1.getRecordsWithErrors());
+
+    // second pass: reads back what we just wrote, captures through the sync hooks, flushes
+    GrouperProvisioningOutput out2 = fullProvision();
+    assertEquals(0, out2.getRecordsWithErrors());
+
+    assertTrue("expected at least 1 prov_group row after sync-back",
+        countSyncBack(configId, "grouper_prov_group") >= 1);
+    assertTrue("expected at least 1 prov_user row after sync-back",
+        countSyncBack(configId, "grouper_prov_user") >= 1);
+    assertTrue("expected at least 1 prov_mship row after sync-back",
+        countSyncBack(configId, "grouper_prov_mship") >= 1);
+  }
+
+  /**
+   * Sync-back smoke test for the scoped-retrieve path: same flow as the selectAll variant,
+   * but with {@code selectAllGroups=false} and {@code selectAllEntities=false} so the DAO
+   * uses the scoped {@code retrieveGroup} / {@code retrieveEntity} (per-id lookups) instead
+   * of {@code retrieveAllGroups} / {@code retrieveAllEntities}. Confirms the capture hooks
+   * on the scoped retrieve methods fire.
+   *
+   * <p>Incremental test coverage is intentionally deferred — the framework today only captures
+   * from reads, and writes converge on the next read pass. Closing that gap is the
+   * write-shadow precision pass tracked in section 10 of the sync-back doc.
+   */
+  public void testRemedyFullSyncSelectByIdsPopulatesGenericTables() {
+
+    String configId = "myRemedyProvisioner";
+    RemedyProvisionerTestUtils.setupRemedyExternalSystem();
+    RemedyProvisionerTestUtils.configureRemedyProvisioner(new RemedyProvisionerTestConfigInput()
+        .assignConfigId(configId)
+        .addExtraConfig("selectAllGroups", "false")
+        .addExtraConfig("selectAllEntities", "false")
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    GrouperStartup.startup();
+
+    // this will create tables
+    GrouperRemedyApiCommands.retrieveRemedyGroups("myRemedy");
+
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_remedy_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_remedy_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_remedy_user").executeSql();
+
+    new GcDbAccess().connectionName("grouper").sql("insert into mock_remedy_group values ('testGroup', 123456)").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("insert into mock_remedy_user values ('P123', 'id.test.subject.0')").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals(0, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals(0, countSyncBack(configId, "grouper_prov_mship"));
+
+    // pass 1 inserts target objects; pass 2 reads them back via scoped retrieve and flushes.
+    GrouperProvisioningOutput out1 = fullProvision();
+    assertEquals(0, out1.getRecordsWithErrors());
+    GrouperProvisioningOutput out2 = fullProvision();
+    assertEquals(0, out2.getRecordsWithErrors());
+
+    assertTrue("expected at least 1 prov_group row via scoped retrieve",
+        countSyncBack(configId, "grouper_prov_group") >= 1);
+    assertTrue("expected at least 1 prov_user row via scoped retrieve",
+        countSyncBack(configId, "grouper_prov_user") >= 1);
+    assertTrue("expected at least 1 prov_mship row via scoped retrieve",
+        countSyncBack(configId, "grouper_prov_mship") >= 1);
+  }
+
+  /** count rows for a given prov_* table scoped to a provisioner name */
+  private int countSyncBack(String configId, String tableName) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from " + tableName
+            + " where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(configId).select(int.class);
   }
 }

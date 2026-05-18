@@ -81,8 +81,10 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperBoxGroup grouperBoxGroup : grouperBoxGroups) {
         ProvisioningGroup targetGroup = grouperBoxGroup.toProvisioningGroup();
         results.add(targetGroup);
+        // generic provisioner sync back: capture native group while the bean is in scope
+        GrouperBoxProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperBoxGroup);
       }
-  
+
       return new TargetDaoRetrieveAllGroupsResponse(results);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllGroups", startNanos));
@@ -107,8 +109,10 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperBoxUser grouperBoxUser : grouperBoxUsers) {
         ProvisioningEntity targetEntity = grouperBoxUser.toProvisioningEntity();
         results.add(targetEntity);
+        // generic provisioner sync back: capture native user while the bean is in scope
+        GrouperBoxProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperBoxUser);
       }
-  
+
       return new TargetDaoRetrieveAllEntitiesResponse(results);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllEntities", startNanos));
@@ -363,7 +367,12 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
         targetMembership.setProvisioningEntityId(userId);
         provisioningMemberships.add(targetMembership);
       }
-  
+
+      // generic provisioner sync back: capture (targetGroupId, targetUserId) pairs in the
+      // same loop where they are already known
+      GrouperBoxProvisioningTargetNativeSync.captureMembershipsFromCurrentProvisioner(
+          targetGroup.getId(), memberIdToMembershipId.keySet());
+
       return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
       
     } finally {
@@ -456,13 +465,19 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
         GrouperBoxGroup boxGroup = GrouperBoxApiCommands.retrieveBoxGroup(boxConfiguration.getBoxExternalSystemConfigId(),
             GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()), attributesToRetrieve);
         ProvisioningGroup targetGroup = boxGroup == null ? null : boxGroup.toProvisioningGroup();
+        if (boxGroup != null) {
+          // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
+          GrouperBoxProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(boxGroup);
+        }
         return new TargetDaoRetrieveGroupResponse(targetGroup);
       } else if (StringUtils.equals("name", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
-        List<GrouperBoxGroup> boxGroups = GrouperBoxApiCommands.retrieveBoxGroups(boxConfiguration.getBoxExternalSystemConfigId(), 
+        List<GrouperBoxGroup> boxGroups = GrouperBoxApiCommands.retrieveBoxGroups(boxConfiguration.getBoxExternalSystemConfigId(),
             GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()), attributesToRetrieve);
         for (GrouperBoxGroup boxGroup: boxGroups) {
           if (StringUtils.equals(boxGroup.getName(), GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()))) {
             ProvisioningGroup targetGroup = boxGroup == null ? null : boxGroup.toProvisioningGroup();
+            // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
+            GrouperBoxProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(boxGroup);
             return new TargetDaoRetrieveGroupResponse(targetGroup);
           }
         }
@@ -518,6 +533,11 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningEntity targetEntity = grouperBoxUser == null ? null
           : grouperBoxUser.toProvisioningEntity();
 
+      if (grouperBoxUser != null) {
+        // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
+        GrouperBoxProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperBoxUser);
+      }
+
       TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = new TargetDaoRetrieveEntityResponse(targetEntity);
       if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
         targetDaoRetrieveEntityResponse.setTargetNativeEntity(grouperBoxUser);
@@ -549,7 +569,10 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
-    
+
+    // read path captures GrouperBoxUser/Group beans through GrouperBoxProvisioningTargetNativeSync.record*
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
+
   }
 
 }

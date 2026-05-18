@@ -130,6 +130,8 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperOktaGroup grouperOktaGroup : grouperOktaGroups) {
         ProvisioningGroup targetGroup = grouperOktaGroup.toProvisioningGroup();
         results.add(targetGroup);
+        // generic provisioner sync back: capture native group while the bean is in scope
+        GrouperOktaProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperOktaGroup);
       }
 
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -159,28 +161,35 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperOktaGroup grouperOktaGroup : grouperOktaGroups) {
         ProvisioningGroup targetGroup = grouperOktaGroup.toProvisioningGroup();
         targetGroups.add(targetGroup);
+        // generic provisioner sync back: capture native group while the bean is in scope
+        GrouperOktaProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperOktaGroup);
       }
       targetData.setProvisioningGroups(targetGroups);
-      
+
       List<ProvisioningEntity> targetEntities = new ArrayList<ProvisioningEntity>();
       List<GrouperOktaUser> oktaUsers = GrouperOktaApiCommands.retrieveOktaUsers(oktaConfiguration.getOktaExternalSystemConfigId());
       for (GrouperOktaUser oktaUser: oktaUsers) {
         targetEntities.add(oktaUser.toProvisioningEntity());
+        // generic provisioner sync back: capture native user while the bean is in scope
+        GrouperOktaProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(oktaUser);
       }
       targetData.setProvisioningEntities(targetEntities);
-      
+
       List<ProvisioningMembership> targetMemberships = new ArrayList<>();
-      
+
       for (GrouperOktaGroup grouperOktaGroup : grouperOktaGroups) {
         Set<String> groupMemberIds = GrouperOktaApiCommands.retrieveOktaGroupMembers(oktaConfiguration.getOktaExternalSystemConfigId(), grouperOktaGroup.getId());
-        
+
         for (String groupMemberId: groupMemberIds) {
           ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
           provisioningMembership.setProvisioningGroupId(grouperOktaGroup.getId());
           provisioningMembership.setProvisioningEntityId(groupMemberId);
           targetMemberships.add(provisioningMembership);
         }
-        
+        // generic provisioner sync back: capture (groupId, userId) pairs for this group
+        GrouperOktaProvisioningTargetNativeSync.captureMembershipsForGroupForCurrentProvisioner(
+            grouperOktaGroup.getId(), groupMemberIds);
+
       }
       
       targetData.setProvisioningMemberships(targetMemberships);
@@ -206,6 +215,8 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
           GrouperOktaUser oktaUser = GrouperOktaApiCommands.retrieveOktaUserById(oktaConfiguration.getOktaExternalSystemConfigId(), missingEntityId);
           if (oktaUser != null) {
             targetEntities.add(oktaUser.toProvisioningEntity());
+            // generic provisioner sync back: capture native user while the bean is in scope
+            GrouperOktaProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(oktaUser);
           }
         }
       }
@@ -234,6 +245,8 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperOktaUser grouperOktaUser : grouperOktaUsers) {
         ProvisioningEntity targetEntity = grouperOktaUser.toProvisioningEntity();
         results.add(targetEntity);
+        // generic provisioner sync back: capture native user while the bean is in scope
+        GrouperOktaProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperOktaUser);
       }
 
       return new TargetDaoRetrieveAllEntitiesResponse(results);
@@ -271,8 +284,13 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
         
         }
       }
-      
+
       ProvisioningGroup targetGroup = grouperOktaGroup == null ? null : grouperOktaGroup.toProvisioningGroup();
+
+      if (grouperOktaGroup != null) {
+        // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
+        GrouperOktaProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperOktaGroup);
+      }
 
       return new TargetDaoRetrieveGroupResponse(targetGroup);
 
@@ -310,6 +328,11 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       ProvisioningEntity targetEntity = grouperOktaUser == null ? null: grouperOktaUser.toProvisioningEntity();
+
+      if (grouperOktaUser != null) {
+        // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
+        GrouperOktaProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperOktaUser);
+      }
 
       return new TargetDaoRetrieveEntityResponse(targetEntity);
     } finally {
@@ -499,9 +522,15 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
         targetMembership.setProvisioningGroupId(targetGroup.getId());
         targetMembership.setProvisioningEntityId(userId);
         provisioningMemberships.add(targetMembership);
-        
+
       }
-  
+
+      // generic provisioner sync back: capture (groupId, userId) pairs for this group.
+      // Okta has no retrieveAllMemberships call -- this per-group fetch is the only place
+      // both ids are co-located on the read path.
+      GrouperOktaProvisioningTargetNativeSync.captureMembershipsForGroupForCurrentProvisioner(
+          targetGroupId, groupMembers);
+
       return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
@@ -630,6 +659,8 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
     
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+    // read path captures GrouperOktaUser/Group beans through GrouperOktaProvisioningTargetNativeSync.record*
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 
   private String resolveTargetEntityId(ProvisioningEntity targetEntity) {

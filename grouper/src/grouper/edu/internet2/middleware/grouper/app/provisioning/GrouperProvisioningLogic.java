@@ -241,6 +241,12 @@ public class GrouperProvisioningLogic {
     retrieveFullIndividualTargetMemberships();
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualTargetMemberships);
 
+    // sync-back flush AFTER all retrieve* phases have populated the canonical maps.
+    // (Moved out of loadDataToGrouper at line 219 — that was running before the
+    // selectAll=false membership retrieve, so prov_mship stayed empty in that mode.)
+    debugMap.put("state", "loadDataToGenericProvisionerTables");
+    loadDataToGenericProvisionerTables();
+
     {
   
       debugMap.put("state", "translateGrouperMembershipsToTarget");
@@ -834,10 +840,12 @@ public class GrouperProvisioningLogic {
   public void loadDataToGrouper() {
     loadEntityDataToGrouper();
     loadEntityAttributesDataToGrouper();
-    
+
     loadGroupDataToGrouper();
     loadMembershipDataToGrouper();
-    loadDataToGenericProvisionerTables();
+    // sync-back flush moved out — fullSyncLogic invokes loadDataToGenericProvisionerTables()
+    // directly AFTER retrieveFullIndividualTargetMemberships so the flush sees memberships
+    // captured via the scoped retrieveMembershipsByGroup* path (selectAll=false case).
   }
 
   public void loadEntityDataToGrouper() {
@@ -1344,6 +1352,10 @@ public class GrouperProvisioningLogic {
 
     Map<String, GenericProvisioningUserRecord> targetUserIdToRecord = new LinkedHashMap<String, GenericProvisioningUserRecord>();
     for (GrouperProvisioningTargetNativeUser grouperProvisioningTargetNativeUser : targetNativeUsers) {
+      // defensive: protocol capture impls may put nulls in the map for not-found scoped retrieves
+      if (grouperProvisioningTargetNativeUser == null) {
+        continue;
+      }
       String targetUserId = this.normalizeTargetId(grouperProvisioningTargetNativeUser.getTargetId());
       if (StringUtils.isBlank(targetUserId)) {
         continue;
@@ -1363,6 +1375,9 @@ public class GrouperProvisioningLogic {
 
     Map<String, GenericProvisioningGroupRecord> targetGroupIdToRecord = new LinkedHashMap<String, GenericProvisioningGroupRecord>();
     for (GrouperProvisioningTargetNativeGroup grouperProvisioningTargetNativeGroup : targetNativeGroups) {
+      if (grouperProvisioningTargetNativeGroup == null) {
+        continue;
+      }
       String targetGroupId = this.normalizeTargetId(grouperProvisioningTargetNativeGroup.getTargetId());
       if (StringUtils.isBlank(targetGroupId)) {
         continue;
@@ -1383,6 +1398,9 @@ public class GrouperProvisioningLogic {
     List<GenericProvisioningMembershipRecord> membershipRecords = new ArrayList<GenericProvisioningMembershipRecord>();
     Set<MultiKey> membershipDedup = new HashSet<MultiKey>();
     for (GrouperProvisioningTargetNativeMembership grouperProvisioningTargetNativeMembership : targetNativeMemberships) {
+      if (grouperProvisioningTargetNativeMembership == null) {
+        continue;
+      }
       String targetGroupId = StringUtils.trimToNull(grouperProvisioningTargetNativeMembership.getTargetGroupId());
       String targetUserId = StringUtils.trimToNull(grouperProvisioningTargetNativeMembership.getTargetUserId());
       if (StringUtils.isBlank(targetGroupId) || StringUtils.isBlank(targetUserId)) {
@@ -1629,6 +1647,10 @@ public class GrouperProvisioningLogic {
 
     Map<String, GenericProvisioningUserRecord> targetUserIdToRecord = new LinkedHashMap<String, GenericProvisioningUserRecord>();
     for (GrouperProvisioningTargetNativeUser grouperProvisioningTargetNativeUser : targetNativeUsers) {
+      // defensive: protocol capture impls may put nulls in the map for not-found scoped retrieves
+      if (grouperProvisioningTargetNativeUser == null) {
+        continue;
+      }
       String targetUserId = this.normalizeTargetId(grouperProvisioningTargetNativeUser.getTargetId());
       if (StringUtils.isBlank(targetUserId)) {
         continue;
@@ -1648,6 +1670,9 @@ public class GrouperProvisioningLogic {
 
     Map<String, GenericProvisioningGroupRecord> targetGroupIdToRecord = new LinkedHashMap<String, GenericProvisioningGroupRecord>();
     for (GrouperProvisioningTargetNativeGroup grouperProvisioningTargetNativeGroup : targetNativeGroups) {
+      if (grouperProvisioningTargetNativeGroup == null) {
+        continue;
+      }
       String targetGroupId = this.normalizeTargetId(grouperProvisioningTargetNativeGroup.getTargetId());
       if (StringUtils.isBlank(targetGroupId)) {
         continue;
@@ -1667,6 +1692,9 @@ public class GrouperProvisioningLogic {
 
     List<GenericProvisioningMembershipRecord> membershipRecords = new ArrayList<GenericProvisioningMembershipRecord>();
     for (GrouperProvisioningTargetNativeMembership grouperProvisioningTargetNativeMembership : targetNativeMemberships) {
+      if (grouperProvisioningTargetNativeMembership == null) {
+        continue;
+      }
       String targetGroupId = StringUtils.trimToNull(grouperProvisioningTargetNativeMembership.getTargetGroupId());
       String targetUserId = StringUtils.trimToNull(grouperProvisioningTargetNativeMembership.getTargetUserId());
       if (StringUtils.isBlank(targetGroupId) || StringUtils.isBlank(targetUserId)) {

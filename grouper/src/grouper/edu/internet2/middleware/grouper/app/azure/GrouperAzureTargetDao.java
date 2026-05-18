@@ -11,7 +11,9 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
@@ -104,6 +106,8 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
         ProvisioningGroup targetGroup = grouperAzureGroup.toProvisioningGroup();
         results.add(targetGroup);
+        // generic provisioner sync back: capture native group while the bean is in scope
+        GrouperAzureProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperAzureGroup);
       }
 
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -138,8 +142,10 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
         ProvisioningEntity targetEntity = grouperAzureUser.toProvisioningEntity();
         results.add(targetEntity);
         targetEntityToNativeEntity.put(targetEntity, grouperAzureUser);
+        // generic provisioner sync back: capture native user while the bean is in scope
+        GrouperAzureProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperAzureUser);
       }
-      
+
       TargetDaoRetrieveAllEntitiesResponse response = new TargetDaoRetrieveAllEntitiesResponse(results);
       
       if (targetDaoRetrieveAllEntitiesRequest.isIncludeNativeEntity()) {
@@ -182,6 +188,8 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperAzureUser userFromAuzre: azureUsers) {
         targetEntitiesFromAzure.add(userFromAuzre.toProvisioningEntity());
         targetEntityToNativeEntity.put(userFromAuzre.toProvisioningEntity(), userFromAuzre);
+        // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
+        GrouperAzureProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(userFromAuzre);
       }
       
       TargetDaoRetrieveEntitiesResponse response = new TargetDaoRetrieveEntitiesResponse();
@@ -235,9 +243,11 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       
       
       List<ProvisioningGroup> targetGroupsFromAzure = new ArrayList<>();
-      
+
       for (GrouperAzureGroup groupFromAuzre: azureGroups) {
         targetGroupsFromAzure.add(groupFromAuzre.toProvisioningGroup());
+        // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
+        GrouperAzureProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(groupFromAuzre);
       }
       
       TargetDaoRetrieveGroupsResponse response = new TargetDaoRetrieveGroupsResponse();
@@ -800,15 +810,29 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       Set<String> groupIds = GrouperAzureApiCommands.retrieveAzureUserGroups(azureConfiguration.getAzureExternalSystemConfigId(), targetEntityId);
-      
+
+      List<GrouperProvisioningTargetNativeMembership> nativeMemberships = new ArrayList<GrouperProvisioningTargetNativeMembership>();
       for (String groupId : groupIds) {
 
         ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(groupId);
         targetMembership.setProvisioningEntityId(targetEntity.getId());
         provisioningMemberships.add(targetMembership);
+
+        // generic provisioner sync back: scoped membership-by-entity path
+        GrouperProvisioningTargetNativeMembership nativeMembership = new GrouperProvisioningTargetNativeMembership();
+        nativeMembership.setTargetGroupId(groupId);
+        nativeMembership.setTargetUserId(targetEntityId);
+        nativeMemberships.add(nativeMembership);
       }
-  
+      if (!nativeMemberships.isEmpty()) {
+        GrouperProvisioner provisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (provisioner != null) {
+          provisioner.retrieveGrouperProvisioningTargetNativeSync()
+              .recordTargetNativeMemberships(nativeMemberships);
+        }
+      }
+
       return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByEntity", startNanos));
@@ -857,7 +881,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       Set<String> userIds = GrouperAzureApiCommands.retrieveAzureGroupMembers(azureConfiguration.getAzureExternalSystemConfigId(), targetGroupId);
-      
+
       for (String userId : userIds) {
 
         ProvisioningMembership targetMembership = new ProvisioningMembership(false);
@@ -865,7 +889,13 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
         targetMembership.setProvisioningEntityId(userId);
         provisioningMemberships.add(targetMembership);
       }
-  
+
+      // generic provisioner sync back: capture (groupId, userId) pairs for this group.
+      // Azure has no retrieveAllMemberships call -- this per-group fetch is the only place
+      // both ids are co-located on the read path.
+      GrouperAzureProvisioningTargetNativeSync.captureMembershipsForGroupFromCurrentProvisioner(
+          targetGroupId, userIds);
+
       return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
@@ -967,6 +997,9 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanUpdateEntities(true);
 
     grouperProvisionerDaoCapabilities.setCanUpdateGroups(true);
+
+    // read path captures GrouperAzureUser/Group beans through GrouperAzureProvisioningTargetNativeSync.record*
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 
   public String resolveTargetEntityId(ProvisioningEntity targetEntity) {

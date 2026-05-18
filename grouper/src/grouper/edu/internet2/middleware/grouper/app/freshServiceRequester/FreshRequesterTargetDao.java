@@ -77,6 +77,8 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
       for (FreshRequesterGroup requesterGroup : requesterGroups) {
         ProvisioningGroup targetGroup = requesterGroup.toProvisioningGroup();
         results.add(targetGroup);
+        // generic provisioner sync back: capture native group while the bean is in scope
+        FreshRequesterProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(requesterGroup);
       }
       return new TargetDaoRetrieveAllGroupsResponse(results);
     } finally {
@@ -96,15 +98,21 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
         FreshRequesterGroup requesterGroup = FreshRequesterApiCommands.retrieveRequesterGroup(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(),
             GrouperUtil.longValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()));
         ProvisioningGroup targetGroup = requesterGroup == null ? null : requesterGroup.toProvisioningGroup();
+        // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
+        if (requesterGroup != null) {
+          FreshRequesterProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(requesterGroup);
+        }
         return new TargetDaoRetrieveGroupResponse(targetGroup);
       } else if (StringUtils.equals("name", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
         List<FreshRequesterGroup> requesterGroups = FreshRequesterApiCommands.retrieveRequesterGroups(freshserviceConfiguration.getFreshserviceExternalSystemConfigId());
         for (FreshRequesterGroup requesterGroup : requesterGroups) {
           if (StringUtils.equals(requesterGroup.getName(), GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()))) {
             ProvisioningGroup targetGroup = requesterGroup == null ? null : requesterGroup.toProvisioningGroup();
+            // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
+            FreshRequesterProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(requesterGroup);
             return new TargetDaoRetrieveGroupResponse(targetGroup);
-          } 
-        } 
+          }
+        }
       } else {
         throw new RuntimeException("id or name is required as a group search attribute");
       }
@@ -231,6 +239,8 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
       for (FreshRequesterUser requester : requesters) {
         ProvisioningEntity targetEntity = requester.toProvisioningEntity();
         results.add(targetEntity);
+        // generic provisioner sync back: capture native user while the bean is in scope
+        FreshRequesterProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(requester);
       }
       return new TargetDaoRetrieveAllEntitiesResponse(results);
     }
@@ -255,7 +265,12 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
           targetDaoRetrieveEntityRequest.getSearchAttributeValue());
       
       ProvisioningEntity targetEntity = requester == null ? null : requester.toProvisioningEntity();
-      
+
+      // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
+      if (requester != null) {
+        FreshRequesterProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(requester);
+      }
+
       TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = new TargetDaoRetrieveEntityResponse(targetEntity);
       if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
         targetDaoRetrieveEntityResponse.setTargetNativeEntity(requester);
@@ -446,7 +461,13 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
         targetMembership.setProvisioningEntityId(requester.getId() == null ? null : Long.toString(requester.getId()));
         provisioningMemberships.add(targetMembership);
       }
-      
+
+      // generic provisioner sync back: capture memberships for this group while the typed
+      // user beans are in scope. memberships in FreshRequester come back per-group via the
+      // membership listing endpoint, so capture here is the natural seam.
+      FreshRequesterProvisioningTargetNativeSync.captureMembershipsForGroupForCurrentProvisioner(
+          targetGroupId, requesters);
+
       return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
       
     } finally {
@@ -493,7 +514,9 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanInsertMembership(true);
     grouperProvisionerDaoCapabilities.setCanDeleteMembership(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
-    
+    // read path captures FreshRequesterUser/Group beans through FreshRequesterProvisioningTargetNativeSync.record*
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
+
   }
 
 }

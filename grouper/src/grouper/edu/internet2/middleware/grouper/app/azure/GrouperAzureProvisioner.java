@@ -6,6 +6,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBeha
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLoader;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeSync;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
@@ -40,5 +41,9 @@ public class GrouperAzureProvisioner extends GrouperProvisioner {
     return AzureProvisioningLoader.class;
   }
 
+  @Override
+  protected Class<? extends GrouperProvisioningTargetNativeSync> grouperProvisioningTargetNativeSyncClass() {
+    return GrouperAzureProvisioningTargetNativeSync.class;
+  }
 
 }

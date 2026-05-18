@@ -97,6 +97,8 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
         ProvisioningGroup targetGroup = grouperAdobeGroup.toProvisioningGroup();
         results.add(targetGroup);
         targetGroupToTargetNativeGroup.put(targetGroup, grouperAdobeGroup);
+        // generic provisioner sync back: capture native group while the bean is in scope
+        GrouperAdobeProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperAdobeGroup);
       }
 
       return response;
@@ -133,6 +135,8 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
         if (targetDaoRetrieveAllEntitiesRequest.isIncludeNativeEntity()) {
           targetEntityToTargetNativeEntity.put(targetEntity, grouperAdobeUser);
         }
+        // generic provisioner sync back: capture native user while the bean is in scope
+        GrouperAdobeProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperAdobeUser);
       }
 
       return targetDaoRetrieveAllEntitiesResponse;
@@ -172,6 +176,8 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
         targetDaoRetrieveEntityResponse.setTargetNativeEntity(grouperAdobeUser);
       }
+      // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities)
+      GrouperAdobeProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperAdobeUser);
       return targetDaoRetrieveEntityResponse;
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveEntity", startNanos));
@@ -254,6 +260,8 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningGroup targetGroup = grouperAdobeGroup == null ? null : grouperAdobeGroup.toProvisioningGroup();
       TargetDaoRetrieveGroupResponse response = new TargetDaoRetrieveGroupResponse(targetGroup);
       response.setTargetNativeGroup(grouperAdobeGroup);
+      // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups)
+      GrouperAdobeProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperAdobeGroup);
       return response;
 
     } finally {
@@ -886,8 +894,18 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       Map<ProvisioningGroup,Object> targetGroupToTargetNativeGroup = targetDaoRetrieveAllDataResponse.getTargetGroupToTargetNativeGroup();
       targetGroupToTargetNativeGroup.putAll(targetGroupToTargetNativeGroups);
 
+      // build a group-name → target-id index once for membership sync-back capture below.
+      // memberships in Adobe live on the user's "groups" set as group NAMES; the sync-back
+      // table keys on target group id, so resolve the id from the group cache up front.
+      Map<String, String> groupNameToTargetGroupId = new HashMap<String, String>();
+      for (Map.Entry<String, GrouperAdobeGroup> entry : cacheGroupNameToGroup.get(Boolean.TRUE).entrySet()) {
+        if (entry.getValue() != null && entry.getValue().getId() != null) {
+          groupNameToTargetGroupId.put(entry.getKey(), entry.getValue().getId().toString());
+        }
+      }
+
       for (GrouperAdobeUser adobeUser: adobeUsers) {
-        
+
         ProvisioningEntity targetEntity = adobeUser.toProvisioningEntity();
         targetEntities.add(targetEntity);
 
@@ -895,8 +913,14 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
           targetEntityToTargetNativeEntity.put(targetEntity, adobeUser);
         }
 
+        // generic provisioner sync back: capture native user + this user's memberships
+        // while the bean is in scope (groups are already resolved against the cache below)
+        GrouperAdobeProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(adobeUser);
+        GrouperAdobeProvisioningTargetNativeSync.captureMembershipsFromUserForCurrentProvisioner(
+            adobeUser, groupNameToTargetGroupId);
+
         Set<String> groupNames = GrouperUtil.nonNull(adobeUser.getGroups());
-        
+
         for (String group: groupNames) {
           if (cacheGroupNameToGroup.get(Boolean.TRUE).containsKey(group)) {
             GrouperAdobeGroup grouperAdobeGroup = cacheGroupNameToGroup.get(Boolean.TRUE).get(group);
@@ -906,7 +930,7 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
             targetMemberships.add(targetMembership);
           }
         }
-        
+
       }
 
       return targetDaoRetrieveAllDataResponse;
@@ -935,7 +959,9 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
     grouperProvisionerDaoCapabilities.setDefaultBatchSize(1000);
-    
+    // read path captures GrouperAdobeUser/Group beans through GrouperAdobeProvisioningTargetNativeSync.record*
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
+
   }
 
   //  @Override
