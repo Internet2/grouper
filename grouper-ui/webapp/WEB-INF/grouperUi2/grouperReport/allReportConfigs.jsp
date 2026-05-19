@@ -17,15 +17,15 @@ ${grouper:title('grouperReportAllConfigsPageTitle')}
 <div class="row-fluid">
   <div class="span12">
     <div id="messages"></div>
-    
+
     <c:choose>
       <c:when test="${fn:length(grouperRequestContainer.grouperReportContainer.guiReportConfigsOverall) > 0}">
-        
+
         <table class="table table-hover table-bordered table-striped table-condensed data-table">
           <thead>
             <tr>
               <th>${textContainer.text['grouperReportAllConfigsTableHeaderOwner']}</th>
-              <th>${textContainer.text['grouperReportAllConfigsTableHeaderOwnerType']}</th>
+              <th>${textContainer.text['grouperReportAllConfigsTableHeaderReportType']}</th>
               <th>${textContainer.text['grouperReportConfigTableHeaderReportName']}</th>
               <th>${textContainer.text['grouperReportConfigTableHeaderReportEnabled']}</th>
               <th>${textContainer.text['grouperReportConfigTableHeaderReportLastRunTime']}</th>
@@ -42,33 +42,24 @@ ${grouper:title('grouperReportAllConfigsPageTitle')}
                 <td style="white-space: nowrap;">
                   <c:choose>
                     <c:when test="${guiReportConfigOverall.groupOwner}">
-                      <a href="?operation=UiV2Group.viewGroup&groupId=${guiReportConfigOverall.ownerGroup.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${guiReportConfigOverall.ownerGroup.id}');">
-                        ${grouper:escapeHtml(guiReportConfigOverall.ownerDisplayName)}</a>
+                      ${guiReportConfigOverall.guiOwnerGroup.shortLinkWithIcon}
                     </c:when>
                     <c:otherwise>
-                      <a href="?operation=UiV2Stem.viewStem&stemId=${guiReportConfigOverall.ownerStem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStem&stemId=${guiReportConfigOverall.ownerStem.id}');">
-                        ${grouper:escapeHtml(guiReportConfigOverall.ownerDisplayName)}</a>
+                      ${guiReportConfigOverall.guiOwnerStem.shortLinkWithIcon}
                     </c:otherwise>
                   </c:choose>
                 </td>
                 <td style="white-space: nowrap;">
-                  <c:choose>
-                    <c:when test="${guiReportConfigOverall.groupOwner}">
-                      ${textContainer.text['grouperReportAllConfigsOwnerTypeGroup']}
-                    </c:when>
-                    <c:otherwise>
-                      ${textContainer.text['grouperReportAllConfigsOwnerTypeFolder']}
-                    </c:otherwise>
-                  </c:choose>
+                  ${grouper:escapeHtml(guiReportConfigOverall.reportConfigBean.reportConfigType)}
                 </td>
                 <td style="white-space: nowrap;">
                   <c:choose>
                     <c:when test="${guiReportConfigOverall.groupOwner}">
-                      <a href="?operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${guiReportConfigOverall.reportConfigBean.attributeAssignmentMarkerId}&groupId=${guiReportConfigOverall.ownerGroup.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${guiReportConfigOverall.reportConfigBean.attributeAssignmentMarkerId}&groupId=${guiReportConfigOverall.ownerGroup.id}');">
+                      <a href="?operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${grouper:escapeUrl(guiReportConfigOverall.reportConfigBean.attributeAssignmentMarkerId)}&groupId=${grouper:escapeUrl(guiReportConfigOverall.ownerGroup.id)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${grouper:escapeUrl(guiReportConfigOverall.reportConfigBean.attributeAssignmentMarkerId)}&groupId=${grouper:escapeUrl(guiReportConfigOverall.ownerGroup.id)}');">
                         ${grouper:escapeHtml(guiReportConfigOverall.reportConfigBean.reportConfigName)}</a>
                     </c:when>
                     <c:otherwise>
-                      <a href="?operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${guiReportConfigOverall.reportConfigBean.attributeAssignmentMarkerId}&stemId=${guiReportConfigOverall.ownerStem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${guiReportConfigOverall.reportConfigBean.attributeAssignmentMarkerId}&stemId=${guiReportConfigOverall.ownerStem.id}');">
+                      <a href="?operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${grouper:escapeUrl(guiReportConfigOverall.reportConfigBean.attributeAssignmentMarkerId)}&stemId=${grouper:escapeUrl(guiReportConfigOverall.ownerStem.id)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${grouper:escapeUrl(guiReportConfigOverall.reportConfigBean.attributeAssignmentMarkerId)}&stemId=${grouper:escapeUrl(guiReportConfigOverall.ownerStem.id)}');">
                         ${grouper:escapeHtml(guiReportConfigOverall.reportConfigBean.reportConfigName)}</a>
                     </c:otherwise>
                   </c:choose>
@@ -86,7 +77,7 @@ ${grouper:title('grouperReportAllConfigsPageTitle')}
                 <td style="white-space: nowrap;">
                   <c:choose>
                     <c:when test="${not empty guiReportConfigOverall.lastRunTime}">
-                      ${guiReportConfigOverall.lastRunTime}
+                      ${grouper:escapeHtml(guiReportConfigOverall.lastRunTime)}
                     </c:when>
                     <c:otherwise>
                       ${textContainer.text['grouperReportInstanceNeverRun']}
@@ -96,7 +87,7 @@ ${grouper:title('grouperReportAllConfigsPageTitle')}
                 <td style="white-space: nowrap;">
                   <c:choose>
                     <c:when test="${not empty guiReportConfigOverall.mostRecentReportInstance}">
-                      ${guiReportConfigOverall.mostRecentReportInstance.reportInstanceStatus}
+                      ${grouper:escapeHtml(guiReportConfigOverall.mostRecentReportInstance.reportInstanceStatus)}
                     </c:when>
                     <c:otherwise>
                       ${textContainer.text['grouperReportInstanceNeverRun']}
@@ -106,7 +97,7 @@ ${grouper:title('grouperReportAllConfigsPageTitle')}
                 <td style="white-space: nowrap;">
                   <c:choose>
                     <c:when test="${not empty guiReportConfigOverall.mostRecentReportInstance}">
-                      ${guiReportConfigOverall.mostRecentReportInstance.reportInstanceSizeFriendly}
+                      ${grouper:escapeHtml(guiReportConfigOverall.mostRecentReportInstance.reportInstanceSizeFriendly)}
                     </c:when>
                     <c:otherwise>
                       ${textContainer.text['grouperReportInstanceNeverRun']}
@@ -114,9 +105,9 @@ ${grouper:title('grouperReportAllConfigsPageTitle')}
                   </c:choose>
                 </td>
                 <td style="white-space: nowrap;">
-                  ${guiReportConfigOverall.reportConfigBean.reportConfigQuartzCron}
+                  ${grouper:escapeHtml(guiReportConfigOverall.reportConfigBean.reportConfigQuartzCron)}
                   <br/>
-                  ${guiReportConfigOverall.userFriendlyCron}
+                  ${grouper:escapeHtml(guiReportConfigOverall.userFriendlyCron)}
                 </td>
                 <td>
                   <div class="btn-group">
@@ -128,26 +119,26 @@ ${grouper:title('grouperReportAllConfigsPageTitle')}
                     <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                       <c:choose>
                         <c:when test="${guiReportConfigOverall.groupOwner}">
-                          <li><a href="?operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=${guiReportConfigOverall.ownerGroup.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=${guiReportConfigOverall.ownerGroup.id}');">${textContainer.text['grouperReportAllConfigsActionsViewOnGroup'] }</a></li>
+                          <li><a href="?operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=${grouper:escapeUrl(guiReportConfigOverall.ownerGroup.id)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=${grouper:escapeUrl(guiReportConfigOverall.ownerGroup.id)}');">${textContainer.text['grouperReportAllConfigsActionsViewOnGroup'] }</a></li>
                         </c:when>
                         <c:otherwise>
-                          <li><a href="?operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${guiReportConfigOverall.ownerStem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${guiReportConfigOverall.ownerStem.id}');">${textContainer.text['grouperReportAllConfigsActionsViewOnFolder'] }</a></li>
+                          <li><a href="?operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${grouper:escapeUrl(guiReportConfigOverall.ownerStem.id)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${grouper:escapeUrl(guiReportConfigOverall.ownerStem.id)}');">${textContainer.text['grouperReportAllConfigsActionsViewOnFolder'] }</a></li>
                         </c:otherwise>
                       </c:choose>
-                      
+
                       <c:if test="${grouperRequestContainer.adminContainer.daemonJobsShow}">
-                        <li><a href="?operation=UiV2Admin.viewLogs&jobName=grouper_report_${guiReportConfigOverall.ownerId}_${guiReportConfigOverall.reportConfigBean.attributeAssignmentMarkerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewLogs&jobName=grouper_report_${guiReportConfigOverall.ownerId}_${guiReportConfigOverall.reportConfigBean.attributeAssignmentMarkerId}');">${textContainer.text['grouperReportConfigTableReportActionsReportLogs'] }</a></li>
+                        <li><a href="?operation=UiV2Admin.viewLogs&jobName=grouper_report_${grouper:escapeUrl(guiReportConfigOverall.ownerId)}_${grouper:escapeUrl(guiReportConfigOverall.reportConfigBean.attributeAssignmentMarkerId)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewLogs&jobName=grouper_report_${grouper:escapeUrl(guiReportConfigOverall.ownerId)}_${grouper:escapeUrl(guiReportConfigOverall.reportConfigBean.attributeAssignmentMarkerId)}');">${textContainer.text['grouperReportConfigTableReportActionsReportLogs'] }</a></li>
                       </c:if>
-                      
+
                       <c:if test="${not empty guiReportConfigOverall.mostRecentReportInstance}">
                         <c:choose>
                           <c:when test="${guiReportConfigOverall.groupOwner}">
-                            <li><a href="../app/UiV2GrouperReport.downloadReportForGroup?attributeAssignId=${guiReportConfigOverall.mostRecentReportInstance.attributeAssignId}&groupId=${guiReportConfigOverall.ownerGroup.id}">${textContainer.text['grouperReportConfigTableReportActionsDownloadMostRecent'] }</a></li>
-                            <li><a href="?operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId=${guiReportConfigOverall.mostRecentReportInstance.attributeAssignId}&groupId=${guiReportConfigOverall.ownerGroup.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId=${guiReportConfigOverall.mostRecentReportInstance.attributeAssignId}&groupId=${guiReportConfigOverall.ownerGroup.id}');">${textContainer.text['grouperReportConfigTableReportActionsViewMostRecent'] }</a></li>
+                            <li><a href="../app/UiV2GrouperReport.downloadReportForGroup?attributeAssignId=${grouper:escapeUrl(guiReportConfigOverall.mostRecentReportInstance.attributeAssignId)}&groupId=${grouper:escapeUrl(guiReportConfigOverall.ownerGroup.id)}">${textContainer.text['grouperReportConfigTableReportActionsDownloadMostRecent'] }</a></li>
+                            <li><a href="?operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId=${grouper:escapeUrl(guiReportConfigOverall.mostRecentReportInstance.attributeAssignId)}&groupId=${grouper:escapeUrl(guiReportConfigOverall.ownerGroup.id)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportInstanceDetailsForGroup&attributeAssignId=${grouper:escapeUrl(guiReportConfigOverall.mostRecentReportInstance.attributeAssignId)}&groupId=${grouper:escapeUrl(guiReportConfigOverall.ownerGroup.id)}');">${textContainer.text['grouperReportConfigTableReportActionsViewMostRecent'] }</a></li>
                           </c:when>
                           <c:otherwise>
-                            <li><a href="../app/UiV2GrouperReport.downloadReportForFolder?attributeAssignId=${guiReportConfigOverall.mostRecentReportInstance.attributeAssignId}&stemId=${guiReportConfigOverall.ownerStem.id}">${textContainer.text['grouperReportConfigTableReportActionsDownloadMostRecent'] }</a></li>
-                            <li><a href="?operation=UiV2GrouperReport.viewReportInstanceDetailsForFolder&attributeAssignId=${guiReportConfigOverall.mostRecentReportInstance.attributeAssignId}&stemId=${guiReportConfigOverall.ownerStem.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportInstanceDetailsForFolder&attributeAssignId=${guiReportConfigOverall.mostRecentReportInstance.attributeAssignId}&stemId=${guiReportConfigOverall.ownerStem.id}');">${textContainer.text['grouperReportConfigTableReportActionsViewMostRecent'] }</a></li>
+                            <li><a href="../app/UiV2GrouperReport.downloadReportForFolder?attributeAssignId=${grouper:escapeUrl(guiReportConfigOverall.mostRecentReportInstance.attributeAssignId)}&stemId=${grouper:escapeUrl(guiReportConfigOverall.ownerStem.id)}">${textContainer.text['grouperReportConfigTableReportActionsDownloadMostRecent'] }</a></li>
+                            <li><a href="?operation=UiV2GrouperReport.viewReportInstanceDetailsForFolder&attributeAssignId=${grouper:escapeUrl(guiReportConfigOverall.mostRecentReportInstance.attributeAssignId)}&stemId=${grouper:escapeUrl(guiReportConfigOverall.ownerStem.id)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportInstanceDetailsForFolder&attributeAssignId=${grouper:escapeUrl(guiReportConfigOverall.mostRecentReportInstance.attributeAssignId)}&stemId=${grouper:escapeUrl(guiReportConfigOverall.ownerStem.id)}');">${textContainer.text['grouperReportConfigTableReportActionsViewMostRecent'] }</a></li>
                           </c:otherwise>
                         </c:choose>
                       </c:if>
@@ -159,7 +150,7 @@ ${grouper:title('grouperReportAllConfigsPageTitle')}
             </c:forEach>
           </tbody>
         </table>
-        
+
       </c:when>
       <c:otherwise>
         <div class="row-fluid">
@@ -167,6 +158,6 @@ ${grouper:title('grouperReportAllConfigsPageTitle')}
         </div>
       </c:otherwise>
     </c:choose>
-    
+
   </div>
 </div>

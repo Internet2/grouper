@@ -4,6 +4,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportInstance;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 
 /**
  * report config wrapper for the overall (admin) view that includes information about the
@@ -73,12 +75,42 @@ public class GuiReportConfigOverall {
   public Group getOwnerGroup() {
     return ownerGroup;
   }
-  
+
   /**
    * @return owning stem (folder), if any
    */
   public Stem getOwnerStem() {
     return ownerStem;
+  }
+
+  /**
+   * cached GuiGroup wrapper around the owner group, for shortLinkWithIcon rendering
+   */
+  private GuiGroup guiOwnerGroup;
+
+  /**
+   * @return GuiGroup wrapper around the owner group, or null if owner is a folder
+   */
+  public GuiGroup getGuiOwnerGroup() {
+    if (this.guiOwnerGroup == null && this.ownerGroup != null) {
+      this.guiOwnerGroup = new GuiGroup(this.ownerGroup);
+    }
+    return this.guiOwnerGroup;
+  }
+
+  /**
+   * cached GuiStem wrapper around the owner stem, for shortLinkWithIcon rendering
+   */
+  private GuiStem guiOwnerStem;
+
+  /**
+   * @return GuiStem wrapper around the owner stem, or null if owner is a group
+   */
+  public GuiStem getGuiOwnerStem() {
+    if (this.guiOwnerStem == null && this.ownerStem != null) {
+      this.guiOwnerStem = new GuiStem(this.ownerStem);
+    }
+    return this.guiOwnerStem;
   }
   
   /**
