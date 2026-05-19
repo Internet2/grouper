@@ -80,12 +80,10 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
                 </div>
                </c:if>
               
-              <div role="alert" class="alert alert-info">
-                  ${textContainer.text['groupImportMultipleGroupsInfo']}
-              </div>
+              <h3>${textContainer.text['groupImportHowAddGroups'] }</h3>
+              <p>${textContainer.text['groupImportMultipleGroupsInfo']}</p>
 
               <div class="control-group">
-                <label class="control-label">${textContainer.text['groupImportHowAddGroups'] }</label>
                 <div class="controls">
                   <label class="radio">
                     <input type="radio" name="bulkAddGroupOptions" value="input" checked="checked"
@@ -157,11 +155,11 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
               </div>
 
               <hr>
+              <h3>${textContainer.text['groupImportHowAdd'] }</h3>
               <div class="control-group">
-                <label class="control-label">${textContainer.text['groupImportHowAdd'] }</label>
                 <div class="controls">
                   <label class="radio">
-                    <input type="radio" name="bulkAddOptions" value="input" checked="checked" 
+                    <input type="radio" name="bulkAddOptions" value="input" checked="checked"
                     onchange="$('.bulk-add-import-container').slideUp('fast'); $('.bulk-add-list-container').slideUp('fast'); $('.bulk-add-input-container').slideDown('fast'); return true;"
                     >${textContainer.text['groupImportSearchForMembersToAdd'] }
                   </label>
