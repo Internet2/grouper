@@ -695,8 +695,11 @@ function dojoInitMenu(autoSelectNode) {
   if (autoSelectNode) {
     var itemId = null;
     var itemType = null;
-    var uri = new URI(location.href);
-    uri.search(function (data) {
+    var data = {};
+    new URLSearchParams(location.search).forEach(function (value, key) {
+      data[key] = value;
+    });
+    (function () {
       if (data.operation === "UiV2Stem.viewStem") {
         // the breadcrumb menu uses name not id
         itemId = (data.stemName != undefined) ? data.stemName : data.stemId;
@@ -736,7 +739,7 @@ function dojoInitMenu(autoSelectNode) {
           }
         });
       }
-    });
+    })();
   }
 
   folderTree.startup();
