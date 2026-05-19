@@ -23,28 +23,24 @@ ${grouper:title('customUiConfigsPageTitle')}
             <c:when test="${fn:length(grouperRequestContainer.customUiContainer.guiCustomUiConfigurations) > 0}">
               
               <table class="table table-hover table-bordered table-striped table-condensed data-table">
-                <thead>        
-                  <tr>
-                    <th>${textContainer.text['customUiConfigsTableHeaderConfigId']}</th>
-                  </tr>
-                  </thead>
                   <tbody>
                     <c:set var="i" value="0" />
                     <c:forEach items="${grouperRequestContainer.customUiContainer.guiCustomUiConfigurations}" var="guiCustomUiConfiguration">
                     
                       <tr>
                          <td style="white-space: nowrap;">
-                         
+
                           <c:if test="${guiCustomUiConfiguration.canRun}">
-                            <a id="run_${grouper:escapeHtml(guiCustomUiConfiguration.customUiConfiguration.configId)}_id" href="?operation=UiV2CustomUi.customUiGroup&groupId=${guiCustomUiConfiguration.customUiConfiguration.groupId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUi.customUiGroup&groupId=${guiCustomUiConfiguration.customUiConfiguration.groupId}'); return false;">${grouper:escapeHtml(guiCustomUiConfiguration.customUiConfiguration.configId)}</a>
+                            <a id="run_${grouper:escapeHtml(guiCustomUiConfiguration.customUiConfiguration.configId)}_id" href="?operation=UiV2CustomUi.customUiGroup&groupId=${grouper:escapeUrl(guiCustomUiConfiguration.customUiConfiguration.groupId)}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2CustomUi.customUiGroup&groupId=${grouper:escapeUrl(guiCustomUiConfiguration.customUiConfiguration.groupId)}');">${grouper:escapeHtml(guiCustomUiConfiguration.customUiConfiguration.configId)}</a>
                           </c:if>
-                          
+
                           <c:if test="${guiCustomUiConfiguration.canRun == false}">
                               ${grouper:escapeHtml(guiCustomUiConfiguration.customUiConfiguration.configId)}
                           </c:if>
-                          
+
                          </td>
-                         
+                       </tr>
+
                     </c:forEach>
                    
                    </tbody>
@@ -53,7 +49,7 @@ ${grouper:title('customUiConfigsPageTitle')}
             </c:when>
             <c:otherwise>
               <div class="row-fluid">
-                <div class="span9"> <p><b>${textContainer.text['customUiNoConfiguredCustomUis'] }</b></p></div>
+                <div class="span9"> <p><b>${textContainer.text['customUiNoAvailableCustomUis'] }</b></p></div>
               </div>
             </c:otherwise>
           </c:choose>
