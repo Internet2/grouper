@@ -565,6 +565,12 @@ public class UiV2GroupImport {
             return;
           }
 
+          if (groupNamesOrIds.size() > 100) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+                TextContainer.retrieveFromRequest().getText().get("groupImportTooManyGroupsToSubmit")));
+            return;
+          }
+
           if (!lookupGroupsByNamesOrIds(loggedInSubject, groupNamesOrIds, groups, guiResponseJs)) {
             return;
           }
@@ -607,12 +613,23 @@ public class UiV2GroupImport {
             return;
           }
 
+          if (groupNamesOrIds.size() > 100) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+                TextContainer.retrieveFromRequest().getText().get("groupImportTooManyGroupsToSubmit")));
+            return;
+          }
+
           if (!lookupGroupsByNamesOrIds(loggedInSubject, groupNamesOrIds, groups, guiResponseJs)) {
             return;
           }
 
         } else {
-          throw new RuntimeException("Not expecting bulkAddGroupOption: '" + bulkAddGroupOption + "'");
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Unexpected bulkAddGroupOption: '" + bulkAddGroupOption + "'");
+          }
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("groupImportInvalidBulkAddGroupOption")));
+          return;
         }
         
         if (!success) {
