@@ -23,7 +23,6 @@
   </c:forTokens>
 </c:if>
 
-<script src="../../grouperExternal/public/assets/js/URI.js"></script>
 <script src="../../grouperExternal/public/OwaspJavaScriptServlet"></script>
 
 <script src="../../grouperExternal/public/assets/js/d3.min.js" charset="utf-8"></script>

@@ -753,8 +753,11 @@ function dojoInitMenu(autoSelectNode) {
     var itemId = null;
     var itemType = null;
 
-    var uri = new URI(location.href);
-    uri.search(function (data) {
+    var data = {};
+    new URLSearchParams(location.search).forEach(function (value, key) {
+      data[key] = value;
+    });
+    (function () {
       if (data.operation === "UiV2Stem.viewStem") {
         itemId = (data.stemName !== undefined) ? data.stemName : data.stemId;
         itemType = (data.stemName !== undefined) ? "stemName" : "stem";
@@ -804,7 +807,7 @@ function dojoInitMenu(autoSelectNode) {
         // expand/select Root so the user sees Root and its immediate children.
         openFolderTreePathToObjectJsTree();
       }
-    });
+    })();
   }
 
   // ---- Path open/select helper (lazy-load safe-ish) ----
