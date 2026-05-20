@@ -595,7 +595,11 @@ public class UpgradeTaskV41 implements UpgradeTasksInterface {
         }
 
         if (!GrouperDdlUtils.assertIndexExists("grouper_prov_group_attr", "grouper_prov_grpat_idx1")) {
-          new GcDbAccess().sql("CREATE UNIQUE INDEX grouper_prov_grpat_idx1 ON grouper_prov_group_attr (grouper_sync_internal_id, attribute_name)").executeSql();
+          if (GrouperDdlUtils.isMysql()) {
+            new GcDbAccess().sql("CREATE UNIQUE INDEX grouper_prov_grpat_idx1 ON grouper_prov_group_attr (grouper_sync_internal_id, attribute_name(191))").executeSql();
+          } else {
+            new GcDbAccess().sql("CREATE UNIQUE INDEX grouper_prov_grpat_idx1 ON grouper_prov_group_attr (grouper_sync_internal_id, attribute_name)").executeSql();
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_prov_grpat_idx1");
@@ -834,7 +838,11 @@ public class UpgradeTaskV41 implements UpgradeTasksInterface {
         }
 
         if (!GrouperDdlUtils.assertIndexExists("grouper_prov_user_attr", "grouper_prov_userat_idx1")) {
-          new GcDbAccess().sql("CREATE UNIQUE INDEX grouper_prov_userat_idx1 ON grouper_prov_user_attr (grouper_sync_internal_id, attribute_name)").executeSql();
+          if (GrouperDdlUtils.isMysql()) {
+            new GcDbAccess().sql("CREATE UNIQUE INDEX grouper_prov_userat_idx1 ON grouper_prov_user_attr (grouper_sync_internal_id, attribute_name(191))").executeSql();
+          } else {
+            new GcDbAccess().sql("CREATE UNIQUE INDEX grouper_prov_userat_idx1 ON grouper_prov_user_attr (grouper_sync_internal_id, attribute_name)").executeSql();
+          }
           if (otherJobInput != null) {
             otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_prov_userat_idx1");
