@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -63,6 +62,8 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 
 /**
