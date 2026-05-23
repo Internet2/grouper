@@ -84,7 +84,8 @@
         
         <charon.version>2.1.6</charon.version>
         <wink.client.version>1.4</wink.client.version>
-        <log4j.version>2.25.3</log4j.version>
+        <!-- if changing this, change the container files in container_files/tier-support/log4j_fix -->
+        <log4j.version>2.26.0</log4j.version>
         <junit.version>4.13.2</junit.version>
         
         <bouncyCastle.version>1.83</bouncyCastle.version>
