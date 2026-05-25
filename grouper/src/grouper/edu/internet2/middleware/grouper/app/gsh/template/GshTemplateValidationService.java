@@ -2,9 +2,9 @@ package edu.internet2.middleware.grouper.app.gsh.template;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -483,8 +483,17 @@ public class GshTemplateValidationService {
           
           if (StringUtils.isNotBlank(valueFromUser)) {
             if (!gshTemplateInputConfig.getGshTemplateDropdownValueFormatType().doesValuePassValidation(valueFromUser, validKeysValues)) {
-              // get only keys out of list of multiKeys and convert to comma separated string  
-              String validValuesCommaSeparated = GrouperUtil.collectionToString(validKeysValues.stream().map(multikey -> multikey.getKey(0)).collect(Collectors.toSet()));
+              // get only keys out of list of multiKeys, drop the empty UI placeholder, and convert to comma separated string
+              // (GshTemplateInputConfig.getDropdownKeysAndLabels prepends an empty MultiKey for the UI dropdown's blank initial option;
+              // it must not appear in the human-readable validation message)
+              LinkedHashSet<String> validKeysSet = new LinkedHashSet<String>();
+              for (MultiKey multikey : validKeysValues) {
+                String key = (String) multikey.getKey(0);
+                if (key != null && key.length() > 0) {
+                  validKeysSet.add(key);
+                }
+              }
+              String validValuesCommaSeparated = GrouperUtil.collectionToString(validKeysSet);
               String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.invalidDropdownValue.message");
               errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
               errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$validValues$$", validValuesCommaSeparated);
