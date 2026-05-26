@@ -38,6 +38,7 @@ public class GshTemplateClassLoaderRegistryTest extends GrouperTest {
     TestRunner.run(new GshTemplateClassLoaderRegistryTest("testRegistryCompileError"));
     TestRunner.run(new GshTemplateClassLoaderRegistryTest("testRegistryReturnedClassInstantiates"));
     TestRunner.run(new GshTemplateClassLoaderRegistryTest("testRegistryInnerClassLoads"));
+    TestRunner.run(new GshTemplateClassLoaderRegistryTest("testRegistryNonGshTemplateV2BaseResolves"));
   }
 
   /**
@@ -311,12 +312,12 @@ public class GshTemplateClassLoaderRegistryTest extends GrouperTest {
     String sourceV2 = sourceV1.replace("return 1;", "return 2;");
 
     GshTemplateResolveResult v1Result = GshTemplateClassLoaderRegistry.resolve(templateName, sourceV1);
-    Class<? extends GshTemplateV2> v1Class = v1Result.getTemplateClass();
+    Class<?> v1Class = v1Result.getTemplateClass();
     Object v1Instance = v1Class.getDeclaredConstructor().newInstance();
 
     // Swap the cache to v2
     GshTemplateResolveResult v2Result = GshTemplateClassLoaderRegistry.resolve(templateName, sourceV2);
-    Class<? extends GshTemplateV2> v2Class = v2Result.getTemplateClass();
+    Class<?> v2Class = v2Result.getTemplateClass();
 
     // v1's class and instance still work
     Object v1Version = v1Class.getDeclaredMethod("version").invoke(v1Instance);
@@ -427,6 +428,34 @@ public class GshTemplateClassLoaderRegistryTest extends GrouperTest {
     assertNotNull(inner);
     Object value = inner.getClass().getDeclaredMethod("value").invoke(inner);
     assertEquals(Integer.valueOf(99), value);
+  }
+
+  /**
+   * GRP-7011: the registry no longer enforces that the compiled class
+   * extends GshTemplateV2. A class extending some other base (or Object)
+   * should resolve successfully. The Phase 7 dispatcher per templateType
+   * is responsible for casting to the appropriate base.
+   */
+  public void testRegistryNonGshTemplateV2BaseResolves() throws Exception {
+    String templateName = "testNonGshTemplateV2";
+    String source = ""
+        + "package edu.internet2.middleware.grouper.gshTest;\n"
+        + "public class PlainClassTemplate {\n"
+        + "  public int answer() { return 42; }\n"
+        + "}\n";
+
+    GshTemplateResolveResult result = GshTemplateClassLoaderRegistry.resolve(templateName, source);
+
+    assertTrue("expected success, parseError=" + result.getParseError()
+        + " compile=" + (result.getCompileResult() == null
+            ? "null" : result.getCompileResult().getDiagnostics()),
+        result.isSuccess());
+    assertNotNull(result.getTemplateClass());
+    assertFalse("loaded class should NOT be a GshTemplateV2 subclass for this test",
+        GshTemplateV2.class.isAssignableFrom(result.getTemplateClass()));
+    Object instance = result.getTemplateClass().getDeclaredConstructor().newInstance();
+    Object answer = result.getTemplateClass().getDeclaredMethod("answer").invoke(instance);
+    assertEquals(Integer.valueOf(42), answer);
   }
 
 }

@@ -104,10 +104,32 @@ public class GshTemplateConfig {
   private Stem folderForGroupsInFolder;
   
   private GshTemplateType gshTemplateType;
-  
-  
+
+
   public GshTemplateType getGshTemplateType() {
     return gshTemplateType;
+  }
+
+  /**
+   * Execution mode — interpreted (legacy Groovy engine) or compiled
+   * (new Java compile-on-save path via GshTemplateClassLoaderRegistry).
+   * Defaults to interpreted for backward compat. GRP-7011.
+   */
+  private GshTemplateMode gshTemplateMode;
+
+  /**
+   * @return execution mode (interpreted or compiled). Never null after
+   *   config load; defaults to interpreted for legacy rows.
+   */
+  public GshTemplateMode getGshTemplateMode() {
+    return this.gshTemplateMode;
+  }
+
+  /**
+   * @param gshTemplateMode
+   */
+  public void setGshTemplateMode(GshTemplateMode gshTemplateMode) {
+    this.gshTemplateMode = gshTemplateMode;
   }
 
   private GshTemplateFolderShowOnDescendants gshTemplateFolderShowOnDescendants;
@@ -637,7 +659,12 @@ public class GshTemplateConfig {
         
         GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
         gshTemplateType = GshTemplateType.valueOfIgnoreCase(GrouperUtil.defaultIfBlank(grouperConfig.propertyValueString(configPrefix+"templateType"), "gsh"), true);
-        
+
+        // GRP-7011: templateMode — interpreted (legacy default) or compiled
+        gshTemplateMode = GshTemplateMode.valueOfIgnoreCase(
+            GrouperUtil.defaultIfBlank(grouperConfig.propertyValueString(configPrefix+"templateMode"), "interpreted"),
+            true);
+
         enabled = grouperConfig.propertyValueBoolean(configPrefix+"enabled", true);
 
         templateVersion = grouperConfig.propertyValueString(configPrefix+"templateVersion", "V1");

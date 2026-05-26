@@ -260,7 +260,15 @@ public abstract class OtherJobBase implements Job {
    * 
    */
   public static class OtherJobInput {
-    
+
+    // ---------------------------------------------------------------------
+    // When adding a new field to OtherJobInput, also add a setter call for it
+    // to copyFieldsTo() below. Subclasses like OtherJobTemplateInput rely on
+    // copyFieldsTo to fill themselves from a framework-produced parent
+    // OtherJobInput, so a forgotten field there silently drops state on the
+    // floor for those callers.
+    // ---------------------------------------------------------------------
+
     /**
      * grouper session
      */
@@ -319,7 +327,30 @@ public abstract class OtherJobBase implements Job {
     public void setHib3GrouperLoaderLog(Hib3GrouperLoaderLog hib3GrouperLoaderLog1) {
       this.hib3GrouperLoaderLog = hib3GrouperLoaderLog1;
     }
-    
+
+    /**
+     * Copy every field on this OtherJobInput onto the target via setters.
+     * Used when constructing a subclass instance (for example
+     * OtherJobTemplateInput, used by compiled GSH daemon templates) that
+     * needs to be filled in from a framework-produced parent input.
+     *
+     * Setters are used rather than direct field assignment so that any
+     * validation, transformation, or side effects added to a setter in the
+     * future still run during a copy.
+     *
+     * Subclasses should override to call super.copyFieldsTo(target) first
+     * and then copy their own additional fields onto the target (with an
+     * instanceof check on target if the subclass's fields don't apply to
+     * non-subclass targets).
+     *
+     * @param target the OtherJobInput to copy onto; not null
+     */
+    public void copyFieldsTo(OtherJobInput target) {
+      target.setGrouperSession(this.grouperSession);
+      target.setJobName(this.jobName);
+      target.setHib3GrouperLoaderLog(this.hib3GrouperLoaderLog);
+    }
+
   }
   
   /**

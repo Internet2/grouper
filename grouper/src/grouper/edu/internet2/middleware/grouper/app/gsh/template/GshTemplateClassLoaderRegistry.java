@@ -39,24 +39,31 @@ public class GshTemplateClassLoaderRegistry {
   /**
    * One template version's cache entry — the source hash that produced it,
    * the classloader holding its bytecode, and the loaded class.
+   *
+   * The templateClass type is Class&lt;?&gt; — the registry does not assert
+   * any particular base class. Each templateType's dispatcher (Phase 7
+   * work) does an asSubclass() to the appropriate framework base
+   * (GshTemplateV2 for gsh/abac, GshTemplateProvisionerBase for provisioner,
+   * GrouperTemplateDaemon for daemon, etc.) and surfaces a clear error if
+   * the author got the base wrong. See GRP-7011 for the type framework.
    */
   public static class GshTemplateCachedClass {
 
     private final String sourceHash;
     private final ByteArrayClassLoader byteArrayClassLoader;
-    private final Class<? extends GshTemplateV2> templateClass;
+    private final Class<?> templateClass;
 
     GshTemplateCachedClass(
         String sourceHash,
         ByteArrayClassLoader byteArrayClassLoader,
-        Class<? extends GshTemplateV2> templateClass) {
+        Class<?> templateClass) {
       this.sourceHash = sourceHash;
       this.byteArrayClassLoader = byteArrayClassLoader;
       this.templateClass = templateClass;
     }
 
     /**
-     * @return SHA-256 of the source string that compiled to this entry
+     * @return SHA-1 hex of the source string that compiled to this entry
      */
     public String getSourceHash() {
       return this.sourceHash;
@@ -70,9 +77,11 @@ public class GshTemplateClassLoaderRegistry {
     }
 
     /**
-     * @return the loaded GshTemplateV2 subclass
+     * @return the loaded class. Type is Class&lt;?&gt; — caller is
+     *   responsible for casting to the appropriate framework base via
+     *   asSubclass() based on templateType.
      */
-    public Class<? extends GshTemplateV2> getTemplateClass() {
+    public Class<?> getTemplateClass() {
       return this.templateClass;
     }
   }
@@ -107,9 +116,11 @@ public class GshTemplateClassLoaderRegistry {
     }
 
     /**
-     * @return the resolved template class on success; null on failure
+     * @return the resolved class on success; null on failure. Type is
+     *   Class&lt;?&gt; — caller casts via asSubclass() to the appropriate
+     *   framework base for the templateType. See GRP-7011.
      */
-    public Class<? extends GshTemplateV2> getTemplateClass() {
+    public Class<?> getTemplateClass() {
       if (this.cachedClass == null) {
         return null;
       }
@@ -209,9 +220,9 @@ public class GshTemplateClassLoaderRegistry {
           GshTemplateV2.class.getClassLoader(),
           compileResult.getClassNameToBytecode());
 
-      Class<?> rawLoadedClass;
+      Class<?> templateClass;
       try {
-        rawLoadedClass = byteArrayClassLoader.loadClass(fullyQualifiedClassName);
+        templateClass = byteArrayClassLoader.loadClass(fullyQualifiedClassName);
       } catch (ClassNotFoundException e) {
         // Bytecode for the top-level class is present in the map (we just compiled it) so
         // ClassNotFoundException here would indicate a bug in the FQN parsing or compile path.
@@ -220,13 +231,11 @@ public class GshTemplateClassLoaderRegistry {
                 + "' not found in fresh classloader; this is a bug", e);
       }
 
-      if (!GshTemplateV2.class.isAssignableFrom(rawLoadedClass)) {
-        return new GshTemplateResolveResult(null, compileResult,
-            "Compiled class '" + fullyQualifiedClassName
-                + "' does not extend GshTemplateV2");
-      }
-
-      Class<? extends GshTemplateV2> templateClass = rawLoadedClass.asSubclass(GshTemplateV2.class);
+      // GRP-7011: no base-class enforcement at the registry layer. Each
+      // templateType's dispatcher (Phase 7 work) casts to the appropriate
+      // framework base (GshTemplateV2, GshTemplateProvisionerBase,
+      // GrouperTemplateDaemon, etc.) and surfaces a ClassCastException
+      // with a clear message if the author got the base wrong.
 
       GshTemplateCachedClass newCached =
           new GshTemplateCachedClass(sourceHash, byteArrayClassLoader, templateClass);
