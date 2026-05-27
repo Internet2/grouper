@@ -946,9 +946,20 @@ public class GrouperProvisioningCompare {
           if (!caseSensitiveCompare && grouperValuesLowerIfNeeded.contains(deleteValueLowerIfNeeded)) {
             continue;
           }
-          
+
+          // GRP-7014: this recalc branch was sending the delete to the target via
+          // addInternal_objectChange below but never updating the membership-delete
+          // counters that the failsafe uses, so groupAttributes / entityAttributes
+          // provisioners on full sync (and recalc'd incrementals) silently bypassed
+          // failsafeMaxPercentRemove.  The non-recalc branch above already does this
+          // accounting; mirror it here.
+          if (provisioningMembershipWrapper != null) {
+            this.membershipDeleteCount++;
+            countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
+          }
+
           provisioningUpdatableForDeleteOnly.addInternal_objectChange(
-              new ProvisioningObjectChange(attributeName, 
+              new ProvisioningObjectChange(attributeName,
                   ProvisioningObjectChangeAction.delete, deleteValue, null)
               );
         }
