@@ -176,6 +176,8 @@ public class GrouperProvisioningLogic {
       this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(null);
     }
 
+    skipPreExistingTargetGroups();
+
     assignRecalcForGroupsAndEntities();
     
     debugMap.put("state", "retrieveIndividualMissingGroups");
@@ -1557,6 +1559,8 @@ public class GrouperProvisioningLogic {
             this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(null);
             
           }
+
+          skipPreExistingTargetGroups();
           
           // ######### STEP 26: validate groups
           // validate
@@ -2479,6 +2483,54 @@ public class GrouperProvisioningLogic {
       // index the memberships
       this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships(null);
 
+    }
+  }
+
+  /**
+   * if the provisioner is configured with skipIfTargetGroupExists, find any wrappers where a Grouper group
+   * has just been matched to a pre-existing target group (i.e. Grouper has not previously claimed it) and
+   * make the wrapper invisible to the rest of the framework for this run so no insert, update, or membership
+   * sync happens. The pre-existing target group is left untouched and the grouper_sync_group row is not
+   * modified to claim it.
+   */
+  public void skipPreExistingTargetGroups() {
+
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isSkipIfTargetGroupExists()) {
+      return;
+    }
+
+    int skipPreExistingTargetGroupsCount = 0;
+
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+
+      // must be a Grouper group freshly matched to a target group
+      if (provisioningGroupWrapper.getGrouperProvisioningGroup() == null) {
+        continue;
+      }
+      if (provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+        continue;
+      }
+
+      // if Grouper has already claimed this target group on a previous run, leave it alone
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+      if (gcGrouperSyncGroup != null && Boolean.TRUE.equals(gcGrouperSyncGroup.getInTarget())) {
+        continue;
+      }
+
+      // null out both sides so the rest of the framework treats this wrapper as a no-op
+      // (no insert because grouperProvisioningGroup is null; no update because target side is null;
+      //  no membership sync because the group has no resolvable target)
+      provisioningGroupWrapper.setGrouperProvisioningGroup(null);
+      provisioningGroupWrapper.setGrouperTargetGroup(null);
+      provisioningGroupWrapper.setTargetProvisioningGroup(null);
+
+      skipPreExistingTargetGroupsCount++;
+    }
+
+    if (skipPreExistingTargetGroupsCount > 0) {
+      GrouperUtil.mapAddValue(this.grouperProvisioner.getDebugMap(),
+          "skipPreExistingTargetGroups", skipPreExistingTargetGroupsCount);
     }
   }
 

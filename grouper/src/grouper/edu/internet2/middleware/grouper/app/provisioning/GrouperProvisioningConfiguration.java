@@ -636,6 +636,20 @@ public abstract class GrouperProvisioningConfiguration {
     this.errorHandlingTargetObjectDoesNotExistIsAnError = errorHandlingTargetObjectDoesNotExistIsAnError;
   }
 
+  /**
+   * if a target group with the same matching id already exists when first encountered by Grouper,
+   * skip it for this run (no insert, update, or membership sync) and leave the pre-existing target group untouched.
+   */
+  private boolean skipIfTargetGroupExists = false;
+
+  public boolean isSkipIfTargetGroupExists() {
+    return skipIfTargetGroupExists;
+  }
+
+  public void setSkipIfTargetGroupExists(boolean skipIfTargetGroupExists) {
+    this.skipIfTargetGroupExists = skipIfTargetGroupExists;
+  }
+
   
   
   private boolean makeChangesToEntities;
@@ -3231,7 +3245,9 @@ public abstract class GrouperProvisioningConfiguration {
     this.groupSearchAllFilter = this.retrieveConfigString("groupSearchAllFilter", false);
     
     this.customizeGroupCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeGroupCrud", false), false);
-    
+
+    this.skipIfTargetGroupExists = GrouperUtil.booleanValue(this.retrieveConfigBoolean("skipIfTargetGroupExists", false), false);
+
     if (!this.operateOnGrouperGroups) {
       this.insertGroups = false;
       
