@@ -46,7 +46,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperGoogleProvisionerTest("testIncrementalSyncGoogle"));
+    TestRunner.run(new GrouperGoogleProvisionerTest("testSkipPreExistingTargetGroup"));
     
   }
   
@@ -649,6 +649,130 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   }
   
   
+  /**
+   * verifies that when skipIfTargetGroupExists is on and a target group already exists on first encounter,
+   * Grouper skips it (no insert, no membership sync) and the grouper_sync_group row is not claimed
+   * (no error code, inTarget not set to true).
+   */
+  public void testSkipPreExistingTargetGroup() throws IOException {
+
+    GoogleProvisionerTestUtils.setupGoogleExternalSystem();
+    GoogleProvisionerTestUtils.configureGoogleProvisioner(new GoogleProvisionerTestConfigInput());
+
+    GrouperStartup.startup();
+
+    try {
+      // this will create tables
+      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null, false, false);
+
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("myGoogleProvisioner");
+      attributeValue.setTargetName("myGoogleProvisioner");
+      attributeValue.setStemScopeString("sub");
+
+      Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+      metadataNameValues.put("md_grouper_whoCanViewGroup", "ALL_MANAGERS_CAN_VIEW");
+      attributeValue.setMetadataNameValues(metadataNameValues);
+
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+      // phase 1: run a normal full sync so Grouper creates the target group naturally.
+      // this also lets the translation engine compute the matching email for us.
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+      assertTrue(1 <= grouperProvisioningOutput.getInsert());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
+
+      GrouperGoogleGroup preExistingTargetGroup = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).get(0);
+      String preExistingTargetGroupEmail = preExistingTargetGroup.getEmail();
+      String preExistingTargetGroupId = preExistingTargetGroup.getId();
+
+      // phase 2: simulate "first encounter" by wiping the sync rows AND clearing memberships from the target.
+      // the target group itself stays, mimicking a pre-existing target group Grouper has never seen.
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myGoogleProvisioner");
+      new GcDbAccess().connectionName("grouper").sql("delete from grouper_sync_membership where grouper_sync_id = ?").addBindVar(gcGrouperSync.getId()).executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from grouper_sync_group where grouper_sync_id = ?").addBindVar(gcGrouperSync.getId()).executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from grouper_sync_member where grouper_sync_id = ?").addBindVar(gcGrouperSync.getId()).executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
+
+      // flip the new flag on
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.skipIfTargetGroupExists").value("true").store();
+
+      // sanity: target group still exists, sync rows are wiped, target memberships are wiped
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_google_group").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_google_membership").select(int.class));
+
+      // phase 3: run full sync again. Grouper should match by email, detect that this is a first encounter
+      // (no gcGrouperSyncGroup with inTarget=true), and SKIP the group entirely.
+      grouperProvisioningOutput = fullProvision();
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+
+      // target group is still there, untouched
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
+      GrouperGoogleGroup targetGroupAfter = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).get(0);
+      assertEquals(preExistingTargetGroupId, targetGroupAfter.getId());
+      assertEquals(preExistingTargetGroupEmail, targetGroupAfter.getEmail());
+
+      // no memberships were synced into the target (skip blocked membership pipeline)
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
+
+      // no inserts/updates/deletes attributed to this run
+      assertEquals(0, grouperProvisioningOutput.getInsert());
+      assertEquals(0, grouperProvisioningOutput.getUpdate());
+      assertEquals(0, grouperProvisioningOutput.getDelete());
+
+      // debug map records the skip count
+      assertEquals(1, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("skipPreExistingTargetGroups"), 0));
+
+      // grouper_sync_group row: no error code, inTarget not claimed
+      gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myGoogleProvisioner");
+      GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      if (gcGrouperSyncGroup != null) {
+        assertNull("expected no error code for skipped group", gcGrouperSyncGroup.getErrorCode());
+        assertNull("expected no error message for skipped group", gcGrouperSyncGroup.getErrorMessage());
+        assertFalse("expected inTarget not claimed for skipped group", Boolean.TRUE.equals(gcGrouperSyncGroup.getInTarget()));
+      }
+
+      // phase 4: flip the flag off and run again - Grouper should now take over the pre-existing group
+      // (sanity-check that the skip is conditional on the flag).
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.skipIfTargetGroupExists").value("false").store();
+
+      grouperProvisioningOutput = fullProvision();
+      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+
+      // still only one target group
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
+
+      // memberships are now synced
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
+
+      // sync row now claims the group
+      gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myGoogleProvisioner");
+      gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      assertNotNull(gcGrouperSyncGroup);
+      assertTrue(Boolean.TRUE.equals(gcGrouperSyncGroup.getInTarget()));
+      assertNull(gcGrouperSyncGroup.getErrorCode());
+
+    } finally {
+
+    }
+
+  }
+
+
   public void atestFullSyncGoogleReal() throws IOException {
     
     GoogleProvisionerTestUtils.setupGoogleExternalSystem();
