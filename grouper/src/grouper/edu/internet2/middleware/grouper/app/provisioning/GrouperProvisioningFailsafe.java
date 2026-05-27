@@ -315,11 +315,18 @@ public class GrouperProvisioningFailsafe {
       return;
     }
   
-    // lets see if we are configured to do failsafes
-    Boolean showFailsafe = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigBoolean("showFailsafe", false);
-    
     this.grouperFailsafeBean.setJobName(jobName);
-    
+
+    // GRP-7012: provisioner failsafe is self-contained.  loader.failsafe.use is a
+    // SQL/LDAP loader-job concept and is not consulted here.  Reset the bean's
+    // useFailsafe (seeded from loader.failsafe.use in the constructor) before
+    // reading provisioner config.  A provisioner enforces failsafe only when
+    // showFailsafe=true AND failsafeUse=true on this provisioner (or on a
+    // provisioner default config).
+    this.grouperFailsafeBean.setUseFailsafe(false);
+
+    Boolean showFailsafe = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigBoolean("showFailsafe", false);
+
     if (showFailsafe != null && showFailsafe) {
       {
         Boolean failsafeUse = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigBoolean("failsafeUse", false);
