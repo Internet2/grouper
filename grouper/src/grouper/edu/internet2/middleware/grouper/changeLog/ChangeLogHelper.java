@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.OtherJobException;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -351,7 +352,11 @@ public class ChangeLogHelper {
 
       ChangeLogConsumer changeLogConsumer = GrouperDAOFactory.getFactory().getChangeLogConsumer().findByName(consumerName, false);
       boolean error = false;
-      
+      // GRP-7015: track ERROR_FAILSAFE separately so the loader-log status
+      // reflects a failsafe trip and not generic ERROR.
+      boolean failsafeError = false;
+
+
       //if this is a new job
       if (changeLogConsumer == null) {
 
@@ -423,9 +428,22 @@ public class ChangeLogHelper {
             debugMap.put(i + ": error processing records", true);
           }
           LOG.error("Error", e);
-          hib3GrouploaderLog.appendJobMessage("Error: " 
+          hib3GrouploaderLog.appendJobMessage("Error: "
               + ExceptionUtils.getStackTrace(e));
           error = true;
+          // GRP-7015: preserve ERROR_FAILSAFE status when the provisioner
+          // throws OtherJobException(ERROR_FAILSAFE) via an incremental change-log
+          // consumer.  Without this the consumer log just says generic "ERROR"
+          // and admins can't tell a failsafe trip from any other failure.
+          Throwable cause = e;
+          while (cause != null) {
+            if (cause instanceof OtherJobException
+                && ((OtherJobException) cause).getGrouperLoaderStatus() == GrouperLoaderStatus.ERROR_FAILSAFE) {
+              failsafeError = true;
+              break;
+            }
+            cause = cause.getCause();
+          }
         }
         if (lastProcessed > -1 && (changeLogConsumer.getLastSequenceProcessed() == null || changeLogConsumer.getLastSequenceProcessed() != lastProcessed)) {
           if (lastProcessed > (Long)GrouperUtil.defaultIfNull(changeLogConsumer.getLastSequenceProcessed(), -1)) {
@@ -441,12 +459,24 @@ public class ChangeLogHelper {
           if (LOG.isDebugEnabled()) {
             debugMap.put(i + ": hadProblem", true + ", " + changeLogProcessorMetadata.getRecordProblemText());
           }
-          String errorString = "Error: " 
+          String errorString = "Error: "
               + changeLogProcessorMetadata.getRecordProblemText()
               + ", sequenceNumber: " + changeLogProcessorMetadata.getRecordExceptionSequence()
               + ", " + ExceptionUtils.getStackTrace(changeLogProcessorMetadata.getRecordException());
           LOG.error(errorString);
           hib3GrouploaderLog.appendJobMessage(errorString);
+          // GRP-7015: the consumer captured the OtherJobException(ERROR_FAILSAFE)
+          // into changeLogProcessorMetadata instead of letting it propagate; pick
+          // it up here so the loader log still gets ERROR_FAILSAFE status.
+          Throwable metadataCause = changeLogProcessorMetadata.getRecordException();
+          while (metadataCause != null) {
+            if (metadataCause instanceof OtherJobException
+                && ((OtherJobException) metadataCause).getGrouperLoaderStatus() == GrouperLoaderStatus.ERROR_FAILSAFE) {
+              failsafeError = true;
+              break;
+            }
+            metadataCause = metadataCause.getCause();
+          }
           error = true;
         }
         if (lastProcessed != lastSequenceInBatch) {
@@ -462,7 +492,9 @@ public class ChangeLogHelper {
         }
         
         if (error) {
-          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+          // GRP-7015: failsafe trips get their own status so they're distinguishable
+          // from generic errors in the loader log.
+          hib3GrouploaderLog.setStatus((failsafeError ? GrouperLoaderStatus.ERROR_FAILSAFE : GrouperLoaderStatus.ERROR).name());
           break;
         }
         

@@ -447,6 +447,29 @@ public abstract class GrouperProvisioningConfiguration {
     return errorHandlingMinutesLevel4;
   }
 
+  // GRP-7013: failsafe config values surfaced as fields so they show up in
+  // the standard configuration dump alongside errorHandling* etc.  null =
+  // not set (won't print).  Populated in the configure() block below.
+  private Boolean showFailsafe;
+  private Boolean failsafeUse;
+  private Boolean failsafeSendEmail;
+  private Integer failsafeMinGroupSize;
+  private Integer failsafeMaxPercentRemove;
+  private Integer failsafeMinManagedGroups;
+  private Integer failsafeMaxOverallPercentGroupsRemove;
+  private Integer failsafeMaxOverallPercentMembershipsRemove;
+  private Integer failsafeMinOverallNumberOfMembers;
+
+  public Boolean getShowFailsafe() { return this.showFailsafe; }
+  public Boolean getFailsafeUse() { return this.failsafeUse; }
+  public Boolean getFailsafeSendEmail() { return this.failsafeSendEmail; }
+  public Integer getFailsafeMinGroupSize() { return this.failsafeMinGroupSize; }
+  public Integer getFailsafeMaxPercentRemove() { return this.failsafeMaxPercentRemove; }
+  public Integer getFailsafeMinManagedGroups() { return this.failsafeMinManagedGroups; }
+  public Integer getFailsafeMaxOverallPercentGroupsRemove() { return this.failsafeMaxOverallPercentGroupsRemove; }
+  public Integer getFailsafeMaxOverallPercentMembershipsRemove() { return this.failsafeMaxOverallPercentMembershipsRemove; }
+  public Integer getFailsafeMinOverallNumberOfMembers() { return this.failsafeMinOverallNumberOfMembers; }
+
   /**
    * # Object errors will be logged, at least a handful of each type
    * # {valueType: "boolean", order: 130020, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
@@ -3420,9 +3443,25 @@ public abstract class GrouperProvisioningConfiguration {
       this.errorHandlingMinutesLevel3 = GrouperUtil.floatValue(this.retrieveConfigDouble("errorHandlingMinutesLevel3", false), 12);
       this.errorHandlingPercentLevel4 = GrouperUtil.floatValue(this.retrieveConfigDouble("errorHandlingPercentLevel4", false), 100);
       this.errorHandlingMinutesLevel4 = GrouperUtil.floatValue(this.retrieveConfigDouble("errorHandlingMinutesLevel4", false), 3);
-      
+
     }
-    
+
+    // GRP-7013: surface failsafe config in the standard config dump.  Read all
+    // suffixes when showFailsafe is on; otherwise just record whether the gate
+    // is set.  These fields are for visibility only - the runtime still reads
+    // failsafe values via GrouperProvisioningFailsafe.processFailsafesSetupBean.
+    this.showFailsafe = this.retrieveConfigBoolean("showFailsafe", false);
+    if (this.showFailsafe != null && this.showFailsafe) {
+      this.failsafeUse = this.retrieveConfigBoolean("failsafeUse", false);
+      this.failsafeSendEmail = this.retrieveConfigBoolean("failsafeSendEmail", false);
+      this.failsafeMinGroupSize = this.retrieveConfigInt("failsafeMinGroupSize", false);
+      this.failsafeMaxPercentRemove = this.retrieveConfigInt("failsafeMaxPercentRemove", false);
+      this.failsafeMinManagedGroups = this.retrieveConfigInt("failsafeMinManagedGroups", false);
+      this.failsafeMaxOverallPercentGroupsRemove = this.retrieveConfigInt("failsafeMaxOverallPercentGroupsRemove", false);
+      this.failsafeMaxOverallPercentMembershipsRemove = this.retrieveConfigInt("failsafeMaxOverallPercentMembershipsRemove", false);
+      this.failsafeMinOverallNumberOfMembers = this.retrieveConfigInt("failsafeMinOverallNumberOfMembers", false);
+    }
+
     this.makeChangesToEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("makeChangesToEntities", false), false);
 
     // reset some defaults if making changes
