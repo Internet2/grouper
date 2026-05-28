@@ -323,6 +323,14 @@ public class UiV2Visualization {
     private long indent;
     private List<String> parentNodeIds;
     private List<String> childNodeIds;
+    /**
+     * childNodeId -> edge style name (e.g. "edge_abac_and_not"), populated for ABAC/jexl
+     * connections so the text view can render the polarity ("must not be in", etc.) for the
+     * negated children. Edges in graph view carry this in the arrow label; text view has no
+     * arrows so it needs the polarity surfaced per-connection.
+     */
+    private Map<String, String> childEdgeStyles;
+    private Map<String, String> parentEdgeStyles;
 
     private TextNode(String id, String name, String displayExtension, String description, String type,
                      String baseType, String linkType, long allMemberCount, long directMemberCount,
@@ -331,6 +339,8 @@ public class UiV2Visualization {
       this.indent = indent;
       parentNodeIds = new LinkedList<String>();
       childNodeIds = new LinkedList<String>();
+      childEdgeStyles = new LinkedHashMap<String, String>();
+      parentEdgeStyles = new LinkedHashMap<String, String>();
     }
 
     public long getIndent() {
@@ -345,12 +355,34 @@ public class UiV2Visualization {
       this.parentNodeIds.add(id);
     }
 
+    private void addParentNodeId(String id, String edgeStyleName) {
+      this.parentNodeIds.add(id);
+      if (edgeStyleName != null) {
+        this.parentEdgeStyles.put(id, edgeStyleName);
+      }
+    }
+
     public List<String> getChildNodeIds() {
       return childNodeIds;
     }
 
     private void addChildNodeId(String id) {
       this.childNodeIds.add(id);
+    }
+
+    private void addChildNodeId(String id, String edgeStyleName) {
+      this.childNodeIds.add(id);
+      if (edgeStyleName != null) {
+        this.childEdgeStyles.put(id, edgeStyleName);
+      }
+    }
+
+    public Map<String, String> getChildEdgeStyles() {
+      return childEdgeStyles;
+    }
+
+    public Map<String, String> getParentEdgeStyles() {
+      return parentEdgeStyles;
     }
   }
 
@@ -923,7 +955,7 @@ public class UiV2Visualization {
 
     for (StyleObjectType styleType: styleTypes) {
       for (String propertyName: new String[]{"shape", "style", "nodestyle", "color", "fontcolor", "border", "arrowtail",
-              "dir", "linkType", "displayTag", "headlabel", "labeldistance", "fillcolor"}) {
+              "dir", "linkType", "displayTag", "label", "fillcolor"}) {
         String propertyValue = styleSet.getStyleProperty(styleType.getName(), propertyName, "");
         if (!"".equals(propertyValue)) {
           graph.addStyleProperty(styleType.getName(), propertyName, propertyValue);
@@ -943,7 +975,7 @@ public class UiV2Visualization {
             "compound_and", "compound_and_is_member", "compound_and_is_not_member",
             "group_is_not_member", "group_is_member"}) {
       for (String propertyName: new String[]{"shape", "style", "nodestyle", "color", "fontcolor", "border", "arrowtail",
-              "dir", "headlabel", "labeldistance", "fillcolor"}) {
+              "dir", "label", "fillcolor"}) {
         String propertyValue = styleSet.getStyleProperty(styleName, propertyName, "");
         if (!"".equals(propertyValue)) {
           graph.addFallbackStyleProperty(styleName, propertyName, propertyValue);
@@ -983,6 +1015,20 @@ public class UiV2Visualization {
 
     //maintain the set of object types in use
     Set<StyleObjectType> styleTypes = new HashSet();
+
+    // build a (from, to) -> edge style lookup so per-child / per-parent listings can carry
+    // the polarity that the graph view conveys via arrow labels. Multiple-edge cases (same
+    // from/to with different styles) collapse to the last edge seen — the common ABAC case
+    // has at most one edge per (from, to) pair so this is sufficient for #1.
+    Map<GraphNode, Map<GraphNode, String>> edgeStyleByFromTo = new HashMap<GraphNode, Map<GraphNode, String>>();
+    for (GraphEdge edge : relationGraph.getEdges()) {
+      Map<GraphNode, String> inner = edgeStyleByFromTo.get(edge.getFromNode());
+      if (inner == null) {
+        inner = new HashMap<GraphNode, String>();
+        edgeStyleByFromTo.put(edge.getFromNode(), inner);
+      }
+      inner.put(edge.getToNode(), edge.getStyleObjectType().getName());
+    }
 
     List<GraphNode> sortedNodes = new ArrayList<GraphNode>(relationGraph.getNodes());
     Collections.sort(sortedNodes, new SortByIndent());
@@ -1025,11 +1071,16 @@ public class UiV2Visualization {
       styleTypes.add(graphNode.getStyleObjectType());
 
       for (GraphNode n: graphNode.getParentNodes()) {
-        node.addParentNodeId(n.getGrouperObjectId());
+        // for a child→parent listing, the edge direction is parent→this node
+        Map<GraphNode, String> outgoingFromParent = edgeStyleByFromTo.get(n);
+        String edgeStyleName = outgoingFromParent == null ? null : outgoingFromParent.get(graphNode);
+        node.addParentNodeId(n.getGrouperObjectId(), edgeStyleName);
       }
 
       for (GraphNode n: graphNode.getChildNodes()) {
-        node.addChildNodeId(n.getGrouperObjectId());
+        Map<GraphNode, String> outgoingFromThis = edgeStyleByFromTo.get(graphNode);
+        String edgeStyleName = outgoingFromThis == null ? null : outgoingFromThis.get(n);
+        node.addChildNodeId(n.getGrouperObjectId(), edgeStyleName);
       }
 
       if (compositeLeftFactors.containsKey(graphNode)) {

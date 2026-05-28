@@ -192,6 +192,30 @@ function getObjectLink(node, text) {
 }
 
 
+// short description of a node for edge hover tooltips, e.g. "scripted group Faculty" or "data row hire info"
+function visNodeShortDesc(graph, node) {
+  var name = getObjectNameUsingPrefs(node);
+  if (node.baseType === "compound_or" || node.baseType === "compound_and" || node.baseType === "data_row") {
+    // these node names are already a full phrase, e.g. "Match ANY of the connected items"
+    // or "Has a matching row in 'employeeData'"
+    return name;
+  }
+  if (node.baseType === "data_attribute") {
+    return "data attribute " + name;
+  }
+  var tag = (graph.styles[node.type] && graph.styles[node.type].displayTag) || "group";
+  return tag + " " + name;
+}
+
+
+// plain-English relationship for an edge, taken from the arrow's label so the tooltip
+// always matches what is drawn on the arrow (e.g. "must be in", "any of these")
+function visEdgeRelationship(graph, link) {
+  var edgeLabel = (graph.styles[link.type] && graph.styles[link.type].label) || '"references"';
+  return edgeLabel.replace(/^"|"$/g, '');
+}
+
+
 function escapeText(unsafe) {
   
   if (typeof unsafe == 'undefined') {
@@ -279,7 +303,17 @@ function drawGraphModuleText() {
         if (node.compositeLeftFactorId === id || node.compositeRightFactorId === id || obj.baseType === "provisioner") {
           return;
         } else {
-          childContents.push( (graph.styles[obj.type].displayTag||"unknown object") + ": " + getObjectLink(obj, getObjectNameUsingPrefs(obj)) );
+          // surface ABAC edge polarity in the text view: the graph view shows this via the
+          // arrow label, but the text view has no arrows so a negated reference (e.g.
+          // "!entity.memberOf('test:GroupB')") otherwise looks identical to a positive one.
+          var entry = (graph.styles[obj.type].displayTag || "unknown object") + ": " + getObjectLink(obj, getObjectNameUsingPrefs(obj));
+          var edgeStyle = (node.childEdgeStyles && node.childEdgeStyles[id]) || "";
+          if (edgeStyle === "edge_abac_and_not") {
+            entry = "must not be in " + entry;
+          } else if (edgeStyle === "edge_abac_or_not") {
+            entry = "(not any of these) " + entry;
+          }
+          childContents.push(entry);
         }
       });
 
@@ -429,7 +463,7 @@ function getGraphModuleD3Legend(graph) {
   var theLegend = "";
 
   var nodeStyles = ['shape', 'color', 'style', 'border', 'fontcolor', 'fillcolor'];
-  var edgeStyles = ["arrowtail", "dir", "color", "style", "headlabel", "labeldistance"];
+  var edgeStyles = ["arrowtail", "dir", "color", "style", "label"];
   theLegend += 'subgraph cluster1 {\n';
   theLegend += '  label = "Legend" ;\n';
   theLegend += '  shape=rectangle ;\n';
@@ -489,7 +523,8 @@ function getGraphModuleD3Legend(graph) {
     theLegend += '  complement_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="exclude group"']) + '];\n';
 
     // it's possible only one of the factor edges is included; assume that getStyleStringForType() defaults the missing one so both lines are always there
-    theLegend += '  complement_group -> complement_left_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_complement_left', ['label="include group minus exclude"']) + '];\n';
+    // the descriptive label on each edge style carries the meaning, so nothing extra is needed
+    theLegend += '  complement_group -> complement_left_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_complement_left', null) + '];\n';
     theLegend += '  complement_group -> complement_right_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_complement_right', null) + '];\n';
   }
 
@@ -500,32 +535,59 @@ function getGraphModuleD3Legend(graph) {
     theLegend += '  intersect_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group 2"']) + '];\n';
 
     // it's possible only one of the factor edges is included; assume that getStyleStringForType() defaults the missing one so both lines are always there
-    theLegend += '  intersect_group -> intersect_left_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_intersect_left', ['label="in both group 1 and group 2"']) + '];\n';
+    // the descriptive label on each edge style carries the meaning, so nothing extra is needed
+    theLegend += '  intersect_group -> intersect_left_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_intersect_left', null) + '];\n';
     theLegend += '  intersect_group -> intersect_right_factor [' + getStyleStringForType(graph, edgeStyles, 'edge_intersect_right', null) + '];\n';
 
   }
 
-  // abac (scripted) group -- script references --> referenced groups, data attributes, data rows
-  if (graph.styles.hasOwnProperty("abac_group") || graph.styles.hasOwnProperty("abac_group_is_member") || graph.styles.hasOwnProperty("abac_group_is_not_member")) {
+  // abac (scripted) group -- script references --> referenced groups, data attributes, data rows.
+  // Each reference edge (AND/AND NOT/OR/OR NOT) is shown when its style is in use, so the legend
+  // covers OR scripts even when they have no compound node (a top-level OR references groups directly).
+  var hasAbacGroup = graph.styles.hasOwnProperty("abac_group") || graph.styles.hasOwnProperty("abac_group_is_member") || graph.styles.hasOwnProperty("abac_group_is_not_member");
+  var hasAbacAnd = graph.styles.hasOwnProperty("edge_abac_and");
+  var hasAbacAndNot = graph.styles.hasOwnProperty("edge_abac_and_not");
+  var hasAbacOr = graph.styles.hasOwnProperty("edge_abac_or");
+  var hasAbacOrNot = graph.styles.hasOwnProperty("edge_abac_or_not");
+  var hasCompoundOr = graph.styles.hasOwnProperty("compound_or") || graph.styles.hasOwnProperty("compound_or_is_member") || graph.styles.hasOwnProperty("compound_or_is_not_member");
+  var hasCompoundAnd = graph.styles.hasOwnProperty("compound_and") || graph.styles.hasOwnProperty("compound_and_is_member") || graph.styles.hasOwnProperty("compound_and_is_not_member");
+
+  if (hasAbacGroup || hasAbacAnd || hasAbacAndNot || hasAbacOr || hasAbacOrNot) {
     theLegend += '  abac_group [' + getStyleStringForType(graph, nodeStyles, 'abac_group', ['label="scripted group"']) + '];\n';
-    theLegend += '  abac_ref_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="required"']) + '];\n';
-    theLegend += '  abac_group -> abac_ref_group [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_and', ['label="must be in"']) + '];\n';
-    theLegend += '  abac_not_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="excluded"']) + '];\n';
-    theLegend += '  abac_group -> abac_not_group [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_and_not', ['label="must not be in"']) + '];\n';
   }
-
-  // compound or node (OR subexpression) with OR edges
-  if (graph.styles.hasOwnProperty("compound_or")) {
+  // positive reference: the referenced item (a group, attribute, row, or condition) the entity must match
+  if (hasAbacAnd) {
+    theLegend += '  abac_ref_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="referenced item"']) + '];\n';
+    theLegend += '  abac_group -> abac_ref_group [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_and', null) + '];\n';
+  }
+  // negated reference: the referenced item (a group, attribute, row, or condition) the entity must not match
+  if (hasAbacAndNot) {
+    theLegend += '  abac_not_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="referenced item"']) + '];\n';
+    theLegend += '  abac_group -> abac_not_group [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_and_not', null) + '];\n';
+  }
+  // compound condition shapes: the connected items combine with OR (any) or AND (all)
+  if (hasCompoundOr) {
     theLegend += '  compound_or_legend [' + getStyleStringForType(graph, nodeStyles, 'compound_or', ['label="or condition"']) + '];\n';
-    theLegend += '  compound_or_child [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="or option"']) + '];\n';
-    theLegend += '  compound_or_legend -> compound_or_child [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_or', ['label="any of these"']) + '];\n';
+  }
+  if (hasCompoundAnd) {
+    theLegend += '  compound_and_legend [' + getStyleStringForType(graph, nodeStyles, 'compound_and', ['label="and condition"']) + '];\n';
+  }
+  // OR option edges hang off the OR condition shape when there is one, otherwise off the scripted group
+  if (hasAbacOr) {
+    theLegend += '  abac_or_option [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="referenced item"']) + '];\n';
+    theLegend += '  ' + (hasCompoundOr ? 'compound_or_legend' : 'abac_group') + ' -> abac_or_option [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_or', null) + '];\n';
+  }
+  if (hasAbacOrNot) {
+    theLegend += '  abac_or_not_option [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="referenced item"']) + '];\n';
+    theLegend += '  ' + (hasCompoundOr ? 'compound_or_legend' : 'abac_group') + ' -> abac_or_not_option [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_or_not', null) + '];\n';
   }
 
-  // data attribute and data row nodes
-  if (graph.styles.hasOwnProperty("data_attribute")) {
+  // data attribute and data row nodes (check the is/is-not-member variants too, so the legend
+  // still covers them when every such node happens to be a member or non-member)
+  if (graph.styles.hasOwnProperty("data_attribute") || graph.styles.hasOwnProperty("data_attribute_is_member") || graph.styles.hasOwnProperty("data_attribute_is_not_member")) {
     theLegend += '  data_attr_legend [' + getStyleStringForType(graph, nodeStyles, 'data_attribute', ['label="entity attribute"']) + '];\n';
   }
-  if (graph.styles.hasOwnProperty("data_row")) {
+  if (graph.styles.hasOwnProperty("data_row") || graph.styles.hasOwnProperty("data_row_is_member") || graph.styles.hasOwnProperty("data_row_is_not_member")) {
     theLegend += '  data_row_legend [' + getStyleStringForType(graph, nodeStyles, 'data_row', ['label="entity data row"']) + '];\n';
   }
 
@@ -674,7 +736,7 @@ function drawGraphModuleD3() {
 
     graph.links.forEach(
       function(link) {
-        var props = getStyleArray(graph, ["arrowtail", "dir", "color", "style", "headlabel", "labeldistance"], link);
+        var props = getStyleArray(graph, ["arrowtail", "dir", "color", "style", "label"], link);
         var source = graph.nodes[link.source];
         var target = graph.nodes[link.target];
         //debugger;
@@ -684,26 +746,13 @@ function drawGraphModuleD3() {
           props.push('edgetooltip="folder ' + getObjectNameUsingPrefs(source) + " contains " + graph.styles[target.type].displayTag +  " "  + getObjectNameUsingPrefs(target) + '"');
         } else if (target.baseType === "subject") {
           props.push('edgetooltip="' + getObjectNameUsingPrefs(source) + " has subject " + getObjectNameUsingPrefs(target) + ' as a direct member"');
-        } else if (source.baseType === "intersect_group" || source.baseType === "complement_group") {
-          var factorType = "";
-          if (source.compositeLeftFactorId === target.id) {
-            factorType = "left";
-          } else if (source.compositeRightFactorId === target.id) {
-            factorType = "right";
-          }
-          props.push('edgetooltip="' + graph.styles[source.type].displayTag + " " + getObjectNameUsingPrefs(graph.nodes[link.source]) + ' has group '+ getObjectNameUsingPrefs(graph.nodes[link.target]) + " as a " + factorType + ' factor"');
-        } else if (source.baseType === "abac_group") {
-          var refTypeLabel = target.baseType === "data_attribute" ? "data attribute" : target.baseType === "data_row" ? "data row" : target.baseType === "compound_or" ? "or condition" : target.baseType === "compound_and" ? "and condition" : "group";
-          var negLabel = (link.type === "edge_abac_and_not" || link.type === "edge_abac_or_not") ? "NOT " : "";
-          props.push('edgetooltip="scripted group ' + getObjectNameUsingPrefs(source) + ' references ' + negLabel + refTypeLabel + ' ' + getObjectNameUsingPrefs(target) + '"');
-        } else if (source.baseType === "compound_or") {
-          var refTypeLabel = target.baseType === "data_attribute" ? "data attribute" : target.baseType === "data_row" ? "data row" : "group";
-          var negLabel = (link.type === "edge_abac_or_not") ? "NOT " : "";
-          props.push('edgetooltip="OR condition references ' + negLabel + refTypeLabel + ' ' + getObjectNameUsingPrefs(target) + '"');
-        } else if (source.baseType === "compound_and") {
-          var refTypeLabel = target.baseType === "data_attribute" ? "data attribute" : target.baseType === "data_row" ? "data row" : "group";
-          var negLabel = (link.type === "edge_abac_and_not") ? "NOT " : "";
-          props.push('edgetooltip="and condition references ' + negLabel + refTypeLabel + ' ' + getObjectNameUsingPrefs(target) + '"');
+        } else if (source.baseType === "intersect_group" || source.baseType === "complement_group"
+                   || source.baseType === "abac_group" || source.baseType === "compound_or" || source.baseType === "compound_and"
+                   || source.baseType === "data_row") {
+          // mirror the arrow: "<source>  [<relationship>]  <target>", using the same plain-English
+          // relationship that is drawn on the arrow's label (e.g. must be in, any of these)
+          var relationship = visEdgeRelationship(graph, link);
+          props.push('edgetooltip="' + visNodeShortDesc(graph, source) + " [" + relationship + "] " + visNodeShortDesc(graph, target) + '"');
         } else if (source.baseType === "group") {
           if (target.baseType === "provisioner") {
             props.push('edgetooltip="group ' + getObjectNameUsingPrefs(source) + " provisions to " + getObjectNameUsingPrefs(target) + '"');

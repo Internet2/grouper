@@ -23,6 +23,24 @@ public class AbacReference {
   private String displayDescription;
   private boolean containsSubject = false;
   private boolean memberOfAny = false;
+
+  /**
+   * For ATTRIBUTE refs: every value the field is checked against (empty for a bare presence
+   * check). Also used for GROUP refs with memberOfAny to carry the full list of group names so
+   * the terse renderer can list them (and cap with ", etc" in non-leaf summaries).
+   */
+  private List<String> attributeValues = new ArrayList<String>();
+
+  /** for ATTRIBUTE refs: true when the check is "field is null / empty" */
+  private boolean attributeNullCheck = false;
+
+  /**
+   * true when the condition uses an operator the terse visualization renderer does not
+   * special-case (between / like / regex / comparison); the renderer then falls back to
+   * the verbose displayDescription for this reference.
+   */
+  private boolean terseUnsupported = false;
+
   /**
    * Constructor for leaf references (group, attribute, row).
    *
@@ -126,28 +144,70 @@ public class AbacReference {
     this.memberOfAny = memberOfAny;
   }
 
+  public List<String> getAttributeValues() {
+    return attributeValues;
+  }
+
+  public void setAttributeValues(List<String> attributeValues) {
+    this.attributeValues = attributeValues;
+  }
+
+  public boolean isAttributeNullCheck() {
+    return attributeNullCheck;
+  }
+
+  public void setAttributeNullCheck(boolean attributeNullCheck) {
+    this.attributeNullCheck = attributeNullCheck;
+  }
+
+  public boolean isTerseUnsupported() {
+    return terseUnsupported;
+  }
+
+  public void setTerseUnsupported(boolean terseUnsupported) {
+    this.terseUnsupported = terseUnsupported;
+  }
+
+  /**
+   * For a ROW ref: true when the inner predicate's top-level connective is OR, so the
+   * terse row renderer joins column siblings with " or " instead of " and ".
+   */
+  private boolean rowInnerOr;
+
+  public boolean isRowInnerOr() {
+    return rowInnerOr;
+  }
+
+  public void setRowInnerOr(boolean rowInnerOr) {
+    this.rowInnerOr = rowInnerOr;
+  }
+
   /**
    * Returns a unique identifier for this reference, suitable for use as a node ID.
+   * The negated flag is folded into the prefix so a positive and a negated reference with
+   * the same description (e.g. positive "affiliationActive" and the post-strip rendering of
+   * "!affiliationActive" elsewhere in the same script) do not collapse to the same graph node.
    */
   public String computeId() {
+    String neg = negated ? "neg:" : "";
     switch (refType) {
       case GROUP:
         if (displayDescription != null) {
-          return "abac_group_ref:" + displayDescription;
+          return "abac_group_ref:" + neg + displayDescription;
         }
-        return "abac_group_ref:" + name + (value != null ? ":" + value : "");
+        return "abac_group_ref:" + neg + name + (value != null ? ":" + value : "");
       case ATTRIBUTE:
         if (displayDescription != null) {
-          return "data_attr:" + displayDescription;
+          return "data_attr:" + neg + displayDescription;
         }
-        return "data_attr:" + name + (value != null ? ":" + value : "");
+        return "data_attr:" + neg + name + (value != null ? ":" + value : "");
       case ROW:
         if (displayDescription != null) {
-          return "data_row:" + displayDescription;
+          return "data_row:" + neg + displayDescription;
         }
-        return "data_row:" + name + (value != null ? ":" + value : "");
+        return "data_row:" + neg + name + (value != null ? ":" + value : "");
       case COMPOUND:
-        StringBuilder sb = new StringBuilder("compound_" + name + ":");
+        StringBuilder sb = new StringBuilder("compound_" + name + ":" + neg);
         if (children != null) {
           for (int i = 0; i < children.size(); i++) {
             if (i > 0) {
@@ -158,7 +218,7 @@ public class AbacReference {
         }
         return sb.toString();
       default:
-        return "abac_unknown:" + name;
+        return "abac_unknown:" + neg + name;
     }
   }
 
