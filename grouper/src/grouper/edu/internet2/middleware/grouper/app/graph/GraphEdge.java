@@ -100,9 +100,14 @@ public class GraphEdge {
       return false;
     GraphEdge other = (GraphEdge) obj;
 
+    // include styleObjectType so two edges between the same pair of nodes with different
+    // semantic relations (e.g. a positive "must be in" and a negated "must not be in" to
+    // the same group, from different OR branches) are treated as distinct rather than
+    // silently deduped down to whichever was added first
     return new EqualsBuilder()
       .append(this.fromNode, other.fromNode)
       .append(this.toNode, other.toNode)
+      .append(this.styleObjectType, other.styleObjectType)
       .isEquals();
   }
 
@@ -116,6 +121,7 @@ public class GraphEdge {
       return new HashCodeBuilder()
               .append( this.fromNode)
               .append( this.toNode)
+              .append( this.styleObjectType)
               .toHashCode();
   }
 

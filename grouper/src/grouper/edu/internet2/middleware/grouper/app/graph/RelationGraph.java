@@ -66,7 +66,10 @@ import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.abac.GrouperJexlScriptAnalysis;
 import edu.internet2.middleware.grouper.abac.GrouperJexlScriptPart;
 import edu.internet2.middleware.grouper.abac.GrouperLoaderJexlScriptFullSync;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 import edu.internet2.middleware.subject.Source;
@@ -152,6 +155,12 @@ public class RelationGraph {
 
   private String overrideAbacScript;
   private Boolean overrideAbacContainsSubject;
+
+  /** lower-case data field alias -> configured friendly name, for terse ABAC visualization labels */
+  private Map<String, String> abacFieldFriendlyNames = new HashMap<String, String>();
+
+  /** lower-case data row alias -> configured friendly name, for terse ABAC visualization labels */
+  private Map<String, String> abacRowFriendlyNames = new HashMap<String, String>();
 
   /**
    * Create a new graph with default settings. Caller should call the various
@@ -1138,8 +1147,9 @@ public class RelationGraph {
               if (ref.getRefType() == AbacReference.RefType.COMPOUND) {
                 // Create a compound pseudo-node and add edges from it to its children
                 boolean isCompoundAnd = "and".equals(ref.getName());
+                // the compound shape shows a terse rendering of its whole sub-expression
                 GrouperObjectCompoundWrapper compoundWrapper = new GrouperObjectCompoundWrapper(
-                    ref.computeId(), ref.computeDisplayLabel(), isCompoundAnd);
+                    ref.computeId(), terseNodeLabel(ref), isCompoundAnd);
                 GraphNode compoundNode = fetchOrCreateNode(compoundWrapper);
                 if (ref.getPopulationCount() >= 0) {
                   compoundNode.setPopulationCount((long) ref.getPopulationCount());
@@ -1672,7 +1682,7 @@ public class RelationGraph {
       if (childRef.getRefType() == AbacReference.RefType.COMPOUND) {
         boolean isCompoundAnd = "and".equals(childRef.getName());
         GrouperObjectCompoundWrapper compoundWrapper = new GrouperObjectCompoundWrapper(
-            childRef.computeId(), childRef.computeDisplayLabel(), isCompoundAnd);
+            childRef.computeId(), terseNodeLabel(childRef), isCompoundAnd);
         childNode = fetchOrCreateNode(compoundWrapper);
       } else {
         childNode = createAbacLeafNode(childRef, theGroup);
@@ -1701,9 +1711,9 @@ public class RelationGraph {
   private GraphNode createAbacLeafNode(AbacReference ref, Group theGroup) {
     if (ref.getRefType() == AbacReference.RefType.GROUP) {
       if (ref.isMemberOfAny()) {
-        // memberOfAny: multiple groups as a single leaf pseudo-node
+        // memberOfAny: multiple groups as a single leaf pseudo-node; let the terse renderer build the label
         GrouperObjectDataAttributeWrapper wrapper = new GrouperObjectDataAttributeWrapper(
-            ref.computeId(), ref.computeDisplayLabel());
+            ref.computeId(), terseNodeLabel(ref));
         return fetchOrCreateNode(wrapper);
       }
       try {
@@ -1716,11 +1726,11 @@ public class RelationGraph {
       }
     } else if (ref.getRefType() == AbacReference.RefType.ATTRIBUTE) {
       GrouperObjectDataAttributeWrapper wrapper = new GrouperObjectDataAttributeWrapper(
-          ref.computeId(), ref.computeDisplayLabel());
+          ref.computeId(), terseNodeLabel(ref));
       return fetchOrCreateNode(wrapper);
     } else if (ref.getRefType() == AbacReference.RefType.ROW) {
       GrouperObjectDataRowWrapper wrapper = new GrouperObjectDataRowWrapper(
-          ref.computeId(), ref.computeDisplayLabel());
+          ref.computeId(), terseNodeLabel(ref));
       return fetchOrCreateNode(wrapper);
     }
     return null;
@@ -1738,6 +1748,7 @@ public class RelationGraph {
     try {
       GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
       grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+      loadAbacFriendlyNames(grouperDataEngine);
 
       GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, script, subjectForIsMemberCheck, GrouperSession.staticGrouperSession().getSubject(), true, null, true);
 
@@ -1761,6 +1772,682 @@ public class RelationGraph {
     } else {
       return ref.isNegated() ? StyleObjectType.EDGE_ABAC_AND_NOT : StyleObjectType.EDGE_ABAC_AND;
     }
+  }
+
+  // ===========================================================================
+  // Terse, plain-language labels shown inside ABAC visualization nodes. Each node
+  // shows a complete-but-compact rendering of its slice of the script. Anything the
+  // renderer cannot express tersely falls back to the verbose analysis description,
+  // so a node is never left blank.
+  // ===========================================================================
+
+  /**
+   * Label shown inside the node's own box: a terse rendering of this reference and
+   * everything beneath it.
+   */
+  private String terseNodeLabel(AbacReference ref) {
+    if (ref == null) {
+      return "";
+    }
+    String label;
+    switch (ref.getRefType()) {
+      case COMPOUND:
+        label = terseCompoundLabel(ref, true);
+        break;
+      case ROW:
+        label = terseRowLabel(ref, true);
+        break;
+      case ATTRIBUTE:
+        label = terseAttributeLabel(ref, true);
+        break;
+      case GROUP:
+        label = ref.isMemberOfAny() ? terseMemberOfAnyLabel(ref, true) : ref.computeDisplayLabel();
+        break;
+      default:
+        label = ref.computeDisplayLabel();
+    }
+    if (StringUtils.isBlank(label)) {
+      label = ref.computeDisplayLabel();
+    }
+    return capitalizeFirst(label);
+  }
+
+  /**
+   * How a reference reads when folded into a parent box's text. A value list is capped at 5
+   * with ", etc" here, but shows every value when it is drawn as its own node.
+   */
+  private String terseRefSummary(AbacReference ref) {
+    if (ref == null) {
+      return "";
+    }
+    switch (ref.getRefType()) {
+      case COMPOUND:
+        return "(" + terseCompoundLabel(ref, false) + ")";
+      case ROW:
+        return terseRowLabel(ref, false);
+      case ATTRIBUTE:
+        return terseAttributeLabel(ref, false);
+      case GROUP:
+        if (ref.isMemberOfAny()) {
+          return terseMemberOfAnyLabel(ref, false);
+        }
+        return (ref.isNegated() ? "must not be in group " : "must be in group ") + StringUtils.defaultString(ref.getName());
+      default:
+        return ref.computeDisplayLabel();
+    }
+  }
+
+  /**
+   * Terse rendering of an AND/OR compound: children joined by "and" / "or".
+   *
+   * @param asNode true for the compound's own box. The incoming edge style already encodes the
+   *   negation (e.g. "must not be in" / "any of these (not)"), so the node text drops the outer
+   *   "not (...)" wrap to avoid a double-negative read of edge-plus-node. False for inline use
+   *   in a parent's text where no edge carries the polarity, so the wrap stays.
+   */
+  private String terseCompoundLabel(AbacReference ref, boolean asNode) {
+    List<AbacReference> children = ref.getChildren();
+    if (children == null || children.isEmpty()) {
+      return ref.computeDisplayLabel();
+    }
+    String joiner = "or".equals(ref.getName()) ? " or " : " and ";
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < children.size(); i++) {
+      if (i > 0) {
+        sb.append(joiner);
+      }
+      sb.append(terseRefSummary(children.get(i)));
+    }
+    String text = sb.toString();
+    if (ref.isNegated() && !asNode) {
+      return "not (" + text + ")";
+    }
+    return text;
+  }
+
+  /**
+   * Terse rendering of a data row, and of a single row-column leaf. Built by parsing the verbose
+   * analysis description, which has a fixed shape; on any mismatch this returns the verbose text
+   * unchanged so a node is never left garbled.
+   */
+  private String terseRowLabel(AbacReference ref, boolean asNode) {
+    List<AbacReference> children = ref.getChildren();
+    String result;
+    if (children != null && !children.isEmpty()) {
+      // the row node: assemble from each column child's single-attribute description
+      result = terseRowFromColumns(ref.getName(), children, ref.isRowInnerOr());
+    } else {
+      // a single row-column leaf, or a bare row with no conditions
+      result = terseSingleRowColumn(ref.computeDisplayLabel(), asNode);
+    }
+    if (result == null) {
+      return ref.computeDisplayLabel();
+    }
+    // When the row has its own box (asNode), the incoming edge style already carries the
+    // negation ("must not be in"), so the node text should NOT also prefix "no" — that would
+    // be a double-negative read of edge-plus-node.
+    if (ref.isNegated() && !asNode) {
+      // "no affiliation with code staff" for inline summaries; lowercase the inner first
+      // char so the prefix joins cleanly
+      String inner = result.length() > 0
+          ? Character.toLowerCase(result.charAt(0)) + result.substring(1) : result;
+      return "no " + inner;
+    }
+    return result;
+  }
+
+  /**
+   * Assembles the row-node label from its children: bare-presence columns become adjectives
+   * before the row name, value lists render "any &lt;field&gt; in: v1, v2, ..., etc" capped at
+   * 5, a single value reads "&lt;field&gt; &lt;value&gt;", and a nested AND/OR predicate is
+   * rendered in parentheses. Field and row aliases are swapped for their configured friendly
+   * names. Returns null if a plain column cannot be parsed.
+   */
+  private String terseRowFromColumns(String rowAlias, List<AbacReference> children, boolean innerIsOr) {
+    List<String> flags = new ArrayList<String>();
+    List<String> conditions = new ArrayList<String>();
+    for (AbacReference child : children) {
+      if (child.getRefType() == AbacReference.RefType.COMPOUND) {
+        // a nested AND/OR inside the row predicate -- render it in parentheses
+        conditions.add(terseRefSummary(child));
+        continue;
+      }
+      String[] column = parseRowColumn(child.computeDisplayLabel());
+      if (column == null) {
+        return null;
+      }
+      if (column[1].length() == 0 && !"other".equals(column[2])) {
+        continue;   // bare row with no condition; skip
+      }
+      String field = friendlyField(column[1]);
+      if ("flag".equals(column[2])) {
+        // a negated bare-flag is no longer adjective-shaped — route it through conditions as
+        // "not <field>" so it reads alongside the other clauses
+        if (child.isNegated()) {
+          conditions.add("not " + field);
+        } else {
+          flags.add(field);
+        }
+      } else if ("list".equals(column[2])) {
+        String cond = "any " + field + " in: " + cappedValueList(column[3], 5);
+        conditions.add(negateAttributePhrase(cond, child.isNegated()));
+      } else if ("other".equals(column[2])) {
+        // operator text like "greater than 5", "matches '1.*'", or attributeCompare body —
+        // use the field-is-X / field-matches-X pattern so negation reads naturally
+        // ("dept is not greater than 7", not "not dept greater than 7")
+        String value = applyFriendlyFieldNames(column[3]);
+        conditions.add(operatorPhrase(field, value, child.isNegated()));
+      } else {
+        // "equals": the field followed by its value. Helper falls to a "no " prefix for the
+        // negated case (e.g. "no code 'staff'") since there is no verb to negate
+        String cond = field.length() == 0 ? column[3] : (field + " " + column[3]);
+        conditions.add(negateAttributePhrase(cond, child.isNegated()));
+      }
+    }
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < flags.size(); i++) {
+      sb.append(i == 0 ? "" : ", ").append(flags.get(i));
+    }
+    if (!flags.isEmpty()) {
+      sb.append(' ');
+    }
+    sb.append(friendlyRow(rowAlias));
+    String siblingJoiner = innerIsOr ? " or " : " and ";
+    for (int i = 0; i < conditions.size(); i++) {
+      // first condition reads as "with <clause>"; subsequent conditions are siblings joined
+      // with the row's inner connective (" and " for the default AND-row, " or " when the
+      // inner predicate's top-level connective is OR)
+      sb.append(i == 0 ? " with " : siblingJoiner).append(conditions.get(i));
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Renders a single row-column leaf. When asNode is true the leaf's own box is rendered -- a
+   * bare-presence column reads as an adjective before the row name ("active affiliation"), and
+   * any other column reads "&lt;row&gt; with &lt;condition&gt;". When false only the bare
+   * condition is returned, for folding into a parent. Null on mismatch.
+   */
+  private String terseSingleRowColumn(String description, boolean asNode) {
+    String[] column = parseRowColumn(description);
+    if (column == null) {
+      return null;
+    }
+    String rowName = friendlyRow(column[0]);
+    if (column[1].length() == 0 && !"other".equals(column[2])) {
+      return rowName;   // bare row with no condition
+    }
+    String field = friendlyField(column[1]);
+    if ("flag".equals(column[2])) {
+      // a bare-presence column reads as an adjective: "active affiliation"
+      return asNode ? (field + " " + rowName) : field;
+    }
+    String condition;
+    if ("list".equals(column[2])) {
+      condition = "any " + field + " in: " + cappedValueList(column[3], Integer.MAX_VALUE);
+    } else {
+      // "equals" or "other": the field followed by its value / operator text. For "other" the
+      // value may mention field aliases (e.g. attributeCompare) -- swap them for friendly names.
+      String value = "other".equals(column[2]) ? applyFriendlyFieldNames(column[3]) : column[3];
+      condition = field.length() == 0 ? value : (field + " " + value);
+    }
+    return asNode ? (rowName + " with " + condition) : condition;
+  }
+
+  /**
+   * Parses a single-attribute "Has row 'X' with attribute 'F' ..." analysis description.
+   *
+   * @return {rowAlias, field, kind, value} where kind is "flag" / "list" / "equals" / "other"
+   *   (operators the renderer does not special-case fall through to "other" with a lightly
+   *   cleaned value), field is "" for a bare row with no condition or for an attributeCompare-
+   *   style description that has no "with attribute" clause; or null only on a structural parse
+   *   failure (no "Has row" prefix, missing quote, more than one attribute clause)
+   */
+  private static String[] parseRowColumn(String description) {
+    if (StringUtils.isBlank(description)) {
+      return null;
+    }
+    String hasRowText = textOrFallback("jexlAnalysisHasRow", "has row");
+    String withAttrText = textOrFallback("jexlAnalysisHasRowAttributeValue1", "with attribute");
+    String anyValueText = textOrFallback("jexlAnalysisHasRowAttributeAnyValue", "with any value:");
+    String valueText = textOrFallback("jexlAnalysisHasRowAttributeValue2", "value");
+
+    String trimmed = description.trim();
+    if (trimmed.length() <= hasRowText.length()
+        || !trimmed.regionMatches(true, 0, hasRowText, 0, hasRowText.length())) {
+      return null;
+    }
+    String afterRow = trimmed.substring(hasRowText.length()).trim();
+    if (!afterRow.startsWith("'")) {
+      return null;
+    }
+    int quoteEnd = afterRow.indexOf('\'', 1);
+    if (quoteEnd < 0) {
+      return null;
+    }
+    String rowAlias = afterRow.substring(1, quoteEnd);
+    String rest = afterRow.substring(quoteEnd + 1).trim();
+    if (rest.length() == 0) {
+      return new String[] {rowAlias, "", "", ""};
+    }
+    String attrMarker = withAttrText + " '";
+    if (!rest.regionMatches(true, 0, attrMarker, 0, attrMarker.length())) {
+      // no "with attribute" clause (e.g. attributeCompare's "row columns compare: ..."): strip
+      // the known compare prefix when present, then render the cleaned remainder with no field
+      String compareText = textOrFallback("jexlAnalysisAttributeCompare", "row columns compare:");
+      String body = rest.regionMatches(true, 0, compareText, 0, compareText.length())
+          ? rest.substring(compareText.length()).trim() : rest;
+      return new String[] {rowAlias, "", "other", cleanClauseTerse(body)};
+    }
+    int fieldEnd = rest.indexOf('\'', attrMarker.length());
+    if (fieldEnd < 0) {
+      return null;
+    }
+    String field = rest.substring(attrMarker.length(), fieldEnd);
+    String clause = rest.substring(fieldEnd + 1).trim();
+    if (clause.toLowerCase().contains(attrMarker.toLowerCase())) {
+      return null;   // more than one attribute -- not a single column
+    }
+    if (clause.length() == 0) {
+      return new String[] {rowAlias, field, "flag", ""};
+    }
+    if (clause.regionMatches(true, 0, anyValueText, 0, anyValueText.length())) {
+      // keep the surrounding quotes so cappedValueList can split robustly on "', '" -- values
+      // that themselves contain a comma stay grouped correctly
+      String list = clause.substring(anyValueText.length()).trim();
+      return new String[] {rowAlias, field, "list", list};
+    }
+    if (clause.length() > valueText.length()
+        && clause.regionMatches(true, 0, valueText, 0, valueText.length())
+        && clause.charAt(valueText.length()) == ' ') {
+      String value = clause.substring(valueText.length()).trim();
+      if (value.length() >= 2 && value.startsWith("'") && value.endsWith("'")) {
+        value = value.substring(1, value.length() - 1);
+      }
+      return new String[] {rowAlias, field, "equals", value};
+    }
+    // an operator the renderer does not special-case: keep the field and a cleaned clause
+    return new String[] {rowAlias, field, "other", cleanClauseTerse(clause)};
+  }
+
+  /** Returns the configured text for a key, or the supplied English fallback when blank. */
+  private static String textOrFallback(String key, String fallback) {
+    String text = GrouperTextContainer.textOrNull(key);
+    return StringUtils.isBlank(text) ? fallback : text;
+  }
+
+  /**
+   * Loads the optional friendly-name overrides for data fields and rows so the terse
+   * visualization labels can show them in place of the raw aliases.
+   */
+  private void loadAbacFriendlyNames(GrouperDataEngine grouperDataEngine) {
+    if (grouperDataEngine == null) {
+      return;
+    }
+    for (Map.Entry<String, GrouperDataFieldConfig> entry : grouperDataEngine.getFieldConfigByAlias().entrySet()) {
+      String friendlyName = entry.getValue() == null ? null : entry.getValue().getFieldFriendlyName();
+      if (!StringUtils.isBlank(friendlyName)) {
+        this.abacFieldFriendlyNames.put(entry.getKey(), friendlyName);
+      }
+    }
+    for (Map.Entry<String, GrouperDataRowConfig> entry : grouperDataEngine.getRowConfigByAlias().entrySet()) {
+      String friendlyName = entry.getValue() == null ? null : entry.getValue().getRowFriendlyName();
+      if (!StringUtils.isBlank(friendlyName)) {
+        this.abacRowFriendlyNames.put(entry.getKey(), friendlyName);
+      }
+    }
+  }
+
+  /** Maps a data field alias to its configured friendly name, or returns the alias unchanged. */
+  private String friendlyField(String alias) {
+    if (alias == null) {
+      return "";
+    }
+    String friendlyName = this.abacFieldFriendlyNames.get(alias.toLowerCase());
+    return StringUtils.isBlank(friendlyName) ? alias : friendlyName;
+  }
+
+  /** Maps a data row alias to its configured friendly name, or returns the alias unchanged. */
+  private String friendlyRow(String alias) {
+    if (alias == null) {
+      return "";
+    }
+    String friendlyName = this.abacRowFriendlyNames.get(alias.toLowerCase());
+    return StringUtils.isBlank(friendlyName) ? alias : friendlyName;
+  }
+
+  /**
+   * Replaces every known field alias in a free-text clause with its configured friendly name.
+   * Uses word boundaries so e.g. "affiliationDeptNumber" is not swapped inside the longer
+   * "affiliationDeptNumberPrimary". (Comparison-operator spelling now lives in cleanClauseTerse
+   * so it can be done quote-aware -- a value like '0 &lt; x' is left intact.)
+   */
+  private String applyFriendlyFieldNames(String text) {
+    if (StringUtils.isBlank(text)) {
+      return text;
+    }
+    String result = text;
+    for (Map.Entry<String, String> entry : abacFieldFriendlyNames.entrySet()) {
+      String regex = "(?i)\\b" + java.util.regex.Pattern.quote(entry.getKey()) + "\\b";
+      result = result.replaceAll(regex, java.util.regex.Matcher.quoteReplacement(entry.getValue()));
+    }
+    return result;
+  }
+
+  /**
+   * Terse rendering of an attribute condition.
+   *
+   * @param ownNode true for the attribute's own box (a value list shows every value); false when
+   *   folded into a parent box, where a value list caps at 5 with ", etc"
+   */
+  private String terseAttributeLabel(AbacReference ref, boolean ownNode) {
+    String field = friendlyField(ref.getName());
+    if (ref.isTerseUnsupported()) {
+      // an operator the structured path does not cover (like / regex / between / comparison):
+      // drop the "Has attribute '<alias>'" boilerplate and lightly clean what is left
+      String desc = ref.computeDisplayLabel();
+      String rawAlias = ref.getName();
+      if (desc != null && rawAlias != null) {
+        int aliasAt = desc.indexOf("'" + rawAlias + "'");
+        if (aliasAt >= 0) {
+          String clause = desc.substring(aliasAt + rawAlias.length() + 2).trim();
+          if (!StringUtils.isBlank(clause)) {
+            // "field is greater than 7" / "field is not greater than 7" — the verb sits between
+            // the field and the predicate rather than dangling "not" in front of the field.
+            // When the attribute is its own box (ownNode), the edge style carries the negation,
+            // so we render positively to avoid a double-negative read of edge-plus-node.
+            boolean negate = ref.isNegated() && !ownNode;
+            return operatorPhrase(field, cleanClauseTerse(clause), negate);
+          }
+        }
+      }
+      return desc;
+    }
+    List<String> values = ref.getAttributeValues();
+    String text;
+    if (ref.isAttributeNullCheck()) {
+      text = field + " is empty";
+    } else if (values == null || values.isEmpty()) {
+      // a bare presence check reads as just the attribute name, e.g. "active"
+      text = field;
+    } else if (values.size() == 1) {
+      text = field + " is " + terseValue(values.get(0));
+    } else {
+      // multiple values: list them -- the leaf box shows all, a non-leaf summary caps at 5 with "etc"
+      int max = ownNode ? values.size() : 5;
+      int n = Math.min(values.size(), max);
+      StringBuilder sb = new StringBuilder("any ").append(field).append(" in: ");
+      for (int i = 0; i < n; i++) {
+        if (i > 0) {
+          sb.append(", ");
+        }
+        sb.append(terseValue(values.get(i)));
+      }
+      if (values.size() > n) {
+        sb.append(", etc");
+      }
+      text = sb.toString();
+    }
+    // when this is the attribute's own box, the edge style already carries the negation —
+    // pass false so the phrase reads positively and avoids a double-negative read
+    return negateAttributePhrase(text, ref.isNegated() && !ownNode);
+  }
+
+  /**
+   * English-friendly negation for an attribute phrase. Negates the verb when the phrase
+   * contains " is " ("field is X" -> "field is not X", "field is empty" -> "field is not
+   * empty"); prefixes "no " for a bare-presence noun ("MFA" -> "no MFA") or a value-list
+   * ("any field in: ..." -> "no field in: ...").
+   */
+  private static String negateAttributePhrase(String text, boolean negated) {
+    if (!negated || text == null || text.length() == 0) {
+      return text;
+    }
+    int isAt = text.indexOf(" is ");
+    if (isAt >= 0) {
+      return text.substring(0, isAt) + " is not " + text.substring(isAt + " is ".length());
+    }
+    if (text.startsWith("any ")) {
+      return "no " + text.substring("any ".length());
+    }
+    return "no " + text;
+  }
+
+  /**
+   * Joins a field name with an operator-shaped clause from cleanClauseTerse. Uses the
+   * "field is X" pattern for adjective/preposition clauses (greater than, less than,
+   * between, like, ...) — negation becomes "field is not X". Switches to "field matches X"
+   * / "field does not match X" when the clause already starts with a verb (the regex case,
+   * which cleanClauseTerse maps from "regex" to "matches"). When the field is empty
+   * (attributeCompare-style clauses) the clause stands alone with an optional "not " prefix.
+   */
+  private static String operatorPhrase(String field, String clause, boolean negated) {
+    if (clause == null || clause.isEmpty()) {
+      return field == null ? "" : field;
+    }
+    if (field == null || field.isEmpty()) {
+      return negated ? ("not " + clause) : clause;
+    }
+    if (clause.startsWith("matches")) {
+      // verb-shaped clause: "matches '<pattern>'" -> negation is "does not match '<pattern>'"
+      return negated
+          ? field + " does not match" + clause.substring("matches".length())
+          : field + " " + clause;
+    }
+    return field + " is " + (negated ? "not " : "") + clause;
+  }
+
+  /**
+   * Renders a memberOfAny GROUP ref. The leaf box lists every group; a non-leaf summary caps at
+   * 5 with ", etc". For other group operators (recentMemberOf, etc.) the verbose description is
+   * lightly cleaned and returned instead.
+   */
+  private String terseMemberOfAnyLabel(AbacReference ref, boolean asNode) {
+    if (ref.isTerseUnsupported()) {
+      // e.g. recentMemberOf -- the verbose description already names the group and the time period
+      String text = ref.computeDisplayLabel();
+      if (StringUtils.isBlank(text)) {
+        return text;
+      }
+      text = stripBoundaryQuotes(text);
+      if (Character.isUpperCase(text.charAt(0))) {
+        text = Character.toLowerCase(text.charAt(0)) + text.substring(1);
+      }
+      return text;
+    }
+    List<String> groups = ref.getAttributeValues();
+    if (groups == null || groups.isEmpty()) {
+      return ref.computeDisplayLabel();
+    }
+    int max = asNode ? groups.size() : 5;
+    int n = Math.min(groups.size(), max);
+    // when this memberOfAny is its own box (asNode), the incoming edge already says
+    // "must (not) be in any of these", so the box drops the verb-phrase prefix entirely
+    // and just lists the groups. For inline summaries (asNode=false) the prefix stays
+    // because no edge carries the relation.
+    StringBuilder sb = new StringBuilder();
+    if (!asNode) {
+      sb.append(ref.isNegated() ? "must not be in any group: " : "must be in any group: ");
+    }
+    for (int i = 0; i < n; i++) {
+      if (i > 0) {
+        sb.append(", ");
+      }
+      sb.append(groups.get(i));
+    }
+    if (groups.size() > n) {
+      sb.append(", etc");
+    }
+    return sb.toString();
+  }
+
+  /** Quotes a value only when it contains a space or comma. */
+  private static String terseValue(String value) {
+    if (value == null) {
+      return "";
+    }
+    return (value.indexOf(' ') >= 0 || value.indexOf(',') >= 0) ? ("'" + value + "'") : value;
+  }
+
+  /**
+   * Strips single-quote chars that wrap values -- i.e. quotes adjacent to a boundary
+   * (whitespace, comma, start-of-string, or end-of-string). An inner quote sitting between
+   * two non-boundary chars (like the apostrophe in "O'Brien") is preserved.
+   */
+  private static String stripBoundaryQuotes(String text) {
+    if (text == null || text.isEmpty()) {
+      return text;
+    }
+    StringBuilder sb = new StringBuilder(text.length());
+    int last = text.length() - 1;
+    for (int i = 0; i <= last; i++) {
+      char c = text.charAt(i);
+      if (c == '\'') {
+        boolean leftBoundary = (i == 0) || Character.isWhitespace(text.charAt(i - 1)) || text.charAt(i - 1) == ',';
+        boolean rightBoundary = (i == last) || Character.isWhitespace(text.charAt(i + 1)) || text.charAt(i + 1) == ',';
+        if (leftBoundary || rightBoundary) {
+          continue;
+        }
+      }
+      sb.append(c);
+    }
+    return sb.toString();
+  }
+
+  /** Upper-cases the first character of a visualization label. */
+  private static String capitalizeFirst(String text) {
+    if (StringUtils.isBlank(text)) {
+      return text;
+    }
+    return Character.toUpperCase(text.charAt(0)) + text.substring(1);
+  }
+
+  /**
+   * Spells comparison operators in English (" &lt; " -&gt; " less than ", etc.). Preserves the
+   * caller's leading and trailing whitespace by padding with one space on each side before
+   * substitution and stripping exactly that padding back off.
+   */
+  private static String spellOperators(String text) {
+    if (text == null || text.isEmpty()) {
+      return text;
+    }
+    String substituted = (" " + text + " ")
+        .replace(" >= ", " greater than or equal to ")
+        .replace(" <= ", " less than or equal to ")
+        .replace(" > ", " greater than ")
+        .replace(" < ", " less than ")
+        .replace(" == ", " equals ")
+        .replace(" != ", " not equal to ");
+    return substituted.substring(1, substituted.length() - 1);
+  }
+
+  /**
+   * Spells comparison operators in English only in the regions outside single-quoted values, so
+   * a literal value like '0 &lt; x' is left intact.
+   */
+  private static String spellOperatorsOutsideQuotes(String text) {
+    if (text == null || text.isEmpty()) {
+      return text;
+    }
+    StringBuilder result = new StringBuilder();
+    StringBuilder outside = new StringBuilder();
+    boolean inQuote = false;
+    for (int i = 0; i < text.length(); i++) {
+      char c = text.charAt(i);
+      if (c == '\'') {
+        if (!inQuote) {
+          result.append(spellOperators(outside.toString()));
+          outside.setLength(0);
+        }
+        result.append(c);
+        inQuote = !inQuote;
+      } else if (inQuote) {
+        result.append(c);
+      } else {
+        outside.append(c);
+      }
+    }
+    if (outside.length() > 0) {
+      result.append(spellOperators(outside.toString()));
+    }
+    return result.toString();
+  }
+
+  /**
+   * Lightly cleans an operator clause (the text after the field) for an operator the renderer
+   * does not special-case. Spells comparison operators in English outside any quoted values (so
+   * a value containing "&lt;" or "&gt;" survives), drops the "with"/"value"/"values" filler
+   * words and any ":" and surrounding quotes, and wraps any structural "and"/"or" in
+   * non-breaking spaces so the JS label-wrapper does not split inside e.g. a between's
+   * "10 and 20". Examples: "less than value '300'" -&gt; "less than 300",
+   * "with value like: '%2%'" -&gt; "like %2%", "between values '10' and '20'" -&gt; "between 10 and 20".
+   */
+  private static String cleanClauseTerse(String clause) {
+    if (StringUtils.isBlank(clause)) {
+      return "";
+    }
+    // spell operators before stripping quotes so a value like '0 < x' is not mangled
+    String spelled = spellOperatorsOutsideQuotes(clause);
+    int quoteAt = spelled.indexOf('\'');
+    String phrase = quoteAt < 0 ? spelled : spelled.substring(0, quoteAt);
+    String values = quoteAt < 0 ? "" : stripBoundaryQuotes(spelled.substring(quoteAt)).trim();
+    StringBuilder sb = new StringBuilder();
+    for (String token : phrase.trim().split("\\s+")) {
+      String word = token.replace(":", "");
+      if (word.length() == 0 || word.equalsIgnoreCase("with")
+          || word.equalsIgnoreCase("value") || word.equalsIgnoreCase("values")) {
+        continue;
+      }
+      if (sb.length() > 0) {
+        sb.append(' ');
+      }
+      sb.append(word);
+    }
+    if (values.length() > 0) {
+      if (sb.length() > 0) {
+        sb.append(' ');
+      }
+      sb.append(values);
+    }
+    // rewrite "regex" to the verb "matches" so operatorPhrase can use the natural English
+    // negation ("does not match") rather than dangling "is" in front of a noun ("is regex")
+    String cleaned = sb.toString().replaceAll("(?i)\\bregex\\b", "matches");
+    // non-breaking spaces around any structural "and"/"or" so the JS hardSplit does not break a
+    // line inside e.g. a between's "10 and 20" -- compound joiners still use plain spaces
+    return cleaned.replace(" and ", "\u00A0and\u00A0").replace(" or ", "\u00A0or\u00A0");
+  }
+
+  /**
+   * Splits a value list into up to max values, joins them with ", " and appends ", etc" when
+   * more follow. Quoted lists ("'a', 'b', 'c, d'") split on the quoted boundary "', '" so a
+   * value that itself contains a comma stays whole; unquoted lists (numeric / timestamp values
+   * the analyzer renders without quotes, e.g. "100, 200, 300") split on plain ", ". Values
+   * containing a space or comma are re-quoted in the output so the list reads unambiguously.
+   */
+  private static String cappedValueList(String valueList, int max) {
+    if (valueList == null || valueList.isEmpty()) {
+      return "";
+    }
+    String[] parts;
+    if (valueList.length() >= 2 && valueList.startsWith("'") && valueList.endsWith("'")) {
+      // quoted list -- strip outer quotes, split on the quoted boundary so commas inside values stay
+      parts = valueList.substring(1, valueList.length() - 1).split("', '", -1);
+    } else {
+      // unquoted list (e.g. numeric values) -- split on the plain comma separator
+      parts = valueList.split(", ", -1);
+    }
+    StringBuilder sb = new StringBuilder();
+    int n = Math.min(parts.length, max);
+    for (int i = 0; i < n; i++) {
+      if (i > 0) {
+        sb.append(", ");
+      }
+      sb.append(terseValue(parts[i]));
+    }
+    if (parts.length > n) {
+      sb.append(", etc");
+    }
+    return sb.toString();
   }
 
 

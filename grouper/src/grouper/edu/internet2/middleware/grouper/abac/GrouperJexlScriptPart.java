@@ -158,6 +158,21 @@ public class GrouperJexlScriptPart {
   }
 
   /**
+   * For a hasRow leaf part: true when the inner row predicate's top-level connective is OR
+   * (so the column siblings should be joined with " or " in the terse rendering instead of
+   * the default " and "). False otherwise.
+   */
+  private boolean rowInnerOr;
+
+  public boolean isRowInnerOr() {
+    return rowInnerOr;
+  }
+
+  public void setRowInnerOr(boolean rowInnerOr) {
+    this.rowInnerOr = rowInnerOr;
+  }
+
+  /**
    * The part that owns this one in the analysis tree. Null for the root part.
    * Computed in a post-analysis pass that walks each part's AST node upward in the
    * combined outer + per-hasRow inner ASTs.
@@ -170,6 +185,38 @@ public class GrouperJexlScriptPart {
 
   public void setParentPart(GrouperJexlScriptPart parentPart) {
     this.parentPart = parentPart;
+  }
+
+  /**
+   * true when this part uses a comparison operator (less-than / greater-than family) whose
+   * terse visualization label cannot be told apart from a plain equals check by looking at
+   * the SQL arguments alone. The terse renderer falls back to the verbose description.
+   */
+  private boolean terseUnsupportedOperator = false;
+
+  public boolean isTerseUnsupportedOperator() {
+    return terseUnsupportedOperator;
+  }
+
+  public void setTerseUnsupportedOperator(boolean terseUnsupportedOperator) {
+    this.terseUnsupportedOperator = terseUnsupportedOperator;
+  }
+
+  /**
+   * true when this part should appear in the analysis table (with its own population count)
+   * but should NOT be wired into the AbacReference visualization tree. Set on the inner-NOT
+   * clone in row predicates that sit inside an enclosing AND/OR — the enclosing loop already
+   * creates a clone for the whole !-expression, and including this one too would render as
+   * a duplicate node in the graph.
+   */
+  private boolean skipInVisualizationTree = false;
+
+  public boolean isSkipInVisualizationTree() {
+    return skipInVisualizationTree;
+  }
+
+  public void setSkipInVisualizationTree(boolean skipInVisualizationTree) {
+    this.skipInVisualizationTree = skipInVisualizationTree;
   }
 
 }

@@ -31,6 +31,8 @@ public class GrouperDataRowConfig {
     
     String rowAliasesString = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperDataRow." + configId + ".rowAliases");
     this.rowAliases = GrouperUtil.splitTrimToSet(rowAliasesString, ",");
+
+    this.rowFriendlyName = GrouperConfig.retrieveConfig().propertyValueString("grouperDataRow." + configId + ".rowFriendlyName");
     
     this.descriptionHtml = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperDataRow." + configId + ".descriptionHtml");
     this.dataOwnerHtml = GrouperConfig.retrieveConfig().propertyValueString("grouperDataRow." + configId + ".dataOwnerHtml");
@@ -141,6 +143,13 @@ public class GrouperDataRowConfig {
    * grouperDataRow.dataRowConfigId.rowAliases = 
    */
   private Set<String> rowAliases = new TreeSet<>();
+
+  /**
+   * friendly name shown for this row in the scripted group visualization (optional)
+   * {valueType: "string", order: 1010, subSection: "dataRowConfig", regex: "^grouperDataRow\\.[^.]+\\.rowFriendlyName$"}
+   * grouperDataRow.dataRowConfigId.rowFriendlyName =
+   */
+  private String rowFriendlyName;
   
   /**
    * privacy realm for people who can see or use this data row
@@ -217,6 +226,18 @@ public class GrouperDataRowConfig {
    */
   public void setRowAliases(Set<String> fieldAliases) {
     this.rowAliases = fieldAliases;
+  }
+
+  /**
+   * friendly name shown for this row in the scripted group visualization (optional)
+   * @return the friendly name, or null if not configured
+   */
+  public String getRowFriendlyName() {
+    return rowFriendlyName;
+  }
+
+  public void setRowFriendlyName(String rowFriendlyName) {
+    this.rowFriendlyName = rowFriendlyName;
   }
 
   

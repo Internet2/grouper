@@ -31,6 +31,8 @@ public class GrouperDataFieldConfig {
     String fieldAliasesString = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".fieldAliases");
     this.fieldAliases = GrouperUtil.splitTrimToSet(fieldAliasesString, ",");
 
+    this.fieldFriendlyName = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".fieldFriendlyName");
+
     this.grouperPrivacyRealmConfigId = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".fieldPrivacyRealm");
 
     this.fieldDataAssignableTo = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".fieldDataAssignableTo");
@@ -94,7 +96,14 @@ public class GrouperDataFieldConfig {
    * grouperDataField.dataFieldConfigId.fieldAliases = 
    */
   private Set<String> fieldAliases = new TreeSet<>();
-  
+
+  /**
+   * friendly name shown for this field in the scripted group visualization (optional)
+   * {valueType: "string", regex: "^grouperDataField\\.[^.]+\\.fieldFriendlyName$"}
+   * grouperDataField.dataFieldConfigId.fieldFriendlyName =
+   */
+  private String fieldFriendlyName;
+
   /**
    * # if this field can have multiple values
    * # {valueType: "boolean", defaultValue: "false", regex: "^grouperDataField\\.[^.]+\\.fieldMultiValued$"}
@@ -162,6 +171,18 @@ public class GrouperDataFieldConfig {
    */
   public void setFieldAliases(Set<String> fieldAliases) {
     this.fieldAliases = fieldAliases;
+  }
+
+  /**
+   * friendly name shown for this field in the scripted group visualization (optional)
+   * @return the friendly name, or null if not configured
+   */
+  public String getFieldFriendlyName() {
+    return fieldFriendlyName;
+  }
+
+  public void setFieldFriendlyName(String fieldFriendlyName) {
+    this.fieldFriendlyName = fieldFriendlyName;
   }
 
   /**

@@ -894,6 +894,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
           + "and gdfa.member_internal_id = gm.internal_id and gdfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ " + operator + " ?) ");
       grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", attributeAlias));
+      // a comparison operator looks identical to an equals check in the SQL arguments; flag it
+      // so the terse visualization renderer falls back to the verbose description instead
+      grouperJexlScriptPart.setTerseUnsupportedOperator(true);
       if (astArguments.jjtGetChild(1) instanceof ASTStringLiteral) {
         String value = ((ASTStringLiteral)astArguments.jjtGetChild(1)).getLiteral();
         grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value));
@@ -1330,6 +1333,12 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     JexlExpression expression = (JexlExpression)jexlEngine.createExpression(jexlStript);
 
     ASTJexlScript astJexlScript = (ASTJexlScript)GrouperUtil.fieldValue(expression, "script");
+
+    // When the inner row predicate's top-level connective is OR, mark the outer hasRow leaf
+    // so the terse renderer joins its column siblings with " or " instead of " and ".
+    if (astJexlScript.jjtGetNumChildren() > 0 && astJexlScript.jjtGetChild(0) instanceof ASTOrNode) {
+      grouperJexlScriptPart.setRowInnerOr(true);
+    }
 
     // Bridge inner AST to the supplied target. Walking an inner AST node up via
     // jjtGetParent eventually reaches this script root, and this registration lets the
@@ -1983,9 +1992,21 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       grouperJexlScriptPart.getWhereClause().append(" not ");
       grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisNot")).append(" ");
       analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, jexlNode.jjtGetChild(0), clonePart);
-      
+
       if (clonePart) {
         grouperJexlScriptPartClone = rowJexlScriptPart.clone();
+        // mark the column clone as negated so the terse renderer can produce a friendly form
+        grouperJexlScriptPartClone.setNegated(isNegatedOf(jexlNode));
+        // When the NOT sits inside an AND/OR, the enclosing AND/OR loop creates its own clone
+        // for the whole !-expression. Both clones go into the parts list (so the analysis table
+        // shows each row with its own population count), but only the enclosing-loop's clone
+        // is wired into the visualization tree — otherwise the graph would render a duplicate
+        // node for the same logical column (and for !(a||b) inside an AND, would render as
+        // "(not (no affiliation ...))" with double negation).
+        JexlNode notParent = jexlNode.jjtGetParent();
+        if (notParent instanceof ASTAndNode || notParent instanceof ASTOrNode) {
+          grouperJexlScriptPartClone.setSkipInVisualizationTree(true);
+        }
         grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
         grouperJexlScriptAnalysis.getAstNodeToPart().put(jexlNode.jjtGetChild(0), grouperJexlScriptPartClone);
         analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, rowJexlScriptPart, jexlNode.jjtGetChild(0), false);
@@ -2008,6 +2029,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         if (clonePart) {
           grouperJexlScriptPartClone = rowJexlScriptPart.clone();
           grouperJexlScriptPartClone.setConnective(connectiveOf(jexlNode.jjtGetChild(i)));
+          grouperJexlScriptPartClone.setNegated(isNegatedOf(jexlNode.jjtGetChild(i)));
           grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
           grouperJexlScriptAnalysis.getAstNodeToPart().put(jexlNode.jjtGetChild(i), grouperJexlScriptPartClone);
           analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, rowJexlScriptPart, jexlNode.jjtGetChild(i), false);
@@ -2027,6 +2049,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         if (clonePart) {
           grouperJexlScriptPartClone = rowJexlScriptPart.clone();
           grouperJexlScriptPartClone.setConnective(connectiveOf(jexlNode.jjtGetChild(i)));
+          grouperJexlScriptPartClone.setNegated(isNegatedOf(jexlNode.jjtGetChild(i)));
           grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
           grouperJexlScriptAnalysis.getAstNodeToPart().put(jexlNode.jjtGetChild(i), grouperJexlScriptPartClone);
           analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, rowJexlScriptPart, jexlNode.jjtGetChild(i), false);
@@ -2849,6 +2872,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       if (!registeredParts.contains(part)) {
         continue;
       }
+      // skip-in-viz parts stay in the parts list (analysis table + population counts) but get
+      // no AbacReference, so they neither become a node nor act as a wireable parent below
+      if (part.isSkipInVisualizationTree()) {
+        continue;
+      }
       AbacReference ref;
       if (part.getConnective() == GrouperJexlScriptPart.Connective.LEAF) {
         ref = createAbacReferenceFromPart(part, AbacReference.Connective.AND);
@@ -2875,13 +2903,40 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       if (!registeredParts.contains(part)) {
         continue;
       }
+      if (part.isSkipInVisualizationTree()) {
+        continue;
+      }
       AbacReference ref = partToRef.get(part);
+      // walk past any skipped ancestors so this ref attaches to the nearest non-skipped parent
       GrouperJexlScriptPart parent = part.getParentPart();
+      while (parent != null && parent.isSkipInVisualizationTree()) {
+        parent = parent.getParentPart();
+      }
       if (parent != null) {
         AbacReference parentRef = partToRef.get(parent);
         if (parentRef != null) {
-          parentRef.addChild(ref);
-          AbacReference.Connective childConn = parent.getConnective() == GrouperJexlScriptPart.Connective.OR
+          // skip a child whose computed ID matches its parent's — happens when the inner-row
+          // analyzer produces both a NOT-wrapper clone and a clone of its inner identifier for
+          // the same logical column (e.g. "!affiliationActive" inside an AND); the wrapper's
+          // description gets its mid-string "not " stripped during applyPartMetadata so it
+          // collapses to the same ID as the inner clone. Wiring the inner as a child of the
+          // wrapper would draw a self-loop edge in the visualization.
+          //
+          // Apply only when BOTH sides are non-COMPOUND. COMPOUND IDs are built from their
+          // children's IDs, and at this point in the second loop neither side's children list
+          // is necessarily complete — comparing two empty-children compound IDs would falsely
+          // match and silently drop a legitimate sub-compound from its parent.
+          boolean compoundEitherSide = parentRef.getRefType() == AbacReference.RefType.COMPOUND
+              || ref.getRefType() == AbacReference.RefType.COMPOUND;
+          if (compoundEitherSide || !parentRef.computeId().equals(ref.computeId())) {
+            parentRef.addChild(ref);
+          }
+          // a row leaf with rowInnerOr=true is conceptually an OR for its column children,
+          // even though its own connective is LEAF — propagate OR so the edge style becomes
+          // EDGE_ABAC_OR ("any of these") instead of the AND default ("must be in")
+          boolean parentIsOr = parent.getConnective() == GrouperJexlScriptPart.Connective.OR
+              || (parent.getConnective() == GrouperJexlScriptPart.Connective.LEAF && parent.isRowInnerOr());
+          AbacReference.Connective childConn = parentIsOr
               ? AbacReference.Connective.OR : AbacReference.Connective.AND;
           ref.setConnective(childConn);
           continue;
@@ -2926,7 +2981,29 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     }
     ref.setPopulationCount(part.getPopulationCount());
     ref.setContainsSubject(part.isContainsSubject());
+    ref.setRowInnerOr(part.isRowInnerOr());
     String desc = part.getDisplayDescription().toString().trim();
+    // strip a leading "not " written by the ASTNotNode branch when this ref is itself negated —
+    // the terse renderers expect to parse the bare leaf description ("has row '...' ...") and
+    // re-apply the negation themselves; ref.isNegated already carries the negation flag.
+    // The first character was sentence-cased by the caller, so compare case-insensitively.
+    if (ref.isNegated() && desc.length() > 0) {
+      String notWord = GrouperTextContainer.textOrNull("jexlAnalysisNot");
+      String notPrefix = notWord + " ";
+      // leading "not " — outer NOT around a top-level leaf (e.g. !entity.hasRow(...))
+      if (desc.length() >= notPrefix.length()
+          && desc.substring(0, notPrefix.length()).equalsIgnoreCase(notPrefix)) {
+        desc = desc.substring(notPrefix.length()).trim();
+      } else {
+        // mid-string "not " written by the inner row analyzer between the row alias quote and
+        // the "with attribute" marker — e.g. "Has row 'aff' not with attribute 'active'"
+        String marker = "' " + notWord + " ";
+        int at = StringUtils.indexOfIgnoreCase(desc, marker);
+        if (at >= 0) {
+          desc = desc.substring(0, at + 2) + desc.substring(at + marker.length());
+        }
+      }
+    }
     if (desc.length() > 0) {
       ref.setDisplayDescription(desc);
     }
@@ -2949,32 +3026,54 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     AbacReference ref = null;
 
     if ("group".equals(firstArgType)) {
-      String firstGroupName = null;
-      int groupCount = 0;
+      List<String> groupNames = new ArrayList<String>();
+      boolean hasBindVar = false;
       for (MultiKey arg : arguments) {
         if ("group".equals(arg.getKey(0)) && "members".equals(arg.getKey(1))) {
-          if (firstGroupName == null) {
-            firstGroupName = (String) arg.getKey(2);
-          }
-          groupCount++;
+          groupNames.add((String) arg.getKey(2));
+        } else if ("bindVar".equals(arg.getKey(0))) {
+          hasBindVar = true;
         }
       }
-      if (firstGroupName != null) {
-        ref = new AbacReference(AbacReference.RefType.GROUP, firstGroupName, null, part.isNegated(), connective);
-        if (groupCount > 1) {
+      if (!groupNames.isEmpty()) {
+        ref = new AbacReference(AbacReference.RefType.GROUP, groupNames.get(0), null, part.isNegated(), connective);
+        if (hasBindVar) {
+          // recentMemberOf (and any other group operator carrying time / bind-var data) cannot
+          // be expressed by the structured memberOfAny renderer; route through the pseudo-node
+          // path and render the verbose description instead
           ref.setMemberOfAny(true);
+          ref.setTerseUnsupported(true);
+        } else if (groupNames.size() > 1) {
+          ref.setMemberOfAny(true);
+          // expose the full group list so the terse renderer can list them (with a cap in non-leaf summaries)
+          ref.setAttributeValues(groupNames);
         }
       }
     } else if ("attribute".equals(firstArgType)) {
       String attributeAlias = (String) arguments.get(0).getKey(1);
-      String value = null;
+      List<String> attributeValues = new ArrayList<String>();
+      boolean attributeNullCheck = false;
+      boolean terseUnsupported = part.isTerseUnsupportedOperator();
       for (MultiKey arg : arguments) {
-        if ("attributeValue".equals(arg.getKey(0))) {
-          value = String.valueOf(arg.getKey(1));
-          break;
+        Object argType = arg.getKey(0);
+        if ("attributeValue".equals(argType)) {
+          Object argValue = arg.getKey(1);
+          if (argValue == Void.TYPE) {
+            attributeNullCheck = true;
+          } else {
+            attributeValues.add(String.valueOf(argValue));
+          }
+        } else if ("bindVar".equals(argType) || "attributeCompareLeft".equals(argType)
+            || "attributeCompareRight".equals(argType)) {
+          // between / like / regex / column-compare: only the verbose description renders these
+          terseUnsupported = true;
         }
       }
+      String value = attributeValues.isEmpty() ? null : attributeValues.get(0);
       ref = new AbacReference(AbacReference.RefType.ATTRIBUTE, attributeAlias, value, part.isNegated(), connective);
+      ref.setAttributeValues(attributeValues);
+      ref.setAttributeNullCheck(attributeNullCheck);
+      ref.setTerseUnsupported(terseUnsupported);
     } else if ("row".equals(firstArgType)) {
       String rowAlias = (String) arguments.get(0).getKey(1);
       ref = new AbacReference(AbacReference.RefType.ROW, rowAlias, null, part.isNegated(), connective);
