@@ -1278,6 +1278,9 @@ public class GrouperLoaderIncrementalJob implements Job {
     List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
     List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
     final String overallLoggerId = GrouperLoaderLogger.retrieveOverallId();
+    // share the overallLog map across worker threads so addLogEntry("overallOrSubjobLog", ...)
+    // inside syncOneGroupMembership can find it — matches the pattern in GrouperLoaderType
+    final Map<String, Object> overallLogMap = GrouperLoaderLogger.retrieveMap("overallLog");
 
     Statement groupStatement = null;
     ResultSet groupResultSet = null;
@@ -1411,6 +1414,7 @@ public class GrouperLoaderIncrementalJob implements Job {
             @Override
             public Void callLogic() {
               GrouperLoaderLogger.assignOverallId(overallLoggerId);
+              GrouperLoaderLogger.initializeThreadLocalMap("overallLog", overallLogMap);
               Connection workerConnection = null;
               try {
                 workerConnection = grouperLoaderDb.connection();
