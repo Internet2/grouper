@@ -16,6 +16,14 @@ public class GuiDataFieldRowDictionaryTable {
   
   private boolean isDataField;
   
+  private String dataRowName;
+  
+  private String configId;
+  
+  private String dataOwner;
+  
+  private String howToGetAccess;
+  
   public List<GuiDataFieldRowDictionary> getGuiDataFieldRowDictionary() {
     return guiDataFieldRowDictionary;
   }
@@ -74,6 +82,37 @@ public class GuiDataFieldRowDictionaryTable {
   public void setDataField(boolean isDataField) {
     this.isDataField = isDataField;
   }
-  
+
+  public String getDataRowName() {
+    return dataRowName;
+  }
+
+  public void setDataRowName(String dataRowName) {
+    this.dataRowName = dataRowName;
+  }
+
+  public String getConfigId() {
+    return configId;
+  }
+
+  public void setConfigId(String configId) {
+    this.configId = configId;
+  }
+
+  public String getDataOwner() {
+    return dataOwner;
+  }
+
+  public void setDataOwner(String dataOwner) {
+    this.dataOwner = dataOwner;
+  }
+
+  public String getHowToGetAccess() {
+    return howToGetAccess;
+  }
+
+  public void setHowToGetAccess(String howToGetAccess) {
+    this.howToGetAccess = howToGetAccess;
+  }
   
 }

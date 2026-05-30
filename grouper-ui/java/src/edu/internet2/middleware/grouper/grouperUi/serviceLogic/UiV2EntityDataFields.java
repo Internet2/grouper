@@ -1,12 +1,14 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,7 +46,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDataProviderQueryC
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDataRowConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiPrivacyRealmConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
@@ -2157,7 +2161,9 @@ public class UiV2EntityDataFields {
   }
   
   /**
-   * 
+   * View data field and row dictionary — search-driven page.
+   * Reads filter params from request, populates dropdown options, and
+   * renders results only when a filter is applied (or show-all / no filters).
    * @param request
    * @param response
    */
@@ -2175,199 +2181,48 @@ public class UiV2EntityDataFields {
       
       final EntityDataFieldsContainer entityDataFieldsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getEntityDataFieldsContainer();
       
-      List<GuiDataFieldRowDictionaryTable> result = new ArrayList<>(); 
+      // read filter parameters from request
+      String filterDataRow = StringUtils.trimToNull(request.getParameter("dataRow"));
+      String filterDataField = StringUtils.trimToNull(request.getParameter("dataField"));
+      String filterPrivacyRealm = StringUtils.trimToNull(request.getParameter("privacyRealm"));
+      String filterSearchText = StringUtils.trimToNull(request.getParameter("search"));
+      boolean filterShowAll = "true".equals(request.getParameter("showAll"));
+      boolean filterAutoExpandAll = "true".equals(request.getParameter("autoExpandAll"));
       
+      // determine if we should show results: if any filter is set, or showAll, or submit was clicked
+      boolean hasAnyFilter = filterShowAll || filterDataRow != null || filterDataField != null 
+          || filterPrivacyRealm != null || filterSearchText != null;
+      // if submit was pressed with nothing selected, treat as show-all
+      boolean submitted = "true".equals(request.getParameter("submitted"));
+      if (submitted && !hasAnyFilter) {
+        filterShowAll = true;
+        hasAnyFilter = true;
+      }
+      
+      // store filter state
+      entityDataFieldsContainer.setDictionaryFilterDataRow(filterDataRow);
+      entityDataFieldsContainer.setDictionaryFilterDataField(filterDataField);
+      entityDataFieldsContainer.setDictionaryFilterPrivacyRealm(filterPrivacyRealm);
+      entityDataFieldsContainer.setDictionaryFilterSearchText(filterSearchText);
+      entityDataFieldsContainer.setDictionaryFilterShowAll(filterShowAll);
+      entityDataFieldsContainer.setDictionaryFilterAutoExpandAll(filterAutoExpandAll);
+      entityDataFieldsContainer.setDictionaryHasResults(hasAnyFilter);
+      
+      // load data engine
       GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
       GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
       grouperDataEngine.loadFieldsAndRows(grouperConfig);
       
-//      List<GrouperDataFieldConfig> dataFields = 
-      MultiKey fieldsAndHasAccess = grouperDataEngine.retrieveGrouperDataFieldsForDataFieldAndDictionary(loggedInSubject, "individuals");
+      // populate dropdown options
+      populateDictionaryDropdowns(entityDataFieldsContainer, grouperDataEngine, loggedInSubject, filterDataRow);
       
-      GuiDataFieldRowDictionaryTable guiDataFieldRowDictionaryTable = new GuiDataFieldRowDictionaryTable();
-
-      guiDataFieldRowDictionaryTable.setCanAccess((Boolean)fieldsAndHasAccess.getKey(1));
-      guiDataFieldRowDictionaryTable.setDataField(true);
-      List<GuiDataFieldRowDictionary> fieldConfigItems = new ArrayList<>();
-      
-      for (GrouperDataFieldConfig dataFieldConfig: (List<GrouperDataFieldConfig>)fieldsAndHasAccess.getKey(0)) {
-        
-        GuiDataFieldRowDictionary guiDataFieldRowDictionary = new GuiDataFieldRowDictionary();
-
-        String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
-        
-        GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
-        
-        String highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
-        
-        guiDataFieldRowDictionary.setDataFieldConfigId(dataFieldConfig.getConfigId());
-        guiDataFieldRowDictionary.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
-        guiDataFieldRowDictionary.setDataOwner(dataFieldConfig.getDataOwnerHtml());
-        guiDataFieldRowDictionary.setDataType(dataFieldConfig.getFieldDataType().name());
-        guiDataFieldRowDictionary.setDescription(dataFieldConfig.getDescriptionHtml());
-        guiDataFieldRowDictionary.setExamples(dataFieldConfig.getZeroToManyExamplesHtml());
-        guiDataFieldRowDictionary.setHowToGetAccess(dataFieldConfig.getHowToGetAccessHtml());
-        guiDataFieldRowDictionary.setPrivilege(highestLevelAccess);
-        guiDataFieldRowDictionary.setValueType(dataFieldConfig.getFieldDataType().name());
-        guiDataFieldRowDictionary.setMultiValued(dataFieldConfig.isFieldMultiValued());
-        
-        fieldConfigItems.add(guiDataFieldRowDictionary);
+      // build results if filter is active
+      if (hasAnyFilter) {
+        List<GuiDataFieldRowDictionaryTable> result = buildDictionaryResults(
+            grouperDataEngine, loggedInSubject, filterDataRow, filterDataField, 
+            filterPrivacyRealm, filterSearchText, filterShowAll);
+        entityDataFieldsContainer.setGuiDataFieldRowDictionaryTables(result);
       }
-      
-      guiDataFieldRowDictionaryTable.setGuiDataFieldRowDictionary(fieldConfigItems);
-      guiDataFieldRowDictionaryTable.setTitle(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldIndividualsTitle"));
-      guiDataFieldRowDictionaryTable.setDescription(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldIndividualsDescription"));
-      guiDataFieldRowDictionaryTable.setDocumentation(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldIndividualsDocumentation"));
-      
-      result.add(guiDataFieldRowDictionaryTable);
-      
-      List<GrouperDataRowConfig> dataRows = grouperDataEngine.retrieveGrouperDataRowsForDataFieldAndDictionary(loggedInSubject);
-      
-      Map<String, GrouperDataRowConfig> aliasToRowConfig = new TreeMap<>();
-      
-      for (GrouperDataRowConfig dataRowConfig: dataRows) {
-        
-        Set<String> rowAliases = dataRowConfig.getRowAliases();
-        
-        Set<String> lowercaseRowAliases = rowAliases.stream().map(String::toLowerCase)
-            .collect(Collectors.toSet());
-        
-        List<String> aliasesList = new ArrayList<String>(lowercaseRowAliases);
-        Collections.sort(aliasesList);
-        String alias = aliasesList.get(0);
-        aliasToRowConfig.put(alias, dataRowConfig);
-      }
-      
-      for (GrouperDataRowConfig dataRowConfig: aliasToRowConfig.values()) {
-        
-        guiDataFieldRowDictionaryTable = new GuiDataFieldRowDictionaryTable();
-        guiDataFieldRowDictionaryTable.setCanAccess(true);
-        guiDataFieldRowDictionaryTable.setTitle(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataRowLabel")+" "+
-            String.join(", ", dataRowConfig.getRowAliases()));
-        
-        guiDataFieldRowDictionaryTable.setDescription("<b>Description:</b> "+ GrouperUtil.defaultIfBlank(dataRowConfig.getDescriptionHtml(), "")
-          + "<br/><b>Data owner:</b> " +  GrouperUtil.defaultIfBlank(dataRowConfig.getDataOwnerHtml(), "")
-          + "<br/><b>How to get access:</b> " + GrouperUtil.defaultIfBlank(dataRowConfig.getHowToGetAccessHtml(), "") 
-          + "<br/><b>Examples:</b> " + GrouperUtil.defaultIfBlank(dataRowConfig.getZeroToManyExamplesHtml(), ""));
-        
-        List<GuiDataFieldRowDictionary> fieldConfigItemsForDatarow = new ArrayList<>();
-        
-        for (String dataFieldConfigId : dataRowConfig.getDataFieldConfigIds()) {
-          
-          GrouperDataFieldConfig dataFieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(dataFieldConfigId);
-
-          if (dataFieldConfig == null) {
-            LOG.error("Data row config '" + dataRowConfig.getConfigId()
-                + "' references data field config id '" + dataFieldConfigId
-                + "' which does not exist. Check grouperDataRow." + dataRowConfig.getConfigId()
-                + ".rowDataField.*.colDataFieldConfigId properties");
-            continue;
-          }
-
-          GuiDataFieldRowDictionary guiDataFieldRowDictionary = new GuiDataFieldRowDictionary();
-          guiDataFieldRowDictionary.setDataFieldConfigId(dataFieldConfigId);
-
-          // we want to show the data field config only in row section if it's there so
-          // let's remove it from the data field section
-          fieldConfigItems.remove(guiDataFieldRowDictionary);
-
-          String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
-          
-          GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
-          
-          String highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
-          
-          guiDataFieldRowDictionary.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
-          guiDataFieldRowDictionary.setDataOwner(dataFieldConfig.getDataOwnerHtml());
-          guiDataFieldRowDictionary.setDataType(dataFieldConfig.getFieldDataType().name());
-          guiDataFieldRowDictionary.setDescription(dataFieldConfig.getDescriptionHtml());
-          guiDataFieldRowDictionary.setExamples(dataFieldConfig.getZeroToManyExamplesHtml());
-          guiDataFieldRowDictionary.setHowToGetAccess(dataFieldConfig.getHowToGetAccessHtml());
-          guiDataFieldRowDictionary.setPrivilege(highestLevelAccess);
-          fieldConfigItemsForDatarow.add(guiDataFieldRowDictionary);
-        }
-        
-        guiDataFieldRowDictionaryTable.setGuiDataFieldRowDictionary(fieldConfigItemsForDatarow);
-        result.add(guiDataFieldRowDictionaryTable);
-      }
-      
-      fieldsAndHasAccess = grouperDataEngine.retrieveGrouperDataFieldsForDataFieldAndDictionary(loggedInSubject, "global");
-      
-      guiDataFieldRowDictionaryTable = new GuiDataFieldRowDictionaryTable();
-      guiDataFieldRowDictionaryTable.setCanAccess((Boolean)fieldsAndHasAccess.getKey(1));
-      guiDataFieldRowDictionaryTable.setDataField(true);
-
-      fieldConfigItems = new ArrayList<>();
-      
-      for (GrouperDataFieldConfig dataFieldConfig: (List<GrouperDataFieldConfig>)fieldsAndHasAccess.getKey(0)) {
-        
-        GuiDataFieldRowDictionary guiDataFieldRowDictionary = new GuiDataFieldRowDictionary();
-
-        String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
-        
-        GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
-        
-        String highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
-        
-        guiDataFieldRowDictionary.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
-        guiDataFieldRowDictionary.setDataOwner(dataFieldConfig.getDataOwnerHtml());
-        guiDataFieldRowDictionary.setDataType(dataFieldConfig.getFieldDataType().name());
-        guiDataFieldRowDictionary.setDescription(dataFieldConfig.getDescriptionHtml());
-        guiDataFieldRowDictionary.setExamples(dataFieldConfig.getZeroToManyExamplesHtml());
-        guiDataFieldRowDictionary.setHowToGetAccess(dataFieldConfig.getHowToGetAccessHtml());
-        guiDataFieldRowDictionary.setPrivilege(highestLevelAccess);
-        guiDataFieldRowDictionary.setValueType(dataFieldConfig.getFieldDataType().name());
-        guiDataFieldRowDictionary.setMultiValued(dataFieldConfig.isFieldMultiValued());
-        
-        fieldConfigItems.add(guiDataFieldRowDictionary);
-      }
-      guiDataFieldRowDictionaryTable.setGuiDataFieldRowDictionary(fieldConfigItems);
-      
-      guiDataFieldRowDictionaryTable.setTitle(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGlobalTitle"));
-      guiDataFieldRowDictionaryTable.setDescription(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGlobalDescription"));
-      guiDataFieldRowDictionaryTable.setDocumentation(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGlobalDocumentation"));
-      
-      result.add(guiDataFieldRowDictionaryTable);
-      
-      fieldsAndHasAccess = grouperDataEngine.retrieveGrouperDataFieldsForDataFieldAndDictionary(loggedInSubject, "groups");
-      
-      guiDataFieldRowDictionaryTable = new GuiDataFieldRowDictionaryTable();
-      guiDataFieldRowDictionaryTable.setCanAccess((Boolean)fieldsAndHasAccess.getKey(1));
-      guiDataFieldRowDictionaryTable.setDataField(true);
-
-      fieldConfigItems = new ArrayList<>();
-      
-      for (GrouperDataFieldConfig dataFieldConfig: (List<GrouperDataFieldConfig>)fieldsAndHasAccess.getKey(0)) {
-        
-        GuiDataFieldRowDictionary guiDataFieldRowDictionary = new GuiDataFieldRowDictionary();
-
-        String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
-        
-        GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
-        
-        String highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
-        
-        guiDataFieldRowDictionary.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
-        guiDataFieldRowDictionary.setDataOwner(dataFieldConfig.getDataOwnerHtml());
-        guiDataFieldRowDictionary.setDataType(dataFieldConfig.getFieldDataType().name());
-        guiDataFieldRowDictionary.setDescription(dataFieldConfig.getDescriptionHtml());
-        guiDataFieldRowDictionary.setExamples(dataFieldConfig.getZeroToManyExamplesHtml());
-        guiDataFieldRowDictionary.setHowToGetAccess(dataFieldConfig.getHowToGetAccessHtml());
-        guiDataFieldRowDictionary.setPrivilege(highestLevelAccess);
-        guiDataFieldRowDictionary.setValueType(dataFieldConfig.getFieldDataType().name());
-        guiDataFieldRowDictionary.setMultiValued(dataFieldConfig.isFieldMultiValued());
-        
-        fieldConfigItems.add(guiDataFieldRowDictionary);
-      }
-      guiDataFieldRowDictionaryTable.setGuiDataFieldRowDictionary(fieldConfigItems);
-      
-      guiDataFieldRowDictionaryTable.setTitle(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGroupsTitle"));
-      guiDataFieldRowDictionaryTable.setDescription(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGroupsDescription"));
-      guiDataFieldRowDictionaryTable.setDocumentation(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGroupsDocumentation"));
-      
-      result.add(guiDataFieldRowDictionaryTable);
-      
-      entityDataFieldsContainer.setGuiDataFieldRowDictionaryTables(result);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/entityDataFields/dataFieldRowDictionary.jsp"));
@@ -2376,6 +2231,514 @@ public class UiV2EntityDataFields {
       GrouperSession.stopQuietly(grouperSession);
     }
     
+  }
+
+  /**
+   * AJAX endpoint to get data fields for a selected data row (repopulates the data field dropdown).
+   * Uses standard GuiResponseJs innerHtml pattern to replace the select contents via a JSP fragment.
+   * @param request
+   * @param response
+   */
+  public void dataFieldDictionaryFieldsForRow(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      final EntityDataFieldsContainer entityDataFieldsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getEntityDataFieldsContainer();
+      
+      String dataRowConfigId = StringUtils.trimToNull(request.getParameter("dataRow"));
+      
+      GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+      GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+      grouperDataEngine.loadFieldsAndRows(grouperConfig);
+      
+      // populate field options for the selected row
+      List<String[]> fieldOptions = new ArrayList<>();
+      if (dataRowConfigId != null) {
+        GrouperDataRowConfig rowConfig = grouperDataEngine.getRowConfigByConfigId().get(dataRowConfigId);
+        if (rowConfig == null) {
+          rowConfig = grouperDataEngine.getRowConfigByAlias().get(dataRowConfigId.toLowerCase());
+        }
+        if (rowConfig != null) {
+          for (String fieldConfigId : rowConfig.getDataFieldConfigIds()) {
+            GrouperDataFieldConfig fieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(fieldConfigId);
+            if (fieldConfig != null) {
+              fieldOptions.add(new String[]{fieldConfigId, String.join(", ", fieldConfig.getFieldAliases())});
+            }
+          }
+        }
+      }
+      entityDataFieldsContainer.setDictionaryDataFieldOptions(fieldOptions);
+      
+      // replace the dropdown contents and enable it
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#dictDataField",
+          "/WEB-INF/grouperUi2/entityDataFields/dataFieldDictionaryFieldOptions.jsp"));
+      
+      if (dataRowConfigId != null) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("$('#dictDataField').prop('disabled', false);"));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newScript("$('#dictDataField').prop('disabled', true);"));
+      }
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * Export dictionary results as CSV or JSON.
+   * @param request
+   * @param response
+   */
+  public void dataFieldDictionaryExport(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      String filterDataRow = StringUtils.trimToNull(request.getParameter("dataRow"));
+      String filterDataField = StringUtils.trimToNull(request.getParameter("dataField"));
+      String filterPrivacyRealm = StringUtils.trimToNull(request.getParameter("privacyRealm"));
+      String filterSearchText = StringUtils.trimToNull(request.getParameter("search"));
+      boolean filterShowAll = "true".equals(request.getParameter("showAll"));
+      String format = StringUtils.defaultIfBlank(request.getParameter("format"), "csv");
+      
+      boolean hasAnyFilter = filterShowAll || filterDataRow != null || filterDataField != null 
+          || filterPrivacyRealm != null || filterSearchText != null;
+      if (!hasAnyFilter) {
+        filterShowAll = true;
+      }
+      
+      GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+      GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+      grouperDataEngine.loadFieldsAndRows(grouperConfig);
+      
+      List<GuiDataFieldRowDictionaryTable> tables = buildDictionaryResults(
+          grouperDataEngine, loggedInSubject, filterDataRow, filterDataField, 
+          filterPrivacyRealm, filterSearchText, filterShowAll);
+      
+      // flatten all field items
+      List<GuiDataFieldRowDictionary> allFields = new ArrayList<>();
+      for (GuiDataFieldRowDictionaryTable table : tables) {
+        if (table.getGuiDataFieldRowDictionary() != null) {
+          for (GuiDataFieldRowDictionary field : table.getGuiDataFieldRowDictionary()) {
+            // resolve inherited values for export
+            if (StringUtils.isBlank(field.getDataOwner()) && StringUtils.isNotBlank(field.getDataRowDataOwner())) {
+              field.setDataOwner(field.getDataRowDataOwner());
+            }
+            if (StringUtils.isBlank(field.getHowToGetAccess()) && StringUtils.isNotBlank(field.getDataRowHowToGetAccess())) {
+              field.setHowToGetAccess(field.getDataRowHowToGetAccess());
+            }
+            allFields.add(field);
+          }
+        }
+      }
+      
+      if ("json".equalsIgnoreCase(format)) {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"data_field_dictionary.json\"");
+        PrintWriter writer = response.getWriter();
+        writer.write("[");
+        for (int i = 0; i < allFields.size(); i++) {
+          if (i > 0) writer.write(",");
+          GuiDataFieldRowDictionary f = allFields.get(i);
+          writer.write("{");
+          writer.write("\"data_row\":" + jsonVal(f.getDataRowName()));
+          writer.write(",\"data_field_aliases\":" + jsonVal(f.getDataFieldAliases()));
+          writer.write(",\"description\":" + jsonVal(f.getDescription()));
+          writer.write(",\"privilege\":" + jsonVal(f.getPrivilege()));
+          writer.write(",\"privilege_humanized\":" + jsonVal(f.getPrivilegeHumanized()));
+          writer.write(",\"data_type\":" + jsonVal(f.getDataType()));
+          writer.write(",\"data_owner\":" + jsonVal(f.getDataOwner()));
+          writer.write(",\"how_to_get_access\":" + jsonVal(f.getHowToGetAccess()));
+          writer.write(",\"privacy_realm\":" + jsonVal(f.getPrivacyRealmConfigId()));
+          writer.write(",\"examples\":" + jsonVal(f.getExamples()));
+          writer.write(",\"value_type\":" + jsonVal(f.getValueType()));
+          writer.write(",\"multi_valued\":" + f.isMultiValued());
+          writer.write(",\"jexl_snippet\":" + jsonVal(f.getJexlSnippet()));
+          writer.write("}");
+        }
+        writer.write("]");
+      } else {
+        // CSV
+        response.setContentType("text/csv");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"data_field_dictionary.csv\"");
+        PrintWriter writer = response.getWriter();
+        writer.println("data_row,data_field_aliases,description,privilege,privilege_humanized,data_type,data_owner,how_to_get_access,privacy_realm,examples,value_type,multi_valued,jexl_snippet");
+        for (GuiDataFieldRowDictionary f : allFields) {
+          writer.println(
+            csvVal(f.getDataRowName()) + "," +
+            csvVal(f.getDataFieldAliases()) + "," +
+            csvVal(f.getDescription()) + "," +
+            csvVal(f.getPrivilege()) + "," +
+            csvVal(f.getPrivilegeHumanized()) + "," +
+            csvVal(f.getDataType()) + "," +
+            csvVal(f.getDataOwner()) + "," +
+            csvVal(f.getHowToGetAccess()) + "," +
+            csvVal(f.getPrivacyRealmConfigId()) + "," +
+            csvVal(f.getExamples()) + "," +
+            csvVal(f.getValueType()) + "," +
+            f.isMultiValued() + "," +
+            csvVal(f.getJexlSnippet())
+          );
+        }
+      }
+      
+      throw new ControllerDone();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  private static String jsonVal(String val) {
+    if (val == null) return "null";
+    return "\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(val) + "\"";
+  }
+  
+  private static String csvVal(String val) {
+    if (val == null) return "";
+    // strip HTML tags for CSV export
+    String stripped = val.replaceAll("<[^>]*>", "").replace("&nbsp;", " ")
+        .replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">");
+    // escape for CSV
+    if (stripped.contains(",") || stripped.contains("\"") || stripped.contains("\n")) {
+      return "\"" + stripped.replace("\"", "\"\"") + "\"";
+    }
+    return stripped;
+  }
+  
+  /**
+   * Populate dropdown options for the filter panel.
+   */
+  private void populateDictionaryDropdowns(EntityDataFieldsContainer container, 
+      GrouperDataEngine grouperDataEngine, Subject loggedInSubject, String selectedDataRow) {
+    
+    // data row options - sorted by alias
+    List<GrouperDataRowConfig> dataRows = grouperDataEngine.retrieveGrouperDataRowsForDataFieldAndDictionary(loggedInSubject);
+    Map<String, GrouperDataRowConfig> sortedRows = new TreeMap<>();
+    for (GrouperDataRowConfig rowConfig : dataRows) {
+      List<String> aliases = new ArrayList<>(rowConfig.getRowAliases());
+      Collections.sort(aliases, String.CASE_INSENSITIVE_ORDER);
+      sortedRows.put(aliases.get(0).toLowerCase(), rowConfig);
+    }
+    List<String[]> rowOptions = new ArrayList<>();
+    for (Map.Entry<String, GrouperDataRowConfig> entry : sortedRows.entrySet()) {
+      GrouperDataRowConfig rowConfig = entry.getValue();
+      rowOptions.add(new String[]{rowConfig.getConfigId(), String.join(", ", rowConfig.getRowAliases())});
+    }
+    container.setDictionaryDataRowOptions(rowOptions);
+    
+    // data field options for selected row
+    List<String[]> fieldOptions = new ArrayList<>();
+    if (selectedDataRow != null) {
+      GrouperDataRowConfig rowConfig = grouperDataEngine.getRowConfigByConfigId().get(selectedDataRow);
+      if (rowConfig == null) {
+        rowConfig = grouperDataEngine.getRowConfigByAlias().get(selectedDataRow.toLowerCase());
+      }
+      if (rowConfig != null) {
+        for (String fieldConfigId : rowConfig.getDataFieldConfigIds()) {
+          GrouperDataFieldConfig fieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(fieldConfigId);
+          if (fieldConfig != null) {
+            fieldOptions.add(new String[]{fieldConfigId, String.join(", ", fieldConfig.getFieldAliases())});
+          }
+        }
+      }
+    }
+    container.setDictionaryDataFieldOptions(fieldOptions);
+    
+    // privacy realm options - sorted alphabetically
+    Set<String> realmIds = new TreeSet<>(grouperDataEngine.getPrivacyRealmConfigByConfigId().keySet());
+    List<String[]> realmOptions = new ArrayList<>();
+    for (String realmId : realmIds) {
+      GrouperPrivacyRealmConfig realmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(realmId);
+      String label = StringUtils.isNotBlank(realmConfig.getPrivacyRealmName()) ? realmConfig.getPrivacyRealmName() : realmId;
+      realmOptions.add(new String[]{realmId, label});
+    }
+    container.setDictionaryPrivacyRealmOptions(realmOptions);
+  }
+  
+  /**
+   * Build filtered dictionary results.
+   */
+  @SuppressWarnings("unchecked")
+  private List<GuiDataFieldRowDictionaryTable> buildDictionaryResults(
+      GrouperDataEngine grouperDataEngine, Subject loggedInSubject,
+      String filterDataRow, String filterDataField, String filterPrivacyRealm, 
+      String filterSearchText, boolean filterShowAll) {
+    
+    List<GuiDataFieldRowDictionaryTable> result = new ArrayList<>();
+    
+    // parse search terms (split on whitespace or comma, AND logic)
+    List<String> searchTerms = new ArrayList<>();
+    if (StringUtils.isNotBlank(filterSearchText)) {
+      String[] parts = filterSearchText.split("[,\\s]+");
+      for (String part : parts) {
+        String trimmed = part.trim().toLowerCase();
+        if (trimmed.length() > 0) {
+          searchTerms.add(trimmed);
+        }
+      }
+    }
+    
+    // process "individuals" data fields
+    buildFieldSection(result, grouperDataEngine, loggedInSubject, "individuals",
+        "entityDataFieldRowDictionaryDataFieldIndividualsTitle",
+        "entityDataFieldRowDictionaryDataFieldIndividualsDescription",
+        "entityDataFieldRowDictionaryDataFieldIndividualsDocumentation",
+        filterDataRow, filterDataField, filterPrivacyRealm, searchTerms, filterShowAll);
+    
+    // process data rows with their fields
+    List<GrouperDataRowConfig> dataRows = grouperDataEngine.retrieveGrouperDataRowsForDataFieldAndDictionary(loggedInSubject);
+    
+    Map<String, GrouperDataRowConfig> aliasToRowConfig = new TreeMap<>();
+    for (GrouperDataRowConfig dataRowConfig : dataRows) {
+      List<String> aliases = new ArrayList<>(dataRowConfig.getRowAliases());
+      Collections.sort(aliases, String.CASE_INSENSITIVE_ORDER);
+      aliasToRowConfig.put(aliases.get(0).toLowerCase(), dataRowConfig);
+    }
+    
+    for (GrouperDataRowConfig dataRowConfig : aliasToRowConfig.values()) {
+      
+      // apply data row filter
+      if (filterDataRow != null && !filterShowAll) {
+        if (!dataRowConfig.getConfigId().equals(filterDataRow)) {
+          // also try matching by alias
+          boolean matchByAlias = false;
+          for (String alias : dataRowConfig.getRowAliases()) {
+            if (alias.equalsIgnoreCase(filterDataRow)) {
+              matchByAlias = true;
+              break;
+            }
+          }
+          if (!matchByAlias) continue;
+        }
+      }
+      
+      // apply privacy realm filter to row
+      if (filterPrivacyRealm != null && !filterShowAll) {
+        if (!filterPrivacyRealm.equals(dataRowConfig.getPrivacyRealmName())) {
+          continue;
+        }
+      }
+      
+      String dataRowName = String.join(", ", dataRowConfig.getRowAliases());
+      
+      GuiDataFieldRowDictionaryTable guiTable = new GuiDataFieldRowDictionaryTable();
+      guiTable.setCanAccess(true);
+      guiTable.setDataRowName(dataRowName);
+      guiTable.setConfigId(dataRowConfig.getConfigId());
+      guiTable.setTitle(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataRowLabel") + " " + dataRowName);
+      guiTable.setDescription(GrouperUtil.defaultIfBlank(dataRowConfig.getDescriptionHtml(), ""));
+      guiTable.setDataOwner(GrouperUtil.defaultIfBlank(dataRowConfig.getDataOwnerHtml(), ""));
+      guiTable.setHowToGetAccess(GrouperUtil.defaultIfBlank(dataRowConfig.getHowToGetAccessHtml(), ""));
+      guiTable.setDocumentation(GrouperUtil.defaultIfBlank(dataRowConfig.getZeroToManyExamplesHtml(), ""));
+      
+      List<GuiDataFieldRowDictionary> fieldItems = new ArrayList<>();
+      
+      for (String dataFieldConfigId : dataRowConfig.getDataFieldConfigIds()) {
+        
+        GrouperDataFieldConfig dataFieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(dataFieldConfigId);
+        if (dataFieldConfig == null) {
+          LOG.error("Data row config '" + dataRowConfig.getConfigId()
+              + "' references data field config id '" + dataFieldConfigId
+              + "' which does not exist.");
+          continue;
+        }
+        
+        // apply data field filter
+        if (filterDataField != null && !filterShowAll) {
+          if (!dataFieldConfigId.equals(filterDataField)) continue;
+        }
+        
+        // apply privacy realm filter to field
+        if (filterPrivacyRealm != null && !filterShowAll) {
+          String fieldRealm = dataFieldConfig.getGrouperPrivacyRealmConfigId();
+          if (fieldRealm != null && !filterPrivacyRealm.equals(fieldRealm)) {
+            continue;
+          }
+        }
+        
+        GuiDataFieldRowDictionary guiField = populateGuiField(grouperDataEngine, dataFieldConfig, loggedInSubject);
+        guiField.setDataRowName(dataRowName);
+        guiField.setDataRowConfigId(dataRowConfig.getConfigId());
+        guiField.setDataRowDataOwner(GrouperUtil.defaultIfBlank(dataRowConfig.getDataOwnerHtml(), ""));
+        guiField.setDataRowHowToGetAccess(GrouperUtil.defaultIfBlank(dataRowConfig.getHowToGetAccessHtml(), ""));
+        
+        // build JEXL snippet for row fields
+        String firstAlias = dataFieldConfig.getFieldAliases().iterator().next();
+        String firstRowAlias = dataRowConfig.getRowAliases().iterator().next();
+        guiField.setJexlSnippet("entity.hasRow('" + firstRowAlias + "', \"" + firstAlias + "=='value'\")");
+        
+        // apply search text filter
+        if (!searchTerms.isEmpty() && !filterShowAll) {
+          if (!matchesSearch(guiField, dataRowName, searchTerms)) continue;
+        }
+        
+        fieldItems.add(guiField);
+      }
+      
+      if (!fieldItems.isEmpty()) {
+        guiTable.setGuiDataFieldRowDictionary(fieldItems);
+        result.add(guiTable);
+      }
+    }
+    
+    // process "global" data fields
+    buildFieldSection(result, grouperDataEngine, loggedInSubject, "global",
+        "entityDataFieldRowDictionaryDataFieldGlobalTitle",
+        "entityDataFieldRowDictionaryDataFieldGlobalDescription",
+        "entityDataFieldRowDictionaryDataFieldGlobalDocumentation",
+        filterDataRow, filterDataField, filterPrivacyRealm, searchTerms, filterShowAll);
+    
+    // process "groups" data fields
+    buildFieldSection(result, grouperDataEngine, loggedInSubject, "groups",
+        "entityDataFieldRowDictionaryDataFieldGroupsTitle",
+        "entityDataFieldRowDictionaryDataFieldGroupsDescription",
+        "entityDataFieldRowDictionaryDataFieldGroupsDocumentation",
+        filterDataRow, filterDataField, filterPrivacyRealm, searchTerms, filterShowAll);
+    
+    return result;
+  }
+  
+  /**
+   * Build a section of standalone data fields (individuals, global, or groups).
+   */
+  @SuppressWarnings("unchecked")
+  private void buildFieldSection(List<GuiDataFieldRowDictionaryTable> result,
+      GrouperDataEngine grouperDataEngine, Subject loggedInSubject, String fieldDataAssignableTo,
+      String titleKey, String descKey, String docKey,
+      String filterDataRow, String filterDataField, String filterPrivacyRealm, 
+      List<String> searchTerms, boolean filterShowAll) {
+    
+    // if filtering by data row and not show-all, skip standalone field sections
+    if (filterDataRow != null && !filterShowAll) {
+      return;
+    }
+    
+    MultiKey fieldsAndHasAccess = grouperDataEngine.retrieveGrouperDataFieldsForDataFieldAndDictionary(loggedInSubject, fieldDataAssignableTo);
+    
+    GuiDataFieldRowDictionaryTable guiTable = new GuiDataFieldRowDictionaryTable();
+    guiTable.setCanAccess((Boolean) fieldsAndHasAccess.getKey(1));
+    guiTable.setDataField(true);
+    
+    List<GuiDataFieldRowDictionary> fieldItems = new ArrayList<>();
+    
+    for (GrouperDataFieldConfig dataFieldConfig : (List<GrouperDataFieldConfig>) fieldsAndHasAccess.getKey(0)) {
+      
+      // apply privacy realm filter
+      if (filterPrivacyRealm != null && !filterShowAll) {
+        String fieldRealm = dataFieldConfig.getGrouperPrivacyRealmConfigId();
+        if (fieldRealm != null && !filterPrivacyRealm.equals(fieldRealm)) {
+          continue;
+        }
+      }
+      
+      // apply data field filter
+      if (filterDataField != null && !filterShowAll) {
+        if (!dataFieldConfig.getConfigId().equals(filterDataField)) continue;
+      }
+      
+      GuiDataFieldRowDictionary guiField = populateGuiField(grouperDataEngine, dataFieldConfig, loggedInSubject);
+      
+      // build JEXL snippet for standalone fields
+      String firstAlias = dataFieldConfig.getFieldAliases().iterator().next();
+      if ("individuals".equals(fieldDataAssignableTo)) {
+        guiField.setJexlSnippet("entity.hasAttribute('" + firstAlias + "')");
+      } else if ("global".equals(fieldDataAssignableTo)) {
+        guiField.setJexlSnippet("grouperDataEngine.getFieldValue('" + firstAlias + "')");
+      } else if ("groups".equals(fieldDataAssignableTo)) {
+        guiField.setJexlSnippet("group.hasAttribute('" + firstAlias + "')");
+      }
+      
+      // apply search text filter
+      if (!searchTerms.isEmpty() && !filterShowAll) {
+        if (!matchesSearch(guiField, null, searchTerms)) continue;
+      }
+      
+      fieldItems.add(guiField);
+    }
+    
+    // remove fields that belong to data rows (they appear under their row section)
+    if ("individuals".equals(fieldDataAssignableTo)) {
+      List<GrouperDataRowConfig> dataRows = grouperDataEngine.retrieveGrouperDataRowsForDataFieldAndDictionary(loggedInSubject);
+      Set<String> rowFieldConfigIds = new java.util.HashSet<>();
+      for (GrouperDataRowConfig rowConfig : dataRows) {
+        rowFieldConfigIds.addAll(rowConfig.getDataFieldConfigIds());
+      }
+      fieldItems.removeIf(f -> rowFieldConfigIds.contains(f.getDataFieldConfigId()));
+    }
+    
+    if (!fieldItems.isEmpty() || guiTable.isCanAccess()) {
+      guiTable.setGuiDataFieldRowDictionary(fieldItems);
+      guiTable.setTitle(GrouperTextContainer.textOrNull(titleKey));
+      guiTable.setDescription(GrouperTextContainer.textOrNull(descKey));
+      guiTable.setDocumentation(GrouperTextContainer.textOrNull(docKey));
+      result.add(guiTable);
+    }
+  }
+  
+  /**
+   * Populate a GuiDataFieldRowDictionary from a GrouperDataFieldConfig.
+   */
+  private GuiDataFieldRowDictionary populateGuiField(GrouperDataEngine grouperDataEngine, 
+      GrouperDataFieldConfig dataFieldConfig, Subject loggedInSubject) {
+    
+    GuiDataFieldRowDictionary guiField = new GuiDataFieldRowDictionary();
+    
+    String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
+    GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
+    String highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+    
+    guiField.setDataFieldConfigId(dataFieldConfig.getConfigId());
+    guiField.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
+    guiField.setDataOwner(dataFieldConfig.getDataOwnerHtml());
+    guiField.setDataType(dataFieldConfig.getFieldDataType().name());
+    guiField.setDescription(dataFieldConfig.getDescriptionHtml());
+    guiField.setExamples(dataFieldConfig.getZeroToManyExamplesHtml());
+    guiField.setHowToGetAccess(dataFieldConfig.getHowToGetAccessHtml());
+    guiField.setPrivilege(highestLevelAccess);
+    guiField.setPrivilegeHumanized(GuiDataFieldRowDictionary.humanizePrivilege(highestLevelAccess));
+    guiField.setPrivacyRealmConfigId(grouperPrivacyRealmConfigId);
+    guiField.setValueType(dataFieldConfig.getFieldDataType().name());
+    guiField.setMultiValued(dataFieldConfig.isFieldMultiValued());
+    
+    return guiField;
+  }
+  
+  /**
+   * Check if a field matches ALL search terms (AND logic).
+   * Matches against data field aliases, data row name, and description.
+   */
+  private boolean matchesSearch(GuiDataFieldRowDictionary field, String dataRowName, List<String> searchTerms) {
+    // build searchable text from all relevant fields
+    StringBuilder searchable = new StringBuilder();
+    if (field.getDataFieldAliases() != null) searchable.append(field.getDataFieldAliases().toLowerCase()).append(" ");
+    if (field.getDescription() != null) searchable.append(field.getDescription().toLowerCase()).append(" ");
+    if (dataRowName != null) searchable.append(dataRowName.toLowerCase()).append(" ");
+    if (field.getDataRowName() != null) searchable.append(field.getDataRowName().toLowerCase()).append(" ");
+    if (field.getExamples() != null) searchable.append(field.getExamples().toLowerCase()).append(" ");
+    if (field.getDataOwner() != null) searchable.append(field.getDataOwner().toLowerCase()).append(" ");
+    if (field.getDataRowDataOwner() != null) searchable.append(field.getDataRowDataOwner().toLowerCase()).append(" ");
+    
+    String text = searchable.toString();
+    
+    for (String term : searchTerms) {
+      if (!text.contains(term)) {
+        return false;
+      }
+    }
+    return true;
   }
 
 }

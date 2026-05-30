@@ -64,6 +64,20 @@ public class EntityDataFieldsContainer {
   private List<GuiDataRowConfiguration> guiDataRowConfigurations = new ArrayList<>();
   
   private List<GuiDataFieldRowDictionaryTable> guiDataFieldRowDictionaryTables = new ArrayList<>();
+
+  // filter state for dictionary page
+  private String dictionaryFilterDataRow;
+  private String dictionaryFilterDataField;
+  private String dictionaryFilterPrivacyRealm;
+  private String dictionaryFilterSearchText;
+  private boolean dictionaryFilterShowAll;
+  private boolean dictionaryFilterAutoExpandAll;
+  private boolean dictionaryHasResults;
+
+  // dropdown options for filter panel
+  private List<String[]> dictionaryDataRowOptions = new ArrayList<>();
+  private List<String[]> dictionaryDataFieldOptions = new ArrayList<>();
+  private List<String[]> dictionaryPrivacyRealmOptions = new ArrayList<>();
   
   /**
    * @return true if can operate on entity data fields
@@ -348,6 +362,86 @@ public class EntityDataFieldsContainer {
   public void setGuiDataFieldRowDictionaryTables(
       List<GuiDataFieldRowDictionaryTable> guiDataFieldRowDictionaryTables) {
     this.guiDataFieldRowDictionaryTables = guiDataFieldRowDictionaryTables;
+  }
+
+  public String getDictionaryFilterDataRow() {
+    return dictionaryFilterDataRow;
+  }
+
+  public void setDictionaryFilterDataRow(String dictionaryFilterDataRow) {
+    this.dictionaryFilterDataRow = dictionaryFilterDataRow;
+  }
+
+  public String getDictionaryFilterDataField() {
+    return dictionaryFilterDataField;
+  }
+
+  public void setDictionaryFilterDataField(String dictionaryFilterDataField) {
+    this.dictionaryFilterDataField = dictionaryFilterDataField;
+  }
+
+  public String getDictionaryFilterPrivacyRealm() {
+    return dictionaryFilterPrivacyRealm;
+  }
+
+  public void setDictionaryFilterPrivacyRealm(String dictionaryFilterPrivacyRealm) {
+    this.dictionaryFilterPrivacyRealm = dictionaryFilterPrivacyRealm;
+  }
+
+  public String getDictionaryFilterSearchText() {
+    return dictionaryFilterSearchText;
+  }
+
+  public void setDictionaryFilterSearchText(String dictionaryFilterSearchText) {
+    this.dictionaryFilterSearchText = dictionaryFilterSearchText;
+  }
+
+  public boolean isDictionaryFilterShowAll() {
+    return dictionaryFilterShowAll;
+  }
+
+  public void setDictionaryFilterShowAll(boolean dictionaryFilterShowAll) {
+    this.dictionaryFilterShowAll = dictionaryFilterShowAll;
+  }
+
+  public boolean isDictionaryFilterAutoExpandAll() {
+    return dictionaryFilterAutoExpandAll;
+  }
+
+  public void setDictionaryFilterAutoExpandAll(boolean dictionaryFilterAutoExpandAll) {
+    this.dictionaryFilterAutoExpandAll = dictionaryFilterAutoExpandAll;
+  }
+
+  public boolean isDictionaryHasResults() {
+    return dictionaryHasResults;
+  }
+
+  public void setDictionaryHasResults(boolean dictionaryHasResults) {
+    this.dictionaryHasResults = dictionaryHasResults;
+  }
+
+  public List<String[]> getDictionaryDataRowOptions() {
+    return dictionaryDataRowOptions;
+  }
+
+  public void setDictionaryDataRowOptions(List<String[]> dictionaryDataRowOptions) {
+    this.dictionaryDataRowOptions = dictionaryDataRowOptions;
+  }
+
+  public List<String[]> getDictionaryDataFieldOptions() {
+    return dictionaryDataFieldOptions;
+  }
+
+  public void setDictionaryDataFieldOptions(List<String[]> dictionaryDataFieldOptions) {
+    this.dictionaryDataFieldOptions = dictionaryDataFieldOptions;
+  }
+
+  public List<String[]> getDictionaryPrivacyRealmOptions() {
+    return dictionaryPrivacyRealmOptions;
+  }
+
+  public void setDictionaryPrivacyRealmOptions(List<String[]> dictionaryPrivacyRealmOptions) {
+    this.dictionaryPrivacyRealmOptions = dictionaryPrivacyRealmOptions;
   }
   
 }

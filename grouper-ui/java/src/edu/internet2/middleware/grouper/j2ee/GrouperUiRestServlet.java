@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2AttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Configure;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Deprovisioning;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2EntityDataFields;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2ExternalEntities;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Group;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupImport;
@@ -133,7 +134,8 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2GrouperReport.class.getSimpleName() + ".downloadReportForGroup",
       UiV2GrouperLoader.class.getSimpleName() + ".recentMembershipsGroupFromFilter",
       UiV2Configure.class.getSimpleName() + ".configurationFileExport",
-      UiV2GrouperLoader.class.getSimpleName() + ".exportLoaderConfig"
+      UiV2GrouperLoader.class.getSimpleName() + ".exportLoaderConfig",
+      UiV2EntityDataFields.class.getSimpleName() + ".dataFieldDictionaryExport"
   );
 
   /**

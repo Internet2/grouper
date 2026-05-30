@@ -846,6 +846,16 @@ public class GrouperDataEngine {
 
     if (grouperPrivacyRealmConfig == null) {
       LOG.warn("grouperPrivacyRealmConfig is null in calculateHighestLevelAccess for subject: " + (subject == null ? null : subject.getId()));
+      // if no privacy realm is configured, sysadmins should still see the field
+      if (subject != null && PrivilegeHelper.isWheelOrRoot(subject)) {
+        return "update";
+      }
+      if (subject != null && PrivilegeHelper.isWheelOrRootOrReadonlyRoot(subject)) {
+        return "read";
+      }
+      if (subject != null && PrivilegeHelper.isWheelOrRootOrViewonlyRoot(subject)) {
+        return "view";
+      }
       return "";
     }
 
@@ -925,6 +935,12 @@ public class GrouperDataEngine {
         }
       }
       
+    }
+    
+    if (!StringUtils.equals(highestLevelAccess, "update") && grouperPrivacyRealmConfig.isPrivacyRealmAuthenticated() && subject != null) {
+      if (StringUtils.isBlank(highestLevelAccess) || StringUtils.equals(highestLevelAccess, "view")) {
+        highestLevelAccess = "read";
+      }
     }
     
     if (!StringUtils.equals(highestLevelAccess, "update") && grouperPrivacyRealmConfig.isPrivacyRealmPublic()) {
