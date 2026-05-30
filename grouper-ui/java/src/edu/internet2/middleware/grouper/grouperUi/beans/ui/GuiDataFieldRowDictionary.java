@@ -28,6 +28,20 @@ public class GuiDataFieldRowDictionary {
   private String valueType;
   
   private boolean multiValued;
+  
+  private String privacyRealmConfigId;
+  
+  private String privilegeHumanized;
+  
+  private String dataRowName;
+  
+  private String dataRowConfigId;
+  
+  private String jexlSnippet;
+  
+  private String dataRowDataOwner;
+  
+  private String dataRowHowToGetAccess;
 
   
   public String getDataFieldAliases() {
@@ -121,6 +135,78 @@ public class GuiDataFieldRowDictionary {
 
   public void setDataFieldConfigId(String dataFieldConfigId) {
     this.dataFieldConfigId = dataFieldConfigId;
+  }
+
+  public String getPrivacyRealmConfigId() {
+    return privacyRealmConfigId;
+  }
+
+  public void setPrivacyRealmConfigId(String privacyRealmConfigId) {
+    this.privacyRealmConfigId = privacyRealmConfigId;
+  }
+
+  public String getPrivilegeHumanized() {
+    return privilegeHumanized;
+  }
+
+  public void setPrivilegeHumanized(String privilegeHumanized) {
+    this.privilegeHumanized = privilegeHumanized;
+  }
+
+  public String getDataRowName() {
+    return dataRowName;
+  }
+
+  public void setDataRowName(String dataRowName) {
+    this.dataRowName = dataRowName;
+  }
+
+  public String getDataRowConfigId() {
+    return dataRowConfigId;
+  }
+
+  public void setDataRowConfigId(String dataRowConfigId) {
+    this.dataRowConfigId = dataRowConfigId;
+  }
+
+  public String getJexlSnippet() {
+    return jexlSnippet;
+  }
+
+  public void setJexlSnippet(String jexlSnippet) {
+    this.jexlSnippet = jexlSnippet;
+  }
+
+  public String getDataRowDataOwner() {
+    return dataRowDataOwner;
+  }
+
+  public void setDataRowDataOwner(String dataRowDataOwner) {
+    this.dataRowDataOwner = dataRowDataOwner;
+  }
+
+  public String getDataRowHowToGetAccess() {
+    return dataRowHowToGetAccess;
+  }
+
+  public void setDataRowHowToGetAccess(String dataRowHowToGetAccess) {
+    this.dataRowHowToGetAccess = dataRowHowToGetAccess;
+  }
+
+  /**
+   * Returns the humanized privilege string for the stored privilege value.
+   * @param privilege raw privilege value
+   * @return humanized string
+   */
+  public static String humanizePrivilege(String privilege) {
+    if ("view".equals(privilege)) {
+      return "See that this field exists";
+    } else if ("read".equals(privilege)) {
+      return "See who has this value";
+    } else if ("update".equals(privilege)) {
+      return "Use this field in ABAC scripts";
+    }
+    return privilege;
   }
 
 
