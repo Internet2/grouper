@@ -3354,6 +3354,33 @@ function grouperCopyJobMessage(linkEl) {
 }
 
 /**
+ * Copy text held in the clicked element's "data-gr-copy-text" attribute to the clipboard
+ * and show a subtle "Copied!" tooltip. Useful when the text to copy is not rendered on screen
+ * (e.g. an entity description), since reading innerText of a hidden element returns empty.
+ * @param linkEl the clicked anchor element (the copy icon link)
+ */
+function grouperCopyTextToClipboard(linkEl) {
+  if (!linkEl) return;
+  var text = linkEl.getAttribute('data-gr-copy-text');
+  if (text === null) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function() {
+      grouperShowCopiedTooltip(linkEl);
+    });
+  } else {
+    var textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    grouperShowCopiedTooltip(linkEl);
+  }
+}
+
+/**
  * Show a brief green "Copied to clipboard" label next to the element, then fade and remove it.
  * Uses the externalized text from grouperCopiedToClipboardText (set in commonBottom.jsp)
  * with a fallback to "Copied to clipboard" if the variable is not set.
