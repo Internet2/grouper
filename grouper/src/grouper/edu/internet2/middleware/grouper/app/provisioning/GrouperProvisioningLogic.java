@@ -2097,6 +2097,11 @@ public class GrouperProvisioningLogic {
           errorCodeIsError = false;
         }
         break;
+      case SKP:
+        if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingSkipIfTargetGroupExistsIsAnError()) {
+          errorCodeIsError = false;
+        }
+        break;
       case ERR:
         break;
       default:
@@ -2554,6 +2559,9 @@ public class GrouperProvisioningLogic {
       if (gcGrouperSyncGroup != null && Boolean.TRUE.equals(gcGrouperSyncGroup.getInTarget())) {
         continue;
       }
+
+      // mark the wrapper with the SKP error code so the error handling framework records it
+      provisioningGroupWrapper.setErrorCode(GcGrouperSyncErrorCode.SKP);
 
       // null out both sides so the rest of the framework treats this wrapper as a no-op
       // (no insert because grouperProvisioningGroup is null; no update because target side is null;

@@ -22,5 +22,8 @@ public enum GcGrouperSyncErrorCode {
   MAT,
   
   /** group has no members, and configured to be not provisionable */
-  MEM;
+  MEM,
+  
+  /** group skipped because it already exists in target on first encounter */
+  SKP;
 }

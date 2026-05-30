@@ -1421,6 +1421,10 @@ public class GrouperProvisioningService {
     if (syncErrorCode == GcGrouperSyncErrorCode.DNE && grouperProvisioningConfiguration.isErrorHandlingTargetObjectDoesNotExistIsAnError()) {
       return true;
     }
+
+    if (syncErrorCode == GcGrouperSyncErrorCode.SKP && grouperProvisioningConfiguration.isErrorHandlingSkipIfTargetGroupExistsIsAnError()) {
+      return true;
+    }
     
     return false;
     
