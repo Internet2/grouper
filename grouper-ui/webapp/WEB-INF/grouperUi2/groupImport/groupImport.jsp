@@ -193,7 +193,8 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
                   <label for="add-entities" class="control-label">${textContainer.text['groupImportEnterListOfMemberIds'] }</label>
                   <div class="controls">
                     <textarea rows="10" name="entityList" id="entityListId"></textarea>
-                    <br /><br />
+                    <span class="help-block">${textContainer.text['groupImportEnterListOfMemberIdsHelp'] }</span>
+                    <br />
                     <a href="#" 
                       onclick="ajax('../app/UiV2GroupImport.groupImportValidateList', {formIds: 'importGroupFormId'}); return false;"
                       class="btn bulk-add-another" role="button">${textContainer.text['groupImportValidateButton']}</a>
