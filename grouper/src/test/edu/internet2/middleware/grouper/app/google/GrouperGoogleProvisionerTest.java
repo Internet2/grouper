@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import junit.textui.TestRunner;
@@ -651,8 +652,8 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   
   /**
    * verifies that when skipIfTargetGroupExists is on and a target group already exists on first encounter,
-   * Grouper skips it (no insert, no membership sync) and the grouper_sync_group row is not claimed
-   * (no error code, inTarget not set to true).
+   * Grouper skips it (no insert, no membership sync), the grouper_sync_group row gets the SKP error code,
+   * and inTarget is not set to true.
    */
   public void testSkipPreExistingTargetGroup() throws IOException {
 
@@ -737,14 +738,12 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       // debug map records the skip count
       assertEquals(1, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("skipPreExistingTargetGroups"), 0));
 
-      // grouper_sync_group row: no error code, inTarget not claimed
+      // grouper_sync_group row: SKP error code set, inTarget not claimed
       gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myGoogleProvisioner");
       GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
-      if (gcGrouperSyncGroup != null) {
-        assertNull("expected no error code for skipped group", gcGrouperSyncGroup.getErrorCode());
-        assertNull("expected no error message for skipped group", gcGrouperSyncGroup.getErrorMessage());
-        assertFalse("expected inTarget not claimed for skipped group", Boolean.TRUE.equals(gcGrouperSyncGroup.getInTarget()));
-      }
+      assertNotNull("expected sync group row to exist for skipped group", gcGrouperSyncGroup);
+      assertEquals("expected SKP error code for skipped group", GcGrouperSyncErrorCode.SKP, gcGrouperSyncGroup.getErrorCode());
+      assertFalse("expected inTarget not claimed for skipped group", Boolean.TRUE.equals(gcGrouperSyncGroup.getInTarget()));
 
       // phase 4: flip the flag off and run again - Grouper should now take over the pre-existing group
       // (sanity-check that the skip is conditional on the flag).

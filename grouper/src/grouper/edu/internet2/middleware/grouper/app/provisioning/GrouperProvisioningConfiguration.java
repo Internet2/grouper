@@ -660,6 +660,33 @@ public abstract class GrouperProvisioningConfiguration {
   }
 
   /**
+   * # If skip-if-target-group-exists counts as an error.  This happens when a pre-existing target group is skipped on first encounter
+   * # {valueType: "boolean", order: 130075, defaultValue: "false", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingSkipIfTargetGroupExistsIsAnError = 
+   */
+  private boolean errorHandlingSkipIfTargetGroupExistsIsAnError = false;
+
+  /**
+   * # If skip-if-target-group-exists counts as an error.  This happens when a pre-existing target group is skipped on first encounter
+   * # {valueType: "boolean", order: 130075, defaultValue: "false", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingSkipIfTargetGroupExistsIsAnError = 
+   * @return
+   */
+  public boolean isErrorHandlingSkipIfTargetGroupExistsIsAnError() {
+    return errorHandlingSkipIfTargetGroupExistsIsAnError;
+  }
+
+  /**
+   * # If skip-if-target-group-exists counts as an error.  This happens when a pre-existing target group is skipped on first encounter
+   * # {valueType: "boolean", order: 130075, defaultValue: "false", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingSkipIfTargetGroupExistsIsAnError = 
+   * @param errorHandlingSkipIfTargetGroupExistsIsAnError
+   */
+  public void setErrorHandlingSkipIfTargetGroupExistsIsAnError(boolean errorHandlingSkipIfTargetGroupExistsIsAnError) {
+    this.errorHandlingSkipIfTargetGroupExistsIsAnError = errorHandlingSkipIfTargetGroupExistsIsAnError;
+  }
+
+  /**
    * if a target group with the same matching id already exists when first encountered by Grouper,
    * skip it for this run (no insert, update, or membership sync) and leave the pre-existing target group untouched.
    */
@@ -3434,6 +3461,7 @@ public abstract class GrouperProvisioningConfiguration {
       this.errorHandlingMatchingValidationIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingMatchingValidationIsAnError", false), true);
       this.errorHandlingRequiredValidationIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingRequiredValidationIsAnError", false), true);
       this.errorHandlingTargetObjectDoesNotExistIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingTargetObjectDoesNotExistIsAnError", false), true);
+      this.errorHandlingSkipIfTargetGroupExistsIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingSkipIfTargetGroupExistsIsAnError", false), false);
       
       this.errorHandlingPercentLevel1 = GrouperUtil.floatValue(this.retrieveConfigDouble("errorHandlingPercentLevel1", false), 1);
       this.errorHandlingMinutesLevel1 = GrouperUtil.floatValue(this.retrieveConfigDouble("errorHandlingMinutesLevel1", false), 180);
