@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -2257,33 +2258,20 @@ public class UiV2EntityDataFields {
       GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
       grouperDataEngine.loadFieldsAndRows(grouperConfig);
       
-      // populate field options for the selected row
-      List<String[]> fieldOptions = new ArrayList<>();
+      // populate field options: only the selected row's fields if a row is selected,
+      // otherwise all data fields the user can access (not every field belongs to a row)
+      List<String[]> fieldOptions;
       if (dataRowConfigId != null) {
-        GrouperDataRowConfig rowConfig = grouperDataEngine.getRowConfigByConfigId().get(dataRowConfigId);
-        if (rowConfig == null) {
-          rowConfig = grouperDataEngine.getRowConfigByAlias().get(dataRowConfigId.toLowerCase());
-        }
-        if (rowConfig != null) {
-          for (String fieldConfigId : rowConfig.getDataFieldConfigIds()) {
-            GrouperDataFieldConfig fieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(fieldConfigId);
-            if (fieldConfig != null) {
-              fieldOptions.add(new String[]{fieldConfigId, String.join(", ", fieldConfig.getFieldAliases())});
-            }
-          }
-        }
+        fieldOptions = buildDataFieldOptionsForRow(grouperDataEngine, dataRowConfigId);
+      } else {
+        fieldOptions = buildAllDataFieldOptions(grouperDataEngine, loggedInSubject);
       }
       entityDataFieldsContainer.setDictionaryDataFieldOptions(fieldOptions);
       
-      // replace the dropdown contents and enable it
+      // replace the dropdown contents; always keep it enabled since fields can be selected without a row
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#dictDataField",
           "/WEB-INF/grouperUi2/entityDataFields/dataFieldDictionaryFieldOptions.jsp"));
-      
-      if (dataRowConfigId != null) {
-        guiResponseJs.addAction(GuiScreenAction.newScript("$('#dictDataField').prop('disabled', false);"));
-      } else {
-        guiResponseJs.addAction(GuiScreenAction.newScript("$('#dictDataField').prop('disabled', true);"));
-      }
+      guiResponseJs.addAction(GuiScreenAction.newScript("$('#dictDataField').prop('disabled', false);"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -2439,21 +2427,13 @@ public class UiV2EntityDataFields {
     }
     container.setDictionaryDataRowOptions(rowOptions);
     
-    // data field options for selected row
-    List<String[]> fieldOptions = new ArrayList<>();
+    // data field options: only the selected row's fields if a row is selected,
+    // otherwise all data fields the user can access (not every field belongs to a row)
+    List<String[]> fieldOptions;
     if (selectedDataRow != null) {
-      GrouperDataRowConfig rowConfig = grouperDataEngine.getRowConfigByConfigId().get(selectedDataRow);
-      if (rowConfig == null) {
-        rowConfig = grouperDataEngine.getRowConfigByAlias().get(selectedDataRow.toLowerCase());
-      }
-      if (rowConfig != null) {
-        for (String fieldConfigId : rowConfig.getDataFieldConfigIds()) {
-          GrouperDataFieldConfig fieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(fieldConfigId);
-          if (fieldConfig != null) {
-            fieldOptions.add(new String[]{fieldConfigId, String.join(", ", fieldConfig.getFieldAliases())});
-          }
-        }
-      }
+      fieldOptions = buildDataFieldOptionsForRow(grouperDataEngine, selectedDataRow);
+    } else {
+      fieldOptions = buildAllDataFieldOptions(grouperDataEngine, loggedInSubject);
     }
     container.setDictionaryDataFieldOptions(fieldOptions);
     
@@ -2466,6 +2446,72 @@ public class UiV2EntityDataFields {
       realmOptions.add(new String[]{realmId, label});
     }
     container.setDictionaryPrivacyRealmOptions(realmOptions);
+  }
+  
+  /**
+   * Build data field dropdown options for the fields belonging to a specific data row.
+   */
+  private List<String[]> buildDataFieldOptionsForRow(GrouperDataEngine grouperDataEngine, String dataRowConfigId) {
+    List<String[]> fieldOptions = new ArrayList<>();
+    GrouperDataRowConfig rowConfig = grouperDataEngine.getRowConfigByConfigId().get(dataRowConfigId);
+    if (rowConfig == null) {
+      rowConfig = grouperDataEngine.getRowConfigByAlias().get(dataRowConfigId.toLowerCase());
+    }
+    if (rowConfig != null) {
+      for (String fieldConfigId : rowConfig.getDataFieldConfigIds()) {
+        GrouperDataFieldConfig fieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(fieldConfigId);
+        if (fieldConfig != null) {
+          fieldOptions.add(new String[]{fieldConfigId, String.join(", ", fieldConfig.getFieldAliases())});
+        }
+      }
+    }
+    return fieldOptions;
+  }
+  
+  /**
+   * Build data field dropdown options for all data fields the user can access — the
+   * standalone sections (individuals, global, groups) plus fields belonging to data rows.
+   * This mirrors what the dictionary results render, so every dropdown entry maps to a
+   * displayable result. Deduplicated by config id and sorted by alias.
+   */
+  private List<String[]> buildAllDataFieldOptions(GrouperDataEngine grouperDataEngine, Subject loggedInSubject) {
+    
+    Map<String, GrouperDataFieldConfig> configIdToField = new LinkedHashMap<>();
+    
+    // standalone fields across the three categories the dictionary renders
+    for (String assignableTo : new String[]{"individuals", "global", "groups"}) {
+      MultiKey fieldsAndHasAccess = grouperDataEngine.retrieveGrouperDataFieldsForDataFieldAndDictionary(loggedInSubject, assignableTo);
+      @SuppressWarnings("unchecked")
+      List<GrouperDataFieldConfig> fieldConfigs = (List<GrouperDataFieldConfig>) fieldsAndHasAccess.getKey(0);
+      for (GrouperDataFieldConfig fieldConfig : fieldConfigs) {
+        configIdToField.put(fieldConfig.getConfigId(), fieldConfig);
+      }
+    }
+    
+    // row fields from accessible data rows
+    List<GrouperDataRowConfig> dataRows = grouperDataEngine.retrieveGrouperDataRowsForDataFieldAndDictionary(loggedInSubject);
+    for (GrouperDataRowConfig rowConfig : dataRows) {
+      for (String fieldConfigId : rowConfig.getDataFieldConfigIds()) {
+        GrouperDataFieldConfig fieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(fieldConfigId);
+        if (fieldConfig != null) {
+          configIdToField.put(fieldConfig.getConfigId(), fieldConfig);
+        }
+      }
+    }
+    
+    // sort by first alias, case-insensitive
+    List<GrouperDataFieldConfig> allFields = new ArrayList<>(configIdToField.values());
+    allFields.sort((a, b) -> {
+      String aliasA = a.getFieldAliases().isEmpty() ? a.getConfigId() : a.getFieldAliases().iterator().next();
+      String aliasB = b.getFieldAliases().isEmpty() ? b.getConfigId() : b.getFieldAliases().iterator().next();
+      return aliasA.compareToIgnoreCase(aliasB);
+    });
+    
+    List<String[]> fieldOptions = new ArrayList<>();
+    for (GrouperDataFieldConfig fieldConfig : allFields) {
+      fieldOptions.add(new String[]{fieldConfig.getConfigId(), String.join(", ", fieldConfig.getFieldAliases())});
+    }
+    return fieldOptions;
   }
   
   /**
