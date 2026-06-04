@@ -84,7 +84,7 @@ ${grouper:title('miscAttestationDataFieldAndRowDictionaryLink')}
                 <strong><label for="dictDataField" style="font-weight: bold;">${textContainer.text['dataFieldDictionaryFilterDataFieldInRow']}</label></strong>
               </td>
               <td>
-                <select id="dictDataField" name="dataField" ${empty grouperRequestContainer.entityDataFieldsContainer.dictionaryFilterDataRow ? 'disabled' : ''}>
+                <select id="dictDataField" name="dataField">
                   <option value="">${textContainer.text['dataFieldDictionaryFilterAny']}</option>
                   <c:forEach items="${grouperRequestContainer.entityDataFieldsContainer.dictionaryDataFieldOptions}" var="opt">
                     <option value="${grouper:escapeHtml(opt[0])}" ${opt[0] == grouperRequestContainer.entityDataFieldsContainer.dictionaryFilterDataField ? 'selected' : ''}>${grouper:escapeHtml(opt[1])}</option>
@@ -301,11 +301,8 @@ function dictionaryToggleAdvanced() {
 }
 
 function dictionaryOnDataRowChange() {
-  var rowVal = $('#dictDataRow').val();
-  if (!rowVal) {
-    $('#dictDataField').empty().append('<option value="">${textContainer.text["dataFieldDictionaryFilterAny"]}</option>').prop('disabled', true);
-    return;
-  }
+  // re-fetch field options: the selected row's fields if a row is chosen,
+  // otherwise all data fields (server decides based on the dataRow param)
   ajax('../app/UiV2EntityDataFields.dataFieldDictionaryFieldsForRow', {formIds: 'dictionaryFilterForm'});
 }
 
