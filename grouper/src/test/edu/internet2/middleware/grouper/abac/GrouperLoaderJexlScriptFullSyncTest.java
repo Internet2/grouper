@@ -50,7 +50,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testRecentMemberOf"));
+    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testVisualizationComplexHasRow"));
   }
 
   /**

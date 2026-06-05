@@ -1215,9 +1215,26 @@ public class UiV2GrouperLoader {
             saveSourceIds = GrouperAbac.globalDefaultSubjectSourceIds();
           }
           GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), null, loggedInSubject, false, saveSourceIds, false);
-          if (jexlScriptAnalysis != null && 
+          if (jexlScriptAnalysis != null &&
               (StringUtils.isNotBlank(jexlScriptAnalysis.getErrorMessage()) || StringUtils.isNotBlank(jexlScriptAnalysis.getWarningMessage()))) {
             throw new RuntimeException("not allowed");
+          }
+
+          // enforce the configured max ABAC membership size for the editing user, so people
+          // cannot configure oversized scripted groups that would overwhelm Grouper
+          if (!hasError && jexlScriptAnalysis != null && jexlScriptAnalysis.getGrouperJexlScriptParts() != null
+              && !jexlScriptAnalysis.getGrouperJexlScriptParts().isEmpty()) {
+            Integer maxAbacMembershipSize = GrouperAbac.maxAbacMembershipSizeForSubject(loggedInSubject);
+            if (maxAbacMembershipSize != null) {
+              int populationCount = jexlScriptAnalysis.getGrouperJexlScriptParts().get(0).getPopulationCount();
+              if (populationCount > maxAbacMembershipSize.intValue()) {
+                String maxSizeMessage = TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptMaxSizeExceeded")
+                    .replace("##count##", String.valueOf(populationCount))
+                    .replace("##max##", String.valueOf(maxAbacMembershipSize.intValue()));
+                guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, maxSizeMessage));
+                hasError = true;
+              }
+            }
           }
         }
 
