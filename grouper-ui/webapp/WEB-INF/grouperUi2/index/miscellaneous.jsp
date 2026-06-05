@@ -71,13 +71,8 @@
                 	<div class="row-fluid">
                 	<h4 style="color: #1c6070; margin-top: 25px; ">${textContainer.text['miscellaneousPageAdministrationHeader'] }</h4>
                 		
-                     <c:if test="${grouperRequestContainer.grouperReportContainer.canSeeAllReports}">
-                      <br /><a id="miscAllReportsLink" href="?operation=UiV2GrouperReport.viewAllReportConfigs" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportConfigs');" style="white-space: nowrap;">
-                      ${textContainer.text['miscAllReportsLink'] }</a>
-                     </c:if>
-                                       
                 	 <c:if test="${grouperRequestContainer.authenticationContainer.canViewAuthentication}">
-                      <br /><br /><a id="miscAuthenticationPrivilegesLink" href="?operation=UiV2AuthenticationConfig.index" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AuthenticationConfig.index');" style="white-space: nowrap;">
+                      <br /><a id="miscAuthenticationPrivilegesLink" href="?operation=UiV2AuthenticationConfig.index" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AuthenticationConfig.index');" style="white-space: nowrap;">
                         ${textContainer.text['adminAuthenticationLink'] }</a>
                     </c:if>
                 	
@@ -103,18 +98,19 @@
                       
                     </c:if>
                     
+                    <c:if test="${grouperRequestContainer.globalAttributeResolverConfigContainer.canViewGlobalAttributeResolverConfig}">
+                      <br /><br /><a id="miscEntityAttributeResolversLink" href="?operation=UiV2GlobalAttributeResolverConfig.viewGlobalAttributeResolverConfigs" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GlobalAttributeResolverConfig.viewGlobalAttributeResolverConfigs');" style="white-space: nowrap;">
+                        ${textContainer.text['adminGlobalAttributeResolverConfigLink'] }</a>
+                    </c:if>
+                    
                     <br /><br /><a href="?operation=UiV2EntityDataFields.viewEntityDataFieldsSummary" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.viewEntityDataFieldsSummary');" style="white-space: nowrap;"
                       >${textContainer.text['miscAdminDataFieldsLink'] }</a>
-                    
+                      
                     <c:if test="${grouperRequestContainer.externalSystemContainer.canViewExternalSystems}">
                       <br /><br /><a id="miscExternalSystemsLink" href="?operation=UiV2ExternalSystem.viewExternalSystems" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2ExternalSystem.viewExternalSystems');" style="white-space: nowrap;">
                       	${textContainer.text['adminExternalSystemsLink'] }</a>
                     </c:if>
                     
-                    <c:if test="${grouperRequestContainer.globalAttributeResolverConfigContainer.canViewGlobalAttributeResolverConfig}">
-                      <br /><br /><a id="miscEntityAttributeResolversLink" href="?operation=UiV2GlobalAttributeResolverConfig.viewGlobalAttributeResolverConfigs" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GlobalAttributeResolverConfig.viewGlobalAttributeResolverConfigs');" style="white-space: nowrap;">
-                        ${textContainer.text['adminGlobalAttributeResolverConfigLink'] }</a>
-                    </c:if>
 
                     <c:if test="${grouperRequestContainer.gshTemplateContainer.canViewGshTemplates}">
                       <br /><br /><a id="miscGshTemplatesLink" href="?operation=UiV2GshTemplateConfig.viewGshTemplates" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GshTemplateConfig.viewGshTemplates');" style="white-space: nowrap;"
@@ -125,6 +121,11 @@
                       <br /><br /><a id="miscJexlScriptTesterLink" href="?operation=UiV2ScriptTester.testScript" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2ScriptTester.testScript');" style="white-space: nowrap;"
                         >${textContainer.text['scriptTesterLink'] }</a>
                     </c:if>
+                    
+                     <c:if test="${grouperRequestContainer.grouperReportContainer.canSeeAllReports}">
+                      <br /><br /><a id="miscAllReportsLink" href="?operation=UiV2GrouperReport.viewAllReportConfigs" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportConfigs');" style="white-space: nowrap;">
+                      ${textContainer.text['miscAllReportsLink'] }</a>
+                     </c:if>
                     
                     <c:if test="${grouperRequestContainer.sqlSyncConfigurationContainer.canViewSqlSyncConfigs}">
                       <br /><br /><a id="miscSqlSyncLink" href="?operation=UiV2SqlSyncConfiguration.viewSqlSyncConfigurations" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SqlSyncConfiguration.viewSqlSyncConfigurations');" style="white-space: nowrap;"
