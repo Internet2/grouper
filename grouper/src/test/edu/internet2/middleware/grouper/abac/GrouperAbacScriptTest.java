@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -28,6 +29,50 @@ public class GrouperAbacScriptTest extends GrouperTest {
 
   public GrouperAbacScriptTest(String name) {
     super(name);
+  }
+
+  /**
+   * max ABAC membership size tiers: highest applicable cap wins; default applies to users in no
+   * tier; no config at all means unlimited (null).
+   */
+  public void testMaxAbacMembershipSizeForSubject() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Subject testSubject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+
+    // nothing configured -> unlimited
+    GrouperAbac.clearCaches();
+    assertNull(GrouperAbac.maxAbacMembershipSizeForSubject(testSubject0));
+
+    // two tier groups; subj0 in both, subj1 in medium only, subj2 in neither
+    Group largeEditors = new GroupSave().assignName("test:largeEditors").assignCreateParentStemsIfNotExist(true).save();
+    Group mediumEditors = new GroupSave().assignName("test:mediumEditors").assignCreateParentStemsIfNotExist(true).save();
+    largeEditors.addMember(testSubject0);
+    mediumEditors.addMember(testSubject0);
+    mediumEditors.addMember(testSubject1);
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.abac.maxMembershipSizeLimit.0.groupName").value("test:largeEditors").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.abac.maxMembershipSizeLimit.0.maxSize").value("200000").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.abac.maxMembershipSizeLimit.1.groupName").value("test:mediumEditors").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.abac.maxMembershipSizeLimit.1.maxSize").value("20000").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.abac.defaultMaxMembershipSizeLimit").value("2000").store();
+    GrouperAbac.clearCaches();
+
+    // subj0 is in both tiers -> highest wins
+    assertEquals(Integer.valueOf(200000), GrouperAbac.maxAbacMembershipSizeForSubject(testSubject0));
+    // subj1 is in the medium tier only
+    assertEquals(Integer.valueOf(20000), GrouperAbac.maxAbacMembershipSizeForSubject(testSubject1));
+    // subj2 is in no tier -> base default
+    assertEquals(Integer.valueOf(2000), GrouperAbac.maxAbacMembershipSizeForSubject(testSubject2));
+
+    // remove the base default -> users in no tier are unlimited again
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.abac.defaultMaxMembershipSizeLimit").value("").store();
+    GrouperAbac.clearCaches();
+    assertNull(GrouperAbac.maxAbacMembershipSizeForSubject(testSubject2));
+    // but a tier member still gets their tier cap
+    assertEquals(Integer.valueOf(20000), GrouperAbac.maxAbacMembershipSizeForSubject(testSubject1));
   }
 
   public void testSimpleAttributeAssignmentBoolean() {

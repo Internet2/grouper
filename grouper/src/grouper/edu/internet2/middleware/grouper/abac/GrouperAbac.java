@@ -14,15 +14,22 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -31,6 +38,9 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  *
  */
 public class GrouperAbac {
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperAbac.class);
 
   public static final String GROUPER_JEXL_SCRIPT_MARKER_DEF = "grouperJexlScriptMarkerDef";
   
@@ -223,12 +233,116 @@ public class GrouperAbac {
   }
 
   /**
+   * a configured tier: members of groupName may save ABAC scripted groups up to maxSize members
+   */
+  private static class MaxMembershipSizeTier {
+    private String groupName;
+    private int maxSize;
+  }
+
+  /**
+   * cache the parsed max-membership-size tiers for a couple minutes
+   */
+  private static ExpirableCache<Boolean, List<MaxMembershipSizeTier>> maxMembershipSizeTiersCache = new ExpirableCache<>(2);
+
+  /** matches grouper.abac.maxMembershipSizeLimit.&lt;configId&gt;.groupName to pull out configIds */
+  private static final Pattern maxMembershipSizeTierPattern =
+      Pattern.compile("^grouper\\.abac\\.maxMembershipSizeLimit\\.([^.]+)\\.groupName$");
+
+  /**
+   * Read the configured size tiers from grouper.properties:
+   *   grouper.abac.maxMembershipSizeLimit.&lt;configId&gt;.groupName = etc:abac:largeGroupEditors
+   *   grouper.abac.maxMembershipSizeLimit.&lt;configId&gt;.maxSize   = 200000
+   * @return the tiers (never null)
+   */
+  private static List<MaxMembershipSizeTier> maxMembershipSizeTiers() {
+    List<MaxMembershipSizeTier> result = maxMembershipSizeTiersCache.get(Boolean.TRUE);
+    if (result != null) {
+      return result;
+    }
+    result = new ArrayList<MaxMembershipSizeTier>();
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+    Set<String> configIds = GrouperUtil.nonNull(grouperConfig.propertyConfigIds(maxMembershipSizeTierPattern));
+    for (String configId : configIds) {
+      String groupName = grouperConfig.propertyValueString("grouper.abac.maxMembershipSizeLimit." + configId + ".groupName");
+      int maxSize = grouperConfig.propertyValueInt("grouper.abac.maxMembershipSizeLimit." + configId + ".maxSize", -1);
+      if (StringUtils.isBlank(groupName) || maxSize < 0) {
+        LOG.error("ABAC max membership size tier '" + configId + "' is missing groupName or maxSize; skipping");
+        continue;
+      }
+      MaxMembershipSizeTier tier = new MaxMembershipSizeTier();
+      tier.groupName = groupName;
+      tier.maxSize = maxSize;
+      result.add(tier);
+    }
+    maxMembershipSizeTiersCache.put(Boolean.TRUE, result);
+    return result;
+  }
+
+  /**
+   * The maximum ABAC scripted-group membership size the given subject is allowed to save.
+   * The highest applicable cap wins: the base default (if configured) plus the maxSize of every
+   * tier group the subject is a member of. Returns null when no cap applies to this subject (no
+   * tiers matched and no default configured) — i.e. unlimited, so the feature never locks anyone
+   * out unless an admin deliberately configures caps.
+   * @param subject the subject saving the scripted group
+   * @return the max allowed membership size, or null for unlimited
+   */
+  public static Integer maxAbacMembershipSizeForSubject(final Subject subject) {
+    if (subject == null) {
+      return null;
+    }
+    List<MaxMembershipSizeTier> tiers = maxMembershipSizeTiers();
+    String defaultConfig = GrouperConfig.retrieveConfig().propertyValueString("grouper.abac.defaultMaxMembershipSizeLimit");
+
+    if (tiers.isEmpty() && StringUtils.isBlank(defaultConfig)) {
+      // feature not configured at all -- unlimited
+      return null;
+    }
+
+    Integer cap = null;
+    if (StringUtils.isNotBlank(defaultConfig)) {
+      cap = GrouperUtil.intValue(defaultConfig);
+    }
+
+    if (!tiers.isEmpty()) {
+      // membership checks run as root -- the subject may not be able to read the config groups
+      final List<MaxMembershipSizeTier> finalTiers = tiers;
+      Integer tierCap = (Integer)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Integer highest = null;
+          for (MaxMembershipSizeTier tier : finalTiers) {
+            Group group = GroupFinder.findByName(grouperSession, tier.groupName, false);
+            if (group == null) {
+              LOG.error("ABAC max membership size tier group '" + tier.groupName + "' does not exist; skipping");
+              continue;
+            }
+            if (group.hasMember(subject)) {
+              if (highest == null || tier.maxSize > highest) {
+                highest = tier.maxSize;
+              }
+            }
+          }
+          return highest;
+        }
+      });
+      if (tierCap != null && (cap == null || tierCap > cap)) {
+        cap = tierCap;
+      }
+    }
+
+    return cap;
+  }
+
+  /**
    * clear all expirable caches, useful for testing
    */
   public static void clearCaches() {
     globalDefaultSubjectSourceIdsCache.clear();
     allowUserOverrideSubjectSourceIdsCache.clear();
     availableSubjectSourceIdsCache.clear();
+    maxMembershipSizeTiersCache.clear();
   }
 
   /**
