@@ -97,6 +97,54 @@ public class GrouperDataProviderLogic {
   private GrouperDataEngine dataEngine;
   private Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex = new HashMap<String, Map<String, Integer>>();
 
+  /**
+   * accumulated time (ms) spent retrieving data from the target source (sql/ldap), reported in the debug map
+   */
+  private long millisRetrievedFromTarget = 0;
+
+  /**
+   * accumulated time (ms) spent retrieving existing data from grouper, reported in the debug map
+   */
+  private long millisRetrievedFromGrouper = 0;
+
+  /**
+   * number of queries executed against the target source, reported in the debug map
+   */
+  private int targetQueryCount = 0;
+
+  /**
+   * number of queries executed against grouper to load existing data, reported in the debug map
+   */
+  private int grouperQueryCount = 0;
+
+  /**
+   * record that a query was run against the target source, tracking count and time spent.
+   * @param startNanos value of System.nanoTime() captured immediately before the query
+   */
+  private void recordTargetQuery(long startNanos) {
+    this.targetQueryCount++;
+    this.millisRetrievedFromTarget += (System.nanoTime() - startNanos) / 1000000L;
+  }
+
+  /**
+   * record that a query was run against grouper to load existing data, tracking count and time spent.
+   * @param startNanos value of System.nanoTime() captured immediately before the query
+   */
+  private void recordGrouperQuery(long startNanos) {
+    this.grouperQueryCount++;
+    this.millisRetrievedFromGrouper += (System.nanoTime() - startNanos) / 1000000L;
+  }
+
+  /**
+   * write the accumulated query counts and timings to the debug map.
+   */
+  private void writeQueryStatsToDebugMap() {
+    Map<String, Object> debugMap = grouperDataProviderSync.getDebugMap();
+    debugMap.put("targetQueryCount", this.targetQueryCount);
+    debugMap.put("grouperQueryCount", this.grouperQueryCount);
+    debugMap.put("millisRetrievedFromTarget", this.millisRetrievedFromTarget);
+    debugMap.put("millisRetrievedFromGrouper", this.millisRetrievedFromGrouper);
+  }
 
   public void setGrouperDataProviderSync(GrouperDataProviderSync grouperDataProviderSync) {
     this.grouperDataProviderSync = grouperDataProviderSync;
@@ -143,13 +191,17 @@ public class GrouperDataProviderLogic {
     // collect distinct lowercased subject ids from all source queries
     Set<String> allSubjectIdsFromSource = new TreeSet<>();
     for (GrouperDataProviderQuery grouperDataProviderQuery : grouperDataProviderSync.retrieveGrouperDataProviderQueries()) {
+      long startNanos = System.nanoTime();
       List<String> querySubjectIds = grouperDataProviderQuery.retrieveGrouperDataProviderQueryTargetDao().selectDistinctSubjectIds();
+      recordTargetQuery(startNanos);
       allSubjectIdsFromSource.addAll(querySubjectIds);
     }
     GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     // collect distinct lowercased subject ids from existing grouper data
+    long grouperSubjectIdsStartNanos = System.nanoTime();
     List<String> grouperSubjectIds = GrouperDAOFactory.getFactory().getMember().selectDistinctSubjectIdsByDataProvider(grouperDataProvider.getInternalId());
+    recordGrouperQuery(grouperSubjectIdsStartNanos);
     GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     // union source and grouper subject ids into one sorted list
@@ -230,8 +282,13 @@ public class GrouperDataProviderLogic {
       accumulatedState.rowAssignInsertCount += batchState.rowAssignInsertCount;
       accumulatedState.rowAssignDeleteCount += batchState.rowAssignDeleteCount;
 
-      // save the loader log after each batch so counts are visible during the sync
+      // update the debug log in the loader log after each batch so progress is visible during the sync
       if (grouperDataProviderSync.getHib3GrouperLoaderLog() != null) {
+        writeQueryStatsToDebugMap();
+        grouperDataProviderSync.getHib3GrouperLoaderLog().setJobMessage(
+            "Running full sync for dataProviderConfigId=" + grouperDataProviderSync.getConfigId()
+            + ", processed batch " + (batchIndex + 1) + " of " + numberOfBatches + "\n"
+            + GrouperUtil.mapToString(grouperDataProviderSync.getDebugMap()));
         grouperDataProviderSync.getHib3GrouperLoaderLog().store();
       }
 
@@ -267,6 +324,8 @@ public class GrouperDataProviderLogic {
 
     calculateReportDuplicateRowKeys(accumulatedState);
     calculateReportChangeCounts(accumulatedState);
+
+    writeQueryStatsToDebugMap();
 
     // save debug map for testing
     testingDebugMap = grouperDataProviderSync.getDebugMap();
@@ -316,8 +375,10 @@ public class GrouperDataProviderLogic {
    */
   private void syncFullLoadGrouperDataForRange(String fromSubjectIdLower, String toSubjectIdLower) {
 
+    long startNanos = System.nanoTime();
     Set<Long> memberInternalIds = GrouperDAOFactory.getFactory().getMember()
         .selectByDataProviderAndSubjectIdRange(grouperDataProvider.getInternalId(), fromSubjectIdLower, toSubjectIdLower);
+    recordGrouperQuery(startNanos);
 
     syncFullLoadGrouperDataForMemberInternalIds(memberInternalIds);
   }
@@ -346,7 +407,9 @@ public class GrouperDataProviderLogic {
       }
       gcDbAccess.addBindVar(grouperDataProvider.getInternalId());
       gcDbAccess.addBindVar(grouperDataProvider.getInternalId());
+      long startNanos = System.nanoTime();
       memberInternalIds.addAll(GrouperUtil.nonNull(gcDbAccess.sql(sql.toString()).selectList(Long.class)));
+      recordGrouperQuery(startNanos);
     }
 
     syncFullLoadGrouperDataForMemberInternalIds(memberInternalIds);
@@ -365,7 +428,9 @@ public class GrouperDataProviderLogic {
     }
 
     // load dictionary text for these members
+    long startNanos = System.nanoTime();
     Map<Long, String> dictionariesByDataProvider = GrouperDictionaryDao.selectByDataProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds);
+    recordGrouperQuery(startNanos);
     dataEngine.getGrouperDataProviderIndex().getDictionaryTextByInternalId().putAll(dictionariesByDataProvider);
     for (Map.Entry<Long, String> entry : dictionariesByDataProvider.entrySet()) {
       dataEngine.getGrouperDataProviderIndex().getDictionaryTextByString().put(entry.getValue(), entry.getKey());
@@ -380,19 +445,25 @@ public class GrouperDataProviderLogic {
     GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     // load field assignments
+    startNanos = System.nanoTime();
     List<GrouperDataFieldAssign> grouperDataFieldAssigns = GrouperDataFieldAssignDao.selectByProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds);
+    recordGrouperQuery(startNanos);
     processDataFieldAssignWrappers(grouperDataFieldAssigns);
 
     GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     // load row assignments
+    startNanos = System.nanoTime();
     List<GrouperDataRowAssign> grouperDataRowAssigns = GrouperUtil.nonNull(GrouperDataRowAssignDao.selectByProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds));
+    recordGrouperQuery(startNanos);
     processDataRowAssignWrappers(grouperDataRowAssigns);
 
     GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     // load row field assignments
+    startNanos = System.nanoTime();
     List<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns = GrouperUtil.nonNull(GrouperDataRowFieldAssignDao.selectByProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds));
+    recordGrouperQuery(startNanos);
     processDataRowFieldAssignWrappers(grouperDataRowFieldAssigns);
 
     GrouperDaemonUtils.stopProcessingIfJobPaused();
@@ -421,8 +492,10 @@ public class GrouperDataProviderLogic {
         queryConfigIdToLowerColumnNameToZeroIndex.put(grouperDataProviderQueryConfig.getConfigId(), lowerColumnNameToZeroIndex);
       }
 
+      long startNanos = System.nanoTime();
       List<Object[]> rows = grouperDataProviderQuery.retrieveGrouperDataProviderQueryTargetDao()
           .selectDataBySubjectIdRange(lowerColumnNameToZeroIndex, fromSubjectIdLower, toSubjectIdLower);
+      recordTargetQuery(startNanos);
 
       grouperDataProviderQueryToRows.put(grouperDataProviderQuery, rows);
     }
@@ -451,8 +524,10 @@ public class GrouperDataProviderLogic {
         queryConfigIdToLowerColumnNameToZeroIndex.put(grouperDataProviderQueryConfig.getConfigId(), lowerColumnNameToZeroIndex);
       }
 
+      long startNanos = System.nanoTime();
       List<Object[]> rows = grouperDataProviderQuery.retrieveGrouperDataProviderQueryTargetDao()
           .selectDataBySubjectIds(lowerColumnNameToZeroIndex, subjectIdsLower);
+      recordTargetQuery(startNanos);
 
       grouperDataProviderQueryToRows.put(grouperDataProviderQuery, rows);
     }
@@ -556,7 +631,9 @@ public class GrouperDataProviderLogic {
       Map<String, Integer> lowerColumnNameToZeroIndex = new HashMap<String, Integer>();
       changeLogQueryConfigIdToLowerColumnNameToZeroIndex.put(grouperDataProviderChangeLogQueryConfig.getConfigId(), lowerColumnNameToZeroIndex);
       
+      long startNanos = System.nanoTime();
       List<Object[]> rows = grouperDataProviderChangeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(lowerColumnNameToZeroIndex, changesFromTimestamp, changesToTimestamp);
+      recordTargetQuery(startNanos);
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       if (rows.size() == 0) {
@@ -740,7 +817,9 @@ public class GrouperDataProviderLogic {
     Set<Long> memberInternalIds = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().keySet();
     
     // get all dictionary text for field and row assignments for this data provider for the members of interest
+    long startNanos = System.nanoTime();
     Map<Long, String> dictionariesByDataProvider = GrouperDictionaryDao.selectByDataProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds);
+    recordGrouperQuery(startNanos);
     dataEngine.getGrouperDataProviderIndex().getDictionaryTextByInternalId().putAll(dictionariesByDataProvider);
     for (Map.Entry<Long, String> entry : dictionariesByDataProvider.entrySet()) {
       dataEngine.getGrouperDataProviderIndex().getDictionaryTextByString().put(entry.getValue(), entry.getKey());
@@ -750,7 +829,9 @@ public class GrouperDataProviderLogic {
 
     {
       // get field assignments in the database for this provider
+      startNanos = System.nanoTime();
       List<GrouperDataFieldAssign> grouperDataFieldAssigns = GrouperDataFieldAssignDao.selectByProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds);
+      recordGrouperQuery(startNanos);
       processDataFieldAssignWrappers(grouperDataFieldAssigns);
     }
     
@@ -758,14 +839,18 @@ public class GrouperDataProviderLogic {
 
     {
       // get row assignments in the database for this provider
+      startNanos = System.nanoTime();
       List<GrouperDataRowAssign> grouperDataRowAssigns = GrouperUtil.nonNull(GrouperDataRowAssignDao.selectByProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds));
+      recordGrouperQuery(startNanos);
       processDataRowAssignWrappers(grouperDataRowAssigns);
     }
     
     GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     {
+      startNanos = System.nanoTime();
       List<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns = GrouperUtil.nonNull(GrouperDataRowFieldAssignDao.selectByProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds));
+      recordGrouperQuery(startNanos);
       processDataRowFieldAssignWrappers(grouperDataRowFieldAssigns);
     }
     
@@ -781,6 +866,8 @@ public class GrouperDataProviderLogic {
 
     calculateReportDuplicateRowKeys(state);
     calculateReportChangeCounts(state);
+
+    writeQueryStatsToDebugMap();
   }
   
   /**
@@ -1010,6 +1097,7 @@ public class GrouperDataProviderLogic {
 
       List<Object[]> rows;
 
+      long startNanos = System.nanoTime();
       if (isFullSync) {
         rows = grouperDataProviderQuery.retrieveGrouperDataProviderQueryTargetDao().selectData(lowerColumnNameToZeroIndex);
       } else {
@@ -1022,6 +1110,7 @@ public class GrouperDataProviderLogic {
         }
         rows = grouperDataProviderQuery.retrieveGrouperDataProviderQueryTargetDao().selectDataByMembers(lowerColumnNameToZeroIndex, members);
       }
+      recordTargetQuery(startNanos);
       grouperDataProviderQueryToRows.put(grouperDataProviderQuery, rows);
     }
 
