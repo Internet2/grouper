@@ -340,10 +340,25 @@ public class DatadogMockServiceHandler extends MockServiceHandler {
     query.options(queryOptions);
     List<DatadogGroup> datadogGroups = query.list(DatadogGroup.class);
 
+    // honor page[number] (0-indexed) and page[size] so the multi-page retrieval
+    // path is actually exercised; the real Datadog roles endpoint truncates to a
+    // small default page when page[size] is not sent, which is the bug that made
+    // existing roles look missing
+    int totalCount = datadogGroups.size();
+    String pageNumberParam = mockServiceRequest.getHttpServletRequest().getParameter("page[number]");
+    String pageSizeParam = mockServiceRequest.getHttpServletRequest().getParameter("page[size]");
+    int pageNumber = StringUtils.isBlank(pageNumberParam) ? 0 : GrouperUtil.intValue(pageNumberParam);
+    // mirror Datadog's small default page size when the caller does not specify one
+    int pageSize = StringUtils.isBlank(pageSizeParam) ? 10 : GrouperUtil.intValue(pageSizeParam);
+
+    int fromIndex = Math.min(pageNumber * pageSize, totalCount);
+    int toIndex = Math.min(fromIndex + pageSize, totalCount);
+    List<DatadogGroup> pageOfGroups = datadogGroups.subList(fromIndex, toIndex);
+
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     ArrayNode dataArray = GrouperUtil.jsonJacksonArrayNode();
 
-    for (DatadogGroup datadogGroup : datadogGroups) {
+    for (DatadogGroup datadogGroup : pageOfGroups) {
       ObjectNode roleDataNode = GrouperUtil.jsonJacksonNode();
       roleDataNode.put("type", "roles");
       roleDataNode.put("id", datadogGroup.getId());
@@ -358,6 +373,13 @@ public class DatadogMockServiceHandler extends MockServiceHandler {
     }
 
     resultNode.set("data", dataArray);
+
+    ObjectNode metaNode = GrouperUtil.jsonJacksonNode();
+    ObjectNode pageNode = GrouperUtil.jsonJacksonNode();
+    pageNode.put("total_count", totalCount);
+    pageNode.put("total_filtered_count", totalCount);
+    metaNode.set("page", pageNode);
+    resultNode.set("meta", metaNode);
 
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");

@@ -782,6 +782,10 @@ public class DatadogApiCommands {
 
   /**
    * Retrieve all roles from Datadog via GET /api/v2/roles.
+   * Pages through results using page[number] (0-indexed) and page[size]; the
+   * roles endpoint otherwise defaults to a small page size, which would silently
+   * truncate the list and make existing roles look missing (leading to 409
+   * "already exists" on insert).
    * Filters out ignored roles (if datadogSettings is not null).
    * @param configId the id of the external system
    * @param datadogSettings the settings, or null to skip ignore checks
@@ -799,22 +803,37 @@ public class DatadogApiCommands {
 
     try {
 
-      JsonNode jsonNode = executeMethod(debugMap, "retrieveRoles", "GET", configId, "/api/v2/roles",
-          GrouperUtil.toSet(200), new int[] { -1 }, null, null, false);
+      int pageNumber = 0;
+      int pageSize = grouperLoaderConfig.propertyValueInt(
+          "grouper.wsBearerToken." + configId + ".pageSize", MAX_PAGE_SIZE);
 
-      ArrayNode dataArray = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "data");
+      while (true) {
 
-      for (int i = 0; i < (dataArray == null ? 0 : dataArray.size()); i++) {
-        JsonNode roleDataNode = dataArray.get(i);
-        DatadogGroup datadogGroup = DatadogGroup.fromJson(roleDataNode);
-        datadogGroup.setGroupType("role");
+        JsonNode jsonNode = executeMethod(debugMap, "retrieveRoles", "GET", configId, "/api/v2/roles",
+            GrouperUtil.toSet(200), new int[] { -1 }, null, pageNumber, true);
 
-        // filter out ignored roles
-        if (datadogSettings != null && datadogSettings.isIgnoredRole(datadogGroup.getName())) {
-          continue;
+        ArrayNode dataArray = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "data");
+
+        for (int i = 0; i < (dataArray == null ? 0 : dataArray.size()); i++) {
+          JsonNode roleDataNode = dataArray.get(i);
+          DatadogGroup datadogGroup = DatadogGroup.fromJson(roleDataNode);
+          datadogGroup.setGroupType("role");
+
+          // filter out ignored roles
+          if (datadogSettings != null && datadogSettings.isIgnoredRole(datadogGroup.getName())) {
+            continue;
+          }
+
+          results.add(datadogGroup);
         }
 
-        results.add(datadogGroup);
+        // check if we've retrieved all pages
+        int returnedCount = dataArray == null ? 0 : dataArray.size();
+        if (returnedCount < pageSize) {
+          break;
+        }
+
+        pageNumber++;
       }
 
     } catch (RuntimeException re) {
