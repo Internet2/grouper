@@ -7,7 +7,7 @@
                    <li style="margin-left: 12px;">${grouperRequestContainer.groupSummaryContainer.notGroupMembersCount} ${textContainer.text['groupSummaryPageMembershipsNonGroupMembers'] }</li>
                    <li style="margin-left: 12px;">${grouperRequestContainer.groupSummaryContainer.directMembersCount} ${textContainer.text['groupSummaryPageMembershipsDirectMembers'] }</li>
                    <c:if test="${grouperRequestContainer.groupSummaryContainer.directGroupMembersCount > 0}">
-                      <li style="margin-left: 12px;"> Hello ${textContainer.text['groupSummaryPageMembershipsDirectGroupMembers']} 
+                      <li style="margin-left: 12px;"> ${textContainer.text['groupSummaryPageMembershipsDirectGroupMembers']}
                         <c:forEach var="directGroupMember" varStatus="status" items="${grouperRequestContainer.groupSummaryContainer.directGroupMembers}">
                           ${directGroupMember.shortLinkWithIcon}
                           <c:if test="${!status.last}">,</c:if>
