@@ -60,6 +60,9 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
@@ -147,7 +150,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testIncrementalLoaderListGroupNameColumn"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderMembershipApplyOrderDeletesFirst"));
   }
 
   /**
@@ -2885,6 +2888,128 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
     assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ6));
     
+  }
+  
+  /**
+   * with loader.membership.applyOrder=insertsFirst, all membership adds for a group should be
+   * applied (and recorded in the change log) before any deletes for that same group.
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderMembershipApplyOrderInsertsFirst() throws Exception {
+    runMembershipApplyOrderScenario("insertsFirst");
+  }
+
+  /**
+   * with loader.membership.applyOrder=deletesFirst (the default), all membership deletes for a
+   * group should be applied (and recorded in the change log) before any adds for that same group.
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderMembershipApplyOrderDeletesFirst() throws Exception {
+    runMembershipApplyOrderScenario("deletesFirst");
+  }
+
+  /**
+   * Runs a full sync that both removes and adds members to the same group with membership
+   * threads enabled, then verifies (via change log sequence numbers) that the configured
+   * loader.membership.applyOrder was honored: with insertsFirst every add precedes every delete,
+   * with deletesFirst every delete precedes every add.
+   * @param applyOrder either "insertsFirst" or "deletesFirst"
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  private void runMembershipApplyOrderScenario(String applyOrder) throws Exception {
+
+    //exercise the threaded apply path so the phase drain (not just inline ordering) is tested
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.use.membershipThreads", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.membershipThreadPoolSize", "5");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.membership.applyOrder", applyOrder);
+
+    //initial source: SUBJ0..SUBJ3
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    testDataList.add(new TestgrouperLoader(SubjectTestHelper.SUBJ0_ID, null, null));
+    testDataList.add(new TestgrouperLoader(SubjectTestHelper.SUBJ1_ID, null, null));
+    testDataList.add(new TestgrouperLoader(SubjectTestHelper.SUBJ2_ID, null, null));
+    testDataList.add(new TestgrouperLoader(SubjectTestHelper.SUBJ3_ID, null, null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null,
+        "loader:owner", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY,
+        "select col1 as SUBJECT_ID from testgrouper_loader");
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    loaderGroup = GroupFinder.findByName(this.grouperSession, "loader:owner", true);
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ3));
+
+    //flush the change log and capture the baseline sequence number (everything so far is excluded)
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+    long baselineSequence = GrouperUtil.defaultIfNull(ChangeLogEntry.maxSequenceNumber(false), 0L);
+
+    //change source: remove SUBJ0 and SUBJ1, add SUBJ4 and SUBJ5
+    HibernateSession.byHqlStatic().createQuery(
+        "delete from TestgrouperLoader where col1='" + SubjectTestHelper.SUBJ0_ID + "' or col1='" + SubjectTestHelper.SUBJ1_ID + "'").executeUpdate();
+    List<TestgrouperLoader> newData = new ArrayList<TestgrouperLoader>();
+    newData.add(new TestgrouperLoader(SubjectTestHelper.SUBJ4_ID, null, null));
+    newData.add(new TestgrouperLoader(SubjectTestHelper.SUBJ5_ID, null, null));
+    HibernateSession.byObjectStatic().saveOrUpdate(newData);
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    GrouperCacheUtils.clearAllCaches();
+
+    //verify final membership is correct regardless of order
+    loaderGroup = GroupFinder.findByName(this.grouperSession, "loader:owner", true);
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ3));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ4));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
+
+    //flush the change log for the second run so the add/delete entries get sequence numbers
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+
+    //collect the add/delete membership change log entries for this group since the baseline
+    List<ChangeLogEntry> entries = GrouperDAOFactory.getFactory().getChangeLogEntry().retrieveBatch(baselineSequence, 100000);
+    long maxAddSeq = -1;
+    long minAddSeq = Long.MAX_VALUE;
+    long maxDeleteSeq = -1;
+    long minDeleteSeq = Long.MAX_VALUE;
+    int addCount = 0;
+    int deleteCount = 0;
+    for (ChangeLogEntry entry : entries) {
+      if (entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)
+          && "loader:owner".equals(entry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName.name()))) {
+        long seq = entry.getSequenceNumber();
+        maxAddSeq = Math.max(maxAddSeq, seq);
+        minAddSeq = Math.min(minAddSeq, seq);
+        addCount++;
+      } else if (entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)
+          && "loader:owner".equals(entry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name()))) {
+        long seq = entry.getSequenceNumber();
+        maxDeleteSeq = Math.max(maxDeleteSeq, seq);
+        minDeleteSeq = Math.min(minDeleteSeq, seq);
+        deleteCount++;
+      }
+    }
+
+    assertEquals("expected two membership adds", 2, addCount);
+    assertEquals("expected two membership deletes", 2, deleteCount);
+
+    if ("insertsFirst".equals(applyOrder)) {
+      assertTrue("with insertsFirst all adds (max seq " + maxAddSeq + ") should come before all deletes (min seq "
+          + minDeleteSeq + ")", maxAddSeq < minDeleteSeq);
+    } else {
+      assertTrue("with deletesFirst all deletes (max seq " + maxDeleteSeq + ") should come before all adds (min seq "
+          + minAddSeq + ")", maxDeleteSeq < minAddSeq);
+    }
   }
   
   

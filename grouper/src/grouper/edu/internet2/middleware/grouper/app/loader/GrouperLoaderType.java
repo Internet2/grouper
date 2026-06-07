@@ -3462,7 +3462,19 @@ public enum GrouperLoaderType {
         final boolean useTransactions = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.use.transactions", false);
   
         final boolean useThreads = !useTransactions && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.use.membershipThreads", true);
-        
+
+        // loader.membership.applyOrder controls whether the remove phase or the add phase runs first
+        // during membership reconciliation.  The failsafe diff/abort check above always runs before
+        // either phase regardless of this setting.
+        //   deletesFirst (default, historical behavior): removes members before adding them.  With
+        //     loader.use.transactions=false the deletes commit first, so there is a window where the
+        //     group is smaller than its final size (transient under-membership) that downstream
+        //     provisioners and change-log consumers can react to.
+        //   insertsFirst: adds members before removing them.  This avoids transient under-membership
+        //     but briefly over-counts (the group is temporarily larger than its final size).
+        final boolean insertsFirst = StringUtils.equalsIgnoreCase("insertsFirst",
+            GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.membership.applyOrder", "deletesFirst"));
+
         final int[] TOTAL_COUNT = new int[]{totalCount};
         final Hib3GrouperLoaderLog HIB3_GROUPER_LOADER_LOG = hib3GrouploaderLog;
         final GrouperTransactionType grouperTransactionType = useTransactions ? GrouperTransactionType.READ_WRITE_OR_USE_EXISTING 
@@ -3486,85 +3498,111 @@ public enum GrouperLoaderType {
               final Map<String, Object> OVERALL_LOG_MAP = GrouperLoaderLogger.retrieveMap("overallLog");
               final Map<String, Object> SUBJOB_LOG_MAP = GrouperLoaderLogger.retrieveMap("subjobLog");
   
-              {
-                final int numberOfRows = membersToRemove.size();
-                final int[] count = new int[]{1};
-                //first remove members
+              final int MEMBERSHIP_THREAD_POOL_SIZE = membershipThreadPoolSize;
+
+              //remove phase: deletes members no longer in the source
+              Runnable removePhase = new Runnable() {
+                public void run() {
+                  final int numberOfRows = membersToRemove.size();
+                  final int[] count = new int[]{1};
+
+                  for (final LoaderMemberWrapper member : membersToRemove) {
+                    GrouperDaemonUtils.stopProcessingIfJobPaused();
+                    
+                    GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberDeleteMemberLogic: " + groupName + ", " + member.getSubjectId()) {
   
-                for (final LoaderMemberWrapper member : membersToRemove) {
-                  GrouperDaemonUtils.stopProcessingIfJobPaused();
-                  
-                  GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberDeleteMemberLogic: " + groupName + ", " + member.getSubjectId()) {
+                      @Override
+                      public Void callLogic() {
+                        
+                        
+                        GrouperLoaderLogger.assignSubjobId(SUBJOB_LOGGER_ID);
+                        GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
+                        
+                        GrouperLoaderLogger.initializeThreadLocalMap("overallLog", OVERALL_LOG_MAP);
+                        GrouperLoaderLogger.initializeThreadLocalMap("subjobLog", SUBJOB_LOG_MAP);
   
-                    @Override
-                    public Void callLogic() {
-                      
-                      
-                      GrouperLoaderLogger.assignSubjobId(SUBJOB_LOGGER_ID);
-                      GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
-                      
-                      GrouperLoaderLogger.initializeThreadLocalMap("overallLog", OVERALL_LOG_MAP);
-                      GrouperLoaderLogger.initializeThreadLocalMap("subjobLog", SUBJOB_LOG_MAP);
+                        syncOneMemberDeleteMemberLogic(groupName, GrouperSession.staticGrouperSession(),
+                            jobMessage, jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG,
+                            numberOfRows, count, member);
+                        return null;
+                      }
   
-                      syncOneMemberDeleteMemberLogic(groupName, GrouperSession.staticGrouperSession(),
-                          jobMessage, jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG,
-                          numberOfRows, count, member);
-                      return null;
+                    };
+                    if (!useThreads || MEMBERSHIP_THREAD_POOL_SIZE == 1 || MEMBERSHIP_THREAD_POOL_SIZE == 0) {
+                      grouperCallable.callLogic();
+                    } else {
+                      GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
+                      futures.add(future);
+                      
+                      GrouperFuture.waitForJob(futures, MEMBERSHIP_THREAD_POOL_SIZE, callablesWithProblems);
+                    }
+                    
+                  }
+                }
+              };
+
+              //add phase: inserts members that are in the source but not yet in the group
+              Runnable addPhase = new Runnable() {
+                public void run() {
+                  final int numberOfRows = subjectsToAdd.size();
+                  final int[] count = new int[]{1};
+
+                  for (final Subject subject : subjectsToAdd) {
+                    GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+                    GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberAddMemberLogic: " + groupName + ", " + subject.getId()) {
+                      
+                      public Void callLogic() {
+  
+                        GrouperLoaderLogger.assignSubjobId(SUBJOB_LOGGER_ID);
+                        GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
+                        
+                        GrouperLoaderLogger.initializeThreadLocalMap("overallLog", OVERALL_LOG_MAP);
+                        GrouperLoaderLogger.initializeThreadLocalMap("subjobLog", SUBJOB_LOG_MAP);
+                            
+                        syncOneMemberAddMemberLogic(groupName, GrouperSession.staticGrouperSession(), jobMessage,
+                            jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG, numberOfRows,
+                            count, subject);
+  
+                        return null;
+                      }
+                    };
+                    
+                    if (!useThreads) {
+                      
+                      grouperCallable.callLogic();
+  
+                    } else {
+  
+                      GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
+                      futures.add(future);
+  
+                      GrouperFuture.waitForJob(futures, MEMBERSHIP_THREAD_POOL_SIZE, callablesWithProblems);
+  
                     }
   
-                  };
-                  if (!useThreads || membershipThreadPoolSize == 1 || membershipThreadPoolSize == 0) {
-                    grouperCallable.callLogic();
-                  } else {
-                    GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
-                    futures.add(future);
-                    
-                    GrouperFuture.waitForJob(futures, membershipThreadPoolSize, callablesWithProblems);
                   }
-                  
                 }
-                
-              }
-              {
-                final int numberOfRows = subjectsToAdd.size();
-                final int[] count = new int[]{1};
-                //then add new members
-  
-                for (final Subject subject : subjectsToAdd) {
-                  GrouperDaemonUtils.stopProcessingIfJobPaused();
-  
-                  GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberAddMemberLogic: " + groupName + ", " + subject.getId()) {
-                    
-                    public Void callLogic() {
-  
-                      GrouperLoaderLogger.assignSubjobId(SUBJOB_LOGGER_ID);
-                      GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
-                      
-                      GrouperLoaderLogger.initializeThreadLocalMap("overallLog", OVERALL_LOG_MAP);
-                      GrouperLoaderLogger.initializeThreadLocalMap("subjobLog", SUBJOB_LOG_MAP);
-                          
-                      syncOneMemberAddMemberLogic(groupName, GrouperSession.staticGrouperSession(), jobMessage,
-                          jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG, numberOfRows,
-                          count, subject);
-  
-                      return null;
-                    }
-                  };
-                  
-                  if (!useThreads) {
-                    
-                    grouperCallable.callLogic();
-  
-                  } else {
-  
-                    GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
-                    futures.add(future);
-  
-                    GrouperFuture.waitForJob(futures, membershipThreadPoolSize, callablesWithProblems);
-  
-                  }
-  
-                }
+              };
+
+              // run the two phases in the order configured by loader.membership.applyOrder (see above).
+              // drain all phase-1 futures before starting phase-2 so the ordering is strict even when
+              // membership threads are used; in inline/transactional mode this drain is a no-op.
+              // NOTE: the futures list is local to this syncOneGroupMembership call, i.e. it only holds
+              // this group's member add/remove tasks, so this drain only orders deletes vs adds WITHIN
+              // the same group.  Ordering ACROSS groups (e.g. a delete in one group vs an add in another)
+              // is intentionally not gated: the executor is shared and the group-of-groups loop tracks
+              // each group in its own futures list, so different groups interleave freely.  Downstream
+              // targets only care about a single group's trajectory, so cross-group ordering does not
+              // need to be gated.
+              if (insertsFirst) {
+                addPhase.run();
+                GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+                removePhase.run();
+              } else {
+                removePhase.run();
+                GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+                addPhase.run();
               }
               
               //wait for the rest
