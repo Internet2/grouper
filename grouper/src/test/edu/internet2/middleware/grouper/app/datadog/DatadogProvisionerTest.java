@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.datadog;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -359,6 +360,40 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
 
     assertEquals(1, roles.size());
     assertEquals(roleId2, roles.get(0).getId());
+  }
+
+  /**
+   * regression: Datadog's roles endpoint returns a small default page, so
+   * retrieveRoles must page through page[number]/page[size] to get them all.
+   * Without paging, roles beyond the first page look missing and the provisioner
+   * tries to re-create them (409 already exists).
+   */
+  public void testRetrieveRolesPaging() {
+
+    DatadogProvisionerTestUtils.setupDatadogExternalSystem();
+
+    // more than one page worth (page[size] defaults to MAX_PAGE_SIZE = 100)
+    int totalRoles = 105;
+    Set<String> insertedRoleIds = new HashSet<String>();
+
+    for (int i = 0; i < totalRoles; i++) {
+      String roleId = GrouperUuid.getUuid();
+      insertedRoleIds.add(roleId);
+      new GcDbAccess().connectionName("grouper").sql("insert into mock_datadog_group (id, name, group_type) values (?, ?, ?)")
+          .addBindVar(roleId).addBindVar("PagingRole_" + i).addBindVar("role").executeSql();
+    }
+
+    List<DatadogGroup> roles = DatadogApiCommands.retrieveRoles(CONFIG_ID, null);
+
+    // all roles across all pages should come back, with no duplicates
+    assertEquals(totalRoles, roles.size());
+
+    Set<String> retrievedRoleIds = new HashSet<String>();
+    for (DatadogGroup role : roles) {
+      retrievedRoleIds.add(role.getId());
+    }
+    assertEquals(totalRoles, retrievedRoleIds.size());
+    assertEquals(insertedRoleIds, retrievedRoleIds);
   }
 
   public void testCreateRole() {
