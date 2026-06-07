@@ -678,6 +678,38 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
     assertNull(teamById.get(roleId));
   }
 
+  /**
+   * regression: retrieveTeams must page through page[number]/page[size] so that
+   * teams beyond the first default page are not silently dropped.
+   */
+  public void testRetrieveTeamsPaging() {
+
+    DatadogProvisionerTestUtils.setupDatadogExternalSystem();
+
+    // more than one page worth (page[size] defaults to MAX_PAGE_SIZE = 100)
+    int totalTeams = 105;
+    Set<String> insertedTeamIds = new HashSet<String>();
+
+    for (int i = 0; i < totalTeams; i++) {
+      String teamId = GrouperUuid.getUuid();
+      insertedTeamIds.add(teamId);
+      new GcDbAccess().connectionName("grouper").sql("insert into mock_datadog_group (id, name, handle, description, group_type) values (?, ?, ?, ?, ?)")
+          .addBindVar(teamId).addBindVar("PagingTeam_" + i).addBindVar("paging-team-" + i).addBindVar(null).addBindVar("team").executeSql();
+    }
+
+    List<DatadogGroup> teams = DatadogApiCommands.retrieveTeams(CONFIG_ID, null);
+
+    // all teams across all pages should come back, with no duplicates
+    assertEquals(totalTeams, teams.size());
+
+    Set<String> retrievedTeamIds = new HashSet<String>();
+    for (DatadogGroup team : teams) {
+      retrievedTeamIds.add(team.getId());
+    }
+    assertEquals(totalTeams, retrievedTeamIds.size());
+    assertEquals(insertedTeamIds, retrievedTeamIds);
+  }
+
   public void testCreateTeam() {
 
     DatadogProvisionerTestUtils.setupDatadogExternalSystem();
