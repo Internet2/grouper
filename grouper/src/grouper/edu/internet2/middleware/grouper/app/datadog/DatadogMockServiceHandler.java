@@ -781,10 +781,23 @@ public class DatadogMockServiceHandler extends MockServiceHandler {
     query.options(queryOptions);
     List<DatadogGroup> datadogGroups = query.list(DatadogGroup.class);
 
+    // honor page[number] (0-indexed) and page[size] so the multi-page retrieval
+    // path is actually exercised (the client retrieveTeams already pages)
+    int totalCount = datadogGroups.size();
+    String pageNumberParam = mockServiceRequest.getHttpServletRequest().getParameter("page[number]");
+    String pageSizeParam = mockServiceRequest.getHttpServletRequest().getParameter("page[size]");
+    int pageNumber = StringUtils.isBlank(pageNumberParam) ? 0 : GrouperUtil.intValue(pageNumberParam);
+    // mirror Datadog's small default page size when the caller does not specify one
+    int pageSize = StringUtils.isBlank(pageSizeParam) ? 10 : GrouperUtil.intValue(pageSizeParam);
+
+    int fromIndex = Math.min(pageNumber * pageSize, totalCount);
+    int toIndex = Math.min(fromIndex + pageSize, totalCount);
+    List<DatadogGroup> pageOfGroups = datadogGroups.subList(fromIndex, toIndex);
+
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     ArrayNode dataArray = GrouperUtil.jsonJacksonArrayNode();
 
-    for (DatadogGroup datadogGroup : datadogGroups) {
+    for (DatadogGroup datadogGroup : pageOfGroups) {
       ObjectNode teamDataNode = GrouperUtil.jsonJacksonNode();
       teamDataNode.put("type", "team");
       teamDataNode.put("id", datadogGroup.getId());
@@ -808,9 +821,9 @@ public class DatadogMockServiceHandler extends MockServiceHandler {
 
     ObjectNode metaNode = GrouperUtil.jsonJacksonNode();
     ObjectNode paginationNode = GrouperUtil.jsonJacksonNode();
-    paginationNode.put("total", datadogGroups.size());
-    paginationNode.put("offset", 0);
-    paginationNode.put("limit", 100);
+    paginationNode.put("total", totalCount);
+    paginationNode.put("offset", fromIndex);
+    paginationNode.put("limit", pageSize);
     metaNode.set("pagination", paginationNode);
     resultNode.set("meta", metaNode);
 
