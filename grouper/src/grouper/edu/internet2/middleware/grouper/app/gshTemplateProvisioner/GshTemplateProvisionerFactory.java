@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.gshTemplateProvisioner;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateCompiledDispatch;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecOutput;
@@ -24,18 +25,25 @@ public class GshTemplateProvisionerFactory extends GrouperProvisioner implements
     
     String gshTemplateConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(
         "provisioner." + configId + ".gshTemplateConfigId");
-    
-    GshTemplateExec exec = new GshTemplateExec();
-
-    exec.assignConfigId(gshTemplateConfigId);
 
     GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfigId);
     gshTemplateConfig.populateConfiguration();
     gshTemplateConfig.setGshTemplateRunAsType(GshTemplateRunAsType.GrouperSystem);
     GrouperUtil.assertion(gshTemplateConfig.isEnabled(), "GshTemplate '" + gshTemplateConfigId + "' is not enabled!");
 
+    // GRP-7029: compiled-Java provisioner — the body extends GshTemplateProvisionerBase
+    // directly (no GshTemplateV2 wrapper / assignGrouperProvisioner). Resolve the
+    // compiled class through the shared dispatch helper and return it, skipping the
+    // Groovy execute() + output-attach path that interpreted provisioners use.
+    if (gshTemplateConfig.isCompiledMode()) {
+      return GshTemplateCompiledDispatch.instantiate(
+          gshTemplateConfigId, gshTemplateConfig, GshTemplateProvisionerBase.class);
+    }
+
+    GshTemplateExec exec = new GshTemplateExec();
+    exec.assignConfigId(gshTemplateConfigId);
     exec.assignCurrentUser(SubjectFinder.findRootSubject());
-    
+
     GshTemplateExecOutput gshTemplateExecOutput = exec.execute();
 
     if (gshTemplateExecOutput.getException() != null) {
@@ -45,9 +53,9 @@ public class GshTemplateProvisionerFactory extends GrouperProvisioner implements
     GrouperProvisioner grouperProvisioner = gshTemplateExecOutput.getGshTemplateOutput().retrieveGrouperProvisioner();
 
     GrouperUtil.assertion(grouperProvisioner != null, "gshTemplateOutput.retrieveGrouperProvisioner() is null for '" + gshTemplateConfigId + "'!");
-    
+
     return grouperProvisioner;
-    
+
   }
 
   @Override
