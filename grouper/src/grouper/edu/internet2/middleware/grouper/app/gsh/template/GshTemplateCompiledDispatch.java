@@ -42,6 +42,22 @@ public class GshTemplateCompiledDispatch {
    * @return a new instance cast to baseClass
    */
   public static <T> T instantiate(String configId, GshTemplateConfig gshTemplateConfig, Class<T> baseClass) {
+    return GrouperUtil.newInstance(resolveClass(configId, gshTemplateConfig, baseClass));
+  }
+
+  /**
+   * Resolve a compiled-Java template to its loaded Class, cast to the expected
+   * framework base. Same resolve + cast as {@link #instantiate} but stops short
+   * of instantiating — for callers (e.g. the hooks framework) that need the
+   * Class itself to introspect methods or create their own instances.
+   *
+   * @param <T> the framework base class type for this templateType
+   * @param configId GSH template config id (registry cache key); must be non-empty
+   * @param gshTemplateConfig the populated config (source location, mode)
+   * @param baseClass the framework base the compiled class must extend/implement
+   * @return the loaded class cast to a subclass of baseClass
+   */
+  public static <T> Class<? extends T> resolveClass(String configId, GshTemplateConfig gshTemplateConfig, Class<T> baseClass) {
 
     if (gshTemplateConfig == null) {
       throw new IllegalArgumentException("gshTemplateConfig must be non-null for '" + configId + "'");
@@ -62,16 +78,13 @@ public class GshTemplateCompiledDispatch {
 
     Class<?> templateClass = resolveResult.getTemplateClass();
 
-    Class<? extends T> subclass = null;
     try {
-      subclass = templateClass.asSubclass(baseClass);
+      return templateClass.asSubclass(baseClass);
     } catch (ClassCastException cce) {
       throw new RuntimeException("GSH template '" + configId + "' class "
           + templateClass.getName() + " must extend/implement "
           + baseClass.getName() + " for this template type", cce);
     }
-
-    return GrouperUtil.newInstance(subclass);
   }
 
   /**

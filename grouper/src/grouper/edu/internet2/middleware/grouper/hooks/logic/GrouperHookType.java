@@ -25,10 +25,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateCompiledDispatch;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.AttributeAssignHooks;
 import edu.internet2.middleware.grouper.hooks.AttributeAssignValueHooks;
@@ -149,7 +152,8 @@ public enum GrouperHookType implements GrouperHookTypeInterface {
     hookTypesOverride.clear();
     hookTypes.clear();
     hookTypeMap.clear();
-    
+    compiledHookCache.clear();
+
   }
 
   /**
@@ -320,30 +324,65 @@ public enum GrouperHookType implements GrouperHookTypeInterface {
    * @param beanClass e.g. HooksGroupBean.class
    * @return the instances or empty list if none configured.  Dont edit this list!
    */
-  private static List<GrouperHookMethodAndObject> hooksInstances(GrouperHookTypeInterface grouperHookTypeInterface, 
+  private static List<GrouperHookMethodAndObject> hooksInstances(GrouperHookTypeInterface grouperHookTypeInterface,
       String propertyFileKey, Class<?> baseClass,
       String methodName, Class<?> beanClass) {
-    
+
     //dont step on toes here, but if the hooks havent been hooked yet, do that
     GrouperHooksUtils.fireHooksInitHooksIfNotFiredAlready();
-    
+
+    List<GrouperHookMethodAndObject> classpathResults = classpathHooksInstances(grouperHookTypeInterface,
+        propertyFileKey, baseClass, methodName, beanClass);
+
+    // GRP-7032: compiled-Java (DB-stored) hooks coexist with classpath/jar hooks.
+    // These hot-reload, so they cannot live in the permanent hookTypeMap cache —
+    // they are resolved through a short-TTL cache instead and merged in here.
+    List<GrouperHookMethodAndObject> compiledResults = compiledHooksInstances(grouperHookTypeInterface,
+        propertyFileKey, baseClass, methodName, beanClass);
+
+    if (compiledResults == null || compiledResults.size() == 0) {
+      return classpathResults;
+    }
+    if (classpathResults == null || classpathResults.size() == 0) {
+      return compiledResults;
+    }
+    List<GrouperHookMethodAndObject> combined = new ArrayList<GrouperHookMethodAndObject>(classpathResults);
+    combined.addAll(compiledResults);
+    return combined;
+  }
+
+  /**
+   * resolve the classpath/jar-deployed hooks for this type, method, and bean.
+   * These never change at runtime, so the (method,instance) lists are cached
+   * permanently in hookTypeMap.
+   * @param grouperHookTypeInterface
+   * @param propertyFileKey
+   * @param baseClass
+   * @param methodName
+   * @param beanClass
+   * @return the instances or empty list if none configured.  Dont edit this list!
+   */
+  private static List<GrouperHookMethodAndObject> classpathHooksInstances(GrouperHookTypeInterface grouperHookTypeInterface,
+      String propertyFileKey, Class<?> baseClass,
+      String methodName, Class<?> beanClass) {
+
     Map<MultiKey, List<GrouperHookMethodAndObject>> methodMap = hookTypeMap.get(propertyFileKey);
-    
+
     //create if not there
     if (methodMap == null) {
       methodMap = new HashMap<MultiKey, List<GrouperHookMethodAndObject>>();
       hookTypeMap.put(propertyFileKey, methodMap);
     }
-    
+
     //see if method is in there already
     MultiKey methodMapKey = new MultiKey(methodName, beanClass);
     List<GrouperHookMethodAndObject> results = methodMap.get(methodMapKey);
-    
+
     //if there we are all good
     if (results != null) {
       return results;
     }
-    
+
     List<Class<?>> theHooksClasses = hooksClasses(propertyFileKey);
     results = new ArrayList<GrouperHookMethodAndObject>();
     //set in cache
@@ -357,21 +396,123 @@ public enum GrouperHookType implements GrouperHookTypeInterface {
 
       //we have a class, make sure it is the right one
       if (!baseClass.isAssignableFrom(theHooksClass)) {
-        throw new RuntimeException((theHooksClass == null ? null : theHooksClass.getName()) + " class configured in grouper config: '" + propertyFileKey 
+        throw new RuntimeException((theHooksClass == null ? null : theHooksClass.getName()) + " class configured in grouper config: '" + propertyFileKey
             + "' does not extend " + baseClass.getName());
       }
-      
+
       //lets see if the method is there
-      Method method = GrouperUtil.method(theHooksClass, methodName, new Class[]{HooksContext.class, beanClass}, 
+      Method method = GrouperUtil.method(theHooksClass, methodName, new Class[]{HooksContext.class, beanClass},
           grouperHookTypeInterface.getBaseClass(), false, false, null, false);
-      
+
       if (method != null) {
         results.add(new GrouperHookMethodAndObject(method, GrouperUtil.newInstance(theHooksClass)));
       }
-      
+
     }
-    
+
     return results;
+  }
+
+  /**
+   * default TTL (seconds) for the compiled-hook instance cache
+   */
+  private static final int COMPILED_HOOK_CACHE_SECONDS_DEFAULT = 30;
+
+  /**
+   * per-domain (propertyFileKey) cache of resolved compiled-hook classes plus
+   * lazily-built per-(method,beanClass) instance lists, with a creation
+   * timestamp for TTL expiry. GRP-7032.
+   */
+  private static Map<String, CompiledHookCacheEntry> compiledHookCache =
+      new ConcurrentHashMap<String, CompiledHookCacheEntry>();
+
+  /**
+   * one domain's compiled-hook cache entry — when it was built, the classes
+   * resolved from the registry, and the (method,beanClass) -> instances built
+   * from them so far.
+   */
+  private static class CompiledHookCacheEntry {
+    /** when this entry was built (for TTL) */
+    private long createdMillis;
+    /** classes resolved from the gshTemplateConfigIds for this domain */
+    private List<Class<?>> resolvedClasses;
+    /** lazily-built (methodName,beanClass) -> (method,instance) lists */
+    private Map<MultiKey, List<GrouperHookMethodAndObject>> methodMap =
+        new HashMap<MultiKey, List<GrouperHookMethodAndObject>>();
+  }
+
+  /**
+   * resolve the compiled-Java (DB-stored) hooks for this type, method, and bean.
+   * Source comes from GSH template configs listed in
+   * <code>hooks.&lt;domain&gt;.gshTemplateConfigIds</code>; the resolved classes
+   * are cached per domain with a short TTL so the hot path neither re-hashes
+   * source nor blocks, while still picking up edits (and JVM peers ride the
+   * GrouperConfig cadence). Returns null/empty if none configured.
+   * @param grouperHookTypeInterface
+   * @param propertyFileKey the classpath key, e.g. hooks.group.class
+   * @param baseClass the hook base class the compiled class must extend
+   * @param methodName
+   * @param beanClass
+   * @return the instances, or null if no compiled hooks configured for this domain
+   */
+  private static List<GrouperHookMethodAndObject> compiledHooksInstances(GrouperHookTypeInterface grouperHookTypeInterface,
+      String propertyFileKey, Class<?> baseClass, String methodName, Class<?> beanClass) {
+
+    String gshTemplateConfigIdsKey = StringUtils.removeEnd(propertyFileKey, ".class") + ".gshTemplateConfigIds";
+    String configIdsString = GrouperConfig.retrieveConfig().propertyValueString(gshTemplateConfigIdsKey);
+    if (StringUtils.isBlank(configIdsString)) {
+      return null;
+    }
+
+    long ttlMillis = 1000L * GrouperConfig.retrieveConfig().propertyValueInt(
+        "hooks.compiledTemplate.cacheSeconds", COMPILED_HOOK_CACHE_SECONDS_DEFAULT);
+
+    CompiledHookCacheEntry entry = compiledHookCache.get(propertyFileKey);
+    if (entry == null || (System.currentTimeMillis() - entry.createdMillis) > ttlMillis) {
+      entry = rebuildCompiledHookCacheEntry(configIdsString, baseClass);
+      compiledHookCache.put(propertyFileKey, entry);
+    }
+
+    MultiKey methodMapKey = new MultiKey(methodName, beanClass);
+    synchronized (entry) {
+      List<GrouperHookMethodAndObject> results = entry.methodMap.get(methodMapKey);
+      if (results != null) {
+        return results;
+      }
+      results = new ArrayList<GrouperHookMethodAndObject>();
+      for (Class<?> theHooksClass : entry.resolvedClasses) {
+        Method method = GrouperUtil.method(theHooksClass, methodName, new Class[]{HooksContext.class, beanClass},
+            grouperHookTypeInterface.getBaseClass(), false, false, null, false);
+        if (method != null) {
+          results.add(new GrouperHookMethodAndObject(method, GrouperUtil.newInstance(theHooksClass)));
+        }
+      }
+      entry.methodMap.put(methodMapKey, results);
+      return results;
+    }
+  }
+
+  /**
+   * Rebuild a domain's compiled-hook cache entry: resolve each configured GSH
+   * template config id to its compiled class through the registry (which itself
+   * recompiles only on source change). The asSubclass in resolveClass enforces
+   * that the compiled class extends the hook base.
+   * @param configIdsString comma-separated GSH template config ids
+   * @param baseClass the hook base class
+   * @return a fresh cache entry
+   */
+  private static CompiledHookCacheEntry rebuildCompiledHookCacheEntry(String configIdsString, Class<?> baseClass) {
+    CompiledHookCacheEntry entry = new CompiledHookCacheEntry();
+    entry.createdMillis = System.currentTimeMillis();
+    entry.resolvedClasses = new ArrayList<Class<?>>();
+    String[] configIds = GrouperUtil.splitTrim(configIdsString, ",");
+    for (String configId : configIds) {
+      GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(configId);
+      gshTemplateConfig.populateConfiguration();
+      Class<?> resolvedClass = GshTemplateCompiledDispatch.resolveClass(configId, gshTemplateConfig, baseClass);
+      entry.resolvedClasses.add(resolvedClass);
+    }
+    return entry;
   }
 
   
