@@ -591,6 +591,13 @@ public class GshTemplateExec {
                       grouperGroovyResult.setResultCode(grouperGroovyExit.getExitCode());
                     }
                     // this is a normal exit
+                  } else if (compiled) {
+                    // GRP-7026 (commit 2): a compiled Java template's exception already
+                    // carries real Java line numbers in its stack trace. Do NOT route it
+                    // through handleGshException, whose Groovy line-number back-calculation
+                    // is only meaningful for "Script<n>.groovy" frames and which also
+                    // deep-sanitizes (mangles) the stack trace. Throw the real exception.
+                    throw GrouperUtil.exceptionConvertToRuntime(t, null);
                   } else {
 
                     t = GrouperGroovysh.handleGshException(gshTemplateV2.isLightWeight(), gshTemplateV2.getScriptPrependHeaders(), gshTemplateV2.getSource(), t);
