@@ -27,21 +27,25 @@ public class GrouperDaemonOtherJobScriptConfiguration extends GrouperDaemonConfi
   //  # {valueType: "cron", required: true}
   //  # otherJob.scriptDaemonConfigKey.quartzCron = 0 38 6 * * ?
   //
-  //  # script type.  note: in SQL you should commit after DML commands.
-  //  # {valueType: "string", requried: true, regex: "^otherJob\\.([^.]+)\\.scriptType$", formElement: "dropdown", optionValues: ["gsh", "sql"]}
-  //  # otherJob.scriptDaemonConfigKey.scriptType = 
+  //  # script type.  note: in SQL you should commit after DML commands.  compiledJava runs a compiled GSH daemon template.
+  //  # {valueType: "string", requried: true, regex: "^otherJob\\.([^.]+)\\.scriptType$", formElement: "dropdown", optionValues: ["gsh", "sql", "compiledJava"]}
+  //  # otherJob.scriptDaemonConfigKey.scriptType =
+  //
+  //  # config id of the compiled GSH daemon template (templateType=daemon, templateMode=compiled) to run
+  //  # {valueType: "string", required: true, regex: "^otherJob\\.([^.]+)\\.gshTemplateConfigId$", showEl: "${scriptType == 'compiledJava'}"}
+  //  # otherJob.scriptDaemonConfigKey.gshTemplateConfigId =
   //
   //  # file type, you can run a script in config, or run a file in your container
-  //  # {valueType: "string", required: true, regex: "^otherJob\\.([^.]+)\\.fileType$", formElement: "dropdown", optionValues: ["script", "file"]}
-  //  # otherJob.scriptDaemonConfigKey.fileType = 
+  //  # {valueType: "string", required: true, regex: "^otherJob\\.([^.]+)\\.fileType$", formElement: "dropdown", optionValues: ["script", "file"], showEl: "${scriptType != 'compiledJava'}"}
+  //  # otherJob.scriptDaemonConfigKey.fileType =
   //
   //  # source of script
-  //  # {valueType: "string", required: true, regex: "^otherJob\\.([^.]+)\\.scriptSource$", formElement: "textarea", showEl: "${fileType == 'script'}"}
-  //  # otherJob.scriptDaemonConfigKey.scriptSource = 
+  //  # {valueType: "string", required: true, regex: "^otherJob\\.([^.]+)\\.scriptSource$", formElement: "textarea", showEl: "${scriptType != 'compiledJava' && fileType == 'script'}"}
+  //  # otherJob.scriptDaemonConfigKey.scriptSource =
   //
   //  # file name in container to run
-  //  # {valueType: "string", required: true, regex: "^otherJob\\.([^.]+)\\.fileName$", showEl: "${fileType == 'file'}"}
-  //  # otherJob.scriptDaemonConfigKey.fileName = 
+  //  # {valueType: "string", required: true, regex: "^otherJob\\.([^.]+)\\.fileName$", showEl: "${scriptType != 'compiledJava' && fileType == 'file'}"}
+  //  # otherJob.scriptDaemonConfigKey.fileName =
   //
   //  # if SQL this is the connection name to use
   //  # {valueType: "string", regex: "^otherJob\\.([^.]+)\\.connectionName$", showEl: "${scriptType == 'sql'}", formElement: "dropdown", optionValuesFromClass: "edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem"}

@@ -9,6 +9,9 @@ import java.io.File;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.DisallowConcurrentExecution;
 
+import edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateDaemon;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateCompiledDispatch;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.ddl.GrouperAntProject;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -96,7 +99,28 @@ public class OtherJobScript extends OtherJobBase {
       }
   
       String scriptType = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".scriptType");
-      
+
+      // GRP-7028: compiled-Java daemon — the body is a compiled GrouperTemplateDaemon
+      // resolved from a GSH template config (templateType=daemon, templateMode=compiled),
+      // not a gsh/sql script. The source comes from the GSH template config
+      // (gshTemplateConfigId), so the file/scriptSource handling below does not apply;
+      // build the OtherJobTemplateInput and dispatch here, then return. Any exception
+      // propagates to OtherJobBase, which records the failure on the loader log row.
+      if (StringUtils.equalsIgnoreCase("compiledJava", scriptType)) {
+        String gshTemplateConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".gshTemplateConfigId");
+        GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfigId);
+        gshTemplateConfig.populateConfiguration();
+        GrouperTemplateDaemon grouperTemplateDaemon = GshTemplateCompiledDispatch.instantiate(
+            gshTemplateConfigId, gshTemplateConfig, GrouperTemplateDaemon.class);
+        OtherJobTemplateInput otherJobTemplateInput = new OtherJobTemplateInput();
+        otherJobInputParam.copyFieldsTo(otherJobTemplateInput);
+        otherJobTemplateInput.setGshTemplateConfigId(gshTemplateConfigId);
+        otherJobTemplateInput.setGshTemplateConfig(gshTemplateConfig);
+        this.otherJobInput = otherJobTemplateInput;
+        grouperTemplateDaemon.runDaemon(otherJobTemplateInput);
+        return this.otherJobOutput;
+      }
+
       String fileName = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + jobName + ".fileName");
       String scriptSource = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob." + jobName + ".scriptSource");
 
