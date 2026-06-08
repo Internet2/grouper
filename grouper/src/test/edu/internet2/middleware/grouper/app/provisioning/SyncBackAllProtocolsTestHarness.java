@@ -20,15 +20,17 @@ import junit.framework.TestSuite;
  * <p>
  * DO NOT ADD THIS TO THE HARNESS, IT IS A DUPLICATE
  * </p>
- * Cross-protocol harness for the generic provisioner sync-back smoke tests. Each
- * supported protocol's test class exposes a pair of methods named
+ * Cross-protocol harness for the generic provisioner sync-back smoke tests plus
+ * the per-protocol full-sync and incremental-sync coverage. Each supported
+ * protocol's test class exposes a pair of sync-back methods named
  * {@code test<Protocol>FullSyncPopulatesGenericTables} (selectAll on — exercises
  * the {@code retrieveAll*} capture hooks) and
  * {@code test<Protocol>FullSyncSelectByIdsPopulatesGenericTables} (selectAll off
- * — exercises the scoped {@code retrieve*} capture hooks). This class aggregates them
- * into a single {@link TestSuite} so the whole sync-back surface can be exercised in one
- * run — useful when iterating on the framework (write-shadow precision pass, flush
- * reorder, etc.).
+ * — exercises the scoped {@code retrieve*} capture hooks), as well as the
+ * protocol's own broader {@code testFullSync*} / {@code testIncremental*} tests.
+ * This class aggregates all of them into a single {@link TestSuite} so the
+ * whole provisioning surface can be exercised in one run — useful when
+ * iterating on the framework (write-shadow precision pass, flush reorder, etc.).
  *
  * <p><strong>Not added to {@code AllAppTests} / {@code All<Protocol>ProvisionerTests}</strong>
  * by design — each protocol's per-suite aggregator already includes its own tests, so
@@ -56,10 +58,55 @@ public class SyncBackAllProtocolsTestHarness extends TestSuite {
   public static Test suite() {
     TestSuite suite = new TestSuite(SyncBackAllProtocolsTestHarness.class.getName());
 
+    // Adobe (no incremental in existing coverage)
+    suite.addTest(new GrouperAdobeProvisionerTest("testAdobeFullSyncPopulatesGenericTables"));
+
+    // Azure
+    suite.addTest(new GrouperAzureProvisionerTest("testAzureFullSyncPopulatesGenericTables"));
+    suite.addTest(new GrouperAzureProvisionerTest("testIncrementalSyncAzure"));
+
+    // Box
+    suite.addTest(new GrouperBoxProvisionerTest("testBoxFullSyncPopulatesGenericTables"));
+    suite.addTest(new GrouperBoxProvisionerTest("testIncrementalSyncBox"));
+
+    // Datadog
+    suite.addTest(new DatadogProvisionerTest("testDatadogFullSyncPopulatesGenericTables"));
+    suite.addTest(new DatadogProvisionerTest("testIncrementalTeamCrudAndMemberships"));
+
+    // Duo
+    suite.addTest(new GrouperDuoProvisionerTest("testDuoFullSyncPopulatesGenericTables"));
+    suite.addTest(new GrouperDuoProvisionerTest("testIncrementalProvisionDuo"));
+
     // FreshService Requester
     suite.addTest(new FreshRequesterProvisionerTest("testFreshRequesterFullSyncPopulatesGenericTables"));
-    suite.addTest(new FreshRequesterProvisionerTest("testFreshRequesterFullSyncSelectByIdsPopulatesGenericTables"));
+    suite.addTest(new FreshRequesterProvisionerTest("testIncrementalProvisionGroupAndThenDeleteGroup"));
 
+    // Google
+    suite.addTest(new GrouperGoogleProvisionerTest("testGoogleFullSyncPopulatesGenericTables"));
+    suite.addTest(new GrouperGoogleProvisionerTest("testIncrementalSyncGoogle"));
+
+    // LDAP
+    suite.addTest(new LdapProvisionerGenericTableTest("testLdapFullSyncPopulatesGenericTables"));
+    suite.addTest(new LdapProvisionerGenericTableTest("testIncrementalProvisionPopulatesGenericTablesGroupSide"));
+
+    // Okta
+    suite.addTest(new GrouperOktaProvisionerTest("testOktaFullSyncPopulatesGenericTables"));
+    suite.addTest(new GrouperOktaProvisionerTest("testIncrementalSyncOkta"));
+
+    // Remedy (no incremental in existing coverage)
+    suite.addTest(new RemedyProvisionerTest("testRemedyFullSyncPopulatesGenericTables"));
+
+    // SCIM
+    suite.addTest(new ScimProvisionerGenericTableTest("testFullProvisionPopulatesGenericTables"));
+    suite.addTest(new ScimProvisionerGenericTableTest("testIncrementalProvisionPopulatesGenericTables"));
+
+    // TeamDynamix
+    suite.addTest(new TeamDynamixProvisionerTest("testTeamDynamixFullSyncPopulatesGenericTables"));
+    suite.addTest(new TeamDynamixProvisionerTest("testIncrementalProvisionTeamDynamix"));
+
+    // TrueFoundry
+    suite.addTest(new TrueFoundryProvisionerTest("testTrueFoundryFullSyncPopulatesGenericTables"));
+    suite.addTest(new TrueFoundryProvisionerTest("testIncrementalTeamCrudAndMemberships"));
 
     return suite;
   }
