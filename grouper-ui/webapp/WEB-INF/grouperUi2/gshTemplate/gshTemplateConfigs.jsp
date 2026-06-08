@@ -24,6 +24,65 @@ ${grouper:title('gshTemplateConfigsPageTitle')}
 			<div class="row-fluid">
 			  
           <p class="lead" id="templateHeader"></p>
+
+          <script>
+          function gshTemplatesFilter() {
+            ajax('../app/UiV2GshTemplateConfig.viewGshTemplates?filterTemplateType=' + encodeURIComponent($('#gshFilterTypeId').val())
+              + '&filterTemplateMode=' + encodeURIComponent($('#gshFilterModeId').val())
+              + '&filterCompileStatus=' + encodeURIComponent($('#gshFilterStatusId').val()));
+            return false;
+          }
+          </script>
+
+          <div class="row-fluid">
+            <div class="span12" style="background: #f4f7fb; border: 1px solid #ddd; border-radius: 4px; padding: 12px 15px; margin-bottom: 12px;">
+              <table class="table table-condensed" style="background: transparent; margin-bottom: 0;">
+                <tbody>
+                  <tr>
+                    <td style="vertical-align: top; white-space: nowrap; border-top: none; width: 1%;"><strong><label for="gshFilterTypeId" style="font-weight: bold;">${textContainer.text['gshTemplatesFilterTypeLabel']}</label></strong></td>
+                    <td style="border-top: none;">
+                      <select id="gshFilterTypeId" onchange="return gshTemplatesFilter();">
+                        <option value="">${textContainer.text['gshTemplatesFilterAny']}</option>
+                      <option value="abac" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'abac' ? 'selected' : ''}>abac</option>
+                      <option value="customUi" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'customUi' ? 'selected' : ''}>customUi</option>
+                      <option value="daemon" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'daemon' ? 'selected' : ''}>daemon</option>
+                      <option value="daemonChangeLog" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'daemonChangeLog' ? 'selected' : ''}>daemonChangeLog</option>
+                      <option value="gsh" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'gsh' ? 'selected' : ''}>gsh</option>
+                      <option value="hook" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'hook' ? 'selected' : ''}>hook</option>
+                      <option value="library" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'library' ? 'selected' : ''}>library</option>
+                      <option value="provisioner" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'provisioner' ? 'selected' : ''}>provisioner</option>
+                      <option value="report" ${grouperRequestContainer.gshTemplateContainer.filterTemplateType == 'report' ? 'selected' : ''}>report</option>
+                      </select>
+                      <br /><span class="description">${textContainer.text['gshTemplatesFilterTypeDescription']}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top; white-space: nowrap; width: 1%;"><strong><label for="gshFilterModeId" style="font-weight: bold;">${textContainer.text['gshTemplatesFilterModeLabel']}</label></strong></td>
+                    <td>
+                      <select id="gshFilterModeId" onchange="return gshTemplatesFilter();">
+                        <option value="">${textContainer.text['gshTemplatesFilterAny']}</option>
+                        <option value="compiled" ${grouperRequestContainer.gshTemplateContainer.filterTemplateMode == 'compiled' ? 'selected' : ''}>compiled</option>
+                        <option value="interpreted" ${grouperRequestContainer.gshTemplateContainer.filterTemplateMode == 'interpreted' ? 'selected' : ''}>interpreted</option>
+                      </select>
+                      <br /><span class="description">${textContainer.text['gshTemplatesFilterModeDescription']}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top; white-space: nowrap; width: 1%;"><strong><label for="gshFilterStatusId" style="font-weight: bold;">${textContainer.text['gshTemplatesFilterCompileStatusLabel']}</label></strong></td>
+                    <td>
+                      <select id="gshFilterStatusId" onchange="return gshTemplatesFilter();">
+                        <option value="">${textContainer.text['gshTemplatesFilterAny']}</option>
+                        <option value="ok" ${grouperRequestContainer.gshTemplateContainer.filterCompileStatus == 'ok' ? 'selected' : ''}>${textContainer.text['gshTemplatesCompileStatusOk']}</option>
+                        <option value="failed" ${grouperRequestContainer.gshTemplateContainer.filterCompileStatus == 'failed' ? 'selected' : ''}>${textContainer.text['gshTemplatesCompileStatusFailed']}</option>
+                        <option value="fileMissing" ${grouperRequestContainer.gshTemplateContainer.filterCompileStatus == 'fileMissing' ? 'selected' : ''}>${textContainer.text['gshTemplatesCompileStatusFileMissing']}</option>
+                      </select>
+                      <br /><span class="description">${textContainer.text['gshTemplatesFilterCompileStatusDescription']}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 			    <c:choose>
 			      <c:when test="${fn:length(grouperRequestContainer.gshTemplateContainer.guiGshTemplateConfigurations) > 0}">
 			        

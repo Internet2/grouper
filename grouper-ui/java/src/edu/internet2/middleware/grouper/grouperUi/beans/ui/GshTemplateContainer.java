@@ -129,6 +129,56 @@ public class GshTemplateContainer {
     this.guiGshTemplateConfigurations = guiGshTemplateConfigurations;
   }
 
+  // GRP-7036: inventory list filters (selected values, to repopulate the dropdowns)
+
+  private String filterTemplateType;
+
+  private String filterTemplateMode;
+
+  private String filterCompileStatus;
+
+  /**
+   * @return the selected templateType filter, or blank for all
+   */
+  public String getFilterTemplateType() {
+    return this.filterTemplateType;
+  }
+
+  /**
+   * @param filterTemplateType selected templateType filter
+   */
+  public void setFilterTemplateType(String filterTemplateType) {
+    this.filterTemplateType = filterTemplateType;
+  }
+
+  /**
+   * @return the selected templateMode filter, or blank for all
+   */
+  public String getFilterTemplateMode() {
+    return this.filterTemplateMode;
+  }
+
+  /**
+   * @param filterTemplateMode selected templateMode filter
+   */
+  public void setFilterTemplateMode(String filterTemplateMode) {
+    this.filterTemplateMode = filterTemplateMode;
+  }
+
+  /**
+   * @return the selected compile-status filter, or blank for all
+   */
+  public String getFilterCompileStatus() {
+    return this.filterCompileStatus;
+  }
+
+  /**
+   * @param filterCompileStatus selected compile-status filter
+   */
+  public void setFilterCompileStatus(String filterCompileStatus) {
+    this.filterCompileStatus = filterCompileStatus;
+  }
+
   /**
    * @return true if can view gsh templates
    */

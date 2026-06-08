@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import junit.textui.TestRunner;
 
@@ -15,15 +17,71 @@ public class GshTemplateConfigurationCompileTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GshTemplateConfigurationCompileTest("testValidSourceCompilesClean"));
-    TestRunner.run(new GshTemplateConfigurationCompileTest("testSyntaxErrorReturnsDiagnostics"));
-    TestRunner.run(new GshTemplateConfigurationCompileTest("testParseErrorReturnsMessage"));
-    TestRunner.run(new GshTemplateConfigurationCompileTest("testBlankSourceIsNotAnError"));
-    TestRunner.run(new GshTemplateConfigurationCompileTest("testBaseClassCorrectForType"));
-    TestRunner.run(new GshTemplateConfigurationCompileTest("testBaseClassWrongForType"));
-    TestRunner.run(new GshTemplateConfigurationCompileTest("testBaseClassLibraryHasNoRequirement"));
+    seedGshTemplateInventory();
+    System.exit(0);
   }
 
+  /**
+   * Seed 40 GSH template configs for eyeballing the inventory list / filters.
+   * Persists to DB-backed config, so run against the DB the UI reads, then open
+   * the GSH templates screen. Cleanup: delete the rows from the screen, or
+   * delete config keys matching grouperGshTemplate.invTemplate%.
+   */
+  public static void seedGshTemplateInventory() {
+
+    GrouperSession.startRootSession();
+
+    String[] types = new String[] {
+        "gsh", "abac", "provisioner", "daemon", "daemonChangeLog",
+        "report", "customUi", "hook", "library" };
+
+    for (int i = 1; i <= 40; i++) {
+
+      String num = i < 10 ? "0" + i : "" + i;
+      String configId = "invTemplate" + num;
+      String type = types[i % types.length];
+      boolean compiled = (i % 2 == 0);
+
+      storeGshTemplateConfig(configId, "templateType", type);
+      storeGshTemplateConfig(configId, "templateMode", compiled ? "compiled" : "interpreted");
+      storeGshTemplateConfig(configId, "enabled", "true");
+
+      if (!compiled) {
+        // interpreted -> em-dash compile status
+        storeGshTemplateConfig(configId, "gshTemplate", "println 'hello from " + configId + "';");
+      } else if (i % 10 == 0) {
+        // file source with a missing file -> "Source file missing"
+        storeGshTemplateConfig(configId, "gshTemplateSourceType", "file");
+        storeGshTemplateConfig(configId, "gshTemplateFileName", "/tmp/missing-" + configId + ".java");
+      } else if (i % 6 == 0) {
+        // broken Java -> "Compile failed"
+        storeGshTemplateConfig(configId, "gshTemplate", brokenJavaSource(num));
+      } else {
+        // valid Java -> "Compiled OK"
+        storeGshTemplateConfig(configId, "gshTemplate", validJavaSource(num));
+      }
+    }
+  }
+
+  private static void storeGshTemplateConfig(String configId, String suffix, String value) {
+    new GrouperDbConfig().configFileName("grouper.properties")
+        .propertyName("grouperGshTemplate." + configId + "." + suffix).value(value).store();
+  }
+
+  private static String validJavaSource(String num) {
+    return "package edu.internet2.middleware.grouper.gshTest;\n"
+        + "public class InvTemplate" + num + " {\n"
+        + "  public String hi() { return \"hi from " + num + "\"; }\n"
+        + "}\n";
+  }
+
+  private static String brokenJavaSource(String num) {
+    return "package edu.internet2.middleware.grouper.gshTest;\n"
+        + "public class InvTemplate" + num + " {\n"
+        + "  public void broken() { int x = ; }\n"
+        + "}\n";
+  }
+  
   /**
    * @param name
    */

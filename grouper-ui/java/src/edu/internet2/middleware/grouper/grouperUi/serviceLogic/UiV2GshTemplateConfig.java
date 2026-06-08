@@ -49,11 +49,36 @@ public class UiV2GshTemplateConfig {
       }
       
       List<GshTemplateConfiguration> gshTemplateConfigs = GshTemplateConfiguration.retrieveAllGshTemplateConfigs();
-      
+
       List<GuiGshTemplateConfiguration> guiGshTemplateConfigs = GuiGshTemplateConfiguration.convertFromGshTemplateConfiguration(gshTemplateConfigs);
-      
-      gshTemplateContainer.setGuiGshTemplateConfigurations(guiGshTemplateConfigs);
-      
+
+      // GRP-7036: inventory filters (migration backlog = mode interpreted, broken = status failed, by type)
+      String filterTemplateType = request.getParameter("filterTemplateType");
+      String filterTemplateMode = request.getParameter("filterTemplateMode");
+      String filterCompileStatus = request.getParameter("filterCompileStatus");
+      gshTemplateContainer.setFilterTemplateType(filterTemplateType);
+      gshTemplateContainer.setFilterTemplateMode(filterTemplateMode);
+      gshTemplateContainer.setFilterCompileStatus(filterCompileStatus);
+
+      List<GuiGshTemplateConfiguration> filteredGuiGshTemplateConfigs = new ArrayList<GuiGshTemplateConfiguration>();
+      for (GuiGshTemplateConfiguration guiGshTemplateConfig : guiGshTemplateConfigs) {
+        if (StringUtils.isNotBlank(filterTemplateType)
+            && !StringUtils.equals(filterTemplateType, guiGshTemplateConfig.getTemplateType())) {
+          continue;
+        }
+        if (StringUtils.isNotBlank(filterTemplateMode)
+            && !StringUtils.equals(filterTemplateMode, guiGshTemplateConfig.getTemplateMode())) {
+          continue;
+        }
+        if (StringUtils.isNotBlank(filterCompileStatus)
+            && !StringUtils.equals(filterCompileStatus, guiGshTemplateConfig.getCompileStatus())) {
+          continue;
+        }
+        filteredGuiGshTemplateConfigs.add(guiGshTemplateConfig);
+      }
+
+      gshTemplateContainer.setGuiGshTemplateConfigurations(filteredGuiGshTemplateConfigs);
+
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/gshTemplate/gshTemplateConfigs.jsp"));
       
