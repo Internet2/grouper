@@ -146,11 +146,18 @@ public class UiV2CustomUi {
       }
 
       {
-        String gshScript = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.gshScript.name());
-        if (!StringUtils.isBlank(gshScript)) {
-          customUiContainer.gshRunScript(group, member.getSubject(), loggedInSubject, gshScript);
+        // GRP-7030: compiled GSH custom-UI template (templateMode=compiled) takes
+        // precedence over the interpreted gshScript when configured.
+        String gshTemplateConfigId = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.gshTemplateConfigId.name());
+        if (!StringUtils.isBlank(gshTemplateConfigId)) {
+          customUiContainer.gshRunLeaveScript(group, member.getSubject(), loggedInSubject, gshTemplateConfigId);
+        } else {
+          String gshScript = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.gshScript.name());
+          if (!StringUtils.isBlank(gshScript)) {
+            customUiContainer.gshRunScript(group, member.getSubject(), loggedInSubject, gshScript);
+          }
         }
-        
+
       }
 
       customUiContainer.getCustomUiEngine().sendEmail(customUiContainer.overrideMap());
@@ -486,11 +493,18 @@ public class UiV2CustomUi {
       }
       
       {
-        String gshScript = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.gshScript.name());
-        if (!StringUtils.isBlank(gshScript)) {
-          customUiContainer.gshRunScript(group, member.getSubject(), loggedInSubject, gshScript);
+        // GRP-7030: compiled GSH custom-UI template (templateMode=compiled) takes
+        // precedence over the interpreted gshScript when configured.
+        String gshTemplateConfigId = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.gshTemplateConfigId.name());
+        if (!StringUtils.isBlank(gshTemplateConfigId)) {
+          customUiContainer.gshRunJoinScript(group, member.getSubject(), loggedInSubject, gshTemplateConfigId);
+        } else {
+          String gshScript = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.gshScript.name());
+          if (!StringUtils.isBlank(gshScript)) {
+            customUiContainer.gshRunScript(group, member.getSubject(), loggedInSubject, gshScript);
+          }
         }
-        
+
       }
         
       customUiContainer.getCustomUiEngine().sendEmail(customUiContainer.overrideMap());

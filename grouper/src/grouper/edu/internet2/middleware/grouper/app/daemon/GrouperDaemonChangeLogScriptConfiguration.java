@@ -35,17 +35,25 @@ public class GrouperDaemonChangeLogScriptConfiguration extends GrouperDaemonConf
   //  # {valueType: "class", mustExtendClass: "edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbMessagingPublisher", regex: "^changeLog\\.consumer\\.([^.]+)\\.publisher\\.class$"}
   //  # changeLog.consumer.changeLogScriptDaemonConfigKey.publisher.class = edu.internet2.middleware.grouper.app.loader.EsbPublisherChangeLogScript
   //
+  //  # script type.  compiledJava runs a compiled GSH change-log daemon template.
+  //  # {valueType: "string", regex: "^changeLog\\.consumer\\.([^.]+)\\.changeLogScriptType$", formElement: "dropdown", optionValues: ["gsh", "compiledJava"], defaultValue: "gsh"}
+  //  # changeLog.consumer.changeLogScriptDaemonConfigKey.changeLogScriptType =
+  //
+  //  # config id of the compiled GSH change-log daemon template (templateType=daemonChangeLog, templateMode=compiled) to run
+  //  # {valueType: "string", required: true, regex: "^changeLog\\.consumer\\.([^.]+)\\.gshTemplateConfigId$", showEl: "${changeLogScriptType == 'compiledJava'}"}
+  //  # changeLog.consumer.changeLogScriptDaemonConfigKey.gshTemplateConfigId =
+  //
   //  # file type, you can run a script in config, or run a file in your container
-  //  # {valueType: "string", required: true, regex: "^otherJob\\.([^.]+)\\.changeLogFileType$", formElement: "dropdown", optionValues: ["script", "file"]}
-  //  # changeLog.consumer.changeLogScriptDaemonConfigKey.changeLogFileType = 
+  //  # {valueType: "string", required: true, regex: "^changeLog\\.consumer\\.([^.]+)\\.changeLogFileType$", formElement: "dropdown", optionValues: ["script", "file"], showEl: "${changeLogScriptType != 'compiledJava'}"}
+  //  # changeLog.consumer.changeLogScriptDaemonConfigKey.changeLogFileType =
   //
   //  # source of script
-  //  # {valueType: "string", required: true, regex: "^otherJob\\.([^.]+)\\.changeLogScriptSource$", formElement: "textarea", showEl: "${changeLogFileType == 'script'}"}
-  //  # changeLog.consumer.changeLogScriptDaemonConfigKey.changeLogScriptSource = 
+  //  # {valueType: "string", required: true, regex: "^changeLog\\.consumer\\.([^.]+)\\.changeLogScriptSource$", formElement: "textarea", showEl: "${changeLogScriptType != 'compiledJava' && changeLogFileType == 'script'}"}
+  //  # changeLog.consumer.changeLogScriptDaemonConfigKey.changeLogScriptSource =
   //
   //  # file name in container to run
-  //  # {valueType: "string", required: true, regex: "^otherJob\\.([^.]+)\\.changeLogFileName$", showEl: "${changeLogFileType == 'file'}"}
-  //  # changeLog.consumer.changeLogScriptDaemonConfigKey.changeLogFileName = 
+  //  # {valueType: "string", required: true, regex: "^changeLog\\.consumer\\.([^.]+)\\.changeLogFileName$", showEl: "${changeLogScriptType != 'compiledJava' && changeLogFileType == 'file'}"}
+  //  # changeLog.consumer.changeLogScriptDaemonConfigKey.changeLogFileName =
 
       
   @Override

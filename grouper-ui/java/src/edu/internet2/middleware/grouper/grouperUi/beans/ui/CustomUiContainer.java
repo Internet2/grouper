@@ -26,6 +26,8 @@ import edu.internet2.middleware.grouper.app.customUi.CustomUiConfiguration;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateCompiledDispatch;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -576,7 +578,71 @@ public class CustomUiContainer {
       }
     });
   }
-  
+
+  /**
+   * GRP-7030: run a compiled GSH custom-UI template's join action. Resolves the
+   * compiled GrouperTemplateCustomUi from the registry and calls runOnJoin.
+   * @param group the group being acted on
+   * @param subject the subject being added
+   * @param subjectLoggedIn the logged-in subject
+   * @param gshTemplateConfigId config id of the compiled customUi template
+   */
+  public void gshRunJoinScript(Group group, Subject subject, Subject subjectLoggedIn, String gshTemplateConfigId) {
+    runCompiledCustomUi(group, subject, subjectLoggedIn, gshTemplateConfigId, true);
+  }
+
+  /**
+   * GRP-7030: run a compiled GSH custom-UI template's leave action. Resolves the
+   * compiled GrouperTemplateCustomUi from the registry and calls runOnLeave.
+   * @param group the group being acted on
+   * @param subject the subject being removed
+   * @param subjectLoggedIn the logged-in subject
+   * @param gshTemplateConfigId config id of the compiled customUi template
+   */
+  public void gshRunLeaveScript(Group group, Subject subject, Subject subjectLoggedIn, String gshTemplateConfigId) {
+    runCompiledCustomUi(group, subject, subjectLoggedIn, gshTemplateConfigId, false);
+  }
+
+  /**
+   * GRP-7030: shared resolve-and-dispatch for compiled custom-UI templates.
+   * Runs as root, mirroring the interpreted gshRunScript path.
+   * @param group the group being acted on
+   * @param subject the subject being acted on
+   * @param subjectLoggedIn the logged-in subject
+   * @param gshTemplateConfigId config id of the compiled customUi template
+   * @param join true to call runOnJoin, false to call runOnLeave
+   */
+  private void runCompiledCustomUi(final Group group, final Subject subject, final Subject subjectLoggedIn,
+      String gshTemplateConfigId, final boolean join) {
+
+    GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfigId);
+    gshTemplateConfig.populateConfiguration();
+
+    final GrouperTemplateCustomUi grouperTemplateCustomUi = GshTemplateCompiledDispatch.instantiate(
+        gshTemplateConfigId, gshTemplateConfig, GrouperTemplateCustomUi.class);
+
+    final CustomUiTemplateInput customUiTemplateInput = new CustomUiTemplateInput();
+    customUiTemplateInput.setCustomUiContainer(this);
+    customUiTemplateInput.setGroup(group);
+    customUiTemplateInput.setSubject(subject);
+    customUiTemplateInput.setSubjectLoggedIn(subjectLoggedIn);
+    customUiTemplateInput.setGshTemplateConfigId(gshTemplateConfigId);
+    customUiTemplateInput.setGshTemplateConfig(gshTemplateConfig);
+
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (join) {
+          grouperTemplateCustomUi.runOnJoin(customUiTemplateInput);
+        } else {
+          grouperTemplateCustomUi.runOnLeave(customUiTemplateInput);
+        }
+        return null;
+      }
+    });
+  }
+
   /**
    * @return map
    */

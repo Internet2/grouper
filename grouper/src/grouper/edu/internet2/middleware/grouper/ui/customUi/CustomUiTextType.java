@@ -114,7 +114,15 @@ public enum CustomUiTextType {
    *   
    */
   gshScript,
-  
+
+  /**
+   * GRP-7030: config id of a compiled GSH custom-UI template
+   * (templateType=customUi, templateMode=compiled) to run on join/leave instead
+   * of an interpreted gshScript. The template's runOnJoin / runOnLeave method is
+   * called with a CustomUiTemplateInput.
+   */
+  gshTemplateConfigId,
+
   /**
    * redirect to URL
    */

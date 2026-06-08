@@ -26,6 +26,9 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
+import edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateDaemonChangeLog;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateCompiledDispatch;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
@@ -97,7 +100,34 @@ public class EsbPublisherChangeLogScript extends EsbListenerBase {
 
       ChangeLogProcessorMetadata changeLogProcessorMetadata = this.getChangeLogProcessorMetadata();
       String consumerName = changeLogProcessorMetadata.getConsumerName();
-      
+
+      // GRP-7030: compiled-Java change-log daemon — when changeLogScriptType=compiledJava
+      // the body is a compiled GrouperTemplateDaemonChangeLog resolved from a GSH template
+      // config (gshTemplateConfigId), not a Groovy script. processRecords(this) returns the
+      // last successfully processed sequence number (-1 means no advance); set it on the
+      // ProvisioningSyncConsumerResult so the cursor advances. The threadlocal is already
+      // set above, so retrieveFromThreadLocal() works for helper code in the template.
+      String changeLogScriptType = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueString("changeLog.consumer." + consumerName + ".changeLogScriptType", "gsh");
+      debugMap.put("changeLogScriptType", changeLogScriptType);
+      if (StringUtils.equalsIgnoreCase("compiledJava", changeLogScriptType)) {
+        String gshTemplateConfigId = GrouperLoaderConfig.retrieveConfig()
+            .propertyValueStringRequired("changeLog.consumer." + consumerName + ".gshTemplateConfigId");
+        debugMap.put("gshTemplateConfigId", gshTemplateConfigId);
+        GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfigId);
+        gshTemplateConfig.populateConfiguration();
+        GrouperTemplateDaemonChangeLog grouperTemplateDaemonChangeLog = GshTemplateCompiledDispatch.instantiate(
+            gshTemplateConfigId, gshTemplateConfig, GrouperTemplateDaemonChangeLog.class);
+        long lastSequenceProcessedCompiled = grouperTemplateDaemonChangeLog.processRecords(this);
+        debugMap.put("lastSequenceProcessed", lastSequenceProcessedCompiled);
+        if (lastSequenceProcessedCompiled != -1L
+            && (this.provisioningSyncConsumerResult.getLastProcessedSequenceNumber() == null
+                || lastSequenceProcessedCompiled > this.provisioningSyncConsumerResult.getLastProcessedSequenceNumber().longValue())) {
+          this.provisioningSyncConsumerResult.setLastProcessedSequenceNumber(lastSequenceProcessedCompiled);
+        }
+        return provisioningSyncConsumerResult;
+      }
+
       String changeLogFileType = GrouperLoaderConfig.retrieveConfig()
           .propertyValueStringRequired("changeLog.consumer." + consumerName + ".changeLogFileType");
       debugMap.put("changeLogFileType", changeLogFileType);
