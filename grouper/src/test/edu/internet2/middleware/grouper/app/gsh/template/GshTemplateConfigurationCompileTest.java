@@ -19,6 +19,9 @@ public class GshTemplateConfigurationCompileTest extends GrouperTest {
     TestRunner.run(new GshTemplateConfigurationCompileTest("testSyntaxErrorReturnsDiagnostics"));
     TestRunner.run(new GshTemplateConfigurationCompileTest("testParseErrorReturnsMessage"));
     TestRunner.run(new GshTemplateConfigurationCompileTest("testBlankSourceIsNotAnError"));
+    TestRunner.run(new GshTemplateConfigurationCompileTest("testBaseClassCorrectForType"));
+    TestRunner.run(new GshTemplateConfigurationCompileTest("testBaseClassWrongForType"));
+    TestRunner.run(new GshTemplateConfigurationCompileTest("testBaseClassLibraryHasNoRequirement"));
   }
 
   /**
@@ -79,6 +82,54 @@ public class GshTemplateConfigurationCompileTest extends GrouperTest {
   public void testBlankSourceIsNotAnError() {
     assertNull(GshTemplateConfiguration.compileDiagnosticsOrNull(null));
     assertNull(GshTemplateConfiguration.compileDiagnosticsOrNull("   "));
+  }
+
+  /**
+   * A class extending the right base for its type passes base-class validation.
+   */
+  public void testBaseClassCorrectForType() {
+    String source = ""
+        + "package edu.internet2.middleware.grouper.gshTest;\n"
+        + "import edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateDaemon;\n"
+        + "import edu.internet2.middleware.grouper.app.loader.OtherJobTemplateInput;\n"
+        + "public class BaseValidDaemon extends GrouperTemplateDaemon {\n"
+        + "  public void runDaemon(OtherJobTemplateInput otherJobTemplateInput) { }\n"
+        + "}\n";
+
+    assertNull(GshTemplateConfiguration.baseClassErrorOrNull(source, GshTemplateType.daemon));
+  }
+
+  /**
+   * A class extending the wrong base for its type is rejected (here a
+   * GshTemplateV2 body declared as a daemon).
+   */
+  public void testBaseClassWrongForType() {
+    String source = ""
+        + "package edu.internet2.middleware.grouper.gshTest;\n"
+        + "import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2;\n"
+        + "import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2input;\n"
+        + "import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2output;\n"
+        + "public class BaseWrongDaemon extends GshTemplateV2 {\n"
+        + "  public void gshRunLogic(GshTemplateV2input in, GshTemplateV2output out) { }\n"
+        + "}\n";
+
+    String error = GshTemplateConfiguration.baseClassErrorOrNull(source, GshTemplateType.daemon);
+    assertNotNull("a GshTemplateV2 body should not validate as a daemon", error);
+    assertTrue("error should name the required base: " + error,
+        error.contains("GrouperTemplateDaemon"));
+  }
+
+  /**
+   * Library templates have no required base class.
+   */
+  public void testBaseClassLibraryHasNoRequirement() {
+    String source = ""
+        + "package edu.internet2.middleware.grouper.gshTest;\n"
+        + "public class BaseLibraryAnything {\n"
+        + "  public String hi() { return \"hi\"; }\n"
+        + "}\n";
+
+    assertNull(GshTemplateConfiguration.baseClassErrorOrNull(source, GshTemplateType.library));
   }
 
 }

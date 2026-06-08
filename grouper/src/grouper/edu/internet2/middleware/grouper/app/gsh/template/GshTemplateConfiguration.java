@@ -24,7 +24,9 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.app.gshTemplateProvisioner.GshTemplateProvisionerBase;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -145,6 +147,12 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
             String error = GrouperTextContainer.textOrNull("gshTemplateConfigSaveErrorCompile");
             validationErrorsToDisplay.put(sourceAttributeForError.getHtmlForElementIdHandle(),
                 error + "<pre>" + GrouperUtil.xmlEscape(diagnostics) + "</pre>");
+            return;
+          }
+          // GRP-7035: the source compiles — also check it extends the framework base its type requires
+          String baseClassError = baseClassErrorOrNull(javaSource, gshTemplateType);
+          if (baseClassError != null) {
+            validationErrorsToDisplay.put(sourceAttributeForError.getHtmlForElementIdHandle(), baseClassError);
             return;
           }
         }
@@ -536,6 +544,115 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       diagnostics.append(diagnostic.toString());
     }
     return diagnostics.toString();
+  }
+
+  /**
+   * GRP-7035: save-time check that a compiled template's class extends the
+   * framework base class its templateType requires. Assumes the source already
+   * compiles (compileDiagnosticsOrNull was clean) — it recompiles to get the
+   * bytecode, defines the class in a throwaway ByteArrayClassLoader, and checks
+   * the base. Returns null (no error) when the type has no required base
+   * (library), when the source doesn't parse/compile (handled by the compile
+   * check), or when the expected base class is not on this JVM's classpath
+   * (e.g. the customUi base lives in grouper-ui and a non-UI save cannot
+   * validate it) — in that case the dispatcher's runtime asSubclass still
+   * enforces it.
+   * @param javaSource the Java source body
+   * @param gshTemplateType the configured template type
+   * @return an error message if the class extends the wrong base; null otherwise
+   */
+  static String baseClassErrorOrNull(String javaSource, GshTemplateType gshTemplateType) {
+    if (gshTemplateType == null || gshTemplateType == GshTemplateType.library || StringUtils.isBlank(javaSource)) {
+      return null;
+    }
+
+    GshTemplateSourceParser.GshTemplateSourceParseResult parseResult = GshTemplateSourceParser.parse(javaSource);
+    if (!parseResult.isSuccess()) {
+      return null;
+    }
+    GshTemplateCompileResult compileResult = GshTemplateJavaCompiler.compile(
+        parseResult.getFullyQualifiedClassName(), javaSource);
+    if (!compileResult.isSuccess()) {
+      return null;
+    }
+
+    List<Class<?>> expectedBaseClasses = expectedBaseClasses(gshTemplateType);
+    if (expectedBaseClasses.isEmpty()) {
+      // the expected base is not on this JVM's classpath; cannot validate here
+      return null;
+    }
+
+    Class<?> loadedClass;
+    try {
+      ByteArrayClassLoader byteArrayClassLoader = new ByteArrayClassLoader(
+          GshTemplateV2.class.getClassLoader(), compileResult.getClassNameToBytecode());
+      loadedClass = byteArrayClassLoader.loadClass(parseResult.getFullyQualifiedClassName());
+    } catch (Throwable t) {
+      // e.g. a referenced base class is not on this classpath; cannot validate here
+      return null;
+    }
+
+    StringBuilder baseClassNames = new StringBuilder();
+    for (Class<?> baseClass : expectedBaseClasses) {
+      if (baseClass.isAssignableFrom(loadedClass)) {
+        return null;
+      }
+      if (baseClassNames.length() > 0) {
+        baseClassNames.append(", ");
+      }
+      baseClassNames.append(baseClass.getName());
+    }
+
+    String error = GrouperTextContainer.textOrNull("gshTemplateConfigSaveErrorWrongBaseClass");
+    return GrouperUtil.replace(error, "$$baseClass$$", baseClassNames.toString());
+  }
+
+  /**
+   * The framework base class(es) a compiled template of the given type must
+   * extend. For hooks, any of the existing hook base classes is acceptable.
+   * The customUi base lives in grouper-ui and is resolved by name at runtime;
+   * if it is not on this classpath the returned list omits it (validation is
+   * then skipped and the runtime dispatcher enforces the base).
+   * @param gshTemplateType the template type
+   * @return the acceptable base classes (empty if none could be resolved)
+   */
+  private static List<Class<?>> expectedBaseClasses(GshTemplateType gshTemplateType) {
+    List<Class<?>> baseClasses = new ArrayList<Class<?>>();
+    if (gshTemplateType == GshTemplateType.gsh || gshTemplateType == GshTemplateType.abac) {
+      baseClasses.add(GshTemplateV2.class);
+    } else if (gshTemplateType == GshTemplateType.provisioner) {
+      baseClasses.add(GshTemplateProvisionerBase.class);
+    } else if (gshTemplateType == GshTemplateType.daemon) {
+      baseClasses.add(GrouperTemplateDaemon.class);
+    } else if (gshTemplateType == GshTemplateType.daemonChangeLog) {
+      baseClasses.add(GrouperTemplateDaemonChangeLog.class);
+    } else if (gshTemplateType == GshTemplateType.report) {
+      baseClasses.add(GrouperTemplateReport.class);
+    } else if (gshTemplateType == GshTemplateType.customUi) {
+      Class<?> customUiBase = safeForName("edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperTemplateCustomUi");
+      if (customUiBase != null) {
+        baseClasses.add(customUiBase);
+      }
+    } else if (gshTemplateType == GshTemplateType.hook) {
+      for (GrouperHookType grouperHookType : GrouperHookType.values()) {
+        baseClasses.add(grouperHookType.getBaseClass());
+      }
+    }
+    return baseClasses;
+  }
+
+  /**
+   * Load a class by name without initializing it, returning null if it is not
+   * on this JVM's classpath.
+   * @param className fully-qualified class name
+   * @return the class, or null if not found
+   */
+  private static Class<?> safeForName(String className) {
+    try {
+      return Class.forName(className, false, GshTemplateV2.class.getClassLoader());
+    } catch (Throwable t) {
+      return null;
+    }
   }
 
   private boolean canDefaultRunFolderShowTemplate(Stem defaultRunFolder) {
