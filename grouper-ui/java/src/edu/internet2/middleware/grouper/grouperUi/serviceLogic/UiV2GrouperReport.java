@@ -1618,7 +1618,11 @@ public class UiV2GrouperReport {
     
     String reportConfigScript = request.getParameter("grouperReportConfigScript");
     bean.setReportConfigScript(reportConfigScript);
-    
+
+    // GRP-7031: optional compiled GSH report template config id
+    String reportConfigGshTemplateConfigId = request.getParameter("grouperReportConfigGshTemplateConfigId");
+    bean.setGshTemplateConfigId(reportConfigGshTemplateConfigId);
+
     {
       String reportConfigStoreWithNoData = request.getParameter("grouperReportConfigStoreWithNoData");
       boolean configStoreWithNoData = true;
@@ -1769,7 +1773,9 @@ public class UiV2GrouperReport {
       return false;
     }
     
-    if (bean.getReportConfigType() == ReportConfigType.GSH && StringUtils.isBlank(bean.getReportConfigScript())) {
+    // GRP-7031: a GSH report needs either an interpreted script or a compiled template config id
+    if (bean.getReportConfigType() == ReportConfigType.GSH && StringUtils.isBlank(bean.getReportConfigScript())
+        && StringUtils.isBlank(bean.getGshTemplateConfigId())) {
       guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
           "#grouperReportConfigScriptId",
           TextContainer.retrieveFromRequest().getText().get("grouperReportConfigScriptBlankError")));

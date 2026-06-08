@@ -4203,10 +4203,13 @@ public class GrouperCheckConfig {
             checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_QUERY, 
                 "SQL for the report. The columns must be named in the SQL (e.g. not select *) and generally this comes from a view", attributeDefNameSaves);
             
-            checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SCRIPT, 
+            checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SCRIPT,
                 "GSH script for the report.  Put report file in: gsh_builtin_gshReportRuntime.getGrouperReportData().getFile()", attributeDefNameSaves);
-            
-            checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_ENABLED, 
+
+            checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_GSH_TEMPLATE_CONFIG_ID,
+                "config id of a compiled GSH report template (templateType=report, templateMode=compiled) to run instead of an interpreted gsh script", attributeDefNameSaves);
+
+            checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_ENABLED,
                 "logic from loader enabled, either enable or disabled this job", attributeDefNameSaves);
             
 

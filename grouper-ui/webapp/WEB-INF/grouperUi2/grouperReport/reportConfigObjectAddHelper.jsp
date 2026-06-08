@@ -264,6 +264,15 @@
                               <span class="description">${textContainer.text['grouperReportConfigScriptHint']}</span>
                             </td>
                           </tr>
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigGshTemplateConfigIdId">${textContainer.text['grouperReportConfigGshTemplateConfigIdLabel']}</label></strong></td>
+                            <td>
+                              <input type="text" id="grouperReportConfigGshTemplateConfigIdId" name="grouperReportConfigGshTemplateConfigId" class="input-block-level"
+                                value="${grouper:escapeHtml(grouperRequestContainer.grouperReportContainer.configBean.gshTemplateConfigId)}" />
+                              <br />
+                              <span class="description">${textContainer.text['grouperReportConfigGshTemplateConfigIdHint']}</span>
+                            </td>
+                          </tr>
                         </c:if>
-                          
+
                       </c:if>

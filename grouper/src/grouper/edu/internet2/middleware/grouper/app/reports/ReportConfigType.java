@@ -15,6 +15,9 @@ import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
+import edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateReport;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateCompiledDispatch;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
@@ -65,6 +68,21 @@ public enum ReportConfigType {
         GrouperReportData grouperReportData = new GrouperReportData();
         gshReportRuntime.setGrouperReportData(grouperReportData);
         grouperReportData.setFile(grouperReportInstance.getReportFileUnencrypted());
+
+        // GRP-7031: compiled-Java report template — when a gshTemplateConfigId is
+        // configured, resolve the GrouperTemplateReport from the registry and call
+        // runReport with the runtime already on the ThreadLocal; skip the inline
+        // Groovy path.
+        String gshTemplateConfigId = grouperReportConfigurationBean.getGshTemplateConfigId();
+        if (!StringUtils.isBlank(gshTemplateConfigId)) {
+          GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfigId);
+          gshTemplateConfig.populateConfiguration();
+          GrouperTemplateReport grouperTemplateReport = GshTemplateCompiledDispatch.instantiate(
+              gshTemplateConfigId, gshTemplateConfig, GrouperTemplateReport.class);
+          grouperTemplateReport.runReport(gshReportRuntime);
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+          return grouperReportData;
+        }
 
         String gshScript = grouperReportConfigurationBean.getReportConfigScript();
               

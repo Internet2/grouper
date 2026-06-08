@@ -208,6 +208,29 @@ public class GrouperReportConfigurationBean {
   }
 
   /**
+   * GRP-7031: config id of a compiled GSH report template
+   * (templateType=report, templateMode=compiled) to run instead of an
+   * interpreted gsh script
+   */
+  private String gshTemplateConfigId;
+
+  /**
+   * config id of a compiled GSH report template
+   * @return the gsh template config id
+   */
+  public String getGshTemplateConfigId() {
+    return this.gshTemplateConfigId;
+  }
+
+  /**
+   * config id of a compiled GSH report template
+   * @param gshTemplateConfigId1
+   */
+  public void setGshTemplateConfigId(String gshTemplateConfigId1) {
+    this.gshTemplateConfigId = gshTemplateConfigId1;
+  }
+
+  /**
    * reportConfigValueDef  SQL for the report. The columns must be named in the SQL (e.g. not select *) and generally this comes from a view
    */
   private String reportConfigQuery;

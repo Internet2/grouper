@@ -129,7 +129,14 @@ public class GrouperReportConfigAttributeNames {
    * GSH script for report
    */
   public static final String GROUPER_REPORT_CONFIG_SCRIPT = "reportConfigScript";
-  
+
+  /**
+   * GRP-7031: config id of a compiled GSH report template
+   * (templateType=report, templateMode=compiled) to run instead of an
+   * interpreted gsh script
+   */
+  public static final String GROUPER_REPORT_CONFIG_GSH_TEMPLATE_CONFIG_ID = "reportConfigGshTemplateConfigId";
+
   /**
    * logic from loader enabled, either enable or disabled this job
    */

@@ -166,6 +166,9 @@ public class GrouperReportConfigService {
     attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SCRIPT, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigScript());
 
+    attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_GSH_TEMPLATE_CONFIG_ID, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getGshTemplateConfigId());
+
     attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SEND_EMAIL, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), toStringTrueFalse(reportConfigBean.isReportConfigSendEmail()));
     
@@ -339,7 +342,10 @@ public class GrouperReportConfigService {
     
     assignValue = attributeValueDelegate.retrieveAttributeAssignValue(reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_SCRIPT);
     result.setReportConfigScript(assignValue != null ? assignValue.getValueString(): null);
-    
+
+    assignValue = attributeValueDelegate.retrieveAttributeAssignValue(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_GSH_TEMPLATE_CONFIG_ID);
+    result.setGshTemplateConfigId(assignValue != null ? assignValue.getValueString(): null);
+
     assignValue = attributeValueDelegate.retrieveAttributeAssignValue(reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_SEND_EMAIL);
     result.setReportConfigSendEmail(assignValue != null ? BooleanUtils.toBoolean(assignValue.getValueString()): false);
     
