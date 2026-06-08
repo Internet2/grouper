@@ -31,6 +31,10 @@ ${grouper:title('gshTemplateConfigsPageTitle')}
 			          <thead>        
 			            <tr>
 			              <th>${textContainer.text['gshTemplatesTableHeaderConfigId']}</th>
+              <th>${textContainer.text['gshTemplatesTableHeaderType']}</th>
+              <th>${textContainer.text['gshTemplatesTableHeaderMode']}</th>
+              <th>${textContainer.text['gshTemplatesTableHeaderSource']}</th>
+              <th>${textContainer.text['gshTemplatesTableHeaderCompileStatus']}</th>
 			              <th>${textContainer.text['gshTemplatesTableHeaderEnabled']}</th>
 			              <th>${textContainer.text['gshTemplatesTableHeaderActions']}</th>
 			            </tr>
@@ -42,6 +46,33 @@ ${grouper:title('gshTemplateConfigsPageTitle')}
 			                <tr>
 			                   <td style="white-space: nowrap;">
 			                    ${grouper:escapeHtml(guiGshTemplateConfiguration.gshTemplateConfiguration.configId)}
+			                   </td>
+			                   
+			                   <td style="white-space: nowrap;">
+			                    ${grouper:escapeHtml(guiGshTemplateConfiguration.templateType)}
+			                   </td>
+			                   
+			                   <td style="white-space: nowrap;">
+			                    ${grouper:escapeHtml(guiGshTemplateConfiguration.templateMode)}
+			                   </td>
+			                   
+			                   <td style="white-space: nowrap;">
+			                    ${grouper:escapeHtml(guiGshTemplateConfiguration.sourceLocation)}
+			                   </td>
+			                   
+			                   <td style="white-space: nowrap;">
+			                    <c:choose>
+			                     <c:when test="${guiGshTemplateConfiguration.compileStatus == 'ok'}">
+			                      <span class="label label-success" rel="tooltip" data-placement="right" data-original-title="${grouper:escapeHtml(guiGshTemplateConfiguration.lastCompiled)}">${textContainer.text['gshTemplatesCompileStatusOk']}</span>
+			                     </c:when>
+			                     <c:when test="${guiGshTemplateConfiguration.compileStatus == 'failed'}">
+			                      <span class="label label-important" rel="tooltip" data-html="true" data-placement="right" data-original-title="${grouper:escapeHtml(guiGshTemplateConfiguration.compileStatusDetail)}">${textContainer.text['gshTemplatesCompileStatusFailed']}</span>
+			                     </c:when>
+			                     <c:when test="${guiGshTemplateConfiguration.compileStatus == 'fileMissing'}">
+			                      <span class="label label-warning">${textContainer.text['gshTemplatesCompileStatusFileMissing']}</span>
+			                     </c:when>
+			                     <c:otherwise>&mdash;</c:otherwise>
+			                    </c:choose>
 			                   </td>
 			                   
 			                   <td style="white-space: nowrap;">
