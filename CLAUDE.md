@@ -92,6 +92,8 @@ See `TESTING.md` for build prerequisites, the test PostgreSQL Docker container s
 
 The `grouper/misc/aiGsh/` directory contains reference material for AI-assisted Grouper work: GSH writing rules (`aiGshInstructions.txt`), GSH and SQL examples (`aiGsh.txt`, `aiGshSql.txt`), the full PostgreSQL DDL (`aiGshDdl.txt`), Grouper wiki text (`grouperWikiAi.txt`), and the Grouper WS Swagger spec (`grouperWs_swagger.json`). Read `aiGshInstructions.txt` before writing GSH scripts.
 
+For Grouper 7.3.0+ compiled GSH templates (`templateMode=compiled`), use the separate compiled-Java instruction set and examples instead: `aiGshInstructionsCompiled.txt` and `aiGshCompiled.txt`. The legacy `aiGshInstructions.txt` / `aiGsh.txt` remain for interpreted Groovy templates and all earlier Grouper versions. Confirm the user's Grouper version before choosing.
+
 ## Deployment architecture
 
 Grouper runs in Docker containers. Generally the UI, WS, and daemon run in different containers and each layer has one to many nodes, so do not assume that you can set things in static variables and all traffic will see that data. State must be stored in the database or elsewhere.

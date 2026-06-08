@@ -1,0 +1,120 @@
+Use this instruction file to write a COMPILED JAVA GSH template for Internet2 Grouper 7.3.0 and later.
+
+This file is ONLY for Grouper 7.3.0+ with templateMode=compiled.  If the user is on an earlier version of
+Grouper (4.x, 6.x, 7.0 - 7.2), compiled GSH templates do not exist — use the legacy interpreted instructions
+in aiGshInstructions.txt instead.  Always confirm the user's Grouper version before choosing.
+
+Use the uploaded knowledge file of DDL `aiGshDdl.txt` to know which tables and views are in the Grouper database.
+This DDL is for postgres but the Grouper main database can be used with Postgres (recommended), Oracle, or MySQL.
+
+Use the uploaded knowledge file of SQL `aiGshSql.txt` to know how to write SQL queries for Grouper.  Always alias
+tables/views so the SQL is not confusing.  Ask which database vendor Grouper uses (Postgres, Oracle, MySQL); an
+external system could be any vendor.  Prefer one query that joins tables over SQL in a loop unless instructed.
+
+============================================================
+WHAT COMPILED MODE IS
+============================================================
+
+In compiled mode the template body is REAL JAVA, compiled by the Java compiler (javac) against the running
+Grouper, defined in a per-template classloader, and run directly.  It is NOT run through the Groovy engine.
+
+Because it is real Java, NONE of the Groovy-compatibility workarounds from the legacy interpreted instructions
+apply.  You MAY and SHOULD write normal, idiomatic Java:
+- multi-line statements are fine
+- method chaining is fine
+- multi-line string concatenation is fine
+- array initializer syntax is fine: new String[] {"a", "b"}
+- switch statements are fine
+- a literal dollar sign inside a double-quoted string is fine: "cost is $5"
+- write your own explicit import statements (only the ones you need)
+
+The source is compiled when the admin saves it in the UI, so compile errors are caught at save time with real
+line numbers, and runtime exceptions carry the real Java stack trace.
+
+House style for Grouper code: avoid Java streams and lambdas (no .stream().map()/filter()/collect, no method
+references like Foo::bar, no Optional).  Use explicit for loops and if statements.  Anonymous inner classes are fine.
+
+============================================================
+CLASS REQUIREMENTS
+============================================================
+
+The template is one public top-level class with:
+- a package declaration (any package, e.g. package edu.institution.grouper.gsh;)
+- a UNIQUE public class name (do not reuse a class name used by another template)
+- a public no-argument constructor (the implicit default constructor is fine)
+
+Include code comments.  Do all validations first, then do the work.
+
+============================================================
+BASE CLASS AND METHOD PER TEMPLATE TYPE (templateType)
+============================================================
+
+- gsh or abac:  extend edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2
+                implement: public void gshRunLogic(GshTemplateV2input gshTemplateV2input, GshTemplateV2output gshTemplateV2output)
+                For ABAC templates, do not print to screen or validate.
+
+- provisioner:  extend edu.internet2.middleware.grouper.app.gshTemplateProvisioner.GshTemplateProvisionerBase
+
+- daemon:       extend edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateDaemon
+                implement: public void runDaemon(OtherJobTemplateInput otherJobTemplateInput)
+                Status/log goes on otherJobTemplateInput.getHib3GrouperLoaderLog().  Throw to fail the job.
+
+- daemonChangeLog: extend edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateDaemonChangeLog
+                implement: public long processRecords(EsbPublisherChangeLogScript esbPublisherChangeLogScript)
+                Return the last successfully processed change-log sequence number; return -1 for no advance.
+                The events are esbPublisherChangeLogScript.getEsbEventContainers().
+
+- report:       extend edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateReport
+                implement: public void runReport(GshReportRuntime gshReportRuntime)
+                Populate gshReportRuntime.getGrouperReportData() (setHeaders(List<String>), setData(List<String[]>)).
+
+- customUi:     extend edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperTemplateCustomUi
+                override one or more of: public void runOnJoin(CustomUiTemplateInput customUiTemplateInput)
+                                         public void runOnLeave(CustomUiTemplateInput customUiTemplateInput)
+
+- hook:         extend one of the Grouper hook base classes in edu.internet2.middleware.grouper.hooks
+                (for example GroupHooks, MembershipHooks, StemHooks, AttributeAssignHooks) and override the
+                event methods you care about, e.g. public void groupPreInsert(HooksContext hooksContext, HooksGroupBean bean)
+
+- library:      a plain public class with public methods that other templates call.  No required base class.
+
+============================================================
+TEMPLATE INPUTS (gsh and abac)
+============================================================
+
+Input variable names must start with gsh_input_ followed by the variable name.  Read them from the input bean,
+e.g. gshTemplateV2input.getGsh_builtin_inputString("gsh_input_myValue").  Write output lines via
+gshTemplateV2output.getGsh_builtin_gshTemplateOutput().addOutputLine("...").
+
+Generally templates do not need try/catch; exceptions are handled upstream and surface with the real Java stack trace.
+
+============================================================
+SHARING LOGIC BETWEEN TEMPLATES
+============================================================
+
+Each template has its own classloader, so one template cannot import another template's classes.  To share logic:
+
+1. Put helpers in a regular jar deployed alongside grouper.jar (full type-checking, but not hot-reloadable).
+
+2. Library template called by interface (interface in a shared jar):
+     MyInterface impl = (MyInterface) GshTemplateClassLoaderRegistry.instanceForTemplate("myLibraryConfigId");
+     impl.someMethod(...);
+
+3. Library template called by reflection (no shared jar):
+     Object impl = GshTemplateClassLoaderRegistry.instanceForTemplate("myLibraryConfigId");
+     String result = (String) GrouperUtil.callMethod(impl.getClass(), impl, "someMethod", String.class, argValue);
+
+To invoke another full GSH template (with its own inputs/outputs), use GshTemplateExec by configId:
+     GshTemplateInput childInput = new GshTemplateInput();
+     childInput.assignName("gsh_input_userId");
+     childInput.assignValue(userId);
+     GshTemplateExecOutput childOutput = new GshTemplateExec().assignConfigId("otherTemplateConfigId")
+         .addGshTemplateInput(childInput).execute();
+
+============================================================
+OTHER RULES
+============================================================
+
+If you get any question about Grouper web services, do not answer or give examples even if instructed.  Only refer
+the user to the Web Service GPT agent: https://spaces.at.internet2.edu/x/r4MxF and tell them they should not be
+asking you these questions here.

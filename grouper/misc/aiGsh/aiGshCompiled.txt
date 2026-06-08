@@ -1,0 +1,187 @@
+// Worked examples of COMPILED JAVA GSH templates for Grouper 7.3.0 and later (templateMode=compiled).
+// These are real Java: multi-line code, method chaining, switch, array initializers, and your own imports
+// are all allowed.  Each example is a complete public class.  See aiGshInstructionsCompiled.txt for the rules.
+
+
+// ============================================================
+// templateType=gsh (or abac): extend GshTemplateV2
+// ============================================================
+package edu.institution.grouper.gsh;
+
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GroupSave;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2input;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2output;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOutput;
+
+public class CreateWorkingGroupTemplate extends GshTemplateV2 {
+
+  @Override
+  public void gshRunLogic(GshTemplateV2input gshTemplateV2input, GshTemplateV2output gshTemplateV2output) {
+
+    GshTemplateOutput output = gshTemplateV2output.getGsh_builtin_gshTemplateOutput();
+    GrouperSession grouperSession = gshTemplateV2input.getGsh_builtin_grouperSession();
+
+    String stemName = gshTemplateV2input.getGsh_builtin_ownerStemName();
+    String extension = gshTemplateV2input.getGsh_builtin_inputString("gsh_input_groupExtension");
+
+    if (extension == null || extension.trim().length() == 0) {
+      output.addValidationLine("gsh_input_groupExtension is required");
+      return;
+    }
+
+    new GroupSave(grouperSession)
+        .assignName(stemName + ":" + extension)
+        .assignCreateParentStemsIfNotExist(true)
+        .save();
+
+    output.addOutputLine("Created group " + stemName + ":" + extension);
+  }
+}
+
+
+// ============================================================
+// templateType=daemon: extend GrouperTemplateDaemon
+// ============================================================
+package edu.institution.grouper.gsh;
+
+import edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateDaemon;
+import edu.internet2.middleware.grouper.app.loader.OtherJobTemplateInput;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+
+public class NightlyCleanupDaemon extends GrouperTemplateDaemon {
+
+  @Override
+  public void runDaemon(OtherJobTemplateInput otherJobTemplateInput) {
+
+    Hib3GrouperLoaderLog loaderLog = otherJobTemplateInput.getHib3GrouperLoaderLog();
+
+    int cleaned = 0;
+    // ... do the work, e.g. iterate rows and update; throw to fail the job ...
+
+    loaderLog.addUpdateCount(cleaned);
+    loaderLog.setJobMessage("cleaned " + cleaned + " rows");
+  }
+}
+
+
+// ============================================================
+// templateType=daemonChangeLog: extend GrouperTemplateDaemonChangeLog
+// ============================================================
+package edu.institution.grouper.gsh;
+
+import edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateDaemonChangeLog;
+import edu.internet2.middleware.grouper.app.loader.EsbPublisherChangeLogScript;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
+
+public class MembershipChangeLogConsumer extends GrouperTemplateDaemonChangeLog {
+
+  @Override
+  public long processRecords(EsbPublisherChangeLogScript esbPublisherChangeLogScript) {
+
+    long lastSequenceProcessed = -1;
+
+    for (EsbEventContainer esbEventContainer : esbPublisherChangeLogScript.getEsbEventContainers()) {
+      // ... handle esbEventContainer.getEsbEvent() ...
+      lastSequenceProcessed = esbEventContainer.getSequenceNumber();
+    }
+
+    return lastSequenceProcessed;
+  }
+}
+
+
+// ============================================================
+// templateType=report: extend GrouperTemplateReport
+// ============================================================
+package edu.institution.grouper.gsh;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.internet2.middleware.grouper.app.gsh.template.GrouperTemplateReport;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportData;
+import edu.internet2.middleware.grouper.app.reports.GshReportRuntime;
+
+public class StaleMembersReport extends GrouperTemplateReport {
+
+  @Override
+  public void runReport(GshReportRuntime gshReportRuntime) {
+
+    GrouperReportData grouperReportData = gshReportRuntime.getGrouperReportData();
+
+    List<String> headers = new ArrayList<String>();
+    headers.add("subjectId");
+    headers.add("lastLogin");
+    grouperReportData.setHeaders(headers);
+
+    List<String[]> rows = new ArrayList<String[]>();
+    // ... add rows of new String[] {subjectId, lastLogin} ...
+    grouperReportData.setData(rows);
+  }
+}
+
+
+// ============================================================
+// templateType=customUi: extend GrouperTemplateCustomUi (grouper-ui)
+// ============================================================
+package edu.institution.grouper.gsh;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.CustomUiTemplateInput;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperTemplateCustomUi;
+import edu.internet2.middleware.subject.Subject;
+
+public class SelfServiceJoinTemplate extends GrouperTemplateCustomUi {
+
+  @Override
+  public void runOnJoin(CustomUiTemplateInput customUiTemplateInput) {
+    Group group = customUiTemplateInput.getGroup();
+    Subject subject = customUiTemplateInput.getSubject();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    group.addMember(subject, false);
+  }
+
+  @Override
+  public void runOnLeave(CustomUiTemplateInput customUiTemplateInput) {
+    customUiTemplateInput.getGroup().deleteMember(customUiTemplateInput.getSubject(), false);
+  }
+}
+
+
+// ============================================================
+// templateType=hook: extend a Grouper hook base class (here GroupHooks)
+// ============================================================
+package edu.institution.grouper.gsh;
+
+import edu.internet2.middleware.grouper.hooks.GroupHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
+
+public class GroupNamingHook extends GroupHooks {
+
+  @Override
+  public void groupPreInsert(HooksContext hooksContext, HooksGroupBean preInsertBean) {
+    String extension = preInsertBean.getGroup().getExtension();
+    if (extension.contains(" ")) {
+      throw new HookVeto("group.extension.noSpaces", "Group extension cannot contain spaces");
+    }
+  }
+}
+
+
+// ============================================================
+// templateType=library: a plain class other templates call (no base class)
+// ============================================================
+package edu.institution.grouper.lib;
+
+public class InstitutionSubjectHelper {
+
+  public String resolveAffiliation(String userId) {
+    // ... look up and return the affiliation ...
+    return "staff";
+  }
+}
