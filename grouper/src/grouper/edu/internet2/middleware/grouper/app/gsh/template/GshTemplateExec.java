@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -417,9 +416,18 @@ public class GshTemplateExec {
       scriptToRun.append("import edu.internet2.middleware.subject.*;\n");
     }
     
-    boolean templateVersionV1 = StringUtils.equals("V1", templateConfig.getTemplateVersion());
-    boolean templateVersionV2 = StringUtils.equals("V2", templateConfig.getTemplateVersion());
-    GshTemplateV2 gshTemplateV2 = templateVersionV1 ? null : executeForTemplateV2instance();
+    // GRP-7026: compiled-Java mode (templateMode=compiled) is an axis independent
+    // of the V1/V2 Groovy authoring style. A compiled gsh/abac template extends
+    // GshTemplateV2 and implements gshRunLogic, so it reuses the V2 runtime path
+    // below but acquires its instance from the per-template classloader registry
+    // instead of compiling Groovy. The compiled branch lives in
+    // executeForTemplateV2instance(); here we just make sure the V2 runtime path
+    // is selected regardless of the (Groovy-only) templateVersion value.
+    boolean compiled = templateConfig.isCompiledMode();
+    boolean templateVersionV1 = !compiled && StringUtils.equals("V1", templateConfig.getTemplateVersion());
+    boolean templateVersionV2 = !compiled && StringUtils.equals("V2", templateConfig.getTemplateVersion());
+    boolean useGshTemplateV2instance = compiled || templateVersionV2;
+    GshTemplateV2 gshTemplateV2 = useGshTemplateV2instance ? executeForTemplateV2instance() : null;
 
     GshTemplateV2input gshTemplateV2input = new GshTemplateV2input();
     gshTemplateV2input.setGsh_builtin_gshTemplateRuntime(gshTemplateRuntime);
@@ -456,7 +464,7 @@ public class GshTemplateExec {
       scriptToRun.append("String gsh_builtin_ownerGroupName = gsh_builtin_gshTemplateRuntime.getOwnerGroupName();\n");
     }
     
-    if (templateVersionV2) {
+    if (useGshTemplateV2instance) {
 
       gshTemplateV2input.setGsh_builtin_ownerStemName(gshTemplateRuntime.getOwnerStemName());
       gshTemplateV2input.setGsh_builtin_ownerGroupName(gshTemplateRuntime.getOwnerGroupName());
@@ -501,7 +509,7 @@ public class GshTemplateExec {
         String gshVariable = inputConfig.getGshTemplateInputType().generateGshVariable(grouperGroovyInput, inputConfig, valueFromUser);
         scriptToRun.append(gshVariable);
       }
-      if (templateVersionV2) {
+      if (useGshTemplateV2instance) {
         Object realValue = inputConfig.getGshTemplateInputType().convertToType(valueFromUser);
         gshTemplateV2input.getGsh_builtin_inputs().put(inputConfig.getName(), realValue);
       }
@@ -531,7 +539,7 @@ public class GshTemplateExec {
       }
       
       grouperSession = GrouperSession.start(grouperSessionSubject, false);
-      if (templateVersionV2) {
+      if (useGshTemplateV2instance) {
         gshTemplateV2input.setGsh_builtin_grouperSession(grouperSession);
       }
       
@@ -573,7 +581,7 @@ public class GshTemplateExec {
                   success[0] = false;
                 }
               }
-              if (templateVersionV2) {
+              if (useGshTemplateV2instance) {
                 try {
                   gshTemplateV2.gshRunLogic(gshTemplateV2input, gshTemplateV2output);
                 } catch (Throwable t) {
@@ -676,20 +684,10 @@ public class GshTemplateExec {
   }
   
   private String getGshTemplateFromConfig(GshTemplateConfig templateConfig) {
-    String gshTemplateFromConfig = null;
-    if (StringUtils.equals(templateConfig.getGshTemplateSourceType(), "file")) {
-      //read file from the container
-      String fileName = templateConfig.getGshTemplateFileName();
-      File file = new File(fileName);
-      if (!file.exists()) {
-        throw new RuntimeException("File '"+fileName+"' does not exist in container!!");
-      }
-      String fileContents = GrouperUtil.readFileIntoString(file);
-      gshTemplateFromConfig = fileContents;
-    } else {              
-      gshTemplateFromConfig = templateConfig.getGshTemplate();
-    }
-    return gshTemplateFromConfig;
+    // GRP-7026: source-location logic (inline config vs container file) moved
+    // onto GshTemplateConfig.readSource() so the compiled-Java dispatchers can
+    // reuse it. This delegates to keep existing callers unchanged.
+    return templateConfig.readSource();
   }
 
   /**
@@ -726,8 +724,24 @@ public class GshTemplateExec {
           
           templateConfig.populateConfiguration();
 
+          // GRP-7026: compiled-Java path — resolve the class from the per-template
+          // classloader registry instead of compiling Groovy. The compiled class
+          // extends GshTemplateV2; the shared dispatch helper handles
+          // resolve -> cast -> instantiate and surfaces compile errors. Set source
+          // (real Java) and prepend-headers=0 so error reporting maps to the real
+          // line numbers; the Groovy line-number back-calculation does not apply.
+          if (templateConfig.isCompiledMode()) {
+            GshTemplateV2 compiledInstance = GshTemplateCompiledDispatch.instantiate(
+                configId, templateConfig, GshTemplateV2.class);
+            compiledInstance.setSource(templateConfig.readSource());
+            compiledInstance.setLightWeight(false);
+            compiledInstance.setScriptPrependHeaders(0);
+            gshTemplateV2[0] = compiledInstance;
+            return null;
+          }
+
           StringBuilder scriptToRun = new StringBuilder();
-          
+
           scriptToRun.append("GshTemplateRuntime gsh_builtin_gshTemplateRuntime = edu.internet2.middleware.grouper.app.gsh.template.GshTemplateRuntime.retrieveGshTemplateRuntime();\n");
           
           boolean templateVersionV2 = StringUtils.equals("V2", templateConfig.getTemplateVersion());

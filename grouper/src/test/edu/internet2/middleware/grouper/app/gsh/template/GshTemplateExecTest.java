@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
@@ -142,7 +143,76 @@ public class GshTemplateExecTest extends GrouperTest {
     assertFalse(output.isSuccess());
     assertFalse(output.isValid());
   }
-  
+
+  /**
+   * GRP-7026: end-to-end run of a templateMode=compiled gsh template. The body
+   * is real Java extending GshTemplateV2; GshTemplateExec must resolve it
+   * through the classloader registry (not the Groovy engine) and run
+   * gshRunLogic. Reuses the sample template scaffolding (run-as, security,
+   * privileges) and flips it to compiled mode with a Java body.
+   */
+  public void testExecuteCompiledJava() {
+
+    // given
+    GshTemplateClassLoaderRegistry.clearCache();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    String templateConfigLines = GrouperUtil.readResourceIntoString("edu/internet2/middleware/grouper/app/gsh/template/test-gsh-template-config.properties", false);
+
+    List<String> templateConfigProperties = GrouperUtil.splitFileLines(templateConfigLines);
+
+    for (String keyValue: templateConfigProperties) {
+      if (StringUtils.isNotBlank(keyValue)) {
+        String[] keyValueArr = keyValue.split("=", 2);
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().put(keyValueArr[0].trim(), keyValueArr[1].trim());
+      }
+    }
+
+    // flip the sample config to compiled-Java mode with a real Java body, and
+    // make the single input optional so it doesn't fail validation
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.templateMode", "compiled");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.input.0.required", "false");
+
+    String javaSource = ""
+        + "package edu.internet2.middleware.grouper.gshTest;\n"
+        + "import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2;\n"
+        + "import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2input;\n"
+        + "import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2output;\n"
+        + "public class TestExecCompiledJavaTemplate extends GshTemplateV2 {\n"
+        + "  public void gshRunLogic(GshTemplateV2input gshTemplateV2input, GshTemplateV2output gshTemplateV2output) {\n"
+        + "    gshTemplateV2output.getGsh_builtin_gshTemplateOutput().addOutputLine(\"compiled java ran\");\n"
+        + "  }\n"
+        + "}\n";
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.gshTemplate", javaSource);
+
+    Stem ownerStem = new StemSave(grouperSession).assignName("test2").save();
+
+    GshTemplateExec exec = new GshTemplateExec();
+    exec.assignConfigId("testGshTemplateConfig");
+    exec.assignCurrentUser(SubjectFinder.findRootSubject());
+
+    exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
+    exec.assignOwnerStemName(ownerStem.getName());
+
+    GshTemplateInput input = new GshTemplateInput();
+    input.assignName("gsh_input_myExtension");
+    input.assignValue(null);
+    exec.addGshTemplateInput(input);
+
+    // when
+    GshTemplateExecOutput output = exec.execute();
+
+    // then
+    if (!output.isSuccess() && output.getException() != null) {
+      output.getException().printStackTrace();
+    }
+    assertTrue("compiled template should run successfully", output.isSuccess());
+    assertEquals(1, output.getGshTemplateOutput().getOutputLines().size());
+    assertEquals("compiled java ran", output.getGshTemplateOutput().getOutputLines().get(0).getText());
+  }
+
   public void testValidateExtraInputThatIsNotInTemplate() {
     
     // given

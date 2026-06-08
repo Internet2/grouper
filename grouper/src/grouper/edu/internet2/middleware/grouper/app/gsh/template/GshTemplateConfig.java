@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -130,6 +131,14 @@ public class GshTemplateConfig {
    */
   public void setGshTemplateMode(GshTemplateMode gshTemplateMode) {
     this.gshTemplateMode = gshTemplateMode;
+  }
+
+  /**
+   * @return true if this template runs in compiled-Java mode
+   *   (templateMode=compiled); false for the legacy interpreted Groovy path
+   */
+  public boolean isCompiledMode() {
+    return this.gshTemplateMode == GshTemplateMode.compiled;
   }
 
   private GshTemplateFolderShowOnDescendants gshTemplateFolderShowOnDescendants;
@@ -372,6 +381,27 @@ public class GshTemplateConfig {
 
   public String getGshTemplate() {
     return gshTemplate;
+  }
+
+  /**
+   * Read the template's source from its configured location — inline config
+   * (gshTemplateSourceType=textArea, the default, returns the gshTemplate
+   * property) or a container file (gshTemplateSourceType=file, reads the file
+   * named by gshTemplateFileName on each call). Centralizes the
+   * file-vs-inline branch so the registry and the compiled-Java dispatchers
+   * do not duplicate it. GRP-7026.
+   * @return the source string
+   */
+  public String readSource() {
+    if (StringUtils.equals(this.gshTemplateSourceType, "file")) {
+      String fileName = this.gshTemplateFileName;
+      File file = new File(fileName);
+      if (!file.exists()) {
+        throw new RuntimeException("File '" + fileName + "' does not exist in container!!");
+      }
+      return GrouperUtil.readFileIntoString(file);
+    }
+    return this.gshTemplate;
   }
 
   public List<GshTemplateInputConfig> getGshTemplateInputConfigs() {
