@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -84,7 +85,72 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
     }
     
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
-    
+
+    // GRP-7033: template compile mode (interpreted vs compiled) + compile-on-save.
+    GrouperConfigurationModuleAttribute templateModeAttribute = attributes.get("templateMode");
+    String templateModeValue = templateModeAttribute == null ? null
+        : templateModeAttribute.getValueOrExpressionEvaluationValue();
+    boolean compiled = StringUtils.equalsIgnoreCase("compiled", templateModeValue);
+
+    {
+      GrouperConfigurationModuleAttribute templateTypeAttribute = attributes.get("templateType");
+      String templateTypeValue = templateTypeAttribute == null ? null
+          : templateTypeAttribute.getValueOrExpressionEvaluationValue();
+      GshTemplateType gshTemplateType = StringUtils.isBlank(templateTypeValue)
+          ? GshTemplateType.gsh : GshTemplateType.valueOfIgnoreCase(templateTypeValue, false);
+
+      // the new template types have no legacy interpreted path; they require compiled mode
+      boolean legacyType = gshTemplateType == GshTemplateType.gsh
+          || gshTemplateType == GshTemplateType.abac
+          || gshTemplateType == GshTemplateType.provisioner;
+
+      if (!compiled && !legacyType) {
+        String error = GrouperTextContainer.textOrNull("gshTemplateConfigSaveErrorTypeRequiresCompiledMode");
+        validationErrorsToDisplay.put(templateTypeAttribute.getHtmlForElementIdHandle(), error);
+        return;
+      }
+
+      if (compiled) {
+        // read the source from its configured location (inline textArea or container file)
+        GrouperConfigurationModuleAttribute sourceTypeAttribute = attributes.get("gshTemplateSourceType");
+        String sourceType = sourceTypeAttribute == null ? "textArea"
+            : sourceTypeAttribute.getValueOrExpressionEvaluationValue();
+
+        String javaSource = null;
+        GrouperConfigurationModuleAttribute sourceAttributeForError;
+        if (StringUtils.equals("file", sourceType)) {
+          GrouperConfigurationModuleAttribute fileNameAttribute = attributes.get("gshTemplateFileName");
+          sourceAttributeForError = fileNameAttribute;
+          String fileName = fileNameAttribute == null ? null : fileNameAttribute.getValueOrExpressionEvaluationValue();
+          if (!StringUtils.isBlank(fileName)) {
+            File file = new File(fileName);
+            if (!file.exists()) {
+              String error = GrouperTextContainer.textOrNull("gshTemplateConfigSaveErrorSourceFileNotFound");
+              error = GrouperUtil.replace(error, "$$fileName$$", fileName);
+              validationErrorsToDisplay.put(fileNameAttribute.getHtmlForElementIdHandle(), error);
+              return;
+            }
+            javaSource = GrouperUtil.readFileIntoString(file);
+          }
+        } else {
+          GrouperConfigurationModuleAttribute gshTemplateAttribute = attributes.get("gshTemplate");
+          sourceAttributeForError = gshTemplateAttribute;
+          javaSource = gshTemplateAttribute == null ? null : gshTemplateAttribute.getValueOrExpressionEvaluationValue();
+        }
+
+        // blank source is handled by the required-field validation; only compile-check non-blank source
+        if (!StringUtils.isBlank(javaSource) && sourceAttributeForError != null) {
+          String diagnostics = compileDiagnosticsOrNull(javaSource);
+          if (diagnostics != null) {
+            String error = GrouperTextContainer.textOrNull("gshTemplateConfigSaveErrorCompile");
+            validationErrorsToDisplay.put(sourceAttributeForError.getHtmlForElementIdHandle(),
+                error + "<pre>" + GrouperUtil.xmlEscape(diagnostics) + "</pre>");
+            return;
+          }
+        }
+      }
+    }
+
     GrouperConfigurationModuleAttribute showOnGroupsAttribute = attributes.get("showOnGroups");
     String showOnGroupsValue = showOnGroupsAttribute.getValueOrExpressionEvaluationValue();
     
@@ -266,7 +332,7 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
     
     GrouperConfigurationModuleAttribute templateVersion = attributes.get("templateVersion");
     
-    if (StringUtils.equals(gshTemplateSourceTypeAttibute.getValueOrExpressionEvaluationValue(), "file") && (templateVersion == null || GrouperUtil.isBlank(templateVersion.getValueOrExpressionEvaluation()))) {
+    if (!compiled && StringUtils.equals(gshTemplateSourceTypeAttibute.getValueOrExpressionEvaluationValue(), "file") && (templateVersion == null || GrouperUtil.isBlank(templateVersion.getValueOrExpressionEvaluation()))) {
       String error = GrouperTextContainer.textOrNull("gshTemplate.error.configId.templateSourceTypeWithNonV2Version.message");
       validationErrorsToDisplay.put(gshTemplateSourceTypeAttibute.getHtmlForElementIdHandle(), error);
       return;
@@ -436,6 +502,42 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
     
   }
   
+  /**
+   * GRP-7033: compile-on-save check for a compiled-Java template. Parses the
+   * fully-qualified class name from the source, then compiles it against the
+   * running JVM classpath via GshTemplateJavaCompiler (no registry swap — this
+   * is validation only, before any config is persisted).
+   * @param javaSource the Java source body
+   * @return null if the source parses and compiles cleanly; otherwise the parse
+   *   error or the compiler error diagnostics (one per line, with line/column
+   *   and a caret) for inline display on the save screen
+   */
+  static String compileDiagnosticsOrNull(String javaSource) {
+    if (StringUtils.isBlank(javaSource)) {
+      return null;
+    }
+
+    GshTemplateSourceParser.GshTemplateSourceParseResult parseResult = GshTemplateSourceParser.parse(javaSource);
+    if (!parseResult.isSuccess()) {
+      return parseResult.getErrorMessage();
+    }
+
+    GshTemplateCompileResult compileResult = GshTemplateJavaCompiler.compile(
+        parseResult.getFullyQualifiedClassName(), javaSource);
+    if (compileResult.isSuccess()) {
+      return null;
+    }
+
+    StringBuilder diagnostics = new StringBuilder();
+    for (GshTemplateCompileDiagnostic diagnostic : compileResult.errorDiagnostics()) {
+      if (diagnostics.length() > 0) {
+        diagnostics.append("\n");
+      }
+      diagnostics.append(diagnostic.toString());
+    }
+    return diagnostics.toString();
+  }
+
   private boolean canDefaultRunFolderShowTemplate(Stem defaultRunFolder) {
     
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
