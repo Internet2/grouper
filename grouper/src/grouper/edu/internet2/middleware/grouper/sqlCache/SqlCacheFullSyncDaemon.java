@@ -52,7 +52,9 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
   private Map<String, Long> pitIdToGroupInternalId = new HashMap<>();
   private Map<String, Long> pitIdToStemIdIndex = new HashMap<>();
   private Map<String, Long> pitIdToAttributeDefIdIndex = new HashMap<>();
-  
+
+  private Set<MultiKey> largeGroupSetPairs = new HashSet<>();
+
   private OtherJobInput theOtherJobInput = null;
   private Map<String, Object> debugMap = null;
   
@@ -299,6 +301,38 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
       
       // STEP 6 - fix grouper_sql_cache_mship and counts in grouper_sql_cache_group
       {
+        int switchToEstimatedWhenGroupSetsLargerThan = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.sqlCacheFullSync.switchToEstimatedStartDateWhenGroupSetsLargerThan", -1);
+        int maxAllowedEstimatedStartDateGroups = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.sqlCacheFullSync.maxAllowedEstimatedStartDateGroups", 50);
+
+        largeGroupSetPairs = new HashSet<>();
+        if (switchToEstimatedWhenGroupSetsLargerThan > -1) {
+          List<Object[]> largeGroupSetData = new GcDbAccess()
+              .sql("select owner_id, field_id from grouper_pit_group_set"
+                 + " group by owner_id, field_id having count(*) > ?")
+              .addBindVar((long) switchToEstimatedWhenGroupSetsLargerThan)
+              .selectList(Object[].class);
+          for (Object[] row : largeGroupSetData) {
+            largeGroupSetPairs.add(new MultiKey((String) row[0], (String) row[1]));
+          }
+
+          Long totalGroupSetPairs = new GcDbAccess()
+              .sql("select count(*) from (select 1 from grouper_pit_group_set group by owner_id, field_id) t")
+              .select(Long.class);
+
+          LOG.info("Groups that will use estimated start date (groupSetsLargerThan="
+              + switchToEstimatedWhenGroupSetsLargerThan + "): "
+              + largeGroupSetPairs.size() + " of "
+              + GrouperUtil.defaultIfNull(totalGroupSetPairs, 0L) + " total");
+
+          if (maxAllowedEstimatedStartDateGroups > -1
+              && largeGroupSetPairs.size() > maxAllowedEstimatedStartDateGroups) {
+            throw new RuntimeException(
+                "Number of PIT membership groups switching to estimated start date (" + largeGroupSetPairs.size()
+                + ") exceeds maxAllowedEstimatedStartDateGroups ("
+                + maxAllowedEstimatedStartDateGroups + ")");
+          }
+        }
+
         Set<MultiKey> pitOwnerFieldRecentMembershipChanges = null;
         if (membershipSyncStartTimeMicros != null) {
           String pitOwnerFieldRecentMembershipChangesBaseSql = "select distinct gpgs1.owner_id, gpgs1.field_id from grouper_pit_group_set gpgs1, grouper_pit_memberships gpm1 where gpm1.owner_id = gpgs1.member_id and gpm1.field_id = gpgs1.member_field_id and ";
@@ -394,10 +428,12 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
           }
           
           countWithoutSkips++;
+          long logBatchProgressInterval = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.sqlCacheFullSync.logBatchProgressInterval", 100000);
           
-          if (countWithoutSkips % 100000 == 0) {
+          if (countWithoutSkips % logBatchProgressInterval == 0) {
             if (theOtherJobInput != null) {
               theOtherJobInput.getHib3GrouperLoaderLog().setJobMessage("Working on membership sync " + count + " of " + sqlCacheGroupsData.size());
+              LOG.info("processBatch querying cacheMemberships: Working on membership sync " + count + " of " + sqlCacheGroupsData.size());
               theOtherJobInput.getHib3GrouperLoaderLog().store();
             }
           }
@@ -566,6 +602,7 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
       isFirst = false;
     }
     
+    LOG.debug("processBatch querying cacheMemberships with internalId bind vars: " + sqlCacheGroupDataBatch.stream().map(row -> String.valueOf((long)row[0])).collect(java.util.stream.Collectors.joining(", ")));
     List<Object[]> cacheMemberships = gcDbAccess.sql(sqlQueryCacheMemberships.toString()).selectList(Object[].class);
     Map<Long, Set<Long>> cacheMembershipsSqlCacheGroupInternalIdToMembers = new HashMap<>();
     Map<MultiKey, Long> cacheMembershipsFlattenedAddTimeMicros = new HashMap<>();
@@ -582,142 +619,44 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
       cacheMembershipsFlattenedAddTimeMicros.put(new MultiKey(sqlCacheGroupInternalId, memberInternalId), flattenedAddTimestamp);
     }
     
-    // query pit memberships
-    gcDbAccess = new GcDbAccess();
-    //StringBuilder sqlQueryPITMemberships = new StringBuilder("select gpgs.owner_id, gpgs.field_id, gpm.member_id, gpgs.start_time, gpm.start_time from grouper_pit_group_set gpgs, grouper_pit_memberships gpm where gpm.owner_id = gpgs.member_id and gpm.field_id = gpgs.member_field_id and gpgs.active='T' and gpm.active='T' and ( ");
-    StringBuilder sqlQueryPITMemberships = new StringBuilder("select gpgs1.owner_id, gpgs1.field_id, gpm1.member_id, gpgs1.start_time, gpm1.start_time, gpgs1.end_time, gpm1.end_time from grouper_pit_group_set gpgs1, grouper_pit_memberships gpm1 where gpm1.owner_id = gpgs1.member_id and gpm1.field_id = gpgs1.member_field_id and ( ");
-    isFirst = true;
+    // split batch by query strategy: exact (historical) vs. estimated (active-only)
+    List<Object[]> exactBatch = new ArrayList<>();
+    List<Object[]> estimatedBatch = new ArrayList<>();
     for (Object[] sqlCacheGroupData : sqlCacheGroupDataBatch) {
-      long ownerInternalId = (long)sqlCacheGroupData[1];
-      long fieldInternalId = (long)sqlCacheGroupData[2];
-      String pitFieldId = fieldInternalIdToPITId.get(fieldInternalId);
+      long ownerInternalId = (long) sqlCacheGroupData[1];
+      long fieldInternalId = (long) sqlCacheGroupData[2];
       Field field = fieldInternalIdToField.get(fieldInternalId);
-
-      if (!isFirst) {
-        sqlQueryPITMemberships.append(" or ");
-      }
-      sqlQueryPITMemberships.append(" (gpgs1.owner_id=? and gpgs1.field_id=?) ");
-
+      String pitOwnerId = null;
       if (field.isGroupAccessField() || field.getName().equals("members")) {
-        gcDbAccess.addBindVar(groupInternalIdToPITId.get(ownerInternalId));
+        pitOwnerId = groupInternalIdToPITId.get(ownerInternalId);
       } else if (field.isStemListField()) {
-        gcDbAccess.addBindVar(stemIdIndexToPITId.get(ownerInternalId));
+        pitOwnerId = stemIdIndexToPITId.get(ownerInternalId);
       } else if (field.isAttributeDefListField()) {
-        gcDbAccess.addBindVar(attributeDefIdIndexToPITId.get(ownerInternalId));
+        pitOwnerId = attributeDefIdIndexToPITId.get(ownerInternalId);
       }
-      
-      gcDbAccess.addBindVar(pitFieldId);
-      isFirst = false;
+      String pitFieldId = fieldInternalIdToPITId.get(fieldInternalId);
+      if (!largeGroupSetPairs.isEmpty()
+          && largeGroupSetPairs.contains(new MultiKey(pitOwnerId, pitFieldId))) {
+        LOG.debug("Using estimated start date query for pitOwnerId=" + pitOwnerId
+            + " pitFieldId=" + pitFieldId);
+        estimatedBatch.add(sqlCacheGroupData);
+      } else {
+        exactBatch.add(sqlCacheGroupData);
+      }
     }
-    
-    sqlQueryPITMemberships.append(")");
-    
-    sqlQueryPITMemberships.append(" and exists(select 1 from grouper_pit_group_set gpgs2, grouper_pit_memberships gpm2 where gpm2.owner_id = gpgs2.member_id and gpm2.field_id = gpgs2.member_field_id and gpgs2.owner_id=gpgs1.owner_id and gpgs2.field_id=gpgs1.field_id and gpm1.member_id = gpm2.member_id and gpgs2.active='T' and gpm2.active='T')");
-    
-    long start = System.currentTimeMillis();
-    List<Object[]> pitMemberships = gcDbAccess.sql(sqlQueryPITMemberships.toString()).selectList(Object[].class);
-    long diff = System.currentTimeMillis() - start;
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Query time=" + diff + ", batch size=" + sqlCacheGroupDataBatch.size() + ", vars=" + gcDbAccess.getBindVars());
-    }
-    
-    // sort based on end time desc
-    pitMemberships.sort(new Comparator<Object[]>() {
-      @Override
-      public int compare(Object[] o1, Object[] o2) {
-        Long o1GroupSetEndTimeMicros = GrouperUtil.longObjectValue(o1[5], true);
-        Long olMembershipEndTimeMicros = GrouperUtil.longObjectValue(o1[6], true);
-        Long o2GroupSetEndTimeMicros = GrouperUtil.longObjectValue(o2[5], true);
-        Long o2MembershipEndTimeMicros = GrouperUtil.longObjectValue(o2[6], true);
-        
-        boolean o1Active = (o1GroupSetEndTimeMicros == null && olMembershipEndTimeMicros == null);
-        boolean o2Active = (o2GroupSetEndTimeMicros == null && o2MembershipEndTimeMicros == null);
 
-        if (o1Active && !o2Active) {
-          return -1;
-        } else if (!o1Active && o2Active) {
-          return 1;
-        } else if (o1Active && o2Active) {
-          return 0;
-        } else {
-          Long o1EndTime = Math.min(o1GroupSetEndTimeMicros != null ? o1GroupSetEndTimeMicros : Long.MAX_VALUE, olMembershipEndTimeMicros != null ? olMembershipEndTimeMicros : Long.MAX_VALUE);
-          Long o2EndTime = Math.min(o2GroupSetEndTimeMicros != null ? o2GroupSetEndTimeMicros : Long.MAX_VALUE, o2MembershipEndTimeMicros != null ? o2MembershipEndTimeMicros : Long.MAX_VALUE);
-          return o2EndTime.compareTo(o1EndTime);
-        }
-      }
-    });
-    
     Map<Long, Set<Long>> pitMembershipsSqlCacheGroupInternalIdToMembers = new HashMap<>();
     Map<MultiKey, Long> pitMembershipsFlattenedAddTimeMicros = new HashMap<>();
-    for (Object[] pitMembership : pitMemberships) {
-      String pitOwnerId = (String)pitMembership[0];
-      String pitFieldId = (String)pitMembership[1];
-      String pitMemberId = (String)pitMembership[2];
-      
-      long groupSetStartTimeMicros = GrouperUtil.longObjectValue(pitMembership[3], false);
-      long membershipStartTimeMicros = GrouperUtil.longObjectValue(pitMembership[4], false);
-      long startTimeMicros = Math.max(groupSetStartTimeMicros, membershipStartTimeMicros);
-      
-      Long groupSetEndTimeMicros = GrouperUtil.longObjectValue(pitMembership[5], true);
-      Long membershipEndTimeMicros = GrouperUtil.longObjectValue(pitMembership[6], true);
-      Long endTimeMicros = null;
-      if (groupSetEndTimeMicros == null && membershipEndTimeMicros != null) {
-        endTimeMicros = membershipEndTimeMicros;
-      } else if (groupSetEndTimeMicros != null && membershipEndTimeMicros == null) {
-        endTimeMicros = groupSetEndTimeMicros;
-      } else if (groupSetEndTimeMicros != null && membershipEndTimeMicros != null) {
-        endTimeMicros = Math.min(groupSetEndTimeMicros, membershipEndTimeMicros);
-      }
-      
-      if (endTimeMicros != null && startTimeMicros > endTimeMicros) {
-        // this is invalid, ignore
-        continue;
-      }
-      
-      Long fieldInternalId = pitIdToFieldInternalId.get(pitFieldId);
-      Long memberInternalId = pitIdToMemberInternalId.get(pitMemberId);
-      if (memberInternalId == null) {
-        // maybe it's a new member, try finding it
-        PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(pitMemberId, false);
-        if (pitMember != null) {
-          memberInternalId = pitMember.getSourceInternalId();
-          pitIdToMemberInternalId.put(pitMemberId, memberInternalId);
-        }
-      }
-      
-      Field field = fieldInternalIdToField.get(fieldInternalId);
-      Long ownerInternalId = null;
-      if (field.isGroupAccessField() || field.getName().equals("members")) {
-        ownerInternalId = pitIdToGroupInternalId.get(pitOwnerId);
-      } else if (field.isStemListField()) {
-        ownerInternalId = pitIdToStemIdIndex.get(pitOwnerId);
-      } else if (field.isAttributeDefListField()) {
-        ownerInternalId = pitIdToAttributeDefIdIndex.get(pitOwnerId);
-      }
-      
-      if (ownerInternalId == null || memberInternalId == null) {
-        continue;
-      }
-      
-      if (endTimeMicros == null) {
-        Long sqlCacheGroupInternalId = ownerInternalIdAndFieldInternalIdToInternalId.get(new MultiKey(ownerInternalId, fieldInternalId));
-        if (pitMembershipsSqlCacheGroupInternalIdToMembers.get(sqlCacheGroupInternalId) == null) {
-          pitMembershipsSqlCacheGroupInternalIdToMembers.put(sqlCacheGroupInternalId, new HashSet<>());
-        }
-        pitMembershipsSqlCacheGroupInternalIdToMembers.get(sqlCacheGroupInternalId).add(memberInternalId);
-      }
-      
-      MultiKey ownerFieldMemberMultiKey = new MultiKey(ownerInternalId, fieldInternalId, memberInternalId);
-      Long existingStartTimeMicros = pitMembershipsFlattenedAddTimeMicros.get(ownerFieldMemberMultiKey);
-      if (existingStartTimeMicros == null || existingStartTimeMicros > startTimeMicros) {
-        
-        // must be an active membership or one that ended after a previous one started
-        if (endTimeMicros == null || (existingStartTimeMicros != null && endTimeMicros >= existingStartTimeMicros)) {
-          pitMembershipsFlattenedAddTimeMicros.put(ownerFieldMemberMultiKey, startTimeMicros);
-        }
-      }
+
+    if (!exactBatch.isEmpty()) {
+      queryPitMembershipsExact(exactBatch, ownerInternalIdAndFieldInternalIdToInternalId,
+          pitMembershipsSqlCacheGroupInternalIdToMembers, pitMembershipsFlattenedAddTimeMicros);
     }
-    
+    if (!estimatedBatch.isEmpty()) {
+      queryPitMembershipsEstimated(estimatedBatch, ownerInternalIdAndFieldInternalIdToInternalId,
+          pitMembershipsSqlCacheGroupInternalIdToMembers, pitMembershipsFlattenedAddTimeMicros);
+    }
+
     // now compare
     List<SqlCacheMembership> sqlCacheMembershipsToInsert = new ArrayList<>();
     List<List<Object>> bindVarsSqlCacheMshipDeletes = new ArrayList<>();
@@ -841,7 +780,244 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
     
     GrouperDaemonUtils.stopProcessingIfJobPaused();
   }
-  
+
+  private void queryPitMembershipsExact(
+      List<Object[]> sqlCacheGroupDataBatch,
+      Map<MultiKey, Long> ownerInternalIdAndFieldInternalIdToInternalId,
+      Map<Long, Set<Long>> pitMembershipsSqlCacheGroupInternalIdToMembers,
+      Map<MultiKey, Long> pitMembershipsFlattenedAddTimeMicros) {
+
+    GcDbAccess gcDbAccess = new GcDbAccess();
+    StringBuilder sqlQueryPITMemberships = new StringBuilder(
+        "select gpgs1.owner_id, gpgs1.field_id, gpm1.member_id,"
+        + " gpgs1.start_time, gpm1.start_time, gpgs1.end_time, gpm1.end_time"
+        + " from grouper_pit_group_set gpgs1, grouper_pit_memberships gpm1"
+        + " where gpm1.owner_id = gpgs1.member_id and gpm1.field_id = gpgs1.member_field_id and ( ");
+    boolean isFirst = true;
+    for (Object[] sqlCacheGroupData : sqlCacheGroupDataBatch) {
+      long ownerInternalId = (long) sqlCacheGroupData[1];
+      long fieldInternalId = (long) sqlCacheGroupData[2];
+      String pitFieldId = fieldInternalIdToPITId.get(fieldInternalId);
+      Field field = fieldInternalIdToField.get(fieldInternalId);
+
+      if (!isFirst) {
+        sqlQueryPITMemberships.append(" or ");
+      }
+      sqlQueryPITMemberships.append(" (gpgs1.owner_id=? and gpgs1.field_id=?) ");
+
+      if (field.isGroupAccessField() || field.getName().equals("members")) {
+        gcDbAccess.addBindVar(groupInternalIdToPITId.get(ownerInternalId));
+      } else if (field.isStemListField()) {
+        gcDbAccess.addBindVar(stemIdIndexToPITId.get(ownerInternalId));
+      } else if (field.isAttributeDefListField()) {
+        gcDbAccess.addBindVar(attributeDefIdIndexToPITId.get(ownerInternalId));
+      }
+
+      gcDbAccess.addBindVar(pitFieldId);
+      isFirst = false;
+    }
+
+    sqlQueryPITMemberships.append(")");
+    sqlQueryPITMemberships.append(
+        " and exists(select 1 from grouper_pit_group_set gpgs2, grouper_pit_memberships gpm2"
+        + " where gpm2.owner_id = gpgs2.member_id and gpm2.field_id = gpgs2.member_field_id"
+        + " and gpgs2.owner_id=gpgs1.owner_id and gpgs2.field_id=gpgs1.field_id"
+        + " and gpm1.member_id = gpm2.member_id and gpgs2.active='T' and gpm2.active='T')");
+
+    long start = System.currentTimeMillis();
+    List<Object[]> pitMemberships = gcDbAccess.sql(sqlQueryPITMemberships.toString()).selectList(Object[].class);
+    long diff = System.currentTimeMillis() - start;
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("queryPitMembershipsExact time=" + diff + ", batch size=" + sqlCacheGroupDataBatch.size()
+          + ", vars=" + gcDbAccess.getBindVars());
+    }
+
+    // sort based on end time desc
+    pitMemberships.sort(new Comparator<Object[]>() {
+      @Override
+      public int compare(Object[] o1, Object[] o2) {
+        Long o1GroupSetEndTimeMicros = GrouperUtil.longObjectValue(o1[5], true);
+        Long olMembershipEndTimeMicros = GrouperUtil.longObjectValue(o1[6], true);
+        Long o2GroupSetEndTimeMicros = GrouperUtil.longObjectValue(o2[5], true);
+        Long o2MembershipEndTimeMicros = GrouperUtil.longObjectValue(o2[6], true);
+
+        boolean o1Active = (o1GroupSetEndTimeMicros == null && olMembershipEndTimeMicros == null);
+        boolean o2Active = (o2GroupSetEndTimeMicros == null && o2MembershipEndTimeMicros == null);
+
+        if (o1Active && !o2Active) {
+          return -1;
+        } else if (!o1Active && o2Active) {
+          return 1;
+        } else if (o1Active && o2Active) {
+          return 0;
+        } else {
+          Long o1EndTime = Math.min(o1GroupSetEndTimeMicros != null ? o1GroupSetEndTimeMicros : Long.MAX_VALUE, olMembershipEndTimeMicros != null ? olMembershipEndTimeMicros : Long.MAX_VALUE);
+          Long o2EndTime = Math.min(o2GroupSetEndTimeMicros != null ? o2GroupSetEndTimeMicros : Long.MAX_VALUE, o2MembershipEndTimeMicros != null ? o2MembershipEndTimeMicros : Long.MAX_VALUE);
+          return o2EndTime.compareTo(o1EndTime);
+        }
+      }
+    });
+
+    for (Object[] pitMembership : pitMemberships) {
+      String pitOwnerId = (String) pitMembership[0];
+      String pitFieldId = (String) pitMembership[1];
+      String pitMemberId = (String) pitMembership[2];
+
+      long groupSetStartTimeMicros = GrouperUtil.longObjectValue(pitMembership[3], false);
+      long membershipStartTimeMicros = GrouperUtil.longObjectValue(pitMembership[4], false);
+      long startTimeMicros = Math.max(groupSetStartTimeMicros, membershipStartTimeMicros);
+
+      Long groupSetEndTimeMicros = GrouperUtil.longObjectValue(pitMembership[5], true);
+      Long membershipEndTimeMicros = GrouperUtil.longObjectValue(pitMembership[6], true);
+      Long endTimeMicros = null;
+      if (groupSetEndTimeMicros == null && membershipEndTimeMicros != null) {
+        endTimeMicros = membershipEndTimeMicros;
+      } else if (groupSetEndTimeMicros != null && membershipEndTimeMicros == null) {
+        endTimeMicros = groupSetEndTimeMicros;
+      } else if (groupSetEndTimeMicros != null && membershipEndTimeMicros != null) {
+        endTimeMicros = Math.min(groupSetEndTimeMicros, membershipEndTimeMicros);
+      }
+
+      if (endTimeMicros != null && startTimeMicros > endTimeMicros) {
+        // this is invalid, ignore
+        continue;
+      }
+
+      Long fieldInternalId = pitIdToFieldInternalId.get(pitFieldId);
+      Long memberInternalId = pitIdToMemberInternalId.get(pitMemberId);
+      if (memberInternalId == null) {
+        // maybe it's a new member, try finding it
+        PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(pitMemberId, false);
+        if (pitMember != null) {
+          memberInternalId = pitMember.getSourceInternalId();
+          pitIdToMemberInternalId.put(pitMemberId, memberInternalId);
+        }
+      }
+
+      Field field = fieldInternalIdToField.get(fieldInternalId);
+      Long ownerInternalId = null;
+      if (field.isGroupAccessField() || field.getName().equals("members")) {
+        ownerInternalId = pitIdToGroupInternalId.get(pitOwnerId);
+      } else if (field.isStemListField()) {
+        ownerInternalId = pitIdToStemIdIndex.get(pitOwnerId);
+      } else if (field.isAttributeDefListField()) {
+        ownerInternalId = pitIdToAttributeDefIdIndex.get(pitOwnerId);
+      }
+
+      if (ownerInternalId == null || memberInternalId == null) {
+        continue;
+      }
+
+      if (endTimeMicros == null) {
+        Long sqlCacheGroupInternalId = ownerInternalIdAndFieldInternalIdToInternalId.get(new MultiKey(ownerInternalId, fieldInternalId));
+        if (pitMembershipsSqlCacheGroupInternalIdToMembers.get(sqlCacheGroupInternalId) == null) {
+          pitMembershipsSqlCacheGroupInternalIdToMembers.put(sqlCacheGroupInternalId, new HashSet<>());
+        }
+        pitMembershipsSqlCacheGroupInternalIdToMembers.get(sqlCacheGroupInternalId).add(memberInternalId);
+      }
+
+      MultiKey ownerFieldMemberMultiKey = new MultiKey(ownerInternalId, fieldInternalId, memberInternalId);
+      Long existingStartTimeMicros = pitMembershipsFlattenedAddTimeMicros.get(ownerFieldMemberMultiKey);
+      if (existingStartTimeMicros == null || existingStartTimeMicros > startTimeMicros) {
+
+        // must be an active membership or one that ended after a previous one started
+        if (endTimeMicros == null || (existingStartTimeMicros != null && endTimeMicros >= existingStartTimeMicros)) {
+          pitMembershipsFlattenedAddTimeMicros.put(ownerFieldMemberMultiKey, startTimeMicros);
+        }
+      }
+    }
+  }
+
+  private void queryPitMembershipsEstimated(
+      List<Object[]> sqlCacheGroupDataBatch,
+      Map<MultiKey, Long> ownerInternalIdAndFieldInternalIdToInternalId,
+      Map<Long, Set<Long>> pitMembershipsSqlCacheGroupInternalIdToMembers,
+      Map<MultiKey, Long> pitMembershipsFlattenedAddTimeMicros) {
+
+    GcDbAccess gcDbAccess = new GcDbAccess();
+    StringBuilder sqlQueryPITMemberships = new StringBuilder(
+        "select gpgs.owner_id, gpgs.field_id, gpitm.source_internal_id,"
+        + " min(greatest(gpgs.start_time, gpm.start_time))"
+        + " from grouper_pit_group_set gpgs"
+        + " join grouper_pit_memberships gpm"
+        + "   on gpm.owner_id = gpgs.member_id and gpm.field_id = gpgs.member_field_id"
+        + " join grouper_pit_members gpitm on gpitm.id = gpm.member_id"
+        + " where gpgs.active = 'T' and gpm.active = 'T'"
+        + " and gpitm.source_internal_id is not null and (");
+    boolean isFirst = true;
+    for (Object[] sqlCacheGroupData : sqlCacheGroupDataBatch) {
+      long ownerInternalId = (long) sqlCacheGroupData[1];
+      long fieldInternalId = (long) sqlCacheGroupData[2];
+      String pitFieldId = fieldInternalIdToPITId.get(fieldInternalId);
+      Field field = fieldInternalIdToField.get(fieldInternalId);
+
+      String pitOwnerId = null;
+      if (field.isGroupAccessField() || field.getName().equals("members")) {
+        pitOwnerId = groupInternalIdToPITId.get(ownerInternalId);
+      } else if (field.isStemListField()) {
+        pitOwnerId = stemIdIndexToPITId.get(ownerInternalId);
+      } else if (field.isAttributeDefListField()) {
+        pitOwnerId = attributeDefIdIndexToPITId.get(ownerInternalId);
+      }
+
+      if (!isFirst) {
+        sqlQueryPITMemberships.append(" or ");
+      }
+      sqlQueryPITMemberships.append("(gpgs.owner_id=? and gpgs.field_id=?)");
+      gcDbAccess.addBindVar(pitOwnerId);
+      gcDbAccess.addBindVar(pitFieldId);
+      isFirst = false;
+    }
+    sqlQueryPITMemberships.append(") group by gpgs.owner_id, gpgs.field_id, gpitm.source_internal_id");
+
+    long start = System.currentTimeMillis();
+    List<Object[]> pitMemberships = gcDbAccess.sql(sqlQueryPITMemberships.toString()).selectList(Object[].class);
+    long diff = System.currentTimeMillis() - start;
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("queryPitMembershipsEstimated time=" + diff + ", batch size=" + sqlCacheGroupDataBatch.size()
+          + ", vars=" + gcDbAccess.getBindVars());
+    }
+
+    for (Object[] pitMembership : pitMemberships) {
+      String pitOwnerId = (String) pitMembership[0];
+      String pitFieldId = (String) pitMembership[1];
+      long memberInternalId = GrouperUtil.longObjectValue(pitMembership[2], false);
+      long flattenedAddTimeMicros = GrouperUtil.longObjectValue(pitMembership[3], false);
+
+      Long fieldInternalId = pitIdToFieldInternalId.get(pitFieldId);
+      if (fieldInternalId == null) {
+        continue;
+      }
+      Field field = fieldInternalIdToField.get(fieldInternalId);
+      Long ownerInternalId = null;
+      if (field.isGroupAccessField() || field.getName().equals("members")) {
+        ownerInternalId = pitIdToGroupInternalId.get(pitOwnerId);
+      } else if (field.isStemListField()) {
+        ownerInternalId = pitIdToStemIdIndex.get(pitOwnerId);
+      } else if (field.isAttributeDefListField()) {
+        ownerInternalId = pitIdToAttributeDefIdIndex.get(pitOwnerId);
+      }
+
+      if (ownerInternalId == null) {
+        continue;
+      }
+
+      Long sqlCacheGroupInternalId = ownerInternalIdAndFieldInternalIdToInternalId.get(new MultiKey(ownerInternalId, fieldInternalId));
+      if (sqlCacheGroupInternalId == null) {
+        continue;
+      }
+
+      if (pitMembershipsSqlCacheGroupInternalIdToMembers.get(sqlCacheGroupInternalId) == null) {
+        pitMembershipsSqlCacheGroupInternalIdToMembers.put(sqlCacheGroupInternalId, new HashSet<>());
+      }
+      pitMembershipsSqlCacheGroupInternalIdToMembers.get(sqlCacheGroupInternalId).add(memberInternalId);
+
+      pitMembershipsFlattenedAddTimeMicros.put(
+          new MultiKey(ownerInternalId, fieldInternalId, memberInternalId),
+          flattenedAddTimeMicros);
+    }
+  }
+
   public static void runNowWithoutDaemon(boolean theMinimalMode) {
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
     hib3GrouperLoaderLog.setJobScheduleType("MANUAL_FROM_GSH");
