@@ -1,7 +1,12 @@
 package edu.internet2.middleware.grouper.app.membershipRequire;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
- * 
+ *
  * @author mchyzer
  *
  */
@@ -173,5 +178,36 @@ public class MembershipRequireConfigBean {
    */
   public void setHookEnable(boolean hookEnable) {
     this.hookEnable = hookEnable;
+  }
+
+  /**
+   * subject source ids which are exempt from this requirement.  subjects from these sources
+   * can be group members without being in the require group, e.g. a source of service
+   * principals when the require group only contains people.  configured globally with
+   * grouper.membershipRequirement.sourceIdsToIgnore or per config with
+   * grouper.membershipRequirement.someConfigId.sourceIdsToIgnore.  groups (g:gsa) are
+   * always exempt regardless of this setting
+   */
+  private Set<String> sourceIdsToIgnore = new HashSet<String>();
+
+  /**
+   * subject source ids which are exempt from this requirement.  subjects from these sources
+   * can be group members without being in the require group.  groups (g:gsa) are always
+   * exempt regardless of this setting
+   * @return source ids to ignore, never null
+   */
+  public Set<String> getSourceIdsToIgnore() {
+    return this.sourceIdsToIgnore;
+  }
+
+  /**
+   * subject source ids which are exempt from this requirement.  subjects from these sources
+   * can be group members without being in the require group.  groups (g:gsa) are always
+   * exempt regardless of this setting
+   * @param sourceIdsToIgnore1
+   */
+  public void setSourceIdsToIgnore(Set<String> sourceIdsToIgnore1) {
+    // never null so callers can do a contains() without checking
+    this.sourceIdsToIgnore = GrouperUtil.nonNull(sourceIdsToIgnore1);
   }
 }
