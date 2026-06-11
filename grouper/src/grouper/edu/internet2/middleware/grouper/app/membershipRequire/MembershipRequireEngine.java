@@ -287,13 +287,22 @@ public class MembershipRequireEngine {
             }
             
             boolean hookEnable = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.membershipRequirement." + configId + ".hookEnable", true);
-            
+
+            // subject sources in this comma separated list are exempt from the requirement, e.g. service
+            // principals which should be addable even though they are not in the (people) require group.
+            // the per config setting overrides the global setting if set
+            String sourceIdsToIgnore = GrouperConfig.retrieveConfig().propertyValueString("grouper.membershipRequirement." + configId + ".sourceIdsToIgnore");
+            if (StringUtils.isBlank(sourceIdsToIgnore)) {
+              sourceIdsToIgnore = GrouperConfig.retrieveConfig().propertyValueString("grouper.membershipRequirement.sourceIdsToIgnore");
+            }
+
             MembershipRequireConfigBean membershipRequireConfigBean = new MembershipRequireConfigBean();
             membershipRequireConfigBean.setUiKey(uiKey);
             membershipRequireConfigBean.setAttributeName(attributeName);
             membershipRequireConfigBean.setRequireGroupName(groupName);
             membershipRequireConfigBean.setConfigId(configId);
             membershipRequireConfigBean.setHookEnable(hookEnable);
+            membershipRequireConfigBean.setSourceIdsToIgnore(GrouperUtil.splitTrimToSet(sourceIdsToIgnore, ","));
             
             AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeName, false);
             if (attributeDefName == null) {
@@ -504,19 +513,26 @@ public class MembershipRequireEngine {
    * @return number of members removed
    */
   public static int removeInvalidMembers(String groupName, MembershipRequireConfigBean membershipRequireConfigBean, String memberId, MembershipRequireEngineEnum membershipRequireEngineEnum) {
-    GcDbAccess gcDbAccess = new GcDbAccess().sql("select gm.id, gm.subject_id, gm.subject_source "
-      + " from grouper_memberships gms, grouper_members gm, grouper_fields gf, grouper_groups gg where gg.name = ? "
-      + (StringUtils.isBlank(memberId) ? "" : " and gm.id = ? ")
-      + " and gg.id = gms.owner_group_id and gms.enabled = 'T' and gms.member_id = gm.id and gg.enabled = 'T' "
-      + " and gms.mship_type = 'immediate' and gm.subject_source != 'g:gsa' and gms.field_id = gf.id and gf.name = 'members' "
-      + " and not exists (select 1 from grouper_memberships_all_v gmav2, grouper_groups gg2, grouper_fields gf2 "
-      + " where gmav2.member_id = gm.id and gmav2.owner_group_id = gg2.id and gg2.name = ? "
-      + " and gmav2.field_id = gf2.id and gf2.name = 'members' and gg2.enabled = 'T' and gmav2.immediate_mship_enabled = 'T')");
+    GcDbAccess gcDbAccess = new GcDbAccess();
+    StringBuilder sql = new StringBuilder("select gm.id, gm.subject_id, gm.subject_source "
+      + " from grouper_memberships gms, grouper_members gm, grouper_fields gf, grouper_groups gg where gg.name = ? ");
     gcDbAccess.addBindVar(groupName);
-    if (!StringUtils.isBlank(memberId)) { 
+    if (!StringUtils.isBlank(memberId)) {
+      sql.append(" and gm.id = ? ");
       gcDbAccess.addBindVar(memberId);
     }
+    sql.append(" and gg.id = gms.owner_group_id and gms.enabled = 'T' and gms.member_id = gm.id and gg.enabled = 'T' "
+      + " and gms.mship_type = 'immediate' and gm.subject_source != 'g:gsa' and gms.field_id = gf.id and gf.name = 'members' ");
+    // subjects from exempt sources (e.g. service principals) keep their memberships even if not in the require group
+    for (String sourceIdToIgnore : membershipRequireConfigBean.getSourceIdsToIgnore()) {
+      sql.append(" and gm.subject_source != ? ");
+      gcDbAccess.addBindVar(sourceIdToIgnore);
+    }
+    sql.append(" and not exists (select 1 from grouper_memberships_all_v gmav2, grouper_groups gg2, grouper_fields gf2 "
+      + " where gmav2.member_id = gm.id and gmav2.owner_group_id = gg2.id and gg2.name = ? "
+      + " and gmav2.field_id = gf2.id and gf2.name = 'members' and gg2.enabled = 'T' and gmav2.immediate_mship_enabled = 'T')");
     gcDbAccess.addBindVar(membershipRequireConfigBean.getRequireGroupName());
+    gcDbAccess.sql(sql.toString());
     List<Object[]> rows = gcDbAccess.selectList(Object[].class);
     GrouperDaemonUtils.stopProcessingIfJobPaused();
 
@@ -571,6 +587,10 @@ public class MembershipRequireEngine {
       // make sure right source
       Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, false);
       if (member == null || StringUtils.equals("g:gsa", member.getSubjectSourceId())) {
+        return true;
+      }
+      // subjects from exempt sources (e.g. service principals) are valid without being in the require group
+      if (membershipRequireConfigBean.getSourceIdsToIgnore().contains(member.getSubjectSourceId())) {
         return true;
       }
       return false;
