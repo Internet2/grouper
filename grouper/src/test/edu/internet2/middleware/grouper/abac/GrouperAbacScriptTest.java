@@ -847,6 +847,42 @@ public class GrouperAbacScriptTest extends GrouperTest {
 
   }
 
+  /**
+   * affiliationCode !~ [staff, fac, alum] -- "not in list". Per-row semantics, mirroring !=:
+   * matches a member who has an affiliation row whose code is NOT in the list.
+   * sub0 rows staff,alum (both in list) -> no; sub1 rows stu,contr (neither in list) -> yes;
+   * sub2 row staff (in list) -> no; sub3 rows fac,emer (emer not in list) -> yes.
+   */
+  public void testRowAttributeAssignmentStringNotAny() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), "entity.hasRow('affiliation', 'affiliationCode !~ [staff, fac, alum]')");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, testSubject1, true);
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, testSubject3, true);
+
+    Set<Member> members = testGroup.getMembers();
+    assertEquals(2, members.size());
+
+    assertTrue(members.contains(member1));
+    assertTrue(members.contains(member3));
+
+  }
+
   public void testRowAttributeAssignmentStringLike() {
     GrouperAbacTestHelper.setupDataFields();
     GrouperSession grouperSession = GrouperSession.startRootSession();

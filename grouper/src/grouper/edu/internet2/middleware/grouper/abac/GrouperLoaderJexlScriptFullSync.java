@@ -35,6 +35,7 @@ import org.apache.commons.jexl3.parser.ASTLTNode;
 import org.apache.commons.jexl3.parser.ASTMethodNode;
 import org.apache.commons.jexl3.parser.ASTNENode;
 import org.apache.commons.jexl3.parser.ASTNotNode;
+import org.apache.commons.jexl3.parser.ASTNRNode;
 import org.apache.commons.jexl3.parser.ASTNullLiteral;
 import org.apache.commons.jexl3.parser.ASTNumberLiteral;
 import org.apache.commons.jexl3.parser.ASTOrNode;
@@ -1881,21 +1882,26 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue2"))
         .append(" null");
 
-    } else if (jexlNode instanceof ASTERNode && 2==jexlNode.jjtGetNumChildren()) {
+    } else if ((jexlNode instanceof ASTERNode || jexlNode instanceof ASTNRNode) && 2==jexlNode.jjtGetNumChildren()) {
+      // =~ is "in list" (ASTERNode); !~ is "not in list" (ASTNRNode). The two are identical
+      // except that "not in list" prefixes the row-column exists with "not " (mirroring how
+      // != prefixes the == exists), and uses a different display marker.
+      boolean notIn = jexlNode instanceof ASTNRNode;
+      String anyOrNoneMarker = notIn ? "jexlAnalysisHasRowAttributeNoneValue" : "jexlAnalysisHasRowAttributeAnyValue";
       if (!(jexlNode.jjtGetChild(0) instanceof ASTIdentifier)) {
-        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(0).getClass().getName() 
+        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(0).getClass().getName()
             + ", children: " + jexlNode.jjtGetChild(0).jjtGetNumChildren());
       }
       if (!(jexlNode.jjtGetChild(1) instanceof ASTArrayLiteral)) {
-        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(1).getClass().getName() 
+        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(1).getClass().getName()
             + ", children: " + jexlNode.jjtGetChild(1).jjtGetNumChildren());
       }
-      
+
       ASTIdentifier leftPart = (ASTIdentifier)jexlNode.jjtGetChild(0);
-      
+
       ASTArrayLiteral astArrayLiteral = (ASTArrayLiteral)jexlNode.jjtGetChild(1);
-      
-      grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
+
+      grouperJexlScriptPart.getWhereClause().append((notIn ? "not " : "") + "exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
           + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ in ("+ GrouperClientUtils.appendQuestions(astArrayLiteral.jjtGetNumChildren()) +")) ");
       grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", leftPart.getName()));
      
@@ -1916,7 +1922,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           
           if (i == 0) {
             grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
-            .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeAnyValue")).append(" '")
+            .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull(anyOrNoneMarker)).append(" '")
             .append(GrouperUtil.xmlEscape(rightPartSingleValue)).append("'");
           } else {
             grouperJexlScriptPart.getDisplayDescription().append(", '").append(GrouperUtil.xmlEscape(rightPartSingleValue)).append("'");
@@ -1931,7 +1937,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
           if (i == 0) {
             grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
-            .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeAnyValue"))
+            .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull(anyOrNoneMarker))
             .append(GrouperUtil.xmlEscape(rightPartSingleValue));
           } else {
             grouperJexlScriptPart.getDisplayDescription().append(", ").append(GrouperUtil.xmlEscape(rightPartSingleValue));
@@ -1942,7 +1948,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           
           if (i == 0) {
             grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
-            .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeAnyValue"))
+            .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull(anyOrNoneMarker))
             .append(GrouperUtil.xmlEscape(rightPartSingleValue));
           } else {
             grouperJexlScriptPart.getDisplayDescription().append(", ").append(GrouperUtil.xmlEscape(rightPartSingleValue));
@@ -1956,7 +1962,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           rightPartSingleValue = ((ASTStringLiteral)jjtGetChild).getLiteral();
           if (i == 0) {
             grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
-            .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeAnyValue")).append(" '")
+            .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull(anyOrNoneMarker)).append(" '")
             .append(GrouperUtil.xmlEscape(rightPartSingleValue)).append("'");
           } else {
             grouperJexlScriptPart.getDisplayDescription().append(", '").append(GrouperUtil.xmlEscape(rightPartSingleValue)).append("'");
