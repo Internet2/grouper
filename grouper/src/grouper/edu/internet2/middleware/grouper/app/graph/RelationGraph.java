@@ -1931,6 +1931,11 @@ public class RelationGraph {
       } else if ("list".equals(column[2])) {
         String cond = "any " + field + " in: " + cappedValueList(column[3], 5);
         conditions.add(negateAttributePhrase(cond, child.isNegated()));
+      } else if ("notlist".equals(column[2])) {
+        // !~ "not in list" — the "no <field> in: ..." already carries the negation; an extra
+        // outer ! (child.isNegated) flips it back to "any <field> in: ..."
+        String cond = (child.isNegated() ? "any " : "no ") + field + " in: " + cappedValueList(column[3], 5);
+        conditions.add(cond);
       } else if ("other".equals(column[2])) {
         // operator text like "greater than 5", "matches '1.*'", or attributeCompare body —
         // use the field-is-X / field-matches-X pattern so negation reads naturally
@@ -1985,6 +1990,8 @@ public class RelationGraph {
     String condition;
     if ("list".equals(column[2])) {
       condition = "any " + field + " in: " + cappedValueList(column[3], Integer.MAX_VALUE);
+    } else if ("notlist".equals(column[2])) {
+      condition = "no " + field + " in: " + cappedValueList(column[3], Integer.MAX_VALUE);
     } else {
       // "equals" or "other": the field followed by its value / operator text. For "other" the
       // value may mention field aliases (e.g. attributeCompare) -- swap them for friendly names.
@@ -1997,7 +2004,7 @@ public class RelationGraph {
   /**
    * Parses a single-attribute "Has row 'X' with attribute 'F' ..." analysis description.
    *
-   * @return {rowAlias, field, kind, value} where kind is "flag" / "list" / "equals" / "other"
+   * @return {rowAlias, field, kind, value} where kind is "flag" / "list" / "notlist" / "equals" / "other"
    *   (operators the renderer does not special-case fall through to "other" with a lightly
    *   cleaned value), field is "" for a bare row with no condition or for an attributeCompare-
    *   style description that has no "with attribute" clause; or null only on a structural parse
@@ -2010,6 +2017,7 @@ public class RelationGraph {
     String hasRowText = textOrFallback("jexlAnalysisHasRow", "has row");
     String withAttrText = textOrFallback("jexlAnalysisHasRowAttributeValue1", "with attribute");
     String anyValueText = textOrFallback("jexlAnalysisHasRowAttributeAnyValue", "with any value:");
+    String noneValueText = textOrFallback("jexlAnalysisHasRowAttributeNoneValue", "with none of these values:");
     String valueText = textOrFallback("jexlAnalysisHasRowAttributeValue2", "value");
 
     String trimmed = description.trim();
@@ -2056,6 +2064,12 @@ public class RelationGraph {
       // that themselves contain a comma stay grouped correctly
       String list = clause.substring(anyValueText.length()).trim();
       return new String[] {rowAlias, field, "list", list};
+    }
+    if (clause.regionMatches(true, 0, noneValueText, 0, noneValueText.length())) {
+      // the !~ "not in list" operator — the negation is carried in the "notlist" kind, which
+      // the renderers turn into "no <field> in: ..."
+      String list = clause.substring(noneValueText.length()).trim();
+      return new String[] {rowAlias, field, "notlist", list};
     }
     if (clause.length() > valueText.length()
         && clause.regionMatches(true, 0, valueText, 0, valueText.length())
