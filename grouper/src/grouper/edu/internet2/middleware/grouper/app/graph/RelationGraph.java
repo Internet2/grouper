@@ -1932,10 +1932,11 @@ public class RelationGraph {
         String cond = "any " + field + " in: " + cappedValueList(column[3], 5);
         conditions.add(negateAttributePhrase(cond, child.isNegated()));
       } else if ("notlist".equals(column[2])) {
-        // !~ "not in list" — the "no <field> in: ..." already carries the negation; an extra
-        // outer ! (child.isNegated) flips it back to "any <field> in: ..."
-        String cond = (child.isNegated() ? "any " : "no ") + field + " in: " + cappedValueList(column[3], 5);
-        conditions.add(cond);
+        // !~ "not in list" — per-row predicate parallel to !=: the row's <field> is not one of
+        // the listed values (a different value, or no value at all). Reads "<field> not in: ...".
+        // An outer ! (child.isNegated) negates through the shared helper.
+        String cond = field + " not in: " + cappedValueList(column[3], 5);
+        conditions.add(negateAttributePhrase(cond, child.isNegated()));
       } else if ("other".equals(column[2])) {
         // operator text like "greater than 5", "matches '1.*'", or attributeCompare body —
         // use the field-is-X / field-matches-X pattern so negation reads naturally
@@ -1991,7 +1992,7 @@ public class RelationGraph {
     if ("list".equals(column[2])) {
       condition = "any " + field + " in: " + cappedValueList(column[3], Integer.MAX_VALUE);
     } else if ("notlist".equals(column[2])) {
-      condition = "no " + field + " in: " + cappedValueList(column[3], Integer.MAX_VALUE);
+      condition = field + " not in: " + cappedValueList(column[3], Integer.MAX_VALUE);
     } else {
       // "equals" or "other": the field followed by its value / operator text. For "other" the
       // value may mention field aliases (e.g. attributeCompare) -- swap them for friendly names.
@@ -2017,7 +2018,7 @@ public class RelationGraph {
     String hasRowText = textOrFallback("jexlAnalysisHasRow", "has row");
     String withAttrText = textOrFallback("jexlAnalysisHasRowAttributeValue1", "with attribute");
     String anyValueText = textOrFallback("jexlAnalysisHasRowAttributeAnyValue", "with any value:");
-    String noneValueText = textOrFallback("jexlAnalysisHasRowAttributeNoneValue", "with none of these values:");
+    String noneValueText = textOrFallback("jexlAnalysisHasRowAttributeNoneValue", "not in values:");
     String valueText = textOrFallback("jexlAnalysisHasRowAttributeValue2", "value");
 
     String trimmed = description.trim();
@@ -2066,8 +2067,8 @@ public class RelationGraph {
       return new String[] {rowAlias, field, "list", list};
     }
     if (clause.regionMatches(true, 0, noneValueText, 0, noneValueText.length())) {
-      // the !~ "not in list" operator — the negation is carried in the "notlist" kind, which
-      // the renderers turn into "no <field> in: ..."
+      // the !~ "not in list" operator — the "notlist" kind, which the renderers turn into
+      // "<field> not in: ..." (per-row predicate: the row's value is not one of the listed)
       String list = clause.substring(noneValueText.length()).trim();
       return new String[] {rowAlias, field, "notlist", list};
     }
