@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.grouper.app.membershipRequire;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -382,6 +385,51 @@ public class MembershipRequireEngineTest extends GrouperTest {
     assertFalse(testPolicyGroupProtected.hasMember(SubjectTestHelper.SUBJ1));
     assertTrue(testPolicyGroupProtected.hasMember(SubjectTestHelper.SUBJ2));
     assertTrue(testPolicyGroupProtected.hasMember(SubjectFinder.findRootSubject()));
+
+  }
+
+  /**
+   * two requirement configs can point at the same require group.  the lookup by require
+   * group name must return both config beans, this used to lose one of them since the
+   * map population got by attribute name but put by group name
+   */
+  public void testSharedRequireGroup() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    new StemSave().assignName("test").assignCreateParentStemsIfNotExist(true).save();
+
+    new GroupSave().assignName("test:populationGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    AttributeDef testPopulationDef = new AttributeDefSave(grouperSession).assignName("test:populationDef").assignCreateParentStemsIfNotExist(true).assignValueType(AttributeDefValueType.marker)
+        .assignToGroup(true).assignToStem(true).assignAttributeDefType(AttributeDefType.attr)
+        .assignMultiAssignable(false).assignMultiValued(false).save();
+    testPopulationDef.getAttributeDefActionDelegate().configureActionList("assign");
+
+    new AttributeDefNameSave(grouperSession, testPopulationDef).assignName("test:requirePopulationGroup").assignCreateParentStemsIfNotExist(true).save();
+    new AttributeDefNameSave(grouperSession, testPopulationDef).assignName("test:requirePopulationGroup2").assignCreateParentStemsIfNotExist(true).save();
+
+    // two configs, different attributes, same require group
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.membershipRequirement.myConfig.uiKey", "testRequirePopulationGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.membershipRequirement.myConfig.attributeName", "test:requirePopulationGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.membershipRequirement.myConfig.requireGroupName", "test:populationGroup");
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.membershipRequirement.anotherConfig.uiKey", "testRequirePopulationGroup2");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.membershipRequirement.anotherConfig.attributeName", "test:requirePopulationGroup2");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.membershipRequirement.anotherConfig.requireGroupName", "test:populationGroup");
+
+    MembershipRequireEngine.clearCaches();
+
+    Set<MembershipRequireConfigBean> beans = MembershipRequireEngine.requiredGroupNameToConfigBean("test:populationGroup");
+
+    assertEquals(2, GrouperUtil.length(beans));
+
+    Set<String> configIds = new HashSet<String>();
+    for (MembershipRequireConfigBean bean : GrouperUtil.nonNull(beans)) {
+      configIds.add(bean.getConfigId());
+    }
+    assertTrue(configIds.contains("myConfig"));
+    assertTrue(configIds.contains("anotherConfig"));
 
   }
 

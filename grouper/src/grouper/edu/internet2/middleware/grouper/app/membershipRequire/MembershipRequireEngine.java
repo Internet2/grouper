@@ -327,7 +327,7 @@ public class MembershipRequireEngine {
             }
             theSet.add(membershipRequireConfigBean);
             
-            theSet = resultGroupNameToConfigBean.get(attributeName);
+            theSet = resultGroupNameToConfigBean.get(groupName);
             if (theSet == null) {
               theSet = new HashSet<MembershipRequireConfigBean>();
               resultGroupNameToConfigBean.put(groupName, theSet);
