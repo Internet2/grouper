@@ -1428,19 +1428,14 @@ public class GrouperLoaderIncrementalJob implements Job {
                       grouperLoaderQueryFinal, grouperLoaderGroupQueryFinal,
                       grouperLoaderAndGroupsFinal, grouperLoaderGroupsLikeFinal);
                 }
+              } catch (RuntimeException re) {
+                LOG.debug("Error processing incremental group sync row for group " + groupRow.getGroupName()
+                    + " in loader " + loaderGroupNameFinal, re);
+                throw re;
               } catch (Exception e) {
-                LOG.error("Error processing incremental group sync row for group " + groupRow.getGroupName()
+                LOG.debug("Error processing incremental group sync row for group " + groupRow.getGroupName()
                     + " in loader " + loaderGroupNameFinal, e);
-                nonFatalWarnings.add("Error processing incremental group sync for group " + groupRow.getGroupName()
-                    + ": " + e.getMessage());
-                if (workerConnection != null) {
-                  try {
-                    setRowCompleted(workerConnection, groupTableName, groupRow.getId(), true);
-                  } catch (SQLException se) {
-                    LOG.error("Error marking incremental group sync row complete for group "
-                        + groupRow.getGroupName(), se);
-                  }
-                }
+                throw new RuntimeException(e);
               } finally {
                 GrouperUtil.closeQuietly(workerConnection);
               }
