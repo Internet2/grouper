@@ -16,14 +16,33 @@
 
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.type.StringType;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * configuration on an object
@@ -179,12 +198,96 @@ public class GrouperDeprovisioningConfiguration {
   }
   
   /**
-   * 
+   * Store the configuration, serialized per owner so concurrent saves cannot create duplicate
+   * single-assign metadata assignments.  A second save (double-submit, or another UI/WS/daemon node)
+   * blocks on the SELECT FOR UPDATE below until the first save commits, then sees its committed
+   * metadata and updates rather than inserting a duplicate.
    * @return how many changes made
    */
   public int storeConfiguration() {
 
+    final int[] changeCountHolder = new int[]{0};
+
+    // READ_WRITE_NEW (not USE_EXISTING) so each owner's save commits and releases its owner-row
+    // lock immediately.  The deprovisioning full-sync daemon saves many owners in one outer
+    // transaction; joining it would hold every owner lock until the whole run committed.
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
+
+            // serialize concurrent saves for this owner.  any other save of this owner's
+            // deprovisioning configuration blocks here until this transaction commits.
+            GrouperDeprovisioningConfiguration.this.lockOwnerRowForUpdate();
+
+            changeCountHolder[0] = GrouperDeprovisioningConfiguration.this.storeConfigurationHelper();
+
+            return null;
+          }
+        });
+
+    return changeCountHolder[0];
+  }
+
+  /**
+   * Acquire a row-level lock on the owner (group/stem/attributeDef) of this configuration via
+   * SELECT FOR UPDATE, so concurrent deprovisioning-config saves of the same owner are serialized.
+   * This is the same idiom GrouperLoader.claimJobIfNotRunning uses to serialize across nodes.
+   */
+  private void lockOwnerRowForUpdate() {
+
+    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration =
+        this.getGrouperDeprovisioningOverallConfiguration();
+    if (grouperDeprovisioningOverallConfiguration == null) {
+      return;
+    }
+
+    GrouperObject originalOwner = grouperDeprovisioningOverallConfiguration.getOriginalOwner();
+    if (originalOwner == null) {
+      return;
+    }
+
+    String tableName = null;
+    String ownerId = null;
+    if (originalOwner instanceof Group) {
+      tableName = Group.TABLE_GROUPER_GROUPS;
+      ownerId = ((Group)originalOwner).getId();
+    } else if (originalOwner instanceof Stem) {
+      tableName = Stem.TABLE_GROUPER_STEMS;
+      ownerId = ((Stem)originalOwner).getId();
+    } else if (originalOwner instanceof AttributeDef) {
+      tableName = AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF;
+      ownerId = ((AttributeDef)originalOwner).getId();
+    } else {
+      return;
+    }
+
+    if (StringUtils.isBlank(ownerId)) {
+      return;
+    }
+
+    HibernateSession.bySqlStatic().listSelect(String.class,
+        "select id from " + tableName + " where id = ? for update",
+        GrouperUtil.toListObject(ownerId),
+        HibUtils.listType(StringType.INSTANCE));
+  }
+
+  /**
+   * Do the actual store of the configuration.  Always invoked under the per-owner lock acquired by
+   * {@link #storeConfiguration()}.
+   * @return how many changes made
+   */
+  private int storeConfigurationHelper() {
+
     try {
+
+      // belt-and-suspenders: collapse any duplicate metadata assignment-on-assignment rows that
+      // predate this fix (e.g. created by an earlier concurrent save).  The lock above prevents new
+      // duplicates; this heals existing ones so the deprovisioning read path does not break
+      // (AttributeAssignValueFinder throws when an owner+attributeDefName appears twice).
+      this.removeDuplicateMetadataAssignments();
+
       GrouperDeprovisioningAttributeValue newConfig = this.getNewConfig();
       GrouperDeprovisioningAttributeValue originalConfig = this.getOriginalConfig();
   
@@ -408,6 +511,70 @@ public class GrouperDeprovisioningConfiguration {
       }
       
       this.getAttributeAssignBase().getAttributeValueDelegate().assignValue(attributeDefName.getName(), newValue);
+    }
+  }
+
+  /**
+   * Collapse any duplicate metadata assignment-on-assignment rows on the base deprovisioning
+   * assignment.  The deprovisioning metadata attributes are single-assign, so there should be at
+   * most one assignment per attributeDefName on the base assign.  Concurrent saves can violate that
+   * (see storeConfiguration), and the read path then fails.  Keep the newest assignment per
+   * attributeDefName (by created-on) and delete the rest, mirroring the maintenance daemon's
+   * GrouperDaemonDeleteMultipleCorruption.fixAssigns behavior so the data self-heals on every save.
+   */
+  private void removeDuplicateMetadataAssignments() {
+
+    AttributeAssign attributeAssignBase = this.getAttributeAssignBase();
+    if (attributeAssignBase == null) {
+      return;
+    }
+
+    Set<AttributeAssign> metadataAttributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
+        .findByOwnerAttributeAssignId(attributeAssignBase.getId(), new QueryOptions().secondLevelCache(false));
+
+    if (GrouperUtil.length(metadataAttributeAssigns) < 2) {
+      return;
+    }
+
+    // group the metadata assignments by their attributeDefName
+    Map<String, List<AttributeAssign>> attributeDefNameIdToAttributeAssigns = new HashMap<String, List<AttributeAssign>>();
+    for (AttributeAssign metadataAttributeAssign : metadataAttributeAssigns) {
+      String attributeDefNameId = metadataAttributeAssign.getAttributeDefNameId();
+      List<AttributeAssign> attributeAssignsForName = attributeDefNameIdToAttributeAssigns.get(attributeDefNameId);
+      if (attributeAssignsForName == null) {
+        attributeAssignsForName = new ArrayList<AttributeAssign>();
+        attributeDefNameIdToAttributeAssigns.put(attributeDefNameId, attributeAssignsForName);
+      }
+      attributeAssignsForName.add(metadataAttributeAssign);
+    }
+
+    for (String attributeDefNameId : attributeDefNameIdToAttributeAssigns.keySet()) {
+
+      List<AttributeAssign> attributeAssignsForName = attributeDefNameIdToAttributeAssigns.get(attributeDefNameId);
+      if (GrouperUtil.length(attributeAssignsForName) < 2) {
+        continue;
+      }
+
+      // keep the newest (largest created-on), delete the rest
+      AttributeAssign attributeAssignToKeep = null;
+      for (AttributeAssign attributeAssign : attributeAssignsForName) {
+        if (attributeAssignToKeep == null) {
+          attributeAssignToKeep = attributeAssign;
+          continue;
+        }
+        Long createdOnDb = attributeAssign.getCreatedOnDb();
+        Long createdOnDbToKeep = attributeAssignToKeep.getCreatedOnDb();
+        if (createdOnDb != null && (createdOnDbToKeep == null || createdOnDb > createdOnDbToKeep)) {
+          attributeAssignToKeep = attributeAssign;
+        }
+      }
+
+      for (AttributeAssign attributeAssign : attributeAssignsForName) {
+        if (StringUtils.equals(attributeAssign.getId(), attributeAssignToKeep.getId())) {
+          continue;
+        }
+        attributeAssign.delete();
+      }
     }
   }
 
