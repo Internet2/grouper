@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.app.deprovisioning;
 
+import java.util.Set;
+
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -13,10 +15,15 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**
@@ -153,6 +160,93 @@ public class GrouperDeprovisioningLogicTest extends GrouperTest {
       }
     }
 
+  }
+
+  /**
+   * count the metadata assignment-on-assignment rows for a given attributeDefName on a base assign
+   * @param attributeAssignBase
+   * @param attributeDefName
+   * @return the count
+   */
+  private static int countMetadataAssigns(AttributeAssign attributeAssignBase, AttributeDefName attributeDefName) {
+    Set<AttributeAssign> metadataAttributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
+        .findByOwnerAttributeAssignId(attributeAssignBase.getId(), new QueryOptions().secondLevelCache(false));
+    int count = 0;
+    for (AttributeAssign metadataAttributeAssign : metadataAttributeAssigns) {
+      if (StringUtils.equals(attributeDefName.getId(), metadataAttributeAssign.getAttributeDefNameId())) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /**
+   * GRP-7038: concurrent deprovisioning config saves can create duplicate metadata
+   * assignment-on-assignment rows for the same single-assign attribute, which then break the
+   * deprovision-a-user screen.  Verify that storeConfiguration collapses such duplicates so the
+   * data self-heals on the next save.
+   */
+  public void testStoreConfigurationRemovesDuplicateMetadataAssignments() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem deprovisioningStem = new StemSave(grouperSession).assignName("deprovisioningDup").save();
+
+    Group group = new GroupSave(grouperSession).assignName(deprovisioningStem.getName() + ":someGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+
+    // build and store an initial deprovisioning configuration for the employee affiliation
+    GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration =
+        GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group, false);
+
+    GrouperDeprovisioningConfiguration grouperDeprovisioningConfiguration = new GrouperDeprovisioningConfiguration();
+    grouperDeprovisioningConfiguration.setGrouperDeprovisioningOverallConfiguration(grouperDeprovisioningOverallConfiguration);
+    grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().put("employee", grouperDeprovisioningConfiguration);
+
+    GrouperDeprovisioningAttributeValue grouperDeprovisioningAttributeValue = new GrouperDeprovisioningAttributeValue();
+    grouperDeprovisioningAttributeValue.setGrouperDeprovisioningConfiguration(grouperDeprovisioningConfiguration);
+    grouperDeprovisioningConfiguration.setNewConfig(grouperDeprovisioningAttributeValue);
+    grouperDeprovisioningAttributeValue.setAffiliationString("employee");
+    grouperDeprovisioningAttributeValue.setDirectAssignment(true);
+    grouperDeprovisioningAttributeValue.setAutoChangeLoaderString("false");
+
+    grouperDeprovisioningConfiguration.storeConfiguration();
+
+    AttributeAssign attributeAssignBase = grouperDeprovisioningConfiguration.getAttributeAssignBase();
+    assertNotNull(attributeAssignBase);
+
+    AttributeDefName autoChangeLoaderAttributeDefName =
+        GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAutoChangeLoader();
+
+    // sanity: exactly one autoChangeLoader metadata assignment right now
+    assertEquals(1, countMetadataAssigns(attributeAssignBase, autoChangeLoaderAttributeDefName));
+
+    // manufacture the post-race corruption: a second metadata assignment for the same single-assign
+    // attribute on the same base assign (this is what two concurrent saves produce)
+    AttributeAssign duplicateAttributeAssign = new AttributeAssign(attributeAssignBase, null, autoChangeLoaderAttributeDefName, null);
+    duplicateAttributeAssign.saveOrUpdate(false);
+    duplicateAttributeAssign.getValueDelegate().assignValue("false");
+
+    assertEquals(2, countMetadataAssigns(attributeAssignBase, autoChangeLoaderAttributeDefName));
+
+    // re-store the configuration (unchanged values); storeConfiguration should collapse the duplicate
+    GrouperDeprovisioningAttributeValue resaveAttributeValue = new GrouperDeprovisioningAttributeValue();
+    resaveAttributeValue.setGrouperDeprovisioningConfiguration(grouperDeprovisioningConfiguration);
+    resaveAttributeValue.setAffiliationString("employee");
+    resaveAttributeValue.setDirectAssignment(true);
+    resaveAttributeValue.setAutoChangeLoaderString("false");
+    grouperDeprovisioningConfiguration.setNewConfig(resaveAttributeValue);
+
+    grouperDeprovisioningConfiguration.storeConfiguration();
+
+    // the duplicate is gone - exactly one assignment remains
+    assertEquals(1, countMetadataAssigns(attributeAssignBase, autoChangeLoaderAttributeDefName));
+
+    // and the read path that the duplicate used to break now works
+    grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group, false);
+    grouperDeprovisioningConfiguration = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration().get("employee");
+    assertNotNull(grouperDeprovisioningConfiguration);
+    assertEquals("false", grouperDeprovisioningConfiguration.getOriginalConfig().getAutoChangeLoaderString());
   }
 
   /**
