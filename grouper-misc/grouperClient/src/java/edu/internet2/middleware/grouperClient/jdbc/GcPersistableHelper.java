@@ -193,6 +193,14 @@ public class GcPersistableHelper {
 		if (heirarchicalFields == null){
 			heirarchicalFields = new ArrayList<Field>();
 		}
+		// JDK classes have no persistable columns, e.g. selectList(String.class) takes the value from
+		// the first column of the resultset, not from reflection on fields.  also on Java 17+
+		// setAccessible on JDK fields throws InaccessibleObjectException unless the JVM has --add-opens
+		// (gsh/tomcat pass that, but callers embedding the grouper API in plain java might not).
+		// this also stops the superclass recursion at Object
+		if (clazz == null || clazz.getName().startsWith("java.") || clazz.getName().startsWith("javax.")){
+			return heirarchicalFields;
+		}
 		for (Field field : clazz.getDeclaredFields()){
 			field.setAccessible(true);
 			heirarchicalFields.add(field);
