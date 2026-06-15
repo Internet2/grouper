@@ -22,17 +22,11 @@
             <%@ include file="../assetsJsp/header.jsp"%>
             <div class="pull-right">
 
-              <form id="searchForm" action="#" onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" class="navbar-search">
-                <input type="text" name="searchQuery2" id="mainPageSearchInput" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" class="search-query"><a href="?operation=UiV2Main.searchSubmit"
+              <form id="searchForm" role="search" action="#" onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" class="navbar-search">
+                <input type="text" name="searchQuery2" id="mainPageSearchInput" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" aria-label="${textContainer.textEscapeXml['ariaLabelGuiSearch']}" class="search-query"><a href="?operation=UiV2Main.searchSubmit"
                   onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" id="mainPageSearchButton"aria-label="${textContainer.text['ariaLabelGuiSearch']}"><i class="fa fa-search"></i></a>
               </form>
 
-              <%-- GRP-2677: Have searchQuery submit query by URL (this is the POST option)
-              <form id="searchForm" action="#" onsubmit="guiV2link('operation=UiV2Main.searchSubmit&mil=' + Date.now());return false;" class="navbar-search">
-                <input type="text" name="searchQueryTop" id="searchQueryTopId" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" class="search-query"><a href="#" 
-                  onclick="guiV2link('operation=UiV2Main.searchSubmit&mil=' + Date.now());return false;" aria-label="${textContainer.text['ariaLabelGuiSearch']}"><i class="fa fa-search"></i></a>
-              </form>
-              --%>
             </div>
             <div class="navbar-text pull-right">${textContainer.text['indexLoggedInAs'] } 
               ${guiSettings.loggedInSubject.shortLink} 
