@@ -3,7 +3,7 @@
  <div class="btn-group btn-block">
  
    <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreCustomUiActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
-     aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#custom-ui-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#custom-ui-more-options li').first().focus();return true;});">
+     aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#custom-ui-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#custom-ui-more-options li').first().focus();return true;});">
        ${textContainer.text['customUiMoreActionsButton'] } <span class="caret"></span></a>
 
    <ul class="dropdown-menu dropdown-menu-right" id="custom-ui-more-options">

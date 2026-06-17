@@ -37,7 +37,7 @@
                         <td>
                           <div class="btn-group">
                           	<a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeActionActions']}" href="#" class="btn btn-mini dropdown-toggle" aria-haspopup="true" aria-expanded="false" 
-                          		role="menu" onclick="$('#attribute-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options${i} li').first().focus();return true;});">
+                          		role="button" onclick="$('#attribute-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options${i} li').first().focus();return true;});">
                           		${textContainer.text['attributeDefViewActionsButton'] } <span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options${i}">
                             

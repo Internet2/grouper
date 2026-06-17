@@ -67,7 +67,7 @@ ${grouper:title('externalSystemsPageTitle')}
                     aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}"
                     class="btn btn-mini dropdown-toggle"
                     aria-haspopup="true" aria-expanded="false"
-                    role="menu"
+                    role="button"
                     onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                     ${textContainer.text['grouperExternalSystemRowActionsButton'] }
                     <span class="caret"></span>

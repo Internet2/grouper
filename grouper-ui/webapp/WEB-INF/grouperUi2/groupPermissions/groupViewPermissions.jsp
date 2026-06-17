@@ -85,7 +85,7 @@
                         /></c:otherwise></c:choose></a>
                     <div class="btn-group" style="display: inline-block;">
                       <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
-                        aria-haspopup="true" aria-expanded="false" role="menu"
+                        aria-haspopup="true" aria-expanded="false" role="button"
                         onclick="$(this).next('ul').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $(this).next('ul').find('li').first().focus();return true;}); return false;">
                         <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
                           id="permissionMenuButton_${guiPermissionId}__${grouperRequestContainer.permissionUpdateRequestContainer.permissionType.name}" 
@@ -122,7 +122,7 @@
                     <c:when test="${guiPermissionLimitBeanContainer.immediate}" >
                       <div class="btn-group" style="display: inline-block;">
                         <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
-                          aria-haspopup="true" aria-expanded="false" role="menu"
+                          aria-haspopup="true" aria-expanded="false" role="button"
                           onclick="$(this).next('ul').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $(this).next('ul').find('li').first().focus();return true;}); return false;">
                           <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
                             id="limitMenuButton_${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
@@ -184,7 +184,7 @@
                         
                           <div class="btn-group" style="display: inline-block;">
                             <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
-                              aria-haspopup="true" aria-expanded="false" role="menu"
+                              aria-haspopup="true" aria-expanded="false" role="button"
                               onclick="$(this).next('ul').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $(this).next('ul').find('li').first().focus();return true;}); return false;">
                               <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
                                id="limitAssignValueButton_${guiPermissionLimitBeanContainer.permissionLimitBean.limitAssign.id}_${limitAssignValue.id}" alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
