@@ -42,7 +42,7 @@
                    <c:if test="${guiAttributeAssign.canUpdateAttributeDefName}">
                      <div class="btn-group" style="display: inline-block;">
                        <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
-                         aria-haspopup="true" aria-expanded="false" role="menu"
+                         aria-haspopup="true" aria-expanded="false" role="button"
                          onclick="$(this).next('ul').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $(this).next('ul').find('li').first().focus();return true;}); return false;">
                          <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
                           alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
@@ -69,7 +69,7 @@
                 <c:if test="${guiAttributeAssign.canUpdateAttributeDefName}">
                     <div class="btn-group">
                         <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-                          aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+                          aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                         ${textContainer.text['groupViewActionsButton'] } 
                           <span class="caret"></span>
                         </a>
@@ -107,7 +107,7 @@
                        <c:if test="${guiAttributeAssignAssign.canUpdateAttributeDefName}">
                          <div class="btn-group" style="display: inline-block;">
                            <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="dropdown-toggle grouperDropdownToggleIconOnly"
-                             aria-haspopup="true" aria-expanded="false" role="menu"
+                             aria-haspopup="true" aria-expanded="false" role="button"
                              onclick="$(this).next('ul').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $(this).next('ul').find('li').first().focus();return true;}); return false;">
                              <img src="../../grouperExternal/public/assets/images/bullet_arrow_down.png" border="0" 
                               alt="${grouper:escapeJavascript(navMap['contextOptionsAlt'])}"/>
@@ -133,7 +133,7 @@
                     <c:if test="${guiAttributeAssignAssign.canUpdateAttributeDefName}">
                      <div class="btn-group">
                         <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-                          aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+                          aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                         ${textContainer.text['groupViewActionsButton'] }
                           <span class="caret"></span>
                         </a>

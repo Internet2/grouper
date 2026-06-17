@@ -19,7 +19,7 @@ ${grouper:title('rulesConfigsPageTitle')}
                     <div class="btn-group btn-block">
                     
                       <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreProvisionerConfigsActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
-                        aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#provisioner-configs-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#provisioner-configs-more-options li').first().focus();return true;});">
+                        aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#provisioner-configs-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#provisioner-configs-more-options li').first().focus();return true;});">
                           ${textContainer.text['provisionerConfigsMainScreenMoreActionsButton'] } <span class="caret"></span></a>
 
                       <ul class="dropdown-menu dropdown-menu-right" id="provisioner-configs-more-options">
@@ -69,7 +69,7 @@ ${grouper:title('rulesConfigsPageTitle')}
                       <td>
                          <div class="btn-group">
                                <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-                                 aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+                                 aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                                  ${textContainer.text['rulesTableActionsButton'] }
                                  <span class="caret"></span>
                                </a>

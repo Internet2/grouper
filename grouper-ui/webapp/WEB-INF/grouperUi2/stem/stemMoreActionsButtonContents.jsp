@@ -16,8 +16,11 @@
                       </c:choose>
                     </c:if>
                     <div class="btn-group btn-block">
+                    	<%-- a11y: the trigger uses role="button" (not the menu role). Marking it as a menu made WAVE report
+                    	     "Broken ARIA menu: does not contain required menu items" -- the trigger holds only a label + caret;
+                    	     the real menu is the ul#stem-more-options below, ajax-populated on first open. --%>
                     	<a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle" id="moreActionsButton"
-                    		aria-haspopup="true" aria-label="${textContainer.text['ariaLabelGuiMoreStemActions']}" aria-expanded="false" role="menu" 
+                    		aria-haspopup="true" aria-label="${textContainer.text['ariaLabelGuiMoreStemActions']}" aria-expanded="false" role="button" 
                     		onclick="if ($('#stem-more-options').is(':visible') === true) { $(this).attr('aria-expanded','false') } else if ($('#firstStemMoreActionsMenuItem').length) { $(this).attr('aria-expanded',function(index, currentValue) { $('#stem-more-options li').first().focus();return true;})} else { ajax('../app/UiV2Stem.populateMoreActionsButton?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return true; } ">
                     		${textContainer.text['stemViewMoreActionsButton'] } <span class="caret"></span></a>
                       <ul class="dropdown-menu dropdown-menu-right" id="stem-more-options">

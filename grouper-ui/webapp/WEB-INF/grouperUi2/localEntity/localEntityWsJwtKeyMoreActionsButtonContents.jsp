@@ -10,7 +10,7 @@
         <div class="btn-group btn-block">
         
           <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreLocalEntityWsJwtKeyActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
-            aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#wsJwtKey-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#wsJwtKey-more-options li').first().focus();return true;});">
+            aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#wsJwtKey-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#wsJwtKey-more-options li').first().focus();return true;});">
               ${textContainer.text['localEntityWsJwtKeyMoreActionsButton'] } <span class="caret"></span></a>
 
           <ul class="dropdown-menu dropdown-menu-right" id="wsJwtKey-more-options">

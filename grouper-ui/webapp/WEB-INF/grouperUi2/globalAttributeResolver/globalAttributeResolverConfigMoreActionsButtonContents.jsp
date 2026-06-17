@@ -3,7 +3,7 @@
  <div class="btn-group btn-block">
  
    <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGlobalAttributeResolverConfigActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
-     aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#resolver-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#jwt-more-options li').first().focus();return true;});">
+     aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#resolver-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#jwt-more-options li').first().focus();return true;});">
        ${textContainer.text['wsTrustedJwtsMoreActionsButton'] } <span class="caret"></span></a>
 
    <ul class="dropdown-menu dropdown-menu-right" id="resolver-more-options">

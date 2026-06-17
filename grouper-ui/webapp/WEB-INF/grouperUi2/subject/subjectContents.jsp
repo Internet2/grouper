@@ -50,7 +50,7 @@
                                 || guiMembershipSubjectContainer.guiSubject.group}">
                               <div class="btn-group">
                               	<a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreMembershipActions']}" href="#" class="btn btn-mini dropdown-toggle"
-                              		aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#subject-contents-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#subject-contents-more-options${i} li').first().focus();return true;});">
+                              		aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#subject-contents-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#subject-contents-more-options${i} li').first().focus();return true;});">
                               		${textContainer.text['groupViewActionsButton'] } 
                               		<span class="caret"></span>
                               	</a>

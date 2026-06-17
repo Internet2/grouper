@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-                <li class="dropdown"><a role="tab" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" href="#" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" role="menu"
+                <li class="dropdown"><a role="tab" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" href="#" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" role="button"
                 onclick="$('#group-more-tab').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#group-more-tab li').first().focus();return true;});">${textContainer.text['groupMoreTab'] } <b class="caret"></b></a>
                   <ul class="dropdown-menu" id="group-more-tab">
                     <li><a href="?operation=UiV2Group.thisGroupsMemberships&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.thisGroupsMemberships&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});">${textContainer.text['thisGroupsMembershipsTab'] }</a></li>
