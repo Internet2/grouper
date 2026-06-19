@@ -214,9 +214,35 @@ public class GrouperScim2ProvisioningTargetNativeSync extends GrouperProvisionin
     this.recordTargetNativeGroup(this.buildNativeGroupFromJson(resourceNode));
   }
 
+  /**
+   * Group-insert sync-back: build the native group from the create (POST) response JSON and
+   * run it through the generic insert hook. SCIM echoes the created resource on POST, so this
+   * registers it "like a read" (no re-read needed) and the drain skips the id.
+   */
+  public void recordGroupInsertJson(JsonNode resourceNode) {
+    GrouperProvisioningTargetNativeGroup nativeGroup = this.buildNativeGroupFromJson(resourceNode);
+    if (nativeGroup == null) {
+      return;
+    }
+    this.recordTargetNativeGroupWrite(nativeGroup.getTargetId(), nativeGroup);
+  }
+
   /** Build a native user bean from the SCIM JSON and record it. No-op if reporting is off. */
   public void captureEntityJson(JsonNode resourceNode) {
     this.recordTargetNativeUser(this.buildNativeUserFromJson(resourceNode));
+  }
+
+  /**
+   * Entity-insert sync-back: build the native user from the create (POST) response JSON and
+   * run it through the generic insert hook. SCIM echoes the created resource on POST, so this
+   * registers it "like a read" (no re-read needed) and the drain skips the id.
+   */
+  public void recordUserInsertJson(JsonNode resourceNode) {
+    GrouperProvisioningTargetNativeUser nativeUser = this.buildNativeUserFromJson(resourceNode);
+    if (nativeUser == null) {
+      return;
+    }
+    this.recordTargetNativeUserWrite(nativeUser.getTargetId(), nativeUser);
   }
 
   /**
@@ -270,6 +296,38 @@ public class GrouperScim2ProvisioningTargetNativeSync extends GrouperProvisionin
     scimSync.captureEntityJson(resourceNode);
   }
 
+  /** Run a SCIM user create (POST) response through the insert sync-back hook. */
+  public static void captureUserInsertFromCurrentProvisioner(JsonNode resourceNode) {
+    GrouperScim2ProvisioningTargetNativeSync scimSync = scimSyncForCurrentProvisioner();
+    if (scimSync == null) {
+      return;
+    }
+    scimSync.recordUserInsertJson(resourceNode);
+  }
+
+  /**
+   * SCIM group-update sync-back (uniform write rule): if the update response carries the
+   * resource, register it like a read so the end-of-run drain skips it; if there is no body
+   * (e.g. a 204), {@code buildNativeGroupFromJson} returns null and the id is only marked for
+   * the drain to re-read. Either way the stale pre-update read-pass native is dropped.
+   */
+  public static void captureGroupUpdateFromCurrentProvisioner(String targetId, JsonNode resourceNode) {
+    GrouperScim2ProvisioningTargetNativeSync scimSync = scimSyncForCurrentProvisioner();
+    if (scimSync == null) {
+      return;
+    }
+    scimSync.recordTargetNativeGroupWrite(targetId, scimSync.buildNativeGroupFromJson(resourceNode));
+  }
+
+  /** see {@link #captureGroupUpdateFromCurrentProvisioner}; user axis */
+  public static void captureUserUpdateFromCurrentProvisioner(String targetId, JsonNode resourceNode) {
+    GrouperScim2ProvisioningTargetNativeSync scimSync = scimSyncForCurrentProvisioner();
+    if (scimSync == null) {
+      return;
+    }
+    scimSync.recordTargetNativeUserWrite(targetId, scimSync.buildNativeUserFromJson(resourceNode));
+  }
+
   /** Capture a SCIM group JSON resource against the current provisioner's sync. */
   public static void captureGroupJsonFromCurrentProvisioner(JsonNode resourceNode) {
     GrouperScim2ProvisioningTargetNativeSync scimSync = scimSyncForCurrentProvisioner();
@@ -277,6 +335,15 @@ public class GrouperScim2ProvisioningTargetNativeSync extends GrouperProvisionin
       return;
     }
     scimSync.captureGroupJson(resourceNode);
+  }
+
+  /** Run a SCIM group create (POST) response through the insert sync-back hook. */
+  public static void captureGroupInsertFromCurrentProvisioner(JsonNode resourceNode) {
+    GrouperScim2ProvisioningTargetNativeSync scimSync = scimSyncForCurrentProvisioner();
+    if (scimSync == null) {
+      return;
+    }
+    scimSync.recordGroupInsertJson(resourceNode);
   }
 
   /** Drain a SCIM membership cache into the current provisioner's native memberships list. */

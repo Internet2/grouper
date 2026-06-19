@@ -1398,6 +1398,10 @@ public class GrouperProvisioningGrouperSyncDao {
 
       if (grouperTargetEntity.getException() == null
           && GrouperUtil.booleanValue(grouperTargetEntity.getProvisioned(), false)) {
+        // sync-back: see processResultsDeleteGroups -- mark the id and drop the pre-delete
+        // snapshot so the end-of-run drain re-reads to confirm the entity is gone.
+        this.grouperProvisioner.retrieveGrouperProvisioningTargetNativeSync()
+            .recordTargetNativeUserWrite(grouperTargetEntity.getId(), null);
         if (gcGrouperSyncMember != null) {
           gcGrouperSyncMember.setInTarget(false);
           gcGrouperSyncMember.setInTargetEnd(nowTimestamp);
@@ -1531,6 +1535,11 @@ public class GrouperProvisioningGrouperSyncDao {
 
       if (grouperTargetGroup.getException() == null
           && GrouperUtil.booleanValue(grouperTargetGroup.getProvisioned(), false)) {
+        // sync-back: a delete is a write with no representation. Mark the id and drop the
+        // pre-delete snapshot so the end-of-run drain re-reads to confirm it is gone (if the
+        // delete silently failed and it is still there, the re-read re-captures it).
+        this.grouperProvisioner.retrieveGrouperProvisioningTargetNativeSync()
+            .recordTargetNativeGroupWrite(grouperTargetGroup.getId(), null);
         if (gcGrouperSyncGroup != null) {
           gcGrouperSyncGroup.setInTarget(false);
           gcGrouperSyncGroup.setInTargetEnd(nowTimestamp);

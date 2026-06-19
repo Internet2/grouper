@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -37,7 +38,38 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class AwsScim2MockServiceHandler extends MockServiceHandler {
 
+  /**
+   * Sync-back test knobs are read from the shared DB config, NOT static fields: this mock server
+   * runs in a separate JVM from the test, so a static set in the test JVM would never reach it.
+   * Tests set them with {@code new GrouperDbConfig().configFileName("grouper.properties")
+   * .propertyName(KEY).value("true").store()} and clear them in tearDown. Because this JVM's
+   * GrouperConfig only re-checks the DB every ~30s (longer than a test runs), {@link
+   * #mockTestKnobBoolean(String)} clears the config cache before each read so the just-stored
+   * value is seen immediately. Keys (read below):
+   * <ul>
+   * <li>{@code grouperTest.scim2.mock.patchUsersReturnNoBody} -- {@link #patchUser} responds 204
+   * (no body), simulating a SCIM server that does not echo the resource on PATCH; the write hook
+   * then only marks the id and the end-of-run drain must re-read.</li>
+   * <li>{@code grouperTest.scim2.mock.deleteUsersReturnSuccessButDoNotDelete} -- {@link #deleteUser}
+   * acks the delete (204) but keeps the row, a broken SCIM target that does not perform the delete;
+   * the drain re-reads, finds it still present, and the mirror keeps it (we verify, not assume).</li>
+   * </ul>
+   */
+
   public AwsScim2MockServiceHandler() {
+  }
+
+  /**
+   * Read a sync-back test knob fresh from the DB config. Clears the GrouperConfig cache (files +
+   * DB overlay) first, because this mock runs in a long-lived Tomcat JVM that otherwise only
+   * re-checks the DB every grouper.config.secondsBetweenUpdateChecksToDb (~30s) -- far longer than
+   * a test runs, so a cached read would miss a knob the test just stored. Returns false if unset.
+   * @param configKey the grouper.properties key the test stored via GrouperDbConfig
+   * @return the knob value, false if absent or blank
+   */
+  private static boolean mockTestKnobBoolean(String configKey) {
+    ConfigPropertiesCascadeBase.clearCache();
+    return GrouperConfig.retrieveConfig().propertyValueBoolean(configKey, false);
   }
 
   /**
@@ -512,6 +544,15 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
     
+    if (mockTestKnobBoolean("grouperTest.scim2.mock.deleteUsersReturnSuccessButDoNotDelete")) {
+      // sync-back test knob: ack the delete (204) but do NOT remove the row -- a broken SCIM
+      // target. The record stays unchanged (still active), so the drain's re-read finds it
+      // still there and the mirror keeps it rather than assuming the delete worked.
+      mockServiceResponse.setContentType("application/json");
+      mockServiceResponse.setResponseCode(204);
+      return;
+    }
+
     int membershipsDeleted = HibernateSession.byHqlStatic()
         .createQuery("delete from GrouperScim2Membership where userId = :userId")
         .setString("userId", id).executeUpdateInt();
@@ -741,11 +782,17 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
       
     }
     HibernateSession.byObjectStatic().saveOrUpdate(grouperScimUser);
-    
-    ObjectNode objectNode = grouperScimUser.toJson(null);
-    mockServiceResponse.setResponseCode(200);
-    mockServiceResponse.setContentType("application/json");
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
+
+    if (mockTestKnobBoolean("grouperTest.scim2.mock.patchUsersReturnNoBody")) {
+      // sync-back test knob: 204 No Content, no body -> the update has no representation, so
+      // the write hook marks the id and the end-of-run drain re-reads it.
+      mockServiceResponse.setResponseCode(204);
+    } else {
+      ObjectNode objectNode = grouperScimUser.toJson(null);
+      mockServiceResponse.setResponseCode(200);
+      mockServiceResponse.setContentType("application/json");
+      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
+    }
     
     
   }

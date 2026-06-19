@@ -62,9 +62,9 @@ public class GrouperProvisioningTargetNativeSync {
     // write-shadowing (e.g. patch-response capture for the same id) without growing dups.
     this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetGroupIdToNativeGroup()
         .put(targetId, grouperProvisioningTargetNativeGroup);
-    // a fresh entry in the canonical map means any pending sync-back-read for this id is
-    // now satisfied — drop it from the dirty set so the drain doesn't re-fetch.
-    this.clearSyncBackGroupForRead(targetId);
+    // NOTE: do NOT clear the sync-back-read mark here. The drain cross-checks the to-read
+    // set against this map: an id present in both was captured by its own write (or a read),
+    // so the drain skips it; the drain owns clearing the to-read set when it runs.
   }
 
   /**
@@ -86,8 +86,8 @@ public class GrouperProvisioningTargetNativeSync {
     // last-write-wins; see recordTargetNativeGroup for rationale.
     this.grouperProvisioner.retrieveGrouperProvisioningData().getTargetUserIdToNativeUser()
         .put(targetId, grouperProvisioningTargetNativeUser);
-    // satisfied any pending sync-back-read for this id; see recordTargetNativeGroup.
-    this.clearSyncBackUserForRead(targetId);
+    // see recordTargetNativeGroup: the sync-back-read mark is left for the drain to
+    // cross-check and clear, not cleared here.
   }
 
   /**
@@ -170,19 +170,16 @@ public class GrouperProvisioningTargetNativeSync {
   }
 
   // ===================== sync-back read set (mark/clear) =====================
-  // Write sites that don't get a response body (e.g. SCIM PATCH returning 204, LDAP modify)
-  // mark the affected target id with {@link #markSyncBackUserForRead} / {@link
-  // #markSyncBackGroupForRead}. A later drain phase re-reads each marked id, captures
-  // through {@link #recordTargetNativeUser} / {@link #recordTargetNativeGroup}, which
-  // clears the dirty entry. So the steady-state invariant at end-of-flush is: the set is
-  // empty (every dirty id was either drained, or never marked because the write got a body
-  // and the capture happened directly).
+  // Write sites mark the affected target id with {@link #markSyncBackUserForRead} / {@link
+  // #markSyncBackGroupForRead}. The end-of-run drain (GrouperProvisioningLogic
+  // .syncBackDrainGroups) cross-checks each marked id against the read map: an id already in
+  // the map was captured by its own write response (or a read), so it is skipped; an id NOT
+  // in the map is bulk re-read. The drain then clears the whole set.
   //
-  // Mark gates on the behavior flag — no point growing the set for an axis that won't be
-  // flushed. Clear is unconditional (cheap, idempotent set.remove).
-  //
-  // The drain itself is not implemented in this slice — these methods only set up the
-  // infrastructure so write sites and the eventual drain have a single chokepoint.
+  // recordTargetNativeXxx deliberately does NOT clear the mark (so the cross-check can see an
+  // id in both sets); the drain is the sole clearer. Mark gates on the behavior flag (no
+  // point growing the set for an axis that won't be flushed); clear/remove are unconditional
+  // (cheap, idempotent).
 
   /**
    * Register {@code targetId} as needing a sync-back re-read. Called from write sites that
@@ -234,6 +231,151 @@ public class GrouperProvisioningTargetNativeSync {
     }
     this.grouperProvisioner.retrieveGrouperProvisioningData()
         .getSyncBackGroupNativeIdsToRead().remove(targetId);
+  }
+
+  // ===================== read-map removal =====================
+  // Used by the insert/update hooks (drop a stale pre-write snapshot before re-capture) and
+  // by the delete path (drop a deleted object so the flush deletes its mirror row).
+
+  /** Remove any captured native group representation for {@code targetId}. Idempotent. */
+  public void removeTargetNativeGroup(String targetId) {
+    if (targetId == null) {
+      return;
+    }
+    this.grouperProvisioner.retrieveGrouperProvisioningData()
+        .getTargetGroupIdToNativeGroup().remove(targetId);
+  }
+
+  /** see {@link #removeTargetNativeGroup}; same semantics for users */
+  public void removeTargetNativeUser(String targetId) {
+    if (targetId == null) {
+      return;
+    }
+    this.grouperProvisioner.retrieveGrouperProvisioningData()
+        .getTargetUserIdToNativeUser().remove(targetId);
+  }
+
+  // ===================== sync-back deleted set (mark/clear) =====================
+  // The delete write path marks the deleted target id; the end-of-run drain / flush drops
+  // it from the mirror. An insert of the same id clears the mark (re-create wins).
+
+  /**
+   * Register {@code targetId} as deleted from the target this run. No-op when group
+   * reporting is off or {@code targetId} is null.
+   */
+  public void markSyncBackGroupForDelete(String targetId) {
+    if (targetId == null) {
+      return;
+    }
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior()
+        .isLoadGroupsToGenericGrouperTable()) {
+      return;
+    }
+    this.grouperProvisioner.retrieveGrouperProvisioningData()
+        .getSyncBackGroupNativeIdsDeleted().add(targetId);
+  }
+
+  /** Drop {@code targetId} from the group deleted set (cheap, idempotent). */
+  public void clearSyncBackGroupForDelete(String targetId) {
+    if (targetId == null) {
+      return;
+    }
+    this.grouperProvisioner.retrieveGrouperProvisioningData()
+        .getSyncBackGroupNativeIdsDeleted().remove(targetId);
+  }
+
+  /** see {@link #markSyncBackGroupForDelete}; same semantics for users */
+  public void markSyncBackUserForDelete(String targetId) {
+    if (targetId == null) {
+      return;
+    }
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior()
+        .isLoadEntitiesToGenericGrouperTable()) {
+      return;
+    }
+    this.grouperProvisioner.retrieveGrouperProvisioningData()
+        .getSyncBackUserNativeIdsDeleted().add(targetId);
+  }
+
+  /** see {@link #clearSyncBackGroupForDelete}; same semantics for users */
+  public void clearSyncBackUserForDelete(String targetId) {
+    if (targetId == null) {
+      return;
+    }
+    this.grouperProvisioner.retrieveGrouperProvisioningData()
+        .getSyncBackUserNativeIdsDeleted().remove(targetId);
+  }
+
+  // ===================== write hooks (insert / update) =====================
+
+  /**
+   * Group-write sync-back hook, called from a provisioner's insert/update commands path
+   * right after the target write (create or attribute update). Runs four steps in order:
+   * <ol>
+   *   <li>mark the target id for sync-back read (the drain ensures it later),</li>
+   *   <li>drop the id from the deleted set (a write supersedes a pending delete),</li>
+   *   <li>remove any stale read-map representation -- for an update this is the crucial step
+   *       (drops the pre-write read-pass native so the drain re-reads it; an insert normally
+   *       has none),</li>
+   *   <li>if the write returned the native object, register it like a read so no re-read is
+   *       needed -- the drain then cross-checks the read map and skips this id.</li>
+   * </ol>
+   * No-op when group reporting is off or {@code targetId} is null.
+   *
+   * @param targetId native target id of the written group
+   * @param grouperProvisioningTargetNativeGroup native object from the write response, or
+   *   null when the write returned no usable body (then the drain bulk-reads it)
+   */
+  public synchronized void recordTargetNativeGroupWrite(String targetId,
+      GrouperProvisioningTargetNativeGroup grouperProvisioningTargetNativeGroup) {
+    if (targetId == null) {
+      return;
+    }
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior()
+        .isLoadGroupsToGenericGrouperTable()) {
+      return;
+    }
+    // 1. mark for sync-back read
+    this.markSyncBackGroupForRead(targetId);
+    // 2. a write supersedes any pending delete of the same id
+    this.clearSyncBackGroupForDelete(targetId);
+    // 3. drop any stale (pre-write) read-map representation so the drain re-reads it
+    this.removeTargetNativeGroup(targetId);
+    // 4. if the write returned the native, register it like a read (drain then skips it)
+    if (grouperProvisioningTargetNativeGroup != null) {
+      this.recordTargetNativeGroup(grouperProvisioningTargetNativeGroup);
+    }
+  }
+
+  /**
+   * Entity-write sync-back hook; the user-axis mirror of
+   * {@link #recordTargetNativeGroupWrite(String, GrouperProvisioningTargetNativeGroup)}
+   * (mark to-read, clear pending delete, drop stale rep, register if returned). No-op when
+   * entity reporting is off or {@code targetId} is null.
+   *
+   * @param targetId native target id of the written entity
+   * @param grouperProvisioningTargetNativeUser native object from the write response, or
+   *   null when the write returned no usable body (then the drain bulk-reads it)
+   */
+  public synchronized void recordTargetNativeUserWrite(String targetId,
+      GrouperProvisioningTargetNativeUser grouperProvisioningTargetNativeUser) {
+    if (targetId == null) {
+      return;
+    }
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior()
+        .isLoadEntitiesToGenericGrouperTable()) {
+      return;
+    }
+    // 1. mark for sync-back read
+    this.markSyncBackUserForRead(targetId);
+    // 2. a write supersedes any pending delete of the same id
+    this.clearSyncBackUserForDelete(targetId);
+    // 3. drop any stale (pre-write) read-map representation so the drain re-reads it
+    this.removeTargetNativeUser(targetId);
+    // 4. if the write returned the native, register it like a read (drain then skips it)
+    if (grouperProvisioningTargetNativeUser != null) {
+      this.recordTargetNativeUser(grouperProvisioningTargetNativeUser);
+    }
   }
 
 }

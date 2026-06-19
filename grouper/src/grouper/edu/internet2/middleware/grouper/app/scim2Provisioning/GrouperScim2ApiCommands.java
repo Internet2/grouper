@@ -698,9 +698,16 @@ public class GrouperScim2ApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      executeMethod(debugMap, debugLabel(debugMap, "patchScimUser"), GrouperHttpMethod.patch, configId,
+      JsonNode patchUserResponseNode = executeMethod(debugMap, debugLabel(debugMap, "patchScimUser"), GrouperHttpMethod.patch, configId,
           "/Users/" + GrouperUtil.escapeUrlEncode(grouperScim2User.getId()), GrouperUtil.toSet(200, 204),
           new int[] { -1 }, jsonStringToSend, scimSettings);
+
+      // generic provisioner sync back, uniform write rule: if the PATCH returned the resource
+      // (200 + body) register it like a read so the drain skips it; a 204 with no body marks
+      // the id for the end-of-run drain to re-read. Either way the stale pre-update read-pass
+      // native is dropped so the drain doesn't keep it.
+      GrouperScim2ProvisioningTargetNativeSync.captureUserUpdateFromCurrentProvisioner(
+          grouperScim2User.getId(), patchUserResponseNode);
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -846,9 +853,16 @@ public class GrouperScim2ApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      executeMethod(debugMap, debugLabel(debugMap, "patchScimGroup"), GrouperHttpMethod.patch, configId,
+      JsonNode patchGroupResponseNode = executeMethod(debugMap, debugLabel(debugMap, "patchScimGroup"), GrouperHttpMethod.patch, configId,
           "/Groups/" + GrouperUtil.escapeUrlEncode(grouperScim2Group.getId()), GrouperUtil.toSet(200, 204),
           new int[] { -1 }, jsonStringToSend, scimSettings);
+
+      // generic provisioner sync back, uniform write rule: if the PATCH returned the resource
+      // (200 + body) register it like a read so the drain skips it; a 204 with no body marks
+      // the id for the end-of-run drain to re-read. Either way the stale pre-update read-pass
+      // native is dropped so the drain doesn't keep it.
+      GrouperScim2ProvisioningTargetNativeSync.captureGroupUpdateFromCurrentProvisioner(
+          grouperScim2Group.getId(), patchGroupResponseNode);
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -1033,13 +1047,12 @@ public class GrouperScim2ApiCommands {
       JsonNode jsonNode = executeMethod(debugMap, debugLabel(debugMap, "createScimUser"), GrouperHttpMethod.post, configId,
           "/Users", GrouperUtil.toSet(200, 201), new int[] { -1 }, jsonStringToSend, scimSettings);
 
-      // TODO write-shadow precision pass: SCIM POST returns the created resource and could
-      // shadow into the canonical native-user map here. Disabled today because the
-      // end-of-run flush in fullSyncLogic runs BEFORE create phases, so this capture would
-      // land in an already-flushed map. Re-enable once the flush is reordered to run after
-      // all create/update/delete phases. Until then, contract is "shadow reflects target
-      // state at read time; daemon writes converge on the NEXT run's read."
-      // GrouperScim2ProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(jsonNode);
+      // generic provisioner sync back: the end-of-run flush now runs AFTER the write phase
+      // (sendChangesToTarget), so we shadow the created resource into the native-user map
+      // here. SCIM POST echoes the created user, so the insert hook registers it like a read
+      // (mark to-read, clear any pending delete, drop stale rep, register) and the end-of-run
+      // drain skips re-reading this id.
+      GrouperScim2ProvisioningTargetNativeSync.captureUserInsertFromCurrentProvisioner(jsonNode);
 
       GrouperScim2User grouperScimUserResult = GrouperScim2User.fromJson(jsonNode);
 
@@ -1386,11 +1399,12 @@ public class GrouperScim2ApiCommands {
       JsonNode jsonNode = executeMethod(debugMap, debugLabel(debugMap, "createScimGroup"), GrouperHttpMethod.post, configId,
           "/Groups", GrouperUtil.toSet(201, 200), new int[] { -1 }, jsonStringToSend, scimSettings);
 
-      // TODO write-shadow precision pass: see matching TODO in createScimUser. SCIM POST
-      // returns the created resource and could shadow into the canonical native-group map
-      // here, but the end-of-run flush currently runs BEFORE create phases in
-      // fullSyncLogic. Re-enable once the flush is reordered.
-      // GrouperScim2ProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(jsonNode);
+      // generic provisioner sync back: the end-of-run flush now runs AFTER the write phase
+      // (sendChangesToTarget), so we shadow the created resource into the native-group map
+      // here. SCIM POST echoes the created group, so the insert hook registers it like a
+      // read (steps: mark to-read, clear any pending delete, drop stale rep, register) and
+      // the end-of-run drain skips re-reading this id.
+      GrouperScim2ProvisioningTargetNativeSync.captureGroupInsertFromCurrentProvisioner(jsonNode);
 
       GrouperScim2Group grouperScimGroupResult = GrouperScim2Group.fromJson(jsonNode);
 

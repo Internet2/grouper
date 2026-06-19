@@ -303,17 +303,20 @@ public class GrouperProvisioningData {
    * mutates the data that the end-of-run flush walks. Last-write-wins on duplicate ids
    * (an artifact of write-shadowing where the same id may be captured by both the read
    * pass and a later patch-response capture). Use {@link LinkedHashMap} to preserve
-   * insertion order, which keeps test assertions and debug dumps stable.
+   * insertion order, which keeps test assertions and debug dumps stable. Wrapped in
+   * {@link Collections#synchronizedMap} because protocol retrieve threads capture
+   * concurrently while the end-of-run flush copies the values; iterating callers (the list
+   * views below) must synchronize on the map.
    */
   private Map<String, GrouperProvisioningTargetNativeUser> targetUserIdToNativeUser =
-      new LinkedHashMap<String, GrouperProvisioningTargetNativeUser>();
+      Collections.synchronizedMap(new LinkedHashMap<String, GrouperProvisioningTargetNativeUser>());
 
   /**
    * Native-target groups, keyed by their target id. Same semantics as
    * {@link #targetUserIdToNativeUser}.
    */
   private Map<String, GrouperProvisioningTargetNativeGroup> targetGroupIdToNativeGroup =
-      new LinkedHashMap<String, GrouperProvisioningTargetNativeGroup>();
+      Collections.synchronizedMap(new LinkedHashMap<String, GrouperProvisioningTargetNativeGroup>());
 
   /**
    * Native-target memberships, keyed by {@code MultiKey(targetGroupId, targetUserId)}.
@@ -321,7 +324,7 @@ public class GrouperProvisioningData {
    */
   private Map<MultiKey, GrouperProvisioningTargetNativeMembership>
       targetGroupIdTargetUserIdToNativeMembership =
-          new LinkedHashMap<MultiKey, GrouperProvisioningTargetNativeMembership>();
+          Collections.synchronizedMap(new LinkedHashMap<MultiKey, GrouperProvisioningTargetNativeMembership>());
 
   /** the canonical user index — mutate this for record/replace/remove */
   public Map<String, GrouperProvisioningTargetNativeUser> getTargetUserIdToNativeUser() {
@@ -345,17 +348,24 @@ public class GrouperProvisioningData {
    * Use the map directly for mutation.
    */
   public List<GrouperProvisioningTargetNativeUser> getTargetNativeUsers() {
-    return GrouperUtil.listFromCollection(this.targetUserIdToNativeUser.values());
+    // synchronize: protocol retrieve threads may still be capturing into the map
+    synchronized (this.targetUserIdToNativeUser) {
+      return GrouperUtil.listFromCollection(this.targetUserIdToNativeUser.values());
+    }
   }
 
   /** list view of the captured groups; see {@link #getTargetNativeUsers()} */
   public List<GrouperProvisioningTargetNativeGroup> getTargetNativeGroups() {
-    return GrouperUtil.listFromCollection(this.targetGroupIdToNativeGroup.values());
+    synchronized (this.targetGroupIdToNativeGroup) {
+      return GrouperUtil.listFromCollection(this.targetGroupIdToNativeGroup.values());
+    }
   }
 
   /** list view of the captured memberships; see {@link #getTargetNativeUsers()} */
   public List<GrouperProvisioningTargetNativeMembership> getTargetNativeMemberships() {
-    return GrouperUtil.listFromCollection(this.targetGroupIdTargetUserIdToNativeMembership.values());
+    synchronized (this.targetGroupIdTargetUserIdToNativeMembership) {
+      return GrouperUtil.listFromCollection(this.targetGroupIdTargetUserIdToNativeMembership.values());
+    }
   }
 
   /**
@@ -385,6 +395,27 @@ public class GrouperProvisioningData {
   /** package-private accessor for {@code GrouperProvisioningTargetNativeSync} */
   Set<String> getSyncBackGroupNativeIdsToRead() {
     return this.syncBackGroupNativeIdsToRead;
+  }
+
+  /**
+   * Target group native ids deleted from the target this run. Populated by the delete write
+   * path so the end-of-run drain / flush drops them from the mirror; cleared by an insert of
+   * the same id (a re-create supersedes a pending delete). See
+   * {@link #syncBackGroupNativeIdsToRead} for the to-read counterpart.
+   */
+  private Set<String> syncBackGroupNativeIdsDeleted = new LinkedHashSet<String>();
+
+  /** see {@link #syncBackGroupNativeIdsDeleted}; same semantics for users. */
+  private Set<String> syncBackUserNativeIdsDeleted = new LinkedHashSet<String>();
+
+  /** package-private accessor for {@code GrouperProvisioningTargetNativeSync} */
+  Set<String> getSyncBackGroupNativeIdsDeleted() {
+    return this.syncBackGroupNativeIdsDeleted;
+  }
+
+  /** package-private accessor for {@code GrouperProvisioningTargetNativeSync} */
+  Set<String> getSyncBackUserNativeIdsDeleted() {
+    return this.syncBackUserNativeIdsDeleted;
   }
 
   private GrouperProvisioner grouperProvisioner;

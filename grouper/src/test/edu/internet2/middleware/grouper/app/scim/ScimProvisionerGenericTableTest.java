@@ -79,10 +79,17 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
 
   @Override
   protected void tearDown() {
-    // clear the mock-membership-strategy override so it doesn't leak into subsequent tests
-    // in the same JVM that don't want it.
+    // clear the mock-membership-strategy override and the sync-back test knobs so they do not
+    // leak into subsequent tests (in this or other classes) sharing the same JVM. These are DB
+    // config (read by the mock in its own JVM), not static fields.
     new GrouperDbConfig().configFileName("grouper.properties")
         .propertyName("grouperTest.scim2.mock.membershipStrategy.mode")
+        .value("").store();
+    new GrouperDbConfig().configFileName("grouper.properties")
+        .propertyName("grouperTest.scim2.mock.patchUsersReturnNoBody")
+        .value("").store();
+    new GrouperDbConfig().configFileName("grouper.properties")
+        .propertyName("grouperTest.scim2.mock.deleteUsersReturnSuccessButDoNotDelete")
         .value("").store();
     GrouperSession.stopQuietly(this.grouperSession);
     super.tearDown();
@@ -1258,19 +1265,14 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
   }
 
   /**
-   * Documents the "read-state, next-run convergence" contract: the daemon writes new
-   * users + groups to the SCIM target on run 1, but the end-of-run flush has already run
-   * against the empty pre-write read snapshot, so {@code grouper_prov_user/_group} are
-   * still empty after run 1. Run 2 reads the new resources back, captures them into the
-   * canonical maps, and the run-2 flush populates the tables.
-   *
-   * <p>This is the behavior write-shadow precision (TODO in
-   * {@code GrouperScim2ApiCommands.createScimUser/Group}) is meant to improve — once
-   * shadowing + flush-reorder land, the single-pass version of this assertion should
-   * pass and this test can be promoted to single-pass.
+   * Convergence of newly created SCIM resources into the sync-back tables. Groups and
+   * entities now converge SAME-run: the create response is shadowed into the canonical map by
+   * the insert hooks ({@code GrouperScim2ApiCommands.createScimGroup / createScimUser}) and
+   * the end-of-run drain runs after the write phase, so grouper_prov_group / _user are
+   * populated after run 1. Run 2 re-reads and re-asserts (idempotent). Memberships are a
+   * separate axis not asserted here.
    */
   public void testCreateConvergesIntoSyncTablesOnNextRun() {
-    // TODO THIS IS EXPECTED TO FAIL RIGHT NOW 
     String configId = "awsProvisioner";
 
     ScimProvisionerTestUtils.setupAwsExternalSystem();
@@ -1305,8 +1307,9 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
     assertEquals(0, countByProvisioner(configId, "grouper_prov_group"));
     assertEquals(0, countByProvisioner(configId, "grouper_prov_user"));
 
-    // ---- run 1: creates the SCIM target resources, but the end-of-run flush sees the
-    // pre-write read snapshot (empty), so grouper_prov_user/_group stay empty.
+    // ---- run 1: creates the SCIM target resources. Groups converge SAME-run (insert hook
+    // shadows the create response + the end-of-run drain), so prov_group is populated after
+    // run 1. Entities/memberships still converge on run 2 until their insert hooks land.
     GrouperProvisioningOutput out1 = fullProvision();
     GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, out1.getRecordsWithErrors());
@@ -1315,10 +1318,10 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
     assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
     long syncInternalId = gcGrouperSync.getInternalId();
 
-    assertEquals("after run 1, prov_group is still empty — read snapshot was pre-create",
-        0, countByProvisioner(configId, "grouper_prov_group"));
-    assertEquals("after run 1, prov_user is still empty — read snapshot was pre-create",
-        0, countByProvisioner(configId, "grouper_prov_user"));
+    assertEquals("group insert converges into prov_group on the same run (run 1)",
+        1, countByProvisioner(configId, "grouper_prov_group"));
+    assertEquals("entity inserts converge into prov_user on the same run (run 1)",
+        2, countByProvisioner(configId, "grouper_prov_user"));
 
     // ---- run 2: reads the newly created resources, captures them via the SCIM retrieve
     // hooks, and the run-2 flush writes them to grouper_prov_*.
@@ -1368,6 +1371,326 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
         .addBindVar(syncInternalId).select(int.class);
     assertEquals("userName should be captured from the run-2 read response for both users",
         2, userNameValueRows);
+  }
+
+  /**
+   * Group-insert sync-back convergence: a newly created group lands in
+   * grouper_prov_group / _attr / _attr_value on the SAME run that creates it -- no second
+   * run needed. SCIM is a capture-on-write target: the POST response carries the created
+   * resource, so the commands class registers it into the read map like a read (step 4 of
+   * the insert hook), and the end-of-run flush writes it. This is the run-1 counterpart of
+   * {@link #testCreateConvergesIntoSyncTablesOnNextRun()} once same-run convergence works.
+   */
+  public void testGroupInsertConvergesSameRun() {
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // baseline: nothing in the mirror yet
+    assertEquals(0, countByProvisioner(configId, "grouper_prov_group"));
+
+    // single run: creates the SCIM group and should converge it into the mirror THIS run
+    GrouperProvisioningOutput out = fullProvision();
+    GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, out.getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // the inserted group converged on the SAME run
+    assertEquals("group insert should converge into prov_group on the same run",
+        1, countByProvisioner(configId, "grouper_prov_group"));
+
+    // registered "like a read", so it is linked back to its Grouper group
+    int groupRowsLinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and group_internal_id is not null")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("converged prov_group row should be linked to its Grouper group",
+        1, groupRowsLinked);
+
+    // displayName captured from the insert response, not from a later read
+    int displayNameValueRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr_value gpv "
+            + "join grouper_prov_group_attr gpa on gpa.internal_id = gpv.prov_group_attr_internal_id "
+            + "join grouper_prov_group pg on pg.internal_id = gpv.prov_group_internal_id "
+            + "where pg.grouper_sync_internal_id = ? and gpa.attribute_name = 'displayName'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertTrue("displayName should be captured from the insert response, got "
+        + displayNameValueRows, displayNameValueRows >= 1);
+  }
+
+  /**
+   * Shared body for the two update sync-back tests. Drives a same-run attribute update (the
+   * user's {@code active}, computed from membership in test2:testGroup2) and asserts the mirror
+   * converges to active=true on the SAME run that issues the PATCH. {@code patchReturnsNoBody}
+   * selects the production path: false -> the PATCH returns 200 + the resource, so the write
+   * hook registers it and the drain skips it (capture-on-write); true -> the PATCH returns 204,
+   * so the write hook only marks the id and the end-of-run drain re-reads it. {@code active} is
+   * captured by default (DEFAULT_ENTITY_ATTRS) and stored as value_integer (1=true, 0=false).
+   */
+  private void runUserUpdateConvergesSameRun(boolean patchReturnsNoBody) {
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .assignUseActiveOnUser(true)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    // active = isInGroup('test2:testGroup2'); create that group (it is NOT itself provisioned).
+    // its parent stem must exist first.
+    new StemSave(this.grouperSession).assignName("test2").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // select the PATCH response shape (200 + body vs 204 no body) up front: the mock reads this
+    // from the shared DB config in its own JVM, so it must be set before the run that PATCHes.
+    new GrouperDbConfig().configFileName("grouper.properties")
+        .propertyName("grouperTest.scim2.mock.patchUsersReturnNoBody")
+        .value(String.valueOf(patchReturnsNoBody)).store();
+
+    // run 1: create SUBJ0 in SCIM. not in test2:testGroup2, so active=false. converges same-run.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // baseline: active is not yet true (0 or absent)
+    Long activeBefore = activeValueIntegerInMirror(syncInternalId);
+    assertTrue("active should not be true before the update, got " + activeBefore,
+        activeBefore == null || activeBefore.longValue() == 0L);
+
+    // change: add SUBJ0 to test2:testGroup2 -> next sync recomputes active=true -> patchScimUser
+    testGroup2.addMember(SubjectTestHelper.SUBJ0, false);
+
+    // update run: PATCH active=true. Body returned -> register (drain skips); 204 -> mark +
+    // drain re-read. Either way the mirror reflects active=true on THIS run.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("after update, mirror active should converge to true (1) on the same run",
+        Long.valueOf(1L), activeValueIntegerInMirror(syncInternalId));
+  }
+
+  /**
+   * Update sync-back, representation-returned path: the mock PATCH returns 200 + the resource,
+   * so the write hook registers it like a read and the drain skips the re-read (capture-on-write).
+   */
+  public void testUserUpdateConvergesSameRunBodyReturned() {
+    runUserUpdateConvergesSameRun(false);
+  }
+
+  /**
+   * Update sync-back, no-body path: the mock PATCH returns 204, so the write hook only marks the
+   * id and the end-of-run drain re-reads the user -- the branch that does not fire when the write
+   * returns the representation.
+   */
+  public void testUserUpdateConvergesSameRunNoBody() {
+    runUserUpdateConvergesSameRun(true);
+  }
+
+  /**
+   * Delete sync-back: when a group (and its now-orphaned entity) is deleted from the target,
+   * the mirror drops their rows on the SAME run. A delete is a write with no representation, so
+   * the hook marks the id and the end-of-run drain re-reads it -- the target 404 confirms it is
+   * gone (we verify, not assume), so it stays out of the read map and the flush deletes its
+   * prov_group / prov_user / prov_mship rows. Memberships drop automatically: the flush skips any
+   * membership whose group or user record is missing.
+   */
+  public void testGroupDeleteConvergesSameRun() {
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // run 1: create the group + user in SCIM and converge them into the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    assertEquals("group should be in the mirror after create", 1,
+        countByProvisioner(configId, "grouper_prov_group"));
+    assertEquals("user should be in the mirror after create", 1,
+        countByProvisioner(configId, "grouper_prov_user"));
+
+    // delete the group in Grouper; the next sync deletes it (and the now-orphaned user) from SCIM
+    testGroup.delete();
+
+    // delete run: SCIM DELETE has no body, so the hook marks and the drain re-reads -> 404 ->
+    // the objects stay out of the read map and the flush drops their mirror rows on THIS run.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("group row should be gone from the mirror on the delete run", 0,
+        countByProvisioner(configId, "grouper_prov_group"));
+    assertEquals("orphaned user row should be gone from the mirror on the delete run", 0,
+        countByProvisioner(configId, "grouper_prov_user"));
+    int deleteRunMshipRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_mship where grouper_sync_internal_id = ?")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("membership rows should be gone from the mirror on the delete run", 0,
+        deleteRunMshipRows);
+  }
+
+  /**
+   * Broken-target delete sync-back: a SCIM target that acks a DELETE (204) but doesn't actually
+   * remove the record. The user is still there (unchanged) on re-read, so the mirror must KEEP
+   * it -- the "verify, don't assume" path: we don't trust the delete's success, the drain
+   * re-reads and finds it still present. The group, which IS truly deleted, still drops.
+   */
+  public void testUserDeleteBrokenTargetStaysInMirror() {
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // the target acks user DELETEs but doesn't actually remove them (broken SCIM). The mock reads
+    // this from the shared DB config in its own JVM, so set it before the run that DELETEs.
+    new GrouperDbConfig().configFileName("grouper.properties")
+        .propertyName("grouperTest.scim2.mock.deleteUsersReturnSuccessButDoNotDelete")
+        .value("true").store();
+
+    // run 1: create the group + user in SCIM and converge them into the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
+
+    assertEquals("user should be in the mirror after create", 1,
+        countByProvisioner(configId, "grouper_prov_user"));
+
+    // remove SUBJ0 from the group (keep the group) -> next sync "deletes" the now-orphaned user,
+    // which the broken target acks but keeps. (Group stays; this isolates the user delete.)
+    testGroup.deleteMember(SubjectTestHelper.SUBJ0);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    // the group was NOT deleted -> still in the mirror
+    assertEquals("group row should stay (group was not deleted)", 1,
+        countByProvisioner(configId, "grouper_prov_group"));
+
+    // check the target first: the broken mock should have 204-acked the DELETE but kept the row,
+    // so the user still exists in the target (verified separately from the mirror's re-read below).
+    int mockUserRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from mock_scim_user").select(int.class);
+    assertEquals("the user row should remain in the SCIM target (delete was not performed)", 1,
+        mockUserRows);
+
+    // the user's delete was acked but not performed -> still in the target, so the re-read keeps it
+    assertEquals("user should STAY in the mirror (its delete was acked but not performed)", 1,
+        countByProvisioner(configId, "grouper_prov_user"));
+
+    // NOTE: the SUBJ0->testGroup membership is intentionally NOT asserted here. SUBJ0 left the
+    // group, so the membership was removed in Grouper and PATCHed out of the target group, but the
+    // mirror still carries it: both endpoints survive (group kept, user kept by the broken delete),
+    // so the missing-endpoint cascade does not drop it. Capturing a membership removal is the
+    // "keep memberships current" slice (next), covered by its own test, not this delete test.
+  }
+
+  /** value_integer of the {@code active} attr for the single provisioned user of a sync, or null */
+  private Long activeValueIntegerInMirror(long syncInternalId) {
+    List<Long> values = new GcDbAccess().connectionName("grouper")
+        .sql("select puv.value_integer from grouper_prov_user_attr_value puv "
+            + "join grouper_prov_user_attr pua on pua.internal_id = puv.prov_user_attr_internal_id "
+            + "join grouper_prov_user pu on pu.internal_id = puv.prov_user_internal_id "
+            + "where pu.grouper_sync_internal_id = ? and pua.attribute_name = 'active'")
+        .addBindVar(syncInternalId).selectList(Long.class);
+    return values.isEmpty() ? null : values.get(0);
   }
 
   /** read (attribute_name -> internal_id) for an attr catalog of a single sync */

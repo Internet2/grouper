@@ -243,11 +243,10 @@ public class GrouperProvisioningLogic {
     retrieveFullIndividualTargetMemberships();
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualTargetMemberships);
 
-    // sync-back flush AFTER all retrieve* phases have populated the canonical maps.
-    // (Moved out of loadDataToGrouper at line 219 — that was running before the
-    // selectAll=false membership retrieve, so prov_mship stayed empty in that mode.)
-    debugMap.put("state", "loadDataToGenericProvisionerTables");
-    loadDataToGenericProvisionerTables();
+    // sync-back flush runs at the END of provisionFull (after sendChangesToTarget),
+    // mirroring provisionIncremental, so the mirror reflects post-change target state
+    // rather than a pre-write snapshot. See loadDataToGenericProvisionerTables() after
+    // errorHandling() below.
 
     {
   
@@ -393,6 +392,16 @@ public class GrouperProvisioningLogic {
       GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningOutput().setTotalCount(totalCount);
       GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningOutput().copyToHib3LoaderLog();
     }
+
+    // sync-back drain: re-read changed target ids not captured on their own write, so the
+    // mirror reflects post-change state. Then flush. (Both run at the END, after the write
+    // phase, matching provisionIncremental.)
+    debugMap.put("state", "syncBackDrainGroups");
+    syncBackDrainGroups();
+    debugMap.put("state", "syncBackDrainUsers");
+    syncBackDrainUsers();
+    debugMap.put("state", "loadDataToGenericProvisionerTables");
+    loadDataToGenericProvisionerTables();
     
     {
       Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
@@ -1328,6 +1337,139 @@ public class GrouperProvisioningLogic {
     }
   }
   
+  /**
+   * Sync-back group drain: runs after the write phase, before the generic-table flush, in
+   * both full and incremental. For every target group id marked for sync-back read
+   * ({@code GrouperProvisioningData.getSyncBackGroupNativeIdsToRead()}):
+   * <ul>
+   *   <li>if the read map already holds it (its own write registered the native, or a read
+   *       captured it) -- skip, no re-read;</li>
+   *   <li>otherwise bulk re-read it (resolving the id back to the group written this run)
+   *       so the mirror reflects post-write state.</li>
+   * </ul>
+   * Then the to-read set is cleared. No-op when group reporting is off or nothing is marked.
+   */
+  public void syncBackDrainGroups() {
+    GrouperProvisioningBehavior behavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
+    if (!behavior.isLoadGroupsToGenericGrouperTable()) {
+      return;
+    }
+    GrouperProvisioningData grouperProvisioningData = this.getGrouperProvisioner().retrieveGrouperProvisioningData();
+    Set<String> syncBackGroupNativeIdsToRead = grouperProvisioningData.getSyncBackGroupNativeIdsToRead();
+    if (syncBackGroupNativeIdsToRead == null || syncBackGroupNativeIdsToRead.isEmpty()) {
+      return;
+    }
+
+    Map<String, GrouperProvisioningTargetNativeGroup> targetGroupIdToNativeGroup =
+        grouperProvisioningData.getTargetGroupIdToNativeGroup();
+
+    // ids marked for read whose post-write native was NOT captured on the write itself
+    Set<String> targetIdsNeedingRead = new LinkedHashSet<String>();
+    for (String targetId : syncBackGroupNativeIdsToRead) {
+      if (targetId != null && !targetGroupIdToNativeGroup.containsKey(targetId)) {
+        targetIdsNeedingRead.add(targetId);
+      }
+    }
+
+    if (!targetIdsNeedingRead.isEmpty()) {
+      // resolve the uncaptured ids back to the groups written this run, then bulk re-read.
+      // (capture-on-write protocols don't reach here; this is the no-response / re-read path.)
+      List<ProvisioningGroup> groupsToReRead = new ArrayList<ProvisioningGroup>();
+      GrouperProvisioningDataChanges grouperProvisioningDataChanges =
+          this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges();
+      // inserts, updates, and deletes: each can leave an id needing a re-read (a delete
+      // re-reads to confirm the object is actually gone before dropping it from the mirror)
+      List<GrouperProvisioningLists> writeSources = new ArrayList<GrouperProvisioningLists>();
+      writeSources.add(grouperProvisioningDataChanges.getTargetObjectInserts());
+      writeSources.add(grouperProvisioningDataChanges.getTargetObjectUpdates());
+      writeSources.add(grouperProvisioningDataChanges.getTargetObjectDeletes());
+      for (GrouperProvisioningLists writeSource : writeSources) {
+        if (writeSource == null) {
+          continue;
+        }
+        for (ProvisioningGroup writtenGroup : GrouperUtil.nonNull(writeSource.getProvisioningGroups())) {
+          if (writtenGroup != null && targetIdsNeedingRead.contains(writtenGroup.getId())) {
+            groupsToReRead.add(writtenGroup);
+          }
+        }
+      }
+      if (!groupsToReRead.isEmpty()) {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+            .retrieveGroups(new TargetDaoRetrieveGroupsRequest(groupsToReRead, true));
+      }
+      int unresolved = targetIdsNeedingRead.size() - groupsToReRead.size();
+      if (unresolved > 0) {
+        // ids we could not map back to a written group reference (cannot re-read by object)
+        this.getGrouperProvisioner().getDebugMap().put("syncBackGroupDrainUnresolved", unresolved);
+      }
+    }
+
+    // every marked id is now captured (own write / read) or just re-read; clear the marks
+    syncBackGroupNativeIdsToRead.clear();
+  }
+
+  /**
+   * Sync-back entity drain; the user-axis mirror of {@link #syncBackDrainGroups()}. Marked
+   * ids already in the read map (captured on their own write or a read) are skipped; the rest
+   * are bulk re-read from the target. Then the to-read set is cleared.
+   */
+  public void syncBackDrainUsers() {
+    GrouperProvisioningBehavior behavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
+    if (!behavior.isLoadEntitiesToGenericGrouperTable()) {
+      return;
+    }
+    GrouperProvisioningData grouperProvisioningData = this.getGrouperProvisioner().retrieveGrouperProvisioningData();
+    Set<String> syncBackUserNativeIdsToRead = grouperProvisioningData.getSyncBackUserNativeIdsToRead();
+    if (syncBackUserNativeIdsToRead == null || syncBackUserNativeIdsToRead.isEmpty()) {
+      return;
+    }
+
+    Map<String, GrouperProvisioningTargetNativeUser> targetUserIdToNativeUser =
+        grouperProvisioningData.getTargetUserIdToNativeUser();
+
+    // ids marked for read whose post-write native was NOT captured on the write itself
+    Set<String> targetIdsNeedingRead = new LinkedHashSet<String>();
+    for (String targetId : syncBackUserNativeIdsToRead) {
+      if (targetId != null && !targetUserIdToNativeUser.containsKey(targetId)) {
+        targetIdsNeedingRead.add(targetId);
+      }
+    }
+
+    if (!targetIdsNeedingRead.isEmpty()) {
+      // resolve the uncaptured ids back to the entities written this run, then bulk re-read.
+      List<ProvisioningEntity> entitiesToReRead = new ArrayList<ProvisioningEntity>();
+      GrouperProvisioningDataChanges grouperProvisioningDataChanges =
+          this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges();
+      // inserts, updates, and deletes: each can leave an id needing a re-read (a delete
+      // re-reads to confirm the object is actually gone before dropping it from the mirror)
+      List<GrouperProvisioningLists> writeSources = new ArrayList<GrouperProvisioningLists>();
+      writeSources.add(grouperProvisioningDataChanges.getTargetObjectInserts());
+      writeSources.add(grouperProvisioningDataChanges.getTargetObjectUpdates());
+      writeSources.add(grouperProvisioningDataChanges.getTargetObjectDeletes());
+      for (GrouperProvisioningLists writeSource : writeSources) {
+        if (writeSource == null) {
+          continue;
+        }
+        for (ProvisioningEntity writtenEntity : GrouperUtil.nonNull(writeSource.getProvisioningEntities())) {
+          if (writtenEntity != null && targetIdsNeedingRead.contains(writtenEntity.getId())) {
+            entitiesToReRead.add(writtenEntity);
+          }
+        }
+      }
+      if (!entitiesToReRead.isEmpty()) {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+            .retrieveEntities(new TargetDaoRetrieveEntitiesRequest(entitiesToReRead, true));
+      }
+      int unresolved = targetIdsNeedingRead.size() - entitiesToReRead.size();
+      if (unresolved > 0) {
+        this.getGrouperProvisioner().getDebugMap().put("syncBackUserDrainUnresolved", unresolved);
+      }
+    }
+
+    // every marked id is now captured (own write / read) or just re-read; clear the marks
+    syncBackUserNativeIdsToRead.clear();
+  }
+
   private void loadDataToGenericProvisionerTables() {
 
     GrouperProvisioningBehavior behavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
@@ -3720,7 +3862,9 @@ public class GrouperProvisioningLogic {
 
           this.errorHandling();
           
-          // ######### STEP 38: insert/update/delete from grouper_prov* tables
+          // ######### STEP 38: sync-back drain, then insert/update/delete from grouper_prov* tables
+          syncBackDrainGroups();
+          syncBackDrainUsers();
           loadDataToGenericProvisionerTablesIncremental();
 
         }
