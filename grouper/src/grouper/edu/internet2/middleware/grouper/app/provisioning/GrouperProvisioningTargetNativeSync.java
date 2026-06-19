@@ -378,4 +378,105 @@ public class GrouperProvisioningTargetNativeSync {
     }
   }
 
+  // ===================== membership write hooks (insert / delete / replace) =====================
+  // Unlike groups/users, memberships are deliberately NOT re-read from the target: a single group
+  // can hold thousands of members, so re-reading the member set on every change would be far too
+  // much traffic. Instead the mirror is kept current purely from our own SUCCESSFUL writes -- an
+  // add puts the (group,user) key, a remove drops it, and a full-members replace resets the
+  // group's key set to exactly what we sent. The end-of-run flush then reconciles
+  // grouper_prov_mship from the map (insert new keys, delete gone keys) -- the same map->flush
+  // contract the object write hooks above rely on. There is no mark-for-read / drain for
+  // memberships (that machinery exists only for the object axes). Each hook gates on
+  // isLoadMembershipsToGenericGrouperTable() so call sites never flag-check.
+  //
+  // Trade-off accepted by design: we trust the target's ack. If a broken target acks a membership
+  // write but doesn't perform it, the mirror reflects what we told the target, not a re-read of
+  // reality. (Objects take the opposite stance -- verify-on-delete by re-read -- because they are
+  // low-volume; memberships are not.)
+
+  /**
+   * Record a successful membership add (SCIM PATCH op=add, or any protocol's add-member write):
+   * put {@code MultiKey(targetGroupId, targetUserId)} in the native membership map. Last-write-wins
+   * on a duplicate key (re-adding an existing member is a harmless no-op). No-op when membership
+   * reporting is off or either id is null.
+   */
+  public synchronized void recordTargetNativeMembershipInsert(String targetGroupId, String targetUserId) {
+    if (targetGroupId == null || targetUserId == null) {
+      return;
+    }
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()) {
+      return;
+    }
+    GrouperProvisioningTargetNativeMembership membership = new GrouperProvisioningTargetNativeMembership();
+    membership.setTargetGroupId(targetGroupId);
+    membership.setTargetUserId(targetUserId);
+    this.grouperProvisioner.retrieveGrouperProvisioningData()
+        .getTargetGroupIdTargetUserIdToNativeMembership()
+        .put(new MultiKey(targetGroupId, targetUserId), membership);
+  }
+
+  /**
+   * Record a successful membership remove (SCIM PATCH op=remove, or any protocol's remove-member
+   * write): drop {@code MultiKey(targetGroupId, targetUserId)} from the native membership map so
+   * the end-of-run flush deletes its grouper_prov_mship row. Idempotent. No-op when membership
+   * reporting is off or either id is null.
+   */
+  public synchronized void recordTargetNativeMembershipDelete(String targetGroupId, String targetUserId) {
+    if (targetGroupId == null || targetUserId == null) {
+      return;
+    }
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()) {
+      return;
+    }
+    this.grouperProvisioner.retrieveGrouperProvisioningData()
+        .getTargetGroupIdTargetUserIdToNativeMembership()
+        .remove(new MultiKey(targetGroupId, targetUserId));
+  }
+
+  /**
+   * Record a successful full-members replace for one group (SCIM PATCH op=replace on members):
+   * the group's membership set in the mirror becomes exactly {@code targetUserIds}. Every existing
+   * entry for the group is dropped, then one entry per id is added. A null/empty id list is valid
+   * and clears the group's memberships. No-op when membership reporting is off or
+   * {@code targetGroupId} is null.
+   */
+  public synchronized void recordTargetNativeMembershipReplace(String targetGroupId,
+      java.util.Collection<String> targetUserIds) {
+    if (targetGroupId == null) {
+      return;
+    }
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isLoadMembershipsToGenericGrouperTable()) {
+      return;
+    }
+    java.util.Map<MultiKey, GrouperProvisioningTargetNativeMembership> index =
+        this.grouperProvisioner.retrieveGrouperProvisioningData()
+            .getTargetGroupIdTargetUserIdToNativeMembership();
+    // the canonical map is a synchronizedMap; hold its monitor across the whole iterate-remove +
+    // re-add so no other thread (e.g. the flush's values() snapshot) can observe the group
+    // half-replaced. Per Collections.synchronizedMap, iterating its views requires this lock.
+    synchronized (index) {
+      // 1. drop every existing entry for this group (match on the group id in key element 0)
+      java.util.Iterator<java.util.Map.Entry<MultiKey, GrouperProvisioningTargetNativeMembership>> iterator =
+          index.entrySet().iterator();
+      while (iterator.hasNext()) {
+        java.util.Map.Entry<MultiKey, GrouperProvisioningTargetNativeMembership> entry = iterator.next();
+        if (targetGroupId.equals(entry.getKey().getKey(0))) {
+          iterator.remove();
+        }
+      }
+      // 2. add exactly the replaced set
+      if (targetUserIds != null) {
+        for (String targetUserId : targetUserIds) {
+          if (targetUserId == null) {
+            continue;
+          }
+          GrouperProvisioningTargetNativeMembership membership = new GrouperProvisioningTargetNativeMembership();
+          membership.setTargetGroupId(targetGroupId);
+          membership.setTargetUserId(targetUserId);
+          index.put(new MultiKey(targetGroupId, targetUserId), membership);
+        }
+      }
+    }
+  }
+
 }

@@ -1675,11 +1675,246 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
     assertEquals("user should STAY in the mirror (its delete was acked but not performed)", 1,
         countByProvisioner(configId, "grouper_prov_user"));
 
-    // NOTE: the SUBJ0->testGroup membership is intentionally NOT asserted here. SUBJ0 left the
-    // group, so the membership was removed in Grouper and PATCHed out of the target group, but the
-    // mirror still carries it: both endpoints survive (group kept, user kept by the broken delete),
-    // so the missing-endpoint cascade does not drop it. Capturing a membership removal is the
-    // "keep memberships current" slice (next), covered by its own test, not this delete test.
+    // NOTE: this test deliberately does NOT assert the membership axis. SUBJ0 is testGroup's only
+    // member and becomes an orphaned entity, so the framework removes it by deleting the entity
+    // (DELETE /Users) -- which the broken target acks but ignores -- rather than issuing a
+    // standalone PATCH-remove of the membership. There is therefore no successful membership write
+    // for write-tracking to act on, and SUBJ0 is in fact still a member of testGroup in the target;
+    // the mirror correctly continues to reflect that (prov_mship stays 1). Membership
+    // write-tracking (a real PATCH add/remove updating the mirror with no re-read) is covered by
+    // testMembershipRemoveConvergesSameRun, where the member survives in another group so a
+    // standalone PATCH-remove is actually issued.
+  }
+
+  /**
+   * Membership add is write-tracked with no re-read: a member added to an ALREADY-provisioned
+   * group is captured into the mirror on the same run, purely from the PATCH op=add write. The
+   * pre-write retrieve sees the group without the new member and nothing re-reads the group's
+   * members afterward, so only the add hook can make the mirror correct on this run.
+   *
+   * <p>testGroup is created with SUBJ0 (run 1); SUBJ1 is then added to it (run 2). The add hook
+   * must land (testGroup,SUBJ1) so the mirror shows both members after the run that added SUBJ1.
+   * This isolates the add hook on a later-run add, distinct from the add-during-create captured by
+   * run 1 of {@link #testMembershipRemoveConvergesSameRun()}.
+   */
+  public void testMembershipAddConvergesSameRun() {
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // run 1: create testGroup + SUBJ0 + the one membership, converge.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
+
+    assertEquals("group should be in the mirror after create", 1,
+        countByProvisioner(configId, "grouper_prov_group"));
+    assertEquals("SUBJ0 should be in the mirror after create", 1,
+        countByProvisioner(configId, "grouper_prov_user"));
+    assertEquals("the single membership should be in the mirror after create", 1,
+        countByProvisioner(configId, "grouper_prov_mship"));
+
+    // add SUBJ1 to the already-provisioned testGroup
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    // run 2: the PATCH op=add fires; the add hook lands (testGroup,SUBJ1) in the native map with
+    // no re-read of the group's members.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("group should still be in the mirror", 1,
+        countByProvisioner(configId, "grouper_prov_group"));
+    assertEquals("both users should be in the mirror after the add", 2,
+        countByProvisioner(configId, "grouper_prov_user"));
+    // both memberships present: SUBJ0 (from create) + SUBJ1 (write-tracked add this run).
+    assertEquals("the added membership should be in the mirror (write-tracked, not re-read)", 2,
+        countByProvisioner(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * Membership sync-back is write-tracked, not re-read: removing a member from a group that still
+   * exists -- whose member also still exists (in another group) -- must drop that one membership
+   * from the mirror on the SAME run, driven purely by the PATCH-remove write hook. The pre-write
+   * retrieve still sees the member in the group and nothing re-reads the group's members after the
+   * write, so only the hook can make the mirror correct on this run.
+   *
+   * <p>Two groups both hold SUBJ0; SUBJ0 is removed from testGroup only. Both groups survive and
+   * SUBJ0 survives (still in otherGroup), so neither endpoint is missing for the surviving
+   * membership -- the missing-endpoint cascade cannot be what drops testGroup's membership; only
+   * the write hook can. Also asserts the add side: after the create run both memberships are
+   * already in the mirror, captured from the PATCH-add writes rather than a later retrieve.
+   */
+  public void testMembershipRemoveConvergesSameRun() {
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group otherGroup = new GroupSave(this.grouperSession).assignName("test:otherGroup").save();
+    // SUBJ0 is in BOTH groups so that removing it from testGroup leaves it provisioned (still in
+    // otherGroup) -- its entity is NOT deleted, so both endpoints of the surviving membership live.
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    otherGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // run 1: create both groups + SUBJ0 + both memberships in SCIM and converge them.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
+
+    assertEquals("both groups should be in the mirror after create", 2,
+        countByProvisioner(configId, "grouper_prov_group"));
+    assertEquals("SUBJ0 should be in the mirror after create", 1,
+        countByProvisioner(configId, "grouper_prov_user"));
+    // both memberships captured from the PATCH-add writes on the SAME create run (not a later
+    // retrieve): proves the membership-add write hook.
+    assertEquals("both memberships should be in the mirror after create", 2,
+        countByProvisioner(configId, "grouper_prov_mship"));
+
+    // remove SUBJ0 from testGroup only (SUBJ0 stays in otherGroup)
+    testGroup.deleteMember(SubjectTestHelper.SUBJ0);
+
+    // run 2: the PATCH-remove fires and the write hook drops (testGroup,SUBJ0) from the native map.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    // both groups survive and SUBJ0 survives -> the missing-endpoint cascade cannot be responsible
+    // for the drop; the membership going away is purely the write hook's doing.
+    assertEquals("both groups should still be in the mirror", 2,
+        countByProvisioner(configId, "grouper_prov_group"));
+    assertEquals("SUBJ0 should still be in the mirror (still in otherGroup)", 1,
+        countByProvisioner(configId, "grouper_prov_user"));
+    // only otherGroup's membership remains; testGroup's was write-tracked out.
+    assertEquals("testGroup's membership should be gone, otherGroup's should remain", 1,
+        countByProvisioner(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * Membership replace (full-members write) is write-tracked the same way, with no re-read: in
+   * {@code replaceMemberships=true} mode a membership change re-sends the group's ENTIRE member set
+   * (SCIM PATCH op=replace), and the replace hook resets exactly that group's keys in the native
+   * map to what was sent. Removing one member from a group therefore drops exactly that one
+   * membership from the mirror on the same run, leaving the group's other members and every other
+   * group untouched.
+   *
+   * <p>Two groups each hold SUBJ0 + SUBJ1; SUBJ1 is removed from testGroup only (it survives in
+   * otherGroup, so its entity lives). testGroup's full member set is re-sent as {SUBJ0}; the
+   * replace hook must reset testGroup's mirror memberships to just SUBJ0, leaving otherGroup's two
+   * intact (3 total).
+   */
+  public void testMembershipReplaceConvergesSameRun() {
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        // replace mode: a membership change re-sends the group's full member set (PATCH op=replace)
+        .addExtraConfig("replaceMemberships", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group otherGroup = new GroupSave(this.grouperSession).assignName("test:otherGroup").save();
+    // both groups hold both members so removing SUBJ1 from testGroup leaves SUBJ1 provisioned
+    // (still in otherGroup) -- its entity is NOT deleted, isolating the membership replace.
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    otherGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    otherGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // run 1: create both groups + both users + all four memberships, converged via the
+    // full-members replace write.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
+
+    assertEquals("both groups should be in the mirror after create", 2,
+        countByProvisioner(configId, "grouper_prov_group"));
+    assertEquals("both users should be in the mirror after create", 2,
+        countByProvisioner(configId, "grouper_prov_user"));
+    // 4 memberships: SUBJ0 + SUBJ1 in each of the 2 groups.
+    assertEquals("all four memberships should be in the mirror after create", 4,
+        countByProvisioner(configId, "grouper_prov_mship"));
+
+    // remove SUBJ1 from testGroup only (SUBJ1 stays in otherGroup)
+    testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+
+    // run 2: testGroup's full member set is re-sent as {SUBJ0}; the replace hook resets testGroup's
+    // mirror memberships to exactly that, dropping (testGroup,SUBJ1) with no re-read.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("both groups should still be in the mirror", 2,
+        countByProvisioner(configId, "grouper_prov_group"));
+    assertEquals("both users should still be in the mirror (SUBJ1 still in otherGroup)", 2,
+        countByProvisioner(configId, "grouper_prov_user"));
+    // testGroup now has only SUBJ0; otherGroup still has both -> 3 total.
+    assertEquals("testGroup's SUBJ1 membership should be replaced out; the other three remain", 3,
+        countByProvisioner(configId, "grouper_prov_mship"));
   }
 
   /** value_integer of the {@code active} attr for the single provisioned user of a sync, or null */

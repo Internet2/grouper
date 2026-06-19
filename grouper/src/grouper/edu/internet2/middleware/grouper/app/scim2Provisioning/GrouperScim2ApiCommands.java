@@ -1629,6 +1629,15 @@ public class GrouperScim2ApiCommands {
         
       }
 
+      // sync-back: record each successfully-added membership in the native mirror (memberships
+      // are tracked from writes, never re-read -- too high-volume). userIdsInserted holds only the
+      // failures, so the successes are the input ids not present in it.
+      for (String userId : userIdsList) {
+        if (!userIdsInserted.containsKey(userId)) {
+          GrouperScim2ProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(groupId, userId);
+        }
+      }
+
       return userIdsInserted;
     } finally {
       GrouperScim2Log.scimLog(debugMap, startTime);
@@ -1786,6 +1795,14 @@ public class GrouperScim2ApiCommands {
 
         
       }
+      // sync-back: drop each successfully-removed membership from the native mirror so the
+      // end-of-run flush deletes its prov_mship row. userIdsDeleted holds only the failures.
+      for (String userId : userIdsList) {
+        if (!userIdsDeleted.containsKey(userId)) {
+          GrouperScim2ProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(groupId, userId);
+        }
+      }
+
       return userIdsDeleted;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -1943,7 +1960,11 @@ public class GrouperScim2ApiCommands {
       executeMethod(debugMap, debugLabel(debugMap, "replaceScimMemberships"), GrouperHttpMethod.patch, configId,
           "/Groups/" + GrouperUtil.escapeUrlEncode(groupId), GrouperUtil.toSet(200, 204), new int[] { -1 },
           jsonStringToSend, scimSettings);
-    
+
+      // sync-back: the replace succeeded (no throw) -> the group's mirror membership set becomes
+      // exactly userIds. Memberships are tracked from writes, never re-read.
+      GrouperScim2ProvisioningTargetNativeSync.captureMembershipReplaceFromCurrentProvisioner(groupId, userIds);
+
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;

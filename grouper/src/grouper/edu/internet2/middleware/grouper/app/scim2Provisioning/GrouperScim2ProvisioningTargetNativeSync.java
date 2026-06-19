@@ -355,6 +355,40 @@ public class GrouperScim2ProvisioningTargetNativeSync extends GrouperProvisionin
     scimSync.captureMembershipsFromCache(grouperScim2MembershipCache);
   }
 
+  /**
+   * Record a successful SCIM membership add (PATCH op=add) against the current provisioner.
+   * No-op out of cycle or for a non-SCIM provisioner. Memberships are tracked from writes only
+   * (never re-read) -- see {@link GrouperProvisioningTargetNativeSync#recordTargetNativeMembershipInsert}.
+   */
+  public static void captureMembershipInsertFromCurrentProvisioner(String groupId, String userId) {
+    GrouperScim2ProvisioningTargetNativeSync scimSync = scimSyncForCurrentProvisioner();
+    if (scimSync == null) {
+      return;
+    }
+    scimSync.recordTargetNativeMembershipInsert(groupId, userId);
+  }
+
+  /** Record a successful SCIM membership remove (PATCH op=remove) against the current provisioner. */
+  public static void captureMembershipDeleteFromCurrentProvisioner(String groupId, String userId) {
+    GrouperScim2ProvisioningTargetNativeSync scimSync = scimSyncForCurrentProvisioner();
+    if (scimSync == null) {
+      return;
+    }
+    scimSync.recordTargetNativeMembershipDelete(groupId, userId);
+  }
+
+  /**
+   * Record a successful SCIM full-members replace (PATCH op=replace on members) against the
+   * current provisioner: the group's mirror membership set becomes exactly {@code userIds}.
+   */
+  public static void captureMembershipReplaceFromCurrentProvisioner(String groupId, Set<String> userIds) {
+    GrouperScim2ProvisioningTargetNativeSync scimSync = scimSyncForCurrentProvisioner();
+    if (scimSync == null) {
+      return;
+    }
+    scimSync.recordTargetNativeMembershipReplace(groupId, userIds);
+  }
+
   private static GrouperScim2ProvisioningTargetNativeSync scimSyncForCurrentProvisioner() {
     GrouperProvisioner provisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
     if (provisioner == null) {
