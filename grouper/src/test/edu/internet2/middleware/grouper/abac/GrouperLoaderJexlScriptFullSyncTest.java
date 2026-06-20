@@ -10,8 +10,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.GrouperReferentialIntegrityException;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -610,6 +612,62 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     assertEquals(1, ownerRowNames.size());
     assertTrue(ownerRowNames.contains("affiliation"));
 
+  }
+
+  /**
+   * GRP-7061: a group referenced by a scripted group could not be deleted after the scripted group
+   * itself was deleted, because the now-orphaned grouper_sql_cache_dependency rows still made the
+   * referenced group look like it was in use.  Verify that once the scripted group is gone, the
+   * group it used to reference can be deleted.
+   */
+  public void testJexlDeleteGroupReferencedByDeletedScriptedGroup() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group testGroupA = new GroupSave().assignName("test:GroupA").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupB = new GroupSave().assignName("test:GroupB").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupC = new GroupSave().assignName("test:GroupC").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroupE = new GroupSave().assignName("test:GroupE").assignCreateParentStemsIfNotExist(true).save();
+
+    testGroupA.addMember(SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true));
+    testGroupC.addMember(testGroupA.toSubject());
+
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+
+    // testGroupE is the scripted group, and it references testGroupB and testGroupC
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroupE)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(),
+        """
+        entity.memberOf('test:GroupC') && !entity.memberOf('test:GroupB')
+        """);
+
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    // the dependency from the scripted group to the referenced groups should now exist
+    Set<String> ownerGroupNames = new HashSet<>(new GcDbAccess().sql("select owner_group_name from grouper_sql_dependency_group_v where depen_group_name = ?").addBindVar(testGroupE.getName()).selectList(String.class));
+    assertTrue(ownerGroupNames.contains(testGroupC.getName()));
+    assertTrue(ownerGroupNames.contains(testGroupB.getName()));
+
+    // while the scripted group exists, the referenced group cannot be deleted
+    try {
+      testGroupC.delete();
+      fail("should not be able to delete a group referenced by an existing scripted group");
+    } catch (GrouperReferentialIntegrityException e) {
+      // expected
+    }
+
+    // delete the scripted group - this leaves the dependency rows orphaned (dependent group gone)
+    testGroupE.delete();
+
+    // GRP-7061: deleting the now-unreferenced group used to fail because the orphaned dependency
+    // rows still pointed at it.  It should succeed now.
+    testGroupC.delete();
+    assertNull(GroupFinder.findByName(grouperSession, "test:GroupC", false));
   }
 
   public void testJexlIncrementalDependencies() {

@@ -2042,8 +2042,13 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     // check if this group is referenced by any scripted groups
     List<String> referencingConfigs = new ArrayList<>();
 
+    // GRP-7061: only block on dependencies whose dependent (scripted) group still exists.
+    // The dependency view is built with outer joins, so when a scripted group is deleted but its
+    // grouper_sql_cache_dependency rows are not cleaned up, the dependent group no longer resolves
+    // and depen_group_name comes back null.  A non-existent scripted group must not prevent the
+    // referenced group from being deleted, so filter those dangling rows out here.
     List<String> dependentGroupNames = new GcDbAccess()
-        .sql("select distinct depen_group_name from grouper_sql_dependency_group_v where owner_group_name = ?")
+        .sql("select distinct depen_group_name from grouper_sql_dependency_group_v where owner_group_name = ? and depen_group_name is not null")
         .addBindVar(this.name).selectList(String.class);
     for (String groupName : GrouperUtil.nonNull(dependentGroupNames)) {
       referencingConfigs.add("scripted group '" + groupName + "'");
