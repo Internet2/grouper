@@ -42,6 +42,8 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -71,6 +73,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.j2ee.status.DaemonJobStatus;
 import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationBase;
 import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationInput;
 import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationOutput;
@@ -5423,57 +5426,104 @@ public class UiV2GrouperLoader {
       }
 
 
+      // quartz scheduler tells us whether a job is currently scheduled and not paused, so a stale
+      // job that is disabled shows as DISABLED rather than ERROR.  This mirrors the daemon jobs screen.
+      Scheduler scheduler = null;
+      try {
+        scheduler = GrouperLoader.schedulerFactory().getScheduler();
+      } catch (SchedulerException se) {
+        LOG.error("Error retrieving the quartz scheduler for the loader overall screen", se);
+      }
+
       List<GuiGrouperLoaderJob> filteredGuiGrouperLoaderJobs = new ArrayList<GuiGrouperLoaderJob>();
 
       for (GuiGrouperLoaderJob guiGrouperLoaderJob : guiGrouperLoaderJobs) {
-        List<Criterion> criterionList = new ArrayList<Criterion>();
-        
+
         String jobName = guiGrouperLoaderJob.getJobName();
-        
-        criterionList.add(Restrictions.eq("jobName", jobName));
-        criterionList.add(Restrictions.eq("status", "SUCCESS"));
-  
-        int maxRows = 1;
-        QueryOptions queryOptions = QueryOptions.create("lastUpdated", false, 1, maxRows);
-        
-        Criterion allCriteria = HibUtils.listCrit(criterionList);
-        
-        List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byCriteriaStatic()
-          .options(queryOptions).list(Hib3GrouperLoaderLog.class, allCriteria);
 
-        StringBuilder message = new StringBuilder();
+        if (!GrouperUtil.isBlank(jobName)) {
 
-        Hib3GrouperLoaderLog lastLoaderLog = GrouperUtil.length(loaderLogs) > 0 ? loaderLogs.get(0) : null;
+          // the most recent SUCCESS gives the number of memberships managed and the changes in the last successful run
+          List<Criterion> successCriterionList = new ArrayList<Criterion>();
+          successCriterionList.add(Restrictions.eq("jobName", jobName));
+          successCriterionList.add(Restrictions.eq("status", "SUCCESS"));
 
-        // filter on last log status
-        if (!GrouperUtil.isBlank(statusFilter)) {
-          // never run -> only show on error filter
-          if (lastLoaderLog == null) {
-            if (!"ANY_ERROR".equals(statusFilter)) {
-              continue;
-            }
-          } else if ("ANY_ERROR".equals(statusFilter)) {
-            if ("SUCCESS".equals(lastLoaderLog.getStatus())
-                    || "RUNNING".equals(lastLoaderLog.getStatus())
-                    ||"STARTED".equals(lastLoaderLog.getStatus())
-            ) {
-              continue;
-            }
-          } else if (!statusFilter.equals(lastLoaderLog.getStatus())) {
-            continue;
+          QueryOptions successQueryOptions = QueryOptions.create("lastUpdated", false, 1, 1);
+          Criterion successCriteria = HibUtils.listCrit(successCriterionList);
+
+          List<Hib3GrouperLoaderLog> successLoaderLogs = HibernateSession.byCriteriaStatic()
+            .options(successQueryOptions).list(Hib3GrouperLoaderLog.class, successCriteria);
+
+          Hib3GrouperLoaderLog lastSuccessLog = GrouperUtil.length(successLoaderLogs) > 0 ? successLoaderLogs.get(0) : null;
+
+          if (lastSuccessLog != null) {
+            guiGrouperLoaderJob.setChanges(GrouperUtil.intValue(lastSuccessLog.getDeleteCount(), 0)
+                    + GrouperUtil.intValue(lastSuccessLog.getInsertCount(), 0)
+                    + GrouperUtil.intValue(lastSuccessLog.getUpdateCount(), 0));
+            guiGrouperLoaderJob.setCount(GrouperUtil.intValue(lastSuccessLog.getTotalCount(), 0));
+          }
+
+          // the most recent completed run (ignoring STARTED) is the true last run status, which is what the error filter acts on
+          List<Criterion> lastRunCriterionList = new ArrayList<Criterion>();
+          lastRunCriterionList.add(Restrictions.eq("jobName", jobName));
+          lastRunCriterionList.add(Restrictions.ne("status", "STARTED"));
+
+          QueryOptions lastRunQueryOptions = QueryOptions.create("lastUpdated", false, 1, 1);
+          Criterion lastRunCriteria = HibUtils.listCrit(lastRunCriterionList);
+
+          List<Hib3GrouperLoaderLog> lastRunLoaderLogs = HibernateSession.byCriteriaStatic()
+            .options(lastRunQueryOptions).list(Hib3GrouperLoaderLog.class, lastRunCriteria);
+
+          Hib3GrouperLoaderLog lastRunLog = GrouperUtil.length(lastRunLoaderLogs) > 0 ? lastRunLoaderLogs.get(0) : null;
+
+          if (lastRunLog != null) {
+            guiGrouperLoaderJob.setLastRunStatus(lastRunLog.getStatus());
           }
         }
 
-        if (lastLoaderLog != null) {
-          guiGrouperLoaderJob.setStatus(lastLoaderLog.getStatus());
+        // overall status: SUCCESS if there is a recent success, else ERROR if the job is enabled, or DISABLED.  Mirrors the daemon jobs screen.
+        GrouperLoaderType grouperLoaderTypeEnum = GrouperUtil.isBlank(jobName) ? null : GrouperLoaderType.typeForThisNameOrNull(jobName);
+        if (grouperLoaderTypeEnum != null) {
+          int minutesSinceLastSuccess = DaemonJobStatus.getMinutesSinceLastSuccess(jobName, grouperLoaderTypeEnum);
+          DaemonJobStatus daemonJobStatus = new DaemonJobStatus(jobName, minutesSinceLastSuccess);
+          Long lastSuccess = daemonJobStatus.getLastSuccess();
 
-          guiGrouperLoaderJob.setChanges(GrouperUtil.intValue(lastLoaderLog.getDeleteCount(), 0)
-                  + GrouperUtil.intValue(lastLoaderLog.getInsertCount(), 0)
-                  + GrouperUtil.intValue(lastLoaderLog.getUpdateCount(), 0));
-          guiGrouperLoaderJob.setCount(GrouperUtil.intValue(lastLoaderLog.getTotalCount(), 0));
+          if (daemonJobStatus.isSuccess()) {
+            guiGrouperLoaderJob.setOverallStatus("SUCCESS");
+            guiGrouperLoaderJob.setOverallStatusDescription("Found a success on " + GrouperUtil.dateStringValue(lastSuccess)
+                + " in grouper_loader_log for job name: " + jobName + " which is within the threshold of " + minutesSinceLastSuccess + " minutes");
+          } else {
+            boolean enabled = isLoaderJobEnabled(scheduler, jobName);
+            guiGrouperLoaderJob.setOverallStatus(enabled ? "ERROR" : "DISABLED");
+            if (lastSuccess == null) {
+              guiGrouperLoaderJob.setOverallStatusDescription("Can't find a success in grouper_loader_log for job name: " + jobName);
+            } else {
+              guiGrouperLoaderJob.setOverallStatusDescription("Found most recent success on " + GrouperUtil.dateStringValue(lastSuccess)
+                  + " in grouper_loader_log for job name: " + jobName + " which is NOT within the threshold of " + minutesSinceLastSuccess + " minutes");
+            }
+          }
+        } else {
+          guiGrouperLoaderJob.setOverallStatus("UNKNOWN");
+          guiGrouperLoaderJob.setOverallStatusDescription("Unknown job type for job name: " + jobName);
         }
 
-        guiGrouperLoaderJob.setStatusDescription(message.toString());
+        // filter on overall status or last run status (mirrors the daemon jobs screen).  ANY_ERROR now matches a job whose
+        // last run errored or an enabled job with no recent success, but not a DISABLED job; this fixes GRP-7063 where the
+        // error filter previously only showed jobs that had never succeeded.
+        if (!GrouperUtil.isBlank(statusFilter)) {
+          String overallStatus = guiGrouperLoaderJob.getOverallStatus();
+          String lastRunStatus = guiGrouperLoaderJob.getLastRunStatus();
+          boolean matches;
+          if ("ANY_ERROR".equals(statusFilter)) {
+            matches = (overallStatus != null && overallStatus.toLowerCase().contains("error"))
+                || (lastRunStatus != null && lastRunStatus.toLowerCase().contains("error"));
+          } else {
+            matches = statusFilter.equals(overallStatus) || statusFilter.equals(lastRunStatus);
+          }
+          if (!matches) {
+            continue;
+          }
+        }
 
         filteredGuiGrouperLoaderJobs.add(guiGrouperLoaderJob);
       }
@@ -5491,6 +5541,37 @@ public class UiV2GrouperLoader {
     }
   }
   
+  /**
+   * Whether a loader job is currently scheduled in quartz and not paused.  This mirrors the enabled
+   * detection on the daemon jobs screen and lets the overall status distinguish a real ERROR (an
+   * enabled job that is failing) from a DISABLED job that is simply paused or not scheduled.
+   * @param scheduler quartz scheduler, may be null if it could not be retrieved
+   * @param jobName quartz job name
+   * @return true if the job has at least one active (non-paused, non-complete) trigger
+   */
+  private static boolean isLoaderJobEnabled(Scheduler scheduler, String jobName) {
+    if (scheduler == null || GrouperUtil.isBlank(jobName)) {
+      return false;
+    }
+    try {
+      List<? extends Trigger> triggers = scheduler.getTriggersOfJob(new JobKey(jobName));
+      for (Trigger trigger : triggers) {
+        Trigger.TriggerState triggerState = scheduler.getTriggerState(trigger.getKey());
+        // a completed trigger will not fire again, so it does not make the job enabled
+        if (triggerState == Trigger.TriggerState.COMPLETE) {
+          continue;
+        }
+        // any trigger that is not paused means the job is still scheduled to run
+        if (triggerState != Trigger.TriggerState.PAUSED) {
+          return true;
+        }
+      }
+    } catch (SchedulerException se) {
+      LOG.error("Error checking quartz triggers for loader job: " + jobName, se);
+    }
+    return false;
+  }
+
   public void exportLoaderConfig(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
