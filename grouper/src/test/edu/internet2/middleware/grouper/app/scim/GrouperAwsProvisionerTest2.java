@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ApiCom
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Membership;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.ScimSettings;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -37,7 +38,7 @@ import junit.textui.TestRunner;
 public class GrouperAwsProvisionerTest2 extends GrouperProvisioningBaseTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAwsProvisionerTest2("testAWS2IncrementalSyncProvisionGroupAndThenDeleteTheGroup"));
+    TestRunner.run(new GrouperAwsProvisionerTest2("testAWS2CreateUserConflictLinksExisting"));
 
   }
   
@@ -514,6 +515,112 @@ public class GrouperAwsProvisionerTest2 extends GrouperProvisioningBaseTest {
     
   }
   
+  /**
+   * GRP-7062: during a full sync the target's bulk listing can be incomplete (eventual
+   * consistency / unstable paging / duplicate pages), so an entity that already exists in the
+   * target can be absent from the retrieved set and get routed to create.  The target then rejects
+   * the create with HTTP 409 "uniqueness".  createScimUser must recover from this by looking the
+   * existing object up by a matching attribute and linking it (returning the existing target id)
+   * instead of throwing and failing the daemon.  This exercises both the externalId-first match
+   * and the userName fallback against the mock SCIM target.
+   */
+  public void testAWS2CreateUserConflictLinksExisting() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    // a provisioner that references awsConfigId must exist -- the mock looks the bearer token up to
+    // find the current provisioner, otherwise handleRequest fails with "Cannot find a provisioner
+    // that uses bearer token external system: awsConfigId"
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+      .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
+      .assignBearerTokenExternalSystemConfigId("awsConfigId")
+      .assignUseFirstLastName(true)
+      .assignScimType("AWS")
+      .assignGroupAttributeCount(2)
+    );
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      tomcatStart();
+    }
+
+    try {
+
+      // hitting the mock once ensures the mock_scim_* tables exist before we clear them
+      GrouperScim2ApiCommands.retrieveScimUsers("awsConfigId", null);
+
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_user").executeSql();
+
+      // ----- scenario 1: a re-create with the same userName + externalId links the existing user -----
+
+      GrouperScim2User user1 = new GrouperScim2User();
+      user1.setUserName("jsmith");
+      user1.setExternalId("ext-jsmith");
+      user1.setDisplayName("John Smith");
+
+      GrouperScim2User created1 = GrouperScim2ApiCommands.createScimUser("awsConfigId", user1, null, new ScimSettings());
+      String firstId = created1.getId();
+      assertNotNull(firstId);
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+
+      // the mock returns 409 uniqueness; recovery should link the existing user, not create a duplicate
+      GrouperScim2User user1Again = new GrouperScim2User();
+      user1Again.setUserName("jsmith");
+      user1Again.setExternalId("ext-jsmith");
+      user1Again.setDisplayName("John Smith again");
+
+      GrouperScim2User recovered1 = GrouperScim2ApiCommands.createScimUser("awsConfigId", user1Again, null, new ScimSettings());
+      assertEquals(firstId, recovered1.getId());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+
+      // ----- scenario 2: externalId match wins even when the userName has changed -----
+
+      GrouperScim2User user2 = new GrouperScim2User();
+      user2.setUserName("bwilson");
+      user2.setExternalId("ext-bwilson");
+      user2.setDisplayName("Bob Wilson");
+
+      GrouperScim2User created2 = GrouperScim2ApiCommands.createScimUser("awsConfigId", user2, null, new ScimSettings());
+      String secondId = created2.getId();
+      assertNotNull(secondId);
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+
+      // same externalId, renamed userName -> still links by externalId rather than creating a new user
+      GrouperScim2User user2Renamed = new GrouperScim2User();
+      user2Renamed.setUserName("bwilson2");
+      user2Renamed.setExternalId("ext-bwilson");
+      user2Renamed.setDisplayName("Bob Wilson renamed");
+
+      GrouperScim2User recovered2 = GrouperScim2ApiCommands.createScimUser("awsConfigId", user2Renamed, null, new ScimSettings());
+      assertEquals(secondId, recovered2.getId());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+
+      // ----- scenario 3: a genuinely new user still creates normally (no false-positive link) -----
+
+      GrouperScim2User user3 = new GrouperScim2User();
+      user3.setUserName("cjones");
+      user3.setExternalId("ext-cjones");
+      user3.setDisplayName("Carol Jones");
+
+      GrouperScim2User created3 = GrouperScim2ApiCommands.createScimUser("awsConfigId", user3, null, new ScimSettings());
+      assertNotNull(created3.getId());
+      assertFalse(firstId.equals(created3.getId()));
+      assertFalse(secondId.equals(created3.getId()));
+      assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+
+    } finally {
+//      tomcatStop();
+    }
+
+  }
+
   @Override
   protected void setupConfigs() {
     //insert more data about first/last name
