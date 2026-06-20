@@ -355,17 +355,70 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "id")) == 0, "id is forbidden");
   
     GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(userJsonNode);
+
+    // GRP-7062: real SCIM targets reject a create that collides with an existing resource using
+    // HTTP 409 with scimType "uniqueness".  Mirror that here so the create-conflict recovery path
+    // can be exercised: if a user with the same externalId or userName already exists, return 409
+    // rather than silently creating a duplicate.
+    GrouperScim2User existingConflict = findExistingUserForUniqueness(grouperScimUser);
+    if (existingConflict != null) {
+      ObjectNode errorNode = GrouperUtil.jsonJacksonNode();
+      ArrayNode errorSchemasNode = GrouperUtil.jsonJacksonArrayNode();
+      errorSchemasNode.add("urn:ietf:params:scim:api:messages:2.0:Error");
+      errorNode.set("schemas", errorSchemasNode);
+      errorNode.put("scimType", "uniqueness");
+      errorNode.put("detail", "User already exists");
+      errorNode.put("status", "409");
+
+      mockServiceResponse.setResponseCode(409);
+      mockServiceResponse.setContentType("application/json");
+      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(errorNode));
+      return;
+    }
+
     grouperScimUser.setId(GrouperUuid.getUuid());
-    
+
     HibernateSession.byObjectStatic().save(grouperScimUser);
-    
+
     JsonNode resultNode = grouperScimUser.toJson(null);
-  
+
     mockServiceResponse.setResponseCode(201);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
-  
-    
+
+
+  }
+
+  /**
+   * GRP-7062: find an already-existing mock user that a create would collide with, matching on
+   * externalId first (stable across userName renames) and then userName.  Returns null if there is
+   * no collision (the normal create case).
+   * @param grouperScimUser the user being created
+   * @return the existing colliding user, or null
+   */
+  private GrouperScim2User findExistingUserForUniqueness(GrouperScim2User grouperScimUser) {
+
+    String externalId = grouperScimUser.getExternalId();
+    if (StringUtils.isNotBlank(externalId)) {
+      List<GrouperScim2User> matches = HibernateSession.byHqlStatic()
+          .createQuery("from GrouperScim2User where externalId = :theValue")
+          .setString("theValue", externalId).list(GrouperScim2User.class);
+      if (GrouperUtil.length(matches) > 0) {
+        return matches.get(0);
+      }
+    }
+
+    String userName = grouperScimUser.getUserName();
+    if (StringUtils.isNotBlank(userName)) {
+      List<GrouperScim2User> matches = HibernateSession.byHqlStatic()
+          .createQuery("from GrouperScim2User where userName = :theValue")
+          .setString("theValue", userName).list(GrouperScim2User.class);
+      if (GrouperUtil.length(matches) > 0) {
+        return matches.get(0);
+      }
+    }
+
+    return null;
   }
 
   public void getUsers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
