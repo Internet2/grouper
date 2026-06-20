@@ -11,6 +11,9 @@
                                 data-original-title="${textContainer.textEscapeDouble['grouperLoaderOverallColumnTooltipStatus']}">${textContainer.text['grouperLoaderOverallColumnHeaderStatus'] }</span></th>
         <th data-hide="phone" style="white-space: nowrap; text-align: left;">
                           <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right"
+                                data-original-title="${textContainer.textEscapeDouble['grouperLoaderOverallColumnTooltipLastRunStatus']}">${textContainer.text['grouperLoaderOverallColumnHeaderLastRunStatus'] }</span></th>
+        <th data-hide="phone" style="white-space: nowrap; text-align: left;">
+                          <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right"
                                 data-original-title="${textContainer.textEscapeDouble['grouperLoaderOverallColumnTooltipActions']}">${textContainer.text['grouperLoaderOverallColumnHeaderActions'] }</span></th>
         <th data-hide="phone" style="white-space: nowrap; text-align: left;">
                           <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right"
@@ -41,10 +44,12 @@
             </td>
             <td class="expand foo-clicker"
                 style="color: White;
-                        background-color: ${guiGrouperLoaderJob.status == 'SUCCESS' ? 'green' : (guiGrouperLoaderJob.status == 'ERROR' ? 'red' : '')};
+                        background-color: ${guiGrouperLoaderJob.overallStatus == 'SUCCESS' ? 'green' : (guiGrouperLoaderJob.overallStatus == 'ERROR' ? 'red' : 'gray')};
                         font-weight: bold;">
                             <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" class="grouperTooltip" style="border-bottom-color: white;"
-                                  data-original-title="${grouper:escapeHtml(guiGrouperLoaderJob.statusDescription)}">${guiGrouperLoaderJob.status}</span>
+                                  data-original-title="${grouper:escapeHtml(guiGrouperLoaderJob.overallStatusDescription)}">${guiGrouperLoaderJob.overallStatus}</span>
+            </td>
+            <td class="expand foo-clicker"><span style="white-space: nowrap">${guiGrouperLoaderJob.lastRunStatus}</span>
             </td>
             <td class="expand foo-clicker">
                 <div class="btn-group btn-block">

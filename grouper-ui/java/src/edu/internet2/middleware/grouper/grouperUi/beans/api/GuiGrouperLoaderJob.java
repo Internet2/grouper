@@ -184,48 +184,72 @@ public class GuiGrouperLoaderJob implements Serializable, Comparable<GuiGrouperL
   }
 
   /**
-   * description of the status, for more info
+   * description of the overall status, for more info, shown as a tooltip
    * e.g. Found a success on 2017/01/01 8:09:10 in grouper_loader_log for job name: someJob which is within the threshold of 60 minutes
    */
-  private String statusDescription;
-  
+  private String overallStatusDescription;
+
   /**
-   * description of the status, for more info
+   * description of the overall status, for more info, shown as a tooltip
    * e.g. Found a success on 2017/01/01 8:09:10 in grouper_loader_log for job name: someJob which is within the threshold of 60 minutes
    * @return the description
    */
-  public String getStatusDescription() {
-    return this.statusDescription;
+  public String getOverallStatusDescription() {
+    return this.overallStatusDescription;
   }
 
   /**
-   * description of the status, for more info
+   * description of the overall status, for more info, shown as a tooltip
    * e.g. Found a success on 2017/01/01 8:09:10 in grouper_loader_log for job name: someJob which is within the threshold of 60 minutes
-   * @param statusDescription1
+   * @param overallStatusDescription1
    */
-  public void setStatusDescription(String statusDescription1) {
-    this.statusDescription = statusDescription1;
+  public void setOverallStatusDescription(String overallStatusDescription1) {
+    this.overallStatusDescription = overallStatusDescription1;
   }
 
   /**
-   * SUCCESS, ERROR, WARNING
+   * overall health of this job based on whether there has been a recent success: SUCCESS, ERROR, DISABLED or UNKNOWN.
+   * This mirrors the daemon jobs screen and is not necessarily the status of the most recent run (e.g. the last run
+   * could be an ERROR but the overall status is still SUCCESS if there was a recent success within the threshold).
    */
-  private String status;
+  private String overallStatus;
 
   /**
-   * SUCCESS, ERROR, WARNING
-   * @return status
+   * overall health of this job: SUCCESS, ERROR, DISABLED or UNKNOWN
+   * @return overall status
    */
-  public String getStatus() {
-    return this.status;
+  public String getOverallStatus() {
+    return this.overallStatus;
   }
 
   /**
-   * SUCCESS, ERROR, WARNING
-   * @param status1
+   * overall health of this job: SUCCESS, ERROR, DISABLED or UNKNOWN
+   * @param overallStatus1
    */
-  public void setStatus(String status1) {
-    this.status = status1;
+  public void setOverallStatus(String overallStatus1) {
+    this.overallStatus = overallStatus1;
+  }
+
+  /**
+   * status of the most recent completed run (ignoring STARTED) from grouper_loader_log:
+   * SUCCESS, ERROR, WARNING, ERROR_FAILSAFE, SUBJECT_PROBLEMS or CONFIG_ERROR.  This is what the error filter acts on.
+   */
+  private String lastRunStatus;
+
+  /**
+   * status of the most recent completed run from grouper_loader_log
+   * @return last run status
+   */
+  public String getLastRunStatus() {
+    return this.lastRunStatus;
+  }
+
+  /**
+   * status of the most recent completed run from grouper_loader_log
+   * @param lastRunStatus1
+   */
+  public void setLastRunStatus(String lastRunStatus1) {
+    this.lastRunStatus = lastRunStatus1;
   }
 
   /**
