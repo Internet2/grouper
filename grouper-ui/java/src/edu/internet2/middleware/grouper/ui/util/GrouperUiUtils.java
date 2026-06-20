@@ -1971,7 +1971,10 @@ public class GrouperUiUtils {
 
     List<String> ids = new ArrayList<String>();
 
-    ids.add(grouperObject.equals(realRoot) ? rootId : grouperObject.getId());
+    //the configured default.browse.stem collapses into the tree's "root" node (see UiV2Main.folderMenu), so
+    //emit "root" for it as well as the real root; otherwise the auto-expand path would reference a uuid that
+    //is not a node in the tree.  When no default is configured, root == realRoot and this is unchanged.
+    ids.add((grouperObject.equals(realRoot) || grouperObject.equals(root)) ? rootId : grouperObject.getId());
 
     Stem curStem;
     try {
@@ -1981,7 +1984,8 @@ public class GrouperUiUtils {
     }
 
     while (curStem != null) {
-      ids.add(curStem.equals(realRoot) ? rootId : curStem.getId());
+      //same as above: the configured default.browse.stem maps to "root" in the tree, not its uuid
+      ids.add((curStem.equals(realRoot) || curStem.equals(root)) ? rootId : curStem.getId());
       if (curStem.equals(root) || curStem.equals(realRoot)) {
         break;
       }
