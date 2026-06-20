@@ -1040,7 +1040,9 @@ public class GrouperScim2ApiCommands {
         schemasNode.add("urn:ietf:params:scim:schemas:core:2.0:User");
         jsonToSend.set("schemas", schemasNode);
       }
-     
+
+      jsonToSend.remove("id");
+
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       // robin returns 200 on create for some bad reason.
@@ -1470,6 +1472,8 @@ public class GrouperScim2ApiCommands {
         schemasNode.add("urn:ietf:params:scim:schemas:core:2.0:Group");
         jsonToSend.set("schemas", schemasNode);
       }
+
+      jsonToSend.remove("id");
 
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 

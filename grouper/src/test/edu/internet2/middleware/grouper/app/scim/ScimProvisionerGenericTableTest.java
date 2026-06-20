@@ -15,7 +15,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttr
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
-import edu.internet2.middleware.grouper.app.scim2Provisioning.AwsScim2MockServiceHandler;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GenericScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Membership;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
@@ -45,8 +45,8 @@ import junit.textui.TestRunner;
 public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest {
 
   public static void main(String[] args) {
-    AwsScim2MockServiceHandler.ensureScimMockTables();
-    TestRunner.run(new ScimProvisionerGenericTableTest("testFullProvisionPopulatesGenericTables"));
+    GenericScim2MockServiceHandler.ensureScimMockTables();
+    TestRunner.run(new ScimProvisionerGenericTableTest("testCreateConvergesIntoSyncTablesOnNextRun"));
   }
 
   public ScimProvisionerGenericTableTest() {
@@ -63,7 +63,7 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
   protected void setUp() {
     super.setUp();
     GrouperStartup.startup();
-    AwsScim2MockServiceHandler.ensureScimMockTables();
+    GenericScim2MockServiceHandler.ensureScimMockTables();
     this.grouperSession = GrouperSession.startRootSession();
     // clear any leftover mock SCIM target state from previous tests in the same JVM
     new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
@@ -443,7 +443,7 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
     orphanGroup.setExternalId("orphan-group-ext");
     orphanGroup.setSchemas("urn:ietf:params:scim:schemas:core:2.0:Group");
     // mock_scim_group has NOT NULL on created / last_modified — mirror what the mock's
-    // createGroup handler does (see AwsScim2MockServiceHandler.postGroup)
+    // createGroup handler does (see GenericScim2MockServiceHandler.postGroup)
     orphanGroup.setCreated(now);
     orphanGroup.setLastModified(now);
     HibernateSession.byObjectStatic().save(orphanGroup);
