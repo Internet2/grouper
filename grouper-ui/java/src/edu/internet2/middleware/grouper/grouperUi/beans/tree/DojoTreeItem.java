@@ -82,6 +82,13 @@ public class DojoTreeItem {
   private boolean root = false;
 
   /**
+   * when this node is the tree's top node but is a configured default.browse.stem (not the real root),
+   * its id is forced to "root" for jstree mechanics.  this field carries the real stem uuid so the UI can
+   * navigate to that stem on click instead of the actual root.  null for the real root.
+   */
+  private String viewStemId = null;
+
+  /**
    * what displays on the screen, display extension
    * @return name
    */
@@ -165,5 +172,21 @@ public class DojoTreeItem {
    */
   public void setRoot(boolean root) {
     this.root = root;
+  }
+
+  /**
+   * real stem uuid to navigate to when this top node is a configured default.browse.stem; null for the real root
+   * @return the view stem id
+   */
+  public String getViewStemId() {
+    return this.viewStemId;
+  }
+
+  /**
+   * real stem uuid to navigate to when this top node is a configured default.browse.stem; null for the real root
+   * @param viewStemId1
+   */
+  public void setViewStemId(String viewStemId1) {
+    this.viewStemId = viewStemId1;
   }
 }

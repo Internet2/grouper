@@ -714,10 +714,13 @@ function dojoInitMenu(autoSelectNode) {
         var item = data && data.node && data.node.data;
     if (!item) return;
 
-    // Synthetic Root node: navigate to the Root stem
+    // Synthetic Root node: navigate to the Root stem.
+    // When default.browse.stem is configured, this top node is that stem (not the real root); the server
+    // sends its real uuid in viewStemId so we navigate to it instead of the actual root.  viewStemId is
+    // absent for the real root, so this falls back to "root" and is unchanged when no default is configured.
     if (item.root === true) {
       // Match existing navigation style used elsewhere in this file
-      guiV2link('operation=UiV2Stem.viewStem&stemId=root');
+      guiV2link('operation=UiV2Stem.viewStem&stemId=' + (item.viewStemId || 'root'));
       return;
     }
 

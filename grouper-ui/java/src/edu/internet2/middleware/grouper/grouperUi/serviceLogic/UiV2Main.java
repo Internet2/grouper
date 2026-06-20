@@ -354,10 +354,19 @@ public class UiV2Main extends UiServiceLogicBase {
             TextContainer.retrieveFromRequest().getText().get("stem.root.display-name") 
             : stem.getDisplayExtension();
 
-        //the id has to be root or it will make another request
-        String id = stem.isRootStem() ? "root" : stem.getUuid();
+        //the tree's top node must have id "root" so jstree collapses it into its synthetic root node
+        //(otherwise it makes another request / renders a duplicate node).  When default.browse.stem is
+        //configured, getConfiguredRootFolder returns that stem instead of the real root, but it still plays
+        //the role of "root" at the top of the tree, so key off the query string rather than isRootStem().
+        String id = StringUtils.equals("root", folderQueryString) ? "root" : stem.getUuid();
 
         DojoTreeItem dojoTreeItem = new DojoTreeItem(displayExtension, id, DojoTreeItemType.stem, StringUtils.equals("root", folderQueryString));
+
+        //the top node carries id "root" for jstree mechanics, so it cannot also carry the real stem uuid in
+        //its id.  When this top node is a configured default.browse.stem (not the actual root), expose the
+        //stem's uuid separately so a click navigates to that stem rather than the real root.  Null for the
+        //real root, where clicking should continue to navigate to "root".
+        dojoTreeItem.setViewStemId(stem.isRootStem() ? null : stem.getUuid());
 
         DojoTreeItemChild[] childrenDojoTreeItems = new DojoTreeItemChild[GrouperUtil.length(childrenStems) + GrouperUtil.length(childrenGroups)
                   + GrouperUtil.length(childrenAttributeDefs) + GrouperUtil.length(childrenAttributeDefNames)];
