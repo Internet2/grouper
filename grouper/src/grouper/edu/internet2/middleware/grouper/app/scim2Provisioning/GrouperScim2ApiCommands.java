@@ -1043,9 +1043,51 @@ public class GrouperScim2ApiCommands {
      
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      // robin returns 200 on create for some bad reason
+      // robin returns 200 on create for some bad reason.
+      // GRP-7062: also accept 409 here so we can recover from a "uniqueness" conflict instead of
+      // failing the whole daemon run.  During a full sync the target's bulk listing can come back
+      // incomplete or overlapping (eventual consistency / unstable page ordering / duplicate
+      // pages), so an entity that already exists in the target can be absent from the retrieved
+      // set and get routed to create.  The target then rejects the POST with 409, but the object
+      // really is there -- so we look it up and link it rather than throwing an object error.
+      int[] returnCode = new int[] { -1 };
       JsonNode jsonNode = executeMethod(debugMap, debugLabel(debugMap, "createScimUser"), GrouperHttpMethod.post, configId,
-          "/Users", GrouperUtil.toSet(200, 201), new int[] { -1 }, jsonStringToSend, scimSettings);
+          "/Users", GrouperUtil.toSet(200, 201, 409), returnCode, jsonStringToSend, scimSettings);
+
+      if (returnCode[0] == 409) {
+        // the "create" failed because the entity already exists.  Link the existing target object:
+        // this is a fake create that has the same downstream effect as a real one, since the
+        // captureUserInsertFromCurrentProvisioner hook below (not the returned object) is what
+        // registers the target id with the generic provisioner.  Match on externalId first since
+        // it is stable across userName renames, then fall back to userName.  If neither finds a
+        // match this is not a recoverable uniqueness conflict, so rethrow.
+        debugMap.put("createReturnedConflict", true);
+
+        JsonNode existingUserNode = null;
+
+        String externalId = grouperScimUser.getExternalId();
+        if (StringUtils.isNotBlank(externalId)) {
+          existingUserNode = retrieveScimUserResourceNode(debugMap, configId, "externalId", externalId, scimSettings);
+        }
+
+        String userName = grouperScimUser.getUserName();
+        if (existingUserNode == null && StringUtils.isNotBlank(userName)) {
+          existingUserNode = retrieveScimUserResourceNode(debugMap, configId, "userName", userName, scimSettings);
+        }
+
+        if (existingUserNode == null) {
+          throw new RuntimeException("SCIM create returned 409 but no existing user matched externalId '"
+              + externalId + "' or userName '" + userName + "' to link");
+        }
+
+        debugMap.put("linkedExistingUserOnConflict", true);
+
+        // same sync-back the success path runs below: register the (existing) resource so the
+        // generic provisioner links its target id and the end-of-run drain skips re-reading it.
+        GrouperScim2ProvisioningTargetNativeSync.captureUserInsertFromCurrentProvisioner(existingUserNode);
+
+        return GrouperScim2User.fromJson(existingUserNode);
+      }
 
       // generic provisioner sync back: the end-of-run flush now runs AFTER the write phase
       // (sendChangesToTarget), so we shadow the created resource into the native-user map
@@ -1064,6 +1106,42 @@ public class GrouperScim2ApiCommands {
       GrouperScim2Log.scimLog(debugMap, startTime);
     }
 
+  }
+
+  /**
+   * GRP-7062 helper: look up a single existing SCIM user by a simple filter field (e.g. externalId
+   * or userName) and return its raw resource JsonNode, or null if nothing matched.  Unlike
+   * retrieveScimUser this returns the unparsed resource node so the create-conflict recovery path
+   * can feed it through the same insert sync-back hook a real create uses.
+   * @param debugMap for logging
+   * @param configId external system config id
+   * @param fieldName simple SCIM filter field, e.g. "externalId" or "userName"
+   * @param fieldValue value to match
+   * @param scimSettings scim settings
+   * @return the matching resource node, or null if none matched
+   */
+  private static JsonNode retrieveScimUserResourceNode(Map<String, Object> debugMap, String configId,
+      String fieldName, String fieldValue, ScimSettings scimSettings) {
+
+    // simple SCIM filter: fieldName eq "value"
+    String escapedFieldValue = StringEscapeUtils.escapeJson(fieldValue);
+    String urlSuffix = "/Users?filter=" + GrouperUtil.escapeUrlEncode(fieldName)
+        + "%20eq%20" + GrouperUtil.escapeUrlEncode("\"" + escapedFieldValue + "\"");
+
+    JsonNode jsonNode = executeGetMethod(debugMap, debugLabel(debugMap, "retrieveScimUserForConflict"),
+        configId, urlSuffix, scimSettings);
+
+    if (jsonNode == null || !jsonNode.has("Resources")) {
+      return null;
+    }
+
+    ArrayNode resourcesNode = (ArrayNode) jsonNode.get("Resources");
+    if (resourcesNode.size() == 0) {
+      return null;
+    }
+
+    // a uniqueness conflict means a single canonical existing user; take the first match
+    return resourcesNode.get(0);
   }
 
   /**
