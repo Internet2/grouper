@@ -152,7 +152,44 @@
                       <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsMembershipDeleteDescription'] }</span>
                     </div>
                   </div>
-        
+
+                  <c:if test="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.scim}">
+                    <c:set var="diagSettings" value="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioningDiagnosticsSettings}" />
+
+                    <h3 class="control-group">${textContainer.text['grouperProvisioningDiagnosticsScimSectionLabel'] }</h3>
+
+                    <div class="control-group">
+                      <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsScimEntityUpdateLabel'] }</label>
+                      <div class="controls">
+                        <label class="checkbox">
+                          <input type="checkbox" name="diagnosticsEntityUpdateName" id="diagnosticsEntityUpdateId"
+                               ${diagSettings.diagnosticsEntityUpdate ? 'checked="checked"' : '' } value="true"
+                               onclick="if(this.checked){jQuery('#diagnosticsScimUpdateFieldsId').show();}else{jQuery('#diagnosticsScimUpdateFieldsId').hide();}" />
+                               ${textContainer.text['grouperProvisioningDiagnosticsScimEntityUpdateLabelTrue']}
+                        </label>
+                        <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsScimEntityUpdateDescription'] }</span>
+                      </div>
+                    </div>
+
+                    <div id="diagnosticsScimUpdateFieldsId" style="${diagSettings.diagnosticsEntityUpdate ? '' : 'display: none;'}">
+                      <div class="control-group">
+                        <label for="diagnosticsScimGivenNameId" class="control-label">${textContainer.text['grouperProvisioningDiagnosticsScimGivenNameLabel'] }</label>
+                        <div class="controls">
+                          <input type="text" id="diagnosticsScimGivenNameId" name="diagnosticsScimGivenNameName" value="${diagSettings.diagnosticsScimGivenName}" />
+                          <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsScimGivenNameDescription'] }</span>
+                        </div>
+                      </div>
+
+                      <div class="control-group">
+                        <label for="diagnosticsScimEmailValueId" class="control-label">${textContainer.text['grouperProvisioningDiagnosticsScimEmailValueLabel'] }</label>
+                        <div class="controls">
+                          <input type="text" id="diagnosticsScimEmailValueId" name="diagnosticsScimEmailValueName" value="${diagSettings.diagnosticsScimEmailValue}" />
+                          <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsScimEmailValueDescription'] }</span>
+                        </div>
+                      </div>
+                    </div>
+                  </c:if>
+
                 <input type="hidden" name="provisionerConfigId" value="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.configId}" />
                 <input type="hidden" name="provisionerInitted" value="true" />
                 <div class="form-actions"><a href="#" class="btn btn-primary" role="button" 

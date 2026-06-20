@@ -32,12 +32,12 @@ public class ScimProvisionerTestUtils {
         .value(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.aws.scim.provisioning.real.accessTokenPassword")).store();
       
     } else {
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/awsScim/v2/").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/genericScim/v2/").store();
       
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.accessTokenPassword").value("abcdef").store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword").value("abcdef").store();
 
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigIdBasic.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/awsScim/v2/").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigIdBasic.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/genericScim/v2/").store();
       
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigIdBasic.httpAuthnType").value("basicAuth").store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigIdBasic.basicAuthUser").value("ghijkl").store();

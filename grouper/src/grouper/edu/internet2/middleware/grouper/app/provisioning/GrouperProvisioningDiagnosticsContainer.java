@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -40,13 +40,15 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsRequest;
-import edu.internet2.middleware.grouper.app.tableSync.GrouperProvisioningSyncIntegration;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ApiCommands;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2MembershipCache;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.ScimSettings;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -54,6 +56,7 @@ import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -206,6 +209,8 @@ public class GrouperProvisioningDiagnosticsContainer {
       
       this.appendInsertGroupIntoTarget();
       this.appendInsertEntityIntoTarget();
+
+      this.appendUpdateEntityIntoTarget();
 
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
         this.appendInsertGroupAttributesMembershipIntoTarget();
@@ -450,6 +455,12 @@ public class GrouperProvisioningDiagnosticsContainer {
           
           List<ProvisioningEntity> grouperProvisioningEntities = this.grouperProvisioner.retrieveGrouperDao().retrieveMembers(false, GrouperUtil.toList(member.getId()));
           if (GrouperUtil.length(grouperProvisioningEntities) == 0) {
+            grouperProvisioningEntities = this.grouperProvisioner.retrieveGrouperDao().retrieveMembersNonProvisionable(GrouperUtil.toList(member.getId()));
+            if (GrouperUtil.length(grouperProvisioningEntities) > 0) {
+              this.report.append("<font color='gray'><b>Note:</b></font> Could not find entity through the provisionable group membership cache (it may not be populated yet); retrieved the member directly for diagnostics\n");
+            }
+          }
+          if (GrouperUtil.length(grouperProvisioningEntities) == 0) {
             this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningEntity object, perhaps entity is not a member of any provisionable groups or in the list of entities to provision\n");
           } else {
             ProvisioningEntity grouperProvisioningEntity = grouperProvisioningEntities.get(0);
@@ -585,8 +596,17 @@ public class GrouperProvisioningDiagnosticsContainer {
       List<ProvisioningMembership> grouperProvisioningMemberships = this.grouperProvisioner.retrieveGrouperDao().retrieveMemberships(false, null, null, groupUuidMemberUuids);
       
       if (GrouperUtil.length(grouperProvisioningMemberships) == 0) {
-        this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningMembership object.  Note that the entity must be a member of the group in Grouper.\n");
-      } else {
+        // the lookup above reads the provisionable membership cache (grouper_sql_cache_*), which may
+        // not be populated yet on a fresh setup. the group + entity are already resolved and the
+        // Select-group step added the entity as a member, so build the membership directly from the
+        // wrappers for diagnostics instead of skipping the test.
+        ProvisioningMembership directProvisioningMembership = new ProvisioningMembership();
+        directProvisioningMembership.setProvisioningGroupId(this.provisioningGroupWrapper.getGroupId());
+        directProvisioningMembership.setProvisioningEntityId(this.provisioningEntityWrapper.getMemberId());
+        grouperProvisioningMemberships = GrouperUtil.toList(directProvisioningMembership);
+        this.report.append("<font color='gray'><b>Note:</b></font> Could not find membership through the provisionable membership cache (it may not be populated yet); built the membership directly for diagnostics\n");
+      }
+      {
         ProvisioningMembership grouperProvisioningMembership = grouperProvisioningMemberships.get(0);
 
         GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
@@ -751,8 +771,15 @@ public class GrouperProvisioningDiagnosticsContainer {
       List<ProvisioningMembership> grouperProvisioningMemberships = this.grouperProvisioner.retrieveGrouperDao().retrieveMemberships(false, null, null, groupUuidMemberUuids);
       
       if (GrouperUtil.length(grouperProvisioningMemberships) == 0) {
-        this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningMembership object.  Note that the entity must be a member of the group in Grouper.\n");
-        return null;
+        // the lookup above reads the provisionable membership cache (grouper_sql_cache_*), which may
+        // not be populated yet on a fresh setup. the group + entity are already resolved and the
+        // Select-group step added the entity as a member, so build the membership directly from the
+        // wrappers for diagnostics instead of bailing.
+        ProvisioningMembership directProvisioningMembership = new ProvisioningMembership();
+        directProvisioningMembership.setProvisioningGroupId(this.provisioningGroupWrapper.getGroupId());
+        directProvisioningMembership.setProvisioningEntityId(this.provisioningEntityWrapper.getMemberId());
+        grouperProvisioningMemberships = GrouperUtil.toList(directProvisioningMembership);
+        this.report.append("<font color='gray'><b>Note:</b></font> Could not find membership through the provisionable membership cache (it may not be populated yet); built the membership directly for diagnostics\n");
       } 
         
       ProvisioningMembership grouperProvisioningMembership = grouperProvisioningMemberships.get(0);
@@ -2123,8 +2150,17 @@ public class GrouperProvisioningDiagnosticsContainer {
       List<ProvisioningMembership> grouperProvisioningMemberships = this.grouperProvisioner.retrieveGrouperDao().retrieveMemberships(false, null, null, groupUuidMemberUuids);
       
       if (GrouperUtil.length(grouperProvisioningMemberships) == 0) {
-        this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningMembership object.  Note that the entity must be a member of the group in Grouper.\n");
-      } else {
+        // the lookup above reads the provisionable membership cache (grouper_sql_cache_*), which may
+        // not be populated yet on a fresh setup. the group + entity are already resolved and the
+        // Select-group step added the entity as a member, so build the membership directly from the
+        // wrappers for diagnostics instead of skipping the test.
+        ProvisioningMembership directProvisioningMembership = new ProvisioningMembership();
+        directProvisioningMembership.setProvisioningGroupId(this.provisioningGroupWrapper.getGroupId());
+        directProvisioningMembership.setProvisioningEntityId(this.provisioningEntityWrapper.getMemberId());
+        grouperProvisioningMemberships = GrouperUtil.toList(directProvisioningMembership);
+        this.report.append("<font color='gray'><b>Note:</b></font> Could not find membership through the provisionable membership cache (it may not be populated yet); built the membership directly for diagnostics\n");
+      }
+      {
         ProvisioningMembership grouperProvisioningMembership = grouperProvisioningMemberships.get(0);
 
         GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
@@ -2410,9 +2446,411 @@ public class GrouperProvisioningDiagnosticsContainer {
     this.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntitiesAllSelect(this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDiagnosticsEntitiesAllSelect());
     this.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsMembershipsAllSelect(this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDiagnosticsMembershipsAllSelect());
     this.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupName(this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getDiagnosticsGroupName());
-    
+
+    // SCIM only: seed the strategy dropdowns with the currently configured values
+    if (this.isScim()) {
+      GrouperScim2ProvisionerConfiguration scimConfiguration = (GrouperScim2ProvisionerConfiguration) this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+      this.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsScimEmailFilterStrategy(scimConfiguration.getScimEmailFilterStrategy());
+      this.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsScimNamePatchStrategy(scimConfiguration.getScimNamePatchStrategy());
+      this.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsScimEmailPatchStrategy(scimConfiguration.getScimEmailPatchStrategy());
+    }
+
   }
-  
-  
-  
+
+  /**
+   * SCIM only: is this a SCIM2 provisioner (used to gate SCIM-specific diagnostics UI/logic)
+   * @return true if SCIM2 provisioner
+   */
+  public boolean isScim() {
+    return this.grouperProvisioner != null
+        && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration() instanceof GrouperScim2ProvisionerConfiguration;
+  }
+
+  /**
+   * SCIM only: discover which SCIM strategies the target accepts by trying each one (name patch,
+   * email patch, and -- when applicable -- email filter), then compare the working strategies to
+   * what is configured on the provisioner and report the result either way. This does not persist
+   * any configuration; the in-memory strategy values are restored at the end of the run.
+   */
+  public void appendUpdateEntityIntoTarget() {
+
+    if (!this.isScim()) {
+      return;
+    }
+
+    this.report.append("<h4>Update entity in Target (SCIM PATCH) - strategy discovery</h4><pre>");
+
+    if (!this.getGrouperProvisioningDiagnosticsSettings().isDiagnosticsEntityUpdate()) {
+      this.report.append("<font color='gray'><b>Note:</b></font> Not configured to update entity in target\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+
+    if (this.provisioningEntityWrapper == null || this.provisioningEntityWrapper.getGrouperTargetEntity() == null) {
+      this.report.append("<font color='gray'><b>Note:</b></font> Cannot update entity in target since it is not configured to be provisioned\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+
+    if (this.provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+      this.report.append("<font color='gray'><b>Note:</b></font> Cannot update entity in target since it does not exist there (insert it first)\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+
+    if (null != this.provisioningEntityWrapper.getErrorCode()) {
+      this.report.append("<font color='red'><b>Error:</b></font> Cannot update entity in target since it has an error code: " + this.provisioningEntityWrapper.getErrorCode() + "\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+
+    GrouperProvisioningDiagnosticsSettings settings = this.getGrouperProvisioningDiagnosticsSettings();
+
+    String newGivenName = settings.getDiagnosticsScimGivenName();
+    String newEmailValue = settings.getDiagnosticsScimEmailValue();
+
+    if (StringUtils.isBlank(newGivenName) && StringUtils.isBlank(newEmailValue)) {
+      this.report.append("<font color='gray'><b>Note:</b></font> No new given name or email value was specified, so there is nothing to test\n");
+      this.report.append("</pre>\n");
+      return;
+    }
+
+    GrouperScim2ProvisionerConfiguration scimConfiguration = (GrouperScim2ProvisionerConfiguration) this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+
+    // remember the configured strategies: we mutate the in-memory config to try each candidate,
+    // restore them in the finally block, and compare them against the strategies that work
+    String configuredNamePatch = scimConfiguration.getScimNamePatchStrategy();
+    String configuredEmailPatch = scimConfiguration.getScimEmailPatchStrategy();
+    String configuredEmailFilter = scimConfiguration.getScimEmailFilterStrategy();
+
+    ProvisioningEntity grouperTargetEntity = this.provisioningEntityWrapper.getGrouperTargetEntity();
+    ProvisioningEntity targetProvisioningEntity = this.provisioningEntityWrapper.getTargetProvisioningEntity();
+
+    // The SCIM create POST does not send the id (the server assigns its own). The server-assigned
+    // id was picked up via the retrieve-after-insert (or select-from-target) and lives on
+    // targetProvisioningEntity. The grouperTargetEntity still carries the stale Grouper-translated
+    // id, so copy the real target id over before the PATCH; otherwise the PATCH URL points at a
+    // non-existent resource and the target returns 404.
+    String targetEntityId = targetProvisioningEntity == null ? null : targetProvisioningEntity.retrieveAttributeValueString("id");
+    if (!StringUtils.isBlank(targetEntityId)) {
+      String staleId = grouperTargetEntity.retrieveAttributeValueString("id");
+      if (!StringUtils.equals(staleId, targetEntityId)) {
+        this.report.append("<font color='gray'><b>Note:</b></font> Using server-assigned target id '")
+          .append(GrouperUtil.xmlEscape(targetEntityId)).append("' for PATCH (was '")
+          .append(GrouperUtil.xmlEscape(staleId)).append("')\n");
+      }
+      grouperTargetEntity.assignAttributeValue("id", targetEntityId);
+    }
+
+    // strategy discovery deliberately tries strategies the target may reject; those expected
+    // failures stamp an error code (GcGrouperSyncErrorCode.ERR) onto the entity wrapper and the
+    // gcGrouperSyncMember via processResultsUpdateEntitiesFull -> assignEntityError. that leftover
+    // error would block later diagnostics steps (add entity to group, add membership) and pollute
+    // the sync member's error fields. snapshot the pre-discovery error state and restore it in the
+    // finally block so discovery is side-effect free.
+    GcGrouperSyncMember gcGrouperSyncMemberForErrorRestore = this.provisioningEntityWrapper.getGcGrouperSyncMember();
+    GcGrouperSyncErrorCode preDiscoveryWrapperErrorCode = this.provisioningEntityWrapper.getErrorCode();
+    GcGrouperSyncErrorCode preDiscoveryMemberErrorCode = gcGrouperSyncMemberForErrorRestore == null ? null : gcGrouperSyncMemberForErrorRestore.getErrorCode();
+    String preDiscoveryMemberErrorMessage = gcGrouperSyncMemberForErrorRestore == null ? null : gcGrouperSyncMemberForErrorRestore.getErrorMessage();
+    Timestamp preDiscoveryMemberErrorTimestamp = gcGrouperSyncMemberForErrorRestore == null ? null : gcGrouperSyncMemberForErrorRestore.getErrorTimestamp();
+
+    // remember the original target values so the test values can be reverted at the end -- we do
+    // not want diagnostics to leave the throwaway test given name / email behind in the target
+    String originalGivenName = targetProvisioningEntity == null ? null : targetProvisioningEntity.retrieveAttributeValueString("givenName");
+    String originalEmailValue = targetProvisioningEntity == null ? null : targetProvisioningEntity.retrieveAttributeValueString("emailValue");
+
+    List<String> workingNamePatchStrategies = null;
+    List<String> workingEmailPatchStrategies = null;
+
+    try {
+      this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStart();
+
+      // name patch strategy discovery (uses the new given name)
+      if (!StringUtils.isBlank(newGivenName)) {
+        workingNamePatchStrategies = this.appendScimPatchStrategyDiscovery(scimConfiguration, grouperTargetEntity, targetProvisioningEntity,
+            "namePatch", "Name patch strategy", "givenName", newGivenName,
+            GrouperUtil.toList("nonqualified", "qualified", "nested"), configuredNamePatch);
+      }
+
+      // email patch strategy discovery (uses the new email value)
+      if (!StringUtils.isBlank(newEmailValue)) {
+        workingEmailPatchStrategies = this.appendScimPatchStrategyDiscovery(scimConfiguration, grouperTargetEntity, targetProvisioningEntity,
+            "emailPatch", "Email patch strategy", "emailValue", newEmailValue,
+            GrouperUtil.toList("pathEmails", "noPath", "pathEmailsQualified"), configuredEmailPatch);
+      }
+
+      // email filter strategy discovery (lookup by email) -- only meaningful when an email value
+      // is available; if no strategy works the target does not support email filtering (e.g. GitHub).
+      // this must run before the email revert below since it relies on the new email being in the target.
+      if (!StringUtils.isBlank(newEmailValue)) {
+        this.appendScimEmailFilterStrategyDiscovery(scimConfiguration, newEmailValue,
+            GrouperUtil.toList("email", "emails.value", "emails[value]", "emails[typeWork and value]"), configuredEmailFilter);
+      }
+
+      // revert the test values back to the original values in the target so diagnostics is
+      // side-effect free. only possible (and only necessary) when a strategy actually worked.
+      if (!StringUtils.isBlank(newGivenName) && GrouperUtil.length(workingNamePatchStrategies) > 0) {
+        this.revertScimAttribute(scimConfiguration, grouperTargetEntity, "namePatch", "givenName",
+            newGivenName, originalGivenName, workingNamePatchStrategies.get(workingNamePatchStrategies.size() - 1));
+      }
+      if (!StringUtils.isBlank(newEmailValue) && GrouperUtil.length(workingEmailPatchStrategies) > 0) {
+        this.revertScimAttribute(scimConfiguration, grouperTargetEntity, "emailPatch", "emailValue",
+            newEmailValue, originalEmailValue, workingEmailPatchStrategies.get(workingEmailPatchStrategies.size() - 1));
+      }
+
+    } catch (RuntimeException re) {
+      this.report.append("<font color='red'><b>Error:</b></font> SCIM strategy discovery").append(this.getCurrentDuration()).append("\n");
+      this.report.append(GrouperUtil.xmlEscape(ExceptionUtils.getStackTrace(re)));
+
+    } finally {
+      // restore the configured strategies so later diagnostics steps and the cached config are unaffected
+      scimConfiguration.setScimNamePatchStrategy(configuredNamePatch);
+      scimConfiguration.setScimEmailPatchStrategy(configuredEmailPatch);
+      scimConfiguration.setScimEmailFilterStrategy(configuredEmailFilter);
+
+      // clear any leftover entity state from the last attempt
+      GrouperUtil.setClear(grouperTargetEntity.getInternal_objectChanges());
+      grouperTargetEntity.setException(null);
+
+      // restore the pre-discovery error state so the expected probe failures don't block later
+      // diagnostics steps (add entity to group, add membership) or pollute the sync member
+      this.provisioningEntityWrapper.setErrorCode(preDiscoveryWrapperErrorCode);
+      if (gcGrouperSyncMemberForErrorRestore != null) {
+        gcGrouperSyncMemberForErrorRestore.setErrorCode(preDiscoveryMemberErrorCode);
+        gcGrouperSyncMemberForErrorRestore.setErrorMessage(preDiscoveryMemberErrorMessage);
+        gcGrouperSyncMemberForErrorRestore.setErrorTimestamp(preDiscoveryMemberErrorTimestamp);
+      }
+
+      String debugInfo = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();
+      debugInfo = StringUtils.defaultString(debugInfo, "No debug info implemented for this DAO");
+      this.report.append("<font color='gray'><b>Note:</b></font> Debug info:").append(this.getCurrentDuration()).append(" ").append(GrouperUtil.xmlEscape(StringUtils.trim(debugInfo))).append("\n");
+      this.report.append("</pre>\n");
+    }
+  }
+
+  /**
+   * SCIM only: apply a candidate strategy for the given dimension onto the in-memory configuration.
+   * @param scimConfiguration scim configuration
+   * @param dimension one of "namePatch" or "emailPatch"
+   * @param strategy candidate strategy value
+   */
+  private void applyScimStrategy(GrouperScim2ProvisionerConfiguration scimConfiguration, String dimension, String strategy) {
+    if (StringUtils.equals(dimension, "namePatch")) {
+      scimConfiguration.setScimNamePatchStrategy(strategy);
+    } else if (StringUtils.equals(dimension, "emailPatch")) {
+      scimConfiguration.setScimEmailPatchStrategy(strategy);
+    }
+  }
+
+  /**
+   * SCIM only: try each candidate patch strategy for a single attribute (PATCH), record which ones
+   * the target accepts, and report how the working set compares to the configured strategy.
+   * @param scimConfiguration scim configuration (mutated per candidate; caller restores it)
+   * @param grouperTargetEntity entity to patch
+   * @param targetProvisioningEntity current target state (for old values)
+   * @param dimension one of "namePatch" or "emailPatch"
+   * @param dimensionLabel human label for the report
+   * @param attributeName attribute to change (e.g. givenName, emailValue)
+   * @param newValue value to set
+   * @param candidates strategy candidates to try
+   * @param configuredStrategy what is configured on the provisioner
+   * @return the candidate strategies that the target accepted (so the caller can revert the change)
+   */
+  private List<String> appendScimPatchStrategyDiscovery(
+      GrouperScim2ProvisionerConfiguration scimConfiguration,
+      ProvisioningEntity grouperTargetEntity, ProvisioningEntity targetProvisioningEntity,
+      String dimension, String dimensionLabel, String attributeName, String newValue,
+      List<String> candidates, String configuredStrategy) {
+
+    this.report.append("\n<b>").append(GrouperUtil.xmlEscape(dimensionLabel)).append("</b> (configured: ")
+      .append(GrouperUtil.xmlEscape(configuredStrategy)).append(")\n");
+
+    List<String> workingStrategies = new ArrayList<String>();
+
+    // capture the original target value once, before any candidate has changed it, so the caller
+    // can revert back to it after all the discovery steps complete
+    String oldValue = targetProvisioningEntity == null ? null : targetProvisioningEntity.retrieveAttributeValueString(attributeName);
+
+    for (String candidate : candidates) {
+
+      // build the PATCH using this candidate strategy
+      this.applyScimStrategy(scimConfiguration, dimension, candidate);
+
+      // reset entity state from any prior attempt
+      GrouperUtil.setClear(grouperTargetEntity.getInternal_objectChanges());
+      grouperTargetEntity.setException(null);
+      grouperTargetEntity.setProvisioned(false);
+
+      grouperTargetEntity.assignAttributeValue(attributeName, newValue);
+      grouperTargetEntity.addInternal_objectChange(
+          new ProvisioningObjectChange(attributeName, ProvisioningObjectChangeAction.update, oldValue, newValue));
+
+      List<ProvisioningEntity> grouperTargetEntitiesToUpdate = GrouperUtil.toList(grouperTargetEntity);
+
+      RuntimeException runtimeException = null;
+      try {
+        this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().updateEntities(new TargetDaoUpdateEntitiesRequest(grouperTargetEntitiesToUpdate));
+      } catch (RuntimeException re) {
+        runtimeException = re;
+      } finally {
+        try {
+          this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().processResultsUpdateEntitiesFull(grouperTargetEntitiesToUpdate, true);
+        } catch (RuntimeException e) {
+          // a failing candidate strategy is expected during discovery; ignore secondary errors
+        }
+      }
+
+      boolean works = runtimeException == null && grouperTargetEntity.getException() == null;
+
+      if (works) {
+        workingStrategies.add(candidate);
+        this.report.append("<font color='green'><b>Works:</b></font> ").append(GrouperUtil.xmlEscape(candidate)).append("\n");
+      } else {
+        Exception failure = runtimeException != null ? runtimeException : grouperTargetEntity.getException();
+        String reason = failure == null ? "unknown" : failure.getMessage();
+        this.report.append("<font color='gray'><b>Does not work:</b></font> ").append(GrouperUtil.xmlEscape(candidate))
+          .append(" (").append(GrouperUtil.xmlEscape(StringUtils.abbreviate(reason, 200))).append(")\n");
+      }
+    }
+
+    this.appendScimStrategyComparison(dimensionLabel, configuredStrategy, workingStrategies);
+
+    return workingStrategies;
+  }
+
+  /**
+   * SCIM only: revert a single attribute back to its original value in the target (PATCH), using a
+   * strategy known to work, so diagnostics does not leave the test value behind.
+   * @param scimConfiguration scim configuration (mutated to the revert strategy; caller restores it)
+   * @param grouperTargetEntity entity to patch
+   * @param dimension one of "namePatch" or "emailPatch"
+   * @param attributeName attribute to change back (e.g. givenName, emailValue)
+   * @param testValue the value that diagnostics put in the target
+   * @param originalValue the value to restore
+   * @param workingStrategy a strategy the target accepted during discovery
+   */
+  private void revertScimAttribute(
+      GrouperScim2ProvisionerConfiguration scimConfiguration, ProvisioningEntity grouperTargetEntity,
+      String dimension, String attributeName, String testValue, String originalValue, String workingStrategy) {
+
+    // nothing was changed in the target if the test value equals what was already there
+    if (StringUtils.equals(testValue, originalValue)) {
+      return;
+    }
+
+    this.applyScimStrategy(scimConfiguration, dimension, workingStrategy);
+
+    GrouperUtil.setClear(grouperTargetEntity.getInternal_objectChanges());
+    grouperTargetEntity.setException(null);
+    grouperTargetEntity.setProvisioned(false);
+
+    grouperTargetEntity.assignAttributeValue(attributeName, originalValue);
+    grouperTargetEntity.addInternal_objectChange(
+        new ProvisioningObjectChange(attributeName, ProvisioningObjectChangeAction.update, testValue, originalValue));
+
+    List<ProvisioningEntity> grouperTargetEntitiesToUpdate = GrouperUtil.toList(grouperTargetEntity);
+
+    RuntimeException runtimeException = null;
+    try {
+      this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().updateEntities(new TargetDaoUpdateEntitiesRequest(grouperTargetEntitiesToUpdate));
+    } catch (RuntimeException re) {
+      runtimeException = re;
+    } finally {
+      try {
+        this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().processResultsUpdateEntitiesFull(grouperTargetEntitiesToUpdate, true);
+      } catch (RuntimeException e) {
+        // ignore secondary errors during revert
+      }
+    }
+
+    if (runtimeException == null && grouperTargetEntity.getException() == null) {
+      this.report.append("<font color='gray'><b>Note:</b></font> Reverted ").append(GrouperUtil.xmlEscape(attributeName))
+        .append(" back to its original value '").append(GrouperUtil.xmlEscape(originalValue)).append("'\n");
+    } else {
+      Exception failure = runtimeException != null ? runtimeException : grouperTargetEntity.getException();
+      String reason = failure == null ? "unknown" : failure.getMessage();
+      this.report.append("<font color='orange'><b>Warning:</b></font> Could not revert ").append(GrouperUtil.xmlEscape(attributeName))
+        .append(" back to its original value (").append(GrouperUtil.xmlEscape(StringUtils.abbreviate(reason, 200))).append(")\n");
+    }
+  }
+
+  /**
+   * SCIM only: try each candidate email filter strategy by looking the entity up by email, record
+   * which ones return the entity, and report how that compares to the configured filter strategy.
+   * @param scimConfiguration scim configuration
+   * @param emailValue email value to look up
+   * @param candidates filter strategy candidates to try
+   * @param configuredStrategy configured email filter strategy
+   */
+  private void appendScimEmailFilterStrategyDiscovery(
+      GrouperScim2ProvisionerConfiguration scimConfiguration, String emailValue,
+      List<String> candidates, String configuredStrategy) {
+
+    this.report.append("\n<b>Email filter strategy</b> (configured: ").append(GrouperUtil.xmlEscape(configuredStrategy)).append(")\n");
+
+    List<String> workingStrategies = new ArrayList<String>();
+
+    for (String candidate : candidates) {
+
+      GrouperScim2User found = null;
+      RuntimeException runtimeException = null;
+      try {
+        ScimSettings scimSettings = new ScimSettings();
+        scimSettings.loadFromScimProvisionerConfiguration(scimConfiguration);
+        scimSettings.setScimEmailFilterStrategy(candidate);
+        found = GrouperScim2ApiCommands.retrieveScimUser(scimConfiguration.getBearerTokenExternalSystemConfigId(),
+            "email", emailValue, new GrouperScim2MembershipCache(), scimSettings);
+      } catch (RuntimeException re) {
+        runtimeException = re;
+      }
+
+      boolean works = runtimeException == null && found != null;
+
+      if (works) {
+        workingStrategies.add(candidate);
+        this.report.append("<font color='green'><b>Works:</b></font> ").append(GrouperUtil.xmlEscape(candidate)).append("\n");
+      } else {
+        String reason = runtimeException != null ? StringUtils.abbreviate(runtimeException.getMessage(), 200) : "entity not found with this filter";
+        this.report.append("<font color='gray'><b>Does not work:</b></font> ").append(GrouperUtil.xmlEscape(candidate))
+          .append(" (").append(GrouperUtil.xmlEscape(reason)).append(")\n");
+      }
+    }
+
+    if (workingStrategies.size() == 0) {
+      this.report.append("<font color='gray'><b>Note:</b></font> No email filter strategy returned the entity; this target does not appear to support looking up entities by email (not applicable, e.g. GitHub). Configured is '")
+        .append(GrouperUtil.xmlEscape(configuredStrategy)).append("'.\n");
+      return;
+    }
+
+    this.appendScimStrategyComparison("Email filter strategy", configuredStrategy, workingStrategies);
+  }
+
+  /**
+   * SCIM only: report whether the configured strategy is among the strategies that worked, and if
+   * not, which ones the operator should switch to.
+   * @param dimensionLabel human label
+   * @param configuredStrategy configured value
+   * @param workingStrategies strategies that worked
+   */
+  private void appendScimStrategyComparison(String dimensionLabel, String configuredStrategy, List<String> workingStrategies) {
+
+    if (workingStrategies.size() == 0) {
+      this.report.append("<font color='red'><b>Action needed:</b></font> ").append(GrouperUtil.xmlEscape(dimensionLabel))
+        .append(": no strategy worked against the target. Configured is '").append(GrouperUtil.xmlEscape(configuredStrategy)).append("'.\n");
+      return;
+    }
+
+    boolean configuredWorks = configuredStrategy != null && workingStrategies.contains(configuredStrategy);
+
+    if (configuredWorks) {
+      this.report.append("<font color='green'><b>Success:</b></font> ").append(GrouperUtil.xmlEscape(dimensionLabel))
+        .append(": the configured strategy '").append(GrouperUtil.xmlEscape(configuredStrategy)).append("' works.\n");
+    } else {
+      this.report.append("<font color='red'><b>Action needed:</b></font> ").append(GrouperUtil.xmlEscape(dimensionLabel))
+        .append(": the configured strategy '").append(GrouperUtil.xmlEscape(configuredStrategy))
+        .append("' does NOT work, but the following do: ").append(GrouperUtil.xmlEscape(StringUtils.join(workingStrategies, ", ")))
+        .append(". Update the provisioner configuration to one of these.\n");
+    }
+  }
+
 }
