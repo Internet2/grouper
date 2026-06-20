@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFull
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
-import edu.internet2.middleware.grouper.app.scim2Provisioning.AwsScim2MockServiceHandler;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GenericScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ApiCommands;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Membership;
@@ -60,9 +60,9 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
   
 
   public static void main(String[] args) {
-    AwsScim2MockServiceHandler.ensureScimMockTables();
+    GenericScim2MockServiceHandler.ensureScimMockTables();
     //TestRunner.run(new GrouperAwsProvisionerTest("testAWSIncrementalSyncProvisionWithActiveAttributeOnUser"));
-    TestRunner.run(new GrouperAwsProvisionerTest("testGenericReplaceMembershipsFullSync"));
+    TestRunner.run(new GrouperAwsProvisionerTest("testFullSyncAwsStartWithAndDiagnostics"));
 
   }
   

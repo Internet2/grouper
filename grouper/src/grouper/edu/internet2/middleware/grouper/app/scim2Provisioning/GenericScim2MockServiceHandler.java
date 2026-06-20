@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +28,7 @@ import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperMockDdl;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.j2ee.MockServiceHandler;
@@ -33,12 +36,31 @@ import edu.internet2.middleware.grouper.j2ee.MockServiceRequest;
 import edu.internet2.middleware.grouper.j2ee.MockServiceResponse;
 import edu.internet2.middleware.grouper.j2ee.MockServiceServlet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
-public class AwsScim2MockServiceHandler extends MockServiceHandler {
+public class GenericScim2MockServiceHandler extends MockServiceHandler {
 
-  public AwsScim2MockServiceHandler() {
+  /**
+   * Read a sync-back test knob fresh from the DB config. Clears the GrouperConfig cache (files +
+   * DB overlay) first, because this mock runs in a long-lived Tomcat JVM that otherwise only
+   * re-checks the DB every grouper.config.secondsBetweenUpdateChecksToDb (~30s) -- far longer than
+   * a test runs, so a cached read would miss a knob the test just stored. Returns false if unset.
+   * @param configKey the grouper.properties key the test stored via GrouperDbConfig
+   * @return the knob value, false if absent or blank
+   */
+  private static boolean mockTestKnobBoolean(String configKey) {
+    ConfigPropertiesCascadeBase.clearCache();
+    return GrouperConfig.retrieveConfig().propertyValueBoolean(configKey, false);
   }
+
+  public GenericScim2MockServiceHandler() {
+  }
+
+  /**
+   * matches the pathEmailsQualified patch path, e.g. emails[type eq "work"].value
+   */
+  private static final Pattern EMAILS_QUALIFIED_PATTERN = Pattern.compile("^emails\\[type\\s+eq\\s+\"([^\"]+)\"\\]\\.value$");
 
   /**
    * 
@@ -62,6 +84,7 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
       new GcDbAccess().sql("select count(*) from mock_scim_user").select(int.class);
       new GcDbAccess().sql("select count(*) from mock_scim_group").select(int.class);
       new GcDbAccess().sql("select count(*) from mock_scim_membership").select(int.class);
+      new GcDbAccess().sql("select count(*) from mock_scim_capture").select(int.class);
     } catch (Exception e) {
 
       //we need to delete the test table if it is there, and create a new one
@@ -73,6 +96,7 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
           GrouperScim2User.createTableScimUser(ddlVersionBean, database);
           GrouperScim2Group.createTableScimGroup(ddlVersionBean, database);
           GrouperScim2Membership.createTableScimMembership(ddlVersionBean, database);
+          createTableScimCapture(ddlVersionBean, database);
           
         }
       });
@@ -81,9 +105,48 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
   }
 
   /**
+   * capture table that records the last outgoing request the mock saw, so tests running in a
+   * different JVM than the (separate process) Tomcat mock can assert the exact outgoing request.
+   * the database (grouper connection) is the only channel shared between the two JVMs.
+   * @param ddlVersionBean
+   * @param database
+   */
+  public static void createTableScimCapture(DdlVersionBean ddlVersionBean, Database database) {
+
+    final String tableName = "mock_scim_capture";
+
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+
+      Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "capture_key", Types.VARCHAR, "100", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "capture_value", Types.VARCHAR, "4000", false, false);
+    }
+  }
+
+  /**
+   * record the last outgoing request the mock saw for a given key (overwrites previous value).
+   * best effort - never break the primary mock behavior if capture fails.
+   * @param key
+   * @param value
+   */
+  public static void recordCapture(String key, String value) {
+    try {
+      new GcDbAccess().sql("delete from mock_scim_capture where capture_key = ?").addBindVar(key).executeSql();
+      new GcDbAccess().sql("insert into mock_scim_capture (capture_key, capture_value) values (?, ?)")
+          .addBindVar(key).addBindVar(StringUtils.abbreviate(value, 4000)).executeSql();
+    } catch (Exception e) {
+      // best effort capture only
+    }
+  }
+
+  /**
    * 
    */
   public static void dropScimMockTables() {
+    MockServiceServlet.dropMockTable("mock_scim_capture");
     MockServiceServlet.dropMockTable("mock_scim_membership");
     MockServiceServlet.dropMockTable("mock_scim_group");
     MockServiceServlet.dropMockTable("mock_scim_user");
@@ -429,6 +492,8 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     
     String filter = mockServiceRequest.getHttpServletRequest().getParameter("filter");
     
+    // capture the exact outgoing filter so tests (in a different JVM) can assert it
+    recordCapture("lastUsersFilter", filter);
     
     List<GrouperScim2User> grouperScimUsers = null;
     
@@ -437,6 +502,10 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     } else {
       String field = null;
       String value = null;
+
+      // which email-filter format the incoming filter represents (null if it is not an email
+      // filter, e.g. a userName lookup); used to enforce grouperTest.scim2.mock.emailFilterStrategy.mode
+      String emailFilterFormat = null;
 
       // Parse the SCIM filter into a field name and value.
       // Different SCIM clients send email filters in different formats depending on
@@ -459,11 +528,13 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
       if (matcher.matches()) {
         field = "emailValue";
         value = matcher.group(1);
+        emailFilterFormat = "emails[value]";
       } else {
         matcher = bracketTypeValuePattern.matcher(filter);
         if (matcher.matches()) {
           field = "emailValue";
           value = matcher.group(1);
+          emailFilterFormat = "emails[typeWork and value]";
         } else {
           // Fall back to simple "field eq value" format
           matcher = fieldPattern.matcher(filter);
@@ -476,12 +547,29 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
           // "email" is non-standard but used by Qlik; "emails.value" is standard SCIM 2.0 dot notation.
           // Other fields like "userName" pass through directly since they match the HQL column names.
           if (StringUtils.equals(field, "email") || StringUtils.equals(field, "emails.value")) {
+            emailFilterFormat = field;
             field = "emailValue";
           }
         }
       }
       value = StringEscapeUtils.unescapeJson(value);
-      grouperScimUsers = HibernateSession.byHqlStatic().createQuery("from GrouperScim2User where " + field + " = :theValue").setString("theValue", value).list(GrouperScim2User.class);
+
+      // strict-mode simulation: the mock honors exactly one email-filter strategy and rejects the
+      // rest (returns no results), so diagnostics can discover which strategy the simulated SCIM
+      // server actually supports. when grouperTest.scim2.mock.emailFilterStrategy.mode is not set,
+      // the mock falls back to the config default "email" (grouper-loader.base.properties
+      // scimEmailFilterStrategy.defaultValue) rather than accepting all formats. mode "none" rejects
+      // every email filter (simulating e.g. GitHub, which does not support email filtering).
+      // non-email lookups (e.g. userName) are never gated.
+      String emailFilterMode = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.emailFilterStrategy.mode");
+      if (StringUtils.isBlank(emailFilterMode)) {
+        emailFilterMode = "email";
+      }
+      if (emailFilterFormat != null && !StringUtils.equals(emailFilterFormat, emailFilterMode)) {
+        grouperScimUsers = new ArrayList<GrouperScim2User>();
+      } else {
+        grouperScimUsers = HibernateSession.byHqlStatic().createQuery("from GrouperScim2User where " + field + " = :theValue").setString("theValue", value).list(GrouperScim2User.class);
+      }
     }
     
     //  {
@@ -565,6 +653,15 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
     
+    if (mockTestKnobBoolean("grouperTest.scim2.mock.deleteUsersReturnSuccessButDoNotDelete")) {
+      // sync-back test knob: ack the delete (204) but do NOT remove the row -- a broken SCIM
+      // target. The record stays unchanged (still active), so the drain's re-read finds it
+      // still there and the mirror keeps it rather than assuming the delete worked.
+      mockServiceResponse.setContentType("application/json");
+      mockServiceResponse.setResponseCode(204);
+      return;
+    }
+
     int membershipsDeleted = HibernateSession.byHqlStatic()
         .createQuery("delete from GrouperScim2Membership where userId = :userId")
         .setString("userId", id).executeUpdateInt();
@@ -624,6 +721,10 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     //  }
     
     String requestBodyString = mockServiceRequest.getRequestBody();
+    
+    // capture the exact outgoing patch body so tests (in a different JVM) can assert it
+    recordCapture("lastUserPatchBody", requestBodyString);
+    
     JsonNode requestNode = GrouperUtil.jsonJacksonNode(requestBodyString);
 
     ArrayNode schemasNode = (ArrayNode)requestNode.get("schemas");
@@ -634,6 +735,23 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     ArrayNode operationsNode = (ArrayNode)requestNode.get("Operations");
 
     GrouperUtil.assertion(operationsNode.size() > 0, "must send operations");
+
+    // pathEmailsQualified can send one op per email address; track which slot to fill
+    int qualifiedEmailOpCount = 0;
+
+    // strict-mode simulation: the mock accepts exactly one strategy per dimension and rejects the
+    // others, so diagnostics can discover which strategy the simulated SCIM server actually supports.
+    // when grouperTest.scim2.mock.*Strategy.mode is not set, the mock falls back to the config
+    // defaults (namePatch "nonqualified", emailPatch "pathEmails", per grouper-loader.base.properties)
+    // rather than accepting all shapes.
+    String namePatchMode = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.namePatchStrategy.mode");
+    if (StringUtils.isBlank(namePatchMode)) {
+      namePatchMode = "nonqualified";
+    }
+    String emailPatchMode = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.emailPatchStrategy.mode");
+    if (StringUtils.isBlank(emailPatchMode)) {
+      emailPatchMode = "pathEmails";
+    }
 
     for (int i=0;i<operationsNode.size();i++) {
       
@@ -681,6 +799,130 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
       
       GrouperUtil.assertion(!"id".equals(path), "cannot patch id");
 
+      // strict-mode simulation: reject patch shapes that don't match the mock's configured
+      // supported strategy, so diagnostics can detect which strategy actually works.
+      {
+        String namePatchVariant = null;
+        if (opReplace && "name".equals(path)) {
+          namePatchVariant = "nested";
+        } else if (path != null && (path.equals("name.givenName") || path.equals("name.familyName")
+            || path.equals("name.middleName") || path.equals("name.formatted") || path.equals("name.formattedName"))) {
+          namePatchVariant = "qualified";
+        } else if (path != null && (path.equals("givenName") || path.equals("familyName")
+            || path.equals("middleName") || path.equals("formatted"))) {
+          namePatchVariant = "nonqualified";
+        }
+        if (namePatchVariant != null && !StringUtils.equals(namePatchVariant, namePatchMode)) {
+          throw new RuntimeException("Mock SCIM server (grouperTest.scim2.mock.namePatchStrategy.mode=" + namePatchMode
+              + ") does not support name patch strategy '" + namePatchVariant + "', path: '" + path + "'");
+        }
+
+        String emailPatchVariant = null;
+        JsonNode opValueNode = operation.get("value");
+        if (opReplace && StringUtils.isBlank(path) && opValueNode != null && opValueNode.has("emails")) {
+          emailPatchVariant = "noPath";
+        } else if (path != null && EMAILS_QUALIFIED_PATTERN.matcher(path).matches()) {
+          emailPatchVariant = "pathEmailsQualified";
+        } else if (StringUtils.equals(path, "emails")) {
+          emailPatchVariant = "pathEmails";
+        }
+        if (emailPatchVariant != null && !StringUtils.equals(emailPatchVariant, emailPatchMode)) {
+          throw new RuntimeException("Mock SCIM server (grouperTest.scim2.mock.emailPatchStrategy.mode=" + emailPatchMode
+              + ") does not support email patch strategy '" + emailPatchVariant + "', path: '" + path + "'");
+        }
+      }
+
+      // nested name patch strategy (scimNamePatchStrategy=nested):
+      //   { "op":"replace", "path":"name", "value":{ "givenName":..., "familyName":..., "middleName":..., "formatted":... } }
+      if (opReplace && "name".equals(path)) {
+        JsonNode nameValueNode = operation.get("value");
+        GrouperUtil.assertion(nameValueNode != null && nameValueNode.isObject(), "expecting an object value for nested name patch");
+        if (nameValueNode.has("formatted")) {
+          grouperScimUser.setFormattedName(GrouperUtil.jsonJacksonGetString(nameValueNode, "formatted"));
+        }
+        if (nameValueNode.has("givenName")) {
+          grouperScimUser.setGivenName(GrouperUtil.jsonJacksonGetString(nameValueNode, "givenName"));
+        }
+        if (nameValueNode.has("familyName")) {
+          grouperScimUser.setFamilyName(GrouperUtil.jsonJacksonGetString(nameValueNode, "familyName"));
+        }
+        if (nameValueNode.has("middleName")) {
+          grouperScimUser.setMiddleName(GrouperUtil.jsonJacksonGetString(nameValueNode, "middleName"));
+        }
+        continue;
+      }
+
+      // email noPath patch strategy (scimEmailPatchStrategy=noPath):
+      //   { "op":"replace", "value":{ "emails":[ { "primary":true, "value":..., "type":... } ] } }  (no path)
+      if (opReplace && StringUtils.isBlank(path)) {
+        JsonNode valueNode = operation.get("value");
+        if (valueNode != null && valueNode.has("emails")) {
+          ArrayNode emailsArrayNode = (ArrayNode) valueNode.get("emails");
+          grouperScimUser.setEmailType(null);
+          grouperScimUser.setEmailValue(null);
+          grouperScimUser.setEmailType2(null);
+          grouperScimUser.setEmailValue2(null);
+          for (int emailIndex = 0; emailIndex < emailsArrayNode.size(); emailIndex++) {
+            JsonNode emailNode = emailsArrayNode.get(emailIndex);
+            String emailValue = GrouperUtil.jsonJacksonGetString(emailNode, "value");
+            String emailType = GrouperUtil.jsonJacksonGetString(emailNode, "type");
+            if (emailIndex == 0) {
+              grouperScimUser.setEmailValue(emailValue);
+              grouperScimUser.setEmailType(emailType);
+            } else {
+              grouperScimUser.setEmailValue2(emailValue);
+              grouperScimUser.setEmailType2(emailType);
+            }
+          }
+          continue;
+        }
+      }
+
+      // email pathEmailsQualified patch strategy (scimEmailPatchStrategy=pathEmailsQualified):
+      //   { "op":"replace", "path":"emails[type eq \"work\"].value", "value":"someone@example.com" }
+      Matcher emailsQualifiedMatcher = path == null ? null : EMAILS_QUALIFIED_PATTERN.matcher(path);
+      if (opReplace && emailsQualifiedMatcher != null && emailsQualifiedMatcher.matches()) {
+        String emailType = emailsQualifiedMatcher.group(1);
+        String emailValue = GrouperUtil.jsonJacksonGetString(operation, "value");
+        qualifiedEmailOpCount++;
+        if (qualifiedEmailOpCount == 1) {
+          grouperScimUser.setEmailValue(emailValue);
+          grouperScimUser.setEmailType(emailType);
+        } else {
+          grouperScimUser.setEmailValue2(emailValue);
+          grouperScimUser.setEmailType2(emailType);
+        }
+        continue;
+      }
+
+      // email pathEmails patch strategy (scimEmailPatchStrategy=pathEmails, the default):
+      //   { "op":"replace", "path":"emails", "value":[ { "primary":true, "value":..., "type":... } ] }
+      // the entire emails collection is replaced, so (unlike the qualified path) this does not
+      // require a pre-existing email to be present
+      if ((opReplace || opAdd) && StringUtils.equals(path, "emails")) {
+        JsonNode valueNode = operation.get("value");
+        if (valueNode != null && valueNode.isArray()) {
+          ArrayNode emailsArrayNode = (ArrayNode) valueNode;
+          grouperScimUser.setEmailType(null);
+          grouperScimUser.setEmailValue(null);
+          grouperScimUser.setEmailType2(null);
+          grouperScimUser.setEmailValue2(null);
+          for (int emailIndex = 0; emailIndex < emailsArrayNode.size(); emailIndex++) {
+            JsonNode emailNode = emailsArrayNode.get(emailIndex);
+            String emailValue = GrouperUtil.jsonJacksonGetString(emailNode, "value");
+            String emailType = GrouperUtil.jsonJacksonGetString(emailNode, "type");
+            if (emailIndex == 0) {
+              grouperScimUser.setEmailValue(emailValue);
+              grouperScimUser.setEmailType(emailType);
+            } else {
+              grouperScimUser.setEmailValue2(emailValue);
+              grouperScimUser.setEmailType2(emailType);
+            }
+          }
+          continue;
+        }
+      }
+
       //  costCenter : String
       if ("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.costCenter".equals(path)) {
         path = "costCenter";
@@ -696,6 +938,15 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
       }
       //  formattedName : String
       if ("name.formattedName".equals(path)) {
+        path = "formattedName";
+      }
+      //  formattedName : String (scimNamePatchStrategy=qualified sends name.formatted)
+      if ("name.formatted".equals(path)) {
+        path = "formattedName";
+      }
+      //  formattedName : String (scimNamePatchStrategy=nonqualified sends the bare SCIM
+      //  sub-attribute name 'formatted', which maps to the Java field 'formattedName')
+      if ("formatted".equals(path)) {
         path = "formattedName";
       }
       //  givenName : String
@@ -778,15 +1029,17 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
           
           GrouperUtil.assignField(grouperScimUser, path, newValue);
           
+        } else if (opRemove) {
+
+          GrouperUtil.assertion(!GrouperUtil.isBlank(oldValue), "remove op doesnt have value! " + path + ", '" + oldValue + "' " + grouperScimUser);
+          GrouperUtil.assertion(newValue == null, "remove op should not have a value! " + path + ", '" + newValue + "' " + grouperScimUser);
+
+          GrouperUtil.assignField(grouperScimUser, path, newValue);
+
         } else {
 
-          GrouperUtil.assertion(!GrouperUtil.isBlank(oldValue), "add op doesnt have value! " + path + ", '" + oldValue + "' " + grouperScimUser);
-
-          if (opRemove) {
-            
-            GrouperUtil.assertion(newValue == null, "remove op should not have a value! " + path + ", '" + newValue + "' " + grouperScimUser);
-          }
-
+          // replace: per SCIM (RFC 7644 3.5.2.1) a replace on a single-valued attribute sets the
+          // value whether or not one previously existed, so do not require a pre-existing value
           GrouperUtil.assignField(grouperScimUser, path, newValue);
         }
         
@@ -794,11 +1047,17 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
       
     }
     HibernateSession.byObjectStatic().saveOrUpdate(grouperScimUser);
-    
-    ObjectNode objectNode = grouperScimUser.toJson(null);
-    mockServiceResponse.setResponseCode(200);
-    mockServiceResponse.setContentType("application/json");
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
+
+    if (mockTestKnobBoolean("grouperTest.scim2.mock.patchUsersReturnNoBody")) {
+      // sync-back test knob: 204 No Content, no body -> the update has no representation, so
+      // the write hook marks the id and the end-of-run drain re-reads it.
+      mockServiceResponse.setResponseCode(204);
+    } else {
+      ObjectNode objectNode = grouperScimUser.toJson(null);
+      mockServiceResponse.setResponseCode(200);
+      mockServiceResponse.setContentType("application/json");
+      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
+    }
     
     
   }

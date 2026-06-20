@@ -818,15 +818,17 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
             
             GrouperUtil.assignField(grouperScimUser, path, newValue);
             
+          } else if (opRemove) {
+
+            GrouperUtil.assertion(!GrouperUtil.isBlank(oldValue), "remove op doesnt have value! " + path + ", '" + oldValue + "' " + grouperScimUser);
+            GrouperUtil.assertion(newValue == null, "remove op should not have a value! " + path + ", '" + newValue + "' " + grouperScimUser);
+
+            GrouperUtil.assignField(grouperScimUser, path, newValue);
+
           } else {
 
-            GrouperUtil.assertion(!GrouperUtil.isBlank(oldValue), "add op doesnt have value! " + path + ", '" + oldValue + "' " + grouperScimUser);
-
-            if (opRemove) {
-              
-              GrouperUtil.assertion(newValue == null, "remove op should not have a value! " + path + ", '" + newValue + "' " + grouperScimUser);
-            }
-
+            // replace: per SCIM (RFC 7644 3.5.2.1) a replace on a single-valued attribute sets the
+            // value whether or not one previously existed, so do not require a pre-existing value
             GrouperUtil.assignField(grouperScimUser, path, newValue);
           }
         }

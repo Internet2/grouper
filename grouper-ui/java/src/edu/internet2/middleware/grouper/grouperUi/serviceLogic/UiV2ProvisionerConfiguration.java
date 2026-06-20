@@ -219,6 +219,19 @@ public class UiV2ProvisionerConfiguration {
             grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsMembershipDelete(diagnosticsMembershipDeleteName);
           }
         }
+        // SCIM only: target variation overrides and editable test entity name/email + update step
+        if (grouperProvisioningDiagnosticsContainer.isScim()) {
+          {
+            boolean diagnosticsEntityUpdateName = GrouperUtil.booleanValue(request.getParameter("diagnosticsEntityUpdateName[]"), false);
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityUpdate(diagnosticsEntityUpdateName);
+          }
+          {
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsScimGivenName(request.getParameter("diagnosticsScimGivenNameName"));
+          }
+          {
+            grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsScimEmailValue(request.getParameter("diagnosticsScimEmailValueName"));
+          }
+        }
       }
       
       

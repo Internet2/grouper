@@ -14,21 +14,20 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.app.adobe.AdobeMockServiceHandler;
 import edu.internet2.middleware.grouper.app.azure.AzureMockServiceHandler;
 import edu.internet2.middleware.grouper.app.boxProvisioner.BoxMockServiceHandler;
+import edu.internet2.middleware.grouper.app.datadog.DatadogMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.DuoMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.role.DuoRoleMockServiceHandler;
+import edu.internet2.middleware.grouper.app.freshServiceRequester.FreshRequesterMockServiceHandler;
 import edu.internet2.middleware.grouper.app.google.GoogleMockServiceHandler;
 import edu.internet2.middleware.grouper.app.okta.OktaMockServiceHandler;
 import edu.internet2.middleware.grouper.app.remedyV2.RemedyMockServiceHandler;
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceMockServiceHandler;
-import edu.internet2.middleware.grouper.app.scim2Provisioning.AwsScim2MockServiceHandler;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GenericScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GithubScim2MockServiceHandler;
-import edu.internet2.middleware.grouper.app.datadog.DatadogMockServiceHandler;
-import edu.internet2.middleware.grouper.app.freshServiceRequester.FreshRequesterMockServiceHandler;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixMockServiceHandler;
 import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryMockServiceHandler;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -55,7 +54,7 @@ public class MockServiceServlet extends HttpServlet {
   private static final Map<String, String> urlToHandler = GrouperUtil.toMap(
       "adobe", AdobeMockServiceHandler.class.getName(),
       "azure", AzureMockServiceHandler.class.getName(),
-      "awsScim", AwsScim2MockServiceHandler.class.getName(),
+      "genericScim", GenericScim2MockServiceHandler.class.getName(),
       "box", BoxMockServiceHandler.class.getName(),
       "datadog", DatadogMockServiceHandler.class.getName(),
       "duo", DuoMockServiceHandler.class.getName(),
