@@ -3951,7 +3951,8 @@ public class UiV2GrouperLoader {
                         grouperLoaderDb, grouperLoaderContainer.getSqlGroupQuery() + " order by group_name", 
                         grouperLoaderContainer.getJobName(), 
                         new Hib3GrouperLoaderLog());
-                    loaderReport.append("<font color='green'>SUCCESS:</font> Ran group query, got " + grouperLoaderResultset.numberOfRows()
+                    // report the count from the group query resultset, not the membership query resultset (GRP-7058)
+                    loaderReport.append("<font color='green'>SUCCESS:</font> Ran group query, got " + grouperLoaderResultsetForGroups.numberOfRows()
                         + " results in " + ((System.nanoTime() - startNanos) / 1000000L) + "ms\n");
                   } catch (Exception e) {
                     loaderReport.append("<font color='red'>ERROR:</font> Error running group query in " 
