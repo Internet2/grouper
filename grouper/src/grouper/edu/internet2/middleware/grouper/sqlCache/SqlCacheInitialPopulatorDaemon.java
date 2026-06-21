@@ -274,13 +274,17 @@ public class SqlCacheInitialPopulatorDaemon extends OtherJobBase {
       
       // STEP 5 - delete from grouper_sql_cache_mship where rows have invalid references
       {
-        int count = new GcDbAccess().sql("delete from grouper_sql_cache_mship gscm where not exists (select 1 from grouper_sql_cache_group gscg where gscg.internal_id = gscm.sql_cache_group_internal_id and gscg.disabled_on is null)").executeSql();
+        // Note: no table alias on the delete target. MySQL/MariaDB does not accept an alias in a
+        // single-table "delete from <table> <alias>" statement, so we correlate the subquery with
+        // the full table name instead. This form is portable across Oracle, Postgres, and MySQL.
+        int count = new GcDbAccess().sql("delete from grouper_sql_cache_mship where not exists (select 1 from grouper_sql_cache_group gscg where gscg.internal_id = grouper_sql_cache_mship.sql_cache_group_internal_id and gscg.disabled_on is null)").executeSql();
         if (theOtherJobInput != null) {
           theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(count);
         }
         incrementCountInDebugMap("sqlCacheMshipsDeletedCount", count);
         
-        count = new GcDbAccess().sql("delete from grouper_sql_cache_mship gscm where not exists (select 1 from grouper_pit_members gpm where gpm.source_internal_id = gscm.member_internal_id and gpm.active = 'T')").executeSql();
+        // Same MySQL alias restriction as above: reference the table by name, not an alias.
+        count = new GcDbAccess().sql("delete from grouper_sql_cache_mship where not exists (select 1 from grouper_pit_members gpm where gpm.source_internal_id = grouper_sql_cache_mship.member_internal_id and gpm.active = 'T')").executeSql();
         if (theOtherJobInput != null) {
           theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(count);
         }
