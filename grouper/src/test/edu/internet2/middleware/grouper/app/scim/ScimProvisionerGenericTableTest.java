@@ -75,6 +75,15 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
     new GrouperDbConfig().configFileName("grouper.properties")
         .propertyName("grouperTest.scim2.mock.membershipStrategy.mode")
         .value("fullGroupMembershipsInGroupObjectsWhenRetrievingAllGroups").store();
+    // most tests run with replaceMemberships off (the default); only testMembershipReplace... turns
+    // it on, in its own config. Reset it here so that value -- persisted in grouper_config and not
+    // otherwise cleared (the AWS configureProvisioner never sets it) -- cannot bleed into tests
+    // that share the JVM/DB and rely on the default. It matters for the incremental remove path:
+    // in replace mode a removal is a group replace (no membership-delete wrapper), so the
+    // incremental flush's wrapper-driven prov_mship delete never fires.
+    new GrouperDbConfig().configFileName("grouper-loader.properties")
+        .propertyName("provisioner." + defaultConfigId() + ".replaceMemberships")
+        .value("false").store();
   }
 
   @Override
@@ -1914,6 +1923,228 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
         countByProvisioner(configId, "grouper_prov_user"));
     // testGroup now has only SUBJ0; otherGroup still has both -> 3 total.
     assertEquals("testGroup's SUBJ1 membership should be replaced out; the other three remain", 3,
+        countByProvisioner(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * Incremental add, write-tracked: an added membership must show in the mirror on the SAME
+   * incremental cycle. Incremental computes its diff with a read-BEFORE-write, so the pre-write
+   * read sees the group without the new member; historically the membership only surfaced on the
+   * next run (the documented "1-cycle lag"). The add hook captures the PATCH op=add into the
+   * native map during the write, and the incremental flush builds its prov_mship inserts from that
+   * map -- so the lag is gone.
+   *
+   * <p>Seed testGroup + SUBJ0 + SUBJ1 via full sync, then add SUBJ2 and run one incremental:
+   * prov_mship must already include SUBJ2 (3 total). Note prov_user must also reach 3 -- SUBJ2's
+   * user row has to exist or the missing-endpoint cascade would suppress its membership.
+   */
+  public void testIncrementalMembershipAddConvergesSameCycle() {
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed via full sync: create the group + the two users + their memberships, converge the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("seed: 2 memberships in the mirror before the incremental", 2,
+        countByProvisioner(configId, "grouper_prov_mship"));
+
+    // prime the changelog consumer: its FIRST run only initializes its changelog position
+    // (processes nothing), so without this priming pass the change below is never consumed.
+    // Pattern from the working incremental tests in GrouperAwsProvisionerTest.
+    incrementalProvision();
+
+    // incremental add: a third member. Incremental's read-before-write sees testGroup as
+    // {SUBJ0,SUBJ1}; only the add hook can land SUBJ2 in the mirror on this same cycle.
+    testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+    incrementalProvision();
+
+    assertEquals("group still in the mirror", 1,
+        countByProvisioner(configId, "grouper_prov_group"));
+    // SUBJ2's user row must be present (object write-tracking) or its membership can't flush.
+    assertEquals("SUBJ2 should be captured into the mirror this cycle", 3,
+        countByProvisioner(configId, "grouper_prov_user"));
+    // the headline assertion: SUBJ2's membership shows SAME cycle -- no 1-cycle lag.
+    assertEquals("the added membership should show in the mirror this incremental cycle", 3,
+        countByProvisioner(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * Incremental remove, write-tracked: removing a member from a surviving group drops exactly that
+   * membership from the mirror on the SAME incremental cycle. This also exercises the incremental
+   * flush's distinct delete path -- prov_mship deletes are driven by the membership wrapper's
+   * delete state ({@code isDeleteResultProcessed}), while the remove hook drops the key from the
+   * native map so the flush's map-driven inserts don't re-add it.
+   *
+   * <p>Two groups each hold SUBJ0 + SUBJ1 (seeded via full sync); SUBJ1 is removed from testGroup
+   * only (it survives in otherGroup, so its entity lives). After one incremental, testGroup keeps
+   * only SUBJ0 and otherGroup keeps both -> 3 memberships; groups stay 2, users stay 2.
+   */
+  public void testIncrementalMembershipRemoveConvergesSameCycle() {
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group otherGroup = new GroupSave(this.grouperSession).assignName("test:otherGroup").save();
+    // both groups hold both members so removing SUBJ1 from testGroup leaves SUBJ1 provisioned
+    // (still in otherGroup) -- its entity is NOT deleted, isolating the membership remove.
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    otherGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    otherGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed via full sync
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("seed: 4 memberships in the mirror before the incremental", 4,
+        countByProvisioner(configId, "grouper_prov_mship"));
+
+    // prime the changelog consumer: its FIRST run only initializes its changelog position
+    // (processes nothing), so without this priming pass the removal below is never consumed.
+    // Pattern from the working incremental tests in GrouperAwsProvisionerTest.
+    incrementalProvision();
+
+    // incremental remove: SUBJ1 leaves testGroup (still in otherGroup)
+    testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+    incrementalProvision();
+
+    // first confirm the removal reached the TARGET (seed had 4 target memberships; removing one
+    // leaves 3), so the mirror assertion below is meaningful and not masking a no-op.
+    int targetMshipCount = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from mock_scim_membership").select(int.class);
+    assertEquals("incremental should have removed SUBJ1 from testGroup in the target", 3,
+        targetMshipCount);
+
+    assertEquals("both groups still in the mirror", 2,
+        countByProvisioner(configId, "grouper_prov_group"));
+    assertEquals("both users still in the mirror (SUBJ1 still in otherGroup)", 2,
+        countByProvisioner(configId, "grouper_prov_user"));
+    // testGroup -> {SUBJ0}; otherGroup -> {SUBJ0,SUBJ1} = 3 total, dropped this same cycle.
+    assertEquals("testGroup's SUBJ1 membership should be removed this incremental cycle", 3,
+        countByProvisioner(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * Incremental in REPLACE mode: with replaceMemberships=true a membership change re-sends the
+   * group's full member set (PATCH op=replace) rather than a per-member PATCH. Removing a member
+   * must still drop that membership from the mirror on the same incremental cycle.
+   *
+   * <p>Two groups each hold SUBJ0 + SUBJ1; SUBJ1 is removed from testGroup only (it survives in
+   * otherGroup, so its entity lives). After the incremental, testGroup keeps just SUBJ0 and
+   * otherGroup keeps both -> 3 memberships. Completes add/remove/replace coverage for both full
+   * and incremental.
+   */
+  public void testIncrementalMembershipReplaceConvergesSameCycle() {
+    String configId = "awsProvisioner";
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        // replace mode: a membership change re-sends the group's full member set (PATCH op=replace)
+        .addExtraConfig("replaceMemberships", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group otherGroup = new GroupSave(this.grouperSession).assignName("test:otherGroup").save();
+    // both groups hold both members so removing SUBJ1 from testGroup leaves SUBJ1 provisioned
+    // (still in otherGroup) -- its entity is NOT deleted, isolating the membership replace.
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    otherGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    otherGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed via full sync (the full flush reconciles, so the seed is correct regardless of mode)
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("seed: 4 memberships in the mirror before the incremental", 4,
+        countByProvisioner(configId, "grouper_prov_mship"));
+
+    // prime the changelog consumer: its FIRST run only initializes its changelog position
+    // (processes nothing), so without this priming pass the removal below is never consumed.
+    // Pattern from the working incremental tests in GrouperAwsProvisionerTest.
+    incrementalProvision();
+
+    // incremental remove in replace mode: testGroup's full member set is re-sent as {SUBJ0}
+    testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+    incrementalProvision();
+
+    assertEquals("both groups still in the mirror", 2,
+        countByProvisioner(configId, "grouper_prov_group"));
+    assertEquals("both users still in the mirror (SUBJ1 still in otherGroup)", 2,
+        countByProvisioner(configId, "grouper_prov_user"));
+    // desired: testGroup -> {SUBJ0}, otherGroup -> {SUBJ0,SUBJ1} = 3
+    assertEquals("testGroup's SUBJ1 membership should be replaced out this incremental cycle", 3,
         countByProvisioner(configId, "grouper_prov_mship"));
   }
 
