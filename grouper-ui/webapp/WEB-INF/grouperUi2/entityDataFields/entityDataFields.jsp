@@ -32,8 +32,11 @@
         class="table table-hover table-bordered table-striped table-condensed data-table">
         <thead>
           <tr>
-            <th>${textContainer.text['entityDataFieldsHeaderConfigId']}</th>
             <th>${textContainer.text['entityDataFieldsHeaderActions']}</th>
+            <th>${textContainer.text['entityDataFieldsHeaderConfigId']}</th>
+            <th>${textContainer.text['entityDataFieldsHeaderPrivacyRealm']}</th>
+            <th>${textContainer.text['entityDataFieldsHeaderDataType']}</th>
+            <th>${textContainer.text['entityDataFieldsHeaderDataStructure']}</th>
           </tr>
         </thead>
         <tbody>
@@ -41,10 +44,6 @@
          <c:forEach items="${grouperRequestContainer.entityDataFieldsContainer.guiDataFieldConfigurations}" var="guiDataFieldConfiguration">
               
             <tr>
-              <td style="white-space: nowrap;">
-                ${guiDataFieldConfiguration.grouperDataFieldConfiguration.configId}
-              </td>
-
               <td>
                 <div class="btn-group">
                   <a data-toggle="dropdown" href="#"
@@ -56,7 +55,7 @@
                     ${textContainer.text['entityDataFieldsRowActionsButton'] }
                     <span class="caret"></span>
                   </a>
-                  <ul class="dropdown-menu dropdown-menu-right"
+                  <ul class="dropdown-menu"
                     id="more-options${i}">
                     
                     <li><a href="?operation=UiV2EntityDataFields.editDataFieldConfig&dataFieldConfigId=${guiDataFieldConfiguration.grouperDataFieldConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.editDataFieldConfig&dataFieldConfigId=${guiDataFieldConfiguration.grouperDataFieldConfiguration.configId}');">${textContainer.text['dataFieldsEditActionsOption'] }</a></li>
@@ -67,6 +66,22 @@
                   </ul>
                 </div>
                </td>
+
+              <td style="white-space: nowrap;">
+                ${guiDataFieldConfiguration.grouperDataFieldConfiguration.configId}
+              </td>
+
+              <td>
+                ${guiDataFieldConfiguration.fieldPrivacyRealm}
+              </td>
+
+              <td>
+                ${guiDataFieldConfiguration.fieldDataType}
+              </td>
+
+              <td>
+                ${guiDataFieldConfiguration.fieldDataStructure}
+              </td>
               </tr>
               
          </c:forEach>

@@ -32,8 +32,11 @@
         class="table table-hover table-bordered table-striped table-condensed data-table">
         <thead>
           <tr>
-            <th>${textContainer.text['entityDataFieldsHeaderConfigId']}</th>
             <th>${textContainer.text['entityDataFieldsHeaderActions']}</th>
+            <th>${textContainer.text['entityDataFieldsHeaderConfigId']}</th>
+            <th>${textContainer.text['dataProviderQueriesHeaderQueryType']}</th>
+            <th>${textContainer.text['dataProviderQueriesHeaderQueryDataStructure']}</th>
+            <th>${textContainer.text['dataProviderQueriesHeaderNumberOfDataFields']}</th>
           </tr>
         </thead>
         <tbody>
@@ -41,10 +44,6 @@
          <c:forEach items="${grouperRequestContainer.entityDataFieldsContainer.guiDataProviderQueryConfigurations}" var="guiDataProviderQueryConfiguration">
               
             <tr>
-              <td style="white-space: nowrap;">
-                ${guiDataProviderQueryConfiguration.grouperDataProviderQueryConfiguration.configId}
-              </td>
-
               <td>
                 <div class="btn-group">
                   <a data-toggle="dropdown" href="#"
@@ -56,7 +55,7 @@
                     ${textContainer.text['entityDataFieldsRowActionsButton'] }
                     <span class="caret"></span>
                   </a>
-                  <ul class="dropdown-menu dropdown-menu-right"
+                  <ul class="dropdown-menu"
                     id="more-options${i}">
 
                     <li><a href="?operation=UiV2EntityDataFields.editDataProviderQueryConfig&dataProviderQueryConfigId=${guiDataProviderQueryConfiguration.grouperDataProviderQueryConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.editDataProviderQueryConfig&dataProviderQueryConfigId=${guiDataProviderQueryConfiguration.grouperDataProviderQueryConfiguration.configId}');">${textContainer.text['dataFieldsEditActionsOption'] }</a></li>
@@ -68,6 +67,22 @@
                   </ul>
                 </div>
                </td>
+
+              <td style="white-space: nowrap;">
+                ${guiDataProviderQueryConfiguration.grouperDataProviderQueryConfiguration.configId}
+              </td>
+
+              <td>
+                ${grouper:escapeHtml(guiDataProviderQueryConfiguration.queryType)}
+              </td>
+
+              <td>
+                ${grouper:escapeHtml(guiDataProviderQueryConfiguration.queryDataStructure)}
+              </td>
+
+              <td>
+                ${grouper:escapeHtml(guiDataProviderQueryConfiguration.numberOfDataFields)}
+              </td>
               </tr>
               
          </c:forEach>
