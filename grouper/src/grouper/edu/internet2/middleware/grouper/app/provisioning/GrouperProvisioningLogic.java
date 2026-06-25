@@ -3919,7 +3919,11 @@ public class GrouperProvisioningLogic {
     
     // never null
     Map<ProvisioningGroup, Object> targetGroupToTargetNativeGroup = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetGroupToTargetNativeGroup();
-    
+
+    int logProgressEveryTargetGroup = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogProgressWhileRetrievingTargetData()
+        ? this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getLogProgressEveryRetrievedTargetGroupCount() : -1;
+    int targetGroupProgressCount = 0;
+
     // add wrappers for all groups
     for (ProvisioningGroup targetProvisioningGroup : GrouperUtil.nonNull(targetProvisioningGroups)) {
       ProvisioningGroupWrapper provisioningGroupWrapper = targetProvisioningGroup.getProvisioningGroupWrapper();
@@ -3942,6 +3946,11 @@ public class GrouperProvisioningLogic {
         if (StringUtils.isBlank(gcGrouperSyncGroup.getInTargetInsertOrExistsDb())) {
           gcGrouperSyncGroup.setInTargetInsertOrExists(false);
         }
+      }
+
+      targetGroupProgressCount++;
+      if (logProgressEveryTargetGroup > 0 && targetGroupProgressCount % logProgressEveryTargetGroup == 0) {
+        this.grouperProvisioner.retrieveGrouperProvisioningObjectLog().info("retrieved " + targetGroupProgressCount + " groups from target");
       }
 
     }
@@ -3996,7 +4005,11 @@ public class GrouperProvisioningLogic {
     
     // never null
     Map<ProvisioningEntity, Object> targetEntityToTargetNativeEntity = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetEntityToTargetNativeEntity();
-    
+
+    int logProgressEveryTargetEntity = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogProgressWhileRetrievingTargetData()
+        ? this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getLogProgressEveryRetrievedTargetEntityCount() : -1;
+    int targetEntityProgressCount = 0;
+
     // add wrappers for all entities
     for (ProvisioningEntity targetProvisioningEntity : GrouperUtil.nonNull(targetProvisioningEntities)) {
       ProvisioningEntityWrapper provisioningEntityWrapper = targetProvisioningEntity.getProvisioningEntityWrapper();
@@ -4020,6 +4033,11 @@ public class GrouperProvisioningLogic {
         if (StringUtils.isBlank(gcGrouperSyncMember.getInTargetInsertOrExistsDb())) {
           gcGrouperSyncMember.setInTargetInsertOrExists(false);
         }
+      }
+
+      targetEntityProgressCount++;
+      if (logProgressEveryTargetEntity > 0 && targetEntityProgressCount % logProgressEveryTargetEntity == 0) {
+        this.grouperProvisioner.retrieveGrouperProvisioningObjectLog().info("retrieved " + targetEntityProgressCount + " entities from target");
       }
 
     }
@@ -4072,6 +4090,10 @@ public class GrouperProvisioningLogic {
     if (GrouperUtil.length(targetProvisioningMemberships) == 0) {
       return;
     }
+    int logProgressEveryTargetMembership = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogProgressWhileRetrievingTargetData()
+        ? this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getLogProgressEveryRetrievedTargetMembershipCount() : -1;
+    int targetMembershipProgressCount = 0;
+
     // add wrappers for all memberships
     for (ProvisioningMembership targetProvisioningMembership : GrouperUtil.nonNull(targetProvisioningMemberships)) {
       ProvisioningMembershipWrapper provisioningMembershipWrapper = targetProvisioningMembership.getProvisioningMembershipWrapper();
@@ -4092,6 +4114,11 @@ public class GrouperProvisioningLogic {
         if (StringUtils.isBlank(gcGrouperSyncMembership.getInTargetInsertOrExistsDb())) {
           gcGrouperSyncMembership.setInTargetInsertOrExists(false);
         }
+      }
+
+      targetMembershipProgressCount++;
+      if (logProgressEveryTargetMembership > 0 && targetMembershipProgressCount % logProgressEveryTargetMembership == 0) {
+        this.grouperProvisioner.retrieveGrouperProvisioningObjectLog().info("retrieved " + targetMembershipProgressCount + " memberships from target");
       }
 
     }
