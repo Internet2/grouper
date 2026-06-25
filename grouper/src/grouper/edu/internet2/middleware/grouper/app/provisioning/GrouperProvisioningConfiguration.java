@@ -1473,6 +1473,46 @@ public abstract class GrouperProvisioningConfiguration {
     this.logMaxErrorsPerType = logMaxErrorsPerType;
   }
 
+  private boolean logProgressWhileRetrievingTargetData;
+
+  public boolean isLogProgressWhileRetrievingTargetData() {
+    return logProgressWhileRetrievingTargetData;
+  }
+
+  public void setLogProgressWhileRetrievingTargetData(boolean logProgressWhileRetrievingTargetData) {
+    this.logProgressWhileRetrievingTargetData = logProgressWhileRetrievingTargetData;
+  }
+
+  private int logProgressEveryRetrievedTargetGroupCount = -1;
+
+  public int getLogProgressEveryRetrievedTargetGroupCount() {
+    return logProgressEveryRetrievedTargetGroupCount;
+  }
+
+  public void setLogProgressEveryRetrievedTargetGroupCount(int logProgressEveryRetrievedTargetGroupCount) {
+    this.logProgressEveryRetrievedTargetGroupCount = logProgressEveryRetrievedTargetGroupCount;
+  }
+
+  private int logProgressEveryRetrievedTargetEntityCount = -1;
+
+  public int getLogProgressEveryRetrievedTargetEntityCount() {
+    return logProgressEveryRetrievedTargetEntityCount;
+  }
+
+  public void setLogProgressEveryRetrievedTargetEntityCount(int logProgressEveryRetrievedTargetEntityCount) {
+    this.logProgressEveryRetrievedTargetEntityCount = logProgressEveryRetrievedTargetEntityCount;
+  }
+
+  private int logProgressEveryRetrievedTargetMembershipCount = -1;
+
+  public int getLogProgressEveryRetrievedTargetMembershipCount() {
+    return logProgressEveryRetrievedTargetMembershipCount;
+  }
+
+  public void setLogProgressEveryRetrievedTargetMembershipCount(int logProgressEveryRetrievedTargetMembershipCount) {
+    this.logProgressEveryRetrievedTargetMembershipCount = logProgressEveryRetrievedTargetMembershipCount;
+  }
+
   public boolean isLogCommandsOnError() {
     return logCommandsOnError;
   }
@@ -3185,7 +3225,15 @@ public abstract class GrouperProvisioningConfiguration {
     this.logCommandsOnError = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCommandsOnError", false), false);
     
     this.logMaxErrorsPerType = GrouperUtil.intValue(this.retrieveConfigInt("logMaxErrorsPerType", false), 10);
-    
+
+    this.logProgressWhileRetrievingTargetData = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logProgressWhileRetrievingTargetData", false), false);
+
+    if (this.logProgressWhileRetrievingTargetData) {
+      this.logProgressEveryRetrievedTargetGroupCount = GrouperUtil.intValue(this.retrieveConfigInt("logProgressEveryRetrievedTargetGroupCount", false), -1);
+      this.logProgressEveryRetrievedTargetEntityCount = GrouperUtil.intValue(this.retrieveConfigInt("logProgressEveryRetrievedTargetEntityCount", false), -1);
+      this.logProgressEveryRetrievedTargetMembershipCount = GrouperUtil.intValue(this.retrieveConfigInt("logProgressEveryRetrievedTargetMembershipCount", false), -1);
+    }
+
     this.logCompareCalculations = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCompareCalculations", false), false);
     
     this.logAllObjectsVerboseCount = GrouperUtil.intValue(this.retrieveConfigInt("logAllObjectsVerboseCount", false), 10);
