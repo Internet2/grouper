@@ -32,8 +32,10 @@
         class="table table-hover table-bordered table-striped table-condensed data-table">
         <thead>
           <tr>
-            <th>${textContainer.text['entityDataFieldsHeaderConfigId']}</th>
             <th>${textContainer.text['entityDataFieldsHeaderActions']}</th>
+            <th>${textContainer.text['entityDataFieldsHeaderConfigId']}</th>
+            <th>${textContainer.text['entityDataFieldsHeaderPrivacyRealm']}</th>
+            <th>${textContainer.text['entityDataRowsHeaderNumberOfDataFields']}</th>
           </tr>
         </thead>
         <tbody>
@@ -41,10 +43,6 @@
          <c:forEach items="${grouperRequestContainer.entityDataFieldsContainer.guiDataRowConfigurations}" var="guiDataRowConfiguration">
               
             <tr>
-              <td style="white-space: nowrap;">
-                ${guiDataRowConfiguration.grouperDataRowConfiguration.configId}
-              </td>
-
               <td>
                 <div class="btn-group">
                   <a data-toggle="dropdown" href="#"
@@ -56,7 +54,7 @@
                     ${textContainer.text['entityDataFieldsRowActionsButton'] }
                     <span class="caret"></span>
                   </a>
-                  <ul class="dropdown-menu dropdown-menu-right"
+                  <ul class="dropdown-menu"
                     id="more-options${i}">
 
                     <li><a href="?operation=UiV2EntityDataFields.editDataRowConfig&dataRowConfigId=${guiDataRowConfiguration.grouperDataRowConfiguration.configId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2EntityDataFields.editDataRowConfig&dataRowConfigId=${guiDataRowConfiguration.grouperDataRowConfiguration.configId}');">${textContainer.text['dataFieldsEditActionsOption'] }</a></li>
@@ -68,6 +66,18 @@
                   </ul>
                 </div>
                </td>
+
+              <td style="white-space: nowrap;">
+                ${guiDataRowConfiguration.grouperDataRowConfiguration.configId}
+              </td>
+
+              <td>
+                ${guiDataRowConfiguration.rowPrivacyRealm}
+              </td>
+
+              <td>
+                ${guiDataRowConfiguration.rowNumberOfDataFields}
+              </td>
               </tr>
               
          </c:forEach>

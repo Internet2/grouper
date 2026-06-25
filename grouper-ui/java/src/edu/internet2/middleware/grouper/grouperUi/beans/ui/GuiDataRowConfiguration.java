@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfiguration;
 
 public class GuiDataRowConfiguration {
@@ -11,6 +13,15 @@ public class GuiDataRowConfiguration {
   
   public GrouperDataRowConfiguration getGrouperDataRowConfiguration() {
     return grouperDataRowConfiguration;
+  }
+
+  public String getRowPrivacyRealm() {
+    return this.grouperDataRowConfiguration.retrieveAttributeValueFromConfig("rowPrivacyRealm", false);
+  }
+
+  public String getRowNumberOfDataFields() {
+    String value = this.grouperDataRowConfiguration.retrieveAttributeValueFromConfig("rowNumberOfDataFields", false);
+    return StringUtils.isBlank(value) ? "0" : value;
   }
   
   private GuiDataRowConfiguration(GrouperDataRowConfiguration grouperDataRowConfiguration) {

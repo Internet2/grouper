@@ -12,6 +12,30 @@ public class GuiDataProviderQueryConfiguration {
   public GrouperDataProviderQueryConfiguration getGrouperDataProviderQueryConfiguration() {
     return grouperDataProviderQueryConfiguration;
   }
+
+  /**
+   * query type, e.g. sql or ldap
+   * @return the query type
+   */
+  public String getQueryType() {
+    return this.grouperDataProviderQueryConfiguration.retrieveAttributeValueFromConfig("providerQueryType", false);
+  }
+
+  /**
+   * query data structure, e.g. attribute or row
+   * @return the query data structure
+   */
+  public String getQueryDataStructure() {
+    return this.grouperDataProviderQueryConfiguration.retrieveAttributeValueFromConfig("providerQueryDataStructure", false);
+  }
+
+  /**
+   * number of data fields configured in this query
+   * @return the number of data fields
+   */
+  public String getNumberOfDataFields() {
+    return this.grouperDataProviderQueryConfiguration.retrieveAttributeValueFromConfig("providerQueryNumberOfDataFields", false);
+  }
   
   private GuiDataProviderQueryConfiguration(GrouperDataProviderQueryConfiguration grouperDataProviderQueryConfiguration) {
     this.grouperDataProviderQueryConfiguration = grouperDataProviderQueryConfiguration;
