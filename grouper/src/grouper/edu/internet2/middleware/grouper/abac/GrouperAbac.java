@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignDao;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -57,11 +58,80 @@ public class GrouperAbac {
   public static final String GROUPER_JEXL_SCRIPT_SUBJECT_SOURCE_IDS = "grouperJexlScriptSubjectSourceIds";
 
   /**
-   * 
+   *
    * @return the stem name
    */
   public static String jexlScriptStemName() {
     return GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:abacJexlScript";
+  }
+
+  /**
+   * name of the group that holds data fields used as global variables in abac scripts.
+   * this group is auto-created on startup if it does not exist.
+   * @return the group name
+   */
+  public static String abacGlobalGroupName() {
+    return GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":abacGlobal";
+  }
+
+  /**
+   * cache the abacGlobal data field values for a couple minutes.  keyed by data field internal id,
+   * valued by the scalar value assigned to the abacGlobal group (member): the dictionary text for
+   * string fields, or the integer value (value_integer) for integer/bool/timestamp fields.
+   */
+  private static ExpirableCache<Boolean, Map<Long, Object>> globalAttributeValuesCache = new ExpirableCache<>(2);
+
+  /**
+   * Load the data field values assigned to the abacGlobal group (treated as a subject/member),
+   * so abac scripts can reference them as global variables via globalAttributeValue('alias').
+   *
+   * The whole set is loaded in a single query for the abacGlobal member across all of its assigned
+   * fields and cached briefly, so an abac script referencing several globals does not run a query
+   * per reference.  The value is resolved to a literal at script-analysis time and then bound as a
+   * SQL bind variable in the membership query, rather than joined in.
+   *
+   * @return map of data field internal id to the assigned scalar value (String for string fields,
+   *   Long for integer/bool/timestamp fields).  Never null; empty when the group or its member or
+   *   any assignments do not exist.
+   */
+  public static Map<Long, Object> globalAttributeValueByDataFieldInternalId() {
+    Map<Long, Object> result = globalAttributeValuesCache.get(Boolean.TRUE);
+    if (result != null) {
+      return result;
+    }
+
+    result = new HashMap<Long, Object>();
+
+    // resolve the abacGlobal group's member internal id as root - the loader user may not be able to read it
+    Long memberInternalId = (Long)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Group group = GroupFinder.findByName(grouperSession, abacGlobalGroupName(), false);
+        if (group == null) {
+          return null;
+        }
+        return group.toMember().getInternalId();
+      }
+    });
+
+    if (memberInternalId == null) {
+      globalAttributeValuesCache.put(Boolean.TRUE, result);
+      return result;
+    }
+
+    // one query: every data field assigned to the abacGlobal member, with the dictionary text joined in.
+    // string fields populate the_text (value_dictionary_internal_id); the rest populate value_integer.
+    List<Object[]> rows = GrouperDataFieldAssignDao.selectDataFieldAssignValuesByMemberInternalId(memberInternalId);
+
+    for (Object[] row : GrouperUtil.nonNull(rows)) {
+      Long dataFieldInternalId = GrouperUtil.longObjectValue(row[0], false);
+      String theText = GrouperUtil.stringValue(row[1]);
+      Long valueInteger = row[2] == null ? null : GrouperUtil.longObjectValue(row[2], false);
+      result.put(dataFieldInternalId, theText != null ? theText : valueInteger);
+    }
+
+    globalAttributeValuesCache.put(Boolean.TRUE, result);
+    return result;
   }
 
   /**
@@ -339,6 +409,7 @@ public class GrouperAbac {
    * clear all expirable caches, useful for testing
    */
   public static void clearCaches() {
+    globalAttributeValuesCache.clear();
     globalDefaultSubjectSourceIdsCache.clear();
     allowUserOverrideSubjectSourceIdsCache.clear();
     availableSubjectSourceIdsCache.clear();

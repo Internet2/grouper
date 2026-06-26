@@ -27,7 +27,11 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataField;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssign;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldType;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldWrapper;
+import edu.internet2.middleware.grouper.dataField.GrouperDataProviderDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderTest;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -52,7 +56,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testVisualizationComplexHasRow"));
+    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testJexlGlobalAttributeValue"));
   }
 
   /**
@@ -259,6 +263,146 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
 //    assertTrue(members.contains(member0));
 //    assertTrue(members.contains(member1));
 
+  }
+
+  /**
+   * globalAttributeValue('alias') reads the value of a data field assigned to the abacGlobal group and
+   * uses it as a SQL bind variable (or LIKE/REGEX pattern) in the scripted group membership query.  This
+   * exercises every operator that accepts a global, across integer, string and boolean global values, and
+   * multiple globals combined in one script.
+   */
+  public void testJexlGlobalAttributeValue() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // the abacGlobal group holds the data field values used as global variables in abac scripts
+    Group abacGlobalGroup = new GroupSave().assignName(GrouperAbac.abacGlobalGroupName())
+        .assignCreateParentStemsIfNotExist(true).save();
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    GrouperDataField jobNumberField = grouperDataEngine.getGrouperDataProviderIndex()
+        .getFieldWrapperByLowerAlias().get("jobnumber").getGrouperDataField();
+    GrouperDataField orgField = grouperDataEngine.getGrouperDataProviderIndex()
+        .getFieldWrapperByLowerAlias().get("org").getGrouperDataField();
+    GrouperDataField employeeField = grouperDataEngine.getGrouperDataProviderIndex()
+        .getFieldWrapperByLowerAlias().get("employee").getGrouperDataField();
+
+    long dataProviderInternalId = GrouperDataProviderDao.selectByText("idm").getInternalId();
+    long abacGlobalMemberInternalId = abacGlobalGroup.toMember().getInternalId();
+
+    // assign the global variable values to the abacGlobal group: jobNumber=456 (integer), org="234"
+    // (string), employee=true (boolean)
+    assignGlobalValue(GrouperDataFieldType.integer, jobNumberField.getInternalId(), 456L, abacGlobalMemberInternalId, dataProviderInternalId);
+    assignGlobalValue(GrouperDataFieldType.string, orgField.getInternalId(), "234", abacGlobalMemberInternalId, dataProviderInternalId);
+    assignGlobalValue(GrouperDataFieldType.bool, employeeField.getInternalId(), Boolean.TRUE, abacGlobalMemberInternalId, dataProviderInternalId);
+
+    // make sure the global value cache picks up the new assignments
+    GrouperAbac.clearCaches();
+
+    // sanity check the global lookup returns the assigned scalars (string dictionary text, integer/bool value_integer)
+    assertEquals(456L, GrouperAbac.globalAttributeValueByDataFieldInternalId().get(jobNumberField.getInternalId()));
+    assertEquals("234", GrouperAbac.globalAttributeValueByDataFieldInternalId().get(orgField.getInternalId()));
+    assertEquals(1L, GrouperAbac.globalAttributeValueByDataFieldInternalId().get(employeeField.getInternalId()));
+
+    // subject jobNumbers (integer, multivalued): s0={123,234} s1={123,456} s2={234} s3={789,456}
+    // subject org (string, multivalued, same source values): s0={"123","234"} s1={"123","456"} s2={"234"} s3={"789","456"}
+    // subject employee (boolean): s0=true s1=false s2=true s3=false
+
+    // integer global (jobNumber = 456): equals, every comparison operator, and between
+    Group gIntEq = createScriptedGroup(grouperSession, "test:gIntEq", "entity.hasAttribute('jobNumber', globalAttributeValue('jobNumber'))");
+    Group gIntGt = createScriptedGroup(grouperSession, "test:gIntGt", "entity.hasAttributeGreaterThan('jobNumber', globalAttributeValue('jobNumber'))");
+    Group gIntGe = createScriptedGroup(grouperSession, "test:gIntGe", "entity.hasAttributeGreaterThanOrEqual('jobNumber', globalAttributeValue('jobNumber'))");
+    Group gIntLt = createScriptedGroup(grouperSession, "test:gIntLt", "entity.hasAttributeLessThan('jobNumber', globalAttributeValue('jobNumber'))");
+    Group gIntLe = createScriptedGroup(grouperSession, "test:gIntLe", "entity.hasAttributeLessThanOrEqual('jobNumber', globalAttributeValue('jobNumber'))");
+    Group gIntBetween = createScriptedGroup(grouperSession, "test:gIntBetween", "entity.hasAttributeBetween(globalAttributeValue('jobNumber') <= jobNumber, jobNumber <= 500)");
+
+    // string global (org = "234"): equals, like and regex (the global supplies the pattern)
+    Group gStrEq = createScriptedGroup(grouperSession, "test:gStrEq", "entity.hasAttribute('org', globalAttributeValue('org'))");
+    Group gStrLike = createScriptedGroup(grouperSession, "test:gStrLike", "entity.hasAttributeLike('org', globalAttributeValue('org'))");
+    Group gStrRegex = createScriptedGroup(grouperSession, "test:gStrRegex", "entity.hasAttributeRegex('org', globalAttributeValue('org'))");
+
+    // boolean global (employee = true)
+    Group gBoolEq = createScriptedGroup(grouperSession, "test:gBoolEq", "entity.hasAttribute('employee', globalAttributeValue('employee'))");
+
+    // multiple globals (and different types) combined in one script
+    Group gComboAnd = createScriptedGroup(grouperSession, "test:gComboAnd", "entity.hasAttribute('employee', globalAttributeValue('employee')) && entity.hasAttributeLessThan('jobNumber', globalAttributeValue('jobNumber'))");
+    Group gComboOr = createScriptedGroup(grouperSession, "test:gComboOr", "entity.hasAttribute('jobNumber', globalAttributeValue('jobNumber')) || entity.hasAttribute('org', globalAttributeValue('org'))");
+
+    // a global used inside a hasRow condition (row column comparison)
+    Group gRow = createScriptedGroup(grouperSession, "test:gRow", "entity.hasRow('affiliation', \"affiliationDeptNumber < globalAttributeValue('jobNumber')\")");
+
+    // build the sql cache group rows for all the new groups, then run the full sync once
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    // integer operators vs global jobNumber 456
+    assertEquals(2, gIntEq.getMembers().size());        // == 456   -> s1, s3
+    assertEquals(1, gIntGt.getMembers().size());        // >  456   -> s3 (789)
+    assertEquals(2, gIntGe.getMembers().size());        // >= 456   -> s1, s3
+    assertEquals(3, gIntLt.getMembers().size());        // <  456   -> s0, s1, s2
+    assertEquals(4, gIntLe.getMembers().size());        // <= 456   -> s0, s1, s2, s3
+    assertEquals(2, gIntBetween.getMembers().size());   // 456..500 -> s1, s3
+
+    // string operators vs global org "234"
+    assertEquals(2, gStrEq.getMembers().size());        // == "234"    -> s0, s2
+    assertEquals(2, gStrLike.getMembers().size());      // like "234"  -> s0, s2
+    assertEquals(2, gStrRegex.getMembers().size());     // regex "234" -> s0, s2
+
+    // boolean operator vs global employee true
+    assertEquals(2, gBoolEq.getMembers().size());       // employee true -> s0, s2
+
+    // multiple globals combined
+    assertEquals(2, gComboAnd.getMembers().size());     // employee true AND jobNumber < 456 -> s0, s2
+    assertEquals(4, gComboOr.getMembers().size());      // jobNumber == 456 OR org == "234"  -> all four
+
+    // global inside a hasRow condition
+    assertEquals(2, gRow.getMembers().size());          // affiliation row with deptNumber < 456 -> s0, s3
+
+    // spot check the actual subjects for the equals case
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Set<Member> intEqMembers = gIntEq.getMembers();
+    assertTrue(intEqMembers.contains(MemberFinder.findBySubject(grouperSession, testSubject1, true)));
+    assertTrue(intEqMembers.contains(MemberFinder.findBySubject(grouperSession, testSubject3, true)));
+  }
+
+  /**
+   * assign a global variable value (a data field value on the abacGlobal group member), referenced by abac
+   * scripts via globalAttributeValue('alias').
+   * @param fieldType the data field type, drives whether the value lands in value_integer or a dictionary
+   * @param dataFieldInternalId the global data field
+   * @param value the value to assign
+   * @param memberInternalId the abacGlobal group's member internal id
+   * @param dataProviderInternalId the data provider internal id
+   */
+  private static void assignGlobalValue(GrouperDataFieldType fieldType, long dataFieldInternalId, Object value,
+      long memberInternalId, long dataProviderInternalId) {
+    GrouperDataFieldAssign globalAssign = new GrouperDataFieldAssign();
+    globalAssign.setDataFieldInternalId(dataFieldInternalId);
+    globalAssign.setMemberInternalId(memberInternalId);
+    globalAssign.setDataProviderInternalId(dataProviderInternalId);
+    fieldType.assignValue(globalAssign, value, null);
+    GrouperDataFieldAssignDao.store(globalAssign);
+  }
+
+  /**
+   * create a group marked as an abac jexl scripted group with the given script.
+   * @param grouperSession the session
+   * @param groupName the group name
+   * @param script the abac jexl script
+   * @return the created group
+   */
+  private static Group createScriptedGroup(GrouperSession grouperSession, String groupName, String script) {
+    Group group = new GroupSave().assignName(groupName).assignCreateParentStemsIfNotExist(true).save();
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(group)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), script);
+    return group;
   }
 
   public void testRecentMemberOf() {

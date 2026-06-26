@@ -1214,7 +1214,14 @@ public class GrouperCheckConfig {
           }
             groupSaves.add(new GroupSave().assignName(groupName).assignDescription("members of this group can run jexl script testing from UI").assignCreateParentStemsIfNotExist(true));
           }
-        
+
+        {
+          // group that can be assigned data fields used as global variables in abac scripts
+          String abacGlobalGroupName = GrouperAbac.abacGlobalGroupName();
+          groupSaves.add(new GroupSave().assignName(abacGlobalGroupName).assignDescription(
+              "group that can be assigned data fields that can be used as global variables in abac scripts").assignCreateParentStemsIfNotExist(true));
+        }
+
         {
             String wheelViewonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.viewonly.group");
             if (StringUtils.isBlank(wheelViewonlyName)) {

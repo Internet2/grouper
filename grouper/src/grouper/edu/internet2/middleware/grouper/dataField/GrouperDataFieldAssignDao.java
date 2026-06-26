@@ -207,7 +207,28 @@ public class GrouperDataFieldAssignDao {
   }
 
   /**
-   * 
+   * select all data field values assigned to a single member, across all of its assigned fields, with the
+   * dictionary text joined in (string fields populate the_text via value_dictionary_internal_id; the rest
+   * populate value_integer).
+   * @param memberInternalId
+   * @return list of array containing data field internal id, value string, value integer
+   */
+  public static List<Object[]> selectDataFieldAssignValuesByMemberInternalId(Long memberInternalId) {
+
+    if (memberInternalId == null) {
+      throw new NullPointerException();
+    }
+
+    String sql = "select gdfa.data_field_internal_id, gd.the_text, gdfa.value_integer "
+        + "from grouper_data_field_assign gdfa "
+        + "left join grouper_dictionary gd on gdfa.value_dictionary_internal_id = gd.internal_id "
+        + "where gdfa.member_internal_id = ?";
+
+    return new GcDbAccess().sql(sql).addBindVar(memberInternalId).selectList(Object[].class);
+  }
+
+  /**
+   *
    * @param dataFieldInternalIds
    * @param memberInternalIds
    * @return list of array containing data field internal id, member internal id, value string, value integer
