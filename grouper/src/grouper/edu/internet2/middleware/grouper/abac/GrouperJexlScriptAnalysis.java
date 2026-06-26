@@ -52,14 +52,29 @@ public class GrouperJexlScriptAnalysis {
   }
   
   private Set<String> recentMemberOfGroupNames = new HashSet<String>();
-  
+
   public Set<String> getRecentMemberOfGroupNames() {
     return recentMemberOfGroupNames;
   }
 
-  
+
   public void setRecentMemberOfGroupNames(Set<String> recentMemberOfGroupNames) {
     this.recentMemberOfGroupNames = recentMemberOfGroupNames;
+  }
+
+  /**
+   * lower-cased data field aliases referenced via globalAttributeValue('alias').  These are data
+   * fields whose value (assigned to the abacGlobal group) is read into the script, so the editing
+   * user must have privacy-realm access to them just like a field referenced by hasAttribute.
+   */
+  private Set<String> globalAttributeAliases = new HashSet<String>();
+
+  public Set<String> getGlobalAttributeAliases() {
+    return globalAttributeAliases;
+  }
+
+  public void setGlobalAttributeAliases(Set<String> globalAttributeAliases) {
+    this.globalAttributeAliases = globalAttributeAliases;
   }
 
   private String errorMessage;

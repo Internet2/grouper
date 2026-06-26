@@ -142,13 +142,13 @@ public enum GrouperDataFieldType {
     @Override
     public void assignValueHelper(GrouperDataFieldAssign grouperDataFieldAssign,
         Object value, Map<String, Long> dictionaryTextToInternalId) {
-      Boolean valueBoolean = GrouperUtil.booleanObjectValue(value);
+      Boolean valueBoolean = booleanValueOf(value);
       grouperDataFieldAssign.setValueInteger(valueBoolean == null ? null : (valueBoolean ? 1L : 0L));
     }
     @Override
     public void assignValueHelper(GrouperDataRowFieldAssign grouperDataRowFieldAssign,
         Object value, Map<String, Long> dictionaryTextToInternalId) {
-      Boolean valueBoolean = GrouperUtil.booleanObjectValue(value);
+      Boolean valueBoolean = booleanValueOf(value);
       grouperDataRowFieldAssign.setValueInteger(valueBoolean == null ? null : (valueBoolean ? 1L : 0L));
     }
     
@@ -258,5 +258,26 @@ public enum GrouperDataFieldType {
 
   public abstract String convertToUiFriendlyString(Long valueInteger, String valueString);
 
+  /**
+   * convert a value to a Boolean for a boolean field.  booleans are stored as value_integer (1/0), so a
+   * numeric value (e.g. a globalAttributeValue resolved from value_integer, or a numeric literal) is
+   * accepted as exactly 1=true / 0=false (any other number is an error).  everything else (Boolean,
+   * "true"/"false"/"t"/"f"/...) goes through the normal conversion.
+   * @param value
+   * @return the Boolean value, or null if the value is null/blank
+   */
+  private static Boolean booleanValueOf(Object value) {
+    if (value instanceof Number) {
+      long longValue = ((Number) value).longValue();
+      if (longValue == 0L) {
+        return false;
+      }
+      if (longValue == 1L) {
+        return true;
+      }
+      throw new RuntimeException("Expecting 0 or 1 for a boolean field, but got: " + value);
+    }
+    return GrouperUtil.booleanObjectValue(value);
+  }
 
 }

@@ -267,7 +267,34 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     Member member = subject != null ? MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true): null;
     
     GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = analyzeJexlScript(grouperDataEngine, jexlScript);
-      
+
+    // globalAttributeValue('alias') reads the value of a data field assigned to the abacGlobal group into
+    // the script.  The editing user must be allowed to read that field, same as a field used in hasAttribute.
+    for (String globalAttributeAlias : GrouperUtil.nonNull(grouperJexlScriptAnalysis.getGlobalAttributeAliases())) {
+
+      GrouperDataFieldConfig grouperDataFieldConfig = grouperDataEngine.getFieldConfigByAlias().get(globalAttributeAlias);
+      if (grouperDataFieldConfig == null) {
+        grouperJexlScriptAnalysis.setErrorMessage(GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToViewAttribute") + " '" + globalAttributeAlias + "'");
+        return grouperJexlScriptAnalysis;
+      }
+
+      String grouperPrivacyRealmConfigId = grouperDataFieldConfig.getGrouperPrivacyRealmConfigId();
+      GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
+      String highestLevelAccess = grouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+
+      if (!readOnly && !StringUtils.equals(highestLevelAccess, "update")) {
+        grouperJexlScriptAnalysis.setErrorMessage(GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToEditPolicy") + " '" + globalAttributeAlias + "'");
+        return grouperJexlScriptAnalysis;
+      }
+
+      if (StringUtils.equals(highestLevelAccess, "read")) {
+        grouperJexlScriptAnalysis.setWarningMessage(GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToEditPolicy") + " '" + globalAttributeAlias + "'");
+      } else if (StringUtils.equals(highestLevelAccess, "") || StringUtils.equals(highestLevelAccess, "view")) {
+        grouperJexlScriptAnalysis.setErrorMessage(GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToViewAttribute") + " '" + globalAttributeAlias + "'");
+        return grouperJexlScriptAnalysis;
+      }
+    }
+
     if (GrouperUtil.length(grouperJexlScriptAnalysis.getRecentMemberOfGroupNames()) > 0) {
       Set<MultiKey> groupNamesAndFieldNames = new HashSet<>();
       for (String groupName : grouperJexlScriptAnalysis.getRecentMemberOfGroupNames()) {
@@ -686,11 +713,95 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   }
 
   /**
+   * Whether this AST node is a globalAttributeValue('alias') function call.  This is a value-producing
+   * expression that can appear anywhere a literal value is expected as a function argument (e.g. the
+   * value argument of hasAttribute).  It resolves to the value of a data field assigned to the
+   * abacGlobal group, so scripts can use global variables, e.g. hasAttribute('term', globalAttributeValue('termCurrent')).
+   * @param jexlNode the argument node
+   * @return true if it is a globalAttributeValue(...) call
+   */
+  public static boolean isGlobalAttributeValueNode(JexlNode jexlNode) {
+    if (!(jexlNode instanceof ASTFunctionNode)) {
+      return false;
+    }
+    ASTFunctionNode astFunctionNode = (ASTFunctionNode)jexlNode;
+    if (astFunctionNode.jjtGetNumChildren() < 1 || !(astFunctionNode.jjtGetChild(0) instanceof ASTIdentifier)) {
+      return false;
+    }
+    ASTIdentifier astIdentifier = (ASTIdentifier)astFunctionNode.jjtGetChild(0);
+    return StringUtils.equals("globalAttributeValue", astIdentifier.getName());
+  }
+
+  /**
+   * Resolve a globalAttributeValue('alias') function call to the scalar value of the data field
+   * assigned to the abacGlobal group.  The value is read once (cached, single query) from the
+   * abacGlobal member and returned as a literal (String for string fields, Long otherwise) so the
+   * caller can bind it as a normal SQL bind variable.
+   * @param grouperJexlScriptAnalysis the analysis (provides the data engine to resolve the alias)
+   * @param jexlNode the globalAttributeValue(...) function node
+   * @return the resolved value
+   */
+  public static Object resolveGlobalAttributeValueNode(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, JexlNode jexlNode) {
+    ASTFunctionNode astFunctionNode = (ASTFunctionNode)jexlNode;
+    // last child is the ASTArguments (first child is the function name identifier)
+    ASTArguments astArguments = (ASTArguments)astFunctionNode.jjtGetChild(astFunctionNode.jjtGetNumChildren()-1);
+    if (astArguments.jjtGetNumChildren() != 1 || !(astArguments.jjtGetChild(0) instanceof ASTStringLiteral)) {
+      throw new RuntimeException("globalAttributeValue expects exactly one string argument, the global data field alias");
+    }
+    String globalFieldAlias = ((ASTStringLiteral)astArguments.jjtGetChild(0)).getLiteral();
+
+    // track the referenced global field so the edit-time privacy-realm check (analyzeJexlScriptHtml) can
+    // enforce that the editing user is allowed to read this field's value, just like a hasAttribute field
+    grouperJexlScriptAnalysis.getGlobalAttributeAliases().add(globalFieldAlias.toLowerCase());
+
+    GrouperDataFieldWrapper grouperDataFieldWrapper = grouperJexlScriptAnalysis.getGrouperDataEngine()
+        .getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(globalFieldAlias.toLowerCase());
+    if (grouperDataFieldWrapper == null) {
+      throw new RuntimeException("globalAttributeValue data field '" + globalFieldAlias + "' not found!");
+    }
+    long dataFieldInternalId = grouperDataFieldWrapper.getGrouperDataField().getInternalId();
+
+    Map<Long, Object> globalAttributeValueByDataFieldInternalId = GrouperAbac.globalAttributeValueByDataFieldInternalId();
+    if (!globalAttributeValueByDataFieldInternalId.containsKey(dataFieldInternalId)) {
+      throw new RuntimeException("globalAttributeValue '" + globalFieldAlias + "' is not assigned to the "
+          + GrouperAbac.abacGlobalGroupName() + " group");
+    }
+    return globalAttributeValueByDataFieldInternalId.get(dataFieldInternalId);
+  }
+
+  /**
+   * Whether this AST node is acceptable where a string literal value is expected (hasAttributeLike /
+   * hasAttributeRegex): a string literal or a globalAttributeValue('alias') reference.
+   * @param jexlNode the argument node
+   * @return true if it can be resolved by {@link #stringLiteralOrGlobal}
+   */
+  public static boolean isStringLiteralOrGlobal(JexlNode jexlNode) {
+    return jexlNode instanceof ASTStringLiteral || isGlobalAttributeValueNode(jexlNode);
+  }
+
+  /**
+   * Resolve a value argument node that is expected to be a string (a like / regex pattern), supporting
+   * a string literal or a globalAttributeValue('alias') reference (rendered to its string form).
+   * @param grouperJexlScriptAnalysis the analysis (provides the data engine to resolve globals)
+   * @param jexlNode the value argument node
+   * @return the resolved string value
+   */
+  public static String stringLiteralOrGlobal(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, JexlNode jexlNode) {
+    if (jexlNode instanceof ASTStringLiteral) {
+      return ((ASTStringLiteral)jexlNode).getLiteral();
+    }
+    if (isGlobalAttributeValueNode(jexlNode)) {
+      return GrouperUtil.stringValue(resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, jexlNode));
+    }
+    throw new RuntimeException("Not expecting argument of type! " + jexlNode.getClass().getName());
+  }
+
+  /**
    * has two children
    * @param result
    * @param astReference
    */
-  public static void analyzeJexlReferenceTwoChildrenToSqlHelper(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, 
+  public static void analyzeJexlReferenceTwoChildrenToSqlHelper(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis,
       GrouperJexlScriptPart grouperJexlScriptPart, ASTReference astReference, boolean clonePart) {
     ASTIdentifier astIdentifier = (ASTIdentifier)astReference.jjtGetChild(0);
     if (!StringUtils.equals("entity", astIdentifier.getName())) {
@@ -835,10 +946,27 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           } else {
             grouperJexlScriptPart.getDisplayDescription().append(", ").append(value);
           }
-          
+
           grouperJexlScriptPartClone.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
           .append(" '").append(attributeAlias).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue2")).append(" ")
           .append(value);
+
+        } else if (isGlobalAttributeValueNode(jjtGetChild)) {
+
+          Object value = resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, jjtGetChild);
+          grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value));
+          grouperJexlScriptPartClone.getArguments().add(new MultiKey("attributeValue", value));
+          if (i == 0) {
+            grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
+            .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeAnyValue")).append(" '")
+            .append(GrouperUtil.xmlEscape(GrouperUtil.stringValue(value))).append("'");
+          } else {
+            grouperJexlScriptPart.getDisplayDescription().append(", '").append(GrouperUtil.xmlEscape(GrouperUtil.stringValue(value))).append("'");
+          }
+
+          grouperJexlScriptPartClone.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
+          .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue2")).append(" '")
+          .append(GrouperUtil.xmlEscape(GrouperUtil.stringValue(value))).append("'");
 
         } else {
           throw new RuntimeException("Not expecting argument of type! " + jjtGetChild.getClass().getName());
@@ -917,10 +1045,18 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       } else if (astArguments.jjtGetChild(1) instanceof ASTUnaryMinusNode) {
         Number value = negate((ASTNumberLiteral)astArguments.jjtGetChild(1).jjtGetChild(0));
         grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value));
-        
+
         grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
           .append(" '").append(attributeAlias).append("' ").append(GrouperTextContainer.textOrNull(label)).append(" ")
           .append(value);
+
+      } else if (isGlobalAttributeValueNode(astArguments.jjtGetChild(1))) {
+        Object value = resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, astArguments.jjtGetChild(1));
+        grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value));
+
+        grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
+          .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull(label)).append(" '")
+          .append(GrouperUtil.xmlEscape(GrouperUtil.stringValue(value))).append("'");
 
       } else {
         throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
@@ -934,8 +1070,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         throw new RuntimeException("hasAttributeBetween expects 2 comparison arguments, e.g. hasAttributeBetween('low' <= field, field <= 'high'), got: " + astArguments.jjtGetNumChildren());
       }
 
-      MultiKey lowerParsed = parseBetweenComparisonArg(astArguments.jjtGetChild(0));
-      MultiKey upperParsed = parseBetweenComparisonArg(astArguments.jjtGetChild(1));
+      MultiKey lowerParsed = parseBetweenComparisonArg(grouperJexlScriptAnalysis, astArguments.jjtGetChild(0));
+      MultiKey upperParsed = parseBetweenComparisonArg(grouperJexlScriptAnalysis, astArguments.jjtGetChild(1));
 
       String lowerFieldAlias = (String) lowerParsed.getKey(0);
       String lowerValue = (String) lowerParsed.getKey(1);
@@ -1059,11 +1195,20 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           } else if (astArguments.jjtGetChild(1) instanceof ASTUnaryMinusNode) {
             Number value = negate((ASTNumberLiteral)astArguments.jjtGetChild(1).jjtGetChild(0));
             grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value));
-            
+
             grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
               .append(" '").append(attributeAlias).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue2")).append(" ")
               .append(value);
-  
+
+          } else if (isGlobalAttributeValueNode(astArguments.jjtGetChild(1))) {
+            // value comes from a data field assigned to the abacGlobal group, resolved to a literal and bound as a bind var
+            Object value = resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, astArguments.jjtGetChild(1));
+            grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value));
+
+            grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
+              .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue2")).append(" '")
+              .append(GrouperUtil.xmlEscape(GrouperUtil.stringValue(value))).append("'");
+
           } else {
             throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
           }
@@ -1077,11 +1222,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral) && !(astArguments.jjtGetChild(0) instanceof ASTIdentifier)) {
         throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
       }
-      if (!(astArguments.jjtGetChild(1) instanceof ASTStringLiteral)) {
+      if (!isStringLiteralOrGlobal(astArguments.jjtGetChild(1))) {
         throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
       }
       String attributeAlias = null;
-      
+
       if (astArguments.jjtGetChild(0) instanceof ASTStringLiteral) {
         ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
         attributeAlias = astStringLiteral.getLiteral();
@@ -1090,9 +1235,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       } else {
         GrouperUtil.assertion(false, "Not expecting type of first argument");
       }
-      
-      ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(1);
-      String likeString = astStringLiteral.getLiteral();
+
+      String likeString = stringLiteralOrGlobal(grouperJexlScriptAnalysis, astArguments.jjtGetChild(1));
 
       GrouperDataFieldConfig grouperDataFieldConfig = grouperJexlScriptAnalysis.getGrouperDataEngine().getFieldConfigByAlias().get(attributeAlias.toLowerCase());
       GrouperDataFieldType fieldDataType = grouperDataFieldConfig.getFieldDataType();
@@ -1125,11 +1269,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral) && !(astArguments.jjtGetChild(0) instanceof ASTIdentifier)) {
         throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
       }
-      if (!(astArguments.jjtGetChild(1) instanceof ASTStringLiteral)) {
+      if (!isStringLiteralOrGlobal(astArguments.jjtGetChild(1))) {
         throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
       }
       String attributeAlias = null;
-      
+
       if (astArguments.jjtGetChild(0) instanceof ASTStringLiteral) {
         ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
         attributeAlias = astStringLiteral.getLiteral();
@@ -1139,8 +1283,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         GrouperUtil.assertion(false, "Not expecting type of first argument");
       }
 
-      ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(1);
-      String regexString = astStringLiteral.getLiteral();
+      String regexString = stringLiteralOrGlobal(grouperJexlScriptAnalysis, astArguments.jjtGetChild(1));
 
       GrouperDataFieldConfig grouperDataFieldConfig = grouperJexlScriptAnalysis.getGrouperDataEngine().getFieldConfigByAlias().get(attributeAlias.toLowerCase());
       GrouperDataFieldType fieldDataType = grouperDataFieldConfig.getFieldDataType();
@@ -1394,10 +1537,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       
       String regexString = null;
 
-      if (astArguments.jjtGetChild(1) instanceof ASTStringLiteral) {
-        regexString = ((ASTStringLiteral)astArguments.jjtGetChild(1)).getLiteral();
+      if (isStringLiteralOrGlobal(astArguments.jjtGetChild(1))) {
+        regexString = stringLiteralOrGlobal(grouperJexlScriptAnalysis, astArguments.jjtGetChild(1));
       } else {
-        throw new RuntimeException("Expecting second argument to be string: " 
+        throw new RuntimeException("Expecting second argument to be string: "
             + astArguments.jjtGetChild(1).getClass().getName() + ", jexlNode: " + jexlNode);
       }
 
@@ -1457,8 +1600,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             + astArguments.jjtGetNumChildren() + ", jexlNode: " + jexlNode);
       }
 
-      MultiKey lowerParsed = parseBetweenComparisonArg(astArguments.jjtGetChild(0));
-      MultiKey upperParsed = parseBetweenComparisonArg(astArguments.jjtGetChild(1));
+      MultiKey lowerParsed = parseBetweenComparisonArg(grouperJexlScriptAnalysis, astArguments.jjtGetChild(0));
+      MultiKey upperParsed = parseBetweenComparisonArg(grouperJexlScriptAnalysis, astArguments.jjtGetChild(1));
 
       String lowerFieldAlias = (String) lowerParsed.getKey(0);
       String lowerValue = (String) lowerParsed.getKey(1);
@@ -1534,10 +1677,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
       String likeString = null;
 
-      if (astArguments.jjtGetChild(1) instanceof ASTStringLiteral) {
-        likeString = ((ASTStringLiteral)astArguments.jjtGetChild(1)).getLiteral();
+      if (isStringLiteralOrGlobal(astArguments.jjtGetChild(1))) {
+        likeString = stringLiteralOrGlobal(grouperJexlScriptAnalysis, astArguments.jjtGetChild(1));
       } else {
-        throw new RuntimeException("Expecting second argument to be string: " 
+        throw new RuntimeException("Expecting second argument to be string: "
             + astArguments.jjtGetChild(1).getClass().getName() + ", jexlNode: " + jexlNode);
       }
 
@@ -1757,12 +1900,13 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             + ", children: " + jexlNode.jjtGetChild(0).jjtGetNumChildren());
       }
       if (!(jexlNode.jjtGetChild(1) instanceof ASTIdentifier) && !(jexlNode.jjtGetChild(1) instanceof ASTNumberLiteral)
-          && !(jexlNode.jjtGetChild(1) instanceof ASTStringLiteral) && !(jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode) ) {
-        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(1).getClass().getName() 
+          && !(jexlNode.jjtGetChild(1) instanceof ASTStringLiteral) && !(jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode)
+          && !isGlobalAttributeValueNode(jexlNode.jjtGetChild(1)) ) {
+        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(1).getClass().getName()
             + ", children: " + jexlNode.jjtGetChild(1).jjtGetNumChildren());
       }
-      
-      if (jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode && (jexlNode.jjtGetChild(1).jjtGetNumChildren() != 1 
+
+      if (jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode && (jexlNode.jjtGetChild(1).jjtGetNumChildren() != 1
           || !(jexlNode.jjtGetChild(1).jjtGetChild(0) instanceof ASTNumberLiteral))) {
         throw new RuntimeException("Not expecting child node type for negative: " 
           + (jexlNode.jjtGetChild(1).jjtGetNumChildren() > 0 ? jexlNode.jjtGetChild(0).getClass().getName() : "0 children!")
@@ -1780,7 +1924,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         rightPartValue = ((ASTStringLiteral)jexlNode.jjtGetChild(1)).getLiteral();
       } else if (jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode) {
         rightPartValue = GrouperUtil.stringValue(negate((ASTNumberLiteral)jexlNode.jjtGetChild(1).jjtGetChild(0)));
-      } 
+      } else if (isGlobalAttributeValueNode(jexlNode.jjtGetChild(1))) {
+        rightPartValue = GrouperUtil.stringValue(resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, jexlNode.jjtGetChild(1)));
+      }
       String operator = null;
       String label = null;
       if (jexlNode instanceof ASTEQNode) {
@@ -1826,9 +1972,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             + ", children: " + jexlNode.jjtGetChild(0).jjtGetNumChildren());
       }
       if (!(jexlNode.jjtGetChild(1) instanceof ASTIdentifier) && !(jexlNode.jjtGetChild(1) instanceof ASTNumberLiteral)
-          && !(jexlNode.jjtGetChild(1) instanceof ASTStringLiteral) && !(jexlNode.jjtGetChild(1) instanceof ASTNullLiteral) 
-          && !(jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode)) {
-        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(1).getClass().getName() 
+          && !(jexlNode.jjtGetChild(1) instanceof ASTStringLiteral) && !(jexlNode.jjtGetChild(1) instanceof ASTNullLiteral)
+          && !(jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode) && !isGlobalAttributeValueNode(jexlNode.jjtGetChild(1))) {
+        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(1).getClass().getName()
             + ", children: " + jexlNode.jjtGetChild(1).jjtGetNumChildren());
       }
       
@@ -1852,9 +1998,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         rightPartNull = true;
       } else if (jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode) {
         rightPartValue = GrouperUtil.stringValue(negate((ASTNumberLiteral)jexlNode.jjtGetChild(1).jjtGetChild(0)));
-      } 
+      } else if (isGlobalAttributeValueNode(jexlNode.jjtGetChild(1))) {
+        rightPartValue = GrouperUtil.stringValue(resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, jexlNode.jjtGetChild(1)));
+      }
 
-      grouperJexlScriptPart.getWhereClause().append((rightPartNull ? "" : "not ") 
+      grouperJexlScriptPart.getWhereClause().append((rightPartNull ? "" : "not ")
           + "exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
           + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ " + (rightPartNull ? " is not null" : "= ?")  + ") ");
       
@@ -2076,7 +2224,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   /**
    * extract a string value from a JEXL literal node (string, number, or negative number)
    */
-  private static String extractLiteralValue(JexlNode node) {
+  private static String extractLiteralValue(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, JexlNode node) {
     if (node instanceof ASTStringLiteral) {
       return ((ASTStringLiteral) node).getLiteral();
     } else if (node instanceof ASTNumberLiteral) {
@@ -2084,6 +2232,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     } else if (node instanceof ASTUnaryMinusNode && node.jjtGetNumChildren() == 1
         && node.jjtGetChild(0) instanceof ASTNumberLiteral) {
       return GrouperUtil.stringValue(negate((ASTNumberLiteral) node.jjtGetChild(0)));
+    } else if (isGlobalAttributeValueNode(node)) {
+      return GrouperUtil.stringValue(resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, node));
     } else if (node instanceof ASTIdentifier) {
       return ((ASTIdentifier) node).getName();
     }
@@ -2097,7 +2247,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
    * @return MultiKey with (fieldAlias, literalValue, sqlOperator) where sqlOperator is the operator
    *   relative to the field (e.g., ">=" for inclusive lower bound, "<" for exclusive upper bound)
    */
-  private static MultiKey parseBetweenComparisonArg(JexlNode node) {
+  private static MultiKey parseBetweenComparisonArg(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, JexlNode node) {
     if (!(node instanceof ASTLTNode) && !(node instanceof ASTLENode)
         && !(node instanceof ASTGTNode) && !(node instanceof ASTGENode)) {
       throw new RuntimeException("hasAttributeBetween arguments must be comparison expressions (<, <=, >, >=), got: "
@@ -2124,7 +2274,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     if (leftIsField) {
       // field op literal: e.g., affiliationOrg <= 'math'
       fieldAlias = ((ASTIdentifier) left).getName();
-      literalValue = extractLiteralValue(right);
+      literalValue = extractLiteralValue(grouperJexlScriptAnalysis, right);
       if (node instanceof ASTLTNode) {
         sqlOperator = "<";
       } else if (node instanceof ASTLENode) {
@@ -2137,7 +2287,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     } else {
       // literal op field: e.g., 'engl' < affiliationOrg  =>  affiliationOrg > 'engl'
       fieldAlias = ((ASTIdentifier) right).getName();
-      literalValue = extractLiteralValue(left);
+      literalValue = extractLiteralValue(grouperJexlScriptAnalysis, left);
       // flip the operator since we're reversing the sides
       if (node instanceof ASTLTNode) {
         sqlOperator = ">";
@@ -2372,8 +2522,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       MultiKey groupInternalIdFieldInternalId = new MultiKey(theGroup.getInternalId(), Group.getDefaultList().getInternalId());
       Map<MultiKey, SqlCacheGroup> groupInternalIdsFieldInternalIdToSqlCacheGroup = SqlCacheGroupDao.retrieveByGroupInternalIdsFieldInternalIds(GrouperUtil.toSet(groupInternalIdFieldInternalId));
       SqlCacheGroup sqlCacheGroup = groupInternalIdsFieldInternalIdToSqlCacheGroup.get(groupInternalIdFieldInternalId);
-      List<SqlCacheDependency> sqlCacheDependencies = SqlCacheDependencyDao.retrieveAllByDependentId(sqlCacheGroup.getInternalId());
       if (sqlCacheGroup != null) {
+
+        List<SqlCacheDependency> sqlCacheDependencies = SqlCacheDependencyDao.retrieveAllByDependentId(sqlCacheGroup.getInternalId());
 
         // sync up attribute dependencies on group
         {
