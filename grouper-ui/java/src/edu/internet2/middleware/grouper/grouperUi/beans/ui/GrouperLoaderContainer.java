@@ -2410,7 +2410,11 @@ public class GrouperLoaderContainer {
   public boolean isLoaderGroup() {
 
     GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
-
+    
+    if (guiGroup == null) {
+      return false;
+    }
+    
     if (guiGroup.isHasAttrDefNameGrouperLoader() || guiGroup.isHasAttrDefNameGrouperLoaderLdap() || guiGroup.isHasRecentMembershipsGrouperLoader()
         || guiGroup.isHasJexlScriptGrouperLoader()) {
       return true;
