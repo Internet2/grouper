@@ -234,6 +234,14 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   }
 
   private void checkRequestContentType(MockServiceRequest mockServiceRequest) {
+    // GET and DELETE requests carry no request body, so (like real Microsoft Graph)
+    // they neither send nor require a Content-Type header.  Only enforce the content
+    // type on body-bearing methods (POST/PATCH/PUT), where Graph would otherwise
+    // return a 415 Unsupported Media Type.
+    String method = mockServiceRequest.getHttpServletRequest().getMethod();
+    if (StringUtils.equalsIgnoreCase("GET", method) || StringUtils.equalsIgnoreCase("DELETE", method)) {
+      return;
+    }
     if (!StringUtils.equals(mockServiceRequest.getHttpServletRequest().getContentType(), "application/json")
             && !StringUtils.startsWith(mockServiceRequest.getHttpServletRequest().getContentType(), "application/json;")) {
       throw new RuntimeException("Content type must be application/json");
