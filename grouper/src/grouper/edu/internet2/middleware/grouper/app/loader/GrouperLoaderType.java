@@ -1906,16 +1906,15 @@ public enum GrouperLoaderType {
       }
       
       if (StringUtils.isBlank(folderDisplayName)) {
-        String errorMessage = "How can a group have a blank folder display name?: '"+folderName+"', '"
-            +folderDisplayName+"', for groupName: '"+groupName+"' and display name: '"+groupDisplayName
-            +"', vs previous groupName: " + folderNameToGroupNameAdded.get(folderName) 
-            + " and display name: '" + folderNameToGroupDisplayNameAdded.get(folderName) + "'";
-        GrouperLoaderLogger.addLogEntry("overallLog", "stemDisplayNameBlank", errorMessage);
-
-        LOG.error(hib3GrouploaderLogOverall.getJobName() + ": " + errorMessage); 
-        hib3GrouploaderLogOverall.appendJobMessage(errorMessage);
-        if (statusOverall[0] == null || !statusOverall[0].isError()) {
-          statusOverall[0] = GrouperLoaderStatus.WARNING;
+        // The loader is only providing the group's display extension (no parent folder
+        // in the display name), so leave the parent folder's display name alone.
+        // The folder is still created if needed during membership sync via
+        // assignCreateParentStemsIfNotExist(true).  This restores the v4 behavior where
+        // GROUP_DISPLAY_NAME could be just the desired group display extension.
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(hib3GrouploaderLogOverall.getJobName()
+              + ": leaving parent folder '" + folderName + "' display name alone because group '"
+              + groupName + "' display name '" + groupDisplayName + "' has no folder path");
         }
         continue;
       }
