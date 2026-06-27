@@ -610,7 +610,7 @@ public class GrouperLoaderJob implements Job {
           LoaderHooks.METHOD_LOADER_POST_RUN, HooksLoaderBean.class, loaderJobBean, 
           LoaderJobBean.class, VetoTypeGrouper.LOADER_POST_RUN);
       
-    } catch (Exception t) {
+    } catch (Throwable t) {
       LOG.error("Error on job: " + jobName, t);
       GrouperLoaderStatus grouperLoaderStatus = null;
       if (!StringUtils.isBlank(hib3GrouploaderLog.getStatus())) {
