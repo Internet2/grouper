@@ -796,6 +796,10 @@ public class GrouperBoxApiCommands {
           if (grouperBoxGroup != null) {
             results.add(grouperBoxGroup);
           }
+          // generic provisioner sync-back: register the group from the raw JSON (full fidelity,
+          // not the lossy typed bean) while the JSON node is in scope. No-op outside a Box
+          // provisioning cycle. Box groups are read from a single node (no multi-call merge).
+          GrouperBoxProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
         }
 
         long totalGroups = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count", 0L);
@@ -863,9 +867,14 @@ public class GrouperBoxApiCommands {
       if (jsonNode == null) {
         return null;
       }
-      
+
       GrouperBoxGroup grouperBoxGroup = GrouperBoxGroup.fromJson(jsonNode);
-      
+
+      // generic provisioner sync-back: register the group from the raw JSON while it is in scope
+      // (single-group read by id; the whole response node is the group object). No-op outside a
+      // Box provisioning cycle.
+      GrouperBoxProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(jsonNode);
+
       return grouperBoxGroup;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -877,7 +886,7 @@ public class GrouperBoxApiCommands {
   }
 
   /**
-   * 
+   *
    * @param configId
    * @param filterTerm
    * @param attributesToRetrieve
@@ -934,6 +943,10 @@ public class GrouperBoxApiCommands {
           if (grouperBoxUser != null) {
             results.add(grouperBoxUser);
           }
+          // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
+          // not the lossy typed bean) while the JSON node is in scope. No-op outside a Box
+          // provisioning cycle. Box users are read from a single node (no multi-call merge).
+          GrouperBoxProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
         }
 
         long totalUsers = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count", 0L);
@@ -1002,9 +1015,14 @@ public class GrouperBoxApiCommands {
       if (jsonNode == null) {
         return null;
       }
-      
+
       GrouperBoxUser grouperBoxUser = GrouperBoxUser.fromJson(jsonNode);
-      
+
+      // generic provisioner sync-back: register the user from the raw JSON while it is in scope
+      // (single-user read by id; the whole response node is the user object). No-op outside a Box
+      // provisioning cycle.
+      GrouperBoxProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(jsonNode);
+
       return grouperBoxUser;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));

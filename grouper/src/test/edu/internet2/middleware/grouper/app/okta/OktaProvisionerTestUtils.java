@@ -286,12 +286,20 @@ public class OktaProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "description");
     
+    // When customizeEntityCrud is OFF (the default "framework auto" mode), the explicit entity-CRUD
+    // keys below are rejected by config validation, so historically this util dropped them from the
+    // extra config unconditionally. But a test that legitimately turns customizeEntityCrud ON (e.g.
+    // to keep an orphaned entity in the target by setting deleteEntities=false) needs them written.
+    // So only skip these keys when customizeEntityCrud is not also being turned on in this config.
+    boolean customizeEntityCrudOn = StringUtils.equals("true",
+        provisioningTestConfigInput.getExtraConfig().get("customizeEntityCrud"));
+
     for (String key: provisioningTestConfigInput.getExtraConfig().keySet()) {
-      
-      if (StringUtils.equalsAny(key, "updateEntities", "insertEntities", "deleteEntities", "deleteEntitiesIfGrouperDeleted")) {
+
+      if (!customizeEntityCrudOn && StringUtils.equalsAny(key, "updateEntities", "insertEntities", "deleteEntities", "deleteEntitiesIfGrouperDeleted")) {
         continue;
       }
-      
+
       String theValue = provisioningTestConfigInput.getExtraConfig().get(key);
       if (!StringUtils.isBlank(theValue)) {
         new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner." + provisioningTestConfigInput.getConfigId() + "." + key).value(theValue).store();

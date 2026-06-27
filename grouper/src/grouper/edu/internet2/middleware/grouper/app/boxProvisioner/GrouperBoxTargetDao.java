@@ -81,8 +81,8 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperBoxGroup grouperBoxGroup : grouperBoxGroups) {
         ProvisioningGroup targetGroup = grouperBoxGroup.toProvisioningGroup();
         results.add(targetGroup);
-        // generic provisioner sync back: capture native group while the bean is in scope
-        GrouperBoxProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperBoxGroup);
+        // generic provisioner sync-back group capture now happens at the GrouperBoxApiCommands
+        // raw-JSON read seam (retrieveBoxGroups), so no typed-bean capture is done here.
       }
 
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -109,8 +109,8 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperBoxUser grouperBoxUser : grouperBoxUsers) {
         ProvisioningEntity targetEntity = grouperBoxUser.toProvisioningEntity();
         results.add(targetEntity);
-        // generic provisioner sync back: capture native user while the bean is in scope
-        GrouperBoxProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperBoxUser);
+        // generic provisioner sync-back user capture now happens at the GrouperBoxApiCommands
+        // raw-JSON read seam (retrieveBoxUsers), so no typed-bean capture is done here.
       }
 
       return new TargetDaoRetrieveAllEntitiesResponse(results);
@@ -465,10 +465,8 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
         GrouperBoxGroup boxGroup = GrouperBoxApiCommands.retrieveBoxGroup(boxConfiguration.getBoxExternalSystemConfigId(),
             GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()), attributesToRetrieve);
         ProvisioningGroup targetGroup = boxGroup == null ? null : boxGroup.toProvisioningGroup();
-        if (boxGroup != null) {
-          // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
-          GrouperBoxProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(boxGroup);
-        }
+        // generic provisioner sync-back group capture now happens at the GrouperBoxApiCommands
+        // raw-JSON read seam (retrieveBoxGroup), so no typed-bean capture is done here.
         return new TargetDaoRetrieveGroupResponse(targetGroup);
       } else if (StringUtils.equals("name", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
         List<GrouperBoxGroup> boxGroups = GrouperBoxApiCommands.retrieveBoxGroups(boxConfiguration.getBoxExternalSystemConfigId(),
@@ -476,8 +474,8 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
         for (GrouperBoxGroup boxGroup: boxGroups) {
           if (StringUtils.equals(boxGroup.getName(), GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()))) {
             ProvisioningGroup targetGroup = boxGroup == null ? null : boxGroup.toProvisioningGroup();
-            // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
-            GrouperBoxProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(boxGroup);
+            // generic provisioner sync-back group capture now happens at the GrouperBoxApiCommands
+            // raw-JSON read seam (retrieveBoxGroups), so no typed-bean capture is done here.
             return new TargetDaoRetrieveGroupResponse(targetGroup);
           }
         }
@@ -533,10 +531,9 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningEntity targetEntity = grouperBoxUser == null ? null
           : grouperBoxUser.toProvisioningEntity();
 
-      if (grouperBoxUser != null) {
-        // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
-        GrouperBoxProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperBoxUser);
-      }
+      // generic provisioner sync-back user capture now happens at the GrouperBoxApiCommands
+      // raw-JSON read seam (retrieveBoxUser / retrieveBoxUsers), so no typed-bean capture is done
+      // here.
 
       TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = new TargetDaoRetrieveEntityResponse(targetEntity);
       if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
@@ -570,7 +567,10 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
 
-    // read path captures GrouperBoxUser/Group beans through GrouperBoxProvisioningTargetNativeSync.record*
+    // read path syncs back to grouper_prov_group/user/mship: groups and users are captured from
+    // raw JSON at the GrouperBoxApiCommands read seams (captureGroupJson/captureUserJson via
+    // GrouperBoxProvisioningTargetNativeSync); memberships are captured here in
+    // retrieveMembershipsByGroup (Box memberships are group-centric and derived during translation)
     grouperProvisionerDaoCapabilities.setCanSyncBack(true);
 
   }

@@ -99,8 +99,16 @@ public class GrouperRemedyApiCommands {
           Long permissionGroupId = GrouperUtil.longObjectValue(GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Permission Group ID"), true);
           grouperRemedyGroup.setPermissionGroupId(permissionGroupId);
         }
-                
+
         results.put(grouperRemedyGroup.getPermissionGroupId(), grouperRemedyGroup);
+
+        // generic provisioner sync-back: register the group from the raw JSON entry (full fidelity,
+        // not the lossy typed bean) while the JSON node is in scope. The Remedy fields live under
+        // the "values" envelope, so we hand over the whole entry node and the capture pointers are
+        // rooted at /values/... . No-op outside a Remedy provisioning cycle. Captured only for the
+        // Enabled groups that landed in results (the status filter above already skipped the rest),
+        // matching what the old typed-bean capture saw.
+        GrouperRemedyProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(jsonObjectUser);
       }
       
       
@@ -468,6 +476,14 @@ public class GrouperRemedyApiCommands {
       
       grouperRemedyUser.setRemedyLoginId(remedyLoginId);
       results.put(remedyLoginId, grouperRemedyUser);
+
+      // generic provisioner sync-back: register the user from the raw JSON entry (full fidelity,
+      // not the lossy typed bean) while the JSON node is in scope. The Remedy fields live under the
+      // "values" envelope, so we hand over the whole entry node and the capture pointers are rooted
+      // at /values/... . This helper backs both the retrieve-all-users and retrieve-single-user read
+      // paths, so both capture here. No-op outside a Remedy provisioning cycle. Captured only for
+      // the users that landed in results (blank login ids already skipped above).
+      GrouperRemedyProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(jsonObjectUser);
 
       if (StringUtils.equals("mchyzer", remedyLoginId)) {
         System.out.println("person id: " + personId + ", remedyLoginId: " + remedyLoginId);

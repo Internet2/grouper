@@ -23,6 +23,8 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import junit.textui.TestRunner;
 
 public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
@@ -1805,6 +1807,1130 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
         .sql("select count(*) from " + tableName
             + " where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
         .addBindVar(configId).select(int.class);
+  }
+
+  // ==========================================================================================
+  // SCIM-parity sync-back CRUD / convergence tests for FreshService (Box pilot port).
+  //
+  // CAPABILITY MATRIX (from FreshRequesterTargetDao.registerGrouperProvisionerDaoCapabilities):
+  //   canInsertGroup / canUpdateGroup / canDeleteGroup ............ true  (full group CRUD)
+  //   canInsertEntity / canUpdateEntity / canDeleteEntity ......... true  (entity delete == deactivate)
+  //   canInsertMembership / canDeleteMembership ................... true
+  //   canRetrieveAllGroups / canRetrieveGroup ..................... true
+  //   canRetrieveAllEntities / canRetrieveEntity ................. true
+  //   canRetrieveMembershipsAllByGroup ........................... true  (group-centric mship read)
+  //   canSyncBack ................................................ true
+  //   canReplaceMembership ....................................... NOT declared -> not tested
+  //                                                                 (Box does not test it either)
+  //
+  // Unlike the prompt's worry, FreshService GROUP ops ARE fully supported (insert/update/delete all
+  // hit real mock endpoints), so the group CRUD converge tests below are NOT skipped. The only axis
+  // operation FreshService lacks is membership *replace* -- the framework decomposes membership sync
+  // into insert+delete (both supported), so nothing is skipped for that reason.
+  //
+  // KEY FRESHSERVICE-SPECIFIC FACTS used below:
+  //  * Sync-back captures groups/users from the raw Freshservice JSON at the read seam, and
+  //    memberships group-centric from retrieveMembershipsByGroup -- so, exactly like Box, a freshly
+  //    written object/membership shows up in the mirror on the NEXT READ pass (two-pass full).
+  //  * Groups are matched by name (groupMatchingAttribute name=id,name). Per the Adobe lesson we do
+  //    NOT mutate the match key, so there is NO rename-as-update test; the group update-converge test
+  //    mutates DESCRIPTION (a mapped, NON-matching attribute).
+  //  * Entity "delete" is a SOFT delete (deleteEntity -> deactivateRequesterUser): a deleted user
+  //    stays in mock_freshreq_user with active='F'. The framework's read path
+  //    (retrieveRequesterUsers includeInactive=false) does not return inactive users, so they leave
+  //    the mirror once deactivated -- the assertions account for this.
+  //  * FreshRequesterProvisionerTestUtils.configureProvisioner already turns ON all delete-types
+  //    (customize*Crud=true + delete*=true + delete*IfNotExistInGrouper / delete*IfGrouperDeleted).
+  //    This is the OPPOSITE of Box's defaults. So the orphan-persistence tests below must DISABLE the
+  //    relevant delete-types (customize*Crud=true + delete*=false) so target-drift orphans survive.
+  //  * DEFAULT_*_ATTRS captured by the native sync (assert ONLY on these, not SCIM names):
+  //       groups   -> name                    (FreshRequesterProvisioningTargetNativeSync.DEFAULT_GROUP_ATTRS)
+  //       entities -> email (/primary_email), active   (DEFAULT_ENTITY_ATTRS)
+  //
+  // All tests gate on tomcatRunTests() like the existing FreshService sync-back tests (they need the
+  // mock Tomcat for the WS round-trip).
+  // ==========================================================================================
+
+  /**
+   * Shared setup for the FreshService sync-back tests: configure the provisioner with the three
+   * load*ToGenericGrouperTable flags on (and recalculateAllOperations so every object/membership is
+   * processed each run), then clean the FreshService mock target. The caller starts its own root
+   * session and creates the Grouper-side stems/groups/members it needs. Mirrors Box's
+   * setupBoxSyncBack.
+   *
+   * <p>NB the FreshService config util (configureProvisioner) turns delete-types ON by default
+   * (opposite of Box). A caller that needs target-side orphans to persist must pass the disabling
+   * suffixes via {@code extraConfig} (customize*Crud=true + delete*=false).
+   *
+   * @param configId the provisioner config id (always "freshRequesterProvisioner" here)
+   * @param extraConfig additional provisioner.&lt;configId&gt;.* suffixes to set (may be null)
+   */
+  private void setupFreshRequesterSyncBack(String configId, Map<String, String> extraConfig) {
+
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+
+    FreshRequesterProvisionerTestConfigInput configInput = new FreshRequesterProvisionerTestConfigInput()
+        .assignConfigId(configId)
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true");
+    if (extraConfig != null) {
+      for (Map.Entry<String, String> entry : extraConfig.entrySet()) {
+        configInput.addExtraConfig(entry.getKey(), entry.getValue());
+      }
+    }
+    FreshRequesterProvisionerTestUtils.configureFreshRequesterProvisioner(configInput);
+
+    // give the config store time to settle (same idiom the existing FreshService tomcat tests use)
+    GrouperUtil.sleep(5000);
+
+    GrouperStartup.startup();
+
+    // this read creates the mock tables (same idiom as the existing FreshService tests) before wipe
+    FreshRequesterApiCommands.retrieveRequesterUsers("freshServiceDev", false);
+
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_user").executeSql();
+  }
+
+  /**
+   * The single provisioned group's target_group_id (Freshservice group id) in the mirror, or null.
+   * Mirrors Box's helper of the same name -- used by the update-converge test to prove the SAME
+   * target object survives an update (in-place update, not delete + re-create).
+   */
+  private String mirroredGroupTargetId(String configId) {
+    List<String> ids = new GcDbAccess().connectionName("grouper")
+        .sql("select target_group_id from grouper_prov_group "
+            + "where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(configId).selectList(String.class);
+    return ids.isEmpty() ? null : ids.get(0);
+  }
+
+  /**
+   * Resolved {@code name} attribute value for the single provisioned group in the mirror, or null.
+   * Reads through the {@code grouper_prov_group_attr_v} reporting view (not the raw value table),
+   * because the string is stored via a dictionary FK and only the view resolves it back to text
+   * (column {@code value_string}). {@code name} IS a FreshService default group capture attribute
+   * (DEFAULT_GROUP_ATTRS), so it is captured without any extra config.
+   */
+  private String mirroredGroupName(String configId) {
+    List<String> values = new GcDbAccess().connectionName("grouper")
+        .sql("select value_string from grouper_prov_group_attr_v "
+            + "where grouper_sync_id in (select id from grouper_sync where provisioner_name = ?) "
+            + "and attribute_name = 'name'")
+        .addBindVar(configId).selectList(String.class);
+    return values.isEmpty() ? null : values.get(0);
+  }
+
+  /**
+   * Resolved {@code description} attribute value for the single provisioned group in the mirror, or
+   * null. {@code description} is NOT a FreshService default capture attribute (only {@code name}
+   * is), so the update-converge test must configure {@code nativeAttributesGroups=name,description}
+   * for this to return non-null -- exactly the Box pattern.
+   */
+  private String mirroredGroupDescription(String configId) {
+    List<String> values = new GcDbAccess().connectionName("grouper")
+        .sql("select value_string from grouper_prov_group_attr_v "
+            + "where grouper_sync_id in (select id from grouper_sync where provisioner_name = ?) "
+            + "and attribute_name = 'description'")
+        .addBindVar(configId).selectList(String.class);
+    return values.isEmpty() ? null : values.get(0);
+  }
+
+  /**
+   * Sync-back convergence of a newly created GROUP, two-pass full (FreshService analogue of SCIM's
+   * testGroupInsertConvergesSameRun / Box's testBoxGroupInsertConvergesNextRead). FreshService
+   * captures objects on the READ path, and createGroupsAndEntitiesBeforeTranslatingMemberships +
+   * selectGroups are on, so the just-inserted group is re-read (to link it) within the same run --
+   * meaning it is already in the mirror after pass 1, linked back to its Grouper group. Pass 2 is
+   * idempotent. {@code name} (a default capture attribute) round-trips through the reporting view.
+   */
+  public void testFreshRequesterGroupInsertConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    setupFreshRequesterSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // baseline: nothing in the mirror yet
+    assertEquals(0, countSyncBack(configId, "grouper_prov_group"));
+
+    // pass 1 inserts the group AND -- via the post-insert re-read that links it -- captures it, so
+    // the group converges into the mirror within this same run
+    GrouperProvisioningOutput out1 = fullProvision();
+    assertEquals(0, out1.getRecordsWithErrors());
+    assertEquals("group insert converges in the same run (post-insert re-read captures it)", 1,
+        countSyncBack(configId, "grouper_prov_group"));
+
+    // pass 2 re-reads; convergence is idempotent
+    GrouperProvisioningOutput out2 = fullProvision();
+    assertEquals(0, out2.getRecordsWithErrors());
+    assertEquals("group insert should still be the single prov_group row", 1,
+        countSyncBack(configId, "grouper_prov_group"));
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // captured via a read, so it is linked back to its Grouper group
+    int groupRowsLinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and group_internal_id is not null")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("converged prov_group row should be linked to its Grouper group", 1, groupRowsLinked);
+
+    // name captured from the FreshService read response (a default group capture attribute)
+    assertEquals("name should round-trip into the mirror as a default capture attribute",
+        "testGroup", mirroredGroupName(configId));
+  }
+
+  /**
+   * Sync-back convergence of an object DELETE, two-pass full (FreshService analogue of SCIM's
+   * testGroupDeleteConvergesSameRun / Box's testBoxGroupDeleteConvergesNextRead). Seed
+   * test:testGroup + SUBJ0 + their membership into the mirror, then delete the group in Grouper.
+   * The default config has all delete-types ON, so the next full sync removes the group + its
+   * membership from the target and DEACTIVATES the now-orphaned SUBJ0 (entity delete is a soft
+   * delete) on pass A; the re-read pass (pass B) no longer sees the group, the membership, or the
+   * now-inactive user (the read filters inactive), so the full-replace flush drops all three from
+   * the mirror.
+   */
+  public void testFreshRequesterGroupDeleteConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    // delete-types are already ON by default in configureProvisioner; pass null (no overrides).
+    setupFreshRequesterSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: two passes converge the group + SUBJ0 + their membership into the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("seed: membership", 1, countSyncBack(configId, "grouper_prov_mship"));
+
+    // delete the group; SUBJ0 is now orphaned (no other provisioned group) and is deactivated too
+    testGroup.delete();
+
+    // pass A: the delete writes hit the target (group removed, membership removed, SUBJ0 deactivated)
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    // pass B: the re-read no longer sees the group, the membership, or the inactive SUBJ0; the
+    // full-replace flush drops their mirror rows
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("group dropped from the mirror after the re-read pass", 0,
+        countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("orphaned SUBJ0 dropped from the mirror (deactivated -> filtered on read)", 0,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("membership dropped from the mirror after the re-read pass", 0,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * Sync-back convergence of an object UPDATE on a NON-matching attribute, two-pass full
+   * (FreshService analogue of SCIM's testUserUpdateConvergesSameRun, but on a GROUP -- mirrors Box's
+   * testBoxGroupUpdateConvergesNextRead). FreshService groups are matched by name, so per the Adobe
+   * lesson we do NOT mutate the match key: we mutate the group's DESCRIPTION (mapped via
+   * targetGroupAttribute.2, round-trips through the mock's updateGroup, and is NOT the matching
+   * attribute). nativeAttributesGroups is set to "name,description" so the description value is
+   * actually captured into the mirror (description is not a FreshService default capture attribute).
+   *
+   * <p>Asserts both that the description VALUE converges AND that it is an in-place update -- the
+   * SAME target group id survives (not delete + re-create, which would assign a new Freshservice id).
+   * Convergence is on the re-read pass (pass B), since FreshService captures on read.
+   */
+  public void testFreshRequesterGroupUpdateConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    // capture description (not a FreshService default) so we can assert the updated value in the mirror
+    extraConfig.put("nativeAttributesGroups", "name,description");
+    setupFreshRequesterSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup")
+        .assignDescription("originalDescription").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: group provisioned with description "originalDescription"
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+    String groupTargetIdBefore = mirroredGroupTargetId(configId);
+    assertNotNull("group should have a target id after seed", groupTargetIdBefore);
+    assertEquals("seed: original description captured", "originalDescription",
+        mirroredGroupDescription(configId));
+
+    // change the description (a NON-matching attribute) -> FreshService updateGroup
+    testGroup = new GroupSave(grouperSession).assignName(testGroup.getName())
+        .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
+        .assignSaveMode(SaveMode.UPDATE).save();
+
+    // pass A: the description update reaches the target (updateGroup persists it)
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    // pass B: the re-read captures the target's actual new description into the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    // mirror side: still ONE group, the SAME group (same target id) -- in-place update, not delete +
+    // re-create -- and its description converged to the new value.
+    assertEquals("group still in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("mirror tracks the same group through the update (update, not re-create)",
+        groupTargetIdBefore, mirroredGroupTargetId(configId));
+    assertEquals("mirror description should converge to the new value on the re-read pass",
+        "newDescription", mirroredGroupDescription(configId));
+
+    // NOTE: no rename-as-update test. FreshService groups are matched by name, so renaming would
+    // mutate the match key (the Adobe lesson) and could not converge as an in-place update.
+    // NOTE: no user-update-converge test either. FreshService users are matched by id + email; the
+    // only Grouper-driven user attribute mapped by default is email (= the match key). There is no
+    // safe Grouper-driven NON-matching user attribute to mutate by default, so an update-converge
+    // test would be mutating the match key -- skipped rather than written (same reasoning as Box).
+  }
+
+  /**
+   * Sync-back convergence of a membership ADD to an already-provisioned group, two-pass full
+   * (FreshService analogue of SCIM's testMembershipAddConvergesSameRun / Box's
+   * testBoxMembershipAddConvergesNextRead). Seed test:testGroup with SUBJ0, then add SUBJ1. Because
+   * FreshService captures memberships on the read path (retrieveMembershipsByGroup), the add shows
+   * in grouper_prov_mship on the re-read pass: pass A issues the membership insert (+ SUBJ1 user
+   * insert) to the target, pass B re-reads the group's members and the flush converges (testGroup,
+   * SUBJ1).
+   */
+  public void testFreshRequesterMembershipAddConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    setupFreshRequesterSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: group + SUBJ0 + the one membership in the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("seed: the single membership", 1, countSyncBack(configId, "grouper_prov_mship"));
+
+    // add SUBJ1 to the already-provisioned group
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    // pass A: the membership insert (and SUBJ1's user insert) hit the target
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    // pass B: re-read sees both members; the flush converges the added membership
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("group should still be in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("both users should be in the mirror after the add", 2,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("the added membership should converge on the re-read pass", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * Sync-back convergence of a membership REMOVE from a surviving group, two-pass full (FreshService
+   * analogue of SCIM's testMembershipRemoveConvergesSameRun / Box's
+   * testBoxMembershipRemoveConvergesNextRead). Two groups both hold SUBJ0; SUBJ0 is removed from
+   * testGroup only (it survives in otherGroup, so its FreshService user is NOT deactivated). The
+   * full-replace flush, fed by the re-read of each group's members, drops exactly testGroup's
+   * membership while leaving otherGroup's intact.
+   */
+  public void testFreshRequesterMembershipRemoveConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    // membership delete-types are already ON by default in configureProvisioner; pass null.
+    setupFreshRequesterSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    Group otherGroup = new GroupSave(grouperSession).assignName("test:otherGroup").save();
+    // SUBJ0 in BOTH groups so removing it from testGroup leaves it provisioned (still in otherGroup)
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    otherGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: both groups + SUBJ0 + both memberships in the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: both groups", 2, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("seed: both memberships", 2, countSyncBack(configId, "grouper_prov_mship"));
+
+    // remove SUBJ0 from testGroup only (still in otherGroup)
+    testGroup.deleteMember(SubjectTestHelper.SUBJ0);
+
+    // pass A: the membership-remove write hits the target
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    // pass B: re-read of testGroup's members no longer includes SUBJ0; the full-replace flush drops
+    // (testGroup,SUBJ0) while otherGroup's SUBJ0 membership survives
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("both groups should still be in the mirror", 2,
+        countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("SUBJ0 should still be in the mirror (still in otherGroup)", 1,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("testGroup's membership should be gone, otherGroup's should remain", 1,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * Multi-sync coverage with data evolution between rounds, FreshService analogue of SCIM's
+   * testFullProvisionReflectsDataChangesAcrossSyncs / Box's
+   * testBoxFullSyncReflectsDataChangesAcrossSyncs. Round 1: testGroup with SUBJ0 only, seeded via
+   * two passes. Round 2: add SUBJ1 (Grouper-side) AND insert a target-drift orphan group + orphan
+   * user directly into the FreshService mock (with delete-types DISABLED so they persist). Round 3:
+   * two more passes -> the mirror reflects the new state (3 users: SUBJ0, SUBJ1, orphan; 2 groups:
+   * testGroup, orphan; 2 memberships in testGroup), and the orphan user's email value round-trips.
+   */
+  public void testFreshRequesterFullSyncReflectsDataChangesAcrossSyncs() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    // DISABLE all delete-types (FreshService defaults them ON) so the Round 2 orphans persist across
+    // syncs. Each axis: turn ON customize*Crud (so the explicit key is accepted by validation) and
+    // set the umbrella delete*=false. This is the inverse of Box, which defaults delete-types off.
+    Map<String, String> noDeletes = new HashMap<String, String>();
+    noDeletes.put("customizeGroupCrud", "true");
+    noDeletes.put("deleteGroups", "false");
+    noDeletes.put("customizeEntityCrud", "true");
+    noDeletes.put("deleteEntities", "false");
+    noDeletes.put("customizeMembershipCrud", "true");
+    noDeletes.put("deleteMemberships", "false");
+    setupFreshRequesterSyncBack(configId, noDeletes);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // ===================== ROUND 1: initial state =====================
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("round 1: 1 prov_user row for SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("round 1: 1 prov_group row for testGroup", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("round 1: 1 prov_mship row for SUBJ0 in testGroup", 1, countSyncBack(configId, "grouper_prov_mship"));
+
+    // ===================== ROUND 2: data changes =====================
+
+    // Grouper-side: add SUBJ1 to testGroup. next full sync inserts SUBJ1 + the membership.
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    // Target-side drift: insert an orphan group + orphan user directly into the FreshService mock
+    // (same SQL idiom the existing FreshService forward tests use to seed the mock tables). These
+    // are unknown to Grouper; with delete-types off they persist across the next sync. The orphan
+    // user is active='T' so the read path returns it. id/name/email are explicit (NOT NULL columns).
+    new GcDbAccess().connectionName("grouper")
+        .sql("insert into mock_freshreq_group (id, name, description) values (8800001, 'orphanGroupAddedMidTest', 'drift group')")
+        .executeSql();
+    new GcDbAccess().connectionName("grouper")
+        .sql("insert into mock_freshreq_user (id, email, first_name, last_name, active) "
+            + "values (8800002, 'orphan.evolve@example.edu', 'Orphan', 'Evolve', 'T')")
+        .executeSql();
+
+    // ===================== ROUND 3: second full sync + assertions =====================
+
+    // pass A writes SUBJ1 + membership to the target; pass B re-reads everything (Grouper's + the
+    // drift orphans) and refreshes the mirror.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    assertEquals("round 3: 3 prov_user rows expected (SUBJ0, SUBJ1, orphan_user)", 3,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("round 3: 2 prov_group rows expected (testGroup, orphan_group)", 2,
+        countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("round 3: 2 prov_mship rows expected (SUBJ0 + SUBJ1 in testGroup)", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
+
+    // the orphan group landed in the mirror, unlinked (no Grouper group)
+    int orphanGroupRow = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id = ? and group_internal_id is null")
+        .addBindVar(syncInternalId).addBindVar("8800001").select(int.class);
+    assertEquals("orphan group should land in prov_group with group_internal_id IS NULL", 1,
+        orphanGroupRow);
+
+    // the orphan user's email value round-trips through the reporting view (proves target-drift
+    // entities are captured with their actual attributes). email IS a FreshService default entity
+    // capture attribute (DEFAULT_ENTITY_ATTRS, from /primary_email).
+    String orphanUserEmailInReporting = new GcDbAccess().connectionName("grouper")
+        .sql("select value_string from grouper_prov_user_attr_v "
+            + "where grouper_sync_id = (select id from grouper_sync where internal_id = ?) "
+            + "and target_user_id = ? and attribute_name = 'email'")
+        .addBindVar(syncInternalId).addBindVar("8800002").select(String.class);
+    assertEquals("orphan user's email should round-trip through reporting", "orphan.evolve@example.edu",
+        orphanUserEmailInReporting);
+  }
+
+  /**
+   * Strict-native capture of orphan target objects, FreshService analogue of SCIM's
+   * testFullProvisionCapturesOrphanTargetEntities / Box's testBoxFullSyncCapturesOrphanTargetEntities.
+   * With delete-types DISABLED, an orphan group + orphan user that exist in the FreshService target
+   * but are unknown to Grouper are still captured into the mirror -- with NULL Grouper-side linkage
+   * (group_internal_id / member_internal_id) -- alongside Grouper's own testGroup + SUBJ0/SUBJ1,
+   * which keep their linkage populated.
+   */
+  public void testFreshRequesterFullSyncCapturesOrphanTargetEntities() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    // disable delete-types so the orphans persist across the run (FreshService defaults them ON)
+    Map<String, String> noDeletes = new HashMap<String, String>();
+    noDeletes.put("customizeGroupCrud", "true");
+    noDeletes.put("deleteGroups", "false");
+    noDeletes.put("customizeEntityCrud", "true");
+    noDeletes.put("deleteEntities", "false");
+    noDeletes.put("customizeMembershipCrud", "true");
+    noDeletes.put("deleteMemberships", "false");
+    setupFreshRequesterSyncBack(configId, noDeletes);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // pre-populate orphans directly into the FreshService mock before the provisioner runs. The
+    // orphan user is active='T' so the read path returns it.
+    new GcDbAccess().connectionName("grouper")
+        .sql("insert into mock_freshreq_group (id, name, description) values (8810001, 'orphanGroupNotInGrouper', 'orphan group')")
+        .executeSql();
+    new GcDbAccess().connectionName("grouper")
+        .sql("insert into mock_freshreq_user (id, email, first_name, last_name, active) "
+            + "values (8810002, 'orphan.user@example.edu', 'Orphan', 'User', 'T')")
+        .executeSql();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // two passes: pass 1 inserts Grouper's objects (orphans untouched, delete-types off); pass 2
+    // reads orphans + Grouper's objects and the flush captures all of them.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // orphan group landed with NULL group_internal_id
+    int orphanGroupRowsTotal = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id = ?")
+        .addBindVar(syncInternalId).addBindVar("8810001").select(int.class);
+    assertEquals("expected exactly 1 prov_group row for the orphan group", 1, orphanGroupRowsTotal);
+
+    int orphanGroupRowsUnlinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id = ? and group_internal_id is null")
+        .addBindVar(syncInternalId).addBindVar("8810001").select(int.class);
+    assertEquals("orphan group's prov_group row must have group_internal_id IS NULL", 1,
+        orphanGroupRowsUnlinked);
+
+    // orphan user landed with NULL member_internal_id
+    int orphanUserRowsTotal = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and target_user_id = ?")
+        .addBindVar(syncInternalId).addBindVar("8810002").select(int.class);
+    assertEquals("expected exactly 1 prov_user row for the orphan user", 1, orphanUserRowsTotal);
+
+    int orphanUserRowsUnlinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and target_user_id = ? and member_internal_id is null")
+        .addBindVar(syncInternalId).addBindVar("8810002").select(int.class);
+    assertEquals("orphan user's prov_user row must have member_internal_id IS NULL", 1,
+        orphanUserRowsUnlinked);
+
+    // Grouper's own testGroup + 2 members land alongside, with linkage populated
+    int testGroupRowsLinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id != ? and group_internal_id is not null")
+        .addBindVar(syncInternalId).addBindVar("8810001").select(int.class);
+    assertEquals("Grouper's testGroup prov_group row must have group_internal_id linked", 1,
+        testGroupRowsLinked);
+
+    int nonOrphanUserRowsLinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and target_user_id != ? and member_internal_id is not null")
+        .addBindVar(syncInternalId).addBindVar("8810002").select(int.class);
+    assertEquals("Grouper-provisioned prov_user rows (SUBJ0 + SUBJ1) must have member_internal_id linked",
+        2, nonOrphanUserRowsLinked);
+
+    // a FreshService default group attribute (name) is captured in the catalog
+    int nameCatalog = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr "
+            + "where grouper_sync_internal_id = ? and attribute_name = 'name'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("default group attribute 'name' should be in the per-provisioner catalog", 1,
+        nameCatalog);
+
+    // sanity: 'id' must NOT be captured as an attribute -- it is already the target_group_id column
+    int idAsGroupAttrRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr "
+            + "where grouper_sync_internal_id = ? and attribute_name = 'id'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("'id' must not appear in grouper_prov_group_attr (already target_group_id column)", 0,
+        idAsGroupAttrRows);
+  }
+
+  /**
+   * Strict-native capture on the MEMBERSHIP axis, FreshService analogue of SCIM's
+   * testFullProvisionCapturesMembershipsFromOrphanGroup / Box's
+   * testBoxFullSyncCapturesMembershipsFromOrphanGroup. An orphan group with an orphan member
+   * (neither known to Grouper) is wired in the FreshService mock (mock_freshreq_membership).
+   * FreshService memberships are group-centric, so when the daemon lists groups it also reads the
+   * orphan group's members (retrieveMembershipsByGroup) -- that membership must land in
+   * grouper_prov_mship alongside Grouper's own, proving strict-native membership capture is
+   * independent of Grouper knowledge.
+   */
+  public void testFreshRequesterFullSyncCapturesMembershipsFromOrphanGroup() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    // disable delete-types so the orphan group + its membership persist (FreshService defaults ON)
+    Map<String, String> noDeletes = new HashMap<String, String>();
+    noDeletes.put("customizeGroupCrud", "true");
+    noDeletes.put("deleteGroups", "false");
+    noDeletes.put("customizeEntityCrud", "true");
+    noDeletes.put("deleteEntities", "false");
+    noDeletes.put("customizeMembershipCrud", "true");
+    noDeletes.put("deleteMemberships", "false");
+    setupFreshRequesterSyncBack(configId, noDeletes);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // orphan group + orphan user + the membership wiring them, all in the FreshService mock. The
+    // membership FKs require the group and user rows to exist first (mock_freshreq_mship_*_fkey).
+    new GcDbAccess().connectionName("grouper")
+        .sql("insert into mock_freshreq_group (id, name, description) values (8820001, 'orphanGroupWithMembers', 'orphan group')")
+        .executeSql();
+    new GcDbAccess().connectionName("grouper")
+        .sql("insert into mock_freshreq_user (id, email, first_name, last_name, active) "
+            + "values (8820002, 'orphan.mship@example.edu', 'Orphan', 'Mship', 'T')")
+        .executeSql();
+    new GcDbAccess().connectionName("grouper")
+        .sql("insert into mock_freshreq_membership (id, group_id, user_id) values (8820003, 8820001, 8820002)")
+        .executeSql();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // the orphan group's membership lands in prov_mship (join through prov_group/prov_user, which
+    // hold the target ids -- prov_mship itself only has the FK internal ids)
+    int orphanMshipRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_mship pm "
+            + "join grouper_prov_group pg on pg.internal_id = pm.prov_group_internal_id "
+            + "join grouper_prov_user pu on pu.internal_id = pm.prov_user_internal_id "
+            + "where pm.grouper_sync_internal_id = ? and pg.target_group_id = ? and pu.target_user_id = ?")
+        .addBindVar(syncInternalId).addBindVar("8820001").addBindVar("8820002")
+        .select(int.class);
+    assertEquals("expected 1 prov_mship row for orphan group -> orphan user", 1, orphanMshipRows);
+
+    // Grouper's own memberships land alongside (3 total: SUBJ0 + SUBJ1 in testGroup + the orphan)
+    assertEquals("expected 3 prov_mship rows total (2 from testGroup + 1 orphan)", 3,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * !selectAll* scope excludes orphans, FreshService analogue of SCIM's
+   * testSelectAllFalseExcludesOrphans / Box's testBoxSelectAllFalseExcludesOrphans. With
+   * selectAllGroups=false and selectAllEntities=false the daemon fetches only the resources mapped
+   * to Grouper-provisioned objects (by id/name), never a server-wide listing -- so an orphan
+   * group/user that the FreshService target has but Grouper does not must NOT land in the mirror.
+   */
+  public void testFreshRequesterSelectAllFalseExcludesOrphans() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("selectAllGroups", "false");
+    extraConfig.put("selectAllEntities", "false");
+    // disable the unrelated loadEntitiesToGrouperTable feature -- its loader NPEs when a scoped
+    // retrieve returns null (same defensive override the existing FreshService scoped sync-back
+    // test, testFreshRequesterFullSyncSelectByIdsPopulatesGenericTables, applies).
+    extraConfig.put("loadEntitiesToGrouperTable", "false");
+    setupFreshRequesterSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // pre-populate an orphan group + orphan user -- must NOT appear in reporting because
+    // selectAll=false makes the daemon fetch only by id/name (Grouper-known resources only).
+    new GcDbAccess().connectionName("grouper")
+        .sql("insert into mock_freshreq_group (id, name, description) values (8830001, 'orphanGroupSelectAllFalse', 'orphan group')")
+        .executeSql();
+    new GcDbAccess().connectionName("grouper")
+        .sql("insert into mock_freshreq_user (id, email, first_name, last_name, active) "
+            + "values (8830002, 'orphan.selnone@example.edu', 'Orphan', 'SelNone', 'T')")
+        .executeSql();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // Grouper-known resources still captured
+    assertTrue("Grouper-provisioned testGroup should still be in prov_group",
+        countSyncBack(configId, "grouper_prov_group") >= 1);
+    assertTrue("Grouper-provisioned SUBJ0/SUBJ1 should still be in prov_user",
+        countSyncBack(configId, "grouper_prov_user") >= 2);
+
+    // orphans must NOT be captured (selectAll=false -> no server-wide listing -> no capture)
+    int orphanGroupRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id = ?")
+        .addBindVar(syncInternalId).addBindVar("8830001").select(int.class);
+    assertEquals("orphan group must NOT be captured when selectAllGroups=false", 0, orphanGroupRows);
+
+    int orphanUserRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and target_user_id = ?")
+        .addBindVar(syncInternalId).addBindVar("8830002").select(int.class);
+    assertEquals("orphan user must NOT be captured when selectAllEntities=false", 0, orphanUserRows);
+  }
+
+  /**
+   * Broken-target delete stays in the mirror, FreshService analogue of SCIM's
+   * testUserDeleteBrokenTargetStaysInMirror / Box's testBoxUserDeleteBrokenTargetStaysInMirror. A
+   * target object the daemon did NOT remove must STAY captured on the re-read ("verify, don't
+   * assume": FreshService re-reads and finds it still present).
+   *
+   * <p>FreshService analogue mechanism: we have no mock knob to fake a broken delete, so instead we
+   * DISABLE entity deletion. SUBJ0 is removed from testGroup in Grouper, but with deleteEntities
+   * off the daemon never deactivates the user in the target -- so the user (still active) and its
+   * group remain, and the re-read keeps them in the mirror. The group itself is never deleted, so
+   * it stays too. NB delete-types are ON by default for FreshService, so we override entity delete
+   * to OFF (customizeEntityCrud=true + deleteEntities=false).
+   */
+  public void testFreshRequesterUserDeleteBrokenTargetStaysInMirror() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    // Disable entity deletion so the daemon will NOT deactivate SUBJ0 in the target once SUBJ0
+    // becomes unprovisionable. customizeEntityCrud stays ON (it already is by default) so the
+    // explicit deleteEntities=false key is accepted by validation.
+    Map<String, String> noEntityDelete = new HashMap<String, String>();
+    noEntityDelete.put("customizeEntityCrud", "true");
+    noEntityDelete.put("deleteEntities", "false");
+    setupFreshRequesterSyncBack(configId, noEntityDelete);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: group + SUBJ0 + their membership in the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+
+    // remove SUBJ0 from the group in Grouper. With entity-delete off the daemon does not deactivate
+    // the user in the target, so the target still has an ACTIVE SUBJ0 (and the membership).
+    testGroup.deleteMember(SubjectTestHelper.SUBJ0);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    // the group was never deleted -> still in the mirror
+    assertEquals("group row should stay (group was not deleted)", 1,
+        countSyncBack(configId, "grouper_prov_group"));
+
+    // confirm the target still has the user ACTIVE (the daemon did not deactivate it), so the
+    // re-read (includeInactive=false) keeps it
+    int mockActiveUserRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from mock_freshreq_user where active = 'T'").select(int.class);
+    assertEquals("the user row should remain ACTIVE in the target (entity delete is off)", 1,
+        mockActiveUserRows);
+
+    assertEquals("user should STAY in the mirror (its deactivate was never performed)", 1,
+        countSyncBack(configId, "grouper_prov_user"));
+  }
+
+  /**
+   * loadGroupsToGenericGrouperTable in isolation, FreshService analogue of SCIM's
+   * testLoadGroupsFlagInIsolation / Box's testBoxLoadGroupsFlagInIsolation. Only the groups flag is
+   * on -> only grouper_prov_group rows are written; prov_user and prov_mship stay empty even though
+   * the daemon still reads users (for provisioning) and memberships (for diffing).
+   */
+  public void testFreshRequesterLoadGroupsFlagInIsolation() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+    FreshRequesterProvisionerTestUtils.configureFreshRequesterProvisioner(
+        new FreshRequesterProvisionerTestConfigInput()
+            .assignConfigId(configId)
+            .addExtraConfig("recalculateAllOperations", "true")
+            .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+            .addExtraConfig("loadEntitiesToGenericGrouperTable", "false")
+            .addExtraConfig("loadMembershipsToGenericGrouperTable", "false"));
+    GrouperUtil.sleep(5000);
+    GrouperStartup.startup();
+
+    FreshRequesterApiCommands.retrieveRequesterUsers("freshServiceDev", false);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertTrue("expected >=1 prov_group row when groups capture is on",
+        countSyncBack(configId, "grouper_prov_group") >= 1);
+    assertEquals("expected 0 prov_user rows when entities capture is off", 0,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("expected 0 prov_mship rows when memberships capture is off", 0,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * loadEntitiesToGenericGrouperTable in isolation, FreshService analogue of SCIM's
+   * testLoadEntitiesFlagInIsolation / Box's testBoxLoadEntitiesFlagInIsolation. Only the entities
+   * flag is on -> only grouper_prov_user rows are written; prov_group and prov_mship stay empty.
+   */
+  public void testFreshRequesterLoadEntitiesFlagInIsolation() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+    FreshRequesterProvisionerTestUtils.configureFreshRequesterProvisioner(
+        new FreshRequesterProvisionerTestConfigInput()
+            .assignConfigId(configId)
+            .addExtraConfig("recalculateAllOperations", "true")
+            .addExtraConfig("loadGroupsToGenericGrouperTable", "false")
+            .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+            .addExtraConfig("loadMembershipsToGenericGrouperTable", "false"));
+    GrouperUtil.sleep(5000);
+    GrouperStartup.startup();
+
+    FreshRequesterApiCommands.retrieveRequesterUsers("freshServiceDev", false);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("expected 0 prov_group rows when groups capture is off", 0,
+        countSyncBack(configId, "grouper_prov_group"));
+    assertTrue("expected >=2 prov_user rows (SUBJ0 + SUBJ1) when entities capture is on",
+        countSyncBack(configId, "grouper_prov_user") >= 2);
+    assertEquals("expected 0 prov_mship rows when memberships capture is off", 0,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * loadMembershipsToGenericGrouperTable off, FreshService analogue of SCIM's
+   * testLoadMembershipsFlagOff / Box's testBoxLoadMembershipsFlagOff. Both object loads on but
+   * memberships off -> prov_group and prov_user populate, prov_mship stays empty. Proves the
+   * membership gate is independent of the object gates.
+   */
+  public void testFreshRequesterLoadMembershipsFlagOff() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    FreshRequesterProvisionerTestUtils.setupFreshRequesterExternalSystem();
+    FreshRequesterProvisionerTestUtils.configureFreshRequesterProvisioner(
+        new FreshRequesterProvisionerTestConfigInput()
+            .assignConfigId(configId)
+            .addExtraConfig("recalculateAllOperations", "true")
+            .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+            .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+            .addExtraConfig("loadMembershipsToGenericGrouperTable", "false"));
+    GrouperUtil.sleep(5000);
+    GrouperStartup.startup();
+
+    FreshRequesterApiCommands.retrieveRequesterUsers("freshServiceDev", false);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_freshreq_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertTrue("expected >=1 prov_group row", countSyncBack(configId, "grouper_prov_group") >= 1);
+    assertTrue("expected >=2 prov_user rows (SUBJ0 + SUBJ1)",
+        countSyncBack(configId, "grouper_prov_user") >= 2);
+    assertEquals("expected 0 prov_mship rows when memberships capture is off", 0,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * INCREMENTAL sync-back coverage for FreshService, conservative (FreshService analogue of Box's
+   * testBoxIncrementalSyncBackNoSpuriousDeletes). Like Box, FreshService has NO write-side capture
+   * hooks -- it captures groups/users on the READ path and memberships group-centric -- so an
+   * incremental cycle re-reads only the changed objects (it has canRetrieveGroup/Entity, so the
+   * adapter decomposes to per-id reads that fire the capture seams), and the incremental flush is a
+   * SCOPED upsert (it does NOT full-replace, so it will not wrongly delete untouched mirror rows).
+   *
+   * <p>What this asserts is deliberately narrow -- the safe, reliable part of FreshService
+   * incremental sync-back: after seeding via full sync and priming the changelog consumer, adding a
+   * member drives an incremental that (a) re-reads the changed group/entity and so does NOT shrink
+   * the existing GROUP/USER mirror (no spurious deletes -- the regression the scoped incremental
+   * flush guards against), and (b) captures the newly added member's user object into prov_user. It
+   * does NOT assert that the new MEMBERSHIP converges on the same incremental cycle: FreshService
+   * memberships are captured on read group-centric, and the incremental's read-before-write timing
+   * makes same-cycle membership convergence unreliable for a read-capture target (the same
+   * 1-cycle-lag reason SCIM disables its object incremental test). Membership convergence for
+   * FreshService is covered end-to-end by the two-pass full tests above.
+   */
+  public void testFreshRequesterIncrementalSyncBackNoSpuriousDeletes() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    setupFreshRequesterSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed via full sync: group + SUBJ0 + SUBJ1 + their memberships in the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    int provGroupRowsBefore = countSyncBack(configId, "grouper_prov_group");
+    int provUserRowsBefore = countSyncBack(configId, "grouper_prov_user");
+    int provMshipRowsBefore = countSyncBack(configId, "grouper_prov_mship");
+    assertTrue("seed should have >=1 prov_group row", provGroupRowsBefore >= 1);
+    assertEquals("seed should have 2 prov_user rows", 2, provUserRowsBefore);
+    assertEquals("seed should have 2 prov_mship rows", 2, provMshipRowsBefore);
+
+    // prime the changelog consumer: its FIRST run only initializes its changelog position
+    // (processes nothing), so without this priming pass the change below is never consumed.
+    incrementalProvision();
+
+    // incremental add: a third member. The incremental re-reads the changed group/entity, firing the
+    // FreshService read-capture seams, and the scoped flush upserts -- it must NOT drop untouched rows.
+    testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+    incrementalProvision();
+
+    // (a) no spurious deletes on the GROUP axis: the scoped incremental flush left existing rows intact
+    assertTrue("incremental must not shrink prov_group; before=" + provGroupRowsBefore
+        + " after=" + countSyncBack(configId, "grouper_prov_group"),
+        countSyncBack(configId, "grouper_prov_group") >= provGroupRowsBefore);
+    // NB: prov_mship is intentionally NOT asserted here (matching this test's javadoc). FreshService
+    // memberships are group-centric and captured on the READ path; on an incremental cycle the
+    // read-before-write timing means testGroup's membership rows can transiently lag, re-converging
+    // only on the next full sync (the same 1-cycle lag for which SCIM disables its object incremental
+    // test). Membership convergence is covered end-to-end by the two-pass full tests above; here we
+    // only guard group/user no-shrink.
+
+    // (b) the newly added member's user object is captured (object capture via the per-id re-read)
+    assertEquals("SUBJ2's user object should be captured into prov_user this incremental cycle", 3,
+        countSyncBack(configId, "grouper_prov_user"));
+
+    // catalog stays deduped per (sync, attribute_name) after the incremental (the unique-key
+    // regression guarded on the LDAP/SCIM side; FreshService shares the same generic flush code)
+    int dupGroupAttr = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from (select grouper_sync_internal_id, attribute_name, count(*) c "
+            + "from grouper_prov_group_attr where grouper_sync_internal_id = ? "
+            + "group by grouper_sync_internal_id, attribute_name having count(*) > 1) t")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("group attr catalog should stay deduped per (sync,name) after incremental", 0,
+        dupGroupAttr);
   }
 
 }

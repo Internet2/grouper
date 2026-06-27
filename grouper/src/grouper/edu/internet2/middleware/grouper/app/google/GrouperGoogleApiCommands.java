@@ -489,6 +489,32 @@ public class GrouperGoogleApiCommands {
 
   }
   
+  /**
+   * Build a single JSON object for generic-provisioner sync-back capture out of the two API reads
+   * that make up a Google group: the Directory node (id/email/name/description) and the separate
+   * Groups Settings node (whoCanAdd, moderation level, reply-to, etc.). Capturing only one node
+   * would silently drop any field on the other -- the very lossiness the raw-JSON capture path
+   * exists to remove. The Directory node is overlaid last so the identity fields (id/email/name)
+   * always win; the settings-only fields are added on top. Null-safe: if either node is missing or
+   * is not a JSON object, the other node is returned as-is.
+   * @param directoryNode the admin Directory group node (authoritative for id/email/name)
+   * @param settingsNode the Groups Settings node (may be null if the settings call returned nothing)
+   * @return a merged object node, or whichever single node is usable
+   */
+  private static JsonNode mergeGoogleGroupJsonForCapture(JsonNode directoryNode, JsonNode settingsNode) {
+    if (directoryNode == null || !directoryNode.isObject()) {
+      return directoryNode;
+    }
+    if (settingsNode == null || !settingsNode.isObject()) {
+      return directoryNode;
+    }
+    // settings as the base, Directory overlaid so the identity fields always win on the few
+    // overlapping keys (id is Directory-only and must survive -- it is the target_group_id)
+    ObjectNode merged = (ObjectNode) settingsNode.deepCopy();
+    merged.setAll((ObjectNode) directoryNode);
+    return merged;
+  }
+
   //https://www.baeldung.com/java-generate-secure-password
   private static String generateRandomPassword() {
     String upperCaseLetters = RandomStringUtils.random(2, 65, 90, true, true);
@@ -917,12 +943,20 @@ public class GrouperGoogleApiCommands {
         for (int i = 0; i < (groupsArray == null ? 0 : groupsArray.size()); i++) {
           JsonNode groupNode = groupsArray.get(i);
           GrouperGoogleGroup grouperGoogleGroup = GrouperGoogleGroup.fromJson(groupNode);
-          
+
           // for each group retrieve settings
           //String settingsUrl = "https://www.googleapis.com/groups/v1/groups/"+grouperGoogleGroup.getEmail()+"?alt=json";
           String settingsUrlSuffix = "/"+grouperGoogleGroup.getEmail()+"?alt=json";
           JsonNode groupSettingsNode = executeGetMethod(debugMap, "retrieveGoogleGroups", configId, settingsUrlSuffix, true);
           grouperGoogleGroup.populateGroupSettings(groupSettingsNode);
+
+          // generic provisioner sync-back: capture the FULL group from raw JSON -- the Directory
+          // node merged with the separate Groups Settings node -- so no settings field an operator
+          // configured for sync-back is dropped (capturing only one node is the lossiness this path
+          // exists to remove). Managers/owners are roles captured via the membership path, not here.
+          // No-op outside a Google provisioning cycle.
+          GrouperGoogleProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(
+              mergeGoogleGroupJsonForCapture(groupNode, groupSettingsNode));
           
           // retrieve roles of the members of the group (manager, owner)
           // https://admin.googleapis.com/admin/directory/v1/groups/{groupKey}/members
@@ -1016,15 +1050,19 @@ public class GrouperGoogleApiCommands {
           JsonNode userNode = usersArray.get(i);
           GrouperGoogleUser grouperGoogleUser = GrouperGoogleUser.fromJson(userNode);
           results.add(grouperGoogleUser);
+          // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
+          // not the lossy typed bean) while the JSON node is in scope. No-op outside a Google
+          // provisioning cycle.
+          GrouperGoogleProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
         }
-        
+
         if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageToken) && StringUtils.equals(previousPageToken, nextPageToken)) {
           break;
         }
         previousPageToken = nextPageToken;
-        
+
       }
-      
+
       debugMap.put("size", GrouperClientUtils.length(results));
 
       return results;
@@ -1071,10 +1109,15 @@ public class GrouperGoogleApiCommands {
       if (jsonNode == null) {
         return null;
       }
-      
+
       GrouperGoogleUser grouperGoogleUser = GrouperGoogleUser.fromJson(jsonNode);
+
+      // generic provisioner sync-back: register the user from the raw JSON while it is in scope
+      // (single-user read by id/email). No-op outside a Google provisioning cycle.
+      GrouperGoogleProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(jsonNode);
+
       return grouperGoogleUser;
-      
+
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -1083,7 +1126,7 @@ public class GrouperGoogleApiCommands {
     }
 
   }
-  
+
   /**
    * @param configId
    * @param id of the user
@@ -1331,14 +1374,21 @@ public class GrouperGoogleApiCommands {
       if (jsonNode == null) {
         return null;
       }
-      
+
       GrouperGoogleGroup grouperGoogleGroup = GrouperGoogleGroup.fromJson(jsonNode);
-      
+
       // retrieve settings now
       // url = "https://www.googleapis.com/groups/v1/groups/"+grouperGoogleGroup.getEmail()+"?alt=json";
       urlSuffix = "/"+grouperGoogleGroup.getEmail()+"?alt=json";
       JsonNode groupSettingsNode = executeGetMethod(debugMap, "retrieveGoogleGroup", configId, urlSuffix, true);
       grouperGoogleGroup.populateGroupSettings(groupSettingsNode);
+
+      // generic provisioner sync-back: capture the FULL group from raw JSON -- the Directory node
+      // merged with the separate Groups Settings node -- so no operator-configured settings field is
+      // dropped. Managers/owners are roles captured via the membership path, not here. No-op outside
+      // a Google provisioning cycle.
+      GrouperGoogleProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(
+          mergeGoogleGroupJsonForCapture(jsonNode, groupSettingsNode));
       
       // retrieve roles of the members of the group (manager, owner)
       // https://admin.googleapis.com/admin/directory/v1/groups/{groupKey}/members

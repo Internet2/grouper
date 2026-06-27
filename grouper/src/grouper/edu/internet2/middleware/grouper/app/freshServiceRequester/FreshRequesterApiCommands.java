@@ -580,8 +580,13 @@ public class FreshRequesterApiCommands {
       }
       FreshRequesterGroup grouperRequesterGroup = FreshRequesterGroup.fromJson(groupNode);
 
+      // generic provisioner sync-back: register the group from the raw inner JSON (full fidelity,
+      // not the lossy typed bean) while the node is in scope. No-op outside a FreshRequester
+      // provisioning cycle. Only non-rule_based groups reach here, matching what the DAO surfaces.
+      FreshRequesterProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
+
       return grouperRequesterGroup;
-      
+
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -589,7 +594,7 @@ public class FreshRequesterApiCommands {
       FreshRequesterLog.freshserviceLog(debugMap, startTime);
     }
   }
-  
+
   /**
    * Get a list of all Freshservice requester groups
    * @param configId the id of the external system
@@ -624,6 +629,10 @@ public class FreshRequesterApiCommands {
           }
           FreshRequesterGroup grouperRequesterGroup = FreshRequesterGroup.fromJson(groupNode);
           results.add(grouperRequesterGroup);
+          // generic provisioner sync-back: register the group from the raw inner JSON (full
+          // fidelity, not the lossy typed bean) while the node is in scope. No-op outside a
+          // FreshRequester provisioning cycle. Only non-rule_based groups reach here.
+          FreshRequesterProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
         }
 
         page++;
@@ -805,6 +814,11 @@ public class FreshRequesterApiCommands {
             continue;
           }
           results.add(grouperRequesterUser);
+          // generic provisioner sync-back: register the user from the raw inner JSON (full fidelity,
+          // not the lossy typed bean) while the node is in scope. Captured after the agent/inactive
+          // skips so the captured population matches what the DAO reconciles. No-op outside a
+          // FreshRequester provisioning cycle.
+          FreshRequesterProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
         }
 
         page++;
@@ -869,6 +883,12 @@ public class FreshRequesterApiCommands {
         return null;
       }
 
+      // generic provisioner sync-back: register the user from the raw inner JSON (full fidelity,
+      // not the lossy typed bean) while the node is in scope. Captured only for users that survive
+      // the agent/inactive skips, matching what the DAO reconciles. No-op outside a FreshRequester
+      // provisioning cycle.
+      FreshRequesterProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
+
       return grouperRequesterUser;
 
     } catch (RuntimeException re) {
@@ -925,6 +945,11 @@ public class FreshRequesterApiCommands {
             && (grouperRequesterUser.getActive() == null || !grouperRequesterUser.getActive())) {
           return null;
         }
+        // generic provisioner sync-back: register the user from the raw inner JSON (full fidelity,
+        // not the lossy typed bean) while the node is in scope. Captured only for users that
+        // survive the agent/inactive skips, matching what the DAO reconciles. No-op outside a
+        // FreshRequester provisioning cycle.
+        FreshRequesterProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
         return grouperRequesterUser;
       }
 
@@ -1034,6 +1059,12 @@ public class FreshRequesterApiCommands {
         if (grouperRequesterUser.getIsAgent() != null && grouperRequesterUser.getIsAgent()) {
           return null;
         }
+        // generic provisioner sync-back: register the user from the raw inner JSON (full fidelity,
+        // not the lossy typed bean) while the node is in scope. This branch handles the externalId /
+        // customField_ lookups; the id/email lookups return earlier via delegation to
+        // retrieveRequesterUserById/retrieveRequesterUserByEmail (which capture there), so there is
+        // no double capture. No-op outside a FreshRequester provisioning cycle.
+        FreshRequesterProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
         return grouperRequesterUser;
       }
 

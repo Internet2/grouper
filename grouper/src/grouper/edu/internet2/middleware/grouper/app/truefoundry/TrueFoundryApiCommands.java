@@ -160,6 +160,68 @@ public class TrueFoundryApiCommands {
   }
 
   // ============================
+  // Generic-provisioner sync-back capture (raw JSON, full fidelity)
+  // ============================
+  //
+  // The generic provisioner sync-back captures the FULL target object from the raw JSON read
+  // here -- not the lossy TrueFoundryUser/TrueFoundryGroup typed beans -- so no operator-
+  // configurable target field is silently dropped. Capture is hooked at this commands seam, where
+  // the per-object JSON node is in scope, and is a no-op outside a TrueFoundry provisioning cycle.
+  //
+  // TrueFoundry group nodes are not uniform across endpoints, so the capture node is NORMALIZED
+  // before it reaches the native-sync: two fields the typed beans synthesize have no single raw
+  // JSON field of their own and must be stamped on so the native-sync defaults resolve uniformly:
+  //   - groupType: not a JSON field at all; fromTeamJson/fromRoleJson hard-code "team"/"role".
+  //   - name: lives at /teamName for a team but /name for a role; normalized to a top-level "name".
+  // Users need no normalization -- the subjects users[] element already carries /id, /email,
+  // /active and /metadata/displayName -- so the raw user node is captured as-is.
+
+  /**
+   * Build the normalized sync-back capture node for a TrueFoundry team. Starts from a deep copy of
+   * the raw team node (so all raw fields -- {@code teamName}, the {@code manifest} subtree, etc. --
+   * are preserved for operator-configured capture) and stamps on the two synthesized fields the
+   * native-sync defaults expect: {@code groupType="team"} and a top-level {@code name} aliased from
+   * {@code teamName}. Null-safe: returns {@code teamNode} unchanged if it is not a JSON object.
+   * @param teamNode a raw team object (a {@code teams[]} / {@code data[]} element, or a {@code data}
+   *                 envelope payload)
+   * @return the normalized capture node
+   */
+  private static JsonNode normalizeTeamJsonForCapture(JsonNode teamNode) {
+    if (teamNode == null || !teamNode.isObject()) {
+      return teamNode;
+    }
+    ObjectNode capture = (ObjectNode) teamNode.deepCopy();
+    // groupType is synthesized by TrueFoundryGroup.fromTeamJson -- inject so /groupType resolves
+    capture.put("groupType", TrueFoundryGroup.GROUP_TYPE_TEAM);
+    // a team's name is the raw /teamName field -- alias it to a top-level "name" so /name resolves
+    String teamName = GrouperUtil.jsonJacksonGetString(teamNode, "teamName");
+    if (StringUtils.isNotBlank(teamName)) {
+      capture.put("name", teamName);
+    }
+    return capture;
+  }
+
+  /**
+   * Build the normalized sync-back capture node for a TrueFoundry role. Starts from a deep copy of
+   * the raw role node (so all raw fields -- {@code resourceType}, {@code isDefault}, the
+   * {@code manifest} subtree, etc. -- are preserved for operator-configured capture) and stamps on
+   * the synthesized {@code groupType="role"}. A role's name is already the raw top-level
+   * {@code /name} field, so no name alias is needed. Null-safe: returns {@code roleNode} unchanged
+   * if it is not a JSON object.
+   * @param roleNode a raw role object (a {@code data[]} element)
+   * @return the normalized capture node
+   */
+  private static JsonNode normalizeRoleJsonForCapture(JsonNode roleNode) {
+    if (roleNode == null || !roleNode.isObject()) {
+      return roleNode;
+    }
+    ObjectNode capture = (ObjectNode) roleNode.deepCopy();
+    // groupType is synthesized by TrueFoundryGroup.fromRoleJson -- inject so /groupType resolves
+    capture.put("groupType", TrueFoundryGroup.GROUP_TYPE_ROLE);
+    return capture;
+  }
+
+  // ============================
   // User methods
   // ============================
 
@@ -231,6 +293,12 @@ public class TrueFoundryApiCommands {
           }
           subjectsData.users.add(user);
 
+          // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
+          // not the lossy typed bean) while the userNode is in scope. Captured at the same point
+          // the user joins the result list, so the same active / non-ignored population is captured.
+          // No-op outside a TrueFoundry provisioning cycle.
+          TrueFoundryProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
+
           // extract role memberships from rolesWithResource
           ArrayNode rolesWithResource = (ArrayNode) GrouperUtil.jsonJacksonGetNode(userNode, "rolesWithResource");
           if (rolesWithResource != null) {
@@ -253,9 +321,17 @@ public class TrueFoundryApiCommands {
         ArrayNode teamsArray = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "teams");
         if (teamsArray != null) {
           for (int i = 0; i < teamsArray.size(); i++) {
-            TrueFoundryGroup team = TrueFoundryGroup.fromTeamJson(teamsArray.get(i));
+            JsonNode teamNode = teamsArray.get(i);
+            TrueFoundryGroup team = TrueFoundryGroup.fromTeamJson(teamNode);
             if (team != null && StringUtils.isNotBlank(team.getId())) {
               teamsById.put(team.getId(), team);
+              // generic provisioner sync-back: capture the team from the raw JSON (normalized so
+              // /name and /groupType resolve) while the teamNode is in scope. Teams repeat across
+              // subjects pages; last-write-wins in the native-sync de-dupes, matching teamsById.
+              // The team's embedded member list is captured group-centrically by the DAO (the
+              // email -> native-id index isn't available here). No-op outside a TF cycle.
+              TrueFoundryProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(
+                  normalizeTeamJsonForCapture(teamNode));
             }
           }
         }
@@ -322,7 +398,8 @@ public class TrueFoundryApiCommands {
         int returnedCount = usersArray == null ? 0 : usersArray.size();
 
         for (int i = 0; i < returnedCount; i++) {
-          TrueFoundryUser user = TrueFoundryUser.fromJson(usersArray.get(i));
+          JsonNode userNode = usersArray.get(i);
+          TrueFoundryUser user = TrueFoundryUser.fromJson(userNode);
           if (user == null) {
             continue;
           }
@@ -335,6 +412,9 @@ public class TrueFoundryApiCommands {
             continue;
           }
           results.add(user);
+          // generic provisioner sync-back: register the user from the raw JSON while the userNode
+          // is in scope. No-op outside a TrueFoundry provisioning cycle.
+          TrueFoundryProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
         }
 
         if (returnedCount < pageSize) {
@@ -397,7 +477,8 @@ public class TrueFoundryApiCommands {
 
       // find exact email match
       for (int i = 0; i < usersArray.size(); i++) {
-        TrueFoundryUser user = TrueFoundryUser.fromJson(usersArray.get(i));
+        JsonNode userNode = usersArray.get(i);
+        TrueFoundryUser user = TrueFoundryUser.fromJson(userNode);
         if (user == null) {
           continue;
         }
@@ -408,6 +489,10 @@ public class TrueFoundryApiCommands {
         if (!includeInactiveUsers && user.getActive() != null && !user.getActive()) {
           continue;
         }
+        // generic provisioner sync-back: scoped single-user read (used by the DAO's retrieveEntity
+        // path -- !selectAllEntities and incremental). Register the matched user from the raw JSON
+        // while the userNode is in scope. No-op outside a TrueFoundry provisioning cycle.
+        TrueFoundryProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
         return user;
       }
 
@@ -789,6 +874,12 @@ public class TrueFoundryApiCommands {
           continue;
         }
         results.add(role);
+        // generic provisioner sync-back: capture the role (a TrueFoundry "group" of type role) from
+        // the raw JSON (normalized so /groupType resolves) while the roleNode is in scope. Captured
+        // at the same point the role joins the result list, so the same provisioner-managed,
+        // non-ignored population is captured. No-op outside a TrueFoundry provisioning cycle.
+        TrueFoundryProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(
+            normalizeRoleJsonForCapture(roleNode));
       }
 
     } catch (RuntimeException re) {
@@ -969,7 +1060,8 @@ public class TrueFoundryApiCommands {
         int returnedCount = dataArray == null ? 0 : dataArray.size();
 
         for (int i = 0; i < returnedCount; i++) {
-          TrueFoundryGroup team = TrueFoundryGroup.fromTeamJson(dataArray.get(i));
+          JsonNode teamNode = dataArray.get(i);
+          TrueFoundryGroup team = TrueFoundryGroup.fromTeamJson(teamNode);
           if (team == null) {
             continue;
           }
@@ -978,6 +1070,12 @@ public class TrueFoundryApiCommands {
             continue;
           }
           results.add(team);
+          // generic provisioner sync-back: capture the team from the raw JSON (normalized so /name
+          // and /groupType resolve) while the teamNode is in scope. Captured at the same point the
+          // team joins the result list, so the system-managed "everyone" team is excluded, matching
+          // the provisioned population. No-op outside a TrueFoundry provisioning cycle.
+          TrueFoundryProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(
+              normalizeTeamJsonForCapture(teamNode));
         }
 
         if (returnedCount < pageSize) {
@@ -1026,8 +1124,20 @@ public class TrueFoundryApiCommands {
         return null;
       }
 
+      // the single-team response wraps the team in a "data" envelope; capture the inner per-object
+      // node (pointers are set relative to it, consistently with the array endpoints above)
       JsonNode dataNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "data");
-      return TrueFoundryGroup.fromTeamJson(dataNode != null ? dataNode : jsonNode);
+      JsonNode teamNode = dataNode != null ? dataNode : jsonNode;
+
+      // generic provisioner sync-back: single-team read by id (used by the DAO's retrieveGroup
+      // path for team search-by-id -- !selectAllGroups and incremental). Capture the team from the
+      // raw JSON (normalized so /name and /groupType resolve) while the teamNode is in scope. The
+      // team's embedded member list is captured group-centrically by the DAO. No-op outside a TF
+      // provisioning cycle.
+      TrueFoundryProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(
+          normalizeTeamJsonForCapture(teamNode));
+
+      return TrueFoundryGroup.fromTeamJson(teamNode);
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));

@@ -970,4 +970,901 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
         .addBindVar(configId).select(int.class);
   }
 
+  // =========================================================================================
+  // Sync-back CRUD parity tests for the GOOGLE provisioner (capability-gated).
+  //
+  // Replicates the Box pilot (boxProvisioner/GrouperBoxProvisionerTest) for Google. Sync-back =
+  // a provisioning run captures the target's state into grouper_prov_group / grouper_prov_user /
+  // grouper_prov_mship (+ _attr / _attr_value), driven by the three load*ToGenericGrouperTable
+  // flags. These tests cover only operations Google supports.
+  //
+  // CAPABILITY MATRIX (from GrouperGoogleTargetDao.registerGrouperProvisionerDaoCapabilities):
+  //   canInsertGroup        = true   -> group insert-converge test
+  //   canUpdateGroup        = true   -> group update-converge test (mutate NON-matching attr)
+  //   canDeleteGroup        = true   -> group delete-converge test
+  //   canInsertEntity       = true   -> covered by membership-add (SUBJ insert) + orphan capture
+  //   canUpdateEntity       = true   -> NO standalone user-update-converge test; see SKIP note below
+  //   canDeleteEntity       = true   -> covered by group-delete cascade (orphaned user dropped)
+  //   canInsertMembership   = true   -> membership-add-converge test
+  //   canDeleteMembership   = true   -> membership-remove-converge test
+  //   (replaceMembership)   = N/A    -> Google DAO never calls setCanReplaceMembership(...), so the
+  //                                     framework has no replace-membership capability for Google.
+  //                                     SKIPPED: there is no replace-membership operation to exercise.
+  //
+  // GROUP MATCHING ATTRIBUTE = "name" (groupMatchingAttribute0name=name in
+  //   GoogleProvisionerTestUtils.configureGoogleProvisioner; the "name" target attribute is the FULL
+  //   Grouper group system name, e.g. "test:testGroup"). So, exactly like Box, the group
+  //   update-converge test mutates the group's DESCRIPTION (a NON-matching attribute) -- the
+  //   rename-as-update hazard (the Adobe lesson) does not apply. A group RENAME (extension change)
+  //   would mutate the match key and cannot converge as an in-place update, so it is NOT tested.
+  //
+  // ENTITY MATCHING ATTRIBUTE = "email" (entityMatchingAttribute0name=email). The only other
+  //   Grouper-driven user attributes here are givenName/familyName (both translate from the subject
+  //   "name" field, so they are not independently mutable from Grouper) and email (the match key).
+  //   There is no safe Grouper-driven NON-matching, independently-mutable user attribute to mutate,
+  //   so a standalone user-update-converge test would be mutating the match key (the Adobe lesson)
+  //   and could not converge as an in-place update. SKIPPED, exactly as the Box pilot skips it.
+  //
+  // DEFAULT CAPTURE ATTRIBUTES (asserted on -- from GrouperGoogleProvisioningTargetNativeSync):
+  //   groups  -> name, email     (JSON pointers /name, /email on the merged Directory+settings node)
+  //   users   -> primaryEmail, orgUnitPath (JSON pointers /primaryEmail, /orgUnitPath)
+  //   "id" is NEVER captured as an attribute (it is already the target_group_id / target_user_id
+  //   column). The group update test additionally captures "description" via nativeAttributesGroups;
+  //   description IS reachable from the merged group JSON (the Directory read uses
+  //   fields=...groups(id,email,name,description), and mergeGoogleGroupJsonForCapture overlays the
+  //   Directory node), so the captured-value assertion is sound.
+  //
+  // MEMBERSHIP MODEL: group-centric, captured on the READ path. GrouperGoogleTargetDao
+  //   .retrieveMembershipsByGroup / retrieveAllData list a group's member ids
+  //   (GrouperGoogleApiCommands.retrieveGoogleGroupMembers returns ALL members regardless of role)
+  //   and record them via captureMembershipsForGroupFromCurrentProvisioner. Manager/owner ROLES are
+  //   roles ON members and appear in that same member list, so for sync-back a membership is simply
+  //   "(group, member)". Because capture is read-driven, membership convergence is asserted on the
+  //   SECOND full pass (pass A writes, pass B re-reads and flushes). INCREMENTAL membership is NOT
+  //   asserted (group-centric read-capture targets lag ~1 cycle, the same reason Box and SCIM defer
+  //   it); the incremental test only guards group/user no-shrink + changed-object capture.
+  // =========================================================================================
+
+  /**
+   * Shared setup for the Google sync-back tests: configure the provisioner with the three
+   * load*ToGenericGrouperTable flags on (and recalculateAllOperations so every object/membership is
+   * processed each run), then clean the Google mock target. The caller starts its own root session
+   * and creates the Grouper-side stems/groups/members it needs. Mirrors the per-test boilerplate
+   * that testGoogleFullSyncPopulatesGenericTables open-codes, and the Box pilot's setupBoxSyncBack.
+   *
+   * <p>Unlike Box (which defaults customize*Crud=false), GoogleProvisionerTestUtils already turns ON
+   * customize*Crud and the delete keys (deleteGroups/deleteEntities/deleteMemberships with their
+   * *IfGrouperDeleted qualifiers). So a Grouper-side delete cascades to the Google target out of the
+   * box; callers do NOT need to add delete-type suffixes. Conversely, the *IfNotExistInGrouper keys
+   * for groups/entities default to false, so a pure target-side orphan (unknown to Grouper) is NOT
+   * deleted -- which is what the orphan-capture tests rely on.
+   *
+   * @param configId the provisioner config id (always "myGoogleProvisioner" here)
+   * @param extraConfig additional provisioner.&lt;configId&gt;.* suffixes to set (may be null)
+   */
+  private void setupGoogleSyncBack(String configId, Map<String, String> extraConfig) throws IOException {
+
+    GoogleProvisionerTestUtils.setupGoogleExternalSystem();
+
+    GoogleProvisionerTestConfigInput configInput = new GoogleProvisionerTestConfigInput()
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true");
+    if (extraConfig != null) {
+      for (Map.Entry<String, String> entry : extraConfig.entrySet()) {
+        configInput.addExtraConfig(entry.getKey(), entry.getValue());
+      }
+    }
+    GoogleProvisionerTestUtils.configureGoogleProvisioner(configInput);
+
+    GrouperStartup.startup();
+
+    // this read creates the mock Google tables (same idiom as the existing Google tests) before we wipe them
+    GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null, false, false);
+
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
+  }
+
+  /**
+   * the single provisioned group's target_group_id (Google group id) in the mirror, or null.
+   * Mirrors the Box / Adobe helper of the same name -- used by the update-converge test to prove the
+   * SAME target object survives an update (in-place update, not delete + re-create, which would
+   * assign a new Google group id).
+   */
+  private String mirroredGroupTargetId(String configId) {
+    List<String> ids = new GcDbAccess().connectionName("grouper")
+        .sql("select target_group_id from grouper_prov_group "
+            + "where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(configId).selectList(String.class);
+    return ids.isEmpty() ? null : ids.get(0);
+  }
+
+  /**
+   * Resolved {@code description} attribute value for the single provisioned group in the mirror, or
+   * null. Reads through the {@code grouper_prov_group_attr_v} reporting view (not the raw
+   * grouper_prov_group_attr_value table), because the value is stored via a dictionary FK and only
+   * the view resolves it back to text (column {@code value_string}). {@code description} is captured
+   * only because the update-converge test sets {@code nativeAttributesGroups=name,email,description}
+   * -- it is NOT a Google default capture attribute (defaults are name/email), so without that
+   * config this returns null.
+   */
+  private String mirroredGroupDescription(String configId) {
+    List<String> values = new GcDbAccess().connectionName("grouper")
+        .sql("select value_string from grouper_prov_group_attr_v "
+            + "where grouper_sync_id in (select id from grouper_sync where provisioner_name = ?) "
+            + "and attribute_name = 'description'")
+        .addBindVar(configId).selectList(String.class);
+    return values.isEmpty() ? null : values.get(0);
+  }
+
+  /**
+   * canInsertGroup -> sync-back convergence of a newly created group, two-pass full (Google analogue
+   * of Box's testBoxGroupInsertConvergesNextRead / SCIM's testGroupInsertConvergesSameRun). Because
+   * createGroupsAndEntitiesBeforeTranslatingMemberships + selectGroups are on, pass 1 inserts the
+   * group AND re-reads it (to link it) through the Google read path, and that read captures it -- so
+   * the group is already in the mirror after pass 1 (assert 1, not 0). Pass 2 is idempotent.
+   */
+  public void testGoogleGroupInsertConvergesNextRead() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    setupGoogleSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // baseline: nothing in the mirror yet
+    assertEquals(0, countSyncBack(configId, "grouper_prov_group"));
+
+    // pass 1 inserts the group AND -- via the post-insert re-read that links it -- captures it, so
+    // the group converges into the mirror within this same run
+    GrouperProvisioningOutput out1 = fullProvision();
+    assertEquals(0, out1.getRecordsWithErrors());
+    assertEquals("group insert converges in the same run (post-insert re-read captures it)", 1,
+        countSyncBack(configId, "grouper_prov_group"));
+
+    // pass 2 re-reads; convergence is idempotent
+    GrouperProvisioningOutput out2 = fullProvision();
+    assertEquals(0, out2.getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    assertEquals("group insert should be present in prov_group", 1,
+        countSyncBack(configId, "grouper_prov_group"));
+
+    // captured via a read, so it is linked back to its Grouper group
+    int groupRowsLinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and group_internal_id is not null")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("converged prov_group row should be linked to its Grouper group", 1, groupRowsLinked);
+
+    // name captured from the Google Directory read response (a Google default capture attribute)
+    int nameValueRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr_value gpv "
+            + "join grouper_prov_group_attr gpa on gpa.internal_id = gpv.prov_group_attr_internal_id "
+            + "join grouper_prov_group pg on pg.internal_id = gpv.prov_group_internal_id "
+            + "where pg.grouper_sync_internal_id = ? and gpa.attribute_name = 'name'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertTrue("name should be captured from the Google read response, got " + nameValueRows,
+        nameValueRows >= 1);
+  }
+
+  /**
+   * canDeleteGroup (+ cascade canDeleteEntity / canDeleteMembership) -> sync-back convergence of an
+   * object DELETE, two-pass full (Google analogue of Box's testBoxGroupDeleteConvergesNextRead).
+   * Seed test:testGroup + SUBJ0 + their membership into the mirror, then delete the group in
+   * Grouper. Google's test config already enables deleteGroups/deleteEntities/deleteMemberships with
+   * their *IfGrouperDeleted qualifiers, so the next full sync removes them from the Google target
+   * (pass A); the following re-read pass (pass B) sees them gone and the full-replace flush, scoped
+   * to this provisioner's sync, drops the group, the now-orphaned user, and the membership from the
+   * mirror.
+   */
+  public void testGoogleGroupDeleteConvergesNextRead() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    // Google defaults already turn ON customize*Crud + deleteGroups/deleteEntities/deleteMemberships
+    // (with *IfGrouperDeleted), so a Grouper-side delete cascades to the target with NO extra config
+    // -- this is the inverse of Box, which defaults customize*Crud=false and needs the delete keys
+    // added explicitly. Nothing to add here.
+    setupGoogleSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: two passes converge the group + SUBJ0 + their membership into the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("seed: membership", 1, countSyncBack(configId, "grouper_prov_mship"));
+
+    // delete the group; SUBJ0 is now orphaned (no other provisioned group) and is deleted too
+    testGroup.delete();
+
+    // pass A: the delete writes hit the Google target (group + orphaned user + membership removed)
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    // pass B: the re-read sees them gone; the full-replace flush drops their mirror rows
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("group dropped from the mirror after the re-read pass", 0,
+        countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("orphaned SUBJ0 dropped from the mirror after the re-read pass", 0,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("membership dropped from the mirror after the re-read pass", 0,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * canUpdateGroup -> sync-back convergence of an object UPDATE on a NON-matching attribute, two-pass
+   * full (Google analogue of Box's testBoxGroupUpdateConvergesNextRead). Google groups are matched
+   * by name, so the rename-as-update hazard (the Adobe lesson) does not apply: we mutate the group's
+   * DESCRIPTION, which is mapped (targetGroupAttribute.2), round-trips through the mock's updateGroup
+   * (the forward test testFullSyncGoogle proves the Google bean's description converges), and is NOT
+   * the matching attribute. nativeAttributesGroups is set to "name,email,description" so the
+   * description value is actually captured into the mirror (it is not a Google default capture
+   * attribute) -- description is reachable because the Directory read includes it and
+   * mergeGoogleGroupJsonForCapture overlays the Directory node.
+   *
+   * <p>Asserts both that the description VALUE converges to the new value AND that it is an in-place
+   * update -- the SAME target group id survives (not delete + re-create, which would assign a new
+   * Google id). Convergence is on the re-read pass (pass B), since Google captures on read.
+   */
+  public void testGoogleGroupUpdateConvergesNextRead() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    // capture description (not a Google default) so we can assert the updated value in the mirror
+    extraConfig.put("nativeAttributesGroups", "name,email,description");
+    setupGoogleSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup")
+        .assignDescription("originalDescription").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: group provisioned with description "originalDescription"
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+    String groupTargetIdBefore = mirroredGroupTargetId(configId);
+    assertNotNull("group should have a target id after seed", groupTargetIdBefore);
+    assertEquals("seed: original description captured", "originalDescription",
+        mirroredGroupDescription(configId));
+
+    // change the description (a NON-matching attribute) -> Google updateGroup
+    testGroup = new GroupSave(grouperSession).assignName(testGroup.getName())
+        .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
+        .assignSaveMode(SaveMode.UPDATE).save();
+
+    // pass A: the description update reaches the Google target (updateGroup persists it)
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    // pass B: the re-read captures the target's actual new description into the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    // mirror side: still ONE group, the SAME group (same target id) -- in-place update, not
+    // delete + re-create -- and its description converged to the new value.
+    assertEquals("group still in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("mirror tracks the same group through the update (update, not re-create)",
+        groupTargetIdBefore, mirroredGroupTargetId(configId));
+    assertEquals("mirror description should converge to the new value on the re-read pass",
+        "newDescription", mirroredGroupDescription(configId));
+
+    // NOTE: no standalone user-update-converge test for Google. Google users are matched by email,
+    // and their only other Grouper-driven attributes (givenName/familyName) both translate from the
+    // subject "name" field, so there is no safe Grouper-driven NON-matching, independently-mutable
+    // user attribute to mutate. An update test would be mutating the match key (the Adobe lesson)
+    // and could not converge as an in-place update. Skipped rather than written, exactly as Box does.
+  }
+
+  /**
+   * canInsertMembership (+ canInsertEntity) -> sync-back convergence of a membership ADD to an
+   * already-provisioned group, two-pass full (Google analogue of Box's
+   * testBoxMembershipAddConvergesNextRead). Seed test:testGroup with SUBJ0, then add SUBJ1. Because
+   * Google captures memberships on the read path (retrieveMembershipsByGroup / retrieveAllData), the
+   * add shows in grouper_prov_mship on the re-read pass: pass A issues the membership insert (and
+   * SUBJ1's user insert) to the Google target, pass B re-reads the group's members and the flush
+   * converges (testGroup, SUBJ1).
+   */
+  public void testGoogleMembershipAddConvergesNextRead() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    setupGoogleSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: group + SUBJ0 + the one membership in the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("seed: the single membership", 1, countSyncBack(configId, "grouper_prov_mship"));
+
+    // add SUBJ1 to the already-provisioned group
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    // pass A: the membership insert (and SUBJ1's user insert) hit the Google target
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    // pass B: re-read sees both members; the flush converges the added membership
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("group should still be in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("both users should be in the mirror after the add", 2,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("the added membership should converge on the re-read pass", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * canDeleteMembership -> sync-back convergence of a membership REMOVE from a surviving group,
+   * two-pass full (Google analogue of Box's testBoxMembershipRemoveConvergesNextRead). Two groups
+   * both hold SUBJ0; SUBJ0 is removed from testGroup only (it survives in otherGroup, so its Google
+   * user is NOT deleted). The full-replace flush, fed by the re-read of each group's members, drops
+   * exactly testGroup's membership while leaving otherGroup's intact. (The forward test
+   * testFullSyncGoogle already proves member-remove keeps the surviving user; here we assert the
+   * mirror reflects it.)
+   */
+  public void testGoogleMembershipRemoveConvergesNextRead() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    // Google config already enables deleteMemberships + deleteMembershipsIfNotExistInGrouper, so no
+    // extra delete-type config is needed (inverse of Box, which must add them).
+    setupGoogleSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    Group otherGroup = new GroupSave(grouperSession).assignName("test:otherGroup").save();
+    // SUBJ0 in BOTH groups so removing it from testGroup leaves it provisioned (still in otherGroup)
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    otherGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: both groups + SUBJ0 + both memberships in the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: both groups", 2, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("seed: both memberships", 2, countSyncBack(configId, "grouper_prov_mship"));
+
+    // remove SUBJ0 from testGroup only (still in otherGroup)
+    testGroup.deleteMember(SubjectTestHelper.SUBJ0);
+
+    // pass A: the membership-remove write hits the Google target
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    // pass B: re-read of testGroup's members no longer includes SUBJ0; the full-replace flush
+    // drops (testGroup,SUBJ0) while otherGroup's SUBJ0 membership survives
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("both groups should still be in the mirror", 2,
+        countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("SUBJ0 should still be in the mirror (still in otherGroup)", 1,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("testGroup's membership should be gone, otherGroup's should remain", 1,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * Strict-native capture of orphan target objects (Google analogue of Box's
+   * testBoxFullSyncCapturesOrphanTargetEntities). With the *IfNotExistInGrouper delete keys at their
+   * config default (false), an orphan group + orphan user that exist in the Google target but are
+   * unknown to Grouper are still captured into the mirror -- with NULL Grouper-side linkage
+   * (group_internal_id / member_internal_id) -- alongside Grouper's own testGroup + SUBJ0/SUBJ1,
+   * which keep their linkage populated. The orphans are seeded directly into the mock Google tables
+   * (the GrouperGoogleGroup / GrouperGoogleUser beans double as the mock-table entities).
+   */
+  public void testGoogleFullSyncCapturesOrphanTargetEntities() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    setupGoogleSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // pre-populate orphans directly into the Google mock before the provisioner runs. name + email
+    // are Google group defaults; primaryEmail is a Google user default -- set them so the capture
+    // has values to record.
+    GrouperGoogleGroup orphanGroup = new GrouperGoogleGroup();
+    orphanGroup.setId("orphan-google-group-1234");
+    orphanGroup.setName("test:orphanGroupNotInGrouper");
+    orphanGroup.setEmail("orphan.group@viveksachdeva.com");
+    HibernateSession.byObjectStatic().save(orphanGroup);
+
+    GrouperGoogleUser orphanUser = new GrouperGoogleUser();
+    orphanUser.setId("orphan-google-user-5678");
+    orphanUser.setPrimaryEmail("orphan.user@viveksachdeva.com");
+    orphanUser.setOrgUnitPath("/orphans");
+    HibernateSession.byObjectStatic().save(orphanUser);
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // two passes: pass 1 inserts Grouper's objects (orphans untouched, *IfNotExistInGrouper=false);
+    // pass 2 reads orphans + Grouper's objects and the flush captures all of them.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // orphan group landed with NULL group_internal_id
+    int orphanGroupRowsTotal = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id = ?")
+        .addBindVar(syncInternalId).addBindVar(orphanGroup.getId()).select(int.class);
+    assertEquals("expected exactly 1 prov_group row for the orphan group", 1, orphanGroupRowsTotal);
+
+    int orphanGroupRowsUnlinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id = ? and group_internal_id is null")
+        .addBindVar(syncInternalId).addBindVar(orphanGroup.getId()).select(int.class);
+    assertEquals("orphan group's prov_group row must have group_internal_id IS NULL", 1,
+        orphanGroupRowsUnlinked);
+
+    // orphan user landed with NULL member_internal_id
+    int orphanUserRowsTotal = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and target_user_id = ?")
+        .addBindVar(syncInternalId).addBindVar(orphanUser.getId()).select(int.class);
+    assertEquals("expected exactly 1 prov_user row for the orphan user", 1, orphanUserRowsTotal);
+
+    int orphanUserRowsUnlinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and target_user_id = ? and member_internal_id is null")
+        .addBindVar(syncInternalId).addBindVar(orphanUser.getId()).select(int.class);
+    assertEquals("orphan user's prov_user row must have member_internal_id IS NULL", 1,
+        orphanUserRowsUnlinked);
+
+    // Grouper's own testGroup + 2 members land alongside, with linkage populated
+    int testGroupRowsLinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id != ? and group_internal_id is not null")
+        .addBindVar(syncInternalId).addBindVar(orphanGroup.getId()).select(int.class);
+    assertEquals("Grouper's testGroup prov_group row must have group_internal_id linked", 1,
+        testGroupRowsLinked);
+
+    int nonOrphanUserRowsLinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and target_user_id != ? and member_internal_id is not null")
+        .addBindVar(syncInternalId).addBindVar(orphanUser.getId()).select(int.class);
+    assertEquals("Grouper-provisioned prov_user rows (SUBJ0 + SUBJ1) must have member_internal_id linked",
+        2, nonOrphanUserRowsLinked);
+
+    // a Google default group attribute (email) is captured in the catalog
+    int emailCatalog = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr "
+            + "where grouper_sync_internal_id = ? and attribute_name = 'email'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("default group attribute 'email' should be in the per-provisioner catalog", 1,
+        emailCatalog);
+
+    // sanity: 'id' must NOT be captured as an attribute -- it is already the target_group_id column
+    int idAsGroupAttrRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr "
+            + "where grouper_sync_internal_id = ? and attribute_name = 'id'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("'id' must not appear in grouper_prov_group_attr (already target_group_id column)", 0,
+        idAsGroupAttrRows);
+  }
+
+  /**
+   * Strict-native capture on the MEMBERSHIP axis (Google analogue of Box's
+   * testBoxFullSyncCapturesMembershipsFromOrphanGroup). An orphan group with an orphan member
+   * (neither known to Grouper) is wired in the Google mock (mock_google_membership). Google
+   * memberships are group-centric, so when the daemon lists groups it also reads the orphan group's
+   * members (retrieveAllData -> retrieveGoogleGroupMembers) -- that membership must land in
+   * grouper_prov_mship alongside Grouper's own, proving strict-native membership capture is
+   * independent of Grouper knowledge.
+   */
+  public void testGoogleFullSyncCapturesMembershipsFromOrphanGroup() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    setupGoogleSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // orphan group + orphan user + the membership wiring them, all in the Google mock.
+    GrouperGoogleGroup orphanGroup = new GrouperGoogleGroup();
+    orphanGroup.setId("orphan-google-mship-group-1");
+    orphanGroup.setName("test:orphanGroupWithMembers");
+    orphanGroup.setEmail("orphan.mship.group@viveksachdeva.com");
+    HibernateSession.byObjectStatic().save(orphanGroup);
+
+    GrouperGoogleUser orphanUser = new GrouperGoogleUser();
+    orphanUser.setId("orphan-google-mship-user-1");
+    orphanUser.setPrimaryEmail("orphan.mship.user@viveksachdeva.com");
+    orphanUser.setOrgUnitPath("/orphans");
+    HibernateSession.byObjectStatic().save(orphanUser);
+
+    // a plain (MEMBER-role) membership; sync-back lists all members regardless of role
+    GrouperGoogleMembership orphanMembership = new GrouperGoogleMembership();
+    orphanMembership.setId("orphan-google-mship-row-1");
+    orphanMembership.setGroupId(orphanGroup.getId());
+    orphanMembership.setUserId(orphanUser.getId());
+    orphanMembership.setRole("MEMBER");
+    HibernateSession.byObjectStatic().save(orphanMembership);
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // the orphan group's membership lands in prov_mship (join through prov_group/prov_user, which
+    // hold the target ids -- prov_mship itself only has the FK internal ids)
+    int orphanMshipRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_mship pm "
+            + "join grouper_prov_group pg on pg.internal_id = pm.prov_group_internal_id "
+            + "join grouper_prov_user pu on pu.internal_id = pm.prov_user_internal_id "
+            + "where pm.grouper_sync_internal_id = ? and pg.target_group_id = ? and pu.target_user_id = ?")
+        .addBindVar(syncInternalId).addBindVar(orphanGroup.getId()).addBindVar(orphanUser.getId())
+        .select(int.class);
+    assertEquals("expected 1 prov_mship row for orphan group -> orphan user", 1, orphanMshipRows);
+
+    // Grouper's own memberships land alongside (3 total: SUBJ0 + SUBJ1 in testGroup + the orphan)
+    assertEquals("expected 3 prov_mship rows total (2 from testGroup + 1 orphan)", 3,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * !selectAll* scope excludes orphans (Google analogue of Box's testBoxSelectAllFalseExcludesOrphans).
+   * With selectAllGroups=false and selectAllEntities=false the daemon fetches only the resources
+   * mapped to Grouper-provisioned objects (by id/email), never a domain-wide listing -- so an orphan
+   * group/user that the Google target has but Grouper does not must NOT land in the mirror.
+   */
+  public void testGoogleSelectAllFalseExcludesOrphans() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("selectAllGroups", "false");
+    extraConfig.put("selectAllEntities", "false");
+    setupGoogleSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // pre-populate an orphan group + orphan user -- must NOT appear in reporting because
+    // selectAll=false makes the daemon fetch only by id/email (Grouper-known resources only).
+    GrouperGoogleGroup orphanGroup = new GrouperGoogleGroup();
+    orphanGroup.setId("orphan-google-group-selnone-1");
+    orphanGroup.setName("test:orphanGroupSelectAllFalse");
+    orphanGroup.setEmail("orphan.selnone.group@viveksachdeva.com");
+    HibernateSession.byObjectStatic().save(orphanGroup);
+
+    GrouperGoogleUser orphanUser = new GrouperGoogleUser();
+    orphanUser.setId("orphan-google-user-selnone-1");
+    orphanUser.setPrimaryEmail("orphan.selnone.user@viveksachdeva.com");
+    orphanUser.setOrgUnitPath("/orphans");
+    HibernateSession.byObjectStatic().save(orphanUser);
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // the orphan group is NOT captured (scoped retrieve never fetched it)
+    int orphanGroupRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id = ?")
+        .addBindVar(syncInternalId).addBindVar(orphanGroup.getId()).select(int.class);
+    assertEquals("orphan group must NOT be in the mirror under selectAllGroups=false", 0, orphanGroupRows);
+
+    // the orphan user is NOT captured either
+    int orphanUserRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and target_user_id = ?")
+        .addBindVar(syncInternalId).addBindVar(orphanUser.getId()).select(int.class);
+    assertEquals("orphan user must NOT be in the mirror under selectAllEntities=false", 0, orphanUserRows);
+
+    // Grouper's own testGroup + SUBJ0 ARE captured (they are fetched by id/email)
+    assertTrue("Grouper's own group should still be captured", countSyncBack(configId, "grouper_prov_group") >= 1);
+    assertTrue("Grouper's own user should still be captured", countSyncBack(configId, "grouper_prov_user") >= 1);
+  }
+
+  /**
+   * loadGroupsToGenericGrouperTable in isolation (Google analogue of Box's
+   * testBoxLoadGroupsFlagInIsolation). Only the groups flag is on -> only grouper_prov_group rows
+   * are written; prov_user and prov_mship stay empty even though the daemon still reads users (for
+   * provisioning) and memberships (for diffing).
+   */
+  public void testGoogleLoadGroupsFlagInIsolation() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    GoogleProvisionerTestUtils.setupGoogleExternalSystem();
+    GoogleProvisionerTestUtils.configureGoogleProvisioner(new GoogleProvisionerTestConfigInput()
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "false")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "false"));
+
+    GrouperStartup.startup();
+    GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null, false, false);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertTrue("expected >=1 prov_group row when groups capture is on",
+        countSyncBack(configId, "grouper_prov_group") >= 1);
+    assertEquals("expected 0 prov_user rows when entities capture is off", 0,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("expected 0 prov_mship rows when memberships capture is off", 0,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * loadEntitiesToGenericGrouperTable in isolation (Google analogue of Box's
+   * testBoxLoadEntitiesFlagInIsolation). Only the entities flag is on -> only grouper_prov_user rows
+   * are written; prov_group and prov_mship stay empty.
+   */
+  public void testGoogleLoadEntitiesFlagInIsolation() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    GoogleProvisionerTestUtils.setupGoogleExternalSystem();
+    GoogleProvisionerTestUtils.configureGoogleProvisioner(new GoogleProvisionerTestConfigInput()
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "false")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "false"));
+
+    GrouperStartup.startup();
+    GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null, false, false);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("expected 0 prov_group rows when groups capture is off", 0,
+        countSyncBack(configId, "grouper_prov_group"));
+    assertTrue("expected >=2 prov_user rows (SUBJ0 + SUBJ1) when entities capture is on",
+        countSyncBack(configId, "grouper_prov_user") >= 2);
+    assertEquals("expected 0 prov_mship rows when memberships capture is off", 0,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * loadMembershipsToGenericGrouperTable off (Google analogue of Box's testBoxLoadMembershipsFlagOff).
+   * Both object loads on but memberships off -> prov_group and prov_user populate, prov_mship stays
+   * empty. Proves the membership gate is independent of the object gates.
+   */
+  public void testGoogleLoadMembershipsFlagOff() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    GoogleProvisionerTestUtils.setupGoogleExternalSystem();
+    GoogleProvisionerTestUtils.configureGoogleProvisioner(new GoogleProvisionerTestConfigInput()
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "false"));
+
+    GrouperStartup.startup();
+    GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null, false, false);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertTrue("expected >=1 prov_group row", countSyncBack(configId, "grouper_prov_group") >= 1);
+    assertTrue("expected >=2 prov_user rows (SUBJ0 + SUBJ1)",
+        countSyncBack(configId, "grouper_prov_user") >= 2);
+    assertEquals("expected 0 prov_mship rows when memberships capture is off", 0,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * INCREMENTAL sync-back coverage for Google, conservative (Google analogue of Box's
+   * testBoxIncrementalSyncBackNoSpuriousDeletes). Google, like Box, captures on the READ path only
+   * (no incremental write hooks). An incremental cycle re-reads only the changed objects (it has
+   * canRetrieveGroup/Entity, so the adapter decomposes to per-id reads that fire the Google capture
+   * seams), and the incremental flush is a SCOPED upsert (it does NOT full-replace, so it will not
+   * wrongly delete untouched mirror rows).
+   *
+   * <p>What this test asserts is deliberately narrow -- the safe, reliable part of Google incremental
+   * sync-back: after seeding via full sync and priming the changelog consumer, adding a member drives
+   * an incremental that (a) re-reads the changed group/entity and so does NOT shrink the existing
+   * mirror (no spurious deletes -- the regression the scoped incremental flush guards against), and
+   * (b) captures the newly added member's user object into prov_user. It does NOT assert that the new
+   * MEMBERSHIP converges on the same incremental cycle: Google memberships are captured on read, and
+   * the incremental's read-before-write timing plus group-centric membership read make same-cycle
+   * membership convergence unreliable for a read-capture target (the same 1-cycle-lag reason Box and
+   * SCIM defer it). Membership convergence is covered end-to-end by the two-pass full tests above.
+   */
+  public void testGoogleIncrementalSyncBackNoSpuriousDeletes() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    setupGoogleSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed via full sync: group + SUBJ0 + SUBJ1 + their memberships in the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    int provGroupRowsBefore = countSyncBack(configId, "grouper_prov_group");
+    int provUserRowsBefore = countSyncBack(configId, "grouper_prov_user");
+    int provMshipRowsBefore = countSyncBack(configId, "grouper_prov_mship");
+    assertTrue("seed should have >=1 prov_group row", provGroupRowsBefore >= 1);
+    assertEquals("seed should have 2 prov_user rows", 2, provUserRowsBefore);
+    assertEquals("seed should have 2 prov_mship rows", 2, provMshipRowsBefore);
+
+    // prime the changelog consumer: its FIRST run only initializes its changelog position
+    // (processes nothing), so without this priming pass the change below is never consumed.
+    incrementalProvision();
+
+    // incremental add: a third member. The incremental re-reads the changed group/entity, firing
+    // the Google read-capture seams, and the scoped flush upserts -- it must NOT drop untouched rows.
+    testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+    incrementalProvision();
+
+    // (a) no spurious deletes on the GROUP axis: the scoped incremental flush left existing rows intact
+    assertTrue("incremental must not shrink prov_group; before=" + provGroupRowsBefore
+        + " after=" + countSyncBack(configId, "grouper_prov_group"),
+        countSyncBack(configId, "grouper_prov_group") >= provGroupRowsBefore);
+    // NB: prov_mship is intentionally NOT asserted here (matching this test's javadoc). Google
+    // memberships are group-centric and captured on the READ path; on an incremental cycle the scoped
+    // membership flush for the changed group plus read-before-write timing means testGroup's
+    // membership rows can transiently clear, re-converging only on the next full sync (the same
+    // 1-cycle lag for which Box/SCIM disable their object incremental test). Membership convergence is
+    // covered end-to-end by the two-pass full tests above; here we only guard group/user no-shrink.
+
+    // (b) the newly added member's user object is captured (object capture via the per-id re-read)
+    assertEquals("SUBJ2's user object should be captured into prov_user this incremental cycle", 3,
+        countSyncBack(configId, "grouper_prov_user"));
+
+    // catalog stays deduped per (sync, attribute_name) after the incremental (the unique-key
+    // regression guarded on the LDAP/SCIM side; Google shares the same generic flush code)
+    int dupGroupAttr = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from (select grouper_sync_internal_id, attribute_name, count(*) c "
+            + "from grouper_prov_group_attr where grouper_sync_internal_id = ? "
+            + "group by grouper_sync_internal_id, attribute_name having count(*) > 1) t")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("group attr catalog should stay deduped per (sync,name) after incremental", 0,
+        dupGroupAttr);
+  }
+
 }

@@ -130,8 +130,8 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperOktaGroup grouperOktaGroup : grouperOktaGroups) {
         ProvisioningGroup targetGroup = grouperOktaGroup.toProvisioningGroup();
         results.add(targetGroup);
-        // generic provisioner sync back: capture native group while the bean is in scope
-        GrouperOktaProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperOktaGroup);
+        // generic provisioner sync back: native group capture now happens in
+        // GrouperOktaApiCommands.retrieveOktaGroups from the raw JSON (full fidelity), not here.
       }
 
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -161,8 +161,8 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperOktaGroup grouperOktaGroup : grouperOktaGroups) {
         ProvisioningGroup targetGroup = grouperOktaGroup.toProvisioningGroup();
         targetGroups.add(targetGroup);
-        // generic provisioner sync back: capture native group while the bean is in scope
-        GrouperOktaProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperOktaGroup);
+        // generic provisioner sync back: native group capture now happens in
+        // GrouperOktaApiCommands.retrieveOktaGroups from the raw JSON (full fidelity), not here.
       }
       targetData.setProvisioningGroups(targetGroups);
 
@@ -170,8 +170,8 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       List<GrouperOktaUser> oktaUsers = GrouperOktaApiCommands.retrieveOktaUsers(oktaConfiguration.getOktaExternalSystemConfigId());
       for (GrouperOktaUser oktaUser: oktaUsers) {
         targetEntities.add(oktaUser.toProvisioningEntity());
-        // generic provisioner sync back: capture native user while the bean is in scope
-        GrouperOktaProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(oktaUser);
+        // generic provisioner sync back: native user capture now happens in
+        // GrouperOktaApiCommands.retrieveOktaUsers from the raw JSON (full fidelity), not here.
       }
       targetData.setProvisioningEntities(targetEntities);
 
@@ -215,8 +215,8 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
           GrouperOktaUser oktaUser = GrouperOktaApiCommands.retrieveOktaUserById(oktaConfiguration.getOktaExternalSystemConfigId(), missingEntityId);
           if (oktaUser != null) {
             targetEntities.add(oktaUser.toProvisioningEntity());
-            // generic provisioner sync back: capture native user while the bean is in scope
-            GrouperOktaProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(oktaUser);
+            // generic provisioner sync back: native user capture now happens in
+            // GrouperOktaApiCommands.retrieveOktaUserById from the raw JSON (full fidelity), not here.
           }
         }
       }
@@ -245,8 +245,8 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperOktaUser grouperOktaUser : grouperOktaUsers) {
         ProvisioningEntity targetEntity = grouperOktaUser.toProvisioningEntity();
         results.add(targetEntity);
-        // generic provisioner sync back: capture native user while the bean is in scope
-        GrouperOktaProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperOktaUser);
+        // generic provisioner sync back: native user capture now happens in
+        // GrouperOktaApiCommands.retrieveOktaUsers from the raw JSON (full fidelity), not here.
       }
 
       return new TargetDaoRetrieveAllEntitiesResponse(results);
@@ -287,10 +287,9 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
 
       ProvisioningGroup targetGroup = grouperOktaGroup == null ? null : grouperOktaGroup.toProvisioningGroup();
 
-      if (grouperOktaGroup != null) {
-        // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
-        GrouperOktaProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperOktaGroup);
-      }
+      // generic provisioner sync back: native group capture for this scoped retrieve path (used by
+      // !selectAllGroups and incremental) now happens in GrouperOktaApiCommands.retrieveOktaGroup /
+      // retrieveOktaGroups from the raw JSON (full fidelity), not here.
 
       return new TargetDaoRetrieveGroupResponse(targetGroup);
 
@@ -329,10 +328,9 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
 
       ProvisioningEntity targetEntity = grouperOktaUser == null ? null: grouperOktaUser.toProvisioningEntity();
 
-      if (grouperOktaUser != null) {
-        // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
-        GrouperOktaProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperOktaUser);
-      }
+      // generic provisioner sync back: native user capture for this scoped retrieve path (used by
+      // !selectAllEntities and incremental) now happens in GrouperOktaApiCommands.retrieveOktaUser /
+      // retrieveOktaUserById from the raw JSON (full fidelity), not here.
 
       return new TargetDaoRetrieveEntityResponse(targetEntity);
     } finally {
@@ -659,7 +657,8 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
     
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
-    // read path captures GrouperOktaUser/Group beans through GrouperOktaProvisioningTargetNativeSync.record*
+    // read path captures groups/users from raw JSON at the GrouperOktaApiCommands seam, and
+    // memberships group-centrically here, all via GrouperOktaProvisioningTargetNativeSync.record*
     grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 

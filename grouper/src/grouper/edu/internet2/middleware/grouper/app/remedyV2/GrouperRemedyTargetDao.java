@@ -152,8 +152,8 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperRemedyUser grouperRemedyUser : remedyUsers.values()) {
         ProvisioningEntity targetEntity = grouperRemedyUser.toProvisioningEntity();
         results.add(targetEntity);
-        // generic provisioner sync back: capture native user while the bean is in scope
-        GrouperRemedyProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperRemedyUser);
+        // generic provisioner sync back: native user capture now happens from the raw JSON at the
+        // commands seam (GrouperRemedyApiCommands.convertRemedyUsersFromJson), so nothing to do here
       }
 
       return new TargetDaoRetrieveAllEntitiesResponse(results);
@@ -205,8 +205,8 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
         permissionGroupToGroup.put(grouperRemedyGroup.getPermissionGroup(), grouperRemedyGroup);
         ProvisioningGroup targetGroup = grouperRemedyGroup.toProvisioningGroup();
         results.add(targetGroup);
-        // generic provisioner sync back: capture native group while the bean is in scope
-        GrouperRemedyProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperRemedyGroup);
+        // generic provisioner sync back: native group capture now happens from the raw JSON at the
+        // commands seam (GrouperRemedyApiCommands.retrieveRemedyGroups), so nothing to do here
       }
   
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -267,10 +267,9 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningEntity targetEntity = grouperRemedyUser == null ? null
           : grouperRemedyUser.toProvisioningEntity();
 
-      if (grouperRemedyUser != null) {
-        // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
-        GrouperRemedyProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperRemedyUser);
-      }
+      // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and
+      // incremental) goes through GrouperRemedyApiCommands.retrieveRemedyUser, which now captures
+      // the native user from the raw JSON at the commands seam, so nothing to do here
 
       TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = new TargetDaoRetrieveEntityResponse(targetEntity);
       if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
@@ -303,10 +302,9 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningGroup targetGroup = grouperRemedyGroup == null ? null
           : grouperRemedyGroup.toProvisioningGroup();
 
-      if (grouperRemedyGroup != null) {
-        // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
-        GrouperRemedyProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperRemedyGroup);
-      }
+      // generic provisioner sync back: this scoped retrieve serves from the group cache populated by
+      // retrieveAllGroups -> GrouperRemedyApiCommands.retrieveRemedyGroups, which already captured
+      // the native group from the raw JSON at the commands seam, so nothing to do here
 
       TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = new TargetDaoRetrieveGroupResponse(targetGroup);
       targetDaoRetrieveGroupResponse.setTargetNativeGroup(grouperRemedyGroup);
@@ -372,7 +370,9 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
 //    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
 
-    // read path captures GrouperRemedyUser/Group/Membership beans through GrouperRemedyProvisioningTargetNativeSync.record*
+    // read path captures groups/users from the raw Remedy JSON at the GrouperRemedyApiCommands seam,
+    // and memberships from the GrouperRemedyMembership beans here, through
+    // GrouperRemedyProvisioningTargetNativeSync.record*
     grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 

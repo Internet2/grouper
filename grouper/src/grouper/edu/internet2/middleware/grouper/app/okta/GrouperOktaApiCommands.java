@@ -554,8 +554,12 @@ public class GrouperOktaApiCommands {
         for (int i = 0; i < (groupsArray == null ? 0 : groupsArray.size()); i++) {
           JsonNode groupNode = groupsArray.get(i);
           GrouperOktaGroup grouperOktaGroup = GrouperOktaGroup.fromJson(groupNode);
-          
+
           results.add(grouperOktaGroup);
+          // generic provisioner sync-back: register the group from the raw JSON (full fidelity,
+          // not the lossy typed bean) while the full per-group node -- with both /id and the nested
+          // /profile -- is in scope. No-op outside an Okta provisioning cycle.
+          GrouperOktaProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
         }
         
         if (StringUtils.isNotBlank(previousPageUrl) && StringUtils.isNotBlank(nextPageUrl) && StringUtils.equals(previousPageUrl, nextPageUrl)) {
@@ -630,6 +634,10 @@ public class GrouperOktaApiCommands {
           JsonNode userNode = usersArray.get(i);
           GrouperOktaUser grouperOktaUser = GrouperOktaUser.fromJson(userNode);
           results.add(grouperOktaUser);
+          // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
+          // not the lossy typed bean) while the full per-user node -- with /id, top-level /status,
+          // and the nested /profile -- is in scope. No-op outside an Okta provisioning cycle.
+          GrouperOktaProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
         }
         
         if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageUrl) && StringUtils.equals(previousPageToken, nextPageUrl)) {
@@ -677,8 +685,15 @@ public class GrouperOktaApiCommands {
       if (users.size() == 0 || users.size() > 1) {
         return null;
       }
-      
-      GrouperOktaUser grouperOktaUser = GrouperOktaUser.fromJson(users.get(0));
+
+      JsonNode userNode = users.get(0);
+      GrouperOktaUser grouperOktaUser = GrouperOktaUser.fromJson(userNode);
+
+      // generic provisioner sync-back: register the user from the raw JSON while the full node
+      // (with /id, /status, and the nested /profile) is in scope (single-user search).
+      // No-op outside an Okta provisioning cycle.
+      GrouperOktaProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
+
       return grouperOktaUser;
       
     } catch (RuntimeException re) {
@@ -712,7 +727,14 @@ public class GrouperOktaApiCommands {
         return null;
       }
 
-      GrouperOktaUser grouperOktaUser = GrouperOktaUser.fromJson(jsonNode.get("data"));
+      JsonNode userNode = jsonNode.get("data");
+      GrouperOktaUser grouperOktaUser = GrouperOktaUser.fromJson(userNode);
+
+      // generic provisioner sync-back: register the user from the raw JSON while the full node
+      // (with /id, /status, and the nested /profile) is in scope (single-user read by okta id).
+      // No-op outside an Okta provisioning cycle.
+      GrouperOktaProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
+
       return grouperOktaUser;
 
     } catch (RuntimeException re) {
@@ -836,9 +858,15 @@ public class GrouperOktaApiCommands {
       if (jsonNode == null || jsonNode.get("data") == null) {
         return null;
       }
-      
-      GrouperOktaGroup grouperOktaGroup = GrouperOktaGroup.fromJson(jsonNode.get("data"));
-      
+
+      JsonNode groupNode = jsonNode.get("data");
+      GrouperOktaGroup grouperOktaGroup = GrouperOktaGroup.fromJson(groupNode);
+
+      // generic provisioner sync-back: register the group from the raw JSON while the full node
+      // (with /id and the nested /profile) is in scope (single-group read by okta id). No-op
+      // outside an Okta provisioning cycle.
+      GrouperOktaProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
+
       return grouperOktaGroup;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));

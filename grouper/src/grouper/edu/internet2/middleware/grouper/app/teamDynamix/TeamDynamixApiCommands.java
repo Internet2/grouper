@@ -250,6 +250,10 @@ public class TeamDynamixApiCommands {
         TeamDynamixGroup grouperTeamDynamixGroup = TeamDynamixGroup.fromJson(groupNode);
         if (grouperTeamDynamixGroup != null) {
           results.add(grouperTeamDynamixGroup);
+          // generic provisioner sync-back: register the group from the raw JSON (full fidelity,
+          // not the lossy typed bean) while the JSON node is in scope. No-op outside a TeamDynamix
+          // provisioning cycle. This is the retrieve-all-groups read path.
+          TeamDynamixProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
         }
       }
 
@@ -538,8 +542,12 @@ public class TeamDynamixApiCommands {
       if (returnCode[0] == 404) {
         return null;
       }
-      
+
       TeamDynamixUser teamDynamixUser = TeamDynamixUser.fromJson(jsonNode);
+
+      // generic provisioner sync-back: register the user from the raw JSON while it is in scope
+      // (single-user read by id). No-op outside a TeamDynamix provisioning cycle.
+      TeamDynamixProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(jsonNode);
 
       return teamDynamixUser;
     } catch (RuntimeException re) {
@@ -550,7 +558,7 @@ public class TeamDynamixApiCommands {
     }
 
   }
-  
+
   /**
    * @param configId
    * @param searchTerm
@@ -600,15 +608,22 @@ public class TeamDynamixApiCommands {
         if (StringUtils.equals(fieldName, "externalId")) {
           if (StringUtils.equals(teamDynamixUser.getExternalId(), searchTerm)) {
             users.add(teamDynamixUser);
+            // generic provisioner sync-back: register the matched user from the raw JSON while the
+            // node is in scope (search read path; the matched node is what becomes the returned
+            // user). No-op outside a TeamDynamix provisioning cycle.
+            TeamDynamixProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
           }
         } else if (StringUtils.equals(fieldName, "username")) {
           if (StringUtils.equals(teamDynamixUser.getUserName(), searchTerm)) {
             users.add(teamDynamixUser);
+            // generic provisioner sync-back: register the matched user from the raw JSON while the
+            // node is in scope (search read path). No-op outside a TeamDynamix provisioning cycle.
+            TeamDynamixProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
           }
         } else {
           throw new RuntimeException("Invalid field name.");
         }
-        
+
       }
       if (users.size() > 1) {
         throw new RuntimeException("How can there be more than one user with the same value in TeamDynamix?? '" + searchTerm + "'");
@@ -651,13 +666,17 @@ public class TeamDynamixApiCommands {
       List<TeamDynamixUser> results = new ArrayList<TeamDynamixUser>();
       
       for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
-        JsonNode groupNode = usersArray.get(i);
-        TeamDynamixUser grouperTeamDynamixGroup = TeamDynamixUser.fromJson(groupNode);
-        if (grouperTeamDynamixGroup != null) {
-          results.add(grouperTeamDynamixGroup);
+        JsonNode userNode = usersArray.get(i);
+        TeamDynamixUser teamDynamixUser = TeamDynamixUser.fromJson(userNode);
+        if (teamDynamixUser != null) {
+          results.add(teamDynamixUser);
+          // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
+          // not the lossy typed bean) while the JSON node is in scope. No-op outside a TeamDynamix
+          // provisioning cycle. This is the retrieve-all-entities read path.
+          TeamDynamixProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
         }
       }
-      
+
       return results;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -667,7 +686,7 @@ public class TeamDynamixApiCommands {
     }
 
   }
-  
+
   /**
    * @param configId
    * @param group id
@@ -692,8 +711,12 @@ public class TeamDynamixApiCommands {
       if (returnCode[0] == 404) {
         return null;
       }
-      
+
       TeamDynamixGroup teamDynamixGroup = TeamDynamixGroup.fromJson(jsonNode);
+
+      // generic provisioner sync-back: register the group from the raw JSON while it is in scope
+      // (single-group read by id). No-op outside a TeamDynamix provisioning cycle.
+      TeamDynamixProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(jsonNode);
 
       return teamDynamixGroup;
     } catch (RuntimeException re) {
@@ -704,14 +727,14 @@ public class TeamDynamixApiCommands {
     }
 
   }
-  
+
   /**
    * @param configId
    * @param groupName
    * @param isActive
    * @return
    */
-  public static TeamDynamixGroup retrieveTeamDynamixGroupByName(String configId, 
+  public static TeamDynamixGroup retrieveTeamDynamixGroupByName(String configId,
       String groupName, Boolean isActive) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -745,6 +768,10 @@ public class TeamDynamixApiCommands {
         TeamDynamixGroup teamDynamixGroup = TeamDynamixGroup.fromJson(groupNode);
         if (StringUtils.equals(teamDynamixGroup.getName(), groupName)) {
           groups.add(teamDynamixGroup);
+          // generic provisioner sync-back: register the matched group from the raw JSON while the
+          // node is in scope (search-by-name read path; the matched node is what becomes the
+          // returned group). No-op outside a TeamDynamix provisioning cycle.
+          TeamDynamixProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
         }
       }
       if (groups.size() > 1) {

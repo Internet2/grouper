@@ -10,6 +10,7 @@ public class AllFreshRequesterProvisionerTests extends TestCase {
     TestSuite suite = new TestSuite(AllFreshRequesterProvisionerTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(FreshRequesterProvisionerTest.class);
+    // native-sync (raw-JSON capture) unit test runs via AllProvisioningTargetNativeSyncTests
     //$JUnit-END$
     return suite;
   }

@@ -424,6 +424,11 @@ public class GrouperAdobeApiCommands {
             JsonNode groupNode = groupsArray.get(i);
             GrouperAdobeGroup grouperAdobeGroup = GrouperAdobeGroup.fromJson(groupNode);
             results.add(grouperAdobeGroup);
+            // generic provisioner sync-back: register the group from the raw JSON (full fidelity,
+            // not the lossy typed bean) while the JSON node is in scope. No-op outside an Adobe
+            // provisioning cycle. Adobe has no by-id group read, so the framework always lands here
+            // for group reads (canRetrieveGroup=false) and thus registers every group.
+            GrouperAdobeProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
           }
 
           lastPage = GrouperUtil.jsonJacksonGetBoolean(jsonNode, "lastPage");
@@ -852,8 +857,12 @@ public class GrouperAdobeApiCommands {
 
           for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
             JsonNode userNode = usersArray.get(i);
-            GrouperAdobeUser grouperAdobeGroup = GrouperAdobeUser.fromJson(userNode, includeLoadedFields);
-            results.add(grouperAdobeGroup);
+            GrouperAdobeUser grouperAdobeUser = GrouperAdobeUser.fromJson(userNode, includeLoadedFields);
+            results.add(grouperAdobeUser);
+            // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
+            // not the lossy typed bean) while the JSON node is in scope. No-op outside an Adobe
+            // provisioning cycle.
+            GrouperAdobeProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
           }
 
           lastPage = GrouperUtil.jsonJacksonGetBoolean(jsonNode, "lastPage");
@@ -903,6 +912,10 @@ public class GrouperAdobeApiCommands {
           return null;
         }
         GrouperAdobeUser grouperAdobeUser = GrouperAdobeUser.fromJson(userNode, includeLoadedFields);
+
+        // generic provisioner sync-back: register the user from the raw JSON while it is in scope
+        // (single-user read by email). No-op outside an Adobe provisioning cycle.
+        GrouperAdobeProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
 
         return grouperAdobeUser;
       } else {

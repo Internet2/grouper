@@ -503,6 +503,10 @@ public class DatadogApiCommands {
             continue;
           }
           results.add(datadogUser);
+          // generic provisioner sync-back: register the user from the raw JSON:API envelope (full
+          // fidelity, not the lossy typed bean) while the JSON node is in scope. No-op outside a
+          // Datadog provisioning cycle.
+          DatadogProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userDataNode);
         }
 
         // check if we've retrieved all pages
@@ -566,9 +570,13 @@ public class DatadogApiCommands {
       }
 
       List<DatadogUser> matchingUsers = new ArrayList<DatadogUser>();
+      // keep the raw JSON:API envelope for each matched user in lock-step with the bean, so the
+      // generic provisioner sync-back can capture from the full-fidelity JSON below.
+      List<JsonNode> matchingUserNodes = new ArrayList<JsonNode>();
 
       for (int i = 0; i < dataArray.size(); i++) {
-        DatadogUser datadogUser = DatadogUser.fromJson(dataArray.get(i));
+        JsonNode userDataNode = dataArray.get(i);
+        DatadogUser datadogUser = DatadogUser.fromJson(userDataNode);
 
         // filter out service accounts
         if (datadogUser.getServiceAccount() != null && datadogUser.getServiceAccount()) {
@@ -588,6 +596,7 @@ public class DatadogApiCommands {
         }
 
         matchingUsers.add(datadogUser);
+        matchingUserNodes.add(userDataNode);
       }
 
       if (matchingUsers.size() == 0) {
@@ -606,6 +615,10 @@ public class DatadogApiCommands {
         }
         throw new RuntimeException(sb.toString().trim());
       }
+
+      // generic provisioner sync-back: register the single matched user from the raw JSON:API
+      // envelope while it is in scope (single-user read by email). No-op outside a Datadog cycle.
+      DatadogProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(matchingUserNodes.get(0));
 
       return matchingUsers.get(0);
 
@@ -825,6 +838,13 @@ public class DatadogApiCommands {
           }
 
           results.add(datadogGroup);
+          // generic provisioner sync-back: register the group from the raw JSON:API envelope (full
+          // fidelity, not the lossy typed bean) while the JSON node is in scope. groupType is not in
+          // the Datadog response JSON, so overlay the known type ("role") onto a copy of the envelope
+          // -- matching the typed bean's setGroupType("role") -- so the default capture writes it.
+          // No-op outside a Datadog provisioning cycle.
+          DatadogProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(
+              DatadogProvisioningTargetNativeSync.nodeWithGroupType(roleDataNode, "role"));
         }
 
         // check if we've retrieved all pages
@@ -1040,6 +1060,10 @@ public class DatadogApiCommands {
             continue;
           }
           results.add(datadogUser);
+          // generic provisioner sync-back: role members are returned as full user envelopes; capture
+          // the user from the raw JSON:API envelope (full fidelity, not the lossy typed bean) while
+          // the JSON node is in scope. No-op outside a Datadog provisioning cycle.
+          DatadogProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userDataNode);
         }
 
         int returnedCount = dataArray == null ? 0 : dataArray.size();
@@ -1192,6 +1216,13 @@ public class DatadogApiCommands {
           DatadogGroup datadogGroup = DatadogGroup.fromJson(teamDataNode);
           datadogGroup.setGroupType("team");
           results.add(datadogGroup);
+          // generic provisioner sync-back: register the group from the raw JSON:API envelope (full
+          // fidelity, not the lossy typed bean) while the JSON node is in scope. groupType is not in
+          // the Datadog response JSON, so overlay the known type ("team") onto a copy of the envelope
+          // -- matching the typed bean's setGroupType("team") -- so the default capture writes it.
+          // No-op outside a Datadog provisioning cycle.
+          DatadogProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(
+              DatadogProvisioningTargetNativeSync.nodeWithGroupType(teamDataNode, "team"));
         }
 
         // check if we've retrieved all pages

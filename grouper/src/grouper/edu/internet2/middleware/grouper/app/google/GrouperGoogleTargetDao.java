@@ -134,8 +134,8 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
         ProvisioningGroup targetGroup = grouperGoogleGroup.toProvisioningGroup();
         results.add(targetGroup);
-        // generic provisioner sync back: capture native group while the bean is in scope
-        GrouperGoogleProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperGoogleGroup);
+        // generic provisioner sync back: the native group is captured from the raw JSON at the
+        // GrouperGoogleApiCommands.retrieveGoogleGroups seam (full fidelity), not from the bean here
       }
 
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -168,8 +168,8 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
         ProvisioningGroup targetGroup = grouperGoogleGroup.toProvisioningGroup();
         targetGroups.add(targetGroup);
-        // generic provisioner sync back: capture native group while the bean is in scope
-        GrouperGoogleProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperGoogleGroup);
+        // generic provisioner sync back: the native group is captured from the raw JSON at the
+        // GrouperGoogleApiCommands.retrieveGoogleGroups seam (full fidelity), not from the bean here
       }
       targetData.setProvisioningGroups(targetGroups);
 
@@ -177,8 +177,8 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       List<GrouperGoogleUser> googleUsers = GrouperGoogleApiCommands.retrieveGoogleUsers(googleConfiguration.getGoogleExternalSystemConfigId());
       for (GrouperGoogleUser googleUser: googleUsers) {
         targetEntities.add(googleUser.toProvisioningEntity());
-        // generic provisioner sync back: capture native user while the bean is in scope
-        GrouperGoogleProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(googleUser);
+        // generic provisioner sync back: the native user is captured from the raw JSON at the
+        // GrouperGoogleApiCommands.retrieveGoogleUsers seam (full fidelity), not from the bean here
       }
       targetData.setProvisioningEntities(targetEntities);
 
@@ -225,8 +225,8 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperGoogleUser grouperGoogleUser : grouperGoogleUsers) {
         ProvisioningEntity targetEntity = grouperGoogleUser.toProvisioningEntity();
         results.add(targetEntity);
-        // generic provisioner sync back: capture native user while the bean is in scope
-        GrouperGoogleProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperGoogleUser);
+        // generic provisioner sync back: the native user is captured from the raw JSON at the
+        // GrouperGoogleApiCommands.retrieveGoogleUsers seam (full fidelity), not from the bean here
       }
 
       return new TargetDaoRetrieveAllEntitiesResponse(results);
@@ -270,10 +270,8 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       
       ProvisioningGroup targetGroup = grouperGoogleGroup == null ? null : grouperGoogleGroup.toProvisioningGroup();
 
-      if (grouperGoogleGroup != null) {
-        // generic provisioner sync back: capture native group from scoped retrieve
-        GrouperGoogleProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperGoogleGroup);
-      }
+      // generic provisioner sync back: the native group is captured from the raw JSON at the
+      // GrouperGoogleApiCommands.retrieveGoogleGroup / retrieveGoogleGroups seam, not from the bean here
 
       return new TargetDaoRetrieveGroupResponse(targetGroup);
 
@@ -305,10 +303,8 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
 
       ProvisioningEntity targetEntity = grouperGoogleUser == null ? null: grouperGoogleUser.toProvisioningEntity();
 
-      if (grouperGoogleUser != null) {
-        // generic provisioner sync back: capture native user from scoped retrieve
-        GrouperGoogleProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperGoogleUser);
-      }
+      // generic provisioner sync back: the native user is captured from the raw JSON at the
+      // GrouperGoogleApiCommands.retrieveGoogleUser seam, not from the bean here
 
       return new TargetDaoRetrieveEntityResponse(targetEntity);
     } finally {
@@ -705,7 +701,9 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
-    // read path captures GrouperGoogleUser/Group beans through GrouperGoogleProvisioningTargetNativeSync.record*
+    // read path captures groups/users from the raw JSON at the GrouperGoogleApiCommands seam
+    // (GrouperGoogleProvisioningTargetNativeSync.captureGroupJson/captureUserJson...FromCurrentProvisioner);
+    // memberships are captured group-centrically from this DAO
     grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 

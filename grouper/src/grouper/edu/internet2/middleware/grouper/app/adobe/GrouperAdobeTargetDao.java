@@ -97,8 +97,9 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
         ProvisioningGroup targetGroup = grouperAdobeGroup.toProvisioningGroup();
         results.add(targetGroup);
         targetGroupToTargetNativeGroup.put(targetGroup, grouperAdobeGroup);
-        // generic provisioner sync back: capture native group while the bean is in scope
-        GrouperAdobeProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperAdobeGroup);
+        // sync-back group capture is hooked at the commands seam (GrouperAdobeApiCommands
+        // .retrieveAdobeGroups, called above) where the raw JSON is in scope, so every group is
+        // registered from the full JSON rather than the lossy typed bean
       }
 
       return response;
@@ -135,8 +136,8 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
         if (targetDaoRetrieveAllEntitiesRequest.isIncludeNativeEntity()) {
           targetEntityToTargetNativeEntity.put(targetEntity, grouperAdobeUser);
         }
-        // generic provisioner sync back: capture native user while the bean is in scope
-        GrouperAdobeProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperAdobeUser);
+        // sync-back user capture is hooked at the commands seam (retrieveAdobeUsers, called above)
+        // where the raw JSON is in scope, so every user is registered from the full JSON
       }
 
       return targetDaoRetrieveAllEntitiesResponse;
@@ -176,8 +177,8 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
         targetDaoRetrieveEntityResponse.setTargetNativeEntity(grouperAdobeUser);
       }
-      // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities)
-      GrouperAdobeProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperAdobeUser);
+      // sync-back user capture is hooked at the commands seam (retrieveAdobeUser) where the raw
+      // JSON is in scope; nothing to capture here
       return targetDaoRetrieveEntityResponse;
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveEntity", startNanos));
@@ -260,8 +261,9 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningGroup targetGroup = grouperAdobeGroup == null ? null : grouperAdobeGroup.toProvisioningGroup();
       TargetDaoRetrieveGroupResponse response = new TargetDaoRetrieveGroupResponse(targetGroup);
       response.setTargetNativeGroup(grouperAdobeGroup);
-      // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups)
-      GrouperAdobeProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperAdobeGroup);
+      // sync-back group capture is hooked at the commands seam (GrouperAdobeApiCommands
+      // .retrieveAdobeGroups) where the raw JSON is in scope; nothing to capture here. (With
+      // canRetrieveGroup=false the framework no longer routes scoped reads through this method.)
       return response;
 
     } finally {
@@ -375,6 +377,11 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
             for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(currentMembership.getInternal_objectChanges())) {
               provisioningObjectChange.setProvisioned(true);
             }
+            // sync-back: write-track the added membership into the native mirror (memberships are
+            // tracked from writes, never re-read). Keys are the Adobe group + user target ids.
+            GrouperAdobeProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(
+                currentMembership.getProvisioningGroup().getId(),
+                currentMembership.getProvisioningEntity().getId());
           }
           
         } catch (Exception e) {
@@ -448,6 +455,11 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
             for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(currentMembership.getInternal_objectChanges())) {
               provisioningObjectChange.setProvisioned(true);
             }
+            // sync-back: write-track the removed membership out of the native mirror so the flush
+            // drops its prov_mship row (memberships are tracked from writes, never re-read).
+            GrouperAdobeProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+                currentMembership.getProvisioningGroup().getId(),
+                currentMembership.getProvisioningEntity().getId());
           }
           
         } catch (Exception e) {
@@ -656,11 +668,13 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
       Map<String, GrouperAdobeGroup> theCacheGroupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
 
+      Map<String, String> groupNameToTargetId = new HashMap<String, String>();
       if (theCacheGroupNameToGroup != null) {
         for (String groupName: GrouperUtil.nonNull(groups)) {
-          
+
           GrouperAdobeGroup grouperAdobeGroup = theCacheGroupNameToGroup.get(groupName);
           if (grouperAdobeGroup != null) {
+            groupNameToTargetId.put(groupName, grouperAdobeGroup.getId().toString());
             ProvisioningMembership targetMembership = new ProvisioningMembership(false);
             targetMembership.setProvisioningGroupId(grouperAdobeGroup.getId().toString());
             targetMembership.setProvisioningEntityId(targetEntity.getId());
@@ -668,6 +682,12 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
           }
         }
       }
+      // sync-back: capture this user's full membership set into the native mirror. This is the
+      // scoped read the incremental already does for the diff (not an extra call, not a membership
+      // drain) -- it gives the pre-write baseline so a change to ONE of the user's memberships does
+      // not drop the others from the mirror; the write hooks then adjust for this cycle's add/remove.
+      GrouperAdobeProvisioningTargetNativeSync.captureMembershipsFromUserForCurrentProvisioner(
+          grouperAdobeUser, groupNameToTargetId);
       return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByEntity", startNanos));
@@ -913,9 +933,9 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
           targetEntityToTargetNativeEntity.put(targetEntity, adobeUser);
         }
 
-        // generic provisioner sync back: capture native user + this user's memberships
-        // while the bean is in scope (groups are already resolved against the cache below)
-        GrouperAdobeProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(adobeUser);
+        // sync-back: the user OBJECT is captured at the commands seam (retrieveAdobeUsers, called
+        // above) from the raw JSON; here we only capture this user's MEMBERSHIPS, derived from the
+        // bean's groups set resolved against the group-name -> target-id index
         GrouperAdobeProvisioningTargetNativeSync.captureMembershipsFromUserForCurrentProvisioner(
             adobeUser, groupNameToTargetGroupId);
 
@@ -954,7 +974,12 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
+    // Adobe has no by-id group endpoint: the only group read returns the whole org. Declare the
+    // single-group read unavailable (instead of faking it in the DAO) so the framework routes
+    // scoped group reads through retrieveAllGroups (see GrouperProvisionerTargetDaoAdapter
+    // .retrieveGroupsFromRetrieveAllGroups), and the commands seam registers every group from the
+    // raw JSON for sync-back.
+    grouperProvisionerDaoCapabilities.setCanRetrieveGroup(false);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);

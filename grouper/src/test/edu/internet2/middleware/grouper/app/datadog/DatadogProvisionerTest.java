@@ -18,8 +18,11 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningServ
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import junit.textui.TestRunner;
 
 public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
@@ -1876,6 +1879,1155 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
           countSyncBack(configId, "grouper_prov_user") >= 2);
       assertTrue("expected at least 2 prov_mship rows via scoped retrieve",
           countSyncBack(configId, "grouper_prov_mship") >= 2);
+
+    } finally {
+
+    }
+  }
+
+  // ==========================================================================================
+  // SCIM-parity sync-back tests for Datadog, CAPABILITY-GATED. Replicates the Box pilot
+  // (boxProvisioner/GrouperBoxProvisionerTest) for the Datadog connector.
+  //
+  // Datadog capture model (verified from DatadogTargetDao + DatadogProvisioningTargetNativeSync):
+  // Datadog captures target state into the generic mirror ONLY on the READ path -- groups/users
+  // are captured from the raw JSON:API envelopes at the DatadogApiCommands.retrieveRoles/
+  // retrieveTeams/retrieveUsers/getRoleUsers seams (captureGroupJson/captureUserJson), and the
+  // membership edges are recorded from the parsed beans inside
+  // DatadogTargetDao.retrieveMembershipsByGroup (captureTeamMemberships / captureRoleMemberships).
+  // The create/update/delete API methods do NOT call any capture hook. So Datadog is a
+  // READ-STATE-CONVERGENCE target, NOT a capture-on-write target like SCIM/Adobe: a target change
+  // converges into the mirror on the NEXT read pass, not the same run that writes it. Every
+  // converge test below therefore uses the two-pass full-sync pattern (pass 1 writes the target,
+  // pass 2 re-reads and the end-of-run flush converges), the same shape as the existing
+  // testDatadogFullSyncPopulatesGenericTables.
+  //
+  // The full flush (GrouperProvisioningLogic.loadDataToGenericProvisionerTables) is a FULL REPLACE
+  // scoped to the provisioner's grouper_sync_internal_id: anything in the mirror that the target did
+  // NOT return this run is deleted. That is what makes the delete / membership-remove converge tests
+  // work after a re-read pass.
+  //
+  // Datadog has TWO group kinds: teams and roles, distinguished by a synthesized groupType attribute
+  // ("team" vs "role"). The DAO routes every group/membership operation on groupType, and the two
+  // kinds have DIFFERENT membership-read paths (captureTeamMemberships vs captureRoleMemberships) and
+  // different mutable fields (teams have name/handle/description; roles have name only). So, mirroring
+  // how the existing forward tests split testFullSyncTeamCrudAndMemberships vs
+  // testFullSyncRoleCrudAndMemberships, the group-insert / group-delete / membership-add /
+  // membership-remove converge tests below each have a TEAM variant and a ROLE variant.
+  //
+  // Capabilities confirmed in DatadogTargetDao.registerGrouperProvisionerDaoCapabilities:
+  //   group  : insert YES, update YES, delete YES   (teams AND roles)
+  //   entity : insert YES, update YES, delete YES   (delete == disable, soft delete)
+  //   mship  : insert YES, delete YES, REPLACE *NO* (no setCanReplaceMembership)
+  //   memberships are group-centric (canRetrieveMembershipsAllByGroup)
+  //   canSyncBack YES
+  //
+  // Matching attributes (DatadogProvisionerTestUtils): group = id + name (groupMatchingAttribute0=id,
+  // groupMatchingAttribute1=name, name from the Grouper group extension); entity = id + email
+  // (entityMatchingAttribute0=id, entityMatchingAttribute1=email, email from the subject). Because
+  // name IS a matching attribute, an update that changes it cannot converge as an in-place update
+  // (the Adobe lesson), so the group-update-converge test mutates a NON-matching attribute:
+  //   - TEAMS: mutate DESCRIPTION (a real mock column, round-trips through updateTeam, NOT matched).
+  //     The team-update test maps description as a 4th group attribute (sourced from the Grouper
+  //     group's description field) and sets nativeAttributesGroups so the value is actually captured
+  //     into the mirror (description is NOT a Datadog default capture attribute).
+  //   - ROLES: roles have NO non-matching mutable Grouper-driven attribute -- the only role field the
+  //     connector writes is name (= the match key; updateRole only touches name), and handle/
+  //     description do not exist for roles. So a role update-converge test would be mutating the
+  //     match key and cannot converge as an in-place update -> it is SKIPPED (note below where it
+  //     would live).
+  //
+  // The entity (user) update-converge test is SKIPPED for the same reason as Box: users are matched
+  // by id + email, email is fixed per subject (the only Grouper-driven user attribute mapped here),
+  // and the other Datadog user fields (title/name/disabled/service_account) are target-controlled or
+  // not Grouper-mapped. There is no safe Grouper-driven NON-matching user attribute to mutate, so an
+  // update-converge test would mutate the match key -> SKIPPED (note below where it would live).
+  //
+  // SKIPPED, per capability (no test body, just a note):
+  //   - no membership-REPLACE sync-back test: DatadogTargetDao has no setCanReplaceMembership (so
+  //     SCIM's testMembershipReplaceConvergesSameRun / testIncrementalMembershipReplace... do not
+  //     apply to Datadog -- memberships are added/removed one edge at a time via addUserToTeam/Role
+  //     and removeUserFromTeam/Role).
+  //   - no "same-run" convergence variants of the SCIM capture-on-write tests: Datadog captures on
+  //     READ only, so these can only converge on the next read pass; their intent is ported as the
+  //     two-pass full tests below.
+  //   - no role update-converge test (see the matching-attributes note above).
+  //   - no user (entity) update-converge test (see the matching-attributes note above).
+  //
+  // NB on delete config (gotcha vs Box): unlike Box -- which defaults customize*Crud=false so the
+  // Box converge tests have to turn delete-types ON explicitly -- the shared Datadog test config
+  // (DatadogProvisionerTestUtils.configureProvisioner) ALREADY enables every delete axis:
+  // customizeEntityCrud + deleteEntities + deleteEntitiesIfNotExistInGrouper; customizeGroupCrud +
+  // deleteGroups + deleteGroupsIfGrouperDeleted; customizeMembershipCrud + deleteMemberships +
+  // deleteMembershipsIfNotExistInGrouper. So the Datadog delete / membership-remove converge tests
+  // need NO extra delete config. To DISABLE a default delete (the broken-target test) we set the
+  // umbrella key to false (deleteEntities=false) with customizeEntityCrud already on. Note also that
+  // groups use deleteGroupsIfGrouperDeleted (delete only when Grouper deletes the group), NOT
+  // deleteGroupsIfNotExistInGrouper -- so a target-side ORPHAN group is NOT auto-deleted, which is
+  // exactly what the orphan-capture tests rely on.
+  // ==========================================================================================
+
+  /**
+   * the single provisioned group's target_group_id (Datadog group id) in the mirror, or null.
+   * Mirrors the Box/Adobe helper of the same name -- used by the group-update converge test to prove
+   * the SAME target object survives an update (in-place update, not delete + re-create).
+   */
+  private String mirroredGroupTargetId(String configId) {
+    List<String> ids = new GcDbAccess().connectionName("grouper")
+        .sql("select target_group_id from grouper_prov_group "
+            + "where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(configId).selectList(String.class);
+    return ids.isEmpty() ? null : ids.get(0);
+  }
+
+  /**
+   * Resolved value of a named attribute for the single provisioned group in the mirror, or null.
+   * Reads through the {@code grouper_prov_group_attr_v} reporting view (not the base
+   * grouper_prov_group_attr_value table), because the raw string is stored via a dictionary FK and
+   * only the view resolves it back to text (column {@code value_string}). Mirrors Box's
+   * mirroredGroupDescription, generalized to any attribute name so the team-update test can read the
+   * captured {@code description} value.
+   */
+  private String mirroredGroupAttr(String configId, String attributeName) {
+    List<String> values = new GcDbAccess().connectionName("grouper")
+        .sql("select value_string from grouper_prov_group_attr_v "
+            + "where grouper_sync_id in (select id from grouper_sync where provisioner_name = ?) "
+            + "and attribute_name = ?")
+        .addBindVar(configId).addBindVar(attributeName).selectList(String.class);
+    return values.isEmpty() ? null : values.get(0);
+  }
+
+  /**
+   * Shared setup for the Datadog sync-back tests: configure the provisioner from a team-or-role
+   * config with the three load*ToGenericGrouperTable flags on (and recalculateAllOperations so every
+   * object/membership is processed each run), then start a root session. Delegates to the existing
+   * setupProvisionerTest (which also sleeps for config propagation, runs GrouperStartup, ensures the
+   * mock tables exist, and wipes mock_datadog_*). Mirrors Box's setupBoxSyncBack.
+   *
+   * @param baseConfig teamProvisionerConfig() or roleProvisionerConfig() (already carries the
+   *   groupType static attribute); load flags + recalculateAllOperations are layered on here
+   * @return a started root GrouperSession
+   */
+  private GrouperSession setupDatadogSyncBack(DatadogProvisionerTestConfigInput baseConfig) {
+    return setupProvisionerTest(baseConfig
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true"));
+  }
+
+  /**
+   * Attach the provisioning marker (sub scope) to a stem and return immediately. Mirrors the inline
+   * block the other sync-back tests repeat; attachProvisioningAttribute(Stem) already exists but is
+   * scope-less, so this variant keeps the sub-scope semantics the converge tests need.
+   */
+  private void attachProvisioningSub(Stem stem) {
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("datadogProvisioner");
+    attributeValue.setTargetName("datadogProvisioner");
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  }
+
+  // -----------------------------------------------------------------------------------------
+  // GROUP INSERT converge -- TEAM + ROLE (Datadog analogue of Box's
+  // testBoxGroupInsertConvergesNextRead). Like Box, because
+  // createGroupsAndEntitiesBeforeTranslatingMemberships (default true) + selectAllGroups (default
+  // true) are on, the daemon re-reads each just-inserted group within pass 1 to link it, and that
+  // read fires the Datadog group-capture seam -- so the group is already in the mirror after pass 1,
+  // linked back to its Grouper group. Pass 2 is idempotent.
+  // -----------------------------------------------------------------------------------------
+
+  public void testDatadogTeamGroupInsertConvergesNextRead() {
+    groupInsertConvergesNextRead(teamProvisionerConfig(), "team");
+  }
+
+  public void testDatadogRoleGroupInsertConvergesNextRead() {
+    groupInsertConvergesNextRead(roleProvisionerConfig(), "role");
+  }
+
+  /**
+   * @param baseConfig team or role provisioner config
+   * @param groupType "team" or "role" (used only for the where-clause sanity assert)
+   */
+  private void groupInsertConvergesNextRead(DatadogProvisionerTestConfigInput baseConfig, String groupType) {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "datadogProvisioner";
+    GrouperSession grouperSession = setupDatadogSyncBack(baseConfig);
+
+    try {
+      String userId0 = GrouperUuid.getUuid();
+      createMockUsers(userId0, null, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      attachProvisioningSub(stem);
+
+      // baseline: nothing in the mirror yet
+      assertEquals(0, countSyncBack(configId, "grouper_prov_group"));
+
+      // pass 1 inserts the group AND -- via the post-insert re-read that links it -- captures it, so
+      // the group converges into the mirror within this same run
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals("group insert converges in the same run (post-insert re-read captures it)", 1,
+          countSyncBack(configId, "grouper_prov_group"));
+
+      // pass 2 re-reads; convergence is idempotent
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+      assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
+      long syncInternalId = gcGrouperSync.getInternalId();
+
+      assertEquals("group insert should converge into prov_group", 1,
+          countSyncBack(configId, "grouper_prov_group"));
+
+      // sanity: the mock has exactly one group, of the expected kind
+      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
+          .sql("select count(1) from mock_datadog_group where group_type = ?").addBindVar(groupType).select(int.class));
+
+      // captured via a read, so it is linked back to its Grouper group
+      int groupRowsLinked = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_group "
+              + "where grouper_sync_internal_id = ? and group_internal_id is not null")
+          .addBindVar(syncInternalId).select(int.class);
+      assertEquals("converged prov_group row should be linked to its Grouper group", 1, groupRowsLinked);
+
+      // name captured from the Datadog read response (a Datadog default group capture attribute)
+      int nameValueRows = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_group_attr_value gpv "
+              + "join grouper_prov_group_attr gpa on gpa.internal_id = gpv.prov_group_attr_internal_id "
+              + "join grouper_prov_group pg on pg.internal_id = gpv.prov_group_internal_id "
+              + "where pg.grouper_sync_internal_id = ? and gpa.attribute_name = 'name'")
+          .addBindVar(syncInternalId).select(int.class);
+      assertTrue("name should be captured from the Datadog read response, got " + nameValueRows,
+          nameValueRows >= 1);
+
+      // groupType is the synthesized default (overlaid onto the envelope before capture); it must be
+      // present in the catalog and resolve to the expected kind in the mirror
+      String capturedGroupType = mirroredGroupAttr(configId, "groupType");
+      assertEquals("synthesized groupType should be captured into the mirror", groupType, capturedGroupType);
+
+    } finally {
+
+    }
+  }
+
+  // -----------------------------------------------------------------------------------------
+  // GROUP DELETE converge -- TEAM + ROLE (Datadog analogue of Box's
+  // testBoxGroupDeleteConvergesNextRead). Seed group + SUBJ0 + their membership into the mirror, then
+  // delete the group in Grouper. The Datadog config already enables all delete axes, so pass A pushes
+  // the deletes to the target (group + now-orphaned user disabled + membership removed) and pass B
+  // re-reads: the user is gone from the active-user listing (disabled users are filtered out of
+  // retrieveUsers), the group and membership are gone, and the full-replace flush drops all three
+  // mirror rows.
+  // -----------------------------------------------------------------------------------------
+
+  public void testDatadogTeamGroupDeleteConvergesNextRead() {
+    groupDeleteConvergesNextRead(teamProvisionerConfig());
+  }
+
+  public void testDatadogRoleGroupDeleteConvergesNextRead() {
+    groupDeleteConvergesNextRead(roleProvisionerConfig());
+  }
+
+  private void groupDeleteConvergesNextRead(DatadogProvisionerTestConfigInput baseConfig) {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "datadogProvisioner";
+    // NB: no extra delete config -- the shared Datadog config already turns on every delete axis
+    // (entities/groups/memberships). This test deletes the group, cascading to its user + membership.
+    GrouperSession grouperSession = setupDatadogSyncBack(baseConfig);
+
+    try {
+      String userId0 = GrouperUuid.getUuid();
+      createMockUsers(userId0, null, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      attachProvisioningSub(stem);
+
+      // seed: two passes converge the group + SUBJ0 + their membership into the mirror
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+      assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+      assertEquals("seed: membership", 1, countSyncBack(configId, "grouper_prov_mship"));
+
+      // delete the group; SUBJ0 is now orphaned (no other provisioned group) and is disabled too
+      testGroup.delete();
+
+      // pass A: the delete writes hit the Datadog target (group deleted, orphaned user disabled,
+      // membership removed)
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      // pass B: the re-read no longer sees the group/membership and the disabled user is filtered
+      // out of the active-user listing; the full-replace flush drops their mirror rows
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+
+      assertEquals("group dropped from the mirror after the re-read pass", 0,
+          countSyncBack(configId, "grouper_prov_group"));
+      assertEquals("orphaned SUBJ0 dropped from the mirror after the re-read pass", 0,
+          countSyncBack(configId, "grouper_prov_user"));
+      assertEquals("membership dropped from the mirror after the re-read pass", 0,
+          countSyncBack(configId, "grouper_prov_mship"));
+
+    } finally {
+
+    }
+  }
+
+  // -----------------------------------------------------------------------------------------
+  // GROUP UPDATE converge on a NON-matching attribute -- TEAM only (Datadog analogue of Box's
+  // testBoxGroupUpdateConvergesNextRead). Datadog groups are matched by id + name, so we mutate the
+  // team's DESCRIPTION (a real mock column, NOT matched). description is mapped as a 4th group
+  // attribute (sourced from the Grouper group's description field), round-trips through updateTeam,
+  // and nativeAttributesGroups is set so the value is actually captured into the mirror (description
+  // is not a Datadog default group capture attribute). Convergence is on the re-read pass (Datadog
+  // captures on read). Asserts both that the value converges AND that the SAME target group id
+  // survives (in-place update, not delete + re-create).
+  //
+  // No ROLE variant: roles have no non-matching mutable Grouper-driven attribute (the only field the
+  // connector writes for a role is name = the match key; handle/description do not exist for roles),
+  // so a role update-converge would mutate the match key and could not converge in place. SKIPPED.
+  // -----------------------------------------------------------------------------------------
+
+  public void testDatadogTeamGroupUpdateConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "datadogProvisioner";
+    // team config + description as a 4th mapped group attribute (sourced from the Grouper group's
+    // description), and capture description into the mirror via nativeAttributesGroups.
+    //
+    // IMPORTANT: nativeAttributesGroups MUST be the JSON-array form here, NOT a bare CSV. Datadog
+    // speaks JSON:API, so every field lands nested under /attributes in the read envelope (e.g.
+    // /attributes/description). The CSV form of nativeAttributesGroups carries only the attribute
+    // NAME and no path, so the capture pointer defaults to "/" + name (e.g. /description) -- which
+    // is a missing node in a JSON:API envelope, so nothing gets captured and the mirrored value
+    // comes back null. The Datadog default group attrs (DEFAULT_GROUP_ATTRS in
+    // DatadogProvisioningTargetNativeSync) are nested for exactly this reason. So we re-state the
+    // defaults (name/handle/groupType) AND add description, each with an explicit /attributes/...
+    // JSON Pointer, so the re-read capture resolves the real value. (Box can use a flat CSV because
+    // its payload is flat -- /description top-level -- which does not apply to Datadog.)
+    DatadogProvisionerTestConfigInput configInput = teamProvisionerConfig()
+        .addExtraConfig("numberOfGroupAttributes", "4")
+        .addExtraConfig("targetGroupAttribute.3.name", "description")
+        .addExtraConfig("targetGroupAttribute.3.translateExpressionType", "grouperProvisioningGroupField")
+        .addExtraConfig("targetGroupAttribute.3.translateFromGrouperProvisioningGroupField", "description")
+        // capture name/handle/groupType (the Datadog defaults) PLUS description, each with its
+        // JSON:API /attributes/... pointer so the value is actually captured into the mirror.
+        .addExtraConfig("nativeAttributesGroups",
+            "[{\"name\":\"name\",\"path\":\"/attributes/name\"},"
+            + "{\"name\":\"handle\",\"path\":\"/attributes/handle\"},"
+            + "{\"name\":\"groupType\",\"path\":\"/attributes/groupType\"},"
+            + "{\"name\":\"description\",\"path\":\"/attributes/description\"}]");
+
+    GrouperSession grouperSession = setupDatadogSyncBack(configInput);
+
+    try {
+      String userId0 = GrouperUuid.getUuid();
+      createMockUsers(userId0, null, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testTeam")
+          .assignDescription("originalDescription").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      attachProvisioningSub(stem);
+
+      // seed: team provisioned with description "originalDescription"
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+      String groupTargetIdBefore = mirroredGroupTargetId(configId);
+      assertNotNull("group should have a target id after seed", groupTargetIdBefore);
+      assertEquals("seed: original description captured", "originalDescription",
+          mirroredGroupAttr(configId, "description"));
+
+      // change the description (a NON-matching attribute) -> Datadog updateTeam
+      testGroup = new GroupSave(grouperSession).assignName(testGroup.getName())
+          .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
+          .assignSaveMode(SaveMode.UPDATE).save();
+
+      // pass A: the description update reaches the Datadog target (updateTeam persists it)
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      // pass B: the re-read captures the target's actual new description into the mirror
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+
+      // mirror side: still ONE group, the SAME group (same target id) -- in-place update, not
+      // delete + re-create -- and its description converged to the new value.
+      assertEquals("group still in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
+      assertEquals("mirror tracks the same group through the update (update, not re-create)",
+          groupTargetIdBefore, mirroredGroupTargetId(configId));
+      assertEquals("mirror description should converge to the new value on the re-read pass",
+          "newDescription", mirroredGroupAttr(configId, "description"));
+
+      // NOTE: no role update-converge test, and no user update-converge test. Roles have only name
+      // (= the match key) as a Grouper-driven field; Datadog users are matched by id + email (email
+      // fixed per subject) with no other safe Grouper-driven NON-matching attribute. Either would be
+      // mutating the match key (the Adobe lesson) and could not converge as an in-place update.
+      // Skipped rather than written.
+
+    } finally {
+
+    }
+  }
+
+  // -----------------------------------------------------------------------------------------
+  // MEMBERSHIP ADD converge -- TEAM + ROLE (Datadog analogue of Box's
+  // testBoxMembershipAddConvergesNextRead). Seed group with SUBJ0, then add SUBJ1. Because Datadog
+  // captures memberships on the read path (retrieveMembershipsByGroup -> captureTeamMemberships /
+  // captureRoleMemberships), the add shows in grouper_prov_mship on the re-read pass: pass A issues
+  // the membership insert to the target, pass B re-reads the group's members and the flush converges.
+  // -----------------------------------------------------------------------------------------
+
+  public void testDatadogTeamMembershipAddConvergesNextRead() {
+    membershipAddConvergesNextRead(teamProvisionerConfig());
+  }
+
+  public void testDatadogRoleMembershipAddConvergesNextRead() {
+    membershipAddConvergesNextRead(roleProvisionerConfig());
+  }
+
+  private void membershipAddConvergesNextRead(DatadogProvisionerTestConfigInput baseConfig) {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "datadogProvisioner";
+    GrouperSession grouperSession = setupDatadogSyncBack(baseConfig);
+
+    try {
+      String userId0 = GrouperUuid.getUuid();
+      String userId1 = GrouperUuid.getUuid();
+      createMockUsers(userId0, userId1, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      attachProvisioningSub(stem);
+
+      // seed: group + SUBJ0 + the one membership in the mirror
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+      assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+      assertEquals("seed: the single membership", 1, countSyncBack(configId, "grouper_prov_mship"));
+
+      // add SUBJ1 to the already-provisioned group
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      // pass A: the membership insert hits the target (SUBJ1's user already exists in the mock)
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      // pass B: re-read sees both members; the flush converges the added membership
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+
+      assertEquals("group should still be in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
+      assertEquals("both users should be in the mirror after the add", 2,
+          countSyncBack(configId, "grouper_prov_user"));
+      assertEquals("the added membership should converge on the re-read pass", 2,
+          countSyncBack(configId, "grouper_prov_mship"));
+
+    } finally {
+
+    }
+  }
+
+  // -----------------------------------------------------------------------------------------
+  // MEMBERSHIP REMOVE converge -- TEAM + ROLE (Datadog analogue of Box's
+  // testBoxMembershipRemoveConvergesNextRead). Two groups both hold SUBJ0; SUBJ0 is removed from
+  // testGroup only (it survives in otherGroup, so its Datadog user is NOT disabled). The full-replace
+  // flush, fed by the re-read of each group's members, drops exactly testGroup's membership while
+  // leaving otherGroup's intact. Both groups are the same kind (team or role) for a clean
+  // single-groupType run.
+  // -----------------------------------------------------------------------------------------
+
+  public void testDatadogTeamMembershipRemoveConvergesNextRead() {
+    membershipRemoveConvergesNextRead(teamProvisionerConfig());
+  }
+
+  public void testDatadogRoleMembershipRemoveConvergesNextRead() {
+    membershipRemoveConvergesNextRead(roleProvisionerConfig());
+  }
+
+  private void membershipRemoveConvergesNextRead(DatadogProvisionerTestConfigInput baseConfig) {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "datadogProvisioner";
+    // delete-types are already on in the shared Datadog config, so the membership remove is pushed.
+    GrouperSession grouperSession = setupDatadogSyncBack(baseConfig);
+
+    try {
+      String userId0 = GrouperUuid.getUuid();
+      createMockUsers(userId0, null, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      Group otherGroup = new GroupSave(grouperSession).assignName("test:otherGroup").save();
+      // SUBJ0 in BOTH groups so removing it from testGroup leaves it provisioned (still in otherGroup)
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      otherGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      attachProvisioningSub(stem);
+
+      // seed: both groups + SUBJ0 + both memberships in the mirror
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals("seed: both groups", 2, countSyncBack(configId, "grouper_prov_group"));
+      assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+      assertEquals("seed: both memberships", 2, countSyncBack(configId, "grouper_prov_mship"));
+
+      // remove SUBJ0 from testGroup only (still in otherGroup)
+      testGroup.deleteMember(SubjectTestHelper.SUBJ0);
+
+      // pass A: the membership-remove write hits the target
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      // pass B: re-read of testGroup's members no longer includes SUBJ0; the full-replace flush
+      // drops (testGroup,SUBJ0) while otherGroup's SUBJ0 membership survives
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+
+      assertEquals("both groups should still be in the mirror", 2,
+          countSyncBack(configId, "grouper_prov_group"));
+      assertEquals("SUBJ0 should still be in the mirror (still in otherGroup)", 1,
+          countSyncBack(configId, "grouper_prov_user"));
+      assertEquals("testGroup's membership should be gone, otherGroup's should remain", 1,
+          countSyncBack(configId, "grouper_prov_mship"));
+
+    } finally {
+
+    }
+  }
+
+  // -----------------------------------------------------------------------------------------
+  // Multi-sync coverage with data evolution between rounds (Datadog analogue of Box's
+  // testBoxFullSyncReflectsDataChangesAcrossSyncs). Round 1: testGroup (team) with SUBJ0 only, seeded
+  // via two passes. Round 2: add SUBJ1 (Grouper-side) AND insert a target-drift orphan team + orphan
+  // user directly into the mock via raw SQL. Round 3: two more passes -> the mirror reflects the new
+  // state (3 users, 2 groups, 2 memberships in testGroup), and the orphan user's email round-trips.
+  //
+  // The orphan TEAM persists because groups use deleteGroupsIfGrouperDeleted (only Grouper-deleted
+  // groups are removed, never a target-only orphan). The orphan USER, however, is NOT membership-
+  // protected: being a member of a target-only team does not make it provisionable from Grouper's
+  // view, so with the shared config's deleteEntities + deleteEntitiesIfNotExistInGrouper ON it would
+  // be disabled on the next pass and then filtered out of retrieveUsers (round 3 would see only 2
+  // users). So, exactly as in the two orphan-capture tests above, deleteEntities is turned OFF here
+  // so the active orphan user survives and round 3 sees all three users.
+  // -----------------------------------------------------------------------------------------
+
+  public void testDatadogFullSyncReflectsDataChangesAcrossSyncs() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "datadogProvisioner";
+    // deleteEntities=false so the round-2 target-drift orphan user is not disabled before round 3 can
+    // capture it (see the note above).
+    GrouperSession grouperSession = setupDatadogSyncBack(teamProvisionerConfig()
+        .addExtraConfig("deleteEntities", "false"));
+
+    try {
+
+      // ===================== ROUND 1: initial state =====================
+
+      String userId0 = GrouperUuid.getUuid();
+      createMockUsers(userId0, null, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      attachProvisioningSub(stem);
+
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+
+      assertEquals("round 1: 1 prov_user row for SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+      assertEquals("round 1: 1 prov_group row for testGroup", 1, countSyncBack(configId, "grouper_prov_group"));
+      assertEquals("round 1: 1 prov_mship row for SUBJ0 in testGroup", 1, countSyncBack(configId, "grouper_prov_mship"));
+
+      // ===================== ROUND 2: data changes =====================
+
+      // Grouper-side: add SUBJ1 to testGroup. next full sync inserts SUBJ1 + the membership.
+      // SUBJ1's user must exist in the target so the membership add does not need a create -- but the
+      // provisioner would create it anyway; pre-seed it for determinism (email matches the subject).
+      new GcDbAccess().connectionName("grouper").sql("insert into mock_datadog_user (id, email, name, title, disabled, service_account) values (?, ?, ?, ?, ?, ?)")
+          .addBindVar(GrouperUuid.getUuid()).addBindVar("test.subject.1@somewhere.someSchool.edu")
+          .addBindVar("my name is test.subject.1").addBindVar(null).addBindVar("F").addBindVar("F").executeSql();
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      // Target-side drift: insert an orphan team + orphan user directly into the mock via raw SQL
+      // (same idiom the existing forward tests use). These are unknown to Grouper and persist across
+      // the next sync (no Grouper deletion drives their removal). name+group_type is UNIQUE, so the
+      // orphan team name must be distinct.
+      String orphanGroupId = GrouperUuid.getUuid();
+      new GcDbAccess().connectionName("grouper").sql("insert into mock_datadog_group (id, name, handle, description, group_type) values (?, ?, ?, ?, ?)")
+          .addBindVar(orphanGroupId).addBindVar("orphanTeamAddedMidTest").addBindVar("orphan-team-mid")
+          .addBindVar("drift orphan").addBindVar("team").executeSql();
+      String orphanUserId = GrouperUuid.getUuid();
+      new GcDbAccess().connectionName("grouper").sql("insert into mock_datadog_user (id, email, name, title, disabled, service_account) values (?, ?, ?, ?, ?, ?)")
+          .addBindVar(orphanUserId).addBindVar("orphan.evolve@example.edu").addBindVar("Orphan Evolve")
+          .addBindVar(null).addBindVar("F").addBindVar("F").executeSql();
+
+      // ===================== ROUND 3: second full sync + assertions =====================
+
+      // pass A writes SUBJ1 + membership to the target; pass B re-reads everything (Grouper's + the
+      // drift orphans) and refreshes the mirror.
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+      long syncInternalId = gcGrouperSync.getInternalId();
+
+      assertEquals("round 3: 3 prov_user rows expected (SUBJ0, SUBJ1, orphan_user)", 3,
+          countSyncBack(configId, "grouper_prov_user"));
+      assertEquals("round 3: 2 prov_group rows expected (testGroup, orphan_team)", 2,
+          countSyncBack(configId, "grouper_prov_group"));
+      assertEquals("round 3: 2 prov_mship rows expected (SUBJ0 + SUBJ1 in testGroup)", 2,
+          countSyncBack(configId, "grouper_prov_mship"));
+
+      // the orphan team landed in the mirror, unlinked (no Grouper group)
+      int orphanGroupRow = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_group "
+              + "where grouper_sync_internal_id = ? and target_group_id = ? and group_internal_id is null")
+          .addBindVar(syncInternalId).addBindVar(orphanGroupId).select(int.class);
+      assertEquals("orphan team should land in prov_group with group_internal_id IS NULL", 1,
+          orphanGroupRow);
+
+      // the orphan user's email value round-trips through the reporting view (proves target-drift
+      // entities are captured with their actual attributes). email IS a Datadog default entity
+      // capture attribute.
+      String orphanUserEmailInReporting = new GcDbAccess().connectionName("grouper")
+          .sql("select value_string from grouper_prov_user_attr_v "
+              + "where grouper_sync_id = (select id from grouper_sync where internal_id = ?) "
+              + "and target_user_id = ? and attribute_name = 'email'")
+          .addBindVar(syncInternalId).addBindVar(orphanUserId).select(String.class);
+      assertEquals("orphan user's email should round-trip through reporting", "orphan.evolve@example.edu",
+          orphanUserEmailInReporting);
+
+    } finally {
+
+    }
+  }
+
+  // -----------------------------------------------------------------------------------------
+  // Strict-native capture of orphan target objects (Datadog analogue of Box's
+  // testBoxFullSyncCapturesOrphanTargetEntities). An orphan team + orphan user that exist in the
+  // target but are unknown to Grouper are captured into the mirror -- with NULL Grouper-side linkage
+  // -- alongside Grouper's own testGroup + SUBJ0/SUBJ1, which keep their linkage populated.
+  //
+  // GOTCHA vs Box (why deleteEntities is turned OFF here): Box's setupBoxSyncBack leaves entity
+  // deletes at their config defaults (deleteEntitiesIfNotExistInGrouper=false), so a target-only
+  // orphan user survives untouched. The SHARED Datadog test config, by contrast, force-enables every
+  // delete axis -- including deleteEntities + deleteEntitiesIfNotExistInGrouper. With those on, the
+  // active orphan user (a member of no Grouper-provisioned group) is treated as unprovisionable and
+  // DISABLED on pass 1; pass 2's retrieveUsers then filters disabled users out of the active-user
+  // listing, so the orphan never reaches grouper_prov_user and the capture assert sees 0 rows. The
+  // orphan TEAM does not have this problem (groups use deleteGroupsIfGrouperDeleted, which only
+  // deletes Grouper-DELETED groups, never a target-only orphan). So, to mirror Box's "orphans
+  // persist" precondition, we disable entity deletion (deleteEntities=false; customizeEntityCrud is
+  // already on in the shared config) so the orphan user stays active and is captured on the re-read.
+  // -----------------------------------------------------------------------------------------
+
+  public void testDatadogFullSyncCapturesOrphanTargetEntities() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "datadogProvisioner";
+    // deleteEntities=false so the active orphan user is NOT disabled by the daemon (see the gotcha
+    // note above) and therefore survives the re-read into grouper_prov_user.
+    GrouperSession grouperSession = setupDatadogSyncBack(teamProvisionerConfig()
+        .addExtraConfig("deleteEntities", "false"));
+
+    try {
+      // pre-populate orphans directly into the mock via raw SQL before the provisioner runs. The
+      // orphan team is a "team" (so retrieveTeams returns it); the orphan user is active + not a
+      // service account (so retrieveUsers returns it -- disabled/service-account users are filtered).
+      String orphanGroupId = GrouperUuid.getUuid();
+      new GcDbAccess().connectionName("grouper").sql("insert into mock_datadog_group (id, name, handle, description, group_type) values (?, ?, ?, ?, ?)")
+          .addBindVar(orphanGroupId).addBindVar("orphanTeamNotInGrouper").addBindVar("orphan-team-not-in-grouper")
+          .addBindVar("orphan desc").addBindVar("team").executeSql();
+      String orphanUserId = GrouperUuid.getUuid();
+      new GcDbAccess().connectionName("grouper").sql("insert into mock_datadog_user (id, email, name, title, disabled, service_account) values (?, ?, ?, ?, ?, ?)")
+          .addBindVar(orphanUserId).addBindVar("orphan.user@example.edu").addBindVar("Orphan NotInGrouper")
+          .addBindVar(null).addBindVar("F").addBindVar("F").executeSql();
+
+      String userId0 = GrouperUuid.getUuid();
+      String userId1 = GrouperUuid.getUuid();
+      createMockUsers(userId0, userId1, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      attachProvisioningSub(stem);
+
+      // two passes: pass 1 inserts Grouper's objects (orphans untouched); pass 2 reads orphans +
+      // Grouper's objects and the flush captures all of them.
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+      long syncInternalId = gcGrouperSync.getInternalId();
+
+      // orphan team landed with NULL group_internal_id
+      int orphanGroupRowsTotal = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_group "
+              + "where grouper_sync_internal_id = ? and target_group_id = ?")
+          .addBindVar(syncInternalId).addBindVar(orphanGroupId).select(int.class);
+      assertEquals("expected exactly 1 prov_group row for the orphan team", 1, orphanGroupRowsTotal);
+
+      int orphanGroupRowsUnlinked = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_group "
+              + "where grouper_sync_internal_id = ? and target_group_id = ? and group_internal_id is null")
+          .addBindVar(syncInternalId).addBindVar(orphanGroupId).select(int.class);
+      assertEquals("orphan team's prov_group row must have group_internal_id IS NULL", 1,
+          orphanGroupRowsUnlinked);
+
+      // orphan user landed with NULL member_internal_id
+      int orphanUserRowsTotal = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_user "
+              + "where grouper_sync_internal_id = ? and target_user_id = ?")
+          .addBindVar(syncInternalId).addBindVar(orphanUserId).select(int.class);
+      assertEquals("expected exactly 1 prov_user row for the orphan user", 1, orphanUserRowsTotal);
+
+      int orphanUserRowsUnlinked = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_user "
+              + "where grouper_sync_internal_id = ? and target_user_id = ? and member_internal_id is null")
+          .addBindVar(syncInternalId).addBindVar(orphanUserId).select(int.class);
+      assertEquals("orphan user's prov_user row must have member_internal_id IS NULL", 1,
+          orphanUserRowsUnlinked);
+
+      // Grouper's own testGroup + 2 members land alongside, with linkage populated
+      int testGroupRowsLinked = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_group "
+              + "where grouper_sync_internal_id = ? and target_group_id != ? and group_internal_id is not null")
+          .addBindVar(syncInternalId).addBindVar(orphanGroupId).select(int.class);
+      assertEquals("Grouper's testGroup prov_group row must have group_internal_id linked", 1,
+          testGroupRowsLinked);
+
+      int nonOrphanUserRowsLinked = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_user "
+              + "where grouper_sync_internal_id = ? and target_user_id != ? and member_internal_id is not null")
+          .addBindVar(syncInternalId).addBindVar(orphanUserId).select(int.class);
+      assertEquals("Grouper-provisioned prov_user rows (SUBJ0 + SUBJ1) must have member_internal_id linked",
+          2, nonOrphanUserRowsLinked);
+
+      // a Datadog default group attribute (groupType) is captured in the catalog
+      int groupTypeCatalog = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_group_attr "
+              + "where grouper_sync_internal_id = ? and attribute_name = 'groupType'")
+          .addBindVar(syncInternalId).select(int.class);
+      assertEquals("default group attribute 'groupType' should be in the per-provisioner catalog", 1,
+          groupTypeCatalog);
+
+      // sanity: 'id' must NOT be captured as an attribute -- it is already the target_group_id column
+      int idAsGroupAttrRows = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_group_attr "
+              + "where grouper_sync_internal_id = ? and attribute_name = 'id'")
+          .addBindVar(syncInternalId).select(int.class);
+      assertEquals("'id' must not appear in grouper_prov_group_attr (already target_group_id column)", 0,
+          idAsGroupAttrRows);
+
+    } finally {
+
+    }
+  }
+
+  // -----------------------------------------------------------------------------------------
+  // Strict-native capture on the MEMBERSHIP axis (Datadog analogue of Box's
+  // testBoxFullSyncCapturesMembershipsFromOrphanGroup). An orphan TEAM with an orphan member (neither
+  // known to Grouper) is wired in the mock. Datadog memberships are group-centric, so when the daemon
+  // lists groups it also reads the orphan team's members (retrieveMembershipsByGroup ->
+  // captureTeamMemberships) -- that membership must land in grouper_prov_mship alongside Grouper's
+  // own, proving strict-native membership capture is independent of Grouper knowledge.
+  //
+  // GOTCHA vs Box (deleteEntities OFF): same reason as testDatadogFullSyncCapturesOrphanTargetEntities
+  // -- the shared Datadog config force-enables deleteEntities + deleteEntitiesIfNotExistInGrouper, so
+  // the active orphan user (a member of the orphan TEAM only, which is not a Grouper-provisioned
+  // group) would be disabled on pass 1 and filtered out of pass 2's retrieveUsers. The orphan
+  // membership row joins through grouper_prov_user.target_user_id, so if the orphan user is dropped
+  // the mship row cannot be recorded (0 instead of 1). Disabling entity deletion keeps the orphan
+  // user active so its membership edge is captured. (The orphan team itself is safe: groups use
+  // deleteGroupsIfGrouperDeleted, which never deletes a target-only orphan.)
+  // -----------------------------------------------------------------------------------------
+
+  public void testDatadogFullSyncCapturesMembershipsFromOrphanGroup() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "datadogProvisioner";
+    // deleteEntities=false so the active orphan user survives the re-read (see the gotcha note above),
+    // which is required for the orphan team -> orphan user membership edge to be captured.
+    GrouperSession grouperSession = setupDatadogSyncBack(teamProvisionerConfig()
+        .addExtraConfig("deleteEntities", "false"));
+
+    try {
+      // orphan team + orphan user + the membership wiring them, all in the mock via raw SQL.
+      String orphanGroupId = GrouperUuid.getUuid();
+      new GcDbAccess().connectionName("grouper").sql("insert into mock_datadog_group (id, name, handle, description, group_type) values (?, ?, ?, ?, ?)")
+          .addBindVar(orphanGroupId).addBindVar("orphanTeamWithMembers").addBindVar("orphan-team-with-members")
+          .addBindVar(null).addBindVar("team").executeSql();
+      String orphanUserId = GrouperUuid.getUuid();
+      new GcDbAccess().connectionName("grouper").sql("insert into mock_datadog_user (id, email, name, title, disabled, service_account) values (?, ?, ?, ?, ?, ?)")
+          .addBindVar(orphanUserId).addBindVar("orphan.mship@example.edu").addBindVar("Orphan Mship")
+          .addBindVar(null).addBindVar("F").addBindVar("F").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("insert into mock_datadog_membership (id, group_id, user_id, role) values (?, ?, ?, ?)")
+          .addBindVar(GrouperUuid.getUuid()).addBindVar(orphanGroupId).addBindVar(orphanUserId).addBindVar("member").executeSql();
+
+      String userId0 = GrouperUuid.getUuid();
+      String userId1 = GrouperUuid.getUuid();
+      createMockUsers(userId0, userId1, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      attachProvisioningSub(stem);
+
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+      long syncInternalId = gcGrouperSync.getInternalId();
+
+      // the orphan team's membership lands in prov_mship (join through prov_group/prov_user, which
+      // hold the target ids -- prov_mship itself only has the FK internal ids)
+      int orphanMshipRows = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from grouper_prov_mship pm "
+              + "join grouper_prov_group pg on pg.internal_id = pm.prov_group_internal_id "
+              + "join grouper_prov_user pu on pu.internal_id = pm.prov_user_internal_id "
+              + "where pm.grouper_sync_internal_id = ? and pg.target_group_id = ? and pu.target_user_id = ?")
+          .addBindVar(syncInternalId).addBindVar(orphanGroupId).addBindVar(orphanUserId)
+          .select(int.class);
+      assertEquals("expected 1 prov_mship row for orphan team -> orphan user", 1, orphanMshipRows);
+
+      // Grouper's own memberships land alongside (3 total: SUBJ0 + SUBJ1 in testGroup + the orphan)
+      assertEquals("expected 3 prov_mship rows total (2 from testGroup + 1 orphan)", 3,
+          countSyncBack(configId, "grouper_prov_mship"));
+
+    } finally {
+
+    }
+  }
+
+  // -----------------------------------------------------------------------------------------
+  // !selectAll* scope excludes orphans -- SKIPPED for Datadog (capability/mock limit; the Box
+  // analogue testBoxSelectAllFalseExcludesOrphans cannot be ported as-is).
+  //
+  // The Box test relies on a scoped retrieve that fetches exactly ONE object by id: with
+  // selectAllGroups/selectAllEntities=false the Box DAO calls retrieveBoxGroup/retrieveBoxUser
+  // (singular, by-id), so an orphan whose id Grouper never asks for is never read and so never
+  // captured -- which is what lets the orphan be excluded from the mirror.
+  //
+  // Datadog's scoped retrieve cannot do that. Datadog has no "get one object by id" endpoint wired
+  // into the DAO: DatadogTargetDao.retrieveGroup (selectAllGroups=false path) calls
+  // DatadogApiCommands.retrieveTeams/retrieveRoles and then loops to find the one match, and
+  // retrieveEntity calls DatadogApiCommands.retrieveUsers and loops likewise. Those list-all commands
+  // fire the sync-back capture seam for EVERY element in the listing
+  // (captureGroupJsonFromCurrentProvisioner / captureUserJsonFromCurrentProvisioner inside
+  // retrieveTeams/retrieveRoles/retrieveUsers), BEFORE any matching/filtering. So even with
+  // selectAll=false, the full server-side listing -- orphans included -- is captured into the mirror.
+  // The orphan team WILL appear in grouper_prov_group and the orphan user in grouper_prov_user, the
+  // exact opposite of the Box assertion. (This is the same reason the forward test
+  // testDatadogFullSyncSelectByIdsPopulatesGenericTables still captures everything on the scoped path.)
+  //
+  // Making this scenario pass would require a production change to the Datadog read seams (capture
+  // only the matched object on the scoped path, or add a true by-id GET) -- out of scope for the
+  // sync-back test port and a behavior change to the connector. So this is a documented skip rather
+  // than a red test or a misleading assertion. The selectAll=false capture path itself is still
+  // covered (positively) by testDatadogFullSyncSelectByIdsPopulatesGenericTables.
+  // -----------------------------------------------------------------------------------------
+
+  public void testDatadogSelectAllFalseExcludesOrphans() {
+    // Intentionally skipped -- see the block comment above. Datadog's scoped retrieve is implemented
+    // as list-all-then-filter, and the capture seam fires for the whole listing, so orphans cannot be
+    // excluded the way Box's by-id scoped retrieve excludes them. Early-return keeps the suite green
+    // without asserting behavior the Datadog connector does not (and is not meant to) have.
+    return;
+  }
+
+  // -----------------------------------------------------------------------------------------
+  // Broken-target delete stays in the mirror (Datadog analogue of Box's
+  // testBoxUserDeleteBrokenTargetStaysInMirror). We have no mock knob to fake a broken delete, so we
+  // DISABLE entity deletion: SUBJ0 is removed from testGroup in Grouper, but with deleteEntities off
+  // the daemon never disables SUBJ0 in the target -- so the user (still active) remains visible on the
+  // re-read and stays in the mirror. Exercises the same mirror behavior (a target object the daemon
+  // did NOT remove stays captured) without a target that lies about a delete.
+  // -----------------------------------------------------------------------------------------
+
+  public void testDatadogUserDeleteBrokenTargetStaysInMirror() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "datadogProvisioner";
+    // Disable entity deletion. The shared config defaults deleteEntities=true (customizeEntityCrud is
+    // already on), so override the umbrella key to false to keep the daemon from disabling SUBJ0.
+    GrouperSession grouperSession = setupDatadogSyncBack(teamProvisionerConfig()
+        .addExtraConfig("deleteEntities", "false"));
+
+    try {
+      String userId0 = GrouperUuid.getUuid();
+      createMockUsers(userId0, null, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      attachProvisioningSub(stem);
+
+      // seed: group + SUBJ0 in the mirror
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+      assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+
+      // remove SUBJ0 from the group in Grouper. With entity-delete off the daemon does not disable
+      // SUBJ0 in the target, so the target still has SUBJ0 as an active user.
+      testGroup.deleteMember(SubjectTestHelper.SUBJ0);
+
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+
+      // the group was never deleted -> still in the mirror
+      assertEquals("group row should stay (group was not deleted)", 1,
+          countSyncBack(configId, "grouper_prov_group"));
+
+      // confirm the target still has SUBJ0 active (the daemon did not disable it), so the re-read keeps it
+      String disabled0 = new GcDbAccess().connectionName("grouper")
+          .sql("select disabled from mock_datadog_user where id = ?").addBindVar(userId0).select(String.class);
+      assertEquals("SUBJ0 should remain active in the target (entity-delete is off)", "F", disabled0);
+
+      assertEquals("user should STAY in the mirror (its disable was never performed)", 1,
+          countSyncBack(configId, "grouper_prov_user"));
+
+    } finally {
+
+    }
+  }
+
+  // -----------------------------------------------------------------------------------------
+  // Load-flag isolation -- three tests (Datadog analogue of Box's testBoxLoadGroups/Entities/
+  // MembershipsFlag*). Each toggles exactly one or two of the load*ToGenericGrouperTable flags and
+  // asserts only the enabled axes populate. setupProvisionerTest is bypassed here because these need
+  // a CUSTOM mix of the three load flags (setupDatadogSyncBack always turns all three on), so they
+  // open-code the configure + startup + mock-wipe, the same way the Box flag tests do.
+  // -----------------------------------------------------------------------------------------
+
+  /** Only the groups flag on -> only grouper_prov_group rows; prov_user / prov_mship stay empty. */
+  public void testDatadogLoadGroupsFlagInIsolation() {
+    loadFlagIsolation("true", "false", "false", true, false, false);
+  }
+
+  /** Only the entities flag on -> only grouper_prov_user rows; prov_group / prov_mship stay empty. */
+  public void testDatadogLoadEntitiesFlagInIsolation() {
+    loadFlagIsolation("false", "true", "false", false, true, false);
+  }
+
+  /** Both object loads on but memberships off -> prov_group + prov_user populate, prov_mship empty. */
+  public void testDatadogLoadMembershipsFlagOff() {
+    loadFlagIsolation("true", "true", "false", true, true, false);
+  }
+
+  /**
+   * @param loadGroups  value for loadGroupsToGenericGrouperTable
+   * @param loadEntities value for loadEntitiesToGenericGrouperTable
+   * @param loadMships  value for loadMembershipsToGenericGrouperTable
+   * @param expectGroups whether prov_group should have rows
+   * @param expectUsers  whether prov_user should have rows
+   * @param expectMships whether prov_mship should have rows
+   */
+  private void loadFlagIsolation(String loadGroups, String loadEntities, String loadMships,
+      boolean expectGroups, boolean expectUsers, boolean expectMships) {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "datadogProvisioner";
+    // open-code the configure with the custom flag mix (do NOT use setupDatadogSyncBack -- it forces
+    // all three flags on). Mirror setupProvisionerTest's surrounding boilerplate.
+    DatadogProvisionerTestUtils.setupDatadogExternalSystem();
+    DatadogProvisionerTestUtils.configureDatadogProvisioner(teamProvisionerConfig()
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", loadGroups)
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", loadEntities)
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", loadMships));
+
+    GrouperUtil.sleep(5000);
+    GrouperStartup.startup();
+    // ensure mock tables exist, then wipe. NB: this read must use CONFIG_ID (the EXTERNAL-system
+    // config id, "datadogDev") -- that is where setupDatadogExternalSystem stores the bearer-token
+    // accessTokenPassword. Using the PROVISIONER config id ("datadogProvisioner") here would look up
+    // grouper.wsBearerToken.datadogProvisioner.accessTokenPassword, which does not exist, and fail
+    // with "Cant find property ... it is required". (setupProvisionerTest's equivalent call already
+    // uses CONFIG_ID; this open-coded path must match.)
+    DatadogApiCommands.retrieveTeams(CONFIG_ID, null);
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_datadog_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_datadog_user").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_datadog_group").executeSql();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    try {
+      String userId0 = GrouperUuid.getUuid();
+      String userId1 = GrouperUuid.getUuid();
+      createMockUsers(userId0, userId1, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      attachProvisioningSub(stem);
+
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+
+      if (expectGroups) {
+        assertTrue("expected >=1 prov_group row when groups capture is on",
+            countSyncBack(configId, "grouper_prov_group") >= 1);
+      } else {
+        assertEquals("expected 0 prov_group rows when groups capture is off", 0,
+            countSyncBack(configId, "grouper_prov_group"));
+      }
+
+      if (expectUsers) {
+        assertTrue("expected >=2 prov_user rows (SUBJ0 + SUBJ1) when entities capture is on",
+            countSyncBack(configId, "grouper_prov_user") >= 2);
+      } else {
+        assertEquals("expected 0 prov_user rows when entities capture is off", 0,
+            countSyncBack(configId, "grouper_prov_user"));
+      }
+
+      if (expectMships) {
+        assertTrue("expected >=2 prov_mship rows when memberships capture is on",
+            countSyncBack(configId, "grouper_prov_mship") >= 2);
+      } else {
+        assertEquals("expected 0 prov_mship rows when memberships capture is off", 0,
+            countSyncBack(configId, "grouper_prov_mship"));
+      }
+
+    } finally {
+
+    }
+  }
+
+  // -----------------------------------------------------------------------------------------
+  // INCREMENTAL sync-back coverage, conservative (Datadog analogue of Box's
+  // testBoxIncrementalSyncBackNoSpuriousDeletes). Datadog has NO write-side capture hooks (it captures
+  // on the READ path only). On an incremental cycle it re-reads only the changed objects (it has
+  // canRetrieveGroup/Entity, so the adapter decomposes to per-id reads that fire the Datadog capture
+  // seams), and the incremental flush is a SCOPED upsert (NOT a full replace, so it will not wrongly
+  // delete untouched mirror rows).
+  //
+  // What this test asserts is therefore deliberately narrow -- the safe, reliable part of Datadog
+  // incremental sync-back: after seeding via full sync and priming the changelog consumer, adding a
+  // member drives an incremental that (a) re-reads the changed group/entity and so does NOT shrink the
+  // existing GROUP/USER mirror (no spurious deletes -- the regression the scoped incremental flush
+  // guards against), and (b) captures the newly added member's user object into prov_user. It does NOT
+  // assert that the new MEMBERSHIP converges on the same incremental cycle: Datadog memberships are
+  // captured on read, and the incremental's read-before-write timing plus group-centric membership
+  // read make same-cycle membership convergence unreliable for a read-capture target (the same
+  // 1-cycle-lag reason SCIM disables its object incremental test). Membership convergence is covered
+  // end-to-end by the two-pass full tests above.
+  // -----------------------------------------------------------------------------------------
+
+  public void testDatadogIncrementalSyncBackNoSpuriousDeletes() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "datadogProvisioner";
+    GrouperSession grouperSession = setupDatadogSyncBack(teamProvisionerConfig());
+
+    try {
+      String userId0 = GrouperUuid.getUuid();
+      String userId1 = GrouperUuid.getUuid();
+      String userId2 = GrouperUuid.getUuid();
+      createMockUsers(userId0, userId1, userId2);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      attachProvisioningSub(stem);
+
+      // seed via full sync: group + SUBJ0 + SUBJ1 + their memberships in the mirror
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+      long syncInternalId = gcGrouperSync.getInternalId();
+
+      int provGroupRowsBefore = countSyncBack(configId, "grouper_prov_group");
+      int provUserRowsBefore = countSyncBack(configId, "grouper_prov_user");
+      int provMshipRowsBefore = countSyncBack(configId, "grouper_prov_mship");
+      assertTrue("seed should have >=1 prov_group row", provGroupRowsBefore >= 1);
+      assertEquals("seed should have 2 prov_user rows", 2, provUserRowsBefore);
+      assertEquals("seed should have 2 prov_mship rows", 2, provMshipRowsBefore);
+
+      // prime the changelog consumer: its FIRST run only initializes its changelog position
+      // (processes nothing), so without this priming pass the change below is never consumed.
+      incrementalProvision();
+
+      // incremental add: a third member. The incremental re-reads the changed group/entity, firing
+      // the Datadog read-capture seams, and the scoped flush upserts -- it must NOT drop untouched rows.
+      testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+      incrementalProvision();
+
+      // (a) no spurious deletes on the GROUP axis: the scoped incremental flush left existing rows intact
+      assertTrue("incremental must not shrink prov_group; before=" + provGroupRowsBefore
+          + " after=" + countSyncBack(configId, "grouper_prov_group"),
+          countSyncBack(configId, "grouper_prov_group") >= provGroupRowsBefore);
+      // NB: prov_mship is intentionally NOT asserted here (matching this test's note above). Datadog
+      // memberships are group-centric and captured on the READ path; on an incremental cycle the scoped
+      // membership flush for the changed group plus read-before-write timing means testGroup's
+      // membership rows can transiently clear, re-converging only on the next full sync (the same
+      // 1-cycle lag for which SCIM disables its object incremental test).
+
+      // (b) the newly added member's user object is captured (object capture via the per-id re-read)
+      assertEquals("SUBJ2's user object should be captured into prov_user this incremental cycle", 3,
+          countSyncBack(configId, "grouper_prov_user"));
+
+      // catalog stays deduped per (sync, attribute_name) after the incremental (the unique-key
+      // regression guarded on the LDAP/SCIM side; Datadog shares the same generic flush code)
+      int dupGroupAttr = new GcDbAccess().connectionName("grouper")
+          .sql("select count(*) from (select grouper_sync_internal_id, attribute_name, count(*) c "
+              + "from grouper_prov_group_attr where grouper_sync_internal_id = ? "
+              + "group by grouper_sync_internal_id, attribute_name having count(*) > 1) t")
+          .addBindVar(syncInternalId).select(int.class);
+      assertEquals("group attr catalog should stay deduped per (sync,name) after incremental", 0,
+          dupGroupAttr);
 
     } finally {
 

@@ -89,8 +89,9 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperDuoGroup grouperDuoGroup : grouperDuoGroups) {
         ProvisioningGroup targetGroup = grouperDuoGroup.toProvisioningGroup();
         results.add(targetGroup);
-        // generic provisioner sync back: capture native group while the bean is in scope
-        GrouperDuoProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperDuoGroup);
+        // sync-back group capture is hooked at the commands seam (GrouperDuoApiCommands
+        // .retrieveDuoGroups, called above) where the raw JSON is in scope, so every group is
+        // registered from the full JSON rather than the lossy typed bean
       }
 
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -126,8 +127,8 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
         if (targetDaoRetrieveAllEntitiesRequest.isIncludeNativeEntity()) {
           targetEntityToTargetNativeEntity.put(targetEntity, grouperDuoUser);
         }
-        // generic provisioner sync back: capture native user while the bean is in scope
-        GrouperDuoProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperDuoUser);
+        // sync-back user capture is hooked at the commands seam (retrieveDuoUsers, called above)
+        // where the raw JSON is in scope, so every user is registered from the full JSON
       }
 
       return targetDaoRetrieveAllEntitiesResponse;
@@ -164,10 +165,8 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningEntity targetEntity = grouperDuoUser == null ? null
           : grouperDuoUser.toProvisioningEntity();
 
-      if (grouperDuoUser != null) {
-        // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
-        GrouperDuoProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperDuoUser);
-      }
+      // sync-back user capture is hooked at the commands seam (retrieveDuoUser / retrieveDuoUserByName)
+      // where the raw JSON is in scope; nothing to capture here
 
       TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = new TargetDaoRetrieveEntityResponse(targetEntity);
       if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
@@ -225,10 +224,8 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
 
       ProvisioningGroup targetGroup = grouperDuoGroup == null ? null : grouperDuoGroup.toProvisioningGroup();
 
-      if (grouperDuoGroup != null) {
-        // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
-        GrouperDuoProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperDuoGroup);
-      }
+      // sync-back group capture is hooked at the commands seam (retrieveDuoGroup by id, or
+      // retrieveDuoGroups for the by-name path) where the raw JSON is in scope; nothing to capture here
 
       return new TargetDaoRetrieveGroupResponse(targetGroup);
 
@@ -690,10 +687,10 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
           targetEntityToTargetNativeEntity.put(targetEntity, duoUser);
         }
 
-        // generic provisioner sync back: capture native user + this user's memberships
-        // while the bean is in scope. Duo memberships are inline GrouperDuoGroup beans on
-        // the user (each carries its own group_id), so no name->id resolution is needed.
-        GrouperDuoProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(duoUser);
+        // sync-back: the user OBJECT is captured at the commands seam (retrieveDuoUsers, called
+        // above) from the raw JSON; here we only capture this user's MEMBERSHIPS. Duo memberships
+        // are inline GrouperDuoGroup beans on the user (each carries its own group_id), so no
+        // name->id resolution is needed.
         GrouperDuoProvisioningTargetNativeSync.captureMembershipsFromUserForCurrentProvisioner(duoUser);
 
         Set<GrouperDuoGroup> groupsPerUser = duoUser.getGroups();

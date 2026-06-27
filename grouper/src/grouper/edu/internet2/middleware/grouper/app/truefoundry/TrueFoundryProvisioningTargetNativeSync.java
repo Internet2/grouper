@@ -6,6 +6,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningNativeAttributeConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeGroup;
@@ -15,41 +19,98 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarg
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * TrueFoundry-specific {@link GrouperProvisioningTargetNativeSync}: builds native target
- * reporting beans directly from the {@link TrueFoundryUser} / {@link TrueFoundryGroup}
- * typed beans returned by {@code TrueFoundryApiCommands}.
+ * TrueFoundry-specific {@link GrouperProvisioningTargetNativeSync}: builds native target reporting
+ * beans for sync-back to the generic grouper_prov_group / grouper_prov_user tables.
  *
- * <p>Like Adobe, TrueFoundry target objects are typed Java beans, so attribute capture is
- * a small switch on attribute name to bean getter. The {@code path} field on
- * {@link GrouperProvisioningNativeAttributeConfig} is ignored; only {@code name} matters.
+ * <p>Both <b>groups</b> and <b>users</b> are captured from the raw TrueFoundry JSON (JSON Pointer
+ * paths, like SCIM / Adobe / Duo), hooked at the API-commands seam ({@code TrueFoundryApiCommands}
+ * read methods such as {@code retrieveSubjectsData} / {@code retrieveUsers} /
+ * {@code retrieveUserByEmail} for users and {@code retrieveRoles} / {@code retrieveTeams} /
+ * {@code getTeamById} for groups) where the per-object JSON node is in scope. This avoids losing
+ * any TrueFoundry field that the {@link TrueFoundryUser} / {@link TrueFoundryGroup} typed beans do
+ * not model; operators can capture any JSON field via {@code nativeAttributesGroups} /
+ * {@code nativeAttributesEntities} with a {@code name} and optional JSON-Pointer {@code path}.
  *
- * <p>Capture is hooked at the DAO level, where TrueFoundry responses are already converted
- * to typed beans.
+ * <p>The default keys are chosen so each default's captured value matches what the OLD typed-bean
+ * getter returned:
+ * <ul>
+ *   <li>users: target id from {@code /id} (the same field {@code TrueFoundryUser.fromJson} reads
+ *       into {@code id} / the old build read via {@code getId()}); defaults {@code email}
+ *       (from {@code /email}) and {@code active} (from {@code /active}, a JSON boolean).</li>
+ *   <li>groups: target id from {@code /id}; defaults {@code name} and {@code groupType}.</li>
+ * </ul>
+ *
+ * <p><b>TrueFoundry group nodes are not uniform</b>, so the commands seam hands this class a
+ * <i>normalized</i> capture node rather than the raw API node (see
+ * {@code TrueFoundryApiCommands.normalizeTeamJsonForCapture} /
+ * {@code normalizeRoleJsonForCapture}). Two fields the typed beans synthesize have no single raw
+ * JSON field and so are injected onto that capture node before it reaches us:
+ * <ul>
+ *   <li>{@code groupType} is not a TrueFoundry JSON field at all -- {@code fromTeamJson} /
+ *       {@code fromRoleJson} hard-code it to {@code "team"} / {@code "role"}. The seam stamps it on
+ *       the capture node so the {@code /groupType} default resolves (matching the old
+ *       {@code getGroupType()} value).</li>
+ *   <li>{@code name} lives at {@code /teamName} for a team but at {@code /name} for a role. The
+ *       seam normalizes both into a top-level {@code name} field on the capture node so the
+ *       {@code /name} default resolves uniformly (matching the old {@code getName()} value).</li>
+ * </ul>
+ * Every default / pointer is therefore relative to that normalized node, consistently. All other
+ * raw fields (e.g. {@code teamName}, {@code resourceType}, {@code isDefault}, the {@code manifest}
+ * subtree) are preserved verbatim on the capture node, so an operator can capture any of them --
+ * including fields the typed beans never model -- via {@code nativeAttributesGroups}.
+ *
+ * <p>Memberships are still derived from the {@link TrueFoundryGroup} typed bean's {@code members}
+ * list during DAO translation ({@link #captureMembershipsFromGroup} and the
+ * {@code ...UsingCapturedUsers} variant), because TrueFoundry membership is group-centric and
+ * carried inside the team object (member emails translated to native user ids) -- the Adobe
+ * situation. Only the group/user object capture is JSON-based.
  */
 public class TrueFoundryProvisioningTargetNativeSync extends GrouperProvisioningTargetNativeSync {
 
   /**
    * Default per-attribute capture list for TrueFoundry users when {@code nativeAttributesEntities}
-   * is not configured. Excludes {@code id} (already the target_user_id column) and noisy fields.
+   * is not configured. JSON-Pointer based (reads the raw TrueFoundry user JSON). Excludes
+   * {@code id} (already the target_user_id column). Operators can capture any other user JSON field
+   * (e.g. {@code displayName} at {@code /metadata/displayName}) via {@code nativeAttributesEntities}
+   * with a {@code name} and optional {@code path}.
    */
   private static final List<GrouperProvisioningNativeAttributeConfig> DEFAULT_ENTITY_ATTRS =
       Collections.unmodifiableList(Arrays.asList(
+          // matches the old GrouperProvisioningTargetNativeUser built from TrueFoundryUser.getEmail()
           attrConfig("email"),
+          // matches the old build from TrueFoundryUser.getActive() (a JSON boolean at /active)
           attrConfig("active")));
 
   /**
    * Default per-attribute capture list for TrueFoundry groups when {@code nativeAttributesGroups}
-   * is not configured. Excludes {@code id} (already target_group_id) and large/embedded fields
-   * like {@code members}/{@code managers}.
+   * is not configured. JSON-Pointer based (reads the normalized TrueFoundry group capture node).
+   * Excludes {@code id} (already the target_group_id column) and large/embedded fields like
+   * {@code manifest.members} / {@code manifest.managers}. {@code name} and {@code groupType} are
+   * normalized onto the capture node by the commands seam (see class javadoc). Operators can
+   * configure any other group JSON field (e.g. {@code teamName}, {@code resourceType},
+   * {@code isDefault}) via {@code nativeAttributesGroups} with a {@code name} and optional
+   * {@code path}, since capture now reads the full JSON rather than the typed bean.
    */
   private static final List<GrouperProvisioningNativeAttributeConfig> DEFAULT_GROUP_ATTRS =
       Collections.unmodifiableList(Arrays.asList(
+          // matches the old build from TrueFoundryGroup.getName()
           attrConfig("name"),
+          // matches the old build from TrueFoundryGroup.getGroupType() ("team" / "role");
+          // groupType is synthesized onto the capture node by the commands seam
           attrConfig("groupType")));
 
   private static GrouperProvisioningNativeAttributeConfig attrConfig(String name) {
+    return attrConfigWithPath(name, null);
+  }
+
+  /**
+   * Build a native-attribute config with an explicit JSON Pointer {@code path}. When {@code path}
+   * is null the JSON path defaults to {@code "/" + name} (see {@link #populateAttributesFromJson}).
+   */
+  private static GrouperProvisioningNativeAttributeConfig attrConfigWithPath(String name, String path) {
     GrouperProvisioningNativeAttributeConfig cfg = new GrouperProvisioningNativeAttributeConfig();
     cfg.setName(name);
+    cfg.setPath(path);
     return cfg;
   }
 
@@ -63,96 +124,141 @@ public class TrueFoundryProvisioningTargetNativeSync extends GrouperProvisioning
     return DEFAULT_GROUP_ATTRS;
   }
 
-  // ----- build (typed bean -> native-reporting bean) -----------------------------------
+  // ----- build (raw TrueFoundry JSON -> native-reporting bean) -------------------------
 
-  /** Build a native group bean from a TrueFoundryGroup. {@code targetId} is the TF id. */
-  public GrouperProvisioningTargetNativeGroup buildNativeGroupFromTrueFoundryGroup(TrueFoundryGroup trueFoundryGroup) {
-    if (trueFoundryGroup == null || trueFoundryGroup.getId() == null) {
+  /**
+   * Build a native group bean from the (normalized) raw TrueFoundry group JSON. {@code targetId}
+   * is read from {@code /id} (the same field the old typed-bean build read via {@code getId()});
+   * the attributes map is populated for each entry in {@link #effectiveNativeAttributeConfigsGroups()}
+   * (operator-configured or default) by JSON Pointer. Returns null when the JSON is missing or has
+   * no {@code id}.
+   * @param groupNode the normalized group capture node (see class javadoc); for teams/roles this
+   *                  is the raw API node with {@code name} and {@code groupType} stamped on
+   */
+  public GrouperProvisioningTargetNativeGroup buildNativeGroupFromJson(JsonNode groupNode) {
+    if (groupNode == null || groupNode.isMissingNode()) {
+      return null;
+    }
+    String targetId = resolveScalarAsString(groupNode, "/id");
+    if (targetId == null) {
       return null;
     }
     GrouperProvisioningTargetNativeGroup bean = new GrouperProvisioningTargetNativeGroup();
-    bean.setTargetId(trueFoundryGroup.getId());
-    populateGroupAttributes(bean.getAttributes(), trueFoundryGroup, effectiveNativeAttributeConfigsGroups());
+    bean.setTargetId(targetId);
+    populateAttributesFromJson(bean.getAttributes(), groupNode, effectiveNativeAttributeConfigsGroups());
     return bean;
-  }
-
-  /** Build a native user bean from a TrueFoundryUser. {@code targetId} is the TF native user id. */
-  public GrouperProvisioningTargetNativeUser buildNativeUserFromTrueFoundryUser(TrueFoundryUser trueFoundryUser) {
-    if (trueFoundryUser == null || trueFoundryUser.getId() == null) {
-      return null;
-    }
-    GrouperProvisioningTargetNativeUser bean = new GrouperProvisioningTargetNativeUser();
-    bean.setTargetId(trueFoundryUser.getId());
-    populateUserAttributes(bean.getAttributes(), trueFoundryUser, effectiveNativeAttributeConfigsEntities());
-    return bean;
-  }
-
-  private static void populateGroupAttributes(
-      Map<String, Object> destinationAttributes,
-      TrueFoundryGroup trueFoundryGroup,
-      List<GrouperProvisioningNativeAttributeConfig> nativeAttributeConfigs) {
-    for (GrouperProvisioningNativeAttributeConfig cfg : GrouperUtil.nonNull(nativeAttributeConfigs)) {
-      Object value = resolveGroupAttribute(trueFoundryGroup, cfg.getName());
-      if (value != null) {
-        destinationAttributes.put(cfg.getName(), value);
-      }
-    }
-  }
-
-  private static void populateUserAttributes(
-      Map<String, Object> destinationAttributes,
-      TrueFoundryUser trueFoundryUser,
-      List<GrouperProvisioningNativeAttributeConfig> nativeAttributeConfigs) {
-    for (GrouperProvisioningNativeAttributeConfig cfg : GrouperUtil.nonNull(nativeAttributeConfigs)) {
-      Object value = resolveUserAttribute(trueFoundryUser, cfg.getName());
-      if (value != null) {
-        destinationAttributes.put(cfg.getName(), value);
-      }
-    }
   }
 
   /**
-   * Resolve a named attribute from a TrueFoundryGroup. Unknown attribute names return null
-   * (silently skipped). Bean property names map directly.
+   * Build a native user bean from the raw TrueFoundry user JSON. {@code targetId} is read from
+   * {@code /id} (the same field {@code TrueFoundryUser.fromJson} reads and the old build used via
+   * {@code getId()}); the attributes map is populated for each entry in
+   * {@link #effectiveNativeAttributeConfigsEntities()} (operator-configured or default) by JSON
+   * Pointer. Returns null when the JSON is missing or has no {@code id}.
+   * @param userNode a user object as it appears inside the subjects {@code users[]} array
    */
-  private static Object resolveGroupAttribute(TrueFoundryGroup trueFoundryGroup, String attributeName) {
-    if (trueFoundryGroup == null || attributeName == null) {
+  public GrouperProvisioningTargetNativeUser buildNativeUserFromJson(JsonNode userNode) {
+    if (userNode == null || userNode.isMissingNode()) {
       return null;
     }
-    switch (attributeName) {
-      case "name":         return trueFoundryGroup.getName();
-      case "displayName":  return trueFoundryGroup.getDisplayName();
-      case "description":  return trueFoundryGroup.getDescription();
-      case "groupType":    return trueFoundryGroup.getGroupType();
-      case "resourceType": return trueFoundryGroup.getResourceType();
-      case "isDefault":    return trueFoundryGroup.getIsDefault();
-      default:             return null;
+    String targetId = resolveScalarAsString(userNode, "/id");
+    if (targetId == null) {
+      return null;
+    }
+    GrouperProvisioningTargetNativeUser bean = new GrouperProvisioningTargetNativeUser();
+    bean.setTargetId(targetId);
+    populateAttributesFromJson(bean.getAttributes(), userNode, effectiveNativeAttributeConfigsEntities());
+    return bean;
+  }
+
+  /**
+   * For each attribute config, resolve its JSON Pointer ({@code path}, or {@code "/" + name})
+   * against the raw TrueFoundry JSON (group or user) and put the coerced value under
+   * {@code cfg.getName()}. Missing / null nodes are skipped (no attribute row written).
+   */
+  private static void populateAttributesFromJson(
+      Map<String, Object> destinationAttributes,
+      JsonNode resourceNode,
+      List<GrouperProvisioningNativeAttributeConfig> nativeAttributeConfigs) {
+    if (destinationAttributes == null || resourceNode == null) {
+      return;
+    }
+    for (GrouperProvisioningNativeAttributeConfig cfg : GrouperUtil.nonNull(nativeAttributeConfigs)) {
+      // JSON Pointer per RFC 6901: explicit path wins, else "/" + name (e.g. /email, /name)
+      String pointer = StringUtils.defaultIfBlank(cfg.getPath(), "/" + cfg.getName());
+      JsonNode node = resourceNode.at(pointer);
+      if (node == null || node.isMissingNode() || node.isNull()) {
+        continue;
+      }
+      Object value = coerceJsonValue(node, cfg.getType());
+      if (value != null) {
+        destinationAttributes.put(cfg.getName(), value);
+      }
     }
   }
 
-  /** see {@link #resolveGroupAttribute} */
-  private static Object resolveUserAttribute(TrueFoundryUser trueFoundryUser, String attributeName) {
-    if (trueFoundryUser == null || attributeName == null) {
+  private static String resolveScalarAsString(JsonNode resourceNode, String jsonPointer) {
+    if (resourceNode == null) {
       return null;
     }
-    switch (attributeName) {
-      case "email":       return trueFoundryUser.getEmail();
-      case "displayName": return trueFoundryUser.getDisplayName();
-      case "active":      return trueFoundryUser.getActive();
-      default:            return null;
+    JsonNode node = resourceNode.at(jsonPointer);
+    if (node == null || node.isMissingNode() || node.isNull()) {
+      return null;
     }
+    return node.asText();
+  }
+
+  /**
+   * Coerce a JsonNode to a scalar Object for storage in the attribute map. The declared type
+   * ({@code "string"|"integer"|"boolean"|"timestamp"}) wins when present; otherwise the node's
+   * intrinsic JSON type drives the choice.
+   */
+  private static Object coerceJsonValue(JsonNode node, String declaredType) {
+    if (node == null || node.isMissingNode() || node.isNull()) {
+      return null;
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "integer")) {
+      return Long.valueOf(node.asLong());
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "boolean")) {
+      return Boolean.valueOf(node.asBoolean());
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "timestamp")) {
+      // store as the source string; downstream coercion handled by the dictionary path
+      return node.asText();
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "string")) {
+      return node.asText();
+    }
+    // auto-detect by intrinsic JSON type
+    if (node.isBoolean()) {
+      return Boolean.valueOf(node.asBoolean());
+    }
+    if (node.isIntegralNumber()) {
+      return Long.valueOf(node.asLong());
+    }
+    if (node.isNumber()) {
+      return Double.valueOf(node.asDouble());
+    }
+    return node.asText();
   }
 
   // ----- capture convenience (build + record) -----------------------------------------
 
-  /** Build + record a TrueFoundry group. No-op when sync-back is off or group is null/idless. */
-  public void captureGroup(TrueFoundryGroup trueFoundryGroup) {
-    this.recordTargetNativeGroup(this.buildNativeGroupFromTrueFoundryGroup(trueFoundryGroup));
+  /**
+   * Build + record a TrueFoundry group from its (normalized) raw JSON. No-op when sync-back is off
+   * or the node is null / id-less.
+   */
+  public void captureGroupJson(JsonNode groupNode) {
+    this.recordTargetNativeGroup(this.buildNativeGroupFromJson(groupNode));
   }
 
-  /** Build + record a TrueFoundry user. No-op when sync-back is off or user is null/idless. */
-  public void captureUser(TrueFoundryUser trueFoundryUser) {
-    this.recordTargetNativeUser(this.buildNativeUserFromTrueFoundryUser(trueFoundryUser));
+  /**
+   * Build + record a TrueFoundry user from its raw JSON. No-op when sync-back is off or the node is
+   * null / id-less.
+   */
+  public void captureUserJson(JsonNode userNode) {
+    this.recordTargetNativeUser(this.buildNativeUserFromJson(userNode));
   }
 
   /**
@@ -184,24 +290,33 @@ public class TrueFoundryProvisioningTargetNativeSync extends GrouperProvisioning
     this.recordTargetNativeMemberships(memberships);
   }
 
-  // ----- static dispatchers (called from TrueFoundryTargetDao) -------------------------
+  // ----- static dispatchers (called from TrueFoundryApiCommands / TrueFoundryTargetDao) -
 
-  /** Capture a TrueFoundryGroup against the current provisioner's sync. */
-  public static void captureGroupFromCurrentProvisioner(TrueFoundryGroup trueFoundryGroup) {
+  /**
+   * Capture a TrueFoundry group (from its normalized raw JSON) against the current provisioner's
+   * sync. No-op if there's no current provisioner or the active provisioner isn't a TrueFoundry
+   * one. Called from the commands seam (TrueFoundryApiCommands read methods) for every team/role
+   * parsed from a read.
+   */
+  public static void captureGroupJsonFromCurrentProvisioner(JsonNode groupNode) {
     TrueFoundryProvisioningTargetNativeSync sync = syncForCurrentProvisioner();
     if (sync == null) {
       return;
     }
-    sync.captureGroup(trueFoundryGroup);
+    sync.captureGroupJson(groupNode);
   }
 
-  /** Capture a TrueFoundryUser against the current provisioner's sync. */
-  public static void captureUserFromCurrentProvisioner(TrueFoundryUser trueFoundryUser) {
+  /**
+   * Capture a TrueFoundry user (from its raw JSON) against the current provisioner's sync. No-op if
+   * there's no current provisioner or the active provisioner isn't a TrueFoundry one. Called from
+   * the commands seam (TrueFoundryApiCommands read methods) for every user parsed from a read.
+   */
+  public static void captureUserJsonFromCurrentProvisioner(JsonNode userNode) {
     TrueFoundryProvisioningTargetNativeSync sync = syncForCurrentProvisioner();
     if (sync == null) {
       return;
     }
-    sync.captureUser(trueFoundryUser);
+    sync.captureUserJson(userNode);
   }
 
   /**

@@ -1326,11 +1326,22 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         grouperCallables.add(grouperCallable);
         
       }
+    } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveAllGroups(), false)) {
+
+      // Fallback for DAOs that can neither read a single group nor a batch of groups, but CAN
+      // retrieve all groups in one call (e.g. Adobe: there is no by-id group endpoint -- the only
+      // group read returns the whole org, and it never carries memberships). Rather than have the
+      // DAO fake a single-group read, it declares canRetrieveGroup=false / canRetrieveGroups=false
+      // / canRetrieveAllGroups=true, and the framework retrieves every group (without memberships)
+      // and matches the requested ones out of the full list. Done synchronously (one bulk call),
+      // so no grouperCallables are queued for this branch.
+      retrieveGroupsFromRetrieveAllGroups(targetGroups, targetDaoRetrieveGroupsResponse);
+
     } else {
 
       throw new RuntimeException("Dao cannot retrieve group or groups");
     }
-    
+
     GrouperUtil.executorServiceSubmit(this.getGrouperProvisioner().retrieveExecutorService(), grouperCallables);
     
     Set<ProvisioningGroupWrapper> provisioningGroupWrappersSuccessfullyRetrieved = new HashSet<ProvisioningGroupWrapper>();
@@ -1348,9 +1359,111 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 
     // update the cache
     this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic().updateGroupLink(provisioningGroupWrappersSuccessfullyRetrieved, false);
-    
+
     return targetDaoRetrieveGroupsResponse;
 
+  }
+
+  /**
+   * Satisfy a scoped {@link #retrieveGroups} request for a DAO that can only retrieve ALL groups
+   * (no single- or batch-group read): retrieve every group once (without memberships) and match
+   * the requested groups out of the full result by their search-id attribute value(s). Each match
+   * has its {@link ProvisioningGroupWrapper} linked exactly as the single-group path does
+   * (see {@link #retrieveGroupHelper}), so downstream link/select-result processing is identical
+   * whether the groups came from a single read or from this fallback.
+   *
+   * @param targetGroups requested grouper target groups (carry search ids and wrappers)
+   * @param targetDaoRetrieveGroupsResponse response to populate with matched groups + native map
+   */
+  private void retrieveGroupsFromRetrieveAllGroups(
+      List<ProvisioningGroup> targetGroups,
+      TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse) {
+
+    if (targetDaoRetrieveGroupsResponse.getTargetGroups() == null) {
+      targetDaoRetrieveGroupsResponse.setTargetGroups(new ArrayList<ProvisioningGroup>());
+    }
+    if (targetDaoRetrieveGroupsResponse.getTargetGroupToTargetNativeGroup() == null) {
+      targetDaoRetrieveGroupsResponse.setTargetGroupToTargetNativeGroup(new HashMap<ProvisioningGroup, Object>());
+    }
+
+    // one bulk read of every group in the target; this fallback only applies to DAOs whose group
+    // read never carries memberships, so request without memberships
+    TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse =
+        this.retrieveAllGroups(new TargetDaoRetrieveAllGroupsRequest(false));
+    List<ProvisioningGroup> allTargetGroups = targetDaoRetrieveAllGroupsResponse == null
+        ? null : targetDaoRetrieveAllGroupsResponse.getTargetGroups();
+    if (GrouperUtil.length(allTargetGroups) == 0) {
+      return;
+    }
+    Map<ProvisioningGroup, Object> allTargetGroupToNativeGroup =
+        targetDaoRetrieveAllGroupsResponse.getTargetGroupToTargetNativeGroup();
+
+    for (ProvisioningGroup requestedTargetGroup : GrouperUtil.nonNull(targetGroups)) {
+
+      ProvisioningGroup matchedTargetGroup = null;
+
+      // match on any of the requested group's search-id attribute values (id, name, etc.)
+      MATCH:
+      for (ProvisioningUpdatableAttributeAndValue searchIdAttributeAndValue
+          : GrouperUtil.nonNull(requestedTargetGroup.getSearchIdAttributeNameToValues())) {
+        String searchAttributeName = searchIdAttributeAndValue.getAttributeName();
+        String searchAttributeValue = GrouperUtil.stringValue(searchIdAttributeAndValue.getAttributeValue());
+        if (searchAttributeValue == null) {
+          continue;
+        }
+        for (ProvisioningGroup candidateTargetGroup : allTargetGroups) {
+          if (StringUtils.equals(searchAttributeValue,
+              retrieveTargetGroupSearchValue(candidateTargetGroup, searchAttributeName))) {
+            matchedTargetGroup = candidateTargetGroup;
+            break MATCH;
+          }
+        }
+      }
+
+      if (matchedTargetGroup == null) {
+        continue;
+      }
+
+      Object matchedTargetNativeGroup = allTargetGroupToNativeGroup == null
+          ? null : allTargetGroupToNativeGroup.get(matchedTargetGroup);
+
+      // link the wrapper exactly like the single-group path (retrieveGroupHelper); never clobber
+      // an existing link
+      ProvisioningGroupWrapper provisioningGroupWrapper = requestedTargetGroup.getProvisioningGroupWrapper();
+      if (provisioningGroupWrapper != null && provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+        provisioningGroupWrapper.setTargetProvisioningGroup(matchedTargetGroup);
+        matchedTargetGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
+        provisioningGroupWrapper.setTargetNativeGroup(matchedTargetNativeGroup);
+      }
+
+      targetDaoRetrieveGroupsResponse.getTargetGroups().add(matchedTargetGroup);
+      if (matchedTargetNativeGroup != null) {
+        targetDaoRetrieveGroupsResponse.getTargetGroupToTargetNativeGroup().put(matchedTargetGroup, matchedTargetNativeGroup);
+      }
+    }
+  }
+
+  /**
+   * Read a target group's value for a named search attribute, used to match requested groups
+   * against the full list in {@link #retrieveGroupsFromRetrieveAllGroups}: {@code "id"} maps to
+   * the target id, {@code "name"} to the group name, anything else to the group's translated
+   * attribute value.
+   *
+   * @param provisioningGroup candidate target group from retrieveAllGroups
+   * @param searchAttributeName the search attribute being matched on
+   * @return the candidate's value for that attribute, or null
+   */
+  private static String retrieveTargetGroupSearchValue(ProvisioningGroup provisioningGroup, String searchAttributeName) {
+    if (provisioningGroup == null || searchAttributeName == null) {
+      return null;
+    }
+    if (StringUtils.equals("id", searchAttributeName)) {
+      return provisioningGroup.getId();
+    }
+    if (StringUtils.equals("name", searchAttributeName)) {
+      return provisioningGroup.getName();
+    }
+    return provisioningGroup.retrieveAttributeValueString(searchAttributeName);
   }
 
 

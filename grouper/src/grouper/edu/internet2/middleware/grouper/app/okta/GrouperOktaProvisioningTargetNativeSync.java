@@ -6,6 +6,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningNativeAttributeConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeGroup;
@@ -16,39 +20,74 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Okta-specific {@link GrouperProvisioningTargetNativeSync}: builds native target reporting
- * beans directly from the {@link GrouperOktaUser} / {@link GrouperOktaGroup} typed beans
- * returned by {@code GrouperOktaApiCommands}.
+ * beans for sync-back to the generic grouper_prov_group / grouper_prov_user tables.
  *
- * <p>Like Adobe, Okta target objects are typed Java beans, so attribute capture is a small
- * switch on attribute name &rarr; bean getter. The {@code path} field on
- * {@link GrouperProvisioningNativeAttributeConfig} is ignored for Okta; only {@code name}
- * is meaningful.
+ * <p>Both <b>groups</b> and <b>users</b> are captured from the raw Okta JSON (JSON Pointer paths,
+ * like SCIM/Adobe), hooked at the API-commands seam ({@code GrouperOktaApiCommands.retrieveOktaGroups}
+ * / {@code retrieveOktaGroup} and {@code retrieveOktaUsers} / {@code retrieveOktaUser} /
+ * {@code retrieveOktaUserById}) where the full JSON node is in scope. This avoids losing any Okta
+ * field that the {@link GrouperOktaGroup} / {@link GrouperOktaUser} typed beans do not model;
+ * operators can capture any JSON field via {@code nativeAttributesGroups} /
+ * {@code nativeAttributesEntities} with a {@code name} and optional JSON-Pointer {@code path}.
  *
- * <p>Capture is hooked at the DAO level (not at the API-commands seam like SCIM) because
- * the DAO is where Okta responses are already converted to typed beans.
+ * <p><b>Okta objects are NESTED</b>: a group's identity id lives at the top level ({@code /id}) but
+ * its descriptive fields live under {@code profile} ({@code /profile/name},
+ * {@code /profile/description}); likewise a user's id is at {@code /id}, its lifecycle status at
+ * {@code /status}, and its descriptive fields under {@code profile} ({@code /profile/login},
+ * {@code /profile/email}, {@code /profile/firstName}, ...). The default capture pointers therefore
+ * reach into {@code /profile/*}, matching exactly what {@link GrouperOktaGroup#fromJson} /
+ * {@link GrouperOktaUser#fromJson} read.
+ *
+ * <p>Memberships are still derived group-centrically from the per-group member-id fetch during DAO
+ * translation ({@link #captureMembershipsForGroup}); only the group/user object capture is
+ * JSON-based. Okta has no retrieve-all-memberships call, so the per-group member fetch is the only
+ * read-path place both ids are co-located -- the same situation as Adobe/Google, so the membership
+ * capture path is unchanged.
  */
 public class GrouperOktaProvisioningTargetNativeSync extends GrouperProvisioningTargetNativeSync {
 
   /**
    * Default per-attribute capture list for Okta users when {@code nativeAttributesEntities}
-   * is not configured. Excludes {@code id} (already the target_user_id column).
+   * is not configured. JSON-Pointer based (reads the raw Okta user JSON). The user's descriptive
+   * fields are NESTED under {@code profile}, so the pointers reach {@code /profile/*}. Excludes
+   * {@code id} (already the target_user_id column). Operators can capture any other Okta user JSON
+   * field (firstName, lastName, the top-level status, ...) via {@code nativeAttributesEntities}
+   * with a {@code name} and optional {@code path}.
    */
   private static final List<GrouperProvisioningNativeAttributeConfig> DEFAULT_ENTITY_ATTRS =
       Collections.unmodifiableList(Arrays.asList(
-          attrConfig("login"),
-          attrConfig("email")));
+          // Okta nests these under "profile"; same values GrouperOktaUser.fromJson reads
+          attrConfigWithPath("login", "/profile/login"),
+          attrConfigWithPath("email", "/profile/email")));
 
   /**
    * Default per-attribute capture list for Okta groups when {@code nativeAttributesGroups}
-   * is not configured. Excludes {@code id} (already target_group_id).
+   * is not configured. JSON-Pointer based (the group path reads the raw Okta JSON). The group's
+   * descriptive fields are NESTED under {@code profile}, so the pointers reach {@code /profile/*}.
+   * Excludes {@code id} (already the target_group_id column). Operators can configure any other
+   * Okta group JSON field via {@code nativeAttributesGroups} with a {@code name} (and optional
+   * {@code path}), since capture now reads the full JSON rather than the typed bean.
    */
   private static final List<GrouperProvisioningNativeAttributeConfig> DEFAULT_GROUP_ATTRS =
       Collections.unmodifiableList(Arrays.asList(
-          attrConfig("name")));
+          // Okta nests these under "profile"; same values GrouperOktaGroup.fromJson reads
+          attrConfigWithPath("name", "/profile/name"),
+          attrConfigWithPath("description", "/profile/description")));
 
   private static GrouperProvisioningNativeAttributeConfig attrConfig(String name) {
+    return attrConfigWithPath(name, null);
+  }
+
+  /**
+   * Build a native-attribute config with an explicit JSON Pointer {@code path}. When {@code path}
+   * is null the JSON path defaults to {@code "/" + name} (see {@link #populateAttributesFromJson}).
+   * Okta fields live under {@code profile}, so most defaults supply an explicit
+   * {@code /profile/...} path rather than relying on the {@code "/" + name} fallback.
+   */
+  private static GrouperProvisioningNativeAttributeConfig attrConfigWithPath(String name, String path) {
     GrouperProvisioningNativeAttributeConfig cfg = new GrouperProvisioningNativeAttributeConfig();
     cfg.setName(name);
+    cfg.setPath(path);
     return cfg;
   }
 
@@ -62,98 +101,142 @@ public class GrouperOktaProvisioningTargetNativeSync extends GrouperProvisioning
     return DEFAULT_GROUP_ATTRS;
   }
 
-  // ----- build (typed bean -> native-reporting bean) ----------------------------------
+  // ----- build (raw Okta JSON -> native-reporting bean) --------------------------------
 
-  /** Build a native group bean from an Okta group. {@code targetId} is the Okta id. */
-  public GrouperProvisioningTargetNativeGroup buildNativeGroupFromOktaGroup(GrouperOktaGroup grouperOktaGroup) {
-    if (grouperOktaGroup == null || grouperOktaGroup.getId() == null) {
+  /**
+   * Build a native group bean from the raw Okta group JSON. {@code targetId} is read from the
+   * top-level {@code /id} (the same field {@link GrouperOktaGroup#fromJson} uses for the id); the
+   * attributes map is populated for each entry in {@link #effectiveNativeAttributeConfigsGroups()}
+   * (operator-configured or default) by JSON Pointer, which for the defaults reaches into
+   * {@code /profile/*}. Returns null when the JSON is missing or has no {@code id}.
+   */
+  public GrouperProvisioningTargetNativeGroup buildNativeGroupFromJson(JsonNode groupNode) {
+    if (groupNode == null || groupNode.isMissingNode()) {
+      return null;
+    }
+    String targetId = resolveScalarAsString(groupNode, "/id");
+    if (targetId == null) {
       return null;
     }
     GrouperProvisioningTargetNativeGroup bean = new GrouperProvisioningTargetNativeGroup();
-    bean.setTargetId(grouperOktaGroup.getId());
-    populateGroupAttributes(bean.getAttributes(), grouperOktaGroup, effectiveNativeAttributeConfigsGroups());
+    bean.setTargetId(targetId);
+    populateAttributesFromJson(bean.getAttributes(), groupNode, effectiveNativeAttributeConfigsGroups());
     return bean;
-  }
-
-  /** Build a native user bean from an Okta user. {@code targetId} is the Okta id. */
-  public GrouperProvisioningTargetNativeUser buildNativeUserFromOktaUser(GrouperOktaUser grouperOktaUser) {
-    if (grouperOktaUser == null || grouperOktaUser.getId() == null) {
-      return null;
-    }
-    GrouperProvisioningTargetNativeUser bean = new GrouperProvisioningTargetNativeUser();
-    bean.setTargetId(grouperOktaUser.getId());
-    populateUserAttributes(bean.getAttributes(), grouperOktaUser, effectiveNativeAttributeConfigsEntities());
-    return bean;
-  }
-
-  private static void populateGroupAttributes(
-      Map<String, Object> destinationAttributes,
-      GrouperOktaGroup grouperOktaGroup,
-      List<GrouperProvisioningNativeAttributeConfig> nativeAttributeConfigs) {
-    for (GrouperProvisioningNativeAttributeConfig cfg : GrouperUtil.nonNull(nativeAttributeConfigs)) {
-      Object value = resolveGroupAttribute(grouperOktaGroup, cfg.getName());
-      if (value != null) {
-        destinationAttributes.put(cfg.getName(), value);
-      }
-    }
-  }
-
-  private static void populateUserAttributes(
-      Map<String, Object> destinationAttributes,
-      GrouperOktaUser grouperOktaUser,
-      List<GrouperProvisioningNativeAttributeConfig> nativeAttributeConfigs) {
-    for (GrouperProvisioningNativeAttributeConfig cfg : GrouperUtil.nonNull(nativeAttributeConfigs)) {
-      Object value = resolveUserAttribute(grouperOktaUser, cfg.getName());
-      if (value != null) {
-        destinationAttributes.put(cfg.getName(), value);
-      }
-    }
   }
 
   /**
-   * Resolve a named attribute from an Okta group bean. Unknown attribute names return
-   * null (silently skipped &mdash; validation already catches bad config).
+   * Build a native user bean from the raw Okta user JSON. {@code targetId} is read from the
+   * top-level {@code /id} (the same field {@link GrouperOktaUser#fromJson} uses for the id); the
+   * attributes map is populated for each entry in {@link #effectiveNativeAttributeConfigsEntities()}
+   * (operator-configured or default) by JSON Pointer, which for the defaults reaches into
+   * {@code /profile/*}. Returns null when the JSON is missing or has no {@code id}.
    */
-  private static Object resolveGroupAttribute(GrouperOktaGroup grouperOktaGroup, String attributeName) {
-    if (grouperOktaGroup == null || attributeName == null) {
+  public GrouperProvisioningTargetNativeUser buildNativeUserFromJson(JsonNode userNode) {
+    if (userNode == null || userNode.isMissingNode()) {
       return null;
     }
-    switch (attributeName) {
-      case "name":        return grouperOktaGroup.getName();
-      case "description": return grouperOktaGroup.getDescription();
-      default:            return null;
+    String targetId = resolveScalarAsString(userNode, "/id");
+    if (targetId == null) {
+      return null;
+    }
+    GrouperProvisioningTargetNativeUser bean = new GrouperProvisioningTargetNativeUser();
+    bean.setTargetId(targetId);
+    populateAttributesFromJson(bean.getAttributes(), userNode, effectiveNativeAttributeConfigsEntities());
+    return bean;
+  }
+
+  /**
+   * For each attribute config, resolve its JSON Pointer ({@code path}, or {@code "/" + name})
+   * against the raw Okta JSON (group or user) and put the coerced value under {@code cfg.getName()}.
+   * Missing / null nodes are skipped (no attribute row written). Note the Okta defaults supply an
+   * explicit {@code /profile/...} path, so the {@code "/" + name} fallback only applies to
+   * operator-configured top-level fields (e.g. {@code /status}).
+   */
+  private static void populateAttributesFromJson(
+      Map<String, Object> destinationAttributes,
+      JsonNode resourceNode,
+      List<GrouperProvisioningNativeAttributeConfig> nativeAttributeConfigs) {
+    if (destinationAttributes == null || resourceNode == null) {
+      return;
+    }
+    for (GrouperProvisioningNativeAttributeConfig cfg : GrouperUtil.nonNull(nativeAttributeConfigs)) {
+      // JSON Pointer per RFC 6901: explicit path wins, else "/" + name (e.g. /status)
+      String pointer = StringUtils.defaultIfBlank(cfg.getPath(), "/" + cfg.getName());
+      JsonNode node = resourceNode.at(pointer);
+      if (node == null || node.isMissingNode() || node.isNull()) {
+        continue;
+      }
+      Object value = coerceJsonValue(node, cfg.getType());
+      if (value != null) {
+        destinationAttributes.put(cfg.getName(), value);
+      }
     }
   }
 
-  /** see {@link #resolveGroupAttribute} */
-  private static Object resolveUserAttribute(GrouperOktaUser grouperOktaUser, String attributeName) {
-    if (grouperOktaUser == null || attributeName == null) {
+  private static String resolveScalarAsString(JsonNode resourceNode, String jsonPointer) {
+    if (resourceNode == null) {
       return null;
     }
-    switch (attributeName) {
-      case "login":     return grouperOktaUser.getLogin();
-      case "email":     return grouperOktaUser.getEmail();
-      case "firstName": return grouperOktaUser.getFirstName();
-      case "lastName":  return grouperOktaUser.getLastName();
-      default:          return null;
+    JsonNode node = resourceNode.at(jsonPointer);
+    if (node == null || node.isMissingNode() || node.isNull()) {
+      return null;
     }
+    return node.asText();
+  }
+
+  /**
+   * Coerce a JsonNode to a scalar Object for storage in the attribute map. The declared type
+   * ({@code "string"|"integer"|"boolean"|"timestamp"}) wins when present; otherwise the node's
+   * intrinsic JSON type drives the choice.
+   */
+  private static Object coerceJsonValue(JsonNode node, String declaredType) {
+    if (node == null || node.isMissingNode() || node.isNull()) {
+      return null;
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "integer")) {
+      return Long.valueOf(node.asLong());
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "boolean")) {
+      return Boolean.valueOf(node.asBoolean());
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "timestamp")) {
+      // store as the source string; downstream coercion handled by the dictionary path
+      return node.asText();
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "string")) {
+      return node.asText();
+    }
+    // auto-detect by intrinsic JSON type
+    if (node.isBoolean()) {
+      return Boolean.valueOf(node.asBoolean());
+    }
+    if (node.isIntegralNumber()) {
+      return Long.valueOf(node.asLong());
+    }
+    if (node.isNumber()) {
+      return Double.valueOf(node.asDouble());
+    }
+    return node.asText();
   }
 
   // ----- capture convenience (build + record) -----------------------------------------
 
-  /** Build + record an Okta group. No-op when sync-back is off or group is null/idless. */
-  public void captureGroup(GrouperOktaGroup grouperOktaGroup) {
-    this.recordTargetNativeGroup(this.buildNativeGroupFromOktaGroup(grouperOktaGroup));
+  /** Build + record an Okta group from its raw JSON. No-op when sync-back is off or id-less. */
+  public void captureGroupJson(JsonNode groupNode) {
+    this.recordTargetNativeGroup(this.buildNativeGroupFromJson(groupNode));
   }
 
-  /** Build + record an Okta user. No-op when sync-back is off or user is null/idless. */
-  public void captureUser(GrouperOktaUser grouperOktaUser) {
-    this.recordTargetNativeUser(this.buildNativeUserFromOktaUser(grouperOktaUser));
+  /** Build + record an Okta user from its raw JSON. No-op when sync-back is off or id-less. */
+  public void captureUserJson(JsonNode userNode) {
+    this.recordTargetNativeUser(this.buildNativeUserFromJson(userNode));
   }
 
   /**
    * Build native membership beans for all member user ids in the supplied group, and record
-   * them. No-op if reporting is off or the input is empty.
+   * them. No-op if reporting is off or the input is empty. Okta membership is group-centric: the
+   * member ids come from the per-group member fetch during DAO translation, not from the group
+   * object's JSON (the object does not carry its members), so this path is untouched by the move
+   * to raw-JSON object capture.
    */
   public void captureMembershipsForGroup(String targetGroupId, Iterable<String> targetUserIds) {
     if (targetGroupId == null || targetUserIds == null) {
@@ -173,31 +256,40 @@ public class GrouperOktaProvisioningTargetNativeSync extends GrouperProvisioning
     this.recordTargetNativeMemberships(memberships);
   }
 
-  // ----- static dispatchers (called from GrouperOktaTargetDao) ------------------------
+  // ----- static dispatchers (called from GrouperOktaApiCommands / GrouperOktaTargetDao) -----
 
   /**
-   * Capture an Okta group against the current provisioner's sync. No-op if there's no
-   * current provisioner or the active provisioner isn't an Okta one.
+   * Capture an Okta group (from its raw JSON) against the current provisioner's sync. No-op if
+   * there's no current provisioner or the active provisioner isn't an Okta one. Called from the
+   * commands seam ({@code GrouperOktaApiCommands.retrieveOktaGroups} / {@code retrieveOktaGroup})
+   * for every group read.
    */
-  public static void captureGroupFromCurrentProvisioner(GrouperOktaGroup grouperOktaGroup) {
+  public static void captureGroupJsonFromCurrentProvisioner(JsonNode groupNode) {
     GrouperOktaProvisioningTargetNativeSync oktaSync = oktaSyncForCurrentProvisioner();
     if (oktaSync == null) {
       return;
     }
-    oktaSync.captureGroup(grouperOktaGroup);
-  }
-
-  /** Capture an Okta user against the current provisioner's sync. */
-  public static void captureUserFromCurrentProvisioner(GrouperOktaUser grouperOktaUser) {
-    GrouperOktaProvisioningTargetNativeSync oktaSync = oktaSyncForCurrentProvisioner();
-    if (oktaSync == null) {
-      return;
-    }
-    oktaSync.captureUser(grouperOktaUser);
+    oktaSync.captureGroupJson(groupNode);
   }
 
   /**
-   * Record memberships for a given target group id against the current provisioner's sync.
+   * Capture an Okta user (from its raw JSON) against the current provisioner's sync. No-op if
+   * there's no current provisioner or the active provisioner isn't an Okta one. Called from the
+   * commands seam ({@code GrouperOktaApiCommands.retrieveOktaUsers} / {@code retrieveOktaUser} /
+   * {@code retrieveOktaUserById}).
+   */
+  public static void captureUserJsonFromCurrentProvisioner(JsonNode userNode) {
+    GrouperOktaProvisioningTargetNativeSync oktaSync = oktaSyncForCurrentProvisioner();
+    if (oktaSync == null) {
+      return;
+    }
+    oktaSync.captureUserJson(userNode);
+  }
+
+  /**
+   * Record memberships for a given target group id against the current provisioner's sync. Okta
+   * membership is group-centric and derived during DAO translation, so this stays a typed dispatch
+   * (the ids are plain strings, not JSON) -- only the group/user object capture moved to raw JSON.
    */
   public static void captureMembershipsForGroupForCurrentProvisioner(
       String targetGroupId, Iterable<String> targetUserIds) {

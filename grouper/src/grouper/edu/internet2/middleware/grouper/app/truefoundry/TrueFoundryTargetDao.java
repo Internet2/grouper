@@ -160,8 +160,9 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
         if (StringUtils.isNotBlank(user.getEmail()) && StringUtils.isNotBlank(user.getId())) {
           emailToNativeId.put(user.getEmail(), user.getId());
         }
-        // generic provisioner sync back: capture native user while the bean is in scope
-        TrueFoundryProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(user);
+        // generic provisioner sync-back: the native user is now captured from the raw JSON at the
+        // TrueFoundryApiCommands.retrieveSubjectsData read seam (full fidelity), not from this
+        // typed bean.
       }
       targetData.setProvisioningEntities(provisioningEntities);
 
@@ -171,15 +172,17 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       List<TrueFoundryGroup> roles = TrueFoundryApiCommands.retrieveRoles(configId, settings);
       for (TrueFoundryGroup role : GrouperUtil.nonNull(roles)) {
         provisioningGroups.add(role.toProvisioningGroup());
-        // generic provisioner sync back: capture native role while the bean is in scope
-        TrueFoundryProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(role);
+        // generic provisioner sync-back: the native role (a TrueFoundry "group") is now captured
+        // from the raw JSON at the TrueFoundryApiCommands.retrieveRoles read seam, not this bean.
       }
 
       for (TrueFoundryGroup team : GrouperUtil.nonNull(subjectsData.teams)) {
         provisioningGroups.add(team.toProvisioningGroup());
-        // generic provisioner sync back: capture native team + its embedded member list
-        // (team manifests carry member emails; translate to native ids via emailToNativeId)
-        TrueFoundryProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(team);
+        // generic provisioner sync-back: the native team (a TrueFoundry "group") object is now
+        // captured from the raw JSON at the TrueFoundryApiCommands.retrieveSubjectsData read seam.
+        // Memberships stay here: TrueFoundry membership is group-centric (team manifests carry
+        // member emails; translate to native ids via emailToNativeId), derived from the typed bean
+        // during DAO translation.
         TrueFoundryProvisioningTargetNativeSync.captureMembershipsFromGroupForCurrentProvisioner(
             team, emailToNativeId);
       }
@@ -267,10 +270,9 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       }
 
       ProvisioningEntity targetEntity = foundUser == null ? null : foundUser.toProvisioningEntity();
-      if (foundUser != null) {
-        // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
-        TrueFoundryProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(foundUser);
-      }
+      // generic provisioner sync-back: the scoped single-user read (!selectAllEntities and
+      // incremental) now captures the native user from the raw JSON at the
+      // TrueFoundryApiCommands.retrieveUserByEmail read seam, not from this typed bean.
       return new TargetDaoRetrieveEntityResponse(targetEntity);
 
     } finally {
@@ -335,10 +337,12 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
 
       ProvisioningGroup targetGroup = foundGroup == null ? null : foundGroup.toProvisioningGroup();
       if (foundGroup != null) {
-        // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
-        TrueFoundryProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(foundGroup);
-        // also capture embedded team memberships using the email -> target-user-id index built
-        // from native users captured by prior scoped retrieveEntity calls in this pass.
+        // generic provisioner sync-back: the scoped single-group read (!selectAllGroups and
+        // incremental) now captures the native group object from the raw JSON at the
+        // TrueFoundryApiCommands read seam (getTeamById / retrieveTeams / retrieveRoles), not here.
+        // Memberships stay: TrueFoundry membership is group-centric. Capture embedded team
+        // memberships using the email -> target-user-id index built from native users captured by
+        // prior scoped retrieveEntity calls in this pass.
         if (TrueFoundryGroup.GROUP_TYPE_TEAM.equals(groupType)) {
           TrueFoundryProvisioningTargetNativeSync
               .captureMembershipsFromGroupForCurrentProvisionerUsingCapturedUsers(foundGroup);
@@ -1043,7 +1047,9 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
-    // read path captures TrueFoundryUser/Group beans through TrueFoundryProvisioningTargetNativeSync.record*
+    // read path captures groups/users from raw JSON at the TrueFoundryApiCommands read seam
+    // (TrueFoundryProvisioningTargetNativeSync.capture*JsonFromCurrentProvisioner); group-centric
+    // team memberships are captured from the typed bean during DAO translation
     grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 

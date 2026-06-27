@@ -128,8 +128,8 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       for (TeamDynamixGroup teamDynamixGroup : teamDynamixGroups) {
         ProvisioningGroup targetGroup = teamDynamixGroup.toProvisioningGroup();
         results.add(targetGroup);
-        // generic provisioner sync back: capture native group while the bean is in scope
-        TeamDynamixProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(teamDynamixGroup);
+        // generic provisioner sync back: the native group is now captured from the raw JSON at the
+        // TeamDynamixApiCommands.retrieveTeamDynamixGroups read seam (full fidelity), not here.
       }
 
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -161,8 +161,8 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       for (TeamDynamixUser teamDynamixUser : teamDynamixUsers) {
         ProvisioningEntity targetEntity = teamDynamixUser.toProvisioningEntity();
         results.add(targetEntity);
-        // generic provisioner sync back: capture native user while the bean is in scope
-        TeamDynamixProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(teamDynamixUser);
+        // generic provisioner sync back: the native user is now captured from the raw JSON at the
+        // TeamDynamixApiCommands.retrieveTeamDynamixUsers read seam (full fidelity), not here.
       }
 
       return new TargetDaoRetrieveAllEntitiesResponse(results);
@@ -430,10 +430,10 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningEntity targetEntity = teamDynamixUser == null ? null
           : teamDynamixUser.toProvisioningEntity();
 
-      // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
-      if (teamDynamixUser != null) {
-        TeamDynamixProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(teamDynamixUser);
-      }
+      // generic provisioner sync back: the scoped retrieve path (!selectAllEntities and
+      // incremental) now captures the native user from the raw JSON at the TeamDynamixApiCommands
+      // read seam (retrieveTeamDynamixUser by id / retrieveTeamDynamixUserBySearchTerm by
+      // ExternalID), not here.
 
       TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = new TargetDaoRetrieveEntityResponse(targetEntity);
       if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
@@ -474,10 +474,9 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
 
       ProvisioningGroup targetGroup = teamDynamixGroup == null ? null : teamDynamixGroup.toProvisioningGroup();
 
-      // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
-      if (teamDynamixGroup != null) {
-        TeamDynamixProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(teamDynamixGroup);
-      }
+      // generic provisioner sync back: the scoped retrieve path (!selectAllGroups and incremental)
+      // now captures the native group from the raw JSON at the TeamDynamixApiCommands read seam
+      // (retrieveTeamDynamixGroup by id / retrieveTeamDynamixGroupByName by Name), not here.
 
       return new TargetDaoRetrieveGroupResponse(targetGroup);
 

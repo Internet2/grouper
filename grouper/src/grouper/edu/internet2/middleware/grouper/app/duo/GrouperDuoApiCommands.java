@@ -584,18 +584,22 @@ public class GrouperDuoApiCommands {
           JsonNode groupNode = groupsArray.get(i);
           GrouperDuoGroup grouperDuoGroup = GrouperDuoGroup.fromJson(groupNode);
           results.add(grouperDuoGroup);
+          // generic provisioner sync-back: register the group from the raw JSON (full fidelity,
+          // not the lossy typed bean) while the JSON node is in scope. No-op outside a Duo
+          // provisioning cycle.
+          GrouperDuoProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
         }
-        
+
         JsonNode metadata = jsonNode.get("metadata");
-        
+
         if (metadata != null && metadata.get("next_offset") != null && groupsArray.size() >= limit) {
           offset = metadata.get("next_offset").asInt();
         } else {
           offset = -1;
         }
-        
+
       }
-      
+
       debugMap.put("size", GrouperClientUtils.length(results));
 
       return results;
@@ -628,6 +632,10 @@ public class GrouperDuoApiCommands {
         return new ArrayList<GrouperDuoGroup>();
       }
       GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, false);
+
+      // generic provisioner sync-back: register the user from the raw JSON while the node is in
+      // scope (this is a real user read, fetched to obtain its groups). No-op outside a Duo cycle.
+      GrouperDuoProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
 
       return new ArrayList<GrouperDuoGroup>(grouperDuoUser.getGroups());
     } catch (RuntimeException re) {
@@ -667,20 +675,23 @@ public class GrouperDuoApiCommands {
           JsonNode userNode = usersArray.get(i);
           GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, false);
           results.add(grouperDuoUser);
+          // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
+          // not the lossy typed bean) while the JSON node is in scope. No-op outside a Duo cycle.
+          GrouperDuoProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
         }
-        
+
         JsonNode metadata = jsonNode.get("metadata");
-        
+
         if (metadata != null && metadata.get("next_offset") != null && usersArray.size() >= limit) {
           offset = metadata.get("next_offset").asInt();
         } else {
           offset = -1;
         }
-        
+
       }
-      
+
       debugMap.put("size", GrouperClientUtils.length(results));
-      
+
       return results;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -722,6 +733,10 @@ public class GrouperDuoApiCommands {
         return null;
       }
       GrouperDuoGroup grouperDuoGroup = GrouperDuoGroup.fromJson(groupNode);
+
+      // generic provisioner sync-back: register the group from the raw JSON (scoped by-id read)
+      // while the JSON node is in scope. No-op outside a Duo provisioning cycle.
+      GrouperDuoProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
 
       return grouperDuoGroup;
     } catch (RuntimeException re) {
@@ -886,16 +901,19 @@ public class GrouperDuoApiCommands {
           JsonNode userNode = usersArray.get(i);
           GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, includeLoadedFields);
           results.add(grouperDuoUser);
+          // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
+          // not the lossy typed bean) while the JSON node is in scope. No-op outside a Duo cycle.
+          GrouperDuoProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
         }
-        
+
         JsonNode metadata = jsonNode.get("metadata");
-        
+
         if (metadata != null && metadata.get("next_offset") != null) {
           offset = metadata.get("next_offset").asInt();
         } else {
           offset = -1;
         }
-        
+
       }
       debugMap.put("size", GrouperClientUtils.length(results));
 
@@ -936,6 +954,10 @@ public class GrouperDuoApiCommands {
       }
       GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, false);
 
+      // generic provisioner sync-back: register the user from the raw JSON (scoped by-id read)
+      // while the JSON node is in scope. No-op outside a Duo provisioning cycle.
+      GrouperDuoProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
+
       return grouperDuoUser;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -968,6 +990,11 @@ public class GrouperDuoApiCommands {
       return null;
     }
     GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, includeLoadedFields);
+
+    // generic provisioner sync-back: register the user from the raw JSON (scoped read-by-name)
+    // while the JSON node is in scope. No-op outside a Duo provisioning cycle.
+    GrouperDuoProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
+
     return grouperDuoUser;
 
   }

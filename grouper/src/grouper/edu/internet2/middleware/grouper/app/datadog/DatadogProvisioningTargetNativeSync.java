@@ -6,6 +6,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningNativeAttributeConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTargetNativeGroup;
@@ -16,43 +21,76 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Datadog-specific {@link GrouperProvisioningTargetNativeSync}: builds native target reporting
- * beans directly from the {@link DatadogUser} / {@link DatadogGroup} typed beans returned by
- * {@code DatadogApiCommands}.
+ * beans for sync-back to the generic grouper_prov_group / grouper_prov_user tables.
  *
- * <p>Unlike SCIM (JSON Pointer paths) or LDAP (raw entry attributes), Datadog target objects
- * are typed Java beans, so attribute capture is a small switch on attribute name -&gt; bean
- * getter. The {@code path} field on {@link GrouperProvisioningNativeAttributeConfig} is
- * ignored for Datadog; only {@code name} is meaningful.
+ * <p>Both <b>groups</b> and <b>users</b> are captured from the raw Datadog JSON (JSON Pointer paths,
+ * like SCIM/Adobe), hooked at the API-commands seam ({@code DatadogApiCommands.retrieveRoles}/
+ * {@code retrieveTeams}/{@code retrieveUsers}/{@code retrieveUserByEmail}/{@code getRoleUsers})
+ * where the full JSON node is in scope. This avoids losing any Datadog field that the
+ * {@link DatadogGroup} / {@link DatadogUser} typed beans do not model; operators can capture any
+ * JSON field via {@code nativeAttributesGroups} / {@code nativeAttributesEntities} with a
+ * {@code name} and optional JSON-Pointer {@code path}.
  *
- * <p>Capture is hooked at the DAO level (not at the API-commands seam like SCIM) because
- * the DAO is where Datadog responses are already converted to typed beans.
+ * <p>Datadog speaks JSON:API, so every object arrives as an <i>envelope</i>
+ * <code>{ "id": ..., "type": ..., "attributes": { ... } }</code>. The capture seam hands this
+ * envelope node straight through, so the default/operator pointers are nested under
+ * {@code /attributes} (e.g. {@code /attributes/name}, {@code /attributes/email}) and the target id
+ * is the top-level {@code /id} -- exactly where {@link DatadogUser#fromJson}/{@link DatadogGroup#fromJson}
+ * read them.
+ *
+ * <p>{@code groupType} ("role" vs "team") is the one default that is <b>not</b> in the Datadog
+ * response JSON -- the commands/DAO set it on the typed bean programmatically based on which
+ * endpoint produced the object. To preserve the old behavior (the typed-bean capture wrote
+ * {@code groupType}), the commands first overlay the known group type onto a shallow copy of the
+ * envelope via {@link #nodeWithGroupType(JsonNode, String)}, so the default pointer
+ * {@code /attributes/groupType} resolves. This mirrors the merged-JSON capture used by the Google
+ * connector (which assembles a group from two reads before capturing).
+ *
+ * <p>Memberships are NOT captured from JSON here: the Datadog sync-back never had a membership
+ * capture path off the read JSON (the team-membership and role-user beans are recorded by the DAO
+ * via {@link #captureTeamMemberships} / {@link #captureRoleMemberships}), and those typed-bean
+ * membership helpers are unchanged.
  */
 public class DatadogProvisioningTargetNativeSync extends GrouperProvisioningTargetNativeSync {
 
   /**
    * Default per-attribute capture list for Datadog users when {@code nativeAttributesEntities}
-   * is not configured. Excludes {@code id} (already the target_user_id column) and unstable
-   * fields.
+   * is not configured. JSON-Pointer based (reads the raw Datadog user JSON:API envelope; the real
+   * fields live under {@code /attributes}). Excludes {@code id} (already the target_user_id column)
+   * and unstable fields. Matches what the old typed-bean capture wrote (handle/email/disabled).
+   * Operators can capture any other Datadog user JSON field (name, title, service_account, ...)
+   * via {@code nativeAttributesEntities} with a {@code name} and optional {@code path}.
    */
   private static final List<GrouperProvisioningNativeAttributeConfig> DEFAULT_ENTITY_ATTRS =
       Collections.unmodifiableList(Arrays.asList(
-          attrConfig("handle"),
-          attrConfig("email"),
-          attrConfig("disabled")));
+          attrConfigWithPath("handle", "/attributes/handle"),
+          attrConfigWithPath("email", "/attributes/email"),
+          attrConfigWithPath("disabled", "/attributes/disabled")));
 
   /**
    * Default per-attribute capture list for Datadog groups when {@code nativeAttributesGroups}
-   * is not configured. Excludes {@code id} (already target_group_id).
+   * is not configured. JSON-Pointer based (the real fields live under {@code /attributes}).
+   * Excludes {@code id} (already the target_group_id column). Matches what the old typed-bean
+   * capture wrote (name/handle/groupType).
+   *
+   * <p>{@code groupType} is not in the Datadog response JSON; the commands overlay it onto the
+   * envelope before capture (see {@link #nodeWithGroupType(JsonNode, String)}), so the
+   * {@code /attributes/groupType} pointer resolves to that injected value.
    */
   private static final List<GrouperProvisioningNativeAttributeConfig> DEFAULT_GROUP_ATTRS =
       Collections.unmodifiableList(Arrays.asList(
-          attrConfig("name"),
-          attrConfig("handle"),
-          attrConfig("groupType")));
+          attrConfigWithPath("name", "/attributes/name"),
+          attrConfigWithPath("handle", "/attributes/handle"),
+          attrConfigWithPath("groupType", "/attributes/groupType")));
 
-  private static GrouperProvisioningNativeAttributeConfig attrConfig(String name) {
+  /**
+   * Build a native-attribute config with an explicit JSON Pointer {@code path}. When {@code path}
+   * is null the JSON path defaults to {@code "/" + name} (see {@link #populateAttributesFromJson}).
+   */
+  private static GrouperProvisioningNativeAttributeConfig attrConfigWithPath(String name, String path) {
     GrouperProvisioningNativeAttributeConfig cfg = new GrouperProvisioningNativeAttributeConfig();
     cfg.setName(name);
+    cfg.setPath(path);
     return cfg;
   }
 
@@ -66,103 +104,175 @@ public class DatadogProvisioningTargetNativeSync extends GrouperProvisioningTarg
     return DEFAULT_GROUP_ATTRS;
   }
 
-  // ----- build (typed bean -> native-reporting bean) -----------------------------------
+  // ----- build (raw Datadog JSON:API envelope -> native-reporting bean) -----------------
 
-  /** Build a native group bean from a Datadog group. {@code targetId} is the Datadog id. */
-  public GrouperProvisioningTargetNativeGroup buildNativeGroupFromDatadogGroup(DatadogGroup datadogGroup) {
-    if (datadogGroup == null || datadogGroup.getId() == null) {
+  /**
+   * Build a native group bean from the raw Datadog group JSON:API envelope. {@code targetId} is
+   * read from the top-level {@code /id}; the attributes map is populated for each entry in
+   * {@link #effectiveNativeAttributeConfigsGroups()} (operator-configured or default) by JSON
+   * Pointer (defaults nested under {@code /attributes}). Returns null when the JSON is missing or
+   * has no {@code id}.
+   */
+  public GrouperProvisioningTargetNativeGroup buildNativeGroupFromJson(JsonNode groupNode) {
+    if (groupNode == null || groupNode.isMissingNode()) {
+      return null;
+    }
+    String targetId = resolveScalarAsString(groupNode, "/id");
+    if (targetId == null) {
       return null;
     }
     GrouperProvisioningTargetNativeGroup bean = new GrouperProvisioningTargetNativeGroup();
-    bean.setTargetId(datadogGroup.getId());
-    populateGroupAttributes(bean.getAttributes(), datadogGroup, effectiveNativeAttributeConfigsGroups());
+    bean.setTargetId(targetId);
+    populateAttributesFromJson(bean.getAttributes(), groupNode, effectiveNativeAttributeConfigsGroups());
     return bean;
-  }
-
-  /** Build a native user bean from a Datadog user. {@code targetId} is the Datadog id. */
-  public GrouperProvisioningTargetNativeUser buildNativeUserFromDatadogUser(DatadogUser datadogUser) {
-    if (datadogUser == null || datadogUser.getId() == null) {
-      return null;
-    }
-    GrouperProvisioningTargetNativeUser bean = new GrouperProvisioningTargetNativeUser();
-    bean.setTargetId(datadogUser.getId());
-    populateUserAttributes(bean.getAttributes(), datadogUser, effectiveNativeAttributeConfigsEntities());
-    return bean;
-  }
-
-  private static void populateGroupAttributes(
-      Map<String, Object> destinationAttributes,
-      DatadogGroup datadogGroup,
-      List<GrouperProvisioningNativeAttributeConfig> nativeAttributeConfigs) {
-    for (GrouperProvisioningNativeAttributeConfig cfg : GrouperUtil.nonNull(nativeAttributeConfigs)) {
-      Object value = resolveGroupAttribute(datadogGroup, cfg.getName());
-      if (value != null) {
-        destinationAttributes.put(cfg.getName(), value);
-      }
-    }
-  }
-
-  private static void populateUserAttributes(
-      Map<String, Object> destinationAttributes,
-      DatadogUser datadogUser,
-      List<GrouperProvisioningNativeAttributeConfig> nativeAttributeConfigs) {
-    for (GrouperProvisioningNativeAttributeConfig cfg : GrouperUtil.nonNull(nativeAttributeConfigs)) {
-      Object value = resolveUserAttribute(datadogUser, cfg.getName());
-      if (value != null) {
-        destinationAttributes.put(cfg.getName(), value);
-      }
-    }
   }
 
   /**
-   * Resolve a named attribute from a Datadog group bean. Unknown attribute names return null
-   * (silently skipped; validation already catches bad config).
+   * Build a native user bean from the raw Datadog user JSON:API envelope. {@code targetId} is read
+   * from the top-level {@code /id}; the attributes map is populated for each entry in
+   * {@link #effectiveNativeAttributeConfigsEntities()} (operator-configured or default) by JSON
+   * Pointer (defaults nested under {@code /attributes}). Returns null when the JSON is missing or
+   * has no {@code id}.
    */
-  private static Object resolveGroupAttribute(DatadogGroup datadogGroup, String attributeName) {
-    if (datadogGroup == null || attributeName == null) {
+  public GrouperProvisioningTargetNativeUser buildNativeUserFromJson(JsonNode userNode) {
+    if (userNode == null || userNode.isMissingNode()) {
       return null;
     }
-    switch (attributeName) {
-      case "name":        return datadogGroup.getName();
-      case "handle":      return datadogGroup.getHandle();
-      case "description": return datadogGroup.getDescription();
-      case "groupType":   return datadogGroup.getGroupType();
-      default:            return null;
+    String targetId = resolveScalarAsString(userNode, "/id");
+    if (targetId == null) {
+      return null;
+    }
+    GrouperProvisioningTargetNativeUser bean = new GrouperProvisioningTargetNativeUser();
+    bean.setTargetId(targetId);
+    populateAttributesFromJson(bean.getAttributes(), userNode, effectiveNativeAttributeConfigsEntities());
+    return bean;
+  }
+
+  /**
+   * For each attribute config, resolve its JSON Pointer ({@code path}, or {@code "/" + name})
+   * against the raw Datadog JSON (group or user envelope) and put the coerced value under
+   * {@code cfg.getName()}. Missing / null nodes are skipped (no attribute row written).
+   */
+  private static void populateAttributesFromJson(
+      Map<String, Object> destinationAttributes,
+      JsonNode resourceNode,
+      List<GrouperProvisioningNativeAttributeConfig> nativeAttributeConfigs) {
+    if (destinationAttributes == null || resourceNode == null) {
+      return;
+    }
+    for (GrouperProvisioningNativeAttributeConfig cfg : GrouperUtil.nonNull(nativeAttributeConfigs)) {
+      // JSON Pointer per RFC 6901: explicit path wins, else "/" + name (e.g. /attributes/name)
+      String pointer = StringUtils.defaultIfBlank(cfg.getPath(), "/" + cfg.getName());
+      JsonNode node = resourceNode.at(pointer);
+      if (node == null || node.isMissingNode() || node.isNull()) {
+        continue;
+      }
+      Object value = coerceJsonValue(node, cfg.getType());
+      if (value != null) {
+        destinationAttributes.put(cfg.getName(), value);
+      }
     }
   }
 
-  /** see {@link #resolveGroupAttribute} */
-  private static Object resolveUserAttribute(DatadogUser datadogUser, String attributeName) {
-    if (datadogUser == null || attributeName == null) {
+  private static String resolveScalarAsString(JsonNode resourceNode, String jsonPointer) {
+    if (resourceNode == null) {
       return null;
     }
-    switch (attributeName) {
-      case "email":          return datadogUser.getEmail();
-      case "name":           return datadogUser.getName();
-      case "title":          return datadogUser.getTitle();
-      case "handle":         return datadogUser.getHandle();
-      case "disabled":       return datadogUser.getDisabled();
-      case "serviceAccount": return datadogUser.getServiceAccount();
-      default:               return null;
+    JsonNode node = resourceNode.at(jsonPointer);
+    if (node == null || node.isMissingNode() || node.isNull()) {
+      return null;
     }
+    return node.asText();
+  }
+
+  /**
+   * Coerce a JsonNode to a scalar Object for storage in the attribute map. The declared type
+   * ({@code "string"|"integer"|"boolean"|"timestamp"}) wins when present; otherwise the node's
+   * intrinsic JSON type drives the choice.
+   */
+  private static Object coerceJsonValue(JsonNode node, String declaredType) {
+    if (node == null || node.isMissingNode() || node.isNull()) {
+      return null;
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "integer")) {
+      return Long.valueOf(node.asLong());
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "boolean")) {
+      return Boolean.valueOf(node.asBoolean());
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "timestamp")) {
+      // store as the source string; downstream coercion handled by the dictionary path
+      return node.asText();
+    }
+    if (StringUtils.equalsIgnoreCase(declaredType, "string")) {
+      return node.asText();
+    }
+    // auto-detect by intrinsic JSON type
+    if (node.isBoolean()) {
+      return Boolean.valueOf(node.asBoolean());
+    }
+    if (node.isIntegralNumber()) {
+      return Long.valueOf(node.asLong());
+    }
+    if (node.isNumber()) {
+      return Double.valueOf(node.asDouble());
+    }
+    return node.asText();
+  }
+
+  // ----- group-type overlay (the one default not present in the response JSON) ----------
+
+  /**
+   * Return a shallow copy of the Datadog group envelope with {@code groupType} written into its
+   * {@code attributes} object, so the default {@code /attributes/groupType} pointer resolves.
+   * Datadog never returns groupType in the JSON -- the commands know it from which endpoint
+   * (roles vs teams) produced the object and overlay it here before capture, the same way the
+   * Google connector merges two reads into one node before capturing.
+   *
+   * <p>Null-safe: if {@code groupNode} is null or not a JSON object, it is returned unchanged
+   * (the build path will then simply skip the missing groupType). The original node is never
+   * mutated.
+   *
+   * @param groupNode the per-element JSON:API envelope for a role or team
+   * @param groupType "role" or "team", or null/blank to leave the node unchanged
+   * @return a copy with attributes.groupType set, or the original node when not applicable
+   */
+  public static JsonNode nodeWithGroupType(JsonNode groupNode, String groupType) {
+    if (groupNode == null || !groupNode.isObject() || StringUtils.isBlank(groupType)) {
+      return groupNode;
+    }
+    ObjectNode copy = (ObjectNode) groupNode.deepCopy();
+    JsonNode attributesNode = copy.get("attributes");
+    ObjectNode attributesObject;
+    if (attributesNode != null && attributesNode.isObject()) {
+      attributesObject = (ObjectNode) attributesNode;
+    } else {
+      // no attributes object in the envelope (or it is null/array) -- create one so the pointer resolves
+      attributesObject = GrouperUtil.jsonJacksonNode();
+      copy.set("attributes", attributesObject);
+    }
+    attributesObject.put("groupType", groupType);
+    return copy;
   }
 
   // ----- capture convenience (build + record) ------------------------------------------
 
-  /** Build + record a Datadog group. No-op when sync-back is off or group is null/idless. */
-  public void captureGroup(DatadogGroup datadogGroup) {
-    this.recordTargetNativeGroup(this.buildNativeGroupFromDatadogGroup(datadogGroup));
+  /** Build + record a Datadog group from its raw JSON. No-op when sync-back is off or id-less. */
+  public void captureGroupJson(JsonNode groupNode) {
+    this.recordTargetNativeGroup(this.buildNativeGroupFromJson(groupNode));
   }
 
-  /** Build + record a Datadog user. No-op when sync-back is off or user is null/idless. */
-  public void captureUser(DatadogUser datadogUser) {
-    this.recordTargetNativeUser(this.buildNativeUserFromDatadogUser(datadogUser));
+  /** Build + record a Datadog user from its raw JSON. No-op when sync-back is off or id-less. */
+  public void captureUserJson(JsonNode userNode) {
+    this.recordTargetNativeUser(this.buildNativeUserFromJson(userNode));
   }
 
   /**
    * Translate a list of Datadog memberships for a given target group id into native membership
    * beans and record them. No-op if reporting is off or input is empty. Used for team
-   * memberships (DatadogMembership carries the userId).
+   * memberships (DatadogMembership carries the userId). Unchanged by the raw-JSON migration:
+   * Datadog has no membership-from-JSON capture; the membership edges are recorded from the
+   * already-parsed beans.
    */
   public void captureTeamMemberships(String targetGroupId, List<DatadogMembership> datadogMemberships) {
     if (targetGroupId == null || datadogMemberships == null || datadogMemberships.isEmpty()) {
@@ -185,7 +295,7 @@ public class DatadogProvisioningTargetNativeSync extends GrouperProvisioningTarg
   /**
    * Translate a list of Datadog users (role members) for a given target group id into native
    * membership beans and record them. Used for role memberships (the Datadog API returns the
-   * user list directly).
+   * user list directly). Unchanged by the raw-JSON migration.
    */
   public void captureRoleMemberships(String targetGroupId, List<DatadogUser> roleUsers) {
     if (targetGroupId == null || roleUsers == null || roleUsers.isEmpty()) {
@@ -205,27 +315,34 @@ public class DatadogProvisioningTargetNativeSync extends GrouperProvisioningTarg
     this.recordTargetNativeMemberships(memberships);
   }
 
-  // ----- static dispatchers (called from DatadogTargetDao) ------------------------------
+  // ----- static dispatchers (called from the DatadogApiCommands seam) -------------------
 
   /**
-   * Capture a Datadog group against the current provisioner's sync. No-op if there's no
-   * current provisioner or the active provisioner isn't a Datadog one.
+   * Capture a Datadog group (from its raw JSON:API envelope) against the current provisioner's
+   * sync. No-op if there's no current provisioner or the active provisioner isn't a Datadog one.
+   * Called from the commands seam ({@code retrieveRoles}/{@code retrieveTeams}/{@code retrieveGroup})
+   * for every role/team read. The envelope should already carry {@code groupType} via
+   * {@link #nodeWithGroupType(JsonNode, String)}.
    */
-  public static void captureGroupFromCurrentProvisioner(DatadogGroup datadogGroup) {
+  public static void captureGroupJsonFromCurrentProvisioner(JsonNode groupNode) {
     DatadogProvisioningTargetNativeSync sync = datadogSyncForCurrentProvisioner();
     if (sync == null) {
       return;
     }
-    sync.captureGroup(datadogGroup);
+    sync.captureGroupJson(groupNode);
   }
 
-  /** Capture a Datadog user against the current provisioner's sync. */
-  public static void captureUserFromCurrentProvisioner(DatadogUser datadogUser) {
+  /**
+   * Capture a Datadog user (from its raw JSON:API envelope) against the current provisioner's sync.
+   * No-op if there's no current provisioner or the active provisioner isn't a Datadog one. Called
+   * from the commands seam ({@code retrieveUsers}/{@code retrieveUserByEmail}/{@code getRoleUsers}).
+   */
+  public static void captureUserJsonFromCurrentProvisioner(JsonNode userNode) {
     DatadogProvisioningTargetNativeSync sync = datadogSyncForCurrentProvisioner();
     if (sync == null) {
       return;
     }
-    sync.captureUser(datadogUser);
+    sync.captureUserJson(userNode);
   }
 
   /** Capture team memberships against the current provisioner's sync. */

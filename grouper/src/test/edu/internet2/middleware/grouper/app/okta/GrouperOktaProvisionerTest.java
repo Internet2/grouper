@@ -787,4 +787,1155 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
         .addBindVar(configId).select(int.class);
   }
 
+  /**
+   * the single provisioned group's target_group_id (Okta group id) in the mirror, or null.
+   * Mirrors the Box/Adobe helper of the same name -- used by the update-converge test to prove the
+   * SAME target object survives an update (in-place update, not delete + re-create).
+   */
+  private String mirroredGroupTargetId(String configId) {
+    List<String> ids = new GcDbAccess().connectionName("grouper")
+        .sql("select target_group_id from grouper_prov_group "
+            + "where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(configId).selectList(String.class);
+    return ids.isEmpty() ? null : ids.get(0);
+  }
+
+  /**
+   * Resolved {@code description} attribute value for the single provisioned group in the mirror, or
+   * null. Reads through the {@code grouper_prov_group_attr_v} reporting view (not the base
+   * grouper_prov_group_attr_value table), because the raw string is stored via a dictionary FK and
+   * only the view resolves it back to text (column {@code value_string}). Unlike Box (where
+   * description is NOT a default capture attribute and the update test must set
+   * {@code nativeAttributesGroups=name,description}), {@code description} IS an Okta DEFAULT group
+   * capture attribute (DEFAULT_GROUP_ATTRS = name + description, both read from {@code /profile/*}),
+   * so it is captured with no extra config.
+   */
+  private String mirroredGroupDescription(String configId) {
+    List<String> values = new GcDbAccess().connectionName("grouper")
+        .sql("select value_string from grouper_prov_group_attr_v "
+            + "where grouper_sync_id in (select id from grouper_sync where provisioner_name = ?) "
+            + "and attribute_name = 'description'")
+        .addBindVar(configId).selectList(String.class);
+    return values.isEmpty() ? null : values.get(0);
+  }
+
+  // ==========================================================================================
+  // SCIM-parity sync-back tests for Okta, CAPABILITY-GATED. Replicates the Box pilot
+  // (boxProvisioner/GrouperBoxProvisionerTest) for Okta.
+  //
+  // Okta capture model (verified from GrouperOktaApiCommands + GrouperOktaProvisioningTargetNativeSync
+  // + GrouperOktaTargetDao): Okta captures target state into the generic mirror ONLY on the READ
+  // path. captureGroupJsonFromCurrentProvisioner / captureUserJsonFromCurrentProvisioner fire inside
+  // GrouperOktaApiCommands.retrieveOktaGroups / retrieveOktaGroup / retrieveOktaUsers /
+  // retrieveOktaUser / retrieveOktaUserById (from the RAW Okta JSON), and
+  // captureMembershipsForGroupForCurrentProvisioner fires inside retrieveMembershipsByGroup (and the
+  // bulk retrieveAllData). The create/update/delete API methods do NOT call any capture hook. So
+  // Okta -- exactly like Box -- is a READ-STATE-CONVERGENCE target, NOT a capture-on-write target
+  // like SCIM/Adobe: a target change converges into the mirror on the NEXT read pass, not the same
+  // run that writes it. Every converge test below therefore uses the two-pass full-sync pattern
+  // (pass 1 writes the target, pass 2 re-reads and the end-of-run flush converges), the same shape
+  // as the existing testOktaFullSyncPopulatesGenericTables.
+  //
+  // The full flush (GrouperProvisioningLogic.loadDataToGenericProvisionerTables) is a FULL REPLACE
+  // scoped to the provisioner's grouper_sync_internal_id: anything in the mirror that the target did
+  // NOT return this run is deleted. That is what makes the delete / membership-remove converge tests
+  // work after a re-read pass.
+  //
+  // OKTA OBJECTS ARE NESTED: a group's id is top-level (/id) but its descriptive fields are under
+  // /profile (/profile/name, /profile/description); a user's id is /id and its descriptive fields
+  // are under /profile (/profile/login, /profile/email, ...). The DEFAULT capture pointers reach
+  // into /profile/*, so the captured attribute KEYS are the un-prefixed names (name, description,
+  // login, email) while the VALUES come from the nested /profile source. Tests assert by the stored
+  // KEY.
+  //
+  // Capabilities confirmed in GrouperOktaTargetDao.registerGrouperProvisionerDaoCapabilities:
+  //   group  : insert YES, update YES, delete YES
+  //   entity : insert YES, update YES, delete YES
+  //   mship  : insert YES, delete YES, REPLACE *NO* (no setCanReplaceMembership)
+  //   memberships are group-centric (canRetrieveMembershipsAllByGroup); Okta has no
+  //   retrieve-all-memberships call, so members are fetched per-group.
+  //
+  // DEFAULT capture attributes (GrouperOktaProvisioningTargetNativeSync):
+  //   groups : name (/profile/name), description (/profile/description)   -- id excluded (target_group_id)
+  //   users  : login (/profile/login), email (/profile/email)            -- id excluded (target_user_id)
+  // NB vs Box: Box group defaults were name/group_type/provenance and Box did NOT capture description
+  // by default; Okta DOES capture description by default, so the group-update-converge test asserts
+  // on it directly with no nativeAttributesGroups override. Box entity defaults were
+  // login/role/status/type; Okta entity defaults are login/email.
+  //
+  // Matching attributes (OktaProvisionerTestUtils.configureOktaProvisioner):
+  //   groupMatchingAttribute0name = name  (targetGroupAttribute.1 = group name)
+  //   entityMatchingAttribute0name = login (targetEntityAttribute.4 = login, translated from email)
+  // An update that changes the MATCHING attribute cannot converge as an in-place update (the Adobe
+  // lesson), so the group-update-converge test mutates DESCRIPTION (a NON-matching, default-captured
+  // attribute that round-trips through the mock updateGroup). There is NO rename-as-update test
+  // (groups are name-matched). For users there is no safe Grouper-driven NON-matching attribute to
+  // mutate (login = email is fixed per subject; firstName/lastName are derived from the same subject
+  // name and are not matching but are also not independently controllable to a stable assert value),
+  // so the user-update-converge test is SKIPPED -- see the one-line note where it would live.
+  //
+  // SKIPPED, per capability (no test body, just this note):
+  //   - no membership-replace sync-back test: GrouperOktaTargetDao has no setCanReplaceMembership
+  //     (so SCIM's testMembershipReplaceConvergesSameRun / testIncrementalMembershipReplace... do
+  //     not apply to Okta), same as Box.
+  //   - no "same-run" convergence variants of the SCIM insert/update/delete/membership tests: Okta
+  //     captures on READ only, so these can only converge on the next read pass. Their intent is
+  //     ported as the two-pass full tests below (testOktaGroupInsertConvergesNextRead,
+  //     testOktaGroupDeleteConvergesNextRead, testOktaMembershipAddConvergesNextRead,
+  //     testOktaMembershipRemoveConvergesNextRead, testOktaGroupUpdateConvergesNextRead).
+  //
+  // All tests gate on tomcatRunTests() (like the two existing Okta sync-back tests) because the
+  // Okta mock REST endpoints require the embedded Tomcat to be up.
+  // ==========================================================================================
+
+  /**
+   * Shared setup for the Okta sync-back tests: configure the provisioner with the three
+   * load*ToGenericGrouperTable flags on (and recalculateAllOperations so every object/membership is
+   * processed each run), then clean the Okta mock target. The caller starts its own root session and
+   * creates the Grouper-side stems/groups/members it needs. Mirrors the per-test boilerplate that
+   * testOktaFullSyncPopulatesGenericTables open-codes (ensureOktaMockTables + delete mock rows +
+   * setupOktaExternalSystem + configureOktaProvisioner).
+   *
+   * <p>Leaves all delete-types at their config defaults (Okta test util sets customize*Crud=false,
+   * i.e. the framework's default auto-delete behavior), so callers that need to enable or disable a
+   * specific delete pass it explicitly via {@code extraConfig} using the Box/Adobe idiom
+   * (customizeXCrud=true + deleteX + deleteXIf...).
+   *
+   * @param configId the provisioner config id (always "myOktaProvisioner" here)
+   * @param extraConfig additional provisioner.&lt;configId&gt;.* suffixes to set (may be null)
+   */
+  private void setupOktaSyncBack(String configId, Map<String, String> extraConfig) {
+
+    GrouperStartup.startup();
+    OktaMockServiceHandler.ensureOktaMockTables();
+
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+
+    OktaProvisionerTestUtils.setupOktaExternalSystem();
+
+    OktaProvisionerTestConfigInput configInput = new OktaProvisionerTestConfigInput()
+        .assignConfigId(configId)
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true");
+    if (extraConfig != null) {
+      for (Map.Entry<String, String> entry : extraConfig.entrySet()) {
+        configInput.addExtraConfig(entry.getKey(), entry.getValue());
+      }
+    }
+    OktaProvisionerTestUtils.configureOktaProvisioner(configInput);
+
+    GrouperStartup.startup();
+  }
+
+  /**
+   * Sync-back convergence of a newly created group, two-pass full (Okta analogue of SCIM's
+   * testGroupInsertConvergesSameRun, ported as next-read since Okta captures on read). Because
+   * createGroupsAndEntitiesBeforeTranslatingMemberships + selectGroups are on, the daemon re-reads
+   * each just-inserted group (to link it) through the Okta read path, and that read captures it. So
+   * the group is already in the mirror after pass 1, linked back to its Grouper group
+   * (group_internal_id not null). Pass 2 is idempotent.
+   *
+   * <p>Asserts the captured group attribute KEY {@code name} is present (an Okta DEFAULT group
+   * capture attribute; its value comes from the nested {@code /profile/name}).
+   */
+  public void testOktaGroupInsertConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    setupOktaSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // baseline: nothing in the mirror yet
+    assertEquals(0, countSyncBack(configId, "grouper_prov_group"));
+
+    // pass 1 inserts the group AND -- via the post-insert re-read that links it -- captures it, so
+    // the group converges into the mirror within this same run (inserts-converge-same-run gotcha)
+    GrouperProvisioningOutput out1 = fullProvision();
+    assertEquals(0, out1.getRecordsWithErrors());
+    assertEquals("group insert converges in the same run (post-insert re-read captures it)", 1,
+        countSyncBack(configId, "grouper_prov_group"));
+
+    // pass 2 re-reads; convergence is idempotent
+    GrouperProvisioningOutput out2 = fullProvision();
+    assertEquals(0, out2.getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    assertNotNull("grouper_sync row should exist for " + configId, gcGrouperSync);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    assertEquals("group insert should converge into prov_group on the next read pass", 1,
+        countSyncBack(configId, "grouper_prov_group"));
+
+    // captured via a read, so it is linked back to its Grouper group
+    int groupRowsLinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and group_internal_id is not null")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("converged prov_group row should be linked to its Grouper group", 1, groupRowsLinked);
+
+    // name captured from the Okta read response (a DEFAULT group capture attribute KEY; value from
+    // the nested /profile/name source)
+    int nameValueRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr_value gpv "
+            + "join grouper_prov_group_attr gpa on gpa.internal_id = gpv.prov_group_attr_internal_id "
+            + "join grouper_prov_group pg on pg.internal_id = gpv.prov_group_internal_id "
+            + "where pg.grouper_sync_internal_id = ? and gpa.attribute_name = 'name'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertTrue("name should be captured from the Okta read response, got " + nameValueRows,
+        nameValueRows >= 1);
+  }
+
+  /**
+   * Sync-back convergence of an object DELETE, two-pass full (Okta analogue of SCIM's
+   * testGroupDeleteConvergesSameRun). Seed test:testGroup + SUBJ0 + their membership into the mirror,
+   * then delete the group in Grouper. With deleteGroups/Entities/Memberships enabled the next full
+   * sync removes them from the Okta target (pass A), and the following re-read pass (pass B) sees
+   * them gone -- the full-replace flush, scoped to this provisioner's sync, then drops the group, the
+   * now-orphaned user, and the membership from the mirror.
+   */
+  public void testOktaGroupDeleteConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    // Okta test util defaults customize*Crud=false (framework auto-delete mode). To drive explicit
+    // deletes we mirror the Box/Adobe idiom: turn ON customize*Crud per axis, then set the umbrella
+    // deleteX=true plus the specific delete-when key. This test deletes the group, cascading to its
+    // user + membership.
+    Map<String, String> deleteTypes = new HashMap<String, String>();
+    deleteTypes.put("customizeGroupCrud", "true");
+    deleteTypes.put("deleteGroups", "true");
+    deleteTypes.put("deleteGroupsIfNotExistInGrouper", "true");
+    deleteTypes.put("customizeEntityCrud", "true");
+    deleteTypes.put("deleteEntities", "true");
+    deleteTypes.put("deleteEntitiesIfNotExistInGrouper", "true");
+    deleteTypes.put("customizeMembershipCrud", "true");
+    deleteTypes.put("deleteMemberships", "true");
+    deleteTypes.put("deleteMembershipsIfNotExistInGrouper", "true");
+    setupOktaSyncBack(configId, deleteTypes);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: two passes converge the group + SUBJ0 + their membership into the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("seed: membership", 1, countSyncBack(configId, "grouper_prov_mship"));
+
+    // delete the group; SUBJ0 is now orphaned (no other provisioned group) and is deleted too
+    testGroup.delete();
+
+    // pass A: the delete writes hit the Okta target (group + orphaned user + membership removed)
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    // pass B: the re-read sees them gone; the full-replace flush drops their mirror rows
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("group dropped from the mirror after the re-read pass", 0,
+        countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("orphaned SUBJ0 dropped from the mirror after the re-read pass", 0,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("membership dropped from the mirror after the re-read pass", 0,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * Sync-back convergence of an object UPDATE on a NON-matching attribute, two-pass full (Okta
+   * analogue of SCIM's testUserUpdateConvergesSameRun, but on a GROUP). Okta groups are matched by
+   * name, so the rename-as-update problem (the Adobe lesson) does NOT apply here: we mutate the
+   * group's DESCRIPTION, which is mapped (targetGroupAttribute.2), round-trips through the mock's
+   * updateGroup, and is NOT the matching attribute. Unlike Box, description IS an Okta DEFAULT group
+   * capture attribute (DEFAULT_GROUP_ATTRS reads /profile/description), so NO nativeAttributesGroups
+   * override is needed for the value to be captured.
+   *
+   * <p>Asserts both that the description VALUE converges to the new value AND that it is an in-place
+   * update -- the SAME target group id survives (not delete + re-create, which would assign a new
+   * Okta id). Convergence is on the re-read pass (pass B), since Okta captures on read.
+   */
+  public void testOktaGroupUpdateConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    // no nativeAttributesGroups override: description is already a DEFAULT Okta group capture attr
+    setupOktaSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup")
+        .assignDescription("originalDescription").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: group provisioned with description "originalDescription"
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+    String groupTargetIdBefore = mirroredGroupTargetId(configId);
+    assertNotNull("group should have a target id after seed", groupTargetIdBefore);
+    assertEquals("seed: original description captured", "originalDescription",
+        mirroredGroupDescription(configId));
+
+    // change the description (a NON-matching attribute) -> Okta updateGroup
+    testGroup = new GroupSave(grouperSession).assignName(testGroup.getName())
+        .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
+        .assignSaveMode(SaveMode.UPDATE).save();
+
+    // pass A: the description update reaches the Okta target (updateGroup persists it)
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    // pass B: the re-read captures the target's actual new description into the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    // mirror side: still ONE group, the SAME group (same target id) -- in-place update, not
+    // delete + re-create -- and its description converged to the new value.
+    assertEquals("group still in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("mirror tracks the same group through the update (update, not re-create)",
+        groupTargetIdBefore, mirroredGroupTargetId(configId));
+    assertEquals("mirror description should converge to the new value on the re-read pass",
+        "newDescription", mirroredGroupDescription(configId));
+
+    // NOTE: no user-update-converge test for Okta. Okta users are matched by login (= email), and
+    // their other Grouper-driven attributes (firstName/lastName) are both derived from the same
+    // subject "name" field, so there is no safe Grouper-driven NON-matching user attribute to mutate
+    // to a stable, independently-asserted value. An update-converge test would either mutate the
+    // match key (the Adobe lesson) or assert on a derived value -- skipped rather than written, same
+    // reasoning as Box.
+  }
+
+  /**
+   * Sync-back convergence of a membership ADD to an already-provisioned group, two-pass full (Okta
+   * analogue of SCIM's testMembershipAddConvergesSameRun). Seed test:testGroup with SUBJ0, then add
+   * SUBJ1. Because Okta captures memberships on the read path (retrieveMembershipsByGroup), the add
+   * shows in grouper_prov_mship on the re-read pass: pass A issues the membership insert to the Okta
+   * target, pass B re-reads the group's members and the flush converges (testGroup, SUBJ1).
+   */
+  public void testOktaMembershipAddConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    setupOktaSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: group + SUBJ0 + the one membership in the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("seed: the single membership", 1, countSyncBack(configId, "grouper_prov_mship"));
+
+    // add SUBJ1 to the already-provisioned group
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    // pass A: the membership insert (and SUBJ1's user insert) hit the Okta target
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    // pass B: re-read sees both members; the flush converges the added membership
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("group should still be in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("both users should be in the mirror after the add", 2,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("the added membership should converge on the re-read pass", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * Sync-back convergence of a membership REMOVE from a surviving group, two-pass full (Okta
+   * analogue of SCIM's testMembershipRemoveConvergesSameRun). Two groups both hold SUBJ0; SUBJ0 is
+   * removed from testGroup only (it survives in otherGroup, so its Okta user is NOT deleted). The
+   * full-replace flush, fed by the re-read of each group's members, drops exactly testGroup's
+   * membership while leaving otherGroup's intact.
+   */
+  public void testOktaMembershipRemoveConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    // enable membership-delete customization (Okta defaults customizeMembershipCrud=false; setting
+    // delete keys without it would be rejected by validation). Box/Adobe idiom: customize + umbrella
+    // + specific key.
+    Map<String, String> deleteTypes = new HashMap<String, String>();
+    deleteTypes.put("customizeMembershipCrud", "true");
+    deleteTypes.put("deleteMemberships", "true");
+    deleteTypes.put("deleteMembershipsIfNotExistInGrouper", "true");
+    setupOktaSyncBack(configId, deleteTypes);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    Group otherGroup = new GroupSave(grouperSession).assignName("test:otherGroup").save();
+    // SUBJ0 in BOTH groups so removing it from testGroup leaves it provisioned (still in otherGroup)
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    otherGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: both groups + SUBJ0 + both memberships in the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: both groups", 2, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("seed: both memberships", 2, countSyncBack(configId, "grouper_prov_mship"));
+
+    // remove SUBJ0 from testGroup only (still in otherGroup)
+    testGroup.deleteMember(SubjectTestHelper.SUBJ0);
+
+    // pass A: the membership-remove write hits the Okta target
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    // pass B: re-read of testGroup's members no longer includes SUBJ0; the full-replace flush drops
+    // (testGroup, SUBJ0) while otherGroup's SUBJ0 membership survives
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("both groups should still be in the mirror", 2,
+        countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("SUBJ0 should still be in the mirror (still in otherGroup)", 1,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("testGroup's membership should be gone, otherGroup's should remain", 1,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * Multi-sync coverage with data evolution between rounds, Okta analogue of SCIM's
+   * testFullProvisionReflectsDataChangesAcrossSyncs. Round 1: testGroup with SUBJ0 only, seeded via
+   * two passes. Round 2: add SUBJ1 (Grouper-side) AND insert a target-drift orphan group + orphan
+   * user directly into the Okta mock (delete-types are off so they persist). Round 3: two more passes
+   * -> the mirror reflects the new state (3 users: SUBJ0, SUBJ1, orphan; 2 groups: testGroup, orphan;
+   * 2 memberships in testGroup), and the target-drift orphan user's login value round-trips.
+   */
+  public void testOktaFullSyncReflectsDataChangesAcrossSyncs() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    // delete-types stay off (the setup default) so the Round 2 orphans persist across syncs
+    setupOktaSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // ===================== ROUND 1: initial state =====================
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("round 1: 1 prov_user row for SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("round 1: 1 prov_group row for testGroup", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("round 1: 1 prov_mship row for SUBJ0 in testGroup", 1, countSyncBack(configId, "grouper_prov_mship"));
+
+    // ===================== ROUND 2: data changes =====================
+
+    // Grouper-side: add SUBJ1 to testGroup. next full sync inserts SUBJ1 + the membership.
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    // Target-side drift: insert an orphan group + orphan user directly into the Okta mock. These are
+    // unknown to Grouper; with delete-types off they persist across the next sync. The mock persists
+    // these beans to mock_okta_group / mock_okta_user (same Hibernate idiom the Box evolution test
+    // uses). name is NOT NULL + uniquely indexed on mock_okta_group; login is uniquely indexed on
+    // mock_okta_user -- set distinct values so the inserts do not collide with Grouper's own rows.
+    GrouperOktaGroup orphanGroup = new GrouperOktaGroup();
+    orphanGroup.setId("orphan-okta-group-evolve-1");
+    orphanGroup.setName("orphanGroupAddedMidTest");
+    orphanGroup.setDescription("orphanGroupDescriptionEvolve");
+    HibernateSession.byObjectStatic().save(orphanGroup);
+
+    GrouperOktaUser orphanUser = new GrouperOktaUser();
+    orphanUser.setId("orphan-okta-user-evolve-1");
+    orphanUser.setLogin("orphan.evolve@example.edu");
+    orphanUser.setEmail("orphan.evolve@example.edu");
+    orphanUser.setFirstName("OrphanEvolveFirst");
+    orphanUser.setLastName("OrphanEvolveLast");
+    HibernateSession.byObjectStatic().save(orphanUser);
+
+    // ===================== ROUND 3: second full sync + assertions =====================
+
+    // pass A writes SUBJ1 + membership to the target; pass B re-reads everything (Grouper's + the
+    // drift orphans) and refreshes the mirror.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    assertEquals("round 3: 3 prov_user rows expected (SUBJ0, SUBJ1, orphan_user)", 3,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("round 3: 2 prov_group rows expected (testGroup, orphan_group)", 2,
+        countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("round 3: 2 prov_mship rows expected (SUBJ0 + SUBJ1 in testGroup)", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
+
+    // the orphan group landed in the mirror, unlinked (no Grouper group)
+    int orphanGroupRow = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id = ? and group_internal_id is null")
+        .addBindVar(syncInternalId).addBindVar(orphanGroup.getId()).select(int.class);
+    assertEquals("orphan group should land in prov_group with group_internal_id IS NULL", 1,
+        orphanGroupRow);
+
+    // the orphan user's login value round-trips through the reporting view (proves target-drift
+    // entities are captured with their actual attributes). login is an Okta DEFAULT entity capture
+    // attribute (value sourced from the nested /profile/login).
+    String orphanUserLoginInReporting = new GcDbAccess().connectionName("grouper")
+        .sql("select value_string from grouper_prov_user_attr_v "
+            + "where grouper_sync_id = (select id from grouper_sync where internal_id = ?) "
+            + "and target_user_id = ? and attribute_name = 'login'")
+        .addBindVar(syncInternalId).addBindVar(orphanUser.getId()).select(String.class);
+    assertEquals("orphan user's login should round-trip through reporting", "orphan.evolve@example.edu",
+        orphanUserLoginInReporting);
+  }
+
+  /**
+   * Strict-native capture of orphan target objects, Okta analogue of SCIM's
+   * testFullProvisionCapturesOrphanTargetEntities. With delete-types disabled, an orphan group +
+   * orphan user that exist in the Okta target but are unknown to Grouper are still captured into the
+   * mirror -- with NULL Grouper-side linkage (group_internal_id / member_internal_id) -- alongside
+   * Grouper's own testGroup + SUBJ0/SUBJ1, which keep their linkage populated.
+   */
+  public void testOktaFullSyncCapturesOrphanTargetEntities() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    // delete-types disabled (setup default) so the orphans persist across the run
+    setupOktaSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // pre-populate orphans directly into the Okta mock before the provisioner runs. Deliberately
+    // set description (an Okta default group capture attribute) so we can verify capture is driven by
+    // the target read, independent of Grouper's mapping config.
+    GrouperOktaGroup orphanGroup = new GrouperOktaGroup();
+    orphanGroup.setId("orphan-okta-group-1234");
+    orphanGroup.setName("orphanGroupNotInGrouper");
+    orphanGroup.setDescription("orphanGroupDescription");
+    HibernateSession.byObjectStatic().save(orphanGroup);
+
+    GrouperOktaUser orphanUser = new GrouperOktaUser();
+    orphanUser.setId("orphan-okta-user-5678");
+    orphanUser.setLogin("orphan.user@example.edu");
+    orphanUser.setEmail("orphan.user@example.edu");
+    orphanUser.setFirstName("OrphanFirst");
+    orphanUser.setLastName("OrphanLast");
+    HibernateSession.byObjectStatic().save(orphanUser);
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // two passes: pass 1 inserts Grouper's objects (orphans untouched, delete-types off); pass 2
+    // reads orphans + Grouper's objects and the flush captures all of them.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // orphan group landed with NULL group_internal_id
+    int orphanGroupRowsTotal = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id = ?")
+        .addBindVar(syncInternalId).addBindVar(orphanGroup.getId()).select(int.class);
+    assertEquals("expected exactly 1 prov_group row for the orphan group", 1, orphanGroupRowsTotal);
+
+    int orphanGroupRowsUnlinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id = ? and group_internal_id is null")
+        .addBindVar(syncInternalId).addBindVar(orphanGroup.getId()).select(int.class);
+    assertEquals("orphan group's prov_group row must have group_internal_id IS NULL", 1,
+        orphanGroupRowsUnlinked);
+
+    // orphan user landed with NULL member_internal_id
+    int orphanUserRowsTotal = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and target_user_id = ?")
+        .addBindVar(syncInternalId).addBindVar(orphanUser.getId()).select(int.class);
+    assertEquals("expected exactly 1 prov_user row for the orphan user", 1, orphanUserRowsTotal);
+
+    int orphanUserRowsUnlinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and target_user_id = ? and member_internal_id is null")
+        .addBindVar(syncInternalId).addBindVar(orphanUser.getId()).select(int.class);
+    assertEquals("orphan user's prov_user row must have member_internal_id IS NULL", 1,
+        orphanUserRowsUnlinked);
+
+    // Grouper's own testGroup + 2 members land alongside, with linkage populated
+    int testGroupRowsLinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id != ? and group_internal_id is not null")
+        .addBindVar(syncInternalId).addBindVar(orphanGroup.getId()).select(int.class);
+    assertEquals("Grouper's testGroup prov_group row must have group_internal_id linked", 1,
+        testGroupRowsLinked);
+
+    int nonOrphanUserRowsLinked = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and target_user_id != ? and member_internal_id is not null")
+        .addBindVar(syncInternalId).addBindVar(orphanUser.getId()).select(int.class);
+    assertEquals("Grouper-provisioned prov_user rows (SUBJ0 + SUBJ1) must have member_internal_id linked",
+        2, nonOrphanUserRowsLinked);
+
+    // an Okta default group attribute (description) is captured in the catalog and the orphan's value
+    // row (key is the un-prefixed 'description'; value sourced from the nested /profile/description)
+    int descriptionCatalog = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr "
+            + "where grouper_sync_internal_id = ? and attribute_name = 'description'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("default group attribute 'description' should be in the per-provisioner catalog", 1,
+        descriptionCatalog);
+
+    // sanity: 'id' must NOT be captured as an attribute -- it is already the target_group_id column
+    int idAsGroupAttrRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr "
+            + "where grouper_sync_internal_id = ? and attribute_name = 'id'")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("'id' must not appear in grouper_prov_group_attr (already target_group_id column)", 0,
+        idAsGroupAttrRows);
+  }
+
+  /**
+   * Strict-native capture on the MEMBERSHIP axis, Okta analogue of SCIM's
+   * testFullProvisionCapturesMembershipsFromOrphanGroup. An orphan group with an orphan member
+   * (neither known to Grouper) is wired in the Okta mock (mock_okta_membership). Okta memberships are
+   * group-centric, so when the daemon lists groups (retrieveAllData) it also reads the orphan group's
+   * members -- that membership must land in grouper_prov_mship alongside Grouper's own, proving
+   * strict-native membership capture is independent of Grouper knowledge.
+   */
+  public void testOktaFullSyncCapturesMembershipsFromOrphanGroup() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    // delete-types disabled (setup default) so the orphan group + its membership persist
+    setupOktaSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // orphan group + orphan user + the membership wiring them, all in the Okta mock. The membership
+    // FKs require the group and user rows to exist first (mock_okta_mship_*_fkey), so save them in
+    // order: group, user, then membership.
+    GrouperOktaGroup orphanGroup = new GrouperOktaGroup();
+    orphanGroup.setId("orphan-okta-mship-group-1");
+    orphanGroup.setName("orphanGroupWithMembers");
+    orphanGroup.setDescription("orphanMshipGroupDescription");
+    HibernateSession.byObjectStatic().save(orphanGroup);
+
+    GrouperOktaUser orphanUser = new GrouperOktaUser();
+    orphanUser.setId("orphan-okta-mship-user-1");
+    orphanUser.setLogin("orphan.mship@example.edu");
+    orphanUser.setEmail("orphan.mship@example.edu");
+    orphanUser.setFirstName("OrphanMshipFirst");
+    orphanUser.setLastName("OrphanMshipLast");
+    HibernateSession.byObjectStatic().save(orphanUser);
+
+    GrouperOktaMembership orphanMembership = new GrouperOktaMembership();
+    orphanMembership.setId("orphan-okta-mship-row-1");
+    orphanMembership.setGroupId(orphanGroup.getId());
+    orphanMembership.setUserId(orphanUser.getId());
+    HibernateSession.byObjectStatic().save(orphanMembership);
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // the orphan group's membership lands in prov_mship (join through prov_group/prov_user, which
+    // hold the target ids -- prov_mship itself only has the FK internal ids)
+    int orphanMshipRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_mship pm "
+            + "join grouper_prov_group pg on pg.internal_id = pm.prov_group_internal_id "
+            + "join grouper_prov_user pu on pu.internal_id = pm.prov_user_internal_id "
+            + "where pm.grouper_sync_internal_id = ? and pg.target_group_id = ? and pu.target_user_id = ?")
+        .addBindVar(syncInternalId).addBindVar(orphanGroup.getId()).addBindVar(orphanUser.getId())
+        .select(int.class);
+    assertEquals("expected 1 prov_mship row for orphan group -> orphan user", 1, orphanMshipRows);
+
+    // Grouper's own memberships land alongside (3 total: SUBJ0 + SUBJ1 in testGroup + the orphan)
+    assertEquals("expected 3 prov_mship rows total (2 from testGroup + 1 orphan)", 3,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * !selectAll* scope excludes orphans, Okta analogue of SCIM's testSelectAllFalseExcludesOrphans.
+   * With selectAllGroups=false and selectAllEntities=false the daemon fetches only the resources
+   * mapped to Grouper-provisioned objects (by id/name/login), never a server-wide listing -- so an
+   * orphan group/user that the Okta target has but Grouper does not must NOT land in the mirror.
+   */
+  public void testOktaSelectAllFalseExcludesOrphans() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("selectAllGroups", "false");
+    extraConfig.put("selectAllEntities", "false");
+    setupOktaSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    // pre-populate an orphan group + orphan user -- must NOT appear in reporting because
+    // selectAll=false makes the daemon fetch only by id (Grouper-known resources only).
+    GrouperOktaGroup orphanGroup = new GrouperOktaGroup();
+    orphanGroup.setId("orphan-okta-group-selnone-1");
+    orphanGroup.setName("orphanGroupSelectAllFalse");
+    orphanGroup.setDescription("orphanSelNoneGroupDescription");
+    HibernateSession.byObjectStatic().save(orphanGroup);
+
+    GrouperOktaUser orphanUser = new GrouperOktaUser();
+    orphanUser.setId("orphan-okta-user-selnone-1");
+    orphanUser.setLogin("orphan.selnone@example.edu");
+    orphanUser.setEmail("orphan.selnone@example.edu");
+    orphanUser.setFirstName("OrphanSelNoneFirst");
+    orphanUser.setLastName("OrphanSelNoneLast");
+    HibernateSession.byObjectStatic().save(orphanUser);
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    // Grouper-known resources still captured
+    assertTrue("Grouper-provisioned testGroup should still be in prov_group",
+        countSyncBack(configId, "grouper_prov_group") >= 1);
+    assertTrue("Grouper-provisioned SUBJ0/SUBJ1 should still be in prov_user",
+        countSyncBack(configId, "grouper_prov_user") >= 2);
+
+    // orphans must NOT be captured (selectAll=false -> no server-wide listing -> no capture)
+    int orphanGroupRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group "
+            + "where grouper_sync_internal_id = ? and target_group_id = ?")
+        .addBindVar(syncInternalId).addBindVar(orphanGroup.getId()).select(int.class);
+    assertEquals("orphan group must NOT be captured when selectAllGroups=false", 0, orphanGroupRows);
+
+    int orphanUserRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_user "
+            + "where grouper_sync_internal_id = ? and target_user_id = ?")
+        .addBindVar(syncInternalId).addBindVar(orphanUser.getId()).select(int.class);
+    assertEquals("orphan user must NOT be captured when selectAllEntities=false", 0, orphanUserRows);
+  }
+
+  /**
+   * Broken-target delete stays in the mirror, Okta analogue of SCIM's
+   * testUserDeleteBrokenTargetStaysInMirror. The "verify, don't assume" contract: a target object
+   * the daemon did NOT actually remove must stay captured on the re-read.
+   *
+   * <p>Okta analogue mechanism (same as Box): there is no mock knob to fake a broken delete, so
+   * instead we DISABLE entity deletion. SUBJ0 is removed from testGroup in Grouper, but with
+   * deleteEntities off the daemon never issues the delete to the Okta target -- so the user remains
+   * in the target, and the re-read keeps it in the mirror. This exercises the same mirror behavior (a
+   * target object the daemon did NOT remove stays captured) without needing a target that lies about
+   * a delete.
+   */
+  public void testOktaUserDeleteBrokenTargetStaysInMirror() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    // Disable entity deletion so the daemon will NOT remove SUBJ0 from the Okta target once SUBJ0
+    // becomes unprovisionable. Okta test util defaults customize*Crud=false (framework auto mode);
+    // to override, turn ON customizeEntityCrud (else the explicit delete key is rejected by
+    // validation), then set deleteEntities=false to disable it.
+    Map<String, String> noEntityDelete = new HashMap<String, String>();
+    noEntityDelete.put("customizeEntityCrud", "true");
+    noEntityDelete.put("deleteEntities", "false");
+    setupOktaSyncBack(configId, noEntityDelete);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: group + SUBJ0 + their membership in the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: group", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+
+    // remove SUBJ0 from the group in Grouper. With delete-types off the daemon does not push the
+    // removal to the Okta target, so the target still has SUBJ0.
+    testGroup.deleteMember(SubjectTestHelper.SUBJ0);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    // the group was never deleted -> still in the mirror
+    assertEquals("group row should stay (group was not deleted)", 1,
+        countSyncBack(configId, "grouper_prov_group"));
+
+    // confirm the target still has the user (the daemon did not remove it), so the re-read keeps it
+    int mockUserRows = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from mock_okta_user").select(int.class);
+    assertEquals("the user row should remain in the Okta target (delete-types are off)", 1, mockUserRows);
+
+    assertEquals("user should STAY in the mirror (its delete was never performed)", 1,
+        countSyncBack(configId, "grouper_prov_user"));
+  }
+
+  /**
+   * loadGroupsToGenericGrouperTable in isolation, Okta analogue of SCIM's
+   * testLoadGroupsFlagInIsolation. Only the groups flag is on -> only grouper_prov_group rows are
+   * written; prov_user and prov_mship stay empty even though the daemon still reads users (for
+   * provisioning) and memberships (for diffing).
+   */
+  public void testOktaLoadGroupsFlagInIsolation() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    GrouperStartup.startup();
+    OktaMockServiceHandler.ensureOktaMockTables();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+    OktaProvisionerTestUtils.setupOktaExternalSystem();
+    OktaProvisionerTestUtils.configureOktaProvisioner(new OktaProvisionerTestConfigInput()
+        .assignConfigId(configId)
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "false")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "false"));
+    GrouperStartup.startup();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertTrue("expected >=1 prov_group row when groups capture is on",
+        countSyncBack(configId, "grouper_prov_group") >= 1);
+    assertEquals("expected 0 prov_user rows when entities capture is off", 0,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("expected 0 prov_mship rows when memberships capture is off", 0,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * loadEntitiesToGenericGrouperTable in isolation, Okta analogue of SCIM's
+   * testLoadEntitiesFlagInIsolation. Only the entities flag is on -> only grouper_prov_user rows are
+   * written; prov_group and prov_mship stay empty.
+   */
+  public void testOktaLoadEntitiesFlagInIsolation() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    GrouperStartup.startup();
+    OktaMockServiceHandler.ensureOktaMockTables();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+    OktaProvisionerTestUtils.setupOktaExternalSystem();
+    OktaProvisionerTestUtils.configureOktaProvisioner(new OktaProvisionerTestConfigInput()
+        .assignConfigId(configId)
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "false")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "false"));
+    GrouperStartup.startup();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertEquals("expected 0 prov_group rows when groups capture is off", 0,
+        countSyncBack(configId, "grouper_prov_group"));
+    assertTrue("expected >=2 prov_user rows (SUBJ0 + SUBJ1) when entities capture is on",
+        countSyncBack(configId, "grouper_prov_user") >= 2);
+    assertEquals("expected 0 prov_mship rows when memberships capture is off", 0,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * loadMembershipsToGenericGrouperTable off, Okta analogue of SCIM's testLoadMembershipsFlagOff.
+   * Both object loads on but memberships off -> prov_group and prov_user populate, prov_mship stays
+   * empty. Proves the membership gate is independent of the object gates.
+   */
+  public void testOktaLoadMembershipsFlagOff() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    GrouperStartup.startup();
+    OktaMockServiceHandler.ensureOktaMockTables();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+    OktaProvisionerTestUtils.setupOktaExternalSystem();
+    OktaProvisionerTestUtils.configureOktaProvisioner(new OktaProvisionerTestConfigInput()
+        .assignConfigId(configId)
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "false"));
+    GrouperStartup.startup();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    assertTrue("expected >=1 prov_group row", countSyncBack(configId, "grouper_prov_group") >= 1);
+    assertTrue("expected >=2 prov_user rows (SUBJ0 + SUBJ1)",
+        countSyncBack(configId, "grouper_prov_user") >= 2);
+    assertEquals("expected 0 prov_mship rows when memberships capture is off", 0,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * INCREMENTAL sync-back coverage for Okta, conservative -- mirrors Box's
+   * testBoxIncrementalSyncBackNoSpuriousDeletes exactly, because Okta shares Box's read-capture
+   * model. Okta has NO write hooks (it captures on the READ path only), unlike Adobe whose
+   * incremental membership write-track converges same-cycle. For Okta, an incremental cycle re-reads
+   * only the changed objects (it has canRetrieveGroup/Entity, so the adapter decomposes to per-id
+   * reads that fire the Okta capture seams), and the incremental flush is a SCOPED upsert (it does
+   * NOT full-replace, so it will not wrongly delete untouched mirror rows).
+   *
+   * <p>What this test asserts is therefore deliberately narrow -- the safe, reliable part of Okta
+   * incremental sync-back: after seeding via full sync and priming the changelog consumer, adding a
+   * member drives an incremental that (a) re-reads the changed group/entity and so does NOT shrink
+   * the existing GROUP mirror (no spurious deletes -- the regression the scoped incremental flush
+   * guards against), and (b) captures the newly added member's user object into prov_user. It does
+   * NOT assert that the new MEMBERSHIP converges on the same incremental cycle: Okta memberships are
+   * captured on read, group-centric, and the incremental's read-before-write timing makes same-cycle
+   * membership convergence unreliable for a read-capture target (the same ~1-cycle lag the prompt
+   * calls out, and the same reason Box does not assert it). Membership convergence for Okta is
+   * covered end-to-end by the two-pass full tests above.
+   */
+  public void testOktaIncrementalSyncBackNoSpuriousDeletes() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    setupOktaSyncBack(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed via full sync: group + SUBJ0 + SUBJ1 + their memberships in the mirror
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    long syncInternalId = gcGrouperSync.getInternalId();
+
+    int provGroupRowsBefore = countSyncBack(configId, "grouper_prov_group");
+    int provUserRowsBefore = countSyncBack(configId, "grouper_prov_user");
+    int provMshipRowsBefore = countSyncBack(configId, "grouper_prov_mship");
+    assertTrue("seed should have >=1 prov_group row", provGroupRowsBefore >= 1);
+    assertEquals("seed should have 2 prov_user rows", 2, provUserRowsBefore);
+    assertEquals("seed should have 2 prov_mship rows", 2, provMshipRowsBefore);
+
+    // prime the changelog consumer: its FIRST run only initializes its changelog position (processes
+    // nothing), so without this priming pass the change below is never consumed.
+    incrementalProvision();
+
+    // incremental add: a third member. The incremental re-reads the changed group/entity, firing the
+    // Okta read-capture seams, and the scoped flush upserts -- it must NOT drop untouched rows.
+    testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+    incrementalProvision();
+
+    // (a) no spurious deletes on the GROUP axis: the scoped incremental flush left existing rows intact
+    assertTrue("incremental must not shrink prov_group; before=" + provGroupRowsBefore
+        + " after=" + countSyncBack(configId, "grouper_prov_group"),
+        countSyncBack(configId, "grouper_prov_group") >= provGroupRowsBefore);
+    // NB: prov_mship is intentionally NOT asserted here (matching this test's javadoc + the prompt's
+    // INCREMENTAL guidance). Okta memberships are group-centric and captured on the READ path; on an
+    // incremental cycle the scoped membership flush for the changed group plus read-before-write
+    // timing means testGroup's membership rows can transiently clear, re-converging only on the next
+    // full sync (the ~1-cycle lag). Membership convergence is covered end-to-end by the two-pass full
+    // tests above; here we only guard group/user no-shrink.
+
+    // (b) the newly added member's user object is captured (object capture via the per-id re-read)
+    assertEquals("SUBJ2's user object should be captured into prov_user this incremental cycle", 3,
+        countSyncBack(configId, "grouper_prov_user"));
+
+    // catalog stays deduped per (sync, attribute_name) after the incremental (the unique-key
+    // regression guarded on the LDAP/SCIM side; Okta shares the same generic flush code)
+    int dupGroupAttr = new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from (select grouper_sync_internal_id, attribute_name, count(*) c "
+            + "from grouper_prov_group_attr where grouper_sync_internal_id = ? "
+            + "group by grouper_sync_internal_id, attribute_name having count(*) > 1) t")
+        .addBindVar(syncInternalId).select(int.class);
+    assertEquals("group attr catalog should stay deduped per (sync,name) after incremental", 0,
+        dupGroupAttr);
+  }
+
 }

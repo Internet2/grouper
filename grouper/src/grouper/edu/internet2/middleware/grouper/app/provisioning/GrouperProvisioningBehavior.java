@@ -1000,8 +1000,17 @@ public class GrouperProvisioningBehavior {
     this.selectGroups = GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
             .getGrouperProvisionerDaoCapabilities().getCanRetrieveGroups(), false)
         || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveGroup(), false);
-    
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveGroup(), false)
+        // a scoped group select is also satisfiable by retrieving ALL groups and matching the
+        // requested ones out of the full list (GrouperProvisionerTargetDaoAdapter
+        // .retrieveGroupsFromRetrieveAllGroups). Keep this in sync with isSelectGroupsInGeneral():
+        // without it, a DAO with canRetrieveGroup=false but canRetrieveAllGroups=true (e.g. Adobe)
+        // computes selectGroupsInGeneral=true yet selectGroups=false, so the post-insert group
+        // re-read/link (GrouperProvisioningLogic, "if (isSelectGroups())") is skipped and the
+        // early-created group gets inserted a second time ("already exists").
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveAllGroups(), false);
+
     return this.selectGroups;
     
   }

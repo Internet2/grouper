@@ -1279,8 +1279,13 @@ public class GrouperAzureApiCommands {
           if (grouperAzureGroup != null) {
             results.add(grouperAzureGroup);
           }
+          // generic provisioner sync-back: register the group from the raw JSON (full fidelity,
+          // not the lossy typed bean) while the JSON node is in scope. No-op outside an Azure
+          // provisioning cycle. Owners are fetched in a separate call below and are roles
+          // (memberships), not group attributes, so they are intentionally not folded in here.
+          GrouperAzureProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
         }
-  
+
         nextLink = GrouperUtil.jsonJacksonGetString(jsonNode, "@odata.nextLink");
         
         if (StringUtils.isBlank(nextLink)) {
@@ -1351,6 +1356,10 @@ public class GrouperAzureApiCommands {
           if (grouperAzureUser != null) {
             results.add(grouperAzureUser);
           }
+          // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
+          // not the lossy typed bean) while the JSON node is in scope. No-op outside an Azure
+          // provisioning cycle.
+          GrouperAzureProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
         }
         nextLink = GrouperUtil.jsonJacksonGetString(jsonNode, "@odata.nextLink");
         
@@ -1459,24 +1468,31 @@ public class GrouperAzureApiCommands {
               if (grouperAzureUser != null) {
                 result.add(grouperAzureUser);
               }
+              // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
+              // not the lossy typed bean) while the JSON node is in scope. No-op outside an Azure
+              // provisioning cycle. Scoped retrieve path (used by !selectAllEntities and incremental).
+              GrouperAzureProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
             }
           } else {
             grouperAzureUser = GrouperAzureUser.fromJson(userNode);
             if (grouperAzureUser != null) {
               result.add(grouperAzureUser);
             }
+            // generic provisioner sync-back: register the user from the raw JSON while it is in
+            // scope (single-user read by id/userPrincipalName). No-op outside an Azure cycle.
+            GrouperAzureProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
           }
         }
       }
     }
-    
+
     if (throttledFieldValues.size() > 0) {
       if (secondsToSleep < 0) {
         secondsToSleep = 155;
       }
-     
+
       GrouperUtil.sleep(secondsToSleep * 1000);
-      
+
       GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
       if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
         GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
@@ -1801,7 +1817,7 @@ public class GrouperAzureApiCommands {
           ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(bodyNode, "value");
 
           if (value != null && value.size() > 0) {
-            
+
             if (value.size() > 1) {
               LOG.error("Query returned multiple results for field name: "+fieldName +" and fieldValue: "+fieldValue);
             }
@@ -1812,12 +1828,22 @@ public class GrouperAzureApiCommands {
               if (grouperAzureGroup != null) {
                 result.add(grouperAzureGroup);
               }
+              // generic provisioner sync-back: register the group from the raw JSON (full fidelity,
+              // not the lossy typed bean) while the JSON node is in scope. No-op outside an Azure
+              // cycle. Owners are fetched separately (retrieveGroupOwnersHelper) and are roles
+              // (memberships), not group attributes, so they are not folded in here. Scoped retrieve
+              // path (used by !selectAllGroups and incremental).
+              GrouperAzureProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
             }
           } else {
             grouperAzureGroup = GrouperAzureGroup.fromJson(groupNode);
             if (grouperAzureGroup != null) {
               result.add(grouperAzureGroup);
             }
+            // generic provisioner sync-back: register the group from the raw JSON while it is in
+            // scope (single-group read by id/displayName). Owners are roles captured via the
+            // membership path, not here. No-op outside an Azure cycle.
+            GrouperAzureProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
           }
         }
       }

@@ -75,9 +75,32 @@ public class RemedyMockServiceHandler extends MockServiceHandler {
     // all good
   }
 
+  /**
+   * Honor the real Remedy AR System q= list filter the product sends, e.g.
+   * {@code 'Remedy Login ID' = "benoff"} or
+   * {@code 'Permission Group ID' = "2000000001" and 'Remedy Login ID' = "benoff"}. The servlet
+   * URL-decodes the parameter, so we just pull the value for a quoted field name out of the
+   * qualification. Returns null if q is absent or does not constrain that field (caller returns all).
+   * @param mockServiceRequest reads the "q" request parameter
+   * @param fieldName the Remedy field, e.g. "Remedy Login ID" or "Permission Group ID"
+   * @return the constrained value, or null
+   */
+  private static String qualificationValue(MockServiceRequest mockServiceRequest, String fieldName) {
+    String q = mockServiceRequest.getHttpServletRequest().getParameter("q");
+    if (StringUtils.isBlank(q)) {
+      return null;
+    }
+    java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(
+        "'" + java.util.regex.Pattern.quote(fieldName) + "'\\s*=\\s*\"([^\"]*)\"").matcher(q);
+    if (matcher.find()) {
+      return matcher.group(1);
+    }
+    return null;
+  }
+
   public void getGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
 
-    try {      
+    try {
       checkAuthorization(mockServiceRequest);
     } catch (Exception e) {
       mockServiceResponse.setResponseCode(401);
@@ -86,8 +109,16 @@ public class RemedyMockServiceHandler extends MockServiceHandler {
 
     List<GrouperRemedyGroup> grouperRemedyGroups = null;
     ByHqlStatic query = null;
-    query = HibernateSession.byHqlStatic().createQuery("from GrouperRemedyGroup");
-    
+    // honor the q= filter ('Permission Group ID' = "X"); real Remedy filters server-side and the
+    // product relies on it -- without filtering, write-prechecks and scoped reads see every row.
+    String permissionGroupIdFilter = qualificationValue(mockServiceRequest, "Permission Group ID");
+    if (permissionGroupIdFilter != null) {
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperRemedyGroup where permissionGroupId = :pgid")
+          .setLong("pgid", Long.valueOf(permissionGroupIdFilter));
+    } else {
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperRemedyGroup");
+    }
+
     grouperRemedyGroups = query.list(GrouperRemedyGroup.class);
     
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
@@ -178,8 +209,15 @@ public class RemedyMockServiceHandler extends MockServiceHandler {
       
     List<GrouperRemedyUser> grouperRemedyUsers = null;
     ByHqlStatic query = null;
-    query = HibernateSession.byHqlStatic().createQuery("from GrouperRemedyUser");
-    
+    // honor the q= filter ('Remedy Login ID' = "X")
+    String remedyLoginIdFilter = qualificationValue(mockServiceRequest, "Remedy Login ID");
+    if (remedyLoginIdFilter != null) {
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperRemedyUser where remedyLoginId = :rlid")
+          .setString("rlid", remedyLoginIdFilter);
+    } else {
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperRemedyUser");
+    }
+
     grouperRemedyUsers = query.list(GrouperRemedyUser.class);
     
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
@@ -241,8 +279,25 @@ public class RemedyMockServiceHandler extends MockServiceHandler {
       
     List<GrouperRemedyMembership> grouperRemedyMemberships = null;
     ByHqlStatic query = null;
-    query = HibernateSession.byHqlStatic().createQuery("from GrouperRemedyMembership");
-    
+    // honor the q= filter; memberships are queried by 'Permission Group ID' and/or 'Remedy Login ID'
+    String mshipPgidFilter = qualificationValue(mockServiceRequest, "Permission Group ID");
+    String mshipLoginFilter = qualificationValue(mockServiceRequest, "Remedy Login ID");
+    StringBuilder mshipHql = new StringBuilder("from GrouperRemedyMembership");
+    if (mshipPgidFilter != null && mshipLoginFilter != null) {
+      mshipHql.append(" where permissionGroupId = :pgid and remedyLoginId = :rlid");
+    } else if (mshipPgidFilter != null) {
+      mshipHql.append(" where permissionGroupId = :pgid");
+    } else if (mshipLoginFilter != null) {
+      mshipHql.append(" where remedyLoginId = :rlid");
+    }
+    query = HibernateSession.byHqlStatic().createQuery(mshipHql.toString());
+    if (mshipPgidFilter != null) {
+      query = query.setLong("pgid", Long.valueOf(mshipPgidFilter));
+    }
+    if (mshipLoginFilter != null) {
+      query = query.setString("rlid", mshipLoginFilter);
+    }
+
     grouperRemedyMemberships = query.list(GrouperRemedyMembership.class);
     
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
@@ -290,8 +345,10 @@ public class RemedyMockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(remedyLoginId) > 0, "userId is required");
     
+    // bind name must match the :theId placeholder in the HQL above (was mistakenly "remedyLoginId",
+    // which would throw "could not locate named parameter" if this by-path read were ever exercised).
     List<GrouperRemedyUser> grouperRemedyUsers = HibernateSession.byHqlStatic().createQuery("from GrouperRemedyUser where remedyLoginId = :theId")
-        .setString("remedyLoginId", remedyLoginId).list(GrouperRemedyUser.class);
+        .setString("theId", remedyLoginId).list(GrouperRemedyUser.class);
 
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     /**

@@ -106,8 +106,8 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
         ProvisioningGroup targetGroup = grouperAzureGroup.toProvisioningGroup();
         results.add(targetGroup);
-        // generic provisioner sync back: capture native group while the bean is in scope
-        GrouperAzureProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(grouperAzureGroup);
+        // generic provisioner sync back: the native group is captured from raw JSON at the
+        // GrouperAzureApiCommands.retrieveAzureGroups seam (full fidelity), not from the bean here.
       }
 
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -142,8 +142,8 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
         ProvisioningEntity targetEntity = grouperAzureUser.toProvisioningEntity();
         results.add(targetEntity);
         targetEntityToNativeEntity.put(targetEntity, grouperAzureUser);
-        // generic provisioner sync back: capture native user while the bean is in scope
-        GrouperAzureProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(grouperAzureUser);
+        // generic provisioner sync back: the native user is captured from raw JSON at the
+        // GrouperAzureApiCommands.retrieveAzureUsers seam (full fidelity), not from the bean here.
       }
 
       TargetDaoRetrieveAllEntitiesResponse response = new TargetDaoRetrieveAllEntitiesResponse(results);
@@ -188,8 +188,9 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       for (GrouperAzureUser userFromAuzre: azureUsers) {
         targetEntitiesFromAzure.add(userFromAuzre.toProvisioningEntity());
         targetEntityToNativeEntity.put(userFromAuzre.toProvisioningEntity(), userFromAuzre);
-        // generic provisioner sync back: scoped retrieve path (used by !selectAllEntities and incremental)
-        GrouperAzureProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(userFromAuzre);
+        // generic provisioner sync back: the native user is captured from raw JSON at the
+        // GrouperAzureApiCommands.retrieveUsersHelper seam (full fidelity), not from the bean here.
+        // Scoped retrieve path (used by !selectAllEntities and incremental).
       }
       
       TargetDaoRetrieveEntitiesResponse response = new TargetDaoRetrieveEntitiesResponse();
@@ -246,8 +247,9 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
       for (GrouperAzureGroup groupFromAuzre: azureGroups) {
         targetGroupsFromAzure.add(groupFromAuzre.toProvisioningGroup());
-        // generic provisioner sync back: scoped retrieve path (used by !selectAllGroups and incremental)
-        GrouperAzureProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(groupFromAuzre);
+        // generic provisioner sync back: the native group is captured from raw JSON at the
+        // GrouperAzureApiCommands.retrieveGroupsHelper seam (full fidelity), not from the bean here.
+        // Scoped retrieve path (used by !selectAllGroups and incremental).
       }
       
       TargetDaoRetrieveGroupsResponse response = new TargetDaoRetrieveGroupsResponse();
@@ -998,7 +1000,8 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
     grouperProvisionerDaoCapabilities.setCanUpdateGroups(true);
 
-    // read path captures GrouperAzureUser/Group beans through GrouperAzureProvisioningTargetNativeSync.record*
+    // read path captures groups/users from raw Graph JSON at the GrouperAzureApiCommands seam, and
+    // group-centric memberships during DAO translation, via GrouperAzureProvisioningTargetNativeSync
     grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 

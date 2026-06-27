@@ -88,8 +88,8 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
         role.setGroupType("role");
         ProvisioningGroup targetGroup = role.toProvisioningGroup();
         results.add(targetGroup);
-        // generic provisioner sync back: capture native group while the bean is in scope
-        DatadogProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(role);
+        // generic provisioner sync-back: the native group is captured from the raw JSON:API
+        // envelope at the DatadogApiCommands.retrieveRoles seam, not from this typed bean.
       }
 
       // retrieve teams
@@ -109,8 +109,8 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
         }
         ProvisioningGroup targetGroup = team.toProvisioningGroup();
         results.add(targetGroup);
-        // generic provisioner sync back: capture native group while the bean is in scope
-        DatadogProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(team);
+        // generic provisioner sync-back: the native group is captured from the raw JSON:API
+        // envelope at the DatadogApiCommands.retrieveTeams seam, not from this typed bean.
       }
 
       return new TargetDaoRetrieveAllGroupsResponse(results);
@@ -138,8 +138,8 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
       for (DatadogUser datadogUser : GrouperUtil.nonNull(datadogUsers)) {
         ProvisioningEntity targetEntity = datadogUser.toProvisioningEntity();
         results.add(targetEntity);
-        // generic provisioner sync back: capture native user while the bean is in scope
-        DatadogProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(datadogUser);
+        // generic provisioner sync-back: the native user is captured from the raw JSON:API
+        // envelope at the DatadogApiCommands.retrieveUsers seam, not from this typed bean.
       }
 
       return new TargetDaoRetrieveAllEntitiesResponse(results);
@@ -177,10 +177,8 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
 
       ProvisioningEntity targetEntity = foundUser == null ? null : foundUser.toProvisioningEntity();
 
-      if (foundUser != null) {
-        // generic provisioner sync back: capture native user while the bean is in scope
-        DatadogProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(foundUser);
-      }
+      // generic provisioner sync-back: the native users are captured from the raw JSON:API
+      // envelopes at the DatadogApiCommands.retrieveUsers seam (called above), not from this bean.
 
       return new TargetDaoRetrieveEntityResponse(targetEntity);
 
@@ -238,10 +236,9 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
 
       ProvisioningGroup targetGroup = foundGroup == null ? null : foundGroup.toProvisioningGroup();
 
-      if (foundGroup != null) {
-        // generic provisioner sync back: capture native group while the bean is in scope
-        DatadogProvisioningTargetNativeSync.captureGroupFromCurrentProvisioner(foundGroup);
-      }
+      // generic provisioner sync-back: the native groups are captured from the raw JSON:API
+      // envelopes at the DatadogApiCommands.retrieveTeams/retrieveRoles seams (called above),
+      // not from this bean.
 
       return new TargetDaoRetrieveGroupResponse(targetGroup);
 
@@ -519,11 +516,10 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
           targetMembership.setProvisioningEntityId(user.getId());
           provisioningMemberships.add(targetMembership);
         }
-        // role members also include the user beans; capture both the membership edge and the user
+        // capture the role membership edges from the parsed beans (there is no membership-from-JSON
+        // capture for Datadog). The role-member users themselves are captured from the raw JSON:API
+        // envelopes at the DatadogApiCommands.getRoleUsers seam (called above), not from the beans.
         DatadogProvisioningTargetNativeSync.captureRoleMembershipsFromCurrentProvisioner(groupId, roleUsers);
-        for (DatadogUser user : GrouperUtil.nonNull(roleUsers)) {
-          DatadogProvisioningTargetNativeSync.captureUserFromCurrentProvisioner(user);
-        }
       } else {
         throw new RuntimeException("Invalid groupType: '" + groupType + "', expected 'team' or 'role'");
       }
@@ -658,7 +654,9 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
-    // read path captures DatadogUser/Group beans through DatadogProvisioningTargetNativeSync.record*
+    // read path captures groups/users from the raw JSON:API envelopes at the DatadogApiCommands
+    // seams (DatadogProvisioningTargetNativeSync.captureGroupJson/captureUserJson...); membership
+    // edges are still recorded from the parsed beans in retrieveMembershipsByGroup
     grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 
