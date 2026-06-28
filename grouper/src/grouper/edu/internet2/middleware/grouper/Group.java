@@ -5576,8 +5576,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     //lets validate
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "name", 
     //        Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, false);
-    boolean sqlServer = GrouperDdlUtils.isSQLServer();
-    int maxNameLength = sqlServer ? 900 : 1024;
+    // GRP-7076: grouper_groups.name is varchar(1024) (sql server is no longer supported as the primary db).
+    int maxNameLength = 1024;
     maxNameLength = GrouperConfig.retrieveConfig().propertyValueInt("grouper.groupName.maxSize", maxNameLength);
     
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "extension", 

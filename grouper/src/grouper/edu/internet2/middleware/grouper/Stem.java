@@ -2024,7 +2024,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public void validate() {
     //lets validate
     
-    int maxNameLength = 255;
+    // GRP-7076: stems.name/display_name widened 255 -> 1024 to match grouper_groups, so deep folder
+    // paths are no longer capped at 255.  Overridable via grouper.stemName.maxSize.
+    int maxNameLength = 1024;
     maxNameLength = GrouperConfig.retrieveConfig().propertyValueInt("grouper.stemName.maxSize", maxNameLength);
 
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "extension", 
@@ -2038,21 +2040,21 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     //        Types.VARCHAR, "255", false, true);
     if (GrouperUtil.lengthAscii(this.getDisplayExtension()) > 255 ) {
       throw new GrouperValidationException("Stem display extension too long: " + GrouperUtil.lengthAscii(this.getDisplayExtension()), 
-          VALIDATION_STEM_DISPLAY_EXTENSION_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getDisplayName()));
+          VALIDATION_STEM_DISPLAY_EXTENSION_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getDisplayExtension()));
     }
 
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "name", 
     //        Types.VARCHAR, "255", false, true);
     if (GrouperUtil.lengthAscii(this.getName()) > maxNameLength) {
       throw new GrouperValidationException("Stem name too long: " + GrouperUtil.lengthAscii(this.getName()), 
-          VALIDATION_STEM_NAME_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getName()));
+          VALIDATION_STEM_NAME_TOO_LONG_KEY, maxNameLength, GrouperUtil.lengthAscii(this.getName()));
     }
 
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "display_name", 
     //        Types.VARCHAR, "255", false, true);
     if (GrouperUtil.lengthAscii(this.getDisplayName()) > maxNameLength) {
       throw new GrouperValidationException("Stem display name too long: " + GrouperUtil.lengthAscii(this.getDisplayName()), 
-          VALIDATION_STEM_DISPLAY_NAME_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getDisplayName()));
+          VALIDATION_STEM_DISPLAY_NAME_TOO_LONG_KEY, maxNameLength, GrouperUtil.lengthAscii(this.getDisplayName()));
     }
 
     //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "description", 

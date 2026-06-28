@@ -1849,11 +1849,13 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "parent_stem", 
             Types.VARCHAR, ID_SIZE, false, false);
   
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "name", 
-            Types.VARCHAR, "255", false, true);
-  
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "display_name", 
-            Types.VARCHAR, "255", false, true);
+        // GRP-7076: widened 255 -> 1024 to match grouper_groups.name/display_name so deeply nested
+        // folder paths are not capped at 255 chars (a group name is parent-stem-name + ':' + extension).
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "name",
+            Types.VARCHAR, "1024", false, true);
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "display_name",
+            Types.VARCHAR, "1024", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "creator_id", 
             Types.VARCHAR, ID_SIZE, false, true);
@@ -1893,8 +1895,10 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
             "stem_dislpayextn_idx", false, "display_extension");
 
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
-            "stem_displayname_idx", false, "display_name");
+        // GRP-7076: display_name widened to 1024; (255) prefix keeps mysql under the InnoDB key limit
+        // (postgres/oracle index the full column - ddlutils strips the prefix there).
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(),
+            "stem_displayname_idx", false, "display_name(255)");
 
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
             "stem_extn_idx", false, "extension");
@@ -1905,8 +1909,10 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
             "stem_modifytime_idx", false, "modify_time");
 
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
-            "stem_name_idx", true, "name");
+        // GRP-7076: name widened to 1024; (255) prefix for mysql.  NOTE this UNIQUE index is then unique
+        // on the first 255 chars on mysql - the same trade-off grouper_groups.group_name_idx already makes.
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(),
+            "stem_name_idx", true, "name(255)");
 
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
             "stem_parent_idx", false, "parent_stem");
@@ -3235,11 +3241,14 @@ public enum GrouperDdl implements DdlVersionable {
   private static void addStemAlternateNameCol(Database database,
       DdlVersionBean ddlVersionBean, Table stemsTable) {
     
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_ALTERNATE_NAME, Types.VARCHAR, 
-        "255", false, false); 
-    
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
-        "stem_alternate_name_idx", false, Stem.COLUMN_ALTERNATE_NAME);
+    // GRP-7076: widened 255 -> 1024 to match the widened stems.name (an alternate name is a full-path alias),
+    // mirroring grouper_groups.alternate_name which is already 1024.
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_ALTERNATE_NAME, Types.VARCHAR,
+        "1024", false, false);
+
+    // GRP-7076: (255) prefix for the mysql InnoDB key limit, matching group_alternate_name_idx.
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(),
+        "stem_alternate_name_idx", false, Stem.COLUMN_ALTERNATE_NAME+"(255)");
   }
   
   /**

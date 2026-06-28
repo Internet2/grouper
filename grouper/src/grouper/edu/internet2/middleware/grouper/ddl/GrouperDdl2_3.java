@@ -60,7 +60,10 @@ public class GrouperDdl2_3 {
     }
     
     Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, Member.TABLE_GROUPER_MEMBERS, true);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SUBJECT_IDENTIFIER0, Types.VARCHAR, "255", false, false);
+    // GRP-7076: widened 255 -> 1024 to match grouper_groups.name.  A group-as-subject (source g:gsa)
+    // stores its fully-qualified group name here; a name of 256-1024 chars previously overflowed this
+    // column and failed the group create in the same transaction with an opaque JDBC error.
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SUBJECT_IDENTIFIER0, Types.VARCHAR, "1024", false, false);
     
   }
   
@@ -112,7 +115,8 @@ public class GrouperDdl2_3 {
     }
     
     Table pitMembersTable = GrouperDdlUtils.ddlutilsFindTable(database, PITMember.TABLE_GROUPER_PIT_MEMBERS, true);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_IDENTIFIER0, Types.VARCHAR, "255", false, false);
+    // GRP-7076: widened 255 -> 1024 to mirror grouper_members.subject_identifier0 (point-in-time copy).
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_IDENTIFIER0, Types.VARCHAR, "1024", false, false);
     
   }
   

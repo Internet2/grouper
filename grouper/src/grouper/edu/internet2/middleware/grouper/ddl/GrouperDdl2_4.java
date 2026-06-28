@@ -57,8 +57,10 @@ public class GrouperDdl2_4 {
     
     Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, Member.TABLE_GROUPER_MEMBERS, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), 
-        "member_subjidentifier0_idx", false, "subject_identifier0");
+    // GRP-7076: subject_identifier0 widened to 1024; use a (255) prefix so mysql stays under the
+    // InnoDB key-length limit (postgres/oracle index the full column - ddlutils strips the prefix there).
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(),
+        "member_subjidentifier0_idx", false, "subject_identifier0(255)");
     
   }
 
@@ -74,8 +76,9 @@ public class GrouperDdl2_4 {
     
     Table pitMembersTable = GrouperDdlUtils.ddlutilsFindTable(database, PITMember.TABLE_GROUPER_PIT_MEMBERS, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
-        "pit_member_subjidentifier0_idx", false, "subject_identifier0");
+    // GRP-7076: subject_identifier0 widened to 1024; (255) prefix for the mysql InnoDB key-length limit.
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(),
+        "pit_member_subjidentifier0_idx", false, "subject_identifier0(255)");
     
   }
 

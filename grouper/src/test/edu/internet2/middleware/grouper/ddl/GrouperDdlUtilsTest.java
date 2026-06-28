@@ -75,7 +75,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom5_13_0To5_22_0ddlUtils"));
+    TestRunner.run(new GrouperDdlUtilsTest("testGrp7076InstallColumnWidths"));
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
     //TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
@@ -983,6 +983,116 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_recent_mships_conf_v"));
     assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_recent_mships_load_v"));
 
+  }
+
+  /**
+   * GRP-7076: a group (source g:gsa) stores its fully-qualified name in grouper_members.subject_identifier0,
+   * and folder paths live in grouper_stems.name; these were varchar(255) while grouper_groups.name is
+   * varchar(1024), so a name of 256-1024 chars overflowed and failed the group/folder create.  This test
+   * validates that a fresh install creates the widened columns as varchar(1024) and that their indexes exist
+   * (on mysql they are (255) prefix indexes, so the install does not exceed the InnoDB key-length limit).
+   * Run this against postgres, oracle, and mysql.
+   */
+  public void testGrp7076InstallColumnWidths() {
+
+    // drop everything and reinstall from the current schema
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignInstallDefaultGrouperData(false).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(false).runDdl();
+
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+
+    // the widened columns must install as varchar(1024) (id1/id2 widened for parity with id0)
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_members", "subject_identifier0"));
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_members", "subject_identifier1"));
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_members", "subject_identifier2"));
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_pit_members", "subject_identifier0"));
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_stems", "name"));
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_stems", "display_name"));
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_stems", "alternate_name"));
+
+    // the indexes must exist (the mysql install would have failed at CREATE INDEX if the (255) prefix were missing)
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_members", "member_subjidentifier0_idx"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_members", "member_subjidentifier1_idx"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_members", "member_subjidentifier2_idx"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_pit_members", "pit_member_subjidentifier0_idx"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_stems", "stem_name_idx"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_stems", "stem_displayname_idx"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_stems", "stem_alternate_name_idx"));
+  }
+
+  /**
+   * GRP-7076: validate that UpgradeTaskV43 widens the columns from varchar(255) to varchar(1024) on oracle and
+   * mysql (including dropping/recreating the mysql indexes as (255) prefixes).  Postgres is skipped: there the
+   * widening is a manual DBA task because ALTER COLUMN ... TYPE is blocked by the dependent views, so
+   * UpgradeTaskV43 intentionally does not auto-run it.  Run this against oracle and mysql.
+   */
+  public void testGrp7076WidenUpgradeTask() {
+
+    // drop everything and reinstall (columns start at 1024)
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignInstallDefaultGrouperData(true).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(false).runDdl();
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+
+    // postgres widening is a manual DBA task; nothing to auto-validate here
+    if (GrouperDdlUtils.isPostgres()) {
+      return;
+    }
+
+    // simulate a pre-GRP-7076 database by shrinking the columns back to varchar(255)
+    grp7076NarrowColumn("grouper_members",     "subject_identifier0", "member_subjidentifier0_idx",     false, false);
+    grp7076NarrowColumn("grouper_members",     "subject_identifier1", "member_subjidentifier1_idx",     false, false);
+    grp7076NarrowColumn("grouper_members",     "subject_identifier2", "member_subjidentifier2_idx",     false, false);
+    grp7076NarrowColumn("grouper_pit_members", "subject_identifier0", "pit_member_subjidentifier0_idx", false, false);
+    grp7076NarrowColumn("grouper_stems",       "alternate_name",      "stem_alternate_name_idx",        false, false);
+    grp7076NarrowColumn("grouper_stems",       "display_name",        "stem_displayname_idx",           false, true);
+    grp7076NarrowColumn("grouper_stems",       "name",                "stem_name_idx",                  true,  true);
+
+    assertEquals(255, GrouperDdlUtils.getColumnSize("grouper_stems", "name"));
+    assertEquals(255, GrouperDdlUtils.getColumnSize("grouper_members", "subject_identifier0"));
+
+    // run the upgrade task - it must widen everything back to 1024
+    UpgradeTasks.V43.upgradeTask().updateVersionFromPrevious(null);
+
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_members", "subject_identifier0"));
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_members", "subject_identifier1"));
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_members", "subject_identifier2"));
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_pit_members", "subject_identifier0"));
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_stems", "name"));
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_stems", "display_name"));
+    assertEquals(1024, GrouperDdlUtils.getColumnSize("grouper_stems", "alternate_name"));
+
+    // the indexes must still exist after the widen (recreated as (255) prefixes on mysql)
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_stems", "stem_name_idx"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_members", "member_subjidentifier0_idx"));
+  }
+
+  /**
+   * test helper: shrink a column back to varchar(255) to simulate a pre-GRP-7076 schema (oracle/mysql only).
+   * On mysql the index is dropped and recreated as a full-column index (the old state) so it fits the key limit.
+   * @param table
+   * @param column
+   * @param index
+   * @param unique whether the index is unique
+   * @param notNull whether the column is NOT NULL (mysql MODIFY rewrites the whole column definition)
+   */
+  private void grp7076NarrowColumn(String table, String column, String index, boolean unique, boolean notNull) {
+    if (GrouperDdlUtils.isOracle()) {
+      HibernateSession.bySqlStatic().executeSql("ALTER TABLE " + table + " MODIFY (" + column + " VARCHAR2(255))");
+    } else if (GrouperDdlUtils.isMysql()) {
+      if (GrouperDdlUtils.assertIndexExists(table, index)) {
+        HibernateSession.bySqlStatic().executeSql("DROP INDEX " + index + " ON " + table);
+      }
+      HibernateSession.bySqlStatic().executeSql("ALTER TABLE " + table + " MODIFY " + column
+          + " VARCHAR(255)" + (notNull ? " NOT NULL" : " NULL"));
+      HibernateSession.bySqlStatic().executeSql("CREATE " + (unique ? "UNIQUE " : "") + "INDEX " + index
+          + " ON " + table + " (" + column + ")");
+    }
   }
 
   /**

@@ -3165,6 +3165,34 @@ public class GrouperDdlUtils {
       GrouperUtil.closeQuietly(connection);
     }
   }
+
+  /**
+   * Get the declared size (max length) of a column from the live database, e.g. 1024 for VARCHAR(1024).
+   * Reads the column definition (not the data) via JDBC result set metadata, so it works the same across
+   * postgres, oracle, and mysql.  Useful for idempotent DDL upgrade tasks that widen a column.
+   * @param tableName
+   * @param columnName
+   * @return the declared column size (precision)
+   */
+  public static int getColumnSize(String tableName, String columnName) {
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    Connection connection = null;
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      connection = grouperDb.connection();
+      preparedStatement = connection.prepareStatement("select " + columnName + " from " + tableName + " where 1 = 2");
+      resultSet = preparedStatement.executeQuery();
+      ResultSetMetaData metadata = resultSet.getMetaData();
+      return metadata.getPrecision(1);
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperUtil.closeQuietly(resultSet);
+      GrouperUtil.closeQuietly(preparedStatement);
+      GrouperUtil.closeQuietly(connection);
+    }
+  }
   
   public static boolean doesConstraintExistOracle(String constraintName) {
     if (!GrouperDdlUtils.isOracle()) {

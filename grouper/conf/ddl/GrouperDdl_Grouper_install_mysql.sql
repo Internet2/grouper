@@ -155,9 +155,9 @@ CREATE TABLE grouper_members
     subject_source VARCHAR(255) NOT NULL,
     subject_type VARCHAR(255) NOT NULL,
     hibernate_version_number BIGINT,
-    subject_identifier0 VARCHAR(255) NULL,
-    subject_identifier1 VARCHAR(255) NULL,
-    subject_identifier2 VARCHAR(255) NULL,
+    subject_identifier0 VARCHAR(1024) NULL,
+    subject_identifier1 VARCHAR(1024) NULL,
+    subject_identifier2 VARCHAR(1024) NULL,
     id_index BIGINT NOT NULL,
     internal_id BIGINT NOT NULL,
     email0 VARCHAR(255) NULL,
@@ -202,11 +202,11 @@ CREATE INDEX member_sort_string4_idx ON grouper_members (sort_string4);
 
 CREATE INDEX member_context_idx ON grouper_members (context_id);
 
-CREATE INDEX member_subjidentifier0_idx ON grouper_members (subject_identifier0);
+CREATE INDEX member_subjidentifier0_idx ON grouper_members (subject_identifier0(255));
 
-CREATE INDEX member_subjidentifier1_idx ON grouper_members (subject_identifier1);
+CREATE INDEX member_subjidentifier1_idx ON grouper_members (subject_identifier1(255));
 
-CREATE INDEX member_subjidentifier2_idx ON grouper_members (subject_identifier2);
+CREATE INDEX member_subjidentifier2_idx ON grouper_members (subject_identifier2(255));
 
 CREATE UNIQUE INDEX member_id_index_idx ON grouper_members (id_index);
 
@@ -344,8 +344,8 @@ CREATE TABLE grouper_stems
 (
     id VARCHAR(40) NOT NULL,
     parent_stem VARCHAR(40) NULL,
-    name VARCHAR(255) NOT NULL,
-    display_name VARCHAR(255) NOT NULL,
+    name VARCHAR(1024) NOT NULL,
+    display_name VARCHAR(1024) NOT NULL,
     creator_id VARCHAR(40) NOT NULL,
     create_time BIGINT NOT NULL,
     modifier_id VARCHAR(40) NULL,
@@ -354,14 +354,14 @@ CREATE TABLE grouper_stems
     extension VARCHAR(255) NOT NULL,
     description VARCHAR(1024) NULL,
     last_membership_change BIGINT,
-    alternate_name VARCHAR(255) NULL,
+    alternate_name VARCHAR(1024) NULL,
     hibernate_version_number BIGINT,
     context_id VARCHAR(40) NULL,
     id_index BIGINT NOT NULL,
     PRIMARY KEY (id)
 );
 
-CREATE INDEX stem_alternate_name_idx ON grouper_stems (alternate_name);
+CREATE INDEX stem_alternate_name_idx ON grouper_stems (alternate_name(255));
 
 CREATE INDEX stem_last_membership_idx ON grouper_stems (last_membership_change);
 
@@ -371,7 +371,7 @@ CREATE INDEX stem_creator_idx ON grouper_stems (creator_id);
 
 CREATE INDEX stem_dislpayextn_idx ON grouper_stems (display_extension);
 
-CREATE INDEX stem_displayname_idx ON grouper_stems (display_name);
+CREATE INDEX stem_displayname_idx ON grouper_stems (display_name(255));
 
 CREATE INDEX stem_extn_idx ON grouper_stems (extension);
 
@@ -379,7 +379,7 @@ CREATE INDEX stem_modifier_idx ON grouper_stems (modifier_id);
 
 CREATE INDEX stem_modifytime_idx ON grouper_stems (modify_time);
 
-CREATE UNIQUE INDEX stem_name_idx ON grouper_stems (name);
+CREATE UNIQUE INDEX stem_name_idx ON grouper_stems (name(255));
 
 CREATE INDEX stem_parent_idx ON grouper_stems (parent_stem);
 
@@ -767,7 +767,7 @@ CREATE TABLE grouper_pit_members
     subject_id VARCHAR(255) NOT NULL,
     subject_source VARCHAR(255) NOT NULL,
     subject_type VARCHAR(255) NOT NULL,
-    subject_identifier0 VARCHAR(255) NULL,
+    subject_identifier0 VARCHAR(1024) NULL,
     active VARCHAR(1) NOT NULL,
     start_time BIGINT NOT NULL,
     end_time BIGINT,
@@ -789,7 +789,7 @@ CREATE UNIQUE INDEX pit_member_start_idx ON grouper_pit_members (start_time, sou
 
 CREATE INDEX pit_member_end_idx ON grouper_pit_members (end_time);
 
-CREATE INDEX pit_member_subjidentifier0_idx ON grouper_pit_members (subject_identifier0);
+CREATE INDEX pit_member_subjidentifier0_idx ON grouper_pit_members (subject_identifier0(255));
 
 CREATE TABLE grouper_pit_fields
 (

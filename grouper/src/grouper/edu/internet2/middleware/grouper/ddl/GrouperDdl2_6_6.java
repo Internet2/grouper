@@ -100,12 +100,14 @@ public class GrouperDdl2_6_6 {
     {
       Table grouperMembersTable = GrouperDdlUtils.ddlutilsFindTable(database, "grouper_members", true);
 
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperMembersTable, Member.COLUMN_SUBJECT_IDENTIFIER1, Types.VARCHAR, "255", false, false); 
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperMembersTable, Member.COLUMN_SUBJECT_IDENTIFIER2, Types.VARCHAR, "255", false, false); 
+      // GRP-7076: widened 255 -> 1024 for parity with subject_identifier0 (a custom subject source could map a long value here)
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperMembersTable, Member.COLUMN_SUBJECT_IDENTIFIER1, Types.VARCHAR, "1024", false, false); 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperMembersTable, Member.COLUMN_SUBJECT_IDENTIFIER2, Types.VARCHAR, "1024", false, false); 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperMembersTable, Member.COLUMN_EMAIL0, Types.VARCHAR, "255", false, false);     
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperMembersTable.getName(), "member_subjidentifier1_idx", false, Member.COLUMN_SUBJECT_IDENTIFIER1);       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperMembersTable.getName(), "member_subjidentifier2_idx", false, Member.COLUMN_SUBJECT_IDENTIFIER2);       
+      // GRP-7076: subject_identifier1/2 widened to 1024; (255) prefix keeps mysql under the InnoDB key limit
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperMembersTable.getName(), "member_subjidentifier1_idx", false, Member.COLUMN_SUBJECT_IDENTIFIER1+"(255)");       
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperMembersTable.getName(), "member_subjidentifier2_idx", false, Member.COLUMN_SUBJECT_IDENTIFIER2+"(255)");       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperMembersTable.getName(), "member_email0_idx", false, Member.COLUMN_EMAIL0);       
     }
     
