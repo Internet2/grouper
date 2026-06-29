@@ -75,11 +75,32 @@ public class GrouperAbac {
   }
 
   /**
-   * cache the abacGlobal data field values for a couple minutes.  keyed by data field internal id,
-   * valued by the scalar value assigned to the abacGlobal group (member): the dictionary text for
-   * string fields, or the integer value (value_integer) for integer/bool/timestamp fields.
+   * cache of the abacGlobal data field values.  keyed by data field internal id, valued by the scalar
+   * value assigned to the abacGlobal group (member): the dictionary text for string fields, or the
+   * integer value (value_integer) for integer/bool/timestamp fields.  Lazily built (not initialized in
+   * the field declaration) so the cache duration can be read from config on first use.
    */
-  private static ExpirableCache<Boolean, Map<Long, Object>> globalAttributeValuesCache = new ExpirableCache<>(2);
+  private static ExpirableCache<Boolean, Map<Long, Object>> globalAttributeValuesCache = null;
+
+  /**
+   * number of minutes to cache the abacGlobal data field values.  Defaults to 2 minutes; a changed
+   * global value takes effect within this many minutes (or immediately after {@link #clearCaches()}).
+   * @return the cache duration in minutes
+   */
+  public static int globalAttributeValuesCacheMinutes() {
+    return GrouperConfig.retrieveConfig().propertyValueInt("grouper.abac.globalAttributeValuesCacheMinutes", 2);
+  }
+
+  /**
+   * the cache of abacGlobal data field values, lazily built with the configured cache duration.
+   * @return the cache
+   */
+  private static ExpirableCache<Boolean, Map<Long, Object>> globalAttributeValuesCache() {
+    if (globalAttributeValuesCache == null) {
+      globalAttributeValuesCache = new ExpirableCache<>(globalAttributeValuesCacheMinutes());
+    }
+    return globalAttributeValuesCache;
+  }
 
   /**
    * Load the data field values assigned to the abacGlobal group (treated as a subject/member),
@@ -95,7 +116,7 @@ public class GrouperAbac {
    *   any assignments do not exist.
    */
   public static Map<Long, Object> globalAttributeValueByDataFieldInternalId() {
-    Map<Long, Object> result = globalAttributeValuesCache.get(Boolean.TRUE);
+    Map<Long, Object> result = globalAttributeValuesCache().get(Boolean.TRUE);
     if (result != null) {
       return result;
     }
@@ -115,7 +136,7 @@ public class GrouperAbac {
     });
 
     if (memberInternalId == null) {
-      globalAttributeValuesCache.put(Boolean.TRUE, result);
+      globalAttributeValuesCache().put(Boolean.TRUE, result);
       return result;
     }
 
@@ -130,7 +151,7 @@ public class GrouperAbac {
       result.put(dataFieldInternalId, theText != null ? theText : valueInteger);
     }
 
-    globalAttributeValuesCache.put(Boolean.TRUE, result);
+    globalAttributeValuesCache().put(Boolean.TRUE, result);
     return result;
   }
 
@@ -409,7 +430,7 @@ public class GrouperAbac {
    * clear all expirable caches, useful for testing
    */
   public static void clearCaches() {
-    globalAttributeValuesCache.clear();
+    globalAttributeValuesCache().clear();
     globalDefaultSubjectSourceIdsCache.clear();
     allowUserOverrideSubjectSourceIdsCache.clear();
     availableSubjectSourceIdsCache.clear();
