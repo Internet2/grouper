@@ -145,6 +145,11 @@ public class AzureMockServiceHandler extends MockServiceHandler {
         getGroupMembers(mockServiceRequest, mockServiceResponse);
         return;
       }
+      if ("groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 3 == mockServiceRequest.getPostMockNamePaths().length
+          && "owners".equals(mockServiceRequest.getPostMockNamePaths()[2])) {
+        getGroupOwners(mockServiceRequest, mockServiceResponse);
+        return;
+      }
       if ("users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
         getUsers(mockServiceRequest, mockServiceResponse);
         return;
@@ -168,6 +173,11 @@ public class AzureMockServiceHandler extends MockServiceHandler {
         deleteMembership(mockServiceRequest, mockServiceResponse);
         return;
       }
+      if ("groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 5 == mockServiceRequest.getPostMockNamePaths().length
+          && "owners".equals(mockServiceRequest.getPostMockNamePaths()[2]) && "$ref".equals(mockServiceRequest.getPostMockNamePaths()[4])) {
+        deleteOwner(mockServiceRequest, mockServiceResponse);
+        return;
+      }
     }
     if (StringUtils.equals("POST", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("auth".equals(mockServiceRequest.getPostMockNamePaths()[0])) {
@@ -187,6 +197,11 @@ public class AzureMockServiceHandler extends MockServiceHandler {
       if ("groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 4 == mockServiceRequest.getPostMockNamePaths().length
           && "members".equals(mockServiceRequest.getPostMockNamePaths()[2]) && "$ref".equals(mockServiceRequest.getPostMockNamePaths()[3])) {
         postMembership(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+      if ("groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 4 == mockServiceRequest.getPostMockNamePaths().length
+          && "owners".equals(mockServiceRequest.getPostMockNamePaths()[2]) && "$ref".equals(mockServiceRequest.getPostMockNamePaths()[3])) {
+        postOwner(mockServiceRequest, mockServiceResponse);
         return;
       }
       if ("users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 3 == mockServiceRequest.getPostMockNamePaths().length
@@ -468,6 +483,18 @@ public class AzureMockServiceHandler extends MockServiceHandler {
           
           responsesNode.add(postUserResponse);
           
+        } else if (urlParts.length == 5 && StringUtils.equals(urlParts[1], "groups")
+            && StringUtils.equals(urlParts[3], "owners") && StringUtils.equals(urlParts[4], "$ref")) {
+
+          MultiKey postOwnerResult = postOwner(body, urlParts[2]);
+          ObjectNode postOwnerResponse = GrouperUtil.jsonJacksonNode();
+          postOwnerResponse.put("id", id);
+          postOwnerResponse.put("status", (Integer)postOwnerResult.getKey(0));
+          if (postOwnerResult.getKey(1) != null) {
+            postOwnerResponse.set("body", (JsonNode)postOwnerResult.getKey(1));
+          }
+          responsesNode.add(postOwnerResponse);
+
         } else if ("users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 3 == mockServiceRequest.getPostMockNamePaths().length
             && "getMemberGroups".equals(mockServiceRequest.getPostMockNamePaths()[2])) {
           postUserGroups(mockServiceRequest, mockServiceResponse);
@@ -505,9 +532,9 @@ public class AzureMockServiceHandler extends MockServiceHandler {
          * "method":"DELETE"}]}
          */
         String[] urlParts = url.split("/");
-        if (urlParts.length == 6 && StringUtils.equals(urlParts[1], "groups") 
+        if (urlParts.length == 6 && StringUtils.equals(urlParts[1], "groups")
             && StringUtils.equals(urlParts[3], "members")) {
-          
+
           MultiKey result = deleteMembership(urlParts[4], urlParts[2]);
           ObjectNode response = GrouperUtil.jsonJacksonNode();
           response.put("id", id);
@@ -516,7 +543,19 @@ public class AzureMockServiceHandler extends MockServiceHandler {
             response.set("body", (JsonNode)result.getKey(1));
           }
           responsesNode.add(response);
-          
+
+        } else if (urlParts.length == 6 && StringUtils.equals(urlParts[1], "groups")
+            && StringUtils.equals(urlParts[3], "owners")) {
+
+          MultiKey result = deleteOwner(urlParts[4], urlParts[2]);
+          ObjectNode response = GrouperUtil.jsonJacksonNode();
+          response.put("id", id);
+          response.put("status", (Integer)result.getKey(0));
+          if (result.getKey(1) != null) {
+            response.set("body", (JsonNode)result.getKey(1));
+          }
+          responsesNode.add(response);
+
         } else if (urlParts.length == 3 && StringUtils.equals(urlParts[1], "groups")) {
         
         /**
@@ -734,33 +773,193 @@ public class AzureMockServiceHandler extends MockServiceHandler {
   }
   
   public MultiKey getGroupOwners(String groupId) {
-    
-    GrouperAzureGroup azureGroup = HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup where id = :theValue").setString("theValue", groupId)
-      .uniqueResult(GrouperAzureGroup.class);
-    
+
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
-    
-    if (azureGroup == null) {
+
+    String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+        "grouper.azureConnector." + this.configId + ".resourceEndpoint",
+        "https://graph.microsoft.com/v1.0/");
+    resultNode.put("@odata.context", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/$metadata#directoryObjects");
+
+    List<String> currentOwnersList = new GcDbAccess()
+        .sql("select owners from mock_azure_group where id = ?")
+        .addBindVar(groupId)
+        .selectList(String.class);
+
+    if (currentOwnersList.size() == 0) {
       resultNode.set("value", valueNode);
       return new MultiKey(200, resultNode);
     }
-    
-    Set<String> owners = azureGroup.getOwners();
-    for (String owner : GrouperUtil.nonNull(owners)) {
-      
-      ObjectNode individualOwnerNode = GrouperUtil.jsonJacksonNode();
-      individualOwnerNode.put("id", owner);
-      valueNode.add(individualOwnerNode);
+
+    String currentOwners = currentOwnersList.get(0);
+    if (!StringUtils.isBlank(currentOwners)) {
+      for (String ownerId : currentOwners.split(",")) {
+        String trimmed = ownerId.trim();
+        if (StringUtils.isBlank(trimmed)) {
+          continue;
+        }
+
+        List<GrouperAzureUser> grouperAzureUsers = HibernateSession.byHqlStatic()
+            .createQuery("from GrouperAzureUser where id = :theId")
+            .setString("theId", trimmed)
+            .list(GrouperAzureUser.class);
+
+        if (GrouperUtil.length(grouperAzureUsers) == 1) {
+          ObjectNode userNode = grouperAzureUsers.get(0).toJson(null);
+          userNode.put("@odata.type", "#microsoft.graph.user");
+          valueNode.add(userNode);
+        }
+      }
     }
-    
+
     resultNode.set("value", valueNode);
-    
+
     return new MultiKey(200, resultNode);
-    
+
   }
-  
-  
+
+  public void getGroupOwners(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    checkAuthorization(mockServiceRequest);
+    checkRequestContentType(mockServiceRequest);
+
+    String groupId = mockServiceRequest.getPostMockNamePaths()[1];
+    GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "id is required");
+
+    MultiKey result = getGroupOwners(groupId);
+    mockServiceResponse.setResponseCode((Integer) result.getKey(0));
+    if (result.getKey(1) != null) {
+      mockServiceResponse.setContentType("application/json");
+      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString((JsonNode) result.getKey(1)));
+    }
+  }
+
+  public MultiKey postOwner(JsonNode body, String groupId) {
+
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(body, "@odata.id")) > 0, "@odata.id is required");
+
+    String odataId = GrouperUtil.jsonJacksonGetString(body, "@odata.id");
+
+    String resourceEndpointUsers = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueString(
+        "grouper.azureConnector." + this.configId + ".resourceEndpoint",
+        "https://graph.microsoft.com/v1.0/")) + "/users/";
+
+    GrouperUtil.assertion(odataId.startsWith(resourceEndpointUsers), "@odata.id must start with " + resourceEndpointUsers);
+
+    String userId = GrouperUtil.prefixOrSuffix(odataId, resourceEndpointUsers, false);
+
+    List<String> currentOwnersList = new GcDbAccess()
+        .sql("select owners from mock_azure_group where id = ?")
+        .addBindVar(groupId)
+        .selectList(String.class);
+
+    if (currentOwnersList.size() == 0) {
+      return new MultiKey(404, null);
+    }
+
+    int userCount = new GcDbAccess()
+        .sql("select count(*) from mock_azure_user where id = ?")
+        .addBindVar(userId)
+        .select(int.class);
+
+    if (userCount == 0) {
+      return new MultiKey(404, null);
+    }
+
+    String currentOwners = currentOwnersList.get(0);
+    Set<String> ownerSet = new HashSet<String>();
+    if (!StringUtils.isBlank(currentOwners)) {
+      for (String owner : currentOwners.split(",")) {
+        String trimmed = owner.trim();
+        if (!StringUtils.isBlank(trimmed)) {
+          ownerSet.add(trimmed);
+        }
+      }
+    }
+
+    if (ownerSet.contains(userId)) {
+      return new MultiKey(400, null);
+    }
+
+    ownerSet.add(userId);
+    String newOwners = GrouperUtil.join(ownerSet.iterator(), ",");
+    new GcDbAccess()
+        .sql("update mock_azure_group set owners = ? where id = ?")
+        .addBindVar(newOwners)
+        .addBindVar(groupId)
+        .executeSql();
+
+    return new MultiKey(204, null);
+  }
+
+  public void postOwner(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    checkAuthorization(mockServiceRequest);
+    checkRequestContentType(mockServiceRequest);
+
+    String groupId = mockServiceRequest.getPostMockNamePaths()[1];
+    mockServiceRequest.getDebugMap().put("groupId", groupId);
+
+    JsonNode body = GrouperUtil.jsonJacksonNode(mockServiceRequest.getRequestBody());
+    MultiKey result = postOwner(body, groupId);
+    mockServiceResponse.setResponseCode((Integer) result.getKey(0));
+  }
+
+  public MultiKey deleteOwner(String userId, String groupId) {
+
+    GrouperUtil.assertion(GrouperUtil.length(userId) > 0, "userId is required");
+    GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
+
+    List<String> currentOwnersList = new GcDbAccess()
+        .sql("select owners from mock_azure_group where id = ?")
+        .addBindVar(groupId)
+        .selectList(String.class);
+
+    if (currentOwnersList.size() == 0) {
+      return new MultiKey(404, null);
+    }
+
+    String currentOwners = currentOwnersList.get(0);
+    Set<String> ownerSet = new HashSet<String>();
+    if (!StringUtils.isBlank(currentOwners)) {
+      for (String owner : currentOwners.split(",")) {
+        String trimmed = owner.trim();
+        if (!StringUtils.isBlank(trimmed)) {
+          ownerSet.add(trimmed);
+        }
+      }
+    }
+
+    if (!ownerSet.contains(userId)) {
+      return new MultiKey(404, null);
+    }
+
+    ownerSet.remove(userId);
+    String newOwners = ownerSet.isEmpty() ? null : GrouperUtil.join(ownerSet.iterator(), ",");
+    new GcDbAccess()
+        .sql("update mock_azure_group set owners = ? where id = ?")
+        .addBindVar(newOwners)
+        .addBindVar(groupId)
+        .executeSql();
+
+    return new MultiKey(204, null);
+  }
+
+  public void deleteOwner(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    checkAuthorization(mockServiceRequest);
+
+    String userId = mockServiceRequest.getPostMockNamePaths()[3];
+    GrouperUtil.assertion(GrouperUtil.length(userId) > 0, "userId is required");
+    mockServiceRequest.getDebugMap().put("userId", userId);
+
+    String groupId = mockServiceRequest.getPostMockNamePaths()[1];
+    GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
+    mockServiceRequest.getDebugMap().put("groupId", groupId);
+
+    MultiKey result = deleteOwner(userId, groupId);
+    mockServiceResponse.setResponseCode((Integer) result.getKey(0));
+  }
+
+
   public MultiKey getGroups(String filter, String fieldsToRetrieveString) {
     
     List<GrouperAzureGroup> grouperAzureGroups = null;
