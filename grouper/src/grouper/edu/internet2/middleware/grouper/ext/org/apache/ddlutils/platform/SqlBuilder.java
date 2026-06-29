@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.PlatformInfo;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.AddColumnChange;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.AddForeignKeyChange;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.AddIndexChange;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.AddUniqueConstraintChange;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.AddPrimaryKeyChange;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.AddTableChange;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.ColumnAutoIncrementChange;
@@ -60,6 +61,7 @@ import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.Prima
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.RemoveColumnChange;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.RemoveForeignKeyChange;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.RemoveIndexChange;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.RemoveUniqueConstraintChange;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.RemovePrimaryKeyChange;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.RemoveTableChange;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.alteration.TableChange;
@@ -71,6 +73,7 @@ import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.IndexColum
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.ModelException;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Reference;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.UniqueConstraint;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.TypeMap;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.util.CallbackClosure;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.util.MultiInstanceofPredicate;
@@ -546,8 +549,11 @@ public abstract class SqlBuilder
                                                               new Object[] { currentModel, desiredModel, params, null });
 
         // 1st pass: removing external constraints and indices
+        // unique constraints are dropped here too, before any unique index of the
+        // same name is (re)created in a later pass
         applyForSelectedChanges(changes,
                                 new Class[] { RemoveForeignKeyChange.class,
+                                              RemoveUniqueConstraintChange.class,
                                               RemoveIndexChange.class },
                                 callbackClosure);
 
@@ -578,10 +584,13 @@ public abstract class SqlBuilder
         applyForSelectedChanges(changes,
                                 new Class[] { AddTableChange.class },
                                 callbackClosure);
-        // 5th pass: adding external constraints and indices
+        // 5th pass: adding external constraints and indices (AddUniqueConstraintChange
+        // is included for completeness but is dormant -- nothing currently puts a
+        // unique constraint into the model; see GrouperDdlUtils.ddlutilsFindOrCreateUniqueConstraint)
         applyForSelectedChanges(changes,
                                 new Class[] { AddForeignKeyChange.class,
-                                              AddIndexChange.class },
+                                              AddIndexChange.class,
+                                              AddUniqueConstraintChange.class },
                                 callbackClosure);
     }
 
@@ -710,6 +719,42 @@ public abstract class SqlBuilder
                                  AddIndexChange     change) throws IOException
     {
         writeExternalIndexCreateStmt(change.getChangedTable(), change.getNewIndex());
+        change.apply(currentModel, getPlatform().isDelimitedIdentifierModeOn());
+    }
+
+    /**
+     * Processes the change representing the removal of a unique constraint.
+     *
+     * @param currentModel The current database schema
+     * @param desiredModel The desired database schema
+     * @param params       The parameters used in the creation of new tables. Note that for existing
+     *                     tables, the parameters won't be applied
+     * @param change       The change object
+     */
+    protected void processChange(Database                     currentModel,
+                                 Database                     desiredModel,
+                                 CreationParameters           params,
+                                 RemoveUniqueConstraintChange change) throws IOException
+    {
+        writeExternalUniqueConstraintDropStmt(change.getChangedTable(), change.getUniqueConstraint());
+        change.apply(currentModel, getPlatform().isDelimitedIdentifierModeOn());
+    }
+
+    /**
+     * Processes the change representing the addition of a unique constraint.
+     *
+     * @param currentModel The current database schema
+     * @param desiredModel The desired database schema
+     * @param params       The parameters used in the creation of new tables. Note that for existing
+     *                     tables, the parameters won't be applied
+     * @param change       The change object
+     */
+    protected void processChange(Database                  currentModel,
+                                 Database                  desiredModel,
+                                 CreationParameters        params,
+                                 AddUniqueConstraintChange change) throws IOException
+    {
+        writeExternalUniqueConstraintCreateStmt(change.getChangedTable(), change.getNewUniqueConstraint());
         change.apply(currentModel, getPlatform().isDelimitedIdentifierModeOn());
     }
 
@@ -1313,6 +1358,9 @@ public abstract class SqlBuilder
         {
             writeExternalIndicesCreateStmt(table);
         }
+        // unique constraints are always emitted as external ALTER TABLE ADD CONSTRAINT
+        // statements (they are never embedded in the create table body)
+        writeExternalUniqueConstraintsCreateStmt(table);
     }
 
     /**
@@ -2451,6 +2499,101 @@ public abstract class SqlBuilder
             print(" ON ");
             printIdentifier(getTableName(table));
         }
+        printEndOfStatement();
+    }
+
+    /**
+     * Returns the unique constraint name. This method takes care of length
+     * limitations imposed by some databases.
+     *
+     * @param uniqueConstraint The unique constraint
+     * @return The unique constraint name
+     */
+    public String getUniqueConstraintName(UniqueConstraint uniqueConstraint)
+    {
+        return uniqueConstraint.getName();
+    }
+
+    /**
+     * Writes the unique constraints of the given table as external
+     * <code>ALTER TABLE ... ADD CONSTRAINT</code> statements.
+     *
+     * @param table The table
+     */
+    protected void writeExternalUniqueConstraintsCreateStmt(Table table) throws IOException
+    {
+        for (int idx = 0; idx < table.getUniqueConstraintCount(); idx++)
+        {
+            writeExternalUniqueConstraintCreateStmt(table, table.getUniqueConstraint(idx));
+        }
+    }
+
+    /**
+     * Writes a single unique constraint of the table as an
+     * <code>ALTER TABLE ... ADD CONSTRAINT name UNIQUE (cols)</code> statement.
+     * This works for Oracle, PostgreSQL and MySQL.
+     *
+     * @param table            The table
+     * @param uniqueConstraint The unique constraint
+     */
+    protected void writeExternalUniqueConstraintCreateStmt(Table table, UniqueConstraint uniqueConstraint) throws IOException
+    {
+        if (uniqueConstraint.getName() == null)
+        {
+            _log.warn("Cannot write unnamed unique constraint " + uniqueConstraint);
+            return;
+        }
+
+        writeTableAlterStmt(table);
+        print("ADD CONSTRAINT ");
+        printIdentifier(getUniqueConstraintName(uniqueConstraint));
+        print(" UNIQUE (");
+
+        for (int idx = 0; idx < uniqueConstraint.getColumnCount(); idx++)
+        {
+            IndexColumn idxColumn = uniqueConstraint.getColumn(idx);
+            Column      col       = table.findColumn(idxColumn.getName());
+
+            if (col == null)
+            {
+                // would get null pointer on next line anyway, so throw exception
+                throw new ModelException("Invalid column '" + idxColumn.getName() + "' on unique constraint " + uniqueConstraint.getName() + " for table " + table.getName());
+            }
+            if (idx > 0)
+            {
+                print(", ");
+            }
+            printIdentifier(getColumnName(col));
+        }
+
+        print(")");
+
+        // optionally pin the constraint to a specific existing index. The
+        // "(cols) USING INDEX name" form is Oracle syntax (Postgres omits the
+        // column list); unique constraints are currently emitted for Oracle only,
+        // so a Postgres override would be needed if/when Postgres is enabled.
+        if (uniqueConstraint.getUsingIndexName() != null && uniqueConstraint.getUsingIndexName().length() > 0)
+        {
+            print(" USING INDEX ");
+            printIdentifier(uniqueConstraint.getUsingIndexName());
+        }
+
+        printEndOfStatement();
+    }
+
+    /**
+     * Writes the statement to drop a unique constraint. The default uses
+     * <code>ALTER TABLE ... DROP CONSTRAINT name</code> which works for Oracle
+     * and PostgreSQL; MySQL overrides this (it drops the backing index instead).
+     *
+     * @param table            The table
+     * @param uniqueConstraint The unique constraint to drop
+     */
+    public void writeExternalUniqueConstraintDropStmt(Table table, UniqueConstraint uniqueConstraint) throws IOException
+    {
+        writeTableAlterStmt(table);
+        print("DROP CONSTRAINT ");
+        printIdentifier(getUniqueConstraintName(uniqueConstraint));
         printEndOfStatement();
     }
 

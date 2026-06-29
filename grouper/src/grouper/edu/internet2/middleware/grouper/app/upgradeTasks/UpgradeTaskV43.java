@@ -13,7 +13,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 /**
- * v7 upgrade task that bundles the DDL changes shipping in this release.
+ * v7 upgrade task that bundles the DDL changes shipping in this release (one task per release; add new
+ * release DDL here rather than creating another task).
+ *
+ * <p>GRP-6653: add unique CONSTRAINTS on oracle for the surrogate internal_id / id_index columns that
+ * foreign keys reference (a bare unique index is not a valid FK parent key on oracle - ORA-02270). Each
+ * reuses its existing unique index via USING INDEX. Oracle-only: postgres and mysql accept the unique
+ * index itself as a FK target. This mirrors how UpgradeTaskV41 already adds grouper_sync_internal_id_unq;
+ * these constraints are managed here in the upgrade task (not the ddlutils database-compare model).</p>
  *
  * <p>GRP-7076: widen the group-as-subject identifier and folder-name columns from varchar(255) to
  * varchar(1024) so they line up with grouper_groups.name (already 1024):</p>
@@ -78,6 +85,34 @@ public class UpgradeTaskV43 implements UpgradeTasksInterface {
     new WidenCol("grouper_stems",       "alternate_name",      "stem_alternate_name_idx",        false, false),
   };
 
+  /**
+   * GRP-6653: a surrogate-key column that foreign keys reference needs a unique CONSTRAINT on oracle -
+   * a bare unique index is not a valid FK parent key on oracle (ORA-02270).  Each constraint reuses the
+   * column's existing unique index via USING INDEX so oracle does not build a second index.  Postgres and
+   * mysql accept the unique index itself as a FK target, so this is oracle-only.
+   */
+  private static final class OracleUniqueConstraint {
+    final String table;
+    final String constraintName;
+    final String usingIndex;
+    final String column;
+    OracleUniqueConstraint(String table, String constraintName, String usingIndex, String column) {
+      this.table = table;
+      this.constraintName = constraintName;
+      this.usingIndex = usingIndex;
+      this.column = column;
+    }
+  }
+
+  /** the GRP-6653 oracle unique constraints, each pinned to its existing unique index */
+  private static final OracleUniqueConstraint[] GRP_6653_ORACLE_CONSTRAINTS = new OracleUniqueConstraint[] {
+    new OracleUniqueConstraint("grouper_members", "members_internal_id_unique",   "grouper_mem_internal_id_idx",  "internal_id"),
+    new OracleUniqueConstraint("grouper_stems",   "grouper_stems_id_index_unq",   "stem_id_index_idx",            "id_index"),
+    new OracleUniqueConstraint("grouper_fields",  "grouper_fie_internal_id_unq",  "grouper_fie_internal_id_idx",  "internal_id"),
+    new OracleUniqueConstraint("grouper_groups",  "grouper_grp_internal_id_unq",  "grouper_grp_internal_id_idx",  "internal_id"),
+    new OracleUniqueConstraint("grouper_sync",    "grouper_sync_internal_id_unq", "grouper_sync_internal_id_idx", "internal_id"),
+  };
+
   @Override
   public boolean upgradeTaskIsDdl() {
     return true;
@@ -95,9 +130,32 @@ public class UpgradeTaskV43 implements UpgradeTasksInterface {
     // GRP-7076 widening (postgres is intentionally manual - see grp7076HasAutomaticWork)
     workToDo |= grp7076HasAutomaticWork();
 
+    // GRP-6653 oracle unique constraints
+    workToDo |= grp6653HasAutomaticWork();
+
     // (additional v7 DDL checks for this task can be OR-ed in here)
 
     return workToDo;
+  }
+
+  /**
+   * Whether GRP-6653 has automatic work: oracle is missing one or more of the unique constraints.
+   * Always false off oracle (postgres/mysql use the unique index as the FK target, nothing to add).
+   * @return true if oracle still needs a GRP-6653 constraint added
+   */
+  private boolean grp6653HasAutomaticWork() {
+    if (!GrouperDdlUtils.isOracle()) {
+      return false;
+    }
+    for (OracleUniqueConstraint oracleUniqueConstraint : GRP_6653_ORACLE_CONSTRAINTS) {
+      if (!GrouperDdlUtils.assertTableThere(true, oracleUniqueConstraint.table)) {
+        continue;
+      }
+      if (!GrouperDdlUtils.doesConstraintExistOracle(oracleUniqueConstraint.constraintName)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -161,6 +219,9 @@ public class UpgradeTaskV43 implements UpgradeTasksInterface {
         // GRP-7076 column widening
         grp7076WidenColumns(otherJobInput);
 
+        // GRP-6653 oracle unique constraints (FK parent keys)
+        grp6653AddOracleUniqueConstraints(otherJobInput);
+
         // (additional v7 DDL work for this task goes here)
 
         return null;
@@ -219,6 +280,47 @@ public class UpgradeTaskV43 implements UpgradeTasksInterface {
         otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
         otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(
             ", GRP-7076 widened " + widenCol.table + "." + widenCol.column + " to varchar(" + TARGET_SIZE + ")");
+      }
+    }
+  }
+
+  /**
+   * GRP-6653: add the unique constraints on oracle, each reusing its existing unique index via USING
+   * INDEX.  Oracle only - postgres/mysql accept the unique index as a FK target so there is nothing to
+   * do there.  Idempotent: skips any constraint that already exists (e.g. created by the install SQL).
+   * @param otherJobInput
+   */
+  private void grp6653AddOracleUniqueConstraints(OtherJobInput otherJobInput) {
+
+    if (!GrouperDdlUtils.isOracle()) {
+      return;
+    }
+
+    for (OracleUniqueConstraint oracleUniqueConstraint : GRP_6653_ORACLE_CONSTRAINTS) {
+
+      if (!GrouperDdlUtils.assertTableThere(true, oracleUniqueConstraint.table)) {
+        continue;
+      }
+      // idempotent: skip if the constraint is already there
+      if (GrouperDdlUtils.doesConstraintExistOracle(oracleUniqueConstraint.constraintName)) {
+        continue;
+      }
+
+      // pin to the existing unique index (USING INDEX) so oracle reuses it rather than building a second
+      // one; if the index is somehow missing, fall back to a plain ADD CONSTRAINT (oracle creates one)
+      String sql = "ALTER TABLE " + oracleUniqueConstraint.table + " ADD CONSTRAINT "
+          + oracleUniqueConstraint.constraintName + " UNIQUE (" + oracleUniqueConstraint.column + ")";
+
+      if (GrouperDdlUtils.assertIndexExists(oracleUniqueConstraint.table, oracleUniqueConstraint.usingIndex)) {
+        sql += " USING INDEX " + oracleUniqueConstraint.usingIndex;
+      }
+
+      new GcDbAccess().sql(sql).executeSql();
+
+      if (otherJobInput != null) {
+        otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+        otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(
+            ", GRP-6653 added unique constraint " + oracleUniqueConstraint.constraintName);
       }
     }
   }

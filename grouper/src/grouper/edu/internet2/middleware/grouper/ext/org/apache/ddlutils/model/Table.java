@@ -59,6 +59,8 @@ public class Table implements Serializable, Cloneable
     private ArrayList _foreignKeys = new ArrayList();
     /** The indices applied to this table. */
     private ArrayList _indices = new ArrayList();
+    /** The unique constraints applied to this table (distinct from unique indices). */
+    private ArrayList _uniqueConstraints = new ArrayList();
 
     /**
      * Returns the catalog of this table as read from the database.
@@ -488,12 +490,136 @@ public class Table implements Serializable, Cloneable
 
     /**
      * Removes the indicated index.
-     * 
+     *
      * @param idx The position of the index to remove
      */
     public void removeIndex(int idx)
     {
         _indices.remove(idx);
+    }
+
+    /**
+     * Returns the number of unique constraints.
+     *
+     * @return The number of unique constraints
+     */
+    public int getUniqueConstraintCount()
+    {
+        return _uniqueConstraints.size();
+    }
+
+    /**
+     * Returns the unique constraint at the specified position.
+     *
+     * @param idx The position
+     * @return The unique constraint
+     */
+    public UniqueConstraint getUniqueConstraint(int idx)
+    {
+        return (UniqueConstraint)_uniqueConstraints.get(idx);
+    }
+
+    /**
+     * Adds the given unique constraint.
+     *
+     * @param uniqueConstraint The unique constraint
+     */
+    public void addUniqueConstraint(UniqueConstraint uniqueConstraint)
+    {
+        if (uniqueConstraint != null)
+        {
+            _uniqueConstraints.add(uniqueConstraint);
+        }
+    }
+
+    /**
+     * Adds the given unique constraints.
+     *
+     * @param uniqueConstraints The unique constraints
+     */
+    public void addUniqueConstraints(Collection uniqueConstraints)
+    {
+        for (Iterator it = uniqueConstraints.iterator(); it.hasNext();)
+        {
+            addUniqueConstraint((UniqueConstraint)it.next());
+        }
+    }
+
+    /**
+     * Returns the unique constraints of this table.
+     *
+     * @return The unique constraints
+     */
+    public UniqueConstraint[] getUniqueConstraints()
+    {
+        return (UniqueConstraint[])_uniqueConstraints.toArray(new UniqueConstraint[_uniqueConstraints.size()]);
+    }
+
+    /**
+     * Removes the given unique constraint.
+     *
+     * @param uniqueConstraint The unique constraint to remove
+     */
+    public void removeUniqueConstraint(UniqueConstraint uniqueConstraint)
+    {
+        if (uniqueConstraint != null)
+        {
+            _uniqueConstraints.remove(uniqueConstraint);
+        }
+    }
+
+    /**
+     * Removes the indicated unique constraint.
+     *
+     * @param idx The position of the unique constraint to remove
+     */
+    public void removeUniqueConstraint(int idx)
+    {
+        _uniqueConstraints.remove(idx);
+    }
+
+    /**
+     * Finds the unique constraint with the specified name, using case
+     * insensitive matching. Note that this method is not called
+     * getUniqueConstraint to avoid introspection problems.
+     *
+     * @param name The name of the unique constraint
+     * @return The unique constraint or <code>null</code> if there is no such constraint
+     */
+    public UniqueConstraint findUniqueConstraint(String name)
+    {
+        return findUniqueConstraint(name, false);
+    }
+
+    /**
+     * Finds the unique constraint with the specified name.
+     *
+     * @param name          The name of the unique constraint
+     * @param caseSensitive Whether case matters for the names
+     * @return The unique constraint or <code>null</code> if there is no such constraint
+     */
+    public UniqueConstraint findUniqueConstraint(String name, boolean caseSensitive)
+    {
+        for (int idx = 0; idx < getUniqueConstraintCount(); idx++)
+        {
+            UniqueConstraint uniqueConstraint = getUniqueConstraint(idx);
+
+            if (caseSensitive)
+            {
+                if (uniqueConstraint.getName().equals(name))
+                {
+                    return uniqueConstraint;
+                }
+            }
+            else
+            {
+                if (uniqueConstraint.getName().equalsIgnoreCase(name))
+                {
+                    return uniqueConstraint;
+                }
+            }
+        }
+        return null;
     }
 
     // Helper methods
@@ -766,6 +892,7 @@ public class Table implements Serializable, Cloneable
         result._columns     = (ArrayList)_columns.clone();
         result._foreignKeys = (ArrayList)_foreignKeys.clone();
         result._indices     = (ArrayList)_indices.clone();
+        result._uniqueConstraints = (ArrayList)_uniqueConstraints.clone();
 
         return result;
     }
@@ -785,6 +912,7 @@ public class Table implements Serializable, Cloneable
                                       .append(_columns,                  other._columns)
                                       .append(new HashSet(_foreignKeys), new HashSet(other._foreignKeys))
                                       .append(new HashSet(_indices),     new HashSet(other._indices))
+                                      .append(new HashSet(_uniqueConstraints), new HashSet(other._uniqueConstraints))
                                       .isEquals();
         }
         else
@@ -803,6 +931,7 @@ public class Table implements Serializable, Cloneable
                                           .append(_columns)
                                           .append(new HashSet(_foreignKeys))
                                           .append(new HashSet(_indices))
+                                          .append(new HashSet(_uniqueConstraints))
                                           .toHashCode();
     }
 
@@ -856,6 +985,12 @@ public class Table implements Serializable, Cloneable
         {
             result.append(" ");
             result.append(getForeignKey(idx).toVerboseString());
+        }
+        result.append("; unique constraints:");
+        for (int idx = 0; idx < getUniqueConstraintCount(); idx++)
+        {
+            result.append(" ");
+            result.append(getUniqueConstraint(idx).toVerboseString());
         }
 
         return result.toString();

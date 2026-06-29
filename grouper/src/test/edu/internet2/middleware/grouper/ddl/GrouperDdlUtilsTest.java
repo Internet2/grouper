@@ -75,7 +75,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testGrp7076InstallColumnWidths"));
+    TestRunner.run(new GrouperDdlUtilsTest("testGrp6653OracleUniqueConstraints"));
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
     //TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
@@ -1092,6 +1092,66 @@ public class GrouperDdlUtilsTest extends GrouperTest {
           + " VARCHAR(255)" + (notNull ? " NOT NULL" : " NULL"));
       HibernateSession.bySqlStatic().executeSql("CREATE " + (unique ? "UNIQUE " : "") + "INDEX " + index
           + " ON " + table + " (" + column + ")");
+    }
+  }
+
+  /**
+   * GRP-6653: each row is {table, constraintName, backingIndex, column} - the oracle unique constraints
+   * that back the surrogate internal_id / id_index foreign-key target columns, each reusing its existing
+   * unique index via USING INDEX.
+   */
+  private static final String[][] GRP_6653_ORACLE_CONSTRAINTS = new String[][] {
+    {"grouper_members", "members_internal_id_unique",   "grouper_mem_internal_id_idx",  "internal_id"},
+    {"grouper_stems",   "grouper_stems_id_index_unq",   "stem_id_index_idx",            "id_index"},
+    {"grouper_fields",  "grouper_fie_internal_id_unq",  "grouper_fie_internal_id_idx",  "internal_id"},
+    {"grouper_groups",  "grouper_grp_internal_id_unq",  "grouper_grp_internal_id_idx",  "internal_id"},
+    {"grouper_sync",    "grouper_sync_internal_id_unq", "grouper_sync_internal_id_idx", "internal_id"},
+  };
+
+  /**
+   * GRP-6653: validate the oracle unique constraints on the surrogate internal_id / id_index
+   * foreign-key target columns.  These constraints are foreign-key parent keys (they cannot be dropped
+   * without dropping the dependent FKs first - ORA-02273), so rather than simulate a pre-GRP-6653 state
+   * this test verifies that a fresh install creates them, that each one reuses its existing unique index
+   * (no separate index named after the constraint), and that re-running UpgradeTaskV43 is idempotent
+   * (it must NOT error when the constraints already exist).  Oracle only - postgres and mysql use the
+   * unique index itself as the FK target.  Run this against oracle.
+   */
+  public void testGrp6653OracleUniqueConstraints() {
+
+    // drop everything and reinstall (the oracle install SQL creates these constraints)
+    new GrouperDdlEngine().assignCallFromCommandLine(false).assignFromUnitTest(true)
+      .assignCompareFromDbVersion(false).assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignInstallDefaultGrouperData(true).assignMaxVersions(null).assignPromptUser(true)
+      .assignFromStartup(false).runDdl();
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+
+    // the constraints only apply to oracle (postgres/mysql use the unique index as the FK target)
+    if (!GrouperDdlUtils.isOracle()) {
+      return;
+    }
+
+    // a fresh install must create each constraint, reusing its existing unique index
+    for (String[] row : GRP_6653_ORACLE_CONSTRAINTS) {
+      String table = row[0];
+      String constraintName = row[1];
+      String index = row[2];
+
+      assertTrue("constraint should exist after install: " + constraintName,
+          GrouperDdlUtils.doesConstraintExistOracle(constraintName));
+      assertTrue("backing index should exist: " + index, GrouperDdlUtils.assertIndexExists(table, index));
+      // the constraint reuses the existing index - oracle did NOT build a second one named after it
+      assertFalse("constraint must reuse the existing index, not create one named " + constraintName,
+          GrouperDdlUtils.assertIndexExists(table, constraintName));
+    }
+
+    // re-running UpgradeTaskV43 with the constraints already present must be idempotent (no ORA error)
+    UpgradeTasks.V43.upgradeTask().updateVersionFromPrevious(null);
+
+    for (String[] row : GRP_6653_ORACLE_CONSTRAINTS) {
+      assertTrue("constraint should still exist after the upgrade task re-runs: " + row[1],
+          GrouperDdlUtils.doesConstraintExistOracle(row[1]));
     }
   }
 

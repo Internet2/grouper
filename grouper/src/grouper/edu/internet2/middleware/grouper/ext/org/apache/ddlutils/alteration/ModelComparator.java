@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.ForeignKey;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Index;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.UniqueConstraint;
 
 /**
  * Compares two database models and creates change objects that express how to
@@ -204,6 +205,40 @@ public class ModelComparator
                 // we have to use the target table here because the index might
                 // reference a new column
                 changes.add(new AddIndexChange(targetTable, targetIndex));
+            }
+        }
+
+        // unique constraints are modeled separately from unique indices because
+        // some databases require a foreign key's referenced columns to be backed
+        // by a unique CONSTRAINT rather than a bare unique index
+        for (int ucIdx = 0; ucIdx < sourceTable.getUniqueConstraintCount(); ucIdx++)
+        {
+            UniqueConstraint sourceUc = sourceTable.getUniqueConstraint(ucIdx);
+            UniqueConstraint targetUc = findCorrespondingUniqueConstraint(targetTable, sourceUc);
+
+            if (targetUc == null)
+            {
+                if (_log.isInfoEnabled())
+                {
+                    _log.info("Unique constraint " + sourceUc.getName() + " needs to be removed from table " + sourceTable.getName());
+                }
+                changes.add(new RemoveUniqueConstraintChange(sourceTable, sourceUc));
+            }
+        }
+        for (int ucIdx = 0; ucIdx < targetTable.getUniqueConstraintCount(); ucIdx++)
+        {
+            UniqueConstraint targetUc = targetTable.getUniqueConstraint(ucIdx);
+            UniqueConstraint sourceUc = findCorrespondingUniqueConstraint(sourceTable, targetUc);
+
+            if (sourceUc == null)
+            {
+                if (_log.isInfoEnabled())
+                {
+                    _log.info("Unique constraint " + targetUc.getName() + " needs to be created for table " + sourceTable.getName());
+                }
+                // we have to use the target table here because the constraint might
+                // reference a new column
+                changes.add(new AddUniqueConstraintChange(targetTable, targetUc));
             }
         }
 
@@ -438,6 +473,29 @@ public class ModelComparator
                 (!_caseSensitive && index.equalsIgnoreCase(curIndex)))
             {
                 return curIndex;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Searches in the given table for a unique constraint corresponding to the
+     * given one (mirrors {@link #findCorrespondingIndex(Table, Index)}).
+     *
+     * @param table            The table to search in
+     * @param uniqueConstraint The unique constraint to find
+     * @return The corresponding unique constraint or <code>null</code> if not found
+     */
+    private UniqueConstraint findCorrespondingUniqueConstraint(Table table, UniqueConstraint uniqueConstraint)
+    {
+        for (int ucIdx = 0; ucIdx < table.getUniqueConstraintCount(); ucIdx++)
+        {
+            UniqueConstraint curUc = table.getUniqueConstraint(ucIdx);
+
+            if ((_caseSensitive  && uniqueConstraint.equals(curUc)) ||
+                (!_caseSensitive && uniqueConstraint.equalsIgnoreCase(curUc)))
+            {
+                return curUc;
             }
         }
         return null;

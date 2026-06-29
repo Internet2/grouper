@@ -75,6 +75,7 @@ import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.IndexColum
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.NonUniqueIndex;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Reference;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.UniqueConstraint;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.UniqueIndex;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.platform.SqlBuilder;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -2363,10 +2364,99 @@ public class GrouperDdlUtils {
   }
 
   /**
+   * Add a unique CONSTRAINT (not a unique index) on a table in the expected model.
+   *
+   * Unlike a unique index, a unique constraint can be referenced by a foreign key
+   * on databases (Oracle, PostgreSQL) that require the parent key to be a
+   * constraint rather than a bare unique index. The database-compare emits this as
+   * <code>ALTER TABLE ... ADD CONSTRAINT name UNIQUE (cols)</code> and reads it
+   * back from the catalog so it stays idempotent.
+   *
+   * Migration note: when converting an existing unique index to a unique
+   * constraint, stop declaring the unique index (remove the corresponding
+   * ddlutilsFindOrCreateIndex call) and declare this constraint instead. On a
+   * database that still has the old unique index, the compare will drop the index
+   * and add the constraint.
+   *
+   * Unique constraints are modeled for ORACLE ONLY. Oracle is the only one of our
+   * databases that requires a foreign key's referenced columns to be backed by a
+   * unique/PK CONSTRAINT (a bare unique index gives ORA-02270); PostgreSQL and
+   * MySQL accept a foreign key against the unique INDEX that these tables already
+   * have, and MySQL cannot even represent a constraint apart from an index. So on
+   * any non-Oracle database this method is a no-op (returns null) and the table's
+   * existing unique index continues to provide the uniqueness; on Oracle it adds
+   * the constraint, which reuses the existing same-column unique index.
+   *
+   * The usingIndexName pins the constraint to an existing, separately-named unique
+   * index via an Oracle "ADD CONSTRAINT ... UNIQUE (cols) USING INDEX name" clause,
+   * so the constraint reuses that index rather than relying on Oracle's column-match
+   * auto-reuse. Pass the same index name that ddlutilsFindOrCreateIndex declared for
+   * these columns. The index must be created before the constraint (the compare and
+   * the createTable path both emit indices before constraints).
+   *
+   * @param database the database model
+   * @param tableName the table to add the unique constraint to
+   * @param uniqueConstraintName the name of the unique constraint
+   * @param usingIndexName the name of the existing unique index to back this
+   *   constraint (USING INDEX), or null to let Oracle pick/create one
+   * @param columnNames the columns making up the unique constraint, in order
+   * @return the unique constraint (new or existing) on Oracle; null on every other
+   *   database (no constraint is modeled there)
+   */
+  public static UniqueConstraint ddlutilsFindOrCreateUniqueConstraint(Database database,
+      String tableName, String uniqueConstraintName, String usingIndexName, String... columnNames) {
+
+    //unique constraints are modeled for Oracle only (see javadoc); elsewhere the unique index suffices
+    if (!GrouperDdlUtils.isOracle()) {
+      return null;
+    }
+
+    Table table = GrouperDdlUtils.ddlutilsFindTable(database, tableName, true);
+
+    //search for an existing unique constraint with the same columns (order matters)
+    OUTERLOOP:
+    for (UniqueConstraint existingUniqueConstraint : table.getUniqueConstraints()) {
+
+      if (existingUniqueConstraint.getColumnCount() == columnNames.length) {
+
+        for (int i = 0; i < columnNames.length; i++) {
+          if (!StringUtils.equalsIgnoreCase(existingUniqueConstraint.getColumn(i).getName(), columnNames[i])) {
+            continue OUTERLOOP;
+          }
+        }
+
+        //same columns, leave it be (dont rename if already there)
+        return existingUniqueConstraint;
+      }
+    }
+
+    //at this point, drop any constraint with the same name but different columns
+    for (UniqueConstraint existingUniqueConstraint : table.getUniqueConstraints()) {
+      if (StringUtils.equalsIgnoreCase(existingUniqueConstraint.getName(), uniqueConstraintName)) {
+        table.removeUniqueConstraint(existingUniqueConstraint);
+      }
+    }
+
+    //add the unique constraint to the model with ddl utils
+    UniqueConstraint uniqueConstraint = new UniqueConstraint();
+    uniqueConstraint.setName(uniqueConstraintName);
+    uniqueConstraint.setUsingIndexName(usingIndexName);
+
+    for (String columnName : columnNames) {
+      Column column = GrouperDdlUtils.ddlutilsFindColumn(table, columnName, true);
+      IndexColumn indexColumn = new IndexColumn(column);
+      uniqueConstraint.addColumn(indexColumn);
+    }
+
+    table.addUniqueConstraint(uniqueConstraint);
+    return uniqueConstraint;
+  }
+
+  /**
    * add a foreign key on a table.  drop a misnamed foreign key which is existing
    * @param database
    * @param tableName
-   * @param foreignKeyName 
+   * @param foreignKeyName
    * @param foreignTableName 
    * @param localColumnName
    * @param foreignColumnName 
