@@ -219,10 +219,13 @@ public class GrouperDataFieldAssignDao {
       throw new NullPointerException();
     }
 
+    // ordered by assign internal id so that, if a field is somehow assigned more than once to this
+    // member, the value the caller keeps (last row wins) is deterministic across runs
     String sql = "select gdfa.data_field_internal_id, gd.the_text, gdfa.value_integer "
         + "from grouper_data_field_assign gdfa "
         + "left join grouper_dictionary gd on gdfa.value_dictionary_internal_id = gd.internal_id "
-        + "where gdfa.member_internal_id = ?";
+        + "where gdfa.member_internal_id = ? "
+        + "order by gdfa.internal_id";
 
     return new GcDbAccess().sql(sql).addBindVar(memberInternalId).selectList(Object[].class);
   }
