@@ -3160,6 +3160,17 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertNotNull("testingDebugMap should be set", GrouperDataProviderLogic.testingDebugMap);
     assertEquals(27, ((Number)GrouperDataProviderLogic.testingDebugMap.get("fieldAssignInserts")).intValue());
     assertEquals(5, ((Number)GrouperDataProviderLogic.testingDebugMap.get("rowAssignInserts")).intValue());
+
+    // verify query counts and timings were recorded in the debug map
+    assertTrue("should have targetQueryCount in debug map", GrouperDataProviderLogic.testingDebugMap.containsKey("targetQueryCount"));
+    assertTrue("should have grouperQueryCount in debug map", GrouperDataProviderLogic.testingDebugMap.containsKey("grouperQueryCount"));
+    assertTrue("should have millisRetrievedFromTarget in debug map", GrouperDataProviderLogic.testingDebugMap.containsKey("millisRetrievedFromTarget"));
+    assertTrue("should have millisRetrievedFromGrouper in debug map", GrouperDataProviderLogic.testingDebugMap.containsKey("millisRetrievedFromGrouper"));
+    // at least one target query (distinct subject ids) and one per batch, plus the grouper distinct subject id query and per-batch range query
+    assertTrue("targetQueryCount should be positive", ((Number)GrouperDataProviderLogic.testingDebugMap.get("targetQueryCount")).intValue() > 0);
+    assertTrue("grouperQueryCount should be positive", ((Number)GrouperDataProviderLogic.testingDebugMap.get("grouperQueryCount")).intValue() > 0);
+    assertTrue("millisRetrievedFromTarget should be non-negative", ((Number)GrouperDataProviderLogic.testingDebugMap.get("millisRetrievedFromTarget")).longValue() >= 0);
+    assertTrue("millisRetrievedFromGrouper should be non-negative", ((Number)GrouperDataProviderLogic.testingDebugMap.get("millisRetrievedFromGrouper")).longValue() >= 0);
   }
 
   /**

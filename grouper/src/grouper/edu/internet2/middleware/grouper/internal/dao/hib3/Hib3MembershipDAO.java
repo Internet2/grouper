@@ -2058,6 +2058,49 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   }
 
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnersAndMember(java.util.Collection, java.lang.String, boolean)
+   */
+  public Set<Membership> findAllByGroupOwnersAndMember(Collection<String> ownerGroupIds, String memberUUID, boolean enabledOnly)
+    throws  GrouperDAOException {
+
+    Set<Membership> results = new LinkedHashSet<Membership>();
+
+    if (GrouperUtil.length(ownerGroupIds) == 0) {
+      return results;
+    }
+
+    List<String> ownerGroupIdsList = new ArrayList<String>(ownerGroupIds);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(ownerGroupIdsList, 100);
+
+    for (int batchIndex = 0; batchIndex < numberOfBatches; batchIndex++) {
+
+      List<String> ownerGroupIdsBatch = GrouperUtil.batchList(ownerGroupIdsList, 100, batchIndex);
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      StringBuilder sql = new StringBuilder(
+          "select ms, m from MembershipEntry as ms, Member as m where  "
+            + "     ms.memberUuid  = :member           "
+            + "and ms.memberUuid = m.uuid "
+            + "and ms.ownerGroupId in (");
+      sql.append(HibUtils.convertToInClause(ownerGroupIdsBatch, byHqlStatic)).append(") ");
+      if (enabledOnly) {
+        sql.append(" and ms.enabledDb = 'T'");
+      }
+
+      Set<Object[]> mships = byHqlStatic
+        .createQuery(sql.toString())
+        .setCacheable(false)
+        .setCacheRegion(KLASS)
+        .setString( "member", memberUUID )
+        .listSet(Object[].class);
+      results.addAll(_getMembershipsFromMembershipAndMemberQuery(mships));
+    }
+
+    return results;
+  }
+
+  /**
    * @param memberUUID 
    * @param enabledOnly
    * @return set

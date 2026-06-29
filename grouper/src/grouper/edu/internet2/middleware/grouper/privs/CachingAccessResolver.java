@@ -30,8 +30,14 @@
 
 package edu.internet2.middleware.grouper.privs;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.sf.ehcache.Element;
@@ -40,11 +46,16 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.cache.CacheStats;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -299,6 +310,123 @@ public class CachingAccessResolver extends AccessResolverDecorator {
   public GrouperSession getGrouperSession() {
     AccessResolver decoratedResolver = super.getDecoratedResolver();
     return decoratedResolver.getGrouperSession();
+  }
+
+  /**
+   * Bulk-prime the hasPrivilege cache with the full set of access privileges for a set of groups and a
+   * subject, using batched queries (subject's memberships + GrouperAll's memberships).  This mirrors
+   * exactly what getPrivileges() computes/caches per group, but in O(1) queries instead of one per group,
+   * which avoids an N+1 of getPrivileges() when code checks canRead()/canUpdate()/etc. per group
+   * (e.g. PrivilegeHelper.canViewMemberships filtering a membership list).
+   * @param grouperSession
+   * @param groups
+   * @param subject
+   */
+  public void cacheGroupPrivilegesInBulk(GrouperSession grouperSession, Collection<Group> groups, Subject subject) {
+
+    //wheel/root short-circuit privilege checks without consulting this cache, so don't pollute it for them
+    if (PrivilegeHelper.isWheelOrRoot(subject)) {
+      return;
+    }
+
+    //index the groups by id
+    Map<String, Group> groupsById = new LinkedHashMap<String, Group>();
+    for (Group group : groups) {
+      if (group != null) {
+        groupsById.put(group.getId(), group);
+      }
+    }
+    if (groupsById.size() == 0) {
+      return;
+    }
+
+    Member subjectMember = MemberFinder.internal_findBySubject(subject, null, false);
+    if (subjectMember == null) {
+      return;
+    }
+    Member allMember = MemberFinder.internal_findAllMember();
+
+    MembershipDAO membershipDAO = GrouperDAOFactory.getFactory().getMembership();
+
+    //two batched queries: the subject's memberships and GrouperAll's memberships across all the groups
+    Map<String, List<Membership>> subjectMshipsByGroup = bucketByOwnerGroup(
+        membershipDAO.findAllByGroupOwnersAndMember(groupsById.keySet(), subjectMember.getUuid(), true));
+
+    Map<String, List<Membership>> allMshipsByGroup;
+    if (allMember != null && !allMember.getUuid().equals(subjectMember.getUuid())) {
+      allMshipsByGroup = bucketByOwnerGroup(
+          membershipDAO.findAllByGroupOwnersAndMember(groupsById.keySet(), allMember.getUuid(), true));
+    } else {
+      allMshipsByGroup = new HashMap<String, List<Membership>>();
+    }
+
+    Set<Privilege> accessPrivs = Privilege.getAccessPrivs();
+
+    try {
+      for (Map.Entry<String, Group> groupEntry : groupsById.entrySet()) {
+        String groupId = groupEntry.getKey();
+        Group group = groupEntry.getValue();
+
+        //the access privileges the subject has on this group = the subject's own + GrouperAll's
+        //(this mirrors GrouperAllAccessResolver.getPrivileges + GrouperNonDbAccessAdapter.getPrivs)
+        Set<String> privNames = new HashSet<String>();
+        addPrivilegeNames(privNames, grouperSession, group, subject, subjectMember, subjectMshipsByGroup.get(groupId));
+        if (allMember != null) {
+          addPrivilegeNames(privNames, grouperSession, group, subject, allMember, allMshipsByGroup.get(groupId));
+        }
+
+        //cache the boolean for each access privilege, exactly like getPrivileges() does
+        for (Privilege p : accessPrivs) {
+          putInHasPrivilegeCache(group, subject, p, Boolean.valueOf(privNames.contains(p.getName())));
+        }
+      }
+    } catch (SchemaException se) {
+      throw new RuntimeException("Error bulk-resolving group privileges", se);
+    }
+  }
+
+  /**
+   * bucket memberships by their owner group id
+   * @param memberships
+   * @return map of owner group id to its memberships
+   */
+  private static Map<String, List<Membership>> bucketByOwnerGroup(Set<Membership> memberships) {
+    Map<String, List<Membership>> result = new HashMap<String, List<Membership>>();
+    for (Membership membership : memberships) {
+      String ownerGroupId = membership.getOwnerGroupId();
+      if (ownerGroupId == null) {
+        continue;
+      }
+      List<Membership> list = result.get(ownerGroupId);
+      if (list == null) {
+        list = new ArrayList<Membership>();
+        result.put(ownerGroupId, list);
+      }
+      list.add(membership);
+    }
+    return result;
+  }
+
+  /**
+   * add the access privilege names from a member's memberships on a group into privNames
+   * @param privNames
+   * @param grouperSession
+   * @param group
+   * @param subject
+   * @param member
+   * @param memberships
+   * @throws SchemaException
+   */
+  private static void addPrivilegeNames(Set<String> privNames, GrouperSession grouperSession, Group group,
+      Subject subject, Member member, List<Membership> memberships) throws SchemaException {
+    if (memberships == null || memberships.size() == 0) {
+      return;
+    }
+    Set<? extends GrouperPrivilege> privs = GrouperPrivilegeAdapter.internal_getPrivs(
+        grouperSession, group, subject, member, null, memberships.iterator());
+    for (GrouperPrivilege priv : privs) {
+      privNames.add(priv.getName());
+    }
   }
 
   /**

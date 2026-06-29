@@ -722,6 +722,10 @@ public class PrivilegeHelper {
     //make sure all groups are prepopulated
     Membership.retrieveGroups(inputMemberships);
     
+    //bulk-prime the privilege cache for all owner groups so the per-membership canViewMembership() ->
+    //canRead() checks below are cache hits instead of an N+1 of getPrivileges()
+    cacheGroupPrivilegesForMemberships(grouperSession, inputMemberships);
+    
     //note, no need for GrouperSession inverse of control
     Set<Membership> memberships = new LinkedHashSet<Membership>();
     Membership membership;
@@ -733,6 +737,70 @@ public class PrivilegeHelper {
       }
     }
     return memberships;
+  } 
+
+  /**
+   * Bulk-prime the privilege cache for all the membership owner groups using batched queries, so the
+   * per-membership canViewMembership()/canRead() checks become cache hits instead of resolving
+   * privileges one group at a time (an N+1 of getPrivileges()).  Best-effort: any failure is swallowed
+   * so the security filter still runs correctly the normal (per-row) way.
+   * @param grouperSession
+   * @param inputMemberships
+   */
+  private static void cacheGroupPrivilegesForMemberships(GrouperSession grouperSession, Collection<Membership> inputMemberships) {
+
+    Subject subject = grouperSession.getSubject();
+
+    //collect the distinct owner groups of the memberships (the per-row canRead()/dispatch path)
+    Set<Group> groups = new LinkedHashSet<Group>();
+    for (Membership membership : inputMemberships) {
+      if (membership.getOwnerGroupId() != null) {
+        Group ownerGroup = membership.getOwnerGroup();
+        if (ownerGroup != null) {
+          groups.add(ownerGroup);
+        }
+      }
+    }
+
+    cacheGroupPrivilegesInBulk(grouperSession, groups, subject);
+  } 
+
+  /**
+   * Bulk-prime the access-privilege cache for a set of groups and a subject using batched queries, so
+   * that subsequent per-group privilege checks (e.g. canRead()/canUpdate()/canView() called once per
+   * row in a UI loop) become cache hits instead of an N+1 of getPrivileges().  Best-effort: any failure
+   * is swallowed so callers continue to work the normal (per-row) way.
+   * @param grouperSession
+   * @param groups owner groups to prime
+   * @param subject subject whose privileges to prime (typically the logged-in/viewing subject)
+   */
+  public static void cacheGroupPrivilegesInBulk(GrouperSession grouperSession, Collection<Group> groups, Subject subject) {
+
+    try {
+
+      //not worth a bulk query for 0 or 1 group
+      if (groups == null || groups.size() < 2) {
+        return;
+      }
+
+      //TODO TEMP diagnostic: confirm this runs on the viewSubject path; remove after verification
+      LOG.error("cacheGroupPrivilegesInBulk priming " + groups.size() + " groups for subject "
+          + (subject == null ? null : subject.getId()));
+
+      //find the CachingAccessResolver in the resolver chain and let it prime its cache in bulk
+      AccessResolver accessResolver = grouperSession.getAccessResolver();
+      while (accessResolver instanceof AccessResolverDecorator) {
+        if (accessResolver instanceof CachingAccessResolver) {
+          ((CachingAccessResolver) accessResolver).cacheGroupPrivilegesInBulk(grouperSession, groups, subject);
+          return;
+        }
+        accessResolver = ((AccessResolverDecorator) accessResolver).getDecoratedResolver();
+      }
+
+    } catch (RuntimeException e) {
+      //priming is an optimization only; never break the caller because of it
+      LOG.warn("Error bulk-priming group privileges", e);
+    }
   } 
 
 

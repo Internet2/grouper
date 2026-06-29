@@ -246,6 +246,18 @@ TODO update for 1.5
   Set<Membership> findAllByGroupOwnerAndMember(String groupOwnerId, String memberUUID, boolean enabledOnly) 
     throws  GrouperDAOException;
 
+  /**
+   * Find all memberships for a member across a set of group owners, in batched queries.
+   * Used to bulk-resolve privileges for many groups at once (avoids an N+1 of getPrivileges).
+   * @param ownerGroupIds
+   * @param memberUUID
+   * @param enabledOnly
+   * @return set
+   * @throws GrouperDAOException
+   */
+  Set<Membership> findAllByGroupOwnersAndMember(Collection<String> ownerGroupIds, String memberUUID, boolean enabledOnly)
+    throws  GrouperDAOException;
+
 
   /**
    * @param ownerGroupId
