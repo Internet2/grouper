@@ -179,7 +179,6 @@ public class UpgradeTasksJob extends OtherJobBase {
             
             UpgradeTasksInterface upgradeTasksInterface = task.upgradeTask();
             boolean upgradeTaskIsDdl = upgradeTasksInterface.upgradeTaskIsDdl();
-            boolean doesUpgradeTaskHaveDdlWorkToDo = upgradeTasksInterface.doesUpgradeTaskHaveDdlWorkToDo();
             boolean doTask = true;
             
             if (GrouperDdlEngine.installedGrouperFromScratchWithRunScript) {
@@ -190,6 +189,20 @@ public class UpgradeTasksJob extends OtherJobBase {
                 otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Skipping upgrade due to new install to version "+enumName + ". \n");
               }
             } else {
+              // Only the DDL detection path uses this, and it can be expensive (each assert reads
+              // the full GROUPER% model).  Compute it lazily - never on the from-scratch-install path
+              // above where the result is unused - and share one model read across the asserts in
+              // this single check via the DDL model cache.
+              boolean doesUpgradeTaskHaveDdlWorkToDo = false;
+              if (upgradeTaskIsDdl) {
+                GrouperDdlUtils.ddlModelCacheStart();
+                try {
+                  doesUpgradeTaskHaveDdlWorkToDo = upgradeTasksInterface.doesUpgradeTaskHaveDdlWorkToDo();
+                } finally {
+                  GrouperDdlUtils.ddlModelCacheStop();
+                }
+              }
+
               if (upgradeTaskIsDdl && !doesUpgradeTaskHaveDdlWorkToDo) {
                 doTask = false;
                 group.getAttributeValueDelegate().addValue(upgradeTasksVersionName, "" + version);

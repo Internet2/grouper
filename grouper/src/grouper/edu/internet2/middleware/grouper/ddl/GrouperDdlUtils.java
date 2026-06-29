@@ -312,7 +312,101 @@ public class GrouperDdlUtils {
   
   /** cache the platform */
   private static Platform cachedPlatform = null;
-  
+
+  /**
+   * thread-local flag for whether the shared DDL model cache is active.  Only enabled
+   * for read-only sweeps (e.g. the upgrade-task DDL detection) where no DDL is applied
+   * while the cache is active.
+   */
+  private static final ThreadLocal<Boolean> ddlModelCacheActive = new ThreadLocal<Boolean>();
+
+  /**
+   * thread-local cache of the GROUPER% model read from the database, shared across
+   * read-only assert* helpers while {@link #ddlModelCacheActive} is set.
+   */
+  private static final ThreadLocal<Database> ddlModelCache = new ThreadLocal<Database>();
+
+  /**
+   * Start sharing one GROUPER% model read across the read-only assert* helpers on this
+   * thread.  Safe only when no DDL will be applied while the cache is active (the upgrade
+   * sweep runs single-threaded under the DDL lock).  Always pair with {@link #ddlModelCacheStop()}
+   * in a finally block.
+   */
+  public static void ddlModelCacheStart() {
+    ddlModelCacheActive.set(Boolean.TRUE);
+    ddlModelCache.remove();
+  }
+
+  /**
+   * Invalidate the cached model so the next read goes back to the database.  Call this
+   * whenever the schema may have changed while the cache is active.
+   */
+  public static void ddlModelCacheClear() {
+    ddlModelCache.remove();
+  }
+
+  /**
+   * Stop sharing the GROUPER% model on this thread and drop any cached model.
+   */
+  public static void ddlModelCacheStop() {
+    ddlModelCacheActive.remove();
+    ddlModelCache.remove();
+  }
+
+  /**
+   * Read the GROUPER% model from the database, going through the thread-local cache when it
+   * is active.  Each call reads the full model (one JDBC metadata round-trip per grouper table),
+   * so callers doing several read-only lookups should wrap the work in
+   * {@link #ddlModelCacheStart()}/{@link #ddlModelCacheStop()} to avoid redundant reads.
+   * @return the database model
+   */
+  private static Database retrieveGrouperDatabaseModel() {
+
+    if (Boolean.TRUE.equals(ddlModelCacheActive.get())) {
+      Database cachedDatabase = ddlModelCache.get();
+      if (cachedDatabase == null) {
+        cachedDatabase = readGrouperDatabaseModelFromDatabase();
+        ddlModelCache.set(cachedDatabase);
+      }
+      return cachedDatabase;
+    }
+
+    return readGrouperDatabaseModelFromDatabase();
+  }
+
+  /**
+   * Read the GROUPER% model from the database without using the cache.
+   * @return the database model
+   */
+  private static Database readGrouperDatabaseModelFromDatabase() {
+
+    Platform platform = GrouperDdlUtils.retrievePlatform(false);
+
+    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper");
+
+    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
+
+    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
+
+    //to be safe lets only deal with tables related to this object
+    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
+    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
+    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
+
+    //convenience to get the url, user, etc of the grouper db, helps get db connection
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+
+    Connection connection = null;
+    try {
+      connection = grouperDb.connection();
+
+      return platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
+        null, null);
+    } finally {
+      GrouperUtil.closeQuietly(connection);
+    }
+  }
+
   /**
    * retrieve the ddl utils platform
    * @return the platform object
@@ -2016,48 +2110,23 @@ public class GrouperDdlUtils {
    * @return true or false
    */
   public static boolean assertIndexHasColumn(String tableName, String indexName, String columnName) {
-    Platform platform = GrouperDdlUtils.retrievePlatform(false);
-    
-    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
-    
-    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
-  
-    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
-  
-    //to be safe lets only deal with tables related to this object
-    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
-    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
-    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
-  
-    //convenience to get the url, user, etc of the grouper db, helps get db connection
-    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
-    
-    Connection connection = null;
-    Index index = null;
-    try {
-      connection = grouperDb.connection();
-  
-      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
-        null, null);
-    
-      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, tableName, true);
-      
-      index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), indexName);
-      
-      if (index == null) {
-        throw new NullPointerException("Cant find index '" + indexName + "' on table: '" + tableName + "'");
-      }
-      
-      for (IndexColumn indexColumn : index.getColumns()) {
-        if (StringUtils.equalsIgnoreCase(columnName, indexColumn.getName())) {
-          return true;
-        }
-      }
-      return false;
-    } finally {
-      GrouperUtil.closeQuietly(connection);
+
+    Database database = GrouperDdlUtils.retrieveGrouperDatabaseModel();
+
+    Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, tableName, true);
+
+    Index index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), indexName);
+
+    if (index == null) {
+      throw new NullPointerException("Cant find index '" + indexName + "' on table: '" + tableName + "'");
     }
-  
+
+    for (IndexColumn indexColumn : index.getColumns()) {
+      if (StringUtils.equalsIgnoreCase(columnName, indexColumn.getName())) {
+        return true;
+      }
+    }
+    return false;
   }
   
   /**
@@ -2068,47 +2137,22 @@ public class GrouperDdlUtils {
    * @return true or false
    */
   public static boolean assertIndexExists(String tableName, String indexName) {
-    Platform platform = GrouperDdlUtils.retrievePlatform(false);
-    
-    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
-    
-    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
-  
-    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
-  
-    //to be safe lets only deal with tables related to this object
-    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
-    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
-    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
-  
-    //convenience to get the url, user, etc of the grouper db, helps get db connection
-    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
-    
-    Connection connection = null;
-    Index index = null;
-    try {
-      connection = grouperDb.connection();
-  
-      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
-        null, null);
-    
-      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, tableName, false);
-      
-      if (membersTable == null) {
-        return false;
-      }
-      
-      index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), indexName);
-      
-      if (index == null) {
-        return false;
-      }
-      
-      return true;
-    } finally {
-      GrouperUtil.closeQuietly(connection);
+
+    Database database = GrouperDdlUtils.retrieveGrouperDatabaseModel();
+
+    Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, tableName, false);
+
+    if (membersTable == null) {
+      return false;
     }
-  
+
+    Index index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), indexName);
+
+    if (index == null) {
+      return false;
+    }
+
+    return true;
   }
   
   public static String catalogName(Connection connection) {
@@ -2129,47 +2173,22 @@ public class GrouperDdlUtils {
    * @return true or false
    */
   public static boolean assertForeignKeyExists(String tableName, String foreignKeyName) {
-    Platform platform = GrouperDdlUtils.retrievePlatform(false);
-    
-    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
-    
-    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
-  
-    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
-  
-    //to be safe lets only deal with tables related to this object
-    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
-    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
-    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
-  
-    //convenience to get the url, user, etc of the grouper db, helps get db connection
-    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
-    
-    Connection connection = null;
-    ForeignKey foreignKey = null;
-    try {
-      connection = grouperDb.connection();
-  
-      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
-        null, null);
-    
-      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, tableName, false);
-      
-      if (membersTable == null) {
-        return false;
-      }
-      
-      foreignKey = GrouperDdlUtils.ddlutilsForeignKeyExists(database, membersTable.getName(), foreignKeyName);
-      
-      if (foreignKey == null) {
-        return false;
-      }
-      
-      return true;
-    } finally {
-      GrouperUtil.closeQuietly(connection);
+
+    Database database = GrouperDdlUtils.retrieveGrouperDatabaseModel();
+
+    Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, tableName, false);
+
+    if (membersTable == null) {
+      return false;
     }
-  
+
+    ForeignKey foreignKey = GrouperDdlUtils.ddlutilsForeignKeyExists(database, membersTable.getName(), foreignKeyName);
+
+    if (foreignKey == null) {
+      return false;
+    }
+
+    return true;
   }
   
   /**
@@ -2178,40 +2197,16 @@ public class GrouperDdlUtils {
    * @return true or false
    */
   public static boolean assertPrimaryKeyExists(String tableName) {
-    Platform platform = GrouperDdlUtils.retrievePlatform(false);
-    
-    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
-    
-    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
-  
-    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
-  
-    //to be safe lets only deal with tables related to this object
-    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
-    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
-    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
-  
-    //convenience to get the url, user, etc of the grouper db, helps get db connection
-    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
-    
-    Connection connection = null;
-    try {
-      connection = grouperDb.connection();
-  
-      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
-        null, null);
-    
-      Table table = GrouperDdlUtils.ddlutilsFindTable(database, tableName, false);
-      
-      if (table == null) {
-        return false;
-      }
-      
-      return table.hasPrimaryKey();
-    } finally {
-      GrouperUtil.closeQuietly(connection);
+
+    Database database = GrouperDdlUtils.retrieveGrouperDatabaseModel();
+
+    Table table = GrouperDdlUtils.ddlutilsFindTable(database, tableName, false);
+
+    if (table == null) {
+      return false;
     }
-  
+
+    return table.hasPrimaryKey();
   }
   
   /**
@@ -3339,53 +3334,29 @@ public class GrouperDdlUtils {
    * @return true or false
    */
   public static boolean assertPrimaryKeyExists(String tableName, Set<String> primaryKeyColumnNamesLowerCase) {
-    Platform platform = GrouperDdlUtils.retrievePlatform(false);
-    
-    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
-    
-    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
-  
-    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
-  
-    //to be safe lets only deal with tables related to this object
-    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
-    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
-    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
-  
-    //convenience to get the url, user, etc of the grouper db, helps get db connection
-    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
-    
-    Connection connection = null;
-    try {
-      connection = grouperDb.connection();
-  
-      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
-        null, null);
-    
-      Table table = GrouperDdlUtils.ddlutilsFindTable(database, tableName, false);
-      
-      if (table == null) {
-        return false;
-      }
-      
-      // get primary key columns
-      Column[] primaryKeyColumns = table.getPrimaryKeyColumns();
-      
-      // if number of columns dont match, return false
-      if (GrouperUtil.length(primaryKeyColumns) != primaryKeyColumnNamesLowerCase.size()) {
-        return false;
-      }
-      
-      // check if all primary key columns exist
-      for (Column primaryKeyColumn : primaryKeyColumns) {
-        if (!primaryKeyColumnNamesLowerCase.contains(primaryKeyColumn.getName().toLowerCase())) {
-          return false;
-        }
-      }
-      return true;      
-    } finally {
-      GrouperUtil.closeQuietly(connection);
+
+    Database database = GrouperDdlUtils.retrieveGrouperDatabaseModel();
+
+    Table table = GrouperDdlUtils.ddlutilsFindTable(database, tableName, false);
+
+    if (table == null) {
+      return false;
     }
-  
+
+    // get primary key columns
+    Column[] primaryKeyColumns = table.getPrimaryKeyColumns();
+
+    // if number of columns dont match, return false
+    if (GrouperUtil.length(primaryKeyColumns) != primaryKeyColumnNamesLowerCase.size()) {
+      return false;
+    }
+
+    // check if all primary key columns exist
+    for (Column primaryKeyColumn : primaryKeyColumns) {
+      if (!primaryKeyColumnNamesLowerCase.contains(primaryKeyColumn.getName().toLowerCase())) {
+        return false;
+      }
+    }
+    return true;
   }
 }
