@@ -581,18 +581,19 @@ public class GrouperAzureGroup {
       }
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeUnified")) {      
+
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeUnified")) {
 
       Set<String> groupTypes = new HashSet<String>();
       if (this.groupTypeUnified) {
         groupTypes.add("Unified");
-        
+
       }
       // do we need to set null if none set?  hmmm
       if (groupTypes.size() > 0) {
         GrouperUtil.jsonJacksonAssignStringArray(result, "groupTypes", groupTypes);
       }
-      
+
     }
     
     boolean allowedVisibilityHiddenMembership = false;
