@@ -1008,13 +1008,31 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     }
     
     for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
-      valueNode.add(grouperAzureGroup.toJson(fieldsToRetrieve, true));
+      valueNode.add(groupToJson(grouperAzureGroup, fieldsToRetrieve));
     }
     
     resultNode.set("value", valueNode);
     
     return new MultiKey(200, resultNode);
-    
+
+  }
+
+  private ObjectNode groupToJson(GrouperAzureGroup group, Set<String> fieldsToRetrieve) {
+    // toJson checks for "groupTypeUnified" in the field set, but callers pass "groupTypes" (matching the Graph API
+    // field name), so the array is never emitted when a $select is present.  It also never includes "Dynamic".
+    // Overlay the correct groupTypes array here rather than changing the shared GrouperAzureGroup.toJson.
+    ObjectNode node = group.toJson(fieldsToRetrieve, true);
+    if (fieldsToRetrieve == null || fieldsToRetrieve.contains("groupTypes")) {
+      List<String> types = new ArrayList<String>();
+      if (group.isGroupTypeUnified()) {
+        types.add("Unified");
+      }
+      if (group.isGroupTypeDynamic()) {
+        types.add("Dynamic");
+      }
+      GrouperUtil.jsonJacksonAssignStringArray(node, "groupTypes", types);
+    }
+    return node;
   }
 
   public void getGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
@@ -1072,7 +1090,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     }
     
     for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
-      valueNode.add(grouperAzureGroup.toJson(fieldsToRetrieve, true));
+      valueNode.add(groupToJson(grouperAzureGroup, fieldsToRetrieve));
     }
     
     resultNode.set("value", valueNode);
@@ -1108,7 +1126,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 
 //      mockServiceResponse.setContentType("application/json");
 
-      ObjectNode objectNode = grouperAzureGroups.get(0).toJson(fieldsToRetrieve, true);
+      ObjectNode objectNode = groupToJson(grouperAzureGroups.get(0), fieldsToRetrieve);
 //      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
       
       return new MultiKey(200, objectNode);
@@ -1155,7 +1173,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 
       mockServiceResponse.setContentType("application/json");
 
-      ObjectNode objectNode = grouperAzureGroups.get(0).toJson(fieldsToRetrieve, true);
+      ObjectNode objectNode = groupToJson(grouperAzureGroups.get(0), fieldsToRetrieve);
       mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
 
     } else if (GrouperUtil.length(grouperAzureGroups) == 0) {
