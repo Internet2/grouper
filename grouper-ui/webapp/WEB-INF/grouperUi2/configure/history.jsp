@@ -30,7 +30,7 @@
               	<form id="configureHistoryFilterForm" style="height: 20px;">
 					<div class="span4">
                       <input type="text" placeholder="${textContainer.textEscapeXml['configurationFilterTextPlaceholder']}" 
-                         name="filter" id="table-filter" class="span12" value="${grouperRequestContainer.configurationContainer.filter}" />
+                         name="filter" id="table-filter" aria-label="${textContainer.textEscapeXml['configurationFilterTextPlaceholder']}" class="span12" value="${grouperRequestContainer.configurationContainer.filter}" />
                     </div>
 					<div class="span3">
 						<input type="submit" class="btn" aria-controls="propertiesResultTableId"  id="filterSubmitId" value="${textContainer.textEscapeDouble['configurationFilterApplyButton'] }"
@@ -53,6 +53,7 @@
 	                         <label class="checkbox checkbox-no-padding">
 	                           <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" 
 	                           	onchange="$('.configHistoryCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+	                           <span class="sr-only">${textContainer.text['configurationHistoryRevertValueCheckboxAriaLabel']}</span>
 	                         </label>
 	                        </th>
 	                        

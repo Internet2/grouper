@@ -36,7 +36,7 @@
       </div>
       
       <div class="control-group">
-        <label class="control-label">${textContainer.text['simplePermissionUpdate.addLimitDefinition'] }</label>
+        <label for="limitDefComboId" class="control-label">${textContainer.text['simplePermissionUpdate.addLimitDefinition'] }</label>
         <div class="controls">
           <input type="hidden" name="attributeDefType" value="limit" /> 	                    	
           <grouper:combobox2 idBase="limitDefCombo" style="width: 30em"
@@ -47,7 +47,7 @@
       </div>
       
       <div class="control-group">
-        <label class="control-label">${textContainer.text['simplePermissionUpdate.addLimitName'] }</label>
+        <label for="limitResourceNameComboId" class="control-label">${textContainer.text['simplePermissionUpdate.addLimitName'] }</label>
         <div class="controls">
           <grouper:combobox2 idBase="limitResourceNameCombo" style="width: 30em"
             filterOperation="UiV2AttributeDefName.attributeDefNameFilter"

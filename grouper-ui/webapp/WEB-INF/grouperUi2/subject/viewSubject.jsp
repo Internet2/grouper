@@ -33,7 +33,7 @@ ${grouper:titleFromKeyAndText('viewSubjectPageTitle', grouperRequestContainer.su
                     </div>
                     <div class="span4">
                       <input type="text" placeholder="${textContainer.textEscapeXml['subjectFilterFormPlaceholder']}" 
-                         name="filterText" id="table-filter" class="span12"/>
+                         name="filterText" id="table-filter" aria-label="${textContainer.textEscapeXml['subjectFilterFormPlaceholder']}" class="span12"/>
                     </div>
 
                     <div class="span3"><input type="submit" aria-controls="subjectFilterResultsId" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['subjectApplyFilterButton'] }"

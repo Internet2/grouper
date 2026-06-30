@@ -19,7 +19,7 @@ ${grouper:title('newAttributeDefNamePageTitle')}
                   </div>
                   <div class="modal-body">
                     <form class="form form-inline" id="stemSearchFormId">
-                      <input name="stemSearch" type="text" placeholder="${textContainer.textEscapeXml['attributeDefNameCreateSearchPlaceholder'] }" value=""/> 
+                      <input name="stemSearch" type="text" aria-label="${textContainer.textEscapeXml['attributeDefNameCreateSearchPlaceholder']}" placeholder="${textContainer.textEscapeXml['attributeDefNameCreateSearchPlaceholder'] }" value=""/> 
                       <button class="btn" onclick="ajax('../app/UiV2Stem.stemSearchAttributeDefNameFormSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemSearchFormId'}); return false;">${textContainer.text['attributeDefNameCreateSearchButton'] }</button>
                     </form>
                     <div id="folderSearchResultsId"></div>
@@ -33,7 +33,7 @@ ${grouper:title('newAttributeDefNamePageTitle')}
                 <form id="addAttributeNameForm" class="form-horizontal">
                 
                   <div class="control-group">
-                    <label class="control-label">${textContainer.text['attributeDefNameCreateAttributeDefLabel'] }</label>
+                    <label for="attributeDefComboId" class="control-label">${textContainer.text['attributeDefNameCreateAttributeDefLabel'] }</label>
                     <div class="controls">
                     	                    	
                       <grouper:combobox2 idBase="attributeDefCombo" style="width: 30em" 
@@ -46,7 +46,7 @@ ${grouper:title('newAttributeDefNamePageTitle')}
                   </div>
                   
                   <div class="control-group">
-                    <label for="folder-path" class="control-label">${textContainer.text['attributeDefNameCreateFolderLabel'] }</label>
+                    <label for="parentFolderComboId" class="control-label">${textContainer.text['attributeDefNameCreateFolderLabel'] }</label>
                     <div class="controls">
                       <%-- placeholder: Enter a folder name --%>
                       <grouper:combobox2 idBase="parentFolderCombo" style="width: 30em" 
@@ -76,7 +76,7 @@ ${grouper:title('newAttributeDefNamePageTitle')}
                         <input type="text" id="attributeDefNameId" name="attributeDefNameToEditExtension" disabled="disabled"  />
                       </span>
                       <span style="white-space: nowrap;">
-                        <input type="checkbox" name="nameDifferentThanId" id="nameDifferentThanIdId" value="true"
+                        <input type="checkbox" name="nameDifferentThanId" aria-label="${textContainer.textEscapeXml['groupNewEditTheId']}" id="nameDifferentThanIdId" value="true"
                           onchange="syncNameAndId('name', 'attributeDefNameId', 'nameDifferentThanIdId', false, null); return true;"
                         /> ${textContainer.text['groupNewEditTheId'] }
                       </span>

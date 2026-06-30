@@ -46,7 +46,7 @@
 					  </td>
 					</tr>
 					<tr>
-                      <td style="vertical-align: top; white-space: nowrap;"><strong><label for="daemonTypeId">${textContainer.text['grouperDaemonConfigEnableLabel']}</label></strong></td>
+                      <td style="vertical-align: top; white-space: nowrap;"><strong><label for="daemonConfigEnableId">${textContainer.text['grouperDaemonConfigEnableLabel']}</label></strong></td>
                       <td>&nbsp;</td>
                       <td>
 						<select name="daemonConfigEnable" id="daemonConfigEnableId" style="width: 30em">

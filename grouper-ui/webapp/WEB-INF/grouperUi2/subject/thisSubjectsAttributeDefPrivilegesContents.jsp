@@ -46,8 +46,9 @@
                     <tr>
                       <th>
                         <label class="checkbox checkbox-no-padding">
-                          <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" aria-label="${textContainer.text['subjectPrivilegesInAttributeDefCheckboxAriaLabel']}"
+                          <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId"
                            onchange="$('.privilegeCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                          <span class="sr-only">${textContainer.text['subjectPrivilegesInAttributeDefCheckboxAriaLabel']}</span>
                         </label>
                       </th>
                       <th>

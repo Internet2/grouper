@@ -36,8 +36,9 @@
                     <tr>
                       <th>
                         <label class="checkbox checkbox-no-padding">
-                          <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" aria-label="${textContainer.text['stemPrivilegesCheckboxAriaLabel'] }"
+                          <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId"
                            onchange="$('.privilegeCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                          <span class="sr-only">${textContainer.text['stemPrivilegesCheckboxAriaLabel'] }</span>
                         </label>
                       </th>
                       <th class="sorted">${textContainer.text['privDropdownName'] }</th>

@@ -13,6 +13,7 @@
                         <th>
                           <label class="checkbox checkbox-no-padding">
                             <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.usduCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                            <span class="sr-only">${textContainer.text['subjectResolutionCheckboxAriaLabel']}</span>
                           </label>
                         </th>
                       

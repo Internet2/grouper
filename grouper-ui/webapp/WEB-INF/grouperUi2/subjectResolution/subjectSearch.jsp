@@ -25,7 +25,7 @@
                     onsubmit="ajax('../app/UiV2SubjectResolution.searchSubjectsSubmit', {formIds: 'searchPageForm'}); return false;">
                   <div class="row-fluid">              
                     <div class="span2">
-                      <label for="searchFormSearch">${textContainer.text['find.search-for'] }</label>
+                      <label for="subjectSearchQueryId">${textContainer.text['find.search-for'] }</label>
                     </div>
                     <div class="span3" style="white-space: nowrap;">
                       
@@ -33,7 +33,7 @@
                           filterOperation="../app/UiV2SubjectResolution.addMemberFilter"/>
                         ${textContainer.text['miscellaneousSubjectResolutionSearchSubjectEntityLabel']} --%>
                         
-                       <input type="text" name="subjectId" placeholder="${textContainer.text['subjectResolutionSubjectsSearchQueryTextFieldPlaceholder']}"
+                       <input type="text" id="subjectSearchQueryId" name="subjectId" placeholder="${textContainer.text['subjectResolutionSubjectsSearchQueryTextFieldPlaceholder']}"
                         aria-label="${textContainer.text['ariaLabelSubjectResolutionSubjectsSearchQueryTextFieldPlaceholder']}">
                       
                     </div>

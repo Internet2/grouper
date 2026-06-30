@@ -25,7 +25,7 @@
                       <%-- if the target is selected --%>
                       <c:if test="${!grouper:isBlank(grouperRequestContainer.provisioningContainer.targetName)}">
                         <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperObjectTypeHasConfigurationId">${textContainer.text['provisioningDirectIndirectTypeLabel']}</label></strong></td>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisioningHasConfigurationId">${textContainer.text['provisioningDirectIndirectTypeLabel']}</label></strong></td>
                           <td>
                             <select name="provisioningHasConfigurationName" id="provisioningHasConfigurationId" style="width: 30em"
                               onchange="ajax('../app/UiV2Provisioning.editProvisioningOn${ObjectType}', {formIds: 'editProvisioningFormId'}); return false;">
@@ -42,7 +42,7 @@
                         <c:if test="${grouperRequestContainer.provisioningContainer.grouperProvisioningAttributeValue.directAssignment}">
                         
                           <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperDeprovisioningDeprovisionId">${textContainer.text['provisioningProvisionLabel']}</label></strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisioningProvisionId">${textContainer.text['provisioningProvisionLabel']}</label></strong></td>
                             <td>
                               <select name="provisioningProvisionName" id="provisioningProvisionId" style="width: 30em"
                                 onchange="ajax('../app/UiV2Provisioning.editProvisioningOn${ObjectType}', {formIds: 'editProvisioningFormId'}); return false;">

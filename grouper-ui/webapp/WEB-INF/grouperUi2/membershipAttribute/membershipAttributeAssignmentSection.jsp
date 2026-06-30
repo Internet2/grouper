@@ -38,7 +38,7 @@
              </div>
              
              <div class="control-group">
-               <label class="control-label">${textContainer.text['membershipAssignAttributeAttributeDefNameLabel'] }</label>
+               <label for="attributeDefNameComboId" class="control-label">${textContainer.text['membershipAssignAttributeAttributeDefNameLabel'] }</label>
                <div class="controls">
                                        
                  <grouper:combobox2 idBase="attributeDefNameCombo" style="width: 30em"

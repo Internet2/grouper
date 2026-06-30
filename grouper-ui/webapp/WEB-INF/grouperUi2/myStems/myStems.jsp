@@ -39,7 +39,7 @@ ${grouper:title('myStemsPageTitle')}
                       
                     </div>
                     <div class="span3"  style="white-space: nowrap;">
-                      <input type="text" name="myStemsFilter" placeholder="${textContainer.textEscapeXml['myStemsSearchNamePlaceholder'] }" id="myStemsFilterId" class="span12"/>
+                      <input type="text" name="myStemsFilter" placeholder="${textContainer.textEscapeXml['myStemsSearchNamePlaceholder'] }" id="myStemsFilterId" aria-label="${textContainer.textEscapeXml['myStemsSearchNamePlaceholder']}" class="span12"/>
                     </div>
                     <div class="span3"> &nbsp; &nbsp;
                       <button type="submit" class="btn" aria-controls="myStemsResultsId" onclick="ajax('../app/UiV2MyStems.myStemsSubmit', {formIds: 'myStemsPagingFormId,myStemsForm'}); return false;">${textContainer.text['myStemsApplyFilterButton'] }</button>

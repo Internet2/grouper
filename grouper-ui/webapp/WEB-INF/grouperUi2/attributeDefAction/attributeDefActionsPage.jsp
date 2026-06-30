@@ -20,7 +20,7 @@
                     </div>
                     <div class="span4">
                       <input type="text" placeholder="${textContainer.textEscapeXml['attributeDefActionFilterFormPlaceholder']}" 
-                         name="filterText" id="table-filter" class="span12"/>
+                         name="filterText" id="table-filter" aria-label="${textContainer.textEscapeXml['attributeDefActionFilterFormPlaceholder']}" class="span12"/>
                     </div>
 
                     <div class="span3"><input type="submit" class="btn" aria-controls="attributeDefFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['attributeDefApplyFilterButton'] }"

@@ -18,7 +18,7 @@ ${grouper:title('newLocalEntityPageTitle')}
                   </div>
                   <div class="modal-body">
                     <form class="form form-inline" id="stemSearchFormId">
-                      <input name="stemSearch" type="text" placeholder="${textContainer.textEscapeXml['groupCreateSearchPlaceholder'] }" value=""/> 
+                      <input name="stemSearch" type="text" aria-label="${textContainer.textEscapeXml['groupCreateSearchPlaceholder']}" placeholder="${textContainer.textEscapeXml['groupCreateSearchPlaceholder'] }" value=""/> 
                       <button class="btn" onclick="ajax('../app/UiV2Stem.stemSearchGroupFormSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemSearchFormId'}); return false;">${textContainer.text['groupCreateSearchButton'] }</button>
                     </form>
                     <div id="folderSearchResultsId"></div>
@@ -30,7 +30,7 @@ ${grouper:title('newLocalEntityPageTitle')}
                 </div>
                 <form id="addGroupForm" class="form-horizontal">
                   <div class="control-group">
-                    <label for="folder-path" class="control-label">${textContainer.text['groupCreateFolderLabel'] }</label>
+                    <label for="parentFolderComboId" class="control-label">${textContainer.text['groupCreateFolderLabel'] }</label>
                     <div class="controls">
                       <%-- placeholder: Enter a folder name --%>
                       <grouper:combobox2 idBase="parentFolderCombo" style="width: 30em" 
@@ -57,7 +57,7 @@ ${grouper:title('newLocalEntityPageTitle')}
                         <input type="text" id="groupId" name="extension" disabled="disabled"  /> 
                       </span>
                       <span style="white-space: nowrap;">
-                        <input type="checkbox" name="nameDifferentThanId" id="nameDifferentThanIdId" value="true"
+                        <input type="checkbox" name="nameDifferentThanId" aria-label="${textContainer.textEscapeXml['groupNewEditTheId']}" id="nameDifferentThanIdId" value="true"
                           onchange="syncNameAndId('groupName', 'groupId', 'nameDifferentThanIdId', false, null); return true;"
                         /> ${textContainer.text['groupNewEditTheId'] }
                       </span>

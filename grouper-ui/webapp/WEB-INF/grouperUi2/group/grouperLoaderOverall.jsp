@@ -53,7 +53,7 @@ ${grouper:title('loaderJobsPageTitle')}
 
                   <div class="row-fluid" style="margin-top: 0.5em">
                     <div class="span1">
-                      <label for="xxx">${textContainer.text['grouperLoaderOverallColumnHeaderStatus'] }:</label>
+                      <label for="loaderJobsStatusFilterId">${textContainer.text['grouperLoaderOverallColumnHeaderStatus'] }:</label>
                     </div>
                     <div class="span4" style="white-space: nowrap;">
                       <select name="loaderJobsStatusFilter" id="loaderJobsStatusFilterId">

@@ -9,7 +9,7 @@
                  <input type="hidden" name="propertyNameName" value="${grouperRequestContainer.configurationContainer.currentConfigPropertyName}" />
 
                  <div class="control-group">
-                   <label class="control-label">${textContainer.text['configurationFilesAddEntryExpressionLanguage'] }</label>
+                   <label for="expressionLanguageId" class="control-label">${textContainer.text['configurationFilesAddEntryExpressionLanguage'] }</label>
                    <div class="controls">
                      <select id="expressionLanguageId" class="span6" name="expressionLanguageName">
                        <option value="false" ${!grouperRequestContainer.configurationContainer.currentGuiConfigProperty.scriptlet ? 'selected="selected"' : '' } 
@@ -24,7 +24,7 @@
                    </div>
                  </div>
                  <div class="control-group">
-                   <label class="control-label">${textContainer.text['configurationFilesAddEntryPasswordLabel'] }</label>
+                   <label for="passwordId" class="control-label">${textContainer.text['configurationFilesAddEntryPasswordLabel'] }</label>
                    <div class="controls">
                      <select id="passwordId" class="span6" name="passwordName" onchange="return ajax('../app/UiV2Configure.configurationFileSelectPassword', {formIds: 'configurationEditForm'}); return false;">
                        <option value="false" ${!grouperRequestContainer.configurationContainer.currentGuiConfigProperty.encryptedInDatabase ? 'selected="selected"' : '' }
@@ -40,7 +40,7 @@
                  </div>
                 <div class="control-group" id="passwordValueDivId" 
                    style="display: ${grouperRequestContainer.configurationContainer.currentGuiConfigProperty.encryptedInDatabase ? 'block' : 'none'}">
-                 <label class="control-label">${textContainer.text['configurationFilesAddEntryPasswordFieldLabel'] }</label>
+                 <label for="passwordValueId" class="control-label">${textContainer.text['configurationFilesAddEntryPasswordFieldLabel'] }</label>
                  <div class="controls">
                    <input type="password" id="passwordValueId" class="span6" name="passwordValueName" />
                    
@@ -50,7 +50,7 @@
                </div>
                <div class="control-group" id="valueDivId" 
                    style="display: ${!grouperRequestContainer.configurationContainer.currentGuiConfigProperty.encryptedInDatabase ? 'block' : 'none'}">
-                 <label class="control-label">${textContainer.text['configurationFilesAddEntryValue'] }</label>
+                 <label for="valueId" class="control-label">${textContainer.text['configurationFilesAddEntryValue'] }</label>
                  <div class="controls">
                  
                    <textarea rows="8" cols="50" id="valueId" class="span6" name="valueName">${grouper:escapeHtml(grouperRequestContainer.configurationContainer.currentGuiConfigProperty.configItemMetadata.sampleProperty ? '' : 

@@ -2995,6 +2995,44 @@ function grouperRegisterCombobox(jquerySelector, url, additionalFormElementNames
 
   var ts = new TomSelect(jquerySelector, tomSelectOptions);
 
+  // Accessibility: a combobox is two inputs - the original (now hidden, class
+  // ts-hidden-accessible) and the visible control (id "<origId>-ts-control"). On init TomSelect
+  // RELOCATES the page's <label for="<origId>"> onto the visible control (rewriting it to
+  // for="<origId>-ts-control" and giving it id "<origId>-ts-label"), which labels the visible
+  // control but leaves the ORIGINAL input unlabeled - and WAVE flags that. So: read the label
+  // wherever it now is (relocated id, relocated for, or still on the original) and put an
+  // aria-label on the original; only label the visible control ourselves if TomSelect didn't.
+  // Wrapped in try/catch so an a11y enhancement can never break combobox initialization.
+  try {
+    var grouperTsOrig = ts.input;
+    if (grouperTsOrig && grouperTsOrig.id) {
+      var grouperTsOrigId = grouperTsOrig.id;
+      var grouperTsCtl = ts.control_input || document.getElementById(grouperTsOrigId + '-ts-control');
+      var grouperTsLabelEl = document.querySelector('label[for="' + grouperTsOrigId + '"]')
+          || document.getElementById(grouperTsOrigId + '-ts-label')
+          || document.querySelector('label[for="' + grouperTsOrigId + '-ts-control"]');
+      var grouperTsName = grouperTsOrig.getAttribute('aria-label')
+          || (grouperTsLabelEl ? (grouperTsLabelEl.textContent || '').replace(/\s+/g, ' ').trim() : '')
+          || grouperTsOrig.getAttribute('placeholder')
+          || '';
+      if (grouperTsName) {
+        // The original input lost its label to TomSelect's relocation - name it directly.
+        if (!grouperTsOrig.getAttribute('aria-label')) {
+          grouperTsOrig.setAttribute('aria-label', grouperTsName);
+        }
+        // Only name the visible control if TomSelect left it without any label association.
+        if (grouperTsCtl && !grouperTsCtl.getAttribute('aria-label') && !grouperTsCtl.getAttribute('aria-labelledby')
+            && !(grouperTsCtl.id && document.querySelector('label[for="' + grouperTsCtl.id + '"]'))) {
+          grouperTsCtl.setAttribute('aria-label', grouperTsName);
+        }
+      }
+    }
+  } catch (grouperTsAriaErr) {
+    if (window.console && console.warn) {
+      console.warn('combobox aria-label setup failed', grouperTsAriaErr);
+    }
+  }
+
   // Remember ajax config on the instance so programmatic setters don't need url/extra params.
   ts._grouperUrl = url;
   ts._grouperExtraUrlOptions = extraUrlOptions;

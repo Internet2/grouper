@@ -44,6 +44,7 @@
                       <th>
                         <label class="checkbox checkbox-no-padding">
                           <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.privilegeCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                          <span class="sr-only">${textContainer.text['groupPrivilegesInOtherFoldersCheckboxAriaLabel']}</span>
                         </label>
                       </th>
                       <th>

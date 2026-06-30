@@ -373,12 +373,13 @@ public class ConfigFormElement extends SimpleTagSupport {
       if (!readOnly) {
         field.append("<input class='config-el-checkbox' type='checkbox' ");
         field.append("name='config_el_"+configId+"' ");
+        field.append("aria-label='" + GrouperUtil.xmlEscape(GrouperTextContainer.textOrNull("grouperConfigIsElLabel")) + "' ");
         
         if (hasExpressionLanguage) {
           field.append(" checked ");
         }
             
-        field.append("onchange=\""+ajaxCallback+"\"");
+        field.append("onchange=\""+ajaxCallback+"\">");
         field.append("</input><span rel='tooltip' class='config-el-label' title='" + GrouperUtil.xmlEscape(GrouperTextContainer.textOrNull("grouperConfigIsElTooltip")) + "'>");
         field.append(GrouperTextContainer.textOrNull("grouperConfigIsElLabel"));
         field.append("</span>");
@@ -400,11 +401,15 @@ public class ConfigFormElement extends SimpleTagSupport {
       
       displayClass = " display: none; ";
     }
-    
+
+    // when read-only the label above is not rendered, so give the (hidden) control its own accessible name
+    String readOnlyAriaLabel = (readOnly && StringUtils.isNotBlank(label)) ? " aria-label='" + GrouperUtil.xmlEscape(label) + "' " : "";
+
     if (configItemFormElement == ConfigItemFormElement.TEXT) {
       
       field.append(
           "<input data-gr-input-type='text' style='width:30em; "+ displayClass + "' type='text' id='config_"+configId+"_id' name='config_" + configId + "'");
+      field.append(readOnlyAriaLabel);
       if (value != null) {
         field.append(" value = '"+GrouperUtil.escapeHtml(value, true)+"'");
       }
@@ -415,7 +420,7 @@ public class ConfigFormElement extends SimpleTagSupport {
     if (configItemFormElement == ConfigItemFormElement.TEXTAREA) {
             
       field.append("<textarea data-gr-input-type='textarea' style='width:30em; "+ displayClass + "' cols='20' rows='3' id='config_"+configId+"_id' name='config_"
-          + configId + "'>");
+          + configId + "'" + readOnlyAriaLabel + ">");
       if (value != null) {
         field.append(GrouperUtil.escapeHtml(value, true));
       }
@@ -426,7 +431,7 @@ public class ConfigFormElement extends SimpleTagSupport {
     if (configItemFormElement == ConfigItemFormElement.FILE) {
       
       field.append("<input type='file' data-gr-input-type='file' style='width:30em; "+ displayClass + "' cols='20' rows='3' id='config_"+configId+"_id' name='config_"
-          + configId + "'>");
+          + configId + "'" + readOnlyAriaLabel + ">");
       if (value != null) {
         field.append(GrouperUtil.escapeHtml(value, true));
       }
@@ -437,6 +442,7 @@ public class ConfigFormElement extends SimpleTagSupport {
       
       field.append(
           "<input style='width:30em; "+ displayClass + "' data-gr-input-type='password' type='password' id='config_"+configId+"_id' name= 'config_" + configId + "'");
+      field.append(readOnlyAriaLabel);
       if (value != null) {
         field.append(" value = '"+GrouperUtil.escapeHtml(value, true)+"'");
       }
@@ -508,7 +514,8 @@ public class ConfigFormElement extends SimpleTagSupport {
           String radioButtonValue = GrouperUtil.stringValue(multiKey.getKey(1));
           boolean checked = StringUtils.equals(key, value);
 
-          field.append("<input type='radio' class='config-radio-button'"+ displayClass+"' id='config_"+configId+(index==0?"":Integer.toString(index))+"_id' name='config_"+configId+"' value='"+key+"' ");
+          field.append("<input type='radio' class='config-radio-button' style='"+ displayClass+"' id='config_"+configId+(index==0?"":Integer.toString(index))+"_id' name='config_"+configId+"' value='"+key+"' ");
+          field.append("aria-label='"+GrouperUtil.xmlEscape(radioButtonValue)+"' ");
           field.append(checked ? " checked ": "");
           field.append("onchange=\""+ajaxCallback+"\"");
           field.append(">");
@@ -555,7 +562,7 @@ public class ConfigFormElement extends SimpleTagSupport {
         }
         
         field.append("></input>");
-        field.append("&nbsp; &nbsp; <label for '"+GrouperUtil.escapeHtml(value, true)+"_id'>");
+        field.append("&nbsp; &nbsp; <label for='"+GrouperUtil.escapeHtml(value, true)+"_id'>");
         field.append(label);
         field.append("</label>");
         field.append("<br>");

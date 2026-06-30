@@ -19,7 +19,7 @@ ${grouper:title('newGroupPageTitle')}
                   </div>
                   <div class="modal-body">
                     <form class="form form-inline" id="stemSearchFormId">
-                      <input name="stemSearch" type="text" placeholder="${textContainer.textEscapeXml['groupCreateSearchPlaceholder'] }" value=""/> 
+                      <input name="stemSearch" type="text" aria-label="${textContainer.textEscapeXml['groupCreateSearchPlaceholder']}" placeholder="${textContainer.textEscapeXml['groupCreateSearchPlaceholder'] }" value=""/> 
                       <button class="btn" onclick="ajax('../app/UiV2Stem.stemSearchGroupFormSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemSearchFormId'}); return false;">${textContainer.text['groupCreateSearchButton'] }</button>
                     </form>
                     <div id="folderSearchResultsId"></div>
@@ -60,7 +60,7 @@ ${grouper:title('newGroupPageTitle')}
                       </span>
                       <span style="white-space: nowrap;">
                         <label for="nameDifferentThanIdId" class="checkbox" style="display: inline-block;">
-                          <input type="checkbox" name="nameDifferentThanId" id="nameDifferentThanIdId" value="true" style="float: none"
+                          <input type="checkbox" name="nameDifferentThanId" aria-label="${textContainer.textEscapeXml['groupNewEditTheId']}" id="nameDifferentThanIdId" value="true" style="float: none"
                             onchange="syncNameAndId('groupName', 'groupId', 'nameDifferentThanIdId', false, null); return true;"
                           />
                           ${textContainer.text['groupNewEditTheId'] }

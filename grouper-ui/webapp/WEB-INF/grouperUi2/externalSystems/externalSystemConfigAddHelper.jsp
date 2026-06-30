@@ -3,7 +3,7 @@
   <c:set  value="${grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem}" var="guiGrouperExternalSystem"/>
   
   <tr>
-    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="externalSystemConfigId">${textContainer.text['grouperExternalSystemConfigIdLabel']}</label></strong></td>
+    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="configId">${textContainer.text['grouperExternalSystemConfigIdLabel']}</label></strong></td>
     <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
     <td>
       <input type="text" style="width: 30em" value="${grouper:escapeHtml(guiGrouperExternalSystem.grouperExternalSystem.configId)}"

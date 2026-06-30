@@ -8,10 +8,10 @@
                 </div>
                 <div class="modal-body">
                   <form class="form form-inline" id="deprovisionSearchFormId">
-                    <input name="addMemberSubjectSearch" type="text" placeholder=""/>
+                    <input name="addMemberSubjectSearch" type="text" placeholder="" aria-label="${textContainer.textEscapeXml['groupSearchMemberOrId']}"/>
                     <button class="btn" onclick="ajax('../app/UiV2Deprovisioning.addMemberSearch', {formIds: 'deprovisionSearchFormId'}); return false;" >${textContainer.text['groupSearchButton'] }</button>
                     <br />
-                    <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
+                    <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true" aria-label="${textContainer.textEscapeXml['groupLabelExactIdMatch']}"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
                     <br />
                     <span style="white-space: nowrap;">${textContainer.text['find.search-source'] } 
                     <select name="sourceId">

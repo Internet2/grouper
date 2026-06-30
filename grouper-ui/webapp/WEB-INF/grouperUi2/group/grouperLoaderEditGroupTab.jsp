@@ -38,10 +38,10 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                       </div>
                       <div class="modal-body">
                         <form class="form form-inline" id="addAnalyzeMemberSearchFormId">
-                          <input name="addMemberSubjectSearch" type="text" placeholder=""/>
+                          <input name="addMemberSubjectSearch" type="text" placeholder="" aria-label="${textContainer.textEscapeXml['groupSearchMemberOrId']}"/>
                           <button class="btn" onclick="ajax('../app/UiV2GrouperLoader.addMemberSearch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'addAnalyzeMemberSearchFormId'}); return false;" >${textContainer.text['groupSearchButton'] }</button>
                           <br />
-                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
+                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true" aria-label="${textContainer.textEscapeXml['groupLabelExactIdMatch']}"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
                           <br />
                           <span style="white-space: nowrap;">${textContainer.text['find.search-source'] }
                           <select name="sourceId">
@@ -210,7 +210,7 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'RECENT_MEMBERSHIPS'}">
                           <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderShowRecentMemberships}">
                             <tr>
-                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlTypeId">${textContainer.text['grouperLoaderRecentFromGroup']}</label></strong></td>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="recentMembershipsFromGroupComboId">${textContainer.text['grouperLoaderRecentFromGroup']}</label></strong></td>
                               <td>
                                 <span style="white-space: nowrap">
                                   <table border="0" style="border:none;padding:0em; margin: 0em">
@@ -1120,7 +1120,7 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                           </tr>
                           <c:if test="${grouperRequestContainer.grouperLoaderContainer.customizeFailsafeTrue}">
                             <tr>
-                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderFailsafeUseId">${textContainer.text['grouperLoaderFailsafeUseLabel']}</label></strong></td>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editFailsafeUseId">${textContainer.text['grouperLoaderFailsafeUseLabel']}</label></strong></td>
                               <td>
                                 <span style="white-space: nowrap">
                                   <select name="editFailsafeUseName" id="editFailsafeUseId" style="width: 30em">
@@ -1139,7 +1139,7 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                               </td>
                             </tr>
                             <tr>
-                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderFailsafeSendEmailId">${textContainer.text['grouperLoaderFailsafeSendEmailLabel']}</label></strong></td>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editFailsafeSendEmailId">${textContainer.text['grouperLoaderFailsafeSendEmailLabel']}</label></strong></td>
                               <td>
                                 <span style="white-space: nowrap">
                                   <select name="editFailsafeSendEmailName" id="editFailsafeSendEmailId" style="width: 30em">
