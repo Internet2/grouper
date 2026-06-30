@@ -31,6 +31,8 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -134,6 +136,24 @@ public interface AccessResolver {
    * @since   1.2.1
    */
   Set<AccessPrivilege> getPrivileges(Group group, Subject subject)
+    throws  IllegalArgumentException;
+
+  /**
+   * Bulk-resolve, per group, the subset of <i>privilegesToCheck</i> that <i>subject</i> actually holds.
+   * This is the batched form of {@link #getPrivileges(Group, Subject)} scoped to a specific set of
+   * privileges, intended to resolve privileges for many groups (e.g. a UI list page) in one query
+   * instead of an N+1 of per-group checks.  Returns privilege identities (not granted
+   * {@link AccessPrivilege} instances) - callers compare against the {@link AccessPrivilege}
+   * constants (e.g. {@link AccessPrivilege#ADMIN}).  ADMIN is NOT auto-expanded to UPDATE/READ here;
+   * the caller ORs the implication-expanded set per capability (e.g. {@link AccessPrivilege#UPDATE_PRIVILEGES}).
+   * @param groups the groups to resolve privileges for
+   * @param subject the subject whose privileges to resolve
+   * @param privilegesToCheck the access privileges to check (only these are resolved/returned)
+   * @return map of group to the subset of privilegesToCheck the subject holds (empty set if none); every
+   * input group is present in the map
+   * @throws  IllegalArgumentException if subject is null.
+   */
+  Map<Group, Set<Privilege>> getPrivileges(Collection<Group> groups, Subject subject, Set<Privilege> privilegesToCheck)
     throws  IllegalArgumentException;
 
   /**

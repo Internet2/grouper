@@ -31,6 +31,8 @@
 */
 
 package edu.internet2.middleware.grouper.helper;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -113,6 +115,15 @@ public class MockAccessResolver implements AccessResolver {
   public Set<AccessPrivilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
   {
+    throw E;
+  }
+
+  /**
+   * Not implemented.
+   * @throws  GrouperException
+   */
+  public Map<Group, Set<Privilege>> getPrivileges(Collection<Group> groups, Subject subject,
+      Set<Privilege> privilegesToCheck) throws IllegalArgumentException {
     throw E;
   }
 

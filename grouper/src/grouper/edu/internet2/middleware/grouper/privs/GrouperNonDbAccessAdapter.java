@@ -32,6 +32,7 @@
 
 package edu.internet2.middleware.grouper.privs;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -259,6 +260,78 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
       LOG.error( eS.getMessage());
     }
     return privs;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#getPrivs(edu.internet2.middleware.grouper.GrouperSession, java.util.Collection, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Map<Group, Set<Privilege>> getPrivs(GrouperSession s, Collection<Group> groups, Subject subj,
+      Set<Privilege> privilegesToCheck) {
+
+    GrouperSession.validate(s);
+
+    //start every requested group with an empty held-set so the caller always gets an entry per group
+    Map<Group, Set<Privilege>> result = new LinkedHashMap<Group, Set<Privilege>>();
+    Map<String, Group> groupsByUuid = new LinkedHashMap<String, Group>();
+    for (Group group : GrouperUtil.nonNull(groups)) {
+      result.put(group, new LinkedHashSet<Privilege>());
+      groupsByUuid.put(group.getUuid(), group);
+    }
+    if (groupsByUuid.isEmpty() || GrouperUtil.length(privilegesToCheck) == 0) {
+      return result;
+    }
+
+    try {
+      Member m = MemberFinder.findBySubject(s, subj, true);
+      if (m == null) {
+        return result;
+      }
+
+      MembershipDAO dao = GrouperDAOFactory.getFactory().getMembership();
+
+      //ONE batched query for the subject's enabled memberships across all the page's groups (the DAO
+      //batches the in-clause in 100-id chunks).  This intentionally does NOT add GrouperAll privileges -
+      //those are unioned in by the GrouperAllAccessResolver layer, exactly like the single-group getPrivs.
+      Set<Membership> memberships = dao.findAllByGroupOwnersAndMember(groupsByUuid.keySet(), m.getUuid(), true);
+
+      //bucket the memberships by owner group so we can derive privileges per group
+      Map<String, List<Membership>> membershipsByGroupUuid = new HashMap<String, List<Membership>>();
+      for (Membership membership : GrouperUtil.nonNull(memberships)) {
+        String ownerGroupId = membership.getOwnerGroupId();
+        if (ownerGroupId == null) {
+          continue;
+        }
+        List<Membership> list = membershipsByGroupUuid.get(ownerGroupId);
+        if (list == null) {
+          list = new ArrayList<Membership>();
+          membershipsByGroupUuid.put(ownerGroupId, list);
+        }
+        list.add(membership);
+      }
+
+      //derive the held access privileges per group (reusing the same internal_getPrivs logic the
+      //single-group getPrivs uses), keeping only the requested privileges
+      for (Map.Entry<String, Group> groupEntry : groupsByUuid.entrySet()) {
+        String groupUuid = groupEntry.getKey();
+        Group group = groupEntry.getValue();
+        List<Membership> mships = membershipsByGroupUuid.get(groupUuid);
+        Iterator it = (mships == null ? new ArrayList<Membership>() : mships).iterator();
+        Set<? extends GrouperPrivilege> privs = GrouperPrivilegeAdapter.internal_getPrivs(s, group, subj, m, null, it);
+        Set<Privilege> held = result.get(group);
+        for (GrouperPrivilege grouperPrivilege : privs) {
+          if (grouperPrivilege instanceof AccessPrivilege) {
+            Privilege privilege = ((AccessPrivilege) grouperPrivilege).getPrivilege();
+            if (privilegesToCheck.contains(privilege)) {
+              held.add(privilege);
+            }
+          }
+        }
+      }
+    } catch (SchemaException eS) {
+      LOG.error(eS.getMessage());
+    }
+
+    return result;
   }
 
 

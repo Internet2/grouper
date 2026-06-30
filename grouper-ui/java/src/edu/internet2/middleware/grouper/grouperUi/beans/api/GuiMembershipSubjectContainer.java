@@ -170,6 +170,29 @@ public class GuiMembershipSubjectContainer {
     //  }
     //  System.ou t.println("");
     //}
+
+    //bulk-prefetch parent stems for the page's owner gui objects (group/stem/attributeDef) in ONE
+    //query so the per-row getParentGuiStem() in the JSP is a cache hit instead of an N+1 of lookups
+    List<GuiObjectBase> ownerGuiObjects = new ArrayList<GuiObjectBase>();
+    List<GuiGroup> ownerGuiGroups = new ArrayList<GuiGroup>();
+    for (GuiMembershipSubjectContainer guiMembershipSubjectContainer : results) {
+      if (guiMembershipSubjectContainer.getGuiGroup() != null) {
+        ownerGuiObjects.add(guiMembershipSubjectContainer.getGuiGroup());
+        ownerGuiGroups.add(guiMembershipSubjectContainer.getGuiGroup());
+      }
+      if (guiMembershipSubjectContainer.getGuiStem() != null) {
+        ownerGuiObjects.add(guiMembershipSubjectContainer.getGuiStem());
+      }
+      if (guiMembershipSubjectContainer.getGuiAttributeDef() != null) {
+        ownerGuiObjects.add(guiMembershipSubjectContainer.getGuiAttributeDef());
+      }
+    }
+    GuiObjectBase.cacheParentStems(ownerGuiObjects);
+
+    //bulk-prefetch the logged-in subject's privileges on the owner groups in ONE query so the per-row
+    //guiGroup.canRead()/canUpdate()/etc. in the JSP are answered from the object (avoids an N+1)
+    GuiGroup.cacheLoggedInPrivileges(ownerGuiGroups, GuiGroup.CAN_GETTER_PRIVILEGES);
+
     return results;
   }
 

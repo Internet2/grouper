@@ -1481,6 +1481,17 @@ public class UiV2Stem {
         guiPITMembershipViews.add(guiPITMembershipView);
       }
 
+      //bulk-prefetch parent stems for the owner groups in ONE query so the per-row getParentGuiStem()
+      //in the JSP is a cache hit instead of an N+1 (and the fail-fast guard does not throw)
+      List<GuiObjectBase> pitOwnerGuiGroups = new ArrayList<GuiObjectBase>();
+      for (GuiPITMembershipView guiPITMembershipView : guiPITMembershipViews) {
+        GuiGroup pitOwnerGuiGroup = guiPITMembershipView.getOwnerGuiGroup();
+        if (pitOwnerGuiGroup != null) {
+          pitOwnerGuiGroups.add(pitOwnerGuiGroup);
+        }
+      }
+      GuiObjectBase.cacheParentStems(pitOwnerGuiGroups);
+
       stemContainer.setGuiPITMembershipViews(guiPITMembershipViews);
     } else {
       stemContainer.setShowPointInTimeAudit(false);
@@ -1626,6 +1637,7 @@ public class UiV2Stem {
         }
 
         Set<GuiPITMembershipView> guiPITMembershipViews = new LinkedHashSet<GuiPITMembershipView>();
+        Map<GuiPITMembershipView, GuiGroup> ownerGuiGroupByPitView = new LinkedHashMap<GuiPITMembershipView, GuiGroup>();
 
         for (Object[] membershipResult : result) {
           PITMembershipView pitMembershipView = (PITMembershipView)membershipResult[0];
@@ -1635,7 +1647,13 @@ public class UiV2Stem {
           guiPITMembershipView.setGuiSubject(new GuiSubject(subject));
           guiPITMembershipView.setMemberId(memberId);
           guiPITMembershipViews.add(guiPITMembershipView);
+          //resolve each owner group once (getOwnerGuiGroup() builds a new GuiGroup with db lookups)
+          ownerGuiGroupByPitView.put(guiPITMembershipView, guiPITMembershipView.getOwnerGuiGroup());
         }
+
+        //bulk-prefetch parent stems for all owner groups in ONE query so the per-row getParentGuiStem()
+        //below is a cache hit instead of an N+1 (and so the fail-fast guard does not throw)
+        GuiObjectBase.cacheParentStems(ownerGuiGroupByPitView.values());
 
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "inline;filename=\"groupMembershipsInFolder_" 
@@ -1652,7 +1670,7 @@ public class UiV2Stem {
               TextContainer.retrieveFromRequest().getText().get("stemGroupMembershipsInFolderExportEndTime"));
           for (GuiPITMembershipView guiPITMembershipView : guiPITMembershipViews) {
             String entityName = guiPITMembershipView.getGuiSubject().getScreenLabelShort2noLink();
-            GuiGroup ownerGuiGroup = guiPITMembershipView.getOwnerGuiGroup();
+            GuiGroup ownerGuiGroup = ownerGuiGroupByPitView.get(guiPITMembershipView);
             String folderName = ownerGuiGroup != null && ownerGuiGroup.getParentGuiStem() != null 
                 ? ownerGuiGroup.getParentGuiStem().getStem().getDisplayName() : "";
             String groupName = ownerGuiGroup != null ? ownerGuiGroup.getGroup().getDisplayName() : "";

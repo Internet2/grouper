@@ -31,6 +31,8 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -137,6 +139,15 @@ public class AccessWrapper implements AccessResolver {
     throws  IllegalArgumentException
   {
     return this.access.getPrivs(this.s, group, subject);
+  }
+
+  /**
+   * @see     AccessResolver#getPrivileges(java.util.Collection, Subject, java.util.Set)
+   * @see     AccessAdapter#getPrivs(GrouperSession, java.util.Collection, Subject, java.util.Set)
+   */
+  public Map<Group, Set<Privilege>> getPrivileges(Collection<Group> groups, Subject subject,
+      Set<Privilege> privilegesToCheck) throws IllegalArgumentException {
+    return this.access.getPrivs(this.s, groups, subject, privilegesToCheck);
   }
 
   /**

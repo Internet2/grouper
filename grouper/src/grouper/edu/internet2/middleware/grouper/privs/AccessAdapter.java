@@ -32,6 +32,8 @@
 
 package edu.internet2.middleware.grouper.privs;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -140,6 +142,21 @@ public interface AccessAdapter {
    * @return  Set of privileges.
    */
   Set<AccessPrivilege> getPrivs(GrouperSession s, Group g, Subject subj);
+
+  /**
+   * Bulk form of {@link #getPrivs(GrouperSession, Group, Subject)} scoped to a set of privileges:
+   * resolve, per group, the subset of <i>privilegesToCheck</i> the subject holds, in one batched
+   * query instead of one query per group.  Returns privilege identities (the {@link Privilege}
+   * constants), and does NOT include GrouperAll privileges (those are added by the
+   * GrouperAllAccessResolver layer, exactly as the single-group getPrivs does).
+   * @param s session context
+   * @param groups groups to resolve privileges for
+   * @param subj subject whose privileges to resolve
+   * @param privilegesToCheck only these access privileges are resolved/returned
+   * @return map of group to the subset of privilegesToCheck the subject holds (empty set if none)
+   */
+  Map<Group, Set<Privilege>> getPrivs(GrouperSession s, Collection<Group> groups, Subject subj,
+      Set<Privilege> privilegesToCheck);
 
   /**
    * Grant the privilege to the subject on this group.

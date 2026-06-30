@@ -30,6 +30,10 @@
 
 package edu.internet2.middleware.grouper.privs;
 
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -261,6 +265,72 @@ public class WheelAccessResolver extends AccessResolverDecorator {
       }
     }
     return accessPrivs;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getPrivileges(java.util.Collection, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  @Override
+  public Map<Group, Set<Privilege>> getPrivileges(Collection<Group> groups, Subject subject,
+      Set<Privilege> privilegesToCheck) throws IllegalArgumentException {
+
+    boolean fullWheel = this.isAndUseWheel(subject);
+    boolean readonlyWheel = this.isAndUseWheelReadonly(subject);
+    boolean viewonlyWheel = this.isAndUseWheelViewonly(subject);
+
+    //not a wheel/sysadmin member of any flavor -> normal resolution
+    if (!fullWheel && !readonlyWheel && !viewonlyWheel) {
+      return super.getDecoratedResolver().getPrivileges(groups, subject, privilegesToCheck);
+    }
+
+    //figure out, per privilege, whether wheel grants it unconditionally (mirrors hasPrivilege()).
+    //full wheel -> everything except optin/optout; readonly wheel -> read/view/groupAttrRead;
+    //viewonly wheel -> view.  these are ADDITIVE: anything wheel does not grant still gets resolved
+    //normally and unioned in (so e.g. a readonly-wheel member with a direct UPDATE membership still
+    //gets UPDATE - exactly as the per-privilege hasPrivilege() path does).  readonly/viewonly must
+    //NOT short-circuit-grant update/admin.
+    Set<Privilege> wheelGranted = new LinkedHashSet<Privilege>();
+    Set<Privilege> needDelegate = new LinkedHashSet<Privilege>();
+    for (Privilege privilege : GrouperUtil.nonNull(privilegesToCheck)) {
+      boolean granted = false;
+      if (fullWheel) {
+        if (!AccessPrivilege.OPTIN.equals(privilege) && !AccessPrivilege.OPTOUT.equals(privilege)) {
+          granted = true;
+        }
+      }
+      if (!granted && readonlyWheel) {
+        if (AccessPrivilege.READ.equals(privilege) || AccessPrivilege.VIEW.equals(privilege)
+            || AccessPrivilege.GROUP_ATTR_READ.equals(privilege)) {
+          granted = true;
+        }
+      }
+      if (!granted && viewonlyWheel) {
+        if (AccessPrivilege.VIEW.equals(privilege)) {
+          granted = true;
+        }
+      }
+      if (granted) {
+        wheelGranted.add(privilege);
+      } else {
+        needDelegate.add(privilege);
+      }
+    }
+
+    //resolve only the privileges wheel did not already grant, in one delegated batch
+    Map<Group, Set<Privilege>> delegated = needDelegate.isEmpty()
+        ? new LinkedHashMap<Group, Set<Privilege>>()
+        : super.getDecoratedResolver().getPrivileges(groups, subject, needDelegate);
+
+    Map<Group, Set<Privilege>> result = new LinkedHashMap<Group, Set<Privilege>>();
+    for (Group group : GrouperUtil.nonNull(groups)) {
+      Set<Privilege> held = new LinkedHashSet<Privilege>(wheelGranted);
+      Set<Privilege> delegatedForGroup = delegated.get(group);
+      if (delegatedForGroup != null) {
+        held.addAll(delegatedForGroup);
+      }
+      result.put(group, held);
+    }
+    return result;
   }
 
   /**

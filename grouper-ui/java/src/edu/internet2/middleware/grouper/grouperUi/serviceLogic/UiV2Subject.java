@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
@@ -640,6 +641,21 @@ public class UiV2Subject {
     //set of subjects, and what memberships each subject has
     Set<MembershipSubjectContainer> results = membershipFinder
         .findMembershipResult().getMembershipSubjectContainers();
+
+    //collect the page's owner groups for the object-types priming below.  (the per-row
+    //guiGroup.canUpdate/canRead privilege prefetch now happens inside
+    //GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers via
+    //GuiGroup.cacheLoggedInPrivileges, stored on the gui object - no cache dependency.)
+    Set<Group> ownerGroupsOnPage = new LinkedHashSet<Group>();
+    for (MembershipSubjectContainer membershipSubjectContainer : results) {
+      if (membershipSubjectContainer.getGroupOwner() != null) {
+        ownerGroupsOnPage.add(membershipSubjectContainer.getGroupOwner());
+      }
+    }
+
+    //bulk-prime the object-types cache for the page's groups so the per-row object-type icon lookup
+    //in the JSP is a cache hit instead of a per-group gaaagv query (an N+1 of object-type resolution)
+    GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(ownerGroupsOnPage);
 
     subjectContainer.setGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
 
