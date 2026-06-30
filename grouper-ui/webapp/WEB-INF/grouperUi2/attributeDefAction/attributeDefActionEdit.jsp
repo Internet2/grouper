@@ -1,4 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+${grouper:titleFromKeyAndText('attributeDefActionEditTitle', attributeUpdateRequestContainer.action)}
 
 
             <%-- for the new group or new stem button --%>

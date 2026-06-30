@@ -1,4 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+${grouper:title('miscellaneousSubjectSourceConfigAddBreadcrumb')}
 
             <div class="bread-header-container">
               <ul class="breadcrumb">
