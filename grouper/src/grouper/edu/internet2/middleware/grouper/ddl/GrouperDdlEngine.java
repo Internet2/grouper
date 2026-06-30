@@ -247,9 +247,15 @@ public class GrouperDdlEngine {
         LOG.error(versionStatus);
       }
     } else {
-      LOG.warn(versionStatus);
+      //versions match, so this is just informational; log at info if enabled, otherwise
+      //fall back to warn so the version line is never silently dropped (GRP-6454)
+      if (LOG.isInfoEnabled()) {
+        LOG.info(versionStatus);
+      } else {
+        LOG.warn(versionStatus);
+      }
     }
-    
+
     //this is the logic version in the objects
     int dbVersion = realDbVersion;
 
@@ -814,9 +820,15 @@ public class GrouperDdlEngine {
           LOG.error(versionStatus);
         }
       } else {
-        LOG.warn(versionStatus);
+        //versions match, so this is just informational; log at info if enabled, otherwise
+        //fall back to warn so the version line is never silently dropped (GRP-6454)
+        if (LOG.isInfoEnabled()) {
+          LOG.info(versionStatus);
+        } else {
+          LOG.warn(versionStatus);
+        }
       }
-      
+
       //reset to take into account if starting from scratch
       versionMismatch = javaVersion != dbVersion;
       
