@@ -795,4 +795,57 @@ public class GrouperDdl5_14_0 {
 
 
   }
+
+  // ------- grouper_sql_cache_mship_hst -------
+  // originally created on existing databases by UpgradeTaskV25 (raw SQL) but never modeled, so the
+  // deep DDL compare could not validate it.  Back-filled here so the compare knows about it.  The
+  // foreign key is declared in GrouperDdl.addAllForeignKeysViewsEtc().
+
+  static void addGrouperSqlCacheMshipHstTable(Database database, DdlVersionBean ddlVersionBean) {
+    if (!GrouperDdl5_12_0.buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    if (ddlVersionBean.didWeDoThis("v5_14_0_addGrouperSqlCacheMshipHstTable", true)) {
+      return;
+    }
+    Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "grouper_sql_cache_mship_hst");
+
+    // primary key is (member_internal_id, sql_cache_group_internal_id, start_time)
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sql_cache_group_internal_id",
+        Types.BIGINT, "20", true, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "member_internal_id",
+        Types.BIGINT, "20", true, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "start_time",
+        Types.BIGINT, "20", true, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "end_time",
+        Types.BIGINT, "20", false, true);
+  }
+
+  static void addGrouperSqlCacheMshipHstIndexes(DdlVersionBean ddlVersionBean, Database database) {
+    if (!GrouperDdl5_12_0.buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    if (ddlVersionBean.didWeDoThis("v5_14_0_addGrouperSqlCacheMshipHstIndexes", true)) {
+      return;
+    }
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_sql_cache_mship_hst",
+        "grouper_sql_cache_mshhst1_idx", false, "sql_cache_group_internal_id", "end_time");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_sql_cache_mship_hst",
+        "grouper_sql_cache_mshhst2_idx", false, "sql_cache_group_internal_id", "start_time", "end_time");
+  }
+
+  static void addGrouperSqlCacheMshipHstComments(Database database, DdlVersionBean ddlVersionBean) {
+    if (!GrouperDdl5_12_0.buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    if (ddlVersionBean.didWeDoThis("v5_14_0_addGrouperSqlCacheMshipHstComments", true)) {
+      return;
+    }
+    final String t = "grouper_sql_cache_mship_hst";
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, t, "Flattened point in time cache table for memberships or privileges");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "sql_cache_group_internal_id", "internal id of which object/field this membership refers to");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "member_internal_id", "member internal id of who this membership refers to");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "start_time", "flattened membership start time");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, t, "end_time", "flattened membership end time");
+  }
 }

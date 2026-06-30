@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -265,15 +266,22 @@ public enum UpgradeTasks {
     @Override
     public UpgradeTasksInterface upgradeTask() {
       return new UpgradeTasksInterface() {
-        
+
         @Override
         public GrouperVersion versionIntroduced() {
           return GrouperVersion.valueOfIgnoreCase("5.14.0");
         }
-        
+
         @Override
         public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
-          
+
+        }
+
+        // this is an anonymous/inline task so it has no class simple name to build the convention
+        // description key from; point at an explicit key instead (see grouper.textNg base properties)
+        @Override
+        public String description() {
+          return GrouperTextContainer.retrieveFromRequest().getText().get("upgradeTaskDescription_UpgradeTaskV26");
         }
       };
     }

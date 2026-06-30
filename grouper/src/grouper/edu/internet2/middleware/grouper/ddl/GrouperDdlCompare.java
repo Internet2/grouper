@@ -153,6 +153,15 @@ public class GrouperDdlCompare {
     this.result.getResult().append("Note: Database version for " + objectName + ": " + realDbVersion + " (" + grouperVersionDatabase + ")\n");
     this.result.getResult().append("Note: Java version for " + objectName + ": " + javaVersion + " (" + grouperVersionJava + ")\n");
 
+    // explain the frozen DDL version: the GrouperDdl model stops at V47 ("DON'T ADD ANY MORE Vs") and
+    // all schema changes after that are delivered as Upgrade Tasks, so a version that sits at 47 forever
+    // is expected and not a sign of a problem.
+    if (StringUtils.equals(objectName, "Grouper")) {
+      this.result.getResult().append("Note: " + javaVersion + " is the final Grouper DDL model version (the model is frozen here on purpose).  "
+          + "Schema changes after version " + javaVersion + " are applied by Upgrade Tasks (Configure -> Upgrade tasks), "
+          + "not by bumping this version, so just because the database and Java versions both say " + javaVersion + " does not mean the database DDL is correct.\n");
+    }
+
     if (realDbVersion == javaVersion) {
       this.result.getResult().append("Success: Database version is the same as the Java codebase Grouper version\n");
     }
@@ -230,7 +239,7 @@ public class GrouperDdlCompare {
       GrouperDdlCompareTable grouperDdlCompareTable = this.result.getGrouperDdlCompareTables().get(tableName);
       
       Table databaseTable = grouperDdlCompareTable.getDatabaseTable();
-      Table javaTable = grouperDdlCompareTable.getDatabaseTable();
+      Table javaTable = grouperDdlCompareTable.getJavaTable();
 
       StringBuilder tableErrors = new StringBuilder();
       StringBuilder tableWarnings = new StringBuilder();

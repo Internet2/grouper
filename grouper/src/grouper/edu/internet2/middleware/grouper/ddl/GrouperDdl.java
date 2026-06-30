@@ -2975,6 +2975,21 @@ public enum GrouperDdl implements DdlVersionable {
 
         GrouperDdl7_2_0.addProvViews(database, ddlVersionBean);
 
+        // back-fill the model for tables that were originally created only by raw-SQL upgrade tasks
+        // (UpgradeTaskV37/V39 lifecycle, UpgradeTaskV25 sql cache mship history) so the deep DDL
+        // compare can validate them.  Their foreign keys are declared in addAllForeignKeysViewsEtc().
+        GrouperDdl5_22_0.addGrouperLifecycleEventConfigTable(database, ddlVersionBean);
+        GrouperDdl5_22_0.addGrouperLifecycleEventConfigIndexes(ddlVersionBean, database);
+        GrouperDdl5_22_0.addGrouperLifecycleEventConfigComments(database, ddlVersionBean);
+
+        GrouperDdl5_22_0.addGrouperLifecycleEventTable(database, ddlVersionBean);
+        GrouperDdl5_22_0.addGrouperLifecycleEventIndexes(ddlVersionBean, database);
+        GrouperDdl5_22_0.addGrouperLifecycleEventComments(database, ddlVersionBean);
+
+        GrouperDdl5_14_0.addGrouperSqlCacheMshipHstTable(database, ddlVersionBean);
+        GrouperDdl5_14_0.addGrouperSqlCacheMshipHstIndexes(ddlVersionBean, database);
+        GrouperDdl5_14_0.addGrouperSqlCacheMshipHstComments(database, ddlVersionBean);
+
     }
   }
   //DON'T ADD ANY MORE Vs, we are only doing UpgradeTaskX going forward
@@ -11125,8 +11140,31 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdl5_14_0.addDependencyViews(database, ddlVersionBean);
 
+      // foreign keys for the upgrade-task tables back-filled into the model (see V47).  Without
+      // these the deep DDL compare would report them as extra foreign keys on the database side.
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_lifecycle_event_config",
+          "group_internal_id_fk", "grouper_groups", "group_internal_id", "internal_id");
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_lifecycle_event_config",
+          "stem_id_index_fk", "grouper_stems", "stem_id_index", "id_index");
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_lifecycle_event_config",
+          "data_field_internal_id_fk", "grouper_data_field", "data_field_internal_id", "internal_id");
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_lifecycle_event_config",
+          "data_row_internal_id_fk", "grouper_data_row", "data_row_internal_id", "internal_id");
+
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_lifecycle_event",
+          "lcycl_evnt_cnfg_intrnl_id_fk", "grouper_lifecycle_event_config", "grpr_lcycl_evnt_cnfg_intrnl_id", "internal_id");
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_lifecycle_event",
+          "member_internal_id_fk", "grouper_members", "member_internal_id", "internal_id");
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_lifecycle_event",
+          "lng_priv_dic_intrnl_id_fk", "grouper_dictionary", "ntrl_lng_priv_dic_intrnl_id", "internal_id");
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_lifecycle_event",
+          "lng_unpriv_dic_intrnl_id_fk", "grouper_dictionary", "ntrl_lng_unpriv_dic_intrnl_id", "internal_id");
+
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_sql_cache_mship_hst",
+          "grouper_sql_cache_msh_hst1_fk", "grouper_sql_cache_group", "sql_cache_group_internal_id", "internal_id");
+
     }
-    
+
   }
 
   /**

@@ -332,4 +332,172 @@ public class UpgradeTasksJob extends OtherJobBase {
     }
     return result;
   }
+
+  /**
+   * Status of a single upgrade task, as shown on the Configure -&gt; Upgrade tasks admin screen.
+   */
+  public enum UpgradeTaskStatus {
+
+    /** the version is recorded complete on the metadata group (the daemon will not run it again) */
+    COMPLETE,
+
+    /** the version is not recorded complete and (for a DDL task) still has DDL work to do */
+    NOT_COMPLETE,
+
+    /** a DDL task that is not recorded complete but has no DDL work to do on this database
+     * (e.g. it was already applied out of band, or it is a manual-only step on this platform) */
+    NOT_APPLICABLE;
+  }
+
+  /**
+   * The metadata group (etc:attribute:upgradeTasks:upgradeTasksMetadataGroup) whose multivalued
+   * upgradeTasksVersion attribute records which upgrade task versions have been completed.
+   * @return the metadata group
+   */
+  public static Group grouperUpgradeTasksMetadataGroup() {
+    String groupName = grouperUpgradeTasksStemName() + ":" + UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP;
+    return GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
+  }
+
+  /**
+   * full name of the multivalued attribute def name that records completed upgrade task versions
+   * @return the attribute def name
+   */
+  public static String grouperUpgradeTasksVersionAttributeName() {
+    return grouperUpgradeTasksStemName() + ":" + UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR;
+  }
+
+  /**
+   * Look up an upgrade task enum constant by its version number.
+   * @param version e.g. 43
+   * @return the UpgradeTasks enum constant, or null if there is no task for that version
+   */
+  public static UpgradeTasks retrieveUpgradeTask(int version) {
+    return GrouperUtil.enumValueOfIgnoreCase(UpgradeTasks.class, "V" + version, false, false);
+  }
+
+  /**
+   * Mark an upgrade task version complete by adding its number to the multivalued upgradeTasksVersion
+   * attribute on the metadata group - the same write the daemon (run()) does inline.  This tells Grouper
+   * the task is done so it will not be run again.  Idempotent: a no-op if the version is already recorded.
+   * @param version the upgrade task version number
+   */
+  public static void markUpgradeTaskComplete(int version) {
+    if (getDBVersions().contains(version)) {
+      return;
+    }
+    grouperUpgradeTasksMetadataGroup().getAttributeValueDelegate()
+        .addValue(grouperUpgradeTasksVersionAttributeName(), "" + version);
+  }
+
+  /**
+   * Remove the completed marker for an upgrade task version so the daemon (or a manual run) will run it
+   * again.  Idempotent: a no-op if the version is not currently recorded as complete.
+   * @param version the upgrade task version number
+   */
+  public static void markUpgradeTaskNotComplete(int version) {
+    if (!getDBVersions().contains(version)) {
+      return;
+    }
+    grouperUpgradeTasksMetadataGroup().getAttributeValueDelegate()
+        .deleteValue(grouperUpgradeTasksVersionAttributeName(), "" + version);
+  }
+
+  /**
+   * Whether a single upgrade task currently has DDL work left to do.  Non-DDL tasks always return false.
+   * For DDL tasks this is the expensive check (doesUpgradeTaskHaveDdlWorkToDo reads the live schema), so
+   * it is wrapped in the DDL model cache - the same pattern run() uses - so the schema is read once and
+   * shared across the asserts in this single check.
+   * @param upgradeTasksInterface the task to check
+   * @return true if this is a DDL task that still has automatic DDL work to do
+   */
+  public static boolean upgradeTaskHasDdlWorkToDo(UpgradeTasksInterface upgradeTasksInterface) {
+    if (!upgradeTasksInterface.upgradeTaskIsDdl()) {
+      return false;
+    }
+    GrouperDdlUtils.ddlModelCacheStart();
+    try {
+      return upgradeTasksInterface.doesUpgradeTaskHaveDdlWorkToDo();
+    } finally {
+      GrouperDdlUtils.ddlModelCacheStop();
+    }
+  }
+
+  /**
+   * Compute the status of a single upgrade task for display.
+   * @param version the upgrade task version number
+   * @param completedVersions the set of versions already recorded complete (pass getDBVersions() once
+   *   and reuse across rows rather than re-querying per row)
+   * @param checkDdl if true, a not-complete DDL task with no DDL work to do is reported NOT_APPLICABLE
+   *   (this runs the expensive schema check via {@link #upgradeTaskHasDdlWorkToDo}); if false, a
+   *   not-complete task is simply NOT_COMPLETE (cheap - no schema read)
+   * @return the status
+   */
+  public static UpgradeTaskStatus retrieveUpgradeTaskStatus(int version, Set<Integer> completedVersions, boolean checkDdl) {
+    if (completedVersions.contains(version)) {
+      return UpgradeTaskStatus.COMPLETE;
+    }
+    if (checkDdl) {
+      UpgradeTasks task = retrieveUpgradeTask(version);
+      if (task != null && task.upgradeTask().upgradeTaskIsDdl() && !upgradeTaskHasDdlWorkToDo(task.upgradeTask())) {
+        return UpgradeTaskStatus.NOT_APPLICABLE;
+      }
+    }
+    return UpgradeTaskStatus.NOT_COMPLETE;
+  }
+
+  /**
+   * Run a single upgrade task by version number and, on success, record it complete.  This performs the
+   * same per-task work the daemon (run()) does for one version, in a standalone loader-log context so it
+   * can be triggered individually - e.g. from the Configure -&gt; Upgrade tasks admin screen.  Runs as the
+   * root grouper session.  Note the tasks are individually idempotent (each re-checks its own
+   * preconditions), but they are designed to run in ascending version order.
+   * @param version the upgrade task version number to run
+   * @return the loader job message accumulated while running the task
+   */
+  public static String runUpgradeTask(final int version) {
+    return (String) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public String callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        UpgradeTasks task = retrieveUpgradeTask(version);
+        if (task == null) {
+          throw new RuntimeException("There is no upgrade task for version " + version);
+        }
+
+        // standalone loader log so an individually-triggered run is recorded like the daemon's
+        Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+        hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+        hib3GrouperLoaderLog.setJobName("OTHER_JOB_upgradeTasks_V" + version);
+        hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+        hib3GrouperLoaderLog.store();
+
+        OtherJobInput otherJobInput = new OtherJobInput();
+        otherJobInput.setJobName(hib3GrouperLoaderLog.getJobName());
+        otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+        otherJobInput.setGrouperSession(grouperSession);
+
+        try {
+          task.upgradeTask().updateVersionFromPrevious(otherJobInput);
+          // record it done so the daemon will not run it again
+          markUpgradeTaskComplete(version);
+          hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        } catch (RuntimeException e) {
+          LOG.error("Error running upgrade task V" + version, e);
+          hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+          hib3GrouperLoaderLog.appendJobMessage(GrouperUtil.getFullStackTrace(e));
+          hib3GrouperLoaderLog.setEndedTime(new Timestamp(System.currentTimeMillis()));
+          hib3GrouperLoaderLog.store();
+          throw e;
+        }
+
+        hib3GrouperLoaderLog.setEndedTime(new Timestamp(System.currentTimeMillis()));
+        hib3GrouperLoaderLog.store();
+
+        return hib3GrouperLoaderLog.getJobMessage();
+      }
+    });
+  }
 }

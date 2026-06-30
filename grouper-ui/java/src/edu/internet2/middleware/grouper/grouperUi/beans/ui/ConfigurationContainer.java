@@ -301,6 +301,27 @@ public class ConfigurationContainer {
   }
 
   /**
+   * upgrade tasks (with their computed status) shown on the Configure -&gt; Upgrade tasks screen, or null
+   * until the user presses the load button - the work is not done on the GET, only when the button posts
+   */
+  private List<GuiUpgradeTask> guiUpgradeTasks;
+
+  /**
+   * upgrade tasks (with their computed status) shown on the Configure -&gt; Upgrade tasks screen
+   * @return the upgrade tasks, or null if not loaded yet
+   */
+  public List<GuiUpgradeTask> getGuiUpgradeTasks() {
+    return this.guiUpgradeTasks;
+  }
+
+  /**
+   * @param guiUpgradeTasks1 the upgrade tasks to show
+   */
+  public void setGuiUpgradeTasks(List<GuiUpgradeTask> guiUpgradeTasks1) {
+    this.guiUpgradeTasks = guiUpgradeTasks1;
+  }
+
+  /**
    * DDL deep check result rendered as HTML: each line is HTML-escaped and the lines are color coded
    * by their leading word (Note: dark blue, Success: dark green, Warning: dark orange, Error: dark red).
    * The text is escaped in here so the JSP can output this raw inside a pre.

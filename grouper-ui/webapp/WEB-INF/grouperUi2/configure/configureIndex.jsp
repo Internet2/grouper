@@ -27,6 +27,9 @@ ${grouper:title('configurationFilesPageTitle')}
 
                     <br /><br /><a href="?operation=UiV2Configure.ddlDeepCheck" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.ddlDeepCheck');" style="white-space: nowrap;"
                     >${textContainer.text['configurationIndexDdlDeepCheck'] }</a>
+
+                    <br /><br /><a href="?operation=UiV2Configure.upgradeTasks" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Configure.upgradeTasks');" style="white-space: nowrap;"
+                    >${textContainer.text['configurationIndexUpgradeTasks'] }</a>
                   </div>
                 </div>
               </div>

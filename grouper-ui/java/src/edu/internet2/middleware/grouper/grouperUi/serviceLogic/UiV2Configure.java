@@ -30,6 +30,10 @@ import org.quartz.JobKey;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksInterface;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob.UpgradeTaskStatus;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
@@ -48,6 +52,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ConfigurationContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiUpgradeTask;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -60,6 +65,7 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.pit.PITGrouperConfigHibernate;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
@@ -290,6 +296,298 @@ public class UiV2Configure {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+
+  /**
+   * draw the upgrade tasks screen with the load button (no work is done on this GET; the table of
+   * tasks and their status is built when the user presses the button which posts to upgradeTasksSubmit).
+   * @param request
+   * @param response
+   */
+  public void upgradeTasks(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      // read-only screen, so it does not require the source IP restriction
+      if (!allowedToViewConfigurationIndex()) {
+        return;
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/configure/configureUpgradeTasks.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * build the table of all upgrade tasks (the UpgradeTasks enum) with their completed/not-completed
+   * status read from the metadata group.  This is the cheap status (no live DDL applicability check),
+   * which the per-row "check status" action refines on demand.
+   * @param request
+   * @param response
+   */
+  public void upgradeTasksSubmit(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      if (!allowedToViewConfigurationIndex()) {
+        return;
+      }
+
+      // cheap status (no per-row DDL schema check) for the initial table
+      upgradeTasksStoreAndForward(buildGuiUpgradeTasks(null));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * run the live DDL applicability check for a single upgrade task (the expensive
+   * doesUpgradeTaskHaveDdlWorkToDo check) and redraw the table with that row's status refined to
+   * "not applicable" and a detail message where appropriate.
+   * @param request
+   * @param response
+   */
+  public void upgradeTasksCheckStatus(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      if (!allowedToViewConfigurationIndex()) {
+        return;
+      }
+
+      int version = GrouperUtil.intValue(request.getParameter("version"));
+
+      // rebuild all rows (cheap), deep-checking just the requested version for the table badges
+      upgradeTasksStoreAndForward(buildGuiUpgradeTasks(version));
+
+      // report the live DDL applicability of this task in the message.  We run the check directly
+      // (not via the table status, which short-circuits to COMPLETE for a recorded-complete version)
+      // so that a recorded-complete DDL task whose schema has since drifted - e.g. a manually dropped
+      // table - is still reported as having work to do.
+      UpgradeTasks upgradeTask = UpgradeTasksJob.retrieveUpgradeTask(version);
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      TextContainer textContainer = TextContainer.retrieveFromRequest();
+
+      if (upgradeTask == null) {
+        // unknown version - just acknowledge the check ran
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
+            textContainer.getText().get("configurationUpgradeTasksCheckedStatusMessage") + " V" + version));
+      } else if (upgradeTask.upgradeTask().upgradeTaskIsDdl()) {
+        // DDL task: live, drift-aware schema check (catches a recorded-complete task whose schema drifted)
+        boolean ddlWorkToDo = UpgradeTasksJob.upgradeTaskHasDdlWorkToDo(upgradeTask.upgradeTask());
+        guiResponseJs.addAction(GuiScreenAction.newMessage(ddlWorkToDo ? GuiMessageType.info : GuiMessageType.success,
+            textContainer.getText().get(ddlWorkToDo
+                ? "configurationUpgradeTasksCheckedStatusWorkToDoMessage"
+                : "configurationUpgradeTasksCheckedStatusNoWorkMessage") + " V" + version));
+      } else {
+        // non-DDL (data/maintenance) task: there is no live schema check, so the thing to check is whether
+        // it has been recorded complete - not recorded complete means it still needs to run.
+        boolean notRun = !UpgradeTasksJob.getDBVersions().contains(version);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(notRun ? GuiMessageType.info : GuiMessageType.success,
+            textContainer.getText().get(notRun
+                ? "configurationUpgradeTasksCheckedStatusNotRunMessage"
+                : "configurationUpgradeTasksCheckedStatusAlreadyRunMessage") + " V" + version));
+      }
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * run a single upgrade task against the database (this MUTATES the database - it runs the task's DDL
+   * or data work) and, on success, records it complete.  Then redraw the table.
+   * @param request
+   * @param response
+   */
+  public void upgradeTasksRun(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      if (!allowedToViewConfigurationIndex()) {
+        return;
+      }
+
+      int version = GrouperUtil.intValue(request.getParameter("version"));
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      try {
+        // this runs the task's work against the database and marks it complete on success
+        UpgradeTasksJob.runUpgradeTask(version);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+            TextContainer.retrieveFromRequest().getText().get("configurationUpgradeTasksRanMessage") + " V" + version));
+      } catch (RuntimeException e) {
+        LOG.error("Error running upgrade task V" + version, e);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("configurationUpgradeTasksRanErrorMessage")
+            + " V" + version + ": " + GrouperUtil.xmlEscape(ExceptionUtils.getRootCauseMessage(e))));
+      }
+
+      upgradeTasksStoreAndForward(buildGuiUpgradeTasks(null));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * mark a single upgrade task complete WITHOUT running it (adds the version to the metadata group so
+   * Grouper will skip it).  Then redraw the table.
+   * @param request
+   * @param response
+   */
+  public void upgradeTasksMarkComplete(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      if (!allowedToViewConfigurationIndex()) {
+        return;
+      }
+
+      int version = GrouperUtil.intValue(request.getParameter("version"));
+
+      UpgradeTasksJob.markUpgradeTaskComplete(version);
+
+      GuiResponseJs.retrieveGuiResponseJs().addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("configurationUpgradeTasksMarkedCompleteMessage") + " V" + version));
+
+      upgradeTasksStoreAndForward(buildGuiUpgradeTasks(null));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * mark a single upgrade task NOT complete (removes the version from the metadata group so Grouper will
+   * run it again).  Then redraw the table.
+   * @param request
+   * @param response
+   */
+  public void upgradeTasksMarkNotComplete(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      if (!allowedToViewConfigurationIndex()) {
+        return;
+      }
+
+      int version = GrouperUtil.intValue(request.getParameter("version"));
+
+      UpgradeTasksJob.markUpgradeTaskNotComplete(version);
+
+      GuiResponseJs.retrieveGuiResponseJs().addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("configurationUpgradeTasksMarkedNotCompleteMessage") + " V" + version));
+
+      upgradeTasksStoreAndForward(buildGuiUpgradeTasks(null));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * Build the upgrade task rows for the Configure -&gt; Upgrade tasks screen, sorted ascending by version
+   * (the natural upgrade order).  The completed-version set is read once and shared across all rows.
+   * Status is the cheap one (COMPLETE / NOT_COMPLETE straight from the metadata group) for every row,
+   * except that the single row matching versionToDeepCheck (if any) additionally runs the expensive live
+   * DDL applicability check and gets a detail message.
+   * @param versionToDeepCheck the one version to run the live DDL check for, or null for none
+   * @return the list of gui upgrade task rows
+   */
+  private List<GuiUpgradeTask> buildGuiUpgradeTasks(Integer versionToDeepCheck) {
+
+    Set<Integer> completedVersions = UpgradeTasksJob.getDBVersions();
+
+    List<GuiUpgradeTask> guiUpgradeTasks = new ArrayList<GuiUpgradeTask>();
+
+    for (UpgradeTasks upgradeTask : UpgradeTasks.values()) {
+
+      int version = GrouperUtil.intValue(upgradeTask.name().substring(1));
+      UpgradeTasksInterface upgradeTasksInterface = upgradeTask.upgradeTask();
+
+      GuiUpgradeTask guiUpgradeTask = new GuiUpgradeTask();
+      guiUpgradeTask.setVersion(version);
+      guiUpgradeTask.setDescription(upgradeTasksInterface.description());
+      guiUpgradeTask.setDdl(upgradeTasksInterface.upgradeTaskIsDdl());
+      GrouperVersion grouperVersion = upgradeTasksInterface.versionIntroduced();
+      guiUpgradeTask.setReleasedInVersion(grouperVersion == null ? null : grouperVersion.toString());
+
+      boolean deepCheckThisRow = versionToDeepCheck != null && versionToDeepCheck.intValue() == version;
+      UpgradeTaskStatus status = UpgradeTasksJob.retrieveUpgradeTaskStatus(version, completedVersions, deepCheckThisRow);
+      guiUpgradeTask.setStatus(status);
+
+      // for the row we just live-checked, leave a detail breadcrumb of what the check found
+      if (deepCheckThisRow && status == UpgradeTaskStatus.NOT_APPLICABLE) {
+        guiUpgradeTask.setDetail(TextContainer.retrieveFromRequest().getText().get("configurationUpgradeTasksDetailNoDdlWork"));
+      } else if (deepCheckThisRow && status == UpgradeTaskStatus.NOT_COMPLETE && guiUpgradeTask.isDdl()) {
+        guiUpgradeTask.setDetail(TextContainer.retrieveFromRequest().getText().get("configurationUpgradeTasksDetailDdlWorkToDo"));
+      }
+
+      guiUpgradeTasks.add(guiUpgradeTask);
+    }
+
+    // sort ascending by version so the table follows the natural upgrade order
+    guiUpgradeTasks.sort((guiUpgradeTask1, guiUpgradeTask2) -> Integer.compare(guiUpgradeTask1.getVersion(), guiUpgradeTask2.getVersion()));
+
+    return guiUpgradeTasks;
+  }
+
+  /**
+   * store the upgrade task rows on the configuration container and (re)draw the upgrade tasks screen.
+   * @param guiUpgradeTasks the rows to show
+   */
+  private void upgradeTasksStoreAndForward(List<GuiUpgradeTask> guiUpgradeTasks) {
+
+    ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+    configurationContainer.setGuiUpgradeTasks(guiUpgradeTasks);
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+        "/WEB-INF/grouperUi2/configure/configureUpgradeTasks.jsp"));
   }
 
   /**
