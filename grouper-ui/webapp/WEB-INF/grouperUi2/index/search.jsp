@@ -18,7 +18,7 @@
                     onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery,filterType'});">
                   <div class="row-fluid">
                     <div class="span2">
-                      <label for="searchFormSearch">${textContainer.text['find.search-for'] }</label>
+                      <label for="searchQueryId">${textContainer.text['find.search-for'] }</label>
                     </div>
                     <div class="span3" style="white-space: nowrap;">
                       <input type="text" name="searchQuery" id="searchQueryId" value="${grouper:escapeHtml(grouperRequestContainer.indexContainer.searchQuery) }" style="width: 25em" />

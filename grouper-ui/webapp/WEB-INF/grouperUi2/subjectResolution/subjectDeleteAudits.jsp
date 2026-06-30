@@ -33,9 +33,9 @@
                     <option value="since">${textContainer.text['subjectResolutionSubjectDeleteLogFilterType_since']}</option>
                   </select>
                   (&nbsp;
-                  <input id="from-date" name="filterFromDate" type="text" placeholder="${textContainer.text['subjectResolutionSubjectDeleteLogFilterDatePlaceholder'] }" 
+                  <input id="from-date" aria-label="${textContainer.text['ariaLabelGuiFromDate']}" name="filterFromDate" type="text" placeholder="${textContainer.text['subjectResolutionSubjectDeleteLogFilterDatePlaceholder'] }" 
                     class="span2">&nbsp; ${textContainer.text['subjectResolutionSubjectDeleteLogFilterAndLabel'] }&nbsp;
-                  <input id="to-date" name="filterToDate" type="text" placeholder="${textContainer.text['subjectResolutionSubjectDeleteLogFilterDatePlaceholder'] }" 
+                  <input id="to-date" aria-label="${textContainer.text['ariaLabelGuiToDate']}" name="filterToDate" type="text" placeholder="${textContainer.text['subjectResolutionSubjectDeleteLogFilterDatePlaceholder'] }" 
                     class="span2">&nbsp;)
                   <label class="checkbox">
                     <input type="checkbox" name="showExtendedResults" value="true">${textContainer.text['subjectResolutionSubjectDeleteLogFilterShowExtendedResults']}

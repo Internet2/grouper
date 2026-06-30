@@ -21,10 +21,10 @@ ${grouper:titleFromKeyAndText('groupEditCompositePageTitle', grouperRequestConta
 
               <div class="modal-body">
                 <form class="form form-inline" id="leftFactorSearchFormId">
-                  <input id="leftFactorSearchId" name="leftFactorSearchName" type="text" placeholder="${textContainer.text['groupCompositeLeftFactorPlaceholder']}" />
+                  <input id="leftFactorSearchId" name="leftFactorSearchName" type="text" aria-label="${textContainer.textEscapeXml['groupCompositeLeftFactorPlaceholder']}" placeholder="${textContainer.text['groupCompositeLeftFactorPlaceholder']}" />
                   <button class="btn" onclick="ajax('../app/UiV2Group.leftGroupFactorSearch', {formIds: 'leftFactorSearchFormId'}); return false;" >${textContainer.text['groupCompositeSearchButton'] }</button>
                   <br />
-                  <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['groupCompositeSearchExactIdMatch'] }</span>
+                  <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true" aria-label="${textContainer.textEscapeXml['groupCompositeSearchExactIdMatch']}"/> ${textContainer.text['groupCompositeSearchExactIdMatch'] }</span>
                 </form>
                 <div id="leftFactorGroupResults">
                 </div>
@@ -41,10 +41,10 @@ ${grouper:titleFromKeyAndText('groupEditCompositePageTitle', grouperRequestConta
 
               <div class="modal-body">
                 <form class="form form-inline" id="rightFactorSearchFormId">
-                  <input id="rightFactorSearchId" name="rightFactorSearchName" type="text" placeholder="${textContainer.text['groupCompositeRightFactorPlaceholder']}" />
+                  <input id="rightFactorSearchId" name="rightFactorSearchName" type="text" aria-label="${textContainer.textEscapeXml['groupCompositeRightFactorPlaceholder']}" placeholder="${textContainer.text['groupCompositeRightFactorPlaceholder']}" />
                   <button class="btn" onclick="ajax('../app/UiV2Group.rightGroupFactorSearch', {formIds: 'rightFactorSearchFormId'}); return false;" >${textContainer.text['groupCompositeSearchButton'] }</button>
                   <br />
-                  <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['groupCompositeSearchExactIdMatch'] }</span>
+                  <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true" aria-label="${textContainer.textEscapeXml['groupCompositeSearchExactIdMatch']}"/> ${textContainer.text['groupCompositeSearchExactIdMatch'] }</span>
                 </form>
                 <div id="rightFactorGroupResults">
                 </div>
@@ -94,7 +94,7 @@ ${grouper:titleFromKeyAndText('groupEditCompositePageTitle', grouperRequestConta
                   </div>
                   <div class="control-group compositeDivClass" id="groupEditCompositeOfId" 
                       ${hasComposite ? '' : 'style="display:none"' }  >
-                    <label for="groupCompositeLeftFactorComboId" class="control-label">${textContainer.text['groupCompositeOperationLabel'] }</label>
+                    <label for="compositeOperationId" class="control-label">${textContainer.text['groupCompositeOperationLabel'] }</label>
                     <div class="controls">
                       <c:set var="compositeType" 
                         value="${hasComposite ? grouperRequestContainer.groupContainer.guiGroup.composite.type.name : null}" />

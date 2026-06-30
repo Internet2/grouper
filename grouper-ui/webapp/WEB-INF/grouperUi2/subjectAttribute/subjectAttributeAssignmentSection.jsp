@@ -15,7 +15,7 @@
           <form id="assignAttributeSubjectForm" class="form-horizontal">
              <input type="hidden" name="subjectId" value="${grouperRequestContainer.subjectContainer.guiSubject.subject.id}" />
              <div class="control-group">
-               <label class="control-label">${textContainer.text['subjectAssignAttributeAttributeDefNameLabel'] }</label>
+               <label for="attributeDefNameComboId" class="control-label">${textContainer.text['subjectAssignAttributeAttributeDefNameLabel'] }</label>
                <div class="controls">
                  <grouper:combobox2 idBase="attributeDefNameCombo" style="width: 30em"
                    filterOperation="UiV2AttributeDefName.attributeDefNameFilter"

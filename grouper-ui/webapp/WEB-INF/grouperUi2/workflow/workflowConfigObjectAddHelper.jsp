@@ -93,7 +93,7 @@
    </tr>
   
   <tr>
-    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigViewersGroupIdId">${textContainer.text['grouperWorkflowConfigViewersGroupIdLabel']}</label></strong></td>
+    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigViewersGroupComboId">${textContainer.text['grouperWorkflowConfigViewersGroupIdLabel']}</label></strong></td>
     <td>
       <grouper:combobox2 idBase="grouperWorkflowConfigViewersGroupCombo" style="width: 30em" 
          value="${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigViewersGroupId}"
@@ -105,7 +105,7 @@
   </tr>
   
   <tr>
-    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkflowConfigSendEmailId">${textContainer.text['grouperWorkflowConfigSendEmailLabel']}</label></strong></td>
+    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperWorkdlowConfigSendEmailId">${textContainer.text['grouperWorkflowConfigSendEmailLabel']}</label></strong></td>
     <td>
       <select name="grouperWorkflowConfigSendEmail" id="grouperWorkdlowConfigSendEmailId" style="width: 30em">
         <option value="false" ${guiWorkflowConfig.grouperWorkflowConfig.workflowConfigSendEmail ? '' : 'selected="selected"' } >${textContainer.textEscapeXml['grouperWorkflowConfigNoDoNotSendEmailLabel']}</option>

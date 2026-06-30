@@ -156,7 +156,7 @@ ${grouper:titleFromKeyAndText('groupMembershipsInFolderPageTitle', grouperReques
                     </div>
                     <div class="span3" id="groupFilterTextDiv">
                       <input type="text" placeholder="${textContainer.textEscapeXml['groupFilterFormPlaceholder']}" 
-                         name="filterText" id="table-filter" class="span12"/>
+                         name="filterText" id="table-filter" aria-label="${textContainer.textEscapeXml['groupFilterFormPlaceholder']}" class="span12"/>
                     </div>
     
                     <div class="span4" id="groupFilterSubmitDiv"><input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"

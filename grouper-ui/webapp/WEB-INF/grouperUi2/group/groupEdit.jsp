@@ -94,9 +94,9 @@ ${grouper:titleFromKeyAndText('groupEditPageTitle', grouperRequestContainer.grou
                              value="${userLifecyclePolicy.configId}"
                              <c:if test="${grouperRequestContainer.groupContainer.selectedUserLifeycyclePolicyConfigId == userLifecyclePolicy.configId}">checked</c:if> 
                       />
-                      <span for="ulp_${st.index}">
+                      <label for="ulp_${st.index}">
                         ${grouper:escapeHtml(userLifecyclePolicy.policyName)}
-                      </span>
+                      </label>
                       <span class="help-block">${userLifecyclePolicy.description}</span>
                       </br>
                     
@@ -110,7 +110,7 @@ ${grouper:titleFromKeyAndText('groupEditPageTitle', grouperRequestContainer.grou
                              value=""
                              <c:if test="${empty grouperRequestContainer.groupContainer.selectedUserLifeycyclePolicyConfigId}">checked</c:if> 
                       />
-                      <span for="ulp_none"> None</span>
+                      <label for="ulp_none"> None</label>
                     </div>
                   </div>
                   

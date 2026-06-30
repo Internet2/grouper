@@ -183,8 +183,9 @@ public class GrouperAbbreviateTextareaTag extends SimpleTagSupport {
     result.append(" <a href=\"$\" onclick=\"$('#grouperAbbreviateTextarea__" + uniqueId + "').show('slow'); $('#grouperAbbreviateSpan__" + uniqueId + "').hide('slow'); return false;\">");
     result.append(TextContainer.textOrNull("guiAbbreviateShow"));
     result.append("</a></span>");
-    result.append("<textarea cols=\"" + this.cols + "\" rows=\"" + this.rows 
-        + "\" style=\"display: none\" id=\"grouperAbbreviateTextarea__" + uniqueId + "\">");
+    result.append("<textarea cols=\"" + this.cols + "\" rows=\"" + this.rows
+        + "\" style=\"display: none\" aria-label=\"" + GrouperUtil.xmlEscape(TextContainer.textOrNull("guiAbbreviateTextareaAriaLabel"))
+        + "\" id=\"grouperAbbreviateTextarea__" + uniqueId + "\">");
     result.append(GrouperUtil.xmlEscape(this.text));
     result.append("</textarea>");
     this.getJspContext().getOut().print(result.toString());

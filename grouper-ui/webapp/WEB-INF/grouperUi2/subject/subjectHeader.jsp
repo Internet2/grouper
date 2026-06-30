@@ -18,10 +18,10 @@
                       </div>
                       <div class="modal-body">
                         <form class="form form-inline" id="addMemberSearchFormId">
-                          <input name="addMemberSubjectSearch" type="text" placeholder=""/>
+                          <input name="addMemberSubjectSearch" type="text" placeholder="" aria-label="${textContainer.textEscapeXml['groupSearchMemberOrId']}"/>
                           <button class="btn" onclick="ajax('../app/UiV2Group.addMemberSearch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'addMemberSearchFormId'}); return false;" >${textContainer.text['groupSearchButton'] }</button>
                           <br />
-                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
+                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true" aria-label="${textContainer.textEscapeXml['groupLabelExactIdMatch']}"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
                           <br />
                           <span style="white-space: nowrap;">${textContainer.text['find.search-source'] } 
                           <select name="sourceId">
@@ -114,7 +114,7 @@
                           <input id="addGroupSubjectSearchId" name="addGroupSubjectSearch" type="text" placeholder="${textContainer.text['subjectSearchGroupPlaceholder']}" />
                           <button class="btn" onclick="ajax('../app/UiV2Subject.addGroupSearch?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'addGroupSearchFormId'}); return false;" >${textContainer.text['subjectSearchButton'] }</button>
                           <br />
-                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['subjectSearchExactIdMatch'] }</span>
+                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true" aria-label="${textContainer.textEscapeXml['subjectSearchExactIdMatch']}"/> ${textContainer.text['subjectSearchExactIdMatch'] }</span>
                         </form>
                         <div id="addGroupResults">
                         </div>
@@ -128,7 +128,7 @@
                       <div id="add-groups">
                         <form id="add-groups-form" target="#" class="form-horizontal form-highlight">
                           <div class="control-group">
-                            <label for="add-block-input" class="control-label">${textContainer.text['subjectSearchGroupName'] }</label>
+                            <label for="groupAddMemberComboId" class="control-label">${textContainer.text['subjectSearchGroupName'] }</label>
                             <div class="controls">
                               <div id="add-members-container">
 
@@ -237,7 +237,7 @@
                       <div id="add-stems">
                         <form id="add-stems-form" target="#" class="form-horizontal form-highlight">
                           <div class="control-group">
-                            <label for="add-block-stem-input" class="control-label">${textContainer.text['subjectSearchStemName'] }</label>
+                            <label for="parentFolderComboId" class="control-label">${textContainer.text['subjectSearchStemName'] }</label>
                             <div class="controls">
                               <div id="add-stems-container">
 
@@ -301,7 +301,7 @@
                       <div id="add-attributeDefs">
                         <form id="add-attributeDefs-form" target="#" class="form-horizontal form-highlight">
                           <div class="control-group">
-                            <label for="add-block-input" class="control-label">${textContainer.text['subjectSearchAttributeDefName'] }</label>
+                            <label for="attributeDefAddMemberComboId" class="control-label">${textContainer.text['subjectSearchAttributeDefName'] }</label>
                             <div class="controls">
                               <div id="add-attributeDefs-container">
 

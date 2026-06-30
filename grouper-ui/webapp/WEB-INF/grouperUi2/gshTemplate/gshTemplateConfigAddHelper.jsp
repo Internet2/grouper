@@ -3,7 +3,7 @@
   <c:set value="${grouperRequestContainer.gshTemplateContainer.guiGshTemplateConfiguration}" var="guiGshTemplateConfiguration"/>
   
   <tr>
-    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="gshTemplateConfigId">${textContainer.text['gshTemplateConfigIdLabel']}</label></strong></td>
+    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="configId">${textContainer.text['gshTemplateConfigIdLabel']}</label></strong></td>
     <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
     <td>
     	

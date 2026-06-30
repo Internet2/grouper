@@ -70,7 +70,7 @@
 
         <tr>
           <td style="vertical-align: top; white-space: nowrap;"><strong><label
-              for="grouperAttestationAuthorizedGroupId">${textContainer.text['attestationAuthorizedGroupLabel']}</label></strong></td>
+              for="grouperAttestationAuthorizedGroupComboId">${textContainer.text['attestationAuthorizedGroupLabel']}</label></strong></td>
           <td id="grouperAttestationAuthorizedGroupComboTd">
             <style>#grouperAttestationAuthorizedGroupComboTd td {padding: 0; border: 0}</style>
           

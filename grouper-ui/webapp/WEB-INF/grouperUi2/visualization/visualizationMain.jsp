@@ -47,7 +47,7 @@
         <!-- parent levels -->
         <tr>
           <td style="vertical-align: top; white-space: nowrap;">
-            <strong><label for="vis-settings-parents-all">${textContainer.text['visualization.form.showParents']}:</label></strong>
+            <strong><label for="vis-settings-parents-levels">${textContainer.text['visualization.form.showParents']}:</label></strong>
           </td>
           <td>
             <input type="checkbox" name="drawNumParentsAll" id="vis-settings-parents-all" value="true" ${grouperRequestContainer.visualizationContainer.drawNumParentsLevels <= -1 ? "checked": ""} />
@@ -60,7 +60,7 @@
         <!-- child levels -->
         <tr>
           <td style="vertical-align: top; white-space: nowrap;">
-            <strong><label for="vis-settings-children-all">${textContainer.text['visualization.form.showChildren']}:</label></strong>
+            <strong><label for="vis-settings-children-levels">${textContainer.text['visualization.form.showChildren']}:</label></strong>
           </td>
           <td>
             <input type="checkbox" name="drawNumChildrenAll" id="vis-settings-children-all" value="true" ${grouperRequestContainer.visualizationContainer.drawNumChildrenLevels <= -1 ? "checked": ""} />
@@ -73,7 +73,7 @@
         <!-- sibling levels -->
         <tr>
           <td style="vertical-align: top; white-space: nowrap;">
-            <strong><label for="vis-settings-siblings-all">${textContainer.text['visualization.form.maxSiblings']}</label>:</strong>
+            <strong><label for="vis-settings-siblings">${textContainer.text['visualization.form.maxSiblings']}</label>:</strong>
           </td>
           <td>
             <input type="checkbox" name="drawMaxSiblingsAll" id="vis-settings-siblings-all" value="true" ${grouperRequestContainer.visualizationContainer.drawMaxSiblings <= 0 ? "checked": ""} />
@@ -199,10 +199,10 @@
   </div>
   <div class="modal-body">
     <form class="form form-inline" id="addVisualizationMemberSearchFormId">
-      <input name="addMemberSubjectSearch" type="text" placeholder=""/>
+      <input name="addMemberSubjectSearch" type="text" placeholder="" aria-label="${textContainer.textEscapeXml['groupSearchMemberOrId']}"/>
       <button class="btn" onclick="ajax('../app/UiV2Visualization.addMemberSearch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'addVisualizationMemberSearchFormId'}); return false;" >${textContainer.text['groupSearchButton'] }</button>
       <br />
-      <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
+      <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true" aria-label="${textContainer.textEscapeXml['groupLabelExactIdMatch']}"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
       <br />
       <span style="white-space: nowrap;">${textContainer.text['find.search-source'] }
       <select name="sourceId">
@@ -239,7 +239,7 @@
   <span class="vis-fullscreen-open"><a href="javascript:openVisualizationModal()">${textContainer.text['visualization.graph.expand']}&nbsp;<i class="fa fa-expand"></i></a></span>
 
   <div id="vis-copy-dot-output" style="display: none">
-    <textarea id="vis-copy-dot-output-txt" cols="80" rows="20" style="width: 99%"></textarea>
+    <textarea id="vis-copy-dot-output-txt" aria-label="${textContainer.text['visualization.graph.copyDot']}" cols="80" rows="20" style="width: 99%"></textarea>
   </div>
 </div>
 <div id="vis-graph-svg-outer">

@@ -13,10 +13,10 @@
                       </div>
                       <div class="modal-body">
                         <form class="form form-inline" id="addMemberSearchFormId">
-                          <input name="addMemberSubjectSearch" type="text" placeholder=""/>
+                          <input name="addMemberSubjectSearch" type="text" placeholder="" aria-label="${textContainer.textEscapeXml['groupSearchMemberOrId']}"/>
                           <button class="btn" onclick="ajax('../app/UiV2AttributeDef.addMemberSearch?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'addMemberSearchFormId'}); return false;" >${textContainer.text['attributeDefSearchButton'] }</button>
                           <br />
-                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['attributeDefLabelExactIdMatch'] }</span>
+                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true" aria-label="${textContainer.textEscapeXml['attributeDefLabelExactIdMatch']}"/> ${textContainer.text['attributeDefLabelExactIdMatch'] }</span>
                           <br />
                           <span style="white-space: nowrap;">${textContainer.text['find.search-source'] } 
                           <select name="sourceId">
@@ -44,7 +44,7 @@
                       <div id="add-members">
                         <form id="add-members-form" target="#" class="form-horizontal form-highlight">
                           <div class="control-group">
-                            <label for="add-block-input" class="control-label">${textContainer.text['attributeDefSearchMemberOrId'] }</label>
+                            <label for="groupAddMemberComboId" class="control-label">${textContainer.text['attributeDefSearchMemberOrId'] }</label>
                             <div class="controls">
                               <div id="add-members-container">
 

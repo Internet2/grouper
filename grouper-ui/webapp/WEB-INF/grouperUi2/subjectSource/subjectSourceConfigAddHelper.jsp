@@ -3,7 +3,7 @@
   <c:set  value="${grouperRequestContainer.subjectSourceContainer.guiSubjectSourceConfiguration}" var="guiSubjectSourceConfiguration"/>
   
   <tr>
-    <td style="vertical-align: top; white-space: nowrap; width: 30%;"><strong><label for="sourceConfigId">${textContainer.text['subjectSourceConfigIdLabel']}</label></strong></td>
+    <td style="vertical-align: top; white-space: nowrap; width: 30%;"><strong><label for="subjectSourceConfigId">${textContainer.text['subjectSourceConfigIdLabel']}</label></strong></td>
     <td style="vertical-align: top; white-space: nowrap; width: 5%;">&nbsp;</td>
     <td>
       <span style="white-space: nowrap">

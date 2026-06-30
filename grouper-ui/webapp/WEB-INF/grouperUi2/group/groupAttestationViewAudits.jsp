@@ -16,9 +16,9 @@
                     <option value="between">${textContainer.text['groupAuditLogFilterType_between']}</option>
                     <option value="since">${textContainer.text['groupAuditLogFilterType_since']}</option>
                   </select>
-                  <input id="from-date" name="filterFromDate" type="text" placeholder="${textContainer.text['groupAuditLogFilterDatePlaceholder'] }" 
+                  <input id="from-date" aria-label="${textContainer.text['ariaLabelGuiFromDate']}" name="filterFromDate" type="text" placeholder="${textContainer.text['groupAuditLogFilterDatePlaceholder'] }" 
                     class="span2">&nbsp;( ${textContainer.text['groupAuditLogFilterAndLabel'] }&nbsp;
-                  <input id="to-date" name="filterToDate" type="text" placeholder="${textContainer.text['groupAuditLogFilterDatePlaceholder'] }" 
+                  <input id="to-date" aria-label="${textContainer.text['ariaLabelGuiToDate']}" name="filterToDate" type="text" placeholder="${textContainer.text['groupAuditLogFilterDatePlaceholder'] }" 
                     class="span2">&nbsp;)
                   <label class="checkbox">
                     <input type="checkbox" name="showExtendedResults" value="true">${textContainer.text['groupAuditLogFilterShowExtendedResults']}

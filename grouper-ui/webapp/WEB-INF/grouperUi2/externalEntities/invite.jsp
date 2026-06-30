@@ -26,7 +26,7 @@
                       <input name="groupFilter" type="text" id="groupFilterId" placeholder="${textContainer.text['inviteExternalSearchGroupPlaceholder']}" value=""/> 
                       <button class="btn" onclick="ajax('../app/UiV2ExternalEntities.inviteSearchGroupFormSubmit', {formIds: 'groupSearchFormId'}); return false;">${textContainer.text['inviteExternalSearchGroupButton']}</button>
                       <br />
-                      <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['inviteExternalSearchExactIdMatch'] }</span>
+                      <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true" aria-label="${textContainer.textEscapeXml['inviteExternalSearchExactIdMatch']}"/> ${textContainer.text['inviteExternalSearchExactIdMatch'] }</span>
                     </form>
                     <div id="groupSearchResultsId"></div>
                   </div>
@@ -88,7 +88,7 @@
                   <c:if test="${grouperRequestContainer.inviteExternalContainer.allowInviteByIdentifier}">
                     <div class="invite-external-id-container hide">
                       <div class="control-group">
-                        <label for="external-invite-ids" class="control-label">${textContainer.text['inviteExternalLabelUserIds']}</label>
+                        <label for="loginIdsToInvite" class="control-label">${textContainer.text['inviteExternalLabelUserIds']}</label>
                         <div class="controls">
                           <textarea id="loginIdsToInvite" rows="3" cols="40" class="input-block-level"></textarea><span class="help-block">${textContainer.text['inviteExternalUserIdsHelp']}</span>
                         </div>
@@ -97,7 +97,7 @@
                   </c:if>                  
                   <div class="bulk-add-group-input-container">
                     <div class="control-group bulk-add-group-block">
-                      <label for="add-entities" style="position:absolute" class="control-label">${textContainer.text['inviteExternalLabelGroupToAddToNewUsers'] }</label>
+                      <label for="inviteAddGroupComboId" style="position:absolute" class="control-label">${textContainer.text['inviteExternalLabelGroupToAddToNewUsers'] }</label>
                       <div class="controls">
                         <grouper:combobox2 idBase="inviteAddGroupCombo" style="width: 30em"
                            value="${grouperRequestContainer.groupContainer.guiGroup.group.id}"

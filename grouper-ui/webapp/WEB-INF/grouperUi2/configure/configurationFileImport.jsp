@@ -52,7 +52,7 @@
               <div class="config-import-file">
                    
                  <div class="control-group">
-                   <label class="control-label">${textContainer.text['configurationSelectConfigFile'] }</label>
+                   <label class="control-label" for="importConfigFileId">${textContainer.text['configurationSelectConfigFile'] }</label>
                    <div class="controls">
                      
                      <input type="file" name="importConfigFile" id="importConfigFileId" />
@@ -65,7 +65,7 @@
               <div class="config-import-copyPaste hide">
 
                  <div class="control-group">
-                   <label class="control-label">${textContainer.text['configurationImportSelectConfigFile'] }</label>
+                   <label class="control-label" for="configFileSelect">${textContainer.text['configurationImportSelectConfigFile'] }</label>
                    <div class="controls">
                      <select id="configFileSelect" class="span4" name="configFile" >
                         <option value=""></option>
@@ -88,7 +88,7 @@
                  </div>
                    
                  <div class="control-group">
-                   <label class="control-label">${textContainer.text['configurationImportConfigFileCopyPaste'] }</label>
+                   <label class="control-label" for="configInputCopyPasteId">${textContainer.text['configurationImportConfigFileCopyPaste'] }</label>
                    <div class="controls">
                      <textarea id="configInputCopyPasteId" name="configInputCopyPasteName" rows="10" cols="40" 
                      class="input-block-level"></textarea><span class="help-block">${textContainer.text['configurationImportConfigFileCopyPasteDescription'] }</span>
