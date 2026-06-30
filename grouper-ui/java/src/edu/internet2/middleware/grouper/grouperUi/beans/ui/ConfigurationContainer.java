@@ -5,6 +5,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlCompareResult;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigFile;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigProperty;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiPITGrouperConfigHibernate;
@@ -278,6 +279,98 @@ public class ConfigurationContainer {
     return false;
   }
   
+  /**
+   * result of the database DDL deep check (gsh -registry -deep -check), shown on the DDL deep check screen
+   */
+  private GrouperDdlCompareResult ddlCompareResult;
+
+  /**
+   * result of the database DDL deep check (gsh -registry -deep -check), shown on the DDL deep check screen
+   * @return the ddl compare result
+   */
+  public GrouperDdlCompareResult getDdlCompareResult() {
+    return this.ddlCompareResult;
+  }
+
+  /**
+   * result of the database DDL deep check (gsh -registry -deep -check), shown on the DDL deep check screen
+   * @param ddlCompareResult1
+   */
+  public void setDdlCompareResult(GrouperDdlCompareResult ddlCompareResult1) {
+    this.ddlCompareResult = ddlCompareResult1;
+  }
+
+  /**
+   * DDL deep check result rendered as HTML: each line is HTML-escaped and the lines are color coded
+   * by their leading word (Note: dark blue, Success: dark green, Warning: dark orange, Error: dark red).
+   * The text is escaped in here so the JSP can output this raw inside a pre.
+   * @return the color coded, HTML-escaped DDL compare result, or null if there is no result yet
+   */
+  public String getDdlCompareResultHtml() {
+    if (this.ddlCompareResult == null || this.ddlCompareResult.getResult() == null) {
+      return null;
+    }
+
+    String[] lines = this.ddlCompareResult.getResult().toString().split("\n", -1);
+
+    StringBuilder html = new StringBuilder();
+
+    for (int i = 0; i < lines.length; i++) {
+
+      String line = lines[i];
+
+      // find the first non whitespace char so leading indentation is preserved as is
+      int start = 0;
+      while (start < line.length() && Character.isWhitespace(line.charAt(start))) {
+        start++;
+      }
+      String afterWhitespace = line.substring(start).toLowerCase();
+
+      // figure out the leading word (Note:/Success:/Warning:/Error:) and its color, if any
+      String color = null;
+      int prefixLength = 0;
+      if (afterWhitespace.startsWith("note:")) {
+        color = "#00008b"; // dark blue
+        prefixLength = "note:".length();
+      } else if (afterWhitespace.startsWith("success:")) {
+        color = "#006400"; // dark green
+        prefixLength = "success:".length();
+      } else if (afterWhitespace.startsWith("warning:")) {
+        color = "#cc6600"; // dark orange
+        prefixLength = "warning:".length();
+      } else if (afterWhitespace.startsWith("error:")) {
+        color = "#8b0000"; // dark red
+        prefixLength = "error:".length();
+      }
+
+      if (color != null) {
+        // color only the prefix word, leave leading whitespace and the rest of the line default
+        html.append(htmlEscape(line.substring(0, start)));
+        html.append("<span style=\"color: ").append(color).append(";\">");
+        html.append(htmlEscape(line.substring(start, start + prefixLength)));
+        html.append("</span>");
+        html.append(htmlEscape(line.substring(start + prefixLength)));
+      } else {
+        html.append(htmlEscape(line));
+      }
+
+      if (i < lines.length - 1) {
+        html.append("\n");
+      }
+    }
+
+    return html.toString();
+  }
+
+  /**
+   * escape html special chars so DB object names etc cannot inject markup
+   * @param text raw text
+   * @return escaped text
+   */
+  private static String htmlEscape(String text) {
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+  }
+
   /**
    * cache the config so it is consistent as the page draws
    */
