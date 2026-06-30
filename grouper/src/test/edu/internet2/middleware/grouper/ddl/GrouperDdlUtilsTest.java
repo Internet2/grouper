@@ -992,6 +992,10 @@ public class GrouperDdlUtilsTest extends GrouperTest {
    * validates that a fresh install creates the widened columns as varchar(1024) and that their indexes exist
    * (on mysql they are (255) prefix indexes, so the install does not exceed the InnoDB key-length limit).
    * Run this against postgres, oracle, and mysql.
+   *
+   * <p>GRP-7057 rides along here (it needs the same fresh install on all three databases): verify the install
+   * SQL creates the grouper_stem_view_privilege primary key, then drop it to simulate a pre-GRP-7057 database
+   * and confirm UpgradeTaskV43 re-adds it and is idempotent on a second run.</p>
    */
   public void testGrp7076InstallColumnWidths() {
 
@@ -1021,6 +1025,29 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     assertTrue(GrouperDdlUtils.assertIndexExists("grouper_stems", "stem_name_idx"));
     assertTrue(GrouperDdlUtils.assertIndexExists("grouper_stems", "stem_displayname_idx"));
     assertTrue(GrouperDdlUtils.assertIndexExists("grouper_stems", "stem_alternate_name_idx"));
+
+    // GRP-7057: the install SQL must create the grouper_stem_view_privilege primary key (all three databases)
+    java.util.Set<String> stemViewPrivPkColumns = GrouperUtil.toSet("member_uuid", "stem_uuid", "object_type");
+    assertTrue("install SQL should create the grouper_stem_v_priv_pk primary key",
+        GrouperDdlUtils.assertPrimaryKeyExists("grouper_stem_view_privilege", stemViewPrivPkColumns));
+
+    // GRP-7057: simulate a pre-GRP-7057 database by dropping the primary key (mysql names every PK "PRIMARY")
+    if (GrouperDdlUtils.isMysql()) {
+      HibernateSession.bySqlStatic().executeSql("ALTER TABLE grouper_stem_view_privilege DROP PRIMARY KEY");
+    } else {
+      HibernateSession.bySqlStatic().executeSql("ALTER TABLE grouper_stem_view_privilege DROP CONSTRAINT grouper_stem_v_priv_pk");
+    }
+    assertFalse("primary key should be gone after the drop",
+        GrouperDdlUtils.assertPrimaryKeyExists("grouper_stem_view_privilege", stemViewPrivPkColumns));
+
+    // the upgrade task must re-add it, and a second run must be idempotent (the live PK-existence check skips it)
+    UpgradeTasks.V43.upgradeTask().updateVersionFromPrevious(null);
+    assertTrue("UpgradeTaskV43 should re-add the grouper_stem_v_priv_pk primary key",
+        GrouperDdlUtils.assertPrimaryKeyExists("grouper_stem_view_privilege", stemViewPrivPkColumns));
+
+    UpgradeTasks.V43.upgradeTask().updateVersionFromPrevious(null);
+    assertTrue("re-running UpgradeTaskV43 must be idempotent and leave the primary key in place",
+        GrouperDdlUtils.assertPrimaryKeyExists("grouper_stem_view_privilege", stemViewPrivPkColumns));
   }
 
   /**

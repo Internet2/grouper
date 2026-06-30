@@ -2174,7 +2174,8 @@ CREATE TABLE grouper_stem_view_privilege
 (
     member_uuid VARCHAR2(40) NOT NULL,
     stem_uuid VARCHAR2(40) NOT NULL,
-    object_type CHAR(1) NOT NULL
+    object_type CHAR(1) NOT NULL,
+    CONSTRAINT grouper_stem_v_priv_pk PRIMARY KEY (member_uuid, stem_uuid, object_type)
 );
 
 CREATE INDEX grouper_stem_v_priv_mem_idx ON grouper_stem_view_privilege (member_uuid, object_type);

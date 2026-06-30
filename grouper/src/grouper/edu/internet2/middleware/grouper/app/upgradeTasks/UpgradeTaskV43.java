@@ -45,6 +45,12 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  *       upgrade is never blocked) and logs a loud reminder.  The widening is a documented manual DBA
  *       task - see the release notes for the drop-view / alter / recreate-view SQL.</li>
  * </ul>
+ *
+ * <p>GRP-7057: add the missing primary key grouper_stem_v_priv_pk on grouper_stem_view_privilege
+ * (member_uuid, stem_uuid, object_type).  All three columns are NOT NULL and the triple is already the
+ * Hibernate composite-id, so the constraint matches existing write behavior (existence-guarded inserts,
+ * full-triple deletes, no updates).  Identical ADD CONSTRAINT SQL on all three databases; idempotent via
+ * a live primary-key-existence check.</p>
  */
 public class UpgradeTaskV43 implements UpgradeTasksInterface {
 
@@ -113,6 +119,16 @@ public class UpgradeTaskV43 implements UpgradeTasksInterface {
     new OracleUniqueConstraint("grouper_sync",    "grouper_sync_internal_id_unq", "grouper_sync_internal_id_idx", "internal_id"),
   };
 
+  /** GRP-7057: table getting the new primary key */
+  private static final String GRP_7057_TABLE = "grouper_stem_view_privilege";
+
+  /** GRP-7057: name of the new primary key constraint (kept under oracle's 30-char identifier limit) */
+  private static final String GRP_7057_PK_NAME = "grouper_stem_v_priv_pk";
+
+  /** GRP-7057: the natural-key columns (lower case) that form the primary key */
+  private static final java.util.Set<String> GRP_7057_PK_COLUMNS =
+      GrouperUtil.toSet("member_uuid", "stem_uuid", "object_type");
+
   @Override
   public boolean upgradeTaskIsDdl() {
     return true;
@@ -133,9 +149,24 @@ public class UpgradeTaskV43 implements UpgradeTasksInterface {
     // GRP-6653 oracle unique constraints
     workToDo |= grp6653HasAutomaticWork();
 
+    // GRP-7057 primary key on grouper_stem_view_privilege
+    workToDo |= grp7057HasAutomaticWork();
+
     // (additional v7 DDL checks for this task can be OR-ed in here)
 
     return workToDo;
+  }
+
+  /**
+   * Whether GRP-7057 has automatic work: the grouper_stem_view_privilege table exists but does not yet
+   * have its (member_uuid, stem_uuid, object_type) primary key.  Same on all three databases.
+   * @return true if the primary key still needs to be added
+   */
+  private boolean grp7057HasAutomaticWork() {
+    if (!GrouperDdlUtils.assertTableThere(true, GRP_7057_TABLE)) {
+      return false;
+    }
+    return !GrouperDdlUtils.assertPrimaryKeyExists(GRP_7057_TABLE, GRP_7057_PK_COLUMNS);
   }
 
   /**
@@ -221,6 +252,9 @@ public class UpgradeTaskV43 implements UpgradeTasksInterface {
 
         // GRP-6653 oracle unique constraints (FK parent keys)
         grp6653AddOracleUniqueConstraints(otherJobInput);
+
+        // GRP-7057 primary key on grouper_stem_view_privilege
+        grp7057AddStemViewPrivilegePrimaryKey(otherJobInput);
 
         // (additional v7 DDL work for this task goes here)
 
@@ -322,6 +356,34 @@ public class UpgradeTaskV43 implements UpgradeTasksInterface {
         otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(
             ", GRP-6653 added unique constraint " + oracleUniqueConstraint.constraintName);
       }
+    }
+  }
+
+  /**
+   * GRP-7057: add the primary key grouper_stem_v_priv_pk on grouper_stem_view_privilege
+   * (member_uuid, stem_uuid, object_type).  The ADD CONSTRAINT ... PRIMARY KEY SQL is identical on
+   * postgres, oracle and mysql (mysql ignores the constraint name and always calls it PRIMARY, which is
+   * harmless).  Idempotent: skips if the table is absent or the primary key is already present, so the
+   * task is safe to re-run.
+   * @param otherJobInput
+   */
+  private void grp7057AddStemViewPrivilegePrimaryKey(OtherJobInput otherJobInput) {
+
+    if (!GrouperDdlUtils.assertTableThere(true, GRP_7057_TABLE)) {
+      return;
+    }
+    // idempotent: skip if the primary key is already there (e.g. created by the install SQL)
+    if (GrouperDdlUtils.assertPrimaryKeyExists(GRP_7057_TABLE, GRP_7057_PK_COLUMNS)) {
+      return;
+    }
+
+    new GcDbAccess().sql("ALTER TABLE " + GRP_7057_TABLE + " ADD CONSTRAINT " + GRP_7057_PK_NAME
+        + " PRIMARY KEY (member_uuid, stem_uuid, object_type)").executeSql();
+
+    if (otherJobInput != null) {
+      otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(
+          ", GRP-7057 added primary key " + GRP_7057_PK_NAME + " on " + GRP_7057_TABLE);
     }
   }
 

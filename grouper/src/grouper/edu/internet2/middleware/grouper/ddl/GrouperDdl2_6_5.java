@@ -163,14 +163,17 @@ public class GrouperDdl2_6_5 {
     final String tableName = TABLE_GROUPER_STEM_VIEW_PRIVILEGE;
   
     Table grouperStemViewPrivilegeTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
-  
+
+    // GRP-7057: the (member_uuid, stem_uuid, object_type) triple is the natural key of this table - all
+    // three are NOT NULL and together it is the Hibernate composite-id (Hib3StemViewPrivilegeDAO.hbm.xml).
+    // Mark all three as the primary key so database compares expect the grouper_stem_v_priv_pk constraint.
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperStemViewPrivilegeTable, COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_MEMBER_UUID,
-        Types.VARCHAR, "40", false, true);
+        Types.VARCHAR, "40", true, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperStemViewPrivilegeTable, COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_STEM_UUID,
-        Types.VARCHAR, "40", false, true);
+        Types.VARCHAR, "40", true, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperStemViewPrivilegeTable, COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_OBJECT_TYPE,
-        Types.CHAR, "1", false, true);
-    
+        Types.CHAR, "1", true, true);
+
 
   }
 
