@@ -1,6 +1,7 @@
 <!-- ./webapp/WEB-INF/grouperUi2/index/index.jsp -->
 
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+${grouper:title('searchBreadcrumb')}
               <grouper:browserPage jspName="search" />
             <div class="bread-header-container">
               <ul class="breadcrumb">

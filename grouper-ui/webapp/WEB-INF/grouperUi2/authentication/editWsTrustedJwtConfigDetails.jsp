@@ -1,4 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+${grouper:title('miscellaneousWsTrustedJwtEditBreadcrumb')}
 
             <div class="bread-header-container">
               <ul class="breadcrumb">
