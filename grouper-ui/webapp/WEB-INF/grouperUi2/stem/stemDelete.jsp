@@ -77,7 +77,7 @@ ${grouper:titleFromKeyAndText('stemDeletePageTitle', grouperRequestContainer.ste
                     <table class="table table-condensed table-striped">
                       <tbody>
                         <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="stemObliterateId"
+                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="stemObliterateNameId"
                             >${textContainer.text['stemDeleteObliterateLabel']}</label></strong></td>
                           <td>
                             <select name="stemObliterateName" id="stemObliterateNameId" style="width: 30em"

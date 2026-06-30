@@ -61,7 +61,7 @@
 				</tr>
         
         <tr>
-          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisionerConfigErrorTypeId">${textContainer.text['provisionerConfigErrorType']}</label></strong></td>
+          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisionerErrorTypeId">${textContainer.text['provisionerConfigErrorType']}</label></strong></td>
             <td>
                <select name="provisionerConfigErrorType" id="provisionerErrorTypeId" style="width: 30em">
                 <option value=""></option>

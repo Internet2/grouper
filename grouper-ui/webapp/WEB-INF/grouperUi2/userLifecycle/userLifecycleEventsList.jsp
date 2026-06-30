@@ -39,6 +39,7 @@
           <th>
             <label class="checkbox checkbox-no-padding">
               <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.eventCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+              <span class="sr-only">${textContainer.text['miscellaneousUserLifecycleEventsListMembershipCheckboxAriaLabel']}</span>
             </label>
           </th>
           <th>${textContainer.text['miscellaneousUserLifecycleEventsListHeaderGroupName']}</th>

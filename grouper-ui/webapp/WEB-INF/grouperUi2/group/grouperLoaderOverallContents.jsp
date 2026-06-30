@@ -93,7 +93,7 @@
             </td>
             <td class="expand foo-clicker">${guiGrouperLoaderJob.schedule}
             </td>
-            <td class="expand foo-clicker"><input type="text" readonly value="${grouper:escapeHtml(guiGrouperLoaderJob.query)}" style="cursor: text; background-color: #ffffff; width: 50em"/>
+            <td class="expand foo-clicker"><input type="text" readonly aria-label="${textContainer.textEscapeXml['grouperLoaderOverallColumnHeaderQuery']}" value="${grouper:escapeHtml(guiGrouperLoaderJob.query)}" style="cursor: text; background-color: #ffffff; width: 50em"/>
             </td>
         </tr>
         <c:set var="i" value="${i+1}" />

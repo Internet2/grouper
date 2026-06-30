@@ -3,7 +3,7 @@
   <c:set value="${grouperRequestContainer.userLifecycleContainer.guiUserLifecycleActionConfiguration}" var="guiUserLifecycleActionConfig"/>
   
   <tr>
-    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="dataFieldConfigId">${textContainer.text['dataFieldConfigIdLabel']}</label></strong></td>
+    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="userLifecycleActionConfigId">${textContainer.text['dataFieldConfigIdLabel']}</label></strong></td>
     <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
     <td>
       
@@ -18,7 +18,7 @@
   </tr>
   
   <tr>
-    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="dataFieldTypeId">${textContainer.text['userLifecycleActionTypeLabel']}</label></strong></td>
+    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="userLifecycleActionTypeId">${textContainer.text['userLifecycleActionTypeLabel']}</label></strong></td>
     <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
     <td>
       <select name="userLifecycleActionType" id="userLifecycleActionTypeId" style="width: 30em"

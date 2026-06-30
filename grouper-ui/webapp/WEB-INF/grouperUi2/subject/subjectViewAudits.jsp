@@ -22,9 +22,9 @@ ${grouper:titleFromKeyAndText('subjectViewAuditsPageTitle', grouperRequestContai
                     <option value="between">${textContainer.text['subjectAuditLogFilterType_between']}</option>
                     <option value="since">${textContainer.text['subjectAuditLogFilterType_since']}</option>
                   </select>
-                  <input id="from-date" name="filterFromDate" type="text" placeholder="${textContainer.text['subjectAuditLogFilterDatePlaceholder'] }" 
+                  <input id="from-date" aria-label="${textContainer.text['ariaLabelGuiFromDate']}" name="filterFromDate" type="text" placeholder="${textContainer.text['subjectAuditLogFilterDatePlaceholder'] }" 
                     class="span2">&nbsp;( ${textContainer.text['subjectAuditLogFilterAndLabel'] }&nbsp;
-                  <input id="to-date" name="filterToDate" type="text" placeholder="${textContainer.text['subjectAuditLogFilterDatePlaceholder'] }" 
+                  <input id="to-date" aria-label="${textContainer.text['ariaLabelGuiToDate']}" name="filterToDate" type="text" placeholder="${textContainer.text['subjectAuditLogFilterDatePlaceholder'] }" 
                     class="span2">&nbsp;)
                   <label class="checkbox">
                     <input type="checkbox" name="showExtendedResults" value="true">${textContainer.text['subjectAuditLogFilterShowExtendedResults']}

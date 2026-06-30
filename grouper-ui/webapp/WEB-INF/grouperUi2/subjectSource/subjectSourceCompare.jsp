@@ -74,7 +74,7 @@
                   </div>
                   
                   <div class="control-group">
-                    <label for="searchStringId" class="control-label">${textContainer.text['subjectSourcesCompareSearchString'] }</label>
+                    <label for="searchStringsId" class="control-label">${textContainer.text['subjectSourcesCompareSearchString'] }</label>
                     <div class="controls">
                       <textarea id="searchStringsId" name="searchStringsName" rows="5"></textarea>
                       <span class="help-block">${textContainer.text['subjectSourcesCompareSearchStringLabel'] }</span>

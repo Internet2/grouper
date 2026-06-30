@@ -36,7 +36,7 @@
               <div id="configuration-select-container">
                <form id="configurationSelectForm" class="form-horizontal" method="post" action="UiV2Configure.configure" >
                  <div class="control-group">
-                   <label class="control-label">${textContainer.text['configurationSelectConfigFile'] }</label>
+                   <label class="control-label" for="configFileSelect">${textContainer.text['configurationSelectConfigFile'] }</label>
                    <div class="controls">
                      <%-- --%>
                      <select id="configFileSelect" class="span10" name="configFile" 
@@ -61,7 +61,7 @@
                  </div>
                  
                  <div class="control-group">
-                   <label class="control-label">${textContainer.text['configurationFilesAddEntryPropertyName'] }</label>
+                   <label for="propertyNameId" class="control-label">${textContainer.text['configurationFilesAddEntryPropertyName'] }</label>
                    <div class="controls">
                      <input type="text" id="propertyNameId" class="span10" name="propertyNameName" />
                      
@@ -71,7 +71,7 @@
                  </div>
 
                  <div class="control-group">
-                   <label class="control-label">${textContainer.text['configurationFilesAddEntryExpressionLanguage'] }</label>
+                   <label for="expressionLanguageId" class="control-label">${textContainer.text['configurationFilesAddEntryExpressionLanguage'] }</label>
                    <div class="controls">
                      <select id="expressionLanguageId" class="span10" name="expressionLanguageName">
                        <option value="false">${textContainer.text['configurationFilesAddEntryExpressionLanguageFalse'] }</option>
@@ -84,7 +84,7 @@
                    </div>
                  </div>
                  <div class="control-group">
-                   <label class="control-label">${textContainer.text['configurationFilesAddEntryPasswordLabel'] }</label>
+                   <label for="passwordId" class="control-label">${textContainer.text['configurationFilesAddEntryPasswordLabel'] }</label>
                    <div class="controls">
                      <select id="passwordId" class="span10" name="passwordName" onchange="return ajax('../app/UiV2Configure.configurationFileSelectPassword', {formIds: 'configurationSelectForm'}); return false;">
                        <option value="false">${textContainer.text['configurationFilesAddEntryPasswordFalse'] }</option>
@@ -98,7 +98,7 @@
                  </div>
 
                  <div class="control-group" id="passwordValueDivId" style="display: none">
-                   <label class="control-label">${textContainer.text['configurationFilesAddEntryPasswordFieldLabel'] }</label>
+                   <label for="passwordValueId" class="control-label">${textContainer.text['configurationFilesAddEntryPasswordFieldLabel'] }</label>
                    <div class="controls">
                      <input type="password" id="passwordValueId" class="span10" name="passwordValueName" />
                      
@@ -108,7 +108,7 @@
                  </div>
 
                  <div class="control-group" id="valueDivId">
-                   <label class="control-label">${textContainer.text['configurationFilesAddEntryValue'] }</label>
+                   <label for="valueId" class="control-label">${textContainer.text['configurationFilesAddEntryValue'] }</label>
                    <div class="controls">
                      <textarea rows="8" cols="50" id="valueId" class="span10" name="valueName"></textarea>
                      

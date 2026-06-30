@@ -66,7 +66,7 @@ ${grouper:title('adminDaemonJobsPageTitle')}
                   <div class="row-fluid" style="margin-top: 0.5em">
                     <div class="span1">&nbsp;</div>
                     <div class="span4" style="white-space: nowrap;">
-                      <select name="daemonJobsCommonFilter" id="daemonJobsCommonFilterId">
+                      <select name="daemonJobsCommonFilter" id="daemonJobsCommonFilterId" aria-label="${textContainer.textEscapeXml['daemonJobsCommonSearchNamePlaceholder']}">
                         <option value="" style="color:#aaaaaa !important">${textContainer.textEscapeXml['daemonJobsCommonSearchNamePlaceholder'] }</option>
                         <c:forEach items="${grouperRequestContainer.adminContainer.daemonJobsCommonFilters}" var="daemonJobsCommonFilter" >
                           <option value="${grouper:escapeHtml(daemonJobsCommonFilter.value)}"
@@ -81,7 +81,7 @@ ${grouper:title('adminDaemonJobsPageTitle')}
                   <div class="row-fluid" style="margin-top: 0.5em">
                     <div class="span1">&nbsp;</div>
                     <div class="span4" style="white-space: nowrap;">
-                      <select name="daemonJobsStatusFilter" id="daemonJobsStatusFilterId">
+                      <select name="daemonJobsStatusFilter" id="daemonJobsStatusFilterId" aria-label="${textContainer.textEscapeXml['daemonJobsStatusSearchNamePlaceholder']}">
                         <option value="" style="color:#aaaaaa !important">${textContainer.textEscapeXml['daemonJobsStatusSearchNamePlaceholder'] }</option>
                         <c:forEach items="${grouperRequestContainer.adminContainer.daemonJobsStatusFilters}" var="daemonJobsStatusFilter" >
                           <option value="${grouper:escapeHtml(daemonJobsStatusFilter.value)}"

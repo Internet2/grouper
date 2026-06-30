@@ -49,7 +49,7 @@
       </div>
       
       <div class="control-group">
-        <label class="control-label no-padding">${textContainer.text['simpleAttributeAssign.attributeName'] }</label>
+        <label for="attributeAssignAssignAttributeComboId" class="control-label no-padding">${textContainer.text['simpleAttributeAssign.attributeName'] }</label>
         <div class="controls">
           <input type="hidden" name="attributeAssignType" value="${attributeUpdateRequestContainer.attributeAssignType.assignmentOnAssignmentType}" />
           <grouper:combobox2 idBase="attributeAssignAssignAttributeCombo" style="width: 30em"

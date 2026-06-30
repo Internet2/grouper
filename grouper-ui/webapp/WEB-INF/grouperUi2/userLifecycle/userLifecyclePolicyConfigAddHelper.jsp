@@ -3,7 +3,7 @@
   <c:set value="${grouperRequestContainer.userLifecycleContainer.guiUserLifecyclePolicyConfiguration}" var="guiUserLifecyclePolicyConfig"/>
   
   <tr>
-    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="dataFieldConfigId">${textContainer.text['dataFieldConfigIdLabel']}</label></strong></td>
+    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="userLifecyclePolicyConfigId">${textContainer.text['dataFieldConfigIdLabel']}</label></strong></td>
     <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
     <td>
       
@@ -18,7 +18,7 @@
   </tr>
   
   <tr>
-    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="dataFieldTypeId">${textContainer.text['userLifecyclePolicyTypeLabel']}</label></strong></td>
+    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="userLifecyclePolicyTypeId">${textContainer.text['userLifecyclePolicyTypeLabel']}</label></strong></td>
     <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
     <td>
       <select name="userLifecyclePolicyType" id="userLifecyclePolicyTypeId" style="width: 30em"

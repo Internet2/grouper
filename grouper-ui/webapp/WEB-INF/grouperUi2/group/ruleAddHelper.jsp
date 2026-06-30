@@ -248,7 +248,7 @@
                           </tr>
                           
                          <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerStemScopeId">${textContainer.text['grouperRuleOwnerStemScopeLabel']}</label></strong></td>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleIfConditionOwnerStemScopeId">${textContainer.text['grouperRuleOwnerStemScopeLabel']}</label></strong></td>
                           <td>
                             
                             <select name="grouperRuleIfConditionOwnerStemScope" id="grouperRuleIfConditionOwnerStemScopeId" style="width: 30em" onchange="ajax('../app/UiV2Group.addRuleOnGroup', {formIds: 'addRuleConfigFormId'}); return false;">

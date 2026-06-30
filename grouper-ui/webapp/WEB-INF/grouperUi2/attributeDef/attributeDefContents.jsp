@@ -14,6 +14,7 @@
                         <th>
                           <label class="checkbox checkbox-no-padding">
                             <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.attributeDefNameCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                            <span class="sr-only">${textContainer.text['attributeDefDetailsCheckboxAriaLabel']}</span>
                           </label>
                         </th>
                       </c:if>

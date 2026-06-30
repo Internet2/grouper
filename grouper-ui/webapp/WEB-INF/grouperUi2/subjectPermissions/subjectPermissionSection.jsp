@@ -16,7 +16,7 @@
             <input type="hidden" name="memberId" value="${grouperRequestContainer.permissionContainer.guiMember.member.id}" />
           
           <div class="control-group">
-            <label class="control-label">${textContainer.text['subjectAssignPermissionPermissionDefLabel'] }</label>
+            <label for="permissionDefComboId" class="control-label">${textContainer.text['subjectAssignPermissionPermissionDefLabel'] }</label>
             <div class="controls">
               <input type="hidden" name="attributeDefType" value="perm" /> 	                    	
               <grouper:combobox2 idBase="permissionDefCombo" style="width: 30em"
@@ -28,7 +28,7 @@
             </div>
           </div>
           <div class="control-group">
-            <label class="control-label">${textContainer.text['subjectAssignPermissionResourceLabel'] }</label>
+            <label for="permissionResourceNameComboId" class="control-label">${textContainer.text['subjectAssignPermissionResourceLabel'] }</label>
             <div class="controls">
             	                    	
               <grouper:combobox2 idBase="permissionResourceNameCombo" style="width: 30em"
@@ -41,7 +41,7 @@
           </div>
           
           <div class="control-group">
-            <label class="control-label">${textContainer.text['subjectAssignPermissionActionLabel'] }</label>
+            <label for="permissionActionComboId" class="control-label">${textContainer.text['subjectAssignPermissionActionLabel'] }</label>
             <div class="controls">
             	                    	
               <grouper:combobox2 idBase="permissionActionCombo" style="width: 30em"
@@ -54,7 +54,7 @@
           </div>
           
           <div class="control-group">
-            <label class="control-label">${textContainer.text['subjectAssignPermissionRoleLabel'] }</label>
+            <label for="subjectRoleComboId" class="control-label">${textContainer.text['subjectAssignPermissionRoleLabel'] }</label>
             <div class="controls">
               <input type="hidden" name="typeOfGroup" value="role" />                   	
                <grouper:combobox2 idBase="subjectRoleCombo" style="width: 30em"

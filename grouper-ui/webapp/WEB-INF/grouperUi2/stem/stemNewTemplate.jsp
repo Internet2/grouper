@@ -79,7 +79,7 @@
 	               name="serviceFriendlyName" id="serviceFriendlyNameId" disabled="disabled" />
 	          </span>
 	          <span style="white-space: nowrap;">
-	            <input type="checkbox" name="nameDifferentThanId" id="nameDifferentThanIdId" value="true"
+	            <input type="checkbox" name="nameDifferentThanId" aria-label="${textContainer.textEscapeXml['stemServiceEditFriendlyName']}" id="nameDifferentThanIdId" value="true"
 	              onchange="syncNameAndId('serviceKeyId', 'serviceFriendlyNameId', 'nameDifferentThanIdId', false, null); return true;"
 	            /> ${textContainer.text['stemServiceEditFriendlyName'] }
 	          </span>

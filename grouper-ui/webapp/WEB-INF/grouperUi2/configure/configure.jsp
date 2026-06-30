@@ -24,7 +24,7 @@
                 <div id="configuration-select-container">
                  <form id="configurationSelectForm" class="form-horizontal" method="post" action="UiV2Configure.configure" >
                    <div class="control-group">
-                     <label class="control-label">${textContainer.text['configurationSelectConfigFile'] }</label>
+                     <label class="control-label" for="configFileSelect">${textContainer.text['configurationSelectConfigFile'] }</label>
                      <div class="controls">
                        <%-- --%>
                        <select id="configFileSelect" class="span4" name="configFile" 
@@ -87,7 +87,7 @@
 						<div class="span1"></div>              			              		             		
 						<div class="span4">
 	                      <input type="text" placeholder="${textContainer.textEscapeXml['configurationFilterTextPlaceholder']}" 
-	                         name="filter" id="table-filter" class="span12" value="${grouperRequestContainer.configurationContainer.filter}" />
+	                         name="filter" id="table-filter" aria-label="${textContainer.textEscapeXml['configurationFilterTextPlaceholder']}" class="span12" value="${grouperRequestContainer.configurationContainer.filter}" />
 	                    </div>
 						<div class="span4">
 							<input type="submit" class="btn" aria-controls="propertiesResultTableId"  id="filterSubmitId" value="${textContainer.textEscapeDouble['configurationFilterApplyButton'] }"
@@ -131,7 +131,7 @@
                                   <td colspan="2" class="table-toolbar gradient-background">
                                   
                                    
-                                    <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" style="margin-top: 0px;" onchange="$('.configCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                                    <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" aria-label="${textContainer.text['configurationSelectConfigCheckboxAriaLabel']}" style="margin-top: 0px;" onchange="$('.configCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
                                     <span>
                                       ${textContainer.text['configurationDeleteSelectConfigs'] }
                                     </span>

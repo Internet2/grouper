@@ -39,7 +39,7 @@
 				</tr>
 				
 				<tr>
-				  <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['provisionerConfigSynchronous']}</label></strong></td>
+				  <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisionerConfigSynchoronousId">${textContainer.text['provisionerConfigSynchronous']}</label></strong></td>
 				    <td>
                        <select name="provisionerConfigSynchoronous" id="provisionerConfigSynchoronousId" style="width: 30em">
                          <option value="false">${textContainer.textEscapeXml['provisionerConfigSynchronousYesOption']}</option>
@@ -51,7 +51,7 @@
 				</tr>
 				
 				<tr>
-				  <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['provisionerConfigReadOnly']}</label></strong></td>
+				  <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisionerConfigReadOnlyId">${textContainer.text['provisionerConfigReadOnly']}</label></strong></td>
 				    <td>
                        <select name="provisionerConfigReadOnly" id="provisionerConfigReadOnlyId" style="width: 30em">
                          <option value="false">${textContainer.textEscapeXml['provisionerConfigReadOnlyNoOption']}</option>

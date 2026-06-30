@@ -13,10 +13,10 @@
                       </div>
                       <div class="modal-body">
                         <form class="form form-inline" id="addMemberSearchFormId">
-                          <input name="addMemberSubjectSearch" type="text" placeholder=""/>
+                          <input name="addMemberSubjectSearch" type="text" placeholder="" aria-label="${textContainer.textEscapeXml['groupSearchMemberOrId']}"/>
                           <button class="btn" onclick="ajax('../app/UiV2Stem.addMemberSearch?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'addMemberSearchFormId'}); return false;" >${textContainer.text['groupSearchButton'] }</button>
                           <br />
-                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['stemLabelExactIdMatch'] }</span>
+                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true" aria-label="${textContainer.textEscapeXml['stemLabelExactIdMatch']}"/> ${textContainer.text['stemLabelExactIdMatch'] }</span>
                           <br />
                           <span style="white-space: nowrap;">${textContainer.text['find.search-source'] } 
                           <select name="sourceId">
@@ -44,7 +44,7 @@
                       <div id="add-members">
                         <form id="add-members-form" target="#" class="form-horizontal form-highlight">
                           <div class="control-group">
-                            <label for="add-block-input" class="control-label">${textContainer.text['stemSearchMemberOrId'] }</label>
+                            <label for="groupAddMemberComboId" class="control-label">${textContainer.text['stemSearchMemberOrId'] }</label>
                             <div class="controls">
                               <div id="add-members-container">
 

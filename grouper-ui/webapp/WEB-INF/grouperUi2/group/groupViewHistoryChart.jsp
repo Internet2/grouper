@@ -47,7 +47,7 @@ ${grouper:titleFromKeyAndText('groupHistoryChartPageTitle', grouperRequestContai
 
                             <input type="text" name="dateFromRelative" id="dateFromRelativeId" class="span3" placeholder="${textContainer.text['groupHistoryChartRelativeScalePlaceholder'] }">
 
-                            <select name="dateFromRelativeScale" id="dateFromRelativeScale" class="span4">
+                            <select name="dateFromRelativeScale" id="dateFromRelativeScale" aria-label="${textContainer.textEscapeXml['groupHistoryChartRelativeScalePlaceholder']}" class="span4">
                               <option value="years" selected>${textContainer.text['groupHistoryChartRelativeScaleYears'] }</option>
                               <option value="months">${textContainer.text['groupHistoryChartRelativeScaleMonths'] }</option>
                               <option value="days" selected>${textContainer.text['groupHistoryChartRelativeScaleDays'] }</option>

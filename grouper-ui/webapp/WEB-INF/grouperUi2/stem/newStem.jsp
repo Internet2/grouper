@@ -19,7 +19,7 @@ ${grouper:title('newStemPageTitle')}
                   </div>
                   <div class="modal-body">
                     <form class="form form-inline" id="stemSearchFormId">
-                      <input name="stemSearch" type="text" placeholder="${textContainer.textEscapeXml['stemCreateSearchPlaceholder'] }" value=""/> 
+                      <input name="stemSearch" type="text" aria-label="${textContainer.textEscapeXml['stemCreateSearchPlaceholder']}" placeholder="${textContainer.textEscapeXml['stemCreateSearchPlaceholder'] }" value=""/> 
                       <button class="btn" onclick="ajax('../app/UiV2Stem.stemSearchFormSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemSearchFormId'}); return false;">${textContainer.text['stemCreateSearchButton'] }</button>
                     </form>
                     <div id="folderSearchResultsId"></div>
@@ -31,7 +31,7 @@ ${grouper:title('newStemPageTitle')}
                 </div>
                 <form id="addStemForm" class="form-horizontal">
                   <div class="control-group">
-                    <label for="folder-path" class="control-label">${textContainer.text['stemCreateFolderLabel'] }</label>
+                    <label for="parentFolderComboId" class="control-label">${textContainer.text['stemCreateFolderLabel'] }</label>
                     <div class="controls">
                       <%-- placeholder: Enter a folder name --%>
                       <grouper:combobox2 idBase="parentFolderCombo" style="width: 30em" 
@@ -58,7 +58,7 @@ ${grouper:title('newStemPageTitle')}
                         <input type="text" id="stemId" name="extension" disabled="disabled"  /> 
                       </span>
                       <span style="white-space: nowrap;">
-                        <input type="checkbox" name="nameDifferentThanId" id="nameDifferentThanIdId" value="true"
+                        <input type="checkbox" name="nameDifferentThanId" id="nameDifferentThanIdId" value="true" aria-label="${textContainer.textEscapeXml['stemNewEditTheId']}"
                           onchange="syncNameAndId('stemName', 'stemId', 'nameDifferentThanIdId', false, null); return true;"
                         />
                         ${textContainer.text['stemNewEditTheId'] }

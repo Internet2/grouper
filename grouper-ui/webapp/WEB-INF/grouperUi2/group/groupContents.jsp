@@ -21,6 +21,7 @@
                           <c:if test="${grouperRequestContainer.groupContainer.canUpdate && !grouperRequestContainer.groupContainer.showPointInTimeAudit}">
                             <label class="checkbox checkbox-no-padding">
                               <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.membershipCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                              <span class="sr-only">${textContainer.text['groupViewDetailsMembershipCheckboxAriaLabel']}</span>
                             </label>
                           </c:if>
                         </th>

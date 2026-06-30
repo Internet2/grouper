@@ -3,7 +3,7 @@
 <div id="affiliation-select-container">
                 <form id="affiliationSelectForm" class="form-horizontal" method="get" action="UiV2Deprovisioning.${deprovisioningSelectAffiliationTarget}" >
                    <div class="control-group">
-                     <label class="control-label">${textContainer.text['deprovisioningSelectAffiliationLabel'] }</label>
+                     <label for="affiliationFilter" class="control-label">${textContainer.text['deprovisioningSelectAffiliationLabel'] }</label>
                      <div class="controls">
                        <%-- --%>
                        <select id="affiliationFilter" class="span2" name="affiliation" 

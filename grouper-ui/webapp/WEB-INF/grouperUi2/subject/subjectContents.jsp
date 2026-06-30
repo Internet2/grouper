@@ -9,6 +9,7 @@
                       <th>
                         <label class="checkbox checkbox-no-padding">
                           <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.membershipCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                          <span class="sr-only">${textContainer.text['ariaLabelGuiSelectAll']}</span>
                         </label>
                       </th>
                       <th data-hide="phone,medium">${textContainer.text['subjectMembershipStemColumn']}</th>

@@ -14,7 +14,7 @@
                 <form id="addAttributeActionForm" class="form-horizontal">
                 
                   <div class="control-group">
-                    <label class="control-label">${textContainer.text['attributeDefActionCreateAttributeDefLabel'] }</label>
+                    <label for="attributeDefComboId" class="control-label">${textContainer.text['attributeDefActionCreateAttributeDefLabel'] }</label>
                     <div class="controls">
                     	                    	
                       <grouper:combobox2 idBase="attributeDefCombo" style="width: 30em" 

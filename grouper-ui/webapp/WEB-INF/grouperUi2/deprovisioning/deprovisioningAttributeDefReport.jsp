@@ -46,6 +46,7 @@
                   <label class="checkbox checkbox-no-padding">
                     <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" checked="checked"
                       onchange="$('.membershipCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                    <span class="sr-only">${textContainer.text['groupMembershipsInOtherGropusCheckboxAriaLabel']}</span>
                   </label>
                 </th>
                 <th>${textContainer.text['deprovisioningSubjectColumn'] }</th>

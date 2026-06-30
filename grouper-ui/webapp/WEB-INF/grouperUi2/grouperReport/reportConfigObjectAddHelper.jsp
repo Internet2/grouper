@@ -110,7 +110,7 @@
                         </tr>
                         
                         <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigViewersGroupIdId">${textContainer.text['grouperReportConfigViewersGroupIdLabel']}</label></strong></td>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigViewersGroupComboId">${textContainer.text['grouperReportConfigViewersGroupIdLabel']}</label></strong></td>
                           <td>
 				                    <grouper:combobox2 idBase="grouperReportConfigViewersGroupCombo" style="width: 30em" 
 				                       value="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigViewersGroupId}"
@@ -184,7 +184,7 @@
                           <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigSendEmailToViewers == false}">
                           
 	                          <tr>
-		                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigSendEmailToGroupIdId">${textContainer.text['grouperReportConfigSendEmailToGroupIdLabel']}</label></strong></td>
+		                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigSendEmailToGroupComboId">${textContainer.text['grouperReportConfigSendEmailToGroupIdLabel']}</label></strong></td>
 		                          <td>
 		                             <table cellspacing="0" cellpadding="0" border="0">
                                   <tr>

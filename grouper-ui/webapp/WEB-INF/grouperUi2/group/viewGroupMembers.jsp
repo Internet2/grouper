@@ -219,8 +219,8 @@ ${grouper:titleFromKeyAndText('groupPageTitle', grouperRequestContainer.groupCon
                           </select>
                         </div>
                         <div class="span3" id="groupFilterTextDiv">
-                          <input type="text" placeholder="${textContainer.textEscapeXml['groupFilterFormPlaceholder']}" 
-                             name="filterText" id="table-filter" class="span12"/>
+                          <input type="text" placeholder="${textContainer.textEscapeXml['groupFilterFormPlaceholder']}"
+                             name="filterText" id="table-filter" aria-label="${textContainer.textEscapeXml['groupFilterMemberSearch']}" class="span12"/>
                         </div>
     
                         <div class="span4" id="groupFilterSubmitDiv"><input type="submit" class="btn" aria-controls="groupFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"

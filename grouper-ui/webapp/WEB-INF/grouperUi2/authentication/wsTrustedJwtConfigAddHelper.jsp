@@ -3,7 +3,7 @@
   <c:set value="${grouperRequestContainer.authenticationContainer.guiWsTrustedJwtConfiguration}" var="guiWsTrustedJwtConfiguration"/>
   
   <tr>
-    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="wsTrustedJwtConfigId">${textContainer.text['wsTrustedJwtConfigIdLabel']}</label></strong></td>
+    <td style="vertical-align: top; white-space: nowrap;"><strong><label for="configId">${textContainer.text['wsTrustedJwtConfigIdLabel']}</label></strong></td>
     <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
     <td>
       

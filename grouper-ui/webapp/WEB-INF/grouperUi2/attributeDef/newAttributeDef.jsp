@@ -31,7 +31,7 @@ ${grouper:title('newAttributeDefPageTitle')}
                 </div>
                 <form id="addAttributeDefForm" class="form-horizontal">
                   <div class="control-group">
-                    <label for="folder-path" class="control-label">${textContainer.text['attributeDefCreateFolderLabel'] }</label>
+                    <label for="parentFolderComboId" class="control-label">${textContainer.text['attributeDefCreateFolderLabel'] }</label>
                     <div class="controls">
                       <%-- placeholder: Enter a folder name --%>
                       <grouper:combobox2 idBase="parentFolderCombo" style="width: 30em" 
@@ -56,7 +56,7 @@ ${grouper:title('newAttributeDefPageTitle')}
                     </div>
                   </div>
                   <div class="control-group">
-                    <label for="attributeDefType" class="control-label">${textContainer.text['attributeDefCreateTypeLabel'] }</label>
+                    <label for="attributeDefTypeId" class="control-label">${textContainer.text['attributeDefCreateTypeLabel'] }</label>
                     <div class="controls">
                       <select name="attributeDefType" id="attributeDefTypeId" 
                           onchange="ajax('../app/UiV2AttributeDef.attributeDefTypeChanged', {formIds: 'addAttributeDefForm'}); return false;">
@@ -72,7 +72,7 @@ ${grouper:title('newAttributeDefPageTitle')}
                     </div>
                   </div>
                   <div class="control-group">
-                    <label for="attributeDefValueType" class="control-label" id="assignToLabelId">${textContainer.text['attributeDefLabelAssignTo'] }</label>
+                    <span class="control-label" id="assignToLabelId">${textContainer.text['attributeDefLabelAssignTo'] }</span>
                     <div class="controls">
                        <table class="attributeDefAssignToTable">
                          <tr>
@@ -80,18 +80,18 @@ ${grouper:title('newAttributeDefPageTitle')}
                              <input type="checkbox" name="attributeDefToEditAssignToAttributeDef" id="attributeDefToEditAssignToAttributeDefId"
                                class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToAttributeDefDb == 'T' ? 'checked="checked"' : '' } />
-                             <span class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox">
+                             <label class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox" for="attributeDefToEditAssignToAttributeDefId">
                              ${textContainer.text['attributeDefAssignTo.attributeDef']}
-                             </span>
+                             </label>
                            </td>
                            <td class="attributeAssignAssignToTd attributeAssignAssignToRight">
                              <input type="checkbox" name="attributeDefToEditAssignToAttributeDefAssign" id="attributeDefToEditAssignToAttributeDefAssignId" 
                                class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox"
                                onclick="showHideMarkerSection()"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToAttributeDefAssnDb == 'T' ? 'checked="checked"' : '' } />
-                             <span class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox">
+                             <label class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox" for="attributeDefToEditAssignToAttributeDefAssignId">
                              ${textContainer.text['attributeDefAssignTo.attributeDefAssign']}
-                             </span>
+                             </label>
                            </td>
                          </tr>
                          <tr>
@@ -99,18 +99,18 @@ ${grouper:title('newAttributeDefPageTitle')}
                              <input type="checkbox" name="attributeDefToEditAssignToStem" id="attributeDefToEditAssignToStemId" 
                                class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToStemDb == 'T' ? 'checked="checked"' : '' } />
-                             <span class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox">
+                             <label class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox" for="attributeDefToEditAssignToStemId">
                              ${textContainer.text['attributeDefAssignTo.stem']}
-                             </span>
+                             </label>
                            </td>
                            <td class="attributeAssignAssignToTd attributeAssignAssignToRight">
                              <input type="checkbox" name="attributeDefToEditAssignToStemAssign" id="attributeDefToEditAssignToStemAssignId" 
                                class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox"
                                onclick="showHideMarkerSection()"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToStemAssnDb == 'T' ? 'checked="checked"' : '' } />
-                             <span class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox">
+                             <label class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox" for="attributeDefToEditAssignToStemAssignId">
                              ${textContainer.text['attributeDefAssignTo.stemAssign']}
-                             </span>
+                             </label>
                            </td>
                          </tr>
                          <tr>
@@ -118,18 +118,18 @@ ${grouper:title('newAttributeDefPageTitle')}
                              <input type="checkbox" name="attributeDefToEditAssignToGroup" id="attributeDefToEditAssignToGroupId" 
                                class="assignToCheckbox assignToLimitHideCheckbox assignToServiceHideCheckbox"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToGroupDb == 'T' ? 'checked="checked"' : '' } />
-                             <span class="assignToCheckbox assignToLimitHideCheckbox assignToServiceHideCheckbox">
+                             <label class="assignToCheckbox assignToLimitHideCheckbox assignToServiceHideCheckbox" for="attributeDefToEditAssignToGroupId">
                              ${textContainer.text['attributeDefAssignTo.group']}
-                             </span>
+                             </label>
                            </td>
                            <td class="attributeAssignAssignToTd attributeAssignAssignToRight">
                              <input type="checkbox" name="attributeDefToEditAssignToGroupAssign" id="attributeDefToEditAssignToGroupAssignId" 
                                class="assignToCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox"
                                onclick="showHideMarkerSection()"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToGroupAssnDb == 'T' ? 'checked="checked"' : '' } />
-                             <span class="assignToCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox">
+                             <label class="assignToCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox" for="attributeDefToEditAssignToGroupAssignId">
                              ${textContainer.text['attributeDefAssignTo.groupAssign']}
-                             </span>
+                             </label>
                            </td>
                          </tr>
                          <tr>
@@ -137,18 +137,18 @@ ${grouper:title('newAttributeDefPageTitle')}
                              <input type="checkbox" name="attributeDefToEditAssignToMember" id="attributeDefToEditAssignToMemberId" 
                                class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToMemberDb == 'T' ? 'checked="checked"' : '' } />
-                             <span class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox">
+                             <label class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox" for="attributeDefToEditAssignToMemberId">
                              ${textContainer.text['attributeDefAssignTo.member']}
-                             </span>
+                             </label>
                            </td>
                            <td class="attributeAssignAssignToTd attributeAssignAssignToRight">
                              <input type="checkbox" name="attributeDefToEditAssignToMemberAssign" id="attributeDefToEditAssignToMemberAssignId"
                                class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox"
                                onclick="showHideMarkerSection()"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToMemberAssnDb == 'T' ? 'checked="checked"' : '' } />
-                             <span class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox">
+                             <label class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox" for="attributeDefToEditAssignToMemberAssignId">
                              ${textContainer.text['attributeDefAssignTo.memberAssign']}
-                             </span>
+                             </label>
                            </td>
                          </tr>
                          <tr>
@@ -156,18 +156,18 @@ ${grouper:title('newAttributeDefPageTitle')}
                              <input type="checkbox" name="attributeDefToEditAssignToMembership" id="attributeDefToEditAssignToMembershipId" 
                                class="assignToCheckbox assignToLimitHideCheckbox assignToServiceHideCheckbox"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToEffMembershipDb == 'T' ? 'checked="checked"' : '' } />
-                             <span class="assignToCheckbox assignToLimitHideCheckbox assignToServiceHideCheckbox">
+                             <label class="assignToCheckbox assignToLimitHideCheckbox assignToServiceHideCheckbox" for="attributeDefToEditAssignToMembershipId">
                              ${textContainer.text['attributeDefAssignTo.membership']}
-                             </span>
+                             </label>
                            </td>
                            <td class="attributeAssignAssignToTd attributeAssignAssignToRight">
                              <input type="checkbox" name="attributeDefToEditAssignToMembershipAssign" id="attributeDefToEditAssignToMembershipAssignId"
                                class="assignToCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox"
                                onclick="showHideMarkerSection()"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToEffMembershipAssnDb == 'T' ? 'checked="checked"' : '' } />
-                             <span class="assignToCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox">
+                             <label class="assignToCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox" for="attributeDefToEditAssignToMembershipAssignId">
                              ${textContainer.text['attributeDefAssignTo.membershipAssign']}
-                             </span>
+                             </label>
                            </td>
                          </tr>
                          <tr>
@@ -175,18 +175,18 @@ ${grouper:title('newAttributeDefPageTitle')}
                              <input type="checkbox" name="attributeDefToEditAssignToImmediateMembership" id="attributeDefToEditAssignToImmediateMembershipId" 
                                class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToImmMembershipDb == 'T' ? 'checked="checked"' : '' } />
-                             <span class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox">
+                             <label class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox" for="attributeDefToEditAssignToImmediateMembershipId">
                              ${textContainer.text['attributeDefAssignTo.immediateMembership']}
-                             </span>
+                             </label>
                            </td>
                            <td class="attributeAssignAssignToTd attributeAssignAssignToRight">
                              <input type="checkbox" name="attributeDefToEditAssignToImmediateMembershipAssign" id="attributeDefToEditAssignToImmediateMembershipAssignId" 
                                class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox"
                                onclick="showHideMarkerSection()"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToImmMembershipAssnDb == 'T' ? 'checked="checked"' : '' } />
-                             <span class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox">
+                             <label class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox" for="attributeDefToEditAssignToImmediateMembershipAssignId">
                              ${textContainer.text['attributeDefAssignTo.immediateMembershipAssign']}
-                             </span>
+                             </label>
                            </td>
                          </tr>
                        </table>
@@ -199,14 +199,14 @@ ${grouper:title('newAttributeDefPageTitle')}
                     <label for="attributeDefMultiAssignable" class="control-label">${textContainer.text['attributeDefMultiAssignable'] }</label>
                     <div class="controls">
                     
-                      <input type="checkbox" name="attributeDefMultiAssignable" value="true" />
+                      <input type="checkbox" name="attributeDefMultiAssignable" id="attributeDefMultiAssignable" value="true" />
                       <span class="help-block">${textContainer.text['attributeDefMultiAssignableDescription'] }</span>
                     </div>
                   </div>
                   
                   
                   <div class="control-group attribute-def-value-all-values">
-                    <label for="attributeDefValueType" class="control-label">${textContainer.text['attributeDefCreateValueTypeLabel'] }</label>
+                    <label for="attributeDefValueTypeId" class="control-label">${textContainer.text['attributeDefCreateValueTypeLabel'] }</label>
                     <div class="controls">
                       <select name="attributeDefValueType" id="attributeDefValueTypeId"
                           onchange="ajax('../app/UiV2AttributeDef.attributeDefValueTypeChanged', {formIds: 'addAttributeDefForm'}); return false;">
@@ -227,7 +227,7 @@ ${grouper:title('newAttributeDefPageTitle')}
                     <label for="attributeDefMultiValued" class="control-label">${textContainer.text['attributeDefMultiValued'] }</label>
                     <div class="controls">
                     
-                      <input type="checkbox" name="attributeDefMultiValued" value="true" />
+                      <input type="checkbox" name="attributeDefMultiValued" id="attributeDefMultiValued" value="true" />
                       <span class="help-block">${textContainer.text['attributeDefMultiValuedDescription'] }</span>
                     </div>
                   </div>

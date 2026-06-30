@@ -17,7 +17,7 @@
           <form id="assignAttributeStemForm" class="form-horizontal">
              <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
              <div class="control-group">
-               <label class="control-label">${textContainer.text['stemAssignAttributeAttributeDefNameLabel'] }</label>
+               <label for="attributeDefNameComboId" class="control-label">${textContainer.text['stemAssignAttributeAttributeDefNameLabel'] }</label>
                <div class="controls">
                                        
                  <grouper:combobox2 idBase="attributeDefNameCombo" style="width: 30em"

@@ -20,10 +20,10 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
               </div>
               <div class="modal-body">
                 <form class="form form-inline" id="addMemberSearchFormId">
-                  <input name="addMemberSubjectSearch" type="text" placeholder=""/>
+                  <input name="addMemberSubjectSearch" type="text" placeholder="" aria-label="${textContainer.textEscapeXml['groupSearchMemberOrId']}"/>
                   <button class="btn" onclick="ajax('../app/UiV2Group.addMemberSearch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'addMemberSearchFormId'}); return false;" >${textContainer.text['groupSearchButton'] }</button>
                   <br />
-                  <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
+                  <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true" aria-label="${textContainer.textEscapeXml['groupLabelExactIdMatch']}"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
                   <br />
                   <span style="white-space: nowrap;">${textContainer.text['find.search-source'] } 
                   <select name="sourceId">
@@ -56,10 +56,10 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
 
               <div class="modal-body">
                 <form class="form form-inline" id="addGroupSearchFormId">
-                  <input id="addGroupSearchId" name="addGroupSearch" type="text" placeholder="${textContainer.text['groupImportSearchGroupPlaceholder']}" />
+                  <input id="addGroupSearchId" name="addGroupSearch" type="text" aria-label="${textContainer.textEscapeXml['groupImportSearchGroupPlaceholder']}" placeholder="${textContainer.text['groupImportSearchGroupPlaceholder']}" />
                   <button class="btn" onclick="ajax('../app/UiV2GroupImport.groupImportGroupSearch', {formIds: 'addGroupSearchFormId'}); return false;" >${textContainer.text['groupImportSearchButton'] }</button>
                   <br />
-                  <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['subjectSearchExactIdMatch'] }</span>
+                  <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true" aria-label="${textContainer.textEscapeXml['subjectSearchExactIdMatch']}"/> ${textContainer.text['subjectSearchExactIdMatch'] }</span>
                 </form>
                 <div id="addGroupResults">
                 </div>
@@ -105,7 +105,7 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
 
               <div class="bulk-add-group-input-container">
                 <div class="control-group bulk-add-group-block">
-                  <label for="add-entities" style="position:absolute" class="control-label">${textContainer.text['groupImportAddMembersToGroupLabel'] }</label>
+                  <label for="groupImportGroupComboId" style="position:absolute" class="control-label">${textContainer.text['groupImportAddMembersToGroupLabel'] }</label>
                   <div class="controls">
                     <grouper:combobox2 idBase="groupImportGroupCombo" style="width: 30em" 
                        value="${grouperRequestContainer.groupContainer.guiGroup.group.id}"
@@ -132,7 +132,7 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
 
               <div class="bulk-add-group-list-container hide">
                 <div class="control-group">
-                  <label for="groupList" class="control-label">${textContainer.text['groupImportEnterListOfGroupNamesOrIds'] }</label>
+                  <label for="groupListId" class="control-label">${textContainer.text['groupImportEnterListOfGroupNamesOrIds'] }</label>
                   <div class="controls">
                     <textarea rows="10" name="groupList" id="groupListId"></textarea>
                     <br /><br />
@@ -145,7 +145,7 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
 
               <div class="bulk-add-group-import-container hide">
                 <div class="control-group">
-                  <label class="control-label">${textContainer.text['groupImportSelectGroupFileToImport'] }</label>
+                  <label class="control-label" for="importGroupCsvFileId">${textContainer.text['groupImportSelectGroupFileToImport'] }</label>
                   <div class="controls">
                     <input type="file" name="importGroupCsvFile" id="importGroupCsvFileId"><span class="help-block">
                     ${textContainer.text['groupImportSelectGroupFileDescription']}
@@ -178,7 +178,7 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
 
               <div class="bulk-add-input-container">
                 <div class="control-group bulk-add-block">
-                  <label for="add-entities" class="control-label">${textContainer.text['groupImportEnterMemberNameOrId'] }</label>
+                  <label for="groupAddMemberComboId" class="control-label">${textContainer.text['groupImportEnterMemberNameOrId'] }</label>
                   <div class="controls">
                     <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em" 
                        value="${grouperRequestContainer.groupImportContainer.importDefaultSubject}"
@@ -208,7 +208,7 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
               
               <div class="bulk-add-import-container hide">
                 <div class="control-group">
-                  <label class="control-label">${textContainer.text['groupImportSelectFileToImport'] }</label>
+                  <label class="control-label" for="importCsvFileId">${textContainer.text['groupImportSelectFileToImport'] }</label>
                   <div class="controls">
                     <input type="file" name="importCsvFile" id="importCsvFileId"><span class="help-block">
                     
@@ -244,7 +244,7 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
 
               <div class="bulk-add-list-container hide">
                 <div class="control-group">
-                  <label for="add-entities" class="control-label">${textContainer.text['groupImportEnterListOfMemberIds'] }</label>
+                  <label for="entityListId" class="control-label">${textContainer.text['groupImportEnterListOfMemberIds'] }</label>
                   <div class="controls">
                     <textarea rows="10" name="entityList" id="entityListId"></textarea>
                     <span class="help-block">${textContainer.text['groupImportEnterListOfMemberIdsHelp'] }</span>
@@ -255,7 +255,7 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
                   </div>
                 </div>
                 <div class="control-group">
-                  <label for="searchEntitiesSource" class="control-label">${textContainer.text['find.search-source'] }</label>
+                  <label for="searchEntitySourceId" class="control-label">${textContainer.text['find.search-source'] }</label>
                   <div class="controls">
                     <select name="searchEntitySourceName" id="searchEntitySourceId">
                       <option value="all">${textContainer.textEscapeXml['find.search-all-sources'] }</option>

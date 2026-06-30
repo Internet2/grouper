@@ -18,7 +18,7 @@ ${grouper:titleFromKeyAndText('viewAttributeDefPageTitle', grouperRequestContain
                 <form class="form-inline form-small form-filter" id="attributeDefFilterFormId">
                   <div class="row-fluid">
                     <div class="span1">
-                      <label for="people-filter">${textContainer.text['attributeDefFilterFor'] }</label>
+                      <label for="table-filter">${textContainer.text['attributeDefFilterFor'] }</label>
                     </div>
                     <div class="span4">
                       <input type="text" placeholder="${textContainer.textEscapeXml['attributeDefFilterFormPlaceholder']}" 
