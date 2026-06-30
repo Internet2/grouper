@@ -1,6 +1,7 @@
 <!-- Start: externalSubjectSelfRegister/externalSubjectSelfRegister.jsp: main page -->
 
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+${grouper:title('externalSubjectSelfRegister.registerTitle')}
 
 <div class="bread-header-container">
 

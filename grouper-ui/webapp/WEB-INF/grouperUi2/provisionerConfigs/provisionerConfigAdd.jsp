@@ -1,4 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+${grouper:title('miscellaneousProvisionerConfigAddBreadcrumb')}
    <c:set  value="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration}" var="guiProvisionerConfiguration"/>
 	 <div class="bread-header-container">
        <ul class="breadcrumb">

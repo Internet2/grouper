@@ -1,4 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+${grouper:title('adminInstrumentationTitle')}
 
             <c:set var="guiInstance" value="${grouperRequestContainer.adminContainer.guiInstrumentationDataInstances[0]}" />
             

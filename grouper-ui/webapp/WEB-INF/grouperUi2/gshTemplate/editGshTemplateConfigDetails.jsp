@@ -1,4 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+${grouper:title('miscellaneousGshTemplatesEditBreadcrumb')}
 
             <div class="bread-header-container">
               <ul class="breadcrumb">

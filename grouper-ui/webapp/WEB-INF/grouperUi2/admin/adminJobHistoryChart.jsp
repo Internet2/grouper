@@ -1,4 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+${grouper:title('adminJobHistoryChart')}
 
 <script src="../../grouperExternal/public/assets/js/gantt-chart-d3.js" charset="utf-8"></script>
 <script src="../../grouperExternal/public/assets/js/grouperJobChart.js" type="text/javascript"></script>

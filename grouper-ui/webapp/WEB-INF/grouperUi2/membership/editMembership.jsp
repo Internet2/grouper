@@ -1,4 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+${grouper:titleFromKeyAndText('membershipEditSubHeader', grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink)}
 
             <%-- for the new group or new stem button --%>
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />

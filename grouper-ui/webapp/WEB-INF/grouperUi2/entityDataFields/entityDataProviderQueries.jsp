@@ -1,4 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+${grouper:title('miscellaneousDataProviderQueriesBreadcrumb')}
 
 <div class="bread-header-container">
   <ul class="breadcrumb">
