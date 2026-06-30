@@ -141,6 +141,10 @@ public class GrouperInterfolioApiCommands {
         user.setLastName(GrouperUtil.jsonJacksonGetString(userNode, "last_name"));
         user.setEmail(GrouperUtil.jsonJacksonGetString(userNode, "email"));
         result.add(user);
+
+        // generic provisioner sync back: capture the raw user JSON (no-op unless this is an
+        // Interfolio provisioner with sync-back on)
+        InterfolioProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
       }
     }
     return result;

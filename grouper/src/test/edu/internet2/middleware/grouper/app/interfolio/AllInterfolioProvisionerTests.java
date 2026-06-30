@@ -13,6 +13,7 @@ public class AllInterfolioProvisionerTests extends TestCase {
     TestSuite suite = new TestSuite(AllInterfolioProvisionerTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(InterfolioProvisionerTest.class);
+    suite.addTestSuite(InterfolioProvisioningTargetNativeSyncTest.class);
     //$JUnit-END$
     return suite;
   }

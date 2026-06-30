@@ -57,6 +57,9 @@ public class InterfolioTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanDeleteEntity(true);
     // no groups, no memberships
+
+    // the read path (searchUsers) captures the raw user JSON via InterfolioProvisioningTargetNativeSync
+    grouperProvisionerDaoCapabilities.setCanSyncBack(true);
   }
 
   /**
