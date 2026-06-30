@@ -30,8 +30,12 @@
 
 package edu.internet2.middleware.grouper.privs;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -39,6 +43,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -128,6 +133,36 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
         group, this.all), subject);
     allPrivs.addAll(super.getDecoratedResolver().getPrivileges(group, subject));
     return allPrivs;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getPrivileges(java.util.Collection, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  @Override
+  public Map<Group, Set<Privilege>> getPrivileges(Collection<Group> groups, Subject subject,
+      Set<Privilege> privilegesToCheck) throws IllegalArgumentException {
+
+    //union the privileges held by the GrouperAll subject with those held by the subject (mirrors the
+    //single-group getPrivileges; here every access priv applies to GrouperAll - no manage restriction)
+    Map<Group, Set<Privilege>> allPrivsByGroup = super.getDecoratedResolver().getPrivileges(
+        groups, this.all, privilegesToCheck);
+    Map<Group, Set<Privilege>> subjectPrivsByGroup = super.getDecoratedResolver().getPrivileges(
+        groups, subject, privilegesToCheck);
+
+    Map<Group, Set<Privilege>> result = new LinkedHashMap<Group, Set<Privilege>>();
+    for (Group group : GrouperUtil.nonNull(groups)) {
+      Set<Privilege> held = new LinkedHashSet<Privilege>();
+      Set<Privilege> allForGroup = allPrivsByGroup.get(group);
+      if (allForGroup != null) {
+        held.addAll(allForGroup);
+      }
+      Set<Privilege> subjectForGroup = subjectPrivsByGroup.get(group);
+      if (subjectForGroup != null) {
+        held.addAll(subjectForGroup);
+      }
+      result.put(group, held);
+    }
+    return result;
   }
 
   /**

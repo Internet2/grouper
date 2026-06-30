@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -40,6 +41,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -52,6 +54,17 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * base object for gui grouper objects
  */
 public abstract class GuiObjectBase {
+
+  /**
+   * cached parent gui stem, seeded by cacheParentStems() (bulk prefetch).  may be null (root / no parent).
+   */
+  private GuiStem cachedParentGuiStem;
+
+  /**
+   * whether the parent gui stem has been prefetched.  distinguishes "root / no parent" (cached null)
+   * from "never prefetched" (a programming error that throws in getParentGuiStem()).
+   */
+  private boolean parentGuiStemPrefetched = false;
 
   /**
    * if this is a subject
@@ -238,6 +251,51 @@ public abstract class GuiObjectBase {
    * @return the parent gui stem
    */
   public GuiStem getParentGuiStem() {
+
+    //prefetched -> the cached value (possibly null for root) is the source of truth
+    if (this.parentGuiStemPrefetched) {
+      return this.cachedParentGuiStem;
+    }
+
+    //object types with no parent stem (e.g. subjects, and the loggedInSubject serialized into
+    //GuiSettings on every response) have no db lookup and therefore no N+1 risk; just return null
+    //rather than failing fast.
+    String parentStemId = this.internalParentStemId();
+    if (parentStemId == null) {
+      return null;
+    }
+
+    //a real object with a parent stem that was never prefetched.  Fail fast (config gated, off by
+    //default) so list screens get wired to cacheParentStems(); otherwise fall back to the (slower)
+    //per-row lookup so un-audited screens keep working.
+    if (failFastParentStemPrefetch()) {
+      throw new RuntimeException("Parent stem was not prefetched for " + this.getClass().getSimpleName()
+          + " '" + this.bestEffortNameForError() + "'. "
+          + "List screens must call GuiObjectBase.cacheParentStems(<collection>) on the "
+          + "page's gui objects before rendering parentGuiStem, to avoid an N+1 of "
+          + "parent-stem lookups. See GRP-7071.");
+    }
+
+    return this.parentGuiStemNoCache();
+  }
+
+  /**
+   * whether {@link #getParentGuiStem()} should fail fast (throw) when a parent-bearing object's parent
+   * stem was not prefetched via {@link #cacheParentStems(Collection)}.  Default false: when not
+   * prefetched, the getter falls back to the (slower) per-row lookup so behaviour is preserved until
+   * every screen is audited and wired to prefetch.
+   * @return true if fail-fast is enabled
+   */
+  private static boolean failFastParentStemPrefetch() {
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.parentStem.prefetch.failFast", false);
+  }
+
+  /**
+   * resolve the parent gui stem the old (per-row) way, without consulting the prefetch cache.  Used as
+   * the fallback when fail-fast is off and the object was not prefetched.
+   * @return the parent gui stem, or null if none
+   */
+  private GuiStem parentGuiStemNoCache() {
     Stem parentStem = null;
     if (this instanceof GuiGroup) {
       parentStem = ((GuiGroup)this).getGroup().getParentStem();
@@ -249,6 +307,85 @@ public abstract class GuiObjectBase {
       parentStem = ((GuiAttributeDefName)this).getAttributeDefName().getAttributeDef().getParentStem();
     }
     return parentStem == null ? null : new GuiStem(parentStem);
+  }
+
+  /**
+   * the parent stem uuid for this gui object with NO db hit (single source of truth for prefetching).
+   * @return the parent stem uuid, or null for object types that have no parent stem
+   */
+  private String internalParentStemId() {
+    if (this instanceof GuiGroup) {
+      return ((GuiGroup)this).getGroup().getParentUuid();
+    } else if (this instanceof GuiStem) {
+      return ((GuiStem)this).getStem().getParentUuid();
+    } else if (this instanceof GuiAttributeDef) {
+      return ((GuiAttributeDef)this).getAttributeDef().getParentUuid();
+    } else if (this instanceof GuiAttributeDefName) {
+      return ((GuiAttributeDefName)this).getAttributeDefName().getAttributeDef().getParentUuid();
+    }
+    return null;
+  }
+
+  /**
+   * bulk-prefetch the parent gui stems for a collection of gui objects in ONE query, and seed the
+   * per-instance cache, so that getParentGuiStem() is a cache hit instead of a per-row db lookup
+   * (avoids an N+1 of parent-stem lookups on list screens).  Every list/render path that displays
+   * parentGuiStem MUST call this; getParentGuiStem() throws if its object was never prefetched.
+   * Objects with no parent stem (e.g. subjects, root) get a cached null and are marked prefetched.
+   * @param guiObjects the gui objects whose parent stems to prefetch
+   */
+  public static void cacheParentStems(Collection<? extends GuiObjectBase> guiObjects) {
+
+    if (GrouperUtil.length(guiObjects) == 0) {
+      return;
+    }
+
+    //collect the distinct, non-null parent stem ids (no db hit)
+    Set<String> parentStemIds = new HashSet<String>();
+    for (GuiObjectBase guiObject : guiObjects) {
+      if (guiObject == null) {
+        continue;
+      }
+      String parentStemId = guiObject.internalParentStemId();
+      if (parentStemId != null) {
+        parentStemIds.add(parentStemId);
+      }
+    }
+
+    //ONE query for all the distinct parent stems (the dao batches internally), one GuiStem per folder
+    Map<String, GuiStem> stemIdToGuiStem = new LinkedHashMap<String, GuiStem>();
+    if (parentStemIds.size() > 0) {
+      Set<Stem> parentStems = GrouperDAOFactory.getFactory().getStem().findByUuids(parentStemIds, null);
+      for (Stem parentStem : GrouperUtil.nonNull(parentStems)) {
+        stemIdToGuiStem.put(parentStem.getUuid(), new GuiStem(parentStem));
+      }
+    }
+
+    //seed each gui object's cache (shared GuiStem across siblings) and mark prefetched so it never throws
+    for (GuiObjectBase guiObject : guiObjects) {
+      if (guiObject == null) {
+        continue;
+      }
+      String parentStemId = guiObject.internalParentStemId();
+      guiObject.cachedParentGuiStem = (parentStemId == null) ? null : stemIdToGuiStem.get(parentStemId);
+      guiObject.parentGuiStemPrefetched = true;
+    }
+  }
+
+  /**
+   * best-effort name/id of this object for error messages (never throws)
+   * @return a name/id or null
+   */
+  private String bestEffortNameForError() {
+    try {
+      GrouperObject grouperObject = this.getGrouperObject();
+      if (grouperObject != null) {
+        return grouperObject.getName();
+      }
+    } catch (RuntimeException e) {
+      //best effort only
+    }
+    return null;
   }
   
 

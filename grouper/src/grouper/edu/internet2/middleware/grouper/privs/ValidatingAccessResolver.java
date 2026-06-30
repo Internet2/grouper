@@ -30,6 +30,8 @@
 
 package edu.internet2.middleware.grouper.privs;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -114,6 +116,16 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
       throws IllegalArgumentException {
     this.param.notNullGroup(group).notNullSubject(subject);
     return super.getDecoratedResolver().getPrivileges(group, subject);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getPrivileges(java.util.Collection, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  @Override
+  public Map<Group, Set<Privilege>> getPrivileges(Collection<Group> groups, Subject subject,
+      Set<Privilege> privilegesToCheck) throws IllegalArgumentException {
+    this.param.notNullSubject(subject);
+    return super.getDecoratedResolver().getPrivileges(groups, subject, privilegesToCheck);
   }
 
   /**

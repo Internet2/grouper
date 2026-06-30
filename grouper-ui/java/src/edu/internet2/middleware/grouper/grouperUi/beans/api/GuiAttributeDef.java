@@ -273,6 +273,9 @@ public class GuiAttributeDef extends GuiObjectBase implements Serializable {
       }
     }
     
+    //bulk-prefetch parent stems in ONE query so per-row getParentGuiStem() is a cache hit (avoids N+1)
+    GuiObjectBase.cacheParentStems(tempAttributeDefs);
+
     return tempAttributeDefs;
     
   }

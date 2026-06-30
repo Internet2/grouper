@@ -31,6 +31,8 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -144,6 +146,14 @@ public abstract class AccessResolverDecorator implements AccessResolver {
   public Set<AccessPrivilege> getPrivileges(Group group, Subject subject)
       throws IllegalArgumentException {
     return this.getDecoratedResolver().getPrivileges(group, subject);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getPrivileges(java.util.Collection, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Map<Group, Set<Privilege>> getPrivileges(Collection<Group> groups, Subject subject,
+      Set<Privilege> privilegesToCheck) throws IllegalArgumentException {
+    return this.getDecoratedResolver().getPrivileges(groups, subject, privilegesToCheck);
   }
 
 

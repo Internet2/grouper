@@ -20,7 +20,10 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +52,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -342,6 +346,13 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
       }
     }
     
+    //bulk-prefetch parent stems in ONE query so per-row getParentGuiStem() is a cache hit (avoids N+1)
+    GuiObjectBase.cacheParentStems(tempGroups);
+
+    //bulk-prefetch the logged-in subject's privileges in ONE query so per-row canRead()/canUpdate()/
+    //canAdmin()/canGroupAttrRead() are answered from the object (avoids an N+1 of privilege resolution)
+    cacheLoggedInPrivileges(tempGroups, CAN_GETTER_PRIVILEGES);
+
     return tempGroups;
     
   }
@@ -561,15 +572,140 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
 
 
   /**
+   * the implication-expanded union of the privileges behind the four can* getters
+   * (canRead/canUpdate/canAdmin/canGroupAttrRead).  A list screen that renders any of those getters
+   * can prefetch this set so all four are answered from the object.
+   */
+  public static final Set<Privilege> CAN_GETTER_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(AccessPrivilege.READ, AccessPrivilege.UPDATE, AccessPrivilege.ADMIN,
+          AccessPrivilege.GROUP_ATTR_READ));
+
+  /**
+   * which privileges were resolved/prefetched for the logged-in subject on this group via
+   * {@link #cacheLoggedInPrivileges(Collection, Set)} (null = never prefetched).  This is the
+   * source of truth for the can* getters; it does NOT depend on the resolver privilege cache.
+   */
+  private Set<Privilege> loggedInPrivilegesChecked;
+
+  /**
+   * the subset of {@link #loggedInPrivilegesChecked} the logged-in subject actually holds on this group.
+   * NB this holds privilege identities (the {@link AccessPrivilege} constants), not granted
+   * AccessPrivilege instances, so {@code contains(AccessPrivilege.READ)} works.
+   */
+  private Set<Privilege> loggedInPrivilegesHeld;
+
+  /**
+   * Bulk-resolve the logged-in subject's privileges (the subset of privilegesToCheck it holds) for a
+   * collection of gui groups in ONE query, and store the result on each gui group, so the per-row can*
+   * getters are answered from the object (no resolver call, no dependence on the ehcache privilege
+   * cache) instead of an N+1 of per-group privilege resolution.  Each screen passes the privilege set
+   * its getters actually use (and only that) - e.g. {@link AccessPrivilege#UPDATE_PRIVILEGES} for a
+   * screen that renders canUpdate, or the union for a screen that renders canRead and canUpdate.
+   * @param guiGroups the gui groups to prefetch privileges for
+   * @param privilegesToCheck the access privileges to resolve (only these are resolved/stored)
+   */
+  public static void cacheLoggedInPrivileges(Collection<GuiGroup> guiGroups, Set<Privilege> privilegesToCheck) {
+
+    if (GrouperUtil.length(guiGroups) == 0 || GrouperUtil.length(privilegesToCheck) == 0) {
+      return;
+    }
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (loggedInSubject == null) {
+      return;
+    }
+
+    //collect the distinct underlying groups
+    Set<Group> groups = new LinkedHashSet<Group>();
+    for (GuiGroup guiGroup : guiGroups) {
+      if (guiGroup != null && guiGroup.group != null) {
+        groups.add(guiGroup.group);
+      }
+    }
+    if (groups.size() == 0) {
+      return;
+    }
+
+    //ONE batched, privilege-scoped resolver call (resolved polymorphically through the access resolver
+    //chain - wheel/sysadmin/grouperAll handled by their own layers)
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    Map<Group, Set<Privilege>> heldByGroup = grouperSession.getAccessResolver().getPrivileges(
+        groups, loggedInSubject, privilegesToCheck);
+
+    //store the resolved privileges on each gui group (the getters read from here)
+    for (GuiGroup guiGroup : guiGroups) {
+      if (guiGroup == null || guiGroup.group == null) {
+        continue;
+      }
+      Set<Privilege> held = heldByGroup == null ? null : heldByGroup.get(guiGroup.group);
+      guiGroup.loggedInPrivilegesChecked = new LinkedHashSet<Privilege>(privilegesToCheck);
+      guiGroup.loggedInPrivilegesHeld = held == null
+          ? new LinkedHashSet<Privilege>() : new LinkedHashSet<Privilege>(held);
+    }
+  }
+
+  /**
+   * whether the can* getters should fail fast (throw) when this group's capability privileges were not
+   * prefetched.  Default false: when not prefetched, the getter falls back to the (slower) per-row
+   * resolver so behaviour is preserved until every screen is audited and wired to prefetch.
+   * @return true if fail-fast is enabled
+   */
+  private static boolean failFastLoggedInPrivilegePrefetch() {
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.privilege.prefetch.failFast", false);
+  }
+
+  /**
+   * common logic for the can* getters: the capability holds if the logged-in subject holds ANY of
+   * <i>capabilityPrivileges</i> (the implication-expanded set for the capability, e.g.
+   * {UPDATE, ADMIN} for canUpdate).  Reads the values prefetched by
+   * {@link #cacheLoggedInPrivileges(Collection, Set)}.  If this group was not prefetched for the
+   * capability's privileges, either throws (fail-fast, config gated) or falls back to per-row
+   * resolution so behaviour is preserved.
+   * @param capabilityPrivileges the privileges any of which grants the capability
+   * @param getterName for the fail-fast error message
+   * @return true if the logged-in subject holds the capability
+   */
+  private boolean isCanHaveAnyLoggedInPrivilege(Set<Privilege> capabilityPrivileges, String getterName) {
+
+    //prefetched the right subset -> the stored values are the source of truth (no resolver, no cache dep)
+    if (this.loggedInPrivilegesChecked != null
+        && this.loggedInPrivilegesChecked.containsAll(capabilityPrivileges)) {
+      if (this.loggedInPrivilegesHeld != null) {
+        for (Privilege capabilityPrivilege : capabilityPrivileges) {
+          if (this.loggedInPrivilegesHeld.contains(capabilityPrivilege)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    //not prefetched for this capability
+    if (failFastLoggedInPrivilegePrefetch()) {
+      throw new RuntimeException("Privileges " + capabilityPrivileges + " were not prefetched for group '"
+          + (this.group == null ? null : this.group.getName()) + "' before calling " + getterName
+          + "().  Add a GuiGroup.cacheLoggedInPrivileges(guiGroups, privilegesToCheck) call at this "
+          + "screen's GuiGroup construction point with a privilege set that includes "
+          + capabilityPrivileges + ".");
+    }
+
+    //fallback: resolve the old (per-row) way so screens not yet wired keep working.  canHavePrivilege
+    //already applies privilege implication (e.g. UPDATE check also returns true for ADMIN).
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    for (Privilege capabilityPrivilege : capabilityPrivileges) {
+      if (this.group.canHavePrivilege(loggedInSubject, capabilityPrivilege.getName(), false)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * if the logged in user can update (or inherit), dont check security
    * @return true
    */
   public boolean isCanUpdate() {
-    
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    return this.group.canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false);
-
+    return this.isCanHaveAnyLoggedInPrivilege(AccessPrivilege.UPDATE_PRIVILEGES, "isCanUpdate");
   }
   
   /**
@@ -577,11 +713,7 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    * @return true
    */
   public boolean isCanAdmin() {
-    
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    return this.group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false);
-
+    return this.isCanHaveAnyLoggedInPrivilege(AccessPrivilege.ADMIN_PRIVILEGES, "isCanAdmin");
   }
   
   /**
@@ -589,11 +721,7 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    * @return true
    */
   public boolean isCanRead() {
-    
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    return this.group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false);
-
+    return this.isCanHaveAnyLoggedInPrivilege(AccessPrivilege.READ_PRIVILEGES, "isCanRead");
   }
 
   /**
@@ -601,11 +729,7 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    * @return true
    */
   public boolean isCanGroupAttrRead() {
-    
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    return this.group.canHavePrivilege(loggedInSubject, AccessPrivilege.GROUP_ATTR_READ.getName(), false);
-
+    return this.isCanHaveAnyLoggedInPrivilege(AccessPrivilege.GROUP_ATTR_READ_PRIVILEGES, "isCanGroupAttrRead");
   }
 
   /**

@@ -1479,6 +1479,17 @@ public class UiV2Stem {
         guiPITMembershipViews.add(guiPITMembershipView);
       }
 
+      //bulk-prefetch parent stems for the owner groups in ONE query so the per-row getParentGuiStem()
+      //in the JSP is a cache hit instead of an N+1 (and the fail-fast guard does not throw)
+      List<GuiObjectBase> pitOwnerGuiGroups = new ArrayList<GuiObjectBase>();
+      for (GuiPITMembershipView guiPITMembershipView : guiPITMembershipViews) {
+        GuiGroup pitOwnerGuiGroup = guiPITMembershipView.getOwnerGuiGroup();
+        if (pitOwnerGuiGroup != null) {
+          pitOwnerGuiGroups.add(pitOwnerGuiGroup);
+        }
+      }
+      GuiObjectBase.cacheParentStems(pitOwnerGuiGroups);
+
       stemContainer.setGuiPITMembershipViews(guiPITMembershipViews);
     } else {
       stemContainer.setShowPointInTimeAudit(false);

@@ -89,6 +89,17 @@ public class GuiPITMembershipView {
   private String memberId;
 
   /**
+   * memoized owner gui group (resolved lazily, then cached so the same instance is reused for
+   * prefetching parent stems and across multiple JSP property accesses)
+   */
+  private GuiGroup ownerGuiGroup;
+
+  /**
+   * whether the owner gui group has been resolved (distinguishes "no owner group" from "not yet resolved")
+   */
+  private boolean ownerGuiGroupResolved = false;
+
+  /**
    * membership
    * @return membership
    */
@@ -108,9 +119,17 @@ public class GuiPITMembershipView {
    * @return the guiGroup
    */
   public GuiGroup getOwnerGuiGroup() {
+
+    //memoize so the same instance is reused (prefetched parent stem sticks; db lookups happen once)
+    if (this.ownerGuiGroupResolved) {
+      return this.ownerGuiGroup;
+    }
+    this.ownerGuiGroupResolved = true;
+
     String pitOwnerGroupId = this.membership.getOwnerGroupId();
     
     if (StringUtils.isEmpty(pitOwnerGroupId)) {
+      this.ownerGuiGroup = null;
       return null;
     }
     
@@ -120,7 +139,8 @@ public class GuiPITMembershipView {
     
     Group ownerGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerGroupId, true);
     
-    return new GuiGroup(ownerGroup);
+    this.ownerGuiGroup = new GuiGroup(ownerGroup);
+    return this.ownerGuiGroup;
   }
   
   /**

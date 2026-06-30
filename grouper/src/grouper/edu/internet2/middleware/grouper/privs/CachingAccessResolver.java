@@ -30,8 +30,15 @@
 
 package edu.internet2.middleware.grouper.privs;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.sf.ehcache.Element;
@@ -40,11 +47,17 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.cache.CacheStats;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -116,6 +129,60 @@ public class CachingAccessResolver extends AccessResolverDecorator {
           .contains(p.getName())));
     }
     return privs;
+  }
+
+  /**
+   * Bulk form: serve per-(group,privilege) booleans from the existing hasPrivilege cache, delegate only
+   * the groups that have any uncached needed privilege to the decorated resolver in ONE call, cache what
+   * comes back, and return the union.  This decorator runs NO query of its own - it only reads/writes the
+   * hasPrivilege cache and delegates misses.
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getPrivileges(java.util.Collection, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  @Override
+  public Map<Group, Set<Privilege>> getPrivileges(Collection<Group> groups, Subject subject,
+      Set<Privilege> privilegesToCheck) throws IllegalArgumentException {
+
+    Map<Group, Set<Privilege>> result = new LinkedHashMap<Group, Set<Privilege>>();
+
+    //read the cache for every (group, privilege); collect the groups that have any cache miss
+    Set<Group> missGroups = new LinkedHashSet<Group>();
+    for (Group group : GrouperUtil.nonNull(groups)) {
+      Set<Privilege> held = new LinkedHashSet<Privilege>();
+      boolean anyMiss = false;
+      for (Privilege privilege : GrouperUtil.nonNull(privilegesToCheck)) {
+        Boolean cached = this.getFromHasPrivilegeCache(group, subject, privilege);
+        if (cached == null) {
+          anyMiss = true;
+        } else if (cached.booleanValue()) {
+          held.add(privilege);
+        }
+      }
+      result.put(group, held);
+      if (anyMiss) {
+        missGroups.add(group);
+      }
+    }
+
+    //resolve all miss groups in ONE delegated call, cache each (group, privilege) boolean, and use the
+    //freshly resolved values as the truth for those groups (overwriting any partial cache hits)
+    if (!missGroups.isEmpty()) {
+      Map<Group, Set<Privilege>> resolved = super.getDecoratedResolver().getPrivileges(
+          missGroups, subject, privilegesToCheck);
+      for (Group group : missGroups) {
+        Set<Privilege> resolvedHeld = resolved.get(group);
+        Set<Privilege> held = result.get(group);
+        held.clear();
+        for (Privilege privilege : GrouperUtil.nonNull(privilegesToCheck)) {
+          boolean has = resolvedHeld != null && resolvedHeld.contains(privilege);
+          this.putInHasPrivilegeCache(group, subject, privilege, Boolean.valueOf(has));
+          if (has) {
+            held.add(privilege);
+          }
+        }
+      }
+    }
+
+    return result;
   }
 
   /**

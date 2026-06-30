@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssignFinderResults;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeNameUpdate.AttributeNameUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
@@ -727,7 +728,10 @@ public class UiV2AttributeDefName {
       //initialize the bean
       GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       AttributeDefNameContainer attributeDefNameContainer = grouperRequestContainer.getAttributeDefNameContainer();
-      attributeDefNameContainer.setGuiAttributeDefName(new GuiAttributeDefName(attributeDefName));
+      GuiAttributeDefName guiAttributeDefName = new GuiAttributeDefName(attributeDefName);
+      //prefetch the parent stem (singleton) so the fail-fast getParentGuiStem() in attributeDefNameView.jsp does not throw
+      GuiObjectBase.cacheParentStems(GrouperUtil.toList(guiAttributeDefName));
+      attributeDefNameContainer.setGuiAttributeDefName(guiAttributeDefName);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/attributeDefName/attributeDefNameView.jsp"));

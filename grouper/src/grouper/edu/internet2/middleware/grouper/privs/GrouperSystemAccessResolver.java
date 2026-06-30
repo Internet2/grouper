@@ -30,7 +30,11 @@
 
 package edu.internet2.middleware.grouper.privs;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -41,6 +45,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -107,6 +112,44 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
       return accessPrivs;
     }
     return super.getDecoratedResolver().getPrivileges(group, subject);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getPrivileges(java.util.Collection, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  @Override
+  public Map<Group, Set<Privilege>> getPrivileges(Collection<Group> groups, Subject subject,
+      Set<Privilege> privilegesToCheck) throws IllegalArgumentException {
+
+    //root has all access privileges except optin/optout (mirrors getPrivileges/hasPrivilege)
+    if (SubjectHelper.eq(this.root, subject)) {
+
+      Set<Privilege> rootGranted = new LinkedHashSet<Privilege>();
+      Set<Privilege> needDelegate = new LinkedHashSet<Privilege>();
+      for (Privilege privilege : GrouperUtil.nonNull(privilegesToCheck)) {
+        if (!AccessPrivilege.OPTIN.equals(privilege) && !AccessPrivilege.OPTOUT.equals(privilege)) {
+          rootGranted.add(privilege);
+        } else {
+          needDelegate.add(privilege);
+        }
+      }
+
+      Map<Group, Set<Privilege>> delegated = needDelegate.isEmpty()
+          ? new LinkedHashMap<Group, Set<Privilege>>()
+          : super.getDecoratedResolver().getPrivileges(groups, subject, needDelegate);
+
+      Map<Group, Set<Privilege>> result = new LinkedHashMap<Group, Set<Privilege>>();
+      for (Group group : GrouperUtil.nonNull(groups)) {
+        Set<Privilege> held = new LinkedHashSet<Privilege>(rootGranted);
+        Set<Privilege> delegatedForGroup = delegated.get(group);
+        if (delegatedForGroup != null) {
+          held.addAll(delegatedForGroup);
+        }
+        result.put(group, held);
+      }
+      return result;
+    }
+    return super.getDecoratedResolver().getPrivileges(groups, subject, privilegesToCheck);
   }
 
   /**
