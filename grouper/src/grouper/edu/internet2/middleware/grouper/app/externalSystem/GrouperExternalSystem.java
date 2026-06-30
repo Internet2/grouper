@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.app.boxProvisioner.BoxGrouperExternalSys
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.app.file.SftpGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.google.GoogleGrouperExternalSystem;
+import edu.internet2.middleware.grouper.app.interfolio.InterfolioExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.messaging.GrouperInternalMessagingExternalSystem;
 import edu.internet2.middleware.grouper.app.oidc.OidcGrouperExternalSystem;
@@ -94,6 +95,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     externalTypeClassNamesList.add(DuoGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(GoogleGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(GrouperInternalMessagingExternalSystem.class.getName());
+    externalTypeClassNamesList.add(InterfolioExternalSystem.class.getName());
     externalTypeClassNamesList.add(LdapGrouperExternalSystem.class.getName());
     //TODO remove in v5
     externalTypeClassNamesList.add("edu.internet2.middleware.grouper.o365.Office365GrouperExternalSystem");

@@ -92,6 +92,7 @@ import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.GrouperD
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Membership;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
+import edu.internet2.middleware.grouper.app.interfolio.InterfolioUser;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixAuth;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixGroup;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixMembership;
@@ -298,6 +299,7 @@ public abstract class Hib3DAO {
         addClass(configuration, TeamDynamixUser.class);
         addClass(configuration, TeamDynamixMembership.class);
         addClass(configuration, TeamDynamixAuth.class);
+        addClass(configuration, InterfolioUser.class);
         
         addClass(configuration, GrouperOktaGroup.class);
         addClass(configuration, GrouperOktaUser.class);

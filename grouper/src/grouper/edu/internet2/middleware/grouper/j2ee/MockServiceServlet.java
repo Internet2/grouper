@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.app.remedyV2.RemedyMockServiceHandler;
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceMockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GenericScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GithubScim2MockServiceHandler;
+import edu.internet2.middleware.grouper.app.interfolio.InterfolioMockServiceHandler;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixMockServiceHandler;
 import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryMockServiceHandler;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -66,7 +67,8 @@ public class MockServiceServlet extends HttpServlet {
       "remedy", RemedyMockServiceHandler.class.getName(),
       "digitalMarketplace", DigitalMarketplaceMockServiceHandler.class.getName(),
       "teamdynamix", TeamDynamixMockServiceHandler.class.getName(),
-      "truefoundry", TrueFoundryMockServiceHandler.class.getName()
+      "truefoundry", TrueFoundryMockServiceHandler.class.getName(),
+      "interfolio", InterfolioMockServiceHandler.class.getName()
       );
   
   static {
