@@ -36,6 +36,8 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigSectionMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlCompare;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlCompareResult;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigFile;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigProperty;
 import edu.internet2.middleware.grouper.grouperUi.beans.config.GuiConfigSection;
@@ -81,44 +83,60 @@ public class UiV2Configure {
   protected static Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2Configure.class);
 
   /**
-   * if allowed to view configuration
-   * @return true if allowed to view configuration
+   * if allowed to view the configuration landing screen (the list of links) and other read-only
+   * configuration screens.  This is the lighter check: the registry config UI must be enabled and
+   * the user must be a sysadmin (wheel/root).  It intentionally does NOT enforce the source IP
+   * allowlist - that restriction only applies to screens that actually change configuration
+   * (see allowedToViewConfiguration()).  The configuration landing page and the read-only DDL
+   * deep check use this lighter check.
+   * @return true if allowed to view the configuration landing screen
+   */
+  public boolean allowedToViewConfigurationIndex() {
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    final boolean uiConfigurationEnabled = GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperUi.configuration.enabled", true);
+    if (!uiConfigurationEnabled) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+          TextContainer.retrieveFromRequest().getText().get("configurationNotEnabled")));
+      return false;
+    }
+
+    final boolean configureShow = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer().isConfigureShow();
+
+    if (!configureShow) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+          TextContainer.retrieveFromRequest().getText().get("configurationNotAllowedToView")));
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * if allowed to change configuration.  This is the stricter check used by the screens that actually
+   * change config: in addition to the registry config UI being enabled and the user being a sysadmin
+   * (see allowedToViewConfigurationIndex()), the request must come from an allowed source IP
+   * (grouperUi.configurationEditor.sourceIpAddresses).
+   * @return true if allowed to change configuration
    */
   public boolean allowedToViewConfiguration() {
 
     Map<String, Object> debugMap = null;
-    
+
     if (LOG.isDebugEnabled()) {
       debugMap = new LinkedHashMap<String, Object>();
       debugMap.put("method", "allowedToViewConfiguration");
     }
     try {
-      
+
+      // enabled + sysadmin check (this does not enforce the source IP restriction)
+      if (!allowedToViewConfigurationIndex()) {
+        return false;
+      }
+
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      final boolean uiConfigurationEnabled = GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperUi.configuration.enabled", true);
-      if (debugMap != null) {
-        debugMap.put("uiConfigurationEnabled", uiConfigurationEnabled);
-      }
-      if (!uiConfigurationEnabled) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("configurationNotEnabled")));
-        return false;
-
-      }
-
-      final boolean configureShow = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer().isConfigureShow();
-
-      if (debugMap != null) {
-        debugMap.put("configureShowEgSysadmin", configureShow);
-      }
-
-      if (!configureShow) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("configurationNotAllowedToView")));
-        return false;
-      }
-      
       String networks = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.configurationEditor.sourceIpAddresses", "127.0.0.1/32");
 
       if (debugMap != null) {
@@ -189,14 +207,15 @@ public class UiV2Configure {
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
-  
-      if (!allowedToViewConfiguration()) {
+
+      // landing page is read-only, so it does not require the source IP restriction
+      if (!allowedToViewConfigurationIndex()) {
         return;
       }
-      
+
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-  
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/configure/configureIndex.jsp"));
     
     } finally {
@@ -204,6 +223,75 @@ public class UiV2Configure {
     }
   }
   
+  /**
+   * draw the database DDL deep check screen with the run button (no compare is run on this GET,
+   * the compare runs when the user presses the button which posts to ddlDeepCheckSubmit).
+   * @param request
+   * @param response
+   */
+  public void ddlDeepCheck(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      // read-only deep check, so it does not require the source IP restriction
+      if (!allowedToViewConfigurationIndex()) {
+        return;
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/configure/configureDdlDeepCheck.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * run a read-only deep DDL check comparing the live database schema against the schema expected by
+   * this Grouper version, and show the result.  This is the same comparison as gsh -registry -deep -check.
+   * @param request
+   * @param response
+   */
+  public void ddlDeepCheckSubmit(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      // read-only deep check, so it does not require the source IP restriction
+      if (!allowedToViewConfigurationIndex()) {
+        return;
+      }
+
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+
+      // read-only compare, no DDL is run against the database
+      GrouperDdlCompareResult grouperDdlCompareResult = new GrouperDdlCompare().compareDatabase();
+      configurationContainer.setDdlCompareResult(grouperDdlCompareResult);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      // redraw the whole screen, now the results section will show since the result is populated
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/configure/configureDdlDeepCheck.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
   /**
    * edit config submit
    * @param request
