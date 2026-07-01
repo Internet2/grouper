@@ -459,3 +459,11 @@ code {
   border: 1px solid #e1e1e8;
   white-space: normal;
 }
+
+/* GRP-7091 accessibility: global keyboard focus indicator. outline-offset adds
+   a small gap between the outline and the text so the ring is legible and does
+   not crowd the link glyphs. */
+a:focus {
+  outline: 2px solid #1c6070 !important;
+  outline-offset: 2px;
+}
