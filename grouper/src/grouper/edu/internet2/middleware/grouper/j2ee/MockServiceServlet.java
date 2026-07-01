@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.adobe.AdobeMockServiceHandler;
 import edu.internet2.middleware.grouper.app.azure.AzureMockServiceHandler;
 import edu.internet2.middleware.grouper.app.boxProvisioner.BoxMockServiceHandler;
 import edu.internet2.middleware.grouper.app.datadog.DatadogMockServiceHandler;
+import edu.internet2.middleware.grouper.app.dropbox.DropboxMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.DuoMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.role.DuoRoleMockServiceHandler;
 import edu.internet2.middleware.grouper.app.freshServiceRequester.FreshRequesterMockServiceHandler;
@@ -68,6 +69,7 @@ public class MockServiceServlet extends HttpServlet {
       "digitalMarketplace", DigitalMarketplaceMockServiceHandler.class.getName(),
       "teamdynamix", TeamDynamixMockServiceHandler.class.getName(),
       "truefoundry", TrueFoundryMockServiceHandler.class.getName(),
+      "dropbox", DropboxMockServiceHandler.class.getName(),
       "interfolio", InterfolioMockServiceHandler.class.getName()
       );
   
