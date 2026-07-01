@@ -33,7 +33,7 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                         <div class="tab-pane active" id="abacAnalyzeTab">
 
                     <div id="analyze-member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade lead span12">
-                      <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
+                      <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="${textContainer.textEscapeXml['modalCloseAriaLabel']}"><span aria-hidden="true">&times;</span></button>
                         <h3 id="member-search-label">${textContainer.text['groupSearchForEntityButton'] }</h3>
                       </div>
                       <div class="modal-body">

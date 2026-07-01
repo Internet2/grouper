@@ -13,7 +13,7 @@
                       ${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}</h1>
 
                     <div id="member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade">
-                      <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
+                      <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="${textContainer.textEscapeXml['modalCloseAriaLabel']}"><span aria-hidden="true">&times;</span></button>
                         <h3 id="member-search-label">${textContainer.text['groupSearchForEntityButton'] }</h3>
                       </div>
                       <div class="modal-body">
@@ -105,7 +105,7 @@
                     </c:if>
 
                     <div id="group-search" tabindex="-1" role="dialog" aria-labelledby="group-search-label" aria-hidden="true" class="modal hide fade">
-                      <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
+                      <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="${textContainer.textEscapeXml['modalCloseAriaLabel']}"><span aria-hidden="true">&times;</span></button>
                         <h3 id="group-search-label">${textContainer.text['subjectSearchForGroupButton']}</h3>
                       </div>
 
@@ -216,7 +216,7 @@
 
 
                     <div id="stem-search" tabindex="-1" role="dialog" aria-labelledby="stem-search-label" aria-hidden="true" class="modal hide fade">
-                      <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
+                      <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="${textContainer.textEscapeXml['modalCloseAriaLabel']}"><span aria-hidden="true">&times;</span></button>
                         <h3 id="stem-search-label">${textContainer.text['subjectSearchForStemButton']}</h3>
                       </div>
 
@@ -280,7 +280,7 @@
                     </div>
 
                     <div id="attributeDef-search" tabindex="-1" role="dialog" aria-labelledby="group-search-label" aria-hidden="true" class="modal hide fade">
-                      <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
+                      <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="${textContainer.textEscapeXml['modalCloseAriaLabel']}"><span aria-hidden="true">&times;</span></button>
                         <h3 id="attributeDef-search-label">${textContainer.text['subjectSearchForAttributeDefButton']}</h3>
                       </div>
 

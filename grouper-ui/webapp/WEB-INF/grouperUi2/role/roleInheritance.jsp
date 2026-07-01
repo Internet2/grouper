@@ -75,7 +75,8 @@ ${grouper:titleFromKeyAndText('roleInheritanceEditTitle', grouperRequestContaine
                     <div class="controls" style="padding-top: 5px;">
                       <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesThatImplyThisImmediate}" var="roleThatImmediatelyImply">
                         ${roleThatImmediatelyImply.extension}
-                        <a href="#" onclick="ajax('../app/UiV2Role.deleteRoleImplies?roleId=${roleThatImmediatelyImply.id}', {formIds: 'editRoleInheritanceForm'}); return false;"><i class="fa fa-times" style="color: #aaaaaa"></i></a>
+                        <%-- role="button" + aria-label give this icon-only remove link an accessible name (GRP-7095) --%>
+                        <a href="#" role="button" aria-label="Remove role ${grouper:escapeHtml(roleThatImmediatelyImply.extension)}" onclick="ajax('../app/UiV2Role.deleteRoleImplies?roleId=${roleThatImmediatelyImply.id}', {formIds: 'editRoleInheritanceForm'}); return false;"><i class="fa fa-times" style="color: #aaaaaa" aria-hidden="true"></i></a>
                          <br />
                       </c:forEach>
                     </div>
@@ -103,8 +104,9 @@ ${grouper:titleFromKeyAndText('roleInheritanceEditTitle', grouperRequestContaine
                     </label>
                     <div class="controls" style="padding-top: 5px;">
                       <c:forEach items="${grouperRequestContainer.roleInheritanceContainer.rolesImpliedByThisImmediate}" var="roleImpliedByImmediate">
-                        ${roleImpliedByImmediate.extension} 
-                        <a href="#" onclick="ajax('../app/UiV2Role.deleteRoleImpliedBy?roleId=${roleImpliedByImmediate.id}', {formIds: 'editRoleInheritanceForm'}); return false;"><i class="fa fa-times" style="color: #aaaaaa"></i></a>
+                        ${roleImpliedByImmediate.extension}
+                        <%-- role="button" + aria-label give this icon-only remove link an accessible name (GRP-7095) --%>
+                        <a href="#" role="button" aria-label="Remove role ${grouper:escapeHtml(roleImpliedByImmediate.extension)}" onclick="ajax('../app/UiV2Role.deleteRoleImpliedBy?roleId=${roleImpliedByImmediate.id}', {formIds: 'editRoleInheritanceForm'}); return false;"><i class="fa fa-times" style="color: #aaaaaa" aria-hidden="true"></i></a>
                          <br />
                       </c:forEach>
                     </div>

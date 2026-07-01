@@ -7,6 +7,7 @@
                   <br />
 
                   <input type="hidden" name="extraSourceIdSubjectId_${status.count-1}" value="${grouper:escapeHtml(guiSubject.sourceIdSubjectId)}" />            
-                  ${guiSubject.shortLinkWithIcon} <a href="#" onclick="ajax('../app/UiV2GroupImport.groupImportRemoveSubject?removeSubjectSourceAndId=${grouper:escapeUrl(guiSubject.sourceIdSubjectId)}', {formIds: 'importGroupFormId'}); return false;"><i class="fa fa-times" style="color: #aaaaaa"></i></a>
+                  <%-- role="button" + aria-label give this icon-only remove link an accessible name (GRP-7095) --%>
+                  ${guiSubject.shortLinkWithIcon} <a href="#" role="button" aria-label="Remove subject ${grouper:escapeHtml(guiSubject.screenLabel)}" onclick="ajax('../app/UiV2GroupImport.groupImportRemoveSubject?removeSubjectSourceAndId=${grouper:escapeUrl(guiSubject.sourceIdSubjectId)}', {formIds: 'importGroupFormId'}); return false;"><i class="fa fa-times" style="color: #aaaaaa" aria-hidden="true"></i></a>
                 
                 </c:forEach>

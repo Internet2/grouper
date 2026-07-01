@@ -15,7 +15,7 @@ ${grouper:titleFromKeyAndText('groupEditCompositePageTitle', grouperRequestConta
             </div>
             
             <div id="left-group-search" tabindex="-1" role="dialog" aria-labelledby="left-group-search-label" aria-hidden="true" class="modal hide fade">
-              <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
+              <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="${textContainer.textEscapeXml['modalCloseAriaLabel']}"><span aria-hidden="true">&times;</span></button>
                 <h3 id="left-group-search-label">${textContainer.text['groupCompositeLeftFactorSearchTitle']}</h3>
               </div>
 
@@ -35,7 +35,7 @@ ${grouper:titleFromKeyAndText('groupEditCompositePageTitle', grouperRequestConta
             </div>
             
             <div id="right-group-search" tabindex="-1" role="dialog" aria-labelledby="right-group-search-label" aria-hidden="true" class="modal hide fade">
-              <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
+              <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="${textContainer.textEscapeXml['modalCloseAriaLabel']}"><span aria-hidden="true">&times;</span></button>
                 <h3 id="right-group-search-label">${textContainer.text['groupCompositeRightFactorSearchTitle']}</h3>
               </div>
 
