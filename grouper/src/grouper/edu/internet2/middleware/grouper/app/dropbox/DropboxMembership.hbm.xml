@@ -1,0 +1,16 @@
+<hibernate-mapping package="edu.internet2.middleware.grouper.app.dropbox" default-lazy="false">
+  <class name="DropboxMembership" table="mock_dropbox_membership">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <id name="id" column="id">
+      <generator class="assigned" />
+    </id>
+
+    <property name="groupId" column="group_id" />
+    <property name="teamMemberId" column="team_member_id" />
+    <property name="accessType" column="access_type" />
+
+  </class>
+</hibernate-mapping>
