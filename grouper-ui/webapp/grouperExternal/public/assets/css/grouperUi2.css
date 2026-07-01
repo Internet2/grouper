@@ -467,3 +467,13 @@ a:focus {
   outline: 2px solid #1c6070 !important;
   outline-offset: 2px;
 }
+
+/* GRP-7092 accessibility: the page-header subtitle (the <small> under the
+   "Grouper" title, e.g. "Grouper demo server v6") inherits Bootstrap's
+   #999999, which is only ~2.85:1 on the #e5eef1 header background and fails
+   WCAG AA. Recolor just the header subtitle to the title teal #1c6070
+   (~6:1 on that background), matching the "Grouper" title above it. Scoped
+   to .page-header so we do not restyle every heading <small> app-wide. */
+.page-header h1 small {
+  color: #1c6070;
+}
