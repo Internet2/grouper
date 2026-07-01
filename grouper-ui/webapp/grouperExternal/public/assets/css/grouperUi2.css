@@ -477,3 +477,71 @@ a:focus {
 .page-header h1 small {
   color: #1c6070;
 }
+
+/* GRP-7093 accessibility: header and nav color contrast. Four related fixes,
+   all overriding low-contrast defaults that live in bootstrap.css. grouperUi2.css
+   loads after bootstrap.css (see commonHead.jsp) so these equal-specificity
+   rules win without needing !important. */
+
+/* 1. The active (current) breadcrumb sits on the teal #1c6070 breadcrumb bar
+   but bootstrap colors it #999999 (~2.3:1, fails WCAG AA). Recolor it white so
+   it is legible. Emphasis convention: the clickable (link) crumbs are bold to
+   signal they are navigable, and the current/non-clickable crumb is left
+   normal weight. */
+.main-content .breadcrumb a {
+  font-weight: bold;
+}
+.main-content .breadcrumb .active {
+  color: #fff;
+  font-weight: normal;
+}
+
+/* 2. The primary/warning action buttons (e.g. "Add folder", "Log in as") use
+   white text on an orange #faa732 gradient, which fails contrast. Flatten the
+   gradient to a solid #ffc107 amber and switch the label to black text
+   (~10:1). Cover the hover/active/disabled states too so they do not revert to
+   the old orange, and drop bootstrap's dark text-shadow which is meant for
+   light-on-dark buttons. */
+.btn-primary,
+.btn-warning {
+  color: #000 !important;
+  text-shadow: none;
+  background-color: #ffc107;
+  background-image: none;
+  border-color: #d39e00;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active,
+.btn-primary.disabled,
+.btn-primary[disabled],
+.btn-warning:hover,
+.btn-warning:focus,
+.btn-warning:active,
+.btn-warning.active,
+.btn-warning.disabled,
+.btn-warning[disabled] {
+  color: #000 !important;
+  background-color: #e0a800;
+  background-image: none;
+  border-color: #c69500;
+}
+
+/* 3. The "Logged in as <name>" header text (.navbar-text) is bootstrap's
+   #777777 (~4.0:1 on white, fails AA at normal size). Darken to #333333. */
+.navbar-text {
+  color: #333333;
+}
+
+/* 4. The "Log out" link (.navbar-link) is rendered gray #777777, unlike the
+   adjacent "Help" link which uses the standard hyperlink color. Make Log out
+   look like a real link: the standard link blue #0076a5, and its hover the
+   standard link-hover #003f59. */
+.navbar-link {
+  color: #0076a5;
+}
+.navbar-link:hover,
+.navbar-link:focus {
+  color: #003f59;
+}
