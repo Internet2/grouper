@@ -652,6 +652,12 @@ public class GrouperDdlEngine {
     if (waitForOtherProcessesToDoDdl) {
       // some other jvm did this at the same time
       // lets wait until done, and then exit
+
+      // if the jvm that holds the lock dies, its heartbeat stops updating.  rather than failing startup
+      // (which used to require a manual SQL cleanup of grouper_ddl_worker), once the heartbeat has been
+      // stale for this long we assume that process died and let this jvm take over the DDL/upgrade.
+      long takeOverStaleLockAfterMillis = 1000L * GrouperHibernateConfig.retrieveConfig().propertyValueInt("ddl.databaseLock.takeOverStaleLockAfterSeconds", 120);
+
       for (int i=0;i<2000;i++) {
         if (i==40) {
           String waitingErrorMessage = "Waiting for another process to finish DDL updates...";
@@ -665,8 +671,17 @@ public class GrouperDdlEngine {
           if (grouperDdlWorker.getHeartbeat() == null) {
             return false;
           }
-          if (System.currentTimeMillis() - grouperDdlWorker.getHeartbeat().getTime() > 90000) {
-            throw new RuntimeException("Heartbeat of DDL worker is not updating!!!!");
+          long heartbeatStaleMillis = System.currentTimeMillis() - grouperDdlWorker.getHeartbeat().getTime();
+          if (heartbeatStaleMillis > takeOverStaleLockAfterMillis) {
+            // the holder appears to have died.  take over by re-running the acquire logic: on re-entry the
+            // stale heartbeat (older than the freshness window) lets this jvm claim the lock and do the DDL.
+            // if the holder is actually still alive and beats again before we re-read, the re-acquire will
+            // see a fresh heartbeat and go back to waiting, so a live holder is not displaced.
+            String takeOverMessage = "DDL worker heartbeat (worker_uuid=" + grouperDdlWorker.getWorkerUuid()
+                + ") has not updated for " + (heartbeatStaleMillis / 1000) + "s; assuming that process died and taking over DDL/upgrade.";
+            LOG.error(takeOverMessage);
+            System.out.println(takeOverMessage);
+            return waitForOtherJvmsOrLockInDatabase();
           }
         } else {
           return false;
