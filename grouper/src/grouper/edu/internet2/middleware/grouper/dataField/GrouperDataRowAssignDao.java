@@ -197,15 +197,17 @@ public class GrouperDataRowAssignDao {
     
     List<GrouperDataRowAssignView> result = new ArrayList<GrouperDataRowAssignView>();
     
-    String sql = "select gdrav.data_row_config_id, gdrfav.data_field_config_id , gdrfav.value_text, gdrfav.value_integer "
+    // select data_row_assign_internal_id too so field values can be grouped by their actual row and not by position
+    String sql = "select gdrav.data_row_config_id, gdrfav.data_field_config_id , gdrfav.value_text, gdrfav.value_integer, gdrav.data_row_assign_internal_id "
         + "from grouper_data_row_assign_v gdrav, grouper_data_row_field_asgn_v gdrfav "
         + "where gdrav.data_row_assign_internal_id  = gdrfav.data_row_assign_internal_id  and gdrav.subject_id = ? and gdrav.subject_source_id = ?";
     List<Object[]> objects = new GcDbAccess().sql(sql).addBindVar(subject.getId()).addBindVar(subject.getSourceId())
         .selectList(Object[].class);
-    
+
     for (Object[] object: objects) {
       result.add(new GrouperDataRowAssignView(GrouperUtil.stringValue(object[0]), GrouperUtil.stringValue(object[1]),
-          GrouperUtil.stringValue(object[2]), object[3] == null ? null: GrouperUtil.longValue(object[3])));
+          GrouperUtil.stringValue(object[2]), object[3] == null ? null: GrouperUtil.longValue(object[3]),
+          object[4] == null ? null: GrouperUtil.longValue(object[4])));
     }
     
     return result;

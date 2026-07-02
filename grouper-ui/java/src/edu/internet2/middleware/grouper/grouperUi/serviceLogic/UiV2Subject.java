@@ -85,6 +85,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiSubjectDataFieldConfig;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiSubjectDataRowConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
@@ -2631,49 +2632,69 @@ public class UiV2Subject {
       });
       
       List<GrouperDataRowAssignView> dataRowAssignments = GrouperDataRowAssignDao.retrieveDataRowAssignments(subject);
-      
-      Map<String, Map<String, List<String>>> dataRowConfigIdToFieldConfigIds = new HashMap<>();
-      
+
+      // Group the subject's field values by their actual data row (data_row_assign_internal_id) so that
+      // sparse fields render against the correct row.  We accumulate two things per data row config id:
+      //  - the ordered set of field config ids seen (the table columns), and
+      //  - a map of row internal id -> (field config id -> ui friendly value), preserving row identity.
+      // Using LinkedHashMap/LinkedHashSet keeps a stable, first-seen ordering for both rows and columns.
+      Map<String, Set<String>> dataRowConfigIdToFieldConfigIdColumns = new LinkedHashMap<>();
+      Map<String, Map<Long, Map<String, String>>> dataRowConfigIdToRowsByInternalId = new LinkedHashMap<>();
+
       for (GrouperDataRowAssignView grouperDataRowAssignView: dataRowAssignments) {
-        
+
         GrouperDataRowConfig grouperDataRowConfig = grouperDataEngine.getRowConfigByConfigId().get(grouperDataRowAssignView.getDataRowConfigId());
         if (grouperDataRowConfig == null) {
           continue;
         }
-        
+
 //        if (!dataFieldConfigsLoggedInSubjectCanRead.contains(grouperDataRowAssignView.getDataFieldConfigId())) {
 //          continue;
 //        }
-        
+
         GrouperDataFieldConfig grouperDataFieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(grouperDataRowAssignView.getDataFieldConfigId());
         if (grouperDataFieldConfig == null) {
           continue;
         }
-        
+
         String uiFriendlyValue = grouperDataFieldConfig.getFieldDataType()
             .convertToUiFriendlyString(grouperDataRowAssignView.getValueInteger(), grouperDataRowAssignView.getValueText());
-        
-        if (dataRowConfigIdToFieldConfigIds.containsKey(grouperDataRowAssignView.getDataRowConfigId())) {
-          Map<String, List<String>> dataRowMap = dataRowConfigIdToFieldConfigIds.get(grouperDataRowAssignView.getDataRowConfigId());
-          String dataFieldConfigId = grouperDataRowAssignView.getDataFieldConfigId();
-          if (dataRowMap.containsKey(dataFieldConfigId)) {
-            dataRowMap.get(dataFieldConfigId).add(uiFriendlyValue);
-          } else {
-            dataRowMap.put(dataFieldConfigId, GrouperUtil.toList(uiFriendlyValue));
-          }
-        } else {
-          Map<String, List<String>> dataRowMap = new LinkedHashMap<>();
-          String dataFieldConfigId = grouperDataRowAssignView.getDataFieldConfigId();
-          if (dataRowMap.containsKey(dataFieldConfigId)) {
-            dataRowMap.get(dataFieldConfigId).add(uiFriendlyValue);
-          } else {
-            dataRowMap.put(dataFieldConfigId, GrouperUtil.toList(uiFriendlyValue));
-          }
-          dataRowConfigIdToFieldConfigIds.put(grouperDataRowAssignView.getDataRowConfigId(), dataRowMap);
+
+        String dataRowConfigId = grouperDataRowAssignView.getDataRowConfigId();
+        String dataFieldConfigId = grouperDataRowAssignView.getDataFieldConfigId();
+        Long dataRowAssignInternalId = grouperDataRowAssignView.getDataRowAssignInternalId();
+
+        // track this field as a column for this data row config
+        Set<String> fieldConfigIdColumns = dataRowConfigIdToFieldConfigIdColumns.get(dataRowConfigId);
+        if (fieldConfigIdColumns == null) {
+          fieldConfigIdColumns = new LinkedHashSet<>();
+          dataRowConfigIdToFieldConfigIdColumns.put(dataRowConfigId, fieldConfigIdColumns);
         }
-        
+        fieldConfigIdColumns.add(dataFieldConfigId);
+
+        // store the value against its own row (keyed by the row's internal id), never by position
+        Map<Long, Map<String, String>> rowsByInternalId = dataRowConfigIdToRowsByInternalId.get(dataRowConfigId);
+        if (rowsByInternalId == null) {
+          rowsByInternalId = new LinkedHashMap<>();
+          dataRowConfigIdToRowsByInternalId.put(dataRowConfigId, rowsByInternalId);
+        }
+        Map<String, String> rowFieldValues = rowsByInternalId.get(dataRowAssignInternalId);
+        if (rowFieldValues == null) {
+          rowFieldValues = new LinkedHashMap<>();
+          rowsByInternalId.put(dataRowAssignInternalId, rowFieldValues);
+        }
+        rowFieldValues.put(dataFieldConfigId, uiFriendlyValue);
       }
-      
+
+      // assemble the per-data-row-config GUI tables from the row-identity-preserving maps
+      Map<String, GuiSubjectDataRowConfig> dataRowConfigIdToFieldConfigIds = new LinkedHashMap<>();
+      for (String dataRowConfigId: dataRowConfigIdToRowsByInternalId.keySet()) {
+        GuiSubjectDataRowConfig guiSubjectDataRowConfig = new GuiSubjectDataRowConfig();
+        guiSubjectDataRowConfig.setFieldConfigIds(new ArrayList<>(dataRowConfigIdToFieldConfigIdColumns.get(dataRowConfigId)));
+        guiSubjectDataRowConfig.setRows(new ArrayList<>(dataRowConfigIdToRowsByInternalId.get(dataRowConfigId).values()));
+        dataRowConfigIdToFieldConfigIds.put(dataRowConfigId, guiSubjectDataRowConfig);
+      }
+
       grouperRequestContainer.getSubjectContainer().setDataRowConfigIdToFieldConfigIds(dataRowConfigIdToFieldConfigIds);
       grouperRequestContainer.getSubjectContainer().setGuiSubjectDataFieldConfigs(guiSubjectDataFieldConfigs);
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
