@@ -527,6 +527,16 @@ a:focus {
   background-image: none;
   border-color: #c69500;
 }
+/* The Font Awesome icon inside these buttons (e.g. the "+" on "Add to a group")
+   is forced white by a more-specific bootstrap rule
+   (a.btn-primary [class*=" fa-"] { color: white }), so it does not inherit the
+   black label color above. Recolor the icon to black to match the text. */
+.btn-primary [class^="fa-"],
+.btn-primary [class*=" fa-"],
+.btn-warning [class^="fa-"],
+.btn-warning [class*=" fa-"] {
+  color: #000 !important;
+}
 
 /* 3. The "Logged in as <name>" header text (.navbar-text) is bootstrap's
    #777777 (~4.0:1 on white, fails AA at normal size). Darken to #333333. */
