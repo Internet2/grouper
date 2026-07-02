@@ -57,7 +57,7 @@ public class GrouperDataProviderTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDataProviderTest("testSqlProviderFullReadOnlyPerProvider"));
+    TestRunner.run(new GrouperDataProviderTest("testSetSparseDataRowForUi"));
   }
 
   public void setUp() {
@@ -86,7 +86,114 @@ public class GrouperDataProviderTest extends GrouperTest {
     Long internalId = GrouperDataProviderDao.findOrAdd("test");
     assertNotNull(internalId);
   }
-  
+
+  /**
+   * Tiny, self-contained test that leaves test.subject.0 with exactly two "affiliation" data rows
+   * where the "affiliationOrg" field is SPARSE - populated on the student row and null on the staff
+   * row.  It does a full provider sync (which commits to the DB and correctly handles the text/dictionary
+   * values) and then STOPS without any cleanup, so the data persists for viewing in the UI.
+   *
+   * After running this, start the UI and view subject "test.subject.0".  On the data field assignments
+   * page you should see an "affiliation" data-row table with columns affiliationCode / affiliationActive /
+   * affiliationOrg and two rows:
+   *   staff   / true  / -        (no org)
+   *   student / true  / wharton  (org set)
+   * Before the fix, the "wharton" org rendered against the staff row; after the fix it stays on the
+   * student row.
+   */
+  public void testSetSparseDataRowForUi() {
+
+    GrouperSession.startRootSession();
+
+    // two affiliation rows for the same subject; the staff row intentionally has a NULL org so that
+    // affiliationOrg is a sparse column (null on one row, set on another) - the exact bug scenario
+    List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "staff",   "T", null));
+    batchBindVars.add(GrouperUtil.toList("test.subject.0", "student", "T", "wharton"));
+
+    new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org) values (?, ?, ?, ?)")
+      .batchBindVars(batchBindVars).executeBatchSql();
+
+    // run this provider as a full sync daemon
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.dataProviderConfigId").value("idm").store();
+
+    // public privacy realm so the fields/rows are viewable in the UI
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
+
+    // the three columns of the affiliation data row (rowColumn structure)
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.fieldAliases").value("affiliationCode").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationCode.descriptionHtml").value("<b>affiliation code</b>").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldAliases").value("affiliationActive").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldDataType").value("boolean").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationActive.descriptionHtml").value("<b>affiliation active</b>").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.fieldAliases").value("affiliationOrg").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliationOrg.descriptionHtml").value("<b>affiliation org</b>").store();
+
+    // the affiliation data row, keyed by affiliationCode so the two rows stay distinct
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowAliases").value("affiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowNumberOfDataFields").value("3").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.0.colDataFieldConfigId").value("affiliationCode").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.0.rowKeyField").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.1.colDataFieldConfigId").value("affiliationActive").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.2.colDataFieldConfigId").value("affiliationOrg").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.descriptionHtml").value("<b>affiliation</b>").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataStorePit").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataStorePitDays").value("800").store();
+
+    // the provider and its row query over the mock source table
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.name").value("idm").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryType").value("sql").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySqlConfigId").value("grouper").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySqlQuery").value("select subject_id, affiliation_code, active, org from testgrouper_field_row_affil").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataStructure").value("row").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryRowConfigId").value("affiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectIdAttribute").value("subject_id").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectIdType").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectSourceId").value("jdbc").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryNumberOfDataFields").value("3").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldConfigId").value("affiliationCode").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldAttribute").value("affiliation_code").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.1.providerDataFieldConfigId").value("affiliationActive").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.1.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.1.providerDataFieldAttribute").value("active").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldConfigId").value("affiliationOrg").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldAttribute").value("org").store();
+
+    // do the full sync - this commits the row assignments (and dictionary text values) to the DB
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+
+    // sanity check: two affiliation rows for the subject
+    assertEquals(2, new GcDbAccess().sql(
+        "select count(1) from grouper_data_row_assign_v gdrav where gdrav.data_row_config_id = 'affiliation' and gdrav.subject_id = 'test.subject.0'")
+        .select(int.class).intValue());
+
+    // affiliationOrg 'wharton' must be tied to the row whose affiliationCode is 'student', never 'staff'
+    assertEquals("student", new GcDbAccess().sql(
+        "select code_v.value_text from grouper_data_row_field_asgn_v org_v, grouper_data_row_field_asgn_v code_v "
+        + "where org_v.data_row_assign_internal_id = code_v.data_row_assign_internal_id "
+        + "and org_v.data_field_config_id = 'affiliationOrg' and org_v.value_text = 'wharton' "
+        + "and code_v.data_field_config_id = 'affiliationCode'")
+        .select(String.class));
+
+    // NOTE: intentionally no cleanup - the config and row assignments are left in the DB so you can
+    // start the UI and view subject "test.subject.0" to eyeball the data field assignments page.
+  }
+
   /**
    * 
    */

@@ -435,15 +435,20 @@ public class SubjectContainer {
     this.guiSubjectDataFieldConfigs = guiSubjectDataFieldConfigs;
   }
   
-  private Map<String, Map<String, List<String>>> dataRowConfigIdToFieldConfigIds;
+  /**
+   * data row config id (e.g. "person_role") to the table of that config's rows for this subject.
+   * Each GuiSubjectDataRowConfig keeps every data row as a distinct, row-identity-preserving entry
+   * so sparse fields render against the correct row.
+   */
+  private Map<String, GuiSubjectDataRowConfig> dataRowConfigIdToFieldConfigIds;
 
-  
-  public Map<String, Map<String, List<String>>> getDataRowConfigIdToFieldConfigIds() {
+
+  public Map<String, GuiSubjectDataRowConfig> getDataRowConfigIdToFieldConfigIds() {
     return dataRowConfigIdToFieldConfigIds;
   }
 
-  
-  public void setDataRowConfigIdToFieldConfigIds(Map<String, Map<String, List<String>>> dataRowConfigIdToFieldConfigIds) {
+
+  public void setDataRowConfigIdToFieldConfigIds(Map<String, GuiSubjectDataRowConfig> dataRowConfigIdToFieldConfigIds) {
     this.dataRowConfigIdToFieldConfigIds = dataRowConfigIdToFieldConfigIds;
   }
   

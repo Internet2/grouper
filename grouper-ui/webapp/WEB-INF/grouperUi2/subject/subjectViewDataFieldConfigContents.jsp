@@ -32,46 +32,39 @@
        
        
       <c:forEach items="${grouperRequestContainer.subjectContainer.dataRowConfigIdToFieldConfigIds}" var="dataRowConfigIdToFieldConfigId">
-      
+
       <p class="lead"> ${textContainer.text['subjectViewDataRowConfigIdPrefix']} '${dataRowConfigIdToFieldConfigId.key}' </p>
-      
+
       <table
         class="table table-hover table-bordered table-striped table-condensed data-table">
         <thead>
           <tr>
-              <c:forEach var="entry" items="${dataRowConfigIdToFieldConfigId.value}">
-                  <th>${entry.key}</th> <%-- Column Headers --%>
+              <c:forEach var="fieldConfigId" items="${dataRowConfigIdToFieldConfigId.value.fieldConfigIds}">
+                  <th>${fieldConfigId}</th> <%-- Column Headers --%>
               </c:forEach>
           </tr>
         </thead>
         <tbody>
-        
-        <%-- Find the maximum row count --%>
-        <c:set var="maxRows" value="0" />
-        <c:forEach var="entry" items="${dataRowConfigIdToFieldConfigId.value}">
-            <c:if test="${fn:length(entry.value) > maxRows}">
-                <c:set var="maxRows" value="${fn:length(entry.value)}" />
-            </c:if>
-        </c:forEach>
-        
-         <%-- Loop through rows dynamically --%>
-         <c:forEach var="rowIndex" begin="0" end="${maxRows - 1}">
+
+         <%-- One table row per data row the subject has.  Each "row" is a map of fieldConfigId -> value,
+              so every cell is looked up by field id against its own row and cannot shift into another row. --%>
+         <c:forEach var="row" items="${dataRowConfigIdToFieldConfigId.value.rows}">
             <tr>
-                <c:forEach var="entry" items="${dataRowConfigIdToFieldConfigId.value}">
+                <c:forEach var="fieldConfigId" items="${dataRowConfigIdToFieldConfigId.value.fieldConfigIds}">
                     <td style="white-space: nowrap;">
                         <c:choose>
-                            <c:when test="${rowIndex < fn:length(entry.value)}">
-                                ${entry.value[rowIndex]}
+                            <c:when test="${not empty row[fieldConfigId]}">
+                                ${row[fieldConfigId]}
                             </c:when>
-                            <c:otherwise> - </c:otherwise> <%-- Empty cells if list size is shorter --%>
+                            <c:otherwise> - </c:otherwise> <%-- this row has no value for this field --%>
                         </c:choose>
                     </td>
                 </c:forEach>
             </tr>
         </c:forEach>
-              
+
         </tbody>
        </table>
-      
+
       </c:forEach>
 </div>
