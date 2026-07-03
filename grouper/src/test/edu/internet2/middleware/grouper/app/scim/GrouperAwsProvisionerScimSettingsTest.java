@@ -502,6 +502,8 @@ public class GrouperAwsProvisionerScimSettingsTest extends GrouperProvisioningBa
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.scim2.mock.schema.readOnlyAttribute").value("").store();
     // reset the page size override used by the service provider config validation test
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.pageSize").value("50").store();
+    // reset the advertised filter maxResults override used by the pagination probe test
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.scim2.mock.filterMaxResults").value("50").store();
     super.tearDown();
   }
 
@@ -1152,5 +1154,62 @@ public class GrouperAwsProvisionerScimSettingsTest extends GrouperProvisioningBa
     // ...and the page-size-exceeds-maxResults mismatch is flagged
     assertTrue("report should flag the page size exceeding filter maxResults; report was:\n" + report,
         report.contains("exceeds the server's filter maxResults"));
+  }
+
+  // =====================================================================================
+  // Task 10: diagnostics pagination probe warns when the population exceeds the advertised
+  // filter maxResults and the target does not support sorting (unstable multi-page sync risk)
+  // =====================================================================================
+
+  public void testScimPaginationProbe() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true));
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    GrouperScim2ApiCommands.retrieveScimUsers("awsConfigId", null);
+    clearScimMockTables();
+
+    // two users in the target, but the mock advertises a filter maxResults of 1 (so the population
+    // spans multiple pages) and sort.supported=false -> the probe should warn about dup/skip risk
+    GrouperScim2User user0 = new GrouperScim2User();
+    user0.setUserName("pageuser0@example.com");
+    createMockUser(user0);
+    GrouperScim2User user1 = new GrouperScim2User();
+    user1.setUserName("pageuser1@example.com");
+    createMockUser(user1);
+
+    new GrouperDbConfig().configFileName("grouper.properties")
+        .propertyName("grouperTest.scim2.mock.filterMaxResults").value("1").store();
+
+    GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner("awsProvisioner");
+    provisioner.initialize(GrouperProvisioningType.diagnostics);
+    GrouperProvisioningDiagnosticsContainer diagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();
+    diagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsSubjectIdOrIdentifier(SubjectTestHelper.SUBJ0.getId());
+    provisioner.provision(GrouperProvisioningType.diagnostics);
+
+    String report = diagnosticsContainer.getReportFinal();
+
+    // the pagination probe section is present...
+    assertTrue("report should include the pagination stability probe; report was:\n" + report,
+        report.contains("Pagination stability probe"));
+    // ...and it warns about possible duplicate/skip due to the unstable multi-page order
+    assertTrue("report should warn about possible duplicate/skip entities; report was:\n" + report,
+        report.contains("may duplicate or skip entities"));
   }
 }
