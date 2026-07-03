@@ -359,7 +359,10 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
     {
       ObjectNode filterNode = GrouperUtil.jsonJacksonNode();
       filterNode.put("supported", true);
-      filterNode.put("maxResults", 50);
+      // the advertised filter maxResults can be lowered by a test (e.g. to exercise the diagnostics
+      // pagination probe against a small population); defaults to 50
+      ConfigPropertiesCascadeBase.clearCache();
+      filterNode.put("maxResults", GrouperConfig.retrieveConfig().propertyValueInt("grouperTest.scim2.mock.filterMaxResults", 50));
       resultNode.set("filter", filterNode);
     }
     {
