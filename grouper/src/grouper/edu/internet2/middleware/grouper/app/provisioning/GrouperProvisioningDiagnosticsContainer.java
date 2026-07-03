@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ApiCom
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2MembershipCache;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2SchemaAttribute;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ServiceProviderConfig;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.ScimSettings;
@@ -200,6 +201,8 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.appendGeneralInfo();
       
       this.appendValidation();
+
+      this.appendScimServiceProviderConfigValidation();
 
       this.appendScimSchemaCrossCheck();
 
@@ -2472,6 +2475,89 @@ public class GrouperProvisioningDiagnosticsContainer {
   public boolean isScim() {
     return this.grouperProvisioner != null
         && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration() instanceof GrouperScim2ProvisionerConfiguration;
+  }
+
+  /**
+   * SCIM only: fetch GET /ServiceProviderConfig and validate the provisioner configuration against
+   * the advertised capabilities -- flagging when the target does not support PATCH (the SCIM2
+   * provisioner uses PATCH for updates and memberships), does not support filtering (needed to match
+   * by attribute), or advertises a filter maxResults smaller than the configured page size.  reports
+   * the capabilities either way.  best-effort: never aborts the rest of diagnostics.
+   */
+  public void appendScimServiceProviderConfigValidation() {
+
+    if (!this.isScim()) {
+      return;
+    }
+
+    this.report.append("<h4>Service provider capabilities (SCIM /ServiceProviderConfig)</h4><pre>");
+
+    try {
+      GrouperScim2ProvisionerConfiguration scimConfiguration =
+          (GrouperScim2ProvisionerConfiguration) this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+      String configId = scimConfiguration.getBearerTokenExternalSystemConfigId();
+      ScimSettings scimSettings = new ScimSettings();
+      scimSettings.loadFromScimProvisionerConfiguration(scimConfiguration);
+
+      GrouperScim2ServiceProviderConfig serviceProviderConfig =
+          GrouperScim2ApiCommands.retrieveScimServiceProviderConfig(configId, scimSettings);
+
+      if (serviceProviderConfig == null) {
+        this.report.append("<font color='gray'><b>Note:</b></font> The target did not return /ServiceProviderConfig; skipping capability validation\n");
+        return;
+      }
+
+      // report the advertised capabilities
+      this.report.append("<font color='gray'><b>Capabilities:</b></font> patch=").append(describeScimCapability(serviceProviderConfig.getPatchSupported()))
+        .append(", bulk=").append(describeScimCapability(serviceProviderConfig.getBulkSupported()))
+        .append(", sort=").append(describeScimCapability(serviceProviderConfig.getSortSupported()))
+        .append(", filter=").append(describeScimCapability(serviceProviderConfig.getFilterSupported()))
+        .append(" (maxResults=").append(serviceProviderConfig.getFilterMaxResults() == null ? "not advertised" : String.valueOf(serviceProviderConfig.getFilterMaxResults()))
+        .append("), etag=").append(describeScimCapability(serviceProviderConfig.getEtagSupported()))
+        .append(", changePassword=").append(describeScimCapability(serviceProviderConfig.getChangePasswordSupported())).append("\n");
+
+      boolean anyIssue = false;
+
+      if (Boolean.FALSE.equals(serviceProviderConfig.getPatchSupported())) {
+        anyIssue = true;
+        this.report.append("<font color='orange'><b>Warning:</b></font> the target advertises patch.supported=false, but the SCIM2 provisioner uses PATCH for entity updates and memberships\n");
+      }
+
+      if (Boolean.FALSE.equals(serviceProviderConfig.getFilterSupported())) {
+        anyIssue = true;
+        this.report.append("<font color='orange'><b>Warning:</b></font> the target advertises filter.supported=false; matching entities/groups by attribute will not work\n");
+      }
+
+      Integer filterMaxResults = serviceProviderConfig.getFilterMaxResults();
+      if (filterMaxResults != null) {
+        int pageSize = GrouperLoaderConfig.retrieveConfig()
+            .propertyValueInt("grouper.wsBearerToken." + configId + ".pageSize", 50);
+        if (pageSize > filterMaxResults) {
+          anyIssue = true;
+          this.report.append("<font color='orange'><b>Warning:</b></font> the configured page size (").append(pageSize)
+            .append(") exceeds the server's filter maxResults (").append(filterMaxResults)
+            .append("); list/filter requests may be capped by the server\n");
+        }
+      }
+
+      if (!anyIssue) {
+        this.report.append("<font color='green'><b>Success:</b></font> the configuration is consistent with the advertised capabilities\n");
+      }
+
+    } catch (Exception e) {
+      LOG.error("error in scim service provider config validation diagnostics", e);
+      this.report.append("<font color='gray'><b>Note:</b></font> Service provider capability validation could not complete (")
+        .append(GrouperUtil.xmlEscape(StringUtils.abbreviate(e.getMessage(), 200))).append("); skipping\n");
+    } finally {
+      this.report.append("</pre>\n");
+    }
+  }
+
+  /**
+   * describe a SCIM capability boolean for the report: true, false, or "not advertised" when null.
+   */
+  private String describeScimCapability(Boolean supported) {
+    return supported == null ? "not advertised" : supported.toString();
   }
 
   /**
