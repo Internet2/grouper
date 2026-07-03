@@ -211,7 +211,11 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   private Set<String> entitySearchAttributesCache = null;
-  
+
+  // configured group search attribute names, cached the first time a group is retrieved.  used to
+  // decide whether the provisioner should look groups up by externalId (in addition to id/displayName)
+  private Set<String> groupSearchAttributesCache = null;
+
   public GrouperScim2User retrieveEntityHelper(
       GrouperScim2ProvisionerConfiguration scimConfiguration,
       ProvisioningEntity grouperTargetEntity, boolean filterInactive) {
@@ -425,10 +429,31 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
     String displayName = grouperTargetGroup.getDisplayName();
     if (grouperScim2Group == null && !StringUtils.isBlank(displayName)) {
       grouperScim2Group = GrouperScim2ApiCommands.retrieveScimGroup(
-          scimConfiguration.getBearerTokenExternalSystemConfigId(), 
+          scimConfiguration.getBearerTokenExternalSystemConfigId(),
           "displayName", displayName, grouperScim2MembershipCache, scimSettings);
 
     }
+
+    // if the group was not found by id or displayName, and the provisioner is configured to search
+    // groups by externalId, look it up with a server-side externalId filter.  this mirrors the entity
+    // side (retrieveEntityHelper searching by emailValue) and lets groups be matched on a stable,
+    // rename-proof key instead of the mutable displayName
+    if (groupSearchAttributesCache == null) {
+      this.groupSearchAttributesCache = new HashSet<String>();
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : GrouperUtil.nonNull(scimConfiguration.getGroupSearchAttributes())) {
+        this.groupSearchAttributesCache.add(grouperProvisioningConfigurationAttribute.getName());
+      }
+    }
+
+    if (grouperScim2Group == null && groupSearchAttributesCache.contains("externalId")) {
+      String externalId = grouperTargetGroup.retrieveAttributeValueString("externalId");
+      if (!StringUtils.isBlank(externalId)) {
+        grouperScim2Group = GrouperScim2ApiCommands.retrieveScimGroup(
+            scimConfiguration.getBearerTokenExternalSystemConfigId(),
+            "externalId", externalId, grouperScim2MembershipCache, scimSettings);
+      }
+    }
+
     return grouperScim2Group;
   }
 

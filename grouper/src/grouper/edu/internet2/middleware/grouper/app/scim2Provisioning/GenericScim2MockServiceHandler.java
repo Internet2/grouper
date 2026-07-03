@@ -1222,9 +1222,13 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
     }
     
     String filter = mockServiceRequest.getHttpServletRequest().getParameter("filter");
-    
+
+    // capture the exact outgoing group filter so tests (in a different JVM) can assert it,
+    // e.g. that the provisioner searched by externalId rather than displayName
+    recordCapture("lastGroupsFilter", filter);
+
     List<GrouperScim2Group> grouperScimGroups = null;
-    
+
     if (StringUtils.isBlank(filter)) {
       grouperScimGroups = HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class);
     } else {

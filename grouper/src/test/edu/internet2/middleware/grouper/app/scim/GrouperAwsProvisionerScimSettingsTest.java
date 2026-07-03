@@ -8,14 +8,21 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GenericScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ApiCommands;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2MembershipCache;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2TargetDao;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.ScimSettings;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
@@ -689,5 +696,99 @@ public class GrouperAwsProvisionerScimSettingsTest extends GrouperProvisioningBa
       assertNull("emailFilterStrategy.mode=none should reject every email filter, including '" + strategy + "'",
           retrieveByEmailWithStrategy(emailValue, strategy));
     }
+  }
+
+  // =====================================================================================
+  // Task 4: group matching by externalId
+  //
+  // when the provisioner is configured with externalId as a group SEARCH attribute (distinct from
+  // the displayName MATCHING attribute), a group that cannot be found by id or displayName must
+  // still be located through a server-side "externalId eq ..." filter.  externalId is a stable,
+  // rename-proof key, so this lets a group be re-matched in the target even after its displayName
+  // changes.  before this fix retrieveGroupHelper only ever searched by id or displayName.
+  // =====================================================================================
+
+  public void testGroupSearchByExternalId() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    // add a third group attribute (externalId) and make externalId the group SEARCH attribute while
+    // leaving displayName as the MATCHING attribute.  addExtraConfig values win over the builder
+    // defaults, so numberOfGroupAttributes is bumped to 3 and the search config is overridden.
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("numberOfGroupAttributes", "3")
+        .addExtraConfig("targetGroupAttribute.2.name", "externalId")
+        .addExtraConfig("targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField")
+        .addExtraConfig("targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "idIndexString")
+        .addExtraConfig("groupMatchingAttributeSameAsSearchAttribute", "false")
+        .addExtraConfig("groupSearchAttributeCount", "1")
+        .addExtraConfig("groupSearchAttribute0name", "externalId"));
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    GenericScim2MockServiceHandler.ensureScimMockTables();
+    clearScimMockTables();
+
+    // pre-create a group in the target with a known externalId and a displayName that the lookup
+    // below will deliberately NOT search by, so the group can only be found via the externalId filter
+    String externalId = "ext:penngroups:testGroupExtId";
+    GrouperScim2Group mockGroup = new GrouperScim2Group();
+    mockGroup.setDisplayName("realTargetDisplayName");
+    mockGroup.setExternalId(externalId);
+    GrouperScim2Group createdGroup = GrouperScim2ApiCommands.createScimGroup("awsConfigId", mockGroup,
+        GrouperUtil.toSet("displayName", "externalId"), new ScimSettings());
+    assertNotNull(createdGroup.getId());
+
+    // clear only the captures (not the group we just created) so the assertion below sees the
+    // filters from the retrieve, not from the create
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_capture").executeSql();
+
+    GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner("awsProvisioner");
+    provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+
+    GrouperScim2ProvisionerConfiguration scimConfiguration =
+        (GrouperScim2ProvisionerConfiguration) provisioner.retrieveGrouperProvisioningConfiguration();
+
+    // sanity check: externalId is actually a configured group search attribute
+    boolean externalIdIsGroupSearchAttribute = false;
+    for (GrouperProvisioningConfigurationAttribute groupSearchAttribute : GrouperUtil.nonNull(scimConfiguration.getGroupSearchAttributes())) {
+      if ("externalId".equals(groupSearchAttribute.getName())) {
+        externalIdIsGroupSearchAttribute = true;
+      }
+    }
+    assertTrue("externalId should be configured as a group search attribute", externalIdIsGroupSearchAttribute);
+
+    GrouperScim2TargetDao scim2TargetDao =
+        (GrouperScim2TargetDao) provisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao();
+
+    // a target group with no id and a displayName that is NOT in the target, but the right externalId
+    ProvisioningGroup groupToFind = new ProvisioningGroup();
+    groupToFind.setDisplayName("displayNameNotInTarget");
+    groupToFind.assignAttributeValue("externalId", externalId);
+
+    GrouperScim2Group found = scim2TargetDao.retrieveGroupHelper(scimConfiguration, groupToFind);
+
+    // behavioral: the group was located even though id/displayName did not match
+    assertNotNull("group should be found via the externalId filter", found);
+    assertEquals(createdGroup.getId(), found.getId());
+    assertEquals("realTargetDisplayName", found.getDisplayName());
+    assertEquals(externalId, found.getExternalId());
+
+    // exact: the last outgoing group filter was the externalId filter (the displayName search ran
+    // first and returned nothing, then the externalId search found the group)
+    assertEquals("externalId eq \"" + externalId + "\"", captureValue("lastGroupsFilter"));
   }
 }
