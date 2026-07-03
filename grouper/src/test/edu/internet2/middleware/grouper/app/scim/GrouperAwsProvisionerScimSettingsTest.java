@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
@@ -495,6 +496,10 @@ public class GrouperAwsProvisionerScimSettingsTest extends GrouperProvisioningBa
     setMockStrategyMode("namePatchStrategy", "");
     setMockStrategyMode("emailPatchStrategy", "");
     setMockStrategyMode("emailFilterStrategy", "");
+    setMockStrategyMode("readOnlyAttribute", "");
+    // clear the schema-serving overrides used by the schema cross-check test
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.scim2.mock.serveSchemas").value("").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.scim2.mock.schema.readOnlyAttribute").value("").store();
     super.tearDown();
   }
 
@@ -882,5 +887,144 @@ public class GrouperAwsProvisionerScimSettingsTest extends GrouperProvisioningBa
     // exact: the last outgoing user filter was the externalId filter (the userName search ran first
     // and returned nothing, then the externalId search found the user)
     assertEquals("externalId eq \"" + externalId + "\"", captureValue("lastUsersFilter"));
+  }
+
+  // =====================================================================================
+  // Task 6: diagnostics strategy discovery classifies a silently-ignored patch as
+  // "accepted but ignored", not "works"
+  //
+  // some SCIM targets return 2xx for a read-only/derived attribute (e.g. CrowdStrike returns 200
+  // for an email patch but never applies it).  strategy discovery must read the value back and only
+  // report a strategy as working if the value actually changed.  the mock is put in read-only mode
+  // for givenName: it accepts the name patch (200) but does not persist it.
+  // =====================================================================================
+
+  public void testScimPatchStrategyReadOnlyIgnored() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true));
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    // this will create the mock tables
+    GrouperScim2ApiCommands.retrieveScimUsers("awsConfigId", null);
+    clearScimMockTables();
+
+    // the mock accepts the default name patch strategy (nonqualified) and treats givenName as a
+    // read-only attribute: a givenName patch returns 200 but is silently not applied
+    setMockStrategyMode("namePatchStrategy", "nonqualified");
+    setMockStrategyMode("readOnlyAttribute", "givenName");
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("awsProvisioner");
+    attributeValue.setTargetName("awsProvisioner");
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // provision SUBJ0 so the entity exists in the target (a prerequisite for the update-entity
+    // strategy discovery, which only runs against an entity already present in the target)
+    fullProvision();
+    GrouperUtil.sleep(2000);
+    assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
+        .sql("select count(1) from mock_scim_user").select(int.class));
+
+    // run diagnostics asking to patch a new given name.  the mock accepts the patch but does not
+    // apply it, so the read-back must classify it as "accepted but ignored", never "works"
+    GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner("awsProvisioner");
+    provisioner.initialize(GrouperProvisioningType.diagnostics);
+    GrouperProvisioningDiagnosticsContainer diagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();
+    diagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupName("test:testGroup");
+    diagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsSubjectIdOrIdentifier(SubjectTestHelper.SUBJ0.getId());
+    diagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityUpdate(true);
+    diagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsScimGivenName("BrandNewGivenName");
+    provisioner.provision(GrouperProvisioningType.diagnostics);
+
+    String report = diagnosticsContainer.getReportFinal();
+
+    // the accepted-but-not-applied patch must be reported as "Accepted but ignored"...
+    assertTrue("report should flag the read-only givenName patch as accepted-but-ignored; report was:\n" + report,
+        report.contains("Accepted but ignored"));
+    // ...and it must reference the givenName attribute that was ignored
+    assertTrue("the accepted-but-ignored line should mention givenName; report was:\n" + report,
+        report.contains("givenName"));
+    // ...and the new value must NOT have stuck in the target (the mock discarded it)
+    assertTrue("the report should not claim the ignored givenName patch worked; report was:\n" + report,
+        !report.contains("<font color='green'><b>Works:</b></font> nonqualified"));
+  }
+
+  // =====================================================================================
+  // Task 7: diagnostics schema cross-check flags an attribute that is read-only in the target
+  // schema but mapped for write in the provisioner (writes would be silently ignored)
+  // =====================================================================================
+
+  public void testScimSchemaCrossCheckReadOnlyMappedForWrite() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    // map externalId as an entity attribute for write; the mock schema will mark it read-only, so
+    // the cross-check should flag the conflict
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("numberOfEntityAttributes", "6")
+        .addExtraConfig("targetEntityAttribute.5.name", "externalId")
+        .addExtraConfig("targetEntityAttribute.5.translateExpressionType", "grouperProvisioningEntityField")
+        .addExtraConfig("targetEntityAttribute.5.translateFromGrouperProvisioningEntityField", "subjectId"));
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    GrouperScim2ApiCommands.retrieveScimUsers("awsConfigId", null);
+    clearScimMockTables();
+
+    // the mock serves /Schemas and marks externalId read-only
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.scim2.mock.serveSchemas").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.scim2.mock.schema.readOnlyAttribute").value("externalId").store();
+
+    // run diagnostics -- the schema cross-check runs early and does not require a provisioned entity
+    GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner("awsProvisioner");
+    provisioner.initialize(GrouperProvisioningType.diagnostics);
+    GrouperProvisioningDiagnosticsContainer diagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();
+    diagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsSubjectIdOrIdentifier(SubjectTestHelper.SUBJ0.getId());
+    provisioner.provision(GrouperProvisioningType.diagnostics);
+
+    String report = diagnosticsContainer.getReportFinal();
+
+    // the read-only-but-mapped-for-write externalId must be flagged
+    assertTrue("report should flag externalId as read-only but mapped for write; report was:\n" + report,
+        report.contains("read-only in the target schema but is mapped for write"));
+    assertTrue("the schema cross-check should reference externalId; report was:\n" + report,
+        report.contains("externalId"));
   }
 }
