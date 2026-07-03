@@ -204,6 +204,8 @@ public class GrouperProvisioningDiagnosticsContainer {
 
       this.appendScimServiceProviderConfigValidation();
 
+      this.appendScimPaginationProbe();
+
       this.appendScimSchemaCrossCheck();
 
       this.appendSelectAllGroups();
@@ -2558,6 +2560,70 @@ public class GrouperProvisioningDiagnosticsContainer {
    */
   private String describeScimCapability(Boolean supported) {
     return supported == null ? "not advertised" : supported.toString();
+  }
+
+  /**
+   * SCIM only: probe the risk of an unstable multi-page full sync.  when the target does not support
+   * sorting and the entity population exceeds the advertised filter maxResults, a full sync pages
+   * sequentially and can duplicate or skip entities if the target's page order is not stable across
+   * requests (observed against some targets).  reports the counts either way.  best-effort: never
+   * aborts the rest of diagnostics.
+   */
+  public void appendScimPaginationProbe() {
+
+    if (!this.isScim()) {
+      return;
+    }
+
+    this.report.append("<h4>Pagination stability probe</h4><pre>");
+
+    try {
+      GrouperScim2ProvisionerConfiguration scimConfiguration =
+          (GrouperScim2ProvisionerConfiguration) this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+      String configId = scimConfiguration.getBearerTokenExternalSystemConfigId();
+      ScimSettings scimSettings = new ScimSettings();
+      scimSettings.loadFromScimProvisionerConfiguration(scimConfiguration);
+
+      GrouperScim2ServiceProviderConfig serviceProviderConfig =
+          GrouperScim2ApiCommands.retrieveScimServiceProviderConfig(configId, scimSettings);
+      Integer maxResults = serviceProviderConfig == null ? null : serviceProviderConfig.getFilterMaxResults();
+      Boolean sortSupported = serviceProviderConfig == null ? null : serviceProviderConfig.getSortSupported();
+
+      if (maxResults == null) {
+        this.report.append("<font color='gray'><b>Note:</b></font> The target does not advertise a filter maxResults; cannot assess multi-page pagination risk\n");
+        return;
+      }
+
+      int entityCount;
+      try {
+        entityCount = GrouperUtil.length(GrouperScim2ApiCommands.retrieveScimUsers(scimSettings, configId, new GrouperScim2MembershipCache()));
+      } catch (RuntimeException re) {
+        this.report.append("<font color='gray'><b>Note:</b></font> Could not list entities to probe pagination (")
+          .append(GrouperUtil.xmlEscape(StringUtils.abbreviate(re.getMessage(), 200))).append(")\n");
+        return;
+      }
+
+      this.report.append("<font color='gray'><b>Note:</b></font> entities in target: ").append(entityCount)
+        .append("; filter maxResults: ").append(maxResults)
+        .append("; sort supported: ").append(sortSupported == null ? "not advertised" : sortSupported.toString()).append("\n");
+
+      if (entityCount <= maxResults) {
+        this.report.append("<font color='green'><b>Success:</b></font> the entity population fits within a single page (<= maxResults); multi-page pagination is not exercised\n");
+      } else if (Boolean.FALSE.equals(sortSupported)) {
+        this.report.append("<font color='orange'><b>Warning:</b></font> the target has ").append(entityCount)
+          .append(" entities, exceeding the filter maxResults (").append(maxResults)
+          .append("), and does not support sorting (sort.supported=false); a full sync pages sequentially and may duplicate or skip entities if the target's page order is not stable across requests\n");
+      } else {
+        this.report.append("<font color='gray'><b>Note:</b></font> the population spans multiple pages but the target supports sorting; sequential paging should be stable\n");
+      }
+
+    } catch (Exception e) {
+      LOG.error("error in scim pagination probe diagnostics", e);
+      this.report.append("<font color='gray'><b>Note:</b></font> Pagination probe could not complete (")
+        .append(GrouperUtil.xmlEscape(StringUtils.abbreviate(e.getMessage(), 200))).append("); skipping\n");
+    } finally {
+      this.report.append("</pre>\n");
+    }
   }
 
   /**
