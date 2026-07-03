@@ -2700,22 +2700,84 @@ public class GrouperProvisioningDiagnosticsContainer {
         }
       }
 
-      boolean works = runtimeException == null && grouperTargetEntity.getException() == null;
+      // classify the outcome.  a strategy only truly "works" if the PATCH both returned success AND
+      // the value actually changed in the target.  some SCIM servers return 2xx for a read-only or
+      // derived attribute and silently ignore the change (e.g. CrowdStrike returns 200 for an email
+      // patch but never applies it, since email is derived from userName).  trusting the status code
+      // alone would wrongly report that strategy as working, so read the value back and compare.
+      Exception failure = runtimeException != null ? runtimeException : grouperTargetEntity.getException();
 
-      if (works) {
-        workingStrategies.add(candidate);
-        this.report.append("<font color='green'><b>Works:</b></font> ").append(GrouperUtil.xmlEscape(candidate)).append("\n");
-      } else {
-        Exception failure = runtimeException != null ? runtimeException : grouperTargetEntity.getException();
-        String reason = failure == null ? "unknown" : failure.getMessage();
+      if (failure != null) {
+        // the target rejected the PATCH outright (e.g. 400 for an unsupported path or immutable attr)
+        String reason = failure.getMessage() == null ? "unknown" : failure.getMessage();
         this.report.append("<font color='gray'><b>Does not work:</b></font> ").append(GrouperUtil.xmlEscape(candidate))
           .append(" (").append(GrouperUtil.xmlEscape(StringUtils.abbreviate(reason, 200))).append(")\n");
+      } else {
+
+        // the PATCH returned success -- verify it actually took by reading the value back
+        String readBackValue;
+        boolean readBackFailed = false;
+        try {
+          readBackValue = this.readBackScimEntityAttributeValue(
+              scimConfiguration, grouperTargetEntity.retrieveAttributeValueString("id"), attributeName);
+        } catch (RuntimeException re) {
+          readBackValue = null;
+          readBackFailed = true;
+        }
+
+        if (readBackFailed) {
+          // could not confirm one way or the other; treat the success status as working but say so
+          workingStrategies.add(candidate);
+          this.report.append("<font color='green'><b>Works:</b></font> ").append(GrouperUtil.xmlEscape(candidate))
+            .append(" <font color='gray'>(could not read the value back to verify)</font>\n");
+        } else if (StringUtils.equals(readBackValue, newValue)) {
+          // success and the value stuck
+          workingStrategies.add(candidate);
+          this.report.append("<font color='green'><b>Works:</b></font> ").append(GrouperUtil.xmlEscape(candidate)).append("\n");
+        } else {
+          // success status but the value did not change -- the target accepted and silently ignored
+          // the patch (the attribute is read-only / derived).  do NOT count this as a working strategy
+          this.report.append("<font color='orange'><b>Accepted but ignored:</b></font> ").append(GrouperUtil.xmlEscape(candidate))
+            .append(" (target returned success but ").append(GrouperUtil.xmlEscape(attributeName))
+            .append(" is still '").append(GrouperUtil.xmlEscape(readBackValue))
+            .append("', not '").append(GrouperUtil.xmlEscape(newValue)).append("' -- the attribute may be read-only)\n");
+        }
       }
     }
 
     this.appendScimStrategyComparison(dimensionLabel, configuredStrategy, workingStrategies);
 
     return workingStrategies;
+  }
+
+  /**
+   * SCIM only: re-fetch an entity from the target by id and read a single attribute value back, so
+   * strategy discovery can tell a PATCH that actually changed the value from one the target accepted
+   * with a 2xx but silently ignored (e.g. a read-only or derived attribute such as email).
+   * @param scimConfiguration scim configuration
+   * @param targetEntityId server-assigned id of the entity in the target
+   * @param attributeName attribute to read (e.g. givenName, emailValue)
+   * @return the current value in the target, or null if the entity or attribute was not found
+   */
+  private String readBackScimEntityAttributeValue(
+      GrouperScim2ProvisionerConfiguration scimConfiguration, String targetEntityId, String attributeName) {
+
+    if (StringUtils.isBlank(targetEntityId)) {
+      return null;
+    }
+
+    ScimSettings scimSettings = new ScimSettings();
+    scimSettings.loadFromScimProvisionerConfiguration(scimConfiguration);
+
+    GrouperScim2User grouperScim2User = GrouperScim2ApiCommands.retrieveScimUser(
+        scimConfiguration.getBearerTokenExternalSystemConfigId(), "id", targetEntityId,
+        new GrouperScim2MembershipCache(), scimSettings);
+
+    if (grouperScim2User == null) {
+      return null;
+    }
+
+    return grouperScim2User.toProvisioningEntity().retrieveAttributeValueString(attributeName);
   }
 
   /**
