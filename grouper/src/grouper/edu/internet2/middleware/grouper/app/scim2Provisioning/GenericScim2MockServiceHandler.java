@@ -204,6 +204,10 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
           getServiceProviderConfig(mockServiceRequest, mockServiceResponse);
           return;
         }
+        if ("Schemas".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
+          getSchemas(mockServiceRequest, mockServiceResponse);
+          return;
+        }
         if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
           getUsers(mockServiceRequest, mockServiceResponse);
           return;
@@ -377,6 +381,93 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+  }
+
+  /**
+   * serve a SCIM /Schemas response for User and Group.  only returns attributes when the test opts
+   * in via grouperTest.scim2.mock.serveSchemas=true, so provisioners/tests that do not exercise the
+   * schema cross-check see an empty schema (and the diagnostics section degrades to a note rather
+   * than emitting spurious warnings).  a single attribute can be forced read-only via
+   * grouperTest.scim2.mock.schema.readOnlyAttribute to exercise the cross-check warning.
+   */
+  public void getSchemas(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+
+    if (!checkAuthorization(mockServiceRequest, mockServiceResponse)) {
+      return;
+    }
+
+    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+    {
+      ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
+      schemasNode.add("urn:ietf:params:scim:api:messages:2.0:ListResponse");
+      resultNode.set("schemas", schemasNode);
+    }
+
+    ArrayNode resourcesNode = GrouperUtil.jsonJacksonArrayNode();
+
+    if (mockTestKnobBoolean("grouperTest.scim2.mock.serveSchemas")) {
+
+      // a named attribute can be forced read-only so the diagnostics schema cross-check can be tested
+      String schemaReadOnlyAttribute = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.schema.readOnlyAttribute");
+
+      // User schema
+      {
+        ObjectNode userSchema = GrouperUtil.jsonJacksonNode();
+        userSchema.put("id", "urn:ietf:params:scim:schemas:core:2.0:User");
+        userSchema.put("name", "User");
+        ArrayNode attrs = GrouperUtil.jsonJacksonArrayNode();
+        attrs.add(schemaAttributeNode("userName", "string", "immutable", true, schemaReadOnlyAttribute));
+        {
+          ObjectNode nameAttr = schemaAttributeNode("name", "complex", "readWrite", true, schemaReadOnlyAttribute);
+          ArrayNode sub = GrouperUtil.jsonJacksonArrayNode();
+          sub.add(schemaAttributeNode("givenName", "string", "readWrite", true, schemaReadOnlyAttribute));
+          sub.add(schemaAttributeNode("familyName", "string", "readWrite", false, schemaReadOnlyAttribute));
+          nameAttr.set("subAttributes", sub);
+          attrs.add(nameAttr);
+        }
+        attrs.add(schemaAttributeNode("active", "boolean", "readWrite", true, schemaReadOnlyAttribute));
+        attrs.add(schemaAttributeNode("email", "string", "readOnly", false, schemaReadOnlyAttribute));
+        attrs.add(schemaAttributeNode("externalId", "string", "readWrite", false, schemaReadOnlyAttribute));
+        attrs.add(schemaAttributeNode("id", "string", "readOnly", false, schemaReadOnlyAttribute));
+        userSchema.set("attributes", attrs);
+        resourcesNode.add(userSchema);
+      }
+
+      // Group schema
+      {
+        ObjectNode groupSchema = GrouperUtil.jsonJacksonNode();
+        groupSchema.put("id", "urn:ietf:params:scim:schemas:core:2.0:Group");
+        groupSchema.put("name", "Group");
+        ArrayNode attrs = GrouperUtil.jsonJacksonArrayNode();
+        attrs.add(schemaAttributeNode("displayName", "string", "readWrite", true, schemaReadOnlyAttribute));
+        attrs.add(schemaAttributeNode("externalId", "string", "readWrite", false, schemaReadOnlyAttribute));
+        attrs.add(schemaAttributeNode("id", "string", "readOnly", false, schemaReadOnlyAttribute));
+        groupSchema.set("attributes", attrs);
+        resourcesNode.add(groupSchema);
+      }
+    }
+
+    resultNode.put("totalResults", resourcesNode.size());
+    resultNode.put("itemsPerPage", resourcesNode.size());
+    resultNode.put("startIndex", 1);
+    resultNode.set("Resources", resourcesNode);
+
+    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setContentType("application/json");
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+  }
+
+  /**
+   * build one SCIM schema attribute node.  if the attribute name matches the configured
+   * schemaReadOnlyAttribute, its mutability is forced to readOnly (for testing the cross-check).
+   */
+  private ObjectNode schemaAttributeNode(String name, String type, String mutability, boolean required, String schemaReadOnlyAttribute) {
+    ObjectNode node = GrouperUtil.jsonJacksonNode();
+    node.put("name", name);
+    node.put("type", type);
+    node.put("mutability", StringUtils.equals(name, schemaReadOnlyAttribute) ? "readOnly" : mutability);
+    node.put("required", required);
+    return node;
   }
 
   public void postUsers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
@@ -753,6 +844,18 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
       emailPatchMode = "pathEmails";
     }
 
+    // read-only attribute simulation: when grouperTest.scim2.mock.readOnlyAttribute.mode is set to a
+    // field name (e.g. givenName, emailValue), the mock accepts the patch (returns 200) but does NOT
+    // persist changes to that field -- simulating a target like CrowdStrike that returns success for a
+    // read-only/derived attribute while silently ignoring the change.  used to test the diagnostics
+    // read-back that classifies such a patch as "accepted but ignored" rather than "works".  we
+    // snapshot the original value here and restore it just before saving, below.
+    String readOnlyAttribute = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.readOnlyAttribute.mode");
+    Object readOnlyAttributeOriginalValue = null;
+    if (StringUtils.isNotBlank(readOnlyAttribute)) {
+      readOnlyAttributeOriginalValue = GrouperUtil.fieldValue(grouperScimUser, readOnlyAttribute);
+    }
+
     for (int i=0;i<operationsNode.size();i++) {
       
       JsonNode operation = operationsNode.get(i);
@@ -1044,8 +1147,15 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
         }
         
       }
-      
+
     }
+
+    // read-only attribute simulation (see above): silently discard any change to the configured
+    // field so the patch is accepted (200) but has no effect on that attribute
+    if (StringUtils.isNotBlank(readOnlyAttribute)) {
+      GrouperUtil.assignField(grouperScimUser, readOnlyAttribute, readOnlyAttributeOriginalValue);
+    }
+
     HibernateSession.byObjectStatic().saveOrUpdate(grouperScimUser);
 
     if (mockTestKnobBoolean("grouperTest.scim2.mock.patchUsersReturnNoBody")) {
