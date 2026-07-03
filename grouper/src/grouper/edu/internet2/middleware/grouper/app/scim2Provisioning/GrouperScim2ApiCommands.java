@@ -1721,6 +1721,69 @@ public class GrouperScim2ApiCommands {
   }
 
   /**
+   * retrieve the target's GET /ServiceProviderConfig and parse the advertised capabilities (patch,
+   * bulk, sort, filter + maxResults, etag, changePassword).  used by provisioning diagnostics to
+   * validate the provisioner configuration against what the target supports.
+   * @param configId bearer token external system config id
+   * @param scimSettings scim settings
+   * @return the parsed capabilities, or null if the target returns nothing
+   */
+  public static GrouperScim2ServiceProviderConfig retrieveScimServiceProviderConfig(String configId, ScimSettings scimSettings) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("method", "retrieveScimServiceProviderConfig");
+    long startTime = System.nanoTime();
+
+    try {
+      JsonNode jsonNode = executeGetMethod(debugMap, debugLabel(debugMap, "retrieveScimServiceProviderConfig"), configId, "/ServiceProviderConfig", scimSettings);
+
+      if (jsonNode == null) {
+        debugMap.put("found", false);
+        return null;
+      }
+
+      GrouperScim2ServiceProviderConfig result = new GrouperScim2ServiceProviderConfig();
+      result.setPatchSupported(nestedScimBoolean(jsonNode, "patch", "supported"));
+      result.setBulkSupported(nestedScimBoolean(jsonNode, "bulk", "supported"));
+      result.setSortSupported(nestedScimBoolean(jsonNode, "sort", "supported"));
+      result.setFilterSupported(nestedScimBoolean(jsonNode, "filter", "supported"));
+      result.setFilterMaxResults(nestedScimInteger(jsonNode, "filter", "maxResults"));
+      result.setEtagSupported(nestedScimBoolean(jsonNode, "etag", "supported"));
+      result.setChangePasswordSupported(nestedScimBoolean(jsonNode, "changePassword", "supported"));
+      return result;
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperScim2Log.scimLog(debugMap, startTime);
+    }
+  }
+
+  /**
+   * read a nested boolean from a SCIM node, e.g. patch.supported.  returns null if the child object
+   * or the field is absent (i.e. the capability was not advertised).
+   */
+  private static Boolean nestedScimBoolean(JsonNode parent, String child, String field) {
+    JsonNode childNode = parent.get(child);
+    if (childNode == null || !childNode.has(field)) {
+      return null;
+    }
+    return childNode.get(field).asBoolean();
+  }
+
+  /**
+   * read a nested integer from a SCIM node, e.g. filter.maxResults.  returns null if absent.
+   */
+  private static Integer nestedScimInteger(JsonNode parent, String child, String field) {
+    JsonNode childNode = parent.get(child);
+    if (childNode == null || !childNode.has(field)) {
+      return null;
+    }
+    return childNode.get(field).asInt();
+  }
+
+  /**
    * @deprecated
    */
   @Deprecated
