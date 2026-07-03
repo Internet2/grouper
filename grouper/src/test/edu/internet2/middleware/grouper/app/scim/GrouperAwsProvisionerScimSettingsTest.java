@@ -1027,4 +1027,78 @@ public class GrouperAwsProvisionerScimSettingsTest extends GrouperProvisioningBa
     assertTrue("the schema cross-check should reference externalId; report was:\n" + report,
         report.contains("externalId"));
   }
+
+  // =====================================================================================
+  // Task 8: diagnostics search-attribute verification confirms each configured match/search
+  // attribute actually resolves the object in the target (id, userName, externalId, ...)
+  // =====================================================================================
+
+  public void testScimSearchAttributeVerification() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    // externalId is an entity attribute AND the entity search attribute (userName stays the match key)
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("numberOfEntityAttributes", "6")
+        .addExtraConfig("targetEntityAttribute.5.name", "externalId")
+        .addExtraConfig("targetEntityAttribute.5.translateExpressionType", "grouperProvisioningEntityField")
+        .addExtraConfig("targetEntityAttribute.5.translateFromGrouperProvisioningEntityField", "subjectId")
+        .addExtraConfig("entityMatchingAttributeSameAsSearchAttribute", "false")
+        .addExtraConfig("entitySearchAttributeCount", "1")
+        .addExtraConfig("entitySearchAttribute0name", "externalId"));
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    GrouperScim2ApiCommands.retrieveScimUsers("awsConfigId", null);
+    clearScimMockTables();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("awsProvisioner");
+    attributeValue.setTargetName("awsProvisioner");
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // provision so the entity (with externalId set) exists in the target
+    fullProvision();
+    GrouperUtil.sleep(2000);
+    assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper")
+        .sql("select count(1) from mock_scim_user").select(int.class));
+
+    // run diagnostics; the search-attribute verification looks the entity up by each configured
+    // search attribute and reports whether the target's filter resolves it
+    GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner("awsProvisioner");
+    provisioner.initialize(GrouperProvisioningType.diagnostics);
+    GrouperProvisioningDiagnosticsContainer diagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();
+    diagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupName("test:testGroup");
+    diagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsSubjectIdOrIdentifier(SubjectTestHelper.SUBJ0.getId());
+    provisioner.provision(GrouperProvisioningType.diagnostics);
+
+    String report = diagnosticsContainer.getReportFinal();
+
+    // the configured externalId search attribute must resolve the entity in the target
+    assertTrue("search verification should confirm externalId resolves the entity; report was:\n" + report,
+        report.contains("<font color='green'><b>Works:</b></font> entity attribute 'externalId'"));
+    // userName is always a search attribute and must resolve too
+    assertTrue("search verification should confirm userName resolves the entity; report was:\n" + report,
+        report.contains("<font color='green'><b>Works:</b></font> entity attribute 'userName'"));
+  }
 }
