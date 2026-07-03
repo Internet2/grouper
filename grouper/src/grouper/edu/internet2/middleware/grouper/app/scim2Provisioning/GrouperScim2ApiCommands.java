@@ -1638,6 +1638,89 @@ public class GrouperScim2ApiCommands {
   }
 
   /**
+   * retrieve the SCIM /Schemas from the target and flatten them (including complex sub-attributes,
+   * e.g. name.givenName, emails.value) into a list of {@link GrouperScim2SchemaAttribute}.  used by
+   * provisioning diagnostics to cross-check the configured target attributes against what the target
+   * actually advertises (mutability, required).
+   * @param configId bearer token external system config id
+   * @param scimSettings scim settings
+   * @return the flattened schema attributes; empty list if the target returns nothing
+   */
+  public static List<GrouperScim2SchemaAttribute> retrieveScimSchemas(String configId, ScimSettings scimSettings) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("method", "retrieveScimSchemas");
+    long startTime = System.nanoTime();
+
+    List<GrouperScim2SchemaAttribute> result = new ArrayList<GrouperScim2SchemaAttribute>();
+
+    try {
+      JsonNode jsonNode = executeGetMethod(debugMap, debugLabel(debugMap, "retrieveScimSchemas"), configId, "/Schemas", scimSettings);
+
+      if (jsonNode == null || !jsonNode.has("Resources")) {
+        debugMap.put("found", false);
+        return result;
+      }
+
+      ArrayNode resourcesNode = (ArrayNode) jsonNode.get("Resources");
+
+      for (int i = 0; i < resourcesNode.size(); i++) {
+        JsonNode resourceNode = resourcesNode.get(i);
+
+        // resource "name" (User, Group); fall back to the last colon-delimited token of the id
+        String resourceName = GrouperUtil.jsonJacksonGetString(resourceNode, "name");
+        if (StringUtils.isBlank(resourceName)) {
+          String resourceId = GrouperUtil.jsonJacksonGetString(resourceNode, "id");
+          resourceName = StringUtils.isBlank(resourceId) ? null : StringUtils.substringAfterLast(resourceId, ":");
+        }
+
+        if (!resourceNode.has("attributes")) {
+          continue;
+        }
+
+        ArrayNode attributesNode = (ArrayNode) resourceNode.get("attributes");
+        for (int j = 0; j < attributesNode.size(); j++) {
+          JsonNode attributeNode = attributesNode.get(j);
+          String attributeName = GrouperUtil.jsonJacksonGetString(attributeNode, "name");
+          if (StringUtils.isBlank(attributeName)) {
+            continue;
+          }
+
+          result.add(new GrouperScim2SchemaAttribute(resourceName, attributeName,
+              GrouperUtil.jsonJacksonGetString(attributeNode, "mutability"),
+              attributeNode.has("required") && attributeNode.get("required").asBoolean(false),
+              GrouperUtil.jsonJacksonGetString(attributeNode, "type")));
+
+          // flatten complex sub-attributes as "parent.child" (e.g. name.givenName, emails.value)
+          if (attributeNode.has("subAttributes")) {
+            ArrayNode subAttributesNode = (ArrayNode) attributeNode.get("subAttributes");
+            for (int k = 0; k < subAttributesNode.size(); k++) {
+              JsonNode subAttributeNode = subAttributesNode.get(k);
+              String subAttributeName = GrouperUtil.jsonJacksonGetString(subAttributeNode, "name");
+              if (StringUtils.isBlank(subAttributeName)) {
+                continue;
+              }
+              result.add(new GrouperScim2SchemaAttribute(resourceName, attributeName + "." + subAttributeName,
+                  GrouperUtil.jsonJacksonGetString(subAttributeNode, "mutability"),
+                  subAttributeNode.has("required") && subAttributeNode.get("required").asBoolean(false),
+                  GrouperUtil.jsonJacksonGetString(subAttributeNode, "type")));
+            }
+          }
+        }
+      }
+
+      debugMap.put("schemaAttributeCount", result.size());
+      return result;
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperScim2Log.scimLog(debugMap, startTime);
+    }
+  }
+
+  /**
    * @deprecated
    */
   @Deprecated

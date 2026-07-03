@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,6 +47,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpda
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsRequest;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ApiCommands;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2MembershipCache;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2SchemaAttribute;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.ScimSettings;
@@ -196,7 +198,9 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.appendGeneralInfo();
       
       this.appendValidation();
-      
+
+      this.appendScimSchemaCrossCheck();
+
       this.appendSelectAllGroups();
       this.appendSelectAllEntities();
       this.appendSelectAllMemberships();
@@ -2464,6 +2468,171 @@ public class GrouperProvisioningDiagnosticsContainer {
   public boolean isScim() {
     return this.grouperProvisioner != null
         && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration() instanceof GrouperScim2ProvisionerConfiguration;
+  }
+
+  /**
+   * SCIM only: fetch the target's /Schemas and cross-check the provisioner's configured target
+   * attributes against it -- flagging attributes mapped for write that the target says are read-only
+   * (writes would be silently ignored, e.g. a derived email), attributes that are immutable but in
+   * the update set, and required schema attributes that are not mapped.  degrades to a note if the
+   * target does not expose /Schemas.
+   */
+  public void appendScimSchemaCrossCheck() {
+
+    if (!this.isScim()) {
+      return;
+    }
+
+    this.report.append("<h4>Target schema cross-check (SCIM /Schemas)</h4><pre>");
+
+    // the whole cross-check is best-effort and must never abort the rest of diagnostics: any failure
+    // (target does not expose /Schemas, unexpected payload, bug in the cross-check) is absorbed here
+    // into a note, and the closing </pre> is always written in the finally
+    try {
+
+      GrouperScim2ProvisionerConfiguration scimConfiguration =
+          (GrouperScim2ProvisionerConfiguration) this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+
+      ScimSettings scimSettings = new ScimSettings();
+      scimSettings.loadFromScimProvisionerConfiguration(scimConfiguration);
+      List<GrouperScim2SchemaAttribute> schemaAttributes = GrouperScim2ApiCommands.retrieveScimSchemas(
+          scimConfiguration.getBearerTokenExternalSystemConfigId(), scimSettings);
+
+      if (GrouperUtil.length(schemaAttributes) == 0) {
+        this.report.append("<font color='gray'><b>Note:</b></font> The target did not return any /Schemas attributes; skipping schema cross-check\n");
+        return;
+      }
+
+      // provisioner attribute name -> the schema (flattened) attribute names it may map to, in
+      // preference order.  most attributes match by name; the complex/derived ones need explicit
+      // candidates (e.g. givenName lives under name.givenName; an email may be emails.value or email)
+      Map<String, String[]> entityAliases = new HashMap<String, String[]>();
+      entityAliases.put("givenName", new String[] {"name.givenName", "givenName"});
+      entityAliases.put("familyName", new String[] {"name.familyName", "familyName"});
+      entityAliases.put("formattedName", new String[] {"name.formatted", "name.formattedName", "formattedName"});
+      entityAliases.put("emailValue", new String[] {"emails.value", "email"});
+      entityAliases.put("emailValue2", new String[] {"emails.value", "email"});
+
+      Map<String, String[]> groupAliases = new HashMap<String, String[]>();
+
+      this.appendScimSchemaCrossCheckForResource("User",
+          scimConfiguration.getTargetEntityAttributeNameToConfig(), schemaAttributes, entityAliases);
+      this.appendScimSchemaCrossCheckForResource("Group",
+          scimConfiguration.getTargetGroupAttributeNameToConfig(), schemaAttributes, groupAliases);
+
+    } catch (Exception e) {
+      LOG.error("error in scim schema cross-check diagnostics", e);
+      this.report.append("<font color='gray'><b>Note:</b></font> Schema cross-check could not complete (")
+        .append(GrouperUtil.xmlEscape(StringUtils.abbreviate(e.getMessage(), 200)))
+        .append("); skipping\n");
+    } finally {
+      this.report.append("</pre>\n");
+    }
+  }
+
+  /**
+   * cross-check the configured target attributes for one SCIM resource (User or Group) against the
+   * target schema.  see {@link #appendScimSchemaCrossCheck()}.
+   * @param resourceName SCIM resource name, e.g. "User" or "Group"
+   * @param targetAttributeNameToConfig configured target attributes for that resource
+   * @param schemaAttributes all flattened schema attributes retrieved from the target
+   * @param aliases provisioner-attribute-name -> candidate schema-attribute-names
+   */
+  private void appendScimSchemaCrossCheckForResource(String resourceName,
+      Map<String, GrouperProvisioningConfigurationAttribute> targetAttributeNameToConfig,
+      List<GrouperScim2SchemaAttribute> schemaAttributes, Map<String, String[]> aliases) {
+
+    // schema attributes for this resource, keyed by flattened name
+    Map<String, GrouperScim2SchemaAttribute> schemaByName = new HashMap<String, GrouperScim2SchemaAttribute>();
+    for (GrouperScim2SchemaAttribute schemaAttribute : schemaAttributes) {
+      if (StringUtils.equalsIgnoreCase(resourceName, schemaAttribute.getResourceName())) {
+        schemaByName.put(schemaAttribute.getName(), schemaAttribute);
+      }
+    }
+
+    if (schemaByName.size() == 0) {
+      this.report.append("<font color='gray'><b>Note:</b></font> No '").append(GrouperUtil.xmlEscape(resourceName))
+        .append("' resource in the target schema; skipping ").append(GrouperUtil.xmlEscape(resourceName)).append(" cross-check\n");
+      return;
+    }
+
+    // track which schema attributes are mapped, so we can spot required-but-unmapped ones
+    Set<String> mappedSchemaNames = new HashSet<String>();
+    boolean anyIssue = false;
+
+    for (GrouperProvisioningConfigurationAttribute targetAttribute : GrouperUtil.nonNull(targetAttributeNameToConfig).values()) {
+      String targetAttributeName = targetAttribute.getName();
+
+      // id is always target-assigned / read-only by nature; never flag it
+      if (StringUtils.equals("id", targetAttributeName)) {
+        continue;
+      }
+
+      // resolve the schema attribute: try each alias candidate, then the name itself
+      String[] candidates = aliases.containsKey(targetAttributeName)
+          ? aliases.get(targetAttributeName) : new String[] {targetAttributeName};
+      GrouperScim2SchemaAttribute schemaAttribute = null;
+      String matchedSchemaName = null;
+      for (String candidate : candidates) {
+        if (schemaByName.containsKey(candidate)) {
+          schemaAttribute = schemaByName.get(candidate);
+          matchedSchemaName = candidate;
+          break;
+        }
+      }
+
+      if (schemaAttribute == null) {
+        this.report.append("<font color='gray'><b>Note:</b></font> ").append(GrouperUtil.xmlEscape(resourceName))
+          .append(" attribute '").append(GrouperUtil.xmlEscape(targetAttributeName))
+          .append("' has no match in the target schema (may be an extension or custom attribute)\n");
+        continue;
+      }
+
+      mappedSchemaNames.add(matchedSchemaName);
+      if (matchedSchemaName.contains(".")) {
+        // a mapped sub-attribute also satisfies its complex parent (e.g. name via name.givenName)
+        mappedSchemaNames.add(StringUtils.substringBefore(matchedSchemaName, "."));
+      }
+
+      boolean mappedForWrite = targetAttribute.isInsert() || targetAttribute.isUpdate();
+      String mutability = schemaAttribute.getMutability();
+
+      if (StringUtils.equalsIgnoreCase("readOnly", mutability) && mappedForWrite) {
+        anyIssue = true;
+        this.report.append("<font color='red'><b>Action needed:</b></font> ").append(GrouperUtil.xmlEscape(resourceName))
+          .append(" attribute '").append(GrouperUtil.xmlEscape(targetAttributeName))
+          .append("' is read-only in the target schema but is mapped for write; the target will silently ignore writes to it (unmap it)\n");
+      } else if (StringUtils.equalsIgnoreCase("immutable", mutability) && targetAttribute.isUpdate()) {
+        anyIssue = true;
+        this.report.append("<font color='orange'><b>Warning:</b></font> ").append(GrouperUtil.xmlEscape(resourceName))
+          .append(" attribute '").append(GrouperUtil.xmlEscape(targetAttributeName))
+          .append("' is immutable in the target schema; it can be set on create but updates will be rejected\n");
+      }
+    }
+
+    // required schema attributes that are not mapped
+    for (GrouperScim2SchemaAttribute schemaAttribute : schemaAttributes) {
+      if (!StringUtils.equalsIgnoreCase(resourceName, schemaAttribute.getResourceName()) || !schemaAttribute.isRequired()) {
+        continue;
+      }
+      String schemaName = schemaAttribute.getName();
+      if (mappedSchemaNames.contains(schemaName)) {
+        continue;
+      }
+      // a required sub-attribute is covered if its complex parent is mapped
+      if (schemaName.contains(".") && mappedSchemaNames.contains(StringUtils.substringBefore(schemaName, "."))) {
+        continue;
+      }
+      anyIssue = true;
+      this.report.append("<font color='orange'><b>Warning:</b></font> ").append(GrouperUtil.xmlEscape(resourceName))
+        .append(" schema requires attribute '").append(GrouperUtil.xmlEscape(schemaName))
+        .append("' but it is not mapped; creates may be rejected\n");
+    }
+
+    if (!anyIssue) {
+      this.report.append("<font color='green'><b>Success:</b></font> ").append(GrouperUtil.xmlEscape(resourceName))
+        .append(": all mapped attributes are consistent with the target schema\n");
+    }
   }
 
   /**
