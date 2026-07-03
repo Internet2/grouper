@@ -274,6 +274,21 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       }
     }
 
+    // if not found by id, userName or email, and externalId is a configured entity search attribute,
+    // look the entity up with a server-side externalId filter.  externalId is a stable, IdP-supplied
+    // key, so this lets an entity be matched even when its userName/email are not known or have changed
+    if (grouperScim2User == null && entitySearchAttributesCache.contains("externalId")) {
+      String externalId = grouperTargetEntity
+          .retrieveAttributeValueString("externalId");
+      if (!StringUtils.isBlank(externalId)) {
+        grouperScim2User = GrouperScim2ApiCommands.retrieveScimUser(
+            scimConfiguration.getBearerTokenExternalSystemConfigId(), "externalId", externalId, grouperScim2MembershipCache, scimSettings);
+        if (filterInactive && grouperScim2User != null && !GrouperUtil.booleanValue(grouperScim2User.getActive(), true)) {
+          grouperScim2User = null;
+        }
+      }
+    }
+
     return grouperScim2User;
   }
 
