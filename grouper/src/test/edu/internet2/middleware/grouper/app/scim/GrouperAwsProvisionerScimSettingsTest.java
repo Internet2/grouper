@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConf
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GenericScim2MockServiceHandler;
@@ -790,5 +791,96 @@ public class GrouperAwsProvisionerScimSettingsTest extends GrouperProvisioningBa
     // exact: the last outgoing group filter was the externalId filter (the displayName search ran
     // first and returned nothing, then the externalId search found the group)
     assertEquals("externalId eq \"" + externalId + "\"", captureValue("lastGroupsFilter"));
+  }
+
+  // =====================================================================================
+  // Task 5: entity matching by externalId
+  //
+  // parallel to task 4 but for entities: when externalId is a configured entity SEARCH attribute,
+  // an entity that cannot be found by id, userName or email must still be located through a
+  // server-side "externalId eq ..." filter.  before this fix retrieveEntityHelper only searched by
+  // id, userName and (when configured) emailValue.
+  // =====================================================================================
+
+  public void testEntitySearchByExternalId() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    // add a sixth entity attribute (externalId) and make externalId the entity SEARCH attribute while
+    // leaving userName as the MATCHING attribute.  the default AWS config uses entity attribute
+    // indexes 0-4, so externalId is index 5 and numberOfEntityAttributes becomes 6
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("numberOfEntityAttributes", "6")
+        .addExtraConfig("targetEntityAttribute.5.name", "externalId")
+        .addExtraConfig("targetEntityAttribute.5.translateExpressionType", "grouperProvisioningEntityField")
+        .addExtraConfig("targetEntityAttribute.5.translateFromGrouperProvisioningEntityField", "subjectId")
+        .addExtraConfig("entityMatchingAttributeSameAsSearchAttribute", "false")
+        .addExtraConfig("entitySearchAttributeCount", "1")
+        .addExtraConfig("entitySearchAttribute0name", "externalId"));
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    GenericScim2MockServiceHandler.ensureScimMockTables();
+    clearScimMockTables();
+
+    // pre-create a user in the target with a known externalId and a userName the lookup below will
+    // deliberately NOT search by, so the user can only be found via the externalId filter
+    String externalId = "ext:penngroups:testUserExtId";
+    GrouperScim2User mockUser = new GrouperScim2User();
+    mockUser.setUserName("realTargetUserName");
+    mockUser.setExternalId(externalId);
+    String createdId = createMockUser(mockUser);
+    assertNotNull(createdId);
+
+    // clear only the captures (not the user we just created)
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_capture").executeSql();
+
+    GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner("awsProvisioner");
+    provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+
+    GrouperScim2ProvisionerConfiguration scimConfiguration =
+        (GrouperScim2ProvisionerConfiguration) provisioner.retrieveGrouperProvisioningConfiguration();
+
+    // sanity check: externalId is actually a configured entity search attribute
+    boolean externalIdIsEntitySearchAttribute = false;
+    for (GrouperProvisioningConfigurationAttribute entitySearchAttribute : GrouperUtil.nonNull(scimConfiguration.getEntitySearchAttributes())) {
+      if ("externalId".equals(entitySearchAttribute.getName())) {
+        externalIdIsEntitySearchAttribute = true;
+      }
+    }
+    assertTrue("externalId should be configured as an entity search attribute", externalIdIsEntitySearchAttribute);
+
+    GrouperScim2TargetDao scim2TargetDao =
+        (GrouperScim2TargetDao) provisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao();
+
+    // a target entity with no id and a userName that is NOT in the target, but the right externalId
+    ProvisioningEntity entityToFind = new ProvisioningEntity();
+    entityToFind.assignAttributeValue("userName", "userNameNotInTarget");
+    entityToFind.assignAttributeValue("externalId", externalId);
+
+    GrouperScim2User found = scim2TargetDao.retrieveEntityHelper(scimConfiguration, entityToFind, false);
+
+    // behavioral: the entity was located even though id/userName did not match
+    assertNotNull("entity should be found via the externalId filter", found);
+    assertEquals(createdId, found.getId());
+    assertEquals("realTargetUserName", found.getUserName());
+    assertEquals(externalId, found.getExternalId());
+
+    // exact: the last outgoing user filter was the externalId filter (the userName search ran first
+    // and returned nothing, then the externalId search found the user)
+    assertEquals("externalId eq \"" + externalId + "\"", captureValue("lastUsersFilter"));
   }
 }
