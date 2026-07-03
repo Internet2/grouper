@@ -500,6 +500,8 @@ public class GrouperAwsProvisionerScimSettingsTest extends GrouperProvisioningBa
     // clear the schema-serving overrides used by the schema cross-check test
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.scim2.mock.serveSchemas").value("").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.scim2.mock.schema.readOnlyAttribute").value("").store();
+    // reset the page size override used by the service provider config validation test
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.pageSize").value("50").store();
     super.tearDown();
   }
 
@@ -1100,5 +1102,55 @@ public class GrouperAwsProvisionerScimSettingsTest extends GrouperProvisioningBa
     // userName is always a search attribute and must resolve too
     assertTrue("search verification should confirm userName resolves the entity; report was:\n" + report,
         report.contains("<font color='green'><b>Works:</b></font> entity attribute 'userName'"));
+  }
+
+  // =====================================================================================
+  // Task 9: diagnostics validates the provisioner config against GET /ServiceProviderConfig
+  // (here: a configured page size larger than the target's advertised filter maxResults)
+  // =====================================================================================
+
+  public void testScimServiceProviderConfigValidation() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true));
+
+    // configure a page size larger than the mock's advertised filter maxResults (50), so the
+    // capability validation flags the mismatch
+    new GrouperDbConfig().configFileName("grouper-loader.properties")
+        .propertyName("grouper.wsBearerToken.awsConfigId.pageSize").value("100").store();
+
+    GrouperStartup.startup();
+
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+
+    GrouperScim2ApiCommands.retrieveScimUsers("awsConfigId", null);
+    clearScimMockTables();
+
+    GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner("awsProvisioner");
+    provisioner.initialize(GrouperProvisioningType.diagnostics);
+    GrouperProvisioningDiagnosticsContainer diagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();
+    diagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsSubjectIdOrIdentifier(SubjectTestHelper.SUBJ0.getId());
+    provisioner.provision(GrouperProvisioningType.diagnostics);
+
+    String report = diagnosticsContainer.getReportFinal();
+
+    // the capabilities section is present...
+    assertTrue("report should show the service provider capabilities; report was:\n" + report,
+        report.contains("Service provider capabilities"));
+    // ...and the page-size-exceeds-maxResults mismatch is flagged
+    assertTrue("report should flag the page size exceeding filter maxResults; report was:\n" + report,
+        report.contains("exceeds the server's filter maxResults"));
   }
 }
