@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +47,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsRequest;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ApiCommands;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2MembershipCache;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2SchemaAttribute;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ProvisionerConfiguration;
@@ -210,7 +212,9 @@ public class GrouperProvisioningDiagnosticsContainer {
 
       this.appendSelectEntityFromGrouper();
       this.appendSelectEntityFromTarget();
-      
+
+      this.appendScimSearchAttributeVerification();
+
       this.appendInsertGroupIntoTarget();
       this.appendInsertEntityIntoTarget();
 
@@ -2468,6 +2472,150 @@ public class GrouperProvisioningDiagnosticsContainer {
   public boolean isScim() {
     return this.grouperProvisioner != null
         && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration() instanceof GrouperScim2ProvisionerConfiguration;
+  }
+
+  /**
+   * SCIM only: verify that each configured search/match attribute actually resolves the object in
+   * the target.  for the diagnostic entity and group (already retrieved from the target), look each
+   * one up by each configured search attribute (id, userName/displayName, email, externalId, ...)
+   * and report whether the target's filter returns the same object.  this confirms, e.g., that the
+   * target really supports matching entities/groups by externalId before the provisioner relies on
+   * it.  best-effort: never aborts the rest of diagnostics.
+   */
+  public void appendScimSearchAttributeVerification() {
+
+    if (!this.isScim()) {
+      return;
+    }
+
+    this.report.append("<h4>Search/match attribute verification (SCIM filter)</h4><pre>");
+
+    try {
+      GrouperScim2ProvisionerConfiguration scimConfiguration =
+          (GrouperScim2ProvisionerConfiguration) this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+      ScimSettings scimSettings = new ScimSettings();
+      scimSettings.loadFromScimProvisionerConfiguration(scimConfiguration);
+
+      // ----- entity search attributes -----
+      ProvisioningEntity targetEntity = this.provisioningEntityWrapper == null ? null
+          : this.provisioningEntityWrapper.getTargetProvisioningEntity();
+      if (targetEntity == null) {
+        this.report.append("<font color='gray'><b>Note:</b></font> No diagnostic entity in the target to verify entity search attributes\n");
+      } else {
+        String targetEntityId = targetEntity.retrieveAttributeValueString("id");
+        // the attributes the provisioner matches entities on: id and userName always, plus the
+        // configured entity search attributes (e.g. emailValue, externalId)
+        Set<String> entitySearchAttributeNames = new LinkedHashSet<String>();
+        entitySearchAttributeNames.add("id");
+        entitySearchAttributeNames.add("userName");
+        for (GrouperProvisioningConfigurationAttribute searchAttribute : GrouperUtil.nonNull(scimConfiguration.getEntitySearchAttributes())) {
+          entitySearchAttributeNames.add(searchAttribute.getName());
+        }
+        for (String attributeName : entitySearchAttributeNames) {
+          this.verifyScimEntitySearchAttribute(scimConfiguration, scimSettings, targetEntity, targetEntityId, attributeName);
+        }
+      }
+
+      // ----- group search attributes -----
+      ProvisioningGroup targetGroup = this.provisioningGroupWrapper == null ? null
+          : this.provisioningGroupWrapper.getTargetProvisioningGroup();
+      if (targetGroup == null) {
+        this.report.append("<font color='gray'><b>Note:</b></font> No diagnostic group in the target to verify group search attributes\n");
+      } else {
+        String targetGroupId = targetGroup.retrieveAttributeValueString("id");
+        // the attributes the provisioner matches groups on: id and displayName always, plus the
+        // configured group search attributes (e.g. externalId)
+        Set<String> groupSearchAttributeNames = new LinkedHashSet<String>();
+        groupSearchAttributeNames.add("id");
+        groupSearchAttributeNames.add("displayName");
+        for (GrouperProvisioningConfigurationAttribute searchAttribute : GrouperUtil.nonNull(scimConfiguration.getGroupSearchAttributes())) {
+          groupSearchAttributeNames.add(searchAttribute.getName());
+        }
+        for (String attributeName : groupSearchAttributeNames) {
+          this.verifyScimGroupSearchAttribute(scimConfiguration, scimSettings, targetGroup, targetGroupId, attributeName);
+        }
+      }
+
+    } catch (Exception e) {
+      LOG.error("error in scim search attribute verification diagnostics", e);
+      this.report.append("<font color='gray'><b>Note:</b></font> Search attribute verification could not complete (")
+        .append(GrouperUtil.xmlEscape(StringUtils.abbreviate(e.getMessage(), 200))).append("); skipping\n");
+    } finally {
+      this.report.append("</pre>\n");
+    }
+  }
+
+  /**
+   * verify one configured entity search attribute resolves the diagnostic entity in the target.
+   * see {@link #appendScimSearchAttributeVerification()}.
+   */
+  private void verifyScimEntitySearchAttribute(GrouperScim2ProvisionerConfiguration scimConfiguration,
+      ScimSettings scimSettings, ProvisioningEntity targetEntity, String targetEntityId, String attributeName) {
+
+    String value = targetEntity.retrieveAttributeValueString(attributeName);
+    if (StringUtils.isBlank(value)) {
+      this.report.append("<font color='gray'><b>Skip:</b></font> entity attribute '").append(GrouperUtil.xmlEscape(attributeName))
+        .append("' has no value on the target entity to look up by\n");
+      return;
+    }
+
+    // emailValue is filtered via the configured email filter strategy, which retrieveScimUser keys off "email"
+    String scimField = StringUtils.equals("emailValue", attributeName) ? "email" : attributeName;
+
+    try {
+      GrouperScim2User found = GrouperScim2ApiCommands.retrieveScimUser(
+          scimConfiguration.getBearerTokenExternalSystemConfigId(), scimField, value,
+          new GrouperScim2MembershipCache(), scimSettings);
+      this.appendScimSearchResult("entity", attributeName, found == null ? null : found.getId(), targetEntityId);
+    } catch (RuntimeException re) {
+      this.report.append("<font color='orange'><b>Warning:</b></font> entity lookup by '").append(GrouperUtil.xmlEscape(attributeName))
+        .append("' threw an error (").append(GrouperUtil.xmlEscape(StringUtils.abbreviate(re.getMessage(), 200))).append(")\n");
+    }
+  }
+
+  /**
+   * verify one configured group search attribute resolves the diagnostic group in the target.
+   * see {@link #appendScimSearchAttributeVerification()}.
+   */
+  private void verifyScimGroupSearchAttribute(GrouperScim2ProvisionerConfiguration scimConfiguration,
+      ScimSettings scimSettings, ProvisioningGroup targetGroup, String targetGroupId, String attributeName) {
+
+    String value = targetGroup.retrieveAttributeValueString(attributeName);
+    if (StringUtils.isBlank(value)) {
+      this.report.append("<font color='gray'><b>Skip:</b></font> group attribute '").append(GrouperUtil.xmlEscape(attributeName))
+        .append("' has no value on the target group to look up by\n");
+      return;
+    }
+
+    try {
+      GrouperScim2Group found = GrouperScim2ApiCommands.retrieveScimGroup(
+          scimConfiguration.getBearerTokenExternalSystemConfigId(), attributeName, value,
+          new GrouperScim2MembershipCache(), scimSettings);
+      this.appendScimSearchResult("group", attributeName, found == null ? null : found.getId(), targetGroupId);
+    } catch (RuntimeException re) {
+      this.report.append("<font color='orange'><b>Warning:</b></font> group lookup by '").append(GrouperUtil.xmlEscape(attributeName))
+        .append("' threw an error (").append(GrouperUtil.xmlEscape(StringUtils.abbreviate(re.getMessage(), 200))).append(")\n");
+    }
+  }
+
+  /**
+   * report the outcome of a single search-attribute lookup: the filter resolved the same object
+   * (works), returned nothing (does not resolve), or returned a different object (not unique).
+   */
+  private void appendScimSearchResult(String objectType, String attributeName, String foundId, String expectedId) {
+    if (foundId == null) {
+      this.report.append("<font color='orange'><b>Does not resolve:</b></font> ").append(GrouperUtil.xmlEscape(objectType))
+        .append(" attribute '").append(GrouperUtil.xmlEscape(attributeName))
+        .append("' -- the target returned nothing for this filter (matching on it will not work)\n");
+    } else if (StringUtils.equals(foundId, expectedId)) {
+      this.report.append("<font color='green'><b>Works:</b></font> ").append(GrouperUtil.xmlEscape(objectType))
+        .append(" attribute '").append(GrouperUtil.xmlEscape(attributeName)).append("' resolves the ").append(GrouperUtil.xmlEscape(objectType)).append("\n");
+    } else {
+      this.report.append("<font color='orange'><b>Warning:</b></font> ").append(GrouperUtil.xmlEscape(objectType))
+        .append(" attribute '").append(GrouperUtil.xmlEscape(attributeName))
+        .append("' resolved a DIFFERENT ").append(GrouperUtil.xmlEscape(objectType)).append(" (id '")
+        .append(GrouperUtil.xmlEscape(foundId)).append("' != '").append(GrouperUtil.xmlEscape(expectedId)).append("') -- not unique?\n");
+    }
   }
 
   /**
