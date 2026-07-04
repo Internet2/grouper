@@ -15,8 +15,9 @@ import junit.framework.TestSuite;
  * {@code localhost:8080} (with the provisioning daemon off); otherwise they no-op via
  * {@code tomcatRunTests()} or fail with a connection error.
  *
- * <p>As the feature is wired into more provisioners (and eventually extended to groups and
- * memberships), add their corresponding test methods here.
+ * <p>Covers all three axes (users, memberships, groups), the config validation, and combined
+ * add/update/delete runs. As the feature is wired into more provisioners, add their corresponding
+ * test methods here.
  */
 public class FullSyncFromSyncBackSuite {
 
@@ -36,6 +37,14 @@ public class FullSyncFromSyncBackSuite {
     // Okta (groups axis)
     suite.addTest(new GrouperOktaProvisionerTest("testOktaFullSyncGroupsFromSyncBackWarmCache"));
     suite.addTest(new GrouperOktaProvisionerTest("testOktaFullSyncGroupsFromSyncBackAddAndRemove"));
+
+    // config validation (network-free): groups-from-sync-back requires memberships-from-sync-back
+    suite.addTest(new GrouperOktaProvisionerTest("testOktaFullSyncGroupsFromSyncBackRequiresMembershipsInvalid"));
+    suite.addTest(new GrouperOktaProvisionerTest("testOktaFullSyncGroupsFromSyncBackWithMembershipsValid"));
+
+    // all three axes together, with adds / updates / deletes
+    suite.addTest(new GrouperOktaProvisionerTest("testOktaFullSyncAllThreeFromSyncBackAddsConvergeSameRun"));
+    suite.addTest(new GrouperOktaProvisionerTest("testOktaFullSyncAllThreeFromSyncBackUpdateAndDeleteConvergeSameRun"));
 
     return suite;
   }

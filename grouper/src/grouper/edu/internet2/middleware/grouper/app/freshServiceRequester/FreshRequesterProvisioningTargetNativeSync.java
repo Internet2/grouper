@@ -299,6 +299,38 @@ public class FreshRequesterProvisioningTargetNativeSync extends GrouperProvision
     sync.captureMembershipsForGroup(targetGroupId, members);
   }
 
+  /**
+   * Write-track a successful FreshRequester membership add ({@code addGroupMembership}) against the
+   * current provisioner: record {@code (groupTargetId, userTargetId)} in the native membership map so
+   * the end-of-run flush keeps grouper_prov_mship current (GRP-7048 "memberships from sync-back
+   * cache" relies on this). Unlike groups/users, memberships are tracked purely from our own
+   * successful write here -- never re-read -- so this must be called only on the DAO success path.
+   * No-op out of cycle, for a non-FreshRequester provisioner, or when membership sync-back is off
+   * (the underlying {@code recordTargetNativeMembershipInsert} is guarded).
+   */
+  public static void captureMembershipInsertFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    FreshRequesterProvisioningTargetNativeSync sync = freshRequesterSyncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.recordTargetNativeMembershipInsert(groupTargetId, userTargetId);
+  }
+
+  /**
+   * Write-track a successful FreshRequester membership remove ({@code removeGroupMembership}) against
+   * the current provisioner: drop {@code (groupTargetId, userTargetId)} from the native membership
+   * map so the end-of-run flush deletes its grouper_prov_mship row. Must be called only on the DAO
+   * success path. No-op out of cycle, for a non-FreshRequester provisioner, or when membership
+   * sync-back is off (the underlying {@code recordTargetNativeMembershipDelete} is guarded).
+   */
+  public static void captureMembershipDeleteFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    FreshRequesterProvisioningTargetNativeSync sync = freshRequesterSyncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.recordTargetNativeMembershipDelete(groupTargetId, userTargetId);
+  }
+
   private static FreshRequesterProvisioningTargetNativeSync freshRequesterSyncForCurrentProvisioner() {
     GrouperProvisioner provisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
     if (provisioner == null) {

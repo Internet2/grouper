@@ -398,8 +398,13 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
       
       FreshRequesterApiCommands.addGroupMembership(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), 
           GrouperUtil.longValue(targetMembership.getProvisioningGroupId()),GrouperUtil.longValue(targetMembership.getProvisioningEntityId()));
-      
+
       targetMembership.setProvisioned(true);
+      // sync-back: on success only, write-track the added membership into the native mirror so the
+      // end-of-run flush keeps grouper_prov_mship current (GRP-7048). Same group + user target ids
+      // just passed to the Freshservice add API above.
+      FreshRequesterProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(
+          targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
       return new TargetDaoInsertMembershipResponse();
     } catch(Exception e) {
       targetMembership.setProvisioned(false);
@@ -423,8 +428,13 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
       
       FreshRequesterApiCommands.removeGroupMembership(freshserviceConfiguration.getFreshserviceExternalSystemConfigId(), 
           GrouperUtil.longValue(targetMembership.getProvisioningGroupId()),GrouperUtil.longValue(targetMembership.getProvisioningEntityId()));
-      
+
       targetMembership.setProvisioned(true);
+      // sync-back: on success only, drop the removed membership from the native mirror so the
+      // end-of-run flush deletes its grouper_prov_mship row (GRP-7048). Same group + user target ids
+      // just passed to the Freshservice remove API above.
+      FreshRequesterProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+          targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
       return new TargetDaoDeleteMembershipResponse();
     } catch(Exception e) {
       targetMembership.setProvisioned(false);

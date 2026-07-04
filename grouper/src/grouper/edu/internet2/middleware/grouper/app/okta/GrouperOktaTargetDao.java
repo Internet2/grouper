@@ -425,6 +425,12 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
 
+      // generic provisioner sync back: track this add in the native membership mirror (no re-read).
+      // Keeps grouper_prov_mship current when the per-group member read is skipped (memberships served
+      // from the sync-back cache during full sync).
+      GrouperOktaProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(
+          targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
+
       return new TargetDaoInsertMembershipResponse();
     } catch (Exception e) {
       targetMembership.setProvisioned(false);
@@ -506,13 +512,19 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       GrouperOktaConfiguration oktaConfiguration = (GrouperOktaConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      GrouperOktaApiCommands.deleteOktaMembership(oktaConfiguration.getOktaExternalSystemConfigId(), 
+      GrouperOktaApiCommands.deleteOktaMembership(oktaConfiguration.getOktaExternalSystemConfigId(),
           targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
 
       targetMembership.setProvisioned(true);
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+
+      // generic provisioner sync back: drop this membership from the native mirror so the end-of-run
+      // flush deletes its grouper_prov_mship row (keeps the cache current with the per-group member
+      // read skipped -- memberships served from the sync-back cache during full sync).
+      GrouperOktaProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+          targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
 
       return new TargetDaoDeleteMembershipResponse();
     } catch (Exception e) {

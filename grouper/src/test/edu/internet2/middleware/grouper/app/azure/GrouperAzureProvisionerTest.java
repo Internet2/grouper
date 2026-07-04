@@ -3195,9 +3195,10 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
    * instead of {@code retrieveAllGroups} / {@code retrieveAllEntities}. Confirms the
    * capture hooks on the scoped retrieve methods fire.
    *
-   * <p>Incremental test coverage is intentionally deferred — the framework today only captures
-   * from reads, and writes converge on the next read pass. Closing that gap is the
-   * write-shadow precision pass tracked in section 10 of the sync-back doc.
+   * <p>Incremental test coverage for the OBJECT axes is intentionally deferred — group/user objects
+   * capture from reads, and their writes converge on the next read pass. (Memberships now capture on
+   * write via recordTargetNativeMembershipInsert/Delete, so they converge on the write.) Closing the
+   * object-axis gap is the write-shadow precision pass tracked in section 10 of the sync-back doc.
    */
   public void testAzureFullSyncSelectByIdsPopulatesGenericTables() {
 
@@ -3320,11 +3321,13 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   //     Grouper-driven NON-matching user attribute to mutate, so an update-converge test would be
   //     mutating the match key (the Adobe lesson) and cannot converge as an in-place update. Same
   //     reason the Box pilot skips its user-update-converge test.
-  //   - "same-run" convergence variants of the SCIM insert/update/delete/membership tests: Azure
-  //     captures on READ only, so these converge only on the next read pass. Their intent is ported
-  //     as the two-pass full tests below (testAzureGroupInsertConvergesNextRead,
-  //     testAzureGroupDeleteConvergesNextRead, testAzureGroupUpdateConvergesNextRead,
-  //     testAzureMembershipAddConvergesNextRead, testAzureMembershipRemoveConvergesNextRead).
+  //   - "same-run" convergence variants of the SCIM insert/update/delete tests: Azure captures group
+  //     and user OBJECTS on READ, so those object tests converge only on the next read pass. Their
+  //     intent is ported as the two-pass full tests below (testAzureGroupInsertConvergesNextRead,
+  //     testAzureGroupDeleteConvergesNextRead, testAzureGroupUpdateConvergesNextRead). Azure
+  //     MEMBERSHIPS, by contrast, now capture on WRITE (recordTargetNativeMembershipInsert/Delete),
+  //     like Adobe/SCIM, so the membership tests (testAzureMembershipAddConvergesNextRead,
+  //     testAzureMembershipRemoveConvergesNextRead) assert convergence on pass A's write, not a re-read.
   // ==========================================================================================
 
   /**
@@ -3629,11 +3632,13 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 
   /**
    * Sync-back convergence of a membership ADD to an already-provisioned group, two-pass full (Azure
-   * analogue of SCIM's testMembershipAddConvergesSameRun and the Box pilot's
-   * testBoxMembershipAddConvergesNextRead). Seed test:testGroup with SUBJ0, then add SUBJ1. Because
-   * Azure captures memberships on the read path (retrieveMembershipsByGroup), the add shows in
-   * grouper_prov_mship on the re-read pass: pass A issues the membership insert to the Azure target,
-   * pass B re-reads the group's members and the flush converges (testGroup,SUBJ1).
+   * analogue of SCIM's testMembershipAddConvergesSameRun). Seed test:testGroup with SUBJ0, then add
+   * SUBJ1. Azure memberships now capture on WRITE (recordTargetNativeMembershipInsert, fired from
+   * GrouperAzureTargetDao.insertMemberships on success, via
+   * GrouperAzureProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner), like
+   * Adobe/SCIM: pass A issues the membership insert to the Azure target and the same success path
+   * records (testGroup,SUBJ1) into the mirror on that write -- no re-read needed. Pass B re-reads and
+   * keeps the added membership. (Group and user OBJECTS still capture on the read path.)
    */
   public void testAzureMembershipAddConvergesNextRead() {
 
@@ -3669,22 +3674,29 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the membership insert (and SUBJ1's user insert) hit the Azure target
     assertEquals(0, fullProvision().getRecordsWithErrors());
-    // pass B: re-read sees both members; the flush converges the added membership
+    // the membership write-track hook (captureMembershipInsertFromCurrentProvisioner in the DAO's
+    // insertMemberships success path) mirrors (testGroup,SUBJ1) on the SAME run -- no re-read
+    // needed -- so grouper_prov_mship already reflects the add after pass A.
+    assertEquals("the added membership should be write-tracked into the mirror on pass A", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
+    // pass B: re-read sees both members; the flush keeps the added membership
     assertEquals(0, fullProvision().getRecordsWithErrors());
 
     assertEquals("group should still be in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
     assertEquals("both users should be in the mirror after the add", 2,
         countSyncBack(configId, "grouper_prov_user"));
-    assertEquals("the added membership should converge on the re-read pass", 2,
+    assertEquals("the added membership should remain on the re-read pass", 2,
         countSyncBack(configId, "grouper_prov_mship"));
   }
 
   /**
    * Sync-back convergence of a membership REMOVE from a surviving group, two-pass full (Azure
-   * analogue of SCIM's testMembershipRemoveConvergesSameRun and the Box pilot's
-   * testBoxMembershipRemoveConvergesNextRead). Two groups both hold SUBJ0; SUBJ0 is removed from
-   * testGroup only (it survives in otherGroup). The full-replace flush, fed by the re-read of each
-   * group's members, drops exactly testGroup's membership while leaving otherGroup's intact. The
+   * analogue of SCIM's testMembershipRemoveConvergesSameRun). Two groups both hold SUBJ0; SUBJ0 is
+   * removed from testGroup only (it survives in otherGroup). Azure memberships now capture on WRITE
+   * (recordTargetNativeMembershipDelete, fired from GrouperAzureTargetDao.deleteMemberships on
+   * success, via GrouperAzureProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner),
+   * like Adobe/SCIM: pass A's membership-remove write drops exactly (testGroup,SUBJ0) from the mirror
+   * on that write while leaving otherGroup's SUBJ0 intact, and pass B's re-read keeps it dropped. The
    * default config's membership delete (deleteMemberships + deleteMembershipsIfNotExistInGrouper) is
    * what pushes the removal to the target; deleteEntities=false leaves SUBJ0's account in place.
    */
@@ -3725,8 +3737,13 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the membership-remove write hits the Azure target
     assertEquals(0, fullProvision().getRecordsWithErrors());
-    // pass B: re-read of testGroup's members no longer includes SUBJ0; the full-replace flush drops
-    // (testGroup,SUBJ0) while otherGroup's SUBJ0 membership survives
+    // the membership write-track hook (captureMembershipDeleteFromCurrentProvisioner in the DAO's
+    // deleteMemberships success path) drops (testGroup,SUBJ0) from the mirror on the SAME run, so
+    // grouper_prov_mship already reflects the removal after pass A (otherGroup's SUBJ0 survives).
+    assertEquals("testGroup's membership should be write-tracked out of the mirror on pass A", 1,
+        countSyncBack(configId, "grouper_prov_mship"));
+    // pass B: re-read of testGroup's members no longer includes SUBJ0; the full-replace flush keeps
+    // (testGroup,SUBJ0) dropped while otherGroup's SUBJ0 membership survives
     assertEquals(0, fullProvision().getRecordsWithErrors());
 
     assertEquals("both groups should still be in the mirror", 2,
@@ -4339,22 +4356,24 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   }
 
   /**
-   * INCREMENTAL sync-back coverage for Azure, conservative. Azure has NO write hooks (it captures on
-   * the READ path only), like the Box pilot and unlike Adobe whose incremental membership write-track
-   * converges same-cycle. For Azure, an incremental cycle re-reads only the changed objects (it has
-   * canRetrieveGroups/canRetrieveEntities, so the adapter decomposes to per-id reads that fire the
-   * Azure capture seams), and the incremental flush is a SCOPED upsert (it does NOT full-replace, so
-   * it will not wrongly delete untouched mirror rows).
+   * INCREMENTAL sync-back coverage for Azure, conservative. Azure memberships capture on WRITE
+   * (recordTargetNativeMembershipInsert/Delete, fired from
+   * GrouperAzureTargetDao.insertMemberships/deleteMemberships on success), like Adobe/SCIM -- a
+   * membership add/remove is recorded into the native mirror on the write itself; group and user
+   * OBJECTS still capture on the read path. On an incremental cycle Azure also re-reads only the
+   * changed objects (it has canRetrieveGroups/canRetrieveEntities, so the adapter decomposes to
+   * per-id reads that fire the object capture seams), and the incremental flush is a SCOPED upsert
+   * (it does NOT full-replace, so it will not wrongly delete untouched mirror rows).
    *
    * <p>What this test asserts is therefore deliberately narrow -- the safe, reliable part of Azure
    * incremental sync-back: after seeding via full sync and priming the changelog consumer, adding a
    * member drives an incremental that (a) re-reads the changed group/entity and so does NOT shrink
    * the existing GROUP mirror (no spurious deletes -- the regression the scoped incremental flush
    * guards against), and (b) captures the newly added member's user object into prov_user. It does
-   * NOT assert that the new MEMBERSHIP converges on the same incremental cycle: Azure memberships are
-   * group-centric and captured on read, so same-cycle membership convergence is unreliable for a
-   * read-capture target (the same 1-cycle lag the Box pilot documents). Membership convergence for
-   * Azure is covered end-to-end by the two-pass full tests above.
+   * NOT assert the new MEMBERSHIP's row count on this incremental cycle: the scoped membership flush
+   * for the changed group can transiently clear testGroup's mirror rows during the cycle, so a
+   * point-in-time count here is unreliable. Membership write-capture convergence for Azure is asserted
+   * end-to-end by the two-pass full tests above.
    */
   public void testAzureIncrementalSyncBackNoSpuriousDeletes() {
 
@@ -4398,7 +4417,8 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     incrementalProvision();
 
     // incremental add: a third member. The incremental re-reads the changed group/entity, firing the
-    // Azure read-capture seams, and the scoped flush upserts -- it must NOT drop untouched rows.
+    // Azure object (group/user) read-capture seams, and the scoped flush upserts -- it must NOT drop
+    // untouched rows.
     testGroup.addMember(SubjectTestHelper.SUBJ2, false);
     incrementalProvision();
 
@@ -4407,10 +4427,10 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
         + " after=" + countSyncBack(configId, "grouper_prov_group"),
         countSyncBack(configId, "grouper_prov_group") >= provGroupRowsBefore);
     // NB: prov_mship is intentionally NOT asserted here (matching this test's javadoc). Azure
-    // memberships are group-centric and captured on the READ path; on an incremental cycle the scoped
-    // membership flush for the changed group plus read-before-write timing means testGroup's
-    // membership rows can transiently clear, re-converging only on the next full sync (the same
-    // 1-cycle lag the Box pilot documents). Membership convergence is covered end-to-end by the
+    // memberships capture on WRITE (recordTargetNativeMembershipInsert/Delete from the DAO's
+    // insert/deleteMemberships success paths), but on an incremental cycle the SCOPED membership flush
+    // for the changed group can transiently clear testGroup's mirror rows mid-cycle, so a
+    // point-in-time count here is unreliable. Membership write-capture convergence is asserted end-to-end by the
     // two-pass full tests above; here we only guard group/user no-shrink.
 
     // (b) the newly added member's user object is captured (object capture via the per-id re-read)

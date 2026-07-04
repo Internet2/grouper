@@ -36,10 +36,17 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * ({@code name}, {@code userName}, {@code primaryEmail}, {@code active}) while reading the
  * PascalCase source fields.
  *
- * <p>Memberships are still derived from the typed beans during DAO translation
- * ({@link #captureMembershipsForGroup}): TeamDynamix membership is group-centric (the members of a
- * group are retrieved per-group, not inline with a user object), so -- as with Adobe -- only the
- * group/user object capture moved to raw JSON; the membership capture is unchanged.
+ * <p>Memberships capture on BOTH paths. On the READ path they are derived from the typed beans
+ * during DAO translation ({@link #captureMembershipsForGroup}): TeamDynamix membership is
+ * group-centric (the members of a group are retrieved per-group, not inline with a user object),
+ * so -- as with Adobe -- only the group/user object capture moved to raw JSON; the read-side
+ * membership capture is unchanged. On the WRITE path a membership add/remove is recorded into the
+ * native mirror at the moment of the write: {@link TeamDynamixTargetDao#insertMemberships} /
+ * {@code deleteMemberships} call {@link #captureMembershipInsertFromCurrentProvisioner} /
+ * {@link #captureMembershipDeleteFromCurrentProvisioner}, which invoke
+ * {@link #recordTargetNativeMembershipInsert} / {@link #recordTargetNativeMembershipDelete}. So,
+ * like Adobe/SCIM, TeamDynamix is a capture-on-write target for memberships and a membership
+ * change converges on the write pass (the group/user OBJECTS still capture on the read path).
  */
 public class TeamDynamixProvisioningTargetNativeSync extends GrouperProvisioningTargetNativeSync {
 
@@ -287,6 +294,40 @@ public class TeamDynamixProvisioningTargetNativeSync extends GrouperProvisioning
       return;
     }
     sync.captureMembershipsForGroup(targetGroupId, teamDynamixUsers);
+  }
+
+  // ----- membership write-track dispatchers (called from TeamDynamixTargetDao write sites) -----
+  // Unlike groups/users (re-read via the drain to reflect the target), memberships are tracked
+  // purely from our own successful add/remove writes -- never re-read -- because they are
+  // high-volume. The keys are the TeamDynamix target ids: the group id and the user id the DAO
+  // passes to createTeamDynamixMemberships / deleteTeamDynamixMemberships, which match the native
+  // group/user targetIds the end-of-run flush reconciles against.
+
+  /**
+   * Write-track a successful TeamDynamix membership add ({@code createTeamDynamixMemberships})
+   * against the current provisioner: record {@code (groupTargetId, userTargetId)} in the native
+   * membership map. No-op out of cycle or for a non-TeamDynamix provisioner.
+   */
+  public static void captureMembershipInsertFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    TeamDynamixProvisioningTargetNativeSync sync = teamDynamixSyncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.recordTargetNativeMembershipInsert(groupTargetId, userTargetId);
+  }
+
+  /**
+   * Write-track a successful TeamDynamix membership remove ({@code deleteTeamDynamixMemberships})
+   * against the current provisioner: drop {@code (groupTargetId, userTargetId)} from the native
+   * membership map so the end-of-run flush deletes its grouper_prov_mship row. No-op out of cycle
+   * or for a non-TeamDynamix provisioner.
+   */
+  public static void captureMembershipDeleteFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    TeamDynamixProvisioningTargetNativeSync sync = teamDynamixSyncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.recordTargetNativeMembershipDelete(groupTargetId, userTargetId);
   }
 
   private static TeamDynamixProvisioningTargetNativeSync teamDynamixSyncForCurrentProvisioner() {

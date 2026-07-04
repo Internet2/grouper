@@ -867,22 +867,26 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
   //   - Group and user OBJECTS are captured on the READ path only -- captureGroupJson /
   //     captureUserJson fire at the GrouperDuoApiCommands read seam (retrieveDuoGroups /
   //     retrieveDuoUsers / retrieveDuoUser / retrieveDuoUserByName) from the raw Duo JSON. The
-  //     create/update/delete API methods do NOT call any object-capture hook. So, exactly like
-  //     Box, Duo is a READ-STATE-CONVERGENCE target, NOT a capture-on-write target: a target
-  //     change converges into the mirror on the NEXT read pass, not the same run that writes it.
-  //     Every converge test below therefore uses the two-pass full-sync pattern (pass 1 writes the
+  //     create/update/delete API methods do NOT call any object-capture hook. So for group/user
+  //     OBJECTS, Duo is read-state-convergence (not capture-on-write): an object change converges
+  //     into the mirror on the NEXT read pass, not the same run that writes it. (MEMBERSHIPS are
+  //     different -- see the next bullet -- they now write-track on the same run.) The OBJECT
+  //     converge tests below therefore use the two-pass full-sync pattern (pass 1 writes the
   //     target, pass 2 re-reads and the end-of-run flush converges) -- the same shape as the
   //     existing testDuoFullSyncPopulatesGenericTables.
-  //   - MEMBERSHIPS are USER-CENTRIC (unlike Box, which is group-centric). On the full-data read
-  //     path (GrouperDuoTargetDao.retrieveAllData) each Duo USER object carries its own inline
+  //   - MEMBERSHIPS now capture on the WRITE path: GrouperDuoTargetDao.insertMembership /
+  //     deleteMembership call captureMembershipInsert/DeleteFromCurrentProvisioner ->
+  //     recordTargetNativeMembershipInsert/Delete on success, the same write-track design as
+  //     Adobe/SCIM/Dropbox, so a membership add/remove converges on the write pass. They are ALSO
+  //     captured read-side, USER-CENTRIC (unlike Box, which is group-centric): on the full-data
+  //     read path (GrouperDuoTargetDao.retrieveAllData) each Duo USER object carries its own inline
   //     groups set, and GrouperDuoProvisioningTargetNativeSync.captureMembershipsFromUser...
   //     records (group_id, user_id) from that set. There is no group_id->member_id resolution
   //     step; each GrouperDuoGroup in the user's set already carries its group_id. (The scoped
   //     retrieveMembershipsByEntity / retrieveMembershipsByGroup paths also record native
-  //     memberships, for the selectAll*=false case.) Net effect on the FULL flush is identical to
-  //     Box: the end-of-run full-replace, scoped to this provisioner's grouper_sync_internal_id,
-  //     drops anything the target did not return this run -- so the membership-remove and delete
-  //     converge tests work after a re-read pass.
+  //     memberships, for the selectAll*=false case.) Net effect on the FULL flush is a
+  //     full-replace, scoped to this provisioner's grouper_sync_internal_id, that drops anything the
+  //     target did not return this run -- so the membership-remove and delete converge tests hold.
   //
   // The full flush (GrouperProvisioningLogic.loadDataToGenericProvisionerTables) is a FULL REPLACE
   // scoped to the provisioner's grouper_sync_internal_id: anything in the mirror that the target
@@ -1262,11 +1266,12 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
   /**
    * Sync-back convergence of a membership ADD to an already-provisioned group, two-pass full (Duo
    * analogue of SCIM's testMembershipAddConvergesSameRun; mirrors Box's
-   * testBoxMembershipAddConvergesNextRead). Seed test:testGroup with SUBJ0, then add SUBJ1. Because
-   * Duo captures memberships on the read path (user-centric: each user's inline groups in
-   * retrieveAllData), the add shows in grouper_prov_mship on the re-read pass: pass A issues the
-   * membership insert to the Duo target, pass B re-reads each user's groups and the flush converges
-   * (testGroup, SUBJ1).
+   * testBoxMembershipAddConvergesNextRead). Seed test:testGroup with SUBJ0, then add SUBJ1. Duo
+   * write-tracks memberships (insertMembership -> recordTargetNativeMembershipInsert), so the add
+   * lands in grouper_prov_mship on the write pass; it is also re-derived read-side (user-centric:
+   * each user's inline groups in retrieveAllData). This test still drives it two-pass: pass A issues
+   * the membership insert to the Duo target, pass B re-reads each user's groups and the flush stays
+   * converged (testGroup, SUBJ1).
    */
   public void testDuoMembershipAddConvergesNextRead() {
 
@@ -1302,6 +1307,10 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the membership insert (and SUBJ1's user insert) hit the Duo target
     assertEquals(0, fullProvision().getRecordsWithErrors());
+    // the capture-on-write hook mirrors the inserted membership on the write pass itself,
+    // before any re-read; this fails if the write hook is removed
+    assertEquals("add converges on the write pass via capture-on-write (before any re-read)", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
     // pass B: re-read sees both members; the flush converges the added membership
     assertEquals(0, fullProvision().getRecordsWithErrors());
 
@@ -1361,6 +1370,11 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the membership-remove write hits the Duo target
     assertEquals(0, fullProvision().getRecordsWithErrors());
+    // on pass A the retrieveAllData read still sees SUBJ0 in testGroup (not yet removed from the
+    // target), so ONLY the capture-on-write delete hook drops it from the mirror; this fails if
+    // the write hook is removed
+    assertEquals("remove drops from the mirror on the write pass via capture-on-write (before any re-read)", 1,
+        countSyncBack(configId, "grouper_prov_mship"));
     // pass B: the user-centric re-read of SUBJ0's groups no longer includes testGroup; the
     // full-replace flush drops (testGroup, SUBJ0) while otherGroup's SUBJ0 membership survives
     assertEquals(0, fullProvision().getRecordsWithErrors());

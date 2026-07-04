@@ -46,10 +46,16 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * {@code /attributes/groupType} resolves. This mirrors the merged-JSON capture used by the Google
  * connector (which assembles a group from two reads before capturing).
  *
- * <p>Memberships are NOT captured from JSON here: the Datadog sync-back never had a membership
- * capture path off the read JSON (the team-membership and role-user beans are recorded by the DAO
- * via {@link #captureTeamMemberships} / {@link #captureRoleMemberships}), and those typed-bean
- * membership helpers are unchanged.
+ * <p>Memberships are NOT captured from JSON here, but they ARE captured on the WRITE path as well
+ * as the read path. On read, the team-membership and role-user beans are recorded by the DAO via
+ * {@link #captureTeamMemberships} / {@link #captureRoleMemberships} (those typed-bean helpers are
+ * unchanged). On write, {@code DatadogTargetDao.insertMembership}/{@code deleteMembership} record
+ * the edge directly into the native membership mirror via
+ * {@link #captureMembershipInsertFromCurrentProvisioner} /
+ * {@link #captureMembershipDeleteFromCurrentProvisioner} (-> {@code recordTargetNativeMembershipInsert}/
+ * {@code recordTargetNativeMembershipDelete}), like Adobe/SCIM. So a membership add/remove is
+ * recorded into the mirror on the write and converges on the write pass; only the group/user
+ * OBJECT attributes still capture on the read path.
  */
 public class DatadogProvisioningTargetNativeSync extends GrouperProvisioningTargetNativeSync {
 
@@ -363,6 +369,41 @@ public class DatadogProvisioningTargetNativeSync extends GrouperProvisioningTarg
       return;
     }
     sync.captureRoleMemberships(targetGroupId, roleUsers);
+  }
+
+  // ----- membership write-track dispatchers (called from DatadogTargetDao write sites) -----
+  // Unlike groups/users (re-read to reflect the target), single membership add/remove writes are
+  // tracked purely from our own successful DAO calls -- never re-read. The keys are the Datadog
+  // target ids: the group id (role or team id) and the user id passed to the membership API call,
+  // which match the native group/user targetIds the end-of-run flush reconciles against.
+
+  /**
+   * Write-track a successful Datadog membership add ({@code addUserToTeam}/{@code addUserToRole})
+   * against the current provisioner: record {@code (groupTargetId, userTargetId)} in the native
+   * membership map so the end-of-run flush inserts its grouper_prov_mship row. No-op out of cycle
+   * or for a non-Datadog provisioner (and internally no-op when membership sync-back is off).
+   */
+  public static void captureMembershipInsertFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    DatadogProvisioningTargetNativeSync sync = datadogSyncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.recordTargetNativeMembershipInsert(groupTargetId, userTargetId);
+  }
+
+  /**
+   * Write-track a successful Datadog membership remove ({@code removeUserFromTeam}/
+   * {@code removeUserFromRole}) against the current provisioner: drop
+   * {@code (groupTargetId, userTargetId)} from the native membership map so the end-of-run flush
+   * deletes its grouper_prov_mship row. No-op out of cycle or for a non-Datadog provisioner (and
+   * internally no-op when membership sync-back is off).
+   */
+  public static void captureMembershipDeleteFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    DatadogProvisioningTargetNativeSync sync = datadogSyncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.recordTargetNativeMembershipDelete(groupTargetId, userTargetId);
   }
 
   private static DatadogProvisioningTargetNativeSync datadogSyncForCurrentProvisioner() {

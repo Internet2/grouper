@@ -292,6 +292,39 @@ public class GrouperAzureProvisioningTargetNativeSync extends GrouperProvisionin
     azureSync.captureMembershipsForGroup(targetGroupId, targetUserIds);
   }
 
+  // ----- membership write-track dispatchers (called from GrouperAzureTargetDao write sites) -----
+  // These mirror single successful membership add/remove writes into grouper_prov_mship so the
+  // full-sync "memberships from sync-back cache" feature stays current between full reads. The keys
+  // are the Azure target ids: group id and user (entity) id, matching the native group/user
+  // targetIds the flush reconciles against.
+
+  /**
+   * Write-track a successful Azure membership add against the current provisioner: record
+   * {@code (groupTargetId, userTargetId)} in the native membership map. No-op out of cycle or for a
+   * non-Azure provisioner (the underlying record call is itself guarded by
+   * isLoadMembershipsToGenericGrouperTable()).
+   */
+  public static void captureMembershipInsertFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    GrouperAzureProvisioningTargetNativeSync azureSync = azureSyncForCurrentProvisioner();
+    if (azureSync == null) {
+      return;
+    }
+    azureSync.recordTargetNativeMembershipInsert(groupTargetId, userTargetId);
+  }
+
+  /**
+   * Write-track a successful Azure membership remove against the current provisioner: drop
+   * {@code (groupTargetId, userTargetId)} from the native membership map so the end-of-run flush
+   * deletes its grouper_prov_mship row. No-op out of cycle or for a non-Azure provisioner.
+   */
+  public static void captureMembershipDeleteFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    GrouperAzureProvisioningTargetNativeSync azureSync = azureSyncForCurrentProvisioner();
+    if (azureSync == null) {
+      return;
+    }
+    azureSync.recordTargetNativeMembershipDelete(groupTargetId, userTargetId);
+  }
+
   private static GrouperAzureProvisioningTargetNativeSync azureSyncForCurrentProvisioner() {
     GrouperProvisioner provisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
     if (provisioner == null) {

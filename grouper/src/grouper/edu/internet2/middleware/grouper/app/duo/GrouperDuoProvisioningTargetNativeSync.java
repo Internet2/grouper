@@ -291,6 +291,36 @@ public class GrouperDuoProvisioningTargetNativeSync extends GrouperProvisioningT
     duoSync.captureMembershipsFromUser(grouperDuoUser);
   }
 
+  /**
+   * Write-track a successful Duo membership add ({@code associateUserToGroup}) against the current
+   * provisioner: record {@code (groupTargetId, userTargetId)} in the native membership mirror.
+   * Unlike groups/users (re-read via the drain), memberships are tracked purely from our own
+   * successful writes -- never re-read -- so grouper_prov_mship stays current for GRP-7048 (full
+   * sync serving memberships from the sync-back cache). No-op out of cycle or for a non-Duo
+   * provisioner; the record call itself is a no-op when membership sync-back is off.
+   */
+  public static void captureMembershipInsertFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    GrouperDuoProvisioningTargetNativeSync duoSync = duoSyncForCurrentProvisioner();
+    if (duoSync == null) {
+      return;
+    }
+    duoSync.recordTargetNativeMembershipInsert(groupTargetId, userTargetId);
+  }
+
+  /**
+   * Write-track a successful Duo membership remove ({@code disassociateUserFromGroup}) against the
+   * current provisioner: drop {@code (groupTargetId, userTargetId)} from the native membership
+   * mirror so the end-of-run flush deletes its grouper_prov_mship row. No-op out of cycle or for a
+   * non-Duo provisioner; the record call itself is a no-op when membership sync-back is off.
+   */
+  public static void captureMembershipDeleteFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    GrouperDuoProvisioningTargetNativeSync duoSync = duoSyncForCurrentProvisioner();
+    if (duoSync == null) {
+      return;
+    }
+    duoSync.recordTargetNativeMembershipDelete(groupTargetId, userTargetId);
+  }
+
   private static GrouperDuoProvisioningTargetNativeSync duoSyncForCurrentProvisioner() {
     GrouperProvisioner provisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
     if (provisioner == null) {

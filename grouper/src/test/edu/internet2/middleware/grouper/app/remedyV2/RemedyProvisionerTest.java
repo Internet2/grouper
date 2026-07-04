@@ -597,9 +597,12 @@ public class RemedyProvisionerTest extends GrouperProvisioningBaseTest {
   //     canReplaceMembership (Remedy memberships are added/removed one at a time via
   //     assignUserToRemedyGroup / removeUserFromRemedyGroup), so SCIM's
   //     testMembershipReplaceConvergesSameRun does not apply.
-  //   - NO "same-run" convergence variants: Remedy (like Box) captures on the READ path only, so an
-  //     add/remove can only converge on the next read pass. Their intent is ported as the two-pass
-  //     full tests below.
+  //   - "same-run" convergence: with capture-on-write (GRP-7048) wired into
+  //     GrouperRemedyTargetDao.insertMembership / deleteMembership, an add/remove now records into
+  //     (or drops from) the native membership map on its own SUCCESS path, so it converges in the
+  //     SAME full-sync pass -- it no longer has to wait for the next read pass. The two-pass full
+  //     tests below assert convergence after pass A (capture-on-write) AND that it stays converged
+  //     after the pass-B re-read.
   //
   // REMEDY MEMBERSHIP MODEL (separate object, read by its own API call):
   //   Memberships live in the Remedy "ENT:SYS People Entitlement Groups" object, NOT derived from
@@ -753,13 +756,19 @@ public class RemedyProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the membership insert hits the Remedy target (new Enabled membership row)
     assertEquals(0, fullProvision().getRecordsWithErrors());
-    // pass B: re-read of the group's Enabled members now includes SUBJ1; the flush converges it
+    // capture-on-write (GRP-7048): GrouperRemedyTargetDao.insertMembership now records the added
+    // (permissionGroupId, personId) into the native membership map on its own SUCCESS path, so the
+    // add converges in this SAME pass -- the end-of-run flush already sees 2 rows, without waiting
+    // for the next read pass. (Before capture-on-write this asserted <1> here.)
+    assertEquals("the added membership should converge same-run via capture-on-write", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
+    // pass B: re-read of the group's Enabled members now includes SUBJ1; the flush stays converged
     assertEquals(0, fullProvision().getRecordsWithErrors());
 
     assertEquals("group should still be in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
     assertEquals("both users should be in the mirror after the add", 2,
         countSyncBack(configId, "grouper_prov_user"));
-    assertEquals("the added membership should converge on the re-read pass", 2,
+    assertEquals("the added membership should remain converged after the re-read pass", 2,
         countSyncBack(configId, "grouper_prov_mship"));
   }
 
@@ -826,7 +835,13 @@ public class RemedyProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the membership-remove write hits the Remedy target (Status flipped to Delete)
     assertEquals(0, fullProvision().getRecordsWithErrors());
-    // pass B: the Enabled-only re-read no longer includes SUBJ1's membership; the flush drops it
+    // capture-on-write (GRP-7048): GrouperRemedyTargetDao.deleteMembership now drops the removed
+    // (permissionGroupId, personId) from the native membership map on its own SUCCESS path, so the
+    // remove converges in this SAME pass -- the end-of-run flush already deletes SUBJ1's row, without
+    // waiting for the Enabled-only re-read pass. (Before capture-on-write this asserted <2> here.)
+    assertEquals("SUBJ1's membership should drop same-run via capture-on-write", 1,
+        countSyncBack(configId, "grouper_prov_mship"));
+    // pass B: the Enabled-only re-read no longer includes SUBJ1's membership; the flush stays converged
     assertEquals(0, fullProvision().getRecordsWithErrors());
 
     assertEquals("group should still be in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
@@ -1425,11 +1440,12 @@ public class RemedyProvisionerTest extends GrouperProvisioningBaseTest {
   }
 
   /**
-   * INCREMENTAL sync-back coverage for Remedy, conservative. Remedy (like Box) captures on the READ
-   * path only -- it has no membership write-track hooks -- and its scoped retrieve goes through the
-   * group cache (canRetrieveGroup) and per-login user lookup (canRetrieveEntity), which fire the
-   * Remedy capture seams. The incremental flush is a SCOPED upsert (it does NOT full-replace, so it
-   * will not wrongly delete untouched mirror rows).
+   * INCREMENTAL sync-back coverage for Remedy, conservative. Remedy captures group/user OBJECTS on
+   * the READ path (its scoped retrieve goes through the group cache (canRetrieveGroup) and per-login
+   * user lookup (canRetrieveEntity), which fire the Remedy object-capture seams); memberships now
+   * also write-track (insertMembership/deleteMembership -> recordTargetNativeMembershipInsert/Delete).
+   * The incremental flush is a SCOPED upsert (it does NOT full-replace, so it will not wrongly delete
+   * untouched mirror rows).
    *
    * <p>What this test asserts is deliberately narrow -- the safe, reliable part of Remedy incremental
    * sync-back: after seeding via full sync and priming the changelog consumer, adding a member drives

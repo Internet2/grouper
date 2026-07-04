@@ -41,10 +41,15 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * {@code nativeAttributesGroups} will not have it captured from this seam (it is not in the JSON
  * here). This matches the Adobe approach of capturing at the per-element raw-JSON parse point.
  *
- * <p>Memberships are still derived group-centrically (the group's member ids, with roles looked up
- * separately) during DAO translation ({@link #captureMembershipsForGroup}); only the group/user
- * object capture is JSON-based. The user {@code password} field is never returned by Google on a
- * read, so it never reaches this shadow.
+ * <p>Group and user OBJECTS capture on the read path (JSON-based, as above). MEMBERSHIPS capture on
+ * the WRITE path, like Adobe/SCIM: {@code GrouperGoogleTargetDao.insertMembership} /
+ * {@code deleteMembership} call {@link #captureMembershipInsertFromCurrentProvisioner} /
+ * {@link #captureMembershipDeleteFromCurrentProvisioner} (-> {@code recordTargetNativeMembershipInsert}
+ * / {@code recordTargetNativeMembershipDelete}) on success, so a membership add/remove lands in the
+ * native mirror on the write and converges on the write pass. The read path also still derives
+ * memberships group-centrically (the group's member ids, with roles looked up separately) during DAO
+ * translation ({@link #captureMembershipsForGroup}) to re-confirm the mirror idempotently. The user
+ * {@code password} field is never returned by Google on a read, so it never reaches this shadow.
  */
 public class GrouperGoogleProvisioningTargetNativeSync extends GrouperProvisioningTargetNativeSync {
 
@@ -291,6 +296,35 @@ public class GrouperGoogleProvisioningTargetNativeSync extends GrouperProvisioni
       return;
     }
     googleSync.captureMembershipsForGroup(targetGroupId, memberUserIds);
+  }
+
+  /**
+   * Write-track a successful Google membership add ({@code createGoogleMembership}) against the
+   * current provisioner: record {@code (groupTargetId, userTargetId)} in the native membership map
+   * so the generic grouper_prov_mship mirror stays current without re-reading the target. No-op out
+   * of cycle, for a non-Google provisioner, or when membership sync-back is off (guarded downstream
+   * by {@code isLoadMembershipsToGenericGrouperTable()}).
+   */
+  public static void captureMembershipInsertFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    GrouperGoogleProvisioningTargetNativeSync googleSync = googleSyncForCurrentProvisioner();
+    if (googleSync == null) {
+      return;
+    }
+    googleSync.recordTargetNativeMembershipInsert(groupTargetId, userTargetId);
+  }
+
+  /**
+   * Write-track a successful Google membership remove ({@code deleteGoogleMembership}) against the
+   * current provisioner: drop {@code (groupTargetId, userTargetId)} from the native membership map
+   * so the end-of-run flush deletes its grouper_prov_mship row. No-op out of cycle, for a non-Google
+   * provisioner, or when membership sync-back is off.
+   */
+  public static void captureMembershipDeleteFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    GrouperGoogleProvisioningTargetNativeSync googleSync = googleSyncForCurrentProvisioner();
+    if (googleSync == null) {
+      return;
+    }
+    googleSync.recordTargetNativeMembershipDelete(groupTargetId, userTargetId);
   }
 
   private static GrouperGoogleProvisioningTargetNativeSync googleSyncForCurrentProvisioner() {

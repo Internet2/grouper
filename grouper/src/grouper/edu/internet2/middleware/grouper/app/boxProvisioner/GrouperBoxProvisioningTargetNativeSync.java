@@ -38,11 +38,16 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * for both groups and users -- the same JSON field the old typed-bean build methods read via
  * {@code GrouperBoxGroup.getId()} / {@code GrouperBoxUser.getId()}.
  *
- * <p>Memberships remain derived from the Box memberships read during DAO translation
- * ({@link #captureMemberships}) -- Box's membership model is group-centric (the
- * {@code /groups/:id/memberships} read yields the member user ids for a group), and the DAO records
- * the {@code (targetGroupId, targetUserId)} pairs in the same loop where they are already known.
- * Only the group/user object capture moved to JSON.
+ * <p>Memberships are captured on BOTH the read path and the write path. On read they are derived
+ * from the Box memberships read during DAO translation ({@link #captureMemberships}) -- Box's
+ * membership model is group-centric (the {@code /groups/:id/memberships} read yields the member user
+ * ids for a group), and the DAO records the {@code (targetGroupId, targetUserId)} pairs in the same
+ * loop where they are already known. On write,
+ * {@code GrouperBoxTargetDao.insertMembership}/{@code deleteMembership} call
+ * {@link #captureMembershipInsertFromCurrentProvisioner} /
+ * {@link #captureMembershipDeleteFromCurrentProvisioner} (-> {@code recordTargetNativeMembershipInsert}
+ * / {@code recordTargetNativeMembershipDelete}) on success, so a membership add/remove is recorded
+ * into the native mirror on the write pass. Only the group/user object capture moved to JSON.
  */
 public class GrouperBoxProvisioningTargetNativeSync extends GrouperProvisioningTargetNativeSync {
 
@@ -295,6 +300,36 @@ public class GrouperBoxProvisioningTargetNativeSync extends GrouperProvisioningT
       return;
     }
     boxSync.captureMemberships(targetGroupId, targetUserIds);
+  }
+
+  /**
+   * Write-track a successful Box membership add ({@code createBoxMembership}) against the current
+   * provisioner: record {@code (groupTargetId, userTargetId)} in the native membership map so the
+   * generic grouper_prov_mship sync-back mirror stays current on capture-on-write. No-op out of
+   * cycle, for a non-Box provisioner, or when membership sync-back is off (guarded downstream by
+   * {@code recordTargetNativeMembershipInsert} -> {@code isLoadMembershipsToGenericGrouperTable()}).
+   */
+  public static void captureMembershipInsertFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    GrouperBoxProvisioningTargetNativeSync boxSync = boxSyncForCurrentProvisioner();
+    if (boxSync == null) {
+      return;
+    }
+    boxSync.recordTargetNativeMembershipInsert(groupTargetId, userTargetId);
+  }
+
+  /**
+   * Write-track a successful Box membership remove ({@code deleteBoxMembership}) against the current
+   * provisioner: drop {@code (groupTargetId, userTargetId)} from the native membership map so the
+   * end-of-run flush deletes its grouper_prov_mship row. No-op out of cycle, for a non-Box
+   * provisioner, or when membership sync-back is off (guarded downstream by
+   * {@code recordTargetNativeMembershipDelete} -> {@code isLoadMembershipsToGenericGrouperTable()}).
+   */
+  public static void captureMembershipDeleteFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    GrouperBoxProvisioningTargetNativeSync boxSync = boxSyncForCurrentProvisioner();
+    if (boxSync == null) {
+      return;
+    }
+    boxSync.recordTargetNativeMembershipDelete(groupTargetId, userTargetId);
   }
 
   private static GrouperBoxProvisioningTargetNativeSync boxSyncForCurrentProvisioner() {

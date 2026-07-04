@@ -292,7 +292,13 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
             targetMembership.setException(runtimeException);
             for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
               provisioningObjectChange.setProvisioned(success);
-              
+
+            }
+            // sync-back: on the success path only, write-track the added membership into the native
+            // mirror (memberships are tracked from writes, never re-read). groupId/userId are the
+            // TeamDynamix target ids we just passed to createTeamDynamixMemberships.
+            if (success) {
+              TeamDynamixProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(groupId, userId);
             }
           }
         }
@@ -316,12 +322,18 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       TeamDynamixApiCommands.deleteTeamDynamixMemberships(teamDynamixConfiguration.getTeamDynamixExternalSystemConfigId(), targetMemberships);
 
       for (ProvisioningMembership targetMembership: targetMemberships) {
-        
+
         targetMembership.setProvisioned(true);
         for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
           provisioningObjectChange.setProvisioned(true);
         }
-        
+        // sync-back: deleteTeamDynamixMemberships is all-or-nothing (throws on failure), so this
+        // loop runs only when every delete succeeded. Drop each removed membership out of the
+        // native mirror so the end-of-run flush deletes its grouper_prov_mship row. group/user ids
+        // are the TeamDynamix target ids that were sent to the delete call.
+        TeamDynamixProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+            targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
+
       }
 
       return new TargetDaoDeleteMembershipsResponse();

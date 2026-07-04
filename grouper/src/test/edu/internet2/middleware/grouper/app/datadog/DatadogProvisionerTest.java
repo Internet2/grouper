@@ -1890,17 +1890,19 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
   // (boxProvisioner/GrouperBoxProvisionerTest) for the Datadog connector.
   //
   // Datadog capture model (verified from DatadogTargetDao + DatadogProvisioningTargetNativeSync):
-  // Datadog captures target state into the generic mirror ONLY on the READ path -- groups/users
-  // are captured from the raw JSON:API envelopes at the DatadogApiCommands.retrieveRoles/
-  // retrieveTeams/retrieveUsers/getRoleUsers seams (captureGroupJson/captureUserJson), and the
-  // membership edges are recorded from the parsed beans inside
-  // DatadogTargetDao.retrieveMembershipsByGroup (captureTeamMemberships / captureRoleMemberships).
-  // The create/update/delete API methods do NOT call any capture hook. So Datadog is a
-  // READ-STATE-CONVERGENCE target, NOT a capture-on-write target like SCIM/Adobe: a target change
-  // converges into the mirror on the NEXT read pass, not the same run that writes it. Every
-  // converge test below therefore uses the two-pass full-sync pattern (pass 1 writes the target,
-  // pass 2 re-reads and the end-of-run flush converges), the same shape as the existing
-  // testDatadogFullSyncPopulatesGenericTables.
+  // Datadog captures group/user OBJECTS on the READ path -- they are captured from the raw JSON:API
+  // envelopes at the DatadogApiCommands.retrieveRoles/retrieveTeams/retrieveUsers/getRoleUsers seams
+  // (captureGroupJson/captureUserJson). MEMBERSHIPS now capture on BOTH paths: on read the edges are
+  // recorded from the parsed beans inside DatadogTargetDao.retrieveMembershipsByGroup
+  // (captureTeamMemberships / captureRoleMemberships), and on WRITE the membership create/delete API
+  // methods (DatadogTargetDao.insertMembership/deleteMembership) record the edge directly into the
+  // native membership mirror via recordTargetNativeMembershipInsert/Delete -- like Adobe/SCIM. So a
+  // membership add/remove is recorded on the write and converges on the write pass, while group/user
+  // OBJECT changes still converge into the mirror on the NEXT read pass. The converge tests below
+  // still use the two-pass full-sync pattern (pass 1 writes the target, pass 2 re-reads and the
+  // end-of-run flush converges), the same shape as the existing
+  // testDatadogFullSyncPopulatesGenericTables -- that shape works for both object and membership
+  // convergence.
   //
   // The full flush (GrouperProvisioningLogic.loadDataToGenericProvisionerTables) is a FULL REPLACE
   // scoped to the provisioner's grouper_sync_internal_id: anything in the mirror that the target did
@@ -1948,9 +1950,10 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
   //     SCIM's testMembershipReplaceConvergesSameRun / testIncrementalMembershipReplace... do not
   //     apply to Datadog -- memberships are added/removed one edge at a time via addUserToTeam/Role
   //     and removeUserFromTeam/Role).
-  //   - no "same-run" convergence variants of the SCIM capture-on-write tests: Datadog captures on
-  //     READ only, so these can only converge on the next read pass; their intent is ported as the
-  //     two-pass full tests below.
+  //   - no "same-run" convergence variants of the SCIM capture-on-write tests: while Datadog now
+  //     captures memberships on write (like SCIM/Adobe), the GROUP/USER objects still capture on the
+  //     read path and so converge only on the next read pass; their intent is ported as the two-pass
+  //     full tests below.
   //   - no role update-converge test (see the matching-attributes note above).
   //   - no user (entity) update-converge test (see the matching-attributes note above).
   //
@@ -2289,10 +2292,12 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
 
   // -----------------------------------------------------------------------------------------
   // MEMBERSHIP ADD converge -- TEAM + ROLE (Datadog analogue of Box's
-  // testBoxMembershipAddConvergesNextRead). Seed group with SUBJ0, then add SUBJ1. Because Datadog
-  // captures memberships on the read path (retrieveMembershipsByGroup -> captureTeamMemberships /
-  // captureRoleMemberships), the add shows in grouper_prov_mship on the re-read pass: pass A issues
-  // the membership insert to the target, pass B re-reads the group's members and the flush converges.
+  // testBoxMembershipAddConvergesNextRead). Seed group with SUBJ0, then add SUBJ1. Datadog now
+  // captures memberships on the WRITE path too (DatadogTargetDao.insertMembership ->
+  // recordTargetNativeMembershipInsert, like Adobe/SCIM) as well as on the read path
+  // (retrieveMembershipsByGroup -> captureTeamMemberships / captureRoleMemberships). Either way the
+  // add shows in grouper_prov_mship: this two-pass test verifies it via pass A issuing the membership
+  // insert to the target and pass B re-reading the group's members before the flush converges.
   // -----------------------------------------------------------------------------------------
 
   public void testDatadogTeamMembershipAddConvergesNextRead() {
@@ -2335,13 +2340,16 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
 
       // pass A: the membership insert hits the target (SUBJ1's user already exists in the mock)
       assertEquals(0, fullProvision().getRecordsWithErrors());
-      // pass B: re-read sees both members; the flush converges the added membership
+      // capture-on-write: the add is already in the mirror after the write pass, before any re-read
+      assertEquals("add converges on the write pass via capture-on-write (before any re-read)", 2,
+          countSyncBack(configId, "grouper_prov_mship"));
+      // pass B: re-read sees both members; the flush stays converged (idempotency check)
       assertEquals(0, fullProvision().getRecordsWithErrors());
 
       assertEquals("group should still be in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
       assertEquals("both users should be in the mirror after the add", 2,
           countSyncBack(configId, "grouper_prov_user"));
-      assertEquals("the added membership should converge on the re-read pass", 2,
+      assertEquals("the added membership should stay converged after the re-read pass", 2,
           countSyncBack(configId, "grouper_prov_mship"));
 
     } finally {
@@ -2401,8 +2409,12 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
 
       // pass A: the membership-remove write hits the target
       assertEquals(0, fullProvision().getRecordsWithErrors());
+      // capture-on-write: on pass A the read still sees (testGroup,SUBJ0), so ONLY the write-delete
+      // hook drops it from the mirror -- this assertion fails if the hook is removed
+      assertEquals("remove drops from the mirror on the write pass via capture-on-write (before any re-read)", 1,
+          countSyncBack(configId, "grouper_prov_mship"));
       // pass B: re-read of testGroup's members no longer includes SUBJ0; the full-replace flush
-      // drops (testGroup,SUBJ0) while otherGroup's SUBJ0 membership survives
+      // keeps (testGroup,SUBJ0) dropped while otherGroup's SUBJ0 membership survives (idempotency)
       assertEquals(0, fullProvision().getRecordsWithErrors());
 
       assertEquals("both groups should still be in the mirror", 2,
@@ -2942,22 +2954,24 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
 
   // -----------------------------------------------------------------------------------------
   // INCREMENTAL sync-back coverage, conservative (Datadog analogue of Box's
-  // testBoxIncrementalSyncBackNoSpuriousDeletes). Datadog has NO write-side capture hooks (it captures
-  // on the READ path only). On an incremental cycle it re-reads only the changed objects (it has
-  // canRetrieveGroup/Entity, so the adapter decomposes to per-id reads that fire the Datadog capture
-  // seams), and the incremental flush is a SCOPED upsert (NOT a full replace, so it will not wrongly
-  // delete untouched mirror rows).
+  // testBoxIncrementalSyncBackNoSpuriousDeletes). Datadog captures group/user OBJECTS on the READ
+  // path (memberships now also capture on the write path via recordTargetNativeMembershipInsert/Delete,
+  // like SCIM/Adobe -- but this test deliberately does not assert membership convergence, see below).
+  // On an incremental cycle it re-reads only the changed objects (it has canRetrieveGroup/Entity, so
+  // the adapter decomposes to per-id reads that fire the Datadog object-capture seams), and the
+  // incremental flush is a SCOPED upsert (NOT a full replace, so it will not wrongly delete untouched
+  // mirror rows).
   //
   // What this test asserts is therefore deliberately narrow -- the safe, reliable part of Datadog
   // incremental sync-back: after seeding via full sync and priming the changelog consumer, adding a
   // member drives an incremental that (a) re-reads the changed group/entity and so does NOT shrink the
   // existing GROUP/USER mirror (no spurious deletes -- the regression the scoped incremental flush
   // guards against), and (b) captures the newly added member's user object into prov_user. It does NOT
-  // assert that the new MEMBERSHIP converges on the same incremental cycle: Datadog memberships are
-  // captured on read, and the incremental's read-before-write timing plus group-centric membership
-  // read make same-cycle membership convergence unreliable for a read-capture target (the same
-  // 1-cycle-lag reason SCIM disables its object incremental test). Membership convergence is covered
-  // end-to-end by the two-pass full tests above.
+  // assert that the new MEMBERSHIP converges on the same incremental cycle: even though Datadog now
+  // captures memberships on write, the incremental's group-centric membership read plus scoped-flush
+  // timing make same-cycle membership convergence unreliable to assert here (the same 1-cycle-lag
+  // reason SCIM disables its object incremental test). Membership convergence is covered end-to-end
+  // by the two-pass full tests above.
   // -----------------------------------------------------------------------------------------
 
   public void testDatadogIncrementalSyncBackNoSpuriousDeletes() {
@@ -3010,8 +3024,8 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
           + " after=" + countSyncBack(configId, "grouper_prov_group"),
           countSyncBack(configId, "grouper_prov_group") >= provGroupRowsBefore);
       // NB: prov_mship is intentionally NOT asserted here (matching this test's note above). Datadog
-      // memberships are group-centric and captured on the READ path; on an incremental cycle the scoped
-      // membership flush for the changed group plus read-before-write timing means testGroup's
+      // memberships are group-centric (and now capture on write as well as read); on an incremental
+      // cycle the scoped membership flush for the changed group plus its timing means testGroup's
       // membership rows can transiently clear, re-converging only on the next full sync (the same
       // 1-cycle lag for which SCIM disables its object incremental test).
 

@@ -1042,10 +1042,13 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
   /**
    * Sync-back convergence of a membership ADD to an already-provisioned group, two-pass full
    * (TeamDynamix analogue of Box's testBoxMembershipAddConvergesNextRead). Seed test:testGroup with
-   * SUBJ0, then add SUBJ1. TeamDynamix captures memberships on the read path
-   * (retrieveMembershipsByGroup -> captureMembershipsForGroup), so the add shows in
-   * grouper_prov_mship on the re-read pass: pass A issues the membership insert to the target, pass
-   * B re-reads the group's members and the flush converges (testGroup, SUBJ1).
+   * SUBJ0, then add SUBJ1. TeamDynamix now captures memberships on the WRITE path
+   * (TeamDynamixTargetDao.insertMemberships -> recordTargetNativeMembershipInsert), like Adobe/SCIM,
+   * so a membership add is recorded into the native mirror on the write and converges on the write
+   * pass; it also still shows on a re-read via the read-path capture
+   * (retrieveMembershipsByGroup -> captureMembershipsForGroup). This test drives two full passes:
+   * pass A issues the membership insert to the target, pass B re-reads and the mirror holds
+   * (testGroup, SUBJ1). The group/user OBJECTS still capture on the read path.
    */
   public void testTeamDynamixMembershipAddConvergesNextRead() {
 
@@ -1081,6 +1084,10 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the membership insert (and SUBJ1's user insert) hit the TeamDynamix target
     assertEquals(0, fullProvision().getRecordsWithErrors());
+    // the capture-on-write hook mirrors the inserted membership on the write pass itself,
+    // so the count is already correct BEFORE any re-read converges it
+    assertEquals("add converges on the write pass via capture-on-write (before any re-read)", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
     // pass B: re-read sees both members; the flush converges the added membership
     assertEquals(0, fullProvision().getRecordsWithErrors());
 
@@ -1146,6 +1153,11 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the membership-remove write hits the TeamDynamix target (hard delete)
     assertEquals(0, fullProvision().getRecordsWithErrors());
+    // capture-on-write is the ONLY thing that can drop the mirror row here: pass A's retrieveAllData
+    // read still sees SUBJ0 in testGroup (not yet removed from the target when the read ran), so only
+    // the write-delete hook removes (testGroup,SUBJ0) from the mirror before any re-read
+    assertEquals("remove drops from the mirror on the write pass via capture-on-write (before any re-read)", 1,
+        countSyncBack(configId, "grouper_prov_mship"));
     // pass B: re-read of testGroup's members no longer includes SUBJ0; the full-replace flush drops
     // (testGroup,SUBJ0) while otherGroup's SUBJ0 membership survives
     assertEquals(0, fullProvision().getRecordsWithErrors());
@@ -1706,21 +1718,24 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
 
   /**
    * INCREMENTAL sync-back coverage for TeamDynamix, conservative (TeamDynamix analogue of Box's
-   * testBoxIncrementalSyncBackNoSpuriousDeletes). TeamDynamix captures on the READ path only (no
-   * write hooks), and it has canRetrieveGroup/Entity, so an incremental cycle re-reads only the
-   * changed objects (per-id reads that fire the TeamDynamix capture seams) and the incremental flush
-   * is a SCOPED upsert (it does NOT full-replace, so it will not wrongly delete untouched mirror
-   * rows).
+   * testBoxIncrementalSyncBackNoSpuriousDeletes). TeamDynamix captures memberships on the WRITE
+   * path (TeamDynamixTargetDao.insert/deleteMemberships -> recordTargetNativeMembershipInsert/Delete,
+   * like Adobe/SCIM) and captures group/user OBJECTS on the READ path; it has
+   * canRetrieveGroup/Entity, so an incremental cycle re-reads only the changed objects (per-id reads
+   * that fire the TeamDynamix object capture seams) and the incremental flush is a SCOPED upsert (it
+   * does NOT full-replace, so it will not wrongly delete untouched mirror rows).
    *
    * <p>What this test asserts is deliberately narrow -- the safe, reliable part of TeamDynamix
    * incremental sync-back: after seeding via full sync and priming the changelog consumer, adding a
    * member drives an incremental that (a) does NOT shrink the existing GROUP mirror (no spurious
    * deletes -- the regression the scoped incremental flush guards against), and (b) captures the
    * newly added member's USER object into prov_user. It does NOT assert that the new MEMBERSHIP
-   * converges on the same incremental cycle: TeamDynamix memberships are group-centric and captured
-   * on read, so same-cycle membership convergence is unreliable (the 1-cycle-lag reason SCIM/Box
-   * disable membership assertions on incremental). Membership convergence is covered end-to-end by
-   * the two-pass full membership tests above.
+   * converges on the same incremental cycle: even though TeamDynamix now captures memberships on the
+   * write path (recordTargetNativeMembershipInsert/Delete, like Adobe/SCIM), the group-centric
+   * scoped membership flush plus read-before-write timing on an incremental cycle makes same-cycle
+   * membership convergence unreliable (the same 1-cycle-lag reason SCIM/Box disable membership
+   * assertions on incremental). Membership convergence is covered end-to-end by the two-pass full
+   * membership tests above.
    */
   public void testTeamDynamixIncrementalSyncBackNoSpuriousDeletes() {
 
@@ -1774,11 +1789,12 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
         + " after=" + countSyncBack(configId, "grouper_prov_group"),
         countSyncBack(configId, "grouper_prov_group") >= provGroupRowsBefore);
     // NB: prov_mship is intentionally NOT asserted here (matching this test's javadoc). TeamDynamix
-    // memberships are group-centric and captured on the READ path; on an incremental cycle the
-    // scoped membership flush plus read-before-write timing means testGroup's membership rows can
-    // transiently clear, re-converging only on the next full sync (the same 1-cycle lag for which
-    // SCIM/Box disable membership assertions on incremental). Membership convergence is covered
-    // end-to-end by the two-pass full tests above; here we only guard group/user no-shrink.
+    // memberships now capture on the WRITE path (recordTargetNativeMembershipInsert/Delete, like
+    // Adobe/SCIM), but they are group-centric and, on an incremental cycle, the scoped membership
+    // flush plus read-before-write timing means testGroup's membership rows can transiently clear,
+    // re-converging only on the next full sync (the same 1-cycle lag for which SCIM/Box disable
+    // membership assertions on incremental). Membership convergence is covered end-to-end by the
+    // two-pass full tests above; here we only guard group/user no-shrink.
 
     // (b) the newly added member's user object is captured (object capture via the per-id re-read)
     assertEquals("SUBJ2's user object should be captured into prov_user this incremental cycle", 3,

@@ -375,6 +375,56 @@ public class TrueFoundryProvisioningTargetNativeSync extends GrouperProvisioning
     sync.captureMembershipsFromGroup(trueFoundryGroup, emailToTargetUserId);
   }
 
+  // ----- membership write-track dispatchers (called from TrueFoundryTargetDao write sites) -----
+  // Unlike groups/users (re-read via the drain to reflect the target), memberships are tracked
+  // purely from our own successful add/remove/replace writes -- never re-read -- because they are
+  // high-volume. The keys are the TrueFoundry target ids: group id (getProvisioningGroupId) and
+  // user id (getProvisioningEntityId), which match the native group/user targetIds the flush
+  // reconciles against. Each dispatcher is a no-op out of cycle / for a non-TrueFoundry provisioner,
+  // and the underlying record* methods are themselves no-ops when membership sync-back is off.
+
+  /**
+   * Write-track a successful TrueFoundry membership add against the current provisioner: record
+   * {@code (groupTargetId, userTargetId)} in the native membership map. No-op out of cycle or for a
+   * non-TrueFoundry provisioner. Called per written membership from the DAO insert success path.
+   */
+  public static void captureMembershipInsertFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    TrueFoundryProvisioningTargetNativeSync sync = syncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.recordTargetNativeMembershipInsert(groupTargetId, userTargetId);
+  }
+
+  /**
+   * Write-track a successful TrueFoundry membership remove against the current provisioner: drop
+   * {@code (groupTargetId, userTargetId)} from the native membership map so the end-of-run flush
+   * deletes its grouper_prov_mship row. No-op out of cycle or for a non-TrueFoundry provisioner.
+   * Called per written membership from the DAO delete success path.
+   */
+  public static void captureMembershipDeleteFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    TrueFoundryProvisioningTargetNativeSync sync = syncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.recordTargetNativeMembershipDelete(groupTargetId, userTargetId);
+  }
+
+  /**
+   * Write-track a successful TrueFoundry replace-all-memberships against the current provisioner:
+   * set the native membership map for {@code groupTargetId} to exactly {@code userTargetIds}. No-op
+   * out of cycle or for a non-TrueFoundry provisioner. Called from the DAO replaceGroupMemberships
+   * success path with the group's full desired user-id set.
+   */
+  public static void captureMembershipReplaceFromCurrentProvisioner(
+      String groupTargetId, java.util.Collection<String> userTargetIds) {
+    TrueFoundryProvisioningTargetNativeSync sync = syncForCurrentProvisioner();
+    if (sync == null) {
+      return;
+    }
+    sync.recordTargetNativeMembershipReplace(groupTargetId, userTargetIds);
+  }
+
   private static TrueFoundryProvisioningTargetNativeSync syncForCurrentProvisioner() {
     GrouperProvisioner provisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
     if (provisioner == null) {

@@ -282,6 +282,11 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
 
+      // sync-back: write-track the added membership into the native mirror (memberships are tracked
+      // from writes, never re-read). Keys are the same Duo group + user target ids passed to the API.
+      GrouperDuoProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(
+          targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
+
       return new TargetDaoInsertMembershipResponse();
     } catch (Exception e) {
       targetMembership.setProvisioned(false);
@@ -309,6 +314,11 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+
+      // sync-back: write-track the removed membership out of the native mirror so the flush drops
+      // its prov_mship row (memberships are tracked from writes, never re-read). Same target ids.
+      GrouperDuoProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+          targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
 
       return new TargetDaoDeleteMembershipResponse();
     } catch (Exception e) {

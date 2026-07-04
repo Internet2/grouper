@@ -1611,9 +1611,11 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
    * uses the scoped {@code retrieveGroup} / {@code retrieveEntity} (per-id lookups) instead
    * of {@code retrieveAllData}. Confirms the capture hooks on the scoped retrieve methods fire.
    *
-   * <p>Incremental test coverage is intentionally deferred — the framework today only captures
-   * from reads, and writes converge on the next read pass. Closing that gap is the
-   * write-shadow precision pass tracked in section 10 of the sync-back doc.
+   * <p>Incremental test coverage is intentionally deferred. Group/user OBJECTS capture from reads
+   * (so object writes converge on the next read pass); memberships now capture on WRITE
+   * (recordTargetNativeMembershipInsert/Delete/Replace from TrueFoundryTargetDao, like Adobe/SCIM).
+   * Broadening incremental object coverage is the write-shadow precision pass tracked in section 10
+   * of the sync-back doc.
    */
   public void testTrueFoundryFullSyncSelectByIdsPopulatesGenericTables() {
 
@@ -1716,12 +1718,15 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
   //     skipped exactly as Box skips it.
   //   - NO membership-replace-specific sync-back test. replaceGroupMemberships IS supported, but
   //     from the MIRROR's perspective a full-sync replace and an insert/delete converge to the same
-  //     captured membership rows (the read path captures the resulting team manifest either way), so
-  //     the team/role membership add/remove/move tests below already exercise the captured outcome.
-  //   - NO "same-run" convergence variants. TrueFoundry captures on the READ path only (like Box,
-  //     unlike Adobe's incremental write-track), so writes converge on the NEXT read pass. The
-  //     intent is ported as the two-pass full "...ConvergesNextRead" tests below. (Object INSERTS
-  //     are the one exception that converges within the SAME run -- see the team/role insert tests.)
+  //     captured membership rows, so the team/role membership add/remove/move tests below already
+  //     exercise the captured outcome.
+  //   - Memberships (team AND role) now capture on WRITE, like Adobe/SCIM: TrueFoundryTargetDao's
+  //     insert/delete/replaceGroupMemberships call TrueFoundryProvisioningTargetNativeSync's
+  //     recordTargetNativeMembershipInsert/Delete/Replace on success, so a membership add/remove/move
+  //     is recorded into the native mirror on the write and converges on the WRITE pass (no separate
+  //     read pass needed for the membership axis). Group/user OBJECTS still capture on the READ path
+  //     (from raw JSON at the API-commands read seam), and object INSERTS converge within the SAME
+  //     run via the post-insert re-read -- see the team/role insert tests below.
   //
   // All tests gate on tomcatRunTests() like the existing TrueFoundry sync-back smoke tests, and
   // reuse the SAME configId ("trueFoundryProvisioner") + the SAME provisionerConfig() + mock seeding
@@ -2008,10 +2013,11 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
   /**
    * Sync-back convergence of a TEAM membership ADD to an already-provisioned team, two-pass full
    * (TrueFoundry analogue of Box's testBoxMembershipAddConvergesNextRead). Seed test-team with
-   * SUBJ0, then add SUBJ1. TrueFoundry memberships are group-centric (captured from the team
-   * manifest on the read path), so the add shows in grouper_prov_mship on the re-read pass: pass A
-   * PUTs the new team manifest (SUBJ0+SUBJ1), pass B re-reads the team's members and the flush
-   * converges (test-team, SUBJ1).
+   * SUBJ0, then add SUBJ1. TrueFoundry team memberships now capture on WRITE
+   * (recordTargetNativeMembershipInsert from TrueFoundryTargetDao, like Adobe/SCIM), so the add is
+   * recorded into the mirror on the write pass that PUTs the new team manifest (SUBJ0+SUBJ1). This
+   * test keeps the extra full pass as belt-and-suspenders convergence; grouper_prov_mship reflects
+   * (test-team, SUBJ1) either way.
    *
    * <p>NB: the default team member (svc-grouper-test@example.com) is added to every team on create.
    * It is NOT a Grouper subject, so it is NOT captured into prov_user (the read maps target users to
@@ -2047,9 +2053,13 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       // add SUBJ1 to the already-provisioned team
       testGroup.addMember(SubjectTestHelper.SUBJ1, false);
 
-      // pass A: the new team manifest (with SUBJ1) is PUT to the target
+      // pass A: the new team manifest (with SUBJ1) is PUT to the target; the membership add is
+      // write-tracked into the mirror on this write (recordTargetNativeMembershipInsert)
       assertEquals(0, fullProvision().getRecordsWithErrors());
-      // pass B: re-read sees both members; the flush converges the added membership
+      // the write hook already converged the mirror on the write pass, before any re-read
+      assertEquals("add converges on the write pass via capture-on-write (before any re-read)", 2,
+          countSyncBack(configId, "grouper_prov_mship"));
+      // pass B: extra full pass kept as belt-and-suspenders; re-read still sees both members
       assertEquals(0, fullProvision().getRecordsWithErrors());
 
       assertEquals("team should still be in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
@@ -2067,8 +2077,9 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
    * Sync-back convergence of a TEAM membership REMOVE from a surviving team, two-pass full
    * (TrueFoundry analogue of Box's testBoxMembershipRemoveConvergesNextRead). Two teams both hold
    * SUBJ0; SUBJ0 is removed from test-team only (it survives in other-team, so its user is NOT
-   * deactivated). The full-replace flush, fed by the re-read of each team's members, drops exactly
-   * test-team's membership while leaving other-team's intact.
+   * deactivated). Team memberships capture on WRITE (recordTargetNativeMembershipDelete/Replace from
+   * TrueFoundryTargetDao, like Adobe/SCIM), so the remove drops exactly test-team's mirror membership
+   * on the write while leaving other-team's intact.
    */
   public void testTrueFoundrySyncBackTeamMembershipRemoveConvergesNextRead() {
 
@@ -2104,9 +2115,13 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       testGroup.deleteMember(SubjectTestHelper.SUBJ0);
 
       // pass A: the membership-remove write hits the target (test-team manifest re-PUT without SUBJ0)
+      // and is write-tracked into the mirror on this write, dropping (test-team,SUBJ0)
       assertEquals(0, fullProvision().getRecordsWithErrors());
-      // pass B: re-read of test-team's members no longer includes SUBJ0; the flush drops
-      // (test-team,SUBJ0) while other-team's SUBJ0 membership survives
+      // the write-delete hook already dropped (test-team,SUBJ0) from the mirror on the write pass,
+      // before any re-read (the pass-A retrieveAllData read still sees the member on the target)
+      assertEquals("remove drops from the mirror on the write pass via capture-on-write (before any re-read)", 1,
+          countSyncBack(configId, "grouper_prov_mship"));
+      // pass B: extra full pass kept as belt-and-suspenders; other-team's SUBJ0 membership survives
       assertEquals(0, fullProvision().getRecordsWithErrors());
 
       assertEquals("both teams should still be in the mirror", 2,
@@ -2127,28 +2142,18 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
    * to role-b is a replace at the target. After the move converges, the mirror would show exactly one
    * role membership for SUBJ0 -- on role-b, not role-a.
    *
-   * <p>SKIPPED -- documented TrueFoundry product gap: ROLE memberships are NOT captured into the
-   * sync-back mirror table grouper_prov_mship (only TEAM memberships are). The mirror's membership
-   * rows are fed exclusively from the native-capture map
-   * (GrouperProvisioningData.targetGroupIdTargetUserIdToNativeMembership), and for TrueFoundry that
-   * map is populated ONLY by the team-only capture call
-   * TrueFoundryProvisioningTargetNativeSync.captureMembershipsFromGroupForCurrentProvisioner --
-   * which TrueFoundryTargetDao.retrieveAllData invokes for TEAM groups only (inside the teams loop),
-   * never for roles. Role memberships ARE built into the diff-axis
-   * list (retrieveAllData adds them to provisioningMemberships from roleMembershipsByRoleId), so the
-   * forward role provisioning + reconcile tests (testFullSyncRoleCrudAndMemberships,
-   * testFullSyncRoleMemberAddRemoveReAdd) pass; but that diff-axis list does NOT feed
-   * grouper_prov_mship. The role GROUP itself is captured fine (see the passing
-   * testTrueFoundrySyncBackRoleInsertConvergesNextRead, which links role-a's prov_group row), so the
-   * failure was specifically the missing role-membership mirror row -- the assertion at the seed step
-   * saw 0 where it expected 1.
+   * <p>SKIPPED -- but NOT because the capture is missing: ROLE memberships now capture on WRITE, the
+   * same as team memberships. TrueFoundryTargetDao's membership write sites
+   * (insert/delete/replaceGroupMemberships) call
+   * TrueFoundryProvisioningTargetNativeSync.recordTargetNativeMembershipInsert/Delete/Replace on
+   * success, which records the (roleId -> nativeUserId) edge into the native mirror on the write.
+   * The role GROUP itself is captured on the read path (see the passing
+   * testTrueFoundrySyncBackRoleInsertConvergesNextRead, which links role-a's prov_group row). So the
+   * membership-mirror gap this note used to describe has been closed by the write-track hooks.
    *
-   * <p>Closing this gap requires a production change in TrueFoundryTargetDao (and/or
-   * TrueFoundryProvisioningTargetNativeSync) to record role (roleId -> nativeUserId) edges into the
-   * native-capture map -- e.g. a role analogue of captureMembershipsFromGroupForCurrentProvisioner
-   * invoked from the role-membership build loop in retrieveAllData. That is out of scope for a
-   * test-only change, so this scenario is skipped until the provisioner is enhanced. The body below
-   * documents the intended assertions for when that capture is wired.
+   * <p>This scenario stays skipped only because enabling it needs a real test run to confirm the
+   * end-to-end role-move convergence assertions (this was a comment-only cleanup, not a verified
+   * un-skip). The body below documents the intended assertions for when it is enabled.
    */
   public void testTrueFoundrySyncBackRoleMembershipMoveConvergesNextRead() {
 
@@ -2156,15 +2161,15 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       return;
     }
 
-    // SKIP: role-membership sync-back capture into grouper_prov_mship is not wired in the TrueFoundry
-    // provisioner (see the javadoc above). Returning early keeps the suite green while the gap stands.
-    // When TrueFoundryTargetDao is enhanced to capture role (roleId -> userId) edges into the
-    // native-membership map, replace this early return with the scenario it documents: seed SUBJ0 on
-    // role-a (createDefaultRole + the two role groups + addMember), two full passes, assert one
-    // grouper_prov_mship row joins to the role-a prov_group (target_group_id = role-a's mock id), then
-    // move SUBJ0 from role-a to role-b and after two more passes assert the mirrored membership moved
-    // (0 on role-a, 1 on role-b), joining grouper_prov_mship -> grouper_prov_group by
-    // prov_group_internal_id and filtering on target_group_id.
+    // SKIP: kept as an early return until this test is actually run and its role-move convergence
+    // assertions are confirmed. Role memberships DO capture on write now
+    // (recordTargetNativeMembershipInsert/Delete/Replace from TrueFoundryTargetDao), so the scenario
+    // it documents should work: seed SUBJ0 on role-a (createDefaultRole + the two role groups +
+    // addMember), two full passes, assert one grouper_prov_mship row joins to the role-a prov_group
+    // (target_group_id = role-a's mock id), then move SUBJ0 from role-a to role-b and after two more
+    // passes assert the mirrored membership moved (0 on role-a, 1 on role-b), joining
+    // grouper_prov_mship -> grouper_prov_group by prov_group_internal_id and filtering on
+    // target_group_id.
     return;
   }
 
@@ -2766,10 +2771,11 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
 
   /**
    * INCREMENTAL sync-back coverage for TrueFoundry, conservative -- the direct analogue of Box's
-   * testBoxIncrementalSyncBackNoSpuriousDeletes. TrueFoundry captures on the READ path only (no
-   * incremental write hooks), and its memberships are group-centric, so same-cycle membership
-   * convergence on an incremental is unreliable (the 1-cycle lag, gotcha #4). What this test asserts
-   * is therefore deliberately narrow: after seeding via full sync and priming the changelog
+   * testBoxIncrementalSyncBackNoSpuriousDeletes. Group/user OBJECTS capture on the READ path, and
+   * this test's user-object assertions rely on that; memberships now capture on WRITE
+   * (recordTargetNativeMembershipInsert/Delete/Replace from TrueFoundryTargetDao, like Adobe/SCIM).
+   * What this test asserts is therefore deliberately narrow: after seeding via full sync and priming
+   * the changelog
    * consumer, adding a member drives an incremental that (a) re-reads the changed group/entity and
    * so does NOT shrink the existing group/user mirror (no spurious deletes -- the scoped incremental
    * flush guards this), and (b) captures the newly added member's user object into prov_user. It
@@ -2818,8 +2824,9 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
       incrementalProvision();
 
       // (a) no spurious deletes on the GROUP axis: the scoped incremental flush left existing rows
-      // intact. NB: prov_mship is intentionally NOT asserted here (group-centric, read-captured,
-      // 1-cycle lag -- see javadoc); membership convergence is covered by the two-pass full tests.
+      // intact. NB: prov_mship is intentionally NOT asserted here to keep this test narrowly focused
+      // on the no-spurious-deletes / user-object-capture contract; membership convergence (now
+      // write-tracked) is covered by the two-pass full tests.
       assertTrue("incremental must not shrink prov_group; before=" + provGroupRowsBefore
           + " after=" + countSyncBack(configId, "grouper_prov_group"),
           countSyncBack(configId, "grouper_prov_group") >= provGroupRowsBefore);

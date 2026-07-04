@@ -731,6 +731,9 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
                 targetMembership.getInternal_objectChanges())) {
               change.setProvisioned(true);
             }
+            // sync-back: write-track the added role membership into the native mirror
+            TrueFoundryProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(
+                targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
           } catch (Exception e) {
             targetMembership.setProvisioned(false);
             for (ProvisioningObjectChange change : GrouperUtil.nonNull(
@@ -757,6 +760,9 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
                 m.getInternal_objectChanges())) {
               change.setProvisioned(true);
             }
+            // sync-back: write-track the added team membership into the native mirror
+            TrueFoundryProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(
+                m.getProvisioningGroupId(), m.getProvisioningEntityId());
           }
         } catch (Exception e) {
           for (ProvisioningMembership m : memberships) {
@@ -842,6 +848,9 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
               targetMembership.getInternal_objectChanges())) {
             change.setProvisioned(true);
           }
+          // sync-back: write-track the removed role membership out of the native mirror
+          TrueFoundryProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+              targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
 
         } else {
           throw new RuntimeException(
@@ -864,6 +873,9 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
                 m.getInternal_objectChanges())) {
               change.setProvisioned(true);
             }
+            // sync-back: write-track the removed team membership out of the native mirror
+            TrueFoundryProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+                m.getProvisioningGroupId(), m.getProvisioningEntityId());
           }
         } catch (Exception e) {
           for (ProvisioningMembership m : memberships) {
@@ -939,13 +951,22 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
         try {
           TrueFoundryApiCommands.replaceTeamMembers(configId, settings, teamId,
               memberEmails, managerEmails.isEmpty() ? null : managerEmails);
+          // sync-back: collect the full desired user-id set to replace the native mirror in one shot
+          List<String> replacedUserTargetIds = new ArrayList<String>();
           for (ProvisioningMembership m : GrouperUtil.nonNull(targetMemberships)) {
             m.setProvisioned(true);
             for (ProvisioningObjectChange change : GrouperUtil.nonNull(
                 m.getInternal_objectChanges())) {
               change.setProvisioned(true);
             }
+            String userTargetId = m.getProvisioningEntityId();
+            if (userTargetId != null) {
+              replacedUserTargetIds.add(userTargetId);
+            }
           }
+          // sync-back: set the native mirror for this team to exactly the desired membership set
+          TrueFoundryProvisioningTargetNativeSync.captureMembershipReplaceFromCurrentProvisioner(
+              teamId, replacedUserTargetIds);
         } catch (Exception e) {
           for (ProvisioningMembership m : GrouperUtil.nonNull(targetMemberships)) {
             m.setProvisioned(false);
@@ -966,6 +987,8 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
         String roleId = targetGroup.getId();
 
         Set<String> desiredUserEmails = new LinkedHashSet<String>();
+        // sync-back: collect the target user ids successfully assigned this role to replace the mirror
+        List<String> replacedUserTargetIds = new ArrayList<String>();
         for (ProvisioningMembership targetMembership : GrouperUtil.nonNull(targetMemberships)) {
           ProvisioningEntity provisioningEntity = targetMembership.getProvisioningEntity();
           String userEmail = provisioningEntity == null ? null
@@ -981,6 +1004,10 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
                 targetMembership.getInternal_objectChanges())) {
               change.setProvisioned(true);
             }
+            String userTargetId = targetMembership.getProvisioningEntityId();
+            if (userTargetId != null) {
+              replacedUserTargetIds.add(userTargetId);
+            }
           } catch (Exception e) {
             targetMembership.setProvisioned(false);
             for (ProvisioningObjectChange change : GrouperUtil.nonNull(
@@ -988,6 +1015,11 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
               change.setProvisioned(false);
             }
           }
+        }
+        // sync-back: set the native mirror for this role to exactly the desired membership set
+        if (roleId != null) {
+          TrueFoundryProvisioningTargetNativeSync.captureMembershipReplaceFromCurrentProvisioner(
+              roleId, replacedUserTargetIds);
         }
 
         // demote users leaving this role to the default role

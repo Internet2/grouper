@@ -1014,15 +1014,17 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   //   fields=...groups(id,email,name,description), and mergeGoogleGroupJsonForCapture overlays the
   //   Directory node), so the captured-value assertion is sound.
   //
-  // MEMBERSHIP MODEL: group-centric, captured on the READ path. GrouperGoogleTargetDao
-  //   .retrieveMembershipsByGroup / retrieveAllData list a group's member ids
-  //   (GrouperGoogleApiCommands.retrieveGoogleGroupMembers returns ALL members regardless of role)
-  //   and record them via captureMembershipsForGroupFromCurrentProvisioner. Manager/owner ROLES are
-  //   roles ON members and appear in that same member list, so for sync-back a membership is simply
-  //   "(group, member)". Because capture is read-driven, membership convergence is asserted on the
-  //   SECOND full pass (pass A writes, pass B re-reads and flushes). INCREMENTAL membership is NOT
-  //   asserted (group-centric read-capture targets lag ~1 cycle, the same reason Box and SCIM defer
-  //   it); the incremental test only guards group/user no-shrink + changed-object capture.
+  // MEMBERSHIP MODEL: group-centric, captured on the WRITE path (like Adobe/SCIM). GrouperGoogleTargetDao
+  //   .insertMembership / deleteMembership call GrouperGoogleProvisioningTargetNativeSync
+  //   .captureMembershipInsert/DeleteFromCurrentProvisioner -> recordTargetNativeMembershipInsert/Delete
+  //   on success, so a membership add/remove is recorded into the native mirror on the write and
+  //   converges on that same (write) pass -- no re-read pass is needed. The read path
+  //   (retrieveMembershipsByGroup / retrieveAllData, which list a group's member ids via
+  //   GrouperGoogleApiCommands.retrieveGoogleGroupMembers -- ALL members regardless of role -- and
+  //   record them via captureMembershipsForGroupFromCurrentProvisioner) still re-confirms the mirror
+  //   idempotently. Manager/owner ROLES are roles ON members and appear in that same member list, so
+  //   for sync-back a membership is simply "(group, member)". The two-pass full membership tests
+  //   assert convergence on pass A (the write pass); pass B is the idempotent re-read.
   // =========================================================================================
 
   /**
@@ -1294,10 +1296,12 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
    * canInsertMembership (+ canInsertEntity) -> sync-back convergence of a membership ADD to an
    * already-provisioned group, two-pass full (Google analogue of Box's
    * testBoxMembershipAddConvergesNextRead). Seed test:testGroup with SUBJ0, then add SUBJ1. Because
-   * Google captures memberships on the read path (retrieveMembershipsByGroup / retrieveAllData), the
-   * add shows in grouper_prov_mship on the re-read pass: pass A issues the membership insert (and
-   * SUBJ1's user insert) to the Google target, pass B re-reads the group's members and the flush
-   * converges (testGroup, SUBJ1).
+   * Google now captures memberships on the WRITE path (GrouperGoogleTargetDao.insertMembership ->
+   * recordTargetNativeMembershipInsert, like Adobe/SCIM), the add shows in grouper_prov_mship on the
+   * write pass: pass A issues the membership insert (and SUBJ1's user insert) to the Google target
+   * and the insert hook records (testGroup, SUBJ1) into the native mirror on that same pass, so the
+   * flush converges it without waiting for a re-read. Pass B re-reads the group's members and
+   * re-converges idempotently.
    */
   public void testGoogleMembershipAddConvergesNextRead() throws IOException {
 
@@ -1329,7 +1333,13 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the membership insert (and SUBJ1's user insert) hit the Google target
     assertEquals(0, fullProvision().getRecordsWithErrors());
-    // pass B: re-read sees both members; the flush converges the added membership
+    // capture-on-write: the insertMembership hook write-tracks (testGroup,SUBJ1) into the native
+    // membership map on this same pass, so the flush converges the added membership WITHOUT waiting
+    // for a re-read pass (the memberships-from-sync-back-cache / GRP-7048 contract). This is the
+    // regression guard for the fixed capture-on-write gap.
+    assertEquals("the added membership should converge on the write pass (capture-on-write)", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
+    // pass B: re-read sees both members; the flush re-converges the added membership (idempotent)
     assertEquals(0, fullProvision().getRecordsWithErrors());
 
     assertEquals("group should still be in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
@@ -1383,8 +1393,13 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the membership-remove write hits the Google target
     assertEquals(0, fullProvision().getRecordsWithErrors());
+    // capture-on-write: the deleteMembership hook drops (testGroup,SUBJ0) from the native membership
+    // map on this same pass, so the flush removes it WITHOUT waiting for a re-read pass. otherGroup's
+    // SUBJ0 membership is untouched. This is the regression guard for the fixed capture-on-write gap.
+    assertEquals("the removed membership should be dropped on the write pass (capture-on-write)", 1,
+        countSyncBack(configId, "grouper_prov_mship"));
     // pass B: re-read of testGroup's members no longer includes SUBJ0; the full-replace flush
-    // drops (testGroup,SUBJ0) while otherGroup's SUBJ0 membership survives
+    // re-confirms (testGroup,SUBJ0) is gone while otherGroup's SUBJ0 membership survives (idempotent)
     assertEquals(0, fullProvision().getRecordsWithErrors());
 
     assertEquals("both groups should still be in the mirror", 2,
@@ -1783,21 +1798,20 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
 
   /**
    * INCREMENTAL sync-back coverage for Google, conservative (Google analogue of Box's
-   * testBoxIncrementalSyncBackNoSpuriousDeletes). Google, like Box, captures on the READ path only
-   * (no incremental write hooks). An incremental cycle re-reads only the changed objects (it has
-   * canRetrieveGroup/Entity, so the adapter decomposes to per-id reads that fire the Google capture
-   * seams), and the incremental flush is a SCOPED upsert (it does NOT full-replace, so it will not
-   * wrongly delete untouched mirror rows).
+   * testBoxIncrementalSyncBackNoSpuriousDeletes). Google GROUP and USER objects still capture on the
+   * READ path; memberships now capture on the WRITE path (GrouperGoogleTargetDao.insertMembership /
+   * deleteMembership -> recordTargetNativeMembershipInsert/Delete). An incremental cycle re-reads only
+   * the changed objects (it has canRetrieveGroup/Entity, so the adapter decomposes to per-id reads
+   * that fire the Google object capture seams), and the incremental flush is a SCOPED upsert (it does
+   * NOT full-replace, so it will not wrongly delete untouched mirror rows).
    *
    * <p>What this test asserts is deliberately narrow -- the safe, reliable part of Google incremental
    * sync-back: after seeding via full sync and priming the changelog consumer, adding a member drives
    * an incremental that (a) re-reads the changed group/entity and so does NOT shrink the existing
    * mirror (no spurious deletes -- the regression the scoped incremental flush guards against), and
-   * (b) captures the newly added member's user object into prov_user. It does NOT assert that the new
-   * MEMBERSHIP converges on the same incremental cycle: Google memberships are captured on read, and
-   * the incremental's read-before-write timing plus group-centric membership read make same-cycle
-   * membership convergence unreliable for a read-capture target (the same 1-cycle-lag reason Box and
-   * SCIM defer it). Membership convergence is covered end-to-end by the two-pass full tests above.
+   * (b) captures the newly added member's user object into prov_user. It does not additionally assert
+   * membership-row convergence on this incremental cycle; membership convergence via the write-path
+   * capture hooks is covered end-to-end by the two-pass full tests above.
    */
   public void testGoogleIncrementalSyncBackNoSpuriousDeletes() throws IOException {
 
@@ -1837,7 +1851,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
     incrementalProvision();
 
     // incremental add: a third member. The incremental re-reads the changed group/entity, firing
-    // the Google read-capture seams, and the scoped flush upserts -- it must NOT drop untouched rows.
+    // the Google object read-capture seams, and the scoped flush upserts -- it must NOT drop untouched rows.
     testGroup.addMember(SubjectTestHelper.SUBJ2, false);
     incrementalProvision();
 
@@ -1845,12 +1859,12 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue("incremental must not shrink prov_group; before=" + provGroupRowsBefore
         + " after=" + countSyncBack(configId, "grouper_prov_group"),
         countSyncBack(configId, "grouper_prov_group") >= provGroupRowsBefore);
-    // NB: prov_mship is intentionally NOT asserted here (matching this test's javadoc). Google
-    // memberships are group-centric and captured on the READ path; on an incremental cycle the scoped
-    // membership flush for the changed group plus read-before-write timing means testGroup's
-    // membership rows can transiently clear, re-converging only on the next full sync (the same
-    // 1-cycle lag for which Box/SCIM disable their object incremental test). Membership convergence is
-    // covered end-to-end by the two-pass full tests above; here we only guard group/user no-shrink.
+    // NB: prov_mship is intentionally NOT asserted here (matching this test's javadoc). Membership
+    // write-path capture (GrouperGoogleTargetDao.insertMembership/deleteMembership ->
+    // recordTargetNativeMembershipInsert/Delete) plus the scoped incremental membership flush for the
+    // changed group are exercised, but this narrow test does not assert the resulting prov_mship row
+    // count. Membership convergence via the write-path capture hooks is covered end-to-end by the
+    // two-pass full tests above; here we only guard group/user no-shrink.
 
     // (b) the newly added member's user object is captured (object capture via the per-id re-read)
     assertEquals("SUBJ2's user object should be captured into prov_user this incremental cycle", 3,

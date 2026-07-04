@@ -422,6 +422,11 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
 
+      // sync-back: write-track the added membership into the native mirror (memberships are tracked
+      // from writes, never re-read). Keys are the same Datadog group + user target ids just sent to
+      // the membership API call above.
+      DatadogProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(groupId, userId);
+
       return new TargetDaoInsertMembershipResponse();
     } catch (Exception e) {
       targetMembership.setProvisioned(false);
@@ -463,6 +468,11 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+
+      // sync-back: write-track the removed membership out of the native mirror (memberships are
+      // tracked from writes, never re-read). Keys are the same Datadog group + user target ids just
+      // sent to the membership API call above.
+      DatadogProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(groupId, userId);
 
       return new TargetDaoDeleteMembershipResponse();
     } catch (Exception e) {

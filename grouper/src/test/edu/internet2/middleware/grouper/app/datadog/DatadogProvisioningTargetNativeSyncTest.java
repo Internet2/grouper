@@ -255,6 +255,14 @@ public class DatadogProvisioningTargetNativeSyncTest extends GrouperTest {
         GrouperUtil.jsonJacksonNode(GROUP_JSON));
   }
 
+  public void testCaptureMembershipInsertFromCurrentProvisionerNoCrashWhenNoProvisioner() {
+    DatadogProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner("group123", "user123");
+  }
+
+  public void testCaptureMembershipDeleteFromCurrentProvisionerNoCrashWhenNoProvisioner() {
+    DatadogProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner("group123", "user123");
+  }
+
   // ===================== helpers =====================
 
   private static GrouperProvisioningNativeAttributeConfig attr(String name, String path, String type) {

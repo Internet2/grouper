@@ -975,15 +975,18 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
   // SCIM-parity sync-back tests for Box, CAPABILITY-GATED.
   //
   // Box capture model (verified from GrouperBoxApiCommands + GrouperBoxProvisioningTargetNativeSync):
-  // Box captures target state into the generic mirror ONLY on the READ path --
+  // Box group/user OBJECTS capture into the generic mirror on the READ path --
   // captureGroupJson/captureUserJson fire inside retrieveBoxGroups/retrieveBoxGroup/
-  // retrieveBoxUsers/retrieveBoxUser, and captureMemberships fires inside
-  // GrouperBoxTargetDao.retrieveMembershipsByGroup. The create/update/delete API methods do NOT
-  // call any capture hook. So Box is a READ-STATE-CONVERGENCE target, NOT a capture-on-write
-  // target like SCIM/Adobe: a target change converges into the mirror on the NEXT read pass, not
-  // the same run that writes it. Every converge test below therefore uses the two-pass full-sync
-  // pattern (pass 1 writes the target, pass 2 re-reads and the end-of-run flush converges), the
-  // same shape as the existing testBoxFullSyncPopulatesGenericTables.
+  // retrieveBoxUsers/retrieveBoxUser -- so an object change (create/rename/delete) converges on the
+  // NEXT read pass. MEMBERSHIPS, however, now capture on BOTH the write path and the read path:
+  // GrouperBoxTargetDao.insertMembership/deleteMembership call
+  // GrouperBoxProvisioningTargetNativeSync.captureMembershipInsert/DeleteFromCurrentProvisioner
+  // (-> recordTargetNativeMembershipInsert/Delete) on success, so a membership add/remove is
+  // recorded into the native mirror on the WRITE pass and converges same-pass; captureMemberships
+  // also still fires on the read path inside GrouperBoxTargetDao.retrieveMembershipsByGroup. The
+  // OBJECT converge tests below still use the two-pass full-sync pattern (pass 1 writes the target,
+  // pass 2 re-reads and the end-of-run flush converges), the same shape as the existing
+  // testBoxFullSyncPopulatesGenericTables.
   //
   // The full flush (GrouperProvisioningLogic.loadDataToGenericProvisionerTables) is a FULL REPLACE
   // scoped to the provisioner's grouper_sync_internal_id: anything in the mirror that the target
@@ -1011,9 +1014,12 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
   //     not apply to Box).
   //   - no "same-run" convergence variants of the SCIM insert/update/delete/membership tests
   //     (testGroupInsertConvergesSameRun, testUserUpdateConvergesSameRun*,
-  //     testGroupDeleteConvergesSameRun, testMembership{Add,Remove}ConvergesSameRun): Box captures
-  //     on READ only, so these can only converge on the next read pass. Their intent is ported as
-  //     the two-pass full tests below (testBoxGroupInsertConvergesNextRead,
+  //     testGroupDeleteConvergesSameRun, testMembership{Add,Remove}ConvergesSameRun): Box group/user
+  //     OBJECTS capture on READ, so those object tests can only converge on the next read pass.
+  //     (Memberships now capture on write too via recordTargetNativeMembershipInsert/Delete, so a
+  //     membership add/remove converges on the write pass -- but the ported tests below still drive
+  //     the two-pass full-sync shape for uniformity.) Their intent is ported as the two-pass full
+  //     tests below (testBoxGroupInsertConvergesNextRead,
   //     testBoxGroupDeleteConvergesNextRead, testBoxMembershipAddConvergesNextRead,
   //     testBoxMembershipRemoveConvergesNextRead, testBoxGroupUpdateConvergesNextRead).
   // ==========================================================================================
@@ -1260,9 +1266,11 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
   /**
    * Sync-back convergence of a membership ADD to an already-provisioned group, two-pass full (Box
    * analogue of SCIM's testMembershipAddConvergesSameRun). Seed test:testGroup with SUBJ0, then add
-   * SUBJ1. Because Box captures memberships on the read path (retrieveMembershipsByGroup), the add
-   * shows in grouper_prov_mship on the re-read pass: pass A issues the membership insert to the Box
-   * target, pass B re-reads the group's members and the flush converges (testGroup,SUBJ1).
+   * SUBJ1. Box captures memberships on both the write path
+   * (GrouperBoxTargetDao.insertMembership -> recordTargetNativeMembershipInsert) and the read path
+   * (retrieveMembershipsByGroup), so the add is recorded into the native mirror on the write pass
+   * and would also show on a re-read: pass A issues the membership insert to the Box target, pass B
+   * re-reads the group's members and the flush converges (testGroup,SUBJ1).
    */
   public void testBoxMembershipAddConvergesNextRead() throws IOException {
 
@@ -1294,6 +1302,11 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the membership insert (and SUBJ1's user insert) hit the Box target
     assertEquals(0, fullProvision().getRecordsWithErrors());
+    // the capture-on-write hook mirrors the added membership on the write pass itself, before any
+    // re-read; the retrieveAllData membership read earlier in this same pass only saw the pre-change
+    // set, so this assertion is what proves the write hook (not the read path) converged the mirror
+    assertEquals("add converges on the write pass via capture-on-write (before any re-read)", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
     // pass B: re-read sees both members; the flush converges the added membership
     assertEquals(0, fullProvision().getRecordsWithErrors());
 
@@ -1351,6 +1364,11 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the membership-remove write hits the Box target
     assertEquals(0, fullProvision().getRecordsWithErrors());
+    // stronger than the add case: the retrieveAllData membership read earlier in this same pass
+    // still sees SUBJ0 in testGroup (the delete hadn't happened yet at read time), so only the
+    // capture-on-write delete hook can drop (testGroup,SUBJ0) from the mirror on the write pass
+    assertEquals("remove drops from the mirror on the write pass via capture-on-write (before any re-read)", 1,
+        countSyncBack(configId, "grouper_prov_mship"));
     // pass B: re-read of testGroup's members no longer includes SUBJ0; the full-replace flush
     // drops (testGroup,SUBJ0) while otherGroup's SUBJ0 membership survives
     assertEquals(0, fullProvision().getRecordsWithErrors());
@@ -1924,9 +1942,11 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
   }
 
   /**
-   * INCREMENTAL sync-back coverage for Box, conservative. Box has NO write hooks (it captures on
-   * the READ path only), unlike Adobe whose incremental membership write-track converges same-cycle
-   * via recordTargetNativeMembership* hooks. For Box, an incremental cycle re-reads only the changed
+   * INCREMENTAL sync-back coverage for Box, conservative. Box captures group/user OBJECTS on the
+   * READ path (an object change converges on the next read pass); memberships capture on BOTH the
+   * write path (GrouperBoxTargetDao.insertMembership/deleteMembership ->
+   * recordTargetNativeMembershipInsert/Delete) and the read path -- the same write-track hooks Adobe
+   * uses. For Box, an incremental cycle re-reads only the changed
    * objects (it has canRetrieveGroup/Entity, so the adapter decomposes to per-id reads that fire the
    * Box capture seams), and the incremental flush is a SCOPED upsert (it does NOT full-replace, so
    * it will not wrongly delete untouched mirror rows).
@@ -1936,11 +1956,12 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
    * member drives an incremental that (a) re-reads the changed group/entity and so does NOT shrink
    * the existing mirror (no spurious deletes -- the regression the scoped incremental flush guards
    * against), and (b) captures the newly added member's user object into prov_user. It does NOT
-   * assert that the new MEMBERSHIP converges on the same incremental cycle: Box memberships are
-   * captured on read, and the incremental's read-before-write timing plus group-centric membership
-   * read make same-cycle membership convergence unreliable for a read-capture target (the same
-   * 1-cycle-lag reason SCIM's object incremental test is disabled). Membership convergence for Box
-   * is covered end-to-end by the two-pass full tests above.
+   * assert that the new MEMBERSHIP converges on the same incremental cycle: although Box memberships
+   * now capture on the write path (recordTargetNativeMembershipInsert/Delete) as well as on read,
+   * this test keeps its membership assertion out to stay conservative given the incremental's
+   * read-before-write timing and group-centric membership read (the same 1-cycle-lag caution behind
+   * SCIM's disabled object incremental test). Membership convergence for Box is covered end-to-end
+   * by the two-pass full tests above.
    */
   public void testBoxIncrementalSyncBackNoSpuriousDeletes() throws IOException {
 

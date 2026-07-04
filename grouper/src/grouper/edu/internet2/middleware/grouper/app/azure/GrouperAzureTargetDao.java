@@ -441,15 +441,23 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
         boolean success = runtimeException == null;
         for (String userId : userIds) {
           MultiKey groupIdUserId = new MultiKey(groupId, userId);
-          
+
           ProvisioningMembership targetMembership = groupIdUserIdToProvisioningMembership.get(groupIdUserId);
           if (targetMembership.getProvisioned() == null) {
             targetMembership.setProvisioned(success);
             targetMembership.setException(runtimeException);
             for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
               provisioningObjectChange.setProvisioned(success);
-              
+
             }
+          }
+
+          // sync-back: mirror each membership that actually landed in Azure into grouper_prov_mship
+          // so the full-sync "memberships from sync-back cache" feature stays current. Only capture
+          // the true path (a per-membership exception above leaves provisioned=false).
+          if (Boolean.TRUE.equals(targetMembership.getProvisioned())) {
+            GrouperAzureProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(
+                targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
           }
         }
       }
@@ -480,6 +488,10 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
           for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
             provisioningObjectChange.setProvisioned(true);
           }
+          // sync-back: drop each successfully-removed membership from grouper_prov_mship so the
+          // full-sync "memberships from sync-back cache" feature no longer reflects it.
+          GrouperAzureProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+              targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
         } else {
           targetMembership.setProvisioned(false);
           targetMembership.setException(exception);

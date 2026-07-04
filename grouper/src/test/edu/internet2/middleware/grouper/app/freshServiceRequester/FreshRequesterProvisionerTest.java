@@ -2135,11 +2135,12 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
   /**
    * Sync-back convergence of a membership ADD to an already-provisioned group, two-pass full
    * (FreshService analogue of SCIM's testMembershipAddConvergesSameRun / Box's
-   * testBoxMembershipAddConvergesNextRead). Seed test:testGroup with SUBJ0, then add SUBJ1. Because
-   * FreshService captures memberships on the read path (retrieveMembershipsByGroup), the add shows
-   * in grouper_prov_mship on the re-read pass: pass A issues the membership insert (+ SUBJ1 user
-   * insert) to the target, pass B re-reads the group's members and the flush converges (testGroup,
-   * SUBJ1).
+   * testBoxMembershipAddConvergesNextRead). Seed test:testGroup with SUBJ0, then add SUBJ1.
+   * FreshService write-tracks memberships (insertMembership -> recordTargetNativeMembershipInsert),
+   * so the add lands in grouper_prov_mship on the write pass; it is also re-derived read-side
+   * (retrieveMembershipsByGroup). This test still drives it two-pass: pass A issues the membership
+   * insert (+ SUBJ1 user insert) to the target, pass B re-reads the group's members and the flush
+   * stays converged (testGroup, SUBJ1).
    */
   public void testFreshRequesterMembershipAddConvergesNextRead() {
 
@@ -2843,23 +2844,22 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
   }
 
   /**
-   * INCREMENTAL sync-back coverage for FreshService, conservative (FreshService analogue of Box's
-   * testBoxIncrementalSyncBackNoSpuriousDeletes). Like Box, FreshService has NO write-side capture
-   * hooks -- it captures groups/users on the READ path and memberships group-centric -- so an
+   * INCREMENTAL sync-back coverage for FreshService (FreshService analogue of Box's
+   * testBoxIncrementalSyncBackNoSpuriousDeletes). FreshService captures groups/users on the READ
+   * path, and now also captures memberships on the WRITE path (the DAO's insertMembership /
+   * deleteMembership success paths write-track the (group,user) target ids into the native mirror,
+   * matching adobe/scim2/dropbox/okta) -- feeding GRP-7048 "memberships from sync-back cache". An
    * incremental cycle re-reads only the changed objects (it has canRetrieveGroup/Entity, so the
-   * adapter decomposes to per-id reads that fire the capture seams), and the incremental flush is a
-   * SCOPED upsert (it does NOT full-replace, so it will not wrongly delete untouched mirror rows).
+   * adapter decomposes to per-id reads that fire the object capture seams), and the incremental flush
+   * is a SCOPED upsert (it does NOT full-replace, so it will not wrongly delete untouched mirror rows).
    *
-   * <p>What this asserts is deliberately narrow -- the safe, reliable part of FreshService
-   * incremental sync-back: after seeding via full sync and priming the changelog consumer, adding a
-   * member drives an incremental that (a) re-reads the changed group/entity and so does NOT shrink
-   * the existing GROUP/USER mirror (no spurious deletes -- the regression the scoped incremental
-   * flush guards against), and (b) captures the newly added member's user object into prov_user. It
-   * does NOT assert that the new MEMBERSHIP converges on the same incremental cycle: FreshService
-   * memberships are captured on read group-centric, and the incremental's read-before-write timing
-   * makes same-cycle membership convergence unreliable for a read-capture target (the same
-   * 1-cycle-lag reason SCIM disables its object incremental test). Membership convergence for
-   * FreshService is covered end-to-end by the two-pass full tests above.
+   * <p>After seeding via full sync and priming the changelog consumer, adding a member drives an
+   * incremental that (a) re-reads the changed group/entity and so does NOT shrink the existing
+   * GROUP/USER mirror (no spurious deletes -- the regression the scoped incremental flush guards
+   * against), (b) captures the newly added member's user object into prov_user, and (c) converges the
+   * new MEMBERSHIP on the SAME incremental cycle: with write-side membership capture the insert is
+   * write-tracked directly (not read-before-write), so it no longer has the 1-cycle read-capture lag.
+   * Full-sync membership convergence is additionally covered by the two-pass full tests above.
    */
   public void testFreshRequesterIncrementalSyncBackNoSpuriousDeletes() {
 
@@ -2911,12 +2911,12 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue("incremental must not shrink prov_group; before=" + provGroupRowsBefore
         + " after=" + countSyncBack(configId, "grouper_prov_group"),
         countSyncBack(configId, "grouper_prov_group") >= provGroupRowsBefore);
-    // NB: prov_mship is intentionally NOT asserted here (matching this test's javadoc). FreshService
-    // memberships are group-centric and captured on the READ path; on an incremental cycle the
-    // read-before-write timing means testGroup's membership rows can transiently lag, re-converging
-    // only on the next full sync (the same 1-cycle lag for which SCIM disables its object incremental
-    // test). Membership convergence is covered end-to-end by the two-pass full tests above; here we
-    // only guard group/user no-shrink.
+    // prov_mship DOES converge on this same incremental cycle now that FreshService has write-side
+    // membership capture: the DAO's insertMembership success path write-tracks (testGroup,SUBJ2) into
+    // the native mirror directly (not read-before-write), so the added membership lands this cycle
+    // without the 1-cycle read-capture lag. Seed had 2 (SUBJ0,SUBJ1); after the add it is 3.
+    assertEquals("added membership should converge this incremental cycle via write-side capture", 3,
+        countSyncBack(configId, "grouper_prov_mship"));
 
     // (b) the newly added member's user object is captured (object capture via the per-id re-read)
     assertEquals("SUBJ2's user object should be captured into prov_user this incremental cycle", 3,

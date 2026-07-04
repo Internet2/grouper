@@ -360,6 +360,10 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
 
+      // sync-back: track this membership write into the native mirror (no re-read)
+      GrouperGoogleProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(
+          targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
+
       return new TargetDaoInsertMembershipResponse();
     } catch (Exception e) {
       targetMembership.setProvisioned(false);
@@ -448,6 +452,10 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+
+      // sync-back: track this membership write into the native mirror (no re-read)
+      GrouperGoogleProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+          targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
 
       return new TargetDaoDeleteMembershipResponse();
     } catch (Exception e) {

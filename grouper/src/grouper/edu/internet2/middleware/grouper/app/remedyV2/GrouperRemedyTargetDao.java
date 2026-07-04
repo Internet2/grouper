@@ -60,15 +60,21 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       
       Long permissionGroupId = targetMembership.retrieveAttributeValueLong("permissionGroupId");
       String remedyLoginId = targetMembership.retrieveAttributeValueString("remedyLoginId");
-      
+      String personId = targetMembership.retrieveAttributeValueString("personId");
+
       Boolean removed = GrouperRemedyApiCommands.removeUserFromRemedyGroup(remedyExternalSystemConfigId, remedyLoginId, permissionGroupId);
       if (removed != null) {
         targetMembership.setProvisioned(true);
         for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
           provisioningObjectChange.setProvisioned(true);
         }
+        // sync-back: drop this removed membership from the native grouper_prov_mship mirror so the
+        // end-of-run flush deletes its row. Use the SAME Remedy target ids (permissionGroupId, personId)
+        // that the native membership capture records; no-op when membership sync-back is off.
+        GrouperRemedyProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+            permissionGroupId == null ? null : permissionGroupId.toString(), personId);
       }
-      
+
       return new TargetDaoDeleteMembershipResponse();
     } catch (Exception e) {
       targetMembership.setProvisioned(false);
@@ -113,11 +119,17 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       
       GrouperRemedyApiCommands.assignUserToRemedyGroup(remedyExternalSystemConfigId, remedyLoginId, personId,
           permissionGroup, permissionGroupId);
-      
+
       targetMembership.setProvisioned(true);
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+
+      // sync-back: write-track the added membership into the native grouper_prov_mship mirror so the
+      // end-of-run flush inserts/keeps its row. Use the SAME Remedy target ids (permissionGroupId, personId)
+      // that the native membership capture records; no-op when membership sync-back is off.
+      GrouperRemedyProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(
+          permissionGroupId == null ? null : permissionGroupId.toString(), personId);
 
       return new TargetDaoInsertMembershipResponse();
     } catch (Exception e) {

@@ -397,6 +397,12 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
 
+      // sync-back: capture-on-write the added membership into the generic grouper_prov_mship mirror
+      // (same target group/user ids passed to createBoxMembership above). No-op when membership
+      // sync-back is off. Success path only -- never on the catch below.
+      GrouperBoxProvisioningTargetNativeSync.captureMembershipInsertFromCurrentProvisioner(
+          targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
+
       return new TargetDaoInsertMembershipResponse();
     } catch (Exception e) {
       targetMembership.setProvisioned(false);
@@ -438,6 +444,12 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+
+      // sync-back: capture-on-write the removed membership out of the generic grouper_prov_mship
+      // mirror (same target group/user ids the delete resolved against). No-op when membership
+      // sync-back is off. Success path only -- never on the catch below.
+      GrouperBoxProvisioningTargetNativeSync.captureMembershipDeleteFromCurrentProvisioner(
+          targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId());
 
       return new TargetDaoDeleteMembershipResponse();
     } catch (Exception e) {

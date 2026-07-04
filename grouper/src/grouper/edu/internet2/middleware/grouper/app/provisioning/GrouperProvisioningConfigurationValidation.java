@@ -334,6 +334,28 @@ public class GrouperProvisioningConfigurationValidation {
     validateMembershipAttributeDoesNotMatchSearchOrMatchingAttribute();
     validateNativeAttributes();
     validateLoadToGenericGrouperTableSupportedByDao();
+    validateFullSyncFromSyncBackDependencies();
+  }
+
+  /**
+   * GRP-7048: enforce the cross-axis coupling of the fullSync*FromSyncBack options that the
+   * per-attribute showEl expressions cannot express. Each option's own prerequisites (its axis is
+   * operated on, selected, and loaded to the generic sync-back table) are already handled by showEl,
+   * so those are not re-checked here. The one dependency showEl can't reach is between two options:
+   * groups-from-sync-back requires memberships-from-sync-back. This is the both-or-neither pairing in
+   * {@link GrouperProvisioningLogic#isGroupsFromSyncBackCacheThisRun()} -- a target that fetches
+   * memberships by iterating groups (e.g. Okta) would lose its group list if the group pull were
+   * skipped while memberships were still retrieved from the target. Without this check the bad combo
+   * saves cleanly and then silently no-ops (groups quietly fall back to a full target retrieve), so
+   * we surface it as an error on the visible groups field.
+   */
+  public void validateFullSyncFromSyncBackDependencies() {
+    GrouperProvisioningConfiguration configuration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    if (configuration.isFullSyncGroupsFromSyncBack() && !configuration.isFullSyncMembershipsFromSyncBack()) {
+      this.addErrorMessage(new ProvisioningValidationIssue()
+          .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.fullSyncFromSyncBack.groupsRequireMemberships"))
+          .assignJqueryHandle("fullSyncGroupsFromSyncBack"));
+    }
   }
 
   /**

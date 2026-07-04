@@ -38,11 +38,16 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * reach into {@code /profile/*}, matching exactly what {@link GrouperOktaGroup#fromJson} /
  * {@link GrouperOktaUser#fromJson} read.
  *
- * <p>Memberships are still derived group-centrically from the per-group member-id fetch during DAO
- * translation ({@link #captureMembershipsForGroup}); only the group/user object capture is
- * JSON-based. Okta has no retrieve-all-memberships call, so the per-group member fetch is the only
- * read-path place both ids are co-located -- the same situation as Adobe/Google, so the membership
- * capture path is unchanged.
+ * <p>Group/user OBJECTS capture only on the READ path (from the raw JSON above); there is no
+ * write-side capture of group/user objects. MEMBERSHIPS, by contrast, now capture on WRITE: the
+ * DAO's insert/deleteMembership call {@link #captureMembershipInsertFromCurrentProvisioner} /
+ * {@link #captureMembershipDeleteFromCurrentProvisioner} on success, which record into the native
+ * membership mirror ({@code recordTargetNativeMembershipInsert}/{@code Delete}) -- the same
+ * membership write-track design as Adobe/SCIM/Dropbox, so a membership add/remove converges on the
+ * write pass. Memberships are also still derived group-centrically from the per-group member-id
+ * fetch on the read path ({@link #captureMembershipsForGroup}); Okta has no retrieve-all-memberships
+ * call, so that per-group member fetch is the only read-path place both ids are co-located -- the
+ * same situation as Adobe/Google.
  */
 public class GrouperOktaProvisioningTargetNativeSync extends GrouperProvisioningTargetNativeSync {
 
@@ -298,6 +303,40 @@ public class GrouperOktaProvisioningTargetNativeSync extends GrouperProvisioning
       return;
     }
     oktaSync.captureMembershipsForGroup(targetGroupId, targetUserIds);
+  }
+
+  // ----- membership write-track dispatchers (called from GrouperOktaTargetDao write sites) -----
+  // Like groups/users are re-read via the drain to reflect the target, but memberships are tracked
+  // purely from our own successful add/remove writes -- never re-read -- because they are
+  // high-volume (same design as Adobe/SCIM/Dropbox). This is what keeps grouper_prov_mship current
+  // during a full sync that serves memberships from the sync-back cache (fullSyncMembershipsFromSyncBack),
+  // where the per-group member read that would otherwise capture them is skipped. The ids are the Okta
+  // target ids (group id and user id), matching the native group/user targetIds the flush reconciles.
+
+  /**
+   * Write-track a successful Okta membership add ({@code createOktaMembership}) against the current
+   * provisioner: record {@code (targetGroupId, targetUserId)} in the native membership map. No-op
+   * out of cycle or for a non-Okta provisioner.
+   */
+  public static void captureMembershipInsertFromCurrentProvisioner(String targetGroupId, String targetUserId) {
+    GrouperOktaProvisioningTargetNativeSync oktaSync = oktaSyncForCurrentProvisioner();
+    if (oktaSync == null) {
+      return;
+    }
+    oktaSync.recordTargetNativeMembershipInsert(targetGroupId, targetUserId);
+  }
+
+  /**
+   * Write-track a successful Okta membership remove ({@code deleteOktaMembership}) against the
+   * current provisioner: drop {@code (targetGroupId, targetUserId)} from the native membership map
+   * so the end-of-run flush deletes its grouper_prov_mship row.
+   */
+  public static void captureMembershipDeleteFromCurrentProvisioner(String targetGroupId, String targetUserId) {
+    GrouperOktaProvisioningTargetNativeSync oktaSync = oktaSyncForCurrentProvisioner();
+    if (oktaSync == null) {
+      return;
+    }
+    oktaSync.recordTargetNativeMembershipDelete(targetGroupId, targetUserId);
   }
 
   private static GrouperOktaProvisioningTargetNativeSync oktaSyncForCurrentProvisioner() {

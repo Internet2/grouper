@@ -291,6 +291,37 @@ public class GrouperRemedyProvisioningTargetNativeSync extends GrouperProvisioni
     remedySync.captureMemberships(grouperRemedyMemberships);
   }
 
+  /**
+   * Write-track a successful Remedy membership add ({@code assignUserToRemedyGroup}) against the
+   * current provisioner: record {@code (groupTargetId, userTargetId)} in the native membership map so
+   * the end-of-run flush inserts/keeps its grouper_prov_mship row. groupTargetId is the Remedy
+   * permissionGroupId and userTargetId is the Remedy personId (the same target ids
+   * {@link #buildNativeMembershipFromRemedyMembership} records). No-op out of cycle, for a non-Remedy
+   * provisioner, or when membership sync-back is off (guarded in {@code recordTargetNativeMembershipInsert}).
+   */
+  public static void captureMembershipInsertFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    GrouperRemedyProvisioningTargetNativeSync remedySync = remedySyncForCurrentProvisioner();
+    if (remedySync == null) {
+      return;
+    }
+    remedySync.recordTargetNativeMembershipInsert(groupTargetId, userTargetId);
+  }
+
+  /**
+   * Write-track a successful Remedy membership remove ({@code removeUserFromRemedyGroup}) against the
+   * current provisioner: drop {@code (groupTargetId, userTargetId)} from the native membership map so
+   * the end-of-run flush deletes its grouper_prov_mship row. groupTargetId is the Remedy
+   * permissionGroupId and userTargetId is the Remedy personId. No-op out of cycle, for a non-Remedy
+   * provisioner, or when membership sync-back is off (guarded in {@code recordTargetNativeMembershipDelete}).
+   */
+  public static void captureMembershipDeleteFromCurrentProvisioner(String groupTargetId, String userTargetId) {
+    GrouperRemedyProvisioningTargetNativeSync remedySync = remedySyncForCurrentProvisioner();
+    if (remedySync == null) {
+      return;
+    }
+    remedySync.recordTargetNativeMembershipDelete(groupTargetId, userTargetId);
+  }
+
   private static GrouperRemedyProvisioningTargetNativeSync remedySyncForCurrentProvisioner() {
     GrouperProvisioner provisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
     if (provisioner == null) {
