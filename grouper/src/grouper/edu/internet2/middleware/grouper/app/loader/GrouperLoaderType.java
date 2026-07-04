@@ -1655,15 +1655,6 @@ public enum GrouperLoaderType {
       
       updateLoaderMetadataForGroupsNoLongerInLoader(groupsNoLongerManagedByLoader);
       
-      if (StringUtils.isBlank(groupLikeString) &&
-          
-          // TODO have more options here
-          GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.deleteGroupsNoLongerInSource", false)) {
-        potentiallyDeleteGroups(grouperSession, groupsNoLongerManagedByLoader,
-            groupNamesFromGroupQuery, hib3GrouploaderLogOverall);
-        //groupNames.removeAll(deletedGroupNames);
-      }
-      
       //#######################################
       //Delete records in groups not there anymore.  maybe delete group too
       if (!StringUtils.isBlank(groupLikeString)) {
@@ -2022,6 +2013,15 @@ public enum GrouperLoaderType {
       GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
 
       GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
+      
+      // remove groups last: all groups are now created and their memberships reconciled, so it is safe
+      // to delete groups that are no longer in the source.  this makes a run apply changes in the order
+      // add groups -> remove memberships -> add memberships -> remove groups.
+      if (StringUtils.isBlank(groupLikeString) &&
+          GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.deleteGroupsNoLongerInSource", false)) {
+        potentiallyDeleteGroups(grouperSession, groupsNoLongerManagedByLoader,
+            groupNamesFromGroupQuery, hib3GrouploaderLogOverall);
+      }
       
       if (LOG.isDebugEnabled()) {
         LOG.debug(groupNameOverall + ": done syncing membership");
