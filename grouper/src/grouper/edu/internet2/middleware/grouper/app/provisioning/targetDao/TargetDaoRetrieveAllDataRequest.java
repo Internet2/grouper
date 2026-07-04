@@ -30,4 +30,22 @@ public class TargetDaoRetrieveAllDataRequest {
     this.retrieveEntities = retrieveEntities;
   }
 
+  /**
+   * GRP-7048: whether the DAO should retrieve memberships from the target as part of the
+   * "retrieve all" pass. Defaults to true. When {@code fullSyncMembershipsFromSyncBack} is enabled
+   * the framework sets this to false so a DAO that supports it skips its (potentially expensive)
+   * membership retrieval -- e.g. the per-group member iteration -- and the framework instead seeds
+   * the target memberships from the sync-back cache. Groups and entities are still retrieved per
+   * their own flags.
+   */
+  private boolean retrieveMemberships = true;
+
+  public boolean isRetrieveMemberships() {
+    return retrieveMemberships;
+  }
+
+  public void setRetrieveMemberships(boolean retrieveMemberships) {
+    this.retrieveMemberships = retrieveMemberships;
+  }
+
 }

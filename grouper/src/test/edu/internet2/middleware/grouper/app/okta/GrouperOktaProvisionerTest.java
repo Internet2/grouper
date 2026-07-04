@@ -2177,6 +2177,118 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
     assertNull("bulk user pull from Okta should be skipped", debugMap.get("oktaRetrieveAllUsersApiCall"));
   }
 
+  /**
+   * GRP-7048 (memberships, warm cache): once the membership cache is warm, the target memberships
+   * are reconstructed from grouper_prov_mship and Okta's expensive per-group member iteration is
+   * skipped (oktaRetrieveMembershipsApiCall stays unset on the warm run).
+   */
+  public void testOktaFullSyncMembershipsFromSyncBackWarmCache() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("fullSyncMembershipsFromSyncBack", "true");
+    setupOktaSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache: two memberships in the mirror. The first (cold-cache) run does the normal
+    // per-group member iteration, which populates grouper_prov_mship.
+    fullProvision(configId);
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals("both memberships cached after warm-up", 2, countSyncBack(configId, "grouper_prov_mship"));
+
+    // the warm run: memberships are reconstructed from the cache and the per-group iteration is skipped
+    fullProvision(configId);
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("Okta per-group member iteration should be skipped (memberships come from the cache)",
+        debugMap.get("oktaRetrieveMembershipsApiCall"));
+    assertEquals("both memberships reconstructed from the cache", 2,
+        debugMapInt(debugMap, "syncBackMembershipsReconstructed"));
+  }
+
+  /**
+   * GRP-7048 (memberships, cache used as target set): with memberships served from the cache, the
+   * normal compare still provisions a membership that exists in Grouper but not the cache, and
+   * removes one that exists in the cache but not Grouper. Proves it is not just the idempotent case.
+   * Asserts against the Okta target (mock_okta_membership), and that the per-group iteration stays
+   * skipped throughout.
+   */
+  public void testOktaFullSyncMembershipsFromSyncBackAddAndRemove() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("fullSyncMembershipsFromSyncBack", "true");
+    // enable membership deletes so the removal actually deprovisions from Okta
+    extraConfig.put("customizeMembershipCrud", "true");
+    extraConfig.put("deleteMemberships", "true");
+    extraConfig.put("deleteMembershipsIfNotExistInGrouper", "true");
+    setupOktaSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache: two memberships in the cache and in Okta
+    fullProvision(configId);
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals("two memberships cached after warm-up", 2, countSyncBack(configId, "grouper_prov_mship"));
+    assertEquals("two memberships in Okta after warm-up", 2, countMockOktaMemberships());
+
+    // ADD: SUBJ2 is in Grouper but not the membership cache -> the compare inserts it into Okta,
+    // while the per-group member iteration stays skipped (memberships served from cache)
+    testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+    fullProvision(configId);
+    Map<String, Object> debugMapAdd = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+    assertNull("per-group member iteration stays skipped on the add run",
+        debugMapAdd.get("oktaRetrieveMembershipsApiCall"));
+    assertEquals("SUBJ2's membership should be provisioned into Okta", 3, countMockOktaMemberships());
+
+    // REMOVE: SUBJ2 removed from Grouper -> the compare removes it from Okta (cache has it, Grouper
+    // does not)
+    testGroup.deleteMember(SubjectTestHelper.SUBJ2, false);
+    fullProvision(configId);
+    assertEquals("SUBJ2's membership should be removed from Okta", 2, countMockOktaMemberships());
+  }
+
+  /** count of memberships currently in the Okta mock target */
+  private int countMockOktaMemberships() {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from mock_okta_membership").select(int.class);
+  }
+
   /** read an int counter from the provisioner debug map, treating absent as 0 */
   private static int debugMapInt(Map<String, Object> debugMap, String key) {
     Object value = debugMap == null ? null : debugMap.get(key);

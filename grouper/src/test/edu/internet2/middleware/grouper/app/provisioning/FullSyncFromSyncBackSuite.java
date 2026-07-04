@@ -29,6 +29,10 @@ public class FullSyncFromSyncBackSuite {
     suite.addTest(new GrouperOktaProvisionerTest("testOktaFullSyncUsersFromSyncBackIncrementalKeepsCacheCurrent"));
     suite.addTest(new GrouperOktaProvisionerTest("testOktaFullSyncUsersFromSyncBackIncrementalRemovalCacheCurrent"));
 
+    // Okta (memberships axis)
+    suite.addTest(new GrouperOktaProvisionerTest("testOktaFullSyncMembershipsFromSyncBackWarmCache"));
+    suite.addTest(new GrouperOktaProvisionerTest("testOktaFullSyncMembershipsFromSyncBackAddAndRemove"));
+
     return suite;
   }
 

@@ -2043,6 +2043,125 @@ public class GrouperProvisioningLogic {
     }
   }
 
+  // ========================= GRP-7048: memberships axis =========================
+
+  /**
+   * GRP-7048: memberships analogue of {@link #isFullSyncUsersFromSyncBackEffective()} -- feature
+   * flag on AND the DAO advertises it honors {@code retrieveMemberships=false}.
+   */
+  public boolean isFullSyncMembershipsFromSyncBackEffective() {
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isFullSyncMembershipsFromSyncBack()) {
+      return false;
+    }
+    return this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().isCanRetrieveAllDataExcludingMemberships();
+  }
+
+  /** GRP-7048: memoized decision for this run of whether to serve memberships from the sync-back cache */
+  private Boolean membershipsFromSyncBackCacheThisRun;
+
+  /**
+   * GRP-7048: whether THIS run resolves memberships from the sync-back cache. Cache-first, same as
+   * the entities axis: only when the feature is effective, this run selects memberships, AND the
+   * cache already has memberships for this provisioner. A cold/empty cache does the normal target
+   * membership retrieval (which repopulates the cache).
+   */
+  public boolean isMembershipsFromSyncBackCacheThisRun() {
+    if (this.membershipsFromSyncBackCacheThisRun == null) {
+      this.membershipsFromSyncBackCacheThisRun = this.computeMembershipsFromSyncBackCacheThisRun();
+      this.getGrouperProvisioner().getDebugMap().put("syncBackUsingCacheMemberships", this.membershipsFromSyncBackCacheThisRun);
+    }
+    return this.membershipsFromSyncBackCacheThisRun;
+  }
+
+  private boolean computeMembershipsFromSyncBackCacheThisRun() {
+    if (!this.isFullSyncMembershipsFromSyncBackEffective()) {
+      return false;
+    }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships()) {
+      return false;
+    }
+    GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+    if (gcGrouperSync == null || gcGrouperSync.getInternalId() == null) {
+      return false;
+    }
+    Integer cachedCount = new GcDbAccess().connectionName("grouper")
+        .sql("select count(1) from grouper_prov_mship where grouper_sync_internal_id = ?")
+        .addBindVar(gcGrouperSync.getInternalId()).select(int.class);
+    return cachedCount != null && cachedCount > 0;
+  }
+
+  /**
+   * GRP-7048: reconstruct target memberships from grouper_prov_mship, resolving each row's target
+   * ids from the cached user and group rows (grouper_prov_user / grouper_prov_group). Each membership
+   * is also re-recorded as a native membership so the end-of-run generic-table flush preserves it.
+   */
+  public List<ProvisioningMembership> retrieveTargetMembershipsFromSyncBack() {
+
+    List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
+
+    GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+    if (gcGrouperSync == null || gcGrouperSync.getInternalId() == null) {
+      return result;
+    }
+    long grouperSyncInternalId = gcGrouperSync.getInternalId();
+
+    GrouperProvisioningData grouperProvisioningData = this.getGrouperProvisioner().retrieveGrouperProvisioningData();
+
+    List<Object[]> rows = new GcDbAccess().connectionName("grouper")
+        .sql("select pg.target_group_id, pu.target_user_id "
+            + "from grouper_prov_mship pm "
+            + "join grouper_prov_user pu on pu.internal_id = pm.prov_user_internal_id "
+            + "join grouper_prov_group pg on pg.internal_id = pm.prov_group_internal_id "
+            + "where pm.grouper_sync_internal_id = ?")
+        .addBindVar(grouperSyncInternalId).selectList(Object[].class);
+
+    for (Object[] row : GrouperUtil.nonNull(rows)) {
+      if (row == null || row[0] == null || row[1] == null) {
+        continue;
+      }
+      String targetGroupId = row[0].toString();
+      String targetUserId = row[1].toString();
+      if (StringUtils.isBlank(targetGroupId) || StringUtils.isBlank(targetUserId)) {
+        continue;
+      }
+
+      ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
+      provisioningMembership.setProvisioningGroupId(targetGroupId);
+      provisioningMembership.setProvisioningEntityId(targetUserId);
+      result.add(provisioningMembership);
+
+      // re-record the native membership so the end-of-run flush preserves this cache row
+      GrouperProvisioningTargetNativeMembership nativeMembership = new GrouperProvisioningTargetNativeMembership();
+      nativeMembership.setTargetGroupId(targetGroupId);
+      nativeMembership.setTargetUserId(targetUserId);
+      grouperProvisioningData.getTargetGroupIdTargetUserIdToNativeMembership()
+          .put(new MultiKey(targetGroupId, targetUserId), nativeMembership);
+    }
+
+    this.getGrouperProvisioner().getDebugMap().put("syncBackMembershipsReconstructed", result.size());
+
+    return result;
+  }
+
+  private void seedTargetMembershipsFromSyncBack() {
+
+    if (!this.isMembershipsFromSyncBackCacheThisRun()) {
+      return;
+    }
+
+    List<ProvisioningMembership> cachedTargetMemberships = this.retrieveTargetMembershipsFromSyncBack();
+    if (GrouperUtil.length(cachedTargetMemberships) > 0) {
+      this.processTargetDataMemberships(cachedTargetMemberships, false);
+      for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(cachedTargetMemberships)) {
+        if (provisioningMembership.getProvisioningMembershipWrapper() != null) {
+          provisioningMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setSelectResultProcessed(true);
+          provisioningMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setReadFromSyncBackCache(true);
+        }
+      }
+    }
+  }
+
   private void loadDataToGenericProvisionerTablesIncremental() {
 
     GrouperProvisioningBehavior behavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
@@ -5279,6 +5398,11 @@ public class GrouperProvisioningLogic {
           if (GrouperProvisioningLogic.this.isEntitiesFromSyncBackCacheThisRun()) {
             targetDaoRetrieveAllDataRequest.setRetrieveEntities(false);
           }
+          // GRP-7048: likewise skip the DAO's membership retrieval (e.g. Okta's per-group member
+          // iteration) when serving memberships from the cache this run
+          if (GrouperProvisioningLogic.this.isMembershipsFromSyncBackCacheThisRun()) {
+            targetDaoRetrieveAllDataRequest.setRetrieveMemberships(false);
+          }
           TargetDaoRetrieveAllDataResponse targetDaoRetrieveAllDataResponse
             = GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
               .retrieveAllData(targetDaoRetrieveAllDataRequest);
@@ -5363,10 +5487,11 @@ public class GrouperProvisioningLogic {
       processTargetDataMemberships(extraTargetData.getProvisioningMemberships(), true);
     }
 
-    // GRP-7048: if configured, seed the target users from the sync-back cache instead of having
-    // pulled them all from the target. Runs here (after Grouper data + sync objects are loaded) so
-    // error-state users can be identified and excluded. No-op unless fullSyncUsersFromSyncBack is on.
+    // GRP-7048: if configured, seed the target users / memberships from the sync-back cache instead
+    // of having pulled them from the target. Runs here (after Grouper data + sync objects are
+    // loaded). No-op unless the respective fullSync*FromSyncBack option is on and the cache is warm.
     seedTargetEntitiesFromSyncBack();
+    seedTargetMembershipsFromSyncBack();
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().retrieveAllDependenciesForFullSync();
     

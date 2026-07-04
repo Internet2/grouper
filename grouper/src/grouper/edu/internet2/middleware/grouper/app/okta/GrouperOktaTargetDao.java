@@ -186,21 +186,30 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       targetData.setProvisioningEntities(targetEntities);
 
+      // GRP-7048: when fullSyncMembershipsFromSyncBack is on, the framework asks us to skip the
+      // (expensive) per-group member iteration (retrieveMemberships=false); it seeds the target
+      // memberships from the sync-back cache instead.
+      boolean retrieveMemberships = targetDaoRetrieveAllDataRequest == null || targetDaoRetrieveAllDataRequest.isRetrieveMemberships();
+
       List<ProvisioningMembership> targetMemberships = new ArrayList<>();
 
-      for (GrouperOktaGroup grouperOktaGroup : grouperOktaGroups) {
-        Set<String> groupMemberIds = GrouperOktaApiCommands.retrieveOktaGroupMembers(oktaConfiguration.getOktaExternalSystemConfigId(), grouperOktaGroup.getId());
+      if (retrieveMemberships) {
+        // counter so tests (and diagnostics) can confirm the per-group member iteration ran or was
+        // skipped when resolving memberships from the sync-back cache
+        edu.internet2.middleware.grouper.util.GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "oktaRetrieveMembershipsApiCall", 1);
+        for (GrouperOktaGroup grouperOktaGroup : grouperOktaGroups) {
+          Set<String> groupMemberIds = GrouperOktaApiCommands.retrieveOktaGroupMembers(oktaConfiguration.getOktaExternalSystemConfigId(), grouperOktaGroup.getId());
 
-        for (String groupMemberId: groupMemberIds) {
-          ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
-          provisioningMembership.setProvisioningGroupId(grouperOktaGroup.getId());
-          provisioningMembership.setProvisioningEntityId(groupMemberId);
-          targetMemberships.add(provisioningMembership);
+          for (String groupMemberId: groupMemberIds) {
+            ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
+            provisioningMembership.setProvisioningGroupId(grouperOktaGroup.getId());
+            provisioningMembership.setProvisioningEntityId(groupMemberId);
+            targetMemberships.add(provisioningMembership);
+          }
+          // generic provisioner sync back: capture (groupId, userId) pairs for this group
+          GrouperOktaProvisioningTargetNativeSync.captureMembershipsForGroupForCurrentProvisioner(
+              grouperOktaGroup.getId(), groupMemberIds);
         }
-        // generic provisioner sync back: capture (groupId, userId) pairs for this group
-        GrouperOktaProvisioningTargetNativeSync.captureMembershipsForGroupForCurrentProvisioner(
-            grouperOktaGroup.getId(), groupMemberIds);
-
       }
       
       targetData.setProvisioningMemberships(targetMemberships);
@@ -675,6 +684,9 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
     // GRP-7048: retrieveAllData honors retrieveEntities=false (skips the user pull and the
     // per-membership missing-user lookup), so fullSyncUsersFromSyncBack can seed users from cache
     grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingEntities(true);
+    // GRP-7048: retrieveAllData honors retrieveMemberships=false (skips the per-group member
+    // iteration), so fullSyncMembershipsFromSyncBack can seed memberships from cache
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingMemberships(true);
   }
 
   private String resolveTargetEntityId(ProvisioningEntity targetEntity) {
