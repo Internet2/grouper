@@ -2652,10 +2652,17 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
     return grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
   }
 
-  /** true if any validation issue is attached to the given form field (jqueryHandle) */
-  private static boolean hasValidationIssueForField(List<ProvisioningValidationIssue> issues, String jqueryHandle) {
+  /**
+   * true if any validation issue is attached to the given config field. ProvisioningValidationIssue
+   * decorates a bare field suffix into the config-editor selector "#config_&lt;suffix&gt;_spanid"
+   * (see ProvisioningValidationIssue.htmlJqueryHandle), so match that decorated form (and the bare
+   * suffix as a fallback in case decoration ever changes).
+   */
+  private static boolean hasValidationIssueForField(List<ProvisioningValidationIssue> issues, String fieldSuffix) {
+    String decoratedHandle = "#config_" + fieldSuffix + "_spanid";
     for (ProvisioningValidationIssue issue : GrouperUtil.nonNull(issues)) {
-      if (jqueryHandle.equals(issue.getJqueryHandle())) {
+      String handle = issue.getJqueryHandle();
+      if (decoratedHandle.equals(handle) || fieldSuffix.equals(handle)) {
         return true;
       }
     }
