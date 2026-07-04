@@ -419,6 +419,12 @@ public class DropboxTargetDao extends GrouperProvisionerTargetDaoBase {
         change.setProvisioned(true);
       }
 
+      // sync-back: we only capture group objects into the generic grouper table on the read path, so an
+      // attribute-only update never refreshes grouper_prov_group; mark this group for the end-of-run
+      // sync-back drain re-read (no-op when sync-back / isLoadGroupsToGenericGrouperTable is off)
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeGroupWrite(targetGroup.getId(), null);
+
       return new TargetDaoUpdateGroupResponse();
     } catch (Exception e) {
       targetGroup.setProvisioned(false);
@@ -592,6 +598,12 @@ public class DropboxTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange change : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
         change.setProvisioned(true);
       }
+
+      // sync-back: we only capture user objects into the generic grouper table on the read path, so an
+      // attribute-only update never refreshes grouper_prov_user; mark this user for the end-of-run
+      // sync-back drain re-read (no-op when sync-back / isLoadEntitiesToGenericGrouperTable is off)
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeUserWrite(targetEntity.getId(), null);
 
       return new TargetDaoUpdateEntityResponse();
     } catch (Exception e) {

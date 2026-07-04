@@ -341,6 +341,13 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
 
+      // sync-back: groups are captured on the READ path only (from the raw JSON:API envelopes),
+      // so an attribute update alone never refreshes the grouper_prov_group mirror. Mark this
+      // group for the end-of-run sync-back drain re-read so the mirror converges to the new value.
+      // No-op when sync-back (isLoadGroupsToGenericGrouperTable) is off.
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeGroupWrite(targetGroup.getId(), null);
+
       return new TargetDaoUpdateGroupResponse();
     } catch (Exception e) {
       targetGroup.setProvisioned(false);
@@ -602,6 +609,13 @@ public class DatadogTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+
+      // sync-back: users are captured on the READ path only (from the raw JSON:API envelopes),
+      // so an attribute update alone never refreshes the grouper_prov_user mirror. Mark this
+      // user for the end-of-run sync-back drain re-read so the mirror converges to the new value.
+      // No-op when sync-back (isLoadEntitiesToGenericGrouperTable) is off.
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeUserWrite(targetEntity.getId(), null);
 
       return new TargetDaoUpdateEntityResponse();
     } catch (Exception e) {

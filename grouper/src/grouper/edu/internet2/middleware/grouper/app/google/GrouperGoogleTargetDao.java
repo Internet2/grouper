@@ -557,6 +557,11 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
 
+      // sync-back: mark the updated user for the drain re-read so its attributes refresh in grouper_prov_user
+      // (no object capture-on-write; needed under users-from-cache). Null native = re-read on the end-of-run drain.
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeUserWrite(targetEntity.getId(), null);
+
       return new TargetDaoUpdateEntityResponse();
     } catch (Exception e) {
       targetEntity.setProvisioned(false);
@@ -671,6 +676,11 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+
+      // sync-back: mark the updated group for the drain re-read so its attributes refresh in grouper_prov_group
+      // (no object capture-on-write; needed under groups-from-cache). Null native = re-read on the end-of-run drain.
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeGroupWrite(targetGroup.getId(), null);
 
       return new TargetDaoUpdateGroupResponse();
     } catch (Exception e) {

@@ -1245,6 +1245,12 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the description update reaches the Box target (updateGroup persists it)
     assertEquals(0, fullProvision().getRecordsWithErrors());
+    // updateGroup's write-path sync-back hook marks the updated group for the end-of-run drain
+    // re-read, so the mirror converges to the new description on THIS pass -- before the bulk
+    // re-read in pass B. This assertion is what proves the write-path hook (not the next full
+    // read) did the work.
+    assertEquals("update converges on the write pass via the drain re-read (before the bulk re-read)",
+        "newDescription", mirroredGroupDescription(configId));
     // pass B: the re-read captures the target's actual new description into the mirror
     assertEquals(0, fullProvision().getRecordsWithErrors());
 

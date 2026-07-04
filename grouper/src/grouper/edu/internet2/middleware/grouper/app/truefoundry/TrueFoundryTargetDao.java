@@ -450,6 +450,15 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
         change.setProvisioned(true);
       }
 
+      // sync-back: TrueFoundry captures group OBJECTS only on the read path, so an attribute update
+      // (team re-PUT or role createOrUpdate above) is not yet reflected in the native mirror. Mark this
+      // group (null native) so the end-of-run sync-back drain re-reads it and captures the new attribute
+      // values, keeping grouper_prov_group current under groups-from-cache where the bulk group read is
+      // skipped. Both the team and role branches share this success path. No-op when sync-back is off
+      // (guarded internally by isLoadGroupsToGenericGrouperTable). Same primitive the delete path uses.
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeGroupWrite(targetGroup.getId(), null);
+
       return new TargetDaoUpdateGroupResponse();
     } catch (Exception e) {
       targetGroup.setProvisioned(false);
@@ -603,6 +612,14 @@ public class TrueFoundryTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange change : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
         change.setProvisioned(true);
       }
+
+      // sync-back: same as updateGroup -- TrueFoundry captures user OBJECTS only on the read path, so
+      // this update (display-name SCIM PATCH / activate-deactivate above) is not yet reflected in the
+      // native mirror. Mark this user (null native) for the end-of-run sync-back drain re-read to refresh
+      // its attributes in grouper_prov_user under users-from-cache. No-op when sync-back is off (guarded
+      // internally by isLoadEntitiesToGenericGrouperTable).
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeUserWrite(targetEntity.getId(), null);
 
       return new TargetDaoUpdateEntityResponse();
     } catch (Exception e) {

@@ -1027,6 +1027,11 @@ public class TeamDynamixProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the description update reaches the TeamDynamix target (updateGroup persists it)
     assertEquals(0, fullProvision().getRecordsWithErrors());
+    // updateGroup now marks the updated group for the end-of-run sync-back drain re-read, so its new
+    // description is already captured into the mirror on this write pass -- BEFORE the bulk re-read
+    // (pass B) below runs.
+    assertEquals("update converges on the write pass via the drain re-read (before the bulk re-read)",
+        "newDescription", mirroredGroupDescription(configId));
     // pass B: the re-read captures the target's actual new description into the mirror
     assertEquals(0, fullProvision().getRecordsWithErrors());
 

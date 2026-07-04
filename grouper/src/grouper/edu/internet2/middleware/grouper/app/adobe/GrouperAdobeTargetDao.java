@@ -586,7 +586,15 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
         cacheGroupNameToGroup.get(Boolean.TRUE).remove(oldGroupName);
         cacheGroupNameToGroup.get(Boolean.TRUE).put(newGroupName, grouperAdobeGroup);
       }
-      
+
+      // sync-back: Adobe captures group OBJECTS only on the read path, so an attribute update is not
+      // yet reflected in the native mirror. Mark this group (null native) so the end-of-run sync-back
+      // drain re-reads it and captures the new attribute values. This keeps grouper_prov_group current
+      // under groups-from-cache (fullSyncGroupsFromSyncBack), where the bulk group read is skipped and
+      // there is no other place the updated attributes would land. Guarded internally by
+      // isLoadGroupsToGenericGrouperTable, so this is a no-op when sync-back is off.
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeGroupWrite(targetGroup.getId(), null);
 
       return new TargetDaoUpdateGroupResponse();
     } catch (Exception e) {
@@ -773,6 +781,13 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+
+      // sync-back: same as updateGroup -- Adobe captures user OBJECTS only on the read path, so mark
+      // this user (null native) for the end-of-run drain re-read to refresh its attributes in
+      // grouper_prov_user under users-from-cache (fullSyncUsersFromSyncBack). Guarded internally by
+      // isLoadEntitiesToGenericGrouperTable, so this is a no-op when sync-back is off.
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeUserWrite(targetEntity.getId(), null);
 
       return new TargetDaoUpdateEntityResponse();
     } catch (Exception e) {

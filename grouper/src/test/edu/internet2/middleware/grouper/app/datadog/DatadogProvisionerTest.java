@@ -2268,6 +2268,11 @@ public class DatadogProvisionerTest extends GrouperProvisioningBaseTest {
 
       // pass A: the description update reaches the Datadog target (updateTeam persists it)
       assertEquals(0, fullProvision().getRecordsWithErrors());
+      // pass A already converges: updateGroup marks the written group for the end-of-run sync-back
+      // drain re-read, so the mirror picks up the new description on the SAME pass as the write --
+      // no second full run required (this is the fix being fanned out from Okta).
+      assertEquals("update converges on the write pass via the drain re-read (before the bulk re-read)",
+          "newDescription", mirroredGroupAttr(configId, "description"));
       // pass B: the re-read captures the target's actual new description into the mirror
       assertEquals(0, fullProvision().getRecordsWithErrors());
 

@@ -1251,6 +1251,11 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the description update reaches the Duo target (updateDuoGroup persists it)
     assertEquals(0, fullProvision().getRecordsWithErrors());
+    // the write pass itself already converges the mirror: GrouperDuoTargetDao.updateGroup marks the
+    // updated group for the end-of-run sync-back drain re-read, so grouper_prov_group picks up the new
+    // description on pass A -- BEFORE the pass-B bulk re-read.
+    assertEquals("update converges on the write pass via the drain re-read (before the bulk re-read)",
+        "newDescription", mirroredGroupDescription(configId));
     // pass B: the re-read captures the target's actual new description into the mirror
     assertEquals(0, fullProvision().getRecordsWithErrors());
 

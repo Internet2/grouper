@@ -1274,6 +1274,11 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the description update reaches the Google target (updateGroup persists it)
     assertEquals(0, fullProvision().getRecordsWithErrors());
+    // update converges on the write pass: updateGroup marks the group for the drain re-read, which
+    // re-reads it and captures the new description into the mirror on this same pass -- BEFORE the
+    // bulk re-read (which is skipped under groups-from-cache). This is the regression guard.
+    assertEquals("update converges on the write pass via the drain re-read (before the bulk re-read)",
+        "newDescription", mirroredGroupDescription(configId));
     // pass B: the re-read captures the target's actual new description into the mirror
     assertEquals(0, fullProvision().getRecordsWithErrors());
 

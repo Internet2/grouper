@@ -637,12 +637,20 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
         ProvisioningGroup targetGroup = azureGroupToTargetGroup.get(grouperAzureGroup);
         
         if (exception == null) {
-          
+
           targetGroup.setProvisioned(true);
 
           for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
             provisioningObjectChange.setProvisioned(true);
           }
+
+          // sync-back: Azure captures group OBJECTS only on the read path, so an attribute update is not
+          // yet reflected in the native mirror. Mark this group (null native) so the end-of-run sync-back
+          // drain re-reads it and captures the new attribute values. This keeps grouper_prov_group current
+          // under groups-from-cache (fullSyncGroupsFromSyncBack), where the bulk group read is skipped and
+          // there is no other place the updated attributes would land. Same primitive the delete path uses.
+          this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+              .recordTargetNativeGroupWrite(targetGroup.getId(), null);
         } else {
           targetGroup.setProvisioned(false);
           targetGroup.setException(exception);
@@ -709,12 +717,18 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
         ProvisioningEntity targetEntity = azureUserToTargetEntity.get(grouperAzureUser);
         
         if (exception == null) {
-          
+
           targetEntity.setProvisioned(true);
 
           for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
             provisioningObjectChange.setProvisioned(true);
           }
+
+          // sync-back: same as updateGroups -- Azure captures user OBJECTS only on the read path, so mark
+          // this user (null native) for the end-of-run drain re-read to refresh its attributes in
+          // grouper_prov_user under users-from-cache (fullSyncUsersFromSyncBack).
+          this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+              .recordTargetNativeUserWrite(targetEntity.getId(), null);
         } else {
           targetEntity.setProvisioned(false);
           targetEntity.setException(exception);

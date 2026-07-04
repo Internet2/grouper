@@ -2113,6 +2113,10 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the description update reaches the target (updateGroup persists it)
     assertEquals(0, fullProvision().getRecordsWithErrors());
+    // updateGroup now marks the updated group for the sync-back drain re-read, so the mirror
+    // already converges on the write pass -- before the bulk re-read of pass B.
+    assertEquals("update converges on the write pass via the drain re-read (before the bulk re-read)",
+        "newDescription", mirroredGroupDescription(configId));
     // pass B: the re-read captures the target's actual new description into the mirror
     assertEquals(0, fullProvision().getRecordsWithErrors());
 

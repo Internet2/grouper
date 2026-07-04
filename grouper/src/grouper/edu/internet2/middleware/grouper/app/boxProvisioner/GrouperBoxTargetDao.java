@@ -267,6 +267,14 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+
+      // sync-back: Box only captures user objects on the read path, so an attribute update does
+      // not by itself refresh grouper_prov_user. Mark this user for the end-of-run sync-back drain
+      // re-read so the mirror converges to the new value. Guarded internally (isLoadEntitiesToGenericGrouperTable),
+      // so no-op when user sync-back is off. Success path only -- never in the catch below.
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeUserWrite(grouperBoxUser.getId(), null);
+
       return new TargetDaoUpdateEntityResponse();
     } catch (Exception e) {
       targetEntity.setProvisioned(false);
@@ -303,6 +311,14 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+
+      // sync-back: Box only captures group objects on the read path, so an attribute update does
+      // not by itself refresh grouper_prov_group. Mark this group for the end-of-run sync-back drain
+      // re-read so the mirror converges to the new value. Guarded internally (isLoadGroupsToGenericGrouperTable),
+      // so no-op when group sync-back is off. Success path only -- never in the catch below.
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeGroupWrite(grouperBoxGroup.getId(), null);
+
       return new TargetDaoUpdateGroupResponse();
     } catch (Exception e) {
       targetGroup.setProvisioned(false);

@@ -183,6 +183,13 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
 
+      // sync-back: FreshRequester captures group OBJECTS on the read path only, so an attribute
+      // update does not refresh grouper_prov_group under groups-from-cache. Mark this updated group
+      // for the end-of-run sync-back drain re-read so the native mirror converges on the write pass.
+      // No-op internally when sync-back (isLoadGroupsToGenericGrouperTable) is off.
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeGroupWrite(targetGroup.getId(), null);
+
       return new TargetDaoUpdateGroupResponse();
     } catch (Exception e) {
       targetGroup.setProvisioned(false);
@@ -341,6 +348,13 @@ public class FreshRequesterTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+
+      // sync-back: FreshRequester captures user OBJECTS on the read path only, so an attribute
+      // update does not refresh grouper_prov_user under users-from-cache. Mark this updated user
+      // for the end-of-run sync-back drain re-read so the native mirror converges on the write pass.
+      // No-op internally when sync-back (isLoadEntitiesToGenericGrouperTable) is off.
+      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
+          .recordTargetNativeUserWrite(targetEntity.getId(), null);
 
       return new TargetDaoUpdateEntityResponse();
     } catch (Exception e) {

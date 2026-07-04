@@ -3618,6 +3618,11 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 
     // pass A: the description update reaches the Azure target (updateGroup persists it)
     assertEquals(0, fullProvision().getRecordsWithErrors());
+    // the updateGroups success path now records the updated group (null native) for the end-of-run
+    // sync-back drain, whose re-read refreshes the mirror on THIS run -- so the new description is
+    // already captured after pass A, before the pass-B bulk re-read.
+    assertEquals("update converges on the write pass via the drain re-read (before the bulk re-read)",
+        "newDescription", mirroredGroupDescription(configId));
     // pass B: the re-read captures the target's actual new description into the mirror
     assertEquals(0, fullProvision().getRecordsWithErrors());
 
