@@ -4674,6 +4674,12 @@ public class GrouperCheckConfig {
                     "#if using a sql table, and specifying the name like string, then shoudl the group (in addition to memberships)" +
                     "# be removed if not used anywhere else?" +
                     "loader.sqlTable.likeString.removeGroupIfNotUsed = true", attributeDefNameSaves);
+                checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_DELETE_PREVIOUSLY_MANAGED_GROUPS, 
+                    "Grouper loader LDAP delete previously managed groups", 
+                    "true or false (default false).  If true, when a group previously managed by this loader (i.e. it has " +
+                    "loaderMetadata marking it as managed by this loader group) no longer shows up in the loader results, delete " +
+                    "that group (if not used anywhere else).  This is mutually exclusive with (and the modern replacement for) the " +
+                    "deprecated 'groups like' setting.", attributeDefNameSaves);
                 checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_RESULTS_TRANSFORMATION_CLASS, 
                     "Grouper loader LDAP results transformation class (optional for loader ldap type: LDAP_GROUPS_FROM_ATTRIBUTE)", attributeDefNameSaves);
                 checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_ATTRIBUTE, 
@@ -5030,6 +5036,8 @@ public class GrouperCheckConfig {
               checkAttribute(legacyAttributeStem, grouperLoaderAttributeDef, legacyAttributePrefix + "grouperLoaderGroupTypes",
                   null, attributeDefNameSaves);
               checkAttribute(legacyAttributeStem, grouperLoaderAttributeDef, legacyAttributePrefix + "grouperLoaderGroupsLike",
+                  null, attributeDefNameSaves);
+              checkAttribute(legacyAttributeStem, grouperLoaderAttributeDef, legacyAttributePrefix + "grouperLoaderDeletePreviouslyManagedGroups",
                   null, attributeDefNameSaves);
               checkAttribute(legacyAttributeStem, grouperLoaderAttributeDef, legacyAttributePrefix + "grouperLoaderGroupQuery",
                   null, attributeDefNameSaves);

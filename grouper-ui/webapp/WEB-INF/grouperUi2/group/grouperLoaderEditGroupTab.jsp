@@ -590,15 +590,41 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                               </tr>
                               
                               <tr>
+                                <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlDeletePreviouslyManagedGroupsId">${textContainer.text['grouperLoaderDeletePreviouslyManagedGroups']}</label></strong></td>
+                                <td>
+                                  <input type="checkbox" value="true"
+                                     name="grouperLoaderDeletePreviouslyManagedGroupsName" id="grouperLoaderSqlDeletePreviouslyManagedGroupsId"
+                                     onchange="grouperLoaderToggleGroupsLike(this);"
+                                     <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderDeletePreviouslyManagedGroups}">checked="checked"</c:if> />
+                                  <br />
+                                  <span class="description">
+                                  ${textContainer.text['grouperLoaderDeletePreviouslyManagedGroupsDescription']}</span>
+                                </td>
+                              </tr>
+                              
+                              <tr id="grouperLoaderGroupsLikeRow" <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderDeletePreviouslyManagedGroups}">style="display: none;"</c:if>>
                                 <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupsLikeId">${textContainer.text['grouperLoaderSqlGroupsLike']}</label></strong></td>
                                 <td>
                                   <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupsLike)}"
                                      name="grouperLoaderSqlGroupsLikeName" id="grouperLoaderSqlGroupsLikeId" />
                                   <br />
                                   <span class="description">
-                                  ${textContainer.text['grouperLoaderSqlGroupsLikeDescription']}</span>
+                                  ${textContainer.text['grouperLoaderSqlGroupsLikeDescription']} ${textContainer.text['grouperLoaderGroupsLikeDeprecated']}</span>
                                 </td>
                               </tr>
+                              
+                              <script type="text/javascript">
+                              function grouperLoaderToggleGroupsLike(checkbox) {
+                                var row = document.getElementById('grouperLoaderGroupsLikeRow');
+                                var input = document.getElementById('grouperLoaderSqlGroupsLikeId');
+                                if (checkbox.checked) {
+                                  if (row != null) { row.style.display = 'none'; }
+                                  if (input != null) { input.value = ''; }
+                                } else {
+                                  if (row != null) { row.style.display = ''; }
+                                }
+                              }
+                              </script>
                               
                               <tr>
                                 <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSyncDisplayNameId">${textContainer.text['grouperLoaderSqlGroupsSyncDisplayNameConfig']}</label></strong></td>
@@ -948,15 +974,39 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
   	                            </td>
   	                          </tr>
   	                          <tr>
+  	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapDeletePreviouslyManagedGroupsId">${textContainer.text['grouperLoaderDeletePreviouslyManagedGroups']}</label></strong></td>
+  	                            <td>
+  	                              <input type="checkbox" value="true"
+  	                                 name="grouperLoaderDeletePreviouslyManagedGroupsName" id="grouperLoaderLdapDeletePreviouslyManagedGroupsId"
+  	                                 onchange="grouperLoaderToggleGroupsLike(this);"
+  	                                 <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderDeletePreviouslyManagedGroups}">checked="checked"</c:if> />
+  	                              <br />
+  	                              <span class="description">
+  	                              ${textContainer.text['grouperLoaderDeletePreviouslyManagedGroupsDescription']}</span>
+  	                            </td>
+  	                          </tr>
+  	                          <tr id="grouperLoaderGroupsLikeRow" <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderDeletePreviouslyManagedGroups}">style="display: none;"</c:if>>
   	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupsLikeId">${textContainer.text['grouperLoaderLdapGroupsLike']}</label></strong></td>
   	                            <td>
   	                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderGroupsLike)}"
   	                                 name="grouperLoaderSqlGroupsLikeName" id="grouperLoaderSqlGroupsLikeId" />
   	                              <br />
   	                              <span class="description">
-  	                              ${textContainer.text['grouperLoaderLdapGroupsLikeDescription']}</span>
+  	                              ${textContainer.text['grouperLoaderLdapGroupsLikeDescription']} ${textContainer.text['grouperLoaderGroupsLikeDeprecated']}</span>
   	                            </td>
   	                          </tr>
+  	                          <script type="text/javascript">
+  	                          function grouperLoaderToggleGroupsLike(checkbox) {
+  	                            var row = document.getElementById('grouperLoaderGroupsLikeRow');
+  	                            var input = document.getElementById('grouperLoaderSqlGroupsLikeId');
+  	                            if (checkbox.checked) {
+  	                              if (row != null) { row.style.display = 'none'; }
+  	                              if (input != null) { input.value = ''; }
+  	                            } else {
+  	                              if (row != null) { row.style.display = ''; }
+  	                            }
+  	                          }
+  	                          </script>
   	                          <tr>
   	                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderGroupNameExpressionId">${textContainer.text['grouperLoaderLdapGroupNameExpression']}</label></strong></td>
   	                            <td>
