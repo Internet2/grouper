@@ -816,6 +816,33 @@ public class GrouperProvisioningData {
   public Set<String> getMemberIdsSelectedFromGrouper() {
     return memberIdsSelectedFromGrouper;
   }
-  
+
+
+  /**
+   * Entity re-link requests recorded during the write phase by a target dao that hit an update
+   * conflict (an update rejected because a different, pre-existing target account already holds the
+   * desired identity).  Drained near end-of-run by {@code drainEntityRelinks}, which re-links each
+   * entity onto the existing account and disposes of the orphaned old account per settings.
+   * Synchronized because dao write threads may record concurrently.
+   */
+  private List<ProvisioningEntityRelinkRequest> entityRelinkRequests =
+      Collections.synchronizedList(new ArrayList<ProvisioningEntityRelinkRequest>());
+
+  /**
+   * record an entity re-link request from a target dao that detected an update conflict; drained
+   * near end-of-run by the generic provisioning logic.
+   * @param provisioningEntityRelinkRequest the request to re-link an entity and dispose its orphan
+   */
+  public void addEntityRelinkRequest(ProvisioningEntityRelinkRequest provisioningEntityRelinkRequest) {
+    this.entityRelinkRequests.add(provisioningEntityRelinkRequest);
+  }
+
+  /**
+   * @return the recorded entity re-link requests (never null); mutate via
+   *         {@link #addEntityRelinkRequest(ProvisioningEntityRelinkRequest)}
+   */
+  public List<ProvisioningEntityRelinkRequest> getEntityRelinkRequests() {
+    return this.entityRelinkRequests;
+  }
 
 }

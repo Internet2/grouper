@@ -1,12 +1,46 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class ScimSettings {
-  
+
+  /**
+   * Update-conflict channel between the low-level api commands and the target dao.  When a PATCH to
+   * rename a user collides with a different, already-existing target user (HTTP 409 scimType
+   * "uniqueness"), patchScimUser cannot rename the linked account, but the target already holds the
+   * desired identity on that other user.  Rather than throw (which would fail the entity every run
+   * and log an error storm), the commands layer stashes {oldTargetId -> the existing colliding user}
+   * here.  The dao drains this after the call and hands it to the generic framework to re-link the
+   * entity to the existing user and dispose of the now-orphaned old account per provisioner settings.
+   * scimSettings is created fresh per dao call, so this map round-trips within a single update only.
+   * Keyed by the old (linked) target id so the dao can correlate to the entity it just patched.
+   */
+  private Map<String, GrouperScim2User> updateConflictOldTargetIdToExistingUser = new LinkedHashMap<String, GrouperScim2User>();
+
+  /**
+   * record a rename-uniqueness conflict for the dao to drain: the old linked target id and the
+   * pre-existing target user that already holds the desired identity.
+   * @param oldTargetId the target id of the currently-linked account we failed to rename
+   * @param existingUser the already-existing target user that owns the desired userName/email
+   */
+  public void addUpdateConflict(String oldTargetId, GrouperScim2User existingUser) {
+    this.updateConflictOldTargetIdToExistingUser.put(oldTargetId, existingUser);
+  }
+
+  /**
+   * @return the stashed rename-uniqueness conflicts, keyed by old linked target id (never null)
+   */
+  public Map<String, GrouperScim2User> getUpdateConflictOldTargetIdToExistingUser() {
+    return this.updateConflictOldTargetIdToExistingUser;
+  }
+
+
   public void loadFromScimProvisionerConfiguration(GrouperScim2ProvisionerConfiguration scimConfiguration) {
     String scimNamePatchStrategy = scimConfiguration.getScimNamePatchStrategy();
     
