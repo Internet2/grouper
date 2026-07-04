@@ -403,6 +403,11 @@ public class GrouperProvisioningLogic {
     syncBackDrainGroups();
     debugMap.put("state", "syncBackDrainUsers");
     syncBackDrainUsers();
+    // recover any entities whose update collided with a pre-existing target account: re-link onto
+    // that account and dispose the orphan per settings.  Runs before storeAllObjects() so the
+    // re-linked sync member is persisted this run.
+    debugMap.put("state", "drainEntityRelinks");
+    drainEntityRelinks();
     debugMap.put("state", "loadDataToGenericProvisionerTables");
     loadDataToGenericProvisionerTables();
     
@@ -1471,6 +1476,128 @@ public class GrouperProvisioningLogic {
 
     // every marked id is now captured (own write / read) or just re-read; clear the marks
     syncBackUserNativeIdsToRead.clear();
+  }
+
+  /**
+   * Drain entity re-link requests recorded by a target dao during the write phase.  These happen
+   * when an entity update is rejected because a DIFFERENT, pre-existing target account already holds
+   * the desired identity (e.g. a SCIM PATCH rename rejected with HTTP 409 scimType "uniqueness"):
+   * the linked account cannot be renamed into the collision, but the other account already has the
+   * identity we wanted.  The dao only detects and records the conflict; all of the recovery policy
+   * lives here so it is framework-generic and honored uniformly for any provisioner.  For each
+   * request this:
+   * <ol>
+   *   <li>runs the OLD (orphaned) account through the standard entity-delete decision, so it is
+   *       deleted, disabled, or left alone exactly per this provisioner's delete settings
+   *       ({@code isDeleteEntity} honors "never delete", "delete if grouper deleted", and "delete
+   *       only if grouper created it"; the dao's deleteEntity then applies "disable instead of
+   *       delete"); then</li>
+   *   <li>re-links the entity's sync member onto the pre-existing account, so subsequent runs
+   *       operate on that account rather than re-attempting the doomed rename every run.</li>
+   * </ol>
+   * Runs near end-of-run, before {@code storeAllObjects()}, so the re-linked sync member persists.
+   * Always on -- there is nothing to configure; a provisioner that never hits an update conflict
+   * simply has no requests to drain.
+   */
+  public void drainEntityRelinks() {
+
+    List<ProvisioningEntityRelinkRequest> entityRelinkRequests =
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getEntityRelinkRequests();
+
+    if (GrouperUtil.length(entityRelinkRequests) == 0) {
+      return;
+    }
+
+    GrouperProvisioningBehavior behavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
+
+    int relinkedCount = 0;
+    int orphanDisposedCount = 0;
+    int orphanLeftCount = 0;
+    int skippedCount = 0;
+    // keep up to ten human-readable examples (oldId -> newId) for the end-of-run debug log
+    List<String> examples = new ArrayList<String>();
+
+    // copy then clear, so disposal/re-link side effects can't disturb iteration and a second drain
+    // in the same run is a no-op
+    List<ProvisioningEntityRelinkRequest> requests =
+        new ArrayList<ProvisioningEntityRelinkRequest>(entityRelinkRequests);
+    entityRelinkRequests.clear();
+
+    for (ProvisioningEntityRelinkRequest relinkRequest : requests) {
+
+      ProvisioningEntityWrapper provisioningEntityWrapper = relinkRequest.getProvisioningEntityWrapper();
+      ProvisioningEntity newTargetEntity = relinkRequest.getNewTargetEntity();
+      String oldTargetId = relinkRequest.getOldTargetId();
+
+      if (provisioningEntityWrapper == null || newTargetEntity == null) {
+        skippedCount++;
+        continue;
+      }
+
+      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+      if (gcGrouperSyncMember == null) {
+        skippedCount++;
+        continue;
+      }
+
+      // the old account we were linked to, retrieved this run (has its target id + attributes); this
+      // is what we dispose.  Fall back to a minimal entity carrying just the old id if the wrapper
+      // has no target representation.
+      ProvisioningEntity oldTargetEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
+      if (oldTargetEntity == null && !StringUtils.isBlank(oldTargetId)) {
+        oldTargetEntity = new ProvisioningEntity();
+        oldTargetEntity.setId(oldTargetId);
+      }
+
+      // 1) dispose the orphaned old account per settings.  If disposal fails we still re-link below --
+      // leaving an orphan is far better than resurrecting the error storm.
+      boolean disposeOldAccount = behavior.isDeleteEntity(gcGrouperSyncMember);
+      if (disposeOldAccount && oldTargetEntity != null) {
+        try {
+          this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().deleteEntityHelper(oldTargetEntity);
+          orphanDisposedCount++;
+        } catch (RuntimeException re) {
+          LOG.error("Provisioner '" + this.getGrouperProvisioner().getConfigId()
+              + "' error disposing orphaned account '" + oldTargetId
+              + "' during entity re-link; leaving it in place", re);
+        }
+      } else {
+        orphanLeftCount++;
+      }
+
+      // 2) re-link the entity's sync member onto the pre-existing account.  Point the wrapper's
+      // target representation at the new account and recompute the link (copyFromTargetOrGrouperTarget
+      // = true recomputes the stored target-id cache from the target attributes).  For provisioners
+      // that don't cache the target id this is a no-op and the next run re-matches by userName.
+      provisioningEntityWrapper.setTargetProvisioningEntity(newTargetEntity);
+      newTargetEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
+      List<ProvisioningEntityWrapper> singleWrapper = new ArrayList<ProvisioningEntityWrapper>();
+      singleWrapper.add(provisioningEntityWrapper);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic().updateEntityLink(singleWrapper, true);
+      relinkedCount++;
+
+      if (examples.size() < 10) {
+        examples.add(oldTargetId + " -> " + newTargetEntity.getId());
+      }
+    }
+
+    Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+    debugMap.put("entityRelinkCount", relinkedCount);
+    debugMap.put("entityRelinkOrphanDisposedCount", orphanDisposedCount);
+    debugMap.put("entityRelinkOrphanLeftCount", orphanLeftCount);
+    if (skippedCount > 0) {
+      debugMap.put("entityRelinkSkippedCount", skippedCount);
+    }
+    if (!examples.isEmpty()) {
+      debugMap.put("entityRelinkExamples", StringUtils.join(examples, ", "));
+    }
+    if (relinkedCount > 0 || orphanDisposedCount > 0) {
+      LOG.info("Provisioner '" + this.getGrouperProvisioner().getConfigId() + "' re-linked " + relinkedCount
+          + " entit" + (relinkedCount == 1 ? "y" : "ies")
+          + " to a pre-existing target account after an update conflict; disposed " + orphanDisposedCount
+          + " orphaned account(s), left " + orphanLeftCount + " per settings."
+          + (examples.isEmpty() ? "" : "  Examples (oldId -> newId): " + StringUtils.join(examples, ", ")));
+    }
   }
 
   private void loadDataToGenericProvisionerTables() {
@@ -4460,6 +4587,9 @@ public class GrouperProvisioningLogic {
           // ######### STEP 38: sync-back drain, then insert/update/delete from grouper_prov* tables
           syncBackDrainGroups();
           syncBackDrainUsers();
+          // recover entities whose update collided with a pre-existing target account (re-link +
+          // dispose orphan per settings); before the store below so the re-link persists this run
+          drainEntityRelinks();
           loadDataToGenericProvisionerTablesIncremental();
 
         }

@@ -698,9 +698,59 @@ public class GrouperScim2ApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
+      // also accept 409 here so we can recover from a "uniqueness" conflict on a rename instead of
+      // failing the entity every run.  This happens when the person's userName/email changed on the
+      // grouper side and a DIFFERENT target account already holds the new identity (e.g. it was
+      // created out-of-band or by another source): the target rejects the PATCH that would rename
+      // our linked account into that collision.  The other account already has the desired identity,
+      // so rather than throw we stash the conflict for the dao to hand to the framework, which
+      // re-links the entity to the existing account and disposes of the old one per settings.
+      int[] returnCode = new int[] { -1 };
       JsonNode patchUserResponseNode = executeMethod(debugMap, debugLabel(debugMap, "patchScimUser"), GrouperHttpMethod.patch, configId,
-          "/Users/" + GrouperUtil.escapeUrlEncode(grouperScim2User.getId()), GrouperUtil.toSet(200, 204),
-          new int[] { -1 }, jsonStringToSend, scimSettings);
+          "/Users/" + GrouperUtil.escapeUrlEncode(grouperScim2User.getId()), GrouperUtil.toSet(200, 204, 409),
+          returnCode, jsonStringToSend, scimSettings);
+
+      if (returnCode[0] == 409) {
+        // only a "uniqueness" conflict is recoverable here; any other 409 is a real error, so rethrow
+        // to preserve the prior fail-and-log behavior.
+        String scimType = patchUserResponseNode == null || !patchUserResponseNode.has("scimType")
+            ? null : patchUserResponseNode.get("scimType").asText();
+        if (!StringUtils.equals("uniqueness", scimType)) {
+          throw new RuntimeException(
+              "Invalid return code '409' with scimType '" + scimType + "', expecting: 200, 204");
+        }
+
+        debugMap.put("patchReturnedUniquenessConflict", true);
+
+        // find the account that already holds the desired identity.  externalId is stable across a
+        // userName rename so try it first, then fall back to the (new) userName.  If neither matches,
+        // this is not a recoverable conflict, so rethrow.
+        JsonNode existingUserNode = null;
+
+        String externalId = grouperScim2User.getExternalId();
+        if (StringUtils.isNotBlank(externalId)) {
+          existingUserNode = retrieveScimUserResourceNode(debugMap, configId, "externalId", externalId, scimSettings);
+        }
+
+        String userName = grouperScim2User.getUserName();
+        if (existingUserNode == null && StringUtils.isNotBlank(userName)) {
+          existingUserNode = retrieveScimUserResourceNode(debugMap, configId, "userName", userName, scimSettings);
+        }
+
+        if (existingUserNode == null) {
+          throw new RuntimeException("SCIM update returned 409 uniqueness but no existing user matched externalId '"
+              + externalId + "' or userName '" + userName + "' to re-link");
+        }
+
+        debugMap.put("stashedUpdateConflictForRelink", true);
+
+        // stash for the dao (via the shared settings object): the id we failed to rename, and the
+        // existing account that owns the desired identity.  Do NOT run the sync-back capture below
+        // for the old id -- the rename did not happen, so the old account's native state is unchanged.
+        scimSettings.addUpdateConflict(grouperScim2User.getId(), GrouperScim2User.fromJson(existingUserNode));
+
+        return;
+      }
 
       // generic provisioner sync back, uniform write rule: if the PATCH returned the resource
       // (200 + body) register it like a read so the drain skips it; a 204 with no body marks

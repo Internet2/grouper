@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityRelinkRequest;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
@@ -1210,15 +1211,30 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       scimSettings.loadFromScimProvisionerConfiguration(scimConfiguration);
       scimSettings.setOrgName(orgNameThreadLocal.get());
   
-      GrouperScim2ApiCommands.patchScimUser(scimConfiguration.getBearerTokenExternalSystemConfigId(), 
+      GrouperScim2ApiCommands.patchScimUser(scimConfiguration.getBearerTokenExternalSystemConfigId(),
           grouperScim2User, fieldNamesToProvisioningObjectChangeAction, scimSettings);
-  
+
+      // if the patch hit a rename-uniqueness conflict, the api commands stashed the pre-existing
+      // account(s) that already hold the desired identity on scimSettings (rather than throwing).
+      // Forward each to the generic framework as a re-link request: the dao only detects and hands
+      // off; the framework re-links this entity onto the existing account and disposes of the
+      // orphaned old account per settings near end-of-run.  The desired identity already lives on
+      // the existing account, so the entity is legitimately resolved for this pass.
+      for (Map.Entry<String, GrouperScim2User> conflictEntry : scimSettings
+          .getUpdateConflictOldTargetIdToExistingUser().entrySet()) {
+        String oldTargetId = conflictEntry.getKey();
+        ProvisioningEntity newTargetEntity = conflictEntry.getValue().toProvisioningEntity();
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().addEntityRelinkRequest(
+            new ProvisioningEntityRelinkRequest(targetEntity.getProvisioningEntityWrapper(),
+                newTargetEntity, oldTargetId));
+      }
+
       targetEntity.setProvisioned(true);
-  
+
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
-  
+
       return new TargetDaoUpdateEntityResponse();
     } catch (Exception e) {
       targetEntity.setProvisioned(false);

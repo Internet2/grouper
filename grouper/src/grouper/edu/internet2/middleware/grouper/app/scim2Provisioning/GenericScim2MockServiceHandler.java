@@ -830,6 +830,41 @@ public class GenericScim2MockServiceHandler extends MockServiceHandler {
 
     GrouperUtil.assertion(operationsNode.size() > 0, "must send operations");
 
+    // rename-uniqueness simulation (parallels the create-conflict path above): a real SCIM target
+    // rejects a PATCH that renames this user's userName (or externalId) into a value a DIFFERENT
+    // user already holds, with HTTP 409 scimType "uniqueness".  This drives the grouper-side
+    // update-conflict re-link recovery.  Evaluate against the INCOMING operations here, BEFORE the
+    // mutation loop below, because a byHqlStatic lookup after mutating the managed object would
+    // auto-flush the pending rename first (masking the collision and persisting the rename).
+    for (int i = 0; i < operationsNode.size(); i++) {
+      JsonNode uniquenessOperation = operationsNode.get(i);
+      String uniquenessPath = GrouperUtil.jsonJacksonGetString(uniquenessOperation, "path");
+      if (!"userName".equals(uniquenessPath) && !"externalId".equals(uniquenessPath)) {
+        continue;
+      }
+      String uniquenessNewValue = GrouperUtil.jsonJacksonGetString(uniquenessOperation, "value");
+      if (StringUtils.isBlank(uniquenessNewValue)) {
+        continue;
+      }
+      List<GrouperScim2User> uniquenessMatches = HibernateSession.byHqlStatic()
+          .createQuery("from GrouperScim2User where " + uniquenessPath + " = :theValue and id != :theId")
+          .setString("theValue", uniquenessNewValue).setString("theId", id).list(GrouperScim2User.class);
+      if (GrouperUtil.length(uniquenessMatches) > 0) {
+        ObjectNode errorNode = GrouperUtil.jsonJacksonNode();
+        ArrayNode errorSchemasNode = GrouperUtil.jsonJacksonArrayNode();
+        errorSchemasNode.add("urn:ietf:params:scim:api:messages:2.0:Error");
+        errorNode.set("schemas", errorSchemasNode);
+        errorNode.put("scimType", "uniqueness");
+        errorNode.put("detail", "User already exists");
+        errorNode.put("status", "409");
+
+        mockServiceResponse.setResponseCode(409);
+        mockServiceResponse.setContentType("application/json");
+        mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(errorNode));
+        return;
+      }
+    }
+
     // pathEmailsQualified can send one op per email address; track which slot to fill
     int qualifiedEmailOpCount = 0;
 
