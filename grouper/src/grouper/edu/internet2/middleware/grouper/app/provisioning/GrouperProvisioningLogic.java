@@ -134,7 +134,10 @@ public class GrouperProvisioningLogic {
         
     // validate the perhaps throw exception
     this.validateAndThrowExceptionIfInvalid();
-    
+
+    // GRP-7048: advisory only (never blocks) if the feature is enabled but unsupported here
+    this.logFullSyncUsersFromSyncBackAdvisories();
+
     debugMap.put("state", "retrieveAllDataFromGrouperAndTarget");
     grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveAllData();
     
@@ -1763,6 +1766,281 @@ public class GrouperProvisioningLogic {
         grouperSyncInternalId,
         roleRowData, debugMap, "loadGenericMshipRolesDel",
         GcTableSyncPhase.DELETES_ONLY);
+  }
+
+  /**
+   * GRP-7048: read the sync-back cache (grouper_prov_user + grouper_prov_user_attr +
+   * grouper_prov_user_attr_value + grouper_dictionary) for this provisioner and rebuild the
+   * target-side {@link ProvisioningEntity} objects, so a full sync can treat the cache as the
+   * target snapshot instead of pulling every user from the target.
+   *
+   * <p>The decode is symmetric with the write path in {@link #loadDataToGenericProvisionerTables()}:
+   * string values come from the dictionary ({@code the_text}), and int/boolean/timestamp values are
+   * decoded from {@code value_integer} using {@code attribute_type}.
+   *
+   * <p>Two important behaviors:
+   * <ul>
+   *   <li>Users whose {@code grouper_sync_member} is in an error state are intentionally NOT
+   *       reconstructed. By leaving them without a target object, the normal missing-entity
+   *       re-read ({@link #retrieveIndividualMissingEntities()}) fetches fresh target state for
+   *       them.</li>
+   *   <li>Every reconstructed user is re-recorded as a native-target user
+   *       ({@code GrouperProvisioningData.getTargetUserIdToNativeUser()}), so the end-of-run
+   *       generic-table flush preserves the cache row rather than deleting a user we served from
+   *       cache but never re-read from the target.</li>
+   * </ul>
+   *
+   * @return the reconstructed target entities (one per cached, non-error user)
+   */
+  public List<ProvisioningEntity> retrieveTargetEntitiesFromSyncBack() {
+
+    List<ProvisioningEntity> result = new ArrayList<ProvisioningEntity>();
+
+    GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+    if (gcGrouperSync == null || gcGrouperSync.getInternalId() == null) {
+      return result;
+    }
+    long grouperSyncInternalId = gcGrouperSync.getInternalId();
+
+    GrouperProvisioningData grouperProvisioningData = this.getGrouperProvisioner().retrieveGrouperProvisioningData();
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+    // 1) the cached users for this provisioner. We reconstruct ALL of them; users that are in the
+    // target but NOT in the cache (referenced by a membership, or otherwise needed) are the ones the
+    // existing missing-entity re-read fetches individually from the target.
+    List<Object[]> userRows = new GcDbAccess().connectionName("grouper")
+        .sql("select internal_id, target_user_id, member_internal_id from grouper_prov_user where grouper_sync_internal_id = ?")
+        .addBindVar(grouperSyncInternalId).selectList(Object[].class);
+
+    Map<Long, ProvisioningEntity> userInternalIdToEntity = new LinkedHashMap<Long, ProvisioningEntity>();
+    Map<Long, GrouperProvisioningTargetNativeUser> userInternalIdToNative = new LinkedHashMap<Long, GrouperProvisioningTargetNativeUser>();
+
+    for (Object[] userRow : GrouperUtil.nonNull(userRows)) {
+      if (userRow == null || userRow[0] == null) {
+        continue;
+      }
+      Long userInternalId = ((Number) userRow[0]).longValue();
+      String targetUserId = userRow[1] == null ? null : userRow[1].toString();
+      Long memberInternalId = userRow[2] == null ? null : ((Number) userRow[2]).longValue();
+
+      if (StringUtils.isBlank(targetUserId)) {
+        continue;
+      }
+
+      ProvisioningEntity provisioningEntity = new ProvisioningEntity();
+      provisioningEntity.setId(targetUserId);
+
+      GrouperProvisioningTargetNativeUser nativeUser = new GrouperProvisioningTargetNativeUser();
+      nativeUser.setTargetId(targetUserId);
+      nativeUser.setMemberInternalId(memberInternalId);
+
+      userInternalIdToEntity.put(userInternalId, provisioningEntity);
+      userInternalIdToNative.put(userInternalId, nativeUser);
+    }
+
+    if (userInternalIdToEntity.isEmpty()) {
+      return result;
+    }
+
+    // 2) attribute values for those users -- one set-based read scoped to this provisioner
+    // (mirrors the write-path value query), rather than batching by user id
+    Map<Long, Map<String, List<Object>>> userInternalIdToAttributeValues = new LinkedHashMap<Long, Map<String, List<Object>>>();
+    List<Object[]> attrRows = new GcDbAccess().connectionName("grouper")
+        .sql("select v.prov_user_internal_id, a.attribute_name, a.attribute_type, v.value_integer, d.the_text "
+            + "from grouper_prov_user_attr_value v "
+            + "join grouper_prov_user_attr a on a.internal_id = v.prov_user_attr_internal_id "
+            + "left join grouper_dictionary d on d.internal_id = v.value_dictionary_internal_id "
+            + "where v.prov_user_internal_id in (select internal_id from grouper_prov_user where grouper_sync_internal_id = ?)")
+        .addBindVar(grouperSyncInternalId).selectList(Object[].class);
+    for (Object[] attrRow : GrouperUtil.nonNull(attrRows)) {
+      if (attrRow == null || attrRow[0] == null || attrRow[1] == null) {
+        continue;
+      }
+      Long userInternalId = ((Number) attrRow[0]).longValue();
+      // skip attribute rows for users we didn't reconstruct (e.g. error-state users we excluded)
+      if (!userInternalIdToEntity.containsKey(userInternalId)) {
+        continue;
+      }
+      String attributeName = attrRow[1].toString();
+      String attributeType = attrRow[2] == null ? "string" : attrRow[2].toString();
+      Long valueInteger = attrRow[3] == null ? null : ((Number) attrRow[3]).longValue();
+      String theText = attrRow[4] == null ? null : attrRow[4].toString();
+
+      Object decodedValue = this.decodeSyncBackAttributeValue(attributeType, valueInteger, theText);
+
+      Map<String, List<Object>> attributeNameToValues = userInternalIdToAttributeValues.get(userInternalId);
+      if (attributeNameToValues == null) {
+        attributeNameToValues = new LinkedHashMap<String, List<Object>>();
+        userInternalIdToAttributeValues.put(userInternalId, attributeNameToValues);
+      }
+      List<Object> values = attributeNameToValues.get(attributeName);
+      if (values == null) {
+        values = new ArrayList<Object>();
+        attributeNameToValues.put(attributeName, values);
+      }
+      values.add(decodedValue);
+    }
+
+    // 3) assemble the entities and native beans
+    for (Map.Entry<Long, ProvisioningEntity> entry : userInternalIdToEntity.entrySet()) {
+      Long userInternalId = entry.getKey();
+      ProvisioningEntity provisioningEntity = entry.getValue();
+      GrouperProvisioningTargetNativeUser nativeUser = userInternalIdToNative.get(userInternalId);
+
+      Map<String, List<Object>> attributeNameToValues = userInternalIdToAttributeValues.get(userInternalId);
+      if (attributeNameToValues != null) {
+        for (Map.Entry<String, List<Object>> attributeEntry : attributeNameToValues.entrySet()) {
+          String attributeName = attributeEntry.getKey();
+          List<Object> values = attributeEntry.getValue();
+          if (GrouperUtil.length(values) == 0) {
+            continue;
+          }
+          GrouperProvisioningConfigurationAttribute configAttribute =
+              grouperProvisioningConfiguration.getTargetEntityAttributeNameToConfig().get(attributeName);
+          boolean multiValued = (configAttribute != null && configAttribute.isMultiValued()) || values.size() > 1;
+          if (multiValued) {
+            for (Object value : values) {
+              provisioningEntity.addAttributeValue(attributeName, value);
+            }
+            nativeUser.getAttributes().put(attributeName, new ArrayList<Object>(values));
+          } else {
+            provisioningEntity.assignAttributeValue(attributeName, values.get(0));
+            nativeUser.getAttributes().put(attributeName, values.get(0));
+          }
+        }
+      }
+
+      // re-record the native user so the end-of-run generic-table flush preserves this cache row
+      grouperProvisioningData.getTargetUserIdToNativeUser().put(nativeUser.getTargetId(), nativeUser);
+
+      result.add(provisioningEntity);
+    }
+
+    this.getGrouperProvisioner().getDebugMap().put("syncBackEntitiesReconstructed", result.size());
+
+    return result;
+  }
+
+  /**
+   * GRP-7048: decode a single sync-back attribute value, symmetric with the type encoding in the
+   * write path (Boolean -&gt; "boolean"/1|0, Timestamp/Date -&gt; "timestamp"/micros,
+   * Number -&gt; "int", everything else -&gt; "string" stored via the dictionary).
+   */
+  private Object decodeSyncBackAttributeValue(String attributeType, Long valueInteger, String theText) {
+    if (StringUtils.equals("int", attributeType)) {
+      return valueInteger;
+    }
+    if (StringUtils.equals("boolean", attributeType)) {
+      return valueInteger == null ? null : Boolean.valueOf(valueInteger.longValue() != 0L);
+    }
+    if (StringUtils.equals("timestamp", attributeType)) {
+      // the write path stored getTime() * 1000 (micros); reverse it back to millis
+      return valueInteger == null ? null : new Timestamp(valueInteger.longValue() / 1000L);
+    }
+    // "string" (and any unknown type): dictionary text, or empty string when both value columns
+    // were null (the write path preserves "attribute present, value empty" as null/null)
+    return theText == null ? "" : theText;
+  }
+
+  /**
+   * GRP-7048: when {@link GrouperProvisioningConfiguration#isFullSyncUsersFromSyncBack()} is on,
+   * seed the target users from the sync-back cache instead of pulling them from the target. The
+   * users that aren't in the cache yet (new) or are in an error state are intentionally left
+   * unseeded, so the existing {@link #retrieveIndividualMissingEntities()} re-reads just that
+   * (small, since the cache is kept warm by incremental sync) subset from the target.
+   *
+   * <p>By design this NEVER does a bulk "select all users" from the target -- that is exactly the
+   * expensive operation the feature exists to avoid. If a bulk-target safety valve is ever wanted
+   * (e.g. for a cold cache), it would be a separate opt-in config.
+   *
+   * <p>No-op unless the feature is enabled and this run selects entities. Called from
+   * {@link #retrieveAllData()} after Grouper data and sync objects are loaded.
+   */
+  /**
+   * GRP-7048: whether this run should resolve users from the sync-back cache. True only when the
+   * config flag is on AND the DAO advertises that its {@code retrieveAllData} honors
+   * {@code retrieveEntities=false} (see
+   * {@link GrouperProvisionerDaoCapabilities#isCanRetrieveAllDataExcludingEntities()}). The
+   * capability guard prevents double-loading users on a DAO that would ignore the request flag.
+   */
+  public boolean isFullSyncUsersFromSyncBackEffective() {
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isFullSyncUsersFromSyncBack()) {
+      return false;
+    }
+    return this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().isCanRetrieveAllDataExcludingEntities();
+  }
+
+  /** GRP-7048: memoized decision for this run of whether to serve entities from the sync-back cache */
+  private Boolean entitiesFromSyncBackCacheThisRun;
+
+  /**
+   * GRP-7048: whether THIS run resolves users from the sync-back cache. Cache-first: only when the
+   * feature is effective, this run selects entities, AND the cache already has users for this
+   * provisioner. A cold/empty cache returns false so the run does a normal full target pull (which
+   * repopulates the cache for next time). Memoized -- the cache count doesn't change mid-run (the
+   * generic-table flush is at the very end).
+   */
+  public boolean isEntitiesFromSyncBackCacheThisRun() {
+    if (this.entitiesFromSyncBackCacheThisRun == null) {
+      this.entitiesFromSyncBackCacheThisRun = this.computeEntitiesFromSyncBackCacheThisRun();
+      this.getGrouperProvisioner().getDebugMap().put("syncBackUsingCache", this.entitiesFromSyncBackCacheThisRun);
+    }
+    return this.entitiesFromSyncBackCacheThisRun;
+  }
+
+  private boolean computeEntitiesFromSyncBackCacheThisRun() {
+    if (!this.isFullSyncUsersFromSyncBackEffective()) {
+      return false;
+    }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities()) {
+      return false;
+    }
+    GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+    if (gcGrouperSync == null || gcGrouperSync.getInternalId() == null) {
+      // no sync row yet -> cache is necessarily empty -> full target pull
+      return false;
+    }
+    Integer cachedUserCount = new GcDbAccess().connectionName("grouper")
+        .sql("select count(1) from grouper_prov_user where grouper_sync_internal_id = ?")
+        .addBindVar(gcGrouperSync.getInternalId()).select(int.class);
+    return cachedUserCount != null && cachedUserCount > 0;
+  }
+
+  /**
+   * GRP-7048: advisory-only logging (never blocks the run) about the fullSyncUsersFromSyncBack
+   * feature. Currently warns when the feature is configured on but the target DAO does not support
+   * it (so the run silently falls back to retrieving users from the target).
+   */
+  private void logFullSyncUsersFromSyncBackAdvisories() {
+    GrouperProvisioningConfiguration configuration = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    if (!configuration.isFullSyncUsersFromSyncBack()) {
+      return;
+    }
+    if (!this.isFullSyncUsersFromSyncBackEffective()) {
+      LOG.warn("Provisioner '" + this.getGrouperProvisioner().getConfigId()
+          + "': fullSyncUsersFromSyncBack is enabled but the target DAO does not advertise support for it "
+          + "(canRetrieveAllDataExcludingEntities); ignoring it and retrieving users from the target normally.");
+    }
+  }
+
+  private void seedTargetEntitiesFromSyncBack() {
+
+    if (!this.isEntitiesFromSyncBackCacheThisRun()) {
+      return;
+    }
+
+    List<ProvisioningEntity> cachedTargetEntities = this.retrieveTargetEntitiesFromSyncBack();
+    if (GrouperUtil.length(cachedTargetEntities) > 0) {
+      this.processTargetDataEntities(cachedTargetEntities, false);
+      for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(cachedTargetEntities)) {
+        if (provisioningEntity.getProvisioningEntityWrapper() != null) {
+          provisioningEntity.getProvisioningEntityWrapper().getProvisioningStateEntity().setSelectResultProcessed(true);
+          // mark that this target view came from the sync-back cache, not a live target read
+          provisioningEntity.getProvisioningEntityWrapper().getProvisioningStateEntity().setReadFromSyncBackCache(true);
+        }
+      }
+    }
   }
 
   private void loadDataToGenericProvisionerTablesIncremental() {
@@ -4992,9 +5270,18 @@ public class GrouperProvisioningLogic {
       public void run() {
         
         try {
+          TargetDaoRetrieveAllDataRequest targetDaoRetrieveAllDataRequest = new TargetDaoRetrieveAllDataRequest();
+          // GRP-7048: when resolving users from the sync-back cache this run, tell the DAO to skip
+          // its (large) user pull; the framework seeds the target users from the cache below. This is
+          // cache-first: a cold/empty cache leaves retrieveEntities=true so the DAO does its normal
+          // full user pull (repopulating the cache). Gated on the DAO capability so we never
+          // skip-and-seed on a DAO that would ignore the flag and return all users (duplicating them).
+          if (GrouperProvisioningLogic.this.isEntitiesFromSyncBackCacheThisRun()) {
+            targetDaoRetrieveAllDataRequest.setRetrieveEntities(false);
+          }
           TargetDaoRetrieveAllDataResponse targetDaoRetrieveAllDataResponse
             = GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-              .retrieveAllData(new TargetDaoRetrieveAllDataRequest());
+              .retrieveAllData(targetDaoRetrieveAllDataRequest);
           
           if (GrouperProvisioningLogic.this.getGrouperProvisioner().getProvisioningStateGlobal().isSelectResultProcessedEntities() 
               || GrouperProvisioningLogic.this.getGrouperProvisioner().getProvisioningStateGlobal().isSelectResultProcessedGroups()
@@ -5075,7 +5362,12 @@ public class GrouperProvisioningLogic {
       processTargetDataGroups(extraTargetData.getProvisioningGroups(), true);
       processTargetDataMemberships(extraTargetData.getProvisioningMemberships(), true);
     }
-    
+
+    // GRP-7048: if configured, seed the target users from the sync-back cache instead of having
+    // pulled them all from the target. Runs here (after Grouper data + sync objects are loaded) so
+    // error-state users can be identified and excluded. No-op unless fullSyncUsersFromSyncBack is on.
+    seedTargetEntitiesFromSyncBack();
+
     this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().retrieveAllDependenciesForFullSync();
     
     long retrieveDataPass1 = System.currentTimeMillis()-start;

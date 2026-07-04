@@ -166,12 +166,23 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       targetData.setProvisioningGroups(targetGroups);
 
+      // GRP-7048: when fullSyncUsersFromSyncBack is on, the framework asks us to skip the user
+      // pull (retrieveEntities=false); it seeds the target users from the sync-back cache instead.
+      // In that case we also skip the per-membership missing-user lookup below -- with no users
+      // retrieved, every membership user would otherwise be "missing" and fetched one by one.
+      boolean retrieveEntities = targetDaoRetrieveAllDataRequest == null || targetDaoRetrieveAllDataRequest.isRetrieveEntities();
+
       List<ProvisioningEntity> targetEntities = new ArrayList<ProvisioningEntity>();
-      List<GrouperOktaUser> oktaUsers = GrouperOktaApiCommands.retrieveOktaUsers(oktaConfiguration.getOktaExternalSystemConfigId());
-      for (GrouperOktaUser oktaUser: oktaUsers) {
-        targetEntities.add(oktaUser.toProvisioningEntity());
-        // generic provisioner sync back: native user capture now happens in
-        // GrouperOktaApiCommands.retrieveOktaUsers from the raw JSON (full fidelity), not here.
+      if (retrieveEntities) {
+        // GRP-7048: counter so tests (and diagnostics) can confirm the bulk user pull ran or was
+        // skipped when resolving users from the sync-back cache
+        edu.internet2.middleware.grouper.util.GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "oktaRetrieveAllUsersApiCall", 1);
+        List<GrouperOktaUser> oktaUsers = GrouperOktaApiCommands.retrieveOktaUsers(oktaConfiguration.getOktaExternalSystemConfigId());
+        for (GrouperOktaUser oktaUser: oktaUsers) {
+          targetEntities.add(oktaUser.toProvisioningEntity());
+          // generic provisioner sync back: native user capture now happens in
+          // GrouperOktaApiCommands.retrieveOktaUsers from the raw JSON (full fidelity), not here.
+        }
       }
       targetData.setProvisioningEntities(targetEntities);
 
@@ -209,8 +220,9 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
         }
       }
 
-      // look up each missing user individually by okta id
-      if (missingEntityIds.size() > 0) {
+      // look up each missing user individually by okta id (skipped when the framework will seed
+      // users from the sync-back cache -- see retrieveEntities guard above)
+      if (retrieveEntities && missingEntityIds.size() > 0) {
         for (String missingEntityId : missingEntityIds) {
           GrouperOktaUser oktaUser = GrouperOktaApiCommands.retrieveOktaUserById(oktaConfiguration.getOktaExternalSystemConfigId(), missingEntityId);
           if (oktaUser != null) {
@@ -660,6 +672,9 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
     // read path captures groups/users from raw JSON at the GrouperOktaApiCommands seam, and
     // memberships group-centrically here, all via GrouperOktaProvisioningTargetNativeSync.record*
     grouperProvisionerDaoCapabilities.setCanSyncBack(true);
+    // GRP-7048: retrieveAllData honors retrieveEntities=false (skips the user pull and the
+    // per-membership missing-user lookup), so fullSyncUsersFromSyncBack can seed users from cache
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingEntities(true);
   }
 
   private String resolveTargetEntityId(ProvisioningEntity targetEntity) {

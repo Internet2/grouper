@@ -145,6 +145,29 @@ public class ProvisioningStateBase {
   }
 
   /**
+   * GRP-7048: true when this object's target-side view was reconstructed from the sync-back cache
+   * (grouper_prov_user / _group / _mship) rather than read live from the target. Set on the seed
+   * pass when fullSyncUsersFromSyncBack (and, in future, the group/membership equivalents) is on.
+   * Lets later phases tell cache-sourced objects apart from live-read ones (e.g. to re-read from the
+   * target before trusting them for a change).
+   */
+  private boolean readFromSyncBackCache;
+
+  /**
+   * GRP-7048: see {@link #readFromSyncBackCache}.
+   */
+  public boolean isReadFromSyncBackCache() {
+    return readFromSyncBackCache;
+  }
+
+  /**
+   * GRP-7048: see {@link #readFromSyncBackCache}.
+   */
+  public void setReadFromSyncBackCache(boolean readFromSyncBackCache) {
+    this.readFromSyncBackCache = readFromSyncBackCache;
+  }
+
+  /**
    * if this insert was sent to target
    */
   private boolean insertResultProcessed;

@@ -75,6 +75,27 @@ public class GrouperProvisionerDaoCapabilities {
     this.canSyncBack = canSyncBack;
   }
 
+  /**
+   * GRP-7048: whether this DAO's {@code retrieveAllData} honors
+   * {@code TargetDaoRetrieveAllDataRequest.isRetrieveEntities() == false} by skipping its user
+   * pull (and any per-membership missing-user lookup), so the framework can seed the target users
+   * from the sync-back cache instead. Only when this is true does {@code fullSyncUsersFromSyncBack}
+   * skip the target user pull and seed from cache; otherwise the feature no-ops. This guard is
+   * important: a DAO that ignored the request flag would return ALL users while the framework also
+   * seeded from the cache, duplicating them.
+   */
+  private boolean canRetrieveAllDataExcludingEntities = false;
+
+  /** see {@link #canRetrieveAllDataExcludingEntities} */
+  public boolean isCanRetrieveAllDataExcludingEntities() {
+    return canRetrieveAllDataExcludingEntities;
+  }
+
+  /** see {@link #canRetrieveAllDataExcludingEntities} */
+  public void setCanRetrieveAllDataExcludingEntities(boolean canRetrieveAllDataExcludingEntities) {
+    this.canRetrieveAllDataExcludingEntities = canRetrieveAllDataExcludingEntities;
+  }
+
 
   @Override
   public String toString() {

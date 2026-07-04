@@ -1938,4 +1938,249 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
         dupGroupAttr);
   }
 
+  // ==========================================================================================
+  // GRP-7048: fullSyncUsersFromSyncBack -- resolve users from the sync-back cache during full sync
+  // instead of pulling every user from Okta. The Okta DAO honors retrieveEntities=false (skips its
+  // bulk user pull AND the per-membership missing-user lookup; counter oktaRetrieveAllUsersApiCall
+  // stays unset), and the framework seeds users from grouper_prov_user. New/error users fall
+  // through to the existing individual missing-entity re-read (counter missingEntitiesForRetrieve).
+  //
+  // NOTE: these are a first cut of the matrix and should be RUN + tuned in the Tomcat-mock harness
+  // (Okta captures state on read, so cache warm-up may need a different pass count; the error
+  // injection touches grouper_sync_member directly). They gate on tomcatRunTests() like the other
+  // Okta sync-back tests.
+  // ==========================================================================================
+
+  /**
+   * GRP-7048 (full sync, warm cache): once the cache is warm, both target users are reconstructed
+   * from grouper_prov_user, the bulk Okta user pull is skipped, and NO individual user re-reads
+   * happen -- proving the feature both skips the big pull and minimizes per-user lookups.
+   */
+  public void testOktaFullSyncUsersFromSyncBackWarmCache() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("fullSyncUsersFromSyncBack", "true");
+    setupOktaSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache: provision the two users into Okta and capture them into grouper_prov_user
+    // (Okta captures on read, so a few passes converge the inserts + post-write capture)
+    fullProvision(configId);
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals("both users cached after warm-up", 2, countSyncBack(configId, "grouper_prov_user"));
+
+    // the warm run: users come entirely from the cache
+    fullProvision(configId);
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("bulk user pull from Okta should be skipped (users come from the sync-back cache)",
+        debugMap.get("oktaRetrieveAllUsersApiCall"));
+    assertEquals("both users reconstructed from the cache", 2, debugMapInt(debugMap, "syncBackEntitiesReconstructed"));
+    assertEquals("no individual user re-reads when the cache is warm and complete", 0,
+        debugMapInt(debugMap, "missingEntitiesForRetrieve"));
+  }
+
+  /**
+   * GRP-7048 (full sync, user missing from cache is re-read): a user that is in the target but not
+   * in the sync-back cache is re-read individually from Okta, while the users that ARE in the cache
+   * are served from it and the bulk pull stays skipped. We simulate the cache miss by deleting one
+   * user's grouper_prov_user row after warm-up (it stays in Okta).
+   */
+  public void testOktaFullSyncUsersFromSyncBackMissingFromCacheReRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("fullSyncUsersFromSyncBack", "true");
+    setupOktaSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache
+    fullProvision(configId);
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals("both users cached after warm-up", 2, countSyncBack(configId, "grouper_prov_user"));
+
+    // simulate a cache miss for SUBJ0: delete its grouper_prov_user row (+ attr values) while it
+    // stays in Okta. grouper_prov_user.member_internal_id -> grouper_members.internal_id.
+    String provUserForSubj0 = "select internal_id from grouper_prov_user "
+        + "where grouper_sync_internal_id = (select internal_id from grouper_sync where provisioner_name = ?) "
+        + "and member_internal_id = (select internal_id from grouper_members where subject_id = ?)";
+    // delete the FK children first (attr values + memberships that reference this prov_user row)
+    new GcDbAccess().connectionName("grouper")
+        .sql("delete from grouper_prov_user_attr_value where prov_user_internal_id in (" + provUserForSubj0 + ")")
+        .addBindVar(configId).addBindVar(SubjectTestHelper.SUBJ0.getId()).executeSql();
+    new GcDbAccess().connectionName("grouper")
+        .sql("delete from grouper_prov_mship where prov_user_internal_id in (" + provUserForSubj0 + ")")
+        .addBindVar(configId).addBindVar(SubjectTestHelper.SUBJ0.getId()).executeSql();
+    new GcDbAccess().connectionName("grouper")
+        .sql("delete from grouper_prov_user "
+            + "where grouper_sync_internal_id = (select internal_id from grouper_sync where provisioner_name = ?) "
+            + "and member_internal_id = (select internal_id from grouper_members where subject_id = ?)")
+        .addBindVar(configId).addBindVar(SubjectTestHelper.SUBJ0.getId()).executeSql();
+    assertEquals("SUBJ0 removed from the cache, SUBJ1 remains", 1, countSyncBack(configId, "grouper_prov_user"));
+
+    // the run: SUBJ1 from cache, SUBJ0 (missing from cache) re-read individually from Okta
+    fullProvision(configId);
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("bulk user pull from Okta should still be skipped (cache is non-empty)",
+        debugMap.get("oktaRetrieveAllUsersApiCall"));
+    assertEquals("only the cached user is reconstructed from the cache", 1,
+        debugMapInt(debugMap, "syncBackEntitiesReconstructed"));
+    assertEquals("exactly the user missing from the cache is re-read individually", 1,
+        debugMapInt(debugMap, "missingEntitiesForRetrieve"));
+  }
+
+  /**
+   * GRP-7048 (incremental keeps cache current + full-from-cache): the feature relies on the cache
+   * being kept current by incremental sync. Warm the cache with one user, add a second user via an
+   * incremental run (which must write it into grouper_prov_user), then a full sync serves BOTH from
+   * the cache -- bulk pull skipped, no individual re-reads.
+   */
+  public void testOktaFullSyncUsersFromSyncBackIncrementalKeepsCacheCurrent() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("fullSyncUsersFromSyncBack", "true");
+    setupOktaSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache with SUBJ0
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals("SUBJ0 cached after warm-up", 1, countSyncBack(configId, "grouper_prov_user"));
+
+    // add SUBJ1 and exercise an incremental run (pushes the change to Okta)
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    incrementalProvision(configId);
+
+    // converge with full-from-cache passes. Okta captures target state on READ, so the cache
+    // converges over a write pass + a read pass (the same 2-pass pattern the existing sync-back
+    // tests use). SUBJ1 is missing from the cache, so full-from-cache re-reads it individually and
+    // then captures it, while SUBJ0 keeps coming from the cache. The end state must include both.
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals("after an incremental add + full-from-cache, both users are in the cache", 2,
+        countSyncBack(configId, "grouper_prov_user"));
+
+    // and the full-from-cache path never did the bulk Okta user pull
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+    assertNull("bulk user pull from Okta should be skipped", debugMap.get("oktaRetrieveAllUsersApiCall"));
+  }
+
+  /**
+   * GRP-7048 (incremental cache currency on removal): the mirror must stay accurate in the removal
+   * direction too. Warm the cache with two memberships, remove one member via an incremental run,
+   * and assert the membership is dropped from the mirror (grouper_prov_mship) -- so a later
+   * full-from-cache sync sees the correct membership set, not a stale one.
+   */
+  public void testOktaFullSyncUsersFromSyncBackIncrementalRemovalCacheCurrent() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("fullSyncUsersFromSyncBack", "true");
+    // enable membership deletes so removing a member actually deprovisions the membership from Okta
+    // (the setup default leaves delete-types off); mirrors the existing Okta delete-converge test
+    extraConfig.put("customizeMembershipCrud", "true");
+    extraConfig.put("deleteMemberships", "true");
+    extraConfig.put("deleteMembershipsIfNotExistInGrouper", "true");
+    setupOktaSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache: two members, two memberships in the mirror
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals("two users cached after warm-up", 2, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("two memberships cached after warm-up", 2, countSyncBack(configId, "grouper_prov_mship"));
+
+    // remove SUBJ1's membership and exercise an incremental run (deprovisions it from Okta)
+    testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
+    incrementalProvision(configId);
+
+    // converge with full-from-cache passes (write pass + read pass, as Okta captures on read); the
+    // mirror must drop the removed membership, and the bulk Okta user pull is never done
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals("after an incremental removal + full-from-cache, one membership left", 1,
+        countSyncBack(configId, "grouper_prov_mship"));
+
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+    assertNull("bulk user pull from Okta should be skipped", debugMap.get("oktaRetrieveAllUsersApiCall"));
+  }
+
+  /** read an int counter from the provisioner debug map, treating absent as 0 */
+  private static int debugMapInt(Map<String, Object> debugMap, String key) {
+    Object value = debugMap == null ? null : debugMap.get(key);
+    return value == null ? 0 : ((Number) value).intValue();
+  }
+
 }

@@ -1421,6 +1421,21 @@ public abstract class GrouperProvisioningConfiguration {
   private boolean recalculateAllOperations;
 
   /**
+   * GRP-7048: during full sync, resolve target users from the sync-back cache
+   * (grouper_prov_user and friends) instead of retrieving all users from the target.
+   * At large user counts, pulling every user from the target dominates full-sync runtime;
+   * the cache mirrors the target and is kept current on change by incremental sync, so we can
+   * treat it as the target snapshot and only re-read the users that actually need it (missing
+   * from the cache or in an error state). Requires the entity sync-back to be enabled
+   * (loadEntitiesToGenericGrouperTable) so the cache is populated.
+   */
+  private boolean fullSyncUsersFromSyncBack;
+
+  public boolean isFullSyncUsersFromSyncBack() {
+    return this.fullSyncUsersFromSyncBack;
+  }
+
+  /**
    * attribute name to config
    */
   private Map<String, GrouperProvisioningConfigurationAttribute> targetGroupAttributeNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
@@ -3778,6 +3793,9 @@ public abstract class GrouperProvisioningConfiguration {
 
     this.runLogicInIncrementalDaemon = GrouperUtil.booleanValue(this.retrieveConfigBoolean("runLogicInIncrementalDaemon", false), true);
     this.runLogicInFullDaemon = GrouperUtil.booleanValue(this.retrieveConfigBoolean("runLogicInFullDaemon", false), true);
+
+    // GRP-7048: full sync can resolve users from the sync-back cache instead of the target
+    this.fullSyncUsersFromSyncBack = GrouperUtil.booleanValue(this.retrieveConfigBoolean("fullSyncUsersFromSyncBack", false), false);
 
     {
       String grouperProvisioningMembershipFieldTypeString = this.retrieveConfigString("membershipFields", false);
