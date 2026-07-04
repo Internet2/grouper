@@ -389,11 +389,17 @@ public class LoaderLdapUtils {
   /** extension of the attribute def name for optional results transformation class */
   public static final String ATTR_DEF_EXTENSION_RESULTS_TRANSFORMATION_CLASS = "grouperLoaderLdapResultsTransformationClass";
 
+  /** extension of the attribute def name for delete previously managed groups (modern replacement for groups like) */
+  public static final String ATTR_DEF_EXTENSION_DELETE_PREVIOUSLY_MANAGED_GROUPS = "grouperLoaderLdapDeletePreviouslyManagedGroups";
+
   /** attribute def name of groups like string for sql to remove orphans of LDAP_GROUP_LIST */
   private static String grouperLoaderLdapGroupsLikeName;
   
   /** attribute def name of results transformation class */
   private static String grouperLoaderLdapResultsTransformationClassName;
+
+  /** attribute def name of delete previously managed groups */
+  private static String grouperLoaderLdapDeletePreviouslyManagedGroupsName;
 
   /**
    * attribute def name of groups like string for sql to remove orphans of LDAP_GROUP_LIST
@@ -431,6 +437,25 @@ public class LoaderLdapUtils {
    */
   public static AttributeDefName grouperLoaderLdapResultsTransformationClassAttributeDefName() {
     return AttributeDefNameFinder.findByName(grouperLoaderLdapResultsTransformationClassName(), true);
+  }
+  
+  /**
+   * attribute def name of delete previously managed groups (modern replacement for groups like)
+   * @return name
+   */
+  public static String grouperLoaderLdapDeletePreviouslyManagedGroupsName() {
+    if (grouperLoaderLdapDeletePreviouslyManagedGroupsName == null) {
+      grouperLoaderLdapDeletePreviouslyManagedGroupsName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_DELETE_PREVIOUSLY_MANAGED_GROUPS;
+    }
+    return grouperLoaderLdapDeletePreviouslyManagedGroupsName;
+  }
+  
+  /**
+   * return attribute def name for attribute delete previously managed groups
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapDeletePreviouslyManagedGroupsAttributeDefName() {
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapDeletePreviouslyManagedGroupsName(), true);
   }
   
   /**

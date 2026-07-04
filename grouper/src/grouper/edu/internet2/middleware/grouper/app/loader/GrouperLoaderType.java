@@ -270,6 +270,7 @@ public enum GrouperLoaderType {
         return StringUtils.equals(GrouperLoader.GROUPER_LOADER_PRIORITY, attributeName)
             || StringUtils.equals(GrouperLoader.GROUPER_LOADER_INTERVAL_SECONDS, attributeName)
             || StringUtils.equals(GrouperLoader.GROUPER_LOADER_AND_GROUPS, attributeName)
+            || StringUtils.equals(GrouperLoader.GROUPER_LOADER_DELETE_PREVIOUSLY_MANAGED_GROUPS, attributeName)
             || StringUtils.equals(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, attributeName);
       }
       
@@ -786,6 +787,7 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAndGroupsName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapPriorityName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapDeletePreviouslyManagedGroupsName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), attributeName)
@@ -931,6 +933,7 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAndGroupsName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapPriorityName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapDeletePreviouslyManagedGroupsName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), attributeName)
@@ -1327,6 +1330,15 @@ public enum GrouperLoaderType {
 
       GrouperLoaderLogger.addLogEntry("overallLog", "groupsNoLongerManagedByLoaderCount", GrouperUtil.length(groupsNoLongerManagedByLoader));
 
+      // determine (once) whether groups previously managed by this loader that are no longer in the
+      // source should be deleted.  this uses the per-loader attribute (falling back to the global
+      // config property).  only applies when there is no (deprecated) groups like string, which the
+      // two are mutually exclusive.
+      Group loaderGroupForDelete = StringUtils.isBlank(hib3GrouploaderLogOverall.getGroupUuid()) ? null
+          : GroupFinder.findByUuid(grouperSession, hib3GrouploaderLogOverall.getGroupUuid(), false);
+      boolean deletePreviouslyManagedGroups = StringUtils.isBlank(groupLikeString)
+          && shouldDeletePreviouslyManagedGroups(loaderGroupForDelete);
+
       if (grouperFailsafeBean != null && grouperFailsafeBean.isUseFailsafe()){
         // lets see what current membership count is and see if failsafe
         
@@ -1421,15 +1433,12 @@ public enum GrouperLoaderType {
 
       }
       
-      updateLoaderMetadataForGroupsNoLongerInLoader(groupsNoLongerManagedByLoader);
-      
-      if (StringUtils.isBlank(groupLikeString) &&
-          
-          // TODO have more options here
-          GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.deleteGroupsNoLongerInSource", false)) {
-        potentiallyDeleteGroups(grouperSession, groupsNoLongerManagedByLoader,
-            groupNamesFromGroupQuery, hib3GrouploaderLogOverall);
-        //groupNames.removeAll(deletedGroupNames);
+      // when we are going to delete these groups (below, after membership sync) do NOT mark their
+      // loaderMetadata grouperLoaderMetadataLoaded=false here.  the delete relies on that marker
+      // (via getGroupsNoLongerMangedByLoader) being loaded=true, and if a delete fails (e.g. the
+      // group is still in use) we want the group to remain a candidate for deletion on the next run.
+      if (!deletePreviouslyManagedGroups) {
+        updateLoaderMetadataForGroupsNoLongerInLoader(groupsNoLongerManagedByLoader);
       }
       
       //#######################################
@@ -1792,6 +1801,14 @@ public enum GrouperLoaderType {
 
       GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
       
+      // remove groups last: all groups are now created and their memberships reconciled, so it is safe
+      // to delete groups that are no longer in the source.  this makes a run apply changes in the order
+      // add groups -> remove memberships -> add memberships -> remove groups.
+      if (deletePreviouslyManagedGroups) {
+        potentiallyDeleteGroups(grouperSession, groupsNoLongerManagedByLoader,
+            groupNamesFromGroupQuery, hib3GrouploaderLogOverall);
+      }
+      
       if (LOG.isDebugEnabled()) {
         LOG.debug(groupNameOverall + ": done syncing membership");
       }
@@ -2141,6 +2158,40 @@ public enum GrouperLoaderType {
       
     }
     
+  }
+  
+  /**
+   * determine whether groups that were previously managed by this loader but are no longer in the
+   * loader source should be deleted.  checks the per-loader attribute
+   * (grouperLoaderDeletePreviouslyManagedGroups for SQL loaders,
+   * grouperLoaderLdapDeletePreviouslyManagedGroups for LDAP loaders); if that attribute is not set
+   * on the loader group, falls back to the global config property loader.deleteGroupsNoLongerInSource.
+   * This is mutually exclusive with the deprecated grouperLoaderGroupsLike setting (the caller only
+   * uses this when the groups like string is blank).
+   * @param loaderGroup the loader group (may be null)
+   * @return true if groups no longer in the source should be deleted
+   */
+  public static boolean shouldDeletePreviouslyManagedGroups(Group loaderGroup) {
+    String attributeValue = null;
+    if (loaderGroup != null) {
+      // sql loader attribute
+      attributeValue = attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_DELETE_PREVIOUSLY_MANAGED_GROUPS);
+      // ldap loader attribute
+      if (StringUtils.isBlank(attributeValue)) {
+        AttributeDefName grouperLoaderLdapTypeAttributeDefName = AttributeDefNameFinder.findByName(LoaderLdapUtils.grouperLoaderLdapName(), false);
+        if (grouperLoaderLdapTypeAttributeDefName != null) {
+          AttributeAssign attributeAssign = loaderGroup.getAttributeDelegate().retrieveAssignment(
+              null, grouperLoaderLdapTypeAttributeDefName, false, false);
+          if (attributeAssign != null) {
+            attributeValue = attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapDeletePreviouslyManagedGroupsName());
+          }
+        }
+      }
+    }
+    if (!StringUtils.isBlank(attributeValue)) {
+      return GrouperUtil.booleanValue(attributeValue, false);
+    }
+    return GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.deleteGroupsNoLongerInSource", false);
   }
   
   /**

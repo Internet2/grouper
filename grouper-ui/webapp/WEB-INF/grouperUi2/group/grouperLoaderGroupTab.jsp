@@ -182,11 +182,21 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                           </tr>
                           
                           <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderDeletePreviouslyManagedGroups']}</strong></td>
+                            <td style="vertical-align: top;">
+                            
+                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlDeletePreviouslyManagedGroups)}
+                              <br /><span class="description">${textContainer.text['grouperLoaderDeletePreviouslyManagedGroupsDescription']}</span>
+                            
+                            </td>
+                          </tr>
+                          
+                          <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderSqlGroupsLike']}</strong></td>
                             <td style="vertical-align: top;">
                             
                               ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlGroupsLike)}
-                              <br /><span class="description">${textContainer.text['grouperLoaderSqlGroupsLikeDescription']}</span>
+                              <br /><span class="description">${textContainer.text['grouperLoaderSqlGroupsLikeDescription']} ${textContainer.text['grouperLoaderGroupsLikeDeprecated']}</span>
                             
                             </td>
                           </tr>

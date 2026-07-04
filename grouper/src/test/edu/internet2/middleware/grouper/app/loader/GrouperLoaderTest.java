@@ -3011,6 +3011,102 @@ public class GrouperLoaderTest extends GrouperTest {
           + minAddSeq + ")", maxDeleteSeq < minAddSeq);
     }
   }
+
+  /**
+   * with loader.deleteGroupsNoLongerInSource=true, a group-list loader run should apply changes in the
+   * order add groups -&gt; remove memberships -&gt; add memberships -&gt; remove groups.  This verifies
+   * (via change log sequence numbers) that deleting a group that is no longer in the source happens
+   * AFTER memberships have been added to the groups that remain.
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderDeleteGroupsNoLongerInSourceOrder() throws Exception {
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.deleteGroupsNoLongerInSource", "true");
+
+    try {
+
+      //initial source: group1 (SUBJ0) and group2 (SUBJ1), both defined in the group query
+      List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+      testDataList.add(new TestgrouperLoader("loader:group1", SubjectTestHelper.SUBJ0_ID, null));
+      testDataList.add(new TestgrouperLoader("loader:group2", SubjectTestHelper.SUBJ1_ID, null));
+      testDataList.add(new TestgrouperLoaderGroups("loader:group1", "loader:group1", null));
+      testDataList.add(new TestgrouperLoaderGroups("loader:group2", "loader:group2", null));
+      HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+      Group loaderGroup = Group.saveGroup(this.grouperSession, null, null,
+          "loader:owner", null, null, null, true);
+      loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY,
+          "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+          "select group_name, group_display_name, group_description from testgrouper_loader_groups");
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
+
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+      //both groups exist with their members after the first run
+      Group group1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
+      Group group2 = GroupFinder.findByName(this.grouperSession, "loader:group2", true);
+      assertTrue(group1.hasMember(SubjectTestHelper.SUBJ0));
+      assertTrue(group2.hasMember(SubjectTestHelper.SUBJ1));
+
+      //flush the change log and capture the baseline sequence number (first run excluded)
+      GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+      long baselineSequence = GrouperUtil.defaultIfNull(ChangeLogEntry.maxSequenceNumber(false), 0L);
+
+      //change source: drop group2 entirely (from both queries) and add SUBJ2 to group1
+      HibernateSession.byHqlStatic().createQuery(
+          "delete from TestgrouperLoader where col1='loader:group2'").executeUpdate();
+      HibernateSession.byHqlStatic().createQuery(
+          "delete from TestgrouperLoaderGroups where groupName='loader:group2'").executeUpdate();
+      HibernateSession.byObjectStatic().saveOrUpdate(
+          new TestgrouperLoader("loader:group1", SubjectTestHelper.SUBJ2_ID, null));
+
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+      GrouperCacheUtils.clearAllCaches();
+
+      //verify final state: group2 deleted, group1 has SUBJ0 and SUBJ2
+      group1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
+      assertTrue(group1.hasMember(SubjectTestHelper.SUBJ0));
+      assertTrue(group1.hasMember(SubjectTestHelper.SUBJ2));
+      assertNull(GroupFinder.findByName(this.grouperSession, "loader:group2", false));
+
+      //flush the change log for the second run so the add/delete entries get sequence numbers
+      GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog", false);
+
+      //the membership add to group1 must be recorded before the group2 delete (remove groups last)
+      List<ChangeLogEntry> entries = GrouperDAOFactory.getFactory().getChangeLogEntry().retrieveBatch(baselineSequence, 100000);
+      long maxGroup1AddSeq = -1;
+      long group2DeleteSeq = -1;
+      int group1AddCount = 0;
+      int group2DeleteCount = 0;
+      for (ChangeLogEntry entry : entries) {
+        if (entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)
+            && "loader:group1".equals(entry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName.name()))) {
+          maxGroup1AddSeq = Math.max(maxGroup1AddSeq, entry.getSequenceNumber());
+          group1AddCount++;
+        } else if (entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE)
+            && "loader:group2".equals(entry.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.name.name()))) {
+          group2DeleteSeq = entry.getSequenceNumber();
+          group2DeleteCount++;
+        }
+      }
+
+      assertEquals("expected one membership add to loader:group1", 1, group1AddCount);
+      assertEquals("expected loader:group2 to be deleted once", 1, group2DeleteCount);
+      assertTrue("the membership add to loader:group1 (seq " + maxGroup1AddSeq
+          + ") should be recorded before the delete of loader:group2 (seq " + group2DeleteSeq + ")",
+          maxGroup1AddSeq < group2DeleteSeq);
+
+    } finally {
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("loader.deleteGroupsNoLongerInSource");
+    }
+  }
   
   
   /**
