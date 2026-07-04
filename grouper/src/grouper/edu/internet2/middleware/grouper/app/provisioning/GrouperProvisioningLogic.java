@@ -2162,6 +2162,204 @@ public class GrouperProvisioningLogic {
     }
   }
 
+  // ========================= GRP-7048: groups axis =========================
+
+  /** GRP-7048: groups analogue of {@link #isFullSyncUsersFromSyncBackEffective()}. */
+  public boolean isFullSyncGroupsFromSyncBackEffective() {
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isFullSyncGroupsFromSyncBack()) {
+      return false;
+    }
+    return this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().isCanRetrieveAllDataExcludingGroups();
+  }
+
+  /** GRP-7048: memoized decision for this run of whether to serve groups from the sync-back cache */
+  private Boolean groupsFromSyncBackCacheThisRun;
+
+  /**
+   * GRP-7048: whether THIS run resolves groups from the sync-back cache. Cache-first, same as the
+   * other axes -- feature effective, this run selects groups, and the group cache is warm. PLUS a
+   * both-or-neither pairing with memberships: groups are only served from the cache when memberships
+   * are ALSO from the cache, so a target that fetches memberships by iterating groups (e.g. Okta)
+   * never loses its group list when the group pull is skipped.
+   */
+  public boolean isGroupsFromSyncBackCacheThisRun() {
+    if (this.groupsFromSyncBackCacheThisRun == null) {
+      this.groupsFromSyncBackCacheThisRun = this.computeGroupsFromSyncBackCacheThisRun();
+      this.getGrouperProvisioner().getDebugMap().put("syncBackUsingCacheGroups", this.groupsFromSyncBackCacheThisRun);
+    }
+    return this.groupsFromSyncBackCacheThisRun;
+  }
+
+  private boolean computeGroupsFromSyncBackCacheThisRun() {
+    if (!this.isFullSyncGroupsFromSyncBackEffective()) {
+      return false;
+    }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups()) {
+      return false;
+    }
+    // both-or-neither pairing with memberships (see javadoc)
+    if (!this.isMembershipsFromSyncBackCacheThisRun()) {
+      return false;
+    }
+    GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+    if (gcGrouperSync == null || gcGrouperSync.getInternalId() == null) {
+      return false;
+    }
+    Integer cachedCount = new GcDbAccess().connectionName("grouper")
+        .sql("select count(1) from grouper_prov_group where grouper_sync_internal_id = ?")
+        .addBindVar(gcGrouperSync.getInternalId()).select(int.class);
+    return cachedCount != null && cachedCount > 0;
+  }
+
+  /**
+   * GRP-7048: reconstruct target groups from grouper_prov_group (+ _attr / _attr_value / dictionary),
+   * mirroring {@link #retrieveTargetEntitiesFromSyncBack()}. Each group is re-recorded as a native
+   * group so the end-of-run generic-table flush preserves it.
+   */
+  public List<ProvisioningGroup> retrieveTargetGroupsFromSyncBack() {
+
+    List<ProvisioningGroup> result = new ArrayList<ProvisioningGroup>();
+
+    GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+    if (gcGrouperSync == null || gcGrouperSync.getInternalId() == null) {
+      return result;
+    }
+    long grouperSyncInternalId = gcGrouperSync.getInternalId();
+
+    GrouperProvisioningData grouperProvisioningData = this.getGrouperProvisioner().retrieveGrouperProvisioningData();
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+    // 1) the cached groups for this provisioner
+    List<Object[]> groupRows = new GcDbAccess().connectionName("grouper")
+        .sql("select internal_id, target_group_id, group_internal_id from grouper_prov_group where grouper_sync_internal_id = ?")
+        .addBindVar(grouperSyncInternalId).selectList(Object[].class);
+
+    Map<Long, ProvisioningGroup> provGroupInternalIdToGroup = new LinkedHashMap<Long, ProvisioningGroup>();
+    Map<Long, GrouperProvisioningTargetNativeGroup> provGroupInternalIdToNative = new LinkedHashMap<Long, GrouperProvisioningTargetNativeGroup>();
+
+    for (Object[] groupRow : GrouperUtil.nonNull(groupRows)) {
+      if (groupRow == null || groupRow[0] == null) {
+        continue;
+      }
+      Long provGroupInternalId = ((Number) groupRow[0]).longValue();
+      String targetGroupId = groupRow[1] == null ? null : groupRow[1].toString();
+      Long groupInternalId = groupRow[2] == null ? null : ((Number) groupRow[2]).longValue();
+
+      if (StringUtils.isBlank(targetGroupId)) {
+        continue;
+      }
+
+      ProvisioningGroup provisioningGroup = new ProvisioningGroup();
+      provisioningGroup.setId(targetGroupId);
+
+      GrouperProvisioningTargetNativeGroup nativeGroup = new GrouperProvisioningTargetNativeGroup();
+      nativeGroup.setTargetId(targetGroupId);
+      nativeGroup.setGroupInternalId(groupInternalId);
+
+      provGroupInternalIdToGroup.put(provGroupInternalId, provisioningGroup);
+      provGroupInternalIdToNative.put(provGroupInternalId, nativeGroup);
+    }
+
+    if (provGroupInternalIdToGroup.isEmpty()) {
+      return result;
+    }
+
+    // 2) attribute values for those groups -- one set-based read scoped to this provisioner
+    Map<Long, Map<String, List<Object>>> provGroupInternalIdToAttributeValues = new LinkedHashMap<Long, Map<String, List<Object>>>();
+    List<Object[]> attrRows = new GcDbAccess().connectionName("grouper")
+        .sql("select v.prov_group_internal_id, a.attribute_name, a.attribute_type, v.value_integer, d.the_text "
+            + "from grouper_prov_group_attr_value v "
+            + "join grouper_prov_group_attr a on a.internal_id = v.prov_group_attr_internal_id "
+            + "left join grouper_dictionary d on d.internal_id = v.value_dictionary_internal_id "
+            + "where v.prov_group_internal_id in (select internal_id from grouper_prov_group where grouper_sync_internal_id = ?)")
+        .addBindVar(grouperSyncInternalId).selectList(Object[].class);
+    for (Object[] attrRow : GrouperUtil.nonNull(attrRows)) {
+      if (attrRow == null || attrRow[0] == null || attrRow[1] == null) {
+        continue;
+      }
+      Long provGroupInternalId = ((Number) attrRow[0]).longValue();
+      if (!provGroupInternalIdToGroup.containsKey(provGroupInternalId)) {
+        continue;
+      }
+      String attributeName = attrRow[1].toString();
+      String attributeType = attrRow[2] == null ? "string" : attrRow[2].toString();
+      Long valueInteger = attrRow[3] == null ? null : ((Number) attrRow[3]).longValue();
+      String theText = attrRow[4] == null ? null : attrRow[4].toString();
+
+      Object decodedValue = this.decodeSyncBackAttributeValue(attributeType, valueInteger, theText);
+
+      Map<String, List<Object>> attributeNameToValues = provGroupInternalIdToAttributeValues.get(provGroupInternalId);
+      if (attributeNameToValues == null) {
+        attributeNameToValues = new LinkedHashMap<String, List<Object>>();
+        provGroupInternalIdToAttributeValues.put(provGroupInternalId, attributeNameToValues);
+      }
+      List<Object> values = attributeNameToValues.get(attributeName);
+      if (values == null) {
+        values = new ArrayList<Object>();
+        attributeNameToValues.put(attributeName, values);
+      }
+      values.add(decodedValue);
+    }
+
+    // 3) assemble the groups and native beans
+    for (Map.Entry<Long, ProvisioningGroup> entry : provGroupInternalIdToGroup.entrySet()) {
+      Long provGroupInternalId = entry.getKey();
+      ProvisioningGroup provisioningGroup = entry.getValue();
+      GrouperProvisioningTargetNativeGroup nativeGroup = provGroupInternalIdToNative.get(provGroupInternalId);
+
+      Map<String, List<Object>> attributeNameToValues = provGroupInternalIdToAttributeValues.get(provGroupInternalId);
+      if (attributeNameToValues != null) {
+        for (Map.Entry<String, List<Object>> attributeEntry : attributeNameToValues.entrySet()) {
+          String attributeName = attributeEntry.getKey();
+          List<Object> values = attributeEntry.getValue();
+          if (GrouperUtil.length(values) == 0) {
+            continue;
+          }
+          GrouperProvisioningConfigurationAttribute configAttribute =
+              grouperProvisioningConfiguration.getTargetGroupAttributeNameToConfig().get(attributeName);
+          boolean multiValued = (configAttribute != null && configAttribute.isMultiValued()) || values.size() > 1;
+          if (multiValued) {
+            for (Object value : values) {
+              provisioningGroup.addAttributeValue(attributeName, value);
+            }
+            nativeGroup.getAttributes().put(attributeName, new ArrayList<Object>(values));
+          } else {
+            provisioningGroup.assignAttributeValue(attributeName, values.get(0));
+            nativeGroup.getAttributes().put(attributeName, values.get(0));
+          }
+        }
+      }
+
+      // re-record the native group so the end-of-run flush preserves this cache row
+      grouperProvisioningData.getTargetGroupIdToNativeGroup().put(nativeGroup.getTargetId(), nativeGroup);
+
+      result.add(provisioningGroup);
+    }
+
+    this.getGrouperProvisioner().getDebugMap().put("syncBackGroupsReconstructed", result.size());
+
+    return result;
+  }
+
+  private void seedTargetGroupsFromSyncBack() {
+
+    if (!this.isGroupsFromSyncBackCacheThisRun()) {
+      return;
+    }
+
+    List<ProvisioningGroup> cachedTargetGroups = this.retrieveTargetGroupsFromSyncBack();
+    if (GrouperUtil.length(cachedTargetGroups) > 0) {
+      this.processTargetDataGroups(cachedTargetGroups, false);
+      for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(cachedTargetGroups)) {
+        if (provisioningGroup.getProvisioningGroupWrapper() != null) {
+          provisioningGroup.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectResultProcessed(true);
+          provisioningGroup.getProvisioningGroupWrapper().getProvisioningStateGroup().setReadFromSyncBackCache(true);
+        }
+      }
+    }
+  }
+
   private void loadDataToGenericProvisionerTablesIncremental() {
 
     GrouperProvisioningBehavior behavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
@@ -5403,6 +5601,11 @@ public class GrouperProvisioningLogic {
           if (GrouperProvisioningLogic.this.isMembershipsFromSyncBackCacheThisRun()) {
             targetDaoRetrieveAllDataRequest.setRetrieveMemberships(false);
           }
+          // GRP-7048: and skip the group pull when serving groups from the cache (only happens when
+          // memberships are also from cache -- see isGroupsFromSyncBackCacheThisRun)
+          if (GrouperProvisioningLogic.this.isGroupsFromSyncBackCacheThisRun()) {
+            targetDaoRetrieveAllDataRequest.setRetrieveGroups(false);
+          }
           TargetDaoRetrieveAllDataResponse targetDaoRetrieveAllDataResponse
             = GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
               .retrieveAllData(targetDaoRetrieveAllDataRequest);
@@ -5491,6 +5694,7 @@ public class GrouperProvisioningLogic {
     // of having pulled them from the target. Runs here (after Grouper data + sync objects are
     // loaded). No-op unless the respective fullSync*FromSyncBack option is on and the cache is warm.
     seedTargetEntitiesFromSyncBack();
+    seedTargetGroupsFromSyncBack();
     seedTargetMembershipsFromSyncBack();
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().retrieveAllDependenciesForFullSync();

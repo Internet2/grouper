@@ -2283,6 +2283,126 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals("SUBJ2's membership should be removed from Okta", 2, countMockOktaMemberships());
   }
 
+  /**
+   * GRP-7048 (groups, warm cache): once the group + membership caches are warm, the target groups
+   * are reconstructed from grouper_prov_group and Okta's group pull is skipped. Groups-from-cache
+   * only engages when memberships are also from the cache (both-or-neither), so the test enables both
+   * options and asserts both the group pull and the per-group member iteration are skipped.
+   */
+  public void testOktaFullSyncGroupsFromSyncBackWarmCache() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("fullSyncGroupsFromSyncBack", "true");
+    extraConfig.put("fullSyncMembershipsFromSyncBack", "true");
+    setupOktaSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache: the group + its two memberships. The first (cold) run pulls them normally.
+    fullProvision(configId);
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals("group cached after warm-up", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("two memberships cached after warm-up", 2, countSyncBack(configId, "grouper_prov_mship"));
+
+    // the warm run: group (and memberships) come from the cache; both target pulls are skipped
+    fullProvision(configId);
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("Okta group pull should be skipped (groups come from the cache)",
+        debugMap.get("oktaRetrieveAllGroupsApiCall"));
+    assertNull("Okta per-group member iteration should be skipped too (both-or-neither)",
+        debugMap.get("oktaRetrieveMembershipsApiCall"));
+    assertEquals("the group is reconstructed from the cache", 1,
+        debugMapInt(debugMap, "syncBackGroupsReconstructed"));
+  }
+
+  /**
+   * GRP-7048 (groups, cache used as target set): with groups served from the cache, the normal
+   * compare still provisions a group that exists in Grouper but not the cache, and removes one that
+   * is in the cache but not Grouper. Asserts against the Okta target (mock_okta_group), and that the
+   * group pull stays skipped throughout. Groups-from-cache requires memberships-from-cache, so both
+   * options are enabled.
+   */
+  public void testOktaFullSyncGroupsFromSyncBackAddAndRemove() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "myOktaProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("fullSyncGroupsFromSyncBack", "true");
+    extraConfig.put("fullSyncMembershipsFromSyncBack", "true");
+    // enable group + membership deletes so the removal actually deprovisions from Okta
+    extraConfig.put("customizeGroupCrud", "true");
+    extraConfig.put("deleteGroups", "true");
+    extraConfig.put("deleteGroupsIfNotExistInGrouper", "true");
+    extraConfig.put("customizeMembershipCrud", "true");
+    extraConfig.put("deleteMemberships", "true");
+    extraConfig.put("deleteMembershipsIfNotExistInGrouper", "true");
+    setupOktaSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache: one group in the cache and in Okta
+    fullProvision(configId);
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals("one group cached after warm-up", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("one group in Okta after warm-up", 1, countMockOktaGroups());
+
+    // ADD: testGroup2 is in Grouper but not the group cache -> the compare inserts it into Okta,
+    // while the group pull stays skipped (groups served from cache)
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+    testGroup2.addMember(SubjectTestHelper.SUBJ0, false);
+    fullProvision(configId);
+    Map<String, Object> debugMapAdd = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+    assertNull("group pull stays skipped on the add run", debugMapAdd.get("oktaRetrieveAllGroupsApiCall"));
+    assertEquals("testGroup2 should be provisioned into Okta", 2, countMockOktaGroups());
+
+    // REMOVE: testGroup2 deleted in Grouper -> the compare removes it from Okta (cache has it,
+    // Grouper does not)
+    testGroup2.delete();
+    fullProvision(configId);
+    assertEquals("testGroup2 should be removed from Okta", 1, countMockOktaGroups());
+  }
+
+  /** count of groups currently in the Okta mock target */
+  private int countMockOktaGroups() {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from mock_okta_group").select(int.class);
+  }
+
   /** count of memberships currently in the Okta mock target */
   private int countMockOktaMemberships() {
     return new GcDbAccess().connectionName("grouper")

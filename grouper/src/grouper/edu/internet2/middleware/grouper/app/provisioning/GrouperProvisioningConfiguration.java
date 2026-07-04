@@ -1450,6 +1450,20 @@ public abstract class GrouperProvisioningConfiguration {
   }
 
   /**
+   * GRP-7048: during full sync, resolve target groups from the sync-back cache (grouper_prov_group
+   * and friends) instead of retrieving them from the target. Same cache-first model as
+   * {@link #fullSyncUsersFromSyncBack}. Requires group sync-back (loadGroupsToGenericGrouperTable).
+   * For targets where memberships are fetched by iterating groups (e.g. Okta), this only takes
+   * effect when memberships are also served from the cache (see the both-or-neither pairing in the
+   * logic), so the membership retrieval never loses its group list.
+   */
+  private boolean fullSyncGroupsFromSyncBack;
+
+  public boolean isFullSyncGroupsFromSyncBack() {
+    return this.fullSyncGroupsFromSyncBack;
+  }
+
+  /**
    * attribute name to config
    */
   private Map<String, GrouperProvisioningConfigurationAttribute> targetGroupAttributeNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
@@ -3811,6 +3825,7 @@ public abstract class GrouperProvisioningConfiguration {
     // GRP-7048: full sync can resolve users / memberships from the sync-back cache instead of the target
     this.fullSyncUsersFromSyncBack = GrouperUtil.booleanValue(this.retrieveConfigBoolean("fullSyncUsersFromSyncBack", false), false);
     this.fullSyncMembershipsFromSyncBack = GrouperUtil.booleanValue(this.retrieveConfigBoolean("fullSyncMembershipsFromSyncBack", false), false);
+    this.fullSyncGroupsFromSyncBack = GrouperUtil.booleanValue(this.retrieveConfigBoolean("fullSyncGroupsFromSyncBack", false), false);
 
     {
       String grouperProvisioningMembershipFieldTypeString = this.retrieveConfigString("membershipFields", false);

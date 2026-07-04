@@ -155,14 +155,24 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       GrouperOktaConfiguration oktaConfiguration = (GrouperOktaConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
+      // GRP-7048: when fullSyncGroupsFromSyncBack is on, the framework asks us to skip the group
+      // pull (retrieveGroups=false) and seeds groups from the cache. This is only requested when
+      // memberships are ALSO from cache (both-or-neither), so the per-group member iteration below
+      // -- which needs grouperOktaGroups -- is skipped too, and an empty group list here is safe.
+      boolean retrieveGroups = targetDaoRetrieveAllDataRequest == null || targetDaoRetrieveAllDataRequest.isRetrieveGroups();
+
       List<ProvisioningGroup> targetGroups = new ArrayList<ProvisioningGroup>();
-      List<GrouperOktaGroup> grouperOktaGroups = GrouperOktaApiCommands.retrieveOktaGroups(oktaConfiguration.getOktaExternalSystemConfigId(),
-          null, null);
-      for (GrouperOktaGroup grouperOktaGroup : grouperOktaGroups) {
-        ProvisioningGroup targetGroup = grouperOktaGroup.toProvisioningGroup();
-        targetGroups.add(targetGroup);
-        // generic provisioner sync back: native group capture now happens in
-        // GrouperOktaApiCommands.retrieveOktaGroups from the raw JSON (full fidelity), not here.
+      List<GrouperOktaGroup> grouperOktaGroups = new ArrayList<GrouperOktaGroup>();
+      if (retrieveGroups) {
+        edu.internet2.middleware.grouper.util.GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "oktaRetrieveAllGroupsApiCall", 1);
+        grouperOktaGroups = GrouperOktaApiCommands.retrieveOktaGroups(oktaConfiguration.getOktaExternalSystemConfigId(),
+            null, null);
+        for (GrouperOktaGroup grouperOktaGroup : grouperOktaGroups) {
+          ProvisioningGroup targetGroup = grouperOktaGroup.toProvisioningGroup();
+          targetGroups.add(targetGroup);
+          // generic provisioner sync back: native group capture now happens in
+          // GrouperOktaApiCommands.retrieveOktaGroups from the raw JSON (full fidelity), not here.
+        }
       }
       targetData.setProvisioningGroups(targetGroups);
 
@@ -687,6 +697,9 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
     // GRP-7048: retrieveAllData honors retrieveMemberships=false (skips the per-group member
     // iteration), so fullSyncMembershipsFromSyncBack can seed memberships from cache
     grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingMemberships(true);
+    // GRP-7048: retrieveAllData honors retrieveGroups=false (skips the group pull), so
+    // fullSyncGroupsFromSyncBack can seed groups from cache
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingGroups(true);
   }
 
   private String resolveTargetEntityId(ProvisioningEntity targetEntity) {

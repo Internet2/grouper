@@ -115,6 +115,25 @@ public class GrouperProvisionerDaoCapabilities {
     this.canRetrieveAllDataExcludingMemberships = canRetrieveAllDataExcludingMemberships;
   }
 
+  /**
+   * GRP-7048: whether this DAO's {@code retrieveAllData} honors
+   * {@code TargetDaoRetrieveAllDataRequest.isRetrieveGroups() == false} by skipping its group
+   * retrieval, so the framework can seed the target groups from the sync-back cache instead. Only
+   * when this is true does {@code fullSyncGroupsFromSyncBack} skip the target group pull and seed
+   * from cache.
+   */
+  private boolean canRetrieveAllDataExcludingGroups = false;
+
+  /** see {@link #canRetrieveAllDataExcludingGroups} */
+  public boolean isCanRetrieveAllDataExcludingGroups() {
+    return canRetrieveAllDataExcludingGroups;
+  }
+
+  /** see {@link #canRetrieveAllDataExcludingGroups} */
+  public void setCanRetrieveAllDataExcludingGroups(boolean canRetrieveAllDataExcludingGroups) {
+    this.canRetrieveAllDataExcludingGroups = canRetrieveAllDataExcludingGroups;
+  }
+
 
   @Override
   public String toString() {
