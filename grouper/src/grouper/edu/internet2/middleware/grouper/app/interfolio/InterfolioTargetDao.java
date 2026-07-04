@@ -210,6 +210,11 @@ public class InterfolioTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
 
+      // NB: no sync-back drain-mark here. Interfolio's retrieveEntity serves the match via
+      // toProvisioningEntity() without capturing into the native mirror, so an end-of-run drain
+      // re-read would not refresh the object -- marking would only drop the fresh snapshot. Updates
+      // converge on the next bulk read (same reasoning as the Duo group case).
+
       return new TargetDaoUpdateEntityResponse();
     } catch (RuntimeException e) {
       targetEntity.setProvisioned(false);

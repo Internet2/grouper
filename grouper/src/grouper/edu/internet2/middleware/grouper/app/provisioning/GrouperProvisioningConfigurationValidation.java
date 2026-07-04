@@ -344,14 +344,23 @@ public class GrouperProvisioningConfigurationValidation {
    * so those are not re-checked here. The one dependency showEl can't reach is between two options:
    * groups-from-sync-back requires memberships-from-sync-back. This is the both-or-neither pairing in
    * {@link GrouperProvisioningLogic#isGroupsFromSyncBackCacheThisRun()} -- a target that fetches
-   * memberships by iterating groups (e.g. Okta) would lose its group list if the group pull were
-   * skipped while memberships were still retrieved from the target. Without this check the bad combo
-   * saves cleanly and then silently no-ops (groups quietly fall back to a full target retrieve), so
-   * we surface it as an error on the visible groups field.
+   * memberships by iterating groups would lose its group list if the group pull were skipped while
+   * memberships were still retrieved from the target. Without this check the bad combo saves cleanly
+   * and then silently no-ops (groups quietly fall back to a full target retrieve), so we surface it
+   * as an error on the visible groups field.
+   *
+   * <p>The coupling is capability-driven: it applies only when the DAO retrieves memberships
+   * group-centrically ({@code canRetrieveMembershipsAllByGroup}, e.g. Okta). A target that fetches
+   * memberships by entity or all-at-once can serve groups from the cache independently, so for it the
+   * combo is valid and no error is raised.
    */
   public void validateFullSyncFromSyncBackDependencies() {
     GrouperProvisioningConfiguration configuration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
-    if (configuration.isFullSyncGroupsFromSyncBack() && !configuration.isFullSyncMembershipsFromSyncBack()) {
+    boolean membershipRetrievalGroupCentric = GrouperUtil.booleanValue(
+        this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroup(), false);
+    if (membershipRetrievalGroupCentric
+        && configuration.isFullSyncGroupsFromSyncBack() && !configuration.isFullSyncMembershipsFromSyncBack()) {
       this.addErrorMessage(new ProvisioningValidationIssue()
           .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.fullSyncFromSyncBack.groupsRequireMemberships"))
           .assignJqueryHandle("fullSyncGroupsFromSyncBack"));

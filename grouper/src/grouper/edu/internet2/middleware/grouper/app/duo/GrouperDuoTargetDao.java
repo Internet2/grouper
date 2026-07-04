@@ -357,13 +357,10 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
 
-      // sync-back: Duo captures group OBJECTS only on the read path, so an attribute update is not
-      // yet reflected in the native mirror. Mark this group (null native) so the end-of-run sync-back
-      // drain re-reads it and captures the new attribute values. This keeps grouper_prov_group current
-      // under groups-from-cache (fullSyncGroupsFromSyncBack), where the bulk group read is skipped and
-      // there is no other place the updated attributes would land. Same primitive the delete path uses.
-      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
-          .recordTargetNativeGroupWrite(targetGroup.getId(), null);
+      // NB: no sync-back drain-mark here. Duo groups match by name, and its by-name retrieveGroup
+      // path serves from a cache WITHOUT capturing into the native mirror, so the end-of-run drain
+      // re-read cannot refresh the group -- marking would only drop the (fresh, bulk-read) snapshot
+      // and leave grouper_prov_group stale/empty. Updates instead converge on the next bulk read.
 
       return new TargetDaoUpdateGroupResponse();
     } catch (Exception e) {
@@ -586,11 +583,9 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
 
-      // sync-back: same as updateGroup -- Duo captures user OBJECTS only on the read path, so mark
-      // this user (null native) for the end-of-run drain re-read to refresh its attributes in
-      // grouper_prov_user under users-from-cache (fullSyncUsersFromSyncBack).
-      this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync()
-          .recordTargetNativeUserWrite(targetEntity.getId(), null);
+      // NB: no sync-back drain-mark here (see updateGroup) -- Duo's by-match retrieve serves from a
+      // cache without capturing into the native mirror, so the drain re-read cannot refresh the
+      // object; a mark would only drop the fresh snapshot. Updates converge on the next bulk read.
 
       return new TargetDaoUpdateEntityResponse();
     } catch (Exception e) {

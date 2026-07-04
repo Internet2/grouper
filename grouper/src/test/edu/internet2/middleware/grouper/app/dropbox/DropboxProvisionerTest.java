@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBase
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import junit.textui.TestRunner;
@@ -1072,6 +1073,136 @@ public class DropboxProvisionerTest extends GrouperProvisioningBaseTest {
       fullProvision();
       assertEquals("after the incremental remove converges: 2 memberships in grouper_prov_mship",
           2, countSyncBack(configId, "grouper_prov_mship"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * The single provisioned group's target_group_id (native Dropbox group_id) in the mirror, or null.
+   * Used by the update-converge test to prove the SAME target object survives an attribute update --
+   * i.e. it is an in-place update, not a delete + re-create (which would mint a new Dropbox id).
+   * Mirrors the google/box helper of the same name.
+   * @param configId the provisioner (sync) config id
+   * @return the mirrored native group_id, or null if no group is captured
+   */
+  private String mirroredGroupTargetId(String configId) {
+    List<String> ids = new GcDbAccess().connectionName("grouper")
+        .sql("select target_group_id from grouper_prov_group "
+            + "where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(configId).selectList(String.class);
+    return ids.isEmpty() ? null : ids.get(0);
+  }
+
+  /**
+   * Resolved {@code name} attribute value for the single provisioned group in the mirror, or null.
+   * Reads through the {@code grouper_prov_group_attr_v} reporting view (not the raw
+   * grouper_prov_group_attr_value table), because the value is stored via a dictionary FK and only
+   * the view resolves it back to text (column {@code value_string}).  {@code name} is a normal
+   * Dropbox group attribute (targetGroupAttribute.1), so it is captured on every group read without
+   * needing any nativeAttributesGroups override -- unlike Google/Box, whose update-converge tests
+   * capture a "description" that is not a default read attribute.  Mirrors the google/box
+   * mirroredGroupDescription helper, but reads the dropbox non-matching attribute ({@code name}).
+   * @param configId the provisioner (sync) config id
+   * @return the mirrored group name, or null if no group/name is captured
+   */
+  private String mirroredGroupName(String configId) {
+    List<String> values = new GcDbAccess().connectionName("grouper")
+        .sql("select value_string from grouper_prov_group_attr_v "
+            + "where grouper_sync_id in (select id from grouper_sync where provisioner_name = ?) "
+            + "and attribute_name = 'name'")
+        .addBindVar(configId).selectList(String.class);
+    return values.isEmpty() ? null : values.get(0);
+  }
+
+  /**
+   * Sync-back convergence of a GROUP UPDATE on a NON-matching attribute (dropbox analogue of the
+   * green google/box testXxxGroupUpdateConvergesNextRead tests).  This is the regression guard for
+   * the committed drain-mark in {@link DropboxTargetDao#updateGroup}: on a successful group update
+   * DropboxTargetDao now calls {@code recordTargetNativeGroupWrite(targetGroup.getId(), null)},
+   * which drops the group's pre-write snapshot from the mirror and relies on the end-of-run
+   * sync-back drain to re-read + re-capture it.  That mark is only correct if dropbox's drain
+   * re-read actually captures the group back into the mirror.  It does: unlike duo's by-name
+   * retrieveGroup (which serves from a cache without capturing, leaving the mirror null),
+   * {@link DropboxTargetDao#retrieveGroup} lists the groups fresh from the target
+   * ({@code DropboxApiCommands.retrieveDropboxGroups}) and captures the re-read -- so the update
+   * converges on the write pass itself.
+   *
+   * <p>Dropbox groups are matched on id + externalId (id = the target-assigned native group_id,
+   * externalId = the Grouper idIndex), NOT on the group NAME.  So the group name is a safe
+   * non-matching, updatable, capturable attribute: it round-trips through updateGroup (sent as
+   * {@code new_group_name}, persisted by the mock, and read back on the next list) and is captured
+   * into grouper_prov_group_attr as {@code name}.  To be able to mutate the name WITHOUT renaming
+   * the Grouper group (the default config translates name from the group's {@code extension}), this
+   * test remaps {@code targetGroupAttribute.1} (name) to translate from the group's
+   * {@code description} field -- exactly the box pattern of driving a non-matching attribute from a
+   * freely-mutable Grouper field.  Changing the description then changes only {@code name} while the
+   * match keys (id + idIndex/externalId) stay stable, so the change is an in-place update.</p>
+   *
+   * <p>Asserts both that the {@code name} value converges to the new value AND that it is an
+   * in-place update -- the SAME native group_id survives (not delete + re-create).  Gated behind
+   * {@link #tomcatRunTests()}.</p>
+   */
+  public void testDropboxGroupUpdateConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    // sync-back on, and remap the non-matching "name" group attribute to translate from the group's
+    // description so we can mutate it without renaming the group (which would also touch nothing in
+    // the match key, but GroupSave renames are unreliable). id + externalId(idIndex) remain the match.
+    DropboxProvisionerTestConfigInput configInput = syncBackConfig()
+        .addExtraConfig("targetGroupAttribute.1.translateExpressionType", "grouperProvisioningGroupField")
+        .addExtraConfig("targetGroupAttribute.1.translateFromGrouperProvisioningGroupField", "description");
+    String configId = configInput.getConfigId();
+
+    GrouperSession grouperSession = setupProvisionerTest(configInput);
+
+    try {
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      // the group name (a NON-matching attribute) is driven by the group description above
+      Group engineering = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:engineering").assignDescription("originalName").save();
+      engineering.addMember(SubjectTestHelper.SUBJ0, false);
+
+      attachProvisioningAttribute(stem);
+
+      // seed: two full passes write the target then read it back, capturing name="originalName"
+      fullProvision();
+      fullProvision();
+      assertEquals("seed: group captured", 1, countSyncBack(configId, "grouper_prov_group"));
+      String groupTargetIdBefore = mirroredGroupTargetId(configId);
+      assertNotNull("group should have a native group_id after seed", groupTargetIdBefore);
+      assertEquals("seed: original name captured", "originalName", mirroredGroupName(configId));
+
+      // change the name (a NON-matching attribute) -> DropboxTargetDao.updateGroup sends new_group_name
+      engineering = new GroupSave(grouperSession).assignName(engineering.getName())
+          .assignUuid(engineering.getUuid()).assignDescription("newName")
+          .assignSaveMode(SaveMode.UPDATE).save();
+
+      // pass A: the name update reaches the Dropbox target (updateGroup persists it). updateGroup's
+      // write-path drain-mark (recordTargetNativeGroupWrite) marks the updated group for the
+      // end-of-run drain re-read, and dropbox's retrieveGroup re-reads + captures fresh from the
+      // target -- so the mirror converges to the new name on THIS pass, before the bulk re-read.
+      // THIS assertion is the whole point: it fails if dropbox's drain re-read does not capture
+      // (the duo case, where the by-name read serves from a cache and leaves the mirror null).
+      fullProvision();
+      assertEquals("update converges on the write pass via the drain re-read (before the bulk re-read)",
+          "newName", mirroredGroupName(configId));
+
+      // pass B: the bulk re-read captures the target's actual new name into the mirror (idempotent)
+      fullProvision();
+
+      // mirror side: still ONE group, the SAME group (same native group_id) -- in-place update, not
+      // delete + re-create -- and its name converged to the new value.
+      assertEquals("group still in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
+      assertEquals("mirror tracks the same group through the update (update, not re-create)",
+          groupTargetIdBefore, mirroredGroupTargetId(configId));
+      assertEquals("mirror name should converge to the new value on the re-read pass",
+          "newName", mirroredGroupName(configId));
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);

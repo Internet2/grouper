@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
@@ -1699,16 +1700,18 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
   //   MATCHING attribute cannot converge as an in-place update (the Adobe lesson), so an
   //   update-converge test must mutate a NON-matching attribute that round-trips through the target.
   //
-  // SKIPPED, per capability (no test body, just this note):
-  //   - NO group-update-converge test. A TrueFoundry team's name IS the match attribute (rename =
-  //     the Adobe lesson), and the mock team upsert (putTeam -> buildTeamJson) round-trips ONLY
-  //     id / teamName / manifest(members,managers) -- it does NOT persist or read back a team
-  //     description or displayName. So there is no Grouper-driven NON-matching team attribute that
-  //     round-trips through the read path to assert convergence on. Roles are UI-managed (createRole
-  //     is best-effort) and their only round-tripping field is likewise the name (= match). An
-  //     update-converge test would therefore be mutating the match key and could not converge as an
-  //     in-place update; written would-fail, so it is skipped (mirrors Box's group-update note,
-  //     which only worked there because Box round-trips a non-matching description).
+  // GROUP UPDATE convergence -- COVERED on the ROLE shape (not skipped):
+  //   - testTrueFoundryGroupUpdateConvergesNextRead mutates a ROLE's description, a Grouper-driven
+  //     NON-matching attribute (roles match by id AND name) that round-trips end-to-end: putRole
+  //     persists manifest.description into mock_truefoundry_group.description, and buildRoleJson ->
+  //     fromRoleJson reads it back at manifest.description. This is the regression guard for the
+  //     update-refresh drain-mark in TrueFoundryTargetDao.updateGroup: it proves TrueFoundry's drain
+  //     re-read (retrieveGroups -> per-group retrieveGroup -> retrieveRoles capture seam) captures
+  //     the group back into the mirror (unlike duo, whose cached by-name retrieveGroup did not).
+  //     TEAMS have no such attribute -- the mock team upsert (putTeam -> buildTeamJson) round-trips
+  //     ONLY id / teamName / manifest(members,managers) and never a team description or displayName,
+  //     and a team's name IS the match key (rename = the Adobe lesson) -- so the update test uses a
+  //     role, mirroring how Box's group-update test relies on a non-matching round-tripping field.
   //   - NO user-update-converge test. TrueFoundry users are matched by id (= email, fixed per
   //     subject). Their only other Grouper-driven attribute is displayName, which (a) is NOT a
   //     user capture default (defaults are email/active) and (b) only reaches the target via SCIM
@@ -1941,6 +1944,117 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
               + "and target_group_id = ? and attribute_name = 'groupType'")
           .addBindVar(syncInternalId).addBindVar(roleAId).select(String.class);
       assertEquals("groupType should be captured as 'role' for role-a", "role", roleGroupTypeValue);
+
+    } finally {
+
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------
+  // Object UPDATE convergence (role description -- the update-refresh drain re-read guard)
+  // ------------------------------------------------------------------------------------------
+
+  /**
+   * canUpdateGroup -> sync-back convergence of an object UPDATE on a NON-matching group attribute,
+   * two-pass full (TrueFoundry analogue of Google's testGoogleGroupUpdateConvergesNextRead / Box's
+   * testBoxGroupUpdateConvergesNextRead). This is the regression guard for the update-refresh
+   * drain-mark that TrueFoundryTargetDao.updateGroup now emits
+   * (recordTargetNativeGroupWrite(targetGroup.getId(), null) on success): it verifies the mark is
+   * SAFE for TrueFoundry -- i.e. the end-of-run sync-back drain re-read actually captures the group
+   * back into the mirror -- rather than INERT/harmful the way it was for duo (whose by-name
+   * retrieveGroup served from a cache without capturing, leaving the mirror null).
+   *
+   * <p>Attribute chosen: a ROLE's {@code description}. Roles are matched by id AND name
+   * (groupMatchingAttribute0=id, groupMatchingAttribute1=name), so description is NOT the match key
+   * (no Adobe rename hazard), and it round-trips end-to-end: the added
+   * {@code targetGroupAttribute.3=description} translation makes it Grouper-driven, so
+   * {@code TrueFoundryGroup.fromProvisioningGroup} carries it into {@code toRoleJson}, the mock
+   * {@code putRole} persists it into {@code mock_truefoundry_group.description}, and the read path
+   * ({@code getRoleList} -> {@code buildRoleJson} -> {@code fromRoleJson}) reads it back at
+   * {@code manifest.description}. The teams path is deliberately NOT used: the mock team upsert
+   * ({@code putTeam}/{@code buildTeamJson}) round-trips only id/teamName/manifest(members,managers)
+   * and never persists a team description, so teams have no non-matching round-tripping attribute --
+   * roles are the clean case (this corrects the earlier capability-matrix note that assumed neither
+   * shape had one).
+   *
+   * <p>{@code nativeAttributesGroups} is configured with description at path
+   * {@code /manifest/description} (it is not a TrueFoundry group capture default -- defaults are
+   * name/groupType) so the captured value lands in {@code grouper_prov_group_attr_v}. The whole
+   * point is the pass-A assertion: after the SINGLE full pass that writes the update, the mirror
+   * must already show the new description -- captured by the drain re-read
+   * (retrieveGroups -> per-group retrieveGroup -> retrieveRoles capture seam) BEFORE the bulk
+   * re-read. If TrueFoundry's drain re-read did not capture (the duo case), that assertion would
+   * fail with the mirror still holding the original value.
+   */
+  public void testTrueFoundryGroupUpdateConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "trueFoundryProvisioner";
+
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    // make description a Grouper-driven ROLE group attribute so the update actually reaches the
+    // target (fromProvisioningGroup -> toRoleJson -> putRole). numberOfGroupAttributes goes 3 -> 4;
+    // slot 3 translates from the Grouper group's description field.
+    extraConfig.put("numberOfGroupAttributes", "4");
+    extraConfig.put("targetGroupAttribute.3.name", "description");
+    extraConfig.put("targetGroupAttribute.3.translateExpressionType", "grouperProvisioningGroupField");
+    extraConfig.put("targetGroupAttribute.3.translateFromGrouperProvisioningGroupField", "description");
+    // capture description into the mirror (not a TrueFoundry group capture default). The role read
+    // node carries it at manifest.description, so give an explicit JSON-Pointer path.
+    extraConfig.put("nativeAttributesGroups",
+        "[{\"name\":\"name\"},{\"name\":\"groupType\"},{\"name\":\"description\",\"path\":\"/manifest/description\"}]");
+
+    GrouperSession grouperSession = setupTrueFoundrySyncBack(extraConfig);
+
+    try {
+      // default role must exist for role-membership replacement to succeed (as in the role insert test)
+      createDefaultRole();
+      createMockUsers(GrouperUuid.getUuid(), null, null);
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group roleGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignName("test:roles:role-a").assignDescription("originalDescription").save();
+      roleGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+      attachSyncBackProvisioningAttribute(stem);
+
+      // seed: two full passes converge role-a into grouper_prov_group with the original description
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      assertEquals("seed: role group", 1, countSyncBack(configId, "grouper_prov_group"));
+      String roleTargetIdBefore = mirroredGroupTargetId(configId);
+      assertNotNull("role should have a target id after seed", roleTargetIdBefore);
+      assertEquals("seed: original description captured", "originalDescription",
+          mirroredRoleDescription(configId, roleTargetIdBefore));
+
+      // change the description (a NON-matching role attribute) -> TrueFoundry updateGroup
+      // (createOrUpdateRole), which on success emits recordTargetNativeGroupWrite(id, null)
+      roleGroup = new GroupSave(grouperSession).assignName(roleGroup.getName())
+          .assignUuid(roleGroup.getUuid()).assignDescription("newDescription")
+          .assignSaveMode(SaveMode.UPDATE).save();
+
+      // pass A: the description update reaches the target (createOrUpdateRole persists it)
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+      // THE REGRESSION GUARD: update converges on the write pass. updateGroup marked the role for the
+      // drain re-read, which re-reads it (retrieveRoles capture seam) and captures the new description
+      // into the mirror on this SAME pass -- BEFORE the bulk re-read. If TrueFoundry's drain re-read
+      // did NOT capture (the duo case), this would still read "originalDescription" and fail.
+      assertEquals("update converges on the write pass via the drain re-read (before the bulk re-read)",
+          "newDescription", mirroredRoleDescription(configId, roleTargetIdBefore));
+
+      // pass B: idempotent -- the bulk re-read captures the same new description
+      assertEquals(0, fullProvision().getRecordsWithErrors());
+
+      // mirror side: still ONE role, the SAME role (same target id -- in-place update, not
+      // delete + re-create), and its description stays converged to the new value.
+      assertEquals("role still in the mirror", 1, countSyncBack(configId, "grouper_prov_group"));
+      assertEquals("mirror tracks the same role through the update (update, not re-create)",
+          roleTargetIdBefore, mirroredGroupTargetId(configId));
+      assertEquals("mirror description should stay converged to the new value on the re-read pass",
+          "newDescription", mirroredRoleDescription(configId, roleTargetIdBefore));
 
     } finally {
 
@@ -2860,18 +2974,38 @@ public class TrueFoundryProvisionerTest extends GrouperProvisioningBaseTest {
 
   /**
    * The single provisioned group's target_group_id (TrueFoundry group id) in the mirror, or null.
-   * Mirrors the Box / Adobe helper of the same name. Provided for parity with the Box pilot; not
-   * exercised by a group-update-converge test here because TrueFoundry has no round-tripping
-   * NON-matching group attribute to mutate (see the capability-matrix note above), but kept so a
-   * future converge test can prove the SAME target object survives an update.
+   * Mirrors the Box / Adobe / Google helper of the same name. Exercised by
+   * testTrueFoundryGroupUpdateConvergesNextRead to prove the SAME target object survives a
+   * (non-matching) attribute update -- an in-place update, not delete + re-create.
    */
-  @SuppressWarnings("unused")
   private String mirroredGroupTargetId(String configId) {
     List<String> ids = new GcDbAccess().connectionName("grouper")
         .sql("select target_group_id from grouper_prov_group "
             + "where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
         .addBindVar(configId).selectList(String.class);
     return ids.isEmpty() ? null : ids.get(0);
+  }
+
+  /**
+   * The captured {@code description} value for a specific role (by target_group_id) in the mirror,
+   * or null. Modeled on Google's {@code mirroredGroupDescription}: description is stored via the
+   * attribute dictionary and only the {@code grouper_prov_group_attr_v} view resolves it back to
+   * text ({@code value_string}). It is captured only because
+   * testTrueFoundryGroupUpdateConvergesNextRead sets {@code nativeAttributesGroups} to include
+   * description at {@code /manifest/description} -- it is NOT a TrueFoundry group capture default
+   * (defaults are name/groupType), so without that config this returns null. Scoped to
+   * {@code targetGroupId} so it ignores any other (e.g. read-only) group rows in the same sync.
+   * @param configId the provisioner name (= grouper_sync.provisioner_name)
+   * @param targetGroupId the role's TrueFoundry group id (target_group_id)
+   * @return the captured description text, or null if not present
+   */
+  private String mirroredRoleDescription(String configId, String targetGroupId) {
+    List<String> values = new GcDbAccess().connectionName("grouper")
+        .sql("select value_string from grouper_prov_group_attr_v "
+            + "where grouper_sync_id in (select id from grouper_sync where provisioner_name = ?) "
+            + "and target_group_id = ? and attribute_name = 'description'")
+        .addBindVar(configId).addBindVar(targetGroupId).selectList(String.class);
+    return values.isEmpty() ? null : values.get(0);
   }
 
 }

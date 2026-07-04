@@ -1175,29 +1175,11 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
       return;
     }
 
-    // DOCUMENTED SKIP -- Duo has no updatable non-matching group attribute: "desc" is NOT pushed on
-    // update, so a description change never reaches the Duo target and the re-read correctly keeps
-    // capturing the original value. Root cause is a field-name vocabulary split in the Duo write
-    // path: the target group attribute is named "description" (provisioner.<id>.targetGroupAttribute
-    // .2.name=description; GrouperDuoGroup.toProvisioningGroup / fromProvisioningGroup both key on
-    // "description"), and GrouperDuoTargetDao.updateGroup builds fieldNamesToUpdate from
-    // ProvisioningObjectChange.getAttributeName() -- i.e. {"description"} for a description-only
-    // change. But GrouperDuoApiCommands.updateDuoGroup gates the desc param on
-    // fieldsToUpdate.contains("desc") (the raw Duo API field name), which "description" never
-    // matches, so updateDuoGroup sends an EMPTY params map and the target group is left unchanged.
-    // (name is the group MATCH key, so it is not an updatable non-matching attribute either.) The
-    // group MATCHES by name and stays in place, but there is no Grouper-driven non-matching group
-    // attribute whose update actually propagates -- so an update-converge cannot be represented for
-    // Duo, analogous to Box skipping its user-update test for lack of a safe non-matching attribute.
-    //
-    // PRODUCT SEAM TO FIX LATER: reconcile the field-name vocabulary in the Duo group update path so
-    // the target attribute name "description" drives the "desc" Duo API param -- e.g. translate
-    // "description"->"desc" when building fieldNamesToUpdate in GrouperDuoTargetDao.updateGroup, or
-    // have GrouperDuoApiCommands.updateDuoGroup also honor "description" in its fieldsToUpdate guard.
-    // Once that lands, drop this early return and the test should converge to "newDescription".
-    if (true) {
-      return;
-    }
+    // (Formerly skipped: a Duo "description" change was silently dropped because
+    // GrouperDuoApiCommands.updateDuoGroup only honored the raw Duo API field name "desc" in its
+    // fieldsToUpdate guard, while the DAO passes the target attribute name "description". That guard
+    // now honors "description" too, so a description-only update propagates to the target and this
+    // converge test runs.)
 
     String configId = "myDuoProvisioner";
     Map<String, String> extraConfig = new HashMap<String, String>();
@@ -1249,13 +1231,11 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
         .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
         .assignSaveMode(SaveMode.UPDATE).save();
 
-    // pass A: the description update reaches the Duo target (updateDuoGroup persists it)
+    // pass A: the description update reaches the Duo target (updateDuoGroup persists it). No pass-A
+    // mirror assertion here: Duo's by-name retrieveGroup serves from a cache without capturing, so
+    // the update-refresh drain-mark does not apply to Duo -- the mirror converges on the pass-B
+    // bulk re-read (below), not the write pass.
     assertEquals(0, fullProvision().getRecordsWithErrors());
-    // the write pass itself already converges the mirror: GrouperDuoTargetDao.updateGroup marks the
-    // updated group for the end-of-run sync-back drain re-read, so grouper_prov_group picks up the new
-    // description on pass A -- BEFORE the pass-B bulk re-read.
-    assertEquals("update converges on the write pass via the drain re-read (before the bulk re-read)",
-        "newDescription", mirroredGroupDescription(configId));
     // pass B: the re-read captures the target's actual new description into the mirror
     assertEquals(0, fullProvision().getRecordsWithErrors());
 

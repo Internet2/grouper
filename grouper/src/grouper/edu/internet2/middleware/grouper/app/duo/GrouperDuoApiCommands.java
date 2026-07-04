@@ -506,7 +506,11 @@ public class GrouperDuoApiCommands {
         params.put("name", StringUtils.defaultString(grouperDuoGroup.getName()));
       }
       
-      if (fieldsToUpdate == null || fieldsToUpdate.contains("desc")) {
+      // the Duo API field is "desc", but the target group attribute is named "description"
+      // (targetGroupAttribute.2.name=description), and the DAO builds fieldsToUpdate from the target
+      // attribute name -- so honor either name here, else a description-only change would send an
+      // empty params map and never reach the target.
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("desc") || fieldsToUpdate.contains("description")) {
         params.put("desc", StringUtils.defaultString(grouperDuoGroup.getDesc()));
       }
       

@@ -2325,8 +2325,12 @@ public class GrouperProvisioningLogic {
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups()) {
       return false;
     }
-    // both-or-neither pairing with memberships (see javadoc)
-    if (!this.isMembershipsFromSyncBackCacheThisRun()) {
+    // both-or-neither pairing with memberships -- but ONLY when the target retrieves memberships
+    // group-centrically (retrieveMembershipsByGroup / canRetrieveMembershipsAllByGroup). That loop
+    // needs the group list, and the from-cache path does not feed cached group ids into it, so we
+    // require memberships-from-cache too. A target that fetches memberships another way (by entity
+    // or all-at-once) can serve groups from the cache independently, so the coupling does not apply.
+    if (this.isMembershipRetrievalGroupCentric() && !this.isMembershipsFromSyncBackCacheThisRun()) {
       return false;
     }
     GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
@@ -2337,6 +2341,17 @@ public class GrouperProvisioningLogic {
         .sql("select count(1) from grouper_prov_group where grouper_sync_internal_id = ?")
         .addBindVar(gcGrouperSync.getInternalId()).select(int.class);
     return cachedCount != null && cachedCount > 0;
+  }
+
+  /**
+   * GRP-7048: true if the target retrieves memberships group-centrically (implements
+   * retrieveMembershipsByGroup, i.e. declares {@code canRetrieveMembershipsAllByGroup}). That is the
+   * condition under which the groups/memberships both-or-neither pairing is needed -- see
+   * {@link #computeGroupsFromSyncBackCacheThisRun()} and the config validation.
+   */
+  private boolean isMembershipRetrievalGroupCentric() {
+    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+        .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroup(), false);
   }
 
   /**
