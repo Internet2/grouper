@@ -57,7 +57,6 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.j2ee.status.DaemonJobStatus;
 import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationBase;
 import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationInput;
 import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformationOutput;
@@ -81,9 +80,12 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GshTemplateContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiLoaderManagedGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.VisualizationContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
+import edu.internet2.middleware.grouper.j2ee.status.DaemonJobStatus;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
@@ -2687,6 +2689,7 @@ public class UiV2GrouperLoader {
       boolean isSql = grouperLoaderContainer.isGrouperSqlLoader();
       
       long groupsLikeCount = -1;
+      Set<String> groupsLikeGroupNames = null;
       if (!isLdap && !isSql) {
         loaderReport.append("<font color='red'>ERROR:</font> Not LDAP or SQL!\n");
         fatal = true;
@@ -3258,10 +3261,11 @@ public class UiV2GrouperLoader {
               loaderReport.append("<font color='green'>SUCCESS:</font> 'groups like' SQL config is set to '" 
                   + grouperLoaderContainer.getSqlGroupsLike() + "' for " + grouperLoaderType + "\n");
               
-              groupsLikeCount = HibernateSession.byHqlStatic()
-                  .createQuery("select count(*) from Group g where g.nameDb like :thePattern")
+              groupsLikeGroupNames = HibernateSession.byHqlStatic()
+                  .createQuery("select g.nameDb from Group g where g.nameDb like :thePattern")
                   .setString("thePattern", grouperLoaderContainer.getSqlGroupsLike())
-                  .uniqueResult(Long.class);
+                  .listSet(String.class);
+              groupsLikeCount = GrouperUtil.length(groupsLikeGroupNames);
               if (groupsLikeCount == 0L) {
                 loaderReport.append("<font color='red'>ERROR:</font> 'groups like' returned no records '" 
                     + grouperLoaderContainer.getSqlGroupsLike() + "'.  Either this job has never run or maybe its misconfigured?  Is that where groups are for this job????\n");
@@ -3552,7 +3556,8 @@ public class UiV2GrouperLoader {
                                     + ", and GROUP_NAME also has " + groupNameNumberOfColons + " colons\n");
                               }
                             } else {
-                              loaderReport.append("<font color='red'>ERROR:</font> GROUP_DISPLAY_NAME should contain at least one colon in group query! (for folders)\n");
+                              loaderReport.append("<font color='blue'>NOTE:</font> GROUP_DISPLAY_NAME '" + groupDisplayName 
+                                  + "' has no colon, so it will be used as the group's display extension and the parent folder display names will be left alone\n");
                             }
                           }
                         }
@@ -3650,7 +3655,44 @@ public class UiV2GrouperLoader {
                   }
                 }
               }
+
+              // verify the 'groups like' pattern actually corresponds to the groups this loader loads.
+              // if the like string matches groups but none of them are in the loader's membership query
+              // or group query, the pattern is likely wrong and a real run would empty (or delete) those
+              // out-of-scope groups.
+              if (!fatal && GrouperUtil.length(groupsLikeGroupNames) > 0) {
+
+                Set<String> loaderGroupNames = new LinkedHashSet<String>();
+                loaderGroupNames.addAll(GrouperUtil.nonNull(grouperLoaderResultset.groupNames()));
+                if (grouperLoaderResultsetForGroups != null) {
+                  loaderGroupNames.addAll(GrouperUtil.nonNull(grouperLoaderResultsetForGroups.groupNames()));
+                }
+
                 
+                Set<String> groupsLikeNamesToCompare = new LinkedHashSet<String>();
+                for (String groupsLikeGroupName : groupsLikeGroupNames) {
+                  groupsLikeNamesToCompare.add(groupsLikeGroupName);
+                }
+
+                boolean atLeastOneInQuery = false;
+                for (String groupsLikeNameToCompare : groupsLikeNamesToCompare) {
+                  if (loaderGroupNames.contains(groupsLikeNameToCompare)) {
+                    atLeastOneInQuery = true;
+                    break;
+                  }
+                }
+
+                if (atLeastOneInQuery) {
+                  loaderReport.append("<font color='green'>SUCCESS:</font> 'groups like' pattern '"
+                      + grouperLoaderContainer.getSqlGroupsLike() + "' matches at least one group that this loader loads\n");
+                } else {
+                  loaderReport.append("<font color='red'>ERROR:</font> 'groups like' pattern '"
+                      + grouperLoaderContainer.getSqlGroupsLike() + "' matched " + GrouperUtil.length(groupsLikeGroupNames)
+                      + " group(s), but none of them are loaded by this loader's membership query or group query.  "
+                      + "The pattern is likely misconfigured; a real run would remove memberships from (or delete) those out-of-scope groups!\n");
+                }
+              }
+
               break;
             default: 
               throw new RuntimeException("Cant find grouperLoaderType: " + grouperLoaderType);
