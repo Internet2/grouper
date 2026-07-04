@@ -1622,8 +1622,9 @@ public class GrouperLoaderIncrementalJob implements Job {
               shouldDeleteGroup = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
                   "loader.sqlTable.likeString.removeGroupIfNotUsed", true);
             } else {
-              shouldDeleteGroup = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
-                  "loader.deleteGroupsNoLongerInSource", false);
+              // per-loader attribute (grouperLoaderDeletePreviouslyManagedGroups), falling back to
+              // the global config property loader.deleteGroupsNoLongerInSource
+              shouldDeleteGroup = GrouperLoaderType.shouldDeletePreviouslyManagedGroups(loaderGroup);
             }
 
             if (shouldDeleteGroup) {

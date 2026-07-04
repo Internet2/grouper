@@ -313,6 +313,16 @@ public class GrouperLoaderContainer {
   }
   
   /**
+   * @return sql delete previously managed groups (true/false/blank)
+   */
+  public String getSqlDeletePreviouslyManagedGroups() {
+
+    Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    return GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_DELETE_PREVIOUSLY_MANAGED_GROUPS);
+
+  }
+  
+  /**
    * @return sql group types
    */
   public String getSqlGroupTypes() {
@@ -621,6 +631,15 @@ public class GrouperLoaderContainer {
   public String getLdapGroupsLike() {
     
     return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName());
+
+  }
+  
+  /**
+   * @return ldap delete previously managed groups (true/false/blank)
+   */
+  public String getLdapDeletePreviouslyManagedGroups() {
+    
+    return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapDeletePreviouslyManagedGroupsName());
 
   }
   
@@ -2696,6 +2715,28 @@ public class GrouperLoaderContainer {
    */
   public void setEditLoaderGroupsLike(String editLoaderSqlGroupsLike1) {
     this.editLoaderGroupsLike = editLoaderSqlGroupsLike1;
+  }
+  
+  /**
+   * if true, delete groups previously managed by this loader that are no longer in the source.
+   * mutually exclusive with (and the modern replacement for) the deprecated groups like setting.
+   */
+  private boolean editLoaderDeletePreviouslyManagedGroups;
+  
+  /**
+   * if true, delete groups previously managed by this loader that are no longer in the source
+   * @return the editLoaderDeletePreviouslyManagedGroups
+   */
+  public boolean isEditLoaderDeletePreviouslyManagedGroups() {
+    return this.editLoaderDeletePreviouslyManagedGroups;
+  }
+  
+  /**
+   * if true, delete groups previously managed by this loader that are no longer in the source
+   * @param editLoaderDeletePreviouslyManagedGroups1 the editLoaderDeletePreviouslyManagedGroups to set
+   */
+  public void setEditLoaderDeletePreviouslyManagedGroups(boolean editLoaderDeletePreviouslyManagedGroups1) {
+    this.editLoaderDeletePreviouslyManagedGroups = editLoaderDeletePreviouslyManagedGroups1;
   }
 
   /**

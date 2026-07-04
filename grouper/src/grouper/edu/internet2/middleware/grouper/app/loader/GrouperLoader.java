@@ -248,6 +248,14 @@ public class GrouperLoader {
   public static final String GROUPER_LOADER_GROUPS_LIKE = "grouperLoaderGroupsLike";
 
   /**
+   * true/false (default false).  If true, when a group previously managed by this loader
+   * (i.e. it has loaderMetadata marking it as managed by this loader group) no longer shows
+   * up in the loader results, delete that group.  This is mutually exclusive with (and the
+   * modern replacement for) the deprecated grouperLoaderGroupsLike setting.
+   */
+  public static final String GROUPER_LOADER_DELETE_PREVIOUSLY_MANAGED_GROUPS = "grouperLoaderDeletePreviouslyManagedGroups";
+
+  /**
    * optional group information for a group list query: e.g. to specify the display name of the
    * group/stem when it is created
    */

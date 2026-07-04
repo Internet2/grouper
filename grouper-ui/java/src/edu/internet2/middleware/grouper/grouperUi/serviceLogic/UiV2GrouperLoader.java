@@ -1775,7 +1775,11 @@ public class UiV2GrouperLoader {
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_DB_NAME, grouperLoaderContainer.getEditLoaderSqlDatabaseName() );
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_GROUP_QUERY, grouperLoaderContainer.getEditLoaderSqlGroupQuery());
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_GROUP_TYPES, grouperLoaderContainer.getEditLoaderGroupTypes());
-            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, grouperLoaderContainer.getEditLoaderGroupsLike());
+            // deleting previously managed groups is mutually exclusive with (and replaces) the deprecated
+            // groups like setting.  if delete is enabled, blank out the groups like value on submit.
+            boolean sqlDeletePreviouslyManagedGroups = grouperLoaderContainer.isEditLoaderDeletePreviouslyManagedGroups();
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, sqlDeletePreviouslyManagedGroups ? null : grouperLoaderContainer.getEditLoaderGroupsLike());
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_DELETE_PREVIOUSLY_MANAGED_GROUPS, sqlDeletePreviouslyManagedGroups ? "T" : null);
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_INTERVAL_SECONDS, grouperLoaderContainer.getEditLoaderScheduleInterval());
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_PRIORITY, grouperLoaderContainer.getEditLoaderPriority());
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, grouperLoaderContainer.getEditLoaderCron());
@@ -1822,7 +1826,11 @@ public class UiV2GrouperLoader {
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapGroupDescriptionExpression());
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapGroupDisplayNameExpression());
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapGroupNameExpression());
-            assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapGroupsLikeAttributeDefName(), grouperLoaderContainer.getEditLoaderGroupsLike());
+            // deleting previously managed groups is mutually exclusive with (and replaces) the deprecated
+            // groups like setting.  if delete is enabled, blank out the groups like value on submit.
+            boolean ldapDeletePreviouslyManagedGroups = grouperLoaderContainer.isEditLoaderDeletePreviouslyManagedGroups();
+            assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapGroupsLikeAttributeDefName(), ldapDeletePreviouslyManagedGroups ? null : grouperLoaderContainer.getEditLoaderGroupsLike());
+            assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapDeletePreviouslyManagedGroupsAttributeDefName(), ldapDeletePreviouslyManagedGroups ? "T" : null);
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapGroupTypesAttributeDefName(), grouperLoaderContainer.getEditLoaderGroupTypes());
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapAdminsAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapAdmins());
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapGroupAttrReadersAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapAttrReaders());
@@ -2251,6 +2259,7 @@ public class UiV2GrouperLoader {
           if (StringUtils.equals("SQL_GROUP_LIST", grouperLoaderContainer.getEditLoaderSqlType())) {
             grouperLoaderContainer.setEditLoaderSqlGroupQuery(grouperLoaderContainer.getSqlGroupQuery());
             grouperLoaderContainer.setEditLoaderGroupsLike(grouperLoaderContainer.getSqlGroupsLike());
+            grouperLoaderContainer.setEditLoaderDeletePreviouslyManagedGroups(GrouperUtil.booleanValue(grouperLoaderContainer.getSqlDeletePreviouslyManagedGroups(), false));
             grouperLoaderContainer.setEditLoaderGroupTypes(grouperLoaderContainer.getSqlGroupTypes());
             
             grouperLoaderContainer.setEditLoaderDisplayNameSyncType(grouperLoaderContainer.getDisplayNameSyncType());
@@ -2288,6 +2297,7 @@ public class UiV2GrouperLoader {
             grouperLoaderContainer.setEditLoaderLdapGroupDisplayNameExpression(grouperLoaderContainer.getLdapGroupDisplayNameExpression());
             grouperLoaderContainer.setEditLoaderLdapGroupNameExpression(grouperLoaderContainer.getLdapGroupNameExpression());
             grouperLoaderContainer.setEditLoaderGroupsLike(grouperLoaderContainer.getLdapGroupsLike());
+            grouperLoaderContainer.setEditLoaderDeletePreviouslyManagedGroups(GrouperUtil.booleanValue(grouperLoaderContainer.getLdapDeletePreviouslyManagedGroups(), false));
             grouperLoaderContainer.setEditLoaderGroupTypes(grouperLoaderContainer.getLdapGroupTypes());
             grouperLoaderContainer.setEditLoaderLdapAdmins(grouperLoaderContainer.getLdapAdmins());
             grouperLoaderContainer.setEditLoaderLdapAttrReaders(grouperLoaderContainer.getLdapAttrReaders());
@@ -2636,6 +2646,17 @@ public class UiV2GrouperLoader {
         }
         
         {
+          // only override from the form on an actual submit/re-render (marked by grouperLoaderHasLoaderName).
+          // on the initial edit render there are no form params, so keep the value already populated from the
+          // stored attribute.  an unchecked checkbox submits no value, so absence on a real submit means false.
+          if (!error && request.getParameter("grouperLoaderHasLoaderName") != null) {
+            String grouperLoaderDeletePreviouslyManagedGroups = request.getParameter("grouperLoaderDeletePreviouslyManagedGroupsName");
+            grouperLoaderContainer.setEditLoaderDeletePreviouslyManagedGroups(
+                GrouperUtil.booleanValue(grouperLoaderDeletePreviouslyManagedGroups, false));
+          }
+        }
+        
+        {
           String grouperLoaderSyncDisplayName = request.getParameter("grouperLoaderSyncDisplayName");
           if (grouperLoaderSyncDisplayName != null) {
             
@@ -2850,6 +2871,17 @@ public class UiV2GrouperLoader {
           
           grouperLoaderContainer.setEditLoaderGroupsLike(grouperLoaderGroupsLike);
           
+        }
+      }
+      
+      {
+        // only override from the form on an actual submit/re-render (marked by grouperLoaderHasLoaderName).
+        // on the initial edit render there are no form params, so keep the value already populated from the
+        // stored attribute.  an unchecked checkbox submits no value, so absence on a real submit means false.
+        if (!error && request.getParameter("grouperLoaderHasLoaderName") != null) {
+          String grouperLoaderDeletePreviouslyManagedGroups = request.getParameter("grouperLoaderDeletePreviouslyManagedGroupsName");
+          grouperLoaderContainer.setEditLoaderDeletePreviouslyManagedGroups(
+              GrouperUtil.booleanValue(grouperLoaderDeletePreviouslyManagedGroups, false));
         }
       }
       
