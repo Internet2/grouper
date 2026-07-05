@@ -104,7 +104,7 @@ public class LdapProvisionerBushyTest extends GrouperProvisioningBaseTest {
         .assignGroupAttributeCount(6)
         .assignEntityAttributeCount(2)
         .assignGroupDnTypeBushy(true)
-        .addExtraConfig("logCommandsAlways", "true")
+        .addExtraConfig("logCommandsAlways", "false")
         .assignTranslateFromGrouperProvisioningGroupField("extension")
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignUpdateGroupsAndDn(true));
@@ -479,7 +479,7 @@ public class LdapProvisionerBushyTest extends GrouperProvisioningBaseTest {
         .assignEntityAttributeCount(2)
         .assignGroupDnTranslate(false)
         .assignExplicitFilters(true)
-        .addExtraConfig("logCommandsAlways", "true")
+        .addExtraConfig("logCommandsAlways", "false")
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignUpdateGroupsAndDn(true));
     
@@ -732,7 +732,7 @@ public class LdapProvisionerBushyTest extends GrouperProvisioningBaseTest {
         .assignTranslateFromGrouperProvisioningGroupField("name")
         .assignExplicitFilters(true)
         .assignUpdateGroupsAndDn(true)
-        .addExtraConfig("logCommandsAlways", "true")
+        .addExtraConfig("logCommandsAlways", "false")
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         );
 
@@ -1233,7 +1233,7 @@ public class LdapProvisionerBushyTest extends GrouperProvisioningBaseTest {
         .assignGroupAttributeCount(6)
         .assignEntityAttributeCount(2)
         .assignGroupDnTypeBushy(true)
-        .addExtraConfig("logCommandsAlways", "true")
+        .addExtraConfig("logCommandsAlways", "false")
         .addExtraConfig("bushyFolderPreserveCase", "true")
         .assignTranslateFromGrouperProvisioningGroupField("extension")
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")

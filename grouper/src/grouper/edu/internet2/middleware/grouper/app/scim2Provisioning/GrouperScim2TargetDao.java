@@ -91,6 +91,10 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       List<GrouperScim2Group> grouperScim2Groups = GrouperScim2ApiCommands
           .retrieveScimGroups(scimSettings, scimConfiguration.getBearerTokenExternalSystemConfigId(), grouperScim2MembershipCache);
 
+      // GRP-7048: marks that the bulk group pull ran this pass; absent when groups are served from
+      // the sync-back cache (the adapter skips this call), which the from-cache tests assert on.
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "scimRetrieveAllGroupsApiCall", 1);
+
       for (GrouperScim2Group grouperScim2Group : grouperScim2Groups) {
         
         ProvisioningGroup targetGroup = grouperScim2Group.toProvisioningGroup();
@@ -123,6 +127,10 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
 
       List<GrouperScim2User> grouperScim2Users = GrouperScim2ApiCommands
           .retrieveScimUsers(scimSettings, scimConfiguration.getBearerTokenExternalSystemConfigId(), grouperScim2MembershipCache);
+
+      // GRP-7048: marks that the bulk user pull ran this pass; absent when users are served from the
+      // sync-back cache (the adapter skips this call), which the from-cache tests assert on.
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "scimRetrieveAllUsersApiCall", 1);
 
       Map<ProvisioningEntity, Object> targetEntityToNativeEntity = new HashMap<>();
       
@@ -851,6 +859,19 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
       grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
       grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+
+      // GRP-7048: full-sync-from-sync-back is scoped to the GROUP-CENTRIC membership model only.
+      // For byGroup, the existing groups=>memberships coupling (validateFullSyncFromSyncBackDependencies
+      // + computeGroupsFromSyncBackCacheThisRun, gated on canRetrieveMembershipsAllByGroup) already
+      // enforces the axis dependency. The entity-centric (byUser) model would need the mirror-image
+      // users=>memberships coupling, which is not built yet, so the feature is intentionally NOT
+      // offered there. SCIM retrieves per-axis (no combined retrieveAllData), so the adapter skips the
+      // bulk pull for any axis served from the cache.
+      if (grouperScim2ProvisionerConfiguration.isScimRetrieveMembershipsByGroup()) {
+        grouperProvisionerDaoCapabilities.setCanFullSyncEntitiesFromSyncBack(true);
+        grouperProvisionerDaoCapabilities.setCanFullSyncGroupsFromSyncBack(true);
+        grouperProvisionerDaoCapabilities.setCanFullSyncMembershipsFromSyncBack(true);
+      }
 
     }
     // read path captures JsonNode resources through GrouperProvisioningTargetNativeSync.record*

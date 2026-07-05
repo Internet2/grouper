@@ -114,7 +114,7 @@ public class GoogleProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerboseToDaemonDbLog", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerboseToLogFile", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "messageModerationLevel", "MODERATE_ALL_MESSAGES");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "2");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "12");
@@ -227,7 +227,7 @@ public class GoogleProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "4");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "6");

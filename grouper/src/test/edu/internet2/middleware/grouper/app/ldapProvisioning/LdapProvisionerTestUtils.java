@@ -290,7 +290,7 @@ public class LdapProvisionerTestUtils {
    *    .assignSubjectSourcesToProvision("jdbc")
    *    .assignEntitlementMetadata(true)
    *    .addExtraConfig("allowProvisionableRegexOverride", "true")
-   *    .addExtraConfig("logCommandsAlways", "true")
+   *    .addExtraConfig("logCommandsAlways", "false")
    *
    */
   public static void configureLdapProvisioner(LdapProvisionerTestConfigInput provisioningTestConfigInput) {
@@ -403,7 +403,7 @@ public class LdapProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "ldapExternalSystemConfigId", "personLdap");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "1");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "4");
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
@@ -472,7 +472,7 @@ public class LdapProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "ldapExternalSystemConfigId", "personLdap");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "1");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "4");
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
@@ -545,7 +545,7 @@ public class LdapProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "ldapExternalSystemConfigId", "personLdap");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "4");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "1");
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
@@ -611,7 +611,7 @@ public class LdapProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "ldapExternalSystemConfigId", "personLdap");
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "4");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "5");
@@ -1271,7 +1271,7 @@ public class LdapProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "ldapExternalSystemConfigId", "personLdap");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "3");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "1");
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
@@ -1495,7 +1495,7 @@ public class LdapProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "ldapExternalSystemConfigId", "personLdap");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerboseToLogFile", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "3");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "1");

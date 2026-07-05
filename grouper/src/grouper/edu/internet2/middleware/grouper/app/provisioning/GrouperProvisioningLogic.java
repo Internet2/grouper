@@ -135,8 +135,10 @@ public class GrouperProvisioningLogic {
     // validate the perhaps throw exception
     this.validateAndThrowExceptionIfInvalid();
 
-    // GRP-7048: advisory only (never blocks) if the feature is enabled but unsupported here
+    // GRP-7048: advisory only (never blocks) -- feature enabled-but-unsupported, and managed
+    // attributes not captured into the sync-back mirror (which would cause spurious updates)
     this.logFullSyncUsersFromSyncBackAdvisories();
+    this.logFullSyncGroupsFromSyncBackAdvisories();
 
     debugMap.put("state", "retrieveAllDataFromGrouperAndTarget");
     grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveAllData();
@@ -2087,7 +2089,7 @@ public class GrouperProvisioningLogic {
    * GRP-7048: whether this run should resolve users from the sync-back cache. True only when the
    * config flag is on AND the DAO advertises that its {@code retrieveAllData} honors
    * {@code retrieveEntities=false} (see
-   * {@link GrouperProvisionerDaoCapabilities#isCanRetrieveAllDataExcludingEntities()}). The
+   * {@link GrouperProvisionerDaoCapabilities#isCanFullSyncEntitiesFromSyncBack()}). The
    * capability guard prevents double-loading users on a DAO that would ignore the request flag.
    */
   public boolean isFullSyncUsersFromSyncBackEffective() {
@@ -2095,7 +2097,7 @@ public class GrouperProvisioningLogic {
       return false;
     }
     return this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-        .getGrouperProvisionerDaoCapabilities().isCanRetrieveAllDataExcludingEntities();
+        .getGrouperProvisionerDaoCapabilities().isCanFullSyncEntitiesFromSyncBack();
   }
 
   /** GRP-7048: memoized decision for this run of whether to serve entities from the sync-back cache */
@@ -2147,7 +2149,79 @@ public class GrouperProvisioningLogic {
     if (!this.isFullSyncUsersFromSyncBackEffective()) {
       LOG.warn("Provisioner '" + this.getGrouperProvisioner().getConfigId()
           + "': fullSyncUsersFromSyncBack is enabled but the target DAO does not advertise support for it "
-          + "(canRetrieveAllDataExcludingEntities); ignoring it and retrieving users from the target normally.");
+          + "(canFullSyncEntitiesFromSyncBack); ignoring it and retrieving users from the target normally.");
+      return;
+    }
+    this.warnMissingManagedAttributesForSyncBack("users",
+        configuration.getTargetEntityAttributeNameToConfig(),
+        this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync().effectiveNativeAttributeConfigsEntities(),
+        "nativeAttributesEntities");
+  }
+
+  /**
+   * GRP-7048: groups analogue of {@link #logFullSyncUsersFromSyncBackAdvisories()} -- warn when the
+   * feature is configured but unsupported, and (when effective) when a managed group attribute is
+   * not captured into the sync-back mirror. Advisory only.
+   */
+  private void logFullSyncGroupsFromSyncBackAdvisories() {
+    GrouperProvisioningConfiguration configuration = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    if (!configuration.isFullSyncGroupsFromSyncBack()) {
+      return;
+    }
+    if (!this.isFullSyncGroupsFromSyncBackEffective()) {
+      LOG.warn("Provisioner '" + this.getGrouperProvisioner().getConfigId()
+          + "': fullSyncGroupsFromSyncBack is enabled but the target DAO does not advertise support for it "
+          + "(canFullSyncGroupsFromSyncBack); ignoring it and retrieving groups from the target normally.");
+      return;
+    }
+    this.warnMissingManagedAttributesForSyncBack("groups",
+        configuration.getTargetGroupAttributeNameToConfig(),
+        this.getGrouperProvisioner().retrieveGrouperProvisioningTargetNativeSync().effectiveNativeAttributeConfigsGroups(),
+        "nativeAttributesGroups");
+  }
+
+  /**
+   * GRP-7048 guardrail: when a from-cache axis is effective, warn for each MANAGED target attribute
+   * (one Grouper updates -- hence compares every run) that is NOT in the effective sync-back capture
+   * set. A managed attribute missing from the shadow makes a cache-reconstructed object look changed
+   * on that attribute, triggering a spurious update on every run (and, depending on the target, worse
+   * -- e.g. a replace that nulls other fields). The operator must add it to the given
+   * nativeAttributes* config (JSON with a path for nested or renamed fields). Advisory only -- this
+   * never blocks the run. Compares by grouper attribute name (both sides use grouper names).
+   */
+  private void warnMissingManagedAttributesForSyncBack(String axisLabel,
+      Map<String, GrouperProvisioningConfigurationAttribute> targetAttributeNameToConfig,
+      List<GrouperProvisioningNativeAttributeConfig> effectiveCapture,
+      String nativeAttributesConfigKey) {
+
+    Set<String> capturedNames = new HashSet<String>();
+    if (effectiveCapture != null) {
+      for (GrouperProvisioningNativeAttributeConfig config : effectiveCapture) {
+        if (config != null && config.getName() != null) {
+          capturedNames.add(config.getName());
+        }
+      }
+    }
+
+    List<String> missing = new ArrayList<String>();
+    if (targetAttributeNameToConfig != null) {
+      for (GrouperProvisioningConfigurationAttribute attribute : targetAttributeNameToConfig.values()) {
+        // only attributes Grouper updates (and reads back to compare) can drive a spurious update
+        if (attribute == null || !attribute.isUpdate() || !attribute.isSelect()) {
+          continue;
+        }
+        if (attribute.getName() != null && !capturedNames.contains(attribute.getName())) {
+          missing.add(attribute.getName());
+        }
+      }
+    }
+
+    if (!missing.isEmpty()) {
+      LOG.warn("Provisioner '" + this.getGrouperProvisioner().getConfigId() + "': from-cache is on for "
+          + axisLabel + " but these managed attribute(s) are NOT captured into the sync-back mirror: "
+          + missing + ". A cache-reconstructed object will look changed on them and trigger a spurious "
+          + "update every run. Add them to '" + nativeAttributesConfigKey
+          + "' (use JSON with a \"path\" for nested or renamed fields).");
     }
   }
 
@@ -2181,7 +2255,7 @@ public class GrouperProvisioningLogic {
       return false;
     }
     return this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-        .getGrouperProvisionerDaoCapabilities().isCanRetrieveAllDataExcludingMemberships();
+        .getGrouperProvisionerDaoCapabilities().isCanFullSyncMembershipsFromSyncBack();
   }
 
   /** GRP-7048: memoized decision for this run of whether to serve memberships from the sync-back cache */
@@ -2205,7 +2279,10 @@ public class GrouperProvisioningLogic {
     if (!this.isFullSyncMembershipsFromSyncBackEffective()) {
       return false;
     }
-    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships()) {
+    // use the computed behavior (isSelectMembershipsInGeneral), not the raw config flag: a
+    // group-centric target selects memberships via the group pull, which isSelectMembershipsInGeneral
+    // now accounts for. Mirrors computeEntitiesFromSyncBackCacheThisRun's use of Behavior.isSelectEntities().
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsInGeneral()) {
       return false;
     }
     GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
@@ -2297,7 +2374,7 @@ public class GrouperProvisioningLogic {
       return false;
     }
     return this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-        .getGrouperProvisionerDaoCapabilities().isCanRetrieveAllDataExcludingGroups();
+        .getGrouperProvisionerDaoCapabilities().isCanFullSyncGroupsFromSyncBack();
   }
 
   /** GRP-7048: memoized decision for this run of whether to serve groups from the sync-back cache */
@@ -2322,7 +2399,9 @@ public class GrouperProvisioningLogic {
     if (!this.isFullSyncGroupsFromSyncBackEffective()) {
       return false;
     }
-    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups()) {
+    // computed behavior (isSelectGroupsInGeneral), not the raw config flag -- consistent with the
+    // entities/memberships compute methods (Behavior.isSelect*InGeneral)
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsInGeneral()) {
       return false;
     }
     // both-or-neither pairing with memberships -- but ONLY when the target retrieves memberships

@@ -19,7 +19,8 @@ import junit.textui.TestRunner;
  * {@code GrouperScim2ProvisioningTargetNativeSyncTest}.
  *
  * <p>These lock in the move off the {@link GrouperGoogleGroup} / {@link GrouperGoogleUser} typed
- * beans: the default keys (group name/email, user primaryEmail/orgUnitPath), exclusion of the id
+ * beans: the default keys (group name/email, user email/orgUnitPath -- email remapped from the
+ * native primaryEmail via GrouperGoogleUser's shared name map), exclusion of the id
  * field (it is the target id column), type coercion, and -- the whole point of capturing from raw
  * JSON -- that an operator can capture ANY Google JSON field by name/path, including one the typed
  * bean does not model at all and including a value nested under {@code /name}.
@@ -89,20 +90,27 @@ public class GrouperGoogleProvisioningTargetNativeSyncTest extends GrouperTest {
   }
 
   /**
-   * No provisioner config -> Google user defaults: primaryEmail, orgUnitPath. {@code id} is the
-   * target_user_id column (not an attribute); other JSON fields (incl. the nested name fields) are
-   * not captured unless an operator configures them.
+   * No provisioner config -> Google user defaults captured under their GROUPER attribute names: the
+   * MANAGED attributes givenName/familyName (nested under /name) and email (remapped from native
+   * primaryEmail via GrouperGoogleUser's shared name map), plus orgUnitPath. Capturing the managed
+   * attributes is required so a cache-reconstructed user matches a live read and does not trigger a
+   * spurious update on every from-cache run. {@code id} is the target_user_id column (not an
+   * attribute); non-modeled JSON fields (e.g. suspended) are not captured unless configured.
    */
   public void testBuildNativeUserAppliesDefaults() {
     GrouperProvisioningTargetNativeUser bean =
         defaultsSync().buildNativeUserFromJson(GrouperUtil.jsonJacksonNode(USER_JSON));
 
     assertEquals("117982484919189471202", bean.getTargetId());
-    assertEquals("liz@example.com", bean.getAttributes().get("primaryEmail"));
+    assertEquals("email captured under the grouper name, remapped from native primaryEmail",
+        "liz@example.com", bean.getAttributes().get("email"));
+    assertEquals("givenName is a managed-attribute default (nested under /name)",
+        "Elizabeth", bean.getAttributes().get("givenName"));
+    assertEquals("familyName is a managed-attribute default (nested under /name)",
+        "Smith", bean.getAttributes().get("familyName"));
     assertEquals("/Students", bean.getAttributes().get("orgUnitPath"));
     assertFalse("id is the target_user_id column, not an attribute",
         bean.getAttributes().containsKey("id"));
-    assertFalse("givenName is not a default", bean.getAttributes().containsKey("givenName"));
     assertFalse("suspended is not a default", bean.getAttributes().containsKey("suspended"));
   }
 
@@ -113,7 +121,7 @@ public class GrouperGoogleProvisioningTargetNativeSyncTest extends GrouperTest {
     GrouperProvisioningTargetNativeUser bean = defaultsSync().buildNativeUserFromJson(user);
 
     assertEquals("u-2", bean.getTargetId());
-    assertEquals("x@y.edu", bean.getAttributes().get("primaryEmail"));
+    assertEquals("x@y.edu", bean.getAttributes().get("email"));
     assertFalse(bean.getAttributes().containsKey("orgUnitPath"));
   }
 
@@ -204,40 +212,33 @@ public class GrouperGoogleProvisioningTargetNativeSyncTest extends GrouperTest {
   }
 
   /**
-   * Sync that returns the built-in Google defaults without consulting a live provisioner. The
-   * build methods only need {@code effectiveNativeAttributeConfigs*()}, so overriding those (to
-   * the protected default lists) makes the build path safe to call with no provisioner attached.
+   * Sync with no live provisioner attached: the {@code configuredNativeAttributeConfigs*()} seam is
+   * null-safe when there is no provisioner, so this falls back to the protected default lists AND
+   * still runs the real {@code effectiveNativeAttributeConfigs*()} normalize/auto-inject (which is
+   * what these tests are asserting -- e.g. "email" auto-injected from the rename map). Do NOT stub
+   * {@code effectiveNativeAttributeConfigs*()} here, or that transform would be bypassed.
    */
   private static GrouperGoogleProvisioningTargetNativeSync defaultsSync() {
-    return new GrouperGoogleProvisioningTargetNativeSync() {
-      @Override
-      public List<GrouperProvisioningNativeAttributeConfig> effectiveNativeAttributeConfigsEntities() {
-        return getDefaultNativeAttributeConfigsEntities();
-      }
-      @Override
-      public List<GrouperProvisioningNativeAttributeConfig> effectiveNativeAttributeConfigsGroups() {
-        return getDefaultNativeAttributeConfigsGroups();
-      }
-    };
+    return new GrouperGoogleProvisioningTargetNativeSync();
   }
 
-  /** Sync whose entity capture list is exactly {@code entityAttrs} (simulates operator config). */
+  /** Sync whose operator-configured entity list is exactly {@code entityAttrs} (still transformed). */
   private static GrouperGoogleProvisioningTargetNativeSync syncWithEntityAttrs(
       final List<GrouperProvisioningNativeAttributeConfig> entityAttrs) {
     return new GrouperGoogleProvisioningTargetNativeSync() {
       @Override
-      public List<GrouperProvisioningNativeAttributeConfig> effectiveNativeAttributeConfigsEntities() {
+      protected List<GrouperProvisioningNativeAttributeConfig> configuredNativeAttributeConfigsEntities() {
         return entityAttrs;
       }
     };
   }
 
-  /** Sync whose group capture list is exactly {@code groupAttrs} (simulates operator config). */
+  /** Sync whose operator-configured group list is exactly {@code groupAttrs} (still transformed). */
   private static GrouperGoogleProvisioningTargetNativeSync syncWithGroupAttrs(
       final List<GrouperProvisioningNativeAttributeConfig> groupAttrs) {
     return new GrouperGoogleProvisioningTargetNativeSync() {
       @Override
-      public List<GrouperProvisioningNativeAttributeConfig> effectiveNativeAttributeConfigsGroups() {
+      protected List<GrouperProvisioningNativeAttributeConfig> configuredNativeAttributeConfigsGroups() {
         return groupAttrs;
       }
     };

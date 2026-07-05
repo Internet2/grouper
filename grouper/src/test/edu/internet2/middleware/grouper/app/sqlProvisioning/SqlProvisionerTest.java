@@ -3851,7 +3851,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         .assignEntityAttributeCount(3)
         .assignGroupAttributeCount(6)
         .assignProvisioningType("groupAttributes")
-        .addExtraConfig("logCommandsAlways", "true")
+        .addExtraConfig("logCommandsAlways", "false")
         );
     
         

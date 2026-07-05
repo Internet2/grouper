@@ -581,7 +581,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperProvisioningBaseTest 
          .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
          .assignEntityAttributeCount(7)
          .assignSubjectSourcesToProvision("jdbc")
-         .addExtraConfig("logCommandsAlways", "true")
+         .addExtraConfig("logCommandsAlways", "false")
          .addExtraConfig("targetGroupAttribute.0.translateExpression", "${'someprefix:' + grouperProvisioningGroup.name}")
        );          
 

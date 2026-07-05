@@ -84,16 +84,16 @@ public class GrouperProvisionerDaoCapabilities {
    * important: a DAO that ignored the request flag would return ALL users while the framework also
    * seeded from the cache, duplicating them.
    */
-  private boolean canRetrieveAllDataExcludingEntities = false;
+  private boolean canFullSyncEntitiesFromSyncBack = false;
 
-  /** see {@link #canRetrieveAllDataExcludingEntities} */
-  public boolean isCanRetrieveAllDataExcludingEntities() {
-    return canRetrieveAllDataExcludingEntities;
+  /** see {@link #canFullSyncEntitiesFromSyncBack} */
+  public boolean isCanFullSyncEntitiesFromSyncBack() {
+    return canFullSyncEntitiesFromSyncBack;
   }
 
-  /** see {@link #canRetrieveAllDataExcludingEntities} */
-  public void setCanRetrieveAllDataExcludingEntities(boolean canRetrieveAllDataExcludingEntities) {
-    this.canRetrieveAllDataExcludingEntities = canRetrieveAllDataExcludingEntities;
+  /** see {@link #canFullSyncEntitiesFromSyncBack} */
+  public void setCanFullSyncEntitiesFromSyncBack(boolean canFullSyncEntitiesFromSyncBack) {
+    this.canFullSyncEntitiesFromSyncBack = canFullSyncEntitiesFromSyncBack;
   }
 
   /**
@@ -103,16 +103,16 @@ public class GrouperProvisionerDaoCapabilities {
    * memberships from the sync-back cache instead. Only when this is true does
    * {@code fullSyncMembershipsFromSyncBack} skip the target membership pull and seed from cache.
    */
-  private boolean canRetrieveAllDataExcludingMemberships = false;
+  private boolean canFullSyncMembershipsFromSyncBack = false;
 
-  /** see {@link #canRetrieveAllDataExcludingMemberships} */
-  public boolean isCanRetrieveAllDataExcludingMemberships() {
-    return canRetrieveAllDataExcludingMemberships;
+  /** see {@link #canFullSyncMembershipsFromSyncBack} */
+  public boolean isCanFullSyncMembershipsFromSyncBack() {
+    return canFullSyncMembershipsFromSyncBack;
   }
 
-  /** see {@link #canRetrieveAllDataExcludingMemberships} */
-  public void setCanRetrieveAllDataExcludingMemberships(boolean canRetrieveAllDataExcludingMemberships) {
-    this.canRetrieveAllDataExcludingMemberships = canRetrieveAllDataExcludingMemberships;
+  /** see {@link #canFullSyncMembershipsFromSyncBack} */
+  public void setCanFullSyncMembershipsFromSyncBack(boolean canFullSyncMembershipsFromSyncBack) {
+    this.canFullSyncMembershipsFromSyncBack = canFullSyncMembershipsFromSyncBack;
   }
 
   /**
@@ -122,16 +122,16 @@ public class GrouperProvisionerDaoCapabilities {
    * when this is true does {@code fullSyncGroupsFromSyncBack} skip the target group pull and seed
    * from cache.
    */
-  private boolean canRetrieveAllDataExcludingGroups = false;
+  private boolean canFullSyncGroupsFromSyncBack = false;
 
-  /** see {@link #canRetrieveAllDataExcludingGroups} */
-  public boolean isCanRetrieveAllDataExcludingGroups() {
-    return canRetrieveAllDataExcludingGroups;
+  /** see {@link #canFullSyncGroupsFromSyncBack} */
+  public boolean isCanFullSyncGroupsFromSyncBack() {
+    return canFullSyncGroupsFromSyncBack;
   }
 
-  /** see {@link #canRetrieveAllDataExcludingGroups} */
-  public void setCanRetrieveAllDataExcludingGroups(boolean canRetrieveAllDataExcludingGroups) {
-    this.canRetrieveAllDataExcludingGroups = canRetrieveAllDataExcludingGroups;
+  /** see {@link #canFullSyncGroupsFromSyncBack} */
+  public void setCanFullSyncGroupsFromSyncBack(boolean canFullSyncGroupsFromSyncBack) {
+    this.canFullSyncGroupsFromSyncBack = canFullSyncGroupsFromSyncBack;
   }
 
 

@@ -132,7 +132,7 @@ public class OktaProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerboseToDaemonDbLog", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerboseToLogFile", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "messageModerationLevel", "MODERATE_ALL_MESSAGES");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "2");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "12");
@@ -217,7 +217,7 @@ public class OktaProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "5");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "3");

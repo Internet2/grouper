@@ -3053,7 +3053,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
           .addExtraConfig("onlyLdapGroupDnOverride", "true")
           .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
           .assignDnOverrideConfig(true)
-          .addExtraConfig("logCommandsAlways", "true")
+          .addExtraConfig("logCommandsAlways", "false")
         );
             
     new StemSave(this.grouperSession).assignName("test").save();
@@ -4049,7 +4049,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     LdapProvisionerTestConfigInput ldapProvisionerTestConfigInput = new LdapProvisionerTestConfigInput()
       .assignConfigId("ldapGroupOfNames")
       .assignProvisioningStrategy("internet2groupOfNames")
-      .addExtraConfig("logCommandsAlways", "true");
+      .addExtraConfig("logCommandsAlways", "false");
 
     ldapProvisionerTestConfigInput.addExtraConfig("groupIdOfUsersNotToProvision", "ref:excludeUsers");
 
@@ -4421,7 +4421,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     LdapProvisionerTestConfigInput ldapProvisionerTestConfigInput = new LdapProvisionerTestConfigInput()
         .assignConfigId("ldapGroupOfNames")
         .assignProvisioningStrategy("korandaGroupOfNames")
-        .addExtraConfig("logCommandsAlways", "true");
+        .addExtraConfig("logCommandsAlways", "false");
 
       LdapProvisionerTestUtils.configureLdapProvisioner(ldapProvisionerTestConfigInput);
     
@@ -4767,7 +4767,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     LdapProvisionerTestConfigInput ldapProvisionerTestConfigInput = new LdapProvisionerTestConfigInput()
       .assignConfigId("ldapIsMemberOf")
       .assignProvisioningStrategy("internet2memberOf")
-      .addExtraConfig("logCommandsAlways", "true");
+      .addExtraConfig("logCommandsAlways", "false");
   
     LdapProvisionerTestUtils.configureLdapProvisioner(ldapProvisionerTestConfigInput);
   

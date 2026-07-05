@@ -589,7 +589,7 @@ public class ScimProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "membershipMatchingIdExpression", 
         "${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntity().retrieveAttributeValueString('userName'))}");
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
 
     configureProvisionerSuffix(provisioningTestConfigInput, "scimType", "Github");
     configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntities", "true");

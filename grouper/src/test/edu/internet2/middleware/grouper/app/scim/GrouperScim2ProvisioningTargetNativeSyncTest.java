@@ -54,8 +54,10 @@ public class GrouperScim2ProvisioningTargetNativeSyncTest extends GrouperTest {
   }
 
   /**
-   * No provisioner config → defaults apply. Expect exactly the five SCIM core fields:
-   * userName, displayName, active, externalId, emailValue (from /emails/0/value).
+   * No provisioner config → defaults apply. Expect the SCIM core fields userName, displayName,
+   * active, externalId, emailValue (from /emails/0/value), plus the managed name fields
+   * givenName/familyName (nested under /name) -- those are captured so a cache-reconstructed user
+   * matches a live read and does not trigger a spurious update every from-cache run.
    */
   public void testBuildNativeUserAppliesDefaults() {
     GrouperScim2ProvisioningTargetNativeSync sync = noProvisionerSync();
@@ -65,6 +67,7 @@ public class GrouperScim2ProvisioningTargetNativeSyncTest extends GrouperTest {
         + "\"displayName\":\"Alice Anderson\","
         + "\"active\":true,"
         + "\"externalId\":\"ext-1\","
+        + "\"name\":{\"givenName\":\"Alice\",\"familyName\":\"Anderson\",\"formatted\":\"Alice Anderson\"},"
         + "\"emails\":[{\"value\":\"alice@example.edu\",\"type\":\"work\",\"primary\":true}],"
         + "\"unmappedExtra\":\"shouldNotBeCaptured\""  // not in defaults → must not be captured
         + "}";
@@ -78,6 +81,11 @@ public class GrouperScim2ProvisioningTargetNativeSyncTest extends GrouperTest {
     assertEquals(Boolean.TRUE, bean.getAttributes().get("active"));
     assertEquals("ext-1", bean.getAttributes().get("externalId"));
     assertEquals("alice@example.edu", bean.getAttributes().get("emailValue"));
+    assertEquals("work", bean.getAttributes().get("emailType"));
+    // managed name fields, nested under /name
+    assertEquals("Alice", bean.getAttributes().get("givenName"));
+    assertEquals("Anderson", bean.getAttributes().get("familyName"));
+    assertEquals("Alice Anderson", bean.getAttributes().get("formattedName"));
     // id is the target_user_id column — not a separate attribute
     assertFalse("id should NOT be captured as an attribute (it's already targetId)",
         bean.getAttributes().containsKey("id"));

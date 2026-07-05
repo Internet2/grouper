@@ -1,7 +1,12 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
@@ -97,12 +102,23 @@ public class GrouperProvisioningTargetNativeSync {
    * {@link #getDefaultNativeAttributeConfigsEntities()} are used.
    */
   public List<GrouperProvisioningNativeAttributeConfig> effectiveNativeAttributeConfigsEntities() {
-    List<GrouperProvisioningNativeAttributeConfig> configured =
-        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getNativeAttributeConfigsEntities();
-    if (configured != null && !configured.isEmpty()) {
-      return configured;
-    }
-    return this.getDefaultNativeAttributeConfigsEntities();
+    List<GrouperProvisioningNativeAttributeConfig> configured = this.configuredNativeAttributeConfigsEntities();
+    List<GrouperProvisioningNativeAttributeConfig> base =
+        (configured != null && !configured.isEmpty()) ? configured : this.getDefaultNativeAttributeConfigsEntities();
+    return applyNativeNameExceptions(base, this.grouperToNativeNameExceptionsEntities());
+  }
+
+  /**
+   * Operator-configured {@code nativeAttributesEntities} from the provisioner, or null when there is
+   * none (or no provisioner is attached). Isolated as a seam so the normalize/auto-inject in
+   * {@link #effectiveNativeAttributeConfigsEntities()} is always applied regardless of how the raw
+   * list is supplied -- production reads the provisioner; tests override this to inject a list without
+   * standing up a provisioner. Do NOT bypass the effective method itself, or the exceptions transform
+   * is skipped.
+   */
+  protected List<GrouperProvisioningNativeAttributeConfig> configuredNativeAttributeConfigsEntities() {
+    return this.grouperProvisioner == null ? null
+        : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getNativeAttributeConfigsEntities();
   }
 
   /**
@@ -110,12 +126,16 @@ public class GrouperProvisioningTargetNativeSync {
    * {@link #effectiveNativeAttributeConfigsEntities()} for the resolution rule.
    */
   public List<GrouperProvisioningNativeAttributeConfig> effectiveNativeAttributeConfigsGroups() {
-    List<GrouperProvisioningNativeAttributeConfig> configured =
-        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getNativeAttributeConfigsGroups();
-    if (configured != null && !configured.isEmpty()) {
-      return configured;
-    }
-    return this.getDefaultNativeAttributeConfigsGroups();
+    List<GrouperProvisioningNativeAttributeConfig> configured = this.configuredNativeAttributeConfigsGroups();
+    List<GrouperProvisioningNativeAttributeConfig> base =
+        (configured != null && !configured.isEmpty()) ? configured : this.getDefaultNativeAttributeConfigsGroups();
+    return applyNativeNameExceptions(base, this.grouperToNativeNameExceptionsGroups());
+  }
+
+  /** groups analogue of {@link #configuredNativeAttributeConfigsEntities()} */
+  protected List<GrouperProvisioningNativeAttributeConfig> configuredNativeAttributeConfigsGroups() {
+    return this.grouperProvisioner == null ? null
+        : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getNativeAttributeConfigsGroups();
   }
 
   /**
@@ -135,6 +155,100 @@ public class GrouperProvisioningTargetNativeSync {
    */
   protected List<GrouperProvisioningNativeAttributeConfig> getDefaultNativeAttributeConfigsGroups() {
     return Collections.emptyList();
+  }
+
+  /**
+   * Per-protocol native&lt;-&gt;grouper attribute NAME exceptions for entities: grouper attribute name
+   * -&gt; native (JSON/bean) field name, EXCEPTIONS ONLY -- anything not listed is identical in both
+   * namespaces. This is the single source of truth for name differences and drives both name
+   * normalization of the effective capture list AND auto-injection of every renamed attribute, so a
+   * cache-reconstructed object has the same attribute shape (and therefore matches/compares the same)
+   * as a live read. Default empty (most targets use identical names, e.g. LDAP mail/cn). Override per
+   * protocol (e.g. Google's email -&gt; primaryEmail).
+   * @return grouper name -&gt; native name, exceptions only
+   */
+  protected Map<String, String> grouperToNativeNameExceptionsEntities() {
+    return Collections.emptyMap();
+  }
+
+  /** groups analogue of {@link #grouperToNativeNameExceptionsEntities()} */
+  protected Map<String, String> grouperToNativeNameExceptionsGroups() {
+    return Collections.emptyMap();
+  }
+
+  /**
+   * Apply the native&lt;-&gt;grouper name exceptions to a capture list so the shadow always speaks
+   * grouper attribute names and every renamed attribute is guaranteed present:
+   * <ul>
+   *   <li>NORMALIZE -- each entry's name is translated native-&gt;grouper (so an operator who typed
+   *       the native name still lands under the grouper name); when the entry has no explicit path,
+   *       the path is resolved to the native field ({@code "/" + native}) so it still reads the right
+   *       place.</li>
+   *   <li>AUTO-INJECT -- every renamed attribute (each map entry) is added under its grouper name from
+   *       its native path if the list does not already cover it, so it works by default with no list.</li>
+   * </ul>
+   * Names not in the map pass through unchanged (native == grouper), so for the common empty-map case
+   * this returns the input as-is. NB: this handles NAME differences only; a value transform (a
+   * computed attribute) cannot be reproduced by a name/path capture and is out of scope here (that is
+   * the guardrail's job).
+   *
+   * @param configs the base capture list (operator override or protocol default)
+   * @param grouperToNative grouper name -&gt; native field name, exceptions only
+   * @return the effective capture list, grouper-named with every renamed attribute present
+   */
+  private static List<GrouperProvisioningNativeAttributeConfig> applyNativeNameExceptions(
+      List<GrouperProvisioningNativeAttributeConfig> configs, Map<String, String> grouperToNative) {
+
+    if (grouperToNative == null || grouperToNative.isEmpty()) {
+      return configs == null ? Collections.<GrouperProvisioningNativeAttributeConfig>emptyList() : configs;
+    }
+
+    // inverse (native name -> grouper name) so a name an operator typed natively still normalizes
+    Map<String, String> nativeToGrouper = new HashMap<String, String>();
+    for (Map.Entry<String, String> entry : grouperToNative.entrySet()) {
+      nativeToGrouper.put(entry.getValue(), entry.getKey());
+    }
+
+    List<GrouperProvisioningNativeAttributeConfig> result =
+        new ArrayList<GrouperProvisioningNativeAttributeConfig>();
+    Set<String> presentGrouperNames = new HashSet<String>();
+
+    // 1) normalize the base list to grouper names (resolving the native path when none was given)
+    for (GrouperProvisioningNativeAttributeConfig config : configs == null
+        ? Collections.<GrouperProvisioningNativeAttributeConfig>emptyList() : configs) {
+      if (config == null || config.getName() == null || config.getName().trim().length() == 0) {
+        continue;
+      }
+      String typedName = config.getName();
+      String grouperName = nativeToGrouper.containsKey(typedName) ? nativeToGrouper.get(typedName) : typedName;
+      String path = config.getPath();
+      if (path == null || path.trim().length() == 0) {
+        String nativeName = grouperToNative.containsKey(grouperName) ? grouperToNative.get(grouperName) : grouperName;
+        path = "/" + nativeName;
+      }
+      if (presentGrouperNames.add(grouperName)) {
+        result.add(newNativeAttributeConfig(grouperName, path, config.getType()));
+      }
+    }
+
+    // 2) auto-inject every renamed attribute not already present, under its grouper name / native path
+    for (Map.Entry<String, String> entry : grouperToNative.entrySet()) {
+      String grouperName = entry.getKey();
+      if (presentGrouperNames.add(grouperName)) {
+        result.add(newNativeAttributeConfig(grouperName, "/" + entry.getValue(), null));
+      }
+    }
+
+    return result;
+  }
+
+  private static GrouperProvisioningNativeAttributeConfig newNativeAttributeConfig(
+      String name, String path, String type) {
+    GrouperProvisioningNativeAttributeConfig config = new GrouperProvisioningNativeAttributeConfig();
+    config.setName(name);
+    config.setPath(path);
+    config.setType(type);
+    return config;
   }
 
   /**

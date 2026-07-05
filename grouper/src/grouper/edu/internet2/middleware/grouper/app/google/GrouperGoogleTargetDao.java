@@ -735,9 +735,9 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
     // GRP-7048: retrieveAllData honors retrieveEntities/Memberships/Groups=false, so a full sync can
     // serve each axis from the sync-back cache (fullSync*FromSyncBack) instead of pulling from Google.
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingEntities(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingMemberships(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingGroups(true);
+    grouperProvisionerDaoCapabilities.setCanFullSyncEntitiesFromSyncBack(true);
+    grouperProvisionerDaoCapabilities.setCanFullSyncMembershipsFromSyncBack(true);
+    grouperProvisionerDaoCapabilities.setCanFullSyncGroupsFromSyncBack(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
     // read path captures groups/users from the raw JSON at the GrouperGoogleApiCommands seam

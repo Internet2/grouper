@@ -2179,4 +2179,203 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
             + " where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
         .addBindVar(configId).select(int.class);
   }
+
+  // ==========================================================================================
+  // GRP-7048 full-sync-from-sync-back-cache tests for SCIM (AWS), the group-centric config.
+  //
+  // SCIM retrieves per-axis (no combined retrieveAllData), so these are the first tests that
+  // exercise the adapter's per-axis cache-first skip: when an axis is served from the cache, the
+  // adapter never calls retrieveAll{Entities,Groups}, so scimRetrieveAll{Users,Groups}ApiCall stays
+  // unset on the measured run. The feature is declared only for the group-centric membership model
+  // (isScimRetrieveMembershipsByGroup, which the AWS config defaults to true), so groups-from-cache
+  // requires memberships-from-cache (the existing coupling).
+  //
+  // The AWS mock is in-process (no Tomcat). Managed attrs (userName + name.* + email*) are in the
+  // SCIM default capture, so a cache-reconstructed user matches a live read; if a deployment manages
+  // an attribute not captured, the from-cache guardrail warns and this kind of test would show a
+  // spurious update.
+  // ==========================================================================================
+
+  /** shared AWS from-cache config: the standard AWS sync-back config plus the given from-cache flags */
+  private void configureAwsSyncBack(String configId, Map<String, String> extraFromCacheFlags) {
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+    ScimProvisionerTestConfigInput configInput = new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC")
+        .assignConfigId(configId)
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+        .assignBearer(true)
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true");
+    if (extraFromCacheFlags != null) {
+      for (Map.Entry<String, String> entry : extraFromCacheFlags.entrySet()) {
+        configInput.addExtraConfig(entry.getKey(), entry.getValue());
+      }
+    }
+    ScimProvisionerTestUtils.configureScimProvisioner(configInput);
+  }
+
+  /**
+   * GRP-7048 (users, warm cache): once the cache is warm, both users are reconstructed from
+   * grouper_prov_user, the bulk SCIM user pull is skipped (scimRetrieveAllUsersApiCall unset), and no
+   * individual user re-reads happen.
+   */
+  public void testAwsFullSyncUsersFromSyncBackWarmCache() {
+
+    String configId = "awsProvisioner";
+    Map<String, String> flags = new LinkedHashMap<String, String>();
+    flags.put("fullSyncUsersFromSyncBack", "true");
+    configureAwsSyncBack(configId, flags);
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache: SCIM captures on read, so a few passes converge the inserts + read-capture
+    fullProvision();
+    fullProvision();
+    fullProvision();
+    assertEquals("both users cached after warm-up", 2, countByProvisioner(configId, "grouper_prov_user"));
+
+    // measured run: users come entirely from the cache
+    fullProvision();
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("bulk user pull from SCIM should be skipped (users come from the sync-back cache)",
+        debugMap.get("scimRetrieveAllUsersApiCall"));
+    assertEquals("both users reconstructed from the cache", 2,
+        debugMapInt(debugMap, "syncBackEntitiesReconstructed"));
+    assertEquals("no individual user re-reads when the cache is warm and complete", 0,
+        debugMapInt(debugMap, "missingEntitiesForRetrieve"));
+  }
+
+  /**
+   * GRP-7048 (user missing from cache is re-read): a user in the target but not in the cache is
+   * re-read individually, while the cached user is served from the cache and the bulk pull stays
+   * skipped. We simulate the miss by deleting one user's grouper_prov_user row (+ FK children).
+   */
+  public void testAwsFullSyncUsersFromSyncBackMissingFromCacheReRead() {
+
+    String configId = "awsProvisioner";
+    Map<String, String> flags = new LinkedHashMap<String, String>();
+    flags.put("fullSyncUsersFromSyncBack", "true");
+    configureAwsSyncBack(configId, flags);
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    fullProvision();
+    fullProvision();
+    fullProvision();
+    assertEquals("both users cached after warm-up", 2, countByProvisioner(configId, "grouper_prov_user"));
+
+    // simulate a cache miss for SUBJ0: delete its grouper_prov_user row (+ FK children) while it
+    // stays in SCIM. grouper_prov_user.member_internal_id -> grouper_members.internal_id.
+    String provUserForSubj0 = "select internal_id from grouper_prov_user "
+        + "where grouper_sync_internal_id = (select internal_id from grouper_sync where provisioner_name = ?) "
+        + "and member_internal_id = (select internal_id from grouper_members where subject_id = ?)";
+    new GcDbAccess().connectionName("grouper")
+        .sql("delete from grouper_prov_user_attr_value where prov_user_internal_id in (" + provUserForSubj0 + ")")
+        .addBindVar(configId).addBindVar(SubjectTestHelper.SUBJ0.getId()).executeSql();
+    new GcDbAccess().connectionName("grouper")
+        .sql("delete from grouper_prov_mship where prov_user_internal_id in (" + provUserForSubj0 + ")")
+        .addBindVar(configId).addBindVar(SubjectTestHelper.SUBJ0.getId()).executeSql();
+    new GcDbAccess().connectionName("grouper")
+        .sql("delete from grouper_prov_user "
+            + "where grouper_sync_internal_id = (select internal_id from grouper_sync where provisioner_name = ?) "
+            + "and member_internal_id = (select internal_id from grouper_members where subject_id = ?)")
+        .addBindVar(configId).addBindVar(SubjectTestHelper.SUBJ0.getId()).executeSql();
+    assertEquals("SUBJ0 removed from the cache, SUBJ1 remains", 1,
+        countByProvisioner(configId, "grouper_prov_user"));
+
+    // the run: SUBJ1 from cache, SUBJ0 (missing from cache) re-read individually from SCIM
+    fullProvision();
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("bulk user pull from SCIM should still be skipped (cache is non-empty)",
+        debugMap.get("scimRetrieveAllUsersApiCall"));
+    assertEquals("only the cached user is reconstructed from the cache", 1,
+        debugMapInt(debugMap, "syncBackEntitiesReconstructed"));
+    assertEquals("exactly the user missing from the cache is re-read individually", 1,
+        debugMapInt(debugMap, "missingEntitiesForRetrieve"));
+  }
+
+  /**
+   * GRP-7048 (groups, warm cache): once the cache is warm, the group is reconstructed from
+   * grouper_prov_group and the bulk SCIM group pull is skipped. Groups-from-cache requires
+   * memberships-from-cache for the group-centric model, so both options are enabled.
+   */
+  public void testAwsFullSyncGroupsFromSyncBackWarmCache() {
+
+    String configId = "awsProvisioner";
+    Map<String, String> flags = new LinkedHashMap<String, String>();
+    flags.put("fullSyncGroupsFromSyncBack", "true");
+    flags.put("fullSyncMembershipsFromSyncBack", "true");
+    configureAwsSyncBack(configId, flags);
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache: the group + its two memberships
+    fullProvision();
+    fullProvision();
+    fullProvision();
+    assertEquals("group cached after warm-up", 1, countByProvisioner(configId, "grouper_prov_group"));
+    assertTrue("memberships cached after warm-up",
+        countByProvisioner(configId, "grouper_prov_mship") >= 2);
+
+    // the warm run: the group (and memberships) come from the cache; the bulk group pull is skipped
+    fullProvision();
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    // TRASH DIAGNOSTIC (remove): dump the from-cache decision states so we can see which axis blocked
+    String decisions = "syncBackUsingCacheGroups=" + debugMap.get("syncBackUsingCacheGroups")
+        + " syncBackUsingCacheMemberships=" + debugMap.get("syncBackUsingCacheMemberships")
+        + " syncBackUsingCache=" + debugMap.get("syncBackUsingCache")
+        + " groupCache=" + countByProvisioner(configId, "grouper_prov_group")
+        + " mshipCache=" + countByProvisioner(configId, "grouper_prov_mship")
+        + " userCache=" + countByProvisioner(configId, "grouper_prov_user");
+    assertNull("bulk group pull from SCIM should be skipped (groups come from the cache); " + decisions,
+        debugMap.get("scimRetrieveAllGroupsApiCall"));
+    assertEquals("the group is reconstructed from the cache", 1,
+        debugMapInt(debugMap, "syncBackGroupsReconstructed"));
+  }
+
+  /** read an int counter from the provisioner debug map, treating absent as 0 */
+  private static int debugMapInt(Map<String, Object> debugMap, String key) {
+    Object value = debugMap == null ? null : debugMap.get(key);
+    return value == null ? 0 : ((Number) value).intValue();
+  }
 }

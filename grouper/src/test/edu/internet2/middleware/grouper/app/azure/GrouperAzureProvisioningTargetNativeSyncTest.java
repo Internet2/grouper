@@ -155,8 +155,9 @@ public class GrouperAzureProvisioningTargetNativeSyncTest extends GrouperTest {
   }
 
   /**
-   * No provisioner config -> Azure group defaults: displayName, mailNickname. targetId comes from
-   * {@code /id} (not captured as an attribute).
+   * No provisioner config -> Azure group defaults: displayName, mailNickname, description
+   * (description is a managed group attribute, captured so a cache-reconstructed group matches a
+   * live read). targetId comes from {@code /id} (not captured as an attribute).
    */
   public void testBuildNativeGroupAppliesDefaults() {
     GrouperProvisioningTargetNativeGroup bean =
@@ -165,9 +166,9 @@ public class GrouperAzureProvisioningTargetNativeSyncTest extends GrouperTest {
     assertEquals("dcba5d8d-7986-432d-b23a-0342887e8fba", bean.getTargetId());    // from /id
     assertEquals("testGroup", bean.getAttributes().get("displayName"));
     assertEquals("testgroup", bean.getAttributes().get("mailNickname"));
+    assertEquals("the test group", bean.getAttributes().get("description"));
     assertFalse("id is the target_group_id column, not an attribute",
         bean.getAttributes().containsKey("id"));
-    assertFalse("description is not a default", bean.getAttributes().containsKey("description"));
     assertFalse("memberCount is not a default", bean.getAttributes().containsKey("memberCount"));
   }
 

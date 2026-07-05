@@ -2122,7 +2122,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
           .addExtraConfig("groupSearchAllFilter", null)
           .addExtraConfig("scoreConvertToFullSyncThreshold", "200")
           .assignMembershipDeleteType("deleteValueIfManagedByGrouper")
-          .addExtraConfig("logCommandsAlways", "true")
+          .addExtraConfig("logCommandsAlways", "false")
           .addExtraConfig("logAllObjectsVerbose", "true"));
     
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();

@@ -102,7 +102,7 @@ public class BoxProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "3");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "3");

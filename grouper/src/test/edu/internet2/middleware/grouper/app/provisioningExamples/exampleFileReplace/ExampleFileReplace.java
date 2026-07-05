@@ -19,7 +19,7 @@ public class ExampleFileReplace {
     configureProvisionerSuffix("groupMatchingAttribute0name", "fileName");
     configureProvisionerSuffix("groupMatchingAttributeCount", "1");
     configureProvisionerSuffix("logAllObjectsVerbose", "true");
-    configureProvisionerSuffix("logCommandsAlways", "true");
+    configureProvisionerSuffix("logCommandsAlways", "false");
     configureProvisionerSuffix("membership2AdvancedOptions", "true");
     configureProvisionerSuffix("membershipMatchingIdExpression", "\u0024{new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('fileName'), targetMembership.retrieveAttributeValueString('email'))}");
     configureProvisionerSuffix("numberOfEntityAttributes", "2");

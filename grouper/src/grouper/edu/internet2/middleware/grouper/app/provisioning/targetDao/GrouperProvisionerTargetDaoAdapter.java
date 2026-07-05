@@ -812,7 +812,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     // missing ones individually later. Without this, a config that lands on the per-axis path
     // (isSelectAllData false, so the combined path above was not taken) would pull ALL groups here AND
     // seed from the cache, duplicating them. Guarded by the from-cache decision, which itself requires
-    // the DAO's canRetrieveAllDataExcludingGroups capability + a warm cache, so it is a no-op for
+    // the DAO's canFullSyncGroupsFromSyncBack capability + a warm cache, so it is a no-op for
     // provisioners not using the feature.
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()
         && !this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().isGroupsFromSyncBackCacheThisRun()) {

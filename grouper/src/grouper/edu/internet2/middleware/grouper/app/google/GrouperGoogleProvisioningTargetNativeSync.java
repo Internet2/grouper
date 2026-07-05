@@ -63,7 +63,16 @@ public class GrouperGoogleProvisioningTargetNativeSync extends GrouperProvisioni
    */
   private static final List<GrouperProvisioningNativeAttributeConfig> DEFAULT_ENTITY_ATTRS =
       Collections.unmodifiableList(Arrays.asList(
-          attrConfig("primaryEmail"),
+          // Capture the MANAGED entity attributes -- the ones Grouper writes/compares -- so a
+          // cache-reconstructed user matches a live read EXACTLY and does not trigger a spurious
+          // update on every from-cache run (a spurious update marks the user for the drain, which
+          // drops its shadow snapshot, and the flush then deletes the cache row -- the cache eats
+          // itself). givenName/familyName are nested under /name in the Google user JSON. The
+          // matching attribute "email" is auto-injected by the base capture layer from the rename
+          // map (email <- primaryEmail), so it is not listed here. orgUnitPath is captured for
+          // parity with the live read (not Grouper-managed here, but harmless and null in practice).
+          attrConfigWithPath("givenName", "/name/givenName"),
+          attrConfigWithPath("familyName", "/name/familyName"),
           attrConfig("orgUnitPath")));
 
   /**
@@ -96,6 +105,13 @@ public class GrouperGoogleProvisioningTargetNativeSync extends GrouperProvisioni
   @Override
   protected List<GrouperProvisioningNativeAttributeConfig> getDefaultNativeAttributeConfigsEntities() {
     return DEFAULT_ENTITY_ATTRS;
+  }
+
+  @Override
+  protected Map<String, String> grouperToNativeNameExceptionsEntities() {
+    // single source of truth for the one Google user name that differs (email <- primaryEmail);
+    // the base capture layer normalizes + auto-injects renamed attributes from this
+    return GrouperGoogleUser.grouperNameToNativeNameExceptions();
   }
 
   @Override

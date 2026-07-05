@@ -1007,7 +1007,8 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   //
   // DEFAULT CAPTURE ATTRIBUTES (asserted on -- from GrouperGoogleProvisioningTargetNativeSync):
   //   groups  -> name, email     (JSON pointers /name, /email on the merged Directory+settings node)
-  //   users   -> primaryEmail, orgUnitPath (JSON pointers /primaryEmail, /orgUnitPath)
+  //   users   -> email, orgUnitPath (grouper attribute names; email is remapped from the native
+  //              /primaryEmail via GrouperGoogleUser's shared name map, orgUnitPath from /orgUnitPath)
   //   "id" is NEVER captured as an attribute (it is already the target_group_id / target_user_id
   //   column). The group update test additionally captures "description" via nativeAttributesGroups;
   //   description IS reachable from the merged group JSON (the Directory read uses
@@ -1432,8 +1433,8 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
     // pre-populate orphans directly into the Google mock before the provisioner runs. name + email
-    // are Google group defaults; primaryEmail is a Google user default -- set them so the capture
-    // has values to record.
+    // are Google group defaults; the user's primaryEmail is captured by the user default (as the
+    // grouper "email" attribute) -- set them so the capture has values to record.
     GrouperGoogleGroup orphanGroup = new GrouperGoogleGroup();
     orphanGroup.setId("orphan-google-group-1234");
     orphanGroup.setName("test:orphanGroupNotInGrouper");
@@ -1915,13 +1916,10 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
     String configId = "myGoogleProvisioner";
     Map<String, String> extraConfig = new HashMap<String, String>();
     extraConfig.put("fullSyncUsersFromSyncBack", "true");
-    // capture the entity MATCHING attribute (email) into the shadow, mapped from the Google user's
-    // /primaryEmail. A normal read maps primaryEmail -> the "email" target attribute (the match key),
-    // but the default shadow captures only the raw primaryEmail/orgUnitPath, so a cache-reconstructed
-    // entity would carry no "email" and fail to match its Grouper entity -- forcing an individual
-    // re-read of every member. Capturing email:/primaryEmail lets reconstruction match.
-    extraConfig.put("nativeAttributesEntities",
-        "[{\"name\":\"primaryEmail\"},{\"name\":\"orgUnitPath\"},{\"name\":\"email\",\"path\":\"/primaryEmail\"}]");
+    // No nativeAttributesEntities override needed: the Google default capture now stores the matching
+    // attribute under its grouper name ("email", remapped from the native primaryEmail via
+    // GrouperGoogleUser's shared name map), so a cache-reconstructed entity matches automatically and
+    // no member is re-read. This is the regression guard for that default.
     setupGoogleSyncBack(configId, extraConfig);
 
     GrouperSession grouperSession = GrouperSession.startRootSession();
@@ -1968,10 +1966,8 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
     String configId = "myGoogleProvisioner";
     Map<String, String> extraConfig = new HashMap<String, String>();
     extraConfig.put("fullSyncUsersFromSyncBack", "true");
-    // capture the entity matching attribute (email) into the shadow so reconstructed entities match
-    // -- see testGoogleFullSyncUsersFromSyncBackWarmCache for why this is required for Google
-    extraConfig.put("nativeAttributesEntities",
-        "[{\"name\":\"primaryEmail\"},{\"name\":\"orgUnitPath\"},{\"name\":\"email\",\"path\":\"/primaryEmail\"}]");
+    // matching attribute ("email") is captured by the Google default now (remapped from native
+    // primaryEmail) -- no override needed; see testGoogleFullSyncUsersFromSyncBackWarmCache
     setupGoogleSyncBack(configId, extraConfig);
 
     GrouperSession grouperSession = GrouperSession.startRootSession();

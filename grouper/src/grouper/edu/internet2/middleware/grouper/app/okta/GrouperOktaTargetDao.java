@@ -719,13 +719,13 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanSyncBack(true);
     // GRP-7048: retrieveAllData honors retrieveEntities=false (skips the user pull and the
     // per-membership missing-user lookup), so fullSyncUsersFromSyncBack can seed users from cache
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingEntities(true);
+    grouperProvisionerDaoCapabilities.setCanFullSyncEntitiesFromSyncBack(true);
     // GRP-7048: retrieveAllData honors retrieveMemberships=false (skips the per-group member
     // iteration), so fullSyncMembershipsFromSyncBack can seed memberships from cache
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingMemberships(true);
+    grouperProvisionerDaoCapabilities.setCanFullSyncMembershipsFromSyncBack(true);
     // GRP-7048: retrieveAllData honors retrieveGroups=false (skips the group pull), so
     // fullSyncGroupsFromSyncBack can seed groups from cache
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingGroups(true);
+    grouperProvisionerDaoCapabilities.setCanFullSyncGroupsFromSyncBack(true);
   }
 
   private String resolveTargetEntityId(ProvisioningEntity targetEntity) {

@@ -55,8 +55,18 @@ public class GrouperScim2ProvisioningTargetNativeSync extends GrouperProvisionin
           attrConfig("displayName", null),
           attrConfig("active", "boolean"),
           attrConfig("externalId", null),
-          // first email is at /emails/0/value in SCIM 2.0 core
-          attrConfigWithPath("emailValue", "/emails/0/value", null)));
+          // givenName/familyName/formattedName are managed (Grouper writes/compares them) and nested
+          // under /name in SCIM 2.0 core -- capture them so a cache-reconstructed user matches a live
+          // read and does not trigger a spurious update every from-cache run (the same managed-
+          // attribute contract Google needs). A deployment that manages OTHER attributes must add
+          // them via nativeAttributesEntities; the from-cache guardrail warns about any it finds
+          // missing.
+          attrConfigWithPath("givenName", "/name/givenName", null),
+          attrConfigWithPath("familyName", "/name/familyName", null),
+          attrConfigWithPath("formattedName", "/name/formatted", null),
+          // first email value/type are at /emails/0/value and /emails/0/type in SCIM 2.0 core
+          attrConfigWithPath("emailValue", "/emails/0/value", null),
+          attrConfigWithPath("emailType", "/emails/0/type", null)));
 
   /**
    * Default per-attribute capture list for SCIM groups when {@code nativeAttributesGroups}

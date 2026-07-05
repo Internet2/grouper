@@ -103,6 +103,11 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands
           .retrieveAzureGroups(azureConfiguration.getAzureExternalSystemConfigId(), lookupOwners, extensionAttributeNames);
 
+      // GRP-7048: marks that the bulk group pull ran this pass; absent when groups are served from
+      // the sync-back cache (the adapter skips this call), which the from-cache tests assert on.
+      edu.internet2.middleware.grouper.util.GrouperUtil.mapAddValue(
+          this.getGrouperProvisioner().getDebugMap(), "azureRetrieveAllGroupsApiCall", 1);
+
       for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
         ProvisioningGroup targetGroup = grouperAzureGroup.toProvisioningGroup();
         results.add(targetGroup);
@@ -135,6 +140,11 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
       List<GrouperAzureUser> grouperAzureUsers = GrouperAzureApiCommands
           .retrieveAzureUsers(azureConfiguration.getAzureExternalSystemConfigId());
+
+      // GRP-7048: marks that the bulk user pull ran this pass; absent when users are served from the
+      // sync-back cache (the adapter skips this call), which the from-cache tests assert on.
+      edu.internet2.middleware.grouper.util.GrouperUtil.mapAddValue(
+          this.getGrouperProvisioner().getDebugMap(), "azureRetrieveAllUsersApiCall", 1);
 
       Map<ProvisioningEntity, Object> targetEntityToNativeEntity = new HashMap<>();
       
@@ -1021,6 +1031,15 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
+
+    // GRP-7048: full-sync-from-sync-back is offered for the USERS (entities) axis only for now -- the
+    // high-value case (skip the large Azure user pull). Azure is group-centric (retrieveMembershipsByGroup),
+    // so users do not drive membership retrieval and users-from-cache is safe under the existing
+    // coupling. Azure retrieves per-axis (no combined retrieveAllData), so the adapter skips the bulk
+    // user pull when users are served from the cache. GROUPS/MEMBERSHIPS from cache are NOT declared
+    // yet (Azure's by-group membership retrieval likely supports it as Okta does, but it is unverified
+    // here -- deferred to the GRP-7048 follow-up Jira).
+    grouperProvisionerDaoCapabilities.setCanFullSyncEntitiesFromSyncBack(true);
 
     grouperProvisionerDaoCapabilities.setCanUpdateEntities(true);
 

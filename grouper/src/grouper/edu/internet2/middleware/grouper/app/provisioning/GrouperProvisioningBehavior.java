@@ -737,7 +737,26 @@ public class GrouperProvisioningBehavior {
       selectMembershipsInGeneral = true;
       return selectMembershipsInGeneral;
     }
-    this.selectMembershipsInGeneral = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships();
+    // When customizing membership CRUD, memberships are selected if the standalone selectMemberships
+    // flag is set OR the target retrieves them by group/entity for a selected axis. A group-centric
+    // target (e.g. SCIM/Azure) selects memberships via the group pull -- driven by the
+    // canRetrieveMembershipsAllByGroup capability, NOT the standalone selectMemberships flag -- so
+    // without this it under-reports "selected in general". The by-group/by-entity condition is
+    // INLINED rather than calling isSelectMembershipsAllForGroup()/AllForEntity(), which call back
+    // into this method (circular).
+    boolean membershipsByGroup = this.isSelectGroups()
+        && (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroup(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroups(), false));
+    boolean membershipsByEntity = this.isSelectEntities()
+        && (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntity(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntities(), false));
+    this.selectMembershipsInGeneral =
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships()
+        || membershipsByGroup || membershipsByEntity;
     return this.selectMembershipsInGeneral;
   }
   

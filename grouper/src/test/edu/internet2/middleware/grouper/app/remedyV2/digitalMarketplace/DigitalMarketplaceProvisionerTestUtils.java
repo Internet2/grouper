@@ -66,7 +66,7 @@ public class DigitalMarketplaceProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "errorHandlingShow", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "errorHandlingTargetObjectDoesNotExistIsAnError", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "debugLog", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
     
