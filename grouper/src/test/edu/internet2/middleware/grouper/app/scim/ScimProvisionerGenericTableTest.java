@@ -2360,14 +2360,7 @@ public class ScimProvisionerGenericTableTest extends GrouperProvisioningBaseTest
     fullProvision();
     Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
 
-    // TRASH DIAGNOSTIC (remove): dump the from-cache decision states so we can see which axis blocked
-    String decisions = "syncBackUsingCacheGroups=" + debugMap.get("syncBackUsingCacheGroups")
-        + " syncBackUsingCacheMemberships=" + debugMap.get("syncBackUsingCacheMemberships")
-        + " syncBackUsingCache=" + debugMap.get("syncBackUsingCache")
-        + " groupCache=" + countByProvisioner(configId, "grouper_prov_group")
-        + " mshipCache=" + countByProvisioner(configId, "grouper_prov_mship")
-        + " userCache=" + countByProvisioner(configId, "grouper_prov_user");
-    assertNull("bulk group pull from SCIM should be skipped (groups come from the cache); " + decisions,
+    assertNull("bulk group pull from SCIM should be skipped (groups come from the cache)",
         debugMap.get("scimRetrieveAllGroupsApiCall"));
     assertEquals("the group is reconstructed from the cache", 1,
         debugMapInt(debugMap, "syncBackGroupsReconstructed"));
