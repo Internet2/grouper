@@ -1886,4 +1886,294 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
         dupGroupAttr);
   }
 
+  // ==========================================================================================
+  // GRP-7048 full-sync-from-sync-back-cache tests for GOOGLE (mirrors the Okta set in
+  // GrouperOktaProvisionerTest and is collected by FullSyncFromSyncBackSuite).
+  //
+  // Google is group-centric (canRetrieveMembershipsAllByGroup) and declares canRetrieveAllData, so
+  // it takes the COMBINED retrieveAllData path: GrouperGoogleTargetDao.retrieveAllData honors the
+  // per-axis retrieve*=false flags, serving that axis from the sync-back mirror
+  // (grouper_prov_group/user/mship) instead of pulling from Google. That per-axis guarding in
+  // retrieveAllData is exactly the production change these tests cover.
+  //
+  // NB: groups-from-cache REQUIRES memberships-from-cache for a group-centric target (the framework
+  // couples the two, and config validation enforces it), so retrieveAllData is never asked to
+  // iterate members over a skipped/empty group list -- the one unsafe axis combination cannot occur.
+  //
+  // Like the other Google sync-back tests these need the mock-services Tomcat; they run through the
+  // same setupGoogleSyncBack + fullProvision() harness (no tomcatRunTests() gate is used elsewhere
+  // in this class, so none is used here either).
+  // ==========================================================================================
+
+  /**
+   * GRP-7048 (users, warm cache): once the cache is warm, both target users are reconstructed from
+   * grouper_prov_user, the bulk Google user pull is skipped, and NO individual user re-reads happen
+   * -- proving the feature both skips the big pull and does not fall back to per-user lookups.
+   */
+  public void testGoogleFullSyncUsersFromSyncBackWarmCache() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("fullSyncUsersFromSyncBack", "true");
+    // capture the entity MATCHING attribute (email) into the shadow, mapped from the Google user's
+    // /primaryEmail. A normal read maps primaryEmail -> the "email" target attribute (the match key),
+    // but the default shadow captures only the raw primaryEmail/orgUnitPath, so a cache-reconstructed
+    // entity would carry no "email" and fail to match its Grouper entity -- forcing an individual
+    // re-read of every member. Capturing email:/primaryEmail lets reconstruction match.
+    extraConfig.put("nativeAttributesEntities",
+        "[{\"name\":\"primaryEmail\"},{\"name\":\"orgUnitPath\"},{\"name\":\"email\",\"path\":\"/primaryEmail\"}]");
+    setupGoogleSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache: Google captures groups/users on read, so a few passes converge the inserts +
+    // the post-write read-capture into grouper_prov_user
+    fullProvision();
+    fullProvision();
+    fullProvision();
+    assertEquals("both users cached after warm-up", 2, countSyncBack(configId, "grouper_prov_user"));
+
+    // the warm run: users come entirely from the cache
+    fullProvision();
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("bulk user pull from Google should be skipped (users come from the sync-back cache)",
+        debugMap.get("googleRetrieveAllUsersApiCall"));
+    assertEquals("both users reconstructed from the cache", 2,
+        debugMapInt(debugMap, "syncBackEntitiesReconstructed"));
+    assertEquals("no individual user re-reads when the cache is warm and complete", 0,
+        debugMapInt(debugMap, "missingEntitiesForRetrieve"));
+  }
+
+  /**
+   * GRP-7048 (user missing from cache is re-read): a user in the target but not in the sync-back
+   * cache is re-read individually from Google, while the cached users are served from the cache and
+   * the bulk pull stays skipped. We simulate the cache miss by deleting one user's grouper_prov_user
+   * row (and its FK children) after warm-up; it stays in Google.
+   */
+  public void testGoogleFullSyncUsersFromSyncBackMissingFromCacheReRead() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("fullSyncUsersFromSyncBack", "true");
+    // capture the entity matching attribute (email) into the shadow so reconstructed entities match
+    // -- see testGoogleFullSyncUsersFromSyncBackWarmCache for why this is required for Google
+    extraConfig.put("nativeAttributesEntities",
+        "[{\"name\":\"primaryEmail\"},{\"name\":\"orgUnitPath\"},{\"name\":\"email\",\"path\":\"/primaryEmail\"}]");
+    setupGoogleSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache
+    fullProvision();
+    fullProvision();
+    fullProvision();
+    assertEquals("both users cached after warm-up", 2, countSyncBack(configId, "grouper_prov_user"));
+
+    // simulate a cache miss for SUBJ0: delete its grouper_prov_user row (+ FK children) while it
+    // stays in Google. grouper_prov_user.member_internal_id -> grouper_members.internal_id.
+    String provUserForSubj0 = "select internal_id from grouper_prov_user "
+        + "where grouper_sync_internal_id = (select internal_id from grouper_sync where provisioner_name = ?) "
+        + "and member_internal_id = (select internal_id from grouper_members where subject_id = ?)";
+    new GcDbAccess().connectionName("grouper")
+        .sql("delete from grouper_prov_user_attr_value where prov_user_internal_id in (" + provUserForSubj0 + ")")
+        .addBindVar(configId).addBindVar(SubjectTestHelper.SUBJ0.getId()).executeSql();
+    new GcDbAccess().connectionName("grouper")
+        .sql("delete from grouper_prov_mship where prov_user_internal_id in (" + provUserForSubj0 + ")")
+        .addBindVar(configId).addBindVar(SubjectTestHelper.SUBJ0.getId()).executeSql();
+    new GcDbAccess().connectionName("grouper")
+        .sql("delete from grouper_prov_user "
+            + "where grouper_sync_internal_id = (select internal_id from grouper_sync where provisioner_name = ?) "
+            + "and member_internal_id = (select internal_id from grouper_members where subject_id = ?)")
+        .addBindVar(configId).addBindVar(SubjectTestHelper.SUBJ0.getId()).executeSql();
+    assertEquals("SUBJ0 removed from the cache, SUBJ1 remains", 1, countSyncBack(configId, "grouper_prov_user"));
+
+    // the run: SUBJ1 from cache, SUBJ0 (missing from cache) re-read individually from Google
+    fullProvision();
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("bulk user pull from Google should still be skipped (cache is non-empty)",
+        debugMap.get("googleRetrieveAllUsersApiCall"));
+    assertEquals("only the cached user is reconstructed from the cache", 1,
+        debugMapInt(debugMap, "syncBackEntitiesReconstructed"));
+    assertEquals("exactly the user missing from the cache is re-read individually", 1,
+        debugMapInt(debugMap, "missingEntitiesForRetrieve"));
+  }
+
+  /**
+   * GRP-7048 (memberships, warm cache): once the membership cache is warm, the target memberships
+   * are reconstructed from grouper_prov_mship and Google's per-group member iteration is skipped
+   * (googleRetrieveMembershipsApiCall stays unset on the warm run).
+   */
+  public void testGoogleFullSyncMembershipsFromSyncBackWarmCache() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("fullSyncMembershipsFromSyncBack", "true");
+    setupGoogleSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache: two memberships in the mirror (the cold run does the per-group iteration)
+    fullProvision();
+    fullProvision();
+    fullProvision();
+    assertEquals("both memberships cached after warm-up", 2, countSyncBack(configId, "grouper_prov_mship"));
+
+    // the warm run: memberships reconstructed from the cache, per-group iteration skipped
+    fullProvision();
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("Google per-group member iteration should be skipped (memberships come from the cache)",
+        debugMap.get("googleRetrieveMembershipsApiCall"));
+    assertEquals("both memberships reconstructed from the cache", 2,
+        debugMapInt(debugMap, "syncBackMembershipsReconstructed"));
+  }
+
+  /**
+   * GRP-7048 (memberships, cache used as the target set): with memberships served from the cache,
+   * the normal compare still provisions a membership that exists in Grouper but not the cache, and
+   * removes one that exists in the cache but not Grouper -- proving it is not just the idempotent
+   * case. Google captures memberships on the WRITE path, so each change converges into the mirror on
+   * the same (write) pass, and the per-group iteration stays skipped throughout.
+   */
+  public void testGoogleFullSyncMembershipsFromSyncBackAddAndRemove() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("fullSyncMembershipsFromSyncBack", "true");
+    // Google's setup already turns on customize*Crud + deleteMemberships (with *IfGrouperDeleted),
+    // so a Grouper-side membership removal deprovisions from the target with no extra config.
+    setupGoogleSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache: two memberships
+    fullProvision();
+    fullProvision();
+    fullProvision();
+    assertEquals("two memberships cached after warm-up", 2, countSyncBack(configId, "grouper_prov_mship"));
+
+    // ADD: SUBJ2 is in Grouper but not the membership cache -> the compare inserts it into Google,
+    // and the write-path capture records it into the mirror on this same pass
+    testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+    fullProvision();
+    Map<String, Object> addDebugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+    assertEquals("added membership captured into the mirror on the write pass", 3,
+        countSyncBack(configId, "grouper_prov_mship"));
+    assertNull("per-group member iteration stays skipped on the add pass (memberships from the cache)",
+        addDebugMap.get("googleRetrieveMembershipsApiCall"));
+
+    // REMOVE: SUBJ1 leaves Grouper but is in the cache -> the compare deletes it from Google, and
+    // the write-path delete-capture drops it from the mirror on this same pass
+    testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
+    fullProvision();
+    Map<String, Object> removeDebugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+    assertEquals("removed membership dropped from the mirror on the write pass", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
+    assertNull("per-group member iteration stays skipped on the remove pass",
+        removeDebugMap.get("googleRetrieveMembershipsApiCall"));
+  }
+
+  /**
+   * GRP-7048 (groups, warm cache): once the cache is warm, the group is reconstructed from
+   * grouper_prov_group and the bulk Google group pull is skipped. Groups-from-cache requires
+   * memberships-from-cache for a group-centric target, so both options are enabled and the per-group
+   * member iteration is skipped too (both-or-neither).
+   */
+  public void testGoogleFullSyncGroupsFromSyncBackWarmCache() throws IOException {
+
+    String configId = "myGoogleProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("fullSyncGroupsFromSyncBack", "true");
+    extraConfig.put("fullSyncMembershipsFromSyncBack", "true");
+    setupGoogleSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // warm the cache: the group + its two memberships (the cold run pulls them normally)
+    fullProvision();
+    fullProvision();
+    fullProvision();
+    assertEquals("group cached after warm-up", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("two memberships cached after warm-up", 2, countSyncBack(configId, "grouper_prov_mship"));
+
+    // the warm run: group (and memberships) come from the cache; both target pulls are skipped
+    fullProvision();
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("bulk group pull from Google should be skipped (groups come from the cache)",
+        debugMap.get("googleRetrieveAllGroupsApiCall"));
+    assertNull("per-group member iteration should be skipped too (both-or-neither)",
+        debugMap.get("googleRetrieveMembershipsApiCall"));
+    assertEquals("the group is reconstructed from the cache", 1,
+        debugMapInt(debugMap, "syncBackGroupsReconstructed"));
+  }
+
+  /** read an int counter from the provisioner debug map, treating absent as 0 */
+  private static int debugMapInt(Map<String, Object> debugMap, String key) {
+    Object value = debugMap == null ? null : debugMap.get(key);
+    return value == null ? 0 : ((Number) value).intValue();
+  }
+
 }

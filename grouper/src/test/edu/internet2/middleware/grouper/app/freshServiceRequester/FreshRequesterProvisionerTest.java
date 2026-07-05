@@ -1909,6 +1909,20 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
   }
 
   /**
+   * The single provisioned user's target_user_id (Freshservice requester id) in the mirror, or
+   * null. USER-side analogue of {@link #mirroredGroupTargetId(String)} -- used by the entity
+   * update-converge test to prove the SAME target user survives an update (in-place update, not
+   * delete + re-create).
+   */
+  private String mirroredUserTargetId(String configId) {
+    List<String> ids = new GcDbAccess().connectionName("grouper")
+        .sql("select target_user_id from grouper_prov_user "
+            + "where grouper_sync_internal_id in (select internal_id from grouper_sync where provisioner_name = ?)")
+        .addBindVar(configId).selectList(String.class);
+    return ids.isEmpty() ? null : ids.get(0);
+  }
+
+  /**
    * Resolved {@code name} attribute value for the single provisioned group in the mirror, or null.
    * Reads through the {@code grouper_prov_group_attr_v} reporting view (not the raw value table),
    * because the string is stored via a dictionary FK and only the view resolves it back to text
@@ -1935,6 +1949,28 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
         .sql("select value_string from grouper_prov_group_attr_v "
             + "where grouper_sync_id in (select id from grouper_sync where provisioner_name = ?) "
             + "and attribute_name = 'description'")
+        .addBindVar(configId).selectList(String.class);
+    return values.isEmpty() ? null : values.get(0);
+  }
+
+  /**
+   * Resolved {@code jobTitle} attribute value for the single provisioned user in the mirror, or
+   * null. This is the USER-side analogue of {@link #mirroredGroupDescription(String)}: it reads
+   * through the {@code grouper_prov_user_attr_v} reporting view (not the raw value table), because
+   * the string is stored via a dictionary FK and only the view resolves it back to text (column
+   * {@code value_string}). {@code jobTitle} is NOT a FreshService default entity capture attribute
+   * (only {@code email} and {@code active} are -- DEFAULT_ENTITY_ATTRS), so the update-converge
+   * test must configure {@code nativeAttributesEntities} to capture it -- and the Freshservice JSON
+   * field is {@code job_title}, so the capture entry needs an explicit {@code path} of
+   * {@code /job_title} (the default {@code "/" + name} pointer would be {@code /jobTitle}, which the
+   * requester JSON does not have). Filters to the single Grouper-linked user so a target-drift
+   * orphan (if any) does not collide -- unlike the group helpers there can be more than one user row.
+   */
+  private String mirroredUserJobTitle(String configId) {
+    List<String> values = new GcDbAccess().connectionName("grouper")
+        .sql("select value_string from grouper_prov_user_attr_v "
+            + "where grouper_sync_id in (select id from grouper_sync where provisioner_name = ?) "
+            + "and attribute_name = 'jobTitle'")
         .addBindVar(configId).selectList(String.class);
     return values.isEmpty() ? null : values.get(0);
   }
@@ -2130,10 +2166,121 @@ public class FreshRequesterProvisionerTest extends GrouperProvisioningBaseTest {
 
     // NOTE: no rename-as-update test. FreshService groups are matched by name, so renaming would
     // mutate the match key (the Adobe lesson) and could not converge as an in-place update.
-    // NOTE: no user-update-converge test either. FreshService users are matched by id + email; the
-    // only Grouper-driven user attribute mapped by default is email (= the match key). There is no
-    // safe Grouper-driven NON-matching user attribute to mutate by default, so an update-converge
-    // test would be mutating the match key -- skipped rather than written (same reasoning as Box).
+    // NOTE: the user (entity) update-converge analogue IS covered, by
+    // testFreshRequesterEntityUpdateConvergesNextRead below. FreshService users are matched by
+    // id + email, so -- exactly like this group test avoids the name match key -- that test mutates
+    // jobTitle, a mapped NON-matching entity attribute that round-trips through updateEntity and is
+    // captured back into the mirror.
+  }
+
+  /**
+   * Sync-back convergence of an ENTITY (user) UPDATE on a NON-matching attribute, two-pass full --
+   * the USER-side analogue of {@link #testFreshRequesterGroupUpdateConvergesNextRead()} (and of
+   * SCIM's testUserUpdateConvergesSameRun, which likewise drives the user's value off group
+   * membership). FreshService users are matched by id + email, so -- following the Adobe lesson the
+   * group test cites -- we do NOT mutate a match key. Instead we mutate {@code jobTitle}, a mapped
+   * NON-matching entity attribute:
+   * <ul>
+   *   <li>it round-trips through {@link FreshRequesterTargetDao#updateEntity} -> the Freshservice
+   *       {@code job_title} field (the DAO's updateRequesterUser overlays it, the mock persists and
+   *       re-serves it), and</li>
+   *   <li>it is captured back into {@code grouper_prov_user} on the next read via
+   *       {@code nativeAttributesEntities} (JSON field {@code /job_title}).</li>
+   * </ul>
+   *
+   * <p>The mark that makes this converge is {@code FreshRequesterTargetDao.updateEntity} calling
+   * {@code recordTargetNativeUserWrite(id, null)} on success: like the group update mark, it drops
+   * the user's captured snapshot and enrolls the id in the end-of-run sync-back drain re-read. That
+   * mark is only safe because every FreshRequester user read seam (bulk
+   * {@code retrieveRequesterUsers} AND the scoped {@code retrieveRequesterUserById} the drain uses)
+   * re-captures the user into the mirror -- unlike Duo's by-name group cache path, there is no
+   * serve-from-cache-without-capture seam for FreshRequester users. So the drain re-read on the
+   * write pass repopulates jobTitle, and the mirror converges to the new value on pass A, before the
+   * bulk re-read of pass B.
+   *
+   * <p>Asserts both that the jobTitle VALUE converges AND that it is an in-place update -- the SAME
+   * target user id survives (not delete + re-create). {@code jobTitle} is NOT a FreshService default
+   * capture attribute, so {@code nativeAttributesEntities} is configured to capture it (with the
+   * explicit {@code /job_title} JSON path, since the default {@code /jobTitle} pointer would miss).
+   * The Grouper-side driver is membership in a control group {@code test2:titleGroup} (which is NOT
+   * itself provisioned): a translationScript maps that boolean to two distinct titles, so adding
+   * SUBJ0 to the control group is a pure NON-matching attribute change on the provisioned user.
+   */
+  public void testFreshRequesterEntityUpdateConvergesNextRead() {
+
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    String configId = "freshRequesterProvisioner";
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    // Add jobTitle (a mapped NON-matching entity attribute) on top of the util's default id + email.
+    // The util's configureProvisionerSuffix skips its own value for any suffix present in extraConfig,
+    // so putting numberOfEntityAttributes here overrides the util's "2" -> "3".
+    extraConfig.put("numberOfEntityAttributes", "3");
+    extraConfig.put("targetEntityAttribute.2.name", "jobTitle");
+    extraConfig.put("targetEntityAttribute.2.translateExpressionType", "translationScript");
+    // drive jobTitle off membership in a NON-provisioned control group, mirroring SCIM's active-off-
+    // membership pattern. Two distinct titles so the update is a real value change.
+    extraConfig.put("targetEntityAttribute.2.translateExpression",
+        "${provisioningEntityWrapper.isInGroup('test2:titleGroup') ? 'Engineer' : 'Analyst'}");
+    // capture jobTitle into the mirror. jobTitle is NOT a FreshService default capture attribute, so
+    // configure it explicitly. JSON-array form is required because the Freshservice field is
+    // job_title (the CSV form would default the pointer to /jobTitle, which the requester JSON lacks).
+    extraConfig.put("nativeAttributesEntities",
+        "[{\"name\":\"email\",\"path\":\"/primary_email\"},"
+        + "{\"name\":\"active\"},"
+        + "{\"name\":\"jobTitle\",\"path\":\"/job_title\"}]");
+    setupFreshRequesterSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    // jobTitle = isInGroup('test2:titleGroup') ? 'Engineer' : 'Analyst'. Create that control group
+    // (it is NOT itself provisioned); its parent stem must exist first. SUBJ0 is not in it yet, so
+    // the seeded title is 'Analyst'.
+    new StemSave(grouperSession).assignName("test2").save();
+    Group titleGroup = new GroupSave(grouperSession).assignName("test2:titleGroup").save();
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // seed: user provisioned with jobTitle 'Analyst' (SUBJ0 not yet in the control group)
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("seed: SUBJ0", 1, countSyncBack(configId, "grouper_prov_user"));
+    String userTargetIdBefore = mirroredUserTargetId(configId);
+    assertNotNull("user should have a target id after seed", userTargetIdBefore);
+    assertEquals("seed: original jobTitle captured", "Analyst", mirroredUserJobTitle(configId));
+
+    // change jobTitle (a NON-matching attribute) by adding SUBJ0 to the control group -> the next
+    // sync recomputes jobTitle to 'Engineer' -> FreshService updateEntity.
+    titleGroup.addMember(SubjectTestHelper.SUBJ0, false);
+
+    // pass A: the jobTitle update reaches the target (updateEntity persists it). updateEntity marks
+    // the updated user for the sync-back drain re-read, so the mirror already converges on the write
+    // pass -- before the bulk re-read of pass B.
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+    assertEquals("update converges on the write pass via the drain re-read (before the bulk re-read)",
+        "Engineer", mirroredUserJobTitle(configId));
+
+    // pass B: the bulk re-read captures the target's actual new jobTitle into the mirror (idempotent)
+    assertEquals(0, fullProvision().getRecordsWithErrors());
+
+    // mirror side: still ONE user, the SAME user (same target id) -- in-place update, not delete +
+    // re-create -- and its jobTitle converged to the new value.
+    assertEquals("user still in the mirror", 1, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("mirror tracks the same user through the update (update, not re-create)",
+        userTargetIdBefore, mirroredUserTargetId(configId));
+    assertEquals("mirror jobTitle should converge to the new value on the re-read pass",
+        "Engineer", mirroredUserJobTitle(configId));
   }
 
   /**

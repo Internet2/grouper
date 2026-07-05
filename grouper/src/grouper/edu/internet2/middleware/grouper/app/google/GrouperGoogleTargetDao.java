@@ -162,44 +162,60 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       boolean lookupManagers = googleConfiguration.getTargetGroupAttributeNameToConfig().containsKey("managers");
       boolean lookupOwners = googleConfiguration.getTargetGroupAttributeNameToConfig().containsKey("owners");
       
-      List<ProvisioningGroup> targetGroups = new ArrayList<ProvisioningGroup>();
-      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId(),
-          null, null, lookupManagers, lookupOwners);
-      for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
-        ProvisioningGroup targetGroup = grouperGoogleGroup.toProvisioningGroup();
-        targetGroups.add(targetGroup);
-        // generic provisioner sync back: the native group is captured from the raw JSON at the
-        // GrouperGoogleApiCommands.retrieveGoogleGroups seam (full fidelity), not from the bean here
-      }
-      targetData.setProvisioningGroups(targetGroups);
+      // GRP-7048: honor retrieve*=false so a full sync can serve users/groups/memberships from the
+      // sync-back cache (fullSync*FromSyncBack) instead of pulling them all from Google. Same pattern
+      // as GrouperOktaTargetDao. Memberships are group-centric (per-group member fetch), so they are
+      // only retrieved when groups are (the both-or-neither pairing is enforced upstream for
+      // group-centric targets, so retrieveMemberships is never true while retrieveGroups is false).
+      boolean retrieveGroups = targetDaoRetrieveAllDataRequest == null || targetDaoRetrieveAllDataRequest.isRetrieveGroups();
+      boolean retrieveEntities = targetDaoRetrieveAllDataRequest == null || targetDaoRetrieveAllDataRequest.isRetrieveEntities();
+      boolean retrieveMemberships = targetDaoRetrieveAllDataRequest == null || targetDaoRetrieveAllDataRequest.isRetrieveMemberships();
 
-      List<ProvisioningEntity> targetEntities = new ArrayList<ProvisioningEntity>();
-      List<GrouperGoogleUser> googleUsers = GrouperGoogleApiCommands.retrieveGoogleUsers(googleConfiguration.getGoogleExternalSystemConfigId());
-      for (GrouperGoogleUser googleUser: googleUsers) {
-        targetEntities.add(googleUser.toProvisioningEntity());
-        // generic provisioner sync back: the native user is captured from the raw JSON at the
-        // GrouperGoogleApiCommands.retrieveGoogleUsers seam (full fidelity), not from the bean here
-      }
-      targetData.setProvisioningEntities(targetEntities);
-
-      List<ProvisioningMembership> targetMemberships = new ArrayList<>();
-
-      for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
-        Set<String> groupMemberIds = GrouperGoogleApiCommands.retrieveGoogleGroupMembers(googleConfiguration.getGoogleExternalSystemConfigId(), grouperGoogleGroup.getId());
-
-        for (String groupMemberId: groupMemberIds) {
-          ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
-          provisioningMembership.setProvisioningGroupId(grouperGoogleGroup.getId());
-          provisioningMembership.setProvisioningEntityId(groupMemberId);
-          targetMemberships.add(provisioningMembership);
+      List<GrouperGoogleGroup> grouperGoogleGroups = new ArrayList<GrouperGoogleGroup>();
+      if (retrieveGroups) {
+        List<ProvisioningGroup> targetGroups = new ArrayList<ProvisioningGroup>();
+        grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId(),
+            null, null, lookupManagers, lookupOwners);
+        edu.internet2.middleware.grouper.util.GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "googleRetrieveAllGroupsApiCall", 1);
+        for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
+          ProvisioningGroup targetGroup = grouperGoogleGroup.toProvisioningGroup();
+          targetGroups.add(targetGroup);
+          // generic provisioner sync back: the native group is captured from the raw JSON at the
+          // GrouperGoogleApiCommands.retrieveGoogleGroups seam (full fidelity), not from the bean here
         }
-        // generic provisioner sync back: record (groupId, userId) memberships for this group
-        GrouperGoogleProvisioningTargetNativeSync.captureMembershipsForGroupFromCurrentProvisioner(
-            grouperGoogleGroup.getId(), groupMemberIds);
-
+        targetData.setProvisioningGroups(targetGroups);
       }
-      
-      targetData.setProvisioningMemberships(targetMemberships);
+
+      if (retrieveEntities) {
+        List<ProvisioningEntity> targetEntities = new ArrayList<ProvisioningEntity>();
+        List<GrouperGoogleUser> googleUsers = GrouperGoogleApiCommands.retrieveGoogleUsers(googleConfiguration.getGoogleExternalSystemConfigId());
+        edu.internet2.middleware.grouper.util.GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "googleRetrieveAllUsersApiCall", 1);
+        for (GrouperGoogleUser googleUser: googleUsers) {
+          targetEntities.add(googleUser.toProvisioningEntity());
+          // generic provisioner sync back: the native user is captured from the raw JSON at the
+          // GrouperGoogleApiCommands.retrieveGoogleUsers seam (full fidelity), not from the bean here
+        }
+        targetData.setProvisioningEntities(targetEntities);
+      }
+
+      if (retrieveMemberships) {
+        List<ProvisioningMembership> targetMemberships = new ArrayList<>();
+        for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
+          Set<String> groupMemberIds = GrouperGoogleApiCommands.retrieveGoogleGroupMembers(googleConfiguration.getGoogleExternalSystemConfigId(), grouperGoogleGroup.getId());
+
+          for (String groupMemberId: groupMemberIds) {
+            ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
+            provisioningMembership.setProvisioningGroupId(grouperGoogleGroup.getId());
+            provisioningMembership.setProvisioningEntityId(groupMemberId);
+            targetMemberships.add(provisioningMembership);
+          }
+          // generic provisioner sync back: record (groupId, userId) memberships for this group
+          GrouperGoogleProvisioningTargetNativeSync.captureMembershipsForGroupFromCurrentProvisioner(
+              grouperGoogleGroup.getId(), groupMemberIds);
+        }
+        edu.internet2.middleware.grouper.util.GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "googleRetrieveMembershipsApiCall", 1);
+        targetData.setProvisioningMemberships(targetMemberships);
+      }
 
       return targetDaoRetrieveAllDataResponse;
     } finally {
@@ -717,6 +733,11 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
+    // GRP-7048: retrieveAllData honors retrieveEntities/Memberships/Groups=false, so a full sync can
+    // serve each axis from the sync-back cache (fullSync*FromSyncBack) instead of pulling from Google.
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingEntities(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingMemberships(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllDataExcludingGroups(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
     // read path captures groups/users from the raw JSON at the GrouperGoogleApiCommands seam

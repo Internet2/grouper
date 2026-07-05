@@ -807,8 +807,16 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     GrouperProvisioningLists targetObjects = new GrouperProvisioningLists();
     TargetDaoRetrieveAllDataResponse result = new TargetDaoRetrieveAllDataResponse(targetObjects);
     
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()) {
-      
+    // GRP-7048: cache-first on the per-axis path too. When serving groups from the sync-back cache
+    // this run, skip the bulk group pull -- the framework seeds groups from the cache and re-reads any
+    // missing ones individually later. Without this, a config that lands on the per-axis path
+    // (isSelectAllData false, so the combined path above was not taken) would pull ALL groups here AND
+    // seed from the cache, duplicating them. Guarded by the from-cache decision, which itself requires
+    // the DAO's canRetrieveAllDataExcludingGroups capability + a warm cache, so it is a no-op for
+    // provisioners not using the feature.
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()
+        && !this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().isGroupsFromSyncBackCacheThisRun()) {
+
       TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = this.retrieveAllGroups(new TargetDaoRetrieveAllGroupsRequest(true));
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
@@ -829,8 +837,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     
     
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()) {
-      
+    // GRP-7048: cache-first on the per-axis path too (see the groups block above). When serving
+    // entities from the sync-back cache this run, skip the bulk user pull -- the framework seeds
+    // entities from the cache and re-reads any missing ones individually later -- so we do not pull
+    // all users here and then also seed from cache (which would duplicate them).
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()
+        && !this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().isEntitiesFromSyncBackCacheThisRun()) {
+
       TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = this.retrieveAllEntities(new TargetDaoRetrieveAllEntitiesRequest(true));
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
@@ -867,13 +880,18 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       }
     }
     
-    if (!this.getGrouperProvisioner().getProvisioningStateGlobal().isSelectResultProcessedMemberships() 
-        && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()) {
+    // GRP-7048: cache-first on the per-axis path too (see the groups/entities blocks above). Skip the
+    // bulk membership pull when serving memberships from the sync-back cache this run. (Group-centric
+    // targets like Okta/Google retrieve memberships via the combined retrieveAllData path, which
+    // already honors the skip flag; this covers the standalone retrieve-all-memberships case.)
+    if (!this.getGrouperProvisioner().getProvisioningStateGlobal().isSelectResultProcessedMemberships()
+        && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()
+        && !this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().isMembershipsFromSyncBackCacheThisRun()) {
 
       // if we are getting this with groups or entities then dont do it here
       if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsWithEntity()
           && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsWithGroup()) {
-        
+
         TargetDaoRetrieveAllMembershipsResponse targetDaoRetrieveAllMembershipsResponse = this.retrieveAllMemberships(new TargetDaoRetrieveAllMembershipsRequest());
         GrouperDaemonUtils.stopProcessingIfJobPaused();
 

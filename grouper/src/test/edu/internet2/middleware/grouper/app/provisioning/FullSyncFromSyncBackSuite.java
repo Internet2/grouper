@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import edu.internet2.middleware.grouper.app.google.GrouperGoogleProvisionerTest;
 import edu.internet2.middleware.grouper.app.okta.GrouperOktaProvisionerTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -45,6 +46,14 @@ public class FullSyncFromSyncBackSuite {
     // all three axes together, with adds / updates / deletes
     suite.addTest(new GrouperOktaProvisionerTest("testOktaFullSyncAllThreeFromSyncBackAddsConvergeSameRun"));
     suite.addTest(new GrouperOktaProvisionerTest("testOktaFullSyncAllThreeFromSyncBackUpdateAndDeleteConvergeSameRun"));
+
+    // Google (group-centric, combined retrieveAllData path): users / memberships / groups axes,
+    // warm cache + missing-from-cache re-read + cache-as-target-set add/remove
+    suite.addTest(new GrouperGoogleProvisionerTest("testGoogleFullSyncUsersFromSyncBackWarmCache"));
+    suite.addTest(new GrouperGoogleProvisionerTest("testGoogleFullSyncUsersFromSyncBackMissingFromCacheReRead"));
+    suite.addTest(new GrouperGoogleProvisionerTest("testGoogleFullSyncMembershipsFromSyncBackWarmCache"));
+    suite.addTest(new GrouperGoogleProvisionerTest("testGoogleFullSyncMembershipsFromSyncBackAddAndRemove"));
+    suite.addTest(new GrouperGoogleProvisionerTest("testGoogleFullSyncGroupsFromSyncBackWarmCache"));
 
     return suite;
   }
