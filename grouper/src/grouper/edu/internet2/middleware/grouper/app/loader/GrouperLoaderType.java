@@ -1437,7 +1437,9 @@ public enum GrouperLoaderType {
       // loaderMetadata grouperLoaderMetadataLoaded=false here.  the delete relies on that marker
       // (via getGroupsNoLongerMangedByLoader) being loaded=true, and if a delete fails (e.g. the
       // group is still in use) we want the group to remain a candidate for deletion on the next run.
-      if (!deletePreviouslyManagedGroups) {
+      // this applies both to the deletePreviouslyManagedGroups option and to the (deprecated) groups
+      // like string, which now only acts on groups carrying this loader's metadata.
+      if (!deletePreviouslyManagedGroups && StringUtils.isBlank(groupLikeString)) {
         updateLoaderMetadataForGroupsNoLongerInLoader(groupsNoLongerManagedByLoader);
       }
       
@@ -1461,6 +1463,29 @@ public enum GrouperLoaderType {
       
         //take out the ones which exist
         groupNamesManaged.removeAll(groupNames);
+        
+        // only act on groups that carry this loader's metadata (grouperLoaderMetadataGroupId matches this
+        // loader and grouperLoaderMetadataLoaded=true), so groups that merely match the like pattern but
+        // were never managed by this loader are left alone.  groupsNoLongerManagedByLoader was computed
+        // above from that metadata (scoped to this loader), before any loaded=false marking.
+        {
+          Set<String> groupNamesManagedByThisLoader = new HashSet<String>();
+          for (Group groupNoLongerManaged : GrouperUtil.nonNull(groupsNoLongerManagedByLoader)) {
+            groupNamesManagedByThisLoader.add(groupNoLongerManaged.getName());
+          }
+          int countBeforeMetadataFilter = groupNamesManaged.size();
+          groupNamesManaged.retainAll(groupNamesManagedByThisLoader);
+          int skippedForNoMetadataCount = countBeforeMetadataFilter - groupNamesManaged.size();
+          if (skippedForNoMetadataCount > 0) {
+            String skippedMessage = "Skipped " + skippedForNoMetadataCount
+                + " group(s) matching the groups like pattern that do not have loader metadata for this loader.";
+            GrouperLoaderLogger.addLogEntry("overallLog", "groupsSkippedForNoLoaderMetadataCount", skippedForNoMetadataCount);
+            hib3GrouploaderLogOverall.insertJobMessage(skippedMessage);
+            if (LOG.isDebugEnabled()) {
+              LOG.debug(groupNameOverall + ": " + skippedMessage);
+            }
+          }
+        }
         
         Boolean isIncludeExclude = null;
         
