@@ -1931,8 +1931,10 @@ public class GrouperProvisioningCompare {
 
     boolean handleRecalcs = true;
     
-    // if the target cannot recalc a membership then replace the full group list here and skip the recalc below
-    if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsInGeneral() &&  this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isReplaceMemberships()) {
+    // if replaceMemberships is enabled, replace the full group membership list here and skip the recalc below.
+    // this is intentionally not gated on isSelectMembershipsInGeneral(): a target can both retrieve memberships
+    // (to know current state and count inserts/deletes) and apply changes via a full group membership replace.
+    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isReplaceMemberships()) {
       
       handleRecalcs = false;
       
