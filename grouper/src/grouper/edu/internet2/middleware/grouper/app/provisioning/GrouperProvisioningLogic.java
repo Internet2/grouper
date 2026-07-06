@@ -4851,11 +4851,13 @@ public class GrouperProvisioningLogic {
         // replace logic in GrouperProvisioningCompare incorrectly included it in the replace
         // payload, re-adding the member to group B. The next sync would remove it again, etc.
         //
-        // Fix: when we cannot select memberships from the target, always mark stale sync
-        // memberships for deletion regardless of the in_target flag or replace mode. The
-        // original condition "!selectMemberships && !replaceMemberships" was too restrictive;
-        // the !replaceMemberships check was preventing deletion in replace mode.
+        // Fix: mark stale sync memberships for deletion when replaceMemberships is on, or when we
+        // cannot select memberships from the target, regardless of the in_target flag. GRP-7115
+        // made isSelectMembershipsInGeneral() true for group-centric targets (SCIM/Azure), so it
+        // can no longer be used alone to detect replace-style targets here -- isReplaceMemberships()
+        // is checked explicitly so stale memberships are excluded from the replace payload.
         if (GrouperUtil.booleanValue(gcGrouperSyncMembership.getInTarget(), false)
+            || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isReplaceMemberships()
             || !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsInGeneral()) {
         	provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(true);
         }
@@ -5187,7 +5189,22 @@ public class GrouperProvisioningLogic {
    * 
    */
   public List<ProvisioningMembership> retrieveIndividualTargetMembershipsIfNeeded() {
-    
+
+    // GRP-6676/GRP-7115: In blind replace mode (replaceMemberships=true, selectMemberships=false)
+    // we do NOT authoritatively read target memberships -- we simply replace each group's full
+    // membership list every sync. GRP-7115 made canRetrieveMembershipsAllByGroup (and therefore
+    // isSelectMembershipsInGeneral()) true for group-centric targets even when the operator disabled
+    // membership selection, so without this guard this method would run, retrieve zero memberships,
+    // and retrieveFullIndividualTargetMemberships() would then mark EVERY membership wrapper
+    // select-result-processed. processResultsSelectMembershipsFull would flip every in-target
+    // membership to not-in-target (exists=false), and the following replace would re-insert them,
+    // resetting in_target_start and reporting phantom inserts on every idempotent full sync. When we
+    // are replacing blindly without selecting memberships, skip the individual membership read.
+    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isReplaceMemberships()
+        && !this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isSelectMemberships()) {
+      return null;
+    }
+
     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectAllData() 
         || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAll() 
         || !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsInGeneral()) {
