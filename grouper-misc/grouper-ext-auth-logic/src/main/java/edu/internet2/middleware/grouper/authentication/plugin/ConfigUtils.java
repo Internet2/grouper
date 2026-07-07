@@ -33,8 +33,12 @@ import java.util.List;
 public class ConfigUtils {
     private static final Map<String, String> PROPERTY_RENAMES = new HashMap<>();
     static {
-        PROPERTY_RENAMES.put("external.authentication.saml.keyStoreAlias", "external.authentication.saml.keystoreAlias");
-        PROPERTY_RENAMES.put("external.authentication.saml.keyStoreType", "external.authentication.saml.keystoreType");
+        // map the deprecated all-lowercase names (key) to the canonical PAC4J bean-property names (value).
+        // the value is what propertyNameRename() rewrites to, and the setter is derived as set+capitalize(lastSegment),
+        // so the value MUST match PAC4J's setter casing: setKeyStoreAlias / setKeyStoreType.
+        // (these were previously reversed, which left the alias/type silently unset when configured -- see GRP fix)
+        PROPERTY_RENAMES.put("external.authentication.saml.keystoreAlias", "external.authentication.saml.keyStoreAlias");
+        PROPERTY_RENAMES.put("external.authentication.saml.keystoreType", "external.authentication.saml.keyStoreType");
     }
 
     private final static ResourceLoader resourceLoader = new DefaultResourceLoader();
