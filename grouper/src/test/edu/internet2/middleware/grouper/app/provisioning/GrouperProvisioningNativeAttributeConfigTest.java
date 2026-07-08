@@ -320,9 +320,9 @@ public class GrouperProvisioningNativeAttributeConfigTest extends GrouperTest {
 
     assertNotNull(rendered);
     // configLabel should be the LOCALIZED field label, not the raw config suffix
-    assertTrue("rendered message should use the localized label 'Native attributes (entities)', "
+    assertTrue("rendered message should use the localized label 'Native entity attributes', "
         + "got: " + rendered,
-        rendered.contains("Native attributes (entities)"));
+        rendered.contains("Native entity attributes"));
     // raw suffix should NOT appear (configLabel was replaced with the localized version)
     assertFalse("rendered message should not contain the raw config suffix, got: " + rendered,
         rendered.contains("nativeAttributesEntities"));
