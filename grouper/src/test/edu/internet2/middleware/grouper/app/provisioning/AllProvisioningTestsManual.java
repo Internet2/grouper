@@ -23,8 +23,10 @@ import edu.internet2.middleware.grouper.app.azure.AllAzureProvisionerTests;
 import edu.internet2.middleware.grouper.app.duo.AllDuoProvisionerTests;
 import edu.internet2.middleware.grouper.app.duo.role.AllDuoRoleProvisionerTests;
 import edu.internet2.middleware.grouper.app.google.AllGoogleProvisionerTests;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.AllLdapProvisioningTests;
 import edu.internet2.middleware.grouper.app.messagingProvisioning.AllMessagingProvisioningTests;
 import edu.internet2.middleware.grouper.app.scim.AllScimProvisionerTests;
+import edu.internet2.middleware.grouper.app.sqlProvisioning.AllSqlProvisioningTests;
 import edu.internet2.middleware.grouper.app.usdu.UsduJobProvisionerSyncTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -49,11 +51,11 @@ public class AllProvisioningTestsManual {
     suite.addTest(AllDuoProvisionerTests.suite());
     suite.addTest(AllDuoRoleProvisionerTests.suite());
     suite.addTest(AllGoogleProvisionerTests.suite());
-//    suite.addTest(AllLdapProvisioningTests.suite());
+    suite.addTest(AllLdapProvisioningTests.suite());
     suite.addTest(AllMessagingProvisioningTests.suite());
     suite.addTest(AllScimProvisionerTests.suite());
-//    suite.addTest(AllSqlProvisioningTests.suite());
-//    suite.addTest(AllProvisioningTests.suite());
+    suite.addTest(AllSqlProvisioningTests.suite());
+    suite.addTest(AllProvisioningTests.suite());
 
     suite.addTestSuite(UsduJobProvisionerSyncTest.class);
 
