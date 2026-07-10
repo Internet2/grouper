@@ -112,12 +112,7 @@
                       <br /><br /><a id="miscJexlScriptTesterLink" href="?operation=UiV2ScriptTester.testScript" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2ScriptTester.testScript');" style="white-space: nowrap;"
                         >${textContainer.text['scriptTesterLink'] }</a>
                     </c:if>
-                    
-                     <c:if test="${grouperRequestContainer.grouperReportContainer.canSeeAllReports}">
-                      <br /><br /><a id="miscAllReportsLink" href="?operation=UiV2GrouperReport.viewAllReportConfigs" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportConfigs');" style="white-space: nowrap;">
-                      ${textContainer.text['miscAllReportsLink'] }</a>
-                     </c:if>
-                    
+
                     <c:if test="${grouperRequestContainer.sqlSyncConfigurationContainer.canViewSqlSyncConfigs}">
                       <br /><br /><a id="miscSqlSyncLink" href="?operation=UiV2SqlSyncConfiguration.viewSqlSyncConfigurations" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2SqlSyncConfiguration.viewSqlSyncConfigurations');" style="white-space: nowrap;"
                         >${textContainer.text['sqlSyncMainLink'] }</a>
