@@ -16,9 +16,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
@@ -1119,10 +1119,6 @@ public class GrouperScim2ApiCommands {
         }
 
         debugMap.put("linkedExistingUserOnConflict", true);
-
-        // same sync-back the success path runs below: register the (existing) resource so the
-        // generic provisioner links its target id and the end-of-run drain skips re-reading it.
-        GrouperScim2ProvisioningTargetNativeSync.captureUserInsertFromCurrentProvisioner(existingUserNode);
 
         return GrouperScim2User.fromJson(existingUserNode);
       }
