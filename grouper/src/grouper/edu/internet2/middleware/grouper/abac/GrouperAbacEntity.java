@@ -88,13 +88,23 @@ public class GrouperAbacEntity {
   }
 
   private String memberId;
-  
+
   public String getMemberId() {
     return memberId;
   }
-  
+
   public void setMemberId(String memberId) {
     this.memberId = memberId;
+  }
+
+  private String subjectSourceId;
+
+  public String getSubjectSourceId() {
+    return subjectSourceId;
+  }
+
+  public void setSubjectSourceId(String subjectSourceId) {
+    this.subjectSourceId = subjectSourceId;
   }
 
 

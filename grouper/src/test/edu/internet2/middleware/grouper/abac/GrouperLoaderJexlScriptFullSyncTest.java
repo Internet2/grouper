@@ -7,7 +7,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -33,7 +32,6 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataFieldType;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob;
-import edu.internet2.middleware.grouper.dataField.GrouperDataProviderTest;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependency;
@@ -56,7 +54,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testJexlGlobalAttributeValue"));
+    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testJexlSubjectSourceId"));
   }
 
   /**
@@ -2192,6 +2190,310 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     assertEquals("expected one 'Not member of test:GroupB' LEAF part", 1, negatedRowCount);
     assertEquals("there should be no orphan 'Member of test:GroupB' LEAF part",
         0, orphanPositiveRowCount);
+  }
+
+  /**
+   * ABAC scripts can filter on the subject's source with member.subjectSourceId == 'jdbc' — useful
+   * to require "real people only" and not service principals. This exercises the top-level ==/!=
+   * dispatch through the sql where-clause build to the final scripted-group membership; verifies
+   * combinations with entity.memberOf and negation; and confirms the analyzer's description and
+   * visualization tree render the subject-source condition as an attribute-style leaf.
+   */
+  public void testJexlSubjectSourceId() {
+    GrouperAbacTestHelper.setupDataFields();
+    GrouperAbac.clearCaches();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group testGroupA = new GroupSave().assignName("test:GroupA").assignCreateParentStemsIfNotExist(true).save();
+
+    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, testSubject1, true);
+
+    Subject testSubject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, testSubject2, true);
+
+    testGroupA.addMember(testSubject0);
+    testGroupA.addMember(testSubject1);
+    testGroupA.addMember(testSubject2);
+
+    // groupJdbc: subject source restricted to jdbc, in group A -> all three
+    Group groupJdbc = createScriptedGroup(grouperSession, "test:groupJdbc",
+        "entity.memberOf('test:GroupA') && member.subjectSourceId == 'jdbc'");
+
+    // groupNotJdbc: subject source explicitly not jdbc, in group A -> none (only source is jdbc)
+    Group groupNotJdbc = createScriptedGroup(grouperSession, "test:groupNotJdbc",
+        "entity.memberOf('test:GroupA') && member.subjectSourceId != 'jdbc'");
+
+    // groupBogusSource: unknown subject source, in group A -> none
+    Group groupBogusSource = createScriptedGroup(grouperSession, "test:groupBogusSource",
+        "entity.memberOf('test:GroupA') && member.subjectSourceId == 'bogusSource'");
+
+    // groupNotEqNegated: !(subject source == jdbc), same as != jdbc -> none
+    Group groupNotEqNegated = createScriptedGroup(grouperSession, "test:groupNotEqNegated",
+        "entity.memberOf('test:GroupA') && !(member.subjectSourceId == 'jdbc')");
+
+    // groupEntityAlias: entity.subjectSourceId form is also accepted, in group A -> all three
+    Group groupEntityAlias = createScriptedGroup(grouperSession, "test:groupEntityAlias",
+        "entity.memberOf('test:GroupA') && entity.subjectSourceId == 'jdbc'");
+
+    // groupOrSources: OR of two sources at the top level, in group A -> all three
+    // (jdbc matches every subject; the ldap disjunct is present but never fires)
+    Group groupOrSources = createScriptedGroup(grouperSession, "test:groupOrSources",
+        "entity.memberOf('test:GroupA') "
+            + "&& (member.subjectSourceId == 'ldap' || member.subjectSourceId == 'jdbc')");
+
+    // groupOrSourcesNone: OR whitelist of non-matching sources, in group A -> none
+    Group groupOrSourcesNone = createScriptedGroup(grouperSession, "test:groupOrSourcesNone",
+        "entity.memberOf('test:GroupA') "
+            + "&& (member.subjectSourceId == 'ldap' || member.subjectSourceId == 'other')");
+
+    // groupPerGroupSources: each disjunct pairs a group with its own allowed source
+    Group testGroupB = new GroupSave().assignName("test:GroupB").assignCreateParentStemsIfNotExist(true).save();
+    testGroupB.addMember(testSubject1);
+    Group groupPerGroupSources = createScriptedGroup(grouperSession, "test:groupPerGroupSources",
+        "(entity.memberOf('test:GroupA') && member.subjectSourceId == 'jdbc') "
+            + "|| (entity.memberOf('test:GroupB') && member.subjectSourceId == 'ldap')");
+
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    Set<Member> jdbcMembers = groupJdbc.getMembers();
+    assertEquals("subjectSourceId == 'jdbc' should match every group-A jdbc subject",
+        3, jdbcMembers.size());
+    assertTrue(jdbcMembers.contains(member0));
+    assertTrue(jdbcMembers.contains(member1));
+    assertTrue(jdbcMembers.contains(member2));
+
+    assertEquals("subjectSourceId != 'jdbc' should not match any jdbc subjects",
+        0, groupNotJdbc.getMembers().size());
+    assertEquals("subjectSourceId == 'bogusSource' should not match any jdbc subjects",
+        0, groupBogusSource.getMembers().size());
+    assertEquals("!(subjectSourceId == 'jdbc') should not match any jdbc subjects",
+        0, groupNotEqNegated.getMembers().size());
+    assertEquals("entity.subjectSourceId == 'jdbc' should match every group-A jdbc subject",
+        3, groupEntityAlias.getMembers().size());
+    assertEquals("OR of sources with jdbc in the list should match every group-A subject",
+        3, groupOrSources.getMembers().size());
+    assertEquals("OR whitelist with no matching source should not match any group-A subject",
+        0, groupOrSourcesNone.getMembers().size());
+    // per-group whitelist: only the group-A branch fires (jdbc); group-B branch requires ldap
+    assertEquals("per-group source whitelist should match only the jdbc-in-A branch",
+        3, groupPerGroupSources.getMembers().size());
+
+    // Analysis + visualization: assert the description and the AbacReference tree shape
+    Subject testSubject = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    // stand-alone subjectSourceId == 'jdbc' — top level is an EQ node; visualization root
+    // should be a single attribute-style leaf named 'subjectSourceId'
+    GrouperJexlScriptAnalysis analysisEq = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, "member.subjectSourceId == 'jdbc'",
+        testSubject, grouperSession.getSubject(), true, null, true);
+
+    List<AbacReference> refsEq = analysisEq.getVisualizationReferences();
+    assertNotNull("expected visualization references for subjectSourceId ==", refsEq);
+    assertEquals(1, refsEq.size());
+    AbacReference eqRef = refsEq.get(0);
+    assertEquals(AbacReference.RefType.ATTRIBUTE, eqRef.getRefType());
+    assertEquals("subjectSourceId", eqRef.getName());
+    assertEquals("jdbc", eqRef.getValue());
+    assertFalse("== is not a negated reference", eqRef.isNegated());
+    assertNotNull(eqRef.getDisplayDescription());
+    assertTrue("description should mention subject source (was: '" + eqRef.getDisplayDescription() + "')",
+        eqRef.getDisplayDescription().toLowerCase().contains("subject source"));
+    assertTrue("description should mention the source id (was: '" + eqRef.getDisplayDescription() + "')",
+        eqRef.getDisplayDescription().contains("jdbc"));
+
+    // subjectSourceId != 'jdbc' — the visualization must mark the ref as negated so the edge
+    // renders as "must not be in" (matching the !(==) form). Otherwise the box "Subject source
+    // is jdbc" combined with a positive edge would read as the OPPOSITE of the script's intent.
+    // The standalone leaf shows the negated count (# of non-jdbc subjects), matching how
+    // !memberOf(X) standalone shows the negated count too — the "clone shows the un-negated
+    // count" convention only applies when there's a separate AND/OR clone.
+    GrouperJexlScriptAnalysis analysisNe = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, "member.subjectSourceId != 'jdbc'",
+        testSubject, grouperSession.getSubject(), true, null, true);
+    AbacReference neRef = analysisNe.getVisualizationReferences().get(0);
+    assertEquals(AbacReference.RefType.ATTRIBUTE, neRef.getRefType());
+    assertEquals("subjectSourceId", neRef.getName());
+    assertTrue("!= must produce a negated ref so the edge shows 'must not be in'", neRef.isNegated());
+    assertEquals("!= standalone leaf count should be # of non-jdbc subjects (0 in this env)",
+        0, analysisNe.getGrouperJexlScriptParts().get(0).getPopulationCount());
+
+    // !(member.subjectSourceId == 'jdbc') — ASTNotNode wrapping ASTEQNode; visualization
+    // flags the ref as negated. Standalone leaf shows the negated count (matches != standalone).
+    GrouperJexlScriptAnalysis analysisNotEq = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, "!(member.subjectSourceId == 'jdbc')",
+        testSubject, grouperSession.getSubject(), true, null, true);
+    AbacReference notEqRef = analysisNotEq.getVisualizationReferences().get(0);
+    assertEquals(AbacReference.RefType.ATTRIBUTE, notEqRef.getRefType());
+    assertTrue("!(... == ...) should be marked negated", notEqRef.isNegated());
+
+    // AND clone consistency: for A && != 'jdbc' and A && !(== 'jdbc') the negated subject-source
+    // leaf must show the un-negated jdbc count (memberOf convention). Regression guard that !=
+    // and !(==) don't drift apart — both route through the same accumulator-vs-clone logic and
+    // should produce identical clone counts.
+    int prevNegatedLeafCount = -1;
+    for (String script : new String[] {
+        "entity.memberOf('test:GroupA') && member.subjectSourceId != 'jdbc'",
+        "entity.memberOf('test:GroupA') && !(member.subjectSourceId == 'jdbc')"}) {
+      GrouperJexlScriptAnalysis a = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+          grouperDataEngine, script, testSubject, grouperSession.getSubject(), true, null, true);
+      int negatedLeafCount = -1;
+      for (GrouperJexlScriptPart part : a.getGrouperJexlScriptParts()) {
+        String desc = part.getDisplayDescription().toString().toLowerCase();
+        if (desc.startsWith("not ") && desc.contains("subject source")) {
+          negatedLeafCount = part.getPopulationCount();
+          break;
+        }
+      }
+      // The clone represents the condition being negated. Its count = |jdbc| > 0 — the same
+      // convention !memberOf(X) uses. Earlier the != form gave |¬jdbc| here while !(==) gave
+      // |jdbc|; they now agree.
+      assertTrue("negated subject-source leaf count should be > 0 (# of jdbc subjects, "
+          + "memberOf convention) for script: " + script,
+          negatedLeafCount > 0);
+      if (prevNegatedLeafCount >= 0) {
+        assertEquals("!= and !(==) should produce identical clone counts", prevNegatedLeafCount, negatedLeafCount);
+      }
+      prevNegatedLeafCount = negatedLeafCount;
+    }
+
+    // Nested-not regression: A && !(!= 'jdbc') is semantically A && (== 'jdbc'). The
+    // top-level AND must stay a positive compound (not marked negated) so the flatten pass
+    // produces two positive edges — one to the group leaf, one to the subjectSourceId leaf.
+    // Earlier a stale isAccumulator check toggled root.negated when the != was nested inside
+    // a NOT, which prevented flattening and drew a single "must not be in" edge into a
+    // merged "Must be in group ... and subject source is jdbc" box.
+    GrouperJexlScriptAnalysis analysisNestedNot = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine,
+        "entity.memberOf('test:GroupA') && !(member.subjectSourceId != 'jdbc')",
+        testSubject, grouperSession.getSubject(), true, null, true);
+    List<AbacReference> refsNestedNot = analysisNestedNot.getVisualizationReferences();
+    assertEquals("A && !(!= X) should flatten to 2 top-level refs", 2, refsNestedNot.size());
+    for (AbacReference ref : refsNestedNot) {
+      assertFalse("neither top-level ref should be negated (!(!=) cancels to positive)",
+          ref.isNegated());
+    }
+
+    // Combined with entity.memberOf: root is a flattened AND yielding two top-level refs —
+    // the GROUP leaf and the ATTRIBUTE-style subjectSourceId leaf
+    GrouperJexlScriptAnalysis analysisAnd = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, "entity.memberOf('test:GroupA') && member.subjectSourceId == 'jdbc'",
+        testSubject, grouperSession.getSubject(), true, null, true);
+    List<AbacReference> refsAnd = analysisAnd.getVisualizationReferences();
+    assertEquals("top-level AND should flatten to 2 refs", 2, refsAnd.size());
+    boolean sawGroup = false;
+    boolean sawSubjectSource = false;
+    for (AbacReference ref : refsAnd) {
+      if (ref.getRefType() == AbacReference.RefType.GROUP && "test:GroupA".equals(ref.getName())) {
+        sawGroup = true;
+      } else if (ref.getRefType() == AbacReference.RefType.ATTRIBUTE
+          && "subjectSourceId".equals(ref.getName())) {
+        sawSubjectSource = true;
+      }
+    }
+    assertTrue("expected the memberOf group leaf under the flattened AND", sawGroup);
+    assertTrue("expected the subjectSourceId leaf under the flattened AND", sawSubjectSource);
+
+    // Whitelist shape: entity.memberOf('A') && (source == 'jdbc' || source == 'ldap').
+    // Top-level AND flattens to a group leaf + an OR-compound. The compound holds two
+    // subjectSourceId ATTRIBUTE leaves (one per allowed source).
+    GrouperJexlScriptAnalysis analysisWhitelist = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine,
+        "entity.memberOf('test:GroupA') && (member.subjectSourceId == 'jdbc' || member.subjectSourceId == 'ldap')",
+        testSubject, grouperSession.getSubject(), true, null, true);
+    List<AbacReference> refsWhitelist = analysisWhitelist.getVisualizationReferences();
+    assertEquals("top-level AND should flatten to 2 refs (group leaf + OR compound)",
+        2, refsWhitelist.size());
+    AbacReference orCompound = null;
+    for (AbacReference ref : refsWhitelist) {
+      if (ref.getRefType() == AbacReference.RefType.COMPOUND) {
+        orCompound = ref;
+      }
+    }
+    assertNotNull("expected an OR compound under the flattened AND", orCompound);
+    assertEquals("compound should be an OR", "or", orCompound.getName());
+    assertNotNull(orCompound.getChildren());
+    assertEquals("OR compound should carry both subjectSourceId leaves",
+        2, orCompound.getChildren().size());
+    java.util.Set<String> orValues = new java.util.HashSet<String>();
+    for (AbacReference child : orCompound.getChildren()) {
+      assertEquals("OR children should be subjectSourceId attribute leaves",
+          AbacReference.RefType.ATTRIBUTE, child.getRefType());
+      assertEquals("subjectSourceId", child.getName());
+      orValues.add(child.getValue());
+    }
+    assertTrue("expected both 'jdbc' and 'ldap' under the OR", orValues.contains("jdbc"));
+    assertTrue("expected both 'jdbc' and 'ldap' under the OR", orValues.contains("ldap"));
+
+    // Per-group whitelist shape: two AND-compound siblings under a top-level OR. Each side
+    // carries its own group leaf + its own subjectSourceId leaf, so each AND-compound has 2
+    // children — one GROUP, one ATTRIBUTE ('subjectSourceId').
+    GrouperJexlScriptAnalysis analysisPerGroup = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine,
+        "(entity.memberOf('test:GroupA') && member.subjectSourceId == 'jdbc') "
+            + "|| (entity.memberOf('test:GroupB') && member.subjectSourceId == 'ldap')",
+        testSubject, grouperSession.getSubject(), true, null, true);
+    List<AbacReference> refsPerGroup = analysisPerGroup.getVisualizationReferences();
+    assertEquals("top-level OR should flatten to 2 AND-compound refs", 2, refsPerGroup.size());
+    for (AbacReference andCompound : refsPerGroup) {
+      assertEquals("expected an AND compound branch",
+          AbacReference.RefType.COMPOUND, andCompound.getRefType());
+      assertEquals("compound should be an AND", "and", andCompound.getName());
+      assertNotNull(andCompound.getChildren());
+      assertEquals("AND branch should have a group + subjectSourceId leaf",
+          2, andCompound.getChildren().size());
+      boolean sawBranchGroup = false;
+      boolean sawBranchSource = false;
+      for (AbacReference child : andCompound.getChildren()) {
+        if (child.getRefType() == AbacReference.RefType.GROUP) {
+          sawBranchGroup = true;
+        } else if (child.getRefType() == AbacReference.RefType.ATTRIBUTE
+            && "subjectSourceId".equals(child.getName())) {
+          sawBranchSource = true;
+        }
+      }
+      assertTrue("branch missing its group leaf", sawBranchGroup);
+      assertTrue("branch missing its subjectSourceId leaf", sawBranchSource);
+    }
+
+    // Missing-source warning: an unknown source id should append the
+    // "unknown subject source" warning to the description, mirroring the memberOf missing-group
+    // behavior. The count still runs (naturally producing zero members).
+    GrouperJexlScriptAnalysis analysisMissing = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, "member.subjectSourceId == 'notARealSourceId'",
+        testSubject, grouperSession.getSubject(), true, null, true);
+    GrouperJexlScriptPart missingPart = analysisMissing.getGrouperJexlScriptParts().get(0);
+    assertTrue("missing-source warning should be appended to the description (was: '"
+        + missingPart.getDisplayDescription() + "')",
+        missingPart.getDisplayDescription().toString().toLowerCase().contains("unknown subject source"));
+
+    // A known source id (jdbc is configured in the test env) should NOT trip the warning.
+    GrouperJexlScriptAnalysis analysisKnown = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, "member.subjectSourceId == 'jdbc'",
+        testSubject, grouperSession.getSubject(), true, null, true);
+    assertFalse("known source id should not trip the missing-source warning",
+        analysisKnown.getGrouperJexlScriptParts().get(0).getDisplayDescription().toString()
+            .toLowerCase().contains("unknown subject source"));
+
+    // Blank source id: rejected at parse time with a clear RuntimeException, not silently
+    // compiled to an always-false predicate.
+    try {
+      GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+          grouperDataEngine, "member.subjectSourceId == ''",
+          testSubject, grouperSession.getSubject(), true, null, true);
+      fail("blank source id should throw at parse time");
+    } catch (RuntimeException re) {
+      String msg = re.getMessage() == null ? "" : re.getMessage().toLowerCase();
+      assertTrue("error should mention non-blank / blank source id (was: '" + re.getMessage() + "')",
+          msg.contains("non-blank") || msg.contains("blank"));
+    }
   }
 
 
