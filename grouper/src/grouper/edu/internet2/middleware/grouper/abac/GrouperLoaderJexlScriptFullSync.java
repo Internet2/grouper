@@ -103,7 +103,9 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * 
@@ -324,6 +326,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       String previousAttributeAlias = null;
       
       boolean partsHaveMissingGroup = false;
+      boolean partsHaveMissingSubjectSource = false;
       for (MultiKey argument : grouperJexlScriptPart.getArguments()) {
         String argumentString = (String)argument.getKey(0);
         if (StringUtils.equals(argumentString, "group")) {
@@ -450,9 +453,20 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           }
   
         } else if (StringUtils.equals(argumentString, "bindVar")) {
-          
+
           Object value = argument.getKey(1);
           gcDbAccess.addBindVar(value);
+        } else if (StringUtils.equals(argumentString, "subjectSource")) {
+
+          String sourceId = (String)argument.getKey(1);
+          gcDbAccess.addBindVar(sourceId);
+          // mirror the memberOf-missing-group pattern: if the referenced source doesn't
+          // exist at all, surface a warning in the description so a typo doesn't silently
+          // produce a zero-member group
+          if (!subjectSourceExists(sourceId)) {
+            partsHaveMissingSubjectSource = true;
+          }
+
         } else if (StringUtils.equals(argumentString, "attributeCompareLeft") || StringUtils.equals(argumentString, "attributeCompareRight")) {
 
           String fieldAlias = (String)argument.getKey(1);
@@ -490,6 +504,12 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       if (partsHaveMissingGroup) {
         StringBuilder newDescription = new StringBuilder(grouperJexlScriptPart.getDisplayDescription());
         newDescription.append(GrouperTextContainer.textOrNull("jexlAnalysisMemberOfGroupMissingWarning"));
+        grouperJexlScriptPart.setDisplayDescription(newDescription);
+      }
+
+      if (partsHaveMissingSubjectSource) {
+        StringBuilder newDescription = new StringBuilder(grouperJexlScriptPart.getDisplayDescription());
+        newDescription.append(GrouperTextContainer.textOrNull("jexlAnalysisSubjectSourceMissingWarning"));
         grouperJexlScriptPart.setDisplayDescription(newDescription);
       }
 
@@ -623,6 +643,27 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       return;
     } else if (jexlNode instanceof ASTReference && 2==jexlNode.jjtGetNumChildren()) {
       analyzeJexlReferenceTwoChildrenToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, (ASTReference)jexlNode, clonePart);
+      return;
+    } else if ((jexlNode instanceof ASTEQNode || jexlNode instanceof ASTNENode)
+        && 2 == jexlNode.jjtGetNumChildren()
+        && (isMemberSubjectSourceIdReference(jexlNode.jjtGetChild(0))
+            || isMemberSubjectSourceIdReference(jexlNode.jjtGetChild(1)))) {
+      // member.subjectSourceId == 'sourceId' / entity.subjectSourceId == 'sourceId'
+      // and the != form.  Supports either side of the comparison being the reference.
+      // Any other shape of ==/!= at the outer level falls through to the final catch-all
+      // so the error names the actual unsupported node type rather than this feature.
+      JexlNode leftChild = jexlNode.jjtGetChild(0);
+      JexlNode rightChild = jexlNode.jjtGetChild(1);
+      String value;
+      if (isMemberSubjectSourceIdReference(leftChild) && rightChild instanceof ASTStringLiteral) {
+        value = ((ASTStringLiteral) rightChild).getLiteral();
+      } else if (isMemberSubjectSourceIdReference(rightChild) && leftChild instanceof ASTStringLiteral) {
+        value = ((ASTStringLiteral) leftChild).getLiteral();
+      } else {
+        throw new RuntimeException("member.subjectSourceId ==/!= must be compared to a string literal");
+      }
+      analyzeJexlSubjectSourceId(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode,
+          value, jexlNode instanceof ASTNENode);
       return;
     }
 
@@ -1382,6 +1423,91 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
     grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisMemberOfGroup"))
       .append(" '").append(GrouperUtil.xmlEscape(groupName)).append("'");
+  }
+
+  /**
+   * True when the given source id names a subject source that SourceManager knows about.
+   * Used at analysis time to surface a "unknown subject source" warning next to the count
+   * for a script referencing a mistyped or removed source id, matching how the memberOf
+   * handler flags a missing group.
+   */
+  private static boolean subjectSourceExists(String sourceId) {
+    if (StringUtils.isBlank(sourceId)) {
+      return false;
+    }
+    for (Source source : SourceManager.getInstance().getSources()) {
+      if (StringUtils.equals(sourceId, source.getId())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * True when jexlNode is the reference member.subjectSourceId (or entity.subjectSourceId), so
+   * the top-level ==/!= dispatcher can treat this as a subject-source filter and emit a
+   * gm.subject_source predicate instead of trying to compile it as a method call.
+   */
+  private static boolean isMemberSubjectSourceIdReference(JexlNode jexlNode) {
+    if (!(jexlNode instanceof ASTReference) || jexlNode.jjtGetNumChildren() != 2) {
+      return false;
+    }
+    JexlNode child0 = jexlNode.jjtGetChild(0);
+    JexlNode child1 = jexlNode.jjtGetChild(1);
+    if (!(child0 instanceof ASTIdentifier) || !(child1 instanceof ASTIdentifierAccess)) {
+      return false;
+    }
+    String base = ((ASTIdentifier) child0).getName();
+    String property = ((ASTIdentifierAccess) child1).getName();
+    return (StringUtils.equals("member", base) || StringUtils.equals("entity", base))
+        && StringUtils.equals("subjectSourceId", property);
+  }
+
+  /**
+   * Emit a subject_source WHERE-clause predicate and the human-readable description for a
+   * member.subjectSourceId == 'sourceId' (or !=) comparison. Rejects a blank source id at
+   * parse time — an empty literal is almost always a user typo and silently compiling to
+   * "always false" is worse than a clear error.
+   *
+   * The != form is routed through the same "accumulator vs clone" logic that the ASTNotNode
+   * branch uses for !memberOf / !hasAttribute / !(==) — treating "!=" as syntactic sugar for
+   * "!(==)". That keeps the analysis screen consistent: the leaf (clone / standalone) shows
+   * the un-negated population count, and the accumulator SQL / description carry the " not "
+   * wrap. Without this, != and !(==) would report different counts for the same logical
+   * predicate. The predicate is always emitted in its POSITIVE form "(gm.subject_source = ?)"
+   * so the SQL " not " prefix can be applied (or skipped) exactly like the ASTNotNode path.
+   */
+  private static void analyzeJexlSubjectSourceId(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis,
+      GrouperJexlScriptPart grouperJexlScriptPart, JexlNode jexlNode, String sourceId, boolean notEquals) {
+    if (StringUtils.isBlank(sourceId)) {
+      throw new RuntimeException("member.subjectSourceId ==/!= must be compared to a non-blank source id");
+    }
+    if (notEquals) {
+      GrouperJexlScriptPart registered = grouperJexlScriptAnalysis.getAstNodeToPart().get(jexlNode);
+      boolean isThisClonesOwnNe = registered == grouperJexlScriptPart;
+      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisNot")).append(" ");
+      if (!isThisClonesOwnNe) {
+        grouperJexlScriptPart.getWhereClause().append(" not ");
+      }
+    }
+    grouperJexlScriptPart.getWhereClause().append("(gm.subject_source = ?) ");
+    grouperJexlScriptPart.getArguments().add(new MultiKey("subjectSource", sourceId));
+    grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisSubjectSourceIs"))
+        .append(" '").append(GrouperUtil.xmlEscape(sourceId)).append("'");
+    // Toggle the part's negated flag for the leaf position (standalone / clone) so the
+    // visualization edge follows the operator — mirroring how isNegatedOf sets the flag for
+    // !X. XOR rather than set-to-true so a double negation like !(!=) cancels back to positive.
+    //
+    // The accumulator (the compound part that a top-level AND/OR is building up) must NOT be
+    // toggled — flipping its negated flag would mark the whole compound as negated and break
+    // the flatten-at-root pass, drawing "must not be in" edges into a merged compound box.
+    // The distinguishing property is the part's connective: LEAF means we're the standalone
+    // root or an AND/OR clone; AND/OR means we're the accumulator. Checking astNodeToPart to
+    // detect the accumulator is unreliable when this ASTNENode is nested inside another
+    // wrapper (e.g. !(...)) that reserved the astNodeToPart entry for itself.
+    if (notEquals && grouperJexlScriptPart.getConnective() == GrouperJexlScriptPart.Connective.LEAF) {
+      grouperJexlScriptPart.setNegated(!grouperJexlScriptPart.isNegated());
+    }
   }
 
   private static void analyzeJexlMemberOfAny(GrouperJexlScriptPart grouperJexlScriptPart,
@@ -2817,10 +2943,14 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         gcDbAccess.addBindVar(grouperDataRow.getInternalId());
         grouperJexlScriptSql.getRowInternalIds().add(grouperDataRow.getInternalId());
       } else if (StringUtils.equals(argumentString, "bindVar")) {
-        
+
         Object value = argument.getKey(1);
         gcDbAccess.addBindVar(value);
- 
+
+      } else if (StringUtils.equals(argumentString, "subjectSource")) {
+
+        gcDbAccess.addBindVar((String)argument.getKey(1));
+
       } else if (StringUtils.equals(argumentString, "attributeValue")) {
         
         MultiKey argumentNameMultiKey = arguments.get(argumentIndex-1);
@@ -3234,6 +3364,19 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     } else if ("row".equals(firstArgType)) {
       String rowAlias = (String) arguments.get(0).getKey(1);
       ref = new AbacReference(AbacReference.RefType.ROW, rowAlias, null, part.isNegated(), connective);
+    } else if ("subjectSource".equals(firstArgType)) {
+      // Render subject-source predicate as an ATTRIBUTE ref so the visualization draws it
+      // like an attribute leaf ("subjectSourceId is 'jdbc'"). The attributeValues list carries
+      // the source id so the terse renderer can produce "subjectSourceId is jdbc".
+      // part.isNegated() already reflects the JEXL operator: analyzeJexlSubjectSourceId toggles
+      // it for the != leaf (and isNegatedOf sets it for any enclosing !), so a mid-tree
+      // double negation like !(!=) correctly cancels back to positive.
+      String sourceValue = (String) arguments.get(0).getKey(1);
+      ref = new AbacReference(AbacReference.RefType.ATTRIBUTE, "subjectSourceId", sourceValue,
+          part.isNegated(), connective);
+      List<String> attributeValues = new ArrayList<String>();
+      attributeValues.add(sourceValue);
+      ref.setAttributeValues(attributeValues);
     }
 
     if (ref != null) {

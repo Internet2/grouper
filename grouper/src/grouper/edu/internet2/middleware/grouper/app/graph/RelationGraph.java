@@ -2119,7 +2119,17 @@ public class RelationGraph {
       return "";
     }
     String friendlyName = this.abacFieldFriendlyNames.get(alias.toLowerCase());
-    return StringUtils.isBlank(friendlyName) ? alias : friendlyName;
+    if (!StringUtils.isBlank(friendlyName)) {
+      return friendlyName;
+    }
+    // subjectSourceId is not a data field alias — it names a scalar column on
+    // grouper_members that the ABAC analyzer surfaces as an ATTRIBUTE-style leaf.
+    // Render it in the same natural-language form the analysis-time description uses
+    // ("subject source is 'jdbc'") rather than the camelCase identifier.
+    if ("subjectsourceid".equalsIgnoreCase(alias)) {
+      return "subject source";
+    }
+    return alias;
   }
 
   /** Maps a data row alias to its configured friendly name, or returns the alias unchanged. */
