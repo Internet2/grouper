@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -50,6 +51,18 @@ public class Test_privs_AccessResolverBulkGetPrivileges extends GrouperTest {
    */
   public Test_privs_AccessResolverBulkGetPrivileges(String name) {
     super(name);
+  }
+
+  /**
+   * The GrouperTest base sets groups.create.grant.all.read=true, which auto-grants GrouperAll READ
+   * on every group as it is created. That would make the explicit gAllRead.grantPriv(GrouperAll,
+   * READ) below a duplicate that throws GrantPrivilegeAlreadyExistsException. Turn it off so this
+   * test controls GrouperAll read explicitly per its scenario.
+   */
+  @Override
+  protected void setUp() {
+    super.setUp();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
   }
 
   /** the privileges the UI can* getters resolve */
