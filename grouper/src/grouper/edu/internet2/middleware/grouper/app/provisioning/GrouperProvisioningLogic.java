@@ -4398,15 +4398,20 @@ public class GrouperProvisioningLogic {
 
       // Count membership deletes driven by replace: any wrapper whose inTargetEnd was set at
       // or after sync start. Run once across all wrappers (not per replaced group) to avoid
-      // N× over-counting, and skip wrappers with no sync row (target-only orphans).
-      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(provisioningMembershipWrappers)) {
-        GcGrouperSyncMembership syncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
-        if (syncMembership == null) {
-          continue;
-        }
-        Timestamp inTargetEnd = syncMembership.getInTargetEnd();
-        if (inTargetEnd != null && inTargetEnd.getTime() >= this.getGrouperProvisioner().getMillisWhenSyncStarted()) {
-          this.grouperProvisioner.retrieveGrouperProvisioningOutput().addDelete(1);
+      // N× over-counting, and skip wrappers with no sync row (target-only orphans). Only do this
+      // when there are actually replaced memberships; otherwise (e.g. groupAttributes/update-delete
+      // mode) these deletes are already counted by countAttributesFieldsInsertsUpdatesDeletes and
+      // counting them here would double-count.
+      if (GrouperUtil.length(targetObjectReplaces.getProvisioningMemberships()) > 0) {
+        for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(provisioningMembershipWrappers)) {
+          GcGrouperSyncMembership syncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+          if (syncMembership == null) {
+            continue;
+          }
+          Timestamp inTargetEnd = syncMembership.getInTargetEnd();
+          if (inTargetEnd != null && inTargetEnd.getTime() >= this.getGrouperProvisioner().getMillisWhenSyncStarted()) {
+            this.grouperProvisioner.retrieveGrouperProvisioningOutput().addDelete(1);
+          }
         }
       }
     }

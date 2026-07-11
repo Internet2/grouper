@@ -1661,8 +1661,14 @@ public class GrouperProvisioningLogicIncremental {
     boolean convertAllRecalcMembershipChangesToGroupSync = 
          !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
         || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false));
-    
-    if (!convertAllRecalcMembershipChangesToGroupSync && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForGroup()) {
+
+    // in replace mode the target replaces a group's entire membership list in one call, so any
+    // membership change for a group must sync that whole group -- otherwise the replace payload
+    // would contain only the changed membership and drop the group's other members.
+    boolean replaceMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isReplaceMemberships();
+
+    if (!convertAllRecalcMembershipChangesToGroupSync && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForGroup()
+        && !replaceMemberships) {
       return;
     }
     
@@ -1731,12 +1737,21 @@ public class GrouperProvisioningLogicIncremental {
       
       int membershipCount = groupUuidToMembershipCount.get(groupId);
       
-      if (membershipCount >= membershipsConvertToGroupSyncThreshold || (groupIdToHasRecalcMembership.containsKey(groupId) && convertAllRecalcMembershipChangesToGroupSync)) {
+      if (membershipCount >= membershipsConvertToGroupSyncThreshold || (groupIdToHasRecalcMembership.containsKey(groupId) && convertAllRecalcMembershipChangesToGroupSync)
+          || replaceMemberships) {
        
         convertToGroupSyncGroups++;        
         
+        // in replace mode the group's whole membership list is pushed in one call, so the group
+        // sync must reload the group's memberships from Grouper -- otherwise the individual
+        // membership wrappers removed below would not be replaced and the replace payload would
+        // drop them. incremental normally leaves isSelectGroupMembershipsForRecalc false, so force
+        // the membership recalc here when replacing.
+        boolean recalcGroupMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupMembershipsForRecalc()
+            || replaceMemberships;
+
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalGroup(groupId,  this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc()
-            , this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupMembershipsForRecalc(), null, null);
+            , recalcGroupMemberships, null, null);
 
         membershipWrapperIterator = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().iterator();
 
