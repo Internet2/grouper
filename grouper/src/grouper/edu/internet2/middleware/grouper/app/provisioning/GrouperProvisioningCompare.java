@@ -1930,7 +1930,12 @@ public class GrouperProvisioningCompare {
     }
 
     boolean handleRecalcs = true;
-    
+
+    // groups whose full membership list is being replaced below; memberships for these groups are
+    // applied by the group replace, so they must be excluded from the individual insert/delete
+    // computation to avoid double-applying (e.g. inserting a member the replace already adds).
+    Set<ProvisioningGroup> groupsBeingReplaced = new HashSet<ProvisioningGroup>();
+
     // if replaceMemberships is enabled, replace the full group membership list here and skip the recalc below.
     // this is intentionally not gated on isSelectMembershipsInGeneral(): a target can both retrieve memberships
     // (to know current state and count inserts/deletes) and apply changes via a full group membership replace.
@@ -1972,14 +1977,20 @@ public class GrouperProvisioningCompare {
           if (provisioningGroup.getProvisioningGroupWrapper().getProvisioningStateGroup().isDelete()) {
             continue;
           }
+          // this group's membership list is being replaced, so any of its memberships (adds or
+          // removes) are handled here and must be skipped in the individual insert pass below
+          groupsBeingReplaced.add(provisioningGroup);
+          // ensure the group has a replace entry even when all of its memberships are being removed,
+          // so the replace pushes the full (possibly empty) desired list and drops stale members;
+          // otherwise a group that lost its last member would never be reconciled
+          List<ProvisioningMembership> provisioningMemberships = provisioningMembershipsToReplace.get(provisioningGroup);
+          if (provisioningMemberships == null) {
+            provisioningMemberships = new ArrayList<ProvisioningMembership>();
+            provisioningMembershipsToReplace.put(provisioningGroup, provisioningMemberships);
+          }
           if (grouperTargetMembership != null
               && !provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
-            List<ProvisioningMembership> provisioningMemberships = provisioningMembershipsToReplace.get(provisioningGroup);
-            if (provisioningMemberships == null) {
-              provisioningMemberships = new ArrayList<ProvisioningMembership>();
-            }
             provisioningMemberships.add(grouperTargetMembership);
-            provisioningMembershipsToReplace.put(provisioningGroup, provisioningMemberships);
           }
 
         }
@@ -2038,6 +2049,13 @@ public class GrouperProvisioningCompare {
         ProvisioningMembership grouperTargetMembership = grouperMatchingIdToTargetMembership.get(key);
         
         if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()) {
+          continue;
+        }
+
+        // in replace mode, this group's full membership list is applied by the group replace above,
+        // so do not also insert its memberships individually (that would duplicate what the replace
+        // already adds). removals are still handled by the delete pass below or by the replace itself.
+        if (!handleRecalcs && groupsBeingReplaced.contains(grouperTargetMembership.getProvisioningGroup())) {
           continue;
         }
         
