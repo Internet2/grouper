@@ -4683,8 +4683,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoReplaceGroupMembershipsResponse replaceGroupMemberships(TargetDaoReplaceGroupMembershipsRequest targetDaoReplaceGroupMembershipsRequest) {
     
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()
-        || GrouperUtil.length(targetDaoReplaceGroupMembershipsRequest.getTargetMemberships()) == 0) {
+    // note: an empty target membership list is NOT a no-op here. In replace mode a group is queued
+    // for replacement precisely to make the target match Grouper, so an empty list means "the group
+    // should have no members" and must still be sent (e.g. to clear the last remaining member).
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()) {
       return new TargetDaoReplaceGroupMembershipsResponse();
     }
 

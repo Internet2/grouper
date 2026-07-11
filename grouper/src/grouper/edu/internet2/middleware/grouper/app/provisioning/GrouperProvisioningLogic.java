@@ -3618,6 +3618,8 @@ public class GrouperProvisioningLogic {
       return;
     }
     Map<String, Long> targetUserIdToMemberInternalId = new LinkedHashMap<String, Long>();
+    List<String> targetSourcedEntityCacheFieldNames = this.targetSourcedCacheFieldNames(
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches(), "entityAttributeValueCache");
     for (ProvisioningEntityWrapper provisioningEntityWrapper :
         GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
       if (provisioningEntityWrapper == null) {
@@ -3645,11 +3647,24 @@ public class GrouperProvisioningLogic {
           targetUserId = this.normalizeTargetId(grouperTargetEntity.getId());
         }
       }
-      if (StringUtils.isBlank(targetUserId)) {
-        continue;
-      }
       // last write wins on duplicates (shouldn't happen — wrappers are per-Grouper-member)
-      targetUserIdToMemberInternalId.put(targetUserId, memberInternalId);
+      if (!StringUtils.isBlank(targetUserId) && !targetUserIdToMemberInternalId.containsKey(targetUserId)) {
+        targetUserIdToMemberInternalId.put(targetUserId, memberInternalId);
+      }
+      // fallback for provisioners whose target id is not the standard id field but a named attribute
+      // (e.g. Remedy's personId). the link phase caches that target id into the target-sourced entity
+      // attribute value caches on the GcGrouperSyncMember (which survive the select/insert/update
+      // attribute filtering that drops a non-configured id), and the generic reporting keys the user
+      // record by that same target id, so map each target-sourced cache value to the member internal id.
+      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+      if (gcGrouperSyncMember != null) {
+        for (String cacheField : targetSourcedEntityCacheFieldNames) {
+          String cacheValue = this.normalizeTargetId(gcGrouperSyncMember.retrieveField(cacheField));
+          if (!StringUtils.isBlank(cacheValue) && !targetUserIdToMemberInternalId.containsKey(cacheValue)) {
+            targetUserIdToMemberInternalId.put(cacheValue, memberInternalId);
+          }
+        }
+      }
     }
     for (GenericProvisioningUserRecord userRecord : targetUserIdToRecord.values()) {
       if (userRecord.getMemberInternalId() != null) {
@@ -3673,6 +3688,8 @@ public class GrouperProvisioningLogic {
       return;
     }
     Map<String, Long> targetGroupIdToGroupInternalId = new LinkedHashMap<String, Long>();
+    List<String> targetSourcedGroupCacheFieldNames = this.targetSourcedCacheFieldNames(
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches(), "groupAttributeValueCache");
     for (ProvisioningGroupWrapper provisioningGroupWrapper :
         GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
       if (provisioningGroupWrapper == null) {
@@ -3697,10 +3714,23 @@ public class GrouperProvisioningLogic {
           targetGroupId = this.normalizeTargetId(grouperTargetGroup.getId());
         }
       }
-      if (StringUtils.isBlank(targetGroupId)) {
-        continue;
+      if (!StringUtils.isBlank(targetGroupId) && !targetGroupIdToGroupInternalId.containsKey(targetGroupId)) {
+        targetGroupIdToGroupInternalId.put(targetGroupId, groupInternalId);
       }
-      targetGroupIdToGroupInternalId.put(targetGroupId, groupInternalId);
+      // fallback for provisioners whose target id is not the standard id field but a named attribute
+      // (e.g. Remedy's permissionGroupId). the link phase caches that target id into the target-sourced
+      // group attribute value caches on the GcGrouperSyncGroup (which survive the select/insert/update
+      // attribute filtering that drops a non-configured id), and the generic reporting keys the group
+      // record by that same target id, so map each target-sourced cache value to the group internal id.
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+      if (gcGrouperSyncGroup != null) {
+        for (String cacheField : targetSourcedGroupCacheFieldNames) {
+          String cacheValue = this.normalizeTargetId(gcGrouperSyncGroup.retrieveField(cacheField));
+          if (!StringUtils.isBlank(cacheValue) && !targetGroupIdToGroupInternalId.containsKey(cacheValue)) {
+            targetGroupIdToGroupInternalId.put(cacheValue, groupInternalId);
+          }
+        }
+      }
     }
     for (GenericProvisioningGroupRecord groupRecord : targetGroupIdToRecord.values()) {
       if (groupRecord.getGroupInternalId() != null) {
@@ -3711,6 +3741,24 @@ public class GrouperProvisioningLogic {
         groupRecord.setGroupInternalId(resolved);
       }
     }
+  }
+
+  /**
+   * Field names (e.g. {@code groupAttributeValueCache0}) of the attribute value caches whose source is
+   * the target system. These hold the target object's id for provisioners whose target id is a named
+   * attribute (e.g. Remedy permissionGroupId / personId) rather than the standard id field, and unlike
+   * that non-configured id they survive the select/insert/update attribute filtering, so they let the
+   * generic reporting link a Grouper-managed object back to its Grouper internal id.
+   */
+  private List<String> targetSourcedCacheFieldNames(GrouperProvisioningConfigurationAttributeDbCache[] dbCaches, String cacheFieldPrefix) {
+    List<String> result = new ArrayList<String>();
+    for (int i = 0; i < GrouperUtil.length(dbCaches); i++) {
+      GrouperProvisioningConfigurationAttributeDbCache dbCache = dbCaches[i];
+      if (dbCache != null && dbCache.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target) {
+        result.add(cacheFieldPrefix + i);
+      }
+    }
+    return result;
   }
 
   private List<GenericProvisioningAttributeRecord> buildProvisioningAttributeRecords(
@@ -7201,15 +7249,20 @@ public class GrouperProvisioningLogic {
 
       // Count membership deletes driven by replace: any wrapper whose inTargetEnd was set at
       // or after sync start. Run once across all wrappers (not per replaced group) to avoid
-      // N× over-counting, and skip wrappers with no sync row (target-only orphans).
-      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(provisioningMembershipWrappers)) {
-        GcGrouperSyncMembership syncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
-        if (syncMembership == null) {
-          continue;
-        }
-        Timestamp inTargetEnd = syncMembership.getInTargetEnd();
-        if (inTargetEnd != null && inTargetEnd.getTime() >= this.getGrouperProvisioner().getMillisWhenSyncStarted()) {
-          this.grouperProvisioner.retrieveGrouperProvisioningOutput().addDelete(1);
+      // N× over-counting, and skip wrappers with no sync row (target-only orphans). Only do this
+      // when there are actually replaced memberships; otherwise (e.g. groupAttributes/update-delete
+      // mode) these deletes are already counted by countAttributesFieldsInsertsUpdatesDeletes and
+      // counting them here would double-count.
+      if (GrouperUtil.length(targetObjectReplaces.getProvisioningMemberships()) > 0) {
+        for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(provisioningMembershipWrappers)) {
+          GcGrouperSyncMembership syncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+          if (syncMembership == null) {
+            continue;
+          }
+          Timestamp inTargetEnd = syncMembership.getInTargetEnd();
+          if (inTargetEnd != null && inTargetEnd.getTime() >= this.getGrouperProvisioner().getMillisWhenSyncStarted()) {
+            this.grouperProvisioner.retrieveGrouperProvisioningOutput().addDelete(1);
+          }
         }
       }
     }
