@@ -28,7 +28,11 @@ public class InterfolioProvisioningConfigurationValidation extends GrouperProvis
 
   @Override
   public Collection<String> validateEntityAttributeNamesAllowed() {
-    return GrouperUtil.toSet("saml_id", "user_type");
+    // "id" is the Interfolio pid (target-native id): it holds the link/value-cache value and is the
+    // target of the entityAttributeValueCache, so it must be an allowed target entity attribute.
+    // The required ones (institution_user_id, first_name, last_name, email) are added automatically
+    // to the allowed set by the framework.
+    return GrouperUtil.toSet("saml_id", "user_type", "id");
   }
 
   @Override

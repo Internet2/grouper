@@ -63,7 +63,8 @@ public class GrouperInterfolioApiCommands {
     bodyNode.put("user_type", userType);
     bodyNode.put("first_name", firstName);
     bodyNode.put("last_name", lastName);
-    bodyNode.put("email", email);
+    // send email lowercased (compare is case-insensitive; keep the stored value normalized)
+    bodyNode.put("email", StringUtils.lowerCase(email));
 
     String requestString = "/iam/" + databaseId + "/users";
 
@@ -98,7 +99,8 @@ public class GrouperInterfolioApiCommands {
     bodyNode.put("user_type", userType);
     bodyNode.put("first_name", firstName);
     bodyNode.put("last_name", lastName);
-    bodyNode.put("email", email);
+    // send email lowercased (compare is case-insensitive; keep the stored value normalized)
+    bodyNode.put("email", StringUtils.lowerCase(email));
 
     String requestString = "/iam/" + databaseId + "/users/" + pid;
 
@@ -148,6 +150,168 @@ public class GrouperInterfolioApiCommands {
       }
     }
     return result;
+  }
+
+  /**
+   * Retrieve the ENTIRE institution roster in one call via the byc csv_report endpoint.  Unlike
+   * users/search (which omits it), this report includes the UID (institution_user_id / PennKey) - the
+   * stable key the provisioner matches on - along with email, name, user_type, and SSO ID (saml_id).
+   * It does NOT include the pid, so returned users have a null pid (resolve it lazily with
+   * {@link #resolvePid} only when a write is needed).  Rows without a UID (external/API accounts) are
+   * skipped - they are not part of the faculty population.
+   *
+   * GET {bycUrl}/byc/core/tenure/{databaseId}/users/csv_report
+   *
+   * @param configId external system config id
+   * @return all Interfolio users keyed by institution_user_id
+   */
+  public static List<InterfolioUser> retrieveAllUsersViaCsvReport(String configId) {
+
+    String databaseId = InterfolioExternalSystem.retrieveConfigValue(configId, "databaseId");
+    String bycUrl = InterfolioExternalSystem.retrieveConfigValue(configId, "bycUrl");
+
+    String requestString = "/byc/core/tenure/" + databaseId + "/users/csv_report";
+
+    // csv_report is known to be unreliable - Interfolio frequently drops the connection mid-response
+    // on the large full-institution report (comes back as a 400 "Connection reset by peer"), so retry
+    // several times before giving up.  Each attempt is a fresh HMAC-signed request.
+    int maxAttempts = 10;
+    String responseBody = null;
+    RuntimeException lastException = null;
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        responseBody = executeMethod("interfolioCsvReport", configId, "GET", bycUrl,
+            requestString, null, GrouperUtil.toSet(200));
+        lastException = null;
+        break;
+      } catch (RuntimeException re) {
+        lastException = re;
+        LOG.warn("Interfolio csv_report attempt " + attempt + " of " + maxAttempts + " failed: " + re.getMessage());
+        if (attempt < maxAttempts) {
+          GrouperUtil.sleep(5000);
+        }
+      }
+    }
+    if (lastException != null) {
+      throw new RuntimeException("Interfolio csv_report failed after " + maxAttempts + " attempts", lastException);
+    }
+
+    List<InterfolioUser> result = new ArrayList<InterfolioUser>();
+    if (StringUtils.isBlank(responseBody)) {
+      return result;
+    }
+
+    // strip any UTF-8 BOM(s) - Interfolio's csv_report prefixes the header with more than one BOM
+    // char, which would otherwise leave the first column header ("First Name") unmatchable - then
+    // split into lines (the report uses CRLF)
+    String body = responseBody.replace("\uFEFF", "");
+    String[] lines = body.split("\r\n|\r|\n");
+
+    List<String> header = null;
+    for (String line : lines) {
+      if (StringUtils.isBlank(line)) {
+        continue;
+      }
+      List<String> fields = parseCsvLine(line);
+      if (header == null) {
+        header = fields;
+        continue;
+      }
+      InterfolioUser user = new InterfolioUser();
+      user.setInstitutionUserId(csvValue(header, fields, "UID"));
+      user.setSamlId(csvValue(header, fields, "SSO ID"));
+      user.setUserType(csvValue(header, fields, "User Type"));
+      user.setFirstName(csvValue(header, fields, "First Name"));
+      user.setLastName(csvValue(header, fields, "Last Name"));
+      user.setEmail(csvValue(header, fields, "Email"));
+
+      // only rows with a UID can be matched on institution_user_id; external/API accounts have a blank
+      // UID and are outside our faculty population
+      if (StringUtils.isBlank(user.getInstitutionUserId())) {
+        continue;
+      }
+      result.add(user);
+    }
+    return result;
+  }
+
+  /**
+   * Resolve the Interfolio pid for a user we need to write to, given the UID (and email to
+   * disambiguate).  csv_report does not return the pid, so when the provisioner updates or
+   * deprovisions an already-existing user we look the pid up via byc users/search on the UID.
+   * @param configId external system config id
+   * @param institutionUserId the UID / PennKey to look up
+   * @param email the expected email, used to disambiguate when the search returns more than one hit
+   * @return the pid, or null if it cannot be resolved unambiguously
+   */
+  public static String resolvePid(String configId, String institutionUserId, String email) {
+    if (StringUtils.isBlank(institutionUserId)) {
+      return null;
+    }
+    List<InterfolioUser> matches = searchUsers(configId, institutionUserId, 25, 1);
+    if (GrouperUtil.length(matches) == 1) {
+      return matches.get(0).getPid();
+    }
+    // more than one hit (the UID matched a substring of another user's email/name) - use the email
+    for (InterfolioUser match : GrouperUtil.nonNull(matches)) {
+      if (StringUtils.isNotBlank(email) && StringUtils.equalsIgnoreCase(email, match.getEmail())) {
+        return match.getPid();
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Look up a value in a parsed CSV row by its header column name (case-insensitive).
+   * @param header the parsed header row
+   * @param fields the parsed data row
+   * @param columnName the column name to fetch
+   * @return the trimmed value, or null if the column is absent or the row is short
+   */
+  private static String csvValue(List<String> header, List<String> fields, String columnName) {
+    for (int i = 0; i < header.size(); i++) {
+      if (StringUtils.equalsIgnoreCase(StringUtils.trim(header.get(i)), columnName)) {
+        return i < fields.size() ? StringUtils.trimToNull(fields.get(i)) : null;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Parse one CSV line into fields, honoring double-quoted fields (which may contain commas) and
+   * doubled "" escaped quotes.  Interfolio's csv_report quotes the Roles/Unit columns that contain
+   * commas, so a naive comma split would misalign the columns.
+   * @param line one CSV line (no trailing newline)
+   * @return the parsed field values
+   */
+  private static List<String> parseCsvLine(String line) {
+    List<String> fields = new ArrayList<String>();
+    StringBuilder current = new StringBuilder();
+    boolean inQuotes = false;
+    for (int i = 0; i < line.length(); i++) {
+      char c = line.charAt(i);
+      if (inQuotes) {
+        if (c == '"') {
+          if (i + 1 < line.length() && line.charAt(i + 1) == '"') {
+            current.append('"');
+            i++;
+          } else {
+            inQuotes = false;
+          }
+        } else {
+          current.append(c);
+        }
+      } else if (c == '"') {
+        inQuotes = true;
+      } else if (c == ',') {
+        fields.add(current.toString());
+        current.setLength(0);
+      } else {
+        current.append(c);
+      }
+    }
+    fields.add(current.toString());
+    return fields;
   }
 
   /**

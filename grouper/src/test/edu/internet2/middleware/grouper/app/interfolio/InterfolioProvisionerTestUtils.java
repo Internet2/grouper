@@ -81,8 +81,10 @@ public class InterfolioProvisionerTestUtils {
     configureProvisionerSuffix(input, "entityAttributeValueCache0type", "entityAttribute");
     configureProvisionerSuffix(input, "entityAttributeValueCacheHas", "true");
 
-    // match on email (byc users/search returns email)
-    configureProvisionerSuffix(input, "entityMatchingAttribute0name", "email");
+    // match on institution_user_id (UID/PennKey) - the stable key.  The bulk retrieve (csv_report)
+    // returns the UID; byc users/search does not, so email is not a reliable match key (Interfolio
+    // stores real school emails, not the pennkey form).
+    configureProvisionerSuffix(input, "entityMatchingAttribute0name", "institution_user_id");
     configureProvisionerSuffix(input, "entityMatchingAttributeCount", "1");
 
     // target entity attributes

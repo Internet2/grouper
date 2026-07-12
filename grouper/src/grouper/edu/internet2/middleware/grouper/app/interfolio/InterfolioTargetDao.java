@@ -35,9 +35,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class InterfolioTargetDao extends GrouperProvisionerTargetDaoBase {
 
-  /** page size when retrieving all entities */
-  private static final int RETRIEVE_ALL_PAGE_SIZE = 100;
-
   @Override
   public boolean loggingStart() {
     return GrouperHttpClient.logStart(new GrouperHttpClientLog());
@@ -86,18 +83,13 @@ public class InterfolioTargetDao extends GrouperProvisionerTargetDaoBase {
 
       List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
 
-      // page through the whole roster (blank search term returns everyone)
-      int page = 1;
-      while (true) {
-        List<InterfolioUser> users = GrouperInterfolioApiCommands.searchUsers(configId, null, RETRIEVE_ALL_PAGE_SIZE, page);
-        for (InterfolioUser user : GrouperUtil.nonNull(users)) {
-          results.add(user.toProvisioningEntity());
-        }
-        // last page reached when fewer than a full page came back
-        if (GrouperUtil.length(users) < RETRIEVE_ALL_PAGE_SIZE) {
-          break;
-        }
-        page++;
+      // Retrieve the whole roster in one call via csv_report, which returns the UID
+      // (institution_user_id) - the stable key we match on.  byc users/search omits the UID, so it
+      // cannot be used for the bulk match.  csv_report does not return the pid; it is resolved lazily
+      // at write time (see updateEntity/deleteEntity).
+      List<InterfolioUser> users = GrouperInterfolioApiCommands.retrieveAllUsersViaCsvReport(configId);
+      for (InterfolioUser user : GrouperUtil.nonNull(users)) {
+        results.add(user.toProvisioningEntity());
       }
 
       return new TargetDaoRetrieveAllEntitiesResponse(results);
@@ -123,14 +115,24 @@ public class InterfolioTargetDao extends GrouperProvisionerTargetDaoBase {
       InterfolioUser match = null;
       if (StringUtils.isNotBlank(searchValue)) {
         List<InterfolioUser> users = GrouperInterfolioApiCommands.searchUsers(configId, searchValue, 25, 1);
-        for (InterfolioUser user : GrouperUtil.nonNull(users)) {
-          if (StringUtils.equals("id", searchAttribute) && StringUtils.equals(searchValue, user.getPid())) {
-            match = user;
-            break;
+
+        if (StringUtils.equals("institution_user_id", searchAttribute)) {
+          // matching on the UID: byc search does not return institution_user_id, but we searched BY
+          // it, so a single hit is the user - stamp the UID we searched on so the entity matches.
+          if (GrouperUtil.length(users) == 1) {
+            match = users.get(0);
+            match.setInstitutionUserId(searchValue);
           }
-          if (StringUtils.equalsIgnoreCase(searchValue, user.getEmail())) {
-            match = user;
-            break;
+        } else {
+          for (InterfolioUser user : GrouperUtil.nonNull(users)) {
+            if (StringUtils.equals("id", searchAttribute) && StringUtils.equals(searchValue, user.getPid())) {
+              match = user;
+              break;
+            }
+            if (StringUtils.equalsIgnoreCase(searchValue, user.getEmail())) {
+              match = user;
+              break;
+            }
           }
         }
       }
@@ -201,7 +203,19 @@ public class InterfolioTargetDao extends GrouperProvisionerTargetDaoBase {
       // the IAM update is a full replace; institution_user_id must be unchanged (it is immutable)
       InterfolioUser user = InterfolioUser.fromProvisioningEntity(targetEntity);
 
-      GrouperInterfolioApiCommands.updateUser(configId, user.getPid(),
+      // csv_report (the bulk retrieve) does not return the pid, so a user matched on
+      // institution_user_id may not have one yet - resolve it via byc search before the IAM PUT.
+      String pid = user.getPid();
+      if (StringUtils.isBlank(pid)) {
+        pid = GrouperInterfolioApiCommands.resolvePid(configId, user.getInstitutionUserId(), user.getEmail());
+      }
+      if (StringUtils.isBlank(pid)) {
+        throw new RuntimeException("Cannot resolve Interfolio pid for institution_user_id '"
+            + user.getInstitutionUserId() + "'");
+      }
+      targetEntity.setId(pid);
+
+      GrouperInterfolioApiCommands.updateUser(configId, pid,
           user.getInstitutionUserId(), user.getSamlId(), user.getUserType(),
           user.getFirstName(), user.getLastName(), user.getEmail());
 
@@ -240,6 +254,11 @@ public class InterfolioTargetDao extends GrouperProvisionerTargetDaoBase {
       // Interfolio has no hard delete - deprovisioning means removing product access.  Remove RPT
       // always, and FS if enabled.  The user account itself remains in Interfolio.
       String pid = targetEntity.getId();
+      if (StringUtils.isBlank(pid)) {
+        // csv_report does not return the pid; resolve it from the UID for the deprovision
+        InterfolioUser user = InterfolioUser.fromProvisioningEntity(targetEntity);
+        pid = GrouperInterfolioApiCommands.resolvePid(configId, user.getInstitutionUserId(), user.getEmail());
+      }
       if (StringUtils.isNotBlank(pid)) {
         GrouperInterfolioApiCommands.unsubscribeUserFromRpt(configId, pid);
         if (configuration.isEnableFs()) {

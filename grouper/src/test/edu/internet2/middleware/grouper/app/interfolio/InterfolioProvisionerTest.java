@@ -257,8 +257,9 @@ public class InterfolioProvisionerTest extends GrouperProvisioningBaseTest {
    * @return the rpt flag ("T"/"F") from the mock table
    */
   private static String rptFlagByEmail(String email) {
+    // the provisioner sends email lowercased, so look up case-insensitively
     return new GcDbAccess().connectionName("grouper")
-        .sql("select rpt from mock_interfolio_user where email = ?").addBindVar(email).select(String.class);
+        .sql("select rpt from mock_interfolio_user where lower(email) = lower(?)").addBindVar(email).select(String.class);
   }
 
   /**
@@ -266,8 +267,9 @@ public class InterfolioProvisionerTest extends GrouperProvisioningBaseTest {
    * @return the fs flag ("T"/"F") from the mock table
    */
   private static String fsFlagByEmail(String email) {
+    // the provisioner sends email lowercased, so look up case-insensitively
     return new GcDbAccess().connectionName("grouper")
-        .sql("select fs from mock_interfolio_user where email = ?").addBindVar(email).select(String.class);
+        .sql("select fs from mock_interfolio_user where lower(email) = lower(?)").addBindVar(email).select(String.class);
   }
 
   /**
