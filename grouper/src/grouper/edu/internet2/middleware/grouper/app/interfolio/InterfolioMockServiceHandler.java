@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  *   POST /iam/{tid}/users                                                  -> createUser
  *   PUT  /iam/{tid}/users/{pid}                                            -> updateUser
  *   GET  /byc/core/tenure/{tid}/institutions/{tid}/users/search            -> searchUsers
+ *   GET  /byc/core/tenure/{tid}/users/csv_report                           -> csvReport
  *   POST /byc-tenure|byc-search/{tid}/users/{pid}/subscribe                -> subscribe
  *   PUT  /byc-tenure|byc-search/{tid}/users/{pid}/unsubscribe              -> unsubscribe
  */
@@ -95,6 +96,11 @@ public class InterfolioMockServiceHandler extends MockServiceHandler {
       // GET /byc/core/tenure/{tid}/institutions/{tid}/users/search
       if (StringUtils.equals("byc", firstSegment) && StringUtils.equals("search", lastSegment)) {
         searchUsers(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+      // GET /byc/core/tenure/{tid}/users/csv_report
+      if (StringUtils.equals("byc", firstSegment) && StringUtils.equals("csv_report", lastSegment)) {
+        csvReport(mockServiceRequest, mockServiceResponse);
         return;
       }
     }
@@ -233,6 +239,51 @@ public class InterfolioMockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(rootNode));
+  }
+
+  /**
+   * GET /byc/core/tenure/{tid}/users/csv_report - the whole roster as CSV, the same column layout the
+   * real report returns.  Unlike users/search this includes the UID (institution_user_id) and SSO ID
+   * (saml_id); the other columns (units/roles/titles) are left blank.  No pid column (matches the real
+   * report).
+   */
+  private void csvReport(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    checkAuthorization(mockServiceRequest);
+
+    List<InterfolioUser> allUsers = HibernateSession.byHqlStatic()
+        .createQuery("from InterfolioUser").list(InterfolioUser.class);
+
+    StringBuilder csv = new StringBuilder();
+    csv.append("First Name,Last Name,Email,Unit Ids,Unit Names,Roles,Combined Roles,Titles,Combined Titles,User Type,UID,SSO ID\n");
+    for (InterfolioUser user : GrouperUtil.nonNull(allUsers)) {
+      csv.append(csvField(user.getFirstName())).append(",");
+      csv.append(csvField(user.getLastName())).append(",");
+      csv.append(csvField(user.getEmail())).append(",");
+      // Unit Ids, Unit Names, Roles, Combined Roles, Titles, Combined Titles (6 blank columns)
+      csv.append(",,,,,,");
+      csv.append(csvField(user.getUserType())).append(",");
+      csv.append(csvField(user.getInstitutionUserId())).append(",");
+      csv.append(csvField(user.getSamlId())).append("\n");
+    }
+
+    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setContentType("text/csv");
+    mockServiceResponse.setResponseBody(csv.toString());
+  }
+
+  /**
+   * Quote a CSV field if it contains a comma, quote, or newline (doubling embedded quotes).
+   * @param value the field value
+   * @return the CSV-safe field
+   */
+  private static String csvField(String value) {
+    if (value == null) {
+      return "";
+    }
+    if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
+      return "\"" + value.replace("\"", "\"\"") + "\"";
+    }
+    return value;
   }
 
   /**
