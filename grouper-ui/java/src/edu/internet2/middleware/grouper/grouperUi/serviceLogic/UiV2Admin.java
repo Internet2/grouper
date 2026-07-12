@@ -16,11 +16,16 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -38,6 +43,9 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.criterion.Criterion;
@@ -84,9 +92,11 @@ import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -1390,7 +1400,263 @@ public class UiV2Admin extends UiServiceLogicBase {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
-  
+
+  /**
+   * Chart data for the daemon performance graph
+   * @param date the started time of each run (epoch seconds)
+   * @param millis how long that run took in milliseconds
+   */
+  public record DaemonPerformanceChartData(List<Long> date, List<Long> millis) {}
+
+  /**
+   * show the daemon performance chart page
+   * @param request
+   * @param response
+   */
+  public void viewPerformanceChart(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      String jobName = request.getParameter("jobName");
+      if (!isJobNameValid(jobName)) {
+        throw new RuntimeException("Invalid job name '" + jobName + "'");
+      }
+
+      AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+      List<GuiDaemonJob> guiDaemonJobs = new ArrayList<GuiDaemonJob>();
+      guiDaemonJobs.add(new GuiDaemonJob(jobName));
+
+      // see which jobs are not failsafe approved and need approval
+      Set<String> jobNamesNeedApprovalNotApproved = GrouperFailsafe.retrieveJobNamesNeedApprovalNotApproved();
+
+      for (GuiDaemonJob guiDaemonJob : GrouperUtil.nonNull(guiDaemonJobs)) {
+        guiDaemonJob.assignFailsafeNeedsApproval(jobNamesNeedApprovalNotApproved.contains(guiDaemonJob.getJobName()));
+      }
+
+      viewLogsHelperSetup(request, response, false);
+
+      adminContainer.setGuiDaemonJobs(guiDaemonJobs);
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/admin/adminDaemonJobsPerformanceChart.jsp"));
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#adminDaemonJobsMoreActionsId",
+          "/WEB-INF/grouperUi2/admin/adminDaemonJobsViewLogsMoreActions.jsp"));
+
+    } catch (SchedulerException re) {
+      throw new RuntimeException("Failure looking up job name", re);
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * compute and render the daemon performance chart (or export the data)
+   * @param request
+   * @param response
+   */
+  public void viewPerformanceChartResults(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      //if the user is allowed
+      if (!daemonJobsAllowed()) {
+        return;
+      }
+
+      String jobName = request.getParameter("jobName");
+      if (!isJobNameValid(jobName)) {
+        throw new RuntimeException("Invalid job name '" + jobName + "'");
+      }
+
+      // some jobs (e.g. change log) record their run millis on subjobs (parentJobName), not the
+      // overall job row.  Mirror the logs screen so we include those runs.
+      boolean showSubJobs = StringUtils.equals("true", request.getParameter("showSubjobsName"))
+          || "CHANGE_LOG_changeLogTempToChangeLog".equals(jobName)
+          || "CHANGE_LOG_consumer_compositeMemberships".equals(jobName);
+
+      Date dateFromDate;
+      Date dateToDate;
+
+      if ("absolute".equals(request.getParameter("dateRangeType"))) {
+        // absolute dates are formatted by the date picker as ISO
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+        if (!GrouperUtil.isEmpty(request.getParameter("dateFromAbsolute"))) {
+          String dateFromString = request.getParameter("dateFromAbsolute");
+          LocalDateTime localDateTime = LocalDateTime.parse(dateFromString, formatter);
+          dateFromDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        } else {
+          dateFromDate = null;
+        }
+
+        if (!GrouperUtil.isEmpty(request.getParameter("dateToAbsolute"))) {
+          String dateToString = request.getParameter("dateToAbsolute");
+          LocalDateTime localDateTime = LocalDateTime.parse(dateToString, formatter);
+          dateToDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        } else {
+          dateToDate = new Date();
+        }
+      } else {
+        // assume relative
+        int defaultRelativeDays = -1 * GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.daemonPerformanceChart.defaultDays", 7);
+        String dateFromRelative = request.getParameter("dateFromRelative");
+        int dateFromRelativeValue = GrouperUtil.isEmpty(dateFromRelative) ? defaultRelativeDays : -1 * Integer.parseInt(dateFromRelative);
+        String dateScale = request.getParameter("dateFromRelativeScale");
+
+        dateFromDate = GrouperUiUtils.offsetCalendar(
+                null,
+                dateFromRelativeValue,
+                GrouperUtil.isEmpty(request.getParameter("dateFromRelativeScale")) ? "days" : dateScale);
+
+        dateToDate = new Date();
+      }
+
+      // if there was no input start date, use the earliest run for this job
+      if (dateFromDate == null) {
+        List<Criterion> earliestCriteria = new ArrayList<Criterion>();
+        if (showSubJobs) {
+          earliestCriteria.add(HibUtils.listCritOr(
+              Restrictions.eq("jobName", jobName),
+              Restrictions.eq("parentJobName", jobName)));
+        } else {
+          earliestCriteria.add(Restrictions.eq("jobName", jobName));
+        }
+        earliestCriteria.add(Restrictions.ne("status", "STARTED"));
+        earliestCriteria.add(Restrictions.isNotNull("startedTime"));
+
+        List<Hib3GrouperLoaderLog> earliestLogs = HibernateSession.byCriteriaStatic()
+            .options(QueryOptions.create("startedTime", true, 1, 1))
+            .list(Hib3GrouperLoaderLog.class, HibUtils.listCrit(earliestCriteria));
+
+        if (GrouperUtil.length(earliestLogs) == 0 || earliestLogs.get(0).getStartedTime() == null) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
+              TextContainer.retrieveFromRequest().getText().get("daemonPerformanceChartNoData")));
+          return;
+        }
+
+        dateFromDate = new Date(earliestLogs.get(0).getStartedTime().getTime());
+      }
+
+      int maxLogs = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.loader.logs.maxMaxSize", 5000);
+
+      List<Criterion> criterionList = new ArrayList<Criterion>();
+      if (showSubJobs) {
+        criterionList.add(HibUtils.listCritOr(
+            Restrictions.eq("jobName", jobName),
+            Restrictions.eq("parentJobName", jobName)));
+      } else {
+        criterionList.add(Restrictions.eq("jobName", jobName));
+      }
+      criterionList.add(Restrictions.ne("status", "STARTED"));
+      criterionList.add(Restrictions.isNotNull("millis"));
+      criterionList.add(Restrictions.ge("startedTime", new Timestamp(dateFromDate.getTime())));
+      criterionList.add(Restrictions.le("startedTime", new Timestamp(dateToDate.getTime())));
+
+      List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byCriteriaStatic()
+          .options(QueryOptions.create("startedTime", true, 1, maxLogs))
+          .list(Hib3GrouperLoaderLog.class, HibUtils.listCrit(criterionList));
+
+      List<Long> dateData = new ArrayList<Long>();
+      List<Long> millisData = new ArrayList<Long>();
+
+      for (Hib3GrouperLoaderLog loaderLog : GrouperUtil.nonNull(loaderLogs)) {
+        if (loaderLog.getStartedTime() == null || loaderLog.getMillis() == null) {
+          continue;
+        }
+        dateData.add(loaderLog.getStartedTime().getTime() / 1000);
+        millisData.add((long) loaderLog.getMillis().intValue());
+      }
+
+      if (dateData.size() == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
+            TextContainer.retrieveFromRequest().getText().get("daemonPerformanceChartNoData")));
+        return;
+      }
+
+      DaemonPerformanceChartData daemonPerformanceData = new DaemonPerformanceChartData(dateData, millisData);
+
+      if ("export".equals(request.getParameter("action"))) {
+        exportDaemonPerformanceToBrowser(response, jobName, daemonPerformanceData);
+        throw new ControllerDone();
+      }
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperDaemonPerformanceChartDivId",
+          "/WEB-INF/grouperUi2/admin/adminDaemonJobsPerformanceChartContents.jsp"));
+
+      guiResponseJs.addAction(GuiScreenAction.newAssign("daemonPerformanceData", daemonPerformanceData));
+
+      guiResponseJs.addAction(GuiScreenAction.newScript("drawDaemonPerformanceChartD3()"));
+
+    } catch (SchedulerException e) {
+      throw new RuntimeException("Failure looking up job name", e);
+    } catch (NumberFormatException e) {
+      throw new RuntimeException("Unable to parse integer: " + e.getMessage());
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * export the daemon performance chart data as CSV
+   * @param response
+   * @param jobName
+   * @param performanceData date slices (epoch seconds) and millis for each run
+   */
+  public static void exportDaemonPerformanceToBrowser(HttpServletResponse response, String jobName, DaemonPerformanceChartData performanceData) {
+    response.setContentType(HttpContentType.TEXT_CSV.getContentType());
+
+    String fileName = "daemonPerformance_" + GrouperUiUtils.stripNonFilenameChars(jobName) + ".csv";
+
+    response.setHeader("Content-Disposition", "inline;filename=\"" + fileName + "\"");
+
+    PrintWriter out;
+    try {
+      out = response.getWriter();
+    } catch (Exception e) {
+      throw new RuntimeException("Can't get response.getWriter: ", e);
+    }
+
+    CSVFormat csvFileFormat = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL);
+
+    DateFormat dateFormat = new SimpleDateFormat(GrouperUtil.DATE_MINUTES_SECONDS_FORMAT);
+
+    try {
+      CSVPrinter csvPrinter = new CSVPrinter(out, csvFileFormat);
+
+      csvPrinter.printRecord("Row", "Started", "Millis");
+
+      for (int c = 0; c < performanceData.date().size(); c++) {
+        String dateString = dateFormat.format(performanceData.date().get(c) * 1000);
+        csvPrinter.printRecord(c + 1, dateString, performanceData.millis().get(c));
+      }
+
+      csvPrinter.close();
+
+    } catch (IOException e) {
+      throw new RuntimeException("Can't get CSVPrinter: ", e);
+    }
+  }
+
   /**
    * 
    */
