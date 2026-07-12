@@ -39,3 +39,4 @@ felix-cache
 /trace.zip
 /.apt_generated/
 /.apt_generated_tests/
+/misc/wiki/__pycache__/
