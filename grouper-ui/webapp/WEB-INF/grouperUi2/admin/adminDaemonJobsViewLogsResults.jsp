@@ -42,6 +42,8 @@
                         data-original-title="${textContainer.textEscapeDouble['grouperLoaderLogsLoadedJobMessageHeaderTooltip']}">${textContainer.text['grouperLoaderLogsLoadedJobMessageHeader'] }</span></th>
                       <th><span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                         data-original-title="${textContainer.textEscapeDouble['grouperLoaderLogsParentJobIdHeaderTooltip']}">${textContainer.text['grouperLoaderLogsParentJobIdHeader'] }</span></th>
+                      <th><span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                        data-original-title="${textContainer.textEscapeDouble['grouperLoaderLogsActionsHeaderTooltip']}">${textContainer.text['grouperLoaderLogsActionsHeader'] }</span></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -112,6 +114,11 @@
                         <td style="white-space: nowrap">${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.host}</td>
                         <td style="white-space: nowrap"><span class="jobMessageContainer"><grouper:abbreviateTextarea text="${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.jobMessage}" showCharCount="30" cols="20" rows="3"/></span><c:if test="${not empty guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.jobMessage}"> <a href="#" onclick="grouperCopyJobMessage(this); return false;" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left:4px;"><i class="fa fa-clone"></i></a></c:if></td>
                         <td style="white-space: nowrap">${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.parentJobId}</td>
+                        <td style="white-space: nowrap">
+                          <c:if test="${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.status == 'ERROR_FAILSAFE' && grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).failsafeNeedsApproval}">
+                            <a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=failsafeApprove&source=logs&jobName=${grouper:escapeUrl(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName)}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsFailsafeApprove'] }</a>
+                          </c:if>
+                        </td>
                           
                       </tr>
                     </c:forEach>
