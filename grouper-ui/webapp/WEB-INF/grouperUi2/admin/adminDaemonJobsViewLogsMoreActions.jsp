@@ -9,7 +9,7 @@
                         ${textContainer.text['adminDaemonJobsMoreActionsDefaultText'] } <span class="caret"></span>
                       </a>
                       <ul class="dropdown-menu dropdown-menu-right" id="daemon-jobs-more-actions">
-                        <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).loader == false}">
+                        <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).loader == false && grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).editable}">
                           <li><a href="?operation=UiV2Admin.editDaemon&jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.editDaemon&jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
                         </c:if>
                         <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).loader == true}">
@@ -23,7 +23,7 @@
                         </c:if>
                         <br />
                         <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['adminDaemonJobsMoreActionsDelete']}</li>
-                        <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).multiple}">                        
+                        <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).multiple && grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).editable}">                        
                           <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['grouperDaemonConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2Admin.deleteDaemon&jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}');}">${textContainer.text['grouperDaemonConfigDeleteJob'] }</a></li>
                         </c:if>
                         <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).showMoreActionsDisable}" >
