@@ -376,6 +376,10 @@ public class UiV2Admin extends UiServiceLogicBase {
       if (StringUtils.equals(source, "logs")) {
         String jobName = request.getParameter("jobName");
         GuiDaemonJob guiDaemonJob = new GuiDaemonJob(jobName);
+        // see which jobs are not failsafe approved and need approval so the failsafe
+        // approve action stays visible on the logs screen after other submit actions
+        Set<String> jobNamesNeedApprovalNotApproved = GrouperFailsafe.retrieveJobNamesNeedApprovalNotApproved();
+        guiDaemonJob.assignFailsafeNeedsApproval(jobNamesNeedApprovalNotApproved.contains(jobName));
         guiDaemonJobs.add(guiDaemonJob);
         adminContainer.setGuiDaemonJobs(guiDaemonJobs);
         return true;
