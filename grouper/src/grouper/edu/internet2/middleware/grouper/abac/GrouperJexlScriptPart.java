@@ -219,4 +219,26 @@ public class GrouperJexlScriptPart {
     this.skipInVisualizationTree = skipInVisualizationTree;
   }
 
+  /**
+   * true when this row should be hidden from the analysis-screen table. A negated LEAF part
+   * inside an AND/OR compound (has a parentPart) reports the un-negated inner-condition count
+   * next to a "Not …" description — the number and the text describe different populations.
+   * That divergence is deliberate (see the ASTNotNode branch's {@code isThisClonesOwnNot}
+   * skip: it exists so a script like {@code !memberOf('smallGroup')} against a two-million
+   * directory doesn't show "1,765,754 Not member of group smallGroup" on the analysis screen)
+   * but the row itself reads confusingly, so we hide it. The enclosing compound row still
+   * shows the whole expression, and the visualization renders the negated edge, so no
+   * information is lost.
+   *
+   * A standalone negated root (e.g. a script that is just {@code !memberOf('X')} on its own)
+   * has {@code parentPart == null}, so this returns false — that lone row is the only place
+   * the user could see the population and it is not hidden.
+   * @return true if the analysis-table row for this part should be suppressed
+   */
+  public boolean isHideFromAnalysisTable() {
+    return this.negated
+        && this.connective == Connective.LEAF
+        && this.parentPart != null;
+  }
+
 }

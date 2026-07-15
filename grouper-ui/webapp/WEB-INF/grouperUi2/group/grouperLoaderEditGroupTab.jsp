@@ -107,19 +107,24 @@ ${grouper:titleFromKeyAndText('groupLoaderPageTitle', grouperRequestContainer.gr
                     <tbody>
                     <c:forEach items="${grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptAnalysis.grouperJexlScriptParts}" var="scriptPart">
 
-                      <tr>
-                         <td style="white-space: nowrap; text-align: center; width: 5em;">
-                          ${scriptPart.populationCount}
-                         </td>
+                      <%-- Suppress rows whose count/description would read confusingly (a
+                           negated LEAF inside a compound reports the un-negated inner count
+                           next to "Not …" text). isHideFromAnalysisTable encapsulates that. --%>
+                      <c:if test="${!scriptPart.hideFromAnalysisTable}">
+                        <tr>
+                           <td style="white-space: nowrap; text-align: center; width: 5em;">
+                            ${scriptPart.populationCount}
+                           </td>
 
-                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiSubject != null}">
-                            <td style="white-space: nowrap; text-align: center; width: 5em;">${scriptPart.containsSubject}</td>
-                          </c:if>
+                           <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiSubject != null}">
+                              <td style="white-space: nowrap; text-align: center; width: 5em;">${scriptPart.containsSubject}</td>
+                            </c:if>
 
-                         <td>
-                          ${scriptPart.displayDescription}
-                         </td>
-                       </tr>
+                           <td>
+                            ${scriptPart.displayDescription}
+                           </td>
+                         </tr>
+                      </c:if>
 
                      </c:forEach>
                       </tbody>
