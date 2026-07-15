@@ -577,10 +577,20 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       }
     }
     
+    // Wire parentPart on every part regardless of whether the visualization tree is being
+    // built. Consumers of the flat parts list (e.g. the analysis-table JSP checking
+    // isHideFromAnalysisTable) need the parent pointer to distinguish standalone leaves
+    // from AND/OR clones. This walk is cheap — it just chases jjtGetParent — so there's no
+    // reason to gate it behind buildVisualization.
+    try {
+      wirePartParents(grouperJexlScriptAnalysis);
+    } catch (Exception e) {
+      LOG.warn("Error wiring part parents: " + e.getMessage(), e);
+    }
+
     if (buildVisualization) {
       // Build visualization tree after population counts are computed
       try {
-        wirePartParents(grouperJexlScriptAnalysis);
         grouperJexlScriptAnalysis.setVisualizationReferences(
             buildVisualizationTreeFromParts(grouperJexlScriptAnalysis));
       } catch (Exception e) {
