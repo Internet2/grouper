@@ -2243,6 +2243,58 @@ public class RuleTest extends GrouperTest {
   /**
    * 
    */
+  public void testRuleFolderAddDisabledDateOnMembership() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group group = new GroupSave(grouperSession).assignName("stem:sub:groupA").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem = StemFinder.findByName(grouperSession, "stem", true);
+
+    //add a rule on the folder: when a membership is added to any group in this folder (or subfolders),
+    //set the membership disabled date 7 days in the future
+    AttributeAssign attributeAssign = stem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipAddInFolder.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), Stem.Scope.SUB.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.assignMembershipDisabledDaysForCurrentGroupId.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "7");
+
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+
+    long initialFirings = RuleEngine.ruleFirings;
+
+    //add a member to a group in the folder
+    group.addMember(SubjectTestHelper.SUBJ0);
+
+    assertEquals(initialFirings + 1, RuleEngine.ruleFirings);
+
+    //should have a disabled date on the membership in the group
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
+    Membership membership = group.getImmediateMembership(Group.getDefaultList(), member0, true, true);
+
+    assertNotNull(membership.getDisabledTime());
+    long disabledTime = membership.getDisabledTime().getTime();
+
+    assertTrue("More than 6 days: " + new Date(disabledTime), disabledTime > System.currentTimeMillis() + (6L * 24 * 60 * 60 * 1000));
+    assertTrue("Less than 8 days: " + new Date(disabledTime), disabledTime < System.currentTimeMillis() + (8L * 24 * 60 * 60 * 1000));
+  }
+
+  /**
+   * 
+   */
   public void testRuleLonghandThenEnum() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Group groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();

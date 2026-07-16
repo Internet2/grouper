@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
+import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -175,6 +176,81 @@ public enum RuleThenEnum {
         GrouperUtil.booleanValue(addIfNotThere, false);
       } catch (Exception e) {
         return "ruleThenEnumArg1 should be T or F for if the membership in the owner group should be created if not there: " + e.getMessage();
+      }
+
+      return null;
+    }
+    
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
+    }
+    
+  },
+  
+  /** assign a disabled date on the membership in the group where the membership was added (for folder rules).
+   * The group is resolved from the event (rulesBean), not the rule owner, so this works when the rule
+   * is attached to a folder and applies to all groups in that folder.
+   */
+  assignMembershipDisabledDaysForCurrentGroupId {
+    
+    public boolean usesArg0() {
+      return true;
+    }
+    
+    public boolean usesArg1() {
+      return true;
+    }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean, java.lang.StringBuilder)
+     */
+    @Override
+    public Object fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
+
+      String days = ruleDefinition.getThen().getThenEnumArg0();
+      double daysInteger = GrouperUtil.doubleValue(days);
+
+      String addIfNotThere = ruleDefinition.getThen().getThenEnumArg1();
+      boolean addIfNotThereBoolean = GrouperUtil.booleanValue(addIfNotThere, false);
+
+      Group group = ((RulesMembershipBean)rulesBean).getGroup();
+      if (group == null) {
+        return false;
+      }
+      return RuleElUtils.assignMembershipDisabledDaysForGroupId(group.getId(), rulesBean.getMemberId(), daysInteger, addIfNotThereBoolean);
+    }
+    
+    /**
+     * @see RuleThenEnum#validate(RuleDefinition)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+
+      if (!StringUtils.isBlank(ruleDefinition.getThen().getThenEnumArg2())) {
+        return "ruleThenEnumArg2 should not be entered for this ruleThenEnum: " + this.name();
+      }
+
+      String days = ruleDefinition.getThen().getThenEnumArg0();
+
+      try {
+        GrouperUtil.doubleValue(days);
+      } catch (Exception e) {
+        return "ruleThenEnumArg0 should be the number of days in the future that the disabled date should be set: " + e.getMessage();
+      }
+
+      String addIfNotThere = ruleDefinition.getThen().getThenEnumArg1();
+
+      try {
+        GrouperUtil.booleanValue(addIfNotThere, false);
+      } catch (Exception e) {
+        return "ruleThenEnumArg1 should be T or F for if the membership in the group should be created if not there: " + e.getMessage();
       }
 
       return null;
