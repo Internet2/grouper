@@ -1070,10 +1070,6 @@ public class GrouperScim2ApiCommands {
 
         debugMap.put("linkedExistingUserOnConflict", true);
 
-        // same sync-back the success path runs below: register the (existing) resource so the
-        // generic provisioner links its target id and the end-of-run drain skips re-reading it.
-        GrouperScim2ProvisioningTargetNativeSync.captureUserInsertFromCurrentProvisioner(existingUserNode);
-
         return GrouperScim2User.fromJson(existingUserNode);
       }
 
