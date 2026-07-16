@@ -1377,6 +1377,138 @@ public enum RulePattern {
     
   },
   
+  AddDisabledDateOnMembershipInFolder {
+
+    @Override
+    public Map<String, List<String>> save(RuleConfig ruleConfig, String attributeAssignId) {
+      
+      Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
+      
+      String expireAfterDays = patternPropertiesValues.get("AddDisabledDateOnMembershipInFolder.expireAfterDays");
+      String folderScope = patternPropertiesValues.get("AddDisabledDateOnMembershipInFolder.stemScope");
+      
+      ruleConfig.setCheckType(RuleCheckType.membershipAddInFolder.name());
+      ruleConfig.setCheckOwner("thisStem");
+      ruleConfig.setCheckOwnerStemScope(folderScope);
+
+      ruleConfig.setThenOption(RuleThenEnum.assignMembershipDisabledDaysForCurrentGroupId.name());
+      ruleConfig.setThenArg0(expireAfterDays);
+      
+      Map<String, List<String>> result = RuleService.saveOrUpdateRuleAttributes(ruleConfig, ruleConfig.getGrouperObject(), attributeAssignId);
+      return result;
+    }
+
+    @Override
+    public List<String> validate(RuleConfig ruleConfig, Subject loggedInSubject) {
+      
+      List<String> errorMessages = new ArrayList<>();
+      
+      Map<String, String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
+      
+      String expireAfterDays = patternPropertiesValues.get("AddDisabledDateOnMembershipInFolder.expireAfterDays");
+      String folderScope = patternPropertiesValues.get("AddDisabledDateOnMembershipInFolder.stemScope");
+      
+      try {
+        Double.valueOf(expireAfterDays);
+      } catch (Exception e) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditInvalidNumberOfDays");
+        error = error.replace("##numberOfDays##", expireAfterDays);
+        errorMessages.add(error);
+      }
+      
+      if (StringUtils.isBlank(folderScope)) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditFolderScopeRequired");
+        errorMessages.add(error);
+      } else {
+        if (!StringUtils.equals(folderScope, "SUB") && !StringUtils.equals(folderScope, "ONE")) {
+          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditFolderScopeInvalid");
+          errorMessages.add(error);
+        }
+      }
+      
+      return errorMessages;
+    }
+
+    @Override
+    public String getUserFriendlyText() {
+      return GrouperTextContainer.textOrNull("AddDisabledDateOnMembershipInFolderUserFriendlyText");
+    }
+
+    @Override
+    public List<GrouperConfigurationModuleAttribute> getElementsToShow(GrouperObject grouperObject, RuleDefinition ruleDefinition) {
+      
+      List<GrouperConfigurationModuleAttribute> elements = new ArrayList<>();
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.DROPDOWN);
+        List<MultiKey> valuesAndLabels = new ArrayList<>();
+        MultiKey valueAndLabel = new MultiKey("SUB", GrouperTextContainer.textOrNull("grouperRuleOwnerSubStemScopeLabel"));
+        valuesAndLabels.add(valueAndLabel);
+        valueAndLabel = new MultiKey("ONE", GrouperTextContainer.textOrNull("grouperRuleOwnerOneStemScopeLabel"));
+        valuesAndLabels.add(valueAndLabel);
+        attribute.setDropdownValuesAndLabels(valuesAndLabels);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("AddDisabledDateOnMembershipInFolder.stemScope");
+        attribute.setLabel(GrouperTextContainer.textOrNull("AddDisabledDateOnMembershipInFolder.stemScope.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("AddDisabledDateOnMembershipInFolder.stemScope.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
+          attribute.setValue(ruleDefinition.getCheck().getCheckStemScope());
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("AddDisabledDateOnMembershipInFolder.expireAfterDays");
+        attribute.setLabel(GrouperTextContainer.textOrNull("AddDisabledDateOnMembershipInFolder.expireAfterDays.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("AddDisabledDateOnMembershipInFolder.expireAfterDays.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getThen() != null) {
+          attribute.setValue(ruleDefinition.getThen().getThenEnumArg0());
+        }
+        elements.add(attribute);
+      }
+      
+      return elements;
+    }
+
+    @Override
+    public boolean isApplicableForFolders() {
+      return true;
+    }
+
+    @Override
+    public boolean isApplicableForGroups() {
+      return false;
+    }
+
+    @Override
+    public boolean isThisThePattern(RuleDefinition ruleDefinition) {
+      
+      if (ruleDefinition.getCheck() != null && ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.membershipAddInFolder &&
+          ruleDefinition.getIfCondition().isBlank() &&
+          ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.assignMembershipDisabledDaysForCurrentGroupId) {
+        return true;
+      }
+      
+      return false;
+    }
+    
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("AddDisabledDateOnMembershipInFolderHelperText");
+    }
+    
+  },
+  
   AddMemberToGroupIfAddedToAnotherGroup {
 
     @Override
