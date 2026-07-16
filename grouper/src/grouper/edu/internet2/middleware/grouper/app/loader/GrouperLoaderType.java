@@ -2159,8 +2159,8 @@ public enum GrouperLoaderType {
         // assignCreateParentStemsIfNotExist(true).  This restores the v4 behavior where
         // GROUP_DISPLAY_NAME could be just the desired group display extension.
         if (LOG.isDebugEnabled()) {
-          LOG.debug(hib3GrouploaderLogOverall.getJobName()
-              + ": leaving parent folder '" + folderName + "' display name alone because group '"
+          // v4's syncFolderList has no overall loader-log in scope (unlike v7), so log without the job name
+          LOG.debug("leaving parent folder '" + folderName + "' display name alone because group '"
               + groupName + "' display name '" + groupDisplayName + "' has no folder path");
         }
         continue;
