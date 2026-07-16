@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Config
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.truefoundry.TrueFoundryProvisioningConfiguration;
+import edu.internet2.middleware.grouper.app.dropbox.DropboxProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -115,6 +116,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     configClassNamesList.add(SqlProvisionerConfiguration.class.getName());
     configClassNamesList.add(TeamDynamixProvisionerConfiguration.class.getName());
     configClassNamesList.add(TrueFoundryProvisioningConfiguration.class.getName());
+    configClassNamesList.add(DropboxProvisioningConfiguration.class.getName());
     configClassNamesList.add(BoxProvisionerConfiguration.class.getName());
 //    provisionerConfigClassNames.add("edu.internet2.middleware.grouperBox.BoxProvisionerConfiguration");
     
