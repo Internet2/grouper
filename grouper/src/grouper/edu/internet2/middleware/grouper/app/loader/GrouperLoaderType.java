@@ -79,7 +79,6 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.client.GroupSyncDaemon;
@@ -3479,8 +3478,7 @@ public enum GrouperLoaderType {
                   final int[] count = new int[]{1};
 
                   for (final LoaderMemberWrapper member : membersToRemove) {
-                    GrouperDaemonUtils.stopProcessingIfJobPaused();
-                    
+
                     GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberDeleteMemberLogic: " + groupName + ", " + member.getSubjectId()) {
   
                       @Override
@@ -3520,8 +3518,7 @@ public enum GrouperLoaderType {
                   final int[] count = new int[]{1};
 
                   for (final Subject subject : subjectsToAdd) {
-                    GrouperDaemonUtils.stopProcessingIfJobPaused();
-  
+
                     GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberAddMemberLogic: " + groupName + ", " + subject.getId()) {
                       
                       public Void callLogic() {
