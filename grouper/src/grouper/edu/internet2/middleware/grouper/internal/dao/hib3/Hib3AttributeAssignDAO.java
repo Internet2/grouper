@@ -63,7 +63,6 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -90,9 +89,14 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    * @param hibernateSession
    */
   static void reset(HibernateSession hibernateSession) {
-    hibernateSession.getSession().flush();
-    new GcDbAccess().sql("delete from grouper_attribute_assign where owner_attribute_assign_id is not null").executeSql();
-    new GcDbAccess().sql("delete from grouper_attribute_assign").executeSql();
+    // run these deletes on the SAME hibernate session/connection (matching v6/v7), NOT via a
+    // separate GcDbAccess connection.  GcDbAccess opens its own connection, which on Postgres
+    // deadlocks against the locks this enclosing hibernate transaction already holds on
+    // grouper_attribute_assign -- a single-thread, two-connection self-deadlock that hangs
+    // RegistryReset._emptyTables forever (nothing for the DB deadlock detector to break, since
+    // the hibernate connection is idle-in-transaction, not waiting).
+    hibernateSession.byHql().createQuery("delete from AttributeAssign where ownerAttributeAssignId is not null").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from AttributeAssign").executeUpdate();
   }
 
   /**
