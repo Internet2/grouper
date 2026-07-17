@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.abac;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -848,6 +849,197 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   }
 
   /**
+   * True if this AST node is a timeFromNow('...') function call. This is a value-producing
+   * helper that resolves at analysis time to a millisecond epoch value — current time offset
+   * by the amount named in the string argument. Acceptable anywhere a numeric / timestamp
+   * literal is expected as a comparison value (hasAttribute value, hasAttributeLessThan /
+   * GreaterThan / Between bounds, row inner-predicate column comparisons).
+   *
+   * Argument syntax mirrors the {@code recentMemberOf} time-period style: a single string
+   * like {@code '30 days'} or {@code '-5 minutes'} (leading minus for past). The string
+   * {@code 'now'} is an alias for zero offset. Units accepted (singular or plural,
+   * case-insensitive): minutes, hours, days, weeks, months, years.
+   * @param jexlNode argument node
+   * @return true if this is a timeFromNow(...) call
+   */
+  public static boolean isTimeFromNowNode(JexlNode jexlNode) {
+    if (!(jexlNode instanceof ASTFunctionNode)) {
+      return false;
+    }
+    ASTFunctionNode astFunctionNode = (ASTFunctionNode)jexlNode;
+    if (astFunctionNode.jjtGetNumChildren() < 1 || !(astFunctionNode.jjtGetChild(0) instanceof ASTIdentifier)) {
+      return false;
+    }
+    ASTIdentifier astIdentifier = (ASTIdentifier)astFunctionNode.jjtGetChild(0);
+    return StringUtils.equals("timeFromNow", astIdentifier.getName());
+  }
+
+  /** timeFromNow accepts a signed offset + unit as a single string, mirroring recentMemberOf. */
+  private static final Pattern timeFromNowPattern = Pattern.compile(
+      "^(-?\\d+)\\s*(minute|minutes|hour|hours|day|days|week|weeks|month|months|year|years)$",
+      Pattern.CASE_INSENSITIVE);
+
+  /**
+   * Renders a timeFromNow('...') call in natural English for analysis-screen row descriptions
+   * and visualization box labels. Examples:
+   *  timeFromNow('now')       → "now"
+   *  timeFromNow('1 day')     → "in 1 day"
+   *  timeFromNow('30 days')   → "in 30 days"
+   *  timeFromNow('-30 days')  → "30 days ago"
+   *  timeFromNow('-1 year')   → "1 year ago"
+   *  timeFromNow('-5 minutes') → "5 minutes ago"
+   * Singular is used when |N| == 1 regardless of what the script wrote ('day' vs 'days'). The
+   * bind value in the SQL is still the resolved Long from {@link #resolveTimeFromNowNode}; only
+   * the display uses this form.
+   * @param jexlNode the timeFromNow(...) function node
+   * @return a natural-language phrase describing the offset from now
+   */
+  public static String describeTimeFromNowNode(JexlNode jexlNode) {
+    String arg = extractTimeFromNowArg(jexlNode);
+    if (arg == null) {
+      return "timeFromNow(?)";
+    }
+    String trimmed = arg.trim();
+    if ("now".equalsIgnoreCase(trimmed)) {
+      return "now";
+    }
+    Matcher m = timeFromNowPattern.matcher(trimmed);
+    if (!m.matches()) {
+      // shouldn't happen — resolveTimeFromNowNode would have rejected it. Fall back to verbatim.
+      return "timeFromNow('" + arg + "')";
+    }
+    long offset = Long.parseLong(m.group(1));
+    String unit = m.group(2);
+    long magnitude = Math.abs(offset);
+    String unitWord = singularOrPluralUnit(unit, magnitude);
+    if (offset == 0L) {
+      return "now";
+    }
+    if (offset > 0L) {
+      return "in " + magnitude + " " + unitWord;
+    }
+    return magnitude + " " + unitWord + " ago";
+  }
+
+  /**
+   * Pull the single string argument from a timeFromNow('...') call. Returns null if the
+   * call is malformed (wrong arg count, non-string arg) — callers that need to reject
+   * such shapes are {@link #resolveTimeFromNowNode}; the display helper falls through to a
+   * best-effort rendering.
+   */
+  private static String extractTimeFromNowArg(JexlNode jexlNode) {
+    ASTFunctionNode astFunctionNode = (ASTFunctionNode)jexlNode;
+    ASTArguments astArguments = (ASTArguments)astFunctionNode.jjtGetChild(astFunctionNode.jjtGetNumChildren()-1);
+    if (astArguments.jjtGetNumChildren() != 1 || !(astArguments.jjtGetChild(0) instanceof ASTStringLiteral)) {
+      return null;
+    }
+    return ((ASTStringLiteral)astArguments.jjtGetChild(0)).getLiteral();
+  }
+
+  /**
+   * Canonicalize a timeFromNow unit string to its singular or plural English form based on
+   * magnitude. Accepts either the singular or plural form the user wrote (case-insensitive).
+   * Falls back to the input unchanged for unknown units so we don't lose information the user
+   * typed.
+   */
+  private static String singularOrPluralUnit(String unit, long magnitude) {
+    if (unit == null) {
+      return "";
+    }
+    String lower = unit.toLowerCase();
+    boolean plural = magnitude != 1L;
+    if ("minute".equals(lower) || "minutes".equals(lower)) {
+      return plural ? "minutes" : "minute";
+    }
+    if ("hour".equals(lower) || "hours".equals(lower)) {
+      return plural ? "hours" : "hour";
+    }
+    if ("day".equals(lower) || "days".equals(lower)) {
+      return plural ? "days" : "day";
+    }
+    if ("week".equals(lower) || "weeks".equals(lower)) {
+      return plural ? "weeks" : "week";
+    }
+    if ("month".equals(lower) || "months".equals(lower)) {
+      return plural ? "months" : "month";
+    }
+    if ("year".equals(lower) || "years".equals(lower)) {
+      return plural ? "years" : "year";
+    }
+    return unit;
+  }
+
+  /**
+   * Resolve a timeFromNow('...') function call to a Long millisecond epoch value = current time
+   * offset by the amount named in the string argument. Accepted forms: {@code 'now'} (zero
+   * offset), or a signed integer followed by a unit like {@code '30 days'} or {@code '-5 minutes'}.
+   * Units (singular or plural, case-insensitive): minutes, hours, days, weeks, months, years.
+   * Uses {@link Calendar} for month / year arithmetic so leap years and variable-length months
+   * don't drift; other units use plain millisecond math. Resolved once at analysis time and
+   * bound as a normal SQL bind variable rather than joined in.
+   * @param jexlNode the timeFromNow(...) function node
+   * @return millis since epoch
+   */
+  public static Long resolveTimeFromNowNode(JexlNode jexlNode) {
+    ASTFunctionNode astFunctionNode = (ASTFunctionNode)jexlNode;
+    // last child is the ASTArguments (first child is the function name identifier)
+    ASTArguments astArguments = (ASTArguments)astFunctionNode.jjtGetChild(astFunctionNode.jjtGetNumChildren()-1);
+    if (astArguments.jjtGetNumChildren() != 1) {
+      throw new RuntimeException("timeFromNow expects a single string argument, e.g. timeFromNow('30 days'), timeFromNow('-5 minutes'), or timeFromNow('now')");
+    }
+    if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral)) {
+      throw new RuntimeException("timeFromNow argument must be a string literal, got: " + astArguments.jjtGetChild(0).getClass().getName());
+    }
+    String arg = ((ASTStringLiteral)astArguments.jjtGetChild(0)).getLiteral();
+    if (arg == null) {
+      throw new RuntimeException("timeFromNow argument cannot be null");
+    }
+    String trimmed = arg.trim();
+    long nowMillis = System.currentTimeMillis();
+
+    // "now" is a shorthand for zero offset — no unit required.
+    if ("now".equalsIgnoreCase(trimmed)) {
+      return nowMillis;
+    }
+
+    Matcher m = timeFromNowPattern.matcher(trimmed);
+    if (!m.matches()) {
+      throw new RuntimeException("timeFromNow argument must be 'now' or '<offset> <unit>' where offset is a signed integer and unit is one of minutes, hours, days, weeks, months, years; got: '" + arg + "'");
+    }
+    long offset = Long.parseLong(m.group(1));
+    String unitLower = m.group(2).toLowerCase();
+
+    if ("minute".equals(unitLower) || "minutes".equals(unitLower)) {
+      return nowMillis + offset * 60L * 1000L;
+    }
+    if ("hour".equals(unitLower) || "hours".equals(unitLower)) {
+      return nowMillis + offset * 60L * 60L * 1000L;
+    }
+    if ("day".equals(unitLower) || "days".equals(unitLower)) {
+      return nowMillis + offset * 24L * 60L * 60L * 1000L;
+    }
+    if ("week".equals(unitLower) || "weeks".equals(unitLower)) {
+      return nowMillis + offset * 7L * 24L * 60L * 60L * 1000L;
+    }
+    // months and years use Calendar so leap years and short months behave correctly. Offset is
+    // cast to int; the calendar API takes int and no reasonable date offset overflows that.
+    if ("month".equals(unitLower) || "months".equals(unitLower)) {
+      Calendar cal = Calendar.getInstance();
+      cal.setTimeInMillis(nowMillis);
+      cal.add(Calendar.MONTH, (int) offset);
+      return cal.getTimeInMillis();
+    }
+    if ("year".equals(unitLower) || "years".equals(unitLower)) {
+      Calendar cal = Calendar.getInstance();
+      cal.setTimeInMillis(nowMillis);
+      cal.add(Calendar.YEAR, (int) offset);
+      return cal.getTimeInMillis();
+    }
+    // regex validated the unit, so this is unreachable
+    throw new RuntimeException("timeFromNow unit not recognized: '" + m.group(2) + "'");
+  }
+
+  /**
    * has two children
    * @param result
    * @param astReference
@@ -1002,22 +1194,29 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           .append(" '").append(attributeAlias).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue2")).append(" ")
           .append(value);
 
-        } else if (isGlobalAttributeValueNode(jjtGetChild)) {
+        } else if (isGlobalAttributeValueNode(jjtGetChild) || isTimeFromNowNode(jjtGetChild)) {
 
-          Object value = resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, jjtGetChild);
-          grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value));
-          grouperJexlScriptPartClone.getArguments().add(new MultiKey("attributeValue", value));
+          Object value = isTimeFromNowNode(jjtGetChild)
+              ? resolveTimeFromNowNode(jjtGetChild)
+              : resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, jjtGetChild);
+          // For timeFromNow, show the verbatim expression in the description / vis box instead
+          // of the resolved millis integer.
+          String display = isTimeFromNowNode(jjtGetChild)
+              ? describeTimeFromNowNode(jjtGetChild)
+              : GrouperUtil.stringValue(value);
+          grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value, display));
+          grouperJexlScriptPartClone.getArguments().add(new MultiKey("attributeValue", value, display));
           if (i == 0) {
             grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
             .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeAnyValue")).append(" '")
-            .append(GrouperUtil.xmlEscape(GrouperUtil.stringValue(value))).append("'");
+            .append(GrouperUtil.xmlEscape(display)).append("'");
           } else {
-            grouperJexlScriptPart.getDisplayDescription().append(", '").append(GrouperUtil.xmlEscape(GrouperUtil.stringValue(value))).append("'");
+            grouperJexlScriptPart.getDisplayDescription().append(", '").append(GrouperUtil.xmlEscape(display)).append("'");
           }
 
           grouperJexlScriptPartClone.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
           .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue2")).append(" '")
-          .append(GrouperUtil.xmlEscape(GrouperUtil.stringValue(value))).append("'");
+          .append(GrouperUtil.xmlEscape(display)).append("'");
 
         } else {
           throw new RuntimeException("Not expecting argument of type! " + jjtGetChild.getClass().getName());
@@ -1101,19 +1300,24 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           .append(" '").append(attributeAlias).append("' ").append(GrouperTextContainer.textOrNull(label)).append(" ")
           .append(value);
 
-      } else if (isGlobalAttributeValueNode(astArguments.jjtGetChild(1))) {
-        Object value = resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, astArguments.jjtGetChild(1));
-        grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value));
+      } else if (isGlobalAttributeValueNode(astArguments.jjtGetChild(1)) || isTimeFromNowNode(astArguments.jjtGetChild(1))) {
+        Object value = isTimeFromNowNode(astArguments.jjtGetChild(1))
+            ? resolveTimeFromNowNode(astArguments.jjtGetChild(1))
+            : resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, astArguments.jjtGetChild(1));
+        String display = isTimeFromNowNode(astArguments.jjtGetChild(1))
+            ? describeTimeFromNowNode(astArguments.jjtGetChild(1))
+            : GrouperUtil.stringValue(value);
+        grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value, display));
 
         grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
           .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull(label)).append(" '")
-          .append(GrouperUtil.xmlEscape(GrouperUtil.stringValue(value))).append("'");
+          .append(GrouperUtil.xmlEscape(display)).append("'");
 
       } else {
         throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
       }
 
-      
+
     } else if (StringUtils.equals("hasAttributeBetween", astIdentifierAccess.getName())) {
 
       ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
@@ -1127,10 +1331,12 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       String lowerFieldAlias = (String) lowerParsed.getKey(0);
       String lowerValue = (String) lowerParsed.getKey(1);
       String lowerOp = (String) lowerParsed.getKey(2);
+      String lowerDisplay = lowerParsed.size() > 3 ? (String) lowerParsed.getKey(3) : lowerValue;
 
       String upperFieldAlias = (String) upperParsed.getKey(0);
       String upperValue = (String) upperParsed.getKey(1);
       String upperOp = (String) upperParsed.getKey(2);
+      String upperDisplay = upperParsed.size() > 3 ? (String) upperParsed.getKey(3) : upperValue;
 
       if (!StringUtils.equalsIgnoreCase(lowerFieldAlias, upperFieldAlias)) {
         throw new RuntimeException("hasAttributeBetween both comparisons must reference the same field, got: '"
@@ -1169,9 +1375,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
       grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
         .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ")
-        .append(lowerOp).append(" '").append(GrouperUtil.xmlEscape(lowerValue)).append("' ")
+        .append(lowerOp).append(" '").append(GrouperUtil.xmlEscape(lowerDisplay)).append("' ")
         .append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeBetweenAnd"))
-        .append(" ").append(upperOp).append(" '").append(GrouperUtil.xmlEscape(upperValue)).append("'");
+        .append(" ").append(upperOp).append(" '").append(GrouperUtil.xmlEscape(upperDisplay)).append("'");
 
     } else if (StringUtils.equals("hasAttribute", astIdentifierAccess.getName())) {
       ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
@@ -1251,14 +1457,20 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
               .append(" '").append(attributeAlias).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue2")).append(" ")
               .append(value);
 
-          } else if (isGlobalAttributeValueNode(astArguments.jjtGetChild(1))) {
-            // value comes from a data field assigned to the abacGlobal group, resolved to a literal and bound as a bind var
-            Object value = resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, astArguments.jjtGetChild(1));
-            grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value));
+          } else if (isGlobalAttributeValueNode(astArguments.jjtGetChild(1)) || isTimeFromNowNode(astArguments.jjtGetChild(1))) {
+            // value comes from a data field assigned to the abacGlobal group OR a timeFromNow()
+            // helper; either way resolved to a literal at analysis time and bound as a bind var
+            Object value = isTimeFromNowNode(astArguments.jjtGetChild(1))
+                ? resolveTimeFromNowNode(astArguments.jjtGetChild(1))
+                : resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, astArguments.jjtGetChild(1));
+            String display = isTimeFromNowNode(astArguments.jjtGetChild(1))
+                ? describeTimeFromNowNode(astArguments.jjtGetChild(1))
+                : GrouperUtil.stringValue(value);
+            grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value, display));
 
             grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
               .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue2")).append(" '")
-              .append(GrouperUtil.xmlEscape(GrouperUtil.stringValue(value))).append("'");
+              .append(GrouperUtil.xmlEscape(display)).append("'");
 
           } else {
             throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
@@ -1742,10 +1954,12 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       String lowerFieldAlias = (String) lowerParsed.getKey(0);
       String lowerValue = (String) lowerParsed.getKey(1);
       String lowerOp = (String) lowerParsed.getKey(2);
+      String lowerDisplay = lowerParsed.size() > 3 ? (String) lowerParsed.getKey(3) : lowerValue;
 
       String upperFieldAlias = (String) upperParsed.getKey(0);
       String upperValue = (String) upperParsed.getKey(1);
       String upperOp = (String) upperParsed.getKey(2);
+      String upperDisplay = upperParsed.size() > 3 ? (String) upperParsed.getKey(3) : upperValue;
 
       if (!StringUtils.equalsIgnoreCase(lowerFieldAlias, upperFieldAlias)) {
         throw new RuntimeException("hasAttributeBetween both comparisons must reference the same field, got: '"
@@ -1783,9 +1997,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
       grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
         .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ")
-        .append(lowerOp).append(" '").append(GrouperUtil.xmlEscape(lowerValue)).append("' ")
+        .append(lowerOp).append(" '").append(GrouperUtil.xmlEscape(lowerDisplay)).append("' ")
         .append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeBetweenAnd"))
-        .append(" ").append(upperOp).append(" '").append(GrouperUtil.xmlEscape(upperValue)).append("'");
+        .append(" ").append(upperOp).append(" '").append(GrouperUtil.xmlEscape(upperDisplay)).append("'");
 
     } else if (jexlNode instanceof ASTFunctionNode && jexlNode.jjtGetNumChildren() > 0
         && jexlNode.jjtGetChild(0) instanceof ASTIdentifier
@@ -2037,21 +2251,23 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       }
       if (!(jexlNode.jjtGetChild(1) instanceof ASTIdentifier) && !(jexlNode.jjtGetChild(1) instanceof ASTNumberLiteral)
           && !(jexlNode.jjtGetChild(1) instanceof ASTStringLiteral) && !(jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode)
-          && !isGlobalAttributeValueNode(jexlNode.jjtGetChild(1)) ) {
+          && !isGlobalAttributeValueNode(jexlNode.jjtGetChild(1))
+          && !isTimeFromNowNode(jexlNode.jjtGetChild(1))) {
         throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(1).getClass().getName()
             + ", children: " + jexlNode.jjtGetChild(1).jjtGetNumChildren());
       }
 
       if (jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode && (jexlNode.jjtGetChild(1).jjtGetNumChildren() != 1
           || !(jexlNode.jjtGetChild(1).jjtGetChild(0) instanceof ASTNumberLiteral))) {
-        throw new RuntimeException("Not expecting child node type for negative: " 
+        throw new RuntimeException("Not expecting child node type for negative: "
           + (jexlNode.jjtGetChild(1).jjtGetNumChildren() > 0 ? jexlNode.jjtGetChild(0).getClass().getName() : "0 children!")
             + ", children: " + jexlNode.jjtGetChild(1).jjtGetNumChildren());
-        
+
       }
-      
+
       ASTIdentifier leftPart = (ASTIdentifier)jexlNode.jjtGetChild(0);
       String rightPartValue = null;
+      String rightPartDisplay = null;
       if (jexlNode.jjtGetChild(1) instanceof ASTIdentifier) {
         rightPartValue = ((ASTIdentifier)jexlNode.jjtGetChild(1)).getName();
       } else if (jexlNode.jjtGetChild(1) instanceof ASTNumberLiteral) {
@@ -2060,8 +2276,14 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         rightPartValue = ((ASTStringLiteral)jexlNode.jjtGetChild(1)).getLiteral();
       } else if (jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode) {
         rightPartValue = GrouperUtil.stringValue(negate((ASTNumberLiteral)jexlNode.jjtGetChild(1).jjtGetChild(0)));
+      } else if (isTimeFromNowNode(jexlNode.jjtGetChild(1))) {
+        rightPartValue = GrouperUtil.stringValue(resolveTimeFromNowNode(jexlNode.jjtGetChild(1)));
+        rightPartDisplay = describeTimeFromNowNode(jexlNode.jjtGetChild(1));
       } else if (isGlobalAttributeValueNode(jexlNode.jjtGetChild(1))) {
         rightPartValue = GrouperUtil.stringValue(resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, jexlNode.jjtGetChild(1)));
+      }
+      if (rightPartDisplay == null) {
+        rightPartDisplay = rightPartValue;
       }
       String operator = null;
       String label = null;
@@ -2096,11 +2318,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
           + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ " + operator + " ?) ");
       grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", leftPart.getName()));
-      grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", rightPartValue));
-      
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", rightPartValue, rightPartDisplay));
+
       grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
         .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull(label)).append(" '")
-        .append(GrouperUtil.xmlEscape(rightPartValue)).append("'");
+        .append(GrouperUtil.xmlEscape(rightPartDisplay)).append("'");
 
     } else if (jexlNode instanceof ASTNENode && 2==jexlNode.jjtGetNumChildren()) {
       if (!(jexlNode.jjtGetChild(0) instanceof ASTIdentifier)) {
@@ -2109,20 +2331,22 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       }
       if (!(jexlNode.jjtGetChild(1) instanceof ASTIdentifier) && !(jexlNode.jjtGetChild(1) instanceof ASTNumberLiteral)
           && !(jexlNode.jjtGetChild(1) instanceof ASTStringLiteral) && !(jexlNode.jjtGetChild(1) instanceof ASTNullLiteral)
-          && !(jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode) && !isGlobalAttributeValueNode(jexlNode.jjtGetChild(1))) {
+          && !(jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode) && !isGlobalAttributeValueNode(jexlNode.jjtGetChild(1))
+          && !isTimeFromNowNode(jexlNode.jjtGetChild(1))) {
         throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(1).getClass().getName()
             + ", children: " + jexlNode.jjtGetChild(1).jjtGetNumChildren());
       }
-      
-      if (jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode && (jexlNode.jjtGetChild(1).jjtGetNumChildren() != 1 
+
+      if (jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode && (jexlNode.jjtGetChild(1).jjtGetNumChildren() != 1
           || !(jexlNode.jjtGetChild(1).jjtGetChild(0) instanceof ASTNumberLiteral))) {
-        throw new RuntimeException("Not expecting child node type for negative: " 
+        throw new RuntimeException("Not expecting child node type for negative: "
           + (jexlNode.jjtGetChild(1).jjtGetNumChildren() > 0 ? jexlNode.jjtGetChild(0).getClass().getName() : "0 children!")
             + ", children: " + jexlNode.jjtGetChild(1).jjtGetNumChildren());
-        
+
       }
       ASTIdentifier leftPart = (ASTIdentifier)jexlNode.jjtGetChild(0);
       String rightPartValue = null;
+      String rightPartDisplay = null;
       boolean rightPartNull = false;
       if (jexlNode.jjtGetChild(1) instanceof ASTIdentifier) {
         rightPartValue = ((ASTIdentifier)jexlNode.jjtGetChild(1)).getName();
@@ -2134,20 +2358,26 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         rightPartNull = true;
       } else if (jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode) {
         rightPartValue = GrouperUtil.stringValue(negate((ASTNumberLiteral)jexlNode.jjtGetChild(1).jjtGetChild(0)));
+      } else if (isTimeFromNowNode(jexlNode.jjtGetChild(1))) {
+        rightPartValue = GrouperUtil.stringValue(resolveTimeFromNowNode(jexlNode.jjtGetChild(1)));
+        rightPartDisplay = describeTimeFromNowNode(jexlNode.jjtGetChild(1));
       } else if (isGlobalAttributeValueNode(jexlNode.jjtGetChild(1))) {
         rightPartValue = GrouperUtil.stringValue(resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, jexlNode.jjtGetChild(1)));
+      }
+      if (rightPartDisplay == null) {
+        rightPartDisplay = rightPartNull ? "null" : rightPartValue;
       }
 
       grouperJexlScriptPart.getWhereClause().append((rightPartNull ? "" : "not ")
           + "exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
           + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ " + (rightPartNull ? " is not null" : "= ?")  + ") ");
-      
+
       grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", leftPart.getName()));
-      grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", rightPartNull ? Void.TYPE : rightPartValue));
-      
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", rightPartNull ? Void.TYPE : rightPartValue, rightPartDisplay));
+
       grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
         .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowWithoutAttributeValue2")).append(" '")
-        .append(GrouperUtil.xmlEscape(rightPartNull ? "null" : rightPartValue)).append("'");
+        .append(GrouperUtil.xmlEscape(rightPartDisplay)).append("'");
 
     } else if ((jexlNode instanceof ASTEQNode) && 2==jexlNode.jjtGetNumChildren() && jexlNode.jjtGetChild(1) instanceof ASTNullLiteral) {
       if (!(jexlNode.jjtGetChild(0) instanceof ASTIdentifier)) {
@@ -2370,6 +2600,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       return GrouperUtil.stringValue(negate((ASTNumberLiteral) node.jjtGetChild(0)));
     } else if (isGlobalAttributeValueNode(node)) {
       return GrouperUtil.stringValue(resolveGlobalAttributeValueNode(grouperJexlScriptAnalysis, node));
+    } else if (isTimeFromNowNode(node)) {
+      return GrouperUtil.stringValue(resolveTimeFromNowNode(node));
     } else if (node instanceof ASTIdentifier) {
       return ((ASTIdentifier) node).getName();
     }
@@ -2377,11 +2609,27 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   }
 
   /**
+   * Display-friendly rendering for a literal value node — used by hasAttributeBetween's
+   * description. Same set of node types as {@link #extractLiteralValue}, but for timeFromNow
+   * returns the natural-language phrase ("30 days ago", "in 5 minutes", "now") instead of
+   * the resolved millis integer. All other node types stringify the same way as extractLiteralValue.
+   */
+  private static String extractLiteralValueDisplay(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, JexlNode node) {
+    if (isTimeFromNowNode(node)) {
+      return describeTimeFromNowNode(node);
+    }
+    return extractLiteralValue(grouperJexlScriptAnalysis, node);
+  }
+
+  /**
    * Parse a hasAttributeBetween comparison argument.
    * Supports patterns like: 'value' < field, 'value' <= field, field < 'value', field <= 'value',
    * field > 'value', field >= 'value', 'value' > field, 'value' >= field.
-   * @return MultiKey with (fieldAlias, literalValue, sqlOperator) where sqlOperator is the operator
-   *   relative to the field (e.g., ">=" for inclusive lower bound, "<" for exclusive upper bound)
+   * @return MultiKey with (fieldAlias, literalValue, sqlOperator, displayValue). sqlOperator is
+   *   the operator relative to the field (e.g., ">=" for inclusive lower bound, "<" for exclusive
+   *   upper bound). displayValue is a description-friendly rendering of the literal — same as
+   *   literalValue for most nodes, but a natural-language phrase for timeFromNow (e.g. "in 30 days")
+   *   so the analysis-screen row doesn't show raw millis.
    */
   private static MultiKey parseBetweenComparisonArg(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, JexlNode node) {
     if (!(node instanceof ASTLTNode) && !(node instanceof ASTLENode)
@@ -2405,12 +2653,14 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
     String fieldAlias;
     String literalValue;
+    String displayValue;
     String sqlOperator;
 
     if (leftIsField) {
       // field op literal: e.g., affiliationOrg <= 'math'
       fieldAlias = ((ASTIdentifier) left).getName();
       literalValue = extractLiteralValue(grouperJexlScriptAnalysis, right);
+      displayValue = extractLiteralValueDisplay(grouperJexlScriptAnalysis, right);
       if (node instanceof ASTLTNode) {
         sqlOperator = "<";
       } else if (node instanceof ASTLENode) {
@@ -2424,6 +2674,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       // literal op field: e.g., 'engl' < affiliationOrg  =>  affiliationOrg > 'engl'
       fieldAlias = ((ASTIdentifier) right).getName();
       literalValue = extractLiteralValue(grouperJexlScriptAnalysis, left);
+      displayValue = extractLiteralValueDisplay(grouperJexlScriptAnalysis, left);
       // flip the operator since we're reversing the sides
       if (node instanceof ASTLTNode) {
         sqlOperator = ">";
@@ -2436,7 +2687,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       }
     }
 
-    return new MultiKey(fieldAlias, literalValue, sqlOperator);
+    return new MultiKey(fieldAlias, literalValue, sqlOperator, displayValue);
   }
 
   private static Number negate(ASTNumberLiteral jjtGetChild) {
@@ -3358,7 +3609,13 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           if (argValue == Void.TYPE) {
             attributeNullCheck = true;
           } else {
-            attributeValues.add(String.valueOf(argValue));
+            // Optional 3rd key carries a display form (e.g. "30 days ago" or "in 5 minutes")
+            // that should be shown in the visualization box instead of the raw resolved value
+            // (which would otherwise be a naked millis integer for timeFromNow).
+            String displayValue = arg.size() > 2 && arg.getKey(2) instanceof String
+                ? (String) arg.getKey(2)
+                : String.valueOf(argValue);
+            attributeValues.add(displayValue);
           }
         } else if ("bindVar".equals(argType) || "attributeCompareLeft".equals(argType)
             || "attributeCompareRight".equals(argType)) {
