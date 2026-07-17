@@ -98,7 +98,19 @@ public enum GrouperDataFieldType {
     @Override
     public Object convertValueHelper(Object value) {
       Timestamp theTimestamp = GrouperUtil.timestampObjectValue(value, true);
-      return theTimestamp;
+      if (theTimestamp == null) {
+        return null;
+      }
+      // Truncate sub-millisecond precision. TIMESTAMPTZ / TIMESTAMP columns with microsecond
+      // resolution (Postgres, Oracle, MySQL DATETIME(6)) come back through JDBC as Timestamp
+      // objects whose nanos component carries the extra precision. We only persist millis in
+      // value_integer (assignValueHelper below calls getTime() → millis), so the round-trip
+      // reads back as new Timestamp(millis) — with nanos truncated to (millis % 1000) *
+      // 1_000_000. If we returned the full-precision Timestamp here, sync's set-difference
+      // check (Set.removeAll → Timestamp.equals, which compares nanos) would see "value
+      // changed" every run and churn delete/insert for the same underlying data. Normalizing
+      // to millis-precision here keeps both sides of the diff comparable.
+      return new Timestamp(theTimestamp.getTime());
     }
     @Override
     public void assignValueHelper(GrouperDataFieldAssign grouperDataFieldAssign,
