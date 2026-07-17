@@ -28,10 +28,16 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataField;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssign;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldType;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssign;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssign;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignDao;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependency;
@@ -54,7 +60,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testJexlSubjectSourceId"));
+    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testJexlTimeFromNowSync"));
   }
 
   /**
@@ -293,9 +299,9 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
 
     // assign the global variable values to the abacGlobal group: jobNumber=456 (integer), org="234"
     // (string), employee=true (boolean)
-    assignGlobalValue(GrouperDataFieldType.integer, jobNumberField.getInternalId(), 456L, abacGlobalMemberInternalId, dataProviderInternalId);
-    assignGlobalValue(GrouperDataFieldType.string, orgField.getInternalId(), "234", abacGlobalMemberInternalId, dataProviderInternalId);
-    assignGlobalValue(GrouperDataFieldType.bool, employeeField.getInternalId(), Boolean.TRUE, abacGlobalMemberInternalId, dataProviderInternalId);
+    assignFieldValue(GrouperDataFieldType.integer, jobNumberField.getInternalId(), 456L, abacGlobalMemberInternalId, dataProviderInternalId);
+    assignFieldValue(GrouperDataFieldType.string, orgField.getInternalId(), "234", abacGlobalMemberInternalId, dataProviderInternalId);
+    assignFieldValue(GrouperDataFieldType.bool, employeeField.getInternalId(), Boolean.TRUE, abacGlobalMemberInternalId, dataProviderInternalId);
 
     // make sure the global value cache picks up the new assignments
     GrouperAbac.clearCaches();
@@ -368,22 +374,27 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
   }
 
   /**
-   * assign a global variable value (a data field value on the abacGlobal group member), referenced by abac
-   * scripts via globalAttributeValue('alias').
+   * Assign a data field value to a member — equivalent to what the data provider daemon inserts
+   * into grouper_data_field_assign, but done directly so a test can seed known values without
+   * running the daemon.
+   *
+   * The same helper works for the abacGlobal group's member (feeding globalAttributeValue('alias')
+   * scripts) and for regular subject members (feeding hasAttribute-style scripts) — nothing in
+   * the DAO write path is special-cased for the global group.
    * @param fieldType the data field type, drives whether the value lands in value_integer or a dictionary
-   * @param dataFieldInternalId the global data field
+   * @param dataFieldInternalId the data field
    * @param value the value to assign
-   * @param memberInternalId the abacGlobal group's member internal id
+   * @param memberInternalId the member internal id (abacGlobal for globals, regular subjects for per-subject values)
    * @param dataProviderInternalId the data provider internal id
    */
-  private static void assignGlobalValue(GrouperDataFieldType fieldType, long dataFieldInternalId, Object value,
+  private static void assignFieldValue(GrouperDataFieldType fieldType, long dataFieldInternalId, Object value,
       long memberInternalId, long dataProviderInternalId) {
-    GrouperDataFieldAssign globalAssign = new GrouperDataFieldAssign();
-    globalAssign.setDataFieldInternalId(dataFieldInternalId);
-    globalAssign.setMemberInternalId(memberInternalId);
-    globalAssign.setDataProviderInternalId(dataProviderInternalId);
-    fieldType.assignValue(globalAssign, value, null);
-    GrouperDataFieldAssignDao.store(globalAssign);
+    GrouperDataFieldAssign fieldAssign = new GrouperDataFieldAssign();
+    fieldAssign.setDataFieldInternalId(dataFieldInternalId);
+    fieldAssign.setMemberInternalId(memberInternalId);
+    fieldAssign.setDataProviderInternalId(dataProviderInternalId);
+    fieldType.assignValue(fieldAssign, value, null);
+    GrouperDataFieldAssignDao.store(fieldAssign);
   }
 
   /**
@@ -2494,6 +2505,371 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
       assertTrue("error should mention non-blank / blank source id (was: '" + re.getMessage() + "')",
           msg.contains("non-blank") || msg.contains("blank"));
     }
+  }
+
+  /**
+   * Exercises timeFromNow(n, 'unit') across every unit and inside every value-accepting
+   * operator: hasAttributeLessThan / GreaterThan / Between (outer), hasAttribute equality
+   * (outer), and a hasRow inner-predicate column comparison. Verifies the analyzer:
+   *  - resolves each unit to a millis value in the expected range from now
+   *  - accepts negative and positive offsets
+   *  - does not error out on any of the shapes
+   *  - binds the resolved Long as an attributeValue arg
+   *
+   * The integer field 'jobNumber' stands in for a timestamp column here — the analyzer only
+   * cares that the field is integer/timestamp shape (value_integer column), not what the
+   * number semantically represents. No sync is run; the point is to verify the analysis-time
+   * plumbing for the new helper.
+   */
+  public void testJexlTimeFromNow() {
+    GrouperAbacTestHelper.setupDataFields();
+    GrouperAbac.clearCaches();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Subject testSubject = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    // Unit sweep: one script per unit, each in the simplest possible shape. Assert the analysis
+    // succeeds and the bind var is a millis value matching what unit + offset predicts. Expected
+    // values are absolute millis computed from a reference "now" captured just before the loop;
+    // the tolerance covers the small delta between that reference "now" and the moment the
+    // analyzer captured its own "now". Month/year cases MUST use java.util.Calendar to compute
+    // expected — naive "N * 30 days" or "N * 365 days" arithmetic drifts by several days
+    // depending on the starting month and leap years, and produces flaky failures.
+    long tolerance = 60_000L; // 1 min slack for the "now" moment shifting between call and impl
+    long nowApprox = System.currentTimeMillis();
+    Object[][] cases = new Object[][] {
+        // {jexlOffsetExpr, expectedResolvedMillis}
+        {"timeFromNow('-5 minutes')",  nowApprox + (-5L * 60L * 1000L)},
+        {"timeFromNow('-5 hours')",    nowApprox + (-5L * 60L * 60L * 1000L)},
+        {"timeFromNow('5 days')",      nowApprox + (5L * 24L * 60L * 60L * 1000L)},
+        {"timeFromNow('5 weeks')",     nowApprox + (5L * 7L * 24L * 60L * 60L * 1000L)},
+        {"timeFromNow('5 months')",    expectedCalendarMillis(nowApprox, java.util.Calendar.MONTH, 5)},
+        {"timeFromNow('5 years')",     expectedCalendarMillis(nowApprox, java.util.Calendar.YEAR, 5)},
+    };
+    for (Object[] c : cases) {
+      String offsetExpr = (String) c[0];
+      long expectedMillis = ((Long) c[1]).longValue();
+      String script = "entity.hasAttributeLessThan('jobNumber', " + offsetExpr + ")";
+      GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+          grouperDataEngine, script, testSubject, grouperSession.getSubject(), true, null, false);
+      assertNull("no error expected for " + offsetExpr + ": " + analysis.getErrorMessage(), analysis.getErrorMessage());
+
+      Long resolved = null;
+      for (MultiKey arg : analysis.getGrouperJexlScriptParts().get(0).getArguments()) {
+        if ("attributeValue".equals(arg.getKey(0)) && arg.getKey(1) instanceof Long) {
+          resolved = (Long) arg.getKey(1);
+          break;
+        }
+      }
+      assertNotNull("expected a resolved Long timestamp bind var for " + offsetExpr, resolved);
+      long actualDiff = Math.abs(resolved.longValue() - expectedMillis);
+      assertTrue(offsetExpr + " resolved value " + resolved
+              + " should be within " + tolerance + "ms of expected " + expectedMillis
+              + " (actual diff: " + actualDiff + "ms)",
+          actualDiff < tolerance);
+    }
+
+    // timeFromNow('now') resolves to current millis
+    GrouperJexlScriptAnalysis analysisNow = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, "entity.hasAttributeLessThan('jobNumber', timeFromNow('now'))",
+        testSubject, grouperSession.getSubject(), true, null, false);
+    assertNull(analysisNow.getErrorMessage());
+    Long resolvedNow = null;
+    for (MultiKey arg : analysisNow.getGrouperJexlScriptParts().get(0).getArguments()) {
+      if ("attributeValue".equals(arg.getKey(0)) && arg.getKey(1) instanceof Long) {
+        resolvedNow = (Long) arg.getKey(1);
+        break;
+      }
+    }
+    assertNotNull("timeFromNow('now') should resolve to a Long millis value", resolvedNow);
+    assertTrue("timeFromNow('now') should be within a minute of System.currentTimeMillis(); got delta "
+        + (resolvedNow.longValue() - nowApprox),
+        Math.abs(resolvedNow.longValue() - nowApprox) < tolerance);
+
+    // Compound shape: hasAttributeBetween with timeFromNow on both bounds — exercises the
+    // parseBetweenComparisonArg -> extractLiteralValue path through the new helper.
+    GrouperJexlScriptAnalysis analysisBetween = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine,
+        "entity.hasAttributeBetween(timeFromNow('now') <= jobNumber, jobNumber <= timeFromNow('30 days'))",
+        testSubject, grouperSession.getSubject(), true, null, false);
+    assertNull("hasAttributeBetween with timeFromNow bounds should analyze cleanly: "
+        + analysisBetween.getErrorMessage(), analysisBetween.getErrorMessage());
+
+    // Row-inner shape: timeFromNow inside a hasRow predicate's column comparison exercises the
+    // analyzeJexlRowToSqlHelper AST-EQ/LT/etc branch.
+    GrouperJexlScriptAnalysis analysisRow = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine,
+        "entity.hasRow('affiliation', \"affiliationDeptNumber < timeFromNow('now') "
+            + "&& affiliationDeptNumber > timeFromNow('-30 days')\")",
+        testSubject, grouperSession.getSubject(), true, null, false);
+    assertNull("timeFromNow inside hasRow inner predicate should analyze cleanly: "
+        + analysisRow.getErrorMessage(), analysisRow.getErrorMessage());
+
+    // Friendly display: the visualization ATTRIBUTE ref's attributeValues list carries the
+    // natural-language phrase for the timeFromNow bound, not the raw millis
+    GrouperJexlScriptAnalysis analysisDisplay = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(
+        grouperDataEngine, "entity.hasAttributeLessThan('jobNumber', timeFromNow('-30 days'))",
+        testSubject, grouperSession.getSubject(), true, null, true);
+    List<AbacReference> refs = analysisDisplay.getVisualizationReferences();
+    assertEquals(1, refs.size());
+    AbacReference ref = refs.get(0);
+    assertEquals("30 days ago", ref.getAttributeValues().get(0));
+
+    // Unknown unit — should surface a clear error
+    try {
+      GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine,
+          "entity.hasAttributeLessThan('jobNumber', timeFromNow('5 fortnights'))",
+          testSubject, grouperSession.getSubject(), true, null, false);
+      fail("unknown unit should throw");
+    } catch (RuntimeException re) {
+      String msg = re.getMessage() == null ? "" : re.getMessage().toLowerCase();
+      assertTrue("error should mention the unit / format (was: '" + re.getMessage() + "')",
+          msg.contains("unit") || msg.contains("fortnights") || msg.contains("must be"));
+    }
+
+    // Wrong argument shape (positional int + string) — should now throw
+    try {
+      GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine,
+          "entity.hasAttributeLessThan('jobNumber', timeFromNow(5, 'days'))",
+          testSubject, grouperSession.getSubject(), true, null, false);
+      fail("two-arg timeFromNow(N, 'unit') form is no longer accepted");
+    } catch (RuntimeException re) {
+      String msg = re.getMessage() == null ? "" : re.getMessage().toLowerCase();
+      assertTrue("error should mention single string argument (was: '" + re.getMessage() + "')",
+          msg.contains("single") || msg.contains("string"));
+    }
+  }
+
+  /**
+   * Compute expected millis by mirroring the impl's Calendar-based arithmetic. Necessary for the
+   * month/year cases in testJexlTimeFromNow because "N months" is not a fixed number of days —
+   * it depends on the starting month (Aug=31, Sep=30, ...), and "N years" is affected by leap
+   * years. A naive N*30-days / N*365-days expectation drifts multiple days and causes flakes.
+   */
+  private static long expectedCalendarMillis(long baseMillis, int calendarField, int amount) {
+    java.util.Calendar cal = java.util.Calendar.getInstance();
+    cal.setTimeInMillis(baseMillis);
+    cal.add(calendarField, amount);
+    return cal.getTimeInMillis();
+  }
+
+  /**
+   * End-to-end sync test for timeFromNow covering BOTH:
+   *   - hasAttribute-family predicates (Greater / Less / Between) against a real timestamp-typed
+   *     data field, and
+   *   - hasRow inner-predicate column comparisons against a real timestamp-typed row.
+   *
+   * Registers all fields / row config inline (nothing added to the shared setupDataFields), then
+   * seeds known millis-shape values via GrouperDataFieldType.timestamp so the timestamp
+   * assignValueHelper actually runs (both the GrouperDataFieldAssign and GrouperDataRowFieldAssign
+   * overloads). One provider daemon skip, one data engine reload, one ABAC full-sync run — the
+   * hasRow and hasAttribute worlds share the same four subjects and the same "now", so their
+   * fixtures line up and failures narrow to whichever operator regressed.
+   */
+  public void testJexlTimeFromNowSync() {
+    GrouperAbacTestHelper.setupDataFields();
+    GrouperAbac.clearCaches();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    Subject subject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Subject subject2 = SubjectFinder.findByIdAndSource("test.subject.2", "jdbc", true);
+    Subject subject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Member member0 = MemberFinder.findBySubject(grouperSession, subject0, true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, subject1, true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, subject2, true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, subject3, true);
+
+    // ---- config: one attribute-typed timestamp field, plus a row with two rowColumn timestamps.
+
+    String attrFieldConfigId  = "testJexlTfnLastLogin";
+    String attrAlias          = "tfnLastLoginAt";
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField." + attrFieldConfigId + ".fieldAliases").value(attrAlias).store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField." + attrFieldConfigId + ".fieldDataType").value("timestamp").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField." + attrFieldConfigId + ".fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField." + attrFieldConfigId + ".descriptionHtml").value("<b>test timestamp field</b>").store();
+
+    String startFieldConfigId = "testJexlTfnRowStart";
+    String endFieldConfigId   = "testJexlTfnRowEnd";
+    String rowConfigId        = "testJexlTfnRowEnrollment";
+    String startAlias         = "tfnEnrollmentStart";
+    String endAlias           = "tfnEnrollmentEnd";
+    String rowAlias           = "tfnEnrollment";
+    registerTimestampRowColumn(startFieldConfigId, startAlias);
+    registerTimestampRowColumn(endFieldConfigId, endAlias);
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow." + rowConfigId + ".rowPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow." + rowConfigId + ".rowAliases").value(rowAlias).store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow." + rowConfigId + ".rowNumberOfDataFields").value("2").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow." + rowConfigId + ".rowDataField.0.colDataFieldConfigId").value(startFieldConfigId).store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow." + rowConfigId + ".rowDataField.0.rowKeyField").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow." + rowConfigId + ".rowDataField.1.colDataFieldConfigId").value(endFieldConfigId).store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow." + rowConfigId + ".descriptionHtml").value("<b>test enrollment row</b>").store();
+
+    // The daemon normally creates the GrouperDataField / GrouperDataRow DB rows from config;
+    // we skip the daemon and create them directly so the analyzer sees the new field / row.
+    GrouperDataFieldDao.insertMissingConfigIds(GrouperUtil.toSet(attrFieldConfigId, startFieldConfigId, endFieldConfigId));
+    GrouperDataRowDao.insertMissingConfigIds(GrouperUtil.toSet(rowConfigId));
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+    long attrFieldId = grouperDataEngine.getGrouperDataProviderIndex()
+        .getFieldWrapperByLowerAlias().get(attrAlias.toLowerCase()).getGrouperDataField().getInternalId();
+    long rowId = grouperDataEngine.getGrouperDataProviderIndex()
+        .getRowWrapperByLowerAlias().get(rowAlias.toLowerCase()).getGrouperDataRow().getInternalId();
+    long startFieldId = grouperDataEngine.getGrouperDataProviderIndex()
+        .getFieldWrapperByLowerAlias().get(startAlias.toLowerCase()).getGrouperDataField().getInternalId();
+    long endFieldId = grouperDataEngine.getGrouperDataProviderIndex()
+        .getFieldWrapperByLowerAlias().get(endAlias.toLowerCase()).getGrouperDataField().getInternalId();
+    long providerId = GrouperDataProviderDao.selectByText("idm").getInternalId();
+
+    // ---- fixture times.
+
+    long now = System.currentTimeMillis();
+    long tenDaysAgo         = now - 10L * 24L * 60L * 60L * 1000L;
+    long fiveHoursAgo       = now -  5L * 60L * 60L * 1000L;
+    long oneDayFromNow      = now +  1L * 24L * 60L * 60L * 1000L;
+    long hundredDaysAgo     = now - 100L * 24L * 60L * 60L * 1000L;
+    long hundredDaysFromNow = now + 100L * 24L * 60L * 60L * 1000L;
+
+    // ---- attribute values (all four subjects have one value each).
+
+    assignFieldValue(GrouperDataFieldType.timestamp, attrFieldId, tenDaysAgo,         member0.getInternalId(), providerId);
+    assignFieldValue(GrouperDataFieldType.timestamp, attrFieldId, fiveHoursAgo,       member1.getInternalId(), providerId);
+    assignFieldValue(GrouperDataFieldType.timestamp, attrFieldId, oneDayFromNow,      member2.getInternalId(), providerId);
+    assignFieldValue(GrouperDataFieldType.timestamp, attrFieldId, hundredDaysFromNow, member3.getInternalId(), providerId);
+
+    // ---- row values (subjects 0-2 have one enrollment row each; subject 3 has none).
+    // subject 0: currently valid   (start 10 days ago, end 100 days from now)
+    // subject 1: already expired   (start 100 days ago, end 5 hours ago)
+    // subject 2: not yet started   (start 1 day from now, end 100 days from now)
+    // subject 3: no row at all     (expect exclusion regardless of window)
+    assignTimestampRow(rowId, member0.getInternalId(), providerId,
+        startFieldId, tenDaysAgo, endFieldId, hundredDaysFromNow);
+    assignTimestampRow(rowId, member1.getInternalId(), providerId,
+        startFieldId, hundredDaysAgo, endFieldId, fiveHoursAgo);
+    assignTimestampRow(rowId, member2.getInternalId(), providerId,
+        startFieldId, oneDayFromNow, endFieldId, hundredDaysFromNow);
+
+    // ---- scripted groups: 6 attribute-family + 1 hasRow. Suffixes encode the expected match.
+
+    Group groupPastMonth = createScriptedGroup(grouperSession, "test:tfnPastMonth",
+        "entity.hasAttributeGreaterThan('" + attrAlias + "', timeFromNow('-30 days'))");
+    Group groupPastDay = createScriptedGroup(grouperSession, "test:tfnPastDay",
+        "entity.hasAttributeGreaterThan('" + attrAlias + "', timeFromNow('-1 days'))");
+    Group groupBeforeNow = createScriptedGroup(grouperSession, "test:tfnBeforeNow",
+        "entity.hasAttributeLessThan('" + attrAlias + "', timeFromNow('now'))");
+    Group groupAfterNow = createScriptedGroup(grouperSession, "test:tfnAfterNow",
+        "entity.hasAttributeGreaterThan('" + attrAlias + "', timeFromNow('now'))");
+    Group groupNextWeek = createScriptedGroup(grouperSession, "test:tfnNextWeek",
+        "entity.hasAttributeBetween(timeFromNow('now') <= " + attrAlias + ", " + attrAlias + " <= timeFromNow('7 days'))");
+    Group groupLastWeek = createScriptedGroup(grouperSession, "test:tfnLastWeek",
+        "entity.hasAttributeBetween(timeFromNow('-7 days') <= " + attrAlias + ", " + attrAlias + " <= timeFromNow('now'))");
+    Group groupCurrentlyValid = createScriptedGroup(grouperSession, "test:tfnCurrentlyValid",
+        "entity.hasRow('" + rowAlias + "', "
+            + "\"" + startAlias + " <= timeFromNow('now') "
+            + "&& " + endAlias + " >= timeFromNow('now')\")");
+
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    // ---- attribute-family assertions.
+
+    // > 30 days ago: all four subjects (even 10 days ago is more recent than 30 days ago)
+    Set<Member> pastMonth = groupPastMonth.getMembers();
+    assertEquals("hasAttributeGreaterThan('-30 days') should match all 4 subjects", 4, pastMonth.size());
+    assertTrue(pastMonth.contains(member0));
+    assertTrue(pastMonth.contains(member1));
+    assertTrue(pastMonth.contains(member2));
+    assertTrue(pastMonth.contains(member3));
+
+    // > 1 day ago: subject 0 (10 days ago) excluded; others included
+    Set<Member> pastDay = groupPastDay.getMembers();
+    assertEquals("hasAttributeGreaterThan('-1 days') should exclude 10-days-ago subject",
+        3, pastDay.size());
+    assertFalse("subject with 10-days-ago should NOT match > 1-day-ago", pastDay.contains(member0));
+    assertTrue(pastDay.contains(member1));
+    assertTrue(pastDay.contains(member2));
+    assertTrue(pastDay.contains(member3));
+
+    // < now: subjects in the past
+    Set<Member> beforeNow = groupBeforeNow.getMembers();
+    assertEquals("hasAttributeLessThan('now') should match past subjects only", 2, beforeNow.size());
+    assertTrue(beforeNow.contains(member0));
+    assertTrue(beforeNow.contains(member1));
+
+    // > now: subjects in the future
+    Set<Member> afterNow = groupAfterNow.getMembers();
+    assertEquals("hasAttributeGreaterThan('now') should match future subjects only", 2, afterNow.size());
+    assertTrue(afterNow.contains(member2));
+    assertTrue(afterNow.contains(member3));
+
+    // between now and +7 days: subject 2 (1 day from now); subject 3 (100 days) is outside window
+    Set<Member> nextWeek = groupNextWeek.getMembers();
+    assertEquals("hasAttributeBetween(now..+7 days) should match only the 1-day-from-now subject",
+        1, nextWeek.size());
+    assertTrue(nextWeek.contains(member2));
+
+    // between -7 days and now: subject 1 (5 hours ago); subject 0 (10 days ago) is outside window
+    Set<Member> lastWeek = groupLastWeek.getMembers();
+    assertEquals("hasAttributeBetween(-7 days..now) should match only the 5-hours-ago subject",
+        1, lastWeek.size());
+    assertTrue(lastWeek.contains(member1));
+
+    // ---- hasRow assertion.
+
+    Set<Member> currentlyValid = groupCurrentlyValid.getMembers();
+    assertEquals("hasRow with timeFromNow('now') bounds should match only the currently-valid subject",
+        1, currentlyValid.size());
+    assertTrue("expected the subject with (10 days ago .. 100 days from now)",
+        currentlyValid.contains(member0));
+    assertFalse(currentlyValid.contains(member1));
+    assertFalse(currentlyValid.contains(member2));
+    assertFalse(currentlyValid.contains(member3));
+  }
+
+  /**
+   * Register a single timestamp-typed field with fieldDataStructure=rowColumn — i.e., a column
+   * on a data row rather than a standalone attribute. Values go through the same timestamp
+   * assignValueHelper as attribute-typed timestamp fields.
+   */
+  private static void registerTimestampRowColumn(String fieldConfigId, String alias) {
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField." + fieldConfigId + ".fieldAliases").value(alias).store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField." + fieldConfigId + ".fieldDataStructure").value("rowColumn").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField." + fieldConfigId + ".fieldDataType").value("timestamp").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField." + fieldConfigId + ".fieldPrivacyRealm").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField." + fieldConfigId + ".descriptionHtml").value("<b>test rowColumn timestamp</b>").store();
+  }
+
+  /**
+   * Insert one row assign + two timestamp row-field assigns via the same DAO layer the data
+   * provider daemon uses. Values are set via GrouperDataFieldType.timestamp.assignValue so the
+   * timestamp code path runs (Long → value_integer, matching what a real TIMESTAMPTZ provider
+   * query would eventually produce).
+   */
+  private static void assignTimestampRow(long rowInternalId, long memberInternalId, long providerId,
+      long startFieldId, long startMillis, long endFieldId, long endMillis) {
+    GrouperDataRowAssign rowAssign = new GrouperDataRowAssign();
+    rowAssign.setDataRowInternalId(rowInternalId);
+    rowAssign.setMemberInternalId(memberInternalId);
+    rowAssign.setDataProviderInternalId(providerId);
+    GrouperDataRowAssignDao.store(rowAssign);
+
+    GrouperDataRowFieldAssign startField = new GrouperDataRowFieldAssign();
+    startField.setDataRowAssignInternalId(rowAssign.getInternalId());
+    startField.setDataFieldInternalId(startFieldId);
+    GrouperDataFieldType.timestamp.assignValue(startField, startMillis, null);
+
+    GrouperDataRowFieldAssign endField = new GrouperDataRowFieldAssign();
+    endField.setDataRowAssignInternalId(rowAssign.getInternalId());
+    endField.setDataFieldInternalId(endFieldId);
+    GrouperDataFieldType.timestamp.assignValue(endField, endMillis, null);
+
+    GrouperDataRowFieldAssignDao.store(startField);
+    GrouperDataRowFieldAssignDao.store(endField);
   }
 
 
