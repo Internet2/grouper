@@ -1398,11 +1398,21 @@ public class GrouperUiFilter implements Filter {
       HttpSession session = httpServletRequest.getSession();
       
       boolean runGrouperUiWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui.basicAuthn", false);
-      
+
+      // form based login is a DEVELOPMENT convenience (e.g. so an automated/headless
+      // browser can log in without a native BASIC popup). It is gated by config AND is
+      // never allowed in a production environment. Credentials are checked by the same
+      // Authentication path as basic auth (grouperPasswordConfigOverride / grouper_password).
+      boolean runGrouperUiWithFormAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui.formAuthn", false);
+      if (runGrouperUiWithFormAuth && GrouperUiFormLogin.isProductionEnvironment()) {
+        LOG.error("grouper.is.ui.formAuthn is true but grouper.env.name indicates a production environment; form login is disabled");
+        runGrouperUiWithFormAuth = false;
+      }
+
       if (runGrouperUiWithBasicAuth) {
-        
+
         String authorizationHeader = httpServletRequest.getHeader("Authorization");
-        
+
         boolean isValid = new Authentication().authenticate(authorizationHeader, GrouperPassword.Application.UI, servletRequest.getRemoteAddr());
         if (isValid) {
           String userName = Authentication.retrieveUsername(authorizationHeader);
@@ -1410,6 +1420,24 @@ public class GrouperUiFilter implements Filter {
         } else {
           httpServletResponse.setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
           httpServletResponse.sendError(401, "Unauthorized");
+          return;
+        }
+        httpServletRequest.setAttribute("REMOTE_USER", session.getAttribute("REMOTE_USER"));
+      } else if (runGrouperUiWithFormAuth) {
+
+        // shows/processes the login form; returns false when it has already written
+        // the form html or a post-login redirect, in which case we stop here.
+        // This runs before initRequest(), so an exception here would be masked by
+        // appendErrorToRequest (which needs the not-yet-set thread local request);
+        // log it directly so the real cause is visible.
+        boolean formAuthenticated;
+        try {
+          formAuthenticated = GrouperUiFormLogin.handleFormLogin(httpServletRequest, httpServletResponse, session);
+        } catch (Exception formLoginProblem) {
+          LOG.error("Error in Grouper UI form login", formLoginProblem);
+          throw new RuntimeException("Error in Grouper UI form login", formLoginProblem);
+        }
+        if (!formAuthenticated) {
           return;
         }
         httpServletRequest.setAttribute("REMOTE_USER", session.getAttribute("REMOTE_USER"));
