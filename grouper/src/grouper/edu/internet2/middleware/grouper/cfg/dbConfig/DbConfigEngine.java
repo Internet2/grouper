@@ -128,16 +128,11 @@ public class DbConfigEngine {
         makeChange = false;
       }
       
-      boolean isAlreadyEncrypted = false;
-      if (StringUtils.isNotBlank(valueString)) {
-        try {
-          if (StringUtils.isNotBlank(Morph.decrypt(valueString))) {
-            isAlreadyEncrypted = true;
-          }
-        } catch (Exception e) {
-          // ignore
-        }
-      }
+      // only treat the value as already-encrypted if it is really our Base64
+      // ciphertext.  Morph.isEncrypted() requires strict Base64, so free-form
+      // text (e.g. a data-provider-query SQL statement) is not misdetected as
+      // ciphertext and silently stored encrypted/masked.
+      boolean isAlreadyEncrypted = Morph.isEncrypted(valueString);
       
       if (isPassword || isAlreadyEncrypted) {
         if (!isAlreadyEncrypted) {

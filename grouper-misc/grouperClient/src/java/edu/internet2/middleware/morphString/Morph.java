@@ -59,7 +59,7 @@ public class Morph {
   public static String decrypt(String in) {
     //make sure no extraneous spaces
     in = GrouperClientUtils.trim(in);
-    
+
     String result = null;
     //add something on end so it is more than just the key and rijndael
     try {
@@ -69,6 +69,48 @@ public class Morph {
       throw new RuntimeException("Problem decrypting string: " + re.getMessage(), re );
     }
     return result;
+  }
+
+  /**
+   * Determine whether a value looks like a value that Morph.encrypt() produced
+   * (i.e. it is already-encrypted ciphertext) as opposed to arbitrary plaintext.
+   *
+   * <p>This used to be tested by simply seeing whether Morph.decrypt() ran
+   * without throwing.  That is unreliable: Base64.decodeBase64() silently strips
+   * every character that is NOT in the Base64 alphabet, so free-form text (for
+   * example a SQL query full of spaces, commas and parentheses) can have its
+   * remaining letters/digits decode to a byte array whose length happens to be a
+   * valid AES block, "decrypt" to garbage, and thereby be misdetected as
+   * ciphertext.  That caused config values such as a data-provider-query SQL
+   * statement to be silently stored encrypted/masked (GRP false positive).</p>
+   *
+   * <p>A real encrypted value is the non-chunked Base64 output of
+   * Crypto.encrypt(), so it contains ONLY Base64 alphabet characters (with at
+   * most two trailing '=' padding characters) and its length is a multiple of 4.
+   * We require that strict shape before we are willing to trust that a
+   * successful decrypt means the value was really encrypted.</p>
+   *
+   * @param in candidate value (may be null)
+   * @return true only if in is strict Base64 and decrypts to a non-blank string
+   */
+  public static boolean isEncrypted(String in) {
+    in = GrouperClientUtils.trimToEmpty(in);
+    if (in.length() == 0) {
+      return false;
+    }
+    // real ciphertext is non-chunked Base64: only the Base64 alphabet plus
+    // optional trailing '=' padding, and a length that is a multiple of 4.
+    // Anything containing a space, comma, parenthesis, etc. (e.g. a SQL query)
+    // is plaintext and must not be treated as encrypted.
+    if ((in.length() % 4) != 0 || !in.matches("^[A-Za-z0-9+/]+={0,2}$")) {
+      return false;
+    }
+    try {
+      return !GrouperClientUtils.isBlank(decrypt(in));
+    } catch (RuntimeException re) {
+      // not decryptable, so it is not one of our encrypted values
+      return false;
+    }
   }
 
   /**
