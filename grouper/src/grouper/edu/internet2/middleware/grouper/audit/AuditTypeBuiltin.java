@@ -712,6 +712,26 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    * provisioner sync run for a provisioner for all configured groups and stems
    */
   PROVISIONER_SYNC_RUN(new AuditType("provisionerSync", "provisionerSync", null, "provisionerName")),
+
+  /**
+   * clear all provisioning cache and state for a provisioner
+   */
+  PROVISIONER_CONFIG_CLEAR_ALL_CACHE(new AuditType("provisionerConfig", "provisionerClearAllCache", null, "provisionerName")),
+
+  /**
+   * clear cache buckets (group and member attribute value caches) for a provisioner
+   */
+  PROVISIONER_CONFIG_CLEAR_CACHE_BUCKETS(new AuditType("provisionerConfig", "provisionerClearCacheBuckets", null, "provisionerName")),
+
+  /**
+   * delete a provisioner configuration
+   */
+  PROVISIONER_CONFIG_DELETE(new AuditType("provisionerConfig", "provisionerConfigDelete", null, "provisionerName")),
+
+  /**
+   * run diagnostics for a provisioner configuration
+   */
+  PROVISIONER_CONFIG_DIAGNOSTICS(new AuditType("provisionerConfig", "provisionerConfigDiagnostics", null, "provisionerName")),
   
   /**
    * gsh template execute
