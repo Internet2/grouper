@@ -708,14 +708,11 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
       return false;
     }
     
-    if (hasValue && !StringUtils.isBlank(value)) {
-      try {
-        if (StringUtils.isNotBlank(Morph.decrypt(value))) {
-          return true;
-        }
-      } catch (Exception e) {
-        // ignore
-      }
+    // if the value is already our encrypted ciphertext, treat it as a password.
+    // Note: this requires the value to be strict Base64 (see Morph.isEncrypted),
+    // so free-form text such as a SQL query is not misdetected as ciphertext.
+    if (hasValue && Morph.isEncrypted(value)) {
+      return true;
     }
     
     // if there is a value, and it is a file, then its not a password
