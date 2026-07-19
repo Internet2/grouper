@@ -3286,6 +3286,27 @@ public class GrouperDataProviderTest extends GrouperTest {
   }
 
   /**
+   * full sync with fullSyncSubjectIdRetrieval=list: retrieve source data by the exact subject ids in
+   * each batch (equality filters) instead of by subject id range (attr>=from)(attr<=to).  this is the
+   * LDAP-friendly mode for backends whose subject id attribute has no ordering index.  force a small
+   * batch size so several batches run, then assert the sync produces the same end state as the default
+   * range-based full sync -- internal_testLdapProvider does the field-assign assertions, so a green run
+   * proves list mode is functionally equivalent.  see GRP-7150.
+   */
+  public void testLdapProviderFullListMode() {
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.ldap.fullSyncSubjectIdRetrieval").value("list").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.ldap.fullSyncSubjectIdBatchSize").value("2").store();
+
+    GrouperDataProviderLogic.testingDebugMap = null;
+
+    internal_testLdapProvider(GrouperDataProviderSyncType.fullSyncFull);
+
+    assertNotNull("testingDebugMap should be set after LDAP full sync", GrouperDataProviderLogic.testingDebugMap);
+    assertTrue("should have fieldAssignInserts in debug map",
+        GrouperDataProviderLogic.testingDebugMap.containsKey("fieldAssignInserts"));
+  }
+
+  /**
    * test failsafe check #1: subject id count check.
    * load data for 4 subjects, then remove 2 from the source and re-sync with a low threshold.
    * the subject id count failsafe should trigger before any batches run.
