@@ -180,6 +180,14 @@ public class GrouperInterfolioApiCommands {
     RuntimeException lastException = null;
     for (int attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
+        // live progress: this is one big, slow, flaky download that can retry for minutes; report the
+        // attempt so an operator can tell a retrying job from a hung one.  Uses the existing
+        // thread-scoped current provisioner (same one incrementCommandsCallsStats uses); null off a run.
+        GrouperProvisioner currentProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisioner != null) {
+          currentProvisioner.assignProgressLabelTarget(
+              "retrieving all users from target (csv_report attempt " + attempt + " of " + maxAttempts + ")");
+        }
         responseBody = executeMethod("interfolioCsvReport", configId, "GET", bycUrl,
             requestString, null, GrouperUtil.toSet(200));
         lastException = null;

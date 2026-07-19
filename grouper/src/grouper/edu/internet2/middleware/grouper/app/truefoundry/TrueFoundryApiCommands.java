@@ -336,6 +336,13 @@ public class TrueFoundryApiCommands {
           }
         }
 
+        // live progress: pages users over many slow WS calls with no total available, so report
+        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForUsers != null) {
+          currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + subjectsData.users.size() + " so far");
+        }
+
         if (returnedCount < pageSize) {
           break;
         }
@@ -415,6 +422,13 @@ public class TrueFoundryApiCommands {
           // generic provisioner sync-back: register the user from the raw JSON while the userNode
           // is in scope. No-op outside a TrueFoundry provisioning cycle.
           TrueFoundryProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
+        }
+
+        // live progress: pages users over many slow WS calls with no total available, so report
+        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForUsersList = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForUsersList != null) {
+          currentProvisionerForUsersList.assignProgressLabelTarget("retrieving users from target: " + results.size() + " so far");
         }
 
         if (returnedCount < pageSize) {
@@ -1076,6 +1090,13 @@ public class TrueFoundryApiCommands {
           // the provisioned population. No-op outside a TrueFoundry provisioning cycle.
           TrueFoundryProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(
               normalizeTeamJsonForCapture(teamNode));
+        }
+
+        // live progress: pages groups over many slow WS calls with no total available, so report
+        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForTeams = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForTeams != null) {
+          currentProvisionerForTeams.assignProgressLabelTarget("retrieving groups from target: " + results.size() + " so far");
         }
 
         if (returnedCount < pageSize) {

@@ -594,6 +594,13 @@ public class GrouperDuoApiCommands {
           GrouperDuoProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
         }
 
+        // live progress: pages groups over many slow WS calls with no total available, so report
+        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForGroups = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForGroups != null) {
+          currentProvisionerForGroups.assignProgressLabelTarget("retrieving groups from target: " + results.size() + " so far");
+        }
+
         JsonNode metadata = jsonNode.get("metadata");
 
         if (metadata != null && metadata.get("next_offset") != null && groupsArray.size() >= limit) {
@@ -682,6 +689,13 @@ public class GrouperDuoApiCommands {
           // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
           // not the lossy typed bean) while the JSON node is in scope. No-op outside a Duo cycle.
           GrouperDuoProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
+        }
+
+        // live progress: pages memberships over many slow WS calls with no total available, so report
+        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForMembers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForMembers != null) {
+          currentProvisionerForMembers.assignProgressLabelTarget("retrieving memberships from target: " + results.size() + " so far");
         }
 
         JsonNode metadata = jsonNode.get("metadata");
@@ -908,6 +922,13 @@ public class GrouperDuoApiCommands {
           // generic provisioner sync-back: register the user from the raw JSON (full fidelity,
           // not the lossy typed bean) while the JSON node is in scope. No-op outside a Duo cycle.
           GrouperDuoProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
+        }
+
+        // live progress: pages users over many slow WS calls with no total available, so report
+        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForUsers != null) {
+          currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + results.size() + " so far");
         }
 
         JsonNode metadata = jsonNode.get("metadata");

@@ -5859,6 +5859,9 @@ public class GrouperProvisioningLogic {
       public void run() {
         
         try {
+          // live progress: this target read can take many minutes with no other signal; a DAO that
+          // pages can overwrite this with a finer "page X of Y" label as it goes
+          GrouperProvisioningLogic.this.getGrouperProvisioner().assignProgressLabelTarget("retrieving all data from target");
           TargetDaoRetrieveAllDataRequest targetDaoRetrieveAllDataRequest = new TargetDaoRetrieveAllDataRequest();
           // GRP-7048: when resolving users from the sync-back cache this run, tell the DAO to skip
           // its (large) user pull; the framework seeds the target users from the cache below. This is
@@ -5894,11 +5897,14 @@ public class GrouperProvisioningLogic {
           LOG.error(logMessage, re);
           GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningObjectLog().getObjectLog().append(new Timestamp(System.currentTimeMillis())).append(": ERROR: ").append(logMessage).append("\n\n");
           RUNTIME_EXCEPTION[0] = re;
+        } finally {
+          // done with the target read; clear the label so it does not linger while grouper data loads
+          GrouperProvisioningLogic.this.getGrouperProvisioner().assignProgressLabelTarget(null);
         }
-        
+
       }
     });
-    
+
     targetQueryThread.run();
     
     // adjusting so that we no longer run target and grouper queries together.
@@ -5912,8 +5918,10 @@ public class GrouperProvisioningLogic {
 
     // get all grouper data for the provisioner
     // and put in GrouperProvisioningDataSyncGrouper
+    this.grouperProvisioner.assignProgressLabelGrouper("retrieving all data from grouper");
     GrouperProvisioningLists grouperProvisioningLists = this.grouperProvisioner.retrieveGrouperDao().retrieveGrouperDataFull();
-    
+    this.grouperProvisioner.assignProgressLabelGrouper(null);
+
     GrouperDaemonUtils.stopProcessingIfJobPaused();
     
     // put wrappers on the grouper objects and put in the grouper uuid maps in data object

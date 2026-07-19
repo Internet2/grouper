@@ -561,7 +561,13 @@ public class GrouperOktaApiCommands {
           // /profile -- is in scope. No-op outside an Okta provisioning cycle.
           GrouperOktaProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
         }
-        
+
+        // live progress: Okta pages groups over many slow WS calls with no total available
+        GrouperProvisioner currentProvisionerForGroups = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForGroups != null) {
+          currentProvisionerForGroups.assignProgressLabelTarget("retrieving groups from target: " + results.size() + " so far (page " + numberOfCalls + ")");
+        }
+
         if (StringUtils.isNotBlank(previousPageUrl) && StringUtils.isNotBlank(nextPageUrl) && StringUtils.equals(previousPageUrl, nextPageUrl)) {
           break;
         }
@@ -639,7 +645,14 @@ public class GrouperOktaApiCommands {
           // and the nested /profile -- is in scope. No-op outside an Okta provisioning cycle.
           GrouperOktaProvisioningTargetNativeSync.captureUserJsonFromCurrentProvisioner(userNode);
         }
-        
+
+        // live progress: Okta pages users over many slow WS calls with no total available, so report
+        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForUsers != null) {
+          currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + results.size() + " so far (page " + numberOfCalls + ")");
+        }
+
         if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageUrl) && StringUtils.equals(previousPageToken, nextPageUrl)) {
           break;
         }
