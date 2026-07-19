@@ -31,9 +31,13 @@ test.log
 /grouperClientFailoverState.bin
 src/grouper/SampleGrouperMain.java
 src/grouper/Test*
+src/grouper/Covid*.java
 src/grouper/Some*.java
 src/grouper/*Test.java
-src/grouper/Covid*.java
 felix-cache
 /confLocal/
 /trace.zip
+/.apt_generated/
+/.apt_generated_tests/
+/misc/wiki/__pycache__/
+/.checkstyle

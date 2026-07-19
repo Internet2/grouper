@@ -15,3 +15,4 @@ conf/penn*
 conf/grouperText/grouper.text.en.us.properties
 webapp/grouperExternal/public/penn
 java/src/Test*
+/.checkstyle
