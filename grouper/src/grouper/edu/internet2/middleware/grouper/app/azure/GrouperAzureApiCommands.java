@@ -1634,7 +1634,59 @@ public class GrouperAzureApiCommands {
    * @param groupId
    * @return user ids
    */
+  /**
+   * Retrieve all member ids of an azure group, paging through the results.
+   *
+   * Graph's non-delta $skiptoken pagination cursor is tied to the enumeration and expires after
+   * only a few minutes (observed ~3 min), independent of the bearer token.  A large group can
+   * exceed that mid-walk, and Graph then returns 400 Directory_ExpiredPageToken.  The cursor
+   * cannot be resumed or renewed -- the only recovery is to throw the dead cursor away and start
+   * the enumeration over from page 1 (which yields a fresh cursor).  We restart a bounded number
+   * of times; a group that genuinely cannot be enumerated inside the cursor lifetime then fails
+   * with a clear message pointing at delta rather than looping forever.  GRP-7153
+   */
   public static Set<String> retrieveAzureGroupMembers(String configId, String groupId)  {
+
+    int maxRestarts = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGroupMembersExpiredTokenMaxRestarts", 3);
+
+    RuntimeException lastExpiredTokenException = null;
+
+    // attempt 0 is the initial walk; attempts 1..maxRestarts are expired-cursor restarts
+    for (int attempt = 0; attempt <= maxRestarts; attempt++) {
+      try {
+        return retrieveAzureGroupMembersOneWalk(configId, groupId);
+      } catch (RuntimeException re) {
+        if (!isExpiredAzurePageToken(re)) {
+          throw re;
+        }
+        // the page cursor expired mid-walk; discard it and restart the enumeration from page 1
+        lastExpiredTokenException = re;
+        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureExpiredPageTokenRestartCount", 1);
+        }
+      }
+    }
+
+    throw new RuntimeException("Azure group members walk for group '" + groupId + "' exceeded "
+        + maxRestarts + " expired-page-token restarts; the group is likely too large to enumerate "
+        + "within Graph's skiptoken lifetime -- switch this provisioner to /members/delta.",
+        lastExpiredTokenException);
+  }
+
+  /**
+   * @return true if the exception is a Graph 400 Directory_ExpiredPageToken (an expired member
+   *   pagination cursor).  Detected off the message, which carries the raw Graph error body.
+   */
+  private static boolean isExpiredAzurePageToken(RuntimeException re) {
+    String message = re == null ? null : re.getMessage();
+    return message != null && message.contains("Directory_ExpiredPageToken");
+  }
+
+  /**
+   * Walk a group's members once, from page 1 to the last page.  Throws on an expired page cursor;
+   * the public retrieveAzureGroupMembers wraps this with bounded restart-on-expiry.
+   */
+  private static Set<String> retrieveAzureGroupMembersOneWalk(String configId, String groupId)  {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -1669,7 +1721,7 @@ public class GrouperAzureApiCommands {
           GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
         }
         
-        return retrieveAzureGroupMembers(configId, groupId);
+        return retrieveAzureGroupMembersOneWalk(configId, groupId);
       }
       
       //lets get the group node

@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -976,10 +977,87 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 
   }
 
+  /**
+   * GRP-7153: when Graph returns 400 Directory_ExpiredPageToken while paging a group's members,
+   * the provisioner must discard the dead cursor, restart the enumeration from page 1, and still
+   * return the full membership -- instead of throwing an uncaught RuntimeException that aborts the
+   * whole full-sync job.  We force paging with a small page size, provision a group with more
+   * members than one page, then arm the mock to inject a one-shot expired-page-token 400 mid-walk.
+   */
+  public void testFullProvisionRecoversFromExpiredPageToken() {
+
+    GrouperStartup.startup();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    AzureProvisionerTestUtils.configureAzureProvisioner(
+        new AzureProvisionerTestConfigInput().assignGroupAttributeCount(3).assignEntityAttributeCount(2)
+        .assignRealAzure(false).assignUdelUseCase(true)
+        .assignDisplayNameMapping("extension").addExtraConfig("azureGroupType", "true").addExtraConfig("makeChangesToEntities", "true")
+        .addExtraConfig("welcomeEmailDisabled", "true")
+        );
+
+    String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
+
+    // tiny page size so a 3-member group pages (page 1 issues one skiptoken for page 2)
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("azureGetMembershipPagingSize").value("2").store();
+    ConfigPropertiesCascadeBase.clearCache();
+
+    try {
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:test0").save();
+
+      for (int i = 0; i < 3; i++) {
+        RegistrySubject.add(grouperSession, "Fred60" + i + "@" + domain, "person", "Fred60" + i + "@" + domain);
+        testGroup.addMember(SubjectFinder.findById("Fred60" + i + "@" + domain, true), false);
+      }
+
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("myAzureProvisioner");
+      attributeValue.setTargetName("myAzureProvisioner");
+      attributeValue.setStemScopeString("sub");
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+      // first full sync provisions the group and its 3 members into the mock target
+      fullProvision();
+
+      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups(
+          "myAzure", Arrays.asList(testGroup.getExtension()), "displayName", false, new HashSet<String>());
+      assertEquals(1, GrouperUtil.length(grouperAzureGroups));
+      String azureGroupId = grouperAzureGroups.get(0).getId();
+
+      // let the mock JVM pick up the small page size, then confirm the paged walk works with no injection
+      GrouperUtil.sleep(10000);
+      assertEquals(3, GrouperUtil.length(GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", azureGroupId)));
+
+      // arm the mock to expire the page cursor once, mid-walk
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("azureMockExpireGroupMembersPageToken").value("true").store();
+      ConfigPropertiesCascadeBase.clearCache();
+      GrouperUtil.sleep(10000);
+
+      // the walk now hits 400 Directory_ExpiredPageToken on page 2, discards the cursor, restarts
+      // from page 1, and still returns all 3 members rather than throwing
+      Set<String> userIds = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", azureGroupId);
+      assertEquals(3, GrouperUtil.length(userIds));
+
+      // and a full sync over the same group completes instead of aborting
+      fullProvision();
+      assertNotNull(GrouperProvisioner.retrieveInternalLastProvisioner().retrieveGrouperProvisioningOutput());
+
+    } finally {
+      // disarm so other tests in the suite are unaffected
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("azureMockExpireGroupMembersPageToken").value("false").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("azureGetMembershipPagingSize").value("999").store();
+      ConfigPropertiesCascadeBase.clearCache();
+    }
+  }
+
   public void udelHelper(boolean isFull) {
 
     GrouperStartup.startup();
-    
+
     GrouperSession grouperSession = GrouperSession.startRootSession();
     String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
     
