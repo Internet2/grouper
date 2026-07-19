@@ -798,6 +798,13 @@ public class GrouperBoxApiCommands {
           }
         }
 
+        // live progress: Box pages groups by offset over many slow WS calls, so report count-so-far.
+        // Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForGroups = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForGroups != null) {
+          currentProvisionerForGroups.assignProgressLabelTarget("retrieving groups from target: " + results.size() + " so far");
+        }
+
         long totalGroups = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count", 0L);
 //        long offset = GrouperUtil.jsonJacksonGetLong(jsonNode, "offset");
         long newOffset = results.size();
@@ -936,6 +943,13 @@ public class GrouperBoxApiCommands {
           }
         }
 
+        // live progress: Box pages users by offset over many slow WS calls, so report count-so-far.
+        // Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForUsers != null) {
+          currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + results.size() + " so far");
+        }
+
         long totalUsers = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count", 0L);
 //        long offset = GrouperUtil.jsonJacksonGetLong(jsonNode, "offset");
         long newOffset = results.size();
@@ -1056,6 +1070,13 @@ public class GrouperBoxApiCommands {
           JsonNode userNode  = GrouperUtil.jsonJacksonGetNode(singleEntry, "user");
           String userId = GrouperUtil.jsonJacksonGetString(userNode, "id");
           memberIdToMembershipId.put(userId, membershipId);
+        }
+
+        // live progress: Box pages memberships by offset over many slow WS calls, so report count-so-far.
+        // Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForMembers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForMembers != null) {
+          currentProvisionerForMembers.assignProgressLabelTarget("retrieving memberships from target: " + memberIdToMembershipId.size() + " so far");
         }
 
         long totalMembers = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count", 0L);

@@ -107,14 +107,19 @@ public class GcGrouperSyncHeartbeat {
       public void run() {
         
         try {
+          // store the first heartbeat quickly (15s) so job_message / grouper_sync_job show real status
+          // soon after the job starts, then every minute after that
+          boolean firstIteration = true;
           while(true) {
             long loopStarted = System.currentTimeMillis();
-            for (int i=0;i<60;i++) {
+            int secondsToWait = firstIteration ? 15 : 60;
+            firstIteration = false;
+            for (int i=0;i<secondsToWait;i++) {
               if (GcGrouperSyncHeartbeat.this.done) {
                 return;
               }
-              // maybe 60 sleeps dont add up due to CPU
-              if (System.currentTimeMillis()-loopStarted > 60000) {
+              // maybe the sleeps dont add up due to CPU
+              if (System.currentTimeMillis()-loopStarted > secondsToWait*1000L) {
                 break;
               }
               Thread.sleep(1000);

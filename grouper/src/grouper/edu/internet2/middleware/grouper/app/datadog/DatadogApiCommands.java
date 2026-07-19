@@ -505,6 +505,13 @@ public class DatadogApiCommands {
           results.add(datadogUser);
         }
 
+        // live progress: pages users over many slow WS calls with no total available, so report
+        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForUsers != null) {
+          currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + results.size() + " so far (page " + pageNumber + ")");
+        }
+
         // check if we've retrieved all pages
         int returnedCount = dataArray == null ? 0 : dataArray.size();
         if (returnedCount < pageSize) {
@@ -827,6 +834,13 @@ public class DatadogApiCommands {
           results.add(datadogGroup);
         }
 
+        // live progress: pages groups over many slow WS calls with no total available, so report
+        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForRoles = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForRoles != null) {
+          currentProvisionerForRoles.assignProgressLabelTarget("retrieving groups from target: " + results.size() + " so far (page " + pageNumber + ")");
+        }
+
         // check if we've retrieved all pages
         int returnedCount = dataArray == null ? 0 : dataArray.size();
         if (returnedCount < pageSize) {
@@ -1042,6 +1056,13 @@ public class DatadogApiCommands {
           results.add(datadogUser);
         }
 
+        // live progress: pages memberships over many slow WS calls with no total available, so report
+        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForRoleUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForRoleUsers != null) {
+          currentProvisionerForRoleUsers.assignProgressLabelTarget("retrieving memberships from target: " + results.size() + " so far (page " + pageNumber + ")");
+        }
+
         int returnedCount = dataArray == null ? 0 : dataArray.size();
         if (returnedCount < pageSize) {
           break;
@@ -1192,6 +1213,13 @@ public class DatadogApiCommands {
           DatadogGroup datadogGroup = DatadogGroup.fromJson(teamDataNode);
           datadogGroup.setGroupType("team");
           results.add(datadogGroup);
+        }
+
+        // live progress: pages groups over many slow WS calls with no total available, so report
+        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForTeams = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForTeams != null) {
+          currentProvisionerForTeams.assignProgressLabelTarget("retrieving groups from target: " + results.size() + " so far (page " + pageNumber + ")");
         }
 
         // check if we've retrieved all pages
@@ -1410,6 +1438,13 @@ public class DatadogApiCommands {
           }
 
           results.add(membership);
+        }
+
+        // live progress: pages memberships over many slow WS calls with no total available, so report
+        // count-so-far and page number.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForTeamMembers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForTeamMembers != null) {
+          currentProvisionerForTeamMembers.assignProgressLabelTarget("retrieving memberships from target: " + results.size() + " so far (page " + pageNumber + ")");
         }
 
         int returnedCount = dataArray == null ? 0 : dataArray.size();
