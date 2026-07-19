@@ -1281,8 +1281,9 @@ public class GrouperAzureApiCommands {
           }
           // generic provisioner sync-back: register the group from the raw JSON (full fidelity,
           // not the lossy typed bean) while the JSON node is in scope. No-op outside an Azure
-          // provisioning cycle. Owners are fetched in a separate call below and are roles
-          // (memberships), not group attributes, so they are intentionally not folded in here.
+          // provisioning cycle. Owners (the groupOwners GROUP attribute) are fetched by the separate
+          // /owners call below and folded into this same native group there (captureGroupOwners), not
+          // here -- they are not in the group JSON.
           GrouperAzureProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
         }
 
@@ -1903,9 +1904,9 @@ public class GrouperAzureApiCommands {
               }
               // generic provisioner sync-back: register the group from the raw JSON (full fidelity,
               // not the lossy typed bean) while the JSON node is in scope. No-op outside an Azure
-              // cycle. Owners are fetched separately (retrieveGroupOwnersHelper) and are roles
-              // (memberships), not group attributes, so they are not folded in here. Scoped retrieve
-              // path (used by !selectAllGroups and incremental).
+              // cycle. Owners (the groupOwners GROUP attribute) are fetched separately
+              // (retrieveGroupOwnersHelper) and folded into this native group there (captureGroupOwners),
+              // not here. Scoped retrieve path (used by !selectAllGroups and incremental).
               GrouperAzureProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
             }
           } else {
@@ -1914,8 +1915,9 @@ public class GrouperAzureApiCommands {
               result.add(grouperAzureGroup);
             }
             // generic provisioner sync-back: register the group from the raw JSON while it is in
-            // scope (single-group read by id/displayName). Owners are roles captured via the
-            // membership path, not here. No-op outside an Azure cycle.
+            // scope (single-group read by id/displayName). Owners (the groupOwners GROUP attribute)
+            // are folded into this native group by the separate /owners call (captureGroupOwners),
+            // not here. No-op outside an Azure cycle.
             GrouperAzureProvisioningTargetNativeSync.captureGroupJsonFromCurrentProvisioner(groupNode);
           }
         }
@@ -2033,7 +2035,14 @@ public class GrouperAzureApiCommands {
           
           GrouperAzureGroup grouperAzureGroup = groupIdToGroup.get(groupId);
           grouperAzureGroup.setOwners(new HashSet<String>(ownerIds));
-          
+
+          // generic provisioner sync-back: owners are a managed GROUP ATTRIBUTE (groupOwners), fetched
+          // by this separate /owners call after the group JSON was already captured. Fold them into the
+          // same native group so a from-cache group carries its owners and does not re-push them. Owners
+          // are NOT memberships in Azure, so they go on the group cache, never grouper_prov_mship.
+          GrouperAzureProvisioningTargetNativeSync.captureGroupOwnersFromCurrentProvisioner(
+              grouperAzureGroup.getId(), new HashSet<String>(ownerIds));
+
         }
       }
     }

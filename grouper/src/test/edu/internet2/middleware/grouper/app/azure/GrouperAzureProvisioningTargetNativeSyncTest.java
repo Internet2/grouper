@@ -170,6 +170,38 @@ public class GrouperAzureProvisioningTargetNativeSyncTest extends GrouperTest {
     assertFalse("id is the target_group_id column, not an attribute",
         bean.getAttributes().containsKey("id"));
     assertFalse("memberCount is not a default", bean.getAttributes().containsKey("memberCount"));
+    // groupOwners IS a default, but it is NOT in the group JSON (owners come from the separate
+    // /owners call and are folded in by captureGroupOwners), so the JSON build never populates it.
+    assertFalse("groupOwners is not populated from the group JSON",
+        bean.getAttributes().containsKey("groupOwners"));
+  }
+
+  /**
+   * groupOwners is listed among the DEFAULT group capture attributes (so the from-cache managed-
+   * attribute guardrail stays quiet for a deployment that manages owners), yet its VALUE is never
+   * read from the group JSON -- owners are a managed group attribute fetched by the separate Graph
+   * /owners call and folded into the native group by {@code captureGroupOwners}. This locks in that
+   * split: default present, JSON-capture absent.
+   */
+  public void testGroupOwnersIsDefaultButOwnersPathOnly() {
+    GrouperAzureProvisioningTargetNativeSync sync = defaultsSync();
+
+    boolean groupOwnersIsDefault = false;
+    for (GrouperProvisioningNativeAttributeConfig cfg : sync.effectiveNativeAttributeConfigsGroups()) {
+      if ("groupOwners".equals(cfg.getName())) {
+        groupOwnersIsDefault = true;
+        break;
+      }
+    }
+    assertTrue("groupOwners should be a default group capture attribute", groupOwnersIsDefault);
+
+    // even a group JSON that (unrealistically) carries a /groupOwners field is not the capture source;
+    // the default pointer is /groupOwners but production owners never appear inline -- prove the build
+    // simply mirrors the JSON here, and that a NORMAL group JSON (no groupOwners) yields none.
+    GrouperProvisioningTargetNativeGroup fromPlainJson =
+        sync.buildNativeGroupFromJson(GrouperUtil.jsonJacksonNode(GROUP_JSON));
+    assertFalse("a normal Graph group JSON has no owners inline, so none are captured on the JSON path",
+        fromPlainJson.getAttributes().containsKey("groupOwners"));
   }
 
   /**

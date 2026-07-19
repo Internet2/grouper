@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -34,11 +36,16 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p>Unlike Adobe, Azure keeps {@code canRetrieveGroup=true} (Graph reads a single group by id or
  * displayName), so the routing is unchanged -- only the capture site moved off the typed bean.
  *
- * <p>Memberships are group-centric and still derived during DAO translation
+ * <p>Memberships are group-centric and derived during DAO translation
  * ({@link #captureMembershipsForGroup}): the Graph group-members read co-locates the group id and
- * the member user ids, and group owners are written as role memberships. Owners/members are NOT
- * group attributes, so they are not folded into the group attribute node here. Only the
- * group/user object capture is JSON-based.
+ * the member user ids. Members are NOT folded into the group attribute node -- they are their own
+ * (group,user) mirror rows.
+ *
+ * <p>Group OWNERS, by contrast, ARE a managed group attribute in Azure ({@code groupOwners}), not
+ * memberships. They are fetched by a separate Graph {@code /owners} call and folded into the same
+ * native group via {@link #captureGroupOwners(String, java.util.Set)} (called from
+ * {@code GrouperAzureApiCommands.retrieveGroupOwnersHelper2}), so a cache-reconstructed group carries
+ * its owners on the GROUP -- never in the membership mirror. See {@code captureGroupOwners} for why.
  */
 public class GrouperAzureProvisioningTargetNativeSync extends GrouperProvisioningTargetNativeSync {
 
@@ -73,7 +80,14 @@ public class GrouperAzureProvisioningTargetNativeSync extends GrouperProvisionin
           // -- a cache-reconstructed group missing it would look changed and trigger a spurious
           // update every from-cache run. A deployment managing OTHER group attributes must add them
           // via nativeAttributesGroups; the from-cache guardrail warns about any it finds missing.
-          attrConfig("description")));
+          attrConfig("description"),
+          // groupOwners is a managed, MULTI-VALUED group attribute, but it is NOT in the group JSON
+          // (owners come from a separate Graph /owners call). Its VALUE is populated by
+          // captureGroupOwners() from that call, not by the JSON pointer here (/groupOwners is absent,
+          // so populateAttributesFromJson silently skips it). Listing it as a default keeps the
+          // from-cache managed-attribute guardrail quiet for a deployment that manages owners, since
+          // owners ARE captured -- just via the owners call, not the JSON.
+          attrConfig("groupOwners")));
 
   private static GrouperProvisioningNativeAttributeConfig attrConfig(String name) {
     return attrConfigWithPath(name, null);
@@ -255,6 +269,45 @@ public class GrouperAzureProvisioningTargetNativeSync extends GrouperProvisionin
     this.recordTargetNativeMemberships(memberships);
   }
 
+  /**
+   * Fold the resolved owner set for one Azure group into that group's already-captured native group
+   * as the multi-valued {@code groupOwners} attribute.
+   *
+   * <p>Azure group owners are a managed GROUP ATTRIBUTE (not memberships):
+   * {@code GrouperAzureGroup.toProvisioningGroup} assigns them to {@code groupOwners}, and Grouper
+   * diffs/writes them as a group attribute (updateGroups' groupOwners branch, addOwnersToGroup/
+   * removeOwnersFromGroup). So sync-back must carry owners on the GROUP, not in grouper_prov_mship --
+   * a cache-reconstructed group missing groupOwners would look changed and re-push owners on every
+   * from-cache run (for a config where groupOwners is selected/updated). Owners must NOT enter the
+   * membership mirror, or the compare would treat an owner as a plain group member.
+   *
+   * <p>Owners are fetched by a SEPARATE Graph {@code /owners} call AFTER the group JSON was captured,
+   * so the native group is already recorded ({@code recordTargetNativeGroup}); this augments it in
+   * place with the SAME id set the typed bean carries ({@code grouperAzureGroup.getOwners()}), so the
+   * cached value matches what a live read produces (same set through the same toProvisioningGroup map)
+   * -- no spurious diff. A copy is stored so later mutation of the bean's set does not leak into the
+   * cache. An empty/blank owner set records "no owners" (no attribute values), matching a live read of
+   * an owner-less group. No-op when the group was not captured (sync-back off for this read, or an
+   * id-less group).
+   *
+   * @param targetGroupId the Azure group id (target_group_id)
+   * @param ownerIds the group's owner ids as resolved from the /owners read (may be empty/null)
+   */
+  public synchronized void captureGroupOwners(String targetGroupId, Set<String> ownerIds) {
+    if (targetGroupId == null) {
+      return;
+    }
+    GrouperProvisioningTargetNativeGroup nativeGroup = this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningData().getTargetGroupIdToNativeGroup().get(targetGroupId);
+    if (nativeGroup == null) {
+      // the group object was not captured this read (sync-back off, or id-less JSON) -- nothing to
+      // augment; the group's own capture, when it happens, is where owners will attach.
+      return;
+    }
+    nativeGroup.getAttributes().put("groupOwners",
+        new LinkedHashSet<String>(GrouperUtil.nonNull(ownerIds)));
+  }
+
   // ----- static dispatchers (called from GrouperAzureApiCommands / GrouperAzureTargetDao) -----
 
   /**
@@ -295,6 +348,21 @@ public class GrouperAzureProvisioningTargetNativeSync extends GrouperProvisionin
       return;
     }
     azureSync.captureMembershipsForGroup(targetGroupId, targetUserIds);
+  }
+
+  /**
+   * Fold a group's resolved owner id set into its already-captured native group (as the multi-valued
+   * {@code groupOwners} attribute) against the current provisioner's sync. No-op if there's no current
+   * provisioner or the active provisioner isn't an Azure one. Called from the owners seam
+   * ({@code GrouperAzureApiCommands.retrieveGroupOwnersHelper2}) once per group after its /owners read.
+   * See {@link #captureGroupOwners(String, Set)} for why owners live on the group, not in memberships.
+   */
+  public static void captureGroupOwnersFromCurrentProvisioner(String targetGroupId, Set<String> ownerIds) {
+    GrouperAzureProvisioningTargetNativeSync azureSync = azureSyncForCurrentProvisioner();
+    if (azureSync == null) {
+      return;
+    }
+    azureSync.captureGroupOwners(targetGroupId, ownerIds);
   }
 
   // ----- membership write-track dispatchers (called from GrouperAzureTargetDao write sites) -----

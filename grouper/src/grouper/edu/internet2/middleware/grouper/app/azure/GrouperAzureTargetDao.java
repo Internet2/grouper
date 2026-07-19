@@ -1032,14 +1032,27 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
 
-    // GRP-7048: full-sync-from-sync-back is offered for the USERS (entities) axis only for now -- the
-    // high-value case (skip the large Azure user pull). Azure is group-centric (retrieveMembershipsByGroup),
-    // so users do not drive membership retrieval and users-from-cache is safe under the existing
-    // coupling. Azure retrieves per-axis (no combined retrieveAllData), so the adapter skips the bulk
-    // user pull when users are served from the cache. GROUPS/MEMBERSHIPS from cache are NOT declared
-    // yet (Azure's by-group membership retrieval likely supports it as Okta does, but it is unverified
-    // here -- deferred to the GRP-7048 follow-up Jira).
+    // GRP-7048: full-sync-from-sync-back for all three axes. Azure retrieves per-axis (no combined
+    // retrieveAllData), so the generic adapter skips whichever bulk pull is served from the cache:
+    // retrieveAllEntities (users), retrieveAllGroups (groups), and the by-group membership retrieval
+    // (retrieveAllMemberships -> retrieveMembershipsByGroups). Every write site already keeps the
+    // mirror current -- insert/deleteMemberships write-track the (group,user) pair, and
+    // update/insertGroups+update/insertEntities mark the object for the end-of-run sync-back drain
+    // re-read (which re-fetches owners too, see below) -- so a warm cache stays converged incrementally.
+    //
+    // USERS: Azure is group-centric (retrieveMembershipsByGroup), so users do not drive membership
+    // retrieval; users-from-cache is safe on its own.
     grouperProvisionerDaoCapabilities.setCanFullSyncEntitiesFromSyncBack(true);
+    // MEMBERSHIPS: captured group-centrically on read (retrieveMembershipsByGroup) and write-tracked on
+    // every add/remove, so the mirror is authoritative and the by-group pull can be skipped.
+    grouperProvisionerDaoCapabilities.setCanFullSyncMembershipsFromSyncBack(true);
+    // GROUPS: captured from raw Graph JSON on read; group OWNERS (a managed group attribute, groupOwners)
+    // are fetched by the separate /owners call and folded into the same native group
+    // (GrouperAzureProvisioningTargetNativeSync.captureGroupOwners), so a cache-reconstructed group
+    // carries its owners and does not re-push them. Groups-from-cache engages only when memberships are
+    // ALSO from the cache (framework both-or-neither coupling), since Azure fetches memberships by
+    // iterating groups.
+    grouperProvisionerDaoCapabilities.setCanFullSyncGroupsFromSyncBack(true);
 
     grouperProvisionerDaoCapabilities.setCanUpdateEntities(true);
 

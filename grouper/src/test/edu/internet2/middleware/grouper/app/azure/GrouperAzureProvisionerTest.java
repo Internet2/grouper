@@ -4531,4 +4531,373 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
         dupGroupAttr);
   }
 
+  // ==========================================================================================
+  // GRP-7048: full-sync FROM the sync-back cache for Azure (users / groups / memberships), plus the
+  // owners-as-roles concern. Azure retrieves per-axis (no combined retrieveAllData), so the generic
+  // adapter skips whichever bulk pull is served from the cache; these tests warm the mirror over a
+  // couple of full runs, then assert the corresponding bulk pull is skipped on the next run while the
+  // compare still works off the cached target view. Mirrors the Okta from-cache suite
+  // (GrouperOktaProvisionerTest.testOktaFullSync*FromSyncBack*). All run in-process (no Tomcat), the
+  // same shape as testAzureFullSyncPopulatesGenericTables.
+  //
+  // Skip signals (DAO/adapter debug counters, absent when the pull was skipped):
+  //   users       : azureRetrieveAllUsersApiCall      (GrouperAzureTargetDao.retrieveAllEntities)
+  //   groups      : azureRetrieveAllGroupsApiCall     (GrouperAzureTargetDao.retrieveAllGroups)
+  //   memberships : targetRetrieveAllMembershipsByGroups (adapter's by-group membership pull)
+  // Reconstruction counters (rows rebuilt from the cache): syncBackEntitiesReconstructed /
+  // syncBackGroupsReconstructed / syncBackMembershipsReconstructed.
+  // ==========================================================================================
+
+  /** mark {@code stem} (and its sub-tree) for provisioning to {@code configId} */
+  private void markProvision(String configId, Stem stem) {
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  }
+
+  /** a debug-map counter as an int (0 when absent/unset) */
+  private static int debugMapInt(Map<String, Object> debugMap, String key) {
+    Object value = debugMap == null ? null : debugMap.get(key);
+    return value == null ? 0 : Integer.parseInt(value.toString());
+  }
+
+  /** count of a single mock_azure_* table (whole table -- setUp wipes it before each test) */
+  private int countMockTable(String tableName) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from " + tableName).select(int.class);
+  }
+
+  /**
+   * number of cached VALUES for a group attribute in the mirror, read through grouper_prov_group_attr_v
+   * (the reporting view resolves the dictionary FK back to text). Used to assert group OWNERS land in
+   * the group cache as the multi-valued groupOwners attribute.
+   */
+  private int countMirroredGroupAttrValues(String configId, String attributeName) {
+    return new GcDbAccess().connectionName("grouper")
+        .sql("select count(*) from grouper_prov_group_attr_v "
+            + "where grouper_sync_id in (select id from grouper_sync where provisioner_name = ?) "
+            + "and attribute_name = ?")
+        .addBindVar(configId).addBindVar(attributeName).select(int.class);
+  }
+
+  /**
+   * Azure sync-back setup with the group OWNERS attribute configured (groupAttributeCount=6 wires
+   * targetGroupAttribute.5 = groupOwners), which turns on the separate Graph /owners read
+   * (lookupOwners keys off the attribute being configured, not its select flag). Otherwise identical
+   * to {@link #setupAzureSyncBack(String, Map)}.
+   */
+  private void setupAzureSyncBackWithOwners(String configId, Map<String, String> extraConfig) {
+    AzureProvisionerTestConfigInput configInput = new AzureProvisionerTestConfigInput()
+        .assignConfigId(configId)
+        .assignGroupAttributeCount(6)
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("loadEntitiesToGenericGrouperTable", "true")
+        .addExtraConfig("loadGroupsToGenericGrouperTable", "true")
+        .addExtraConfig("loadMembershipsToGenericGrouperTable", "true");
+    if (extraConfig != null) {
+      for (Map.Entry<String, String> entry : extraConfig.entrySet()) {
+        configInput.addExtraConfig(entry.getKey(), entry.getValue());
+      }
+    }
+    AzureProvisionerTestUtils.configureAzureProvisioner(configInput);
+    GrouperStartup.startup();
+  }
+
+  /**
+   * GRP-7048 (users, warm cache): once grouper_prov_user is warm, the target users are reconstructed
+   * from the cache and Azure's bulk user pull (retrieveAllEntities) is skipped. Users do not drive
+   * Azure's group-centric membership retrieval, so users-from-cache stands alone; groups are still
+   * pulled from the target this run.
+   */
+  public void testAzureFullSyncUsersFromSyncBackWarmCache() {
+
+    String configId = "myAzureProvisioner";
+    Map<String, String> extra = new HashMap<String, String>();
+    extra.put("fullSyncUsersFromSyncBack", "true");
+    setupAzureSyncBack(configId, extra);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    markProvision(configId, stem);
+
+    // warm the user cache (run 1 writes the target, run 2/3 read it back and populate the mirror)
+    fullProvision(configId);
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals("two users cached after warm-up", 2, countSyncBack(configId, "grouper_prov_user"));
+
+    // warm run: users come from the cache, the bulk user pull is skipped, groups still pulled
+    fullProvision(configId);
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("Azure bulk user pull should be skipped (users from cache)",
+        debugMap.get("azureRetrieveAllUsersApiCall"));
+    assertEquals("both users reconstructed from the cache", 2,
+        debugMapInt(debugMap, "syncBackEntitiesReconstructed"));
+    assertNotNull("groups are still pulled from Azure (only users from cache)",
+        debugMap.get("azureRetrieveAllGroupsApiCall"));
+    // cache stays converged: still exactly two users, two memberships
+    assertEquals(2, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals(2, countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * GRP-7048 (memberships, warm cache): once grouper_prov_mship is warm, the target memberships are
+   * reconstructed from the cache and Azure's by-group membership pull (retrieveAllMemberships ->
+   * retrieveMembershipsByGroups) is skipped. Groups and users are still pulled this run.
+   */
+  public void testAzureFullSyncMembershipsFromSyncBackWarmCache() {
+
+    String configId = "myAzureProvisioner";
+    Map<String, String> extra = new HashMap<String, String>();
+    extra.put("fullSyncMembershipsFromSyncBack", "true");
+    setupAzureSyncBack(configId, extra);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    markProvision(configId, stem);
+
+    fullProvision(configId);
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals("two memberships cached after warm-up", 2, countSyncBack(configId, "grouper_prov_mship"));
+
+    // warm run: memberships from the cache, the by-group membership pull skipped
+    fullProvision(configId);
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("Azure by-group membership pull should be skipped (memberships from cache)",
+        debugMap.get("targetRetrieveAllMembershipsByGroups"));
+    assertEquals("both memberships reconstructed from the cache", 2,
+        debugMapInt(debugMap, "syncBackMembershipsReconstructed"));
+    assertNotNull("groups are still pulled from Azure (only memberships from cache)",
+        debugMap.get("azureRetrieveAllGroupsApiCall"));
+    assertEquals(2, countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * GRP-7048 (groups, warm cache): with the group + membership caches warm, the target groups are
+   * reconstructed from grouper_prov_group and Azure's group pull is skipped. Groups-from-cache engages
+   * only when memberships are ALSO from the cache (framework both-or-neither, because Azure fetches
+   * memberships by iterating groups), so the test enables both and asserts both pulls are skipped.
+   */
+  public void testAzureFullSyncGroupsFromSyncBackWarmCache() {
+
+    String configId = "myAzureProvisioner";
+    Map<String, String> extra = new HashMap<String, String>();
+    extra.put("fullSyncGroupsFromSyncBack", "true");
+    extra.put("fullSyncMembershipsFromSyncBack", "true");
+    setupAzureSyncBack(configId, extra);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    markProvision(configId, stem);
+
+    fullProvision(configId);
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals("group cached after warm-up", 1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("two memberships cached after warm-up", 2, countSyncBack(configId, "grouper_prov_mship"));
+
+    // warm run: group (and memberships) come from the cache; both target pulls are skipped
+    fullProvision(configId);
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("Azure group pull should be skipped (groups from cache)",
+        debugMap.get("azureRetrieveAllGroupsApiCall"));
+    assertNull("Azure by-group membership pull should be skipped too (both-or-neither)",
+        debugMap.get("targetRetrieveAllMembershipsByGroups"));
+    assertEquals("the group is reconstructed from the cache", 1,
+        debugMapInt(debugMap, "syncBackGroupsReconstructed"));
+  }
+
+  /**
+   * GRP-7048 (all three axes, incremental currency): with users + memberships + groups ALL served from
+   * the cache, a run that ADDS a brand-new member (a new user + a new membership) must skip all three
+   * bulk pulls yet still provision the add into the Azure target and converge the mirror -- then a run
+   * that REMOVES it must deprovision and shrink the mirror. This proves the write-side tracking
+   * (insert/deleteMemberships write-track the pair; the new user is drain-re-read) keeps a warm cache
+   * current between full reads, which is the "update incrementally as groups change" requirement.
+   */
+  public void testAzureFullSyncAllThreeFromSyncBackIncrementalCurrency() {
+
+    String configId = "myAzureProvisioner";
+    Map<String, String> extra = new HashMap<String, String>();
+    extra.put("fullSyncUsersFromSyncBack", "true");
+    extra.put("fullSyncMembershipsFromSyncBack", "true");
+    extra.put("fullSyncGroupsFromSyncBack", "true");
+    setupAzureSyncBack(configId, extra);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    markProvision(configId, stem);
+
+    // warm all three caches
+    fullProvision(configId);
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals(1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals(2, countSyncBack(configId, "grouper_prov_user"));
+    assertEquals(2, countSyncBack(configId, "grouper_prov_mship"));
+
+    // ADD: SUBJ2 joins in Grouper. Under all-three-from-cache the compare inserts a new Azure user +
+    // membership, while every bulk pull stays skipped.
+    testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+    fullProvision(configId);
+    Map<String, Object> addDebugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("group pull stays skipped on the add run", addDebugMap.get("azureRetrieveAllGroupsApiCall"));
+    assertNull("user pull stays skipped on the add run", addDebugMap.get("azureRetrieveAllUsersApiCall"));
+    assertNull("by-group membership pull stays skipped on the add run",
+        addDebugMap.get("targetRetrieveAllMembershipsByGroups"));
+
+    assertEquals("SUBJ2 provisioned as a new Azure user", 3, countMockTable("mock_azure_user"));
+    assertEquals("SUBJ2's membership provisioned into Azure", 3, countMockTable("mock_azure_membership"));
+    assertEquals("new user converged into the mirror (drain re-read)", 3,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("new membership converged into the mirror (write-tracked)", 3,
+        countSyncBack(configId, "grouper_prov_mship"));
+
+    // REMOVE: SUBJ2 leaves in Grouper -> membership deprovisioned and dropped from the mirror, pulls
+    // still skipped
+    testGroup.deleteMember(SubjectTestHelper.SUBJ2, false);
+    fullProvision(configId);
+    Map<String, Object> removeDebugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("group pull stays skipped on the remove run", removeDebugMap.get("azureRetrieveAllGroupsApiCall"));
+    assertNull("by-group membership pull stays skipped on the remove run",
+        removeDebugMap.get("targetRetrieveAllMembershipsByGroups"));
+    assertEquals("SUBJ2's membership removed from Azure", 2, countMockTable("mock_azure_membership"));
+    assertEquals("membership dropped from the mirror (write-tracked delete)", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * GRP-7048 (owners as roles -> GROUP cache, NOT membership cache): Azure owners are a managed GROUP
+   * attribute (groupOwners), not memberships. This proves a group's owner is captured into the group
+   * cache (grouper_prov_group_attr_v as groupOwners) and NOT into grouper_prov_mship -- even when the
+   * owner is ALSO a member, the two land in different caches.
+   *
+   * <p>The Azure mock only resolves owners that are real mock_azure_user rows on GET /owners (the
+   * config's static fake-URL owners never resolve), so the test makes a real provisioned user the
+   * group's owner directly on the mock, then re-reads.
+   */
+  public void testAzureFullSyncOwnersCapturedInGroupCacheNotMembership() {
+
+    String configId = "myAzureProvisioner";
+    setupAzureSyncBackWithOwners(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    markProvision(configId, stem);
+
+    // warm: group + its two members exist in the mock and are captured
+    fullProvision(configId);
+    fullProvision(configId);
+    assertEquals(1, countSyncBack(configId, "grouper_prov_group"));
+    assertEquals(2, countSyncBack(configId, "grouper_prov_mship"));
+
+    // make a REAL Azure user (SUBJ0, who is also a member) the group's owner on the mock. SUBJ0 being
+    // both member and owner is the point: the same identity must land in the membership cache AS a
+    // member and in the group cache AS an owner, in DIFFERENT places.
+    String groupId = new GcDbAccess().connectionName("grouper")
+        .sql("select id from mock_azure_group").selectList(String.class).get(0);
+    String ownerUserId = new GcDbAccess().connectionName("grouper")
+        .sql("select id from mock_azure_user").selectList(String.class).get(0);
+    new GcDbAccess().connectionName("grouper")
+        .sql("update mock_azure_group set owners = ? where id = ?")
+        .addBindVar(ownerUserId).addBindVar(groupId).executeSql();
+
+    // read pass: the /owners read resolves the real user, captureGroupOwners folds it into the native
+    // GROUP, and the flush writes it to grouper_prov_group_attr_value
+    fullProvision(configId);
+
+    assertTrue("owner is captured into the GROUP cache as groupOwners",
+        countMirroredGroupAttrValues(configId, "groupOwners") >= 1);
+    assertEquals("owners must NOT leak into the membership cache (still just the 2 members)", 2,
+        countSyncBack(configId, "grouper_prov_mship"));
+  }
+
+  /**
+   * GRP-7048 (owners survive the from-cache round-trip): with the group served from the sync-back
+   * cache, the reconstructed group must still carry its owner (groupOwners stays in the cache) and the
+   * group pull must stay skipped -- so no spurious owner re-push.
+   *
+   * <p>Two phases, because from-cache is cache-first: an owner is captured only on a group READ, and
+   * once groups are served from the cache the read (and the /owners call) is skipped. So phase 1 runs
+   * with from-cache OFF to get a real owner captured into the group cache; phase 2 turns groups +
+   * memberships from-cache ON (reconfigure keeps the same grouper_sync + cache) and asserts the group
+   * comes from the cache while its owner survives and is not re-pushed to the target.
+   */
+  public void testAzureFullSyncGroupsFromSyncBackOwnersSurviveCache() {
+
+    String configId = "myAzureProvisioner";
+
+    // --- phase 1: from-cache OFF, so every run reads the target and captures owners ---
+    setupAzureSyncBackWithOwners(configId, null);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    markProvision(configId, stem);
+
+    // write the target, then read it back
+    fullProvision(configId);
+    fullProvision(configId);
+
+    // make a REAL Azure user the group's owner on the mock (the mock only resolves owners that are
+    // real users on GET /owners; the config's static fake-URL owners never resolve)
+    String groupId = new GcDbAccess().connectionName("grouper")
+        .sql("select id from mock_azure_group").selectList(String.class).get(0);
+    String ownerUserId = new GcDbAccess().connectionName("grouper")
+        .sql("select id from mock_azure_user").selectList(String.class).get(0);
+    new GcDbAccess().connectionName("grouper")
+        .sql("update mock_azure_group set owners = ? where id = ?")
+        .addBindVar(ownerUserId).addBindVar(groupId).executeSql();
+
+    // read pass captures the real owner into the group cache
+    fullProvision(configId);
+    assertTrue("owner captured into the group cache (from-cache OFF)",
+        countMirroredGroupAttrValues(configId, "groupOwners") >= 1);
+
+    // --- phase 2: turn groups + memberships from-cache ON (same grouper_sync + warm cache persist) ---
+    Map<String, String> flags = new HashMap<String, String>();
+    flags.put("fullSyncGroupsFromSyncBack", "true");
+    flags.put("fullSyncMembershipsFromSyncBack", "true");
+    setupAzureSyncBackWithOwners(configId, flags);
+
+    // from-cache run: the group comes from the cache (pull skipped) and still carries its owner
+    fullProvision(configId);
+    Map<String, Object> debugMap = GrouperProvisioner.retrieveInternalLastProvisioner().getDebugMap();
+
+    assertNull("group pull should be skipped (group served from cache)",
+        debugMap.get("azureRetrieveAllGroupsApiCall"));
+    assertTrue("groupOwners survives the from-cache round-trip",
+        countMirroredGroupAttrValues(configId, "groupOwners") >= 1);
+    // the owner on the mock is untouched -- no spurious owner re-push from a cache-reconstructed group
+    String mockOwners = new GcDbAccess().connectionName("grouper")
+        .sql("select owners from mock_azure_group where id = ?").addBindVar(groupId).select(String.class);
+    assertEquals("owner on the Azure target is unchanged (no spurious re-push)", ownerUserId, mockOwners);
+  }
+
 }
