@@ -239,6 +239,10 @@ public class UiV2ProvisionerConfiguration {
       
       diagnosticsThreadProgress.put(diagnosticsMultiKey, provisioner);
       
+      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PROVISIONER_CONFIG_DIAGNOSTICS, "provisionerName", provisionerConfigId);
+      auditEntry.setDescription("Ran diagnostics for provisioner " + provisionerConfigId);
+      provisionerSaveAudit(auditEntry);
+      
       GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("grouperProvisioningDiagnostics") {
 
         @Override
@@ -1701,6 +1705,10 @@ public class UiV2ProvisionerConfiguration {
       
       GrouperProvisioningSettings.clearTargetsCache();
       
+      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PROVISIONER_CONFIG_DELETE, "provisionerName", provisionerConfigId);
+      auditEntry.setDescription("Deleted provisioner configuration " + provisionerConfigId);
+      provisionerSaveAudit(auditEntry);
+      
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
@@ -1744,27 +1752,35 @@ public class UiV2ProvisionerConfiguration {
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
       grouperProvisioner.setGcGrouperSync(GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerConfigId));
       
-      List<GcGrouperSyncGroup> grouperSyncGroups = grouperProvisioner.getGcGrouperSync().getGcGrouperSyncGroupDao().groupRetrieveAll();
-      
-      for (GcGrouperSyncGroup gcGrouperSyncGroup: grouperSyncGroups) {
-        gcGrouperSyncGroup.setGroupAttributeValueCache0(null);
-        gcGrouperSyncGroup.setGroupAttributeValueCache1(null);
-        gcGrouperSyncGroup.setGroupAttributeValueCache2(null);
-        gcGrouperSyncGroup.setGroupAttributeValueCache3(null);
+      // there may not be a sync row yet (e.g. provisioner has never run), in which case there is no cache to clear
+      if (grouperProvisioner.getGcGrouperSync() != null) {
+        
+        List<GcGrouperSyncGroup> grouperSyncGroups = grouperProvisioner.getGcGrouperSync().getGcGrouperSyncGroupDao().groupRetrieveAll();
+        
+        for (GcGrouperSyncGroup gcGrouperSyncGroup: grouperSyncGroups) {
+          gcGrouperSyncGroup.setGroupAttributeValueCache0(null);
+          gcGrouperSyncGroup.setGroupAttributeValueCache1(null);
+          gcGrouperSyncGroup.setGroupAttributeValueCache2(null);
+          gcGrouperSyncGroup.setGroupAttributeValueCache3(null);
+        }
+        
+        grouperProvisioner.getGcGrouperSync().getGcGrouperSyncGroupDao().internal_groupStoreAll();
+        
+        List<GcGrouperSyncMember> grouperSyncMembers = grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMemberDao().memberRetrieveAll();
+        
+        for (GcGrouperSyncMember grouperSyncMember: grouperSyncMembers) {
+          grouperSyncMember.setEntityAttributeValueCache0(null);
+          grouperSyncMember.setEntityAttributeValueCache1(null);
+          grouperSyncMember.setEntityAttributeValueCache2(null);
+          grouperSyncMember.setEntityAttributeValueCache3(null);
+        }
+        
+        grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMemberDao().internal_memberStoreAll();
       }
       
-      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncGroupDao().internal_groupStoreAll();
-      
-      List<GcGrouperSyncMember> grouperSyncMembers = grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMemberDao().memberRetrieveAll();
-      
-      for (GcGrouperSyncMember grouperSyncMember: grouperSyncMembers) {
-        grouperSyncMember.setEntityAttributeValueCache0(null);
-        grouperSyncMember.setEntityAttributeValueCache1(null);
-        grouperSyncMember.setEntityAttributeValueCache2(null);
-        grouperSyncMember.setEntityAttributeValueCache3(null);
-      }
-      
-      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMemberDao().internal_memberStoreAll();
+      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PROVISIONER_CONFIG_CLEAR_CACHE_BUCKETS, "provisionerName", provisionerConfigId);
+      auditEntry.setDescription("Cleared cache buckets for provisioner " + provisionerConfigId);
+      provisionerSaveAudit(auditEntry);
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
       
@@ -1808,12 +1824,19 @@ public class UiV2ProvisionerConfiguration {
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
       grouperProvisioner.setGcGrouperSync(GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerConfigId));
       
-      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMembershipDao().membershipDeleteAll(true);
-      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncGroupDao().groupDeleteAll(true, true);
-      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMemberDao().memberDeleteAll(true, true);
-      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncJobDao().jobDeleteAll(true);
-      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncLogDao().logDeleteAll();
-      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncDao().delete();
+      // there may not be a sync row yet (e.g. provisioner has never run), in which case there is no cache/state to clear
+      if (grouperProvisioner.getGcGrouperSync() != null) {
+        grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMembershipDao().membershipDeleteAll(true);
+        grouperProvisioner.getGcGrouperSync().getGcGrouperSyncGroupDao().groupDeleteAll(true, true);
+        grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMemberDao().memberDeleteAll(true, true);
+        grouperProvisioner.getGcGrouperSync().getGcGrouperSyncJobDao().jobDeleteAll(true);
+        grouperProvisioner.getGcGrouperSync().getGcGrouperSyncLogDao().logDeleteAll();
+        grouperProvisioner.getGcGrouperSync().getGcGrouperSyncDao().delete();
+      }
+      
+      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PROVISIONER_CONFIG_CLEAR_ALL_CACHE, "provisionerName", provisionerConfigId);
+      auditEntry.setDescription("Cleared all provisioning cache and state for provisioner " + provisionerConfigId);
+      provisionerSaveAudit(auditEntry);
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
       
