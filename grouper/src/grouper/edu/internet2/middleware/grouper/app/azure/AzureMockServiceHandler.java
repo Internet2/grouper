@@ -2151,8 +2151,17 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setResponseCode(404);
   }
 
+  /**
+   * GRP-7153 test hook: skiptokens for which the mock has already injected a one-shot expired
+   * page-token 400.  The provisioner's restart-on-expiry re-presents the same skiptoken from a
+   * fresh page-1 walk, and by then it is in this set so the retry succeeds -- exercising recovery
+   * rather than an infinite fail loop.  The mock runs in its own JVM, so the injection is gated by
+   * DB config (azureMockExpireGroupMembersPageToken), not test statics.
+   */
+  private static final Set<String> azureMockExpiredPageTokensTripped = java.util.Collections.synchronizedSet(new HashSet<String>());
+
   public void getGroupMembers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
-  
+
     checkAuthorization(mockServiceRequest);
 
     checkRequestContentType(mockServiceRequest);
@@ -2171,6 +2180,21 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 
     String skipToken = mockServiceRequest.getHttpServletRequest().getParameter("$skiptoken");
     mockServiceRequest.getDebugMap().put("skipToken", skipToken);
+
+    // GRP-7153 test hook: return a one-shot 400 Directory_ExpiredPageToken for the first members
+    // page that carries a skiptoken (i.e. mid-walk, not page 1), so tests can exercise the
+    // provisioner discarding the dead cursor and restarting the enumeration.  Tracked per
+    // (groupId|skiptoken) so the page-1 restart, which re-reaches the same skiptoken, succeeds.
+    if (StringUtils.isNotBlank(skipToken)
+        && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("azureMockExpireGroupMembersPageToken", false)
+        && azureMockExpiredPageTokensTripped.add(groupId + "|" + skipToken)) {
+      mockServiceRequest.getDebugMap().put("azureMockExpiredPageToken", true);
+      mockServiceResponse.setContentType("application/json");
+      mockServiceResponse.setResponseCode(400);
+      mockServiceResponse.setResponseBody("{\"error\":{\"code\":\"Directory_ExpiredPageToken\","
+          + "\"message\":\"The specified page token value has expired and can no longer be included in your request.\"}}");
+      return;
+    }
 
     List<GrouperAzureMembership> grouperAzureMemberships = null;
     
