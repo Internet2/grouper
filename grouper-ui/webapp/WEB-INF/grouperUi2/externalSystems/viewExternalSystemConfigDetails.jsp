@@ -19,10 +19,51 @@ ${grouper:title('miscellaneousGrouperExternalSystemsViewDetailsBreadcrumb')}
                 </div>
               </div>
             </div>
-              
+
+			<%-- References section: everywhere in Grouper this external system is used --%>
+			<c:if test="${!empty grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystemUsages}">
+			  <div class="row-fluid">
+			    <div class="span12">
+			      <h4>${textContainer.text['grouperExternalSystemReferencesHeader'] }</h4>
+			      <p>${textContainer.text['grouperExternalSystemReferencesDescription'] }</p>
+			      <c:if test="${grouperRequestContainer.externalSystemContainer.externalSystemUsagesTruncated}">
+			        <div class="alert alert-info">${textContainer.text['grouperExternalSystemReferencesTruncatedNote'] }</div>
+			      </c:if>
+			      <table class="table table-condensed table-striped">
+			        <thead>
+			          <tr>
+			            <th>${textContainer.text['grouperExternalSystemReferencesTypeHeader'] }</th>
+			            <th>${textContainer.text['grouperExternalSystemReferencesReferenceHeader'] }</th>
+			            <th>${textContainer.text['grouperExternalSystemReferencesDescriptionHeader'] }</th>
+			          </tr>
+			        </thead>
+			        <tbody>
+			          <c:forEach items="${grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystemUsages}" var="usage">
+			            <tr>
+			              <td>${grouper:escapeHtml(usage.usageType)}</td>
+			              <td>
+			                <c:choose>
+			                  <c:when test="${usage.hasLink}">
+			                    <a href="?${usage.linkOperation}" onclick="return handleGuiV2LinkClick(event, '${usage.linkOperation}');">${grouper:escapeHtml(usage.name)}</a>
+			                  </c:when>
+			                  <c:otherwise>
+			                    ${grouper:escapeHtml(usage.name)}
+			                  </c:otherwise>
+			                </c:choose>
+			              </td>
+			              <td>${grouper:escapeHtml(usage.description)}</td>
+			            </tr>
+			          </c:forEach>
+			        </tbody>
+			      </table>
+			    </div>
+			  </div>
+			</c:if>
+
 			<div class="row-fluid">
 			  <div class="span12">
-					
+
+				<h4>${textContainer.text['grouperExternalSystemConfigurationHeader'] }</h4>
 				<table class="table table-condensed table-striped">
                   <tbody>
                	    <tr>
