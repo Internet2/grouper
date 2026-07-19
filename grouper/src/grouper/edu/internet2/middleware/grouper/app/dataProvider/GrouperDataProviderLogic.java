@@ -188,6 +188,17 @@ public class GrouperDataProviderLogic {
     int subjectIdBatchSize = GrouperConfig.retrieveConfig().propertyValueInt(
         "grouperDataProvider." + grouperDataProviderSync.getConfigId() + ".fullSyncSubjectIdBatchSize", 10000);
 
+    // how full sync retrieves source data per batch: "range" (default) or "list".  range wraps the
+    // configured query filter with an ordering comparison on the subject id attribute
+    // (attr >= from)(attr <= to); for LDAP providers this requires an ordering matching rule and index
+    // on that attribute, otherwise the query is an unindexed scan and can time out.  list mode instead
+    // queries the exact subject ids in each batch with equality filters (batched by the DAO), which use
+    // the equality index every backend already has, at the cost of more round trips.  list mode also
+    // avoids the lexicographic-ordering mismatch between the Java sort and the backend collation, so it
+    // does not need the straggler pass below.  see GRP-7150.
+    boolean fullSyncRetrieveByRange = !GrouperUtil.equalsIgnoreCase("list", GrouperConfig.retrieveConfig().propertyValueString(
+        "grouperDataProvider." + grouperDataProviderSync.getConfigId() + ".fullSyncSubjectIdRetrieval", "range"));
+
     // collect distinct lowercased subject ids from all source queries
     Set<String> allSubjectIdsFromSource = new TreeSet<>();
     for (GrouperDataProviderQuery grouperDataProviderQuery : grouperDataProviderSync.retrieveGrouperDataProviderQueries()) {
@@ -264,11 +275,19 @@ public class GrouperDataProviderLogic {
       dataEngine.setGrouperDataProviderIndex(new GrouperDataProviderIndex());
       dataEngine.loadFieldsAndRows(null);
 
-      // load grouper data for members in this subject id range
-      syncFullLoadGrouperDataForRange(fromSubjectIdLower, toSubjectIdLower);
+      if (fullSyncRetrieveByRange) {
+        // load grouper data for members in this subject id range
+        syncFullLoadGrouperDataForRange(fromSubjectIdLower, toSubjectIdLower);
 
-      // retrieve source data for this range
-      syncFullRetrieveSourceDataForRange(fromSubjectIdLower, toSubjectIdLower, retrievedSubjectIds);
+        // retrieve source data for this range
+        syncFullRetrieveSourceDataForRange(fromSubjectIdLower, toSubjectIdLower, retrievedSubjectIds);
+      } else {
+        // list mode: load and retrieve by the exact subject ids in this batch, using equality filters
+        // (no ordering index required).  every source subject id in the batch is queried directly, so
+        // there are no stragglers and the straggler pass below is skipped.
+        syncFullLoadGrouperDataForSubjectIds(batchSubjectIds);
+        syncFullRetrieveSourceDataForSubjectIds(batchSubjectIds);
+      }
 
       // compare and write changes (failsafe check happens inside, using accumulated totals)
       ChangeState batchState = calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex, true, accumulatedState);
@@ -295,11 +314,13 @@ public class GrouperDataProviderLogic {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
     }
 
-    // straggler pass: find subject ids from the source that weren't retrieved in any range query
+    // straggler pass: find subject ids from the source that weren't retrieved in any range query.
+    // only applies to range mode; list mode queries exact ids so it never has stragglers (and
+    // retrievedSubjectIds is not populated in list mode).
     Set<String> missedSubjectIds = new TreeSet<>(allSubjectIdsFromSource);
     missedSubjectIds.removeAll(retrievedSubjectIds);
 
-    if (missedSubjectIds.size() > 0) {
+    if (fullSyncRetrieveByRange && missedSubjectIds.size() > 0) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Data provider " + grouperDataProviderSync.getConfigId() + " straggler pass: " + missedSubjectIds.size() + " missed subject ids");
       }
