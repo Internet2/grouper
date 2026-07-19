@@ -198,7 +198,13 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
     if (expiresOnAndEncryptedBearerToken != null) {
       long expiresOnSeconds = (Long)expiresOnAndEncryptedBearerToken.getKey(0);
       encryptedBearerToken = (String)expiresOnAndEncryptedBearerToken.getKey(1);
-      if (expiresOnSeconds * 1000 > System.currentTimeMillis()) {
+      // refresh proactively: treat the cached token as expired once it is within a safety
+      // margin (default 60s) of its expiry, so a slow Graph call never starts on a token
+      // that expires in flight (Graph would reject that with a 401).  Access tokens live
+      // ~1h, so fetching a fresh one a minute early is cheap.  GRP-7152
+      int tokenRefreshMarginSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt(
+          "grouper.azureConnector." + configId + ".tokenRefreshMarginSeconds", 60);
+      if ((expiresOnSeconds - tokenRefreshMarginSeconds) * 1000 > System.currentTimeMillis()) {
         // use it
         if (debugMap != null) {
           debugMap.put("azureCachedAccessToken", true);
