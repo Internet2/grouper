@@ -616,6 +616,13 @@ public class DropboxApiCommands {
           }
         }
 
+        // live progress: pages groups over many slow WS calls with no total available, so report
+        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForGroups = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForGroups != null) {
+          currentProvisionerForGroups.assignProgressLabelTarget("retrieving groups from target: " + results.size() + " so far");
+        }
+
         Boolean hasMore = GrouperUtil.jsonJacksonGetBoolean(jsonNode, "has_more", false);
         String cursor = GrouperUtil.jsonJacksonGetString(jsonNode, "cursor");
         if (hasMore == null || !hasMore.booleanValue() || StringUtils.isBlank(cursor)) {
@@ -863,6 +870,13 @@ public class DropboxApiCommands {
           }
         }
 
+        // live progress: pages memberships over many slow WS calls with no total available, so report
+        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForMembers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForMembers != null) {
+          currentProvisionerForMembers.assignProgressLabelTarget("retrieving memberships from target: " + results.size() + " so far");
+        }
+
         Boolean hasMore = GrouperUtil.jsonJacksonGetBoolean(jsonNode, "has_more", false);
         String cursor = GrouperUtil.jsonJacksonGetString(jsonNode, "cursor");
         if (hasMore == null || !hasMore.booleanValue() || StringUtils.isBlank(cursor)) {
@@ -1053,6 +1067,13 @@ public class DropboxApiCommands {
             }
             results.add(user);
           }
+        }
+
+        // live progress: pages users over many slow WS calls with no total available, so report
+        // count-so-far.  Uses the existing thread-scoped current provisioner; null off a run.
+        GrouperProvisioner currentProvisionerForUsers = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+        if (currentProvisionerForUsers != null) {
+          currentProvisionerForUsers.assignProgressLabelTarget("retrieving users from target: " + results.size() + " so far");
         }
 
         Boolean hasMore = GrouperUtil.jsonJacksonGetBoolean(jsonNode, "has_more", false);

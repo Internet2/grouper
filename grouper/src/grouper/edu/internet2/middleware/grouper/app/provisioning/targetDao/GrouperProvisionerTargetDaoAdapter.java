@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -106,9 +107,42 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   }
 
   /**
-   * 
+   *
    */
   public GrouperProvisionerTargetDaoAdapter() {
+  }
+
+  /**
+   * Emits live "verb: N of M" progress labels on the target side as the parallel batches of a
+   * write/retrieve operation complete.  All the batch loops in this adapter run their batches on the
+   * executor thread pool, so completions arrive out of order and from multiple threads; the count is
+   * an AtomicInteger and the label is last-writer-wins (advisory), which is fine for a status line
+   * refreshed once a minute by the heartbeat.  One instance per operation, created before its loop.
+   */
+  private final class TargetProgressLabel {
+
+    /** e.g. "inserting entities", "retrieving groups" */
+    private final String verb;
+
+    /** total objects across all batches */
+    private final int total;
+
+    /** objects completed so far across all batches */
+    private final AtomicInteger done = new AtomicInteger(0);
+
+    private TargetProgressLabel(String verb, int total) {
+      this.verb = verb;
+      this.total = total;
+    }
+
+    /**
+     * record that a batch of the given size finished and refresh the label
+     * @param count number of objects in the batch that just completed
+     */
+    private void batchCompleted(int count) {
+      GrouperProvisionerTargetDaoAdapter.this.getGrouperProvisioner()
+          .assignProgressLabelTarget(this.verb + ": " + this.done.addAndGet(count) + " of " + this.total);
+    }
   }
 
   @Override
@@ -556,16 +590,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingUpdateGroups();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
+      final TargetProgressLabel progressLabel = new TargetProgressLabel("updating groups", GrouperUtil.length(targetGroups));
+
       for (int i=0;i<numberOfBatches;i++) {
         
         final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("updateGroups_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-          
+
           @Override
           public Void callLogic() {
             TargetDaoUpdateGroupsRequest targetDaoUpdateGroupsRequestLocal = new TargetDaoUpdateGroupsRequest();
             targetDaoUpdateGroupsRequestLocal.setTargetGroups(batchTargetGroups);
             updateGroupsHelper(targetDaoUpdateGroupsRequestLocal);
+            progressLabel.batchCompleted(GrouperUtil.length(batchTargetGroups));
             return null;
           }
         };
@@ -671,15 +708,18 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingDeleteMemberships();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetMemberships, batchSize, true);
 
+      final TargetProgressLabel progressLabel = new TargetProgressLabel("deleting memberships", GrouperUtil.length(targetMemberships));
+
       for (int i=0;i<numberOfBatches;i++) {
         
         final List<ProvisioningMembership> batchTargetMemberships = GrouperUtil.batchList(targetMemberships, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("deleteMemberships_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-          
+
           @Override
           public Void callLogic() {
-            
+
             deleteMembershipsHelper(batchTargetMemberships);
+            progressLabel.batchCompleted(GrouperUtil.length(batchTargetMemberships));
             return null;
           }
         };
@@ -1244,11 +1284,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveGroups();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
+      final TargetProgressLabel progressLabel = new TargetProgressLabel("retrieving groups", GrouperUtil.length(targetGroups));
+
       for (int i=0;i<numberOfBatches;i++) {
         
         final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveGroups_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-          
+
           @Override
           public Void callLogic() {
             TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequestLocal = new TargetDaoRetrieveGroupsRequest();
@@ -1265,11 +1307,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
               targetDaoRetrieveGroupsResponse.getTargetGroups().addAll(GrouperUtil.nonNull(targetDaoRetrieveGroupsResponseLocal.getTargetGroups()));
               targetDaoRetrieveGroupsResponse.getTargetGroupToTargetNativeGroup().putAll(GrouperUtil.nonNull(targetDaoRetrieveGroupsResponseLocal.getTargetGroupToTargetNativeGroup()));
             }
+            progressLabel.batchCompleted(GrouperUtil.length(batchTargetGroups));
             return null;
           }
         };
         grouperCallables.add(grouperCallable);
-        
+
       }
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroup(), false)) {
 
@@ -1472,11 +1515,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveGroups();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
+      final TargetProgressLabel progressLabel = new TargetProgressLabel("retrieving memberships by group", GrouperUtil.length(targetGroups));
+
       for (int i=0;i<numberOfBatches;i++) {
         
         final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveGroups_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-          
+
           @Override
           public Void callLogic() {
             TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequestLocal = new TargetDaoRetrieveMembershipsByGroupsRequest();
@@ -1492,6 +1537,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
               targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships().addAll(GrouperUtil.nonNull(targetDaoRetrieveGroupsResponseLocal.getTargetMemberships()));
               targetDaoRetrieveMembershipsByGroupsResponse.getTargetGroupToTargetNativeGroup().putAll(GrouperUtil.nonNull(targetDaoRetrieveGroupsResponseLocal.getTargetGroupToTargetNativeGroup()));
             }
+            progressLabel.batchCompleted(GrouperUtil.length(batchTargetGroups));
             return null;
           }
         };
@@ -1789,11 +1835,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveEntities();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
+      final TargetProgressLabel progressLabel = new TargetProgressLabel("retrieving memberships by user", GrouperUtil.length(targetEntities));
+
       for (int i=0;i<numberOfBatches;i++) {
         
         final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveEntities_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-          
+
           @Override
           public Void callLogic() {
             TargetDaoRetrieveMembershipsByEntitiesRequest targetDaoRetrieveMembershipsByEntitiesRequestLocal = new TargetDaoRetrieveMembershipsByEntitiesRequest();
@@ -1809,6 +1857,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
               targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships().addAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsByEntitiesResponseLocal.getTargetMemberships()));
               targetDaoRetrieveMembershipsByEntitiesResponse.getTargetEntityToTargetNativeEntity().putAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsByEntitiesResponseLocal.getTargetEntityToTargetNativeEntity()));
             }
+            progressLabel.batchCompleted(GrouperUtil.length(batchTargetEntities));
             return null;
           }
         };
@@ -2138,6 +2187,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveGroups();
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(inputGroupsWithOneMembership, batchSize, true);
 
+    final TargetProgressLabel progressLabel = new TargetProgressLabel("retrieving memberships", GrouperUtil.length(inputGroupsWithOneMembership));
+
     for (int i=0;i<numberOfBatches;i++) {
 
       final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(inputGroupsWithOneMembership, batchSize, i);
@@ -2151,6 +2202,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           synchronized(resultGroupsWithOneMembership) {
             resultGroupsWithOneMembership.addAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsResponseLocal.getTargetGroups()));
           }
+          progressLabel.batchCompleted(GrouperUtil.length(batchTargetGroups));
           return null;
         }
       };
@@ -2285,6 +2337,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveGroups();
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
+    final TargetProgressLabel progressLabel = new TargetProgressLabel("retrieving memberships", GrouperUtil.length(targetGroups));
+
     for (int i=0;i<numberOfBatches;i++) {
 
       final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
@@ -2298,6 +2352,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           synchronized(targetDaoRetrieveMembershipsResponse) {
             targetDaoRetrieveMembershipsResponse.getTargetGroups().addAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsResponseLocal.getTargetGroups()));
           }
+          progressLabel.batchCompleted(GrouperUtil.length(batchTargetGroups));
           return null;
         }
       };
@@ -2318,6 +2373,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveEntities();
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
+    final TargetProgressLabel progressLabel = new TargetProgressLabel("retrieving memberships", GrouperUtil.length(targetEntities));
+
     for (int i=0;i<numberOfBatches;i++) {
 
       final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
@@ -2331,6 +2388,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           synchronized(targetDaoRetrieveMembershipsResponse) {
             targetDaoRetrieveMembershipsResponse.getTargetEntities().addAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsResponseLocal.getTargetEntities()));
           }
+          progressLabel.batchCompleted(GrouperUtil.length(batchTargetEntities));
           return null;
         }
       };
@@ -2392,12 +2450,14 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 
     int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveMemberships();
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetMemberships, batchSize, true);
- 
+
+    final TargetProgressLabel progressLabel = new TargetProgressLabel("retrieving memberships", GrouperUtil.length(targetMemberships));
+
     for (int i=0;i<numberOfBatches;i++) {
  
       final List<ProvisioningMembership> batchTargetMemberships = GrouperUtil.batchList(targetMemberships, batchSize, i);
       GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveMemberships_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
- 
+
         @Override
         public Void callLogic() {
           TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequestLocal = new TargetDaoRetrieveMembershipsRequest();
@@ -2406,6 +2466,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           synchronized(targetDaoRetrieveMembershipsResponse) {
             targetDaoRetrieveMembershipsResponse.getTargetMemberships().addAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsResponseLocal.getTargetMemberships()));
           }
+          progressLabel.batchCompleted(GrouperUtil.length(batchTargetMemberships));
           return null;
         }
       };
@@ -2618,11 +2679,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveEntities();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
+      final TargetProgressLabel progressLabel = new TargetProgressLabel("retrieving users", GrouperUtil.length(targetEntities));
+
       for (int i=0;i<numberOfBatches;i++) {
         
         final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveEntities_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-          
+
           @Override
           public Void callLogic() {
             TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequestLocal = new TargetDaoRetrieveEntitiesRequest();
@@ -2640,6 +2703,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
               targetDaoRetrieveEntitiesResponse.getTargetEntities().addAll(GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponseLocal.getTargetEntities()));
               targetDaoRetrieveEntitiesResponse.getTargetEntityToTargetNativeEntity().putAll(GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponseLocal.getTargetEntityToTargetNativeEntity()));
             }
+            progressLabel.batchCompleted(GrouperUtil.length(batchTargetEntities));
             return null;
           }
         };
@@ -3045,16 +3109,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingInsertGroups();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
+      final TargetProgressLabel progressLabel = new TargetProgressLabel("inserting groups", GrouperUtil.length(targetGroups));
+
       for (int i=0;i<numberOfBatches;i++) {
         
         final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("insertGroups_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-          
+
           @Override
           public Void callLogic() {
             TargetDaoInsertGroupsRequest targetDaoInsertGroupsRequestLocal = new TargetDaoInsertGroupsRequest();
             targetDaoInsertGroupsRequestLocal.setTargetGroups(batchTargetGroups);
             insertGroupsHelper(targetDaoInsertGroupsRequestLocal);
+            progressLabel.batchCompleted(GrouperUtil.length(batchTargetGroups));
             return null;
           }
         };
@@ -3350,15 +3417,18 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingDeleteEntities();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
+      final TargetProgressLabel progressLabel = new TargetProgressLabel("deleting users", GrouperUtil.length(targetEntities));
+
       for (int i=0;i<numberOfBatches;i++) {
         
         final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("deleteEntities_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-          
+
           @Override
           public Void callLogic() {
-            
+
             deleteEntitiesHelper(batchTargetEntities);
+            progressLabel.batchCompleted(GrouperUtil.length(batchTargetEntities));
             return null;
           }
         };
@@ -3513,21 +3583,24 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingInsertEntities();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
+      final TargetProgressLabel progressLabel = new TargetProgressLabel("inserting entities", GrouperUtil.length(targetEntities));
+
       for (int i=0;i<numberOfBatches;i++) {
         
         final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("insertEntities_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-          
+
           @Override
           public Void callLogic() {
             TargetDaoInsertEntitiesRequest targetDaoInsertEntitiesRequestLocal = new TargetDaoInsertEntitiesRequest();
             targetDaoInsertEntitiesRequestLocal.setTargetEntityInserts(batchTargetEntities);
             insertEntitiesHelper(targetDaoInsertEntitiesRequestLocal);
+            progressLabel.batchCompleted(GrouperUtil.length(batchTargetEntities));
             return null;
           }
         };
         grouperCallables.add(grouperCallable);
-        
+
       }
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertEntity(), false)) {
 
@@ -3776,16 +3849,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingUpdateEntities();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
+      final TargetProgressLabel progressLabel = new TargetProgressLabel("updating users", GrouperUtil.length(targetEntities));
+
       for (int i=0;i<numberOfBatches;i++) {
         
         final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("updateEntities_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-          
+
           @Override
           public Void callLogic() {
             TargetDaoUpdateEntitiesRequest targetDaoUpdateEntitiesRequestLocal = new TargetDaoUpdateEntitiesRequest();
             targetDaoUpdateEntitiesRequestLocal.setTargetEntities(batchTargetEntities);
             updateEntitiesHelper(targetDaoUpdateEntitiesRequestLocal);
+            progressLabel.batchCompleted(GrouperUtil.length(batchTargetEntities));
             return null;
           }
         };
@@ -3894,15 +3970,18 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingDeleteGroups();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
+      final TargetProgressLabel progressLabel = new TargetProgressLabel("deleting groups", GrouperUtil.length(targetGroups));
+
       for (int i=0;i<numberOfBatches;i++) {
         
         final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("deleteGroups_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-          
+
           @Override
           public Void callLogic() {
-            
+
             deleteGroupsHelper(batchTargetGroups);
+            progressLabel.batchCompleted(GrouperUtil.length(batchTargetGroups));
             return null;
           }
         };
@@ -4143,16 +4222,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingInsertMemberships();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetMemberships, batchSize, true);
 
+      final TargetProgressLabel progressLabel = new TargetProgressLabel("inserting memberships", GrouperUtil.length(targetMemberships));
+
       for (int i=0;i<numberOfBatches;i++) {
         
         final List<ProvisioningMembership> batchTargetMemberships = GrouperUtil.batchList(targetMemberships, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("insertMemberships_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-          
+
           @Override
           public Void callLogic() {
             TargetDaoInsertMembershipsRequest targetDaoInsertMembershipsRequestLocal = new TargetDaoInsertMembershipsRequest();
             targetDaoInsertMembershipsRequestLocal.setTargetMemberships(batchTargetMemberships);
             insertMembershipsHelper(targetDaoInsertMembershipsRequestLocal);
+            progressLabel.batchCompleted(GrouperUtil.length(batchTargetMemberships));
             return null;
           }
         };
@@ -4293,16 +4375,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingUpdateMemberships();
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetMemberships, batchSize, true);
 
+      final TargetProgressLabel progressLabel = new TargetProgressLabel("updating memberships", GrouperUtil.length(targetMemberships));
+
       for (int i=0;i<numberOfBatches;i++) {
         
         final List<ProvisioningMembership> batchTargetMemberships = GrouperUtil.batchList(targetMemberships, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("updateMemberships_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-          
+
           @Override
           public Void callLogic() {
             TargetDaoUpdateMembershipsRequest targetDaoUpdateMembershipsRequestLocal = new TargetDaoUpdateMembershipsRequest();
             targetDaoUpdateMembershipsRequestLocal.setTargetMemberships(batchTargetMemberships);
             updateMembershipsHelper(targetDaoUpdateMembershipsRequestLocal);
+            progressLabel.batchCompleted(GrouperUtil.length(batchTargetMemberships));
             return null;
           }
         };
@@ -4577,12 +4662,14 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     int batchSize = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getProvisionerBatchingRetrieveEntities();
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(inputEntitiesWithOneMembership, batchSize, true);
-  
+
+    final TargetProgressLabel progressLabel = new TargetProgressLabel("retrieving memberships", GrouperUtil.length(inputEntitiesWithOneMembership));
+
     for (int i=0;i<numberOfBatches;i++) {
   
       final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(inputEntitiesWithOneMembership, batchSize, i);
       GrouperCallable<Void> GrouperCallable = new GrouperCallable<Void>("retrieveMemberships_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-  
+
         @Override
         public Void callLogic() {
           TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequestLocal = new TargetDaoRetrieveMembershipsRequest();
@@ -4591,6 +4678,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           synchronized(resultEntitiesWithOneMembership) {
             resultEntitiesWithOneMembership.addAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsResponseLocal.getTargetEntities()));
           }
+          progressLabel.batchCompleted(GrouperUtil.length(batchTargetEntities));
           return null;
         }
       };
