@@ -160,7 +160,7 @@
         <qpid-jms-client.version>0.61.0</qpid-jms-client.version><!-- newer major version available -->
         <amqp-client.version>5.28.0</amqp-client.version>
         
-        <jackson.version>2.20.1</jackson.version>
+        <jackson.version>2.22.1</jackson.version>
         <jsoup.version>1.21.1</jsoup.version>
         <java-ipv6.version>0.17</java-ipv6.version>
         
