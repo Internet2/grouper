@@ -30,6 +30,10 @@ the individual skill for the expected path. Never commit tokens.
 - **grouper-wiki-edit** -- edit pages on grouper.atlassian.net Confluence via the
   REST API with an API token (read via MCP, never write via MCP). Companion to
   the wiki page "Using AI to edit the Grouper wiki".
+- **grouper-jira** -- create, transition, and resolve issues in the GRP project on
+  grouper.atlassian.net via the Jira Cloud REST API with an API token (same
+  cross-site token as grouper-wiki-edit). Holds the project/issue-type/transition
+  ids and the resolution-field-not-on-screen gotcha.
 
 ## Contributing
 
