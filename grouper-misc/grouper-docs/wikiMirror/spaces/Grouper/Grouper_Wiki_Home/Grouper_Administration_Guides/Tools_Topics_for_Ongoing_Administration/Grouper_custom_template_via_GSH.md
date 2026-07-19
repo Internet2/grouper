@@ -404,7 +404,7 @@ Content-Type: application/json; charset=UTF-8
   "WsRestGshTemplateExecRequest":{
     "gshTemplateActAsSubjectLookup": {
       "subjectSourceId":"ldap",
-      "subjectId":"eisbruch@at.internet2.edu"
+      "subjectId":"eisbruch@example.com"
     },
     "ownerStemLookup":{
       "stemName":"test2"

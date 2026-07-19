@@ -451,8 +451,8 @@ GET  https://trial-8031936.okta.com/api/v1/users
             "lastName": "Hyzer",
             "mobilePhone": null,
             "secondEmail": null,
-            "login": "chris.hyzer@gmail.com",
-            "email": "chris.hyzer@gmail.com"
+            "login": "chris.hyzer@example.com",
+            "email": "chris.hyzer@example.com"
         },
         "credentials": {
             "provider": {
@@ -483,8 +483,8 @@ GET  https://trial-8031936.okta.com/api/v1/users
             "lastName": "Sachdeva",
             "mobilePhone": null,
             "secondEmail": null,
-            "login": "contact@viveksachdeva.com",
-            "email": "contact@viveksachdeva.com"
+            "login": "contact@example.com",
+            "email": "contact@example.com"
         },
         "credentials": {
             "password": {},
@@ -528,8 +528,8 @@ GET https://trial-8031936.okta.com/api/v1/users/00umxoh7cgDm3zD9v697
         "lastName": "Subject.0",
         "mobilePhone": null,
         "secondEmail": null,
-        "login": "test.subject.0@grouper.com",
-        "email": "test.subject.0@grouper.com"
+        "login": "test.subject.0@example.com",
+        "email": "test.subject.0@example.com"
     },
     "credentials": {
         "provider": {
@@ -612,8 +612,8 @@ Response: 200
         "lastName": "Subject.0",
         "mobilePhone": null,
         "secondEmail": null,
-        "login": "test.subject.0@grouper.com",
-        "email": "test.subject.0@grouper.com"
+        "login": "test.subject.0@example.com",
+        "email": "test.subject.0@example.com"
     },
     "credentials": {
         "provider": {
@@ -671,7 +671,7 @@ Content-Type: application/json
 {
     "profile": {
         "firstName": "Test0",
-        "email": "test.subject_0@grouper.com"
+        "email": "test.subject_0@example.com"
     }
 }
 ```
@@ -696,8 +696,8 @@ Response: 200
         "lastName": "Subject.0",
         "mobilePhone": null,
         "secondEmail": null,
-        "login": "test.subject.0@grouper.com",
-        "email": "test.subject_0@grouper.com"
+        "login": "test.subject.0@example.com",
+        "email": "test.subject_0@example.com"
     },
     "credentials": {
         "provider": {
@@ -766,8 +766,8 @@ Response code: 200
             "lastName": "Hyzer",
             "mobilePhone": null,
             "secondEmail": null,
-            "login": "chris.hyzer@gmail.com",
-            "email": "chris.hyzer@gmail.com"
+            "login": "chris.hyzer@example.com",
+            "email": "chris.hyzer@example.com"
         },
         "credentials": {
             "provider": {

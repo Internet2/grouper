@@ -51,7 +51,7 @@ These are the target entity attributes you map when configuring the provisioner.
 | `email` | String | Yes | `email` | Email address. Interfolio uniqueness-checks this; a duplicate causes a create to fail. Used as the entity matching attribute (see below). |
 | `first_name` | String | Yes (for create) | `first_name` | First name. |
 | `last_name` | String | Yes (for create) | `last_name` | Last name. |
-| `saml_id` | String | No | `saml_id` | The SSO id (e.g. [pennkey@upenn.edu](mailto:pennkey@upenn.edu)). Accepted on create/update but not returned by Interfolio. |
+| `saml_id` | String | No | `saml_id` | The SSO id (e.g. [pennkey@example.com](mailto:pennkey@example.com)). Accepted on create/update but not returned by Interfolio. |
 | `user_type` | String | No | `user_type` | Typically the static value `internal`. |
 
 **Matching:** match entities on `email`. The byc/core users search returns pid + name + email but **not** institution_user_id or saml_id, so email is the attribute available for finding an existing Interfolio user.

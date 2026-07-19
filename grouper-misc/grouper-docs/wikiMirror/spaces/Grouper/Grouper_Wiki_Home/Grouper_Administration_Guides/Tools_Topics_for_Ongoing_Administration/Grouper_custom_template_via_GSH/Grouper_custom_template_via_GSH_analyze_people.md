@@ -15,7 +15,7 @@ You can input (comma separated, semi-colon separated, newline separated, space s
 
 - PennIDs (subject ids)
 - PennKeys (subject identifier)
-- EPPNs (pennkey@institution.edu) (subject identifier)
+- EPPNs (pennkey@example.com) (subject identifier)
 - email addresses (looked up in our email registry, not a Grouper subject identifier)
 
 ## Output
@@ -33,8 +33,8 @@ Sample email
 | person | T\|F\|<blank> | T means its a person, F means its a role account or principal, blank means unmatched |
 | penn_id | 12345678\|<blank> | Penn ID or blank if not a matched person |
 | pennkey | jsmith | This is the PennKey if they have one |
-| email | [jsmith@whatever.upenn.edu](mailto:jsmith@whatever.upenn.edu) | Preferred email in directory |
-| eppn | [jsmith@upenn.edu](mailto:jsmith@upenn.edu) | [pennkey@upenn.edu](mailto:pennkey@upenn.edu) |
+| email | [jsmith@example.com](mailto:jsmith@example.com) | Preferred email in directory |
+| eppn | [jsmith@example.com](mailto:jsmith@example.com) | [pennkey@example.com](mailto:pennkey@example.com) |
 | primary_affiliation | STAF | Primary affiliation (e.g. full time staff is preferable to guest) |
 | center | 02 | Center code from the payroll system. Note it is possible that there is an org without a center if the user is not at Penn anymore |
 | center_name | Wharton School | Human readable label for the center |
@@ -375,7 +375,7 @@ public class Test104analyzePeople extends GshTemplateV2 {
           + "inputted_id: what was inputted in the screen<br />"
           + "matched: if this matches a person or non person<br />"
           + "person: if this matched id is a person, F for non person (service account or list serv etc)<br />"
-          + "eppn: pennkey@upenn.edu<br />"
+          + "eppn: pennkey@example.com<br />"
           + "is_workforce: if the user is a fac/staf/serv/temp/ctwk/uphs/etc<br />"
           + "is_member: if user is student or workforce or other strong relation to Penn<br />"
           + "is_affiliate: if user is member or weak relationship to Penn</html>").addAttachment(file).send();

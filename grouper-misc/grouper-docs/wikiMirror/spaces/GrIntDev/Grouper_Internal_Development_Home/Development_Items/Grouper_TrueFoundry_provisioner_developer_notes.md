@@ -46,7 +46,7 @@ Must use the subjects endpoint (not /users) as it returns rolesWithResource whic
 
 Note: the response also includes teams, virtualAccounts, and externalIdentities — filter to the users array only. In rolesWithResource, roleId is the internal ID of the role (not the role name) — cross-reference with GET /api/svc/v1/role/list to resolve to a role name.
 
-Authorization: Bearer abc123 GET $SERVICE_URL$/api/svc/v1/subjects?query=&limit=100&offset=0&showInvalidUsers=true 200 { "users": [ { "id": "cmn6b9q042ke801py895t558r", "email": "mchyzer@upenn.edu", "tenantName": "upenn-prod", "roles": ["tenant-admin"], "rolesWithResource": [ { "roleId": "cmmdr4nxr0a4301u07nnlh6kv", "resourceType": "account", "resourceId": "cmmdr4nwp0a3n01u0hcc1614w" } ], "active": true, "isEditable": true, "createdAt": "2026-03-25T17:22:10.276Z", "updatedAt": "2026-03-26T20:55:24.638Z" } ], "totalUsers": 4, "totalTeams": 4, "teams": [...], "externalIdentities": [], "totalExternalIdentities": 0, "virtualAccounts": [...] }
+Authorization: Bearer abc123 GET $SERVICE_URL$/api/svc/v1/subjects?query=&limit=100&offset=0&showInvalidUsers=true 200 { "users": [ { "id": "cmn6b9q042ke801py895t558r", "email": "mchyzer@example.com", "tenantName": "upenn-prod", "roles": ["tenant-admin"], "rolesWithResource": [ { "roleId": "cmmdr4nxr0a4301u07nnlh6kv", "resourceType": "account", "resourceId": "cmmdr4nwp0a3n01u0hcc1614w" } ], "active": true, "isEditable": true, "createdAt": "2026-03-25T17:22:10.276Z", "updatedAt": "2026-03-26T20:55:24.638Z" } ], "totalUsers": 4, "totalTeams": 4, "teams": [...], "externalIdentities": [], "totalExternalIdentities": 0, "virtualAccounts": [...] }
 
 ## Register user
 
@@ -70,7 +70,7 @@ GET /api/svc/v1/subjects?query={email}&limit=25&offset=0&showInvalidUsers=true
 
 Search for a user by email using the query parameter (URL-encoded). Returns rolesWithResource so can be used to check current role assignments for a single user. Returns totalUsers=0 if not found. Note: search by ID does not work — email is the only supported search key.
 
-Authorization: Bearer abc123 GET $SERVICE_URL$/api/svc/v1/subjects?query=oruganty%40upenn.edu&limit=25&offset=0&showInvalidUsers=true 200 { "users": [ { "id": "pt3vuwlxupmefpk8i9cj11du", "email": "oruganty@upenn.edu", "tenantName": "upenn-prod", "roles": [], "rolesWithResource": [ { "roleId": "cmmdr4nxr0a4301u07nnlh6kv", "resourceType": "account", "resourceId": "cmmdr4nwp0a3n01u0hcc1614w" } ], "active": true, "isEditable": true, "createdAt": "2026-03-27T12:37:59.013Z", "updatedAt": "2026-03-29T21:51:44.669Z" } ], "totalUsers": 1, "totalTeams": 0, "teams": [], "externalIdentities": [], "totalExternalIdentities": 0, "virtualAccounts": [], "totalVirtualAccounts": 0 }
+Authorization: Bearer abc123 GET $SERVICE_URL$/api/svc/v1/subjects?query=oruganty%40upenn.edu&limit=25&offset=0&showInvalidUsers=true 200 { "users": [ { "id": "pt3vuwlxupmefpk8i9cj11du", "email": "oruganty@example.com", "tenantName": "upenn-prod", "roles": [], "rolesWithResource": [ { "roleId": "cmmdr4nxr0a4301u07nnlh6kv", "resourceType": "account", "resourceId": "cmmdr4nwp0a3n01u0hcc1614w" } ], "active": true, "isEditable": true, "createdAt": "2026-03-27T12:37:59.013Z", "updatedAt": "2026-03-29T21:51:44.669Z" } ], "totalUsers": 1, "totalTeams": 0, "teams": [], "externalIdentities": [], "totalExternalIdentities": 0, "virtualAccounts": [], "totalVirtualAccounts": 0 }
 
 ## Get user by ID
 
@@ -148,7 +148,7 @@ GET /api/svc/v1/teams/user
 
 Returns all teams when called with a tenant-admin token. Uses limit/offset paging.
 
-Authorization: Bearer abc123 GET $SERVICE_URL$/api/svc/v1/teams/user 200 { "data": [ { "id": "a847kssbx44jlb4kz1tvpfjc", "teamName": "test3", "tenantName": "upenn-prod", "accountId": "cmmdr4nwp0a3n01u0hcc1614w", "createdAt": "2026-03-29T03:45:30.714Z", "updatedAt": "2026-03-29T04:31:12.348Z", "members": ["danefett@upenn.edu", "mchyzer@upenn.edu"], "manifest": { "name": "test3", "type": "team", "members": ["mchyzer@upenn.edu", "danefett@upenn.edu"], "managers": ["oruganty@upenn.edu", "danefett@upenn.edu"] }, "metadata": null, "isEditable": true } ], "pagination": { "total": 4, "offset": 0, "limit": 4 } }
+Authorization: Bearer abc123 GET $SERVICE_URL$/api/svc/v1/teams/user 200 { "data": [ { "id": "a847kssbx44jlb4kz1tvpfjc", "teamName": "test3", "tenantName": "upenn-prod", "accountId": "cmmdr4nwp0a3n01u0hcc1614w", "createdAt": "2026-03-29T03:45:30.714Z", "updatedAt": "2026-03-29T04:31:12.348Z", "members": ["danefett@example.com", "mchyzer@example.com"], "manifest": { "name": "test3", "type": "team", "members": ["mchyzer@example.com", "danefett@example.com"], "managers": ["oruganty@example.com", "danefett@example.com"] }, "metadata": null, "isEditable": true } ], "pagination": { "total": 4, "offset": 0, "limit": 4 } }
 
 ## Get team by ID
 

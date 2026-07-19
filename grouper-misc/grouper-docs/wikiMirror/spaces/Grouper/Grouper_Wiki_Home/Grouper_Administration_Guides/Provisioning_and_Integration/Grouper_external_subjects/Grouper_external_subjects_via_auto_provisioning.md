@@ -32,5 +32,5 @@ Properties relevant to self-registration
 | grouper-ui.properties | externalMembers.enabledRegistration | false | if the registration screen is enabled |
 | grouper-ui.properties | grouperUi.autoCreateUserFolderOnLogin | false | if true, when a user logs in, a folder will be created and granted to the user if not already there |
 | grouper-ui.properties | grouperUi.autoCreateUserFolderName | none | set a folder for the user. you can use EL here based on the subject, e.g. users:folders:${subject.id} or users:folders:${subject.getAttributeValue('identifier')} |
-| grouper.properties | externalSubjects.validateIndentiferLikeEmail | true | make sure the identifier when logging in is like an email address or eppn, e.g. username@school.edu |
+| grouper.properties | externalSubjects.validateIndentiferLikeEmail | true | make sure the identifier when logging in is like an email address or eppn, e.g. username@example.com |
 | grouper.properties | externalSubjects.autoaddGroups |  | put some group names comma separated for groups to auto add subjects to |

@@ -537,10 +537,10 @@ zoom.pennZoomProd.jwtApiSecretPassword = *******
 zoom.pennZoomProd.folderToProvision = penn:isc:ait:apps:zoom:service:policy:groups
 zoom.pennZoomProd.subjectAttributeForZoomEmail = EPPN
 zoom.pennZoomProd.sourcesForSubjects = pennperson# One issue with Zoom is users sign up with email address and we had licenses there before SSO 
-# and some subaccounts dont use SSO.  People at Penn do not all use pennkey@upenn.edu by default.  
+# and some subaccounts dont use SSO.  People at Penn do not all use pennkey@example.com by default.  
 # So, this is experimental, but we dont have email as a "subject identifier" so there is an email lookup table 
 # used to help match user when loading them from Zoom, or in the feature to normalize the email address 
-# (change it from what it was to pennkey@upenn.edu).  
+# (change it from what it was to pennkey@example.com).  
 zoom.pennZoomProd.emailLookupDbConfigId = pennCommunity
 zoom.pennZoomProd.emailLookupQuery = select LOWER_EMAIL_ADDRESS, CHAR_PENN_ID, 'pennperson' as subject_source_id from person_source_email_lookup where lower_email_address in ($$lowerEmailAddresses$$)
 zoom.pennZoomProd.groupNameToNormalizeEmailAddress = penn:isc:ait:apps:zoom:service:policy:zoomNormalizeEmailAddress

@@ -2,14 +2,14 @@
 title: "Duke University - Membership graph"
 space: Grouper
 pageId: 28545296
-version: 2
-lastUpdated: 2026-07-01T05:47:25.415Z
+version: 3
+lastUpdated: 2026-07-19T00:32:29.830Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545296/Duke+University+-+Membership+graph
 ---
 
 ## Membership graph
 
-Duke's custom UI allows you to graph the membership history of a group. You can specify the interval and the number of occurrences to graph. And you can compare it with a second group. Here is an example of one. A Jira has been created to add something similar to the Grouper UI - [GRP-2279](https://todos.internet2.edu/browse/GRP-2279)
+Duke's custom UI allows you to graph the membership history of a group. You can specify the interval and the number of occurrences to graph. And you can compare it with a second group. Here is an example of one. A Jira has been created to add something similar to the Grouper UI - [GRP-2279](https://grouper.atlassian.net/browse/GRP-2279)
 
 Here is the code to query the membership count at a given point in time.
 

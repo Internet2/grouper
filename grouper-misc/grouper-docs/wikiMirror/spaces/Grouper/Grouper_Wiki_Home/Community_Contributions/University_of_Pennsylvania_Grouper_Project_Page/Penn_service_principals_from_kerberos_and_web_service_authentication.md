@@ -94,7 +94,7 @@ subjectApi.source.servPrinc.search.searchSubject.param.sql.value = select    pri
 subjectApi.source.servPrinc.search.searchSubject.param.inclause.value = principal_name = ?
 
 #searchSubjectByIdentifier: find a subject by identifier.  Identifier is anything that uniquely
-#  identifies the user, e.g. jsmith or jsmith@institution.edu.
+#  identifies the user, e.g. jsmith or jsmith@example.com.
 #  Subjects can have multiple identifiers.  Note: it is nice to have if identifiers are unique
 #  even across sources.  Returns one result when searching for one identifier.
 subjectApi.source.servPrinc.search.searchSubjectByIdentifier.param.numParameters.value = 1

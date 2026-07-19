@@ -2,8 +2,8 @@
 title: "Grouper Security Issues"
 space: Grouper
 pageId: 28544332
-version: 43
-lastUpdated: 2026-07-12T15:26:17.563Z
+version: 44
+lastUpdated: 2026-07-19T00:32:27.226Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544332/Grouper+Security+Issues
 ---
 
@@ -14,7 +14,7 @@ You can determine the exact version you're running based on the process log duri
 IconIf you would like to report an issue you believe is security related, you can:
 
 - Slack mchyzer (Chris Hyzer) in Internet2's Slack
-- (or) e-mail [chubing@internet2.edu](mailto:chubing@internet2.edu)
+- (or) e-mail [chubing@example.com](mailto:chubing@example.com)
 
 As always, sites are advised to use the latest stable release of any Grouper product. Refer to the Grouper Downloads page for information about our support and versioning policies. The Security Advisories page identifies the specific versions recommended at a given point in time
 
@@ -28,11 +28,11 @@ Advisories noted for "All" versions should be reviewed by all deployers for rele
 
 | Date fixed | Affects versions | Fixed in versions | **Jira** | Description |
 | --- | --- | --- | --- | --- |
-| 25-Aug-2025 | v5.17.1 - v5.20.2 | v5.20.5 | [GRP-6311](https://todos.internet2.edu/browse/GRP-6311) | [Non-Grouper-admins can add harmless loader attributes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548493/Grouper+bug+-+GRP-6311+-+non-Grouper-admins+can+configure+loader+jobs) |
-| 25-Jun-2024 | v5.5 and previous | v4.13.1, v5.6 | [GRP-5515](https://todos.internet2.edu/browse/GRP-5515) | [Web Services authentication with LDAP security vulnerability](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549578/Grouper+bug+-+GRP-5515+-+web+services+LDAP+authentication+security+vulnerability) |
-| 3-Nov-2023 | 2.5.23-2.5.68, v2.6.0-v2.6.19,   v4.0.1-v4.7.2, v5.0.3-v5.4.0 | v2.5.69, v4.8.0, v5.5.0 | [GRP-5107](https://todos.internet2.edu/browse/GRP-5107) | [Authentication bypass security issue](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548270/Grouper+bug+-+GRP-5107+-+authentication+bypass) |
-| 9-Nov-2020 | 2.5.36 and 2.5.37 | 2.5.36.1, 2.5.37.1, 2.5.38+ | [GRP-3015](https://todos.internet2.edu/browse/GRP-3015) | [container prints env vars to logs which can be passwords](https://todos.internet2.edu/browse/GRP-3015) |
-| 14-May-2020 | 2.4 ui patch 46+, 2.5 up to 2.5.27 | 2.5.28 | [GRP-2705](https://todos.internet2.edu/browse/GRP-2705) | [Some encrypted values can be shown on UI to admins](https://todos.internet2.edu/browse/GRP-2705) |
+| 25-Aug-2025 | v5.17.1 - v5.20.2 | v5.20.5 | [GRP-6311](https://grouper.atlassian.net/browse/GRP-6311) | [Non-Grouper-admins can add harmless loader attributes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548493/Grouper+bug+-+GRP-6311+-+non-Grouper-admins+can+configure+loader+jobs) |
+| 25-Jun-2024 | v5.5 and previous | v4.13.1, v5.6 | [GRP-5515](https://grouper.atlassian.net/browse/GRP-5515) | [Web Services authentication with LDAP security vulnerability](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549578/Grouper+bug+-+GRP-5515+-+web+services+LDAP+authentication+security+vulnerability) |
+| 3-Nov-2023 | 2.5.23-2.5.68, v2.6.0-v2.6.19,   v4.0.1-v4.7.2, v5.0.3-v5.4.0 | v2.5.69, v4.8.0, v5.5.0 | [GRP-5107](https://grouper.atlassian.net/browse/GRP-5107) | [Authentication bypass security issue](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548270/Grouper+bug+-+GRP-5107+-+authentication+bypass) |
+| 9-Nov-2020 | 2.5.36 and 2.5.37 | 2.5.36.1, 2.5.37.1, 2.5.38+ | [GRP-3015](https://grouper.atlassian.net/browse/GRP-3015) | [container prints env vars to logs which can be passwords](https://grouper.atlassian.net/browse/GRP-3015) |
+| 14-May-2020 | 2.4 ui patch 46+, 2.5 up to 2.5.27 | 2.5.28 | [GRP-2705](https://grouper.atlassian.net/browse/GRP-2705) | [Some encrypted values can be shown on UI to admins](https://grouper.atlassian.net/browse/GRP-2705) |
 | 24-Apr-2019 | 2.4 | v2_4_0_api_patch_42 | [GRP-2110](https://bugs.internet2.edu/jira/browse/GRP-2110) | [Use SSL context while making rabbitmq connection](https://bugs.internet2.edu/jira/browse/GRP-2110) |
 | 20-Aug-2018 | 2.3 ui patch 44 | Patch for 2.3.0 | [GRP-1875](https://bugs.internet2.edu/jira/browse/GRP-1875) | [subject audits should only be seen by grouper admins](https://bugs.internet2.edu/jira/browse/GRP-1875) |
 | 20-Aug-2018 | 2.3 api patch 109 | Patch for 2.3.0 | [GRP-1876](https://bugs.internet2.edu/jira/browse/GRP-1876) | [flash cache in groups can allow subjects to view (not read) objects with quick subsequent requests](https://bugs.internet2.edu/jira/browse/GRP-1876) |

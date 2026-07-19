@@ -2,8 +2,8 @@
 title: "Contact Information"
 space: Grouper
 pageId: 28541872
-version: 25
-lastUpdated: 2026-07-01T05:50:29.727Z
+version: 26
+lastUpdated: 2026-07-19T00:32:26.012Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28541872/Contact+Information
 ---
 
@@ -18,7 +18,7 @@ Make a request to subscribe the to the Grouper Slack channel [here](https://inco
 
 # Bugs & Feature Requests
 
-Feedback on Grouper, such as bugs, suggestions, or feature requests can be put straight into the [Grouper JIRA](https://todos.internet2.edu/projects/GRP/). If you do not have access to Jira, slack Chris Hyzer with a request.
+Feedback on Grouper, such as bugs, suggestions, or feature requests can be put straight into the [Grouper JIRA](https://grouper.atlassian.net/projects/GRP/). If you do not have access to Jira, slack Chris Hyzer with a request.
 
 # Grouper Security Issues
 

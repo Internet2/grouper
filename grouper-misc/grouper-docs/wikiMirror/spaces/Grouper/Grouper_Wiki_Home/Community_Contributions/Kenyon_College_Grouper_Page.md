@@ -15,4 +15,4 @@ We tried using the PSP and were not able to get it configured correctly. Instead
 
 [Info from Kenyon College website on using Grouper](https://lbis.kenyon.edu/facilities-technology/help/email/mailinglists/updategroup)
 
-Jared Hoffman. Kenyon College Information Technology Services. hoffmanj@kenyon.edu
+Jared Hoffman. Kenyon College Information Technology Services. hoffmanj@example.com

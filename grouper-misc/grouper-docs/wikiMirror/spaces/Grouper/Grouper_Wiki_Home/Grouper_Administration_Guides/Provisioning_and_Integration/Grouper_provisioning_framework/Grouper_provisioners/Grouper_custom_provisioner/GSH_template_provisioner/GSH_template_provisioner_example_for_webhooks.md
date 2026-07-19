@@ -24,11 +24,11 @@ Grouper2SONAR_Token: abc123
   "description": "Chris Hyzer (mchyzer, 10021368) (active) Staff - Isc-tech Services-network Operations - Application Architect (also: Alumni)",
   "name": "Chris Hyzer",
   "pennname": "mchyzer",
-  "email_public": "mchyzer@upenn.edu",
+  "email_public": "mchyzer@example.com",
   "name_last_public": "Hyzer",
   "name_public": "Chris Hyzer",
   "name_first_public": "Chris",
-  "eppn": "mchyzer@upenn.edu",
+  "eppn": "mchyzer@example.com",
   "preferred_first_name": "Chris",
   "last_name": "Hyzer",
   "first_name": "Chris"

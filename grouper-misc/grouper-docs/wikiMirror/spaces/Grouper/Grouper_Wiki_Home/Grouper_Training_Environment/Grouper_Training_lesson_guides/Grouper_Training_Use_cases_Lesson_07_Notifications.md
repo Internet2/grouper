@@ -33,7 +33,7 @@ Group actions > Rules
 
 Rule pattern: Send email after new membership
 
-Email addresses: `test:emailAddressAdmins@grouper, banderson@example.edu`
+Email addresses: `test:emailAddressAdmins@grouper, banderson@example.com`
 
 Email subject: `Person was added to group ${groupName}`
 
@@ -49,9 +49,9 @@ Add dbrown to testNotifications
 
 Check email in the Mail server (may need to wait up to a minute to show up)
 
-> From: grouper@internet2.edu.invalid  
+> From: grouper@example.com  
 > Subject: Person was added to group test:testNotifications  
-> To: Dawn.Gilmore@mock.edu.invalid, banderson@example.edu
+> To: Dawn.Gilmore@example.com, banderson@example.com
 > 
 > Hello, Just letting you know Douglas Brown was added to the group testNotifications. Regards.
 

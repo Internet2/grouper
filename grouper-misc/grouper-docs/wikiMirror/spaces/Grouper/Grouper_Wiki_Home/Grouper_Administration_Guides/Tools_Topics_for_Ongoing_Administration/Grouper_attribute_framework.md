@@ -208,7 +208,7 @@ java.util.ArrayList: [there, there]
 
 #### Example
 
-Add a multi-valued attribute to a group, say mailAlternateAddress with two values "foo@memphis.edu" and "bar@memphis.edu". Here is the API code:
+Add a multi-valued attribute to a group, say mailAlternateAddress with two values "foo@example.com" and "bar@example.com". Here is the API code:
 
 ```
 AttributeDef attributeDef = stem.addChildAttributeDef("someName", AttributeDefType.attr); attributeDef.setAssignToGroup(true);
@@ -219,7 +219,7 @@ attributeDef.store();
 AttributeDefName attributeDefName = stem.addChildAttributeDefName(attributeDef, "mailAlternateAddress", "mailAlternateAddress");
 
 group.getAttributeValueDelegate().assignValuesString(
-	attributeDefName.getName(), GrouperUtil.toSet("foo@memphis.edu", "bar@memphis.edu"), true);
+	attributeDefName.getName(), GrouperUtil.toSet("foo@example.com", "bar@example.com"), true);
 
 ```
 
@@ -239,10 +239,10 @@ gsh 4% attributeDef.setAssignToImmMembership(true);
 gsh 5% attributeDef.store();
 gsh 6% myAttributeName = folder.addChildAttributeDefName(attributeDef,"myAttributeName","myAttributeName");
 edu.internet2.middleware.grouper.attr.AttributeDefName: AttributeDefName[name=Communities:LVC:LSC:MOU:UWM:UWMGroupAttributes:myAttributeName ,uuid=db8d3c93b30e4e2f96d3cdd9ae1af737]
-gsh 7% subject = SubjectFinder.findById("scott.koranda@LIGO.ORG", true);
-subject: id='scott.koranda@LIGO.ORG' type='person' source='ligo' name='Scott Koranda'
+gsh 7% subject = SubjectFinder.findById("scott.koranda@example.com", true);
+subject: id='scott.koranda@example.com' type='person' source='ligo' name='Scott Koranda'
 gsh 8% member = MemberFinder.findBySubject(grouperSession, subject, true);
-member: id='scott.koranda@LIGO.ORG' type='person' source='ligo' uuid='56246fe035bd4266bc92abb617430033'
+member: id='scott.koranda@example.com' type='person' source='ligo' uuid='56246fe035bd4266bc92abb617430033'
 gsh 9% group = GroupFinder.findByName(grouperSession, "Communities:LVC:LSC:MOU:UWM:UWMGroupMembers");
 group: name='Communities:LVC:LSC:MOU:UWM:UWMGroupMembers' displayName='Communities:LVC:LSC:MOU:UWM:UWMGroupMembers' uuid='00918b49-ad44-49aa-8b13-49d8a1aa459c'
 gsh 10% membership = MembershipFinder.findImmediateMembership(grouperSession, group,subject,Group.getDefaultList(), true)

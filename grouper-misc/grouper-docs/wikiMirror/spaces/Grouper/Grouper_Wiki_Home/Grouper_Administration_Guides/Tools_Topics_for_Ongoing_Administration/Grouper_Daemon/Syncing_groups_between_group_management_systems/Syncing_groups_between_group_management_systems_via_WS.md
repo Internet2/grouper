@@ -315,15 +315,15 @@ grouperSession = GrouperSession.startRootSession();
 delGroup("test2:whateverFolder:remoteTestPull");
 delGroup("test2:whateverFolder:remoteTestPush");
 delGroup("test2:whateverFolder:remoteTestPushIncremental");
-externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("testuser1@internet2.edu", true, null);
+externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("testuser1@example.com", true, null);
 if (externalSubject != null) {externalSubject.delete();}
-externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("testuser2@internet2.edu", true, null);
+externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("testuser2@example.com", true, null);
 if (externalSubject != null) {externalSubject.delete();}
-externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("testuser3@internet2.edu", true, null);
+externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("testuser3@example.com", true, null);
 if (externalSubject != null) {externalSubject.delete();}
-externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("testuser4@internet2.edu", true, null);
+externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("testuser4@example.com", true, null);
 if (externalSubject != null) {externalSubject.delete();}
-externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("testuser7@internet2.edu", true, null);
+externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("testuser7@example.com", true, null);
 if (externalSubject != null) {externalSubject.delete();}
 
 ```
@@ -331,46 +331,46 @@ if (externalSubject != null) {externalSubject.delete();}
 Point that somewhere, give the login privileges, and you can test the pull, push, or incremental_push. Note, if you arent running v2.0 with external members on the remote WS server, then you need to make sure the following subjects are available:
 
 ```
-gsh 0% addSubject("testuser1@internet2.edu", "person", "Test User1 at Internet2");
-gsh 0% addSubject("testuser2@internet2.edu", "person", "Test User2 at Internet2");
-gsh 0% addSubject("testuser3@internet2.edu", "person", "Test User3 at Internet2");
-gsh 0% addSubject("testuser4@internet2.edu", "person", "Test User4 at Internet2");
-gsh 0% addSubject("testuser7@internet2.edu", "person", "Test User7 at Internet2");
+gsh 0% addSubject("testuser1@example.com", "person", "Test User1 at Internet2");
+gsh 0% addSubject("testuser2@example.com", "person", "Test User2 at Internet2");
+gsh 0% addSubject("testuser3@example.com", "person", "Test User3 at Internet2");
+gsh 0% addSubject("testuser4@example.com", "person", "Test User4 at Internet2");
+gsh 0% addSubject("testuser7@example.com", "person", "Test User7 at Internet2");
 
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser1@internet2.edu', 'loginid', 'testuser1@internet2.edu', 'testuser1@internet2.edu');
+VALUES ('testuser1@example.com', 'loginid', 'testuser1@example.com', 'testuser1@example.com');
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser1@internet2.edu', 'name', 'Test User1 at Internet2', 'test user1 at internet2');
+VALUES ('testuser1@example.com', 'name', 'Test User1 at Internet2', 'test user1 at internet2');
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser1@internet2.edu', 'description', 'Test User1 at Internet2', 'test user1 at internet2');
+VALUES ('testuser1@example.com', 'description', 'Test User1 at Internet2', 'test user1 at internet2');
 
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser2@internet2.edu', 'loginid', 'testuser2@internet2.edu', 'testuser2@internet2.edu');
+VALUES ('testuser2@example.com', 'loginid', 'testuser2@example.com', 'testuser2@example.com');
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser2@internet2.edu', 'name', 'Test User2 at Internet2', 'test user2 at internet2');
+VALUES ('testuser2@example.com', 'name', 'Test User2 at Internet2', 'test user2 at internet2');
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser2@internet2.edu', 'description', 'Test User2 at Internet2', 'test user2 at internet2');
+VALUES ('testuser2@example.com', 'description', 'Test User2 at Internet2', 'test user2 at internet2');
 
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser3@internet2.edu', 'loginid', 'testuser3@internet2.edu', 'testuser3@internet2.edu');
+VALUES ('testuser3@example.com', 'loginid', 'testuser3@example.com', 'testuser3@example.com');
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser3@internet2.edu', 'name', 'Test User3 at Internet2', 'test user3 at internet2');
+VALUES ('testuser3@example.com', 'name', 'Test User3 at Internet2', 'test user3 at internet2');
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser3@internet2.edu', 'description', 'Test User3 at Internet2', 'test user3 at internet2');
+VALUES ('testuser3@example.com', 'description', 'Test User3 at Internet2', 'test user3 at internet2');
 
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser4@internet2.edu', 'loginid', 'testuser4@internet2.edu', 'testuser4@internet2.edu');
+VALUES ('testuser4@example.com', 'loginid', 'testuser4@example.com', 'testuser4@example.com');
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser4@internet2.edu', 'name', 'Test User4 at Internet2', 'test user4 at internet2');
+VALUES ('testuser4@example.com', 'name', 'Test User4 at Internet2', 'test user4 at internet2');
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser4@internet2.edu', 'description', 'Test User4 at Internet2', 'test user4 at internet2');
+VALUES ('testuser4@example.com', 'description', 'Test User4 at Internet2', 'test user4 at internet2');
 
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser7@internet2.edu', 'loginid', 'testuser7@internet2.edu', 'testuser7@internet2.edu');
+VALUES ('testuser7@example.com', 'loginid', 'testuser7@example.com', 'testuser7@example.com');
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser7@internet2.edu', 'name', 'Test User7 at Internet2', 'test user7 at internet2');
+VALUES ('testuser7@example.com', 'name', 'Test User7 at Internet2', 'test user7 at internet2');
 INSERT INTO subjectattribute (subjectId, NAME, VALUE, searchValue)
-VALUES ('testuser7@internet2.edu', 'description', 'Test User7 at Internet2', 'test user7 at internet2');
+VALUES ('testuser7@example.com', 'description', 'Test User7 at Internet2', 'test user7 at internet2');
 COMMIT;
 
 ```

@@ -154,10 +154,10 @@ gsh 33%
 ### Example email
 
 ```
-From: noreply@school.edu [mailto:noreply@school.edu]
+From: noreply@example.com [mailto:noreply@example.com]
 
 Sent: Friday, September 10, 2010 11:44 PM
-To: a@b.c; test.subject.0@somewhere.someSchool.edu
+To: a@b.c; test.subject.0@example.com
 Subject: TEST:You will be removed from group: employee on 2010/09/17
 
 Hello my name is test.subject.0,

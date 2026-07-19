@@ -29,7 +29,7 @@ attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleCheckStemS
 attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
 attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleIfOwnerNameName(), groupWwwContentEditors.getName());
 attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
-attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumArg0Name(), "mchyzer@upenn.edu");
+attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumArg0Name(), "mchyzer@example.com");
 attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumArg1Name(), "Member in WWW content editors changed orgs");
 attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumArg2Name(), "Hello, ${safeSubject.name} was removed from an org group (${groupName}) and is a WWW content editor, might want to see if they should still be a content editor.\n\n${safeSubject.description}\n\nRegards.");
 
@@ -55,7 +55,7 @@ groupWwwContentEditors.deleteMember(subjectBwh);
 -----Original Message-----
 From: noreply
 Sent: Sunday, April 27, 2014 1:41 PM
-To: www_content_admins@whatever.whatevs
+To: www_content_admins@example.com
 Subject: Member in WWW content editors changed orgs
 
 Hello, Chris Hyzer was removed from an org group (penn:community:employee:org:9147:9147_personorg) and is a WWW content editor, might want to see if they should still be a content editor.

@@ -232,7 +232,7 @@ GET $SERVICE_URL$/api/v2/requesters?per_page=100&page=1
             "location_id": null,
             "location_name": null,
             "mobile_phone_number": null,
-            "primary_email": "jsmith@upenn.edu",
+            "primary_email": "jsmith@example.com",
             "reporting_manager_id": null,
             "secondary_emails": [],
             "time_format": "12h",
@@ -288,7 +288,7 @@ GET $SERVICE_URL$/api/v2/requesters/1234567
             "location_id": null,
             "location_name": null,
             "mobile_phone_number": null,
-            "primary_email": "jsmith@upenn.edu",
+            "primary_email": "jsmith@example.com",
             "reporting_manager_id": null,
             "secondary_emails": [],
             "time_format": "12h",
@@ -303,13 +303,13 @@ GET $SERVICE_URL$/api/v2/requesters/1234567
 
 ## Get requester by email
 
-/api/v2/requesters?email=jsmith@upenn.edu
+/api/v2/requesters?email=jsmith@example.com
 
 200 if found
 
 ```
 Authorization: Basic abc123
-GET $SERVICE_URL$/api/v2/requesters?email=jsmith@upenn.edu
+GET $SERVICE_URL$/api/v2/requesters?email=jsmith@example.com
 200
 
 {
@@ -342,7 +342,7 @@ GET $SERVICE_URL$/api/v2/requesters?email=jsmith@upenn.edu
             "location_id": null,
             "location_name": null,
             "mobile_phone_number": null,
-            "primary_email": "jsmith@upenn.edu",
+            "primary_email": "jsmith@example.com",
             "reporting_manager_id": null,
             "secondary_emails": [],
             "time_format": "12h",
@@ -409,7 +409,7 @@ GET /api/v2/requesters?query=pennkey:'jsmith'
             "location_id": null,
             "location_name": null,
             "mobile_phone_number": null,
-            "primary_email": "jsmith@upenn.edu",
+            "primary_email": "jsmith@example.com",
             "reporting_manager_id": null,
             "secondary_emails": [],
             "time_format": "12h",
@@ -461,7 +461,7 @@ Content-Type: application/json
         "location_id": null,
         "location_name": null,
         "mobile_phone_number": null,
-        "primary_email": "jsmith@upenn.edu",
+        "primary_email": "jsmith@example.com",
         "reporting_manager_id": null,
         "secondary_emails": [],
         "time_format": "12h",
@@ -507,7 +507,7 @@ Response 201 if created. 409 if already exists
         "location_id": null,
         "location_name": null,
         "mobile_phone_number": null,
-        "primary_email": "jsmith@upenn.edu",
+        "primary_email": "jsmith@example.com",
         "reporting_manager_id": null,
         "secondary_emails": [],
         "time_format": "12h",
@@ -585,7 +585,7 @@ Content-Type: application/json
         "last_name": "Smith",
         "location_id": null,
         "mobile_phone_number": null,
-        "primary_email": "jsmith2@upenn.edu",
+        "primary_email": "jsmith2@example.com",
         "reporting_manager_id": null,
         "secondary_emails": [],
         "time_format": "12h",
@@ -626,7 +626,7 @@ RESPONSE:
         "location_id": null,
         "location_name": null,
         "mobile_phone_number": null,
-        "primary_email": "jsmith2@upenn.edu",
+        "primary_email": "jsmith2@example.com",
         "reporting_manager_id": null,
         "secondary_emails": [],
         "time_format": "12h",
@@ -673,7 +673,7 @@ GET /api/v2/requester_groups/39000128925/members?per_page=100&page=1
 {
     "requesters": [
         {
-            "email": "jsmith@upenn.edu",
+            "email": "jsmith@example.com",
             "first_name": "John",
             "id": 39003000136,
             "last_name": "Smith"

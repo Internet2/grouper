@@ -48,4 +48,4 @@ UC Berkeley Deployed Grouper in Summer 2014.
 - [CalGroups Resources](https://calnetweb.berkeley.edu/calnet-departments/calgroups/calgroups-resources)
 - [Berkeley Lab Commons Grouper Overview](https://commons.lbl.gov/display/IDMgmt/Grouper+Overview)
 
-For more info, calnet-admin@berkeley.edu
+For more info, calnet-admin@example.com

@@ -15,7 +15,7 @@ Unlike most other method chaining classes, you need to call assignRunAsRoot(true
 
 Sample call to send an email:
 
-> new GrouperEmail().setTo("email@domain.com").setBody("email body").setSubject("email subject").send();
+> new GrouperEmail().setTo("email@example.com").setBody("email body").setSubject("email subject").send();
 
 Send an email to a subject:
 

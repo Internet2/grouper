@@ -2,8 +2,8 @@
 title: "Subject search tuning"
 space: Grouper
 pageId: 28548779
-version: 10
-lastUpdated: 2026-07-01T05:43:32.049Z
+version: 11
+lastUpdated: 2026-07-19T00:32:34.063Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548779/Subject+search+tuning
 ---
 
@@ -15,11 +15,11 @@ Some settings apply to all sources, while others are specific to SQL or LDAP sou
 
 In both LDAP and SQL, this affects the maximum number of results returned from a general search, per subject source. If the number of results exceed this, there will be an error message and no returned results. In the top left search field, the error is "Please narrow your search. The number of results found is more than what is allowed in the configuration". In the member add combo box the error is"The value entered is not valid".
 
-Although the UI label for this field reads "Default value is '100'", this isn't correct (see [https://todos.internet2.edu/browse/GRP-4439](https://todos.internet2.edu/browse/GRP-4439)). With no set value, there is no default, and all results will be returned. This also applies to the member search combo box, which performs a search for every new character typed. Thus, it is recommended to put an integer value in this field, large enough to show a reasonably sized result set without an error.
+Although the UI label for this field reads "Default value is '100'", this isn't correct (see [https://grouper.atlassian.net/browse/GRP-4439](https://grouper.atlassian.net/browse/GRP-4439)). With no set value, there is no default, and all results will be returned. This also applies to the member search combo box, which performs a search for every new character typed. Thus, it is recommended to put an integer value in this field, large enough to show a reasonably sized result set without an error.
 
 ## JDBC (GrouperJdbcSourceAdapter2_5) search configuration
 
-Both the UI upper right search form and the Member Add combo box use the configuration field "Lower search column" (subjectApi.source.{source}.param.lowerSearchCol.value). This needs to be an actual column in the source table or view. This should be a concatenated list of all of the subject fields that should be searchable. For example, "800001147|banderson|bob anderson|bob.anderson@example.edu". The search engine will automatically add prefix and suffix wildcards to all of the tokenized search terms (splitting on whitespace). Thus, using a delimiter not normally found in user data (pipe, caret, etc.) effectively finds the right matches without false positives. For the best user experience, adjust the data in the lower search field in the database so that it returns results from keywords users would intuitively expect.
+Both the UI upper right search form and the Member Add combo box use the configuration field "Lower search column" (subjectApi.source.{source}.param.lowerSearchCol.value). This needs to be an actual column in the source table or view. This should be a concatenated list of all of the subject fields that should be searchable. For example, "800001147|banderson|bob anderson|bob.anderson@example.com". The search engine will automatically add prefix and suffix wildcards to all of the tokenized search terms (splitting on whitespace). Thus, using a delimiter not normally found in user data (pipe, caret, etc.) effectively finds the right matches without false positives. For the best user experience, adjust the data in the lower search field in the database so that it returns results from keywords users would intuitively expect.
 
 It is imperative that all the data in this column is in lowercase. The search engine will convert your query terms to lowercase, but will not convert the lower search column to lowercase. Thus, if your search column has uppercase letters the subjects may not be findable. If you are using a database table and it doesn't contain a suitable field with lowercase concatenated values, creating a view based on the original table is probably necessary. For example:
 

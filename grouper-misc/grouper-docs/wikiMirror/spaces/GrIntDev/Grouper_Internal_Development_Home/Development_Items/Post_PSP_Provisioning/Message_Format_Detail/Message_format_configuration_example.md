@@ -20,7 +20,7 @@ Maybe the institution has some defaults in testUniversity.properties and would b
 ```
 inheritFrom = classpath:messaging/grouperMessageDefault.properties
  
-sendFrom = grouper@prod.activeMq.testUniversity.edu
+sendFrom = grouper@example.com
  
 messagingImplementation = edu.internet2.middleware.grouper.messaging.systems.GrouperActiveMqMessaging
  
@@ -38,7 +38,7 @@ To send out all messages to a consumer using the default config, formats, etc, m
 ```
 inheritFrom = file:testUniversity.properties
  
-sendTo = bannerGrouper@prod.activeMq.testUniversity.edu
+sendTo = bannerGrouper@example.com
  
 joseReceiverCertificate = /something/private/bannerGrouperCert.der
 ```
@@ -48,7 +48,7 @@ To send out messages about membership changes in a certain folder without encryp
 ```
 inheritFrom = file:testUniversity.properties
 
-sendTo = testUniversityWiki@prod.activeMq.testUniversity.edu
+sendTo = testUniversityWiki@example.com
 
 allMessages.securityUri = grouperMessageFormat:Plain
  
@@ -62,7 +62,7 @@ To send out messages about membership changes in a certain folder without encryp
 ```
 inheritFrom = file:testUniversity.properties
 
-sendTo = testUniversityEmailGroups@prod.activeMq.testUniversity.edu
+sendTo = testUniversityEmailGroups@example.com
 
 allMessages.securityUri = grouperMessageFormat:Plain
 

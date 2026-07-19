@@ -229,7 +229,7 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548546/Grouper+We
             <string>Chris Hyzer</string>
             <string>Chris Hyzer (mchyzer, 10021368) (active) Staff - Isc-applications & Information Services - Application Architect (also: Alumni)</string>
             <string>mchyzer</string>
-            <string>mchyzer@upenn.edu</string>
+            <string>mchyzer@example.com</string>
           </attributeValues>
         </WsSubject>
       </wsSubjects>

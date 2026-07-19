@@ -2,8 +2,8 @@
 title: "Grouper daemon \"other job\" GSH script to load data from a rest WS to a SQL table"
 space: Grouper
 pageId: 28560397
-version: 9
-lastUpdated: 2022-02-24T22:04:02.337Z
+version: 10
+lastUpdated: 2026-07-19T00:32:46.356Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28560397/Grouper+daemon+other+job+GSH+script+to+load+data+from+a+rest+WS+to+a+SQL+table
 ---
 
@@ -72,7 +72,7 @@ CREATE TABLE load_ws_to_groups (
 
 ## Write a script to get group names and extensions
 
-Note if you are on Grouper version pre v2.6.8, you need to add a couple of functions and refactor: [GRP-3852](https://todos.internet2.edu/browse/GRP-3852), [GRP-3851](https://todos.internet2.edu/browse/GRP-3851), [GRP-3853](https://todos.internet2.edu/browse/GRP-3853), [GRP-3854](https://todos.internet2.edu/browse/GRP-3854), [GRP-3855](https://todos.internet2.edu/browse/GRP-3855), [GRP-3856](https://todos.internet2.edu/browse/GRP-3856), [GRP-3857](https://todos.internet2.edu/browse/GRP-3857)
+Note if you are on Grouper version pre v2.6.8, you need to add a couple of functions and refactor: [GRP-3852](https://grouper.atlassian.net/browse/GRP-3852), [GRP-3851](https://grouper.atlassian.net/browse/GRP-3851), [GRP-3853](https://grouper.atlassian.net/browse/GRP-3853), [GRP-3854](https://grouper.atlassian.net/browse/GRP-3854), [GRP-3855](https://grouper.atlassian.net/browse/GRP-3855), [GRP-3856](https://grouper.atlassian.net/browse/GRP-3856), [GRP-3857](https://grouper.atlassian.net/browse/GRP-3857)
 
 ```
 import java.util.LinkedHashMap;
@@ -207,7 +207,7 @@ CREATE TABLE load_ws_to_memberships (
 
 ## Write a script to get memberships
 
-Note if you are on Grouper version pre v2.6.8, you need to add a couple of functions and refactor: [GRP-3852](https://todos.internet2.edu/browse/GRP-3852), [GRP-3851](https://todos.internet2.edu/browse/GRP-3851), [GRP-3853](https://todos.internet2.edu/browse/GRP-3853), [GRP-3854](https://todos.internet2.edu/browse/GRP-3854), [GRP-3855](https://todos.internet2.edu/browse/GRP-3855), [GRP-3856](https://todos.internet2.edu/browse/GRP-3856), [GRP-3857](https://todos.internet2.edu/browse/GRP-3857)
+Note if you are on Grouper version pre v2.6.8, you need to add a couple of functions and refactor: [GRP-3852](https://grouper.atlassian.net/browse/GRP-3852), [GRP-3851](https://grouper.atlassian.net/browse/GRP-3851), [GRP-3853](https://grouper.atlassian.net/browse/GRP-3853), [GRP-3854](https://grouper.atlassian.net/browse/GRP-3854), [GRP-3855](https://grouper.atlassian.net/browse/GRP-3855), [GRP-3856](https://grouper.atlassian.net/browse/GRP-3856), [GRP-3857](https://grouper.atlassian.net/browse/GRP-3857)
 
 ```
 import java.util.ArrayList;

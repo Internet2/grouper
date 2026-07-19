@@ -2,8 +2,8 @@
 title: "9-October-2024"
 space: GrIntDev
 pageId: 48793178
-version: 12
-lastUpdated: 2026-07-12T17:02:47.057Z
+version: 13
+lastUpdated: 2026-07-19T00:32:51.885Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793178/9-October-2024
 ---
 
@@ -159,23 +159,23 @@ Chris is working on a [blog on Grouper Deprovisioning](https://docs.google.com/d
 **Chris**
 
 - Worked on [GRP-5731  
-  Date picker format is mm/dd/yyyy which is rejected](https://todos.internet2.edu/browse/GRP-5731)
+  Date picker format is mm/dd/yyyy which is rejected](https://grouper.atlassian.net/browse/GRP-5731)
 
 Chad : no way to put an end date on someone
 
 Chris will look at this
 
 - [GRP-5724  
-  custom ui redirects do not escape uri's correctly](https://todos.internet2.edu/browse/GRP-5724)
+  custom ui redirects do not escape uri's correctly](https://grouper.atlassian.net/browse/GRP-5724)
 - Want to redirect to a different page
 - You can check the state in Duo
 - [GRP-5712  
-  honor the oidc external system config for source and subject identifier type (if grouper.ui.authentication.sourceIds sources not otherwise specified)](https://todos.internet2.edu/browse/GRP-5712)
+  honor the oidc external system config for source and subject identifier type (if grouper.ui.authentication.sourceIds sources not otherwise specified)](https://grouper.atlassian.net/browse/GRP-5712)
 
 - [GRP-5711  
-  if no data is found from oidc claim in ui authn, log which is trying to be retrieved, and the claim attribute names****](https://todos.internet2.edu/browse/GRP-5711)
+  if no data is found from oidc claim in ui authn, log which is trying to be retrieved, and the claim attribute names****](https://grouper.atlassian.net/browse/GRP-5711)
 - [GRP-5706  
-  delete old provisioning sync data if it is more than 1 week old and no provisioner configured](https://todos.internet2.edu/browse/GRP-5706)
+  delete old provisioning sync data if it is more than 1 week old and no provisioner configured](https://grouper.atlassian.net/browse/GRP-5706)
 
 Chris and Drew will meet later, discuss deprovisioning issue   
 Attributes can be assigned to configure things, if we need indirect calculations, use a different table?
@@ -184,7 +184,7 @@ Attributes can be assigned to configure things, if we need indirect calculations
 
 - Working on Grouper Training Environment for Nov.
 - [GRP-5707  
-  Index member_sort_string0_idx slowing down Group.getMembers()](https://todos.internet2.edu/browse/GRP-5707)
+  Index member_sort_string0_idx slowing down Group.getMembers()](https://grouper.atlassian.net/browse/GRP-5707)
 - Chad: Issue with postgress, had to get every membership of a group, getting nested loops
 - Postgres was doing full table scan
 - Question: But don’t we need index to sort?
@@ -197,98 +197,98 @@ Attributes can be assigned to configure things, if we need indirect calculations
 **Jiras**
 
 - - [GRP-5731  
-    Date picker format is mm/dd/yyyy which is rejected](https://todos.internet2.edu/browse/GRP-5731)
+    Date picker format is mm/dd/yyyy which is rejected](https://grouper.atlassian.net/browse/GRP-5731)
   - [GRP-5730  
-    remove entries from changlog_consumer if not a job anymore](https://todos.internet2.edu/browse/GRP-5730)
+    remove entries from changlog_consumer if not a job anymore](https://grouper.atlassian.net/browse/GRP-5730)
   - [GRP-5729  
-    Upgrade from V46 to V47 fails, grouper_prov_azure_user already exists](https://todos.internet2.edu/browse/GRP-5729)
+    Upgrade from V46 to V47 fails, grouper_prov_azure_user already exists](https://grouper.atlassian.net/browse/GRP-5729)
   - [GRP-5728  
-    "no longer managed by loader" is appended too much (and maybe unnecessarily?)](https://todos.internet2.edu/browse/GRP-5728)
+    "no longer managed by loader" is appended too much (and maybe unnecessarily?)](https://grouper.atlassian.net/browse/GRP-5728)
   - [GRP-5727  
-    loader should truncate group description if too long](https://todos.internet2.edu/browse/GRP-5727)
+    loader should truncate group description if too long](https://grouper.atlassian.net/browse/GRP-5727)
   - [GRP-5726  
-    GrouperProvisioningJob shows config error and needs to be removed from config](https://todos.internet2.edu/browse/GRP-5726)
+    GrouperProvisioningJob shows config error and needs to be removed from config](https://grouper.atlassian.net/browse/GRP-5726)
   - [GRP-5725  
-    subject provisioning list should be in alpha order](https://todos.internet2.edu/browse/GRP-5725)
+    subject provisioning list should be in alpha order](https://grouper.atlassian.net/browse/GRP-5725)
   - [GRP-5724  
-    custom ui redirects do not escape uri's correctly](https://todos.internet2.edu/browse/GRP-5724)
+    custom ui redirects do not escape uri's correctly](https://grouper.atlassian.net/browse/GRP-5724)
   - [GRP-5723  
-    put favicon.ico in container](https://todos.internet2.edu/browse/GRP-5723)
+    put favicon.ico in container](https://grouper.atlassian.net/browse/GRP-5723)
   - [GRP-5722  
-    throw descriptive error if redirect url is not entered for ui oidc](https://todos.internet2.edu/browse/GRP-5722)
+    throw descriptive error if redirect url is not entered for ui oidc](https://grouper.atlassian.net/browse/GRP-5722)
   - [GRP-5721  
-    add ability to manage owners with azure](https://todos.internet2.edu/browse/GRP-5721)
+    add ability to manage owners with azure](https://grouper.atlassian.net/browse/GRP-5721)
   - [GRP-5720  
-    add ability to add custom attributes for scim](https://todos.internet2.edu/browse/GRP-5720)
+    add ability to add custom attributes for scim](https://grouper.atlassian.net/browse/GRP-5720)
   - [GRP-5719  
-    full provisioner will insert recent memberships which shouldnt be there, then delete them](https://todos.internet2.edu/browse/GRP-5719)
+    full provisioner will insert recent memberships which shouldnt be there, then delete them](https://grouper.atlassian.net/browse/GRP-5719)
   - [GRP-5718  
-    error while inserting group in ldap](https://todos.internet2.edu/browse/GRP-5718)
+    error while inserting group in ldap](https://grouper.atlassian.net/browse/GRP-5718)
   - [GRP-5717  
-    Populate sql cache group and membership tables for all groups, stems, and attributeDefs](https://todos.internet2.edu/browse/GRP-5717)
+    Populate sql cache group and membership tables for all groups, stems, and attributeDefs](https://grouper.atlassian.net/browse/GRP-5717)
   - [GRP-5716  
-    Group internal_id not populated after upgrade, causes sql cache to fail](https://todos.internet2.edu/browse/GRP-5716)
+    Group internal_id not populated after upgrade, causes sql cache to fail](https://grouper.atlassian.net/browse/GRP-5716)
   - [GRP-5715  
-    CHANGE_LOG_consumer_sqlCacheGroup fails when deleting a list name](https://todos.internet2.edu/browse/GRP-5715)
+    CHANGE_LOG_consumer_sqlCacheGroup fails when deleting a list name](https://grouper.atlassian.net/browse/GRP-5715)
   - [GRP-5714  
-    Old maintenance jobs still scheduled after v5 upgrade](https://todos.internet2.edu/browse/GRP-5714)
+    Old maintenance jobs still scheduled after v5 upgrade](https://grouper.atlassian.net/browse/GRP-5714)
   - [GRP-5713  
-    MembershipSave.save() says that it will throw a GroupNotFoundException, but it does not.](https://todos.internet2.edu/browse/GRP-5713)
+    MembershipSave.save() says that it will throw a GroupNotFoundException, but it does not.](https://grouper.atlassian.net/browse/GRP-5713)
   - [GRP-5712  
-    honor the oidc external system config for source and subject identifier type (if grouper.ui.authentication.sourceIds sources not otherwise specified)](https://todos.internet2.edu/browse/GRP-5712)
+    honor the oidc external system config for source and subject identifier type (if grouper.ui.authentication.sourceIds sources not otherwise specified)](https://grouper.atlassian.net/browse/GRP-5712)
   - [GRP-5711  
-    if no data is found from oidc claim in ui authn, log which is trying to be retrieved, and the claim attribute names](https://todos.internet2.edu/browse/GRP-5711)
+    if no data is found from oidc claim in ui authn, log which is trying to be retrieved, and the claim attribute names](https://grouper.atlassian.net/browse/GRP-5711)
   - [GRP-5710  
-    Rules text improvements](https://todos.internet2.edu/browse/GRP-5710)
+    Rules text improvements](https://grouper.atlassian.net/browse/GRP-5710)
   - [GRP-5709  
-    Provisioner failsafe does not send notification when tripped](https://todos.internet2.edu/browse/GRP-5709)
+    Provisioner failsafe does not send notification when tripped](https://grouper.atlassian.net/browse/GRP-5709)
   - [GRP-5708  
-    add duo as option for custom UI](https://todos.internet2.edu/browse/GRP-5708)
+    add duo as option for custom UI](https://grouper.atlassian.net/browse/GRP-5708)
   - [GRP-5707  
-    Index member_sort_string0_idx slowing down Group.getMembers()](https://todos.internet2.edu/browse/GRP-5707)
+    Index member_sort_string0_idx slowing down Group.getMembers()](https://grouper.atlassian.net/browse/GRP-5707)
   - [GRP-5706  
-    delete old provisioning sync data if it is more than 1 week old and no provisioner configured](https://todos.internet2.edu/browse/GRP-5706)
+    delete old provisioning sync data if it is more than 1 week old and no provisioner configured](https://grouper.atlassian.net/browse/GRP-5706)
   - [GRP-5705  
-    consolidate grouperProvisioningDaemon into cleanLogs](https://todos.internet2.edu/browse/GRP-5705)
+    consolidate grouperProvisioningDaemon into cleanLogs](https://grouper.atlassian.net/browse/GRP-5705)
   - [GRP-5704  
-    add daemon log counts to cleanLogs job](https://todos.internet2.edu/browse/GRP-5704)
+    add daemon log counts to cleanLogs job](https://grouper.atlassian.net/browse/GRP-5704)
   - [GRP-5703  
-    Retry and batching for GcDbAccess](https://todos.internet2.edu/browse/GRP-5703)
+    Retry and batching for GcDbAccess](https://grouper.atlassian.net/browse/GRP-5703)
   - [GRP-5702  
-    allow groups in abac to be specified by the quoted group name and does not have to be entity.memberOf('a:b:c')](https://todos.internet2.edu/browse/GRP-5702)
+    allow groups in abac to be specified by the quoted group name and does not have to be entity.memberOf('a:b:c')](https://grouper.atlassian.net/browse/GRP-5702)
   - [GRP-5701  
-    in an abac script if you have ! and whitespace after, it was getting stripped](https://todos.internet2.edu/browse/GRP-5701)
+    in an abac script if you have ! and whitespace after, it was getting stripped](https://grouper.atlassian.net/browse/GRP-5701)
   - [GRP-5700  
-    Code review/refactor to reduce NoSuchElementException and NullPointerException errors](https://todos.internet2.edu/browse/GRP-5700)
+    Code review/refactor to reduce NoSuchElementException and NullPointerException errors](https://grouper.atlassian.net/browse/GRP-5700)
   - [GRP-5699  
-    Jexl loader fails if a referenced group doesn't exist](https://todos.internet2.edu/browse/GRP-5699)
+    Jexl loader fails if a referenced group doesn't exist](https://grouper.atlassian.net/browse/GRP-5699)
   - [GRP-5698  
-    allow custom ui to redirect to a url, without clicking a button](https://todos.internet2.edu/browse/GRP-5698)
+    allow custom ui to redirect to a url, without clicking a button](https://grouper.atlassian.net/browse/GRP-5698)
   - [GRP-5697  
-    null pointer on deleting reports with no status](https://todos.internet2.edu/browse/GRP-5697)
+    null pointer on deleting reports with no status](https://grouper.atlassian.net/browse/GRP-5697)
   - [GRP-5696  
-    provisionable regex should take effect in incremental](https://todos.internet2.edu/browse/GRP-5696)
+    provisionable regex should take effect in incremental](https://grouper.atlassian.net/browse/GRP-5696)
   - [GRP-5695  
-    loader diagnostics for list of groups cant find group_name col in oracle](https://todos.internet2.edu/browse/GRP-5695)
+    loader diagnostics for list of groups cant find group_name col in oracle](https://grouper.atlassian.net/browse/GRP-5695)
   - [GRP-5694  
-    veto if group name is same as data field name, or vise versa](https://todos.internet2.edu/browse/GRP-5694)
+    veto if group name is same as data field name, or vise versa](https://grouper.atlassian.net/browse/GRP-5694)
   - [GRP-5693  
-    ldaptive does not return more than 1500 attribute values in AD](https://todos.internet2.edu/browse/GRP-5693)
+    ldaptive does not return more than 1500 attribute values in AD](https://grouper.atlassian.net/browse/GRP-5693)
   - [GRP-5692  
-    remove unecessary provisioning errors](https://todos.internet2.edu/browse/GRP-5692)
+    remove unecessary provisioning errors](https://grouper.atlassian.net/browse/GRP-5692)
   - [GRP-5691  
-    default provisioning metadata on groups/folder/mships should apply even if there is no non default metadata](https://todos.internet2.edu/browse/GRP-5691)
+    default provisioning metadata on groups/folder/mships should apply even if there is no non default metadata](https://grouper.atlassian.net/browse/GRP-5691)
   - [GRP-5690  
-    default provisioning metadata on entities should apply even if there is no non default metadata](https://todos.internet2.edu/browse/GRP-5690)
+    default provisioning metadata on entities should apply even if there is no non default metadata](https://grouper.atlassian.net/browse/GRP-5690)
   - [GRP-5689  
-    Entity attribute provisioner needs option to not attempt unresolvable subjects](https://todos.internet2.edu/browse/GRP-5689)
+    Entity attribute provisioner needs option to not attempt unresolvable subjects](https://grouper.atlassian.net/browse/GRP-5689)
   - [GRP-5688  
-    search results for folders should be a long link](https://todos.internet2.edu/browse/GRP-5688)
+    search results for folders should be a long link](https://grouper.atlassian.net/browse/GRP-5688)
   - [GRP-5687  
-    show full path of group when listing groups for a user](https://todos.internet2.edu/browse/GRP-5687)
+    show full path of group when listing groups for a user](https://grouper.atlassian.net/browse/GRP-5687)
 
 - - [GRP-5686  
-    in_target column is null****](https://todos.internet2.edu/browse/GRP-5686)
+    in_target column is null****](https://grouper.atlassian.net/browse/GRP-5686)
 
 **Wiki Updates**
 

@@ -272,7 +272,7 @@ The grouper url with a suffix
     //    "value": [
     //      {
     //        "id": "11111111-2222-3333-4444-555555555555",
-    //        "mail": "group1@contoso.com",
+    //        "mail": "group1@example.com",
     //        "mailEnabled": true,
     //        "mailNickname": "ContosoGroup1",
     //        "securityEnabled": true

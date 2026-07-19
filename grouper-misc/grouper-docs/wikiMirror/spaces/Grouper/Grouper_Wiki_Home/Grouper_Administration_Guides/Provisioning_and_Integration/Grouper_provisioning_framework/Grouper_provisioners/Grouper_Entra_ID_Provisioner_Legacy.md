@@ -97,7 +97,7 @@ Optional *Jexl properties support jexl2 expressions in deriving custom values. V
 | groupJexl | displayName | group.name | app:azure:provisioned:groupTypes:o365Sync:group1 | 256 |
 | mailNicknameJexl | mailNickname | group.uuid | ec3d7d285be34e3f921a6e89a1514a94 | 64 |
 | descriptionJexl | description | group.uuid | ec3d7d285be34e3f921a6e89a1514a94 | 1024 |
-| subjectJexl | userPrincipalName | subjectIdValue@domain | wreed@example.onmicrosoft.com | 1024? |
+| subjectJexl | userPrincipalName | subjectIdValue@domain | wreed@example.com | 1024? |
 
 Examples:
 
@@ -113,11 +113,11 @@ group.parentStem.parentStem.displayExtension + " - " + group.parentStem.displayE
   => Group Types - Security Groups - Group 5: Testing of Azure Security Groups
 
 subject.getAttributeValue('azurePrincipal') ?: subjectIdValue + '@' + domain
-  => vsteele@custom.domain.edu
+  => vsteele@example.com
   => (if the subject has a pre-defined principal, use it, otherwise default to the constructed one)
 
 subjectIdValue + '@' + ({'WGA': 'wga.school.edu', 'WGR': 'west-gr.edu'}.get(subject.getAttributeValue('school')) ?: 'domain.edu')
-  => snelson@wga.school.edu
+  => snelson@example.com
   => (map schools to domains, with a fallback value)
 ```
 

@@ -31,7 +31,7 @@ org.owasp.csrfguard.TokenPerPage=false
 ```
 <?xml version="1.0"?>
   <!--
-    The OWASP CSRFGuard Project, BSD License Eric Sheridan (eric@infraredsecurity.com),
+    The OWASP CSRFGuard Project, BSD License Eric Sheridan (eric@example.com),
     Copyright (c) 2011 All rights reserved. Redistribution and use in source and binary
     forms, with or without modification, are permitted provided that the following
     conditions are met: 1. Redistributions of source code must retain the above copyright

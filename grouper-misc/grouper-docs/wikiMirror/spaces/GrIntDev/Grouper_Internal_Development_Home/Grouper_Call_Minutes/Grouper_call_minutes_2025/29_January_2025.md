@@ -2,8 +2,8 @@
 title: "29-January-2025"
 space: GrIntDev
 pageId: 48793313
-version: 10
-lastUpdated: 2026-07-12T17:27:34.573Z
+version: 11
+lastUpdated: 2026-07-19T00:33:03.282Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793313/29-January-2025
 ---
 
@@ -106,7 +106,7 @@ Shilen
 
 **Chris**
 
-Chris working on [GRP-5976](https://todos.internet2.edu/browse/GRP-5976) Can't list GSH templates if any of them are missing the run folder/group
+Chris working on [GRP-5976](https://grouper.atlassian.net/browse/GRP-5976) Can't list GSH templates if any of them are missing the run folder/group
 
 - Relationship between running a template and needing a folder for it was discussed
 - Use a deeplink
@@ -127,7 +127,7 @@ Chris working on [GRP-5976](https://todos.internet2.edu/browse/GRP-5976) Can't l
 - Working on Grouper training videos
 - Log ID in UI Logs, is not useful, can't search on it, It’s in Daemon logs
 - Suggestion to move the Log ID to last or get rid of it
-- Chris captured these suggestions in JIRA [GRP-5944](https://todos.internet2.edu/browse/GRP-5944) Move daemon log column "Log ID" column to the end
+- Chris captured these suggestions in JIRA [GRP-5944](https://grouper.atlassian.net/browse/GRP-5944) Move daemon log column "Log ID" column to the end
 
 **Improving Provisioning Interface and Workflow (from Zoom AI)**
 
@@ -146,108 +146,108 @@ Chris working on [GRP-5976](https://todos.internet2.edu/browse/GRP-5976) Can't l
 
 Wiki updates
 
-- [Grouper container documentation](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549678/Grouper+container+documentation)Jan 27, 2025 • updated by jim.beard.2@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549678/Grouper+container+documentation)
+- [Grouper container documentation](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549678/Grouper+container+documentation)Jan 27, 2025 • updated by jim.beard.2@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549678/Grouper+container+documentation)
 - [Grouper upgrade tasks](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)Jan 24, 2025 • updated by Shilen Patel (duke.edu) • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)
 - [Grouper ABAC with scripted groups](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544896/Grouper+ABAC+with+scripted+groups)Jan 23, 2025 • updated by Shilen Patel (duke.edu) • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544896/Grouper+ABAC+with+scripted+groups)
-- [v5 Release Notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549048/v5+Release+Notes)Jan 23, 2025 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549048/v5+Release+Notes)
-- [v4 Release Notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes)Jan 23, 2025 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes)
-- [Grouper database - Postgres](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555261/Grouper+database+-+Postgres)Jan 23, 2025 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555261/Grouper+database+-+Postgres)
-- [Grouper LDAP provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554930/Grouper+LDAP+provisioner)Jan 16, 2025 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554930/Grouper+LDAP+provisioner)
+- [v5 Release Notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549048/v5+Release+Notes)Jan 23, 2025 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549048/v5+Release+Notes)
+- [v4 Release Notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes)Jan 23, 2025 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes)
+- [Grouper database - Postgres](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555261/Grouper+database+-+Postgres)Jan 23, 2025 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555261/Grouper+database+-+Postgres)
+- [Grouper LDAP provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554930/Grouper+LDAP+provisioner)Jan 16, 2025 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554930/Grouper+LDAP+provisioner)
 - Grouper Documents & Presentations  
   Jan 17, 2025 • updated by Emily Eisbruch (internet2.edu) • view change
-- [Grouper documentation pages to update](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792957/Grouper+documentation+pages+to+update)Jan 17, 2025 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792957/Grouper+documentation+pages+to+update)
+- [Grouper documentation pages to update](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792957/Grouper+documentation+pages+to+update)Jan 17, 2025 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792957/Grouper+documentation+pages+to+update)
 
 **JIRAs**
 
 [GRP-5976  
-Can't list GSH templates if any of them are missing the run folder/group](https://todos.internet2.edu/browse/GRP-5976)
+Can't list GSH templates if any of them are missing the run folder/group](https://grouper.atlassian.net/browse/GRP-5976)
 
 - [GRP-5975  
-  clarify restriction of ability to add every entity to memberships and privileges](https://todos.internet2.edu/browse/GRP-5975)
+  clarify restriction of ability to add every entity to memberships and privileges](https://grouper.atlassian.net/browse/GRP-5975)
 - [GRP-5974  
-  oracle install fails](https://todos.internet2.edu/browse/GRP-5974)
+  oracle install fails](https://grouper.atlassian.net/browse/GRP-5974)
 - [GRP-5973  
-  SCIM PATCH Error for ServiceNow](https://todos.internet2.edu/browse/GRP-5973)
+  SCIM PATCH Error for ServiceNow](https://grouper.atlassian.net/browse/GRP-5973)
 - [GRP-5972  
-  DDL for data field history](https://todos.internet2.edu/browse/GRP-5972)
+  DDL for data field history](https://grouper.atlassian.net/browse/GRP-5972)
 - [GRP-5971  
-  cannot run scripted group without GSH template type](https://todos.internet2.edu/browse/GRP-5971)
+  cannot run scripted group without GSH template type](https://grouper.atlassian.net/browse/GRP-5971)
 - [GRP-5970  
-  take out sys out print of upgrade tasks for unit tests](https://todos.internet2.edu/browse/GRP-5970)
+  take out sys out print of upgrade tasks for unit tests](https://grouper.atlassian.net/browse/GRP-5970)
 - [GRP-5969  
-  provisioner can select users who are provisionable in another provisioner](https://todos.internet2.edu/browse/GRP-5969)
+  provisioner can select users who are provisionable in another provisioner](https://grouper.atlassian.net/browse/GRP-5969)
 - [GRP-5968  
-  in scim search for users/groups based on what framework asks for](https://todos.internet2.edu/browse/GRP-5968)
+  in scim search for users/groups based on what framework asks for](https://grouper.atlassian.net/browse/GRP-5968)
 - [GRP-5967  
-  rename scim start with "aws" to "generic"](https://todos.internet2.edu/browse/GRP-5967)
+  rename scim start with "aws" to "generic"](https://grouper.atlassian.net/browse/GRP-5967)
 - [GRP-5966  
-  mysql install fails](https://todos.internet2.edu/browse/GRP-5966)
+  mysql install fails](https://grouper.atlassian.net/browse/GRP-5966)
 - [GRP-5965  
-  show data field/row assignments on subject screen](https://todos.internet2.edu/browse/GRP-5965)
+  show data field/row assignments on subject screen](https://grouper.atlassian.net/browse/GRP-5965)
 - [GRP-5964  
-  disabled date membership rule not working in ui](https://todos.internet2.edu/browse/GRP-5964)
+  disabled date membership rule not working in ui](https://grouper.atlassian.net/browse/GRP-5964)
 - [GRP-5963  
-  batch scim insert memberships and retry each if batch fails](https://todos.internet2.edu/browse/GRP-5963)
+  batch scim insert memberships and retry each if batch fails](https://grouper.atlassian.net/browse/GRP-5963)
 - [GRP-5962  
-  this should not be re-used: grouperUi.composite.useThread](https://todos.internet2.edu/browse/GRP-5962)
+  this should not be re-used: grouperUi.composite.useThread](https://grouper.atlassian.net/browse/GRP-5962)
 - [GRP-5961  
-  visualization with user gives error](https://todos.internet2.edu/browse/GRP-5961)
+  visualization with user gives error](https://grouper.atlassian.net/browse/GRP-5961)
 - [GRP-5960  
-  scim qualified user setting should work for formatted name](https://todos.internet2.edu/browse/GRP-5960)
+  scim qualified user setting should work for formatted name](https://grouper.atlassian.net/browse/GRP-5960)
 - [GRP-5959  
-  text properties reuse common words instead of creating new properties](https://todos.internet2.edu/browse/GRP-5959)
+  text properties reuse common words instead of creating new properties](https://grouper.atlassian.net/browse/GRP-5959)
 - [GRP-5958  
-  support subheaders in template v2 dropdowns](https://todos.internet2.edu/browse/GRP-5958)
+  support subheaders in template v2 dropdowns](https://grouper.atlassian.net/browse/GRP-5958)
 - [GRP-5957  
-  Upgrade 2.4.0 => 4.17.3 : missing grouper_sync_dep_group_group relationship](https://todos.internet2.edu/browse/GRP-5957)
+  Upgrade 2.4.0 => 4.17.3 : missing grouper_sync_dep_group_group relationship](https://grouper.atlassian.net/browse/GRP-5957)
 - [GRP-5956  
-  scim provisioner cannot select all memberships](https://todos.internet2.edu/browse/GRP-5956)
+  scim provisioner cannot select all memberships](https://grouper.atlassian.net/browse/GRP-5956)
 - [GRP-5955  
-  Google provisioner reports some memberships as ERR, but no logging to troubleshoot](https://todos.internet2.edu/browse/GRP-5955)
+  Google provisioner reports some memberships as ERR, but no logging to troubleshoot](https://grouper.atlassian.net/browse/GRP-5955)
 - [GRP-5954  
-  recursion error with getAttributeDelegate](https://todos.internet2.edu/browse/GRP-5954)
+  recursion error with getAttributeDelegate](https://grouper.atlassian.net/browse/GRP-5954)
 - [GRP-5953  
-  provisioner with canRetrieveAllData query returns duplicate entities from other provisioners](https://todos.internet2.edu/browse/GRP-5953)
+  provisioner with canRetrieveAllData query returns duplicate entities from other provisioners](https://grouper.atlassian.net/browse/GRP-5953)
 - [GRP-5952  
-  Optimize data sync - Use batch inserts/queries/deletes](https://todos.internet2.edu/browse/GRP-5952)
+  Optimize data sync - Use batch inserts/queries/deletes](https://grouper.atlassian.net/browse/GRP-5952)
 - [GRP-5951  
-  if there are multiple inherited privileges, rules UI should print all in table](https://todos.internet2.edu/browse/GRP-5951)
+  if there are multiple inherited privileges, rules UI should print all in table](https://grouper.atlassian.net/browse/GRP-5951)
 - [GRP-5950  
-  for inherited privileges the then part in the table should show the subject assigned to](https://todos.internet2.edu/browse/GRP-5950)
+  for inherited privileges the then part in the table should show the subject assigned to](https://grouper.atlassian.net/browse/GRP-5950)
 - [GRP-5949  
-  add foreign key on grouper data alias to rows like fields](https://todos.internet2.edu/browse/GRP-5949)
+  add foreign key on grouper data alias to rows like fields](https://grouper.atlassian.net/browse/GRP-5949)
 - [GRP-5948  
-  Open daemon log output in popup window](https://todos.internet2.edu/browse/GRP-5948)
+  Open daemon log output in popup window](https://grouper.atlassian.net/browse/GRP-5948)
 - [GRP-5947  
-  recent member of abac](https://todos.internet2.edu/browse/GRP-5947)
+  recent member of abac](https://grouper.atlassian.net/browse/GRP-5947)
 - [GRP-5946  
-  ldap command logging does not turn on](https://todos.internet2.edu/browse/GRP-5946)
+  ldap command logging does not turn on](https://grouper.atlassian.net/browse/GRP-5946)
 - [GRP-5945  
-  if log verbose count is 50, the provisioning log file gets truncated](https://todos.internet2.edu/browse/GRP-5945)
+  if log verbose count is 50, the provisioning log file gets truncated](https://grouper.atlassian.net/browse/GRP-5945)
 - [GRP-5944  
-  Move daemon log column "Log ID" column to the end](https://todos.internet2.edu/browse/GRP-5944)
+  Move daemon log column "Log ID" column to the end](https://grouper.atlassian.net/browse/GRP-5944)
 - [GRP-5943  
-  add provisioning option for command logging for changes only](https://todos.internet2.edu/browse/GRP-5943)
+  add provisioning option for command logging for changes only](https://grouper.atlassian.net/browse/GRP-5943)
 - [GRP-5942  
-  cannot delete group after deleting rule](https://todos.internet2.edu/browse/GRP-5942)
+  cannot delete group after deleting rule](https://grouper.atlassian.net/browse/GRP-5942)
 - [GRP-5941  
-  add rule pattern for send email when membership invalid due to group](https://todos.internet2.edu/browse/GRP-5941)
+  add rule pattern for send email when membership invalid due to group](https://grouper.atlassian.net/browse/GRP-5941)
 - [GRP-5940  
-  condition of "veto if not group" rule should display the sources](https://todos.internet2.edu/browse/GRP-5940)
+  condition of "veto if not group" rule should display the sources](https://grouper.atlassian.net/browse/GRP-5940)
 - [GRP-5939  
-  if you select g:gsa in veto if not group rule, and edit it again, then it selects other sources](https://todos.internet2.edu/browse/GRP-5939)
+  if you select g:gsa in veto if not group rule, and edit it again, then it selects other sources](https://grouper.atlassian.net/browse/GRP-5939)
 - [GRP-5938  
-  veto if not group rule does not check g:gsa by default](https://todos.internet2.edu/browse/GRP-5938)
+  veto if not group rule does not check g:gsa by default](https://grouper.atlassian.net/browse/GRP-5938)
 - [GRP-5936  
-  clarify that the rule source ids are what is allowed](https://todos.internet2.edu/browse/GRP-5936)
+  clarify that the rule source ids are what is allowed](https://grouper.atlassian.net/browse/GRP-5936)
 - [GRP-5935  
-  rename "PIT history chart" to some less jargon-y](https://todos.internet2.edu/browse/GRP-5935)
+  rename "PIT history chart" to some less jargon-y](https://grouper.atlassian.net/browse/GRP-5935)
 - [GRP-5934  
-  Google missing users should be DNE not ERR](https://todos.internet2.edu/browse/GRP-5934)
+  Google missing users should be DNE not ERR](https://grouper.atlassian.net/browse/GRP-5934)
 - [GRP-5933  
-  Provisioning error handling types should show code on label](https://todos.internet2.edu/browse/GRP-5933)
+  Provisioning error handling types should show code on label](https://grouper.atlassian.net/browse/GRP-5933)
 - [GRP-5932  
-  add error options to keep provisioning errors but not mark job as error](https://todos.internet2.edu/browse/GRP-5932)
+  add error options to keep provisioning errors but not mark job as error](https://grouper.atlassian.net/browse/GRP-5932)
 
 **Next Grouper Call**: Wed. Feb 12, 2025
 

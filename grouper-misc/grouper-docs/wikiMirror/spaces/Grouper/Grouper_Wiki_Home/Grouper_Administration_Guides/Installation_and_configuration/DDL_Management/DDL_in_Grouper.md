@@ -2,8 +2,8 @@
 title: "DDL in Grouper"
 space: Grouper
 pageId: 28548570
-version: 52
-lastUpdated: 2026-07-01T05:44:08.697Z
+version: 53
+lastUpdated: 2026-07-19T00:32:33.196Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548570/DDL+in+Grouper
 ---
 
@@ -82,7 +82,7 @@ select * from grouper_ddl where object_name = 'Grouper'
 | v4.15.0  v5.12.0 | Add grouper_prov_azure_user table | Minimal | Upgrade task v13 (in v4) and v20 (in v5) | This should not have an error   ``` select count(1) from grouper_prov_azure_user; ``` |
 | v5.13.0 | Drop grouper_sql_cache_mship internal_id column   Drop column grouper_sql_cache_mship created_on column   Add column grouper_sql_cache_group last_membership_sync   Update view grouper_sql_cache_mship_v   Drop index grouper_sql_cache_mship2_idx   Add primary key grouper_sql_cache_mship   Add index grouper_sql_cache_group grouper_sql_cache_group2_idx | Minimal | Upgrade task v21 (in v5) | This should not have an error   ``` select max(last_membership_sync) from grouper_sql_cache_group ``` |
 | v5.13.0 | Add grouper_pit_stems source_id_index   Add grouper_pit_attribute_def source_id_index   Create index grouper_pit_stems pit_stem_source_idindex_idx   Create index grouper_pit_attribute_def pit_attrdef_source_idindex_idx   Populate grouper_pit_stems source_id_index   Populate grouper_pit_attribute_def source_id_index | **Significant**  Stop   updates   when   running | Upgrade task v22 (in v5) | This should not have an error and should return a high number   ``` select count(1) from grouper_pit_stems where source_id_index is not null ``` |
-| 4.16.0  5.14.0 | [grouper_prov_adobe tables (3)](https://todos.internet2.edu/browse/GRP-5794) | **Minimal** | Upgrade task v14 (in v4) | This should not have an error   ``` select count(1) from grouper_prov_adobe_group; select count(1) from grouper_prov_adobe_user; select count(1) from grouper_prov_adobe_membership; ``` |
+| 4.16.0  5.14.0 | [grouper_prov_adobe tables (3)](https://grouper.atlassian.net/browse/GRP-5794) | **Minimal** | Upgrade task v14 (in v4) | This should not have an error   ``` select count(1) from grouper_prov_adobe_group; select count(1) from grouper_prov_adobe_user; select count(1) from grouper_prov_adobe_membership; ``` |
 | 4.17.0  5.14.1 | Add grouper_sync_mship_mem_idx | **Minimal** | Upgrade task v29 | This should exist   ``` CREATE INDEX grouper_sync_mship_mem_idx ON grouper_sync_membership (grouper_sync_member_id, last_updated); ``` |
 | 7.0.1 | Tables: grouper_lifecycle_event, grouper_lifecycle_event_config   Constraint for oracle: grouper_stems_id_index_unq | **Minimal** | Upgrade task v37 | ``` select count(1) from grouper_lifecycle_event; select count(1) from grouper_lifecycle_event_config; view constraints on grouper_stems in oracle ``` |
 | 7.0.1 | Tables: grouper_oauth_client, grouper_oauth_code, grouper_oauth_pend_authz_req, grouper_mcp_tool_log | **Minimal** | Upgrade task v38 | ``` select count(1) from grouper_oauth_client; select count(1) from grouper_oauth_code; select count(1) from grouper_oauth_pend_authz_req; select count(1) from grouper_mcp_tool_log; ``` |

@@ -2,8 +2,8 @@
 title: "Grouper enabled and disabled dates"
 space: Grouper
 pageId: 28544574
-version: 30
-lastUpdated: 2026-07-12T15:26:23.822Z
+version: 31
+lastUpdated: 2026-07-19T00:32:28.640Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544574/Grouper+enabled+and+disabled+dates
 ---
 
@@ -54,7 +54,7 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544574/Grouper+en
 - Grouper supports having enabled/disabled dates set on groups as of version 2.5.
 - This is also supported through the UI, [web services](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544233/Grouper+Web+Services), and [gsh](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545249/GrouperShell+gsh).
 - When a group is expired or unexpired, the result is propagated to memberships, privileges (except admin privileges), and attributes. In other words, those objects are also expired or unexpired.
-- Here is the [Jira issue](https://todos.internet2.edu/browse/GRP-849) which contains more details on the changes that were made.
+- Here is the [Jira issue](https://grouper.atlassian.net/browse/GRP-849) which contains more details on the changes that were made.
 - You can edit enabled/disabled dates in the UI when editing a group:
 
 ## See Also

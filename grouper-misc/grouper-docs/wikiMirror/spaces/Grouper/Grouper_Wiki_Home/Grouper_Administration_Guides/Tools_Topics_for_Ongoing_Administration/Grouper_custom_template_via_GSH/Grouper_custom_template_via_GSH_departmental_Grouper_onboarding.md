@@ -42,7 +42,7 @@ grouperGshTemplate.onboardDepartment.folderShowOnDescendants = certainFolders
 grouperGshTemplate.onboardDepartment.folderShowType = certainFolders
 grouperGshTemplate.onboardDepartment.folderUuidToShow = bb3248f4ba494b02a968da8c936ce9f6,etc\u003Atemplates
 grouperGshTemplate.onboardDepartment.groupUuidCanRun = etc\u003Asysadmingroup
-grouperGshTemplate.onboardDepartment.gshTemplate = /* 2023-10-24 Graham Ballantyne <grahamb@sfu.ca>\n\
+grouperGshTemplate.onboardDepartment.gshTemplate = /* 2023-10-24 Graham Ballantyne <grahamb@example.com>\n\
 grouperGshTemplate.onboardDepartment.input.0.description = Human-readable department name (e.g. Computing Science)
 grouperGshTemplate.onboardDepartment.input.0.formElementType = text
 grouperGshTemplate.onboardDepartment.input.0.label = Department name
@@ -85,7 +85,7 @@ grouperGshTemplate.onboardDepartment.templateName = Onboard department
 ## Code
 
 ```java
-/* 2023-10-24 Graham Ballantyne <grahamb@sfu.ca>
+/* 2023-10-24 Graham Ballantyne <grahamb@example.com>
   Creates a standard set of reference and resource groups for onboarding a department to Grouper
   Inputs:
     - gsh_input_department_name(String): Proper name of the department (used in descriptions)

@@ -2,8 +2,8 @@
 title: "2-August-2023"
 space: GrIntDev
 pageId: 48793665
-version: 8
-lastUpdated: 2026-07-12T17:03:24.396Z
+version: 9
+lastUpdated: 2026-07-19T00:33:30.373Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793665/2-August-2023
 ---
 
@@ -51,13 +51,13 @@ Grouper Training Oct. 17-20, 2023
 - We are proud to announce the release of Grouper 4.5.0.
 - There is 1 upgrade step from 4.4.0.
 - Note, if you are using a security scanner, the bouncycastle jar was updated in 4.5.0, and Tomcat was updated in 4.3.0, you might get dinged on those before those versions.
-- [17 Jiras](https://todos.internet2.edu/issues/?jql=project%20%3D%20GRP%20AND%20status%20in%20(Resolved%2C%20Closed%2C%20%22Ready%20for%20Release%22)%20AND%20fixVersion%20%3D%204.5.0%20ORDER%20BY%20key%20DESC)
-- Add progress screen for "[edit stem](https://todos.internet2.edu/browse/GRP-4832)" and "[edit composite](https://todos.internet2.edu/browse/GRP-4829)"
-- Add [hook](https://todos.internet2.edu/browse/GRP-4837) and [daemon](https://todos.internet2.edu/browse/GRP-4838) to ensure unique group extension in folder
-- [Add edit button on provisionable screen for groups or folders](https://todos.internet2.edu/browse/GRP-4843)
-- [Add run button on GSH template screen](https://todos.internet2.edu/browse/GRP-4844)
-- [Upgrade bouncycastle for vulnerability](https://todos.internet2.edu/browse/GRP-4855)
-- [Add alias1-4 to duo user provisioning](https://todos.internet2.edu/browse/GRP-4827)
+- [17 Jiras](https://grouper.atlassian.net/issues/?jql=project%20%3D%20GRP%20AND%20status%20in%20(Resolved%2C%20Closed%2C%20%22Ready%20for%20Release%22)%20AND%20fixVersion%20%3D%204.5.0%20ORDER%20BY%20key%20DESC)
+- Add progress screen for "[edit stem](https://grouper.atlassian.net/browse/GRP-4832)" and "[edit composite](https://grouper.atlassian.net/browse/GRP-4829)"
+- Add [hook](https://grouper.atlassian.net/browse/GRP-4837) and [daemon](https://grouper.atlassian.net/browse/GRP-4838) to ensure unique group extension in folder
+- [Add edit button on provisionable screen for groups or folders](https://grouper.atlassian.net/browse/GRP-4843)
+- [Add run button on GSH template screen](https://grouper.atlassian.net/browse/GRP-4844)
+- [Upgrade bouncycastle for vulnerability](https://grouper.atlassian.net/browse/GRP-4855)
+- [Add alias1-4 to duo user provisioning](https://grouper.atlassian.net/browse/GRP-4827)
 
 **Timeout issue**
 
@@ -93,7 +93,7 @@ Grouper Training Oct. 17-20, 2023
 Vivek and Chris
 
 - [GRP-4852  
-  add provisioning group jexl script example](https://todos.internet2.edu/browse/GRP-4852)
+  add provisioning group jexl script example](https://grouper.atlassian.net/browse/GRP-4852)
 - Chris worked on backend
 - Subject cache translation is new type
 - A common translation for provisioning if you want to use subject attributes
@@ -182,46 +182,46 @@ More about ABAC
 JiRAs
 
 [GRP-4868  
-add provisioning tests to remove member without making the member unprovisionable. i.e. not managing members (e.g. google but others too)](https://todos.internet2.edu/browse/GRP-4868)
+add provisioning tests to remove member without making the member unprovisionable. i.e. not managing members (e.g. google but others too)](https://grouper.atlassian.net/browse/GRP-4868)
 
 - [GRP-4867  
-  v5 data provider prompts for boolean when it shouldnt](https://todos.internet2.edu/browse/GRP-4867)
+  v5 data provider prompts for boolean when it shouldnt](https://grouper.atlassian.net/browse/GRP-4867)
 - [GRP-4866  
-  google mock does not delete memberships](https://todos.internet2.edu/browse/GRP-4866)
+  google mock does not delete memberships](https://grouper.atlassian.net/browse/GRP-4866)
 - [GRP-4865  
-  allow grouper loader to specify active dates on groups / memberships](https://todos.internet2.edu/browse/GRP-4865)
+  allow grouper loader to specify active dates on groups / memberships](https://grouper.atlassian.net/browse/GRP-4865)
 - [GRP-4864  
-  caches missing](https://todos.internet2.edu/browse/GRP-4864)
+  caches missing](https://grouper.atlassian.net/browse/GRP-4864)
 - [GRP-4863  
-  add friendly description for parts of abac script](https://todos.internet2.edu/browse/GRP-4863)
+  add friendly description for parts of abac script](https://grouper.atlassian.net/browse/GRP-4863)
 - [GRP-4862  
-  ChangeLogTempToChangelog: Active PITGroup not found](https://todos.internet2.edu/browse/GRP-4862)
+  ChangeLogTempToChangelog: Active PITGroup not found](https://grouper.atlassian.net/browse/GRP-4862)
 - [GRP-4861  
-  LDAP loaders need a way to filter non-person source members](https://todos.internet2.edu/browse/GRP-4861)
+  LDAP loaders need a way to filter non-person source members](https://grouper.atlassian.net/browse/GRP-4861)
 - [GRP-4860  
-  add a strategy in provisioning to be authoritative for value for memberships](https://todos.internet2.edu/browse/GRP-4860)
+  add a strategy in provisioning to be authoritative for value for memberships](https://grouper.atlassian.net/browse/GRP-4860)
 - [GRP-4859  
-  all provisioners were shown in list (on folder or group) when only some should be shown based on security](https://todos.internet2.edu/browse/GRP-4859)
+  all provisioners were shown in list (on folder or group) when only some should be shown based on security](https://grouper.atlassian.net/browse/GRP-4859)
 - [GRP-4858  
-  sql provisioner added folder provisionable and the incremental provisioned groups but no members](https://todos.internet2.edu/browse/GRP-4858)
+  sql provisioner added folder provisionable and the incremental provisioned groups but no members](https://grouper.atlassian.net/browse/GRP-4858)
 - [GRP-4857  
-  start with in sql provisioner can add same column twice](https://todos.internet2.edu/browse/GRP-4857)
+  start with in sql provisioner can add same column twice](https://grouper.atlassian.net/browse/GRP-4857)
 - [GRP-4856  
-  provisioning subject attribute cache translation that returns nothing evaluates to "null" string sometimes and should be null](https://todos.internet2.edu/browse/GRP-4856)
+  provisioning subject attribute cache translation that returns nothing evaluates to "null" string sometimes and should be null](https://grouper.atlassian.net/browse/GRP-4856)
 - [GRP-4855  
-  upgrade bouncycastle for vulnerability](https://todos.internet2.edu/browse/GRP-4855)
+  upgrade bouncycastle for vulnerability](https://grouper.atlassian.net/browse/GRP-4855)
 - [GRP-4854  
-  some .d folders are not found in v5 container](https://todos.internet2.edu/browse/GRP-4854)
+  some .d folders are not found in v5 container](https://grouper.atlassian.net/browse/GRP-4854)
 - [GRP-4853  
-  UI add daemon jobs for data providers](https://todos.internet2.edu/browse/GRP-4853)
+  UI add daemon jobs for data providers](https://grouper.atlassian.net/browse/GRP-4853)
 - [GRP-4852  
-  add provisioning group jexl script example](https://todos.internet2.edu/browse/GRP-4852)
+  add provisioning group jexl script example](https://grouper.atlassian.net/browse/GRP-4852)
 - [GRP-4851  
-  Provisioning Menu/Dashboard impacted by Sync Logs](https://todos.internet2.edu/browse/GRP-4851)
+  Provisioning Menu/Dashboard impacted by Sync Logs](https://grouper.atlassian.net/browse/GRP-4851)
 - [GRP-4850  
-  jexl loader add methods entity.memberOfLike() and entity.memberOfRegexp()](https://todos.internet2.edu/browse/GRP-4850)
+  jexl loader add methods entity.memberOfLike() and entity.memberOfRegexp()](https://grouper.atlassian.net/browse/GRP-4850)
 - [GRP-4849  
-  Data provider updates](https://todos.internet2.edu/browse/GRP-4849)
+  Data provider updates](https://grouper.atlassian.net/browse/GRP-4849)
 
 **Wiki Updates**
 

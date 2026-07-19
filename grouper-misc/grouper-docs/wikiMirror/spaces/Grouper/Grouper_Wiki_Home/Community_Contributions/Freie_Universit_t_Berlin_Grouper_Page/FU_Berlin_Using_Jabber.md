@@ -76,7 +76,7 @@ changeLog.consumer.xmpp.elfilter = (event.eventType eq 'GROUP_DELETE' && event.n
 Define the recipients of the notifications.
 
 ```text
-changeLog.consumer.xmpp.publisher.recipient = user1@jabber.fu-berlin.de,user2@jabber.fu-berlin.de,user3@jabber.fu-berlin.de
+changeLog.consumer.xmpp.publisher.recipient = user1@example.com,user2@example.com,user3@example.com
 ```
 
 #### Step 6: Set quartzCron execution time

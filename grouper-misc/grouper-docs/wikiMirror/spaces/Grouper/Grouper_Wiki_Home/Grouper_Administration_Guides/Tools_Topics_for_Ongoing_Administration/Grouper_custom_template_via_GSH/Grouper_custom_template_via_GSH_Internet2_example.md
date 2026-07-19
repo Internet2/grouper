@@ -341,7 +341,7 @@ Execute with GSH
     
     GshTemplateExec exec = new GshTemplateExec();
     exec.assignConfigId("createNewWorkingGroup");
-    Subject subject = SubjectFinder.findByIdAndSource("chris.hubing@at.internet2.edu", "ldap", true)
+    Subject subject = SubjectFinder.findByIdAndSource("chris.hubing@example.com", "ldap", true)
     exec.assignCurrentUser(subject);
     
     exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
@@ -425,7 +425,7 @@ curl -H "Content-Type: text/x-json; charset=UTF-8" -d "@./createworkinggroup.jso
   "WsRestGshTemplateExecRequest":{
     "gshTemplateActAsSubjectLookup": {
       "subjectSourceId":"ldap",
-      "subjectId":"eisbruch@at.internet2.edu"
+      "subjectId":"eisbruch@example.com"
     },
     "ownerStemLookup":{
       "stemName":"ref:incommon-collab"

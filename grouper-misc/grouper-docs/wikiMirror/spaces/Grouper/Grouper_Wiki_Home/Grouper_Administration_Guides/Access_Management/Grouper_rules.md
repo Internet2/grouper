@@ -289,7 +289,7 @@ mail.smtp.server = server.school.edu
 #mail.smtp.pass =
 
 #this is the default email address where mail from grouper will come from
-mail.from.address = noreply@school.edu
+mail.from.address = noreply@example.com
 
 #this is the subject prefix of emails, which will help differentiate prod vs test vs dev etc
 mail.subject.prefix = TEST:
@@ -306,7 +306,7 @@ mail.source.someName.emailAttributeName = email
 To test an email, run this in gsh:
 
 ```
-gsh 0% new GrouperEmail().setTo("something@somewhere.edu").setBody("email body").setSubject("email subject").send();
+gsh 0% new GrouperEmail().setTo("something@example.com").setBody("email body").setSubject("email subject").send();
 
 ```
 

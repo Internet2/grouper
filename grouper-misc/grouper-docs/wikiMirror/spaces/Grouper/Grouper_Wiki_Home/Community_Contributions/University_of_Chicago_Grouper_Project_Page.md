@@ -17,4 +17,4 @@ Info on U. Chicago's Groups Service from [Intro to Grouper slides](https://wiki.
 
 See also [https://grouper.uchicago.edu/](https://grouper.uchicago.edu/)
 
-For more information on Grouper at U. Chicago, contact Dave Langenberg at davel@uchicago.edu
+For more information on Grouper at U. Chicago, contact Dave Langenberg at davel@example.com

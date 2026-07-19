@@ -80,7 +80,7 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554595/Grouper+Lo
   subjectApi.source.cmuDirectory.search.searchSubject.param.base.value = ou=person,dc=cmu,dc=edu
   
   #searchSubjectByIdentifier: find a subject by identifier.  Identifier is anything that uniquely
-  #  identifies the user, e.g. jsmith or jsmith@institution.edu.
+  #  identifies the user, e.g. jsmith or jsmith@example.com.
   #  Subjects can have multiple identifiers.  Note: it is nice to have if identifiers are unique
   #  even across sources.  Returns one result when searching for one identifier.
   

@@ -46,4 +46,4 @@ Test:
 
 Hints:
 
-1. Once setup and in system email [techsupport@internet2.edu](mailto:techsupport@internet2.edu) for help
+1. Once setup and in system email [techsupport@example.com](mailto:techsupport@example.com) for help

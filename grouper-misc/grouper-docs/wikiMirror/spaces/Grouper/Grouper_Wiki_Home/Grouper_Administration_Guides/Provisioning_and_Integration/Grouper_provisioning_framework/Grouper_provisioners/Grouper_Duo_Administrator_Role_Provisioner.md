@@ -25,8 +25,8 @@ Note the credential on the Duo side needs "Grant administrators" and "Grant read
 - Note, if a user is an admin of another Duo env (e.g. not at your institution) using their eppn, then they need to change that login id
 - Example at Penn:
   
-  - Prod: users use their EPPN with SSO: [loginid@upenn.edu](mailto:loginid@upenn.edu)
-  - Non-prod: users use their IT email address without SSO: [login@isc.upenn.edu](mailto:login@isc.upenn.edu)
+  - Prod: users use their EPPN with SSO: [loginid@example.com](mailto:loginid@example.com)
+  - Non-prod: users use their IT email address without SSO: [login@example.com](mailto:login@example.com)
 - Its possible if you do not have a standard email address to set that with entity metadata (i.e. set it in the provisioning settings for a subject in grouper)
 - The role name can be the display extension of the group, or could be metadata. It must match exactly the role in Duo
 - If someone is in multiple roles in Grouper, the provisioner will select the most important role and use that (since they can only have one)

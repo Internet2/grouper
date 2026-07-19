@@ -22,7 +22,7 @@ The purpose of this document is to describe the necessary set of steps needed to
 Checkout the grouper source from the project source repository:
 
 ```bash
-git checkout git@github.com:Internet2/grouper.git
+git checkout git@example.com:Internet2/grouper.git
 ```
 
 ### Build

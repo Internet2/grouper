@@ -47,7 +47,7 @@ grouper.env.name = TEST
 #mail.smtp.pass =
 
 #this is the default email address where mail from grouper will come from
-#mail.from.address = noreply@school.edu
+#mail.from.address = noreply@example.com
 
 #this is the subject prefix of emails, which will help differentiate prod vs test vs dev etc
 #mail.subject.prefix = TEST: 
@@ -62,7 +62,7 @@ Then you can configure the relevant properties in grouper-loader.properties:
 daily.report.quartz.cron = 0 0 7 * * ?
 
 #comma separated email addresses to email the daily report
-daily.report.emailTo = mchyzer@isc.upenn.edu, mchyzer@yahoo.com
+daily.report.emailTo = mchyzer@example.com, mchyzer@example.com
 
 #if you put a directory here, the daily reports will be saved there, and you can
 #link up to a web service or store them or whatever.  e.g. /home/grouper/reports/

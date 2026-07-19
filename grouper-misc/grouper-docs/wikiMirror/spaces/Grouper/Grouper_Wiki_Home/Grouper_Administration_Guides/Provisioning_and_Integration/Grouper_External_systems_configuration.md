@@ -92,7 +92,7 @@ mail.smtp.attributeName (configId is "default")
 | server | String |  | required |
 | user | String |  |  |
 | pass | String |  | use method from config editor to save |
-| from.address | String |  | required. this is the default email address where mail from grouper will come from   e.g. noreply@school.edu |
+| from.address | String |  | required. this is the default email address where mail from grouper will come from   e.g. noreply@example.com |
 | ssl | Boolean |  |  |
 | starttls.enable | Boolean |  |  |
 | ssl.trust | String |  | if you are doing SSL/TLS, you should put the smtp server here so it is trusted |

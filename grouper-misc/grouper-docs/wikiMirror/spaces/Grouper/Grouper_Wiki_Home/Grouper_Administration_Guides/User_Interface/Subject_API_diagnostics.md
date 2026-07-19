@@ -53,13 +53,13 @@ gsh
 
 ```
 GrouperSession.startRootSession();
-new edu.internet2.middleware.grouper.grouperUi.serviceLogic.SubjectSourceDiagnostics().assignSourceId("SMUPerson_DEV").assignSubjectId("empl1").assignSubjectIdentifier("netid@school.edu").assignSearchString("em").subjectSourceDiagnosticsFromGsh()
+new edu.internet2.middleware.grouper.grouperUi.serviceLogic.SubjectSourceDiagnostics().assignSourceId("SMUPerson_DEV").assignSubjectId("empl1").assignSubjectIdentifier("netid@example.com").assignSearchString("em").subjectSourceDiagnosticsFromGsh()
 ===> 
 SUCCESS: Found subject by id in 37ms: 'empl1'
          with SubjectFinder.findByIdAndSource("empl1", "SMUPerson_DEV", false)
 SUCCESS: Subject id in returned subject matches the subject id searched for: 'empl1'
-WARNING: No subject found by identifier in 14ms: 'netid@school.edu'
-         with SubjectFinder.findByIdentifierAndSource("netid@school.edu", "SMUPerson_DEV", false)
+WARNING: No subject found by identifier in 14ms: 'netid@example.com'
+         with SubjectFinder.findByIdentifierAndSource("netid@example.com", "SMUPerson_DEV", false)
 
 ```
 
@@ -79,7 +79,7 @@ Note: email attribute is not validated
 
 ```
 SUCCESS: The emailAttributeName is configured to be: 'mail'
-SUCCESS: The email address 'whatever@someplace.edu' was found and has a valid format
+SUCCESS: The email address 'whatever@example.com' was found and has a valid format
 ```
 
 See Also

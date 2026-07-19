@@ -59,7 +59,7 @@ Assign this rule to the folder that has groups where membership is added.
 ### GSH shorthand method
 
 ```
-RuleApi.emailOnFlattenedMembershipAddFromStem(SubjectFinder.findRootSubject(), stem, Stem.Scope.SUB, "mchyzer@isc.upenn.edu, ${safeSubject.emailAddress}", "template: testEmailGroupSubjectFlattenedAddInFolder", "Hello ${safeSubject.name},\n\nJust letting you know you were removed from group ${groupDisplayExtension} in the central Groups management system.&nbsp; Please do not respond to this email.\n\nRegards.");
+RuleApi.emailOnFlattenedMembershipAddFromStem(SubjectFinder.findRootSubject(), stem, Stem.Scope.SUB, "mchyzer@example.com, ${safeSubject.emailAddress}", "template: testEmailGroupSubjectFlattenedAddInFolder", "Hello ${safeSubject.name},\n\nJust letting you know you were removed from group ${groupDisplayExtension} in the central Groups management system.&nbsp; Please do not respond to this email.\n\nRegards.");
 
 ```
 
@@ -131,8 +131,8 @@ gsh 24%
 An example email looks like this (based on configuration and optional templates):
 
 ```
-From: whatever@configured.grouper.properties
-To: a@b.c, test.subject.0@somewhere.someSchool.edu
+From: whatever@example.com
+To: a@b.c, test.subject.0@example.com
 Subject: You will be removed from group: employee
 
 Body:

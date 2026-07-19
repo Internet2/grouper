@@ -394,7 +394,7 @@ Configure it like this in the grouper-loader.properties:
 
 ```
 changeLog.consumer.activemqTest.class = edu.upenn.isc.clusterLinuxClc.ClusterLinuxChangeLogConsumer
-changeLog.consumer.activemqTest.publisher.recipient = activemq_recipient@school.edu/activemqTest, scomuser@school.edu
+changeLog.consumer.activemqTest.publisher.recipient = activemq_recipient@example.com/activemqTest, scomuser@example.com
 changeLog.consumer.activemqTest.clusterLinux.grouperFolderBase = test:folder:it_dept:apps:activemq
 changeLog.consumer.activemqTest.quartzCron =
 

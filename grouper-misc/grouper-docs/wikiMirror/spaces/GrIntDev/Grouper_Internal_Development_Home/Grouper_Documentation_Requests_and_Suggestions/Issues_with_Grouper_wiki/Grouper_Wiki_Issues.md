@@ -74,4 +74,4 @@ Maybe they should be "https://spaces.at.internet2.edu/display/Grouper/Grouper+LI
 - Archived documents in Documents & Presentations#WGArchivedDocuments that refer to [middleware.internet2.edu/dir/groups/docs/](http://middleware.internet2.edu/dir/groups/docs/)... redirect to [www.internet2.edu](http://www.internet2.edu) and a 404 page.
 - Link to "email Lists" on [Grouper Wiki Home](https://grouper.atlassian.net/wiki/spaces/Grouper/overview) page (Link is [https://www.internet2.edu/communities-groups/middleware/grouper-working-group/?edit-off#group-participate](https://www.internet2.edu/communities-groups/middleware/grouper-working-group/?edit-off#group-participate)) is a 404 Not Found FIXED Dec 2020, Thank you Liam from University of Michigan
 
-For Technical Support with the Grouper wiki, contact [techsupport@internet2.edu](mailto:techsupport@internet2.edu)
+For Technical Support with the Grouper wiki, contact [techsupport@example.com](mailto:techsupport@example.com)

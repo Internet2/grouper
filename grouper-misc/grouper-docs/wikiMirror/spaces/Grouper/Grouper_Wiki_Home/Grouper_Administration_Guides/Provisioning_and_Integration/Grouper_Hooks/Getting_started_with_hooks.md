@@ -18,9 +18,9 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547388/Getting+st
 - Install postgres, add a grouper user with a pass.
 - Download the latest grouper 1.4 branch 
   
-  - cvs -d:pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi login
-  - cvs -d:pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi export -r GROUPER_1_4_BRANCH grouper
-  - cvs -d:pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi export -r GROUPER_UI_1_4_BRANCH grouper-ui
+  - cvs -d:pserver:anoncvs@example.com:/home/cvs/i2mi login
+  - cvs -d:pserver:anoncvs@example.com:/home/cvs/i2mi export -r GROUPER_1_4_BRANCH grouper
+  - cvs -d:pserver:anoncvs@example.com:/home/cvs/i2mi export -r GROUPER_UI_1_4_BRANCH grouper-ui
 - In grouper dir, run: ant dist
 - Change these settings in conf/grouper.hibernate.properties 
   

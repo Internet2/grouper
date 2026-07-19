@@ -13,6 +13,6 @@ For any of the below images - if you download the image you see it is a web page
 
 Graph of grouper group App:Two-Factor:Duo:Enrolled - the graph is generated started at this group and then including all dependencies related to this group.
 
-Graph of groups related to subject rob@ufl.edu - not based on [permissions of rob@ufl.edu.](mailto:permissions of rob@ufl.edu.)
+Graph of groups related to subject rob@example.com - not based on [permissions of rob@example.com.](mailto:permissions of rob@example.com.)
 
 Graph starting at Root - some folders are excluded because too many items to graph... these limits are configurable.

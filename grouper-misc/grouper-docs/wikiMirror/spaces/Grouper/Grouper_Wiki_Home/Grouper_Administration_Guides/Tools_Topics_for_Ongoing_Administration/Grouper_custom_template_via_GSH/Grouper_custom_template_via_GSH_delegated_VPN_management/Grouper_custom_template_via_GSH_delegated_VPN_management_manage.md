@@ -698,7 +698,7 @@ if (mshipJobGood && timesJobGood && reportJobGood) {
  if (System.currentTimeMillis() - projectFolder.getCreateTimeLong() < 1000*60*60) {  
  gsh_builtin_gshTemplateOutput.addOutputLine("error", "This folder is less than an hour old, please try again in 15-60 minutes");  
  } else {  
- gsh_builtin_gshTemplateOutput.addOutputLine("error", "There was a problem generating a report, please contact [help@isc.upenn.edu](mailto:help@isc.upenn.edu)");  
+ gsh_builtin_gshTemplateOutput.addOutputLine("error", "There was a problem generating a report, please contact [help@example.com](mailto:help@example.com)");  
  gsh_builtin_gshTemplateOutput.assignIsError(true);  
  }  
  gsh_builtin_gshTemplateOutput.assignRedirectToGrouperOperation("NONE");  
@@ -715,7 +715,7 @@ if (actionViewReports || actionRunReportNow) {
  GrouperReportConfigurationBean reportConfigBean = GrouperReportConfigService.getGrouperReportConfigBean(projectFolder, reportConfigName);
 
 if (reportConfigBean == null) {  
- gsh_builtin_gshTemplateOutput.addOutputLine("error", "Reports are not configured for this VPN, contact [help@isc.upenn.edu](mailto:help@isc.upenn.edu) for help");  
+ gsh_builtin_gshTemplateOutput.addOutputLine("error", "Reports are not configured for this VPN, contact [help@example.com](mailto:help@example.com) for help");  
  } else {  
  gsh_builtin_gshTemplateOutput.addOutputLine("success", "Please wait while reports are retrieved");  
  gsh_builtin_gshTemplateOutput.assignRedirectToGrouperOperation("operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=" + reportConfigBean.getAttributeAssignmentMarkerId() + "&stemId=" + projectFolder.getId());  

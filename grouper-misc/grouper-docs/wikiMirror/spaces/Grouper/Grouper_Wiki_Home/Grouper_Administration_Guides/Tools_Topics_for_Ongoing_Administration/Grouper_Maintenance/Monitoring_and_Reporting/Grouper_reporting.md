@@ -96,7 +96,7 @@ Make sure you have mail setup in the SMTP external system
 #smtp server is a domain name or dns name.  set to "testing" if you want to log instead of send (e.g. for testing)
 # {valueType: "string"}
 mail.smtp.server = localhost
-mail.smtp.from.address = noreply@whatever.edu
+mail.smtp.from.address = noreply@example.com
 
 ```
 
@@ -121,7 +121,7 @@ If you are using the built in subject source, you can add a user for yourself wi
 
 ```
 grouperSession = GrouperSession.startRootSession();
-RegistrySubject.addOrUpdate(grouperSession, "mchyzer", "person", "Chris Hyzer", "Chris Hyzer", "mchyzer", "Chris Hyzer - IAM architect", "your@email.address");
+RegistrySubject.addOrUpdate(grouperSession, "mchyzer", "person", "Chris Hyzer", "Chris Hyzer", "mchyzer", "Chris Hyzer - IAM architect", "your@example.com");
 ```
 
 ## SQL Report Example

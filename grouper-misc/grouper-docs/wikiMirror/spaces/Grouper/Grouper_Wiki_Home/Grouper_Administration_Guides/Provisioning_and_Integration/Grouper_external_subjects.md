@@ -111,7 +111,7 @@ externalSubjects.autoadd.testingLibrary.expireAfterDays=
 #if registrations are only allowed if invited or existing...
 externalSubjects.registerRequiresInvite=true
 
-#make sure the identifier when logging in is like an email address or eppn, e.g. username@school.edu
+#make sure the identifier when logging in is like an email address or eppn, e.g. username@example.com
 externalSubjects.validateIndentiferLikeEmail=true
 
 #put regexes here, increment the 0 for multiple entries, e.g. restrict your own institution
@@ -201,7 +201,7 @@ Based on these configs, these are the URLs for users to use:
 If you are using Shibboleth, you can make sure the identifier is in the format a@b.c, and you can also filter out some regexes (e.g. filter out from your own institution by suffix).
 
 ```text
-#make sure the identifier when logging in is like an email address or eppn, e.g. username@school.edu
+#make sure the identifier when logging in is like an email address or eppn, e.g. username@example.com
 externalSubjects.validateIndentiferLikeEmail=true
 
 #put regexes here, increment the 0 for multiple entries, e.g. restrict your own institution
@@ -210,7 +210,7 @@ externalSubjects.regexForInvalidIdentifier.0=
 
 ```
 
-Note, if you filter out your own institution, if someone gets an invite, then notifications about registration will still be sent, and the user will still be provisioned into groups based on their local ID. This is assuming that the external identifier (e.g. user@myschool.edu) is an identifier in the local subject source...
+Note, if you filter out your own institution, if someone gets an invite, then notifications about registration will still be sent, and the user will still be provisioned into groups based on their local ID. This is assuming that the external identifier (e.g. user@example.com) is an identifier in the local subject source...
 
 ## Pluggability
 
@@ -420,7 +420,7 @@ edu.internet2.middleware.grouper.GrouperSession: 552eb161e98f47c4b98876528e36a40
 //create a new external subject
 gsh 1% externalSubject = new ExternalSubject();
 edu.internet2.middleware.grouper.externalSubjects.ExternalSubject:
-gsh 2% externalSubject.setIdentifier("abcd@school.edu");
+gsh 2% externalSubject.setIdentifier("abcd@example.com");
 gsh 3% externalSubject.setInstitution("My Institution");
 gsh 4% externalSubject.setName("My Name");
 gsh 5% externalSubject.setEmail("a@b.c");
@@ -431,11 +431,11 @@ gsh 7% externalSubject.assignAttribute("jabber", "e@r.t");
 true
 
 //find the object to edit it
-gsh 8% externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("abcd@school.edu", true, null);
-edu.internet2.middleware.grouper.externalSubjects.ExternalSubject: uuid: 759cf0f0b6874cef886a4f3138244125, identifier: abcd@school.edu, name: My Name, description: My Name - My Institution,
+gsh 8% externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier("abcd@example.com", true, null);
+edu.internet2.middleware.grouper.externalSubjects.ExternalSubject: uuid: 759cf0f0b6874cef886a4f3138244125, identifier: abcd@example.com, name: My Name, description: My Name - My Institution,
 
 //search by subject in grouper by the subject api
-gsh 9% subject = SubjectFinder.findByIdentifier("abcd@school.edu", true);
+gsh 9% subject = SubjectFinder.findByIdentifier("abcd@example.com", true);
 subject: id='759cf0f0b6874cef886a4f3138244125' type='person' source='grouperExternal' name='My Name'
 gsh 10% subject.getName();
 My Name
@@ -456,7 +456,7 @@ e@r.t
 gsh 16% externalSubject.delete();
 
 //note its not there
-gsh 17% subject = SubjectFinder.findByIdentifier("abcd@school.edu", false);
+gsh 17% subject = SubjectFinder.findByIdentifier("abcd@example.com", false);
 
 //recalculate descriptions (e.g. if the format has changed)
 gsh 18% ExternalSubject.internal_daemonCalcFields();
@@ -602,8 +602,8 @@ If someone typed in a subject, that will be used, if someone types in an email i
 An example of this email looks like this:
 
 ```text
-From: "groupersystem@gmail.com" <groupersystem@gmail.com>    <-- this is configurable in grouper.properties
-To: someuser@yahoo.com
+From: "groupersystem@example.com" <groupersystem@example.com>    <-- this is configurable in grouper.properties
+To: someuser@example.com
 Sent: Sun, November 28, 2010 10:42:21 AM
 Subject: TEST:Register to access applications
 
@@ -631,14 +631,14 @@ externalSubjectsNotifyInviterSubject = $inviteeIdentifier$ has registered
 The email to the those people looks like this (depending on the template):
 
 ```text
-From: "groupersystem@gmail.com" <groupersystem@gmail.com>    <-- note, this is configurable in grouper.properties
-To: someone@someschool.edu
+From: "groupersystem@example.com" <groupersystem@example.com>    <-- note, this is configurable in grouper.properties
+To: someone@example.com
 Sent: Sun, November 28, 2010 10:01:31 AM
-Subject: TEST:user1@school.edu has registered                <-- in non prod env's a prefix can be specified in grouper.properties
+Subject: TEST:user1@example.com has registered                <-- in non prod env's a prefix can be specified in grouper.properties
 
 Hello,
 
-This is a notification that user user1@school.edu from email address person@yahoo.com has registered with the identity management service.  They can now use applications at this institution.
+This is a notification that user user1@example.com from email address person@example.com has registered with the identity management service.  They can now use applications at this institution.
 
 Regards.
 
@@ -741,7 +741,7 @@ If you enable admin emails for invites in media.properties:
 
 ```text
 #if admins should be emailed after each action, put comma separated addresses here
-inviteExternalMembers.emailAdminsAddressesAfterActions = mchyzer@isc.upenn.edu
+inviteExternalMembers.emailAdminsAddressesAfterActions = mchyzer@example.com
 
 ```
 
@@ -749,7 +749,7 @@ Then this email is sent to the admins after each invitation:
 
 ```text
 -----Original Message-----
-From: noreply@yourschool.edu [mailto:noreply@yourschool.edu]   <-- this is configurable in grouper.properties
+From: noreply@example.com [mailto:noreply@example.com]   <-- this is configurable in grouper.properties
 Sent: Monday, November 29, 2010 2:24 PM
 To: Chris Hyzer
 Subject: TEST:Grouper external person invitation
@@ -758,8 +758,8 @@ Hey,
 
 The Grouper external subject invite screen was used by Subject id: GrouperSystem, sourceId: g:isa - GrouperSysAdmin
 
-Email addresses to invite: someone@yahoo.com
-Email addresses to notify once registered: inviter@school.edu
+Email addresses to invite: someone@example.com
+Email addresses to notify once registered: inviter@example.com
 Email subject: test subject
 Message to users: test body
 Group Names (ID Path) to assign: etc:webServiceClientUsers
@@ -774,7 +774,7 @@ You can get emails to admins on registrations too, configure in media.properties
 
 ```text
 #if admins should be emailed after each action, put comma separated addresses here
-externalMembers.emailAdminsAddressesAfterActions = mchyzer@isc.upenn.edu
+externalMembers.emailAdminsAddressesAfterActions = mchyzer@example.com
 
 ```
 
@@ -782,16 +782,16 @@ Here is an example of an email
 
 ```text
 -----Original Message-----
-From: noreply@school.edu                         <--- this is configurable in grouper.properties
+From: noreply@example.com                         <--- this is configurable in grouper.properties
 Sent: Monday, November 29, 2010 3:40 PM
 To: Chris Hyzer
 Subject: TEST:Grouper external person registration
 
 Hey,
 
-The Grouper external person registration screen was used by user1@school.edu
+The Grouper external person registration screen was used by user1@example.com
 
-User: uuid: 2e4b40f631b442ae828d669da3e14007, identifier: user1@school.edu, name: User One, description: User One - institution,
+User: uuid: 2e4b40f631b442ae828d669da3e14007, identifier: user1@example.com, name: User One, description: User One - institution,
 From invite? true
 Edit type: update
 Valid identifier: true

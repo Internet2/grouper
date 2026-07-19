@@ -105,6 +105,16 @@ is kept for change tracking.
 - Decode HTML entities (`&nbsp;` -> space, `&amp;` -> `&`, etc.).
 - Collapse runs of blank lines to at most one.
 
+### Email addresses (sanitize -- same convention as the GRP jira mirror)
+- Replace every real email address with `<localpart>@example.com`: keep the local
+  part, swap the domain to `example.com`. This keeps real addresses out of this
+  public repo while preserving readable placeholders.
+- Do **not** touch non-email `@` tokens: OData annotations (`foo@odata.bind`,
+  `@odata.id`, `@odata.context`, `@odata.type`) and JDBC/URL hosts
+  (`jdbc:oracle:thin:@host...`, which has no local part) are left as-is.
+- `wikiToMarkdown.py` does this in `redact_emails()` as the last step of the
+  Markdown finalizer, so every sync stays clean.
+
 ---
 
 ## 6. Frontmatter (YAML) at the top of every file

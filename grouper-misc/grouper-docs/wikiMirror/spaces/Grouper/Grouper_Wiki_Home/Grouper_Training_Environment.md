@@ -185,7 +185,7 @@ The ldap browser in the GTE is web based browser and might not be the easiest to
 
 ## Help
 
-If you have any questions about the workshop or its technical content, please send a note to Jean at jeanc@internet2.edu.
+If you have any questions about the workshop or its technical content, please send a note to Jean at jeanc@example.com.
 
 You can also use the dedicated Slack channel for an even faster response.
 

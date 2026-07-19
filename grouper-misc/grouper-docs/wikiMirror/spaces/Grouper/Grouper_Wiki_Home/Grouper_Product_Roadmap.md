@@ -2,8 +2,8 @@
 title: "Grouper Product Roadmap"
 space: Grouper
 pageId: 28541781
-version: 357
-lastUpdated: 2026-07-12T15:25:58.928Z
+version: 358
+lastUpdated: 2026-07-19T00:32:25.366Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28541781/Grouper+Product+Roadmap
 ---
 
@@ -52,7 +52,7 @@ Work on migrating away from legacy provisioners, SOAP, and Apache in v4.
 | **v7** | Cache redesign | Analyze and improve how Grouper caches objects in and out of Hibernate. Simply the subject API |
 | **v7** | Remove Voot | Remove the Voot provisioner |
 | **v7** | Upgrade Groovy | Major version upgrade of Groovy, for new features |
-| **v7** | Reorganize Git source | Reorganize Git source directories to be more standard ([GRP-5134](https://todos.internet2.edu/browse/GRP-5134)) |
+| **v7** | Reorganize Git source | Reorganize Git source directories to be more standard ([GRP-5134](https://grouper.atlassian.net/browse/GRP-5134)) |
 | **v9** | Revisit Grouper service registry | Identify services in grouper. Make them easy to see, join, manage, document, attest, etc.   [https://docs.google.com/document/d/1zV2kuAKOwoBFIf4GIpiQt6-NFsVkdbYdagDjGcJ7efQ/edit](https://docs.google.com/document/d/1zV2kuAKOwoBFIf4GIpiQt6-NFsVkdbYdagDjGcJ7efQ/edit) |
 | **v9** | Re-write Grouper WS | Either use SCIM or more targeted REST/JSON to streamline operations. Proxy from old to new so legacy clients are supported. New operations will not have SOAP or XML. SOAP jars will no longer be in Grouper (proxy to another shim project) |
 | **?** | GSH loader | [Allow a loader to be a GSH script to load groups and memberships (like SQL)](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547778/Grouper+-+Loader+GSH) |
@@ -84,7 +84,7 @@ Work on migrating away from legacy provisioners, SOAP, and Apache in v4.
 | ? |  | Can application owners see reference group? via attributes |
 | ? | WCAG accessibility certification | Various accessibility analyses have been done by institutions. Changes have been implemented in the UI when reported. There is not yet a formal WCAG compliance certification (e.g. WCAG 2.0, 2.1). Customers needing an RFP to implement Grouper or that have requirements for a WCAG report could benefit from one. |
 | ? | Upgrade bootstrap | Major upgrade to bootstrap UI CSS and JS, or migrate to something else |
-| ? | Reorganize Git source | Reorganize Git source directories to be more standard ([GRP-5134](https://todos.internet2.edu/browse/GRP-5134)) |
+| ? | Reorganize Git source | Reorganize Git source directories to be more standard ([GRP-5134](https://grouper.atlassian.net/browse/GRP-5134)) |
 | **On-going** | Rewrite Grouper wiki | Remove old docs and make sure missing docs are added |
 | **On-going** | [Update third party libraries](https://grouper.atlassian.net/wiki/pages/createpage.action?spaceKey=grouper&title=Identifying%20and%20Updating%20Grouper%20Libraries%20%282017-2018%29&linkCreation=true&fromPageId=28541781) | Update third party libraries to the latest version |
 | **On-going** | Update training videos | Go through training videos and either keep, re-record, annotate, or delete. Identify new training videos to make |
@@ -112,7 +112,7 @@ A brief explanation of why some things seem to have disappeared from earlier ver
 | **v5 (DONE)** | Fix pac4j include with releases | Build Grouper authentication jar (minimal) and assemble the larger plugin jar when the container is built. Include the authentication plugin jar in container for easy use. |
 | **v5 (DONE)** | Upgrade http client | Upgrade to supported HTTP client in all Grouper modules |
 | **v5 (DONE)** | Installer in docker, remove installer java module | Move the "installer logic" to be in the Dockerfile |
-| **v4 (DONE)** | Min group membership size | In loader jobs and just on groups have min group sizes   [https://todos.internet2.edu/browse/GRP-2388](https://todos.internet2.edu/browse/GRP-2388) |
+| **v4 (DONE)** | Min group membership size | In loader jobs and just on groups have min group sizes   [https://grouper.atlassian.net/browse/GRP-2388](https://grouper.atlassian.net/browse/GRP-2388) |
 | **v5 (DONE)** | Add group graph | Add group membership information for a user in the visualization. |
 | **v5 (DONE)** | Normalize UUIDs, add idIndexes | For core objects which do not have idIndex, add. Normalize UUIDs so they are lower case without dash. |
 | **v4 (DONE)** | Playwright in UI to sanity test Grouper | Add Playwright in UI so Grouper can be sanity tested on upgrade (or whenever) |
@@ -164,13 +164,13 @@ A brief explanation of why some things seem to have disappeared from earlier ver
 | **v2.5 (DONE)** | Update WS/UI authn | [Basic authn in database. Passwordless WS authn in future](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549360/Grouper+Built-in+Basic+Authentication+to+UI+and+Web+Services) |
 | **v2.5 (DONE)** | Grouper installer installs container | REMOVED |
 | **v2.5 (DONE)** | Container redesign | [One servlet container, easier mounts, one directory structure, fewer processes, maven build, patchless](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549678/Grouper+container+documentation) |
-| **v2.4 patch (DONE)** | attributes on memberships | [allow direct and indirect attributes on memberships in UI](https://todos.internet2.edu/browse/GRP-2434) |
+| **v2.4 patch (DONE)** | attributes on memberships | [allow direct and indirect attributes on memberships in UI](https://grouper.atlassian.net/browse/GRP-2434) |
 | **v2.5 (DONE)** | Require container | Grouper requires a container to run. No tarballs will be distributed. The grouper installer will install the container easily |
 | **v2.5 (DONE)** | Expire dates on groups | [GRP-849: add enable/disable dates on groups like memberships and permisisons](https://bugs.internet2.edu/jira/browse/GRP-849) |
 | **v2.4 patch (DONE)** | Custom join/leave/analyze UI | [Simple custom join/leave UI, also analyze access](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549064/Grouper+Custom+UI) |
 | **v2.5 (DONE)** | Improve pagination in WS | [Cursor based paging](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544698/Cursor+based+paging+to+download+large+amounts+of+data+without+missing+records+during+inserts+deletes) |
-| **v2.5 (DONE)** | Add some web services | [Add GRP-2153: Add audit log functions to the Web Service](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548223/Get+Audit+Entries)  [Add point in time options for WS get members, get groups, group save, get memberships](https://todos.internet2.edu/browse/GRP-2180) |
-| **v2.4 patch (DONE)** | Screens to show attribute assignments from attribute def (name) | [GRP-2302: create screen to show attribute assignments from an attribute def](https://todos.internet2.edu/browse/GRP-2302)  [GRP-2303: create screen to show attribute assignments from an attribute def name](https://todos.internet2.edu/browse/GRP-2303) |
+| **v2.5 (DONE)** | Add some web services | [Add GRP-2153: Add audit log functions to the Web Service](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548223/Get+Audit+Entries)  [Add point in time options for WS get members, get groups, group save, get memberships](https://grouper.atlassian.net/browse/GRP-2180) |
+| **v2.4 patch (DONE)** | Screens to show attribute assignments from attribute def (name) | [GRP-2302: create screen to show attribute assignments from an attribute def](https://grouper.atlassian.net/browse/GRP-2302)  [GRP-2303: create screen to show attribute assignments from an attribute def name](https://grouper.atlassian.net/browse/GRP-2303) |
 | **v2.4 patch (DONE)** | [Allow configuration to be stored in database](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555638/Grouper+configuration+in+the+database+and+UI) | Allow configuration to be stored in the database so common configuration is shared among all JVMs. Of course some configuration wouldnt be eligible for this (e.g. database connection information, passwords, etc) |
 | **v2.4 patch (DONE)** | [Templates](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545142/Template+wizard) | Templates can create multiple folders / groups / privileges / etc at once based on a wizard UI. Built in template for a service/application, and [TIER Grouper Deployment Guide](http://doi.org/10.26869/TI.25.1) structure |
 | **v2.4 patch (DONE)** | Real time message based loading LDAP by person | Allow messaging to take events to update a user in loader jobs (ldap) |

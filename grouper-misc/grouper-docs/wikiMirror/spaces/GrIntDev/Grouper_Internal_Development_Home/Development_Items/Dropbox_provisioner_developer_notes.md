@@ -40,7 +40,7 @@ Base path: `[https://api.dropboxapi.com/2/team/](https://api.dropboxapi.com/2/te
 
 ## Shared object shapes
 
-TeamMemberProfile: { "team_member_id": "dbmid:abc123", "email": "jsmith@example.edu", "external_id": "jsmith", "account_id": "dbid:xyz789", "status": { ".tag": "active" }, "name": { "given_name": "John", "surname": "Smith", "display_name": "John Smith" } } TeamMemberRole: { "role_id": "pid_dbtmr:Team_Admin", "name": "Team_Admin", "description": ".." } GroupFullInfo: { "group_name": "ml-platform", "group_id": "g:abc123", "group_external_id": "ml-platform", "group_management_type": { ".tag": "company_managed" }, "member_count": 4, "members": [ GroupMemberInfo, ... ] } GroupMemberInfo: { "profile": TeamMemberProfile, "access_type": { ".tag": "member" } } GroupSelector (by group_id): { ".tag": "group_id", "group_id": "g:abc123" } UserSelectorArg (by team_member_id): { ".tag": "team_member_id", "team_member_id": "dbmid:abc123" } also accepts { ".tag": "email", "email": ".." } and { ".tag": "external_id", "external_id": ".." }
+TeamMemberProfile: { "team_member_id": "dbmid:abc123", "email": "jsmith@example.com", "external_id": "jsmith", "account_id": "dbid:xyz789", "status": { ".tag": "active" }, "name": { "given_name": "John", "surname": "Smith", "display_name": "John Smith" } } TeamMemberRole: { "role_id": "pid_dbtmr:Team_Admin", "name": "Team_Admin", "description": ".." } GroupFullInfo: { "group_name": "ml-platform", "group_id": "g:abc123", "group_external_id": "ml-platform", "group_management_type": { ".tag": "company_managed" }, "member_count": 4, "members": [ GroupMemberInfo, ... ] } GroupMemberInfo: { "profile": TeamMemberProfile, "access_type": { ".tag": "member" } } GroupSelector (by group_id): { ".tag": "group_id", "group_id": "g:abc123" } UserSelectorArg (by team_member_id): { ".tag": "team_member_id", "team_member_id": "dbmid:abc123" } also accepts { ".tag": "email", "email": ".." } and { ".tag": "external_id", "external_id": ".." }
 
 ## List groups
 
@@ -64,7 +64,7 @@ POST /2/team/groups/get_info
 
 Returns an ARRAY of items, one per requested group id. A found item is `{".tag": "group_info", ...GroupFullInfo}` (including the embedded members array). A missing id is `{".tag": "id_not_found", "id_not_found": "g:.."}`.
 
-POST $SERVICE_URL$/2/team/groups/get_info { ".tag": "group_ids", "group_ids": ["g:abc123"] } 200 [ { ".tag": "group_info", "group_name": "ml-platform", "group_id": "g:abc123", "group_external_id": "ml-platform", "group_management_type": { ".tag": "company_managed" }, "member_count": 1, "members": [ { "profile": { "team_member_id": "dbmid:abc", "email": "jsmith@example.edu", "status": {".tag":"active"} }, "access_type": { ".tag": "member" } } ] } ]
+POST $SERVICE_URL$/2/team/groups/get_info { ".tag": "group_ids", "group_ids": ["g:abc123"] } 200 [ { ".tag": "group_info", "group_name": "ml-platform", "group_id": "g:abc123", "group_external_id": "ml-platform", "group_management_type": { ".tag": "company_managed" }, "member_count": 1, "members": [ { "profile": { "team_member_id": "dbmid:abc", "email": "jsmith@example.com", "status": {".tag":"active"} }, "access_type": { ".tag": "member" } } ] } ]
 
 ## Create group
 
@@ -104,7 +104,7 @@ POST /2/team/groups/members/list
 
 Lists members of one group (selected by group_id). Page via /2/team/groups/members/list/continue while has_more is true. Each member has a profile and an access_type (member or owner).
 
-POST $SERVICE_URL$/2/team/groups/members/list { "group": { ".tag": "group_id", "group_id": "g:abc123" }, "limit": 1000 } 200 { "members": [ { "profile": { "team_member_id": "dbmid:abc", "email": "jsmith@example.edu", "status": {".tag":"active"} }, "access_type": { ".tag": "owner" } } ], "cursor": "..", "has_more": false }
+POST $SERVICE_URL$/2/team/groups/members/list { "group": { ".tag": "group_id", "group_id": "g:abc123" }, "limit": 1000 } 200 { "members": [ { "profile": { "team_member_id": "dbmid:abc", "email": "jsmith@example.com", "status": {".tag":"active"} }, "access_type": { ".tag": "owner" } } ], "cursor": "..", "has_more": false }
 
 ## Add group members
 
@@ -136,7 +136,7 @@ POST /2/team/members/list_v2
 
 Lists all team members. Each entry has a profile and a roles array (the admin roles). Page via /2/team/members/list/continue_v2 while has_more is true. During retrieval the provisioner caches the {role_id, name} pairs from roles[] so admin-role names can later be resolved to ids. Set include_removed=false to skip removed members.
 
-POST $SERVICE_URL$/2/team/members/list_v2 { "limit": 1000, "include_removed": false } 200 { "members": [ { "profile": { "team_member_id": "dbmid:abc", "email": "jsmith@example.edu", "external_id": "jsmith", "account_id": "dbid:xyz", "status": { ".tag": "active" }, "name": { "given_name": "John", "surname": "Smith", "display_name": "John Smith" } }, "roles": [ { "role_id": "pid_dbtmr:Team_Admin", "name": "Team_Admin", "description": ".." } ] } ], "cursor": "..", "has_more": false }
+POST $SERVICE_URL$/2/team/members/list_v2 { "limit": 1000, "include_removed": false } 200 { "members": [ { "profile": { "team_member_id": "dbmid:abc", "email": "jsmith@example.com", "external_id": "jsmith", "account_id": "dbid:xyz", "status": { ".tag": "active" }, "name": { "given_name": "John", "surname": "Smith", "display_name": "John Smith" } }, "roles": [ { "role_id": "pid_dbtmr:Team_Admin", "name": "Team_Admin", "description": ".." } ] } ], "cursor": "..", "has_more": false }
 
 ## List members (continue)
 
@@ -150,7 +150,7 @@ POST /2/team/members/get_info_v2
 
 Looks up members by UserSelectorArg (external_id, email, or team_member_id). Returns members_info entries: a found entry is `{".tag": "member_info", "profile": ..., "roles": [..]}`; a missing one is `{".tag": "id_not_found"}`.
 
-POST $SERVICE_URL$/2/team/members/get_info_v2 { "members": [ { ".tag": "external_id", "external_id": "jsmith" } ] } 200 { "members_info": [ { ".tag": "member_info", "profile": { "team_member_id": "dbmid:abc", "email": "jsmith@example.edu", "external_id": "jsmith", "status": { ".tag": "active" }, "name": { "given_name": "John", "surname": "Smith" } }, "roles": [ { "role_id": "pid_dbtmr:Team_Admin", "name": "Team_Admin" } ] } ] }
+POST $SERVICE_URL$/2/team/members/get_info_v2 { "members": [ { ".tag": "external_id", "external_id": "jsmith" } ] } 200 { "members_info": [ { ".tag": "member_info", "profile": { "team_member_id": "dbmid:abc", "email": "jsmith@example.com", "external_id": "jsmith", "status": { ".tag": "active" }, "name": { "given_name": "John", "surname": "Smith" } }, "roles": [ { "role_id": "pid_dbtmr:Team_Admin", "name": "Team_Admin" } ] } ] }
 
 ## Add member
 
@@ -158,7 +158,7 @@ POST /2/team/members/add_v2
 
 Body new_members holds DropboxUser.toAddJson() entries. Returns either a synchronous complete result with per-member outcomes, or an async_job_id to poll via /2/team/members/add/job_status/get_v2. A success entry contains the new TeamMemberProfile (with the assigned team_member_id).
 
-POST $SERVICE_URL$/2/team/members/add_v2 { "new_members": [ { "member_email": "jsmith@example.edu", "member_given_name": "John", "member_surname": "Smith", "member_external_id": "jsmith", "send_welcome_email": false } ], "force_async": false } 200 { ".tag": "complete", "complete": [ { ".tag": "success", "success": { "profile": { "team_member_id": "dbmid:new", "email": "jsmith@example.edu", "status": { ".tag": "active" } }, "role": ".." } } ] } -- or -- { ".tag": "async_job_id", "async_job_id": "job-789" }
+POST $SERVICE_URL$/2/team/members/add_v2 { "new_members": [ { "member_email": "jsmith@example.com", "member_given_name": "John", "member_surname": "Smith", "member_external_id": "jsmith", "send_welcome_email": false } ], "force_async": false } 200 { ".tag": "complete", "complete": [ { ".tag": "success", "success": { "profile": { "team_member_id": "dbmid:new", "email": "jsmith@example.com", "status": { ".tag": "active" } }, "role": ".." } } ] } -- or -- { ".tag": "async_job_id", "async_job_id": "job-789" }
 
 ## Add member job status
 
@@ -174,7 +174,7 @@ POST /2/team/members/set_profile_v2
 
 Body is DropboxUser.toSetProfileJson(fieldNames): the member is selected by team_member_id; only supplied new_* fields change. Returns a TeamMemberInfoV2 wrapping the updated profile.
 
-POST $SERVICE_URL$/2/team/members/set_profile_v2 { "user": { ".tag": "team_member_id", "team_member_id": "dbmid:abc" }, "new_email": "jsmith@example.edu", "new_external_id": "jsmith", "new_given_name": "John", "new_surname": "Smith" } 200 { "profile": { "team_member_id": "dbmid:abc", "email": "jsmith@example.edu", "external_id": "jsmith", "status": { ".tag": "active" }, "name": { "given_name": "John", "surname": "Smith" } } }
+POST $SERVICE_URL$/2/team/members/set_profile_v2 { "user": { ".tag": "team_member_id", "team_member_id": "dbmid:abc" }, "new_email": "jsmith@example.com", "new_external_id": "jsmith", "new_given_name": "John", "new_surname": "Smith" } 200 { "profile": { "team_member_id": "dbmid:abc", "email": "jsmith@example.com", "external_id": "jsmith", "status": { ".tag": "active" }, "name": { "given_name": "John", "surname": "Smith" } } }
 
 ## Remove member
 

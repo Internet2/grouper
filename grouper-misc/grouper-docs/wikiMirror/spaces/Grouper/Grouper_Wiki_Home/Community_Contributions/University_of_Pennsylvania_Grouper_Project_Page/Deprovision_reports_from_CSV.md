@@ -39,7 +39,7 @@ Manually look at entries that dont resolve, add them to the netidLookup sheet
 
 ## Excel sheet
 
-The problem is the account in slack is created by email address, and people dont have to use [netId@school.edu.](mailto:netId@school.edu.) So...
+The problem is the account in slack is created by email address, and people dont have to use [netId@example.com.](mailto:netId@example.com.) So...
 
 Setup a new sheet like this:
 

@@ -198,7 +198,7 @@ grouper.properties, grouper.client.properties, subject.propertie
 > #mail.smtp.user = SMTP_Injection
 > #mail.smtp.pass = 7ef6a8eeb15b93ea9ba8de07a22a1668f284c801
 > #mail.smtp.ssl.protocols = TLSv1.2
-> #mail.from.address = mchyzer@mchyzer.co
+> #mail.from.address = mchyzer@example.com
 > #mail.debug = true
 > 
 > 
@@ -261,11 +261,11 @@ NOTE: use the UI grouper.properties, compare with WS grouper.properties
 > #configuration.autocreate.group.subjects.0 = johnsmith
 > 
 10c33
-< configuration.autocreate.group.subjects.1 = mchyzer,mchyzer@upenn.edu
+< configuration.autocreate.group.subjects.1 = mchyzer,mchyzer@example.com
 ---
 > configuration.autocreate.group.subjects.1 = mchyzer
 14,88c37
-< configuration.autocreate.group.subjects.2 = mchyzer,mchyzer@upenn.edu
+< configuration.autocreate.group.subjects.2 = mchyzer,mchyzer@example.com
 < 
 < configuration.autocreate.group.name.3 = aStem:library
 < configuration.autocreate.group.description.3 = access to the library application
@@ -293,12 +293,12 @@ NOTE: use the UI grouper.properties, compare with WS grouper.properties
 < 
 < 
 < mail.smtp.server = smtp.gmail.com
-< mail.smtp.user = groupersystem@gmail.com
+< mail.smtp.user = groupersystem@example.com
 < mail.smtp.pass = /opt/grouper/2.3/pass/smtp_2.3.pass
 < mail.smtp.ssl = true
-< mail.from.address = groupersystem@gmail.com
+< mail.from.address = groupersystem@example.com
 < mail.subject.prefix = GROUPERDEMO_2_4:
-< mail.test.address = mchyzer@yahoo.com
+< mail.test.address = mchyzer@example.com
 < 
 < 
 < #mail.smtp.server = smtp.sparkpostmail.com
@@ -307,7 +307,7 @@ NOTE: use the UI grouper.properties, compare with WS grouper.properties
 < #mail.smtp.user = SMTP_Injection
 < #mail.smtp.pass = 7ef6a8eeb15b93ea9ba8de07a22a1668f284c801
 < #mail.smtp.ssl.protocols = TLSv1.2
-< #mail.from.address = mchyzer@mchyzer.co
+< #mail.from.address = mchyzer@example.com
 < #mail.debug = true
 < 
 < 
@@ -528,7 +528,7 @@ Load in the WS grouper.properties, then overwrite with grouper UI grouper.proper
 > subjectApi.source.cmuDirectory.search.searchSubject.param.base.value = ou=person,dc=cmu,dc=edu
 > 
 > #searchSubjectByIdentifier: find a subject by identifier.  Identifier is anything that uniquely
-> #  identifies the user, e.g. jsmith or jsmith@institution.edu.
+> #  identifies the user, e.g. jsmith or jsmith@example.com.
 > #  Subjects can have multiple identifiers.  Note: it is nice to have if identifiers are unique
 > #  even across sources.  Returns one result when searching for one identifier.
 > 

@@ -22,4 +22,4 @@ The Grouper Team will receive notification when you register, and will add you t
 - The Grouper Demo server is for showing the capabilities of various versions of Grouper.
 - The Grouper Demo is not for any real or production use.
 - The Grouper Demo might go down for maintenance or whatever reason at any time, do not rely on it being up.
-- If you want to use the Grouper Demo for a formal demo to a group, please email grouper-dev@internet2.edu to request a timespan where we will try not to do maintenance.
+- If you want to use the Grouper Demo for a formal demo to a group, please email grouper-dev@example.com to request a timespan where we will try not to do maintenance.

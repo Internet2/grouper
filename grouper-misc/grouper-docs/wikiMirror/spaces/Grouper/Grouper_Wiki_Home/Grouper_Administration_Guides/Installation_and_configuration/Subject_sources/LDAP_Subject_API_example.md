@@ -154,7 +154,7 @@ subjectApi.source.cmu.search.searchSubject.param.scope.value = ONELEVEL_SCOPE
 subjectApi.source.cmu.search.searchSubject.param.base.value = ou=person
 
 #searchSubjectByIdentifier: find a subject by identifier.  Identifier is anything that uniquely
-#  identifies the user, e.g. jsmith or jsmith@institution.edu.
+#  identifies the user, e.g. jsmith or jsmith@example.com.
 #  Subjects can have multiple identifiers.  Note: it is nice to have if identifiers are unique
 #  even across sources.  Returns one result when searching for one identifier.
 
@@ -343,7 +343,7 @@ The corresponding test (`LdapSubjectTest.java` in the Grouper API) exercises the
       
       assertEquals("Vincent Lun", subject.getName());
   
-      assertEquals("vlun@andrew.cmu.edu", subject.getAttributeValue("mail"));
+      assertEquals("vlun@example.com", subject.getAttributeValue("mail"));
   
       assertEquals("Vincent Lun - Student Employment", subject.getDescription());
       

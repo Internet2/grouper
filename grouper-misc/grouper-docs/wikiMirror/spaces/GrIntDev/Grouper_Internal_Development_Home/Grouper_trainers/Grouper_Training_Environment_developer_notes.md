@@ -55,7 +55,7 @@ Welcome to Grouper School! Here's some information to keep on hand so that you c
   
   
   ```
-  mchyzer@isc.upenn.edu,emurtha@internet2.edu,chubing@internet2.edu,emily@internet2.edu
+  mchyzer@example.com,emurtha@example.com,chubing@example.com,emily@example.com
   ```
 5. Video on for hosts and participants
 6. Enable join before host
@@ -290,7 +290,7 @@ New folder for training on demand: [https://drive.google.com/drive/folders/1bRgL
 
 New training materials: [https://drive.google.com/drive/folders/1HTgP7F7RtJgvi_3Ebrnc8jKLJXaRvsz0](https://drive.google.com/drive/folders/1HTgP7F7RtJgvi_3Ebrnc8jKLJXaRvsz0)
 
-Add hours to training vms gte (search for subject ID by email then use that, e.g. chris.hyzer.3@at.internet2.edu: [https://grouper.at.internet2.edu/grouper/grouperUi/app/UiV2Main.index?operation=UiV2Template.newTemplate&stemId=3684c051fc2a4b6d870f2d798a75b7ba&templateType=GTERegisterCourse](https://grouper.at.internet2.edu/grouper/grouperUi/app/UiV2Main.index?operation=UiV2Template.newTemplate&stemId=3684c051fc2a4b6d870f2d798a75b7ba&templateType=GTERegisterCourse)
+Add hours to training vms gte (search for subject ID by email then use that, e.g. chris.hyzer.3@example.com: [https://grouper.at.internet2.edu/grouper/grouperUi/app/UiV2Main.index?operation=UiV2Template.newTemplate&stemId=3684c051fc2a4b6d870f2d798a75b7ba&templateType=GTERegisterCourse](https://grouper.at.internet2.edu/grouper/grouperUi/app/UiV2Main.index?operation=UiV2Template.newTemplate&stemId=3684c051fc2a4b6d870f2d798a75b7ba&templateType=GTERegisterCourse)
 
 ## TODO for spring 2022
 

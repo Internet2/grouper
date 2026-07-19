@@ -15,7 +15,7 @@ There is a Grouper demo site that hosts all the Grouper tools (or it can if you 
 
 This is built similarly to the Grouper cloud documentation.
 
-If you want access to it, please email grouper-dev@internet2.edu with what userid(s) you would like, and what you would like to use. We can make sure it is available, and assign you a password. We have the quickstart data set there, but you can get a stem to create what you like. We might even be able to get you SSH credentials so you can run GSH...
+If you want access to it, please email grouper-dev@example.com with what userid(s) you would like, and what you would like to use. We can make sure it is available, and assign you a password. We have the quickstart data set there, but you can get a stem to create what you like. We might even be able to get you SSH credentials so you can run GSH...
 
 ### Run v5 SSL and port forward
 
@@ -598,6 +598,6 @@ sdf
 
 success
 
-For sysadmin support email: [techsupport@internet2.edu](mailto:techsupport@internet2.edu)
+For sysadmin support email: [techsupport@example.com](mailto:techsupport@example.com)
 
-Nagios is connected to the status servlet and will email the list: [grouper-sysadmin@internet2.edu](mailto:grouper-sysadmin@internet2.edu)
+Nagios is connected to the status servlet and will email the list: [grouper-sysadmin@example.com](mailto:grouper-sysadmin@example.com)

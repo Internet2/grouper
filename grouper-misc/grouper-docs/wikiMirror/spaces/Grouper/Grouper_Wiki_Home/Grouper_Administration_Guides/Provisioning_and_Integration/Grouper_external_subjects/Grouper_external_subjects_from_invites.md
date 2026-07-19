@@ -25,7 +25,7 @@ Invites in the new UI require at least one group to be invited to. The group man
 | grouper.properties | externalSubjects.autoaddGroups | None | put some group names comma separated for groups to auto add subjects to |
 | grouper.properties | externalSubjects.autoaddGroupExpireAfterDays |  | if a number is here, expire the group assignment after a certain number of days |
 | grouper.properties | grouper.ui.url |  | put the URL which will be used e.g. in emails to users. Include the webapp context (e.g. https://hostname/grouper/) |
-| grouper.properties | externalSubjects.validateIndentiferLikeEmail | true | make sure the identifier when logging in is like an email address or eppn, e.g. username@school.edu |
+| grouper.properties | externalSubjects.validateIndentiferLikeEmail | true | make sure the identifier when logging in is like an email address or eppn, e.g. username@example.com |
 | grouper-ui.properties | externalMembers.enabledRegistration | false | if the registration screen is enabled |
 | grouper-ui.properties | inviteExternalMembers.enableInvitation | false | if the invitation screen is enabled |
 | grouper-ui.properties | inviteExternalPeople.link-from-new-ui | false | if link from new UI |

@@ -2,8 +2,8 @@
 title: "4-December-2024"
 space: GrIntDev
 pageId: 48793192
-version: 8
-lastUpdated: 2026-07-12T17:27:29.168Z
+version: 9
+lastUpdated: 2026-07-19T00:32:53.014Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793192/4-December-2024
 ---
 
@@ -138,7 +138,7 @@ Chris also highlighted the SCIM’s three ways to patch emails and suggested tha
 ***JEXL queries and Group******Syncing Issues***
 
 - - [GRP-5855  
-    allow abac row subscripts to use = instead of ==](https://todos.internet2.edu/browse/GRP-5855)
+    allow abac row subscripts to use = instead of ==](https://grouper.atlassian.net/browse/GRP-5855)
 
 *From Zoom AI summary:*
 
@@ -182,81 +182,81 @@ Might not be sufficient at first, can be improved
 ## **Issue Roundup**
 
 - [GRP-5860  
-  Provisioner configuration uses inline CSS for radio button labels](https://todos.internet2.edu/browse/GRP-5860)
+  Provisioner configuration uses inline CSS for radio button labels](https://grouper.atlassian.net/browse/GRP-5860)
 - [GRP-5859  
-  sql cache full sync - replace 'not in' queries with 'not exists'](https://todos.internet2.edu/browse/GRP-5859)
+  sql cache full sync - replace 'not in' queries with 'not exists'](https://grouper.atlassian.net/browse/GRP-5859)
 - [GRP-5858  
-  allow functions in full ddl file](https://todos.internet2.edu/browse/GRP-5858)
+  allow functions in full ddl file](https://grouper.atlassian.net/browse/GRP-5858)
 - [GRP-5857  
-  scim provisioning json pointer config does not exist in scim objects in certain situations](https://todos.internet2.edu/browse/GRP-5857)
+  scim provisioning json pointer config does not exist in scim objects in certain situations](https://grouper.atlassian.net/browse/GRP-5857)
 - [GRP-5856  
-  scripted group hasAttribute should check for existence of attribute for non booleans](https://todos.internet2.edu/browse/GRP-5856)
+  scripted group hasAttribute should check for existence of attribute for non booleans](https://grouper.atlassian.net/browse/GRP-5856)
 - [GRP-5855  
-  allow abac row subscripts to use = instead of ==](https://todos.internet2.edu/browse/GRP-5855)
+  allow abac row subscripts to use = instead of ==](https://grouper.atlassian.net/browse/GRP-5855)
 - [GRP-5854  
-  scim provisioner custom json pointer field updating to null should just remove the attribute](https://todos.internet2.edu/browse/GRP-5854)
+  scim provisioner custom json pointer field updating to null should just remove the attribute](https://grouper.atlassian.net/browse/GRP-5854)
 - [GRP-5853  
-  upgrade task has extra semicolons](https://todos.internet2.edu/browse/GRP-5853)
+  upgrade task has extra semicolons](https://grouper.atlassian.net/browse/GRP-5853)
 - [GRP-5852  
-  scim provisioner does not remove custom json pointer fields correctly](https://todos.internet2.edu/browse/GRP-5852)
+  scim provisioner does not remove custom json pointer fields correctly](https://grouper.atlassian.net/browse/GRP-5852)
 - [GRP-5851  
-  data provider delete needs to clean up child data](https://todos.internet2.edu/browse/GRP-5851)
+  data provider delete needs to clean up child data](https://grouper.atlassian.net/browse/GRP-5851)
 - [GRP-5850  
-  Visualization should also support a "group math equation" option](https://todos.internet2.edu/browse/GRP-5850)
+  Visualization should also support a "group math equation" option](https://grouper.atlassian.net/browse/GRP-5850)
 - [GRP-5849  
-  propagateProvisioningAttributes Debugging](https://todos.internet2.edu/browse/GRP-5849)
+  propagateProvisioningAttributes Debugging](https://grouper.atlassian.net/browse/GRP-5849)
 - [GRP-5848  
-  add ability to have translations in ldap to sql or sql to sql](https://todos.internet2.edu/browse/GRP-5848)
+  add ability to have translations in ldap to sql or sql to sql](https://grouper.atlassian.net/browse/GRP-5848)
 - [GRP-5847  
-  update description under abac script](https://todos.internet2.edu/browse/GRP-5847)
+  update description under abac script](https://grouper.atlassian.net/browse/GRP-5847)
 - [GRP-5846  
-  improve the error message for bad data in list of groups job](https://todos.internet2.edu/browse/GRP-5846)
+  improve the error message for bad data in list of groups job](https://grouper.atlassian.net/browse/GRP-5846)
 - [GRP-5845  
-  viewing provisioning logs causes memory problems](https://todos.internet2.edu/browse/GRP-5845)
+  viewing provisioning logs causes memory problems](https://grouper.atlassian.net/browse/GRP-5845)
 - [GRP-5844  
-  log provisioning actions to provisioning log table](https://todos.internet2.edu/browse/GRP-5844)
+  log provisioning actions to provisioning log table](https://grouper.atlassian.net/browse/GRP-5844)
 - [GRP-5843  
-  delete from sync table when things are consistent in provisioning](https://todos.internet2.edu/browse/GRP-5843)
+  delete from sync table when things are consistent in provisioning](https://grouper.atlassian.net/browse/GRP-5843)
 - [GRP-5842  
-  Incorrect audit for memberships that start with a start date](https://todos.internet2.edu/browse/GRP-5842)
+  Incorrect audit for memberships that start with a start date](https://grouper.atlassian.net/browse/GRP-5842)
 - [GRP-5841  
-  add option for qualified and unqualified name in scim](https://todos.internet2.edu/browse/GRP-5841)
+  add option for qualified and unqualified name in scim](https://grouper.atlassian.net/browse/GRP-5841)
 - [GRP-5840  
-  add options for patching users](https://todos.internet2.edu/browse/GRP-5840)
+  add options for patching users](https://grouper.atlassian.net/browse/GRP-5840)
 - [GRP-5839  
-  rule does not add end date if membership has enabled date in future and end date after that](https://todos.internet2.edu/browse/GRP-5839)
+  rule does not add end date if membership has enabled date in future and end date after that](https://grouper.atlassian.net/browse/GRP-5839)
 - [GRP-5838  
-  long query loaders do not work with diagnostics](https://todos.internet2.edu/browse/GRP-5838)
+  long query loaders do not work with diagnostics](https://grouper.atlassian.net/browse/GRP-5838)
 - [GRP-5837  
-  WsRestFindGroupsRequest throws error for composite groups when actAsSubject does not have privs on a component of the composite](https://todos.internet2.edu/browse/GRP-5837)
+  WsRestFindGroupsRequest throws error for composite groups when actAsSubject does not have privs on a component of the composite](https://grouper.atlassian.net/browse/GRP-5837)
 - [GRP-5836  
-  cannot delete jexl loaded population script setting](https://todos.internet2.edu/browse/GRP-5836)
+  cannot delete jexl loaded population script setting](https://grouper.atlassian.net/browse/GRP-5836)
 - [GRP-5835  
-  Ability to add custom menu links](https://todos.internet2.edu/browse/GRP-5835)
+  Ability to add custom menu links](https://grouper.atlassian.net/browse/GRP-5835)
 - [GRP-5834  
-  add change log events to data field changes](https://todos.internet2.edu/browse/GRP-5834)
+  add change log events to data field changes](https://grouper.atlassian.net/browse/GRP-5834)
 - [GRP-5833  
-  adding or remove memberships from abac job should be failsafe and log errors](https://todos.internet2.edu/browse/GRP-5833)
+  adding or remove memberships from abac job should be failsafe and log errors](https://grouper.atlassian.net/browse/GRP-5833)
 
 **Wiki Updates**
 
 - [v5 Upgrade instructions from v5](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549165/v5+Upgrade+instructions+from+v5)
-- Nov 27, 2024 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549165/v5+Upgrade+instructions+from+v5)
+- Nov 27, 2024 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549165/v5+Upgrade+instructions+from+v5)
 - [v5 Release Notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549048/v5+Release+Notes)
-- Nov 26, 2024 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549048/v5+Release+Notes)
+- Nov 26, 2024 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549048/v5+Release+Notes)
 - [Configuring object name constraints](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544862/Configuring+object+name+constraints)
 - Nov 22, 2024 • updated by Chad Redman • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544862/Configuring+object+name+constraints)
 - [Grouper - SCIM Provisioner - Examples](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28559948/Grouper+-+SCIM+Provisioner+-+Examples)
-- Nov 21, 2024 • created by ben.rappleyea.2@at.internet2.edu
+- Nov 21, 2024 • created by ben.rappleyea.2@example.com
 - [Recovering a deleted group / memberships](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547363/Recovering+a+deleted+group+memberships)
-- Nov 20, 2024 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547363/Recovering+a+deleted+group+memberships)
+- Nov 20, 2024 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547363/Recovering+a+deleted+group+memberships)
 - [Grouper provisioning SCIM](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555423/Grouper+provisioning+SCIM)
-- Nov 20, 2024 • updated by ben.rappleyea.2@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555423/Grouper+provisioning+SCIM)
+- Nov 20, 2024 • updated by ben.rappleyea.2@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555423/Grouper+provisioning+SCIM)
 - [Grouper provisioning - SCIM - Functions](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28559941/Grouper+provisioning+-+SCIM+-+Functions)
-- Nov 20, 2024 • updated by ben.rappleyea.2@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28559941/Grouper+provisioning+-+SCIM+-+Functions)
+- Nov 20, 2024 • updated by ben.rappleyea.2@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28559941/Grouper+provisioning+-+SCIM+-+Functions)
 - [Grouper provisioning SCIM ServiceNow](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28564299/Grouper+provisioning+SCIM+ServiceNow)
-- Nov 20, 2024 • updated by ben.rappleyea.2@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28564299/Grouper+provisioning+SCIM+ServiceNow)
+- Nov 20, 2024 • updated by ben.rappleyea.2@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28564299/Grouper+provisioning+SCIM+ServiceNow)
 - [Grouper upgrade tasks](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)
-- Nov 20, 2024 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)
+- Nov 20, 2024 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)
 
 ***Next Grouper Call: Wed. Dec 18, 2024***

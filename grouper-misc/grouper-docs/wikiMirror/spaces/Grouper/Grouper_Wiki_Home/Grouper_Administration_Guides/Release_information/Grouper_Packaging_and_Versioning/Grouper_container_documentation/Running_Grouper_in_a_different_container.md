@@ -23,7 +23,7 @@ FROM centos:centos7
 COPY --from=grouperContainer /opt /opt
 COPY --from=grouperContainer /usr/local/bin /usr/local/bin
 
-LABEL author="tier-packaging@internet2.edu <tier-packaging@internet2.edu>" \
+LABEL author="tier-packaging@example.com <tier-packaging@example.com>" \
       Vendor="TIER" \
       ImageType="Grouper" \
       ImageName=$imagename \

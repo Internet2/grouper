@@ -28,4 +28,4 @@ For additional feature listings, tarballs, and documentation for previous releas
 **NOTE WELL**: All Internet2 Activities are governed by the [Internet2 Intellectual Property Framework](http://members.internet2.edu/intellectualproperty.html).
 
 **Working Group Chair** **Working Group Flywheel**   
- Chris Hyzer, University of Pennsylvania i2mi-info@internet2.edu
+ Chris Hyzer, University of Pennsylvania i2mi-info@example.com

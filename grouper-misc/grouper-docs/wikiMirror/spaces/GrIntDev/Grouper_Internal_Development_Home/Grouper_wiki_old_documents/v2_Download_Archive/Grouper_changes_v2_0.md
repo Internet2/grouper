@@ -517,7 +517,7 @@ hibernate.cache.region.factory_class = net.sf.ehcache.hibernate.EhCacheRegionFac
     #if registrations are only allowed if invited or existing...
     externalSubjects.registerRequiresInvite=true
     
-    #make sure the identifier when logging in is like an email address or eppn, e.g. username@school.edu
+    #make sure the identifier when logging in is like an email address or eppn, e.g. username@example.com
     externalSubjects.validateIndentiferLikeEmail=true
     
     #put regexes here, increment the 0 for multiple entries, e.g. restrict your own institution
@@ -682,7 +682,7 @@ hibernate.cache.region.factory_class = net.sf.ehcache.hibernate.EhCacheRegionFac
     #changeLog.consumer.xmppTest.publisher.port = 5222
     #changeLog.consumer.xmppTest.publisher.username = jabberuser
     #changeLog.consumer.xmppTest.publisher.password = /home/whatever/pass/jabberuserEncrypted.pass
-    #changeLog.consumer.xmppTest.publisher.recipient = system1@school.edu
+    #changeLog.consumer.xmppTest.publisher.recipient = system1@example.com
     #changeLog.consumer.xmppTest.publisher.addSubjectAttributes = NETID
     
     ```

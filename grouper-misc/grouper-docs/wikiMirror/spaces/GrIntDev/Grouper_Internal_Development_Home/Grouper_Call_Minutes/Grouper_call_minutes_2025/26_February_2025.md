@@ -2,8 +2,8 @@
 title: "26-February-2025"
 space: GrIntDev
 pageId: 48793268
-version: 11
-lastUpdated: 2026-07-12T17:27:33.163Z
+version: 12
+lastUpdated: 2026-07-19T00:33:00.416Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793268/26-February-2025
 ---
 
@@ -184,59 +184,59 @@ Privileges:
 **Jiras**
 
 - [GRP-6035  
-  Swagger for GSH template missing /gshTemplateExec from URL](https://todos.internet2.edu/browse/GRP-6035)
+  Swagger for GSH template missing /gshTemplateExec from URL](https://grouper.atlassian.net/browse/GRP-6035)
 - [GRP-6034  
-  Upgrade from 4.14.1 to 4.16.0 caused mass deletions in Active Directory](https://todos.internet2.edu/browse/GRP-6034)
+  Upgrade from 4.14.1 to 4.16.0 caused mass deletions in Active Directory](https://grouper.atlassian.net/browse/GRP-6034)
 - [GRP-6033  
-  For limited users, folder menu shows Reports under the Templates category](https://todos.internet2.edu/browse/GRP-6033)
+  For limited users, folder menu shows Reports under the Templates category](https://grouper.atlassian.net/browse/GRP-6033)
 - [GRP-6032  
-  Update data row ddl and temporarily stop history](https://todos.internet2.edu/browse/GRP-6032)
+  Update data row ddl and temporarily stop history](https://grouper.atlassian.net/browse/GRP-6032)
 - [GRP-6031  
-  non admins should be able to edit loaders for abac](https://todos.internet2.edu/browse/GRP-6031)
+  non admins should be able to edit loaders for abac](https://grouper.atlassian.net/browse/GRP-6031)
 - [GRP-6030  
-  grouperClient add option to use EasySslSocketFactory](https://todos.internet2.edu/browse/GRP-6030)
+  grouperClient add option to use EasySslSocketFactory](https://grouper.atlassian.net/browse/GRP-6030)
 - [GRP-6029  
-  oauth http credentials can get cached indefinitely](https://todos.internet2.edu/browse/GRP-6029)
+  oauth http credentials can get cached indefinitely](https://grouper.atlassian.net/browse/GRP-6029)
 - [GRP-6028  
-  scripted groups should be labeled as such](https://todos.internet2.edu/browse/GRP-6028)
+  scripted groups should be labeled as such](https://grouper.atlassian.net/browse/GRP-6028)
 - [GRP-6027  
-  Problems with rule 'Veto if new membership is not a group or in certain subject sources'](https://todos.internet2.edu/browse/GRP-6027)
+  Problems with rule 'Veto if new membership is not a group or in certain subject sources'](https://grouper.atlassian.net/browse/GRP-6027)
 - [GRP-6026  
-  Move external system property patterns out of methods so classes can be extended](https://todos.internet2.edu/browse/GRP-6026)
+  Move external system property patterns out of methods so classes can be extended](https://grouper.atlassian.net/browse/GRP-6026)
 - [GRP-6025  
-  TeamDynamix needs throttling](https://todos.internet2.edu/browse/GRP-6025)
+  TeamDynamix needs throttling](https://grouper.atlassian.net/browse/GRP-6025)
 - [GRP-6024  
-  Make the Miscellanous link on the left expand a submenu for misc veatures](https://todos.internet2.edu/browse/GRP-6024)
+  Make the Miscellanous link on the left expand a submenu for misc veatures](https://grouper.atlassian.net/browse/GRP-6024)
 - [GRP-6023  
-  grouper_data_row_field_asgn_v has incorrect value for data_row_internal_id](https://todos.internet2.edu/browse/GRP-6023)
+  grouper_data_row_field_asgn_v has incorrect value for data_row_internal_id](https://grouper.atlassian.net/browse/GRP-6023)
 - [GRP-6022  
-  Add sftp capability to group reports, so it doesn't needs a separate daemon job just for that](https://todos.internet2.edu/browse/GRP-6022)
+  Add sftp capability to group reports, so it doesn't needs a separate daemon job just for that](https://grouper.atlassian.net/browse/GRP-6022)
 - [GRP-6021  
-  Combo picker sometimes appears far from the associated field](https://todos.internet2.edu/browse/GRP-6021)
+  Combo picker sometimes appears far from the associated field](https://grouper.atlassian.net/browse/GRP-6021)
 - [GRP-6020  
-  Report actions dropdown should allow to edit](https://todos.internet2.edu/browse/GRP-6020)
+  Report actions dropdown should allow to edit](https://grouper.atlassian.net/browse/GRP-6020)
 - [GRP-6019  
-  Add miscellaneous UI item for reports](https://todos.internet2.edu/browse/GRP-6019)
+  Add miscellaneous UI item for reports](https://grouper.atlassian.net/browse/GRP-6019)
 - [GRP-6018  
-  Group reports description says "SQL reports" when can also do GSH reports](https://todos.internet2.edu/browse/GRP-6018)
+  Group reports description says "SQL reports" when can also do GSH reports](https://grouper.atlassian.net/browse/GRP-6018)
 
 ****
 
 **Wiki updates**
 
 - [Grouper upgrade tasks](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)Feb 21, 2025 • updated by Shilen Patel (duke.edu) • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)
-- [Grouper Packaging and Versioning](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544489/Grouper+Packaging+and+Versioning)Feb 17, 2025 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544489/Grouper+Packaging+and+Versioning)
-- [v4 Upgrade instructions from v4](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549792/v4+Upgrade+instructions+from+v4)Feb 16, 2025 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549792/v4+Upgrade+instructions+from+v4)
+- [Grouper Packaging and Versioning](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544489/Grouper+Packaging+and+Versioning)Feb 17, 2025 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544489/Grouper+Packaging+and+Versioning)
+- [v4 Upgrade instructions from v4](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549792/v4+Upgrade+instructions+from+v4)Feb 16, 2025 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549792/v4+Upgrade+instructions+from+v4)
 - [Pac4j Plugin for Built-in Single Sign-on (SSO)](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549858/Pac4j+Plugin+for+Built-in+Single+Sign-on+SSO)Feb 14, 2025 • updated by Chad Redman • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549858/Pac4j+Plugin+for+Built-in+Single+Sign-on+SSO)
 - [Grouper deprovisioning report](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548487/Grouper+deprovisioning+report)Feb 14, 2025 • updated by Gail Lift (umich.edu) • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548487/Grouper+deprovisioning+report)
 - [Grouper overall summary administrative report](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545058/Grouper+overall+summary+administrative+report)Feb 13, 2025 • updated by Chad Redman • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545058/Grouper+overall+summary+administrative+report)
-- [Grouper SQL interface](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544522/Grouper+SQL+interface)Feb 12, 2025 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544522/Grouper+SQL+interface)
-- [Grouper ABAC with scripted groups](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544896/Grouper+ABAC+with+scripted+groups)Feb 12, 2025 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544896/Grouper+ABAC+with+scripted+groups)
+- [Grouper SQL interface](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544522/Grouper+SQL+interface)Feb 12, 2025 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544522/Grouper+SQL+interface)
+- [Grouper ABAC with scripted groups](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544896/Grouper+ABAC+with+scripted+groups)Feb 12, 2025 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544896/Grouper+ABAC+with+scripted+groups)
 - Grouper Documents & Presentations7 minutes ago • updated by Emily Eisbruch (internet2.edu) • view change
 - [Grouper documentation pages to update](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792957/Grouper+documentation+pages+to+update)10 minutes ago • updated by Emily Eisbruch (internet2.edu) • [view change](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792957/Grouper+documentation+pages+to+update)
-- [Grouper Training Environment developer notes](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793119/Grouper+Training+Environment+developer+notes)Feb 13, 2025 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793119/Grouper+Training+Environment+developer+notes)
+- [Grouper Training Environment developer notes](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793119/Grouper+Training+Environment+developer+notes)Feb 13, 2025 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793119/Grouper+Training+Environment+developer+notes)
 - [Grouper developers coding standards](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792568/Grouper+developers+coding+standards)Feb 12, 2025 • updated by Emily Eisbruch (internet2.edu) • [view change](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792568/Grouper+developers+coding+standards)
-- [Grouper developers coding standards](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792568/Grouper+developers+coding+standards)Feb 12, 2025 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792568/Grouper+developers+coding+standards)
+- [Grouper developers coding standards](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792568/Grouper+developers+coding+standards)Feb 12, 2025 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792568/Grouper+developers+coding+standards)
 - [Grouper style guide](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792966/Grouper+style+guide)Feb 07, 2025 • updated by Chad Redman • [view chang](https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48792966/Grouper+style+guide)
 
 **Next Grouper Call: Wed. March 11, 2025**

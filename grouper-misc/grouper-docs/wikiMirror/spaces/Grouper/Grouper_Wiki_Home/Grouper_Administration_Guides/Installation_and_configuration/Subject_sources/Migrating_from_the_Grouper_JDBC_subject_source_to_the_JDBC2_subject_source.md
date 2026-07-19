@@ -80,7 +80,7 @@ Insert into ARP_PERSON_INFO
  Values
    ('123', 'mchyzer', ' ', ' ', ' ',
     'Chris', 'Michael', 'Hyzer', ' ', ' ',
-    ' ', 'mchyzer@isc.upenn.edu', 'A', 'F', 'S',
+    ' ', 'mchyzer@example.com', 'A', 'F', 'S',
     'ISC', ' ', ' ', ' ', ' ',
     ' ', ' ');
 COMMIT;
@@ -242,9 +242,9 @@ subjectApi.source.floridaPerson.param.searchAttribute0.value = description_lower
 Then the subject source works. Run the subject-source diagnostics to confirm Grouper can find subjects by id, identifier, and search:
 
 ```text
-SUCCESS: Found subject by id in 22ms: 'mchyzer@ufl.edu'
-         with SubjectFinder.findByIdAndSource("mchyzer@ufl.edu", "floridaPerson", false)
-SUCCESS: Subject id in returned subject matches the subject id searched for: 'mchyzer@ufl.edu'
+SUCCESS: Found subject by id in 22ms: 'mchyzer@example.com'
+         with SubjectFinder.findByIdAndSource("mchyzer@example.com", "floridaPerson", false)
+SUCCESS: Subject id in returned subject matches the subject id searched for: 'mchyzer@example.com'
 SUCCESS: Found subject by identifier in 3ms: 'mchyzer'
          with SubjectFinder.findByIdentifierAndSource("mchyzer", "floridaPerson", false)
 SUCCESS: Found 1 subjects by search string in 15ms: 'chr hyz'
@@ -254,21 +254,21 @@ SUCCESS: Found 1 subjects by paged search string in 8ms: 'chr hyz'
 
 ######## SUBJECT ATTRIBUTES ########
 
-Subject id: 'mchyzer@ufl.edu' with subject.getId()
+Subject id: 'mchyzer@example.com' with subject.getId()
   - the subject id should be an unchanging opaque identifier
   - the subject id is stored in the grouper_members table
 Subject name: 'Chris Michael Hyzer' with subject.getName()
   - the subject name is generally first last
-Subject description: 'Chris Michael Hyzer, mchyzer@ufl.edu, S, ISC, mchyzer@isc.upenn.edu' with subject.getDescription()
+Subject description: 'Chris Michael Hyzer, mchyzer@example.com, S, ISC, mchyzer@example.com' with subject.getDescription()
   - the subject description can have more info such as the id, name, dept, etc
 Subject type: 'person' with subject.getTypeName()
   - the subject type is not really used
-Subject attribute 'email' has 1 value: 'mchyzer@isc.upenn.edu'
+Subject attribute 'email' has 1 value: 'mchyzer@example.com'
   - with subject.getAttributeValue("email")
 Subject attribute 'netid' has 1 value: 'mchyzer'
   - with subject.getAttributeValue("netid")
 SUCCESS: The emailAttributeName is configured to be: 'email'
-SUCCESS: The email address 'mchyzer@isc.upenn.edu' was found and has a valid format
+SUCCESS: The email address 'mchyzer@example.com' was found and has a valid format
 
 ######## SUBJECT IN UI ########
 
@@ -276,7 +276,7 @@ Short link with icon:  Chris Michael Hyzer
   - This is configured in grouper.text.en.us.base.properties with guiSubjectShortLink
   - Also configured in grouper-ui.properties with grouperUi.screenLabel2.sourceId.X
   - By default this is the name of the subject with a tooltip for description
-Long label with icon:   Chris Michael Hyzer, mchyzer@ufl.edu, S, ISC, mchyzer@isc.upenn.edu
+Long label with icon:   Chris Michael Hyzer, mchyzer@example.com, S, ISC, mchyzer@example.com
   - This is not used in the new UI
   - It is configured in grouper-ui.properties with grouperUi.subjectImg.screenEl.
   - By default this is the description of the subject
@@ -356,13 +356,13 @@ No attributes configured
 
 ######## SUBJECT SEARCH RESULTS ########
 
-Subject 0: id: mchyzer@ufl.edu, name: Chris Michael Hyzer
-  - description: Chris Michael Hyzer, mchyzer@ufl.edu, S, ISC, mchyzer@isc.upenn.edu
+Subject 0: id: mchyzer@example.com, name: Chris Michael Hyzer
+  - description: Chris Michael Hyzer, mchyzer@example.com, S, ISC, mchyzer@example.com
 
 ######## SUBJECT PAGE RESULTS ########
 
-Subject 0: id: mchyzer@ufl.edu, name: Chris Michael Hyzer
-  - description: Chris Michael Hyzer, mchyzer@ufl.edu, S, ISC, mchyzer@isc.upenn.edu
+Subject 0: id: mchyzer@example.com, name: Chris Michael Hyzer
+  - description: Chris Michael Hyzer, mchyzer@example.com, S, ISC, mchyzer@example.com
 
 ```
 

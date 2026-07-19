@@ -192,7 +192,7 @@ grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.14.enabled = true
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.14.endIfMatches = true
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.14.index = 32
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.14.script = \u0024{!cu_inGroupForAutomaticLicense && !cu_inGroupForClaimedLicense && !cu_inGroupForCanClaimLicense}
-grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.14.text = <font style="color\u003Abrown"><b>Error\u003A</b></font> You do not have a license and you are not allowed to self-claim a license, open a ticket with help@isc.upenn.edu with your needs for Jira
+grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.14.text = <font style="color\u003Abrown"><b>Error\u003A</b></font> You do not have a license and you are not allowed to self-claim a license, open a ticket with help@example.com with your needs for Jira
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.14.textType = enrollmentLabel
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.15.defaultText = false
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.15.enabled = true
@@ -237,7 +237,7 @@ grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.20.enabled = true
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.20.endIfMatches = true
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.20.index = 40
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.20.script = \u0024{(cu_inGroupForAutomaticLicense || cu_inGroupForClaimedLicense) && !cu_jiraHasLicense}
-grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.20.text = <font style="color\u003Abrown"><b>Error\u003A</b></font> You are in the PennGroup indicating you have a license, but it has not been provisioned.  If it is been a few minutes and still not provisioned, open a ticket with help@isc.upenn.edu and let them know provisioning is not working for Atlassian.
+grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.20.text = <font style="color\u003Abrown"><b>Error\u003A</b></font> You are in the PennGroup indicating you have a license, but it has not been provisioned.  If it is been a few minutes and still not provisioned, open a ticket with help@example.com and let them know provisioning is not working for Atlassian.
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.20.textType = enrollmentLabel
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.21.defaultText = false
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.21.enabled = true
@@ -285,13 +285,13 @@ grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.27.enabled = true
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.27.endIfMatches = false
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.27.index = 59
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.27.script = \u0024{ !cu_jiraHasGroup }
-grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.27.text = <li><b>Has at least one group\u003A</b> <b style="color\u003A brown">no. You are not in any Jira groups, so do you not have any access.  Open a ticket with help@isc.upenn.edu</b></li>
+grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.27.text = <li><b>Has at least one group\u003A</b> <b style="color\u003A brown">no. You are not in any Jira groups, so do you not have any access.  Open a ticket with help@example.com</b></li>
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.27.textType = instructions1
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.28.enabled = true
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.28.endIfMatches = true
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.28.index = 5
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.28.script = \u0024{ !cu_jiraHasGroup }
-grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.28.text = <font style="color\u003Abrown"><b>Error\u003A</b></font> You are not in any Jira policy groups and have no access to any projects.  Open a ticket with help@isc.upenn.edu if this should not be the case</b>
+grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.28.text = <font style="color\u003Abrown"><b>Error\u003A</b></font> You are not in any Jira policy groups and have no access to any projects.  Open a ticket with help@example.com if this should not be the case</b>
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.28.textType = enrollmentLabel
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.29.defaultText = false
 grouperCustomUI.atlassianJiraClaimLicense.cuTextConfig.29.enabled = true

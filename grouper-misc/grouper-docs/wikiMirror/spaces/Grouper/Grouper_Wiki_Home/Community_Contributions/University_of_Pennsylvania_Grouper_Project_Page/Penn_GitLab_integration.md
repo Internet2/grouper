@@ -103,7 +103,7 @@ GitLab admins have access to the report: penn:isc:ait:apps:gitlab:security:gitla
 | current | T \| F | If this is a current privilege, or was removed due to user inactivity |
 | penn_id | 12345678 | Penn ID |
 | username | john-smith | GitLab username linked up to Penn identity with SAML |
-| email | [jsmith@gmail.com](mailto:jsmith@gmail.com) | Email account associated with GitLab account |
+| email | [jsmith@example.com](mailto:jsmith@example.com) | Email account associated with GitLab account |
 | access_level | 30 | Numeric access level in GitLab which ties to role / access_label |
 | access_label | minimal \| developer \| owner \| etc | Natural language representation of access_level |
 | full_path | tenant-name/openshift | Path of the group or project |

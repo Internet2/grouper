@@ -15,7 +15,7 @@ Issue #1: [GRP-1380](https://bugs.internet2.edu/jira/browse/GRP-1380): "Add memb
 
 ```
 commit ff831df553c7735d467a004c4f3b537088b861ca
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sat Oct 22 16:13:20 2016 -0700
     GRP-1380 - Add focus and aria attributes when Add Members button is clicked
  grouper-ui/webapp/WEB-INF/grouperUi2/group/groupHeader.jsp                    |  2 +-
@@ -39,14 +39,14 @@ Issue #3: [GRP-1394](https://bugs.internet2.edu/jira/browse/GRP-1394): UI Access
 
 ```
 commit 05a9b800e217c14b925f175cde9cd71da3514c76
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sat Oct 22 16:32:34 2016 -0700
     GRP-1394 - Add role=button to Add Members link
  grouper-ui/webapp/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
  
 commit dcf32457dd996558b5ce8cd4f0a699de1e449e47
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sun Nov 13 17:04:02 2016 -0800
 
     GRP-1394 - Add role=button to hyperlinks which act as buttons
@@ -90,7 +90,7 @@ Issue #4: [GRP-1397](https://bugs.internet2.edu/jira/browse/GRP-1397): “Member
 
 ```
 commit 921f8ca3ab36a31ee3d91d1300e745a7436dff6c
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sat Oct 29 09:10:09 2016 -0700
     GRP-1397 - Attach the label to correct input field
  grouper-ui/webapp/WEB-INF/grouperUi2/group/groupHeader.jsp | 2 +-
@@ -101,7 +101,7 @@ Issue #5: [GRP-1398](https://bugs.internet2.edu/jira/browse/GRP-1398): UI Access
 
 ```
 commit 4e40a118ec44a62f29a5c44693485f57d74b682a
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sat Oct 29 12:02:31 2016 -0700
     GRP-1398 - Toggle aria-expande based on pull down menu status
  grouper-ui/webapp/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp | 6 ++++--
@@ -111,7 +111,7 @@ Date:   Sat Oct 29 12:02:31 2016 -0700
  4 files changed, 16 insertions(+), 8 deletions(-)
  
 commit 0af8c7e3da765840f0dba4108d13769c000b4388
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Mon Nov 14 08:17:43 2016 -0800
 
     GRP-1398 - Add aria roles and javascript for the pull down menus to make them accessibility compliant
@@ -141,7 +141,7 @@ Issue #6: [GRP-1399](https://bugs.internet2.edu/jira/browse/GRP-1399): UI Access
 
 ```
 commit 2eb2f135608a8a41bd89ab4dc85c6f8b8042b6bc
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sat Oct 29 14:11:22 2016 -0700
     GRP-1399 - Add tabs accessibility
  grouper-misc/grouper.client-2.3.0/javadoc/api/script.js                                      |  30 ++++++++++++++++
@@ -162,7 +162,7 @@ Date:   Sat Oct 29 14:11:22 2016 -0700
  15 files changed, 237 insertions(+), 57 deletions(-)
  
 commit 79a7c9d906d08534bb07bde870e5db2424056b1b
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Thu Dec 22 19:07:01 2016 -0800
 
     GRP-1399 - Add aria selected and role tab to tabs so that they are read as tabs and not links
@@ -208,7 +208,7 @@ Issue #7: [GRP-1400](https://bugs.internet2.edu/jira/browse/GRP-1400): UI Access
 
 ```
 commit a467a1e4ca19fe8af75408ee9a8898002029cc46
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sat Oct 29 14:43:58 2016 -0700
     GRP-1400 - Add labels for checkboxes and Actions header in the group detail page
  grouper-ui/conf/grouperText/grouper.text.en.us.base.properties | 4 ++++
@@ -220,7 +220,7 @@ Issue #8: [GRP-1407](https://bugs.internet2.edu/jira/browse/GRP-1407): UI Access
 
 ```
 commit 6ee2598fdbcc47479f1fc552c4852cf48ee68aaa
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sat Nov 5 22:11:11 2016 -0700
 
     GRP-1407 - Add placeholder text in the entity name text field
@@ -241,7 +241,7 @@ Issue #9: [GRP-1408](https://bugs.internet2.edu/jira/browse/GRP-1408): UI Access
 
 ```
 commit 9e32426d1be97d7127abfe48f460a612a35c2be4
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sun Nov 6 09:03:23 2016 -0800
 
     GRP-1408 - Change the html to have the left box appear before the main content in the right side
@@ -254,7 +254,7 @@ Issue #10: [GRP-1409](https://bugs.internet2.edu/jira/browse/GRP-1409): UI Acces
 
 ```
 commit b80e10deacd503efdd65ac3098f5815ed77886ee
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sun Nov 6 10:04:19 2016 -0800
 
     GRP-1409 - Add role=alert to the messages
@@ -268,7 +268,7 @@ Issue #11: [GRP-1410](https://bugs.internet2.edu/jira/browse/GRP-1410): UI Acces
 
 ```
 commit df9350af39b7dd8b6f8f41c234633da884d8d290
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sun Nov 6 10:32:42 2016 -0800
 
     GRP-1410 - Create a hidden header element for the breadcrumb
@@ -277,7 +277,7 @@ Date:   Sun Nov 6 10:32:42 2016 -0800
  1 file changed, 1 insertion(+)
  
 commit ff34124cf3eada597df60b5697fc4556a80375e5
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sun Dec 4 12:51:46 2016 -0800
 
     GRP-1410 - Add breadcrumb for UI accessibility
@@ -287,7 +287,7 @@ Date:   Sun Dec 4 12:51:46 2016 -0800
  2 files changed, 6 insertions(+), 1 deletion(-)
  
 commit 546da77e38a62eba9f06a5cebe35668d52a1cb74
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Wed Dec 7 07:29:53 2016 -0800
 
     GRP-1410 Escape xml before rendering the breadcrumb aria label
@@ -300,7 +300,7 @@ Issue #12: [GRP-1431](https://bugs.internet2.edu/jira/browse/GRP-1431): Two link
 
 ```
 commit 7a674e24b22f0f8f0609668327c98fde9eb5065a
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sun Dec 4 13:39:00 2016 -0800
 
     GRP-1431 - Add aria-label property to More links
@@ -334,7 +334,7 @@ Date:   Sun Dec 4 13:39:00 2016 -0800
  26 files changed, 32 insertions(+), 25 deletions(-)
  
 commit 6bf84485149919b37ac012af851c64eab541590c
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sun Dec 4 13:47:33 2016 -0800
 
     GRP-1431 - Add aria-label property to Subject More links
@@ -344,7 +344,7 @@ Date:   Sun Dec 4 13:47:33 2016 -0800
  2 files changed, 3 insertions(+), 2 deletions(-)
  
 commit 46ba9f90877dd49d3b01789faeafd25c442bc63b
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sun Dec 4 14:35:12 2016 -0800
 
     GRP-1431 - Show different aria-label for More Actions links
@@ -360,7 +360,7 @@ Date:   Sun Dec 4 14:35:12 2016 -0800
  8 files changed, 17 insertions(+), 12 deletions(-)
  
 commit 907b129f17dff9204e0ea1db47cdb03d80e069ac
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sun Dec 4 15:12:32 2016 -0800
 
     GRP-1431 - Add properties file changes
@@ -369,7 +369,7 @@ Date:   Sun Dec 4 15:12:32 2016 -0800
  1 file changed, 3 insertions(+)
 
 commit f5ca46b0caa6c17e6ee495a26a85b305f20c037f
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sun Dec 4 15:11:48 2016 -0800
 
     GRP-1431 - Show different aria label for memebrship and attribute name
@@ -384,7 +384,7 @@ Issue #13: [GRP-1432](https://bugs.internet2.edu/jira/browse/GRP-1432): Display 
 
 ```
 commit 56c795b3a6ca7b36a1f31049f7f5c50fe9984c8c
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sun Dec 4 15:55:36 2016 -0800
 
     GRP-1432 - Announce addition/deletion of Custom Privileges section from add memebers page
@@ -394,7 +394,7 @@ Date:   Sun Dec 4 15:55:36 2016 -0800
  2 files changed, 29 insertions(+), 3 deletions(-)
  
 commit e0b22ba777b746fb9d86b02245d0dc3230513eb5
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sun Dec 4 16:21:11 2016 -0800
 
     GRP-1432 - Announce privileges section for stems as well
@@ -409,7 +409,7 @@ Issue #14: [GRP-1436](https://bugs.internet2.edu/jira/browse/GRP-1436): “Quick
 
 ```
 commit f24b2eab75c68caee11ef6a5d22e9f16c97920f6
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Wed Dec 7 08:10:43 2016 -0800
 
     GRP-1436 - Add aria attributes to Quick Links
@@ -423,7 +423,7 @@ Issue# 15: [GRP-1437](https://bugs.internet2.edu/jira/browse/GRP-1437): UI Acces
 
 ```
 commit a7a7d67509fe11eee8ed9b8228d615d6509af2c2
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Wed Dec 7 08:30:52 2016 -0800
 
     GRP-1437 - Add aria label to refresh folder browse icon and change hard coded english aria labels to property file
@@ -446,7 +446,7 @@ Issue# 16: [GRP-1442](https://bugs.internet2.edu/jira/browse/GRP-1442): UI Acces
 
 ```
 commit 83a0b16cb86e4e899ab94c94a311f147a44f0b59
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Mon Dec 12 07:43:25 2016 -0800
 
     GRP-1442 - Add table header to recent activity table on the home page
@@ -460,7 +460,7 @@ Issue# 17: [GRP-1478](https://bugs.internet2.edu/jira/browse/GRP-1478): UI Acces
 
 ```
 commit 99476687e75ce79d86b978a6bb997d16edfdc92e
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sun Jan 29 00:36:07 2017 -0800
 
     GRP-1478 - Make the privileges checkboxes which are icons more accessible for screenreaders
@@ -480,7 +480,7 @@ Issue# 18: [GRP-1482](https://bugs.internet2.edu/jira/browse/GRP-1482): UI Acces
 
 ```
 commit 03f7b8126509ff0fcaaaac2cd71e5606baa69343
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Fri Feb 3 23:19:03 2017 -0800
 
     GRP-1482 - Announce when the filter is applied and the results are updated
@@ -515,7 +515,7 @@ Issue# 19: [GRP-1544](https://bugs.internet2.edu/jira/browse/GRP-1544): Fix acce
 
 ```
 commit 261488c93bd258a66bce543e529c8ae1bdb74b29
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sat May 20 22:41:44 2017 -0700
 
     GRP-1544: Change the error message for accessibility
@@ -524,7 +524,7 @@ Date:   Sat May 20 22:41:44 2017 -0700
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 commit 15fa67c9c91c030c43bd1b638d48f0453d7be2c8
-Author: Vivek Sachdeva <erviveksachdeva@gmail.com>
+Author: Vivek Sachdeva <erviveksachdeva@example.com>
 Date:   Sat May 20 21:58:24 2017 -0700
 
     GRP-1544 : Fix accessibility issues

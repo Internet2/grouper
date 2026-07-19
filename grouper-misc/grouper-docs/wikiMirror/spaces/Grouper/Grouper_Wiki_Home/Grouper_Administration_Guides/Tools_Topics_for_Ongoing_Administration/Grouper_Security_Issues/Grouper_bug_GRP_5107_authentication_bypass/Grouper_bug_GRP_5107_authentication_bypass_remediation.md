@@ -11,7 +11,7 @@ If you are running an affected version and configuration, this will remediate th
 
 If you make these changes, you do not need to upgrade or patch your environment, but if you are in a position to, it would be best to do that as well when the new release is out.
 
-If you have questions, then send a direct slack message to Chris Hyzer, the project lead ([request to join InCommon slack](https://incommon.org/help/)). If you are not in InCommon slack then email [mchyzer@yahoo.com](mailto:mchyzer@yahoo.com).
+If you have questions, then send a direct slack message to Chris Hyzer, the project lead ([request to join InCommon slack](https://incommon.org/help/)). If you are not in InCommon slack then email [mchyzer@example.com](mailto:mchyzer@example.com).
 
 ## How to protect your Grouper deployment
 

@@ -12,5 +12,5 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28543410/University
 
 ____________________
 
-Contact email: Tom Wakeen [tgwakeen@wisc.edu](mailto:tgwakeen@wisc.edu), James Babb [james.babb@wisc.edu](mailto:james.babb@wisc.edu) (Technical Team Lead), Jon Miner [jon.miner@wisc.edu](mailto:jon.miner@wisc.edu) (Product Owner)  
+Contact email: Tom Wakeen [tgwakeen@example.com](mailto:tgwakeen@example.com), James Babb [james.babb@example.com](mailto:james.babb@example.com) (Technical Team Lead), Jon Miner [jon.miner@example.com](mailto:jon.miner@example.com) (Product Owner)  
 Campus service page: [https://it.wisc.edu/services/manifest/](https://it.wisc.edu/services/manifest/)

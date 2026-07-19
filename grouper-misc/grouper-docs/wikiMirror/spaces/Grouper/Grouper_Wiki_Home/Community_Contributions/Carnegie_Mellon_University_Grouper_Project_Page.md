@@ -15,7 +15,7 @@ See below diagram for how an on-boarding staff member at Carnegie Mellon flows t
 
 We've also found that application owners across campus, are able to leverage our ActiveMQ infrastructure, for provisioning/deprovisioning accounts into their own applications (hosted or in the cloud). For example, an application owner can come to us with the need to provision new staff into their application. We can provide them with sample ActiveMQ consumer code (which they can then adopt and host themselves) which will allow them to pick up on Grouper group change log messages and subsequently call the provisioning API for their application. This type of pattern has worked successfully for us, for services including Canvas and Slack.
 
-Any questions/comments on the above, please drop me a line: Garrett King garrettk@cmu.edu
+Any questions/comments on the above, please drop me a line: Garrett King garrettk@example.com
 
 ---
 

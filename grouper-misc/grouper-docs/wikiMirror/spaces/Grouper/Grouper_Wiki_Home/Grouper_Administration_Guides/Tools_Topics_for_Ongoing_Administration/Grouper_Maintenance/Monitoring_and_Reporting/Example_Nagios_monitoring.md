@@ -19,8 +19,8 @@ Here are tips for monitoring Grouper functions:
 
 ```
 log4j.appender.grouper_mail=org.apache.log4j.net.SMTPAppender
-log4j.appender.grouper_mail.To=address@school.edu
-log4j.appender.grouper_mail.From=noreply@school.edu
+log4j.appender.grouper_mail.To=address@example.com
+log4j.appender.grouper_mail.From=noreply@example.com
 log4j.appender.grouper_mail.SMTPHost=smtp.server.edu
 log4j.appender.grouper_mail.Threshold=ERROR
 log4j.appender.grouper_mail.BufferSize=100

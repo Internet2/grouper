@@ -198,18 +198,18 @@ The object model for the Azure user object is as follows (note, [here are some m
 | accountEnabled | true |  |
 | assignedPlans | AADPremiumService, Adallom, Deskless, EduAnalytics, Homeroom, MicrosoftCommunicationsOnline, MicrosoftKaizala, MicrosoftOffice, MicrosoftStream, OfficeForms, PowerAppsService, ProcessSimple, ProjectWorkManagement, RMSOnline, SharePoint, Sway, TeamspaceAPI, To-Do, WhiteboardServices, YammerEnterprise, exchange | This is a "Set" object that can do simple operations |
 | assignedPlansString | AADPremiumService, Adallom, Deskless, EduAnalytics, Homeroom, MicrosoftCommunicationsOnline, MicrosoftKaizala, MicrosoftOffice, MicrosoftStream, OfficeForms, PowerAppsService, ProcessSimple, ProjectWorkManagement, RMSOnline, SharePoint, Sway, TeamspaceAPI, To-Do, WhiteboardServices, YammerEnterprise, exchange | This is a string that is easy for printing |
-| mail | [mchyzer@isc.upenn.edu](mailto:mchyzer@isc.upenn.edu) |  |
+| mail | [mchyzer@example.com](mailto:mchyzer@example.com) |  |
 | onPremisesImmutableId | 10021368 | Maybe this is your subject ID |
 | onPremisesLastSyncDateTime | 2020-04-03T15:52:41Z |  |
 | onPremisesSamAccountName | mchyzer |  |
-| proxyAddresses | mchyzer@[PennO365.mail.onmicrosoft.com](http://PennO365.mail.onmicrosoft.com), [mchyzer@PennO365.onmicrosoft.com](mailto:mchyzer@PennO365.onmicrosoft.com), [mchyzer@isc.upenn.edu](mailto:mchyzer@isc.upenn.edu), [mchyzer@nursing.upenn.edu](mailto:mchyzer@nursing.upenn.edu), [mchyzer@pobox.upenn.edu](mailto:mchyzer@pobox.upenn.edu), [mchyzer@upenn.edu](mailto:mchyzer@upenn.edu), [mchyzer@wharton.upenn.edu](mailto:mchyzer@wharton.upenn.edu) | This is a "Set" object that can do simple operations |
-| proxyAddressesString | [mchyzer@PennO365.mail.onmicrosoft.com](mailto:mchyzer@PennO365.mail.onmicrosoft.com), [mchyzer@PennO365.onmicrosoft.com](mailto:mchyzer@PennO365.onmicrosoft.com), [mchyzer@isc.upenn.edu](mailto:mchyzer@isc.upenn.edu), [mchyzer@nursing.upenn.edu](mailto:mchyzer@nursing.upenn.edu), [mchyzer@pobox.upenn.edu](mailto:mchyzer@pobox.upenn.edu), [mchyzer@upenn.edu](mailto:mchyzer@upenn.edu), [mchyzer@wharton.upenn.edu](mailto:mchyzer@wharton.upenn.edu) | This is a string that is easy for printing |
+| proxyAddresses | mchyzer@[PennO365.mail.onmicrosoft.com](http://PennO365.mail.onmicrosoft.com), [mchyzer@example.com](mailto:mchyzer@example.com), [mchyzer@example.com](mailto:mchyzer@example.com), [mchyzer@example.com](mailto:mchyzer@example.com), [mchyzer@example.com](mailto:mchyzer@example.com), [mchyzer@example.com](mailto:mchyzer@example.com), [mchyzer@example.com](mailto:mchyzer@example.com) | This is a "Set" object that can do simple operations |
+| proxyAddressesString | [mchyzer@example.com](mailto:mchyzer@example.com), [mchyzer@example.com](mailto:mchyzer@example.com), [mchyzer@example.com](mailto:mchyzer@example.com), [mchyzer@example.com](mailto:mchyzer@example.com), [mchyzer@example.com](mailto:mchyzer@example.com), [mchyzer@example.com](mailto:mchyzer@example.com), [mchyzer@example.com](mailto:mchyzer@example.com) | This is a string that is easy for printing |
 | showInAddressList | true |  |
-| userPrincipalName | [mchyzer@upenn.edu](mailto:mchyzer@upenn.edu) |  |
+| userPrincipalName | [mchyzer@example.com](mailto:mchyzer@example.com) |  |
 | userType | Member |  |
 | provisionedPlans | EXCHANGE, MicrosoftCommunicationsOnline, MicrosoftOffice, SharePoint | This is a "Set" object that can do simple operations |
 | provisionedPlansString | EXCHANGE, MicrosoftCommunicationsOnline, MicrosoftOffice, SharePoint | This is a string that is easy for printing |
-| summary | accountEnabled: true, mail: mchyzer@isc.upenn.edu, onPremisesImmutableId: 10021368, onPremisesLastSyncDateTime: 2019-12-23T22:46:09Z, onPremisesSamAccountName: mchyzer, ... | Print out all Azure variables in one string |
+| summary | accountEnabled: true, mail: mchyzer@example.com, onPremisesImmutableId: 10021368, onPremisesLastSyncDateTime: 2019-12-23T22:46:09Z, onPremisesSamAccountName: mchyzer, ... | Print out all Azure variables in one string |
 
 The label is externalized text
 

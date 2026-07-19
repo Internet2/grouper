@@ -253,10 +253,10 @@ GET $SERVICE_URL$/users/$ORG_ID$/0
   "result": "success",
   "users": [{
     "id": "abc123",
-    "email": "abc@school.edu",
+    "email": "abc@example.com",
     "status": "active",
     "groups": ["Group name 1", "Group name 2"],
-    "username": "ABC@UPENN.EDU",
+    "username": "ABC@example.com",
     "domain": "upenn.edu",
     "firstname": "Dave",
     "lastname": "Smith",
@@ -274,16 +274,16 @@ with memberships
 response code: 200/404
 
 ```
-GET $SERVICE_URL$/organizations/$ORG_ID$/users/email@address.edu
+GET $SERVICE_URL$/organizations/$ORG_ID$/users/email@example.com
 
 {
   "result": "success",
   "user": {
     "id": "abc123",
-    "email": "jsmith@school.edu",
+    "email": "jsmith@example.com",
     "status": "active",
     "groups": ["Group1", "Group2"],
-    "username": "JSMITH@SCHOOL.EDU",
+    "username": "JSMITH@example.com",
     "domain": "upenn.edu",
     "firstname": "John",
     "lastname": "SMITH",
@@ -314,11 +314,11 @@ Content-Type: application/json
 
 [
   {
-    "user": "abc@school.edu",
+    "user": "abc@example.com",
     "do": [
       {
         "addAdobeID|createFederatedID|createEnterpriseID": {
-          "email": "abc@school.edu",
+          "email": "abc@example.com",
           "country": "US",
           "firstname": "AbcTest",
           "lastname": "AbcTest"
@@ -355,7 +355,7 @@ Content-Type: application/json
 
 [
   {
-    "user": "abc@upenn.edu",
+    "user": "abc@example.com",
     "do": [
       {
         "update": {
@@ -388,7 +388,7 @@ Content-Type: application/json
 
 [
   {
-    "user": "abc@upenn.edu",
+    "user": "abc@example.com",
     "do": [
       {
         "add": {
@@ -424,7 +424,7 @@ Content-Type: application/json
 
 [
   {
-    "user": "abc@upenn.edu",
+    "user": "abc@example.com",
     "do": [
       {
         "remove": {
@@ -460,7 +460,7 @@ Content-Type: application/json
 
 [
   {
-    "user": "abc@upenn.edu",
+    "user": "abc@example.com",
     "do": [
       {
         "removeFromOrg": {

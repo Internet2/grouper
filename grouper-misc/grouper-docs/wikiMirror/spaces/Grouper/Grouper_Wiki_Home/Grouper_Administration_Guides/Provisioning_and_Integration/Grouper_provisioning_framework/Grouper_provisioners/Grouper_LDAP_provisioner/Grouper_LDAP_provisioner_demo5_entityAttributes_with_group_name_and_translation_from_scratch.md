@@ -98,7 +98,7 @@ subjectApi.source.myPeople.param.ldapServerId.value = personLdap
 subjectApi.source.myPeople.param.netId.value = mail
 subjectApi.source.myPeople.param.stringToFindOnCheckConfig.value = jo
 subjectApi.source.myPeople.param.subjectIdToFindOnCheckConfig.value = aanderson
-subjectApi.source.myPeople.param.subjectIdentifierToFindOnCheckConfig.value = aclark@example.edu
+subjectApi.source.myPeople.param.subjectIdentifierToFindOnCheckConfig.value = aclark@example.com
 subjectApi.source.myPeople.search.search.param.filter.value = (&(|(|(uid=%TERM%)(cn=*%TERM%*))(uid=%TERM%*))(objectclass=person))
 subjectApi.source.myPeople.search.searchSubject.param.base.value = ou=People,dc=example,dc=edu
 subjectApi.source.myPeople.search.searchSubject.param.filter.value = (uid=%TERM%)

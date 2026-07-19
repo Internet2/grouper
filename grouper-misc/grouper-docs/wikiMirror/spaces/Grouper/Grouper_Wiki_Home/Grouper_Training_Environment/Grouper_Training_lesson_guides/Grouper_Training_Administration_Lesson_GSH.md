@@ -2,8 +2,8 @@
 title: "Grouper Training - Administration - Lesson: GSH"
 space: Grouper
 pageId: 28544339
-version: 29
-lastUpdated: 2025-04-09T00:27:07.163Z
+version: 30
+lastUpdated: 2026-07-19T00:32:28.072Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544339/Grouper+Training+-+Administration+-+Lesson+GSH
 ---
 
@@ -77,7 +77,7 @@ Run the following command:
 def admins = GroupFinder.findByName("etc:sysadmin", true)
 ```
 
-GSH displays a friendly version of the problem (highlighted in red, depending on your console) and we can quickly see that we just put in the wrong group name. The additional stack information is helpful if you ever need to report a problem out to [Grouper's bug reporting system](https://todos.internet2.edu/projects/GRP/issues).
+GSH displays a friendly version of the problem (highlighted in red, depending on your console) and we can quickly see that we just put in the wrong group name. The additional stack information is helpful if you ever need to report a problem out to [Grouper's bug reporting system](https://grouper.atlassian.net/projects/GRP/issues).
 
 ## Finding a group, printing its members
 

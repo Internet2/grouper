@@ -2,8 +2,8 @@
 title: "18-December-2024"
 space: GrIntDev
 pageId: 48793223
-version: 13
-lastUpdated: 2026-07-12T17:27:30.679Z
+version: 14
+lastUpdated: 2026-07-19T00:32:55.390Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793223/18-December-2024
 ---
 
@@ -200,33 +200,33 @@ They also discussed the need for a new Confluence table to outline these situati
 
 **WIki updates in past 2 weeks**
 
-- **[Specsheet](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549107/Specsheet)yesterday at 09:47 PM • updated by ben.rappleyea.2@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549107/Specsheet)**
+- **[Specsheet](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549107/Specsheet)yesterday at 09:47 PM • updated by ben.rappleyea.2@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549107/Specsheet)**
 
-- **[v4 Release Notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes)yesterday at 08:23 AM • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes)**
+- **[v4 Release Notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes)yesterday at 08:23 AM • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549344/v4+Release+Notes)**
 
-- **[Grouper and Shibboleth front door authorization](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545521/Grouper+and+Shibboleth+front+door+authorization)Dec 11, 2024 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545521/Grouper+and+Shibboleth+front+door+authorization)**
+- **[Grouper and Shibboleth front door authorization](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545521/Grouper+and+Shibboleth+front+door+authorization)Dec 11, 2024 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545521/Grouper+and+Shibboleth+front+door+authorization)**
 
-- **[Grouper Product Roadmap](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28541781/Grouper+Product+Roadmap)Dec 10, 2024 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28541781/Grouper+Product+Roadmap)**
+- **[Grouper Product Roadmap](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28541781/Grouper+Product+Roadmap)Dec 10, 2024 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28541781/Grouper+Product+Roadmap)**
 
-- **[Grouper Google GCP provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554610/Grouper+Google+GCP+provisioner)Dec 09, 2024 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554610/Grouper+Google+GCP+provisioner)**
+- **[Grouper Google GCP provisioner](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554610/Grouper+Google+GCP+provisioner)Dec 09, 2024 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554610/Grouper+Google+GCP+provisioner)**
 
-- **[v5 Upgrade instructions from v5](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549165/v5+Upgrade+instructions+from+v5)Nov 27, 2024 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549165/v5+Upgrade+instructions+from+v5)**
+- **[v5 Upgrade instructions from v5](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549165/v5+Upgrade+instructions+from+v5)Nov 27, 2024 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549165/v5+Upgrade+instructions+from+v5)**
 
-- **[v5 Release Notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549048/v5+Release+Notes)Nov 26, 2024 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549048/v5+Release+Notes)**
+- **[v5 Release Notes](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549048/v5+Release+Notes)Nov 26, 2024 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549048/v5+Release+Notes)**
 
 - **[Configuring object name constraints](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544862/Configuring+object+name+constraints)Nov 22, 2024 • updated by Chad Redman • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544862/Configuring+object+name+constraints)**
 
-- **[Grouper - SCIM Provisioner - Examples](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28559948/Grouper+-+SCIM+Provisioner+-+Examples)Nov 21, 2024 • created by ben.rappleyea.2@at.internet2.edu**
+- **[Grouper - SCIM Provisioner - Examples](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28559948/Grouper+-+SCIM+Provisioner+-+Examples)Nov 21, 2024 • created by ben.rappleyea.2@example.com**
 
-- **[Recovering a deleted group / memberships](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547363/Recovering+a+deleted+group+memberships)Nov 20, 2024 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547363/Recovering+a+deleted+group+memberships)**
+- **[Recovering a deleted group / memberships](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547363/Recovering+a+deleted+group+memberships)Nov 20, 2024 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28547363/Recovering+a+deleted+group+memberships)**
 
-- **[Grouper provisioning SCIM](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555423/Grouper+provisioning+SCIM)Nov 20, 2024 • updated by ben.rappleyea.2@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555423/Grouper+provisioning+SCIM)**
+- **[Grouper provisioning SCIM](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555423/Grouper+provisioning+SCIM)Nov 20, 2024 • updated by ben.rappleyea.2@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28555423/Grouper+provisioning+SCIM)**
 
-- **[Grouper provisioning - SCIM - Functions](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28559941/Grouper+provisioning+-+SCIM+-+Functions)Nov 20, 2024 • updated by ben.rappleyea.2@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28559941/Grouper+provisioning+-+SCIM+-+Functions)**
+- **[Grouper provisioning - SCIM - Functions](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28559941/Grouper+provisioning+-+SCIM+-+Functions)Nov 20, 2024 • updated by ben.rappleyea.2@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28559941/Grouper+provisioning+-+SCIM+-+Functions)**
 
-- **[Grouper provisioning SCIM ServiceNow](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28564299/Grouper+provisioning+SCIM+ServiceNow)Nov 20, 2024 • updated by ben.rappleyea.2@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28564299/Grouper+provisioning+SCIM+ServiceNow)**
+- **[Grouper provisioning SCIM ServiceNow](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28564299/Grouper+provisioning+SCIM+ServiceNow)Nov 20, 2024 • updated by ben.rappleyea.2@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28564299/Grouper+provisioning+SCIM+ServiceNow)**
 
-- **[Grouper upgrade tasks](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)Nov 20, 2024 • updated by chris.hyzer.3@at.internet2.edu • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)**
+- **[Grouper upgrade tasks](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)Nov 20, 2024 • updated by chris.hyzer.3@example.com • [view change](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549372/Grouper+upgrade+tasks)**
 
 **Next Grouper Call: Wed. Jan 15, 2025**
 

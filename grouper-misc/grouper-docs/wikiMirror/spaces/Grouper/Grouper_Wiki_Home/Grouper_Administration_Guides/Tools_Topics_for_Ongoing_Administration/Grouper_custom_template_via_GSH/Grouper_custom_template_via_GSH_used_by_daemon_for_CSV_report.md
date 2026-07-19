@@ -131,10 +131,10 @@ Config
 GSH script daemon source
 
 ```
-String emails = "support@whatever.school.edu"; 
-    String bccs = "someone@school.edu"; 
+String emails = "support@example.com"; 
+    String bccs = "someone@example.com"; 
     String subject = "Penn O365 report for Annenberg"; 
-    String body = "Attached is the Penn O365 report for Annenberg.  Email help@school.edu for support.";
+    String body = "Attached is the Penn O365 report for Annenberg.  Email help@example.com for support.";
     String databaseConfigId = "pennCommunity";
     String fileName = "o365_Annenberg_report_#date_time#.csv";
     String query = "select PENN_ID, PENNKEY, NAME, INSTITUTIONAL_PREFERRED_EMAIL, PHONE, ACTIVE_CODE, O365_PRIMARY_AFFILIATION, CENTER, CENTER_NAME, HOME_ORG, SRS_DIVISION, SRS_SCHOOL, ALL_ACTIVE_AFFILIATIONS, O365_READY, EXPIRES_IN_DAYS, HAS_MAILBOX, O365_CENTER, JOB_ORG_CODE, JOB_ORG_DISPLAY_NAME, JOB_ORG_CENTER_CODE, FIRST_NAME, LAST_NAME, SCHEDULED_DELETION_DATE, JOB_CLASS_TITLE, PERSON_DESCRIPTION, DN, DECEASED_FLAG from pcdadmin.project_o365_Annenberg_v";

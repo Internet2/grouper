@@ -125,7 +125,7 @@ The Grouper Loader configuration contains the original parameters from the Unico
   - the subject attribute to use for the principal in O365
 - changeLog.consumer.o365unified.adDomain = adtest.example.com
   
-  - the domain of the principal in O365 (e.g. the full principal is abc@adtest.example.com)
+  - the domain of the principal in O365 (e.g. the full principal is abc@example.com)
 - changeLog.consumer.o365unified.groupNameEL = grouper-TEST-${stemExtension}
 - changeLog.consumer.o365unified.groupDisplayNameEL = (Grouper TEST) ${stemDisplayExtension}
 - changeLog.consumer.o365unified.groupDescriptionEL = ${ stemDescription ? stemDescription : "Grouper path: " + stemPath }

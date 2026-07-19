@@ -31,7 +31,7 @@ Along with other Grouper team members, this developer will collaborate on lists,
 
 ## **How**
 
-Please send a resume and expression of interest to Tom Barton <[tbarton@uchicago.edu](mailto:tbarton@uchicago.edu)>. The selection process will consist of a review of the resume, conditionally followed by a phone interview, conditionally followed by an interview with the Grouper developer team. We’ll continue until we find a good fit for our team.
+Please send a resume and expression of interest to Tom Barton <[tbarton@example.com](mailto:tbarton@example.com)>. The selection process will consist of a review of the resume, conditionally followed by a phone interview, conditionally followed by an interview with the Grouper developer team. We’ll continue until we find a good fit for our team.
 
 ## **When**
 

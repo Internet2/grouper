@@ -19,8 +19,8 @@ This is the script to create users in the video
 
 ```
 GrouperSession grouperSession = GrouperSession.startRootSession();
-RegistrySubject.addOrUpdate(grouperSession, "mchyzer", "person", "Chris Hyzer", "Chris Hyzer", "mchyzer", "Chris Hyzer", "mchyzer@upenn.edu");
-RegistrySubject.addOrUpdate(grouperSession, "kwilso", "person", "Kate Wilson", "Kate Wilson", "kwilso", "Kate Wilson", "kwilso@upenn.edu");
+RegistrySubject.addOrUpdate(grouperSession, "mchyzer", "person", "Chris Hyzer", "Chris Hyzer", "mchyzer", "Chris Hyzer", "mchyzer@example.com");
+RegistrySubject.addOrUpdate(grouperSession, "kwilso", "person", "Kate Wilson", "Kate Wilson", "kwilso", "Kate Wilson", "kwilso@example.com");
 ```
 
 ## Provisioning attributes

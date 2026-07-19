@@ -7,7 +7,7 @@ lastUpdated: 2026-07-12T06:20:51.131Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/overview
 ---
 
-Working Group Chair: [Chris Hyzer](mailto:mchyzer@isc.upenn.edu), University of Pennsylvania
+Working Group Chair: [Chris Hyzer](mailto:mchyzer@example.com), University of Pennsylvania
 
 Welcome to the Grouper Wiki. This is the primary documentation for Grouper, and is a community-maintained repository consisting of technical information you need to know prior to installing Grouper, installation/configuration guides, and case studies contributed by the Grouper community.
 

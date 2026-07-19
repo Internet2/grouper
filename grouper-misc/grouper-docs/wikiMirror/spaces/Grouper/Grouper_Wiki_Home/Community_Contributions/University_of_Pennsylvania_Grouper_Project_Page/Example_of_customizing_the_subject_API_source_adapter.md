@@ -9,8 +9,8 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544024/Example+of
 
 - Download the latest Grouper 1.4 branch
   
-  - cvs -d:pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi login
-  - cvs -d:pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi export -r GROUPER_1_4_BRANCH grouper
+  - cvs -d:pserver:anoncvs@example.com:/home/cvs/i2mi login
+  - cvs -d:pserver:anoncvs@example.com:/home/cvs/i2mi export -r GROUPER_1_4_BRANCH grouper
 - In grouper dir, run: ant dist
 - Start the database (hsql in this case, could be mysql/postgres/oracle also):
   

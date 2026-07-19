@@ -45,7 +45,7 @@ CRUD: select (search), insert, update. No delete (Interfolio returns 403 - not a
 | pid | varchar(40) | stable cross-product person id; assigned by Interfolio (IAM returns it as "pid"); not null after create, readonly; the provisioner key |
 | byc_id | varchar(40) | byc-internal user id (returned as "id" by users/search) |
 | institution_user_id | varchar(256) | UID / PennKey; immutable once set |
-| saml_id | varchar(256) | [pennkey@upenn.edu](mailto:pennkey@upenn.edu); accepted on create/update but not echoed back |
+| saml_id | varchar(256) | [pennkey@example.com](mailto:pennkey@example.com); accepted on create/update but not echoed back |
 | user_type | varchar(64) | typically "internal" |
 | first_name | varchar(256) |  |
 | last_name | varchar(256) |  |
@@ -61,21 +61,21 @@ Note: institution_user_id and saml_id are NOT returned by users/search (only by 
 
 byc/core host. No `search` term returns the whole institution, paged. Returns pid + id + name + email (not UID / saml_id).
 
-GET {bycUrl}/byc/core/tenure/{tenant_id}/institutions/{tenant_id}/users/search?limit=100&page=1 200 { "limit": 100, "page": 1, "total_count": 22035, "results": [ { "id": 1000001, "pid": "8000001", "first_name": "John", "last_name": "Smith", "email": "jsmith@upenn.edu", "external_user": false, "role": null, "administrator_unit_names": [], "administrator_unit_ids": [], "evaluator_unit_names": [], "evaluator_unit_ids": [], "titles": [] } ] }
+GET {bycUrl}/byc/core/tenure/{tenant_id}/institutions/{tenant_id}/users/search?limit=100&page=1 200 { "limit": 100, "page": 1, "total_count": 22035, "results": [ { "id": 1000001, "pid": "8000001", "first_name": "John", "last_name": "Smith", "email": "jsmith@example.com", "external_user": false, "role": null, "administrator_unit_names": [], "administrator_unit_ids": [], "evaluator_unit_names": [], "evaluator_unit_ids": [], "titles": [] } ] }
 
 ## Create user
 
 IAM host. Returns the new user with its `pid` (numeric). Duplicate email -> 400.
 
-POST {iamUrl}/iam/{tenant_id}/users Content-Type: application/json { "institution_user_id": "jsmith", "saml_id": "jsmith@upenn.edu", "user_type": "internal", "first_name": "John", "last_name": "Smith", "email": "jsmith@upenn.edu" } 200 { "pid": 8000001, "first_name": "John", "last_name": "Smith", "email": "jsmith@upenn.edu", "institution_user_id": "jsmith", "user_type": "internal" }Duplicate email response (400):
+POST {iamUrl}/iam/{tenant_id}/users Content-Type: application/json { "institution_user_id": "jsmith", "saml_id": "jsmith@example.com", "user_type": "internal", "first_name": "John", "last_name": "Smith", "email": "jsmith@example.com" } 200 { "pid": 8000001, "first_name": "John", "last_name": "Smith", "email": "jsmith@example.com", "institution_user_id": "jsmith", "user_type": "internal" }Duplicate email response (400):
 
-400 { "errors": [ { "field": "", "message": "Validation failed: Email address jsmith@upenn.edu already exists for an Interfolio account at this Institution. Try signing in instead." } ], "error_class": "ActiveRecord::RecordInvalid" }
+400 { "errors": [ { "field": "", "message": "Validation failed: Email address jsmith@example.com already exists for an Interfolio account at this Institution. Try signing in instead." } ], "error_class": "ActiveRecord::RecordInvalid" }
 
 ## Update user
 
 IAM host. Full replace - send every attribute. `institution_user_id` is immutable; sending a changed value -> 400.
 
-PUT {iamUrl}/iam/{tenant_id}/users/{pid} Content-Type: application/json { "institution_user_id": "jsmith", "saml_id": "jsmith@upenn.edu", "user_type": "internal", "first_name": "Johnny", "last_name": "Smith", "email": "jsmith@upenn.edu" } 200 (returns the same shape as create)Changed institution_user_id response (400):
+PUT {iamUrl}/iam/{tenant_id}/users/{pid} Content-Type: application/json { "institution_user_id": "jsmith", "saml_id": "jsmith@example.com", "user_type": "internal", "first_name": "Johnny", "last_name": "Smith", "email": "jsmith@example.com" } 200 (returns the same shape as create)Changed institution_user_id response (400):
 
 400 { "errors": [ { "field": "", "message": "Validation failed: Institution user id can't be changed." } ], "error_class": "ActiveRecord::RecordInvalid" }
 

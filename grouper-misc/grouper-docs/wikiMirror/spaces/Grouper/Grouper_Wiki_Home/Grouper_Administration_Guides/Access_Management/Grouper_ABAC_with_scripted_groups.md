@@ -2,12 +2,10 @@
 title: "Grouper ABAC with scripted groups"
 space: Grouper
 pageId: 28544896
-version: 103
-lastUpdated: 2026-07-12T15:26:31.015Z
+version: 105
+lastUpdated: 2026-07-17T15:31:20.048Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28544896/Grouper+ABAC+with+scripted+groups
 ---
-
-****
 
 ## Grouper ABAC
 
@@ -20,6 +18,8 @@ Grouper does a great job with group relationships and group math. [Basis groups]
 
 ABAC allows you to model rows of data for a user, and then make an ABAC script to specify criteria in that row of data. You could instantly make a group for users who have certain affiliations in certain org in their primary job in a full time capacity. Previously you needed to make a loader job to load a group with a SQL query that can join various data elements from a data warehouse.
 
+> **Grouper ABAC Blog**
+> 
 > Check out [this Grouper ABAC blog from November 2025](https://incommon.org/news/abac-to-the-future/) for info on using ABAC to reduce the burden of loader jobs.
 
 ## Use case
@@ -42,7 +42,7 @@ The ABAC with scripted groups feature is designed to offer increased efficiency 
 
 ## Syntax
 
-| Type | Concept | Example | Description |
+| **Type** | **Concept** | **Example** | **Description** |
 | --- | --- | --- | --- |
 | Entity attribute | member of | 'ref:mfaEnrolled'  entity.memberOf('ref:mfaEnrolled') | Users that are members of this group (by system name / ID path) |
 | Entity attribute | member of any group | entity.memberOfAny(['ref:staff', 'ref:faculty']) | Users that are members of any of the specified groups (by system name / ID path) |
@@ -57,6 +57,7 @@ The ABAC with scripted groups feature is designed to offer increased efficiency 
 | Entity attribute | has any attribute integer in list | jobCode =~ [123, 234]  entity.hasAttributeAny('jobNumber', [123, -234]) | Users that have any of these values for this attribute |
 | Entity attribute | has attribute value like | entity.hasAttributeLike(org, '%\\_2%') | Users that have an attribute value like the SQL likeString. Note: "like" expressions are more efficient than regex   % (percent) matches any zero or more any characters   _ (underscore) matches exactly one any character   \\ (double backslash) escapes the next percent, underscore, or backslash   \\\\ (quadruple backslash) literal backslash   \' (backslash single quote) literal single quote in single quoted string   \" (backslash double quote) literal double quote in double quoted string |
 | Entity attribute | has attribute with value matching regex | org =~ '^.*2.*$'  entity.hasAttributeRegex(org, '^.*2.*$') | Users that have an attribute value that matches the regex. [Recommended regex site](https://regex101.com/) to build and test a regex. Escape quotes and slashes in jexl with backslash. Less efficient than SQL like string. |
+| Entity attribute | time from now | entity.hasAttributeLessThan('accessTokenExpiresAt', timeFromNow('now'))  entity.hasAttributeGreaterThan('lastLoginAt', timeFromNow('-30 days')) | Resolves to a millisecond-since-epoch value offset from the current time at script-analysis time. Argument is a single string: 'now' for the current instant, or a signed integer + unit (e.g. '30 days', '-5 minutes', '-1 year'). Negative for past, positive for future. Units accepted (singular or plural, case-insensitive): minutes, hours, days, weeks, months, years. Use anywhere a numeric / timestamp value is expected. In the last example: users who logged in within the last 30 days. |
 | Entity row | has row with attribute assignment | entity.hasRow('affiliation', 'active') | Users that have an affiliation row with an attribute assigned or true for boolean, or any value for other types |
 | Entity row | has row with attribute value | entity.hasRow('affiliation', 'affiliationCode==staff') | Users with a row of affiliation with a column value of attributeCode or value staff. "staff" is a string that doesnt start with an integer or have special characters in it. |
 | Entity row | has row with attribute value | entity.hasRow('affiliation', "affiliationCode=='01234' ") | Users with a row of affiliation with a column value of attributeCode or value 01234. "01234" has quotes around it since it has special chars or starts with an integer |
@@ -71,12 +72,14 @@ The ABAC with scripted groups feature is designed to offer increased efficiency 
 | Entity row | compare two columns | entity.hasRow('affiliation', 'attributeCompare(affiliationDeptNumber < affiliationDeptNumberPrimary) | Users with row affiliation where column affiliationDeptNumber is less than column affiliationDeptNumberPrimary. Operator can be < > == <= >= !=   In Grouper v6.1.2+, v7.1.0+ |
 | Entity row | compare two columns with addition or subtraction | entity.hasRow('affiliation', 'attributeCompare(affiliationDeptNumber + 5 < affiliationDeptNumberPrimary) | Users with row affiliation where column affiliationDeptNumber (plus 5) is less than column affiliationDeptNumberPrimary. Operator can be < > == <= >= !=   Note: the math can be on the left or right or both of the operator. The scalar must be to the right of the column data field (i.e. 5 + affiliationDeptNumber is not allowed. Multiple math operations or parens or other things are not allowed.   In Grouper v6.1.2+, v7.1.0+ |
 | Entity row | range of strings or ints | entity.hasRow('affiliation', "   hasAttributeBetween(    '0200' <= affiliationDeptNumber,     affiliationDeptNumber < '0248'   )") | Users with row affiliation where the affiliationDeptNumber between two numbers or strings, inclusive or exclusive. The same column must be used in both arguments, and the order of the scalars and the column must be as shown. Can only user < or <= to denote exclusive and inclusive.   In Grouper v6.1.2+, v7.1.0+ |
+| Entity row | time from now | entity.hasRow('enrollment', "startDate <= timeFromNow('now') && endDate >= timeFromNow('now')") | Users with an enrollment row where the start date is on or before now, and the end date is on or after now — i.e. an enrollment that is currently in effect. timeFromNow can be used inside hasRow for row column comparisons (<, <=, >, >=, ==, !=) and inside hasAttributeBetween. |
+| Member attribute | subject source id | member.subjectSourceId == 'jdbc' | Members from a particular subject source. |
 
 ## Boolean logic
 
 To translate from composite terminology. Note, with composite
 
-| Grouper composite | ABAC | Meaning | Notes |
+| **Grouper composite** | **ABAC** | **Meaning** | **Notes** |
 | --- | --- | --- | --- |
 | ref:org1 union ref:org2 | "ref:org1" or "ref:org2" | Members who are in either group or both: ref:org1, ref:org2   e.g. you want both populations in the resulting population | Union doesn't really exist in Grouper.   To do this in Grouper you would just add the group "c:d" to be a member of "a:b" |
 | app:admins_manual intersect ref:employee | "app:admins_manual" and "ref:employee" | Members who are in both groups (but not in either or neither): app:admins_manual, ref:employee   e.g. you want to make sure members in the first population (a manual group perhaps) are also in the second group (an eligibility group like: employees) |  |
@@ -117,6 +120,8 @@ grouper.abac.globalAttributeValuesCacheMinutes =
 
 In Grouper v2.6.6+ there is a first pass at JEXL loaded groups using memberships of groups only. In v5+ scripted groups can also be based on [entity data fields](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28545275/Grouper+entity+data+fields+for+ABAC). It is basic and can be built on. Note: this is subject to change as we see a working solution and discuss the optimal path forward.
 
+> **See the blog!**
+> 
 > For more info, see the February 2022 blog on [Attribute Based Access Control with Grouper](https://incommon.org/news/new-features-with-grouper/).
 
 [Video](https://youtu.be/RLr3mhxU35o)
@@ -176,7 +181,6 @@ The view and edit screens for a JEXL script group always display checkboxes for 
   Default:   
     
     
-    
   Customized:
 
 When per-group subject sources are customized, only sources from the `availableSubjectSourceIds` list are accepted. If a per-group override contains sources not in the available list, those sources are silently ignored. If all per-group sources are invalid, the global defaults are used.
@@ -233,7 +237,7 @@ In an entity script, the variable 'entity' is an instance of class: edu.internet
 
 You can use entity.memberOf('full:group:id:path') exactly like that to see if user is in a group or not.
 
-| Expression | Description |
+| **Expression** | **Description** |
 | --- | --- |
 | ``` ${ entity.memberOf('ref:staff') && entity.memberOf('ref:payroll:fullTime') && entity.memberOf('ref:mfaEnrolled') } ``` | Three part intersection.  Full time staff in MFA |
 | ``` ${ ( entity.memberOf('ref:employee')  \|\| entity.memberOf('ref:student')  // employees or students   \|\| (entity.memberOf('ref:guests')      && entity.memberOf('app:vpn:vpnManualOverrides'))) // or guests who are in manual allow   && !entity.memberOf('ref:globalLockout')   && !entity.memberOf('app:vpn:vpnManualLockout') }  // and not in either lockout group ``` | Example policy  That means users who are not in globalLockout and not in vpnManualLockout    and in an eligible population which is faculty, students, or guests who are in the manual app override group |

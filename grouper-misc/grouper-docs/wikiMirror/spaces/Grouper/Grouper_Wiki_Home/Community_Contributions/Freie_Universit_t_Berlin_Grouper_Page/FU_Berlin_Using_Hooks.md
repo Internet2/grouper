@@ -57,8 +57,8 @@ if (postDeleteBean.getMembership().getOwnerGroupId() != null ) {
          
              try { 
                   MimeMessage message = new MimeMessage(session);
-                  message.setFrom(new InternetAddress("sender@yourEdu.xx"));                                      // sender            
-                  message.addRecipient(Message.RecipientType.TO, new InternetAddress("recipient@yourEdu.xx"));    // recipient
+                  message.setFrom(new InternetAddress("sender@example.com"));                                      // sender            
+                  message.addRecipient(Message.RecipientType.TO, new InternetAddress("recipient@example.com"));    // recipient
                   message.setSubject( "Grouper Group Removal Notification");									  // subject           
 
                   message.setText ("---------------------------------------------\n" +                            // message body

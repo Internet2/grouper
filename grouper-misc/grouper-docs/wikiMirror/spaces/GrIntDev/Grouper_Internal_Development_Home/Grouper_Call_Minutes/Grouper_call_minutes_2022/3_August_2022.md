@@ -2,8 +2,8 @@
 title: "3-August-2022"
 space: GrIntDev
 pageId: 48793933
-version: 8
-lastUpdated: 2026-07-12T17:03:44.518Z
+version: 9
+lastUpdated: 2026-07-19T00:33:50.603Z
 url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793933/3-August-2022
 ---
 
@@ -66,7 +66,7 @@ Shilen
 - [Subject change daemon](https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554199/Subject+change+daemon)
 - 
 - It issues entity recalcs, not working properly, Chris is looking at that
-- JIRA for recalc issue [GRP-4251](https://todos.internet2.edu/browse/GRP-4251) entity recalc by message not working
+- JIRA for recalc issue [GRP-4251](https://grouper.atlassian.net/browse/GRP-4251) entity recalc by message not working
 - Issues found at University of Michigan, primary issue is resolved
 - Web services not compiling. CI tests also failing,
 - AI Chris will help fix this web services no compiling
@@ -101,175 +101,175 @@ JJ
 **Jiras in past two weeks**
 
 - [GRP-4250  
-  when validating matching attributes and data look for any matching attribute and past or present value](https://todos.internet2.edu/browse/GRP-4250)
+  when validating matching attributes and data look for any matching attribute and past or present value](https://grouper.atlassian.net/browse/GRP-4250)
 - [GRP-4249  
-  provisioning: when retrieving groups, and seeing if they are retrieved, compare with String search value](https://todos.internet2.edu/browse/GRP-4249)
+  provisioning: when retrieving groups, and seeing if they are retrieved, compare with String search value](https://grouper.atlassian.net/browse/GRP-4249)
 - [GRP-4248  
-  provisioning: remove from groupOnly list if selecting groupMemberships and type is groupAttributes](https://todos.internet2.edu/browse/GRP-4248)
+  provisioning: remove from groupOnly list if selecting groupMemberships and type is groupAttributes](https://grouper.atlassian.net/browse/GRP-4248)
 - [GRP-4247  
-  provisioning: do not copy to list of select groupOnly if selecting groupMemberships and type is gruopAttributes](https://todos.internet2.edu/browse/GRP-4247)
+  provisioning: do not copy to list of select groupOnly if selecting groupMemberships and type is gruopAttributes](https://grouper.atlassian.net/browse/GRP-4247)
 - [GRP-4246  
-  compute search and matching attributes once in provisioning workflow](https://todos.internet2.edu/browse/GRP-4246)
+  compute search and matching attributes once in provisioning workflow](https://grouper.atlassian.net/browse/GRP-4246)
 - [GRP-4245  
-  update documentation for group attribute edit](https://todos.internet2.edu/browse/GRP-4245)
+  update documentation for group attribute edit](https://grouper.atlassian.net/browse/GRP-4245)
 - [GRP-4244  
-  add deepEquals() method to remove groups/entities/memberships retrieved from dao in case there are dupes](https://todos.internet2.edu/browse/GRP-4244)
+  add deepEquals() method to remove groups/entities/memberships retrieved from dao in case there are dupes](https://grouper.atlassian.net/browse/GRP-4244)
 - [GRP-4243  
-  update provisioning matching](https://todos.internet2.edu/browse/GRP-4243)
+  update provisioning matching](https://grouper.atlassian.net/browse/GRP-4243)
 - [GRP-4242  
-  add a new provisioning validation for multiple matches: MAT](https://todos.internet2.edu/browse/GRP-4242)
+  add a new provisioning validation for multiple matches: MAT](https://grouper.atlassian.net/browse/GRP-4242)
 - [GRP-4241  
-  move provisioning link from administration to miscellaneous](https://todos.internet2.edu/browse/GRP-4241)
+  move provisioning link from administration to miscellaneous](https://grouper.atlassian.net/browse/GRP-4241)
 - [GRP-4240  
-  provisioning: improve documentation for translations](https://todos.internet2.edu/browse/GRP-4240)
+  provisioning: improve documentation for translations](https://grouper.atlassian.net/browse/GRP-4240)
 - [GRP-4239  
-  provisioning: add caches as fields to auto translate from for groups and entities](https://todos.internet2.edu/browse/GRP-4239)
+  provisioning: add caches as fields to auto translate from for groups and entities](https://grouper.atlassian.net/browse/GRP-4239)
 - [GRP-4238  
-  document group and entity link for ldap](https://todos.internet2.edu/browse/GRP-4238)
+  document group and entity link for ldap](https://grouper.atlassian.net/browse/GRP-4238)
 - [GRP-4237  
-  document the ldap attribute name and translation type at the field level for groups and entities (normal and create only)](https://todos.internet2.edu/browse/GRP-4237)
+  document the ldap attribute name and translation type at the field level for groups and entities (normal and create only)](https://grouper.atlassian.net/browse/GRP-4237)
 - [GRP-4236  
-  provisioning: add documentation for entity DN and translation](https://todos.internet2.edu/browse/GRP-4236)
+  provisioning: add documentation for entity DN and translation](https://grouper.atlassian.net/browse/GRP-4236)
 - [GRP-4235  
-  provisioning: add documentation for group DN and translation](https://todos.internet2.edu/browse/GRP-4235)
+  provisioning: add documentation for group DN and translation](https://grouper.atlassian.net/browse/GRP-4235)
 - [GRP-4234  
-  have clickable provisioning error messages to go to element with error](https://todos.internet2.edu/browse/GRP-4234)
+  have clickable provisioning error messages to go to element with error](https://grouper.atlassian.net/browse/GRP-4234)
 - [GRP-4233  
-  v2.6.13 Unable to turn off provisioning for a provisioner configured as DN Override only](https://todos.internet2.edu/browse/GRP-4233)
+  v2.6.13 Unable to turn off provisioning for a provisioner configured as DN Override only](https://grouper.atlassian.net/browse/GRP-4233)
 - [GRP-4232  
-  add clob message column for grouper_loader_log](https://todos.internet2.edu/browse/GRP-4232)
+  add clob message column for grouper_loader_log](https://grouper.atlassian.net/browse/GRP-4232)
 - [GRP-4231  
-  add immutable id to search for entities in azure provisioning](https://todos.internet2.edu/browse/GRP-4231)
+  add immutable id to search for entities in azure provisioning](https://grouper.atlassian.net/browse/GRP-4231)
 - [GRP-4230  
-  upgrade bouncecastle bcprov-jdk15on for security vulnerability](https://todos.internet2.edu/browse/GRP-4230)
+  upgrade bouncecastle bcprov-jdk15on for security vulnerability](https://grouper.atlassian.net/browse/GRP-4230)
 - [GRP-4229  
-  upgrade httpclient for security vulnerability](https://todos.internet2.edu/browse/GRP-4229)
+  upgrade httpclient for security vulnerability](https://grouper.atlassian.net/browse/GRP-4229)
 - [GRP-4228  
-  upgrade wss4j for security vulnerability](https://todos.internet2.edu/browse/GRP-4228)
+  upgrade wss4j for security vulnerability](https://grouper.atlassian.net/browse/GRP-4228)
 - [GRP-4227  
-  upgrade postgres driver for security vulnerability](https://todos.internet2.edu/browse/GRP-4227)
+  upgrade postgres driver for security vulnerability](https://grouper.atlassian.net/browse/GRP-4227)
 - [GRP-4226  
-  upgrade jackson-databind for security vulnerability](https://todos.internet2.edu/browse/GRP-4226)
+  upgrade jackson-databind for security vulnerability](https://grouper.atlassian.net/browse/GRP-4226)
 - [GRP-4225  
-  upgrade xerces library for security vulnerability](https://todos.internet2.edu/browse/GRP-4225)
+  upgrade xerces library for security vulnerability](https://grouper.atlassian.net/browse/GRP-4225)
 - [GRP-4224  
-  upgrade gson library for security vulnerability](https://todos.internet2.edu/browse/GRP-4224)
+  upgrade gson library for security vulnerability](https://grouper.atlassian.net/browse/GRP-4224)
 - [GRP-4223  
-  upgrade to latest csrfguard](https://todos.internet2.edu/browse/GRP-4223)
+  upgrade to latest csrfguard](https://grouper.atlassian.net/browse/GRP-4223)
 - [GRP-4222  
-  remove struts from parent pom](https://todos.internet2.edu/browse/GRP-4222)
+  remove struts from parent pom](https://grouper.atlassian.net/browse/GRP-4222)
 - [GRP-4221  
-  upgrade hibernate and migrate to criteria queries](https://todos.internet2.edu/browse/GRP-4221)
+  upgrade hibernate and migrate to criteria queries](https://grouper.atlassian.net/browse/GRP-4221)
 - [GRP-4220  
-  grouper container only chown files that need chowning](https://todos.internet2.edu/browse/GRP-4220)
+  grouper container only chown files that need chowning](https://grouper.atlassian.net/browse/GRP-4220)
 - [GRP-4219  
-  grouper container should not read files to variables, should sed as file](https://todos.internet2.edu/browse/GRP-4219)
+  grouper container should not read files to variables, should sed as file](https://grouper.atlassian.net/browse/GRP-4219)
 - [GRP-4218  
-  RabbitMQ configuring password.elconfig via grouper.messaging doesn't work](https://todos.internet2.edu/browse/GRP-4218)
+  RabbitMQ configuring password.elconfig via grouper.messaging doesn't work](https://grouper.atlassian.net/browse/GRP-4218)
 - [GRP-4217  
-  add button to UI to remove sync data and/or cache data](https://todos.internet2.edu/browse/GRP-4217)
+  add button to UI to remove sync data and/or cache data](https://grouper.atlassian.net/browse/GRP-4217)
 - [GRP-4216  
-  duo incremental daemon throws errors](https://todos.internet2.edu/browse/GRP-4216)
+  duo incremental daemon throws errors](https://grouper.atlassian.net/browse/GRP-4216)
 - [GRP-4215  
-  ignore matching id issues with deleted groups](https://todos.internet2.edu/browse/GRP-4215)
+  ignore matching id issues with deleted groups](https://grouper.atlassian.net/browse/GRP-4215)
 - [GRP-4214  
-  provisioner type should be readonly after selecting it, since switching doesnt work too well](https://todos.internet2.edu/browse/GRP-4214)
+  provisioner type should be readonly after selecting it, since switching doesnt work too well](https://grouper.atlassian.net/browse/GRP-4214)
 - [GRP-4213  
-  remove provisioning config: allowBlankMatchingIds](https://todos.internet2.edu/browse/GRP-4213)
+  remove provisioning config: allowBlankMatchingIds](https://grouper.atlassian.net/browse/GRP-4213)
 - [GRP-4212  
-  installer was deleting a log4j jar since it thought it conflicted](https://todos.internet2.edu/browse/GRP-4212)
+  installer was deleting a log4j jar since it thought it conflicted](https://grouper.atlassian.net/browse/GRP-4212)
 - [GRP-4211  
-  log4j core is missing from container](https://todos.internet2.edu/browse/GRP-4211)
+  log4j core is missing from container](https://grouper.atlassian.net/browse/GRP-4211)
 - [GRP-4210  
-  cant view daemon logs](https://todos.internet2.edu/browse/GRP-4210)
+  cant view daemon logs](https://grouper.atlassian.net/browse/GRP-4210)
 - [GRP-4209  
-  upgrade jackson json jars](https://todos.internet2.edu/browse/GRP-4209)
+  upgrade jackson json jars](https://grouper.atlassian.net/browse/GRP-4209)
 - [GRP-4208  
-  upgrade bounceycastle jar](https://todos.internet2.edu/browse/GRP-4208)
+  upgrade bounceycastle jar](https://grouper.atlassian.net/browse/GRP-4208)
 - [GRP-4207  
-  upgrade httpclient jar](https://todos.internet2.edu/browse/GRP-4207)
+  upgrade httpclient jar](https://grouper.atlassian.net/browse/GRP-4207)
 - [GRP-4206  
-  upgrade junit library](https://todos.internet2.edu/browse/GRP-4206)
+  upgrade junit library](https://grouper.atlassian.net/browse/GRP-4206)
 - [GRP-4205  
-  upgrade xerces libary](https://todos.internet2.edu/browse/GRP-4205)
+  upgrade xerces libary](https://grouper.atlassian.net/browse/GRP-4205)
 - [GRP-4204  
-  upgrade rabbitmq to fix vulnerabilities](https://todos.internet2.edu/browse/GRP-4204)
+  upgrade rabbitmq to fix vulnerabilities](https://grouper.atlassian.net/browse/GRP-4204)
 - [GRP-4203  
-  do not rely as much on a single matchingId in the framework (e.g. in wrapper or index)](https://todos.internet2.edu/browse/GRP-4203)
+  do not rely as much on a single matchingId in the framework (e.g. in wrapper or index)](https://grouper.atlassian.net/browse/GRP-4203)
 - [GRP-4202  
-  provisioning track recalc of groups/entities vs membershipsOfGroups/membershipsOfEntities differently](https://todos.internet2.edu/browse/GRP-4202)
+  provisioning track recalc of groups/entities vs membershipsOfGroups/membershipsOfEntities differently](https://grouper.atlassian.net/browse/GRP-4202)
 - [GRP-4201  
-  in provisioning have separate recalc flag](https://todos.internet2.edu/browse/GRP-4201).
+  in provisioning have separate recalc flag](https://grouper.atlassian.net/browse/GRP-4201).
 - [GRP-4199  
-  azure provisioner edit group name gives error: Parameter securityEnabledOnly must be valid Boolean value.](https://todos.internet2.edu/browse/GRP-4199)
+  azure provisioner edit group name gives error: Parameter securityEnabledOnly must be valid Boolean value.](https://grouper.atlassian.net/browse/GRP-4199)
 - [GRP-4198  
-  clear validation problems at beginning of provisioning run](https://todos.internet2.edu/browse/GRP-4198)
+  clear validation problems at beginning of provisioning run](https://grouper.atlassian.net/browse/GRP-4198)
 - [GRP-4197  
-  "apply filter" on daemon logs screen should refresh the drop down (so can run daemon is was running but not anymore)](https://todos.internet2.edu/browse/GRP-4197)
+  "apply filter" on daemon logs screen should refresh the drop down (so can run daemon is was running but not anymore)](https://grouper.atlassian.net/browse/GRP-4197)
 - [GRP-4196  
-  provisioning azure user accountEnabled null pointer](https://todos.internet2.edu/browse/GRP-4196)
+  provisioning azure user accountEnabled null pointer](https://grouper.atlassian.net/browse/GRP-4196)
 - [GRP-4195  
-  validate that provisioning memberships have a group and user (if membership objects)](https://todos.internet2.edu/browse/GRP-4195)
+  validate that provisioning memberships have a group and user (if membership objects)](https://grouper.atlassian.net/browse/GRP-4195)
 - [GRP-4194  
-  provisioning, do not require matching ID for objects to be inserted (might be assigned in target)](https://todos.internet2.edu/browse/GRP-4194)
+  provisioning, do not require matching ID for objects to be inserted (might be assigned in target)](https://grouper.atlassian.net/browse/GRP-4194)
 - [GRP-4193  
-  remove provisioning config: allowBlankMatchingIds](https://todos.internet2.edu/browse/GRP-4193)
+  remove provisioning config: allowBlankMatchingIds](https://grouper.atlassian.net/browse/GRP-4193)
 - [GRP-4192  
-  provisioning membership translation should throw error if group or user has error](https://todos.internet2.edu/browse/GRP-4192)
+  provisioning membership translation should throw error if group or user has error](https://grouper.atlassian.net/browse/GRP-4192)
 - [GRP-4191  
-  if cannot create entity, then dont proceed](https://todos.internet2.edu/browse/GRP-4191)
+  if cannot create entity, then dont proceed](https://grouper.atlassian.net/browse/GRP-4191)
 - [GRP-4190  
-  azure group types do not translate to group properties](https://todos.internet2.edu/browse/GRP-4190)
+  azure group types do not translate to group properties](https://grouper.atlassian.net/browse/GRP-4190)
 - [GRP-4189  
-  add http body to debug log](https://todos.internet2.edu/browse/GRP-4189)
+  add http body to debug log](https://grouper.atlassian.net/browse/GRP-4189)
 - [GRP-4188  
-  log http params in debug log for http client](https://todos.internet2.edu/browse/GRP-4188)
+  log http params in debug log for http client](https://grouper.atlassian.net/browse/GRP-4188)
 - [GRP-4187  
-  make sure dont need to be root to assign provisionable](https://todos.internet2.edu/browse/GRP-4187)
+  make sure dont need to be root to assign provisionable](https://grouper.atlassian.net/browse/GRP-4187)
 - [GRP-4186  
-  make ddlutils not a dependency](https://todos.internet2.edu/browse/GRP-4186)
+  make ddlutils not a dependency](https://grouper.atlassian.net/browse/GRP-4186)
 - [GRP-4185  
-  implement various search attributes in azure group dao (and other provisioners)](https://todos.internet2.edu/browse/GRP-4185)
+  implement various search attributes in azure group dao (and other provisioners)](https://grouper.atlassian.net/browse/GRP-4185)
 - [GRP-4184  
-  if cannot create group, then dont proceed](https://todos.internet2.edu/browse/GRP-4184)
+  if cannot create group, then dont proceed](https://grouper.atlassian.net/browse/GRP-4184)
 - [GRP-4183  
-  provisioning azure is not searching correctly](https://todos.internet2.edu/browse/GRP-4183)
+  provisioning azure is not searching correctly](https://grouper.atlassian.net/browse/GRP-4183)
 - [GRP-4182  
-  null pointer in provisioning matching](https://todos.internet2.edu/browse/GRP-4182)
+  null pointer in provisioning matching](https://grouper.atlassian.net/browse/GRP-4182)
 - [GRP-4181  
-  if metadata is edited on a group which is not yet provisioned, allow the edit](https://todos.internet2.edu/browse/GRP-4181)
+  if metadata is edited on a group which is not yet provisioned, allow the edit](https://grouper.atlassian.net/browse/GRP-4181)
 - [GRP-4180  
-  azure provisioning error (mail enabled)](https://todos.internet2.edu/browse/GRP-4180)
+  azure provisioning error (mail enabled)](https://grouper.atlassian.net/browse/GRP-4180)
 - [GRP-4179  
-  azure provisioning incremental throws exception](https://todos.internet2.edu/browse/GRP-4179)
+  azure provisioning incremental throws exception](https://grouper.atlassian.net/browse/GRP-4179)
 - [GRP-4178  
-  add daemon links from provisioners to full or incremental. and back](https://todos.internet2.edu/browse/GRP-4178)
+  add daemon links from provisioners to full or incremental. and back](https://grouper.atlassian.net/browse/GRP-4178)
 - [GRP-4177  
-  on group provisioning screen should be able to pull drop down next to provisioner and edit](https://todos.internet2.edu/browse/GRP-4177)
+  on group provisioning screen should be able to pull drop down next to provisioner and edit](https://grouper.atlassian.net/browse/GRP-4177)
 - [GRP-4176  
-  add unique id to the daemon logs for provisioning](https://todos.internet2.edu/browse/GRP-4176)
+  add unique id to the daemon logs for provisioning](https://grouper.atlassian.net/browse/GRP-4176)
 - [GRP-4175  
-  azure provisioning, when assigning provisionable, and selecting the group type metadata, the drop down for provisionable changes from true to false](https://todos.internet2.edu/browse/GRP-4175)
+  azure provisioning, when assigning provisionable, and selecting the group type metadata, the drop down for provisionable changes from true to false](https://grouper.atlassian.net/browse/GRP-4175)
 - [GRP-4174  
-  for provisioning like azure, search and matching with uuid, if not exist create](https://todos.internet2.edu/browse/GRP-4174)
+  for provisioning like azure, search and matching with uuid, if not exist create](https://grouper.atlassian.net/browse/GRP-4174)
 - [GRP-4173  
-  for azure provisioning, allow a metadata with drop down to pick a group to be the owner list in azure](https://todos.internet2.edu/browse/GRP-4173)
+  for azure provisioning, allow a metadata with drop down to pick a group to be the owner list in azure](https://grouper.atlassian.net/browse/GRP-4173)
 - [GRP-4172  
-  change grouper client from xml to json](https://todos.internet2.edu/browse/GRP-4172)
+  change grouper client from xml to json](https://grouper.atlassian.net/browse/GRP-4172)
 - [GRP-4171  
-  Subject change daemon](https://todos.internet2.edu/browse/GRP-4171)
+  Subject change daemon](https://grouper.atlassian.net/browse/GRP-4171)
 - [GRP-4170  
-  Create rule to copy newly added member to another group](https://todos.internet2.edu/browse/GRP-4170)
+  Create rule to copy newly added member to another group](https://grouper.atlassian.net/browse/GRP-4170)
 - [GRP-4169  
-  fix vulnerabilities identified in maven central for grouperClient](https://todos.internet2.edu/browse/GRP-4169)
+  fix vulnerabilities identified in maven central for grouperClient](https://grouper.atlassian.net/browse/GRP-4169)
 - [GRP-4168  
-  clicking entity -> provisioning gives error of no open session](https://todos.internet2.edu/browse/GRP-4168)
+  clicking entity -> provisioning gives error of no open session](https://grouper.atlassian.net/browse/GRP-4168)
 - [GRP-4167  
-  fix counts on provisioning screen](https://todos.internet2.edu/browse/GRP-4167)
+  fix counts on provisioning screen](https://grouper.atlassian.net/browse/GRP-4167)
 - [GRP-4166  
-  Attribute framework should use database constraints to ensure single assign attributes aren't multi assigned](https://todos.internet2.edu/browse/GRP-4166)
+  Attribute framework should use database constraints to ensure single assign attributes aren't multi assigned](https://grouper.atlassian.net/browse/GRP-4166)
 - [GRP-4165  
-  each wizard section could have "back to top" link](https://todos.internet2.edu/browse/GRP-4165)
+  each wizard section could have "back to top" link](https://grouper.atlassian.net/browse/GRP-4165)
 
 **Grouper Emails in past two weeks**
 

@@ -36,7 +36,7 @@ grouper.ui.url = http://localhost:8088/grouper/
 mail.smtp.server = localhost
 
 #this is the default email address where mail from grouper will come from
-mail.smtp.from.address = noreply@school.edu
+mail.smtp.from.address = noreply@example.com
 
 # OPTIONAL FOR ATTESTATION, WILL BE BLANK IN PROD
 #this is the subject prefix of emails, which will help differentiate prod vs test vs dev etc
@@ -128,13 +128,13 @@ If there are more than 100 (configured in grouper.properties) attestations for a
 
 Example:
 
-school:groupA needs attestation: emails to: [jsmith@school.edu](mailto:jsmith@school.edu), and [bgreen@school.edu](mailto:bgreen@school.edu)
+school:groupA needs attestation: emails to: [jsmith@example.com](mailto:jsmith@example.com), and [bgreen@example.com](mailto:bgreen@example.com)
 
-school:groupB needs attestation: emails to: [jsmith@school.edu](mailto:jsmith@school.edu), and [kwilson@school.edu](mailto:kwilson@school.edu)
+school:groupB needs attestation: emails to: [jsmith@example.com](mailto:jsmith@example.com), and [kwilson@example.com](mailto:kwilson@example.com)
 
 send 3 emails:
 
-FIRST EMAIL: To [jsmith@school.edu](mailto:jsmith@school.edu)
+FIRST EMAIL: To [jsmith@example.com](mailto:jsmith@example.com)
 
 **Subject**: you have 2 grouper groups that require attestation.
 
@@ -142,15 +142,15 @@ FIRST EMAIL: To [jsmith@school.edu](mailto:jsmith@school.edu)
 
 You need to attest the memberships of the following groups:
 
-1. 1. school:groupA (cc’d [bgreen@school.edu](mailto:bgreen@school.edu))
+1. 1. school:groupA (cc’d [bgreen@example.com](mailto:bgreen@example.com))
 
 <link to membership>
 
-1. 2. school:groupB (cc’d [kwilson@school.edu](mailto:kwilson@school.edu))
+1. 2. school:groupB (cc’d [kwilson@example.com](mailto:kwilson@example.com))
 
 <link to membership>
 
-SECOND EMAIL: To [bgreen@school.edu](mailto:bgreen@school.edu)
+SECOND EMAIL: To [bgreen@example.com](mailto:bgreen@example.com)
 
 **Subject**: you have 1 grouper groups that require attestation.
 
@@ -158,11 +158,11 @@ SECOND EMAIL: To [bgreen@school.edu](mailto:bgreen@school.edu)
 
 You need to attest the memberships of the following groups:
 
-1. 1. school:groupA (cc’d [jsmith@school.edu](mailto:jsmith@school.edu))
+1. 1. school:groupA (cc’d [jsmith@example.com](mailto:jsmith@example.com))
 
 <link to membership>
 
-THIRD EMAIL: To [kwilson@school.edu](mailto:kwilson@school.edu)
+THIRD EMAIL: To [kwilson@example.com](mailto:kwilson@example.com)
 
 **Subject**: you have 1 grouper groups that require attestation.
 
@@ -170,7 +170,7 @@ THIRD EMAIL: To [kwilson@school.edu](mailto:kwilson@school.edu)
 
 You need to attest the memberships of the following groups:
 
-1. 1. school:groupB (cc’d [jsmith@school.edu](mailto:jsmith@school.edu))
+1. 1. school:groupB (cc’d [jsmith@example.com](mailto:jsmith@example.com))
 
 <link to membership>
 

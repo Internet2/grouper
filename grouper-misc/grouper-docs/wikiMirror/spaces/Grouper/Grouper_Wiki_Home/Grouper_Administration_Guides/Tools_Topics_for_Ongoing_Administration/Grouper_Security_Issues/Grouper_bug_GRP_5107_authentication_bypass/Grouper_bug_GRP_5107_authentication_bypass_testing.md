@@ -9,7 +9,7 @@ url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28554556/Grouper+bu
 
 These are the testing steps to make sure your remediation is correct for the Grouper security issue.
 
-If you have questions, then send a direct slack message to Chris Hyzer, the project lead ([request to join InCommon slack](https://incommon.org/help/)). If you are not in InCommon slack then email [mchyzer@yahoo.com](mailto:mchyzer@yahoo.com).
+If you have questions, then send a direct slack message to Chris Hyzer, the project lead ([request to join InCommon slack](https://incommon.org/help/)). If you are not in InCommon slack then email [mchyzer@example.com](mailto:mchyzer@example.com).
 
 ## Vulnerability description
 

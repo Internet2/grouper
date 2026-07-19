@@ -22,7 +22,7 @@ url: https://grouper.atlassian.net/wiki/spaces/GrIntDev/pages/48793413/Grouper+2
  "We thank the many members of the Grouper user community who provided valuable input over the past year, as we gathered requirements for the enhanced Grouper user interface, and who performed testing. The Grouper team looks forward to receiving feedback and user stories from campuses deploying Grouper," said Tom Barton, Senior Director of IT Architecture & Integration and CISO at University of Chicago, and chair of the Grouper Project.
 
  For further details about the Grouper 2.2 release, to download the software and release notes, for upgrade instructions, and a link to a Grouper demo, please visit https://spaces.at.internet2.edu/display/Grouper/Grouper+Downloads.  
- For additional assistance, email grouper-info@internet2.edu.
+ For additional assistance, email grouper-info@example.com.
 
  **About Grouper**
 

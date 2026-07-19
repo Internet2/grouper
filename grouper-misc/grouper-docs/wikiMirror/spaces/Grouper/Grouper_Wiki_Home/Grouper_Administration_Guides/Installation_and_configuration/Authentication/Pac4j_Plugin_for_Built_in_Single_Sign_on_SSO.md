@@ -2,8 +2,8 @@
 title: "Pac4j Plugin for Built-in Single Sign-on (SSO)"
 space: Grouper
 pageId: 28549858
-version: 27
-lastUpdated: 2026-07-01T05:41:05.301Z
+version: 28
+lastUpdated: 2026-07-19T00:32:42.669Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28549858/Pac4j+Plugin+for+Built-in+Single+Sign-on+SSO
 ---
 
@@ -17,7 +17,7 @@ For a fully integrated sample configuration, see the docker-compose setup in the
 
 ## Adding the plugin jar to the image (versions prior to v6.1.0)
 
-> In Grouper v5.21.0 through v6.0.1, The grouper-authentication-plugin.jar supplied with Grouper would work for containers using it (e.g. UI), but containers not using it (e.g. WS, daemon, gsh) would be unable to start. If you were mounting an older version of the jar into your image (which most users were doing), this avoided the issue ([GRP-6624](https://todos.internet2.edu/browse/GRP-6624)). The problem was fixed in v6.1.0 and v7. Starting with those versions, you can use the jar supplied with the Grouper image and no longer need to add a local file.
+> In Grouper v5.21.0 through v6.0.1, The grouper-authentication-plugin.jar supplied with Grouper would work for containers using it (e.g. UI), but containers not using it (e.g. WS, daemon, gsh) would be unable to start. If you were mounting an older version of the jar into your image (which most users were doing), this avoided the issue ([GRP-6624](https://grouper.atlassian.net/browse/GRP-6624)). The problem was fixed in v6.1.0 and v7. Starting with those versions, you can use the jar supplied with the Grouper image and no longer need to add a local file.
 
 Starting in v6.1.0 and v7, the grouper-authentication-plugin.jar library is included in the Grouper image, at location /opt/grouper/plugins/grouper-authentication-plugin.jar. Prior to those versions, you need to download it separately and add it to your institutional image. A working version can be downloaded from [https://github.internet2.edu/internet2/grouper-ext-auth/releases](https://github.internet2.edu/internet2/grouper-ext-auth/releases)). The downloaded file can have the version number in the file name, but it is recommended to leave it out of the name when copied into the container. This way, the configuration does not need to be changed every time the version changes. For example:
 

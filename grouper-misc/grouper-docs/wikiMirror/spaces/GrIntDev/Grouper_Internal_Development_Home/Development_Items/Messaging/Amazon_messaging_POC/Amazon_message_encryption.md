@@ -50,7 +50,7 @@ We should use encryption:
 {
   "encryptionType": "publicKey",
   "salt": "sdfjkl354jkl34",
-  "sender": "penngroups@upenn.edu",
+  "sender": "penngroups@example.com",
   "payload": "sdfjhjk4h235kj3hjkh4kjh54k3j4h5k3jhrt5k3j4h5k3j45hk3j45hk345jh345"
 }
 

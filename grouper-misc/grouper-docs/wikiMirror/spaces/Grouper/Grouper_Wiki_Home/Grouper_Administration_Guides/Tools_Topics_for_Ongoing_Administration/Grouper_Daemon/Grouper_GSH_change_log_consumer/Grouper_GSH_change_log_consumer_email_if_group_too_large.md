@@ -34,7 +34,7 @@ Note, customize these variables
     String groupIdPath = "test:testGroup";
     String subjectSourceId = "jdbc";
     int maxSize = 3;
-    String emailToCommaSeparated = "whomever@school.edu";
+    String emailToCommaSeparated = "whomever@example.com";
     String emailSubject = "Group test:testGroup got big";
     String emailBody = "The group too large";
 ```
@@ -68,7 +68,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
     String groupIdPath = "test:testGroup";
     String subjectSourceId = "jdbc";
     int maxSize = 3;
-    String emailToCommaSeparated = "whomever@school.edu";
+    String emailToCommaSeparated = "whomever@example.com";
     String emailSubject = "Group test:testGroup got big";
     String emailBody = "The group too large";
     

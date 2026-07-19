@@ -57,7 +57,7 @@ Assign this rule to the group that has the membership to be removed.
 ### GSH shorthand method
 
 ```
-RuleApi.emailOnFlattenedMembershipRemove(SubjectFinder.findRootSubject(), groupEmployee, "mchyzer@isc.upenn.edu, ${safeSubject.emailAddress}", "You will be removed from group: ${groupDisplayExtension}", "template: testEmailGroupBodyFlattenedRemove");
+RuleApi.emailOnFlattenedMembershipRemove(SubjectFinder.findRootSubject(), groupEmployee, "mchyzer@example.com, ${safeSubject.emailAddress}", "You will be removed from group: ${groupDisplayExtension}", "template: testEmailGroupBodyFlattenedRemove");
 
 ```
 
@@ -80,7 +80,7 @@ gsh 7% groupProgrammer.addMember(subject0, false);
 true
 gsh 8% groupResearcher.addMember(subject0, false);
 true
-gsh 9% RuleApi.emailOnFlattenedMembershipRemove(SubjectFinder.findRootSubject(), groupEmployee, "a@b.school.edu, ${safeSubject.emailAddress}", "You will be removed from group: ${groupDisplayExtension}", "template: testEmailGroupBodyFlattenedRemove");
+gsh 9% RuleApi.emailOnFlattenedMembershipRemove(SubjectFinder.findRootSubject(), groupEmployee, "a@example.com, ${safeSubject.emailAddress}", "You will be removed from group: ${groupDisplayExtension}", "template: testEmailGroupBodyFlattenedRemove");
 gsh 10% groupProgrammer.deleteMember(subject0);
 gsh 18% edu.internet2.middleware.grouper.app.loader.GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
 gsh 19%  edu.internet2.middleware.grouper.app.loader.GrouperLoader.GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperRules");

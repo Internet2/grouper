@@ -321,9 +321,9 @@ Looks up a user in an external system by translating a Grouper subject.
 
 **Example response (user found):**
 
-`{ "externalSystemConfigId" : "myAzure", "externalSystemType" : "azure", "lookupField" : "userPrincipalName", "translatedLookupValue" : "jsmith@example.edu", "grouperSubjectId" : "jsmith", "grouperSubjectSourceId" : "jdbc", "userFound" : true, "user" : { "accountEnabled" : true, "displayName" : "John Smith", "id" : "abc-123-def", "mailNickname" : "jsmith", "onPremisesImmutableId" : null, "userPrincipalName" : "jsmith@example.edu" } }`**Example response (user not found):**
+`{ "externalSystemConfigId" : "myAzure", "externalSystemType" : "azure", "lookupField" : "userPrincipalName", "translatedLookupValue" : "jsmith@example.com", "grouperSubjectId" : "jsmith", "grouperSubjectSourceId" : "jdbc", "userFound" : true, "user" : { "accountEnabled" : true, "displayName" : "John Smith", "id" : "abc-123-def", "mailNickname" : "jsmith", "onPremisesImmutableId" : null, "userPrincipalName" : "jsmith@example.com" } }`**Example response (user not found):**
 
-`{ "externalSystemConfigId" : "myAzure", "externalSystemType" : "azure", "lookupField" : "userPrincipalName", "translatedLookupValue" : "jsmith@example.edu", "grouperSubjectId" : "jsmith", "grouperSubjectSourceId" : "jdbc", "userFound" : false }`
+`{ "externalSystemConfigId" : "myAzure", "externalSystemType" : "azure", "lookupField" : "userPrincipalName", "translatedLookupValue" : "jsmith@example.com", "grouperSubjectId" : "jsmith", "grouperSubjectSourceId" : "jdbc", "userFound" : false }`
 
 ### Example configurations
 

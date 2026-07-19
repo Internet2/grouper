@@ -406,7 +406,7 @@ Mail settings (optional, e.g. for daily report from the loader)
 #mail.smtp.pass =
 
 #this is the default email address where mail from grouper will come from
-#mail.from.address = noreply@school.edu
+#mail.from.address = noreply@example.com
 
 #this is the subject prefix of emails, which will help differentiate prod vs test vs dev etc
 #mail.subject.prefix = TEST:
@@ -704,7 +704,7 @@ rules.quartz.cron = 0 0 7 * * ?
 #changeLog.consumer.xmppTest.publisher.port = 5222
 #changeLog.consumer.xmppTest.publisher.username = jabberuser
 #changeLog.consumer.xmppTest.publisher.password = /home/whatever/pass/jabberuserEncrypted.pass
-#changeLog.consumer.xmppTest.publisher.recipient = system1@school.edu
+#changeLog.consumer.xmppTest.publisher.recipient = system1@example.com
 #changeLog.consumer.xmppTest.publisher.addSubjectAttributes = NETID
 
 ```

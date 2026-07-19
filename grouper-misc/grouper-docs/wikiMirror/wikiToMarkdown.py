@@ -51,6 +51,27 @@ STRIP_MACROS = {
 # Macros rendered as a Markdown blockquote callout.
 CALLOUT_MACROS = {"info", "note", "warning", "tip", "panel"}
 
+# Email sanitization: keep the local part, replace the domain with example.com
+# (same convention as the GRP jira mirror) so real addresses never land in this
+# public repo. The lookbehind only prevents starting mid-local-part; it allows
+# ':' '/' '<' '(' so mailto:, <addr>, (addr) forms are caught. JDBC
+# 'jdbc:...:@host' has no local part so it never matches (a local char is
+# required). OData annotations (foo@odata.bind, @odata.id) are excluded by the
+# domain check in redact_emails().
+EMAIL_RE = re.compile(
+    r"(?<![\w.%+\-@])([A-Za-z0-9][A-Za-z0-9._%+-]*)@"
+    r"([A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?\.[A-Za-z]{2,})"
+)
+
+
+def redact_emails(md):
+    """Replace real email addresses with <localpart>@example.com."""
+    def repl(m):
+        if m.group(2).lower().startswith("odata."):
+            return m.group(0)  # leave OData annotations untouched
+        return m.group(1) + "@example.com"
+    return EMAIL_RE.sub(repl, md)
+
 
 # --------------------------------------------------------------------------- #
 # Confluence REST helpers
@@ -237,6 +258,7 @@ def convert(storage, src_space, resolver):
     md = walk(soup)
     md = md.replace("\xa0", " ")
     md = re.sub(r"\n{3,}", "\n\n", md)
+    md = redact_emails(md)
     return md.strip() + "\n"
 
 

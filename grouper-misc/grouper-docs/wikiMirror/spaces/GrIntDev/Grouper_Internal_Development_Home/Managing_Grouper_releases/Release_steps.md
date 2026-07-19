@@ -326,7 +326,7 @@ Just update the "NEW!!" message [on this page](https://grouper.atlassian.net/wik
 
 ### Notify about the release
 
-- Compose email to grouper-dev@internet2.edu and grouper-users@internet2.edui and grouper-announce@internet2.edu with highlights of the new release and link to the Grouper Downloads page
+- Compose email to grouper-dev@example.com and grouper-users@example.com and grouper-announce@example.com with highlights of the new release and link to the Grouper Downloads page
 - email to mw-announce [at] internet2.edu email list
 - Highlights should resemble those on the vN.N Release Notes page and maybe even be identical.
 - Change jira admin to make that version released, and if the next build or version isnt there, add it

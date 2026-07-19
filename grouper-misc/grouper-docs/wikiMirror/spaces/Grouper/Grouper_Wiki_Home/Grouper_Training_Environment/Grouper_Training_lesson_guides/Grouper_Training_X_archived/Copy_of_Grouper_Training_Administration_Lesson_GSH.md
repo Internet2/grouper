@@ -2,8 +2,8 @@
 title: "Copy of Grouper Training - Administration - Lesson: GSH"
 space: Grouper
 pageId: 28548867
-version: 2
-lastUpdated: 2026-07-12T15:26:59.429Z
+version: 3
+lastUpdated: 2026-07-19T00:32:34.799Z
 url: https://grouper.atlassian.net/wiki/spaces/Grouper/pages/28548867/Copy+of+Grouper+Training+-+Administration+-+Lesson+GSH
 ---
 
@@ -101,7 +101,7 @@ Cannot find group with name: 'etc:sysadmin'
         at groovysh_evaluate.getMembers (groovysh_evaluate:4)
 ```
 
-GSH displays a friendly version of the problem (highlighted in red on most consoles) and we can quickly see that we just put in the wrong group name. The additional stack information is helpful if you ever need to report a problem out to [Grouper's bug reporting system](https://todos.internet2.edu/projects/GRP/issues).
+GSH displays a friendly version of the problem (highlighted in red on most consoles) and we can quickly see that we just put in the wrong group name. The additional stack information is helpful if you ever need to report a problem out to [Grouper's bug reporting system](https://grouper.atlassian.net/projects/GRP/issues).
 
 Let’s fix our mistake. Use the up arrow to go to your previous command to fix it up without having to retype the entire thing so it matches the command below:
 
@@ -267,7 +267,7 @@ The users' names don't need to be part of the incoming data. Because of how the 
 
 ```groovy
 subj.getAttributes()
-// ===> [sn:[Anderson], employeenumber:[800001147], cn:[Bob Anderson], uid:[banderson], givenname:[Bob], mail:[Bob.Anderson@mock.edu.invalid]]
+// ===> [sn:[Anderson], employeenumber:[800001147], cn:[Bob Anderson], uid:[banderson], givenname:[Bob], mail:[Bob.Anderson@example.com]]
 
 subj.getAttributeValue("cn")
 // ===> Bob Anderson

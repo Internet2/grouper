@@ -93,8 +93,8 @@ GSH script
 //    String gsh_builtin_ownerStemName = "penn:isc:ait:apps:zoom:service:ref:zoomDeprovisioning";
 //    
 //    String gsh_input_action = "removeEmailMappings"; //  runReports, viewReports, addNonHumans, removeNonHumans, addEmailMappings, removeEmailMappings
-//    String gsh_input_emails = "brymes@gse.upenn.edu"; //     gsh_input_emails += "0095a7722511b8e55f72e557efbf3c4a1dccf7ae@upenn.edu\n";
-//    String gsh_input_emailLink = ""; //     gsh_input_emailLink += "brymes@gse.upenn.edu, brymes\n";
+//    String gsh_input_emails = "brymes@example.com"; //     gsh_input_emails += "0095a7722511b8e55f72e557efbf3c4a1dccf7ae@example.com\n";
+//    String gsh_input_emailLink = ""; //     gsh_input_emailLink += "brymes@example.com, brymes\n";
 
     // check valid action (should never be invalid since drop down)
     
@@ -148,7 +148,7 @@ GSH script
       emailLinkLines.remove("");
       if (emailLinkLines.size() == 0) {
         gsh_builtin_gshTemplateOutput.addValidationLine("gsh_input_emailLink", 
-            "Error: Enter some comma separated emails and (pennkeys or pennids), e.g. jsmith@gmail.com, jsmith -or- jsmith@gmail.com, 12345678");
+            "Error: Enter some comma separated emails and (pennkeys or pennids), e.g. jsmith@example.com, jsmith -or- jsmith@example.com, 12345678");
       }
       for (String emailLinkLine : emailLinkLines) {
         if (!emailLinkLine.contains(",")) {

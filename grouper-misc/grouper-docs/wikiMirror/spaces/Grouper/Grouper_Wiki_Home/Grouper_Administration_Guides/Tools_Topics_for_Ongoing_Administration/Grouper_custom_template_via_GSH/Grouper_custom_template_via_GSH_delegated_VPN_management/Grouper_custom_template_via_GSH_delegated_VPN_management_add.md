@@ -264,7 +264,7 @@ When creating a VPN you can initialize the roles
     // 14. Create owners group
     Group ownersGroup = null;
     OWNERS_GROUP: {
-      GroupSave groupSave = new GroupSave().assignName(projectStemName + ":" + gsh_input_projectSystemName + "SraVpnOwners").assignDisplayExtension(gsh_input_projectFriendlyName + " SRA VPN Owners").assignDescription("Owners manage the Owners, and Admins.  They receive periodic requests to review the VPN access report.  There should be more than one and not more than a few Owners.  Do not edit this group's memberships, edit the Owner manual group list.  To add a new reference group here open a ticket with help@isc.upenn.edu");
+      GroupSave groupSave = new GroupSave().assignName(projectStemName + ":" + gsh_input_projectSystemName + "SraVpnOwners").assignDisplayExtension(gsh_input_projectFriendlyName + " SRA VPN Owners").assignDescription("Owners manage the Owners, and Admins.  They receive periodic requests to review the VPN access report.  There should be more than one and not more than a few Owners.  Do not edit this group's memberships, edit the Owner manual group list.  To add a new reference group here open a ticket with help@example.com");
       ownersGroup = groupSave.save();
       gsh_builtin_gshTemplateOutput.addOutputLine("Owners group " + groupSave.getSaveResultType() + ": " + ownersGroup.getName());
     }
@@ -337,7 +337,7 @@ When creating a VPN you can initialize the roles
     // 23. Create admins group
     Group adminsGroup = null;
     CREATE_ADMINS: {
-      GroupSave groupSave = new GroupSave().assignName(projectStemName + ":" + gsh_input_projectSystemName + "SraVpnAdmins").assignDisplayExtension(gsh_input_projectFriendlyName + " SRA VPN Admins").assignDescription("Admins manage the VPN users: EmployeesManual, Guests, Excludes.  They can see the access report and all groups.  Do not edit this group's memberships, edit the Admin manual group list.  To add a new (automatic) reference group here open a ticket with help@isc.upenn.edu");
+      GroupSave groupSave = new GroupSave().assignName(projectStemName + ":" + gsh_input_projectSystemName + "SraVpnAdmins").assignDisplayExtension(gsh_input_projectFriendlyName + " SRA VPN Admins").assignDescription("Admins manage the VPN users: EmployeesManual, Guests, Excludes.  They can see the access report and all groups.  Do not edit this group's memberships, edit the Admin manual group list.  To add a new (automatic) reference group here open a ticket with help@example.com");
       adminsGroup = groupSave.save();
       gsh_builtin_gshTemplateOutput.addOutputLine("Admins group " + groupSave.getSaveResultType() + ": " + adminsGroup.getName());
     }
@@ -426,7 +426,7 @@ When creating a VPN you can initialize the roles
     // 36. Create group include employees
     Group employeesManualGroup = null;
     EMPLOYEES_MANUAL_GROUP: {
-      GroupSave employeesManualGroupSave = new GroupSave().assignName(projectStemName + ":" + gsh_input_projectSystemName + "SraVpnEmployeesManual").assignDisplayExtension(gsh_input_projectFriendlyName + " SRA VPN Employees Manual").assignDescription("If employees who use the VPN cannot be managed automatically (e.g. by payroll ORG), then manually manage the list of employees who can use the VPN here.  If you need to add someone to the VPN who is not a VPN, add them to the Guest group.  If there is a way to automate this population (e.g. by query against pcom or warehouse or another PennGroup), please contact help@isc.upenn.edu.");
+      GroupSave employeesManualGroupSave = new GroupSave().assignName(projectStemName + ":" + gsh_input_projectSystemName + "SraVpnEmployeesManual").assignDisplayExtension(gsh_input_projectFriendlyName + " SRA VPN Employees Manual").assignDescription("If employees who use the VPN cannot be managed automatically (e.g. by payroll ORG), then manually manage the list of employees who can use the VPN here.  If you need to add someone to the VPN who is not a VPN, add them to the Guest group.  If there is a way to automate this population (e.g. by query against pcom or warehouse or another PennGroup), please contact help@example.com.");
       employeesManualGroup = employeesManualGroupSave.save();
       if (employeesManualGroupSave.getSaveResultType() == SaveResultType.INSERT) {
         gsh_builtin_gshTemplateOutput.addOutputLine("Employees manual group created: " + employeesManualGroup.getName());
@@ -508,7 +508,7 @@ When creating a VPN you can initialize the roles
     // 47. Add allow group
     Group allowGroup = null;
     ALLOW_GROUP: {
-      GroupSave allowGroupSave = new GroupSave().assignName(projectStemName + ":" + gsh_input_projectSystemName + "SraVpnAllow").assignDisplayExtension(gsh_input_projectFriendlyName + " SRA VPN Allow").assignDescription("This is the allow part of the VPN policy.  This is an internal group that can be ignored.  You do not have access to manage the memberships.  It consists of all the allows to the VPN before the denies.  This group does not directly include individuals, it includes ref groups: the automatic employee groups (orgs/centers), Employees manual group, and Guests.  To add/remove a reference group, open a ticket with help@isc.upenn.edu");
+      GroupSave allowGroupSave = new GroupSave().assignName(projectStemName + ":" + gsh_input_projectSystemName + "SraVpnAllow").assignDisplayExtension(gsh_input_projectFriendlyName + " SRA VPN Allow").assignDescription("This is the allow part of the VPN policy.  This is an internal group that can be ignored.  You do not have access to manage the memberships.  It consists of all the allows to the VPN before the denies.  This group does not directly include individuals, it includes ref groups: the automatic employee groups (orgs/centers), Employees manual group, and Guests.  To add/remove a reference group, open a ticket with help@example.com");
       allowGroup = allowGroupSave.save();
       gsh_builtin_gshTemplateOutput.addOutputLine("Allow group " + allowGroupSave.getSaveResultType() + ": " + allowGroup.getName());
     }
@@ -538,7 +538,7 @@ When creating a VPN you can initialize the roles
     // 50. Add deny group
     Group denyGroup = null;
     DENY_GROUP: {
-      GroupSave denyGroupSave = new GroupSave().assignName(projectStemName + ":" + gsh_input_projectSystemName + "SraVpnDeny").assignDisplayExtension(gsh_input_projectFriendlyName + " SRA VPN Deny").assignDescription("This is the deny part of the VPN policy.  This is an internal group that can be ignored.  You do not have access to manage the memberships.  It consists of all the denies to the VPN, which take precendence before the allows.  This group does not directly include individuals, it includes ref groups: the automatic lockout group, and the Excludes (manual) group.  To add/remove a reference group, open a ticket with help@isc.upenn.edu");
+      GroupSave denyGroupSave = new GroupSave().assignName(projectStemName + ":" + gsh_input_projectSystemName + "SraVpnDeny").assignDisplayExtension(gsh_input_projectFriendlyName + " SRA VPN Deny").assignDescription("This is the deny part of the VPN policy.  This is an internal group that can be ignored.  You do not have access to manage the memberships.  It consists of all the denies to the VPN, which take precendence before the allows.  This group does not directly include individuals, it includes ref groups: the automatic lockout group, and the Excludes (manual) group.  To add/remove a reference group, open a ticket with help@example.com");
       denyGroup = denyGroupSave.save();
       gsh_builtin_gshTemplateOutput.addOutputLine("Deny group " + denyGroupSave.getSaveResultType() + ": " + denyGroup.getName());
     }
@@ -564,7 +564,7 @@ When creating a VPN you can initialize the roles
     // 53. Add overall group
     Group overallGroup = null;
     OVERALL_GROUP: {
-      GroupSave overallGroupSave = new GroupSave().assignName(projectStemName + ":" + gsh_input_projectSystemName + "SraVpnOverall").assignDisplayExtension(gsh_input_projectFriendlyName + " SRA VPN Overall").assignDescription("This is the VPN policy group of who can use the VPN.  This takes into consideration the allows (automatic and manual), and the denies (automatic and manual).  After membership changes in this group it takes 15-60 minutes to reach LDAP (and the VPN).  You do not have access to manage the memberships.  This group does not directly include individuals, it is the allows minus the denies.  To change the policy, open a ticket with help@isc.upenn.edu");
+      GroupSave overallGroupSave = new GroupSave().assignName(projectStemName + ":" + gsh_input_projectSystemName + "SraVpnOverall").assignDisplayExtension(gsh_input_projectFriendlyName + " SRA VPN Overall").assignDescription("This is the VPN policy group of who can use the VPN.  This takes into consideration the allows (automatic and manual), and the denies (automatic and manual).  After membership changes in this group it takes 15-60 minutes to reach LDAP (and the VPN).  You do not have access to manage the memberships.  This group does not directly include individuals, it is the allows minus the denies.  To change the policy, open a ticket with help@example.com");
       overallGroup = overallGroupSave.save();
       if (overallGroupSave.getSaveResultType() == SaveResultType.INSERT) {
         gsh_builtin_gshTemplateOutput.addOutputLine("Overall group created: " + employeesManualGroup.getName());
