@@ -150,7 +150,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testLoaderMembershipApplyOrderDeletesFirst"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderGroupsLikeDeletesOnlyGroupsWithLoaderMetadata"));
   }
 
   /**
@@ -3109,6 +3109,405 @@ public class GrouperLoaderTest extends GrouperTest {
   }
   
   
+  /**
+   * GRP-7073: a SQL_GROUP_LIST loader with a grouperLoaderGroupsLike string should only delete groups
+   * that carry this loader's metadata (grouperLoaderMetadataGroupId = this loader group and
+   * grouperLoaderMetadataLoaded=true).  A group whose name matches the like pattern but that this loader
+   * never created must be left alone (protected from deletion), and the run must report
+   * "Skipped 1 group(s) matching the groups like pattern that do not have loader metadata for this loader."
+   * This covers the delete, skip, and report cases in a single run.
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderGroupsLikeDeletesOnlyGroupsWithLoaderMetadata() throws Exception {
+
+    //initial source: grp1 (with a member) and grp2 (from the group query only), both under the like pattern
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+    testDataList.add(new TestgrouperLoader("test:loaderSmoke:grp1", SubjectTestHelper.SUBJ0_ID, null));
+    testDataList.add(new TestgrouperLoaderGroups("test:loaderSmoke:grp1", "test:loaderSmoke:grp1", null));
+    testDataList.add(new TestgrouperLoaderGroups("test:loaderSmoke:grp2", "test:loaderSmoke:grp2", null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "test:testGroup2", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY,
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+        "select group_name, group_display_name, group_description from testgrouper_loader_groups");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "test:loaderSmoke:%");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    //both loader groups exist after the first run, stamped with this loader's metadata
+    Group grp1 = GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp1", true);
+    Group grp2 = GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp2", true);
+    assertTrue(grp1.hasMember(SubjectTestHelper.SUBJ0));
+    assertEquals(loaderGroup.getId(), loaderMetadataGroupIdForGroup(grp1));
+    assertEquals(loaderGroup.getId(), loaderMetadataGroupIdForGroup(grp2));
+
+    //hand-create an unmanaged group which matches the like pattern but has no loader metadata
+    Group manualGroup = Group.saveGroup(this.grouperSession, null, null, "test:loaderSmoke:manual", null, null, null, true);
+    manualGroup.addMember(SubjectTestHelper.SUBJ1);
+    assertNull(loaderMetadataGroupIdForGroup(manualGroup));
+
+    //drop grp2 from both queries (it is no longer in the source)
+    HibernateSession.byHqlStatic().createQuery(
+        "delete from TestgrouperLoaderGroups where groupName='test:loaderSmoke:grp2'").executeUpdate();
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    GrouperCacheUtils.clearAllCaches();
+
+    //grp2 was owned by this loader and removed from the source, so it is deleted
+    assertNull(GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp2", false));
+
+    //grp1 is still in the source, so it survives with its member
+    grp1 = GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp1", true);
+    assertTrue(grp1.hasMember(SubjectTestHelper.SUBJ0));
+
+    //the manual (unmanaged) group matches the pattern but has no loader metadata, so it is protected
+    manualGroup = GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:manual", true);
+    assertTrue(manualGroup.hasMember(SubjectTestHelper.SUBJ1));
+
+    //and the run reports exactly one skipped group (guards against a false positive)
+    String jobName = "SQL_GROUP_LIST__" + loaderGroup.getName() + "__" + loaderGroup.getId();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    String jobMessage = hib3GrouperLoaderLog.getJobMessage();
+    assertNotNull(jobMessage);
+    assertTrue("job message should report exactly one skipped unmanaged group but was: " + jobMessage,
+        jobMessage.contains("Skipped 1 group(s) matching the groups like pattern that do not have loader metadata for this loader."));
+    assertTrue("job message should list the skipped group name but was: " + jobMessage,
+        jobMessage.contains("test:loaderSmoke:manual"));
+  }
+
+
+  /**
+   * GRP-7073: when a grouperLoaderGroupsLike loader deletes a group it owns and there are no unmanaged
+   * groups matching the pattern, the run must NOT report the "... do not have loader metadata for this
+   * loader" message.  This guards against the false-positive skip message from the ticket.
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderGroupsLikeNoUnmanagedGroupsNoSkipMessage() throws Exception {
+
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+    testDataList.add(new TestgrouperLoader("test:loaderSmoke:grp1", SubjectTestHelper.SUBJ0_ID, null));
+    testDataList.add(new TestgrouperLoaderGroups("test:loaderSmoke:grp1", "test:loaderSmoke:grp1", null));
+    testDataList.add(new TestgrouperLoaderGroups("test:loaderSmoke:grp2", "test:loaderSmoke:grp2", null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "test:testGroup2", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY,
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+        "select group_name, group_display_name, group_description from testgrouper_loader_groups");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "test:loaderSmoke:%");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    assertNotNull(GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp1", false));
+    assertNotNull(GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp2", false));
+
+    //drop grp2 from both queries (no unmanaged group matches the pattern)
+    HibernateSession.byHqlStatic().createQuery(
+        "delete from TestgrouperLoaderGroups where groupName='test:loaderSmoke:grp2'").executeUpdate();
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    GrouperCacheUtils.clearAllCaches();
+
+    //grp2 (loader-owned, removed from source) is deleted, grp1 survives
+    assertNull(GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp2", false));
+    assertNotNull(GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp1", false));
+
+    //there was no unmanaged group matching the pattern, so there must be no "skipped" report
+    String jobName = "SQL_GROUP_LIST__" + loaderGroup.getName() + "__" + loaderGroup.getId();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    String jobMessage = hib3GrouperLoaderLog.getJobMessage();
+    if (jobMessage != null) {
+      assertFalse("job message should not report any skipped groups but was: " + jobMessage,
+          jobMessage.contains("do not have loader metadata for this loader"));
+    }
+  }
+
+
+  /**
+   * GRP-7073: the common (~90%) happy path for a grouperLoaderGroupsLike loader: the folder contains only
+   * groups loaded by this loader, the like string is correct, and nothing is out of the ordinary.  Every
+   * matching group is loader-managed, so the run must succeed with no error, sync memberships correctly,
+   * delete nothing, and NOT report any skipped groups.  A second unchanged run must stay in that same
+   * clean steady state.
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderGroupsLikeHappyPathAllLoadedGroupsSuccess() throws Exception {
+
+    //folder will contain only loader-managed groups, all present in the source
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+    testDataList.add(new TestgrouperLoader("test:loaderSmoke:grp1", SubjectTestHelper.SUBJ0_ID, null));
+    testDataList.add(new TestgrouperLoader("test:loaderSmoke:grp1", SubjectTestHelper.SUBJ1_ID, null));
+    testDataList.add(new TestgrouperLoader("test:loaderSmoke:grp2", SubjectTestHelper.SUBJ2_ID, null));
+    testDataList.add(new TestgrouperLoaderGroups("test:loaderSmoke:grp1", "test:loaderSmoke:grp1", null));
+    testDataList.add(new TestgrouperLoaderGroups("test:loaderSmoke:grp2", "test:loaderSmoke:grp2", null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "test:testGroup2", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY,
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+        "select group_name, group_display_name, group_description from testgrouper_loader_groups");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "test:loaderSmoke:%");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
+
+    String jobName = "SQL_GROUP_LIST__" + loaderGroup.getName() + "__" + loaderGroup.getId();
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    //both groups created with the correct memberships
+    Group grp1 = GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp1", true);
+    Group grp2 = GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp2", true);
+    assertTrue(grp1.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(grp1.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(grp2.hasMember(SubjectTestHelper.SUBJ2));
+
+    //the run succeeded with no error and skipped nothing
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    String jobMessage = hib3GrouperLoaderLog.getJobMessage();
+    if (jobMessage != null) {
+      assertFalse("job message should not report any skipped groups but was: " + jobMessage,
+          jobMessage.contains("do not have loader metadata for this loader"));
+    }
+
+    //second, unchanged run: still clean steady state, nothing deleted or skipped, still SUCCESS
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    GrouperCacheUtils.clearAllCaches();
+
+    grp1 = GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp1", true);
+    grp2 = GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp2", true);
+    assertTrue(grp1.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(grp1.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(grp2.hasMember(SubjectTestHelper.SUBJ2));
+
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    jobMessage = hib3GrouperLoaderLog.getJobMessage();
+    if (jobMessage != null) {
+      assertFalse("job message should not report any skipped groups but was: " + jobMessage,
+          jobMessage.contains("do not have loader metadata for this loader"));
+    }
+  }
+
+
+  /**
+   * GRP-7073: an empty group that is defined only in the group query (so it carries this loader's
+   * metadata but has no members, and therefore is not in the membership query) is a legitimate
+   * loader-managed group.  It must NOT be counted or reported as a skipped "group ... that do not have
+   * loader metadata for this loader", because it is still in the group query and does carry this loader's
+   * metadata.
+   *
+   * NOTE: this is expected to FAIL against the current code, which counts every like-matching group that
+   * is not in the membership query and is not a delete candidate (including empty group-query groups that
+   * DO have metadata) toward the "skipped for no loader metadata" count.
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderGroupsLikeEmptyGroupInGroupQueryNotCountedAsSkipped() throws Exception {
+
+    //grp1 has a member; grp2 is defined only via the group query and stays empty
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+    testDataList.add(new TestgrouperLoader("test:loaderSmoke:grp1", SubjectTestHelper.SUBJ0_ID, null));
+    testDataList.add(new TestgrouperLoaderGroups("test:loaderSmoke:grp1", "test:loaderSmoke:grp1", null));
+    testDataList.add(new TestgrouperLoaderGroups("test:loaderSmoke:grp2", "test:loaderSmoke:grp2", null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "test:testGroup2", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY,
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+        "select group_name, group_display_name, group_description from testgrouper_loader_groups");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "test:loaderSmoke:%");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
+
+    String jobName = "SQL_GROUP_LIST__" + loaderGroup.getName() + "__" + loaderGroup.getId();
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    //grp2 was created empty and carries this loader's metadata
+    Group grp2 = GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp2", true);
+    assertEquals(0, grp2.getImmediateMembers().size());
+    assertEquals(loaderGroup.getId(), loaderMetadataGroupIdForGroup(grp2));
+
+    //second, unchanged run: grp2 is still empty and still in the group query, so it must not be treated as
+    //an unmanaged group and must not be reported as skipped for missing loader metadata
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    GrouperCacheUtils.clearAllCaches();
+
+    assertNotNull(GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp1", false));
+    grp2 = GroupFinder.findByName(this.grouperSession, "test:loaderSmoke:grp2", true);
+    assertEquals(0, grp2.getImmediateMembers().size());
+
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    String jobMessage = hib3GrouperLoaderLog.getJobMessage();
+    if (jobMessage != null) {
+      assertFalse("an empty group-query group has loader metadata and must not be reported as skipped, but was: "
+          + jobMessage, jobMessage.contains("do not have loader metadata for this loader"));
+    }
+  }
+
+
+  /**
+   * GRP-7074: setting the per-loader grouperLoaderDeletePreviouslyManagedGroups attribute to true on a
+   * SQL_GROUP_LIST loader (with no groups like string) should delete groups previously managed by this
+   * loader once they are no longer in the source.
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderDeletePreviouslyManagedGroupsAttributeDeletesGroup() throws Exception {
+
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+    testDataList.add(new TestgrouperLoader("loader:group1", SubjectTestHelper.SUBJ0_ID, null));
+    testDataList.add(new TestgrouperLoader("loader:group2", SubjectTestHelper.SUBJ1_ID, null));
+    testDataList.add(new TestgrouperLoaderGroups("loader:group1", "loader:group1", null));
+    testDataList.add(new TestgrouperLoaderGroups("loader:group2", "loader:group2", null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "loader:owner", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY,
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+        "select group_name, group_display_name, group_description from testgrouper_loader_groups");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DELETE_PREVIOUSLY_MANAGED_GROUPS, "true");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    Group group1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
+    Group group2 = GroupFinder.findByName(this.grouperSession, "loader:group2", true);
+    assertTrue(group1.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(group2.hasMember(SubjectTestHelper.SUBJ1));
+
+    //drop group2 from both queries
+    HibernateSession.byHqlStatic().createQuery(
+        "delete from TestgrouperLoader where col1='loader:group2'").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery(
+        "delete from TestgrouperLoaderGroups where groupName='loader:group2'").executeUpdate();
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    GrouperCacheUtils.clearAllCaches();
+
+    //group2 is deleted because it was previously managed by this loader and is no longer in the source
+    assertNull(GroupFinder.findByName(this.grouperSession, "loader:group2", false));
+    //group1 is still in the source, so it survives with its member
+    group1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
+    assertTrue(group1.hasMember(SubjectTestHelper.SUBJ0));
+  }
+
+
+  /**
+   * GRP-7074: without the grouperLoaderDeletePreviouslyManagedGroups attribute (and with the global
+   * loader.deleteGroupsNoLongerInSource left at its default of false), a SQL_GROUP_LIST loader with no
+   * groups like string must NOT delete a group that is no longer in the source.
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderDeletePreviouslyManagedGroupsDefaultKeepsGroup() throws Exception {
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.deleteGroupsNoLongerInSource", "false");
+
+    try {
+
+      List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+      testDataList.add(new TestgrouperLoader("loader:group1", SubjectTestHelper.SUBJ0_ID, null));
+      testDataList.add(new TestgrouperLoader("loader:group2", SubjectTestHelper.SUBJ1_ID, null));
+      testDataList.add(new TestgrouperLoaderGroups("loader:group1", "loader:group1", null));
+      testDataList.add(new TestgrouperLoaderGroups("loader:group2", "loader:group2", null));
+      HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+      Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "loader:owner", null, null, null, true);
+      loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY,
+          "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+          "select group_name, group_display_name, group_description from testgrouper_loader_groups");
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
+
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+      Group group1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
+      Group group2 = GroupFinder.findByName(this.grouperSession, "loader:group2", true);
+      assertTrue(group1.hasMember(SubjectTestHelper.SUBJ0));
+      assertTrue(group2.hasMember(SubjectTestHelper.SUBJ1));
+
+      //drop group2 from both queries
+      HibernateSession.byHqlStatic().createQuery(
+          "delete from TestgrouperLoader where col1='loader:group2'").executeUpdate();
+      HibernateSession.byHqlStatic().createQuery(
+          "delete from TestgrouperLoaderGroups where groupName='loader:group2'").executeUpdate();
+
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+      GrouperCacheUtils.clearAllCaches();
+
+      //group2 is NOT deleted because neither the per-loader attribute nor the global property is set
+      assertNotNull(GroupFinder.findByName(this.grouperSession, "loader:group2", false));
+      assertNotNull(GroupFinder.findByName(this.grouperSession, "loader:group1", false));
+
+    } finally {
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("loader.deleteGroupsNoLongerInSource");
+    }
+  }
+
+
+  /**
+   * read this loader's metadata group id (grouperLoaderMetadataGroupId) from a managed group, or null if
+   * the group carries no loader metadata.
+   * @param group
+   * @return the loader metadata group id or null
+   */
+  private String loaderMetadataGroupIdForGroup(Group group) {
+    AttributeDefName loaderMetadataMarkerAttributeDefName = AttributeDefNameFinder.findByName(
+        GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.LOADER_METADATA_VALUE_DEF, false);
+    if (loaderMetadataMarkerAttributeDefName == null) {
+      return null;
+    }
+    AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(
+        null, loaderMetadataMarkerAttributeDefName, false, false);
+    if (attributeAssign == null) {
+      return null;
+    }
+    return attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        GrouperCheckConfig.loaderMetadataStemName() + ":" + GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID);
+  }
+
+
   /**
    * loader job should change the display name of the group where type is addIncludeExclude.
    * @throws Exception

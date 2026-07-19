@@ -1326,7 +1326,13 @@ public enum GrouperLoaderType {
       groupNamesFromGroupQueryAndMembershipQuery.addAll(GrouperUtil.nonNull(groupNames));
       groupNamesFromGroupQueryAndMembershipQuery.addAll(GrouperUtil.nonNull(groupNamesFromGroupQuery));
       
-      Set<Group> groupsNoLongerManagedByLoader = getGroupsNoLongerMangedByLoader(groupNamesFromGroupQueryAndMembershipQuery, hib3GrouploaderLogOverall.getGroupUuid());
+      // for the (deprecated) groups like string path we must empty groups this loader created even if a
+      // previous run already marked them grouperLoaderMetadataLoaded=false, so do not require loaded=true
+      // there.  the deletePreviouslyManagedGroups / mark-loaded-false paths (blank like string) keep the
+      // loaded=true requirement.
+      Set<Group> groupsNoLongerManagedByLoader = getGroupsNoLongerMangedByLoader(
+          groupNamesFromGroupQueryAndMembershipQuery, hib3GrouploaderLogOverall.getGroupUuid(),
+          StringUtils.isBlank(groupLikeString));
 
       GrouperLoaderLogger.addLogEntry("overallLog", "groupsNoLongerManagedByLoaderCount", GrouperUtil.length(groupsNoLongerManagedByLoader));
 
@@ -1463,6 +1469,10 @@ public enum GrouperLoaderType {
       
         //take out the ones which exist
         groupNamesManaged.removeAll(groupNames);
+        // also take out the ones still in the group query: they are legitimately managed by this loader
+        // (their memberships are synced below) even when they are currently empty, so they must not be
+        // treated as emptying/delete candidates or counted as skipped for missing loader metadata.
+        groupNamesManaged.removeAll(GrouperUtil.nonNull(groupNamesFromGroupQuery));
         
         // only act on groups that carry this loader's metadata (grouperLoaderMetadataGroupId matches this
         // loader and grouperLoaderMetadataLoaded=true), so groups that merely match the like pattern but
@@ -1473,12 +1483,21 @@ public enum GrouperLoaderType {
           for (Group groupNoLongerManaged : GrouperUtil.nonNull(groupsNoLongerManagedByLoader)) {
             groupNamesManagedByThisLoader.add(groupNoLongerManaged.getName());
           }
-          int countBeforeMetadataFilter = groupNamesManaged.size();
+          // the groups we are about to drop (match the like pattern, not in either query, but not managed
+          // by this loader) are the skipped groups
+          Set<String> skippedGroupNames = new LinkedHashSet<String>(groupNamesManaged);
+          skippedGroupNames.removeAll(groupNamesManagedByThisLoader);
           groupNamesManaged.retainAll(groupNamesManagedByThisLoader);
-          int skippedForNoMetadataCount = countBeforeMetadataFilter - groupNamesManaged.size();
+          int skippedForNoMetadataCount = skippedGroupNames.size();
           if (skippedForNoMetadataCount > 0) {
+            List<String> skippedGroupNamesToShow = new ArrayList<String>(skippedGroupNames);
+            if (skippedGroupNamesToShow.size() > 10) {
+              skippedGroupNamesToShow = skippedGroupNamesToShow.subList(0, 10);
+            }
             String skippedMessage = "Skipped " + skippedForNoMetadataCount
-                + " group(s) matching the groups like pattern that do not have loader metadata for this loader.";
+                + " group(s) matching the groups like pattern that do not have loader metadata for this loader."
+                + " Skipped group name(s)" + (skippedForNoMetadataCount > 10 ? " (first 10)" : "") + ": "
+                + StringUtils.join(skippedGroupNamesToShow, ", ");
             GrouperLoaderLogger.addLogEntry("overallLog", "groupsSkippedForNoLoaderMetadataCount", skippedForNoMetadataCount);
             hib3GrouploaderLogOverall.insertJobMessage(skippedMessage);
             if (LOG.isDebugEnabled()) {
@@ -2223,23 +2242,29 @@ public enum GrouperLoaderType {
    * get groups that are not managed by loader anymore.
    * @param groupNamesInLoader - group names that came back from loader query
    * @param groupIdConfigured
+   * @param requireLoaded if true, only consider groups whose grouperLoaderMetadataLoaded=true.  if false,
+   * consider every group carrying this loader's metadata group id regardless of the loaded flag.  the
+   * (deprecated) groups like string path passes false so it still empties this loader's own groups even
+   * when a prior run already marked them grouperLoaderMetadataLoaded=false.
    * @return the groups
    */
-  private static Set<Group> getGroupsNoLongerMangedByLoader(Set<String> groupNamesInLoader, String groupIdConfigured) {
+  private static Set<Group> getGroupsNoLongerMangedByLoader(Set<String> groupNamesInLoader, String groupIdConfigured, boolean requireLoaded) {
     
     Set<Group> groupsNoLongerManagedByLoader = new HashSet<Group>();
     AttributeDefName loaderMetadataAttributeDefName = AttributeDefNameFinder.findByName(
         GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_GROUP_ID, true);
-    AttributeDefName loaderMetadataLoadedAttributeDefName = AttributeDefNameFinder.findByName(
-        GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED, true);
     //get all groups with settings
-    Set<Group> groupsWithLoaderMetadata = new GroupFinder().assignPrivileges(null)
+    GroupFinder groupFinder = new GroupFinder().assignPrivileges(null)
         .assignIdOfAttributeDefName(loaderMetadataAttributeDefName.getId())
         .assignAttributeValuesOnAssignment(GrouperUtil.toSetObjectType(groupIdConfigured))
-        .assignIdOfAttributeDefName2(loaderMetadataLoadedAttributeDefName.getId())
-        .assignAttributeValuesOnAssignment2(GrouperUtil.toSetObjectType("true"))
-        .assignAttributeCheckReadOnAttributeDef(false)
-        .findGroups();
+        .assignAttributeCheckReadOnAttributeDef(false);
+    if (requireLoaded) {
+      AttributeDefName loaderMetadataLoadedAttributeDefName = AttributeDefNameFinder.findByName(
+          GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LOADED, true);
+      groupFinder = groupFinder.assignIdOfAttributeDefName2(loaderMetadataLoadedAttributeDefName.getId())
+          .assignAttributeValuesOnAssignment2(GrouperUtil.toSetObjectType("true"));
+    }
+    Set<Group> groupsWithLoaderMetadata = groupFinder.findGroups();
     
     for (Group groupWithMetadata: groupsWithLoaderMetadata) {
       if (!groupNamesInLoader.contains(groupWithMetadata.getName())) {
