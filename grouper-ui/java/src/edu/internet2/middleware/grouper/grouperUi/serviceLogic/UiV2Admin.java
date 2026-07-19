@@ -64,6 +64,8 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
@@ -81,8 +83,13 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectSourceContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstance;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstanceCounts;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstanceFinder;
@@ -349,9 +356,15 @@ public class UiV2Admin extends UiServiceLogicBase {
             }
           } else if ("disable".equals(action)) {
             scheduler.pauseJob(jobKey);
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.DAEMON_JOB_DISABLE, "jobName", jobName);
+            auditEntry.setDescription("Disabled daemon job " + jobName);
+            daemonJobSaveAudit(auditEntry);
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("daemonJobDisabledSuccess")));
           } else if ("enable".equals(action)) {
             scheduler.resumeJob(jobKey);
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.DAEMON_JOB_ENABLE, "jobName", jobName);
+            auditEntry.setDescription("Enabled daemon job " + jobName);
+            daemonJobSaveAudit(auditEntry);
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("daemonJobEnabledSuccess")));
           } else if ("failsafeApprove".equals(action)) {
             GrouperFailsafe.assignApproveNextRun(jobName);
@@ -514,6 +527,22 @@ public class UiV2Admin extends UiServiceLogicBase {
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
+  }
+  
+  /**
+   * save an audit entry for a daemon job action
+   * @param auditEntry
+   */
+  private static void daemonJobSaveAudit(final AuditEntry auditEntry) {
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+          new HibernateHandler() {
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                auditEntry.saveOrUpdate(true);
+                return null;
+              }
+        });
   }
   
   /**

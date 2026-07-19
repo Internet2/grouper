@@ -732,6 +732,16 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    * run diagnostics for a provisioner configuration
    */
   PROVISIONER_CONFIG_DIAGNOSTICS(new AuditType("provisionerConfig", "provisionerConfigDiagnostics", null, "provisionerName")),
+
+  /**
+   * enable a daemon job
+   */
+  DAEMON_JOB_ENABLE(new AuditType("daemonJob", "daemonJobEnable", null, "jobName")),
+
+  /**
+   * disable a daemon job
+   */
+  DAEMON_JOB_DISABLE(new AuditType("daemonJob", "daemonJobDisable", null, "jobName")),
   
   /**
    * gsh template execute
