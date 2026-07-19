@@ -40,3 +40,4 @@ felix-cache
 /.apt_generated/
 /.apt_generated_tests/
 /misc/wiki/__pycache__/
+/.checkstyle
