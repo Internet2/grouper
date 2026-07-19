@@ -32,7 +32,7 @@ public class GrouperDaemonOtherJobScriptConfiguration extends GrouperDaemonConfi
   //  # otherJob.scriptDaemonConfigKey.scriptType =
   //
   //  # config id of the compiled GSH daemon template (templateType=daemon, templateMode=compiled) to run
-  //  # {valueType: "string", required: true, regex: "^otherJob\\.([^.]+)\\.gshTemplateConfigId$", showEl: "${scriptType == 'compiledJava'}"}
+  //  # {valueType: "string", required: true, regex: "^otherJob\\.([^.]+)\\.gshTemplateConfigId$", showEl: "${scriptType == 'compiledJava'}", formElement: "dropdown", optionValuesFromClass: "edu.internet2.middleware.grouper.app.gsh.template.GshTemplateDaemonConfigIds"}
   //  # otherJob.scriptDaemonConfigKey.gshTemplateConfigId =
   //
   //  # file type, you can run a script in config, or run a file in your container

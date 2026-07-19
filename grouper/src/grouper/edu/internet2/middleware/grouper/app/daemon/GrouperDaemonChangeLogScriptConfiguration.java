@@ -40,7 +40,7 @@ public class GrouperDaemonChangeLogScriptConfiguration extends GrouperDaemonConf
   //  # changeLog.consumer.changeLogScriptDaemonConfigKey.changeLogScriptType =
   //
   //  # config id of the compiled GSH change-log daemon template (templateType=daemonChangeLog, templateMode=compiled) to run
-  //  # {valueType: "string", required: true, regex: "^changeLog\\.consumer\\.([^.]+)\\.gshTemplateConfigId$", showEl: "${changeLogScriptType == 'compiledJava'}"}
+  //  # {valueType: "string", required: true, regex: "^changeLog\\.consumer\\.([^.]+)\\.gshTemplateConfigId$", showEl: "${changeLogScriptType == 'compiledJava'}", formElement: "dropdown", optionValuesFromClass: "edu.internet2.middleware.grouper.app.gsh.template.GshTemplateDaemonChangeLogConfigIds"}
   //  # changeLog.consumer.changeLogScriptDaemonConfigKey.gshTemplateConfigId =
   //
   //  # file type, you can run a script in config, or run a file in your container
