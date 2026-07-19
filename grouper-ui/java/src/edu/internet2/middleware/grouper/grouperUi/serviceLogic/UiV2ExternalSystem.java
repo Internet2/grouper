@@ -13,6 +13,8 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
+import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystemUsage;
+import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystemUsageFinder;
 import edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -20,6 +22,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ExternalSystemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGrouperExternalSystem;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGrouperExternalSystemUsage;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -458,15 +461,25 @@ public class UiV2ExternalSystem {
       
       GuiGrouperExternalSystem guiGrouperExternalSystem = GuiGrouperExternalSystem.convertFromGrouperExternalSystem(grouperExternalSystem);
       externalSystemContainer.setGuiGrouperExternalSystem(guiGrouperExternalSystem);
-      
+
+      // compute the References section: everywhere this external system is used
+      GrouperExternalSystemUsageFinder usageFinder = new GrouperExternalSystemUsageFinder()
+          .assignExternalSystemClassName(externalSystemType)
+          .assignConfigId(externalSystemConfigId);
+      List<GrouperExternalSystemUsage> usages = usageFinder.findUsages();
+      externalSystemContainer.setGuiGrouperExternalSystemUsages(
+          GuiGrouperExternalSystemUsage.convertFromGrouperExternalSystemUsages(usages));
+      externalSystemContainer.setExternalSystemUsagesTruncated(usageFinder.isTruncated());
+      externalSystemContainer.setExternalSystemUsagesMaxPerType(GrouperExternalSystemUsageFinder.DEFAULT_MAX_PER_TYPE);
+
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/externalSystems/viewExternalSystemConfigDetails.jsp"));
-      
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
-  
+
   /**
    * test connection between external system and grouper
    * @param request
