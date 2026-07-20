@@ -34,6 +34,12 @@ the individual skill for the expected path. Never commit tokens.
   grouper.atlassian.net via the Jira Cloud REST API with an API token (same
   cross-site token as grouper-wiki-edit). Holds the project/issue-type/transition
   ids and the resolution-field-not-on-screen gotcha.
+- **grouper-release** -- cut and record a Grouper container release: bump the
+  container Tomcat/base versions, confirm no DDL/upgrade-task or server.xml-patch
+  surprises since the last release, resolve the shipped GRP issues and tag them
+  with the new fixVersion, and add the release row to the "v7 Release Notes" wiki
+  page. Uses grouper-jira and grouper-wiki-edit for the writes; holds the
+  release-notes table contract (columns, status colours, layout).
 
 ## Contributing
 
