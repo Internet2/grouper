@@ -1091,7 +1091,12 @@ public class GrouperProvisioningService {
     Collections.sort(provisioningErrors, new Comparator<GrouperProvisioningError>() {
       @Override
       public int compare(GrouperProvisioningError o1, GrouperProvisioningError o2) {
-        return o2.getErrorTimestamp().compareTo(o1.getErrorTimestamp());
+        // GRP-7170: the error-fetch queries only require error_code to be non-null, not error_timestamp.
+        // A grouper_sync_group/member/membership row can have an error_code set but a NULL error_timestamp,
+        // in which case getErrorTimestamp() is null.  Timestamp.compareTo(null) internally dereferences its
+        // argument (ts.getTime()) and throws NPE, breaking the whole "view errors" screen.  Use the null-safe
+        // GrouperUtil.compare with the args reversed so this stays newest-first, with null timestamps sorted last.
+        return GrouperUtil.compare(o2.getErrorTimestamp(), o1.getErrorTimestamp());
       }
     });
     
