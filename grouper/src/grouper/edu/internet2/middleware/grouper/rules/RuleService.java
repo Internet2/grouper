@@ -583,8 +583,19 @@ public class RuleService {
 
   
   public static void deleteRuleAttributes(String attributeAssignId) {
-    AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
-    attributeAssign.delete();
+    // The rule marker attribute assign may already have been deleted before we get here.
+    // When a folder/group/attributeDef is deleted, the delete logic first sweeps every
+    // attribute assign owned by that object (Stem.delete / Group.delete / AttributeDef.delete),
+    // which removes the rule marker assign.  It then loops over rule definitions found in the
+    // RuleEngine cache and calls this method.  That cache is stale because the delete path
+    // deliberately does not clear it: the value hook (GrouperAttributeAssignValueRulesConfigHook)
+    // early-returns when a rule type is being torn down, so it never reaches clearRuleEngineCache().
+    // So look the assign up tolerantly (do not throw if it is already gone) and only delete it
+    // if it still exists, but always clear the rule engine cache to flush the stale definition.
+    AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, false);
+    if (attributeAssign != null) {
+      attributeAssign.delete();
+    }
     RuleEngine.clearRuleEngineCache();
   }
 
