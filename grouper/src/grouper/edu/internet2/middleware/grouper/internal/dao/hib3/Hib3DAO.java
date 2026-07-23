@@ -56,6 +56,10 @@ import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxAuth;
 import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxGroup;
 import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxUser;
 import edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxMembership;
+import edu.internet2.middleware.grouper.app.ccure.MockCcureAuth;
+import edu.internet2.middleware.grouper.app.ccure.MockCcureClearance;
+import edu.internet2.middleware.grouper.app.ccure.MockCcureClearancePair;
+import edu.internet2.middleware.grouper.app.ccure.MockCcurePersonnel;
 import edu.internet2.middleware.grouper.app.datadog.DatadogGroup;
 import edu.internet2.middleware.grouper.app.datadog.DatadogMembership;
 import edu.internet2.middleware.grouper.app.datadog.DatadogUser;
@@ -324,6 +328,11 @@ public abstract class Hib3DAO {
         addClass(configuration, DropboxGroup.class);
         addClass(configuration, DropboxUser.class);
         addClass(configuration, DropboxMembership.class);
+
+        addClass(configuration, MockCcureAuth.class);
+        addClass(configuration, MockCcurePersonnel.class);
+        addClass(configuration, MockCcureClearance.class);
+        addClass(configuration, MockCcureClearancePair.class);
 
       }
       addClass(configuration, Hib3MemberDAO.class);
