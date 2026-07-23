@@ -47,7 +47,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperOktaProvisionerTest("testFullSyncOktaStartWithAndDiagnostics"));
+    TestRunner.run(new GrouperOktaProvisionerTest("testOktaFullSyncCapturesOrphanTargetEntities"));
     
   }
   
@@ -1322,9 +1322,17 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
     orphanGroup.setDescription("orphanGroupDescriptionEvolve");
     HibernateSession.byObjectStatic().save(orphanGroup);
 
+    // NOTE: the login MUST sort AFTER the test-subject logins (test.subject.N@...). The Okta mock
+    // orders users by login ascending and, when grouperTest.okta.mock.skipUser=true (the global test
+    // default), drops the lowest-login user from every bulk pull to exercise the by-id recovery
+    // fallback. We cannot turn that hook off from here: the mock runs in the embedded Tomcat webapp,
+    // whose separate classloader has its own GrouperConfig, so an in-test propertiesOverrideMap never
+    // reaches it. By making this orphan sort last, the skip lands on SUBJ0 -- which has a membership
+    // and is therefore recovered by id -- while this membership-less orphan stays in the bulk pull
+    // and is captured, satisfying the "3 users" assertion.
     GrouperOktaUser orphanUser = new GrouperOktaUser();
     orphanUser.setId("orphan-okta-user-evolve-1");
-    orphanUser.setLogin("orphan.evolve@example.edu");
+    orphanUser.setLogin("zz.orphan.evolve@example.edu");
     orphanUser.setEmail("orphan.evolve@example.edu");
     orphanUser.setFirstName("OrphanEvolveFirst");
     orphanUser.setLastName("OrphanEvolveLast");
@@ -1363,7 +1371,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
             + "where grouper_sync_id = (select id from grouper_sync where internal_id = ?) "
             + "and target_user_id = ? and attribute_name = 'login'")
         .addBindVar(syncInternalId).addBindVar(orphanUser.getId()).select(String.class);
-    assertEquals("orphan user's login should round-trip through reporting", "orphan.evolve@example.edu",
+    assertEquals("orphan user's login should round-trip through reporting", "zz.orphan.evolve@example.edu",
         orphanUserLoginInReporting);
   }
 
@@ -1395,9 +1403,17 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
     orphanGroup.setDescription("orphanGroupDescription");
     HibernateSession.byObjectStatic().save(orphanGroup);
 
+    // NOTE: the login MUST sort AFTER the test-subject logins (test.subject.N@...). The Okta mock
+    // orders users by login ascending and, when grouperTest.okta.mock.skipUser=true (the global test
+    // default), drops the lowest-login user from every bulk pull to exercise the by-id recovery
+    // fallback. We cannot turn that hook off from here: the mock runs in the embedded Tomcat webapp,
+    // whose separate classloader has its own GrouperConfig, so an in-test propertiesOverrideMap never
+    // reaches it. By making this orphan sort last, the skip lands on SUBJ0 -- which has a membership
+    // and is therefore recovered by id -- while this membership-less orphan stays in the bulk pull
+    // and is captured, satisfying the "1 prov_user row for the orphan" assertion.
     GrouperOktaUser orphanUser = new GrouperOktaUser();
     orphanUser.setId("orphan-okta-user-5678");
-    orphanUser.setLogin("orphan.user@example.edu");
+    orphanUser.setLogin("zz.orphan.user@example.edu");
     orphanUser.setEmail("orphan.user@example.edu");
     orphanUser.setFirstName("OrphanFirst");
     orphanUser.setLastName("OrphanLast");

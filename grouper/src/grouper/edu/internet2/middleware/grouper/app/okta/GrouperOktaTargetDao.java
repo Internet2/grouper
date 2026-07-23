@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.okta;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +15,7 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerDaoCapabilities;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisioningTargetDaoPerItemLogic;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityResponse;
@@ -207,19 +209,36 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
         // counter so tests (and diagnostics) can confirm the per-group member iteration ran or was
         // skipped when resolving memberships from the sync-back cache
         edu.internet2.middleware.grouper.util.GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "oktaRetrieveMembershipsApiCall", 1);
-        for (GrouperOktaGroup grouperOktaGroup : grouperOktaGroups) {
-          Set<String> groupMemberIds = GrouperOktaApiCommands.retrieveOktaGroupMembers(oktaConfiguration.getOktaExternalSystemConfigId(), grouperOktaGroup.getId());
 
-          for (String groupMemberId: groupMemberIds) {
-            ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
-            provisioningMembership.setProvisioningGroupId(grouperOktaGroup.getId());
-            provisioningMembership.setProvisioningEntityId(groupMemberId);
-            targetMemberships.add(provisioningMembership);
-          }
-          // generic provisioner sync back: capture (groupId, userId) pairs for this group
-          GrouperOktaProvisioningTargetNativeSync.captureMembershipsForGroupForCurrentProvisioner(
-              grouperOktaGroup.getId(), groupMemberIds);
-        }
+        // Each group's member fetch is an independent Okta API call keyed only on the group id, so
+        // run them across the provisioner thread pool (threadPoolSize) instead of a single thread.
+        // Falls back to inline when the pool is not enabled (threadPoolSize <= 1). The shared
+        // membership list is synchronized here; the native sync-back capture is already synchronized
+        // internally and the current-provisioner thread-local propagates via GrouperCallable.
+        final GrouperOktaConfiguration oktaConfigurationFinal = oktaConfiguration;
+        final List<ProvisioningMembership> targetMembershipsSynchronized = Collections.synchronizedList(targetMemberships);
+        this.retrievePerItemInParallel(grouperOktaGroups, "retrieveOktaGroupMembers",
+            new GrouperProvisioningTargetDaoPerItemLogic<GrouperOktaGroup>() {
+
+              @Override
+              public void processItem(GrouperOktaGroup grouperOktaGroup) {
+                Set<String> groupMemberIds = GrouperOktaApiCommands.retrieveOktaGroupMembers(
+                    oktaConfigurationFinal.getOktaExternalSystemConfigId(), grouperOktaGroup.getId());
+
+                List<ProvisioningMembership> membershipsForGroup = new ArrayList<ProvisioningMembership>(groupMemberIds.size());
+                for (String groupMemberId : groupMemberIds) {
+                  ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
+                  provisioningMembership.setProvisioningGroupId(grouperOktaGroup.getId());
+                  provisioningMembership.setProvisioningEntityId(groupMemberId);
+                  membershipsForGroup.add(provisioningMembership);
+                }
+                targetMembershipsSynchronized.addAll(membershipsForGroup);
+
+                // generic provisioner sync back: capture (groupId, userId) pairs for this group
+                GrouperOktaProvisioningTargetNativeSync.captureMembershipsForGroupForCurrentProvisioner(
+                    grouperOktaGroup.getId(), groupMemberIds);
+              }
+            });
       }
       
       targetData.setProvisioningMemberships(targetMemberships);
