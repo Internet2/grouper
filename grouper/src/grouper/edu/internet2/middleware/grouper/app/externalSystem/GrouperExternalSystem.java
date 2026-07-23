@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.boxProvisioner.BoxGrouperExternalSystem;
+import edu.internet2.middleware.grouper.app.ccure.CCureExternalSystem;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.app.file.SftpGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.google.GoogleGrouperExternalSystem;
@@ -153,6 +154,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     externalTypeClassNamesList.add(ActiveMqGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(AzureGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(BoxGrouperExternalSystem.class.getName());
+    externalTypeClassNamesList.add(CCureExternalSystem.class.getName());
     externalTypeClassNamesList.add(DatabaseGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(DuoGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(GoogleGrouperExternalSystem.class.getName());

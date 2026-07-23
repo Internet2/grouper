@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.adobe.AdobeProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.azure.AzureProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.boxProvisioner.BoxProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.ccure.CCureProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.datadog.DatadogProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
@@ -102,6 +103,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     configClassNamesList.add(AzureProvisionerConfiguration.class.getName());
     configClassNamesList.add(AdobeProvisionerConfiguration.class.getName());
     configClassNamesList.add(DatadogProvisioningConfiguration.class.getName());
+    configClassNamesList.add(CCureProvisioningConfiguration.class.getName());
     configClassNamesList.add(DuoProvisionerConfiguration.class.getName());
     configClassNamesList.add(DuoRoleProvisionerConfiguration.class.getName());
     configClassNamesList.add(FreshRequesterProvisionerConfiguration.class.getName());
