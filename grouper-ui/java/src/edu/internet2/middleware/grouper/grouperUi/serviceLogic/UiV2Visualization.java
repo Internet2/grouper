@@ -692,6 +692,7 @@ public class UiV2Visualization {
             graph.addStatistic("numSkippedFolders", String.valueOf(relationGraph.getNumSkippedFolders()));
             graph.addStatistic("numSkippedGroups", String.valueOf(relationGraph.getNumSkippedGroups()));
 
+            addVisualizationLabels(graph);
             graph.addSetting("startNode", relationGraph.getStartNode().getGrouperObject().getId());
             graph.addSetting("showAllMemberCounts", relationGraph.isShowAllMemberCounts());
             graph.addSetting("showDirectMemberCounts", relationGraph.isShowDirectMemberCounts());
@@ -888,6 +889,109 @@ public class UiV2Visualization {
     }
 
     return displayExtension;
+  }
+
+  /**
+   * jsKey -&gt; text property key for the labels the client-side visualization JS
+   * (grouperVisualization.js) renders. Externalizes what used to be hardcoded English.
+   */
+  private static final String[][] VISUALIZATION_LABEL_KEYS = new String[][] {
+    // shared
+    {"rootFolder", "visualization.graph.rootFolder"},
+    // D3 legend
+    {"legendTitle", "visualization.graph.legend.title"},
+    {"startFolder", "visualization.graph.legend.startFolder"},
+    {"startGroup", "visualization.graph.legend.startGroup"},
+    {"folderOrGroup", "visualization.graph.legend.folderOrGroup"},
+    {"contains", "visualization.graph.legend.contains"},
+    {"group1", "visualization.graph.legend.group1"},
+    {"group2", "visualization.graph.legend.group2"},
+    {"hasMember", "visualization.graph.legend.hasMember"},
+    {"group", "visualization.graph.legend.group"},
+    {"startSubject", "visualization.graph.legend.startSubject"},
+    {"loaderGroup", "visualization.graph.legend.loaderGroup"},
+    {"groupLoaded", "visualization.graph.legend.groupLoaded"},
+    {"loadsGroup", "visualization.graph.legend.loadsGroup"},
+    {"simpleLoaderGroup", "visualization.graph.legend.simpleLoaderGroup"},
+    {"complementGroup", "visualization.graph.legend.complementGroup"},
+    {"includeGroup", "visualization.graph.legend.includeGroup"},
+    {"excludeGroup", "visualization.graph.legend.excludeGroup"},
+    {"intersectGroup", "visualization.graph.legend.intersectGroup"},
+    {"scriptedGroup", "visualization.graph.legend.scriptedGroup"},
+    {"referencedItem", "visualization.graph.legend.referencedItem"},
+    {"orCondition", "visualization.graph.legend.orCondition"},
+    {"andCondition", "visualization.graph.legend.andCondition"},
+    {"entityAttribute", "visualization.graph.legend.entityAttribute"},
+    {"entityDataRow", "visualization.graph.legend.entityDataRow"},
+    {"provisionedGroup", "visualization.graph.legend.provisionedGroup"},
+    {"provisionerTarget", "visualization.graph.legend.provisionerTarget"},
+    {"provisionsTo", "visualization.graph.legend.provisionsTo"},
+    {"entityIsMemberOfGroup", "visualization.graph.legend.entityIsMemberOfGroup"},
+    {"entityIsNotMemberOfGroup", "visualization.graph.legend.entityIsNotMemberOfGroup"},
+    // D3 node count labels
+    {"member", "visualization.graph.label.member"},
+    {"members", "visualization.graph.label.members"},
+    {"directMember", "visualization.graph.label.directMember"},
+    {"directMembers", "visualization.graph.label.directMembers"},
+    {"ifSaved", "visualization.graph.label.ifSaved"},
+    {"population", "visualization.graph.label.population"},
+    // D3 edge tooltips
+    {"tooltipIsLoaderJobForGroup", "visualization.graph.tooltip.isLoaderJobForGroup"},
+    {"tooltipFolder", "visualization.graph.tooltip.folder"},
+    {"tooltipContains", "visualization.graph.tooltip.contains"},
+    {"tooltipHasSubject", "visualization.graph.tooltip.hasSubject"},
+    {"tooltipAsADirectMember", "visualization.graph.tooltip.asADirectMember"},
+    {"tooltipGroup", "visualization.graph.tooltip.group"},
+    {"tooltipProvisionsTo", "visualization.graph.tooltip.provisionsTo"},
+    {"tooltipHasDirectMember", "visualization.graph.tooltip.hasDirectMember"},
+    {"tooltipDataAttribute", "visualization.graph.tooltip.dataAttribute"},
+    {"tooltipReferences", "visualization.graph.tooltip.references"},
+    // D3 error messages
+    {"errorDotGeneration", "visualization.graph.error.dotGeneration"},
+    {"errorSvgConversion", "visualization.graph.error.svgConversion"},
+    // text view
+    {"textCurrentObject", "visualization.graph.text.currentObject"},
+    {"textUnknownObjectType", "visualization.graph.text.unknownObjectType"},
+    {"textPath", "visualization.graph.text.path"},
+    {"textDescription", "visualization.graph.text.description"},
+    {"textObjectTypes", "visualization.graph.text.objectTypes"},
+    {"textMemberCountIfSaved", "visualization.graph.text.memberCountIfSaved"},
+    {"textTotalMemberCount", "visualization.graph.text.totalMemberCount"},
+    {"textDirectMemberCount", "visualization.graph.text.directMemberCount"},
+    {"textPopulationCount", "visualization.graph.text.populationCount"},
+    {"textContains", "visualization.graph.text.contains"},
+    {"textAnyMustMatch", "visualization.graph.text.anyMustMatch"},
+    {"textAllMustMatch", "visualization.graph.text.allMustMatch"},
+    {"textDirectGroupMembers", "visualization.graph.text.directGroupMembers"},
+    {"textMustNotBeIn", "visualization.graph.text.mustNotBeIn"},
+    {"textNotAnyOfThese", "visualization.graph.text.notAnyOfThese"},
+    {"textUnknownObject", "visualization.graph.text.unknownObject"},
+    {"textNone", "visualization.graph.text.none"},
+    {"textCompositeOwnerOf", "visualization.graph.text.compositeOwnerOf"},
+    {"textMinus", "visualization.graph.text.minus"},
+    {"textIntersectedWith", "visualization.graph.text.intersectedWith"},
+    {"textUnknownOperation", "visualization.graph.text.unknownOperation"},
+    {"textDirectMembershipInGroups", "visualization.graph.text.directMembershipInGroups"},
+    {"textLoadedByJob", "visualization.graph.text.loadedByJob"},
+    {"textProvisionTo", "visualization.graph.text.provisionTo"},
+    {"textEntityIsMemberOfGroup", "visualization.graph.text.entityIsMemberOfGroup"},
+    {"textEntityIsNotMemberOfGroup", "visualization.graph.text.entityIsNotMemberOfGroup"},
+  };
+
+  /**
+   * Populate the localized labels used by the client-side visualization JS
+   * (grouperVisualization.js). These become graph.settings.labels.&lt;jsKey&gt; in the browser,
+   * so text is resolved from the grouperText properties instead of being hardcoded in the JS.
+   *
+   * @param graph the graph whose settings get the labels map
+   */
+  private void addVisualizationLabels(VisualizationGraph graph) {
+    Map<String, String> textMap = TextContainer.retrieveFromRequest().getText();
+    Map<String, String> labels = new HashMap<String, String>();
+    for (String[] entry : VISUALIZATION_LABEL_KEYS) {
+      labels.put(entry[0], textMap.get(entry[1]));
+    }
+    graph.addSetting("labels", labels);
   }
 
   private D3Graph buildToJsonD3(RelationGraph relationGraph, VisualizationContainer visualizationContainer) {
