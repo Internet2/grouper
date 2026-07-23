@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.dropbox;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -21,6 +22,7 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerDaoCapabilities;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisioningTargetDaoPerItemLogic;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityResponse;
@@ -819,6 +821,12 @@ public class DropboxTargetDao extends GrouperProvisionerTargetDaoBase {
 
       List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
 
+      // Filter to the groups we actually list members for, then fetch each group's members across
+      // the provisioner thread pool (threadPoolSize) instead of a single thread, since each is an
+      // independent Dropbox API call keyed only on the group id. Falls back to inline when the pool
+      // is not enabled (threadPoolSize <= 1). The shared results list is synchronized here;
+      // retrieveMembershipsForGroupId only reads and builds a fresh local list, so it is thread-safe.
+      List<DropboxGroup> dropboxGroups = new ArrayList<DropboxGroup>();
       for (DropboxGroup dropboxGroup : GrouperUtil.nonNull(DropboxApiCommands.retrieveDropboxGroups(configId))) {
         if (dropboxGroup == null || StringUtils.isBlank(dropboxGroup.getId())) {
           continue;
@@ -826,8 +834,19 @@ public class DropboxTargetDao extends GrouperProvisionerTargetDaoBase {
         if (DropboxApiCommands.isIgnored(dropboxGroup.getName(), ignoreGroupNames)) {
           continue;
         }
-        results.addAll(retrieveMembershipsForGroupId(configId, dropboxGroup.getId()));
+        dropboxGroups.add(dropboxGroup);
       }
+
+      final String configIdFinal = configId;
+      final List<ProvisioningMembership> resultsSynchronized = Collections.synchronizedList(results);
+      this.retrievePerItemInParallel(dropboxGroups, "retrieveDropboxGroupMemberships",
+          new GrouperProvisioningTargetDaoPerItemLogic<DropboxGroup>() {
+
+            @Override
+            public void processItem(DropboxGroup dropboxGroup) {
+              resultsSynchronized.addAll(retrieveMembershipsForGroupId(configIdFinal, dropboxGroup.getId()));
+            }
+          });
 
       return new TargetDaoRetrieveAllMembershipsResponse(results);
     } finally {
