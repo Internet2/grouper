@@ -2,8 +2,12 @@ package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.util.GrouperCallable;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -120,6 +124,58 @@ public abstract class GrouperProvisionerTargetDaoBase {
    */
   public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner1) {
     this.grouperProvisioner = grouperProvisioner1;
+  }
+
+  /**
+   * Run one unit of independent, parallelizable work per item across the provisioner thread pool.
+   * This is the generic threading primitive for connector retrieve loops where each item is an
+   * independent target call (e.g. fetching the members of one group in {@code retrieveAllData}).
+   *
+   * The work is submitted to the provisioner's {@link GrouperProvisioner#retrieveExecutorService()},
+   * which is sized by the provisioner's configured {@code threadPoolSize}. When the pool is not
+   * enabled (threadPoolSize &lt;= 1) or there is only a single item,
+   * {@link GrouperUtil#executorServiceSubmit(ExecutorService, List)} runs the work inline on the
+   * current thread, so callers get the same behavior as a plain sequential loop in that case.
+   *
+   * The current provisioner thread-local propagates to the pool threads via {@link GrouperCallable},
+   * so per-item logic can use it (e.g. native sync-back capture keyed on the current provisioner).
+   * Implementations of {@code perItemLogic} must synchronize any shared collections they write to.
+   *
+   * @param <T> the item type
+   * @param items the items to process; null/empty is a no-op
+   * @param logLabel short label for the callable (config id and instance id are appended)
+   * @param perItemLogic the logic to run for each item, potentially concurrently
+   */
+  public <T> void retrievePerItemInParallel(List<T> items, String logLabel,
+      GrouperProvisioningTargetDaoPerItemLogic<T> perItemLogic) {
+
+    if (GrouperUtil.length(items) == 0) {
+      return;
+    }
+
+    final GrouperProvisioner theGrouperProvisioner = this.getGrouperProvisioner();
+    ExecutorService executorService = theGrouperProvisioner == null ? null : theGrouperProvisioner.retrieveExecutorService();
+
+    String callableLabel = logLabel + (theGrouperProvisioner == null ? ""
+        : ("_" + theGrouperProvisioner.getConfigId() + "_" + theGrouperProvisioner.getInstanceId()));
+
+    List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
+
+    for (T item : items) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+      final T itemFinal = item;
+      GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>(callableLabel) {
+
+        @Override
+        public Void callLogic() {
+          perItemLogic.processItem(itemFinal);
+          return null;
+        }
+      };
+      grouperCallables.add(grouperCallable);
+    }
+
+    GrouperUtil.executorServiceSubmit(executorService, grouperCallables);
   }
 
 
