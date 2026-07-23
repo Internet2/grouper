@@ -1,6 +1,19 @@
 var visualizationObject = {}; // returned from UiV2Visualization.buildGraph
 var visualizationDotOutput = "";
 
+// Look up a localized label supplied by the server in graph.settings.labels
+// (populated from the grouperText properties). Falls back to the key itself if
+// the label is missing, so a misconfigured key is visible rather than blank.
+function visLabel(key) {
+  var labels = (visualizationObject && visualizationObject.settings && visualizationObject.settings.labels) || {};
+  return (labels[key] != null) ? labels[key] : key;
+}
+
+// Format a count with its localized singular/plural word, e.g. "1 member" / "2 members".
+function visCountLabel(count, singularKey, pluralKey) {
+  return count + " " + visLabel(count === 1 ? singularKey : pluralKey);
+}
+
 function visIsShowingMemberCounts() {
   return document.getElementById("vis-settings-show-all-member-counts").checked || document.getElementById("vis-settings-show-direct-member-counts").checked;
 }
@@ -159,7 +172,7 @@ function widthWrap(text, targetWidth, hardWidth) {
 function getRawObjectNameUsingPrefs(node) {
   var objName = ($("#vis-settings-form input[name='drawObjectNameType']:checked").val() === "path") ? node.name : node.displayExtension;
   if (node.baseType === "stem" && !objName) {
-    objName = "(Root folder)";
+    objName = visLabel("rootFolder");
   }
   return objName;
 }
@@ -173,7 +186,7 @@ function getObjectNameUsingPrefs(node) {
   var objName = ($("#vis-settings-form input[name='drawObjectNameType']:checked").val() === "path") ? node.name : node.displayExtension;
   // the root node has a blank name or display extension
   if (node.baseType === "stem" && !objName) {
-    objName = "(Root folder)";
+    objName = visLabel("rootFolder");
   }
   return escapeHTML(objName);
 }
@@ -201,9 +214,9 @@ function visNodeShortDesc(graph, node) {
     return name;
   }
   if (node.baseType === "data_attribute") {
-    return "data attribute " + name;
+    return visLabel("tooltipDataAttribute") + " " + name;
   }
-  var tag = (graph.styles[node.type] && graph.styles[node.type].displayTag) || "group";
+  var tag = (graph.styles[node.type] && graph.styles[node.type].displayTag) || visLabel("tooltipGroup");
   return tag + " " + name;
 }
 
@@ -211,7 +224,7 @@ function visNodeShortDesc(graph, node) {
 // plain-English relationship for an edge, taken from the arrow's label so the tooltip
 // always matches what is drawn on the arrow (e.g. "must be in", "any of these")
 function visEdgeRelationship(graph, link) {
-  var edgeLabel = (graph.styles[link.type] && graph.styles[link.type].label) || '"references"';
+  var edgeLabel = (graph.styles[link.type] && graph.styles[link.type].label) || ('"' + visLabel("tooltipReferences") + '"');
   return edgeLabel.replace(/^"|"$/g, '');
 }
 
@@ -247,53 +260,53 @@ function drawGraphModuleText() {
   var i;
   for (i=0; i < graph.sortedNodeIds.length; i+=1) {
     var node = graph.nodes[graph.sortedNodeIds[i]];
-    var startNodeText = (graph.settings.startNode === node.id) ? " (current object)" : "";
+    var startNodeText = (graph.settings.startNode === node.id) ? " " + visLabel("textCurrentObject") : "";
 
-    contents += "<div class=\"visualization-text-node\"><strong>" + title(graph.styles[node.type].displayTag||"unknown object type") + startNodeText + ":</strong> ";
-    contents += ((node.baseType === "stem" && !node.name) ? "(Root folder)" : escapeHTML(node.displayExtension)) + "<br/>";
-    contents += "Path: " + getObjectLink(node, escapeHTML(node.name)) + "<br/>";
+    contents += "<div class=\"visualization-text-node\"><strong>" + title(graph.styles[node.type].displayTag||visLabel("textUnknownObjectType")) + startNodeText + ":</strong> ";
+    contents += ((node.baseType === "stem" && !node.name) ? visLabel("rootFolder") : escapeHTML(node.displayExtension)) + "<br/>";
+    contents += visLabel("textPath") + " " + getObjectLink(node, escapeHTML(node.name)) + "<br/>";
 
     // description
     if (node.description !== null && node.description !== "") {
-      contents += "Description: " + escapeHTML(node.description) + "<br/>";
+      contents += visLabel("textDescription") + " " + escapeHTML(node.description) + "<br/>";
     }
 
     // object types
     if (graph.settings.showObjectTypes) {
       if (node.objectTypes && node.objectTypes.length > 0) {
-        contents += "Object types: " + escapeHTML(node.objectTypes.join(", ")) + "<br/>";
+        contents += visLabel("textObjectTypes") + " " + escapeHTML(node.objectTypes.join(", ")) + "<br/>";
       }
     }
 
     // All member count
     if (graph.settings.abacScriptPreview && node.baseType === "abac_group" && node.populationCount != null && node.populationCount !== undefined) {
-      contents += "Member count (if saved): " + node.populationCount + "<br/>";
+      contents += visLabel("textMemberCountIfSaved") + " " + node.populationCount + "<br/>";
     } else if (node.populationCount != null && node.populationCount !== undefined) {
       // skip regular member counts for nodes with population counts; population is shown separately below
     } else if (graph.settings.showAllMemberCounts && node.baseType === "group") {
-      contents += "Total member count: " + node.allMemberCount + "<br/>";
+      contents += visLabel("textTotalMemberCount") + " " + node.allMemberCount + "<br/>";
     }
 
     // Direct member count (skip for nodes with population counts)
     if (!(node.populationCount != null && node.populationCount !== undefined)
         && graph.settings.showDirectMemberCounts && node.baseType === "group") {
-      contents += "Direct member count: " + node.directMemberCount + "<br/>";
+      contents += visLabel("textDirectMemberCount") + " " + node.directMemberCount + "<br/>";
     }
 
     // ABAC population count (skip for abac_group since member count already shows this)
     if (node.populationCount != null && node.populationCount !== undefined
         && node.baseType !== "abac_group") {
-      contents += "Population count: " + node.populationCount + "<br/>";
+      contents += visLabel("textPopulationCount") + " " + node.populationCount + "<br/>";
     }
 
     // contains (for stem), group direct members (group)
     if (node.linkType === "group" || node.baseType === "stem") {
       if (node.linkType === "stem") {
-        contents += "Contains: ";
+        contents += visLabel("textContains") + " ";
       } else if (node.baseType === "abac_group") {
-        contents += node.abacTopConnective === "or" ? "Any of these must match: " : "All of these must match: ";
+        contents += (node.abacTopConnective === "or" ? visLabel("textAnyMustMatch") : visLabel("textAllMustMatch")) + " ";
       } else {
-        contents += "Direct group members: ";
+        contents += visLabel("textDirectGroupMembers") + " ";
       }
       var childContents = [];
       node.childNodeIds.forEach(function(id) {
@@ -306,12 +319,12 @@ function drawGraphModuleText() {
           // surface ABAC edge polarity in the text view: the graph view shows this via the
           // arrow label, but the text view has no arrows so a negated reference (e.g.
           // "!entity.memberOf('test:GroupB')") otherwise looks identical to a positive one.
-          var entry = (graph.styles[obj.type].displayTag || "unknown object") + ": " + getObjectLink(obj, getObjectNameUsingPrefs(obj));
+          var entry = (graph.styles[obj.type].displayTag || visLabel("textUnknownObject")) + ": " + getObjectLink(obj, getObjectNameUsingPrefs(obj));
           var edgeStyle = (node.childEdgeStyles && node.childEdgeStyles[id]) || "";
           if (edgeStyle === "edge_abac_and_not") {
-            entry = "must not be in " + entry;
+            entry = visLabel("textMustNotBeIn") + " " + entry;
           } else if (edgeStyle === "edge_abac_or_not") {
-            entry = "(not any of these) " + entry;
+            entry = visLabel("textNotAnyOfThese") + " " + entry;
           }
           childContents.push(entry);
         }
@@ -320,7 +333,7 @@ function drawGraphModuleText() {
       if (childContents.length > 0) {
         contents += "<ul><li>" + childContents.join("</li><li>") + "</li></ul>";
       } else {
-        contents += "none<br/>";
+        contents += visLabel("textNone") + "<br/>";
       }
     }
 
@@ -328,17 +341,17 @@ function drawGraphModuleText() {
     if (typeof node.compositeLeftFactorId !== "undefined" && typeof node.compositeRightFactorId !== "undefined" && node.compositeLeftFactorId !== "" && node.compositeRightFactorId !== "") {
       var leftNode = graph.nodes[node.compositeLeftFactorId];
       var rightNode = graph.nodes[node.compositeRightFactorId];
-      contents += "Composite owner of " +  getObjectLink(leftNode, getObjectNameUsingPrefs(leftNode));
+      contents += visLabel("textCompositeOwnerOf") + " " +  getObjectLink(leftNode, getObjectNameUsingPrefs(leftNode));
 
       switch (node.baseType) {
         case "complement_group":
-          contents += " minus ";
+          contents += " " + visLabel("textMinus") + " ";
           break;
         case "intersect_group":
-          contents += " intersected with ";
+          contents += " " + visLabel("textIntersectedWith") + " ";
           break;
         default:
-          contents += " *unknown operation* ";
+          contents += " " + visLabel("textUnknownOperation") + " ";
       }
 
       contents += getObjectLink(rightNode, getObjectNameUsingPrefs(rightNode)) + "<br/>";
@@ -346,7 +359,7 @@ function drawGraphModuleText() {
 
     // direct membership in a group
     if (node.linkType === "group" || node.baseType === "subject") {
-      contents += "Direct membership in these groups: ";
+      contents += visLabel("textDirectMembershipInGroups") + " ";
       var isDirectMember = false;
       node.parentNodeIds.forEach(function(id) {
         var obj = graph.nodes[id];
@@ -357,14 +370,14 @@ function drawGraphModuleText() {
             contents += "<ul>";
             isDirectMember = true;
           }
-          contents += "<li>" + (graph.styles[obj.type].displayTag||"unknown object") + ": " + getObjectLink(obj, getObjectNameUsingPrefs(obj)) + "</li>";
+          contents += "<li>" + (graph.styles[obj.type].displayTag||visLabel("textUnknownObject")) + ": " + getObjectLink(obj, getObjectNameUsingPrefs(obj)) + "</li>";
         }
       });
       if (isDirectMember) {
         // found at least one group
         contents += "</ul>";
       } else {
-        contents += "none<br/>";
+        contents += visLabel("textNone") + "<br/>";
       }
     }
 
@@ -372,7 +385,7 @@ function drawGraphModuleText() {
     node.parentNodeIds.forEach(function(id) {
       var obj = graph.nodes[id];
       if (obj.baseType === "loader_group") {
-        contents += "Loaded by job: " + getObjectLink(obj, getObjectNameUsingPrefs(obj)) + "<br/>";
+        contents += visLabel("textLoadedByJob") + " " + getObjectLink(obj, getObjectNameUsingPrefs(obj)) + "<br/>";
       }
     });
 
@@ -380,14 +393,14 @@ function drawGraphModuleText() {
     node.childNodeIds.forEach(function(id) {
       var obj = graph.nodes[id];
       if (obj.baseType === "provisioner") {
-        contents += "Provision to: " + getObjectNameUsingPrefs(obj) + "<br/>";
+        contents += visLabel("textProvisionTo") + " " + getObjectNameUsingPrefs(obj) + "<br/>";
       }
     });
 
     if (node.type.endsWith("_is_member")) {
-      contents += "Entity is member of group<br/>";
+      contents += visLabel("textEntityIsMemberOfGroup") + "<br/>";
     } else if (node.type.endsWith("_is_not_member")) {
-      contents += "Entity is not member of group<br/>";
+      contents += visLabel("textEntityIsNotMemberOfGroup") + "<br/>";
     }
 
     contents += "</div>";
@@ -465,7 +478,7 @@ function getGraphModuleD3Legend(graph) {
   var nodeStyles = ['shape', 'color', 'style', 'border', 'fontcolor', 'fillcolor'];
   var edgeStyles = ["arrowtail", "dir", "color", "style", "label"];
   theLegend += 'subgraph cluster1 {\n';
-  theLegend += '  label = "Legend" ;\n';
+  theLegend += '  label = "' + visLabel("legendTitle") + '" ;\n';
   theLegend += '  shape=rectangle ;\n';
   theLegend += '  color = black ;\n';
   theLegend += '  fontsize = 20;\n';
@@ -473,54 +486,54 @@ function getGraphModuleD3Legend(graph) {
 
   // start stem
   if (graph.styles.hasOwnProperty("start_stem")) {
-    theLegend += '  start_folder [' + getStyleStringForType(graph, nodeStyles, 'start_stem', ['label="start folder"']) + '] ;\n';
+    theLegend += '  start_folder [' + getStyleStringForType(graph, nodeStyles, 'start_stem', ['label="' + visLabel("startFolder") + '"']) + '] ;\n';
   }
   // start group
   if (graph.styles.hasOwnProperty("start_group") || graph.styles.hasOwnProperty("start_group_is_member") || graph.styles.hasOwnProperty("start_group_is_not_member") ||
       graph.styles.hasOwnProperty("start_simple_loader_group") || graph.styles.hasOwnProperty("start_simple_loader_group_is_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_not_member") ||
       graph.styles.hasOwnProperty("start_loader_group") || graph.styles.hasOwnProperty("start_loader_group_is_member") || graph.styles.hasOwnProperty("start_loader_group_is_not_member")) {
-    theLegend += '  start_group [' + getStyleStringForType(graph, nodeStyles, 'start_group', ['label="start group"']) + '] ;\n';
+    theLegend += '  start_group [' + getStyleStringForType(graph, nodeStyles, 'start_group', ['label="' + visLabel("startGroup") + '"']) + '] ;\n';
   }
   // folder -- contains --> folder or group
   if (graph.styles.hasOwnProperty("stem")) {
     theLegend += '  folder [' + getStyleStringForType(graph, nodeStyles, 'stem', null) + '] ;\n';
     if (graph.styles.hasOwnProperty("group") || graph.styles.hasOwnProperty("group_is_member") || graph.styles.hasOwnProperty("group_is_not_member")) {
-      theLegend += '  folder_or_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="folder or group"']) + '] ;\n';
+      theLegend += '  folder_or_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("folderOrGroup") + '"']) + '] ;\n';
     } else {
-      theLegend += '  folder_or_group [label="folder or group"];\n';
+      theLegend += '  folder_or_group [label="' + visLabel("folderOrGroup") + '"];\n';
     }
 
-    theLegend += '  folder -> folder_or_group [label="contains"] ;\n';
+    theLegend += '  folder -> folder_or_group [label="' + visLabel("contains") + '"] ;\n';
   }
   // group1 -- has member --> group2
   if ((graph.styles.hasOwnProperty("group") || graph.styles.hasOwnProperty("group_is_member") || graph.styles.hasOwnProperty("group_is_not_member")) && graph.styles.hasOwnProperty("edge_membership")) {
-    theLegend += '  group1 [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group 1"']) + '];\n';
-    theLegend += '  group2 [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group 2"']) + '];\n';
-    theLegend += '  group1 -> group2 [' + getStyleStringForType(graph, edgeStyles, 'edge_membership', ['label="has member"']) + '] ;\n';
+    theLegend += '  group1 [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("group1") + '"']) + '];\n';
+    theLegend += '  group2 [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("group2") + '"']) + '];\n';
+    theLegend += '  group1 -> group2 [' + getStyleStringForType(graph, edgeStyles, 'edge_membership', ['label="' + visLabel("hasMember") + '"']) + '] ;\n';
   }
   // group -- has member --> subject
   if (graph.styles.hasOwnProperty("start_subject") /* && graph.styles.hasOwnProperty("group") */ && graph.styles.hasOwnProperty("edge_membership")) {
-    theLegend += '  subject_member_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group"']) + '];\n';
-    theLegend += '  subject [' + getStyleStringForType(graph, nodeStyles, 'start_subject', ['label="start subject"']) + '];\n';
-    theLegend += '  subject_member_group -> subject [' + getStyleStringForType(graph, edgeStyles, 'edge_membership', ['label="has member"']) + '] ;\n';
+    theLegend += '  subject_member_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("group") + '"']) + '];\n';
+    theLegend += '  subject [' + getStyleStringForType(graph, nodeStyles, 'start_subject', ['label="' + visLabel("startSubject") + '"']) + '];\n';
+    theLegend += '  subject_member_group -> subject [' + getStyleStringForType(graph, edgeStyles, 'edge_membership', ['label="' + visLabel("hasMember") + '"']) + '] ;\n';
   }
   // loader group -- loads group --> group loaded
   if ((graph.styles.hasOwnProperty("loader_group") || graph.styles.hasOwnProperty("start_loader_group") || graph.styles.hasOwnProperty("loader_group_is_member") || graph.styles.hasOwnProperty("start_loader_group_is_member") || graph.styles.hasOwnProperty("loader_group_is_not_member") || graph.styles.hasOwnProperty("start_loader_group_is_not_member")) /* && graph.styles.hasOwnProperty("group") */ /* && graph.styles.hasOwnProperty("edge_loader") */) {
-    theLegend += '  loader_group [' + getStyleStringForType(graph, nodeStyles, 'loader_group', ['label="loader group"']) + '];\n';
-    theLegend += '  group_loaded [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group loaded"']) + '];\n';
-    theLegend += '  loader_group -> group_loaded [' + getStyleStringForType(graph, edgeStyles, 'edge_loader', ['label="loads group"']) + '] ;\n';
+    theLegend += '  loader_group [' + getStyleStringForType(graph, nodeStyles, 'loader_group', ['label="' + visLabel("loaderGroup") + '"']) + '];\n';
+    theLegend += '  group_loaded [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("groupLoaded") + '"']) + '];\n';
+    theLegend += '  loader_group -> group_loaded [' + getStyleStringForType(graph, edgeStyles, 'edge_loader', ['label="' + visLabel("loadsGroup") + '"']) + '] ;\n';
   }
   // simple loader group (self link)
   if ((graph.styles.hasOwnProperty("simple_loader_group") || graph.styles.hasOwnProperty("start_simple_loader_group") || graph.styles.hasOwnProperty("simple_loader_group_is_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_member") || graph.styles.hasOwnProperty("simple_loader_group_is_not_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_not_member")) && graph.styles.hasOwnProperty("edge_loader")) {
-    theLegend += '  simple_loader_group [' + getStyleStringForType(graph, nodeStyles, 'simple_loader_group', ['label="simple loader group"']) + '];\n';
+    theLegend += '  simple_loader_group [' + getStyleStringForType(graph, nodeStyles, 'simple_loader_group', ['label="' + visLabel("simpleLoaderGroup") + '"']) + '];\n';
     theLegend += '  simple_loader_group -> simple_loader_group [' + getStyleStringForType(graph, edgeStyles, 'edge_loader', null) + '] ;\n';
   }
 
   // complement group -- in first but not second --<= first factor/second factor
   if (graph.styles.hasOwnProperty("complement_group") || graph.styles.hasOwnProperty("complement_group_is_member") || graph.styles.hasOwnProperty("complement_group_is_not_member") /* && graph.styles.hasOwnProperty("group")*/ ) {
-    theLegend += '  complement_group [' + getStyleStringForType(graph, nodeStyles, 'complement_group', ['label="complement group"']) + '];\n';
-    theLegend += '  complement_left_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="include group"']) + '];\n';
-    theLegend += '  complement_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="exclude group"']) + '];\n';
+    theLegend += '  complement_group [' + getStyleStringForType(graph, nodeStyles, 'complement_group', ['label="' + visLabel("complementGroup") + '"']) + '];\n';
+    theLegend += '  complement_left_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("includeGroup") + '"']) + '];\n';
+    theLegend += '  complement_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("excludeGroup") + '"']) + '];\n';
 
     // it's possible only one of the factor edges is included; assume that getStyleStringForType() defaults the missing one so both lines are always there
     // the descriptive label on each edge style carries the meaning, so nothing extra is needed
@@ -530,9 +543,9 @@ function getGraphModuleD3Legend(graph) {
 
   // intersect group -- in first and in second --<= first factor/second factor
   if (graph.styles.hasOwnProperty("intersect_group") || graph.styles.hasOwnProperty("intersect_group_is_member") || graph.styles.hasOwnProperty("intersect_group_is_not_member") /* && graph.styles.hasOwnProperty("group")*/) {
-    theLegend += '  intersect_group [' + getStyleStringForType(graph, nodeStyles, 'intersect_group', ['label="intersect group"']) + '];\n';
-    theLegend += '  intersect_left_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group 1"']) + '];\n';
-    theLegend += '  intersect_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group 2"']) + '];\n';
+    theLegend += '  intersect_group [' + getStyleStringForType(graph, nodeStyles, 'intersect_group', ['label="' + visLabel("intersectGroup") + '"']) + '];\n';
+    theLegend += '  intersect_left_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("group1") + '"']) + '];\n';
+    theLegend += '  intersect_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("group2") + '"']) + '];\n';
 
     // it's possible only one of the factor edges is included; assume that getStyleStringForType() defaults the missing one so both lines are always there
     // the descriptive label on each edge style carries the meaning, so nothing extra is needed
@@ -553,50 +566,50 @@ function getGraphModuleD3Legend(graph) {
   var hasCompoundAnd = graph.styles.hasOwnProperty("compound_and") || graph.styles.hasOwnProperty("compound_and_is_member") || graph.styles.hasOwnProperty("compound_and_is_not_member");
 
   if (hasAbacGroup || hasAbacAnd || hasAbacAndNot || hasAbacOr || hasAbacOrNot) {
-    theLegend += '  abac_group [' + getStyleStringForType(graph, nodeStyles, 'abac_group', ['label="scripted group"']) + '];\n';
+    theLegend += '  abac_group [' + getStyleStringForType(graph, nodeStyles, 'abac_group', ['label="' + visLabel("scriptedGroup") + '"']) + '];\n';
   }
   // positive reference: the referenced item (a group, attribute, row, or condition) the entity must match
   if (hasAbacAnd) {
-    theLegend += '  abac_ref_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="referenced item"']) + '];\n';
+    theLegend += '  abac_ref_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("referencedItem") + '"']) + '];\n';
     theLegend += '  abac_group -> abac_ref_group [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_and', null) + '];\n';
   }
   // negated reference: the referenced item (a group, attribute, row, or condition) the entity must not match
   if (hasAbacAndNot) {
-    theLegend += '  abac_not_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="referenced item"']) + '];\n';
+    theLegend += '  abac_not_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("referencedItem") + '"']) + '];\n';
     theLegend += '  abac_group -> abac_not_group [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_and_not', null) + '];\n';
   }
   // compound condition shapes: the connected items combine with OR (any) or AND (all)
   if (hasCompoundOr) {
-    theLegend += '  compound_or_legend [' + getStyleStringForType(graph, nodeStyles, 'compound_or', ['label="or condition"']) + '];\n';
+    theLegend += '  compound_or_legend [' + getStyleStringForType(graph, nodeStyles, 'compound_or', ['label="' + visLabel("orCondition") + '"']) + '];\n';
   }
   if (hasCompoundAnd) {
-    theLegend += '  compound_and_legend [' + getStyleStringForType(graph, nodeStyles, 'compound_and', ['label="and condition"']) + '];\n';
+    theLegend += '  compound_and_legend [' + getStyleStringForType(graph, nodeStyles, 'compound_and', ['label="' + visLabel("andCondition") + '"']) + '];\n';
   }
   // OR option edges hang off the OR condition shape when there is one, otherwise off the scripted group
   if (hasAbacOr) {
-    theLegend += '  abac_or_option [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="referenced item"']) + '];\n';
+    theLegend += '  abac_or_option [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("referencedItem") + '"']) + '];\n';
     theLegend += '  ' + (hasCompoundOr ? 'compound_or_legend' : 'abac_group') + ' -> abac_or_option [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_or', null) + '];\n';
   }
   if (hasAbacOrNot) {
-    theLegend += '  abac_or_not_option [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="referenced item"']) + '];\n';
+    theLegend += '  abac_or_not_option [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("referencedItem") + '"']) + '];\n';
     theLegend += '  ' + (hasCompoundOr ? 'compound_or_legend' : 'abac_group') + ' -> abac_or_not_option [' + getStyleStringForType(graph, edgeStyles, 'edge_abac_or_not', null) + '];\n';
   }
 
   // data attribute and data row nodes (check the is/is-not-member variants too, so the legend
   // still covers them when every such node happens to be a member or non-member)
   if (graph.styles.hasOwnProperty("data_attribute") || graph.styles.hasOwnProperty("data_attribute_is_member") || graph.styles.hasOwnProperty("data_attribute_is_not_member")) {
-    theLegend += '  data_attr_legend [' + getStyleStringForType(graph, nodeStyles, 'data_attribute', ['label="entity attribute"']) + '];\n';
+    theLegend += '  data_attr_legend [' + getStyleStringForType(graph, nodeStyles, 'data_attribute', ['label="' + visLabel("entityAttribute") + '"']) + '];\n';
   }
   if (graph.styles.hasOwnProperty("data_row") || graph.styles.hasOwnProperty("data_row_is_member") || graph.styles.hasOwnProperty("data_row_is_not_member")) {
-    theLegend += '  data_row_legend [' + getStyleStringForType(graph, nodeStyles, 'data_row', ['label="entity data row"']) + '];\n';
+    theLegend += '  data_row_legend [' + getStyleStringForType(graph, nodeStyles, 'data_row', ['label="' + visLabel("entityDataRow") + '"']) + '];\n';
   }
 
   // provisioned group -- provisions to --> provisioner target
   if (graph.styles.hasOwnProperty("provisioner") /* && graph.styles.hasOwnProperty("group") */ && graph.styles.hasOwnProperty("edge_provisioner")) {
-    theLegend += '  provisioner_source [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="provisioned group"']) + '];\n';
-    theLegend += '  provisioner [' + getStyleStringForType(graph, nodeStyles, 'provisioner', ['label="provisioner target"']) + '];\n';
+    theLegend += '  provisioner_source [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="' + visLabel("provisionedGroup") + '"']) + '];\n';
+    theLegend += '  provisioner [' + getStyleStringForType(graph, nodeStyles, 'provisioner', ['label="' + visLabel("provisionerTarget") + '"']) + '];\n';
 
-    theLegend += '  provisioner_source -> provisioner [' + getStyleStringForType(graph, edgeStyles, 'edge_provisioner', ['label="provisions to"']) + '];\n';
+    theLegend += '  provisioner_source -> provisioner [' + getStyleStringForType(graph, edgeStyles, 'edge_provisioner', ['label="' + visLabel("provisionsTo") + '"']) + '];\n';
   }
 
   // if using object types, display what they mean; use invisible nodes to force it to the right
@@ -611,12 +624,12 @@ function getGraphModuleD3Legend(graph) {
 
   // is member
   if (graph.styles.hasOwnProperty("group_is_member") || graph.styles.hasOwnProperty("start_group_is_member") || graph.styles.hasOwnProperty("loader_group_is_member") || graph.styles.hasOwnProperty("start_loader_group_is_member") || graph.styles.hasOwnProperty("simple_loader_group_is_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_member") || graph.styles.hasOwnProperty("complement_group_is_member") || graph.styles.hasOwnProperty("intersect_group_is_member") || graph.styles.hasOwnProperty("abac_group_is_member") || graph.styles.hasOwnProperty("data_attribute_is_member") || graph.styles.hasOwnProperty("data_row_is_member") || graph.styles.hasOwnProperty("compound_or_is_member") || graph.styles.hasOwnProperty("compound_and_is_member")) {
-    theLegend += '  group_is_member [' + getStyleStringForType(graph, nodeStyles, 'group_is_member', ['label="entity is member of group"']) + '];\n';
+    theLegend += '  group_is_member [' + getStyleStringForType(graph, nodeStyles, 'group_is_member', ['label="' + visLabel("entityIsMemberOfGroup") + '"']) + '];\n';
   }
 
   // is not member
   if (graph.styles.hasOwnProperty("group_is_not_member") || graph.styles.hasOwnProperty("start_group_is_not_member") || graph.styles.hasOwnProperty("loader_group_is_not_member") || graph.styles.hasOwnProperty("start_loader_group_is_not_member") || graph.styles.hasOwnProperty("simple_loader_group_is_not_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_not_member") || graph.styles.hasOwnProperty("complement_group_is_not_member") || graph.styles.hasOwnProperty("intersect_group_is_not_member") || graph.styles.hasOwnProperty("abac_group_is_not_member") || graph.styles.hasOwnProperty("data_attribute_is_not_member") || graph.styles.hasOwnProperty("data_row_is_not_member") || graph.styles.hasOwnProperty("compound_or_is_not_member") || graph.styles.hasOwnProperty("compound_and_is_not_member")) {
-    theLegend += '  group_is_not_member [' + getStyleStringForType(graph, nodeStyles, 'group_is_not_member', ['label="entity is not member of group"']) + '];\n';
+    theLegend += '  group_is_not_member [' + getStyleStringForType(graph, nodeStyles, 'group_is_not_member', ['label="' + visLabel("entityIsNotMemberOfGroup") + '"']) + '];\n';
   }
 
   theLegend += '}\n';
@@ -690,7 +703,7 @@ function drawGraphModuleD3() {
           var labelCounts = [];
 
           if (graph.settings.abacScriptPreview && node.baseType === "abac_group" && node.populationCount != null && node.populationCount !== undefined) {
-            labelCounts.push(node.populationCount + " member" + (node.populationCount === 1 ? "" : "s") + " (if saved)");
+            labelCounts.push(visCountLabel(node.populationCount, "member", "members") + " " + visLabel("ifSaved"));
           } else if (node.populationCount != null && node.populationCount !== undefined) {
             // skip regular member counts for nodes with population counts; population is shown separately below
           } else if (node.baseType === "group" || node.baseType === "complement_group" || node.baseType === "intersect_group" || node.baseType === "abac_group"
@@ -698,10 +711,10 @@ function drawGraphModuleD3() {
                || node.type === "simple_loader_group_is_member" || node.type === "simple_loader_group_is_not_member"
                || node.type === "start_simple_loader_group_is_member" || node.type === "start_simple_loader_group_is_not_member") {
             if (graph.settings.showAllMemberCounts) {
-              labelCounts.push((node.allMemberCount||0)+ " member" + (node.allMemberCount === 1 ? "" : "s"));
+              labelCounts.push(visCountLabel(node.allMemberCount||0, "member", "members"));
             }
             if (graph.settings.showDirectMemberCounts) {
-              labelCounts.push((node.directMemberCount||0)+ " direct member" + (node.directMemberCount === 1 ? "" : "s"));
+              labelCounts.push(visCountLabel(node.directMemberCount||0, "directMember", "directMembers"));
             }
           }
 
@@ -713,7 +726,7 @@ function drawGraphModuleD3() {
         // ABAC population count (skip for abac_group since member count already shows this)
         if (node.populationCount != null && node.populationCount !== undefined
             && node.baseType !== "abac_group") {
-          labelRows.push("population: " + node.populationCount);
+          labelRows.push(visLabel("population") + " " + node.populationCount);
         }
 
         if (labelRows.length <= 1) {
@@ -741,11 +754,11 @@ function drawGraphModuleD3() {
         var target = graph.nodes[link.target];
         //debugger;
         if (source.baseType === "loader_group") {
-          props.push('edgetooltip="' + getObjectNameUsingPrefs(source) + " is a loader job for group " + getObjectNameUsingPrefs(target) + '"');
+          props.push('edgetooltip="' + getObjectNameUsingPrefs(source) + " " + visLabel("tooltipIsLoaderJobForGroup") + " " + getObjectNameUsingPrefs(target) + '"');
         } else if (source.baseType === "stem") {
-          props.push('edgetooltip="folder ' + getObjectNameUsingPrefs(source) + " contains " + graph.styles[target.type].displayTag +  " "  + getObjectNameUsingPrefs(target) + '"');
+          props.push('edgetooltip="' + visLabel("tooltipFolder") + ' ' + getObjectNameUsingPrefs(source) + " " + visLabel("tooltipContains") + " " + graph.styles[target.type].displayTag +  " "  + getObjectNameUsingPrefs(target) + '"');
         } else if (target.baseType === "subject") {
-          props.push('edgetooltip="' + getObjectNameUsingPrefs(source) + " has subject " + getObjectNameUsingPrefs(target) + ' as a direct member"');
+          props.push('edgetooltip="' + getObjectNameUsingPrefs(source) + " " + visLabel("tooltipHasSubject") + " " + getObjectNameUsingPrefs(target) + ' ' + visLabel("tooltipAsADirectMember") + '"');
         } else if (source.baseType === "intersect_group" || source.baseType === "complement_group"
                    || source.baseType === "abac_group" || source.baseType === "compound_or" || source.baseType === "compound_and"
                    || source.baseType === "data_row") {
@@ -755,9 +768,9 @@ function drawGraphModuleD3() {
           props.push('edgetooltip="' + visNodeShortDesc(graph, source) + " [" + relationship + "] " + visNodeShortDesc(graph, target) + '"');
         } else if (source.baseType === "group") {
           if (target.baseType === "provisioner") {
-            props.push('edgetooltip="group ' + getObjectNameUsingPrefs(source) + " provisions to " + getObjectNameUsingPrefs(target) + '"');
+            props.push('edgetooltip="' + visLabel("tooltipGroup") + ' ' + getObjectNameUsingPrefs(source) + " " + visLabel("tooltipProvisionsTo") + " " + getObjectNameUsingPrefs(target) + '"');
           } else if (target.baseType === "group") {
-            props.push('edgetooltip="group ' + getObjectNameUsingPrefs(source) + " has direct member " + getObjectNameUsingPrefs(target) + '"');
+            props.push('edgetooltip="' + visLabel("tooltipGroup") + ' ' + getObjectNameUsingPrefs(source) + " " + visLabel("tooltipHasDirectMember") + " " + getObjectNameUsingPrefs(target) + '"');
           }
         }
 
@@ -774,7 +787,7 @@ function drawGraphModuleD3() {
     //$("#vis-graph-svg-pane").empty();  // this is effective in clearing out the svg, but the second time it draws it, the mouse and wheel are no longer responsive
 
   } catch(error) {
-    var msg = "There was an error generating the graphviz .dot output (" + error + ")";
+    var msg = visLabel("errorDotGeneration") + " (" + error + ")";
     visualizationDotOutput = dot;
     $("#vis-graph-svg-outer").hide();
     $("#vis-graph-text").text(msg);
@@ -796,7 +809,7 @@ function drawGraphModuleD3() {
     $("#vis-copy-dot-output-btn").show();
 
   } catch(error2) {
-    var msg2 = "There was an error converting from GraphViz .dot to svg (" + error2 + ")";
+    var msg2 = visLabel("errorSvgConversion") + " (" + error2 + ")";
     $("#vis-graph-svg-outer").hide();
     $("#vis-graph-text").text(msg2);
     $("#vis-graph-text").show();
