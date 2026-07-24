@@ -1,12 +1,13 @@
 package edu.internet2.middleware.grouper.ddl;
 
 import java.sql.Connection;
+import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.Platform;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Column;
@@ -189,6 +190,7 @@ public class GrouperDdlCompare {
       addTablesFromJava(javaDatabase);
     }
 
+    analyzeFunctions(objectName);
     analyzeTables();
     analyzeViews();
     
@@ -203,6 +205,23 @@ public class GrouperDdlCompare {
 //      System.out.println(grouperDdlCompareView.getName());
 //    }
     
+  }
+  
+  private void analyzeFunctions(String objectName) {
+    if (!StringUtils.equalsIgnoreCase(objectName, "Grouper")) {
+      return;
+    }
+    analyzeFunction("grouper_to_timestamp");
+    analyzeFunction("grouper_to_timestamp_utc");
+  }
+  
+  private void analyzeFunction(String functionName) {
+    if (!GrouperDdlUtils.doesFunctionExist(functionName)) {
+      this.result.getResult().append("ERROR: Function '"+ functionName +"' does not exist.\n");
+      this.result.errorIncrement();      
+    } else {
+      this.result.getResult().append("Success: Function '"+ functionName + "' exists.\n");
+    }
   }
 
   private void analyzeTables() {
@@ -272,7 +291,13 @@ public class GrouperDdlCompare {
       
       ForeignKey databaseForeignKey = databaseForeignKeys.get(foreignKeyName);
       ForeignKey javaForeignKey = javaForeignKeys.get(foreignKeyName);
-  
+      
+      // oracle needs the foriegn keys to be associated with only primary keys
+      // and these are not attached to primary keys but regular unique columns
+      if (GrouperDdlUtils.isOracle() && StringUtils.equalsAny(foreignKeyName, "grouper_data_field_assign_fk_2", "grouper_data_row_assign_fk")) {
+        continue;
+      }
+      
       if (databaseForeignKey == null) {
         tableErrors.append("Missing foreign key '" + foreignKeyName + "'.  ");
       } else if (javaForeignKey == null) {
@@ -298,7 +323,7 @@ public class GrouperDdlCompare {
             for (int i=0;i<databaseForeignKey.getReferenceCount();i++) {
              
               Reference databaseReference = databaseForeignKey.getReferences()[i];
-              Reference javaReference = databaseForeignKey.getReferences()[i];
+              Reference javaReference = javaForeignKey.getReferences()[i];
 
               if (!StringUtils.equalsIgnoreCase(databaseReference.getForeignColumnName(), javaReference.getForeignColumnName())) {
                 
@@ -320,7 +345,7 @@ public class GrouperDdlCompare {
           }
           
           tableNotes.append("Database foreign key: " + databaseForeignKey.toVerboseString() 
-            + ", java foreign key: " + databaseForeignKey.toVerboseString() + ".  ");
+            + ", java foreign key: " + javaForeignKey.toVerboseString() + ".  ");
           
         }
 
@@ -346,7 +371,7 @@ public class GrouperDdlCompare {
       GrouperDdlCompareColumn grouperDdlCompareColumn = grouperDdlCompareColumns.get(columnName);
       
       Column databaseColumn = grouperDdlCompareColumn.getDatabaseColumn();
-      Column javaColumn = grouperDdlCompareColumn.getDatabaseColumn();
+      Column javaColumn = grouperDdlCompareColumn.getJavaColumn();
 
       if (databaseColumn == null) {
         grouperDdlCompareColumn.setMissing(true);
@@ -357,7 +382,7 @@ public class GrouperDdlCompare {
       } else {
         
         if (!StringUtils.equals(databaseColumn.getDefaultValue(), javaColumn.getDefaultValue())) {
-          tableWarnings.append("Column '" + columnName + "' default value '" + databaseColumn.getDefaultValue() 
+          tableErrors.append("Column '" + columnName + "' default value '" + databaseColumn.getDefaultValue() 
             + "' should be '" + javaColumn.getDefaultValue() + "'.  ");
           
         }
@@ -373,11 +398,34 @@ public class GrouperDdlCompare {
           tableWarnings.append("Column '" + columnName + "' special type '" + databaseColumn.isOfSpecialType()
             + "' should be '" + javaColumn.isOfSpecialType() + "'.  ");
         }
-        if (databaseColumn.getSize() !=  javaColumn.getSize()) {
-          tableWarnings.append("Column '" + columnName + "' size '" + databaseColumn.getSize() 
+        // GRP-7175: suppress a false-positive precision mismatch that only shows up on Oracle for
+        // grouper_audit_entry's int01..int05 / duration_microseconds / hibernate_version_number.
+        // Two things combine to produce it:
+        //  1. The expected (java) model is built by reading the live DB and replaying the ddlutils
+        //     steps.  Almost every column uses ddlutilsFindOrCreateColumn, which leaves an existing
+        //     column's size at whatever the DB reported - so on Oracle it inherits NUMBER(38) and
+        //     matches.  These audit columns are the only ones that go through ddlutilsFixSizeColumn,
+        //     which force-overwrites the modeled size to 19, pushing the expected value away from
+        //     the DB's 38.
+        //  2. The ddlutils Oracle platform maps java BIGINT to the fixed native type "NUMBER(38)"
+        //     (see Oracle8Platform) and reads NUMBER(38,0) back as BIGINT (see Oracle8ModelReader).
+        //     The 38 is baked into the type string, so the pinned precision of 19 never reaches the
+        //     generated DDL - the column installs as NUMBER(38).  mysql/postgres store bigint as a
+        //     19-digit type, which matches the pinned 19, so only Oracle diverges.
+        // So when both sides are BIGINT and the database is the expected NUMBER(38), the precision
+        // difference is cosmetic - treat it as equal.  Narrower integers are untouched: SMALLINT maps
+        // to NUMBER(5), DECIMAL/NUMERIC to NUMBER(size), so a genuinely narrower column does not read
+        // back as NUMBER(38)/BIGINT and is still compared normally.
+        boolean oracleBigintPrecisionEquivalent = GrouperDdlUtils.isOracle()
+            && databaseColumn.getTypeCode() == Types.BIGINT
+            && javaColumn.getTypeCode() == Types.BIGINT
+            && databaseColumn.getSizeAsInt() == 38;
+
+        if (!oracleBigintPrecisionEquivalent && !StringUtils.equals(databaseColumn.getSize(), javaColumn.getSize())) {
+          tableWarnings.append("Column '" + columnName + "' size '" + databaseColumn.getSize()
             + "' should be '" + javaColumn.getSize() + "'.  ");
         }
-        if (databaseColumn.getPrecisionRadix() !=  javaColumn.getPrecisionRadix()) {
+        if (!oracleBigintPrecisionEquivalent && databaseColumn.getPrecisionRadix() !=  javaColumn.getPrecisionRadix()) {
           tableWarnings.append("Column '" + columnName + "' precision '" + databaseColumn.getPrecisionRadix()
             + "' should be '" + javaColumn.getPrecisionRadix() + "'.  ");
         }
@@ -386,11 +434,11 @@ public class GrouperDdlCompare {
             + "' should be '" + javaColumn.getScale() + "'.  ");
         }
         if (databaseColumn.isPrimaryKey() !=  javaColumn.isPrimaryKey()) {
-          tableWarnings.append("Column '" + columnName + "' primary key '" + databaseColumn.isPrimaryKey()
+          tableErrors.append("Column '" + columnName + "' primary key '" + databaseColumn.isPrimaryKey()
             + "' should be '" + javaColumn.isPrimaryKey() + "'.  ");
         }
         if (databaseColumn.isRequired() !=  javaColumn.isRequired()) {
-          tableWarnings.append("Column '" + columnName + "' required '" + databaseColumn.isRequired()
+          tableErrors.append("Column '" + columnName + "' required '" + databaseColumn.isRequired()
             + "' should be '" + javaColumn.isRequired() + "'.  ");
         }
       }
@@ -562,7 +610,7 @@ public class GrouperDdlCompare {
       GrouperDdlCompareIndex grouperDdlCompareIndex = grouperDdlCompareIndexes.get(indexName);
       
       Index databaseIndex = grouperDdlCompareIndex.getDatabaseIndex();
-      Index javaIndex = grouperDdlCompareIndex.getDatabaseIndex();
+      Index javaIndex = grouperDdlCompareIndex.getJavaIndex();
   
       if (databaseIndex == null) {
         grouperDdlCompareIndex.setMissing(true);
