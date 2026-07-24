@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.ddl;
 
 import java.sql.Connection;
+import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -406,11 +407,34 @@ public class GrouperDdlCompare {
           tableWarnings.append("Column '" + columnName + "' special type '" + databaseColumn.isOfSpecialType()
             + "' should be '" + javaColumn.isOfSpecialType() + "'.  ");
         }
-        if (!StringUtils.equals(databaseColumn.getSize(), javaColumn.getSize())) {
-          tableWarnings.append("Column '" + columnName + "' size '" + databaseColumn.getSize() 
+        // GRP-7175: suppress a false-positive precision mismatch that only shows up on Oracle for
+        // grouper_audit_entry's int01..int05 / duration_microseconds / hibernate_version_number.
+        // Two things combine to produce it:
+        //  1. The expected (java) model is built by reading the live DB and replaying the ddlutils
+        //     steps.  Almost every column uses ddlutilsFindOrCreateColumn, which leaves an existing
+        //     column's size at whatever the DB reported - so on Oracle it inherits NUMBER(38) and
+        //     matches.  These audit columns are the only ones that go through ddlutilsFixSizeColumn,
+        //     which force-overwrites the modeled size to 19, pushing the expected value away from
+        //     the DB's 38.
+        //  2. The ddlutils Oracle platform maps java BIGINT to the fixed native type "NUMBER(38)"
+        //     (see Oracle8Platform) and reads NUMBER(38,0) back as BIGINT (see Oracle8ModelReader).
+        //     The 38 is baked into the type string, so the pinned precision of 19 never reaches the
+        //     generated DDL - the column installs as NUMBER(38).  mysql/postgres store bigint as a
+        //     19-digit type, which matches the pinned 19, so only Oracle diverges.
+        // So when both sides are BIGINT and the database is the expected NUMBER(38), the precision
+        // difference is cosmetic - treat it as equal.  Narrower integers are untouched: SMALLINT maps
+        // to NUMBER(5), DECIMAL/NUMERIC to NUMBER(size), so a genuinely narrower column does not read
+        // back as NUMBER(38)/BIGINT and is still compared normally.
+        boolean oracleBigintPrecisionEquivalent = GrouperDdlUtils.isOracle()
+            && databaseColumn.getTypeCode() == Types.BIGINT
+            && javaColumn.getTypeCode() == Types.BIGINT
+            && databaseColumn.getSizeAsInt() == 38;
+
+        if (!oracleBigintPrecisionEquivalent && !StringUtils.equals(databaseColumn.getSize(), javaColumn.getSize())) {
+          tableWarnings.append("Column '" + columnName + "' size '" + databaseColumn.getSize()
             + "' should be '" + javaColumn.getSize() + "'.  ");
         }
-        if (databaseColumn.getPrecisionRadix() !=  javaColumn.getPrecisionRadix()) {
+        if (!oracleBigintPrecisionEquivalent && databaseColumn.getPrecisionRadix() !=  javaColumn.getPrecisionRadix()) {
           tableWarnings.append("Column '" + columnName + "' precision '" + databaseColumn.getPrecisionRadix()
             + "' should be '" + javaColumn.getPrecisionRadix() + "'.  ");
         }
