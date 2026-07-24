@@ -346,7 +346,13 @@ public class UpgradeTasksJob extends OtherJobBase {
 
     /** a DDL task that is not recorded complete but has no DDL work to do on this database
      * (e.g. it was already applied out of band, or it is a manual-only step on this platform) */
-    NOT_APPLICABLE;
+    NOT_APPLICABLE,
+
+    /** a version recorded complete in the metadata group's attribute assignments for which this
+     * version of the Grouper jar has no matching {@link UpgradeTasks} enum constant - e.g. the
+     * database was written by a newer Grouper than the running code, or a task was removed.  There
+     * is nothing for the code to run for it; it is surfaced so the administrator is aware of it. */
+    UNEXPECTED;
   }
 
   /**
