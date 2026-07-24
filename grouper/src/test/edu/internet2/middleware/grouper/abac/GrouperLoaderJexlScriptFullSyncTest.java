@@ -306,10 +306,11 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     // make sure the global value cache picks up the new assignments
     GrouperAbac.clearCaches();
 
-    // sanity check the global lookup returns the assigned scalars (string dictionary text, integer/bool value_integer)
-    assertEquals(456L, GrouperAbac.globalAttributeValueByDataFieldInternalId().get(jobNumberField.getInternalId()));
-    assertEquals("234", GrouperAbac.globalAttributeValueByDataFieldInternalId().get(orgField.getInternalId()));
-    assertEquals(1L, GrouperAbac.globalAttributeValueByDataFieldInternalId().get(employeeField.getInternalId()));
+    // sanity check the global lookup returns the assigned scalars (string dictionary text, integer/bool value_integer),
+    // each wrapped in a single-entry list — the map is Map<Long, List<Object>> so multi-value globals can be represented
+    assertEquals(GrouperUtil.toList(456L), GrouperAbac.globalAttributeValueByDataFieldInternalId().get(jobNumberField.getInternalId()));
+    assertEquals(GrouperUtil.toList("234"), GrouperAbac.globalAttributeValueByDataFieldInternalId().get(orgField.getInternalId()));
+    assertEquals(GrouperUtil.toList(1L), GrouperAbac.globalAttributeValueByDataFieldInternalId().get(employeeField.getInternalId()));
 
     // subject jobNumbers (integer, multivalued): s0={123,234} s1={123,456} s2={234} s3={789,456}
     // subject org (string, multivalued, same source values): s0={"123","234"} s1={"123","456"} s2={"234"} s3={"789","456"}
@@ -371,6 +372,134 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     Set<Member> intEqMembers = gIntEq.getMembers();
     assertTrue(intEqMembers.contains(MemberFinder.findBySubject(grouperSession, testSubject1, true)));
     assertTrue(intEqMembers.contains(MemberFinder.findBySubject(grouperSession, testSubject3, true)));
+  }
+
+  /**
+   * A global attribute alias can be multi-valued: the abacGlobal group can have multiple data field
+   * assignments for the same field, in which case {@code globalAttributeValues('alias')} returns the
+   * whole list and can be dropped into list-taking operators (hasAttributeAny for scalar attributes,
+   * =~ / !~ for hasRow inner predicates). The singular {@code globalAttributeValue('alias')} still
+   * works, but only if the alias is single-valued — otherwise the analyzer throws so the ambiguity
+   * doesn't get silently resolved to "some random one of them".
+   */
+  public void testJexlGlobalAttributeValueMultiValued() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group abacGlobalGroup = new GroupSave().assignName(GrouperAbac.abacGlobalGroupName())
+        .assignCreateParentStemsIfNotExist(true).save();
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    GrouperDataField jobNumberField = grouperDataEngine.getGrouperDataProviderIndex()
+        .getFieldWrapperByLowerAlias().get("jobnumber").getGrouperDataField();
+    GrouperDataField orgField = grouperDataEngine.getGrouperDataProviderIndex()
+        .getFieldWrapperByLowerAlias().get("org").getGrouperDataField();
+
+    long dataProviderInternalId = GrouperDataProviderDao.selectByText("idm").getInternalId();
+    long abacGlobalMemberInternalId = abacGlobalGroup.toMember().getInternalId();
+
+    // multi-value globals: jobNumber = [456, 789] (integer, two rows in grouper_data_field_assign)
+    // and org = ["engl", "math"] (string). Each call to assignFieldValue inserts one row.
+    assignFieldValue(GrouperDataFieldType.integer, jobNumberField.getInternalId(), 456L, abacGlobalMemberInternalId, dataProviderInternalId);
+    assignFieldValue(GrouperDataFieldType.integer, jobNumberField.getInternalId(), 789L, abacGlobalMemberInternalId, dataProviderInternalId);
+    assignFieldValue(GrouperDataFieldType.string, orgField.getInternalId(), "engl", abacGlobalMemberInternalId, dataProviderInternalId);
+    assignFieldValue(GrouperDataFieldType.string, orgField.getInternalId(), "math", abacGlobalMemberInternalId, dataProviderInternalId);
+
+    GrouperAbac.clearCaches();
+
+    // sanity check the global lookup returns both values (order is DAO-defined; use a set-compare via containsAll)
+    List<Object> jobNumberList = GrouperAbac.globalAttributeValueByDataFieldInternalId().get(jobNumberField.getInternalId());
+    assertEquals(2, jobNumberList.size());
+    assertTrue(jobNumberList.contains(456L));
+    assertTrue(jobNumberList.contains(789L));
+    List<Object> orgList = GrouperAbac.globalAttributeValueByDataFieldInternalId().get(orgField.getInternalId());
+    assertEquals(2, orgList.size());
+    assertTrue(orgList.contains("engl"));
+    assertTrue(orgList.contains("math"));
+
+    // subject jobNumbers (integer, multivalued): s0={123,234} s1={123,456} s2={234} s3={789,456}
+    // subject affiliation rows: s0={engl,math} s1={comp,phys} s2={span} s3={engl,null}
+
+    // hasAttributeAny with an integer multi-valued global — matches subjects with any jobNumber in [456, 789]
+    Group gIntAny = createScriptedGroup(grouperSession, "test:gIntAny", "entity.hasAttributeAny('jobNumber', globalAttributeValues('jobNumber'))");
+
+    // hasAttributeAny with a string multi-valued global — matches subjects with any org in ["engl", "math"]
+    Group gStrAny = createScriptedGroup(grouperSession, "test:gStrAny", "entity.hasAttributeAny('org', globalAttributeValues('org'))");
+
+    // row-inner =~ with a string multi-valued global — matches subjects with an affiliation row whose org is in ["engl","math"]
+    Group gRowIn = createScriptedGroup(grouperSession, "test:gRowIn", "entity.hasRow('affiliation', \"affiliationOrg =~ globalAttributeValues('org')\")");
+
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    // hasAttributeAny('jobNumber', [456, 789]) → s1 (has 456), s3 (has 789 and 456)
+    assertEquals(2, gIntAny.getMembers().size());
+
+    // hasAttributeAny('org', ["engl", "math"]) — subject org strings are {"123","234","456","789"}, none match
+    assertEquals(0, gStrAny.getMembers().size());
+
+    // hasRow affiliationOrg =~ ["engl", "math"] → s0 (engl AND math), s3 (engl)
+    assertEquals(2, gRowIn.getMembers().size());
+
+    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+    Subject testSubject3 = SubjectFinder.findByIdAndSource("test.subject.3", "jdbc", true);
+    Set<Member> intAnyMembers = gIntAny.getMembers();
+    assertTrue(intAnyMembers.contains(MemberFinder.findBySubject(grouperSession, testSubject1, true)));
+    assertTrue(intAnyMembers.contains(MemberFinder.findBySubject(grouperSession, testSubject3, true)));
+
+    // singular globalAttributeValue on a multi-valued alias must be rejected — verify the analyzer throws
+    // with a message that names both the alias and directs the author to the plural form.
+    try {
+      GrouperLoaderJexlScriptFullSync.analyzeJexlScript(grouperDataEngine,
+          "entity.hasAttribute('jobNumber', globalAttributeValue('jobNumber'))");
+      fail("expected RuntimeException on singular globalAttributeValue against a multi-valued global");
+    } catch (RuntimeException expected) {
+      assertTrue("expected message to name the alias, got: " + expected.getMessage(),
+          expected.getMessage().contains("jobNumber"));
+      assertTrue("expected message to mention globalAttributeValues plural, got: " + expected.getMessage(),
+          expected.getMessage().contains("globalAttributeValues"));
+    }
+  }
+
+  /**
+   * Fails right now. Pre-existing bug in the row-inner =~ / !~ handler in
+   * {@link GrouperLoaderJexlScriptFullSync}: the ASTUnaryMinusNode branch checks
+   * {@code jexlNode.jjtGetChild(1) instanceof ASTUnaryMinusNode} — but child(1) is the whole
+   * ASTArrayLiteral, never a unary-minus — so the branch is dead. A negative-number entry falls
+   * through every branch, {@code rightPartSingleValue} stays null, and a null bind var is
+   * appended to the args list. SQL then binds {@code col IN (null, 246)}, silently dropping the
+   * -135 half. Analyzer-only assertion (no sync needed) — checks the bind args directly.
+   */
+  public void testHasRowInListNegativeNumberBug() {
+    GrouperAbacTestHelper.setupDataFields();
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    grouperDataEngine.loadFieldsAndRows(GrouperConfig.retrieveConfig());
+
+    GrouperJexlScriptAnalysis analysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScript(
+        grouperDataEngine,
+        "entity.hasRow('affiliation', \"affiliationDeptNumber =~ [-135, 246]\")");
+
+    // walk every part's args and collect the "attributeValue" bind values — with correct behavior
+    // both "-135" and "246" show up; with the bug one of them is null.
+    List<Object> attributeValues = new ArrayList<Object>();
+    for (GrouperJexlScriptPart part : analysis.getGrouperJexlScriptParts()) {
+      for (MultiKey arg : part.getArguments()) {
+        if ("attributeValue".equals(arg.getKey(0))) {
+          attributeValues.add(arg.getKey(1));
+        }
+      }
+    }
+
+    assertFalse("row-inner =~ bound a null for the negative-number entry (args: " + attributeValues + ")",
+        attributeValues.contains(null));
+    assertTrue("expected the -135 entry to be bound as \"-135\" (args: " + attributeValues + ")",
+        attributeValues.contains("-135"));
+    assertTrue("expected the 246 entry to be bound as \"246\" (args: " + attributeValues + ")",
+        attributeValues.contains("246"));
   }
 
   /**

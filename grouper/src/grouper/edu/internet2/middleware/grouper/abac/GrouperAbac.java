@@ -80,7 +80,7 @@ public class GrouperAbac {
    * integer value (value_integer) for integer/bool/timestamp fields.  Lazily built (not initialized in
    * the field declaration) so the cache duration can be read from config on first use.
    */
-  private static ExpirableCache<Boolean, Map<Long, Object>> globalAttributeValuesCache = null;
+  private static ExpirableCache<Boolean, Map<Long, List<Object>>> globalAttributeValuesCache = null;
 
   /**
    * number of minutes to cache the abacGlobal data field values.  Defaults to 2 minutes; a changed
@@ -95,7 +95,7 @@ public class GrouperAbac {
    * the cache of abacGlobal data field values, lazily built with the configured cache duration.
    * @return the cache
    */
-  private static ExpirableCache<Boolean, Map<Long, Object>> globalAttributeValuesCache() {
+  private static ExpirableCache<Boolean, Map<Long, List<Object>>> globalAttributeValuesCache() {
     if (globalAttributeValuesCache == null) {
       globalAttributeValuesCache = new ExpirableCache<>(globalAttributeValuesCacheMinutes());
     }
@@ -104,24 +104,30 @@ public class GrouperAbac {
 
   /**
    * Load the data field values assigned to the abacGlobal group (treated as a subject/member),
-   * so abac scripts can reference them as global variables via globalAttributeValue('alias').
+   * so abac scripts can reference them as global variables via globalAttributeValue('alias') or
+   * globalAttributeValues('alias') (plural, for multi-valued fields).
    *
    * The whole set is loaded in a single query for the abacGlobal member across all of its assigned
    * fields and cached briefly, so an abac script referencing several globals does not run a query
-   * per reference.  The value is resolved to a literal at script-analysis time and then bound as a
-   * SQL bind variable in the membership query, rather than joined in.
+   * per reference.  Each value is resolved to a literal at script-analysis time and then bound as
+   * a SQL bind variable in the membership query, rather than joined in.
    *
-   * @return map of data field internal id to the assigned scalar value (String for string fields,
-   *   Long for integer/bool/timestamp fields).  Never null; empty when the group or its member or
-   *   any assignments do not exist.
+   * The map value is a List so multi-valued fields (fieldMultiValued=true with more than one
+   * assign to the abacGlobal member) round-trip correctly; single-valued fields have a
+   * one-element list.  Prior to list support the loop overwrote per-field entries, silently
+   * dropping all-but-one value.
+   *
+   * @return map of data field internal id to the list of assigned values.  Each value is a
+   *   String for string fields, or Long for integer/bool/timestamp fields.  Never null; empty
+   *   when the abacGlobal group / member / any assigns do not exist.
    */
-  public static Map<Long, Object> globalAttributeValueByDataFieldInternalId() {
-    Map<Long, Object> result = globalAttributeValuesCache().get(Boolean.TRUE);
+  public static Map<Long, List<Object>> globalAttributeValueByDataFieldInternalId() {
+    Map<Long, List<Object>> result = globalAttributeValuesCache().get(Boolean.TRUE);
     if (result != null) {
       return result;
     }
 
-    result = new HashMap<Long, Object>();
+    result = new HashMap<Long, List<Object>>();
 
     // resolve the abacGlobal group's member internal id as root - the loader user may not be able to read it
     Long memberInternalId = (Long)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -148,7 +154,13 @@ public class GrouperAbac {
       Long dataFieldInternalId = GrouperUtil.longObjectValue(row[0], false);
       String theText = GrouperUtil.stringValue(row[1]);
       Long valueInteger = row[2] == null ? null : GrouperUtil.longObjectValue(row[2], false);
-      result.put(dataFieldInternalId, theText != null ? theText : valueInteger);
+      Object value = theText != null ? theText : valueInteger;
+      List<Object> values = result.get(dataFieldInternalId);
+      if (values == null) {
+        values = new ArrayList<Object>();
+        result.put(dataFieldInternalId, values);
+      }
+      values.add(value);
     }
 
     globalAttributeValuesCache().put(Boolean.TRUE, result);
