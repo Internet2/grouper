@@ -292,6 +292,72 @@ public class Oracle8ModelReader extends JdbcModelReader
     /**
      * {@inheritDoc}
      */
+	/**
+	 * Reads the foreign keys directly from the Oracle data dictionary rather than through
+	 * DatabaseMetaData#getImportedKeys.  The Oracle JDBC getImportedKeys call only returns foreign
+	 * keys whose referenced constraint is a PRIMARY KEY; a foreign key that references a
+	 * unique-but-not-primary-key column (e.g. grouper_members.internal_id, grouper_stems.id_index)
+	 * is omitted entirely.  That made deep check report those foreign keys as "missing" on Oracle
+	 * even though they physically exist.  Joining USER_CONSTRAINTS.R_CONSTRAINT_NAME to the
+	 * referenced constraint - whose type is P or U - picks them all up.  Follows the same
+	 * custom-query pattern this class already uses for readIndices (which reads USER_INDEXES to work
+	 * around a different Oracle metadata limitation).  See GRP-7177.
+	 */
+	protected Collection readForeignKeys(DatabaseMetaDataWrapper metaData, String tableName) throws SQLException
+	{
+		StringBuffer query = new StringBuffer();
+
+		// fc = the foreign key constraint, rc = the primary/unique constraint it references,
+		// fcol/rcol = the local (fk) and referenced columns, joined position-for-position so composite
+		// keys line up.  fc.R_CONSTRAINT_NAME points at a P or U constraint, so we do not filter rc's type.
+		query.append("SELECT fc.CONSTRAINT_NAME, rc.TABLE_NAME, fcol.COLUMN_NAME, rcol.COLUMN_NAME, fcol.POSITION ");
+		query.append("FROM USER_CONSTRAINTS fc, USER_CONSTRAINTS rc, USER_CONS_COLUMNS fcol, USER_CONS_COLUMNS rcol ");
+		query.append("WHERE fc.CONSTRAINT_TYPE=? AND fc.TABLE_NAME=? AND rc.CONSTRAINT_NAME=fc.R_CONSTRAINT_NAME ");
+		query.append("AND fcol.CONSTRAINT_NAME=fc.CONSTRAINT_NAME ");
+		query.append("AND rcol.CONSTRAINT_NAME=rc.CONSTRAINT_NAME AND rcol.POSITION=fcol.POSITION");
+		if (metaData.getSchemaPattern() != null)
+		{
+			query.append(" AND fc.OWNER LIKE ?");
+		}
+		query.append(" ORDER BY fc.CONSTRAINT_NAME, fcol.POSITION");
+
+		Map               fks  = new ListOrderedMap();
+		PreparedStatement stmt = null;
+
+		try
+		{
+			stmt = getConnection().prepareStatement(query.toString());
+			stmt.setString(1, "R");
+			stmt.setString(2, getPlatform().isDelimitedIdentifierModeOn() ? tableName : tableName.toUpperCase());
+			if (metaData.getSchemaPattern() != null)
+			{
+				stmt.setString(3, metaData.getSchemaPattern().toUpperCase());
+			}
+
+			ResultSet rs     = stmt.executeQuery();
+			Map       values = new HashMap();
+
+			while (rs.next())
+			{
+				values.put("FK_NAME",       rs.getString(1));
+				values.put("PKTABLE_NAME",  rs.getString(2));
+				values.put("FKCOLUMN_NAME", rs.getString(3));
+				values.put("PKCOLUMN_NAME", rs.getString(4));
+				values.put("KEY_SEQ",       new Short(rs.getShort(5)));
+
+				readForeignKey(metaData, values, fks);
+			}
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+		}
+		return fks.values();
+	}
+
 	protected Collection readIndices(DatabaseMetaDataWrapper metaData, String tableName) throws SQLException
 	{
 		// Oracle has a bug in the DatabaseMetaData#getIndexInfo method which fails when

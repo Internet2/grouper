@@ -291,13 +291,7 @@ public class GrouperDdlCompare {
       
       ForeignKey databaseForeignKey = databaseForeignKeys.get(foreignKeyName);
       ForeignKey javaForeignKey = javaForeignKeys.get(foreignKeyName);
-      
-      // oracle needs the foriegn keys to be associated with only primary keys
-      // and these are not attached to primary keys but regular unique columns
-      if (GrouperDdlUtils.isOracle() && StringUtils.equalsAny(foreignKeyName, "grouper_data_field_assign_fk_2", "grouper_data_row_assign_fk")) {
-        continue;
-      }
-      
+
       if (databaseForeignKey == null) {
         tableErrors.append("Missing foreign key '" + foreignKeyName + "'.  ");
       } else if (javaForeignKey == null) {
