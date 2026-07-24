@@ -33,6 +33,11 @@ public class GuiUpgradeTask {
   /** optional free-text detail, e.g. the result of an on-demand "check status" for a DDL task */
   private String detail;
 
+  /** whether this row is an "unexpected" task: a version recorded complete in the database's attribute
+   * assignments for which the running Grouper jar has no matching {@link edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks}
+   * enum constant.  There is no code to run for it, so the UI only offers a cleanup (mark not complete) action. */
+  private boolean unexpected;
+
   /**
    * the upgrade task version number, e.g. 43
    * @return version
@@ -124,6 +129,23 @@ public class GuiUpgradeTask {
   }
 
   /**
+   * whether this row is an "unexpected" task: recorded complete in the database's attribute assignments
+   * but with no matching {@link edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks} enum
+   * constant in the running Grouper jar
+   * @return true if unexpected
+   */
+  public boolean isUnexpected() {
+    return this.unexpected;
+  }
+
+  /**
+   * @param unexpected1 whether this row is an unexpected task
+   */
+  public void setUnexpected(boolean unexpected1) {
+    this.unexpected = unexpected1;
+  }
+
+  /**
    * The externalized text key for this task's status label, so the JSP can render a localized label,
    * e.g. status COMPLETE -&gt; "configurationUpgradeTasksStatusCOMPLETE".
    * @return the text key for the status label
@@ -148,6 +170,8 @@ public class GuiUpgradeTask {
         return "#cc6600"; // dark orange
       case NOT_APPLICABLE:
         return "#666666"; // grey
+      case UNEXPECTED:
+        return "#cc0000"; // dark red
       default:
         return "#000000";
     }

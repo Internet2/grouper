@@ -51,14 +51,24 @@ ${grouper:title('configurationUpgradeTasksPageTitle')}
                             </a>
                             <ul class="dropdown-menu" id="upgradeTaskActions_${guiUpgradeTask.version}">
                               <%-- actions in alphabetical order by label --%>
-                              <%-- check status: runs the live DDL applicability check for this one task --%>
-                              <li><a href="#" onclick="ajax('../app/UiV2Configure.upgradeTasksCheckStatus?version=${guiUpgradeTask.version}'); return false;">${textContainer.text['configurationUpgradeTasksActionCheckStatus'] }</a></li>
-                              <%-- mark complete without running, so confirm first --%>
-                              <li><a href="#" onclick="if (confirm('${textContainer.text['configurationUpgradeTasksActionMarkCompleteConfirm'] } V${guiUpgradeTask.version}?')) { ajax('../app/UiV2Configure.upgradeTasksMarkComplete?version=${guiUpgradeTask.version}'); } return false;">${textContainer.text['configurationUpgradeTasksActionMarkComplete'] }</a></li>
-                              <%-- mark not complete so it runs again, so confirm first --%>
-                              <li><a href="#" onclick="if (confirm('${textContainer.text['configurationUpgradeTasksActionMarkNotCompleteConfirm'] } V${guiUpgradeTask.version}?')) { ajax('../app/UiV2Configure.upgradeTasksMarkNotComplete?version=${guiUpgradeTask.version}'); } return false;">${textContainer.text['configurationUpgradeTasksActionMarkNotComplete'] }</a></li>
-                              <%-- run task: MUTATES the database, so confirm first --%>
-                              <li><a href="#" onclick="if (confirm('${textContainer.text['configurationUpgradeTasksActionRunConfirm'] } V${guiUpgradeTask.version}?')) { ajax('../app/UiV2Configure.upgradeTasksRun?version=${guiUpgradeTask.version}'); } return false;">${textContainer.text['configurationUpgradeTasksActionRun'] }</a></li>
+                              <c:choose>
+                                <%-- unexpected task: recorded complete in the database but with no matching Java upgrade
+                                     task, so there is nothing to run/check/mark complete.  Only offer a cleanup that
+                                     removes the stray version from the metadata group's attribute assignments. --%>
+                                <c:when test="${guiUpgradeTask.unexpected}">
+                                  <li><a href="#" onclick="if (confirm('${textContainer.text['configurationUpgradeTasksActionMarkNotCompleteConfirm'] } V${guiUpgradeTask.version}?')) { ajax('../app/UiV2Configure.upgradeTasksMarkNotComplete?version=${guiUpgradeTask.version}'); } return false;">${textContainer.text['configurationUpgradeTasksActionMarkNotComplete'] }</a></li>
+                                </c:when>
+                                <c:otherwise>
+                                  <%-- check status: runs the live DDL applicability check for this one task --%>
+                                  <li><a href="#" onclick="ajax('../app/UiV2Configure.upgradeTasksCheckStatus?version=${guiUpgradeTask.version}'); return false;">${textContainer.text['configurationUpgradeTasksActionCheckStatus'] }</a></li>
+                                  <%-- mark complete without running, so confirm first --%>
+                                  <li><a href="#" onclick="if (confirm('${textContainer.text['configurationUpgradeTasksActionMarkCompleteConfirm'] } V${guiUpgradeTask.version}?')) { ajax('../app/UiV2Configure.upgradeTasksMarkComplete?version=${guiUpgradeTask.version}'); } return false;">${textContainer.text['configurationUpgradeTasksActionMarkComplete'] }</a></li>
+                                  <%-- mark not complete so it runs again, so confirm first --%>
+                                  <li><a href="#" onclick="if (confirm('${textContainer.text['configurationUpgradeTasksActionMarkNotCompleteConfirm'] } V${guiUpgradeTask.version}?')) { ajax('../app/UiV2Configure.upgradeTasksMarkNotComplete?version=${guiUpgradeTask.version}'); } return false;">${textContainer.text['configurationUpgradeTasksActionMarkNotComplete'] }</a></li>
+                                  <%-- run task: MUTATES the database, so confirm first --%>
+                                  <li><a href="#" onclick="if (confirm('${textContainer.text['configurationUpgradeTasksActionRunConfirm'] } V${guiUpgradeTask.version}?')) { ajax('../app/UiV2Configure.upgradeTasksRun?version=${guiUpgradeTask.version}'); } return false;">${textContainer.text['configurationUpgradeTasksActionRun'] }</a></li>
+                                </c:otherwise>
+                              </c:choose>
                             </ul>
                           </div>
                         </td>
@@ -66,9 +76,10 @@ ${grouper:title('configurationUpgradeTasksPageTitle')}
                         <td style="vertical-align: top; white-space: nowrap;">V${guiUpgradeTask.version}</td>
                         <%-- externalized description --%>
                         <td style="vertical-align: top;">${grouper:escapeHtml(guiUpgradeTask.description)}</td>
-                        <%-- type: DDL (schema) vs data/maintenance --%>
+                        <%-- type: DDL (schema) vs data/maintenance (blank for unexpected tasks, which have no Java task) --%>
                         <td style="vertical-align: top; white-space: nowrap;">
                           <c:choose>
+                            <c:when test="${guiUpgradeTask.unexpected}">&nbsp;</c:when>
                             <c:when test="${guiUpgradeTask.ddl}">${textContainer.text['configurationUpgradeTasksTypeDdl'] }</c:when>
                             <c:otherwise>${textContainer.text['configurationUpgradeTasksTypeData'] }</c:otherwise>
                           </c:choose>

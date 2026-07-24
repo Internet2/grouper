@@ -570,6 +570,23 @@ public class UiV2Configure {
       guiUpgradeTasks.add(guiUpgradeTask);
     }
 
+    // surface any "unexpected" tasks: versions recorded complete in the database's attribute assignments
+    // for which this Grouper jar has no matching UpgradeTasks enum constant (e.g. the database was written
+    // by a newer Grouper than the running code, or a task was removed).  There is no code to run for them,
+    // so they are shown for awareness with only a cleanup (mark not complete) action.
+    for (Integer completedVersion : completedVersions) {
+      if (UpgradeTasksJob.retrieveUpgradeTask(completedVersion.intValue()) != null) {
+        continue;
+      }
+      GuiUpgradeTask guiUpgradeTask = new GuiUpgradeTask();
+      guiUpgradeTask.setVersion(completedVersion.intValue());
+      guiUpgradeTask.setUnexpected(true);
+      guiUpgradeTask.setStatus(UpgradeTaskStatus.UNEXPECTED);
+      guiUpgradeTask.setDescription(TextContainer.retrieveFromRequest().getText().get("configurationUpgradeTasksUnexpectedDescription"));
+      guiUpgradeTask.setDetail(TextContainer.retrieveFromRequest().getText().get("configurationUpgradeTasksDetailUnexpected"));
+      guiUpgradeTasks.add(guiUpgradeTask);
+    }
+
     // sort ascending by version so the table follows the natural upgrade order
     guiUpgradeTasks.sort((guiUpgradeTask1, guiUpgradeTask2) -> Integer.compare(guiUpgradeTask1.getVersion(), guiUpgradeTask2.getVersion()));
 
