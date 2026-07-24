@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
+import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
 
@@ -47,7 +48,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperOktaProvisionerTest("testOktaFullSyncCapturesOrphanTargetEntities"));
+    TestRunner.run(new GrouperOktaProvisionerTest("testOktaFullSyncParallelRetrieveThreadPool25"));
     
   }
   
@@ -2731,6 +2732,137 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   private static int debugMapInt(Map<String, Object> debugMap, String key) {
     Object value = debugMap == null ? null : debugMap.get(key);
     return value == null ? 0 : ((Number) value).intValue();
+  }
+
+  // ==========================================================================================
+  // Regression guard for the parallel per-item retrieve path (retrievePerItemInParallel ->
+  // GrouperUtil.executorServiceSubmit). Nearly every other test in this class provisions a single
+  // group, so retrieveAllData's per-group member fan-out gets exactly one callable and always takes
+  // the inline (callables.size() <= 1) branch -- the real thread pool is never exercised. These
+  // three tests provision PARALLEL_RETRIEVE_GROUP_COUNT groups through a full sync so the fan-out has
+  // that many callables, then run the SAME helper at three thread pool sizes to cover every branch of
+  // executorServiceSubmit while asserting identical group/entity/membership results:
+  //   size 25 -> pool exists, many callables -> real fan-out (pool larger than task count)
+  //   size  5 -> pool exists, many callables -> real fan-out (pool smaller than task count; queueing)
+  //   size  1 -> threadPoolSize <= 1 => executorService == null -> inline branch
+  // (the callables.size() <= 1 branch is already covered by every single-group test in this class.)
+  //
+  // The per-group member fetch only sees all the groups on the SECOND full-sync pass (pass 1 starts
+  // with an empty target and creates them), so the helper runs two passes and asserts after pass 2.
+  // Because all three sizes assert the same canonical counts, this is the regression guard if someone
+  // later introduces shared mutable state into a processItem implementation.
+  // ==========================================================================================
+
+  /** groups the parallel-retrieve regression tests provision through a full sync */
+  private static final int PARALLEL_RETRIEVE_GROUP_COUNT = 23;
+
+  /** distinct subjects (SUBJ0-SUBJ3) spread across those groups */
+  private static final int PARALLEL_RETRIEVE_ENTITY_COUNT = 4;
+
+  /** 2 members per group across PARALLEL_RETRIEVE_GROUP_COUNT groups */
+  private static final int PARALLEL_RETRIEVE_MEMBERSHIP_COUNT = PARALLEL_RETRIEVE_GROUP_COUNT * 2;
+
+  /**
+   * Parallel per-item retrieve at a LARGE thread pool: pool size &gt; task count, so all per-group
+   * member fetches fan out concurrently (real-fan-out branch of executorServiceSubmit).
+   */
+  public void testOktaFullSyncParallelRetrieveThreadPool25() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+    runOktaParallelRetrieveFullSync(25);
+  }
+
+  /**
+   * Parallel per-item retrieve at the DEFAULT thread pool: pool size &lt; task count, so tasks queue
+   * and reuse threads (real-fan-out branch, queueing variant).
+   */
+  public void testOktaFullSyncParallelRetrieveThreadPool5() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+    runOktaParallelRetrieveFullSync(5);
+  }
+
+  /**
+   * Parallel per-item retrieve with the pool DISABLED: threadPoolSize &lt;= 1 makes
+   * retrieveExecutorService() return null, so executorServiceSubmit runs every item inline
+   * (executorService == null branch). Must produce the identical result as the pooled runs.
+   */
+  public void testOktaFullSyncParallelRetrieveThreadPool1() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+    runOktaParallelRetrieveFullSync(1);
+  }
+
+  /**
+   * Provision {@link #PARALLEL_RETRIEVE_GROUP_COUNT} groups through a two-pass full sync at the given
+   * {@code threadPoolSize} and assert both the Okta target and the generic mirror land the identical,
+   * canonical group/entity/membership result regardless of pool size. Called from the three
+   * testOktaFullSyncParallelRetrieveThreadPool* tests to exercise every branch of the parallel
+   * per-item retrieve path (real fan-out at 25 and 5, executorService == null at 1).
+   *
+   * @param threadPoolSize the provisioner threadPoolSize for this run
+   */
+  private void runOktaParallelRetrieveFullSync(int threadPoolSize) {
+
+    String configId = "myOktaProvisioner";
+
+    Map<String, String> extraConfig = new HashMap<String, String>();
+    extraConfig.put("threadPoolSize", String.valueOf(threadPoolSize));
+    setupOktaSyncBack(configId, extraConfig);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+
+    // 4 subjects spread across the groups: group i gets subjects[i % 4] and subjects[(i + 1) % 4], so
+    // every group has exactly 2 distinct members, all 4 subjects are used, and there are
+    // PARALLEL_RETRIEVE_MEMBERSHIP_COUNT memberships total.
+    Subject[] subjects = new Subject[] {
+        SubjectTestHelper.SUBJ0, SubjectTestHelper.SUBJ1,
+        SubjectTestHelper.SUBJ2, SubjectTestHelper.SUBJ3 };
+
+    for (int i = 0; i < PARALLEL_RETRIEVE_GROUP_COUNT; i++) {
+      Group group = new GroupSave(grouperSession).assignName("test:parallelGroup" + i).save();
+      group.addMember(subjects[i % subjects.length], false);
+      group.addMember(subjects[(i + 1) % subjects.length], false);
+    }
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    attributeValue.setStemScopeString("sub");
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    // pass 1 creates the groups + users + memberships in the target; pass 2 re-reads them -- and THAT
+    // read is where retrieveAllData fans the per-group member fetch out across the pool.
+    assertEquals("pool " + threadPoolSize + " pass 1: no errors", 0, fullProvision().getRecordsWithErrors());
+    assertEquals("pool " + threadPoolSize + " pass 2: no errors", 0, fullProvision().getRecordsWithErrors());
+
+    // the configured threadPoolSize actually took effect (this is what selects the branch under test)
+    GrouperProvisioner lastProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals("pool " + threadPoolSize + ": threadPoolSize should be applied", threadPoolSize,
+        lastProvisioner.retrieveGrouperProvisioningConfiguration().getThreadPoolSize());
+
+    // ground truth in the Okta target: identical regardless of pool size
+    assertEquals("pool " + threadPoolSize + ": mock target groups", PARALLEL_RETRIEVE_GROUP_COUNT,
+        countMockOktaGroups());
+    assertEquals("pool " + threadPoolSize + ": mock target users", PARALLEL_RETRIEVE_ENTITY_COUNT,
+        countMockOktaUsers());
+    assertEquals("pool " + threadPoolSize + ": mock target memberships", PARALLEL_RETRIEVE_MEMBERSHIP_COUNT,
+        countMockOktaMemberships());
+
+    // the mirror populated from the fanned-out read pass: a lost or duplicated group's members would
+    // surface here as a wrong membership count -- the actual regression this guards against.
+    assertEquals("pool " + threadPoolSize + ": prov_group rows", PARALLEL_RETRIEVE_GROUP_COUNT,
+        countSyncBack(configId, "grouper_prov_group"));
+    assertEquals("pool " + threadPoolSize + ": prov_user rows", PARALLEL_RETRIEVE_ENTITY_COUNT,
+        countSyncBack(configId, "grouper_prov_user"));
+    assertEquals("pool " + threadPoolSize + ": prov_mship rows", PARALLEL_RETRIEVE_MEMBERSHIP_COUNT,
+        countSyncBack(configId, "grouper_prov_mship"));
   }
 
 }
