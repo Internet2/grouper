@@ -555,3 +555,34 @@ a:focus {
 .navbar-link:focus {
   color: #003f59;
 }
+
+/* GRP-7188 accessibility: the modal close button (the "X", bootstrap's .close).
+   Its accessible name and keyboard behavior are already fine (real button,
+   aria-label="Close", glyph in an aria-hidden span); only the styling fails
+   WCAG. Two fixes, both overriding bootstrap.css defaults. grouperUi2.css loads
+   after bootstrap.css (see commonHead.jsp) so equal-specificity rules win. */
+
+/* 1. Contrast (SC 1.4.11 requires 3:1 for non-text UI components). Bootstrap
+   renders the glyph as black at opacity .2 (~1.6:1 on the white modal header,
+   ~2.3:1 on hover). Drop the opacity trick and use a solid gray #595959
+   (~7:1), darkening to black on hover/focus so the affordance still reads. */
+.close {
+  color: #595959;
+  opacity: 1;
+}
+.close:hover,
+.close:focus {
+  color: #000;
+  opacity: 1;
+}
+
+/* 2. Target size (WCAG 2.2 SC 2.5.8 requires 24x24 CSS px). Bootstrap's button
+   hit area is only ~12x18px. Give it a 24x24 minimum box and center the glyph;
+   box-sizing keeps the padding inside the 24px so it does not grow further. */
+.close {
+  min-width: 24px;
+  min-height: 24px;
+  line-height: 24px;
+  text-align: center;
+  box-sizing: border-box;
+}
