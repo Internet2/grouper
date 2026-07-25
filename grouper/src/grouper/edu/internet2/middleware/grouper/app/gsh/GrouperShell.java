@@ -273,6 +273,13 @@ private static boolean handleSpecialCase(String[] args) {
 	    }
 	  }
 	  
+	  // the loader is supposed to keep running (quartz), but everything else (e.g. -registry) is done now.
+	  // grouper leaves non daemon threads running (e.g. ddl heartbeat, other job log updater, quartz),
+	  // so returning from main would leave the jvm hanging forever
+	  if (!isLoader) {
+	    System.exit(0);
+	  }
+	  
 	  return true;
   } //private static boolean handleSpecialCase(args)
  
