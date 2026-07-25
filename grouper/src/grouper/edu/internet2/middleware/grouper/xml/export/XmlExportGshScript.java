@@ -20,9 +20,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -34,28 +33,43 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * new File("c:/temp/script.gsh").delete();
  * grouperSession = GrouperSession.startRootSession();
  * new edu.internet2.middleware.grouper.xml.export.XmlExportGshScript().assignStemName(":").assignFileNameToWriteTo("c:/temp/script.gsh").exportGsh();
+ * 
+ * or export everything under multiple stems in one script
+ * 
+ * new edu.internet2.middleware.grouper.xml.export.XmlExportGshScript().addStemName("some:folder").addStemName("another:folder").assignFileNameToWriteTo("c:/temp/script.gsh").exportGsh();
  */
 public class XmlExportGshScript {
 
   /**
-   * id of stem to export
+   * stems to export, all objects under each of these stems will be exported
    */
-  private Stem stem;
+  private Set<Stem> stems = new LinkedHashSet<Stem>();
   
   /**
-   * assign a parent stem
+   * names of stems to export which could not be resolved to a stem
+   */
+  private Set<String> stemNames = new LinkedHashSet<String>();
+
+  /**
+   * assign a parent stem, this replaces any stems which were previously assigned or added
    * @param theStemId
    * @return this for chaining
    */
   public XmlExportGshScript assignStemId(String theStemId) {
-    this.stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), theStemId, true);
-    return this;
+    this.stems.clear();
+    this.stemNames.clear();
+    return this.addStemId(theStemId);
   }
 
   /**
-   * 
+   * add a parent stem, all objects under each added stem will be exported
+   * @param theStemId
+   * @return this for chaining
    */
-  private String stemName = null;
+  public XmlExportGshScript addStemId(String theStemId) {
+    this.stems.add(StemFinder.findByUuid(GrouperSession.staticGrouperSession(), theStemId, true));
+    return this;
+  }
 
   /**
    * 
@@ -73,13 +87,28 @@ public class XmlExportGshScript {
   }
   
   /**
-   * assign a parent stem
+   * assign a parent stem, this replaces any stems which were previously assigned or added
    * @param theStemName
    * @return this for chaining
    */
   public XmlExportGshScript assignStemName(String theStemName) {
-    this.stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), theStemName, false);
-    this.stemName = theStemName;
+    this.stems.clear();
+    this.stemNames.clear();
+    return this.addStemName(theStemName);
+  }
+
+  /**
+   * add a parent stem, all objects under each added stem will be exported
+   * @param theStemName
+   * @return this for chaining
+   */
+  public XmlExportGshScript addStemName(String theStemName) {
+    Stem theStem = StemFinder.findByName(GrouperSession.staticGrouperSession(), theStemName, false);
+    if (theStem != null) {
+      this.stems.add(theStem);
+    } else {
+      this.stemNames.add(theStemName);
+    }
     return this;
   }
 
@@ -114,7 +143,7 @@ public class XmlExportGshScript {
    */
   public void exportGsh() {
     
-    if (this.stem == null && StringUtils.isBlank(this.stemName) && this.objectNames.size() == 0) {
+    if (this.stems.size() == 0 && this.stemNames.size() == 0 && this.objectNames.size() == 0) {
       throw new RuntimeException("A stem or objectName is required, pass one in");
     }
     if (this.fileToWriteTo == null) {
@@ -127,14 +156,27 @@ public class XmlExportGshScript {
       
       XmlExportMain xmlExportMain = new XmlExportMain();
       
-      if (this.stem != null) {
-        if (!this.stem.isRootStem()) {
-          xmlExportMain.addStem(this.stem.getName() + ":%");
-          xmlExportMain.addStem(this.stem.getName());
+      if (this.stems.size() > 0 || this.stemNames.size() > 0) {
+
+        //if the root stem is in there, then everything is exported, so dont filter on stems
+        boolean exportEverything = false;
+        for (Stem theStem : this.stems) {
+          if (theStem.isRootStem()) {
+            exportEverything = true;
+            break;
+          }
         }
-      } else if (!StringUtils.isBlank(this.stemName)) {
-        xmlExportMain.addStem(this.stemName + ":%");
-        xmlExportMain.addStem(this.stemName);
+        
+        if (!exportEverything) {
+          for (Stem theStem : this.stems) {
+            xmlExportMain.addStem(theStem.getName() + ":%");
+            xmlExportMain.addStem(theStem.getName());
+          }
+          for (String theStemName : this.stemNames) {
+            xmlExportMain.addStem(theStemName + ":%");
+            xmlExportMain.addStem(theStemName);
+          }
+        }
       } else if (this.objectNames.size() > 0) {
         for (String theObjectName : this.objectNames) {
           xmlExportMain.addObjectName(theObjectName);
