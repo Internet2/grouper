@@ -7,8 +7,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -19,9 +22,13 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 
 import org.apache.commons.codec.binary.Base64;
@@ -34,6 +41,7 @@ import org.apache.http.HeaderElementIterator;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -844,6 +852,81 @@ public class GrouperHttpClient {
   
 
   /**
+   * <pre>Default decision of if an exception from an http call is a transient network problem which is
+   * worth retrying.  Walks the chain of causes and retries socket level and TLS transport level
+   * problems, e.g. "Connection reset", "Connection refused", "Broken pipe", read/connect timeouts,
+   * and a server closing a pooled connection (NoHttpResponseException).
+   * 
+   * Problems which will not fix themselves on a retry, e.g. an unknown host or a certificate which
+   * does not validate, are not retried.</pre>
+   */
+  public static final Predicate<Throwable> RETRY_NETWORK_ISSUE_PREDICATE_DEFAULT = new Predicate<Throwable>() {
+
+    @Override
+    public boolean test(Throwable throwable) {
+
+      Throwable cause = throwable;
+
+      // dont loop forever if the causes are cyclic
+      for (int i = 0; i < 10 && cause != null; i++) {
+
+        // a host which doesnt resolve or a cert which doesnt validate is not transient
+        if (cause instanceof UnknownHostException
+            || cause instanceof SSLHandshakeException
+            || cause instanceof SSLPeerUnverifiedException) {
+          return false;
+        }
+
+        // connection reset, connection refused, broken pipe
+        // note: SocketTimeoutException and ConnectTimeoutException extend InterruptedIOException
+        if (cause instanceof SocketException
+            || cause instanceof InterruptedIOException
+            || cause instanceof NoHttpResponseException
+            || cause instanceof SSLException) {
+          return true;
+        }
+
+        if (cause.getCause() == cause) {
+          break;
+        }
+        cause = cause.getCause();
+      }
+
+      // legacy check, in case a timeout is reported by something which isnt one of the types above
+      String fullStackTrace = GrouperUtil.getFullStackTrace(throwable);
+      return StringUtils.isNotBlank(fullStackTrace) && StringUtils.contains(fullStackTrace, "timed out");
+    }
+  };
+
+  /**
+   * decides if an exception thrown while making the http call is a transient network problem which
+   * should be retried (subject to retryForThrottlingOrNetworkIssues).  Defaults to
+   * RETRY_NETWORK_ISSUE_PREDICATE_DEFAULT
+   */
+  private Predicate<Throwable> retryNetworkIssuePredicate = RETRY_NETWORK_ISSUE_PREDICATE_DEFAULT;
+
+  /**
+   * decides if an exception thrown while making the http call is a transient network problem which
+   * should be retried (subject to retryForThrottlingOrNetworkIssues)
+   * @return the predicate, never null
+   */
+  public Predicate<Throwable> getRetryNetworkIssuePredicate() {
+    return this.retryNetworkIssuePredicate;
+  }
+
+  /**
+   * decides if an exception thrown while making the http call is a transient network problem which
+   * should be retried (subject to retryForThrottlingOrNetworkIssues)
+   * @param theRetryNetworkIssuePredicate null means use RETRY_NETWORK_ISSUE_PREDICATE_DEFAULT
+   * @return this for chaining
+   */
+  public GrouperHttpClient assignRetryNetworkIssuePredicate(Predicate<Throwable> theRetryNetworkIssuePredicate) {
+    this.retryNetworkIssuePredicate = theRetryNetworkIssuePredicate == null 
+        ? RETRY_NETWORK_ISSUE_PREDICATE_DEFAULT : theRetryNetworkIssuePredicate;
+    return this;
+  }
+
+  /**
    * if there's a 429 or a connection timed out exception then delay for sometime and retry these many times.
    */
   private int retryForThrottlingOrNetworkIssues = 5;
@@ -945,6 +1028,7 @@ public class GrouperHttpClient {
     
     for (int i=0; i < retryForThrottlingOrNetworkIssues+1; i++) {
       RuntimeException runtimeException = null;
+      Exception networkIssueException = null;
       boolean retry = false;
       try {
         code = -1;
@@ -952,9 +1036,9 @@ public class GrouperHttpClient {
         code = this.getResponseCode();
       } catch (Exception e) {
         
-        String fullStackTrace = GrouperUtil.getFullStackTrace(e);
-        if (StringUtils.isNotBlank(fullStackTrace) && StringUtils.contains(fullStackTrace, "timed out")) {
+        if (this.retryNetworkIssuePredicate != null && this.retryNetworkIssuePredicate.test(e)) {
           retry = true;
+          networkIssueException = e;
         }
         runtimeException = new RuntimeException("Error connecting to '" + this.url + "'", e);
       }
@@ -969,7 +1053,7 @@ public class GrouperHttpClient {
         retry = true;
       }
       
-      if (i <= retryForThrottlingOrNetworkIssues && retry) {
+      if (i < retryForThrottlingOrNetworkIssues && retry) {
 
         // if the seconds are in the header, use that perhaps
         String retryAfterString = this.getResponseHeadersLower().get("retry-after");
@@ -999,11 +1083,19 @@ public class GrouperHttpClient {
           // dont sleep more than 20 minutes...
           sleepMillis = Math.min(sleepMillis, 20 * 60 * 1000);
         }
+        if (networkIssueException != null) {
+          LOG.warn("Transient network error connecting to '" + this.url + "', sleeping " + sleepMillis 
+              + "ms and retrying (retry " + (i+1) + " of " + retryForThrottlingOrNetworkIssues + ")", networkIssueException);
+        }
+        
         GrouperUtil.sleep(sleepMillis); 
         retryForThrottlingTimesItWasRetried++;
         
         if (this.debugMapForCaller != null) {
           GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "httpClient_ThrottleCount", 1);
+          if (networkIssueException != null) {
+            GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "httpClient_NetworkRetryCount", 1);
+          }
         }
         
         continue;
