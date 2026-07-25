@@ -77,6 +77,8 @@ public class GcTableSyncTableData {
     
     for (Object[] row : GrouperClientUtils.nonNull(data)) {
       
+      normalizeRow(columnMetadata1, row);
+      
       GcTableSyncRowData gcTableSyncRowData = new GcTableSyncRowData();
       gcTableSyncRowData.setGcTableSyncTableData(this);
       gcTableSyncRowData.setData(row);
@@ -84,6 +86,48 @@ public class GcTableSyncTableData {
       
     }
     
+  }
+
+  /**
+   * <p>Convert the values of a row to the canonical java type of each column.  The two sides of a sync
+   * can come from different jdbc drivers, or one side can be java objects passed in programmatically,
+   * so the same logical value can arrive as an Integer, a Long, a BigDecimal, a java.util.Date, etc.
+   * The compares are equals()/hashCode() based, so without this the row looks changed on every run.</p>
+   * 
+   * <p>This normalizes in place since the row data is owned by the sync once it is passed in, and
+   * allocating a new array per row would add overhead for no benefit.</p>
+   * 
+   * @param columnMetadata in the same order as the row data
+   * @param row
+   */
+  private static void normalizeRow(List<GcTableSyncColumnMetadata> columnMetadata, Object[] row) {
+    
+    // if we dont know the columns then we cant know what to convert to, leave the data alone
+    if (row == null || columnMetadata == null || row.length != columnMetadata.size()) {
+      return;
+    }
+    
+    for (int i = 0; i < row.length; i++) {
+      
+      Object value = row[i];
+      
+      if (value == null) {
+        continue;
+      }
+      
+      GcTableSyncColumnMetadata gcTableSyncColumnMetadata = columnMetadata.get(i);
+      
+      if (gcTableSyncColumnMetadata == null) {
+        continue;
+      }
+      
+      Object normalizedValue = gcTableSyncColumnMetadata.normalizeValue(value);
+      
+      // dont write unless it actually changed, the common case is already normalized
+      if (normalizedValue != value) {
+        row[i] = normalizedValue;
+      }
+    }
   }
   
   /**

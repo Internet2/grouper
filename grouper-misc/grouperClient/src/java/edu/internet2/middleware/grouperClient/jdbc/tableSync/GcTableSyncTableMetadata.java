@@ -447,6 +447,12 @@ public class GcTableSyncTableMetadata {
                 break;
   
               case Types.DATE:
+                
+                gcTableSyncColumnMetadata.setColumnType(ColumnType.TIMESTAMP);
+                // a DATE column has no time part, so the time part must not be part of the compare
+                gcTableSyncColumnMetadata.setDateOnly(true);
+                break;
+
               case Types.TIMESTAMP:
                 
                 gcTableSyncColumnMetadata.setColumnType(ColumnType.TIMESTAMP);

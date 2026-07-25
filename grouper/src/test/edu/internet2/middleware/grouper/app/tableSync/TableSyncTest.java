@@ -4,13 +4,16 @@
  */
 package edu.internet2.middleware.grouper.app.tableSync;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
@@ -39,6 +42,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata.ColumnType;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncFromData;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncOutput;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncSubtype;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableBean;
@@ -121,6 +125,88 @@ public class TableSyncTest extends GrouperTest {
     assertTrue(foundName);
   }
   
+  /**
+   * <p>GRP-7123: when data is passed in programmatically the java types will generally not match what
+   * the jdbc driver hands back for the same column.  The sync must not report those rows as changed,
+   * otherwise every run updates every row.</p>
+   */
+  public void testGcTableSyncFromDataNormalizeDataTypes() {
+
+    // person_id is BIGINT, hibernate_version_number and some_int are INTEGER, net_id is VARCHAR,
+    // some_float is DOUBLE, some_date is DATE, some_timestamp is TIMESTAMP
+    List<String> columnNames = GrouperUtil.toList("person_id", "hibernate_version_number", "net_id",
+        "some_int", "some_float", "some_date", "some_timestamp");
+    List<String> columnNamesPrimaryKey = GrouperUtil.toList("person_id");
+
+    Calendar calendar = new GregorianCalendar(2026, Calendar.JULY, 25, 14, 32, 17);
+    calendar.set(Calendar.MILLISECOND, 0);
+
+    // note these are the same instant, just different java types
+    Date someDate = calendar.getTime();
+    Timestamp someTimestamp = new Timestamp(calendar.getTimeInMillis());
+
+    int recordsSize = 10;
+
+    // ######################
+    // first pass, insert everything.  these are the types a developer would naturally use
+    List<Object[]> dataRows = new ArrayList<Object[]>();
+    for (int i = 0; i < recordsSize; i++) {
+      dataRows.add(new Object[] { Integer.valueOf(i), Integer.valueOf(1), "netId_" + i,
+          Integer.valueOf(100 + i), Float.valueOf(1.5f), someDate, someTimestamp });
+    }
+
+    GcTableSyncFromData gcTableSyncFromData = new GcTableSyncFromData();
+    gcTableSyncFromData.assignDebugMap(new LinkedHashMap<String, Object>()).assignConnectionName("grouper")
+        .assignTableName("testgrouper_sync_subject_to").assignColumnNames(columnNames)
+        .assignColumnNamesPrimaryKey(columnNamesPrimaryKey).assignData(dataRows).sync();
+
+    GcTableSyncOutput gcTableSyncOutput = gcTableSyncFromData.getGcTableSync().getGcTableSyncOutput();
+
+    assertEquals(recordsSize, gcTableSyncOutput.getInsert());
+    assertEquals(0, gcTableSyncOutput.getUpdate());
+    assertEquals(0, gcTableSyncOutput.getDelete());
+
+    // ######################
+    // second pass, logically identical data but a different java type in every column.
+    // nothing should be considered changed
+    List<Object[]> dataRowsOtherTypes = new ArrayList<Object[]>();
+    for (int i = 0; i < recordsSize; i++) {
+      dataRowsOtherTypes.add(new Object[] { Long.valueOf(i), new BigDecimal("1.00"), "netId_" + i,
+          Integer.toString(100 + i), Double.valueOf(1.5d), someTimestamp, someDate });
+    }
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    gcTableSyncFromData = new GcTableSyncFromData();
+    gcTableSyncFromData.assignDebugMap(debugMap).assignConnectionName("grouper")
+        .assignTableName("testgrouper_sync_subject_to").assignColumnNames(columnNames)
+        .assignColumnNamesPrimaryKey(columnNamesPrimaryKey).assignData(dataRowsOtherTypes).sync();
+
+    gcTableSyncOutput = gcTableSyncFromData.getGcTableSync().getGcTableSyncOutput();
+
+    assertEquals("should not insert when only the java types differ: " + debugMap, 0, gcTableSyncOutput.getInsert());
+    assertEquals("should not update when only the java types differ: " + debugMap, 0, gcTableSyncOutput.getUpdate());
+    assertEquals("should not delete when only the java types differ: " + debugMap, 0, gcTableSyncOutput.getDelete());
+
+    // ######################
+    // sanity check that a real change is still detected
+    List<Object[]> dataRowsChanged = new ArrayList<Object[]>();
+    for (int i = 0; i < recordsSize; i++) {
+      dataRowsChanged.add(new Object[] { Long.valueOf(i), new BigDecimal("1.00"), "newNetId_" + i,
+          Integer.toString(100 + i), Double.valueOf(1.5d), someTimestamp, someDate });
+    }
+
+    gcTableSyncFromData = new GcTableSyncFromData();
+    gcTableSyncFromData.assignDebugMap(new LinkedHashMap<String, Object>()).assignConnectionName("grouper")
+        .assignTableName("testgrouper_sync_subject_to").assignColumnNames(columnNames)
+        .assignColumnNamesPrimaryKey(columnNamesPrimaryKey).assignData(dataRowsChanged).sync();
+
+    gcTableSyncOutput = gcTableSyncFromData.getGcTableSync().getGcTableSyncOutput();
+
+    assertEquals(0, gcTableSyncOutput.getInsert());
+    assertEquals(recordsSize, gcTableSyncOutput.getUpdate());
+    assertEquals(0, gcTableSyncOutput.getDelete());
+  }
+
   /**
    * @param name
    */
