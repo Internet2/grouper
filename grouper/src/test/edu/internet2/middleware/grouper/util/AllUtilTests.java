@@ -44,6 +44,7 @@ public class AllUtilTests {
     suite.addTestSuite(GrouperProxyBeanTest.class);
     suite.addTestSuite(GrouperUtilElSafeTest.class);
     suite.addTestSuite(GrouperThreadLocalStateTest.class);
+    suite.addTestSuite(GrouperHttpClientTest.class);
     //$JUnit-END$
     suite.addTest(AllRijndaelTests.suite());
     return suite;
