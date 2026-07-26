@@ -10,7 +10,6 @@ import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAtt
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 public class GoogleGrouperExternalSystem extends GrouperExternalSystem {
@@ -62,7 +61,7 @@ public class GoogleGrouperExternalSystem extends GrouperExternalSystem {
     try {
       GrouperGoogleGroup googleGroup = GrouperGoogleApiCommands.retrieveGoogleGroup(this.getConfigId(), testFakeGroupId, false, false);
     } catch (Exception e) {
-      errors.add("Could not connect with google external system successfully "+GrouperUtil.escapeHtml(e.getMessage(), true));
+      errors.add(logAndDescribeTestException("Could not connect with google external system", e));
     }
     
     return errors;

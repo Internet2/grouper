@@ -151,7 +151,7 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
       retrieveBearerTokenForAzureConfigId(new HashMap<String, Object>(), this.getConfigId());
 
     } catch (Exception e) {
-      ret.add("Unable to retrieve Azure authentication token: " + GrouperUtil.escapeHtml(e.getMessage(), true));
+      ret.add(logAndDescribeTestException("Unable to retrieve Azure authentication token", e));
     }
 
     return ret;
@@ -257,7 +257,10 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
           PrivateKey privateKey = loadRsaPrivateKeyFromPem(privateKeyPem);
           clientAssertion = buildClientAssertionJwt(clientId, url, thumbprintHex, privateKey);
         } catch (Exception e) {
-          throw new RuntimeException("Error building client_assertion JWT for azure config '" + configId + "'", e);
+          // include the cause in the message, since callers which only log getMessage() would
+          // otherwise lose the actual problem (bad PEM, encrypted key, bad thumbprint, ...)
+          throw new RuntimeException("Error building client_assertion JWT for azure config '" + configId 
+              + "': " + causeChainMessage(e), e);
         }
 
         grouperHttpClient.addBodyParameter("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
@@ -444,10 +447,19 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
   private static byte[] hexStringToBytes(String hex) {
     String clean = hex.replaceAll("\\s+", "").replace(":", "");
     int len = clean.length();
+    // validate up front: an odd length used to throw StringIndexOutOfBoundsException with no
+    // message, and a non hex character used to silently produce a wrong x5t, which azure
+    // rejects with an opaque AADSTS error instead of pointing at the misconfigured thumbprint
+    if (len == 0 || len % 2 != 0) {
+      throw new RuntimeException("certificateThumbprint must be an even number of hex characters but has " + len);
+    }
     byte[] out = new byte[len / 2];
     for (int i = 0; i < len; i += 2) {
       int hi = Character.digit(clean.charAt(i), 16);
       int lo = Character.digit(clean.charAt(i + 1), 16);
+      if (hi == -1 || lo == -1) {
+        throw new RuntimeException("certificateThumbprint has a non hex character at index " + (hi == -1 ? i : i + 1));
+      }
       out[i / 2] = (byte) ((hi << 4) | lo);
     }
     return out;

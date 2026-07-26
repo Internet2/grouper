@@ -106,7 +106,7 @@ public class TeamDynamixExternalSystem extends GrouperExternalSystem {
       retrieveBearerTokenForTeamDynamixConfigId(new HashMap<String, Object>(), this.getConfigId());
 
     } catch (Exception e) {
-      ret.add("Unable to retrieve Team dynamix authentication token: " + GrouperUtil.escapeHtml(e.getMessage(), true));
+      ret.add(logAndDescribeTestException("Unable to retrieve Team dynamix authentication token", e));
     }
 
     return ret;
