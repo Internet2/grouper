@@ -67,6 +67,7 @@ public class AllHooksTests {
     suite.addTestSuite(AttributeAssignValueHooksTest.class);
     suite.addTestSuite(AttributeDefHooksTest.class);
     suite.addTestSuite(ExternalSubjectHooksTest.class);
+    suite.addTestSuite(GrouperHooksUtilsTest.class);
     //$JUnit-END$
     suite.addTest(AllHooksExamplesTests.suite());
     return suite;

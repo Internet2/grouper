@@ -127,14 +127,22 @@ public class GrouperHooksUtils {
             //just ignore, probably not running unit tests
           }
           
-          AttributeDefAttributeNameValidationHook.registerHookIfNecessary(true);
-          AttributeDefNameAttributeNameValidationHook.registerHookIfNecessary(true);
-          GroupAttributeNameValidationHook.registerHookIfNecessary(true);
-          StemAttributeNameValidationHook.registerHookIfNecessary(true);
-          GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(false);
-          GroupTypeSecurityHook.registerHookIfNecessary(false);
-          GrouperAttributeAssignValueRulesConfigHook.registerHookIfNecessary(true);
-          GroupDoNotDeleteIfProvisionable.registerHookIfNecessary();
+          registerBuiltInHook("AttributeDefAttributeNameValidationHook",
+              () -> AttributeDefAttributeNameValidationHook.registerHookIfNecessary(true));
+          registerBuiltInHook("AttributeDefNameAttributeNameValidationHook",
+              () -> AttributeDefNameAttributeNameValidationHook.registerHookIfNecessary(true));
+          registerBuiltInHook("GroupAttributeNameValidationHook",
+              () -> GroupAttributeNameValidationHook.registerHookIfNecessary(true));
+          registerBuiltInHook("StemAttributeNameValidationHook",
+              () -> StemAttributeNameValidationHook.registerHookIfNecessary(true));
+          registerBuiltInHook("GroupTypeTupleIncludeExcludeHook",
+              () -> GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(false));
+          registerBuiltInHook("GroupTypeSecurityHook",
+              () -> GroupTypeSecurityHook.registerHookIfNecessary(false));
+          registerBuiltInHook("GrouperAttributeAssignValueRulesConfigHook",
+              () -> GrouperAttributeAssignValueRulesConfigHook.registerHookIfNecessary(true));
+          registerBuiltInHook("GroupDoNotDeleteIfProvisionable",
+              () -> GroupDoNotDeleteIfProvisionable.registerHookIfNecessary());
           
           GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
               LifecycleHooks.METHOD_HOOKS_INIT, HooksLifecycleHooksInitBean.class, 
@@ -146,6 +154,23 @@ public class GrouperHooksUtils {
     }
   }
   
+  /**
+   * register one built in hook.  If the registration throws (generally a grouper.properties
+   * misconfiguration) log it loudly and keep going, otherwise every built in hook after this
+   * one in the registration sequence would be silently skipped for the life of the jvm
+   * @param hookName simple name of the hook, for logging
+   * @param registerRunnable calls the hook's registerHookIfNecessary
+   */
+  private static void registerBuiltInHook(String hookName, Runnable registerRunnable) {
+    try {
+      registerRunnable.run();
+    } catch (RuntimeException re) {
+      LOG.error("Error registering built in hook: " + hookName
+          + ".  This hook will not be active until the problem is fixed and grouper is restarted.  "
+          + "The other built in hooks are still being registered.", re);
+    }
+  }
+
   /**
    * add a hook to the list of configured hooks for this type
    * note if the class already exists it will not be added again
