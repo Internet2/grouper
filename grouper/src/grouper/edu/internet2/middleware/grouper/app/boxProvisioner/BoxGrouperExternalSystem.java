@@ -303,7 +303,7 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
     try {
       retrieveAccessTokenForBoxConfigId(new HashMap<String, Object>(), this.getConfigId());
     } catch (Exception e) {
-      ret.add("Unable to make box connection: " + GrouperUtil.escapeHtml(e.getMessage(), true));
+      ret.add(logAndDescribeTestException("Unable to make box connection", e));
     }
 
     return ret;

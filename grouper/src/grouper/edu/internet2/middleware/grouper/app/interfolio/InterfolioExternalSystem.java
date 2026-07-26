@@ -97,7 +97,7 @@ public class InterfolioExternalSystem extends GrouperExternalSystem {
       // to prove the credentials authenticate
       GrouperInterfolioApiCommands.searchUsers(this.getConfigId(), null, 1, 1);
     } catch (Exception e) {
-      ret.add("Unable to connect to Interfolio: " + GrouperUtil.escapeHtml(e.getMessage(), true));
+      ret.add(logAndDescribeTestException("Unable to connect to Interfolio", e));
     }
 
     return ret;
