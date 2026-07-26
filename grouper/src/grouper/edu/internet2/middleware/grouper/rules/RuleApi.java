@@ -56,6 +56,28 @@ import edu.internet2.middleware.subject.Subject;
 public class RuleApi {
 
   /**
+   * the ruleValid attribute value is computed by GrouperAttributeAssignValueRulesConfigHook when the
+   * rule attribute values are assigned.  If it comes back blank that hook did not run, so give a
+   * descriptive error instead of a RuntimeException with a null message
+   * @param isValidString value of the ruleValid attribute
+   */
+  private static void assertRuleValid(String isValidString) {
+
+    if (StringUtils.equals("T", isValidString)) {
+      return;
+    }
+
+    if (StringUtils.isBlank(isValidString)) {
+      throw new RuntimeException("The '" + RuleUtils.ruleValidName() + "' attribute value was never computed for this rule.  "
+          + "This generally means the built in hook GrouperAttributeAssignValueRulesConfigHook is not registered.  "
+          + "Check the logs for a 'Error registering built in hook' message at startup, which is usually caused by a "
+          + "grouper.properties misconfiguration in another built in hook.");
+    }
+
+    throw new RuntimeException(isValidString);
+  }
+
+  /**
    * normalize privileges if the user who creates a group is in a group which has create privilegs on the stem
    * @param actAs
    * @param ruleStem
@@ -85,9 +107,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
   
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     return attributeAssign;
   }
   
@@ -121,9 +141,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
   
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     return attributeAssign;
   }
   
@@ -177,9 +195,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
   
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
     
@@ -259,9 +275,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
   
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
   
     return attributeAssign;
     
@@ -309,9 +323,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
 
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
 
@@ -372,9 +384,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
 
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
 
@@ -446,9 +456,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
   
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     RuleApi.runRulesForOwner(stem);
 
@@ -519,9 +527,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
   
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     RuleApi.runRulesForOwner(stem);
 
@@ -929,9 +935,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
 
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     RuleApi.runRulesForOwner(stem);
 
@@ -985,9 +989,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
 
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
 
@@ -1029,9 +1031,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
 
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
     
@@ -1083,9 +1083,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
 
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
 
@@ -1131,9 +1129,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
 
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
 
@@ -1291,9 +1287,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
   
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
   }
@@ -1335,9 +1329,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
   
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
   }
@@ -1390,9 +1382,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
   
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
     
@@ -1440,9 +1430,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
   
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
 
@@ -1487,9 +1475,7 @@ public class RuleApi {
     String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
         RuleUtils.ruleValidName());
 
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
  
@@ -1540,9 +1526,7 @@ public class RuleApi {
     String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
         RuleUtils.ruleValidName());
 
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
 
@@ -1593,9 +1577,7 @@ public class RuleApi {
     String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
         RuleUtils.ruleValidName());
   
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
   
@@ -1640,9 +1622,7 @@ public class RuleApi {
     String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
         RuleUtils.ruleValidName());
   
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
   
@@ -1701,9 +1681,7 @@ public class RuleApi {
     String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
         RuleUtils.ruleValidName());
 
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
 
@@ -1761,9 +1739,7 @@ public class RuleApi {
     String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
         RuleUtils.ruleValidName());
 
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
     
     return attributeAssign;
     
@@ -1801,9 +1777,7 @@ public class RuleApi {
     String isValidString = attributeValueDelegate.retrieveValueString(
         RuleUtils.ruleValidName());
 
-    if (!StringUtils.equals("T", isValidString)) {
-      throw new RuntimeException(isValidString);
-    }
+    assertRuleValid(isValidString);
 
     return attributeAssign;
   }
