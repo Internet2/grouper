@@ -390,6 +390,44 @@ public class GrouperExternalSystemTest extends GrouperTest {
 //
 //  }
   
+  /**
+   * a test() which catches an exception must surface the cause chain, since the outermost
+   * wrapper message is generally too generic to diagnose a misconfiguration
+   */
+  public void testCauseChainMessage() {
+
+    assertEquals("", GrouperExternalSystem.causeChainMessage(null));
+
+    assertEquals("Unrecognized PEM header in private key", 
+        GrouperExternalSystem.causeChainMessage(new RuntimeException("Unrecognized PEM header in private key")));
+
+    // the outer message is what the operator used to see by itself
+    RuntimeException cause = new RuntimeException("Unrecognized PEM header in private key");
+    RuntimeException wrapper = new RuntimeException("Error building client_assertion JWT for azure config 'myAzure'", cause);
+
+    assertEquals("Error building client_assertion JWT for azure config 'myAzure': Unrecognized PEM header in private key", 
+        GrouperExternalSystem.causeChainMessage(wrapper));
+
+    // three deep
+    assertEquals("outer: middle: inner", 
+        GrouperExternalSystem.causeChainMessage(
+            new RuntimeException("outer", new RuntimeException("middle", new RuntimeException("inner")))));
+
+    // an exception with no message at least identifies itself
+    assertEquals("outer: NullPointerException", 
+        GrouperExternalSystem.causeChainMessage(new RuntimeException("outer", new NullPointerException())));
+
+    // dont repeat text when a wrapper already contains the message of its cause, e.g. when the
+    // wrapper was built with new RuntimeException(cause) or by appending the cause message
+    RuntimeException innerException = new RuntimeException("inner detail");
+    assertEquals("outer: inner detail", 
+        GrouperExternalSystem.causeChainMessage(new RuntimeException("outer: inner detail", innerException)));
+
+    assertEquals("java.lang.RuntimeException: inner detail", 
+        GrouperExternalSystem.causeChainMessage(new RuntimeException(innerException)));
+
+  }
+
 //  public void testRetrieveExtraAttributes() {
 //    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.azureConnector.testAzure.customProperty", "custom value");
 //

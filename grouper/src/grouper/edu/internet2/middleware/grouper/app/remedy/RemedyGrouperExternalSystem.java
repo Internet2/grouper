@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyApiCommands;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class RemedyGrouperExternalSystem extends GrouperExternalSystem {
   
@@ -42,7 +41,7 @@ public class RemedyGrouperExternalSystem extends GrouperExternalSystem {
     try {
       GrouperRemedyApiCommands.retrieveRemedyGroups(this.getConfigId());
     } catch (Exception e) {
-      errors.add("Could not connect with remedy successfully "+GrouperUtil.escapeHtml(e.getMessage(), true));
+      errors.add(logAndDescribeTestException("Could not connect with remedy", e));
     }
     
     return errors;

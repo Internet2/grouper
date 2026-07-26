@@ -11,7 +11,6 @@ import edu.internet2.middleware.grouper.app.google.GrouperGoogleGroup;
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.GrouperDigitalMarketplaceApiCommands;
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.GrouperDigitalMarketplaceGroup;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class RemedyDigitalMarketplaceGrouperExternalSystem extends GrouperExternalSystem {
   
@@ -45,7 +44,7 @@ public class RemedyDigitalMarketplaceGrouperExternalSystem extends GrouperExtern
     try {
       GrouperDigitalMarketplaceApiCommands.retrieveDigitalMarketplaceGroups(this.getConfigId());
     } catch (Exception e) {
-      errors.add("Could not connect with remedy digital marketplace successfully "+GrouperUtil.escapeHtml(e.getMessage(), true));
+      errors.add(logAndDescribeTestException("Could not connect with remedy digital marketplace", e));
     }
     
     return errors;

@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.boxProvisioner.BoxGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
@@ -34,6 +37,9 @@ import edu.internet2.middleware.grouperMessagingRabbitmq.RabbitMqGrouperExternal
 
 public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBase implements OptionValueDriver {
   
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperExternalSystem.class);
+
   /**
    * return list of error messages
    * @return
@@ -41,6 +47,62 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
    */
   public List<String> test() throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
+  }
+  
+  /**
+   * a test() which catches an exception and turns it into a message loses the stack and the
+   * cause chain, so the operator sees only the message of the outermost wrapper exception and
+   * nothing at all is written to the logs.  log the throwable as an error and return a message
+   * which includes the message of each throwable in the cause chain, where the real problem
+   * generally lives.
+   * @param messagePrefix describes what failed, without trailing punctuation, e.g.
+   * "Unable to retrieve Azure authentication token"
+   * @param throwable the exception caught in test()
+   * @return the html escaped message to add to the errors returned from test()
+   */
+  protected String logAndDescribeTestException(String messagePrefix, Throwable throwable) {
+    
+    LOG.error("Error testing external system '" + this.getConfigId() + "' (" 
+        + this.getClass().getSimpleName() + "): " + messagePrefix, throwable);
+    
+    return GrouperUtil.escapeHtml(messagePrefix + ": " + causeChainMessage(throwable), true);
+  }
+  
+  /**
+   * build a message from the message of each throwable in the cause chain, since the message of
+   * a wrapper exception is often generic (e.g. "Error building client_assertion JWT") and the
+   * actionable detail (e.g. "Unrecognized PEM header in private key") is only in the cause
+   * @param throwable
+   * @return the messages of the cause chain, outermost first, or empty string if null
+   */
+  public static String causeChainMessage(Throwable throwable) {
+    
+    StringBuilder result = new StringBuilder();
+    
+    // guard against a cause chain which loops back on itself
+    Set<Throwable> throwablesSeen = new LinkedHashSet<Throwable>();
+    
+    for (Throwable current = throwable; current != null && throwablesSeen.add(current); current = current.getCause()) {
+      
+      String message = StringUtils.trimToNull(current.getMessage());
+      
+      // some exceptions (e.g. NullPointerException) have no message, so at least say which one it was
+      if (message == null) {
+        message = current.getClass().getSimpleName();
+      }
+      
+      // dont repeat text, e.g. when a wrapper's message already contains the message of its cause
+      if (result.indexOf(message) >= 0) {
+        continue;
+      }
+      
+      if (result.length() > 0) {
+        result.append(": ");
+      }
+      result.append(message);
+    }
+    
+    return result.toString();
   }
   
   /**
