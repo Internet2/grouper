@@ -86,31 +86,28 @@ ${grouper:titleFromKeyAndText('groupEditPageTitle', grouperRequestContainer.grou
                   <!-- user lifecycle policies section -->
                   <div class="control-group">
                     <label class="control-label">${textContainer.text['userLifeycyclePolicyLabel']}</label>
-                    <div class="controls">
+                    <div class="controls user-lifecycle-policy-options">
                     <c:forEach items="${grouperRequestContainer.groupContainer.userLifecyclePolicies}" var="userLifecyclePolicy" varStatus="st">
-                      <input type="radio"
-                             id="ulp_${st.index}"
-                             name="userLifecyclePolicy"
-                             value="${userLifecyclePolicy.configId}"
-                             <c:if test="${grouperRequestContainer.groupContainer.selectedUserLifeycyclePolicyConfigId == userLifecyclePolicy.configId}">checked</c:if> 
-                      />
-                      <label for="ulp_${st.index}">
-                        ${grouper:escapeHtml(userLifecyclePolicy.policyName)}
+                      <label class="radio" for="ulp_${st.index}">
+                        <input type="radio"
+                               id="ulp_${st.index}"
+                               name="userLifecyclePolicy"
+                               value="${userLifecyclePolicy.configId}"
+                               <c:if test="${grouperRequestContainer.groupContainer.selectedUserLifeycyclePolicyConfigId == userLifecyclePolicy.configId}">checked="checked"</c:if>
+                        >${grouper:escapeHtml(userLifecyclePolicy.policyName)}
                       </label>
                       <span class="help-block">${userLifecyclePolicy.description}</span>
-                      </br>
-                    
-                    
                     </c:forEach>
                     
                     <!-- Hardcoded 'None' option -->
-                      <input type="radio"
-                             id="ulp_none"
-                             name="userLifecyclePolicy"
-                             value=""
-                             <c:if test="${empty grouperRequestContainer.groupContainer.selectedUserLifeycyclePolicyConfigId}">checked</c:if> 
-                      />
-                      <label for="ulp_none"> None</label>
+                      <label class="radio" for="ulp_none">
+                        <input type="radio"
+                               id="ulp_none"
+                               name="userLifecyclePolicy"
+                               value=""
+                               <c:if test="${empty grouperRequestContainer.groupContainer.selectedUserLifeycyclePolicyConfigId}">checked="checked"</c:if>
+                        >None
+                      </label>
                     </div>
                   </div>
                   
