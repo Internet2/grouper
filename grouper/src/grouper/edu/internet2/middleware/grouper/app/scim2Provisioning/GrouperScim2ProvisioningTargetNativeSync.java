@@ -276,7 +276,13 @@ public class GrouperScim2ProvisioningTargetNativeSync extends GrouperProvisionin
       if (StringUtils.isBlank(groupId) || userIds == null) {
         continue;
       }
-      for (String userId : userIds) {
+      // Iterate a point-in-time snapshot rather than the live set. userIds is a
+      // Collections.synchronizedSet (see GrouperScim2MembershipCache.addMembership) whose backing
+      // HashSet is still being written by concurrent retrieve threads. A synchronizedSet only
+      // guards individual method calls, not iteration, so iterating it live throws
+      // ConcurrentModificationException. new ArrayList<>(userIds) copies via the set's synchronized
+      // toArray(), yielding a safe snapshot to iterate.
+      for (String userId : new ArrayList<String>(userIds)) {
         if (StringUtils.isBlank(userId)) {
           continue;
         }

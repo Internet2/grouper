@@ -925,12 +925,14 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
     }
 
     for (String groupId : this.grouperScim2MembershipCache.getGroupIdToMembershipUserIds().keySet()) {
-      for (String userId : this.grouperScim2MembershipCache.getGroupIdToMembershipUserIds().get(groupId)) {
+      // GRP-7182: iterate a snapshot; the value set is a Collections.synchronizedSet that can still be written by concurrent retrieve threads
+      for (String userId : new ArrayList<String>(this.grouperScim2MembershipCache.getGroupIdToMembershipUserIds().get(groupId))) {
         groupIdUserIds.add(new MultiKey(groupId, userId));
       }
     }
     for (String userId : this.grouperScim2MembershipCache.getUserIdToMembershipGroupIds().keySet()) {
-      for (String groupId : this.grouperScim2MembershipCache.getUserIdToMembershipGroupIds().get(userId)) {
+      // GRP-7182: iterate a snapshot; the value set is a Collections.synchronizedSet that can still be written by concurrent retrieve threads
+      for (String groupId : new ArrayList<String>(this.grouperScim2MembershipCache.getUserIdToMembershipGroupIds().get(userId))) {
         groupIdUserIds.add(new MultiKey(groupId, userId));
       }
     }
@@ -1010,7 +1012,8 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
         List<ProvisioningMembership> targetMemberships = new ArrayList<ProvisioningMembership>();
 
         if (!StringUtils.isBlank(groupId)) {
-          for (String entityId : GrouperUtil.nonNull(grouperScim2MembershipCache.getGroupIdToMembershipUserIds().get(groupId))) {
+          // GRP-7182: iterate a snapshot; the value set is a Collections.synchronizedSet that can still be written by concurrent retrieve threads
+          for (String entityId : new ArrayList<String>(GrouperUtil.nonNull(grouperScim2MembershipCache.getGroupIdToMembershipUserIds().get(groupId)))) {
             ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
             provisioningMembership.setProvisioningGroupId(groupId);
             provisioningMembership.setProvisioningEntityId(entityId);
@@ -1067,7 +1070,8 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
         List<ProvisioningMembership> targetMemberships = new ArrayList<ProvisioningMembership>();
 
         if (!StringUtils.isBlank(entityId)) {
-          for (String groupId : GrouperUtil.nonNull(grouperScim2MembershipCache.getUserIdToMembershipGroupIds().get(entityId))) {
+          // GRP-7182: iterate a snapshot; the value set is a Collections.synchronizedSet that can still be written by concurrent retrieve threads
+          for (String groupId : new ArrayList<String>(GrouperUtil.nonNull(grouperScim2MembershipCache.getUserIdToMembershipGroupIds().get(entityId)))) {
             ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
             provisioningMembership.setProvisioningEntityId(entityId);
             provisioningMembership.setProvisioningGroupId(groupId);
