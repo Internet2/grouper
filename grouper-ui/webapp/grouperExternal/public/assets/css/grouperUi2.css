@@ -586,3 +586,23 @@ a:focus {
   text-align: center;
   box-sizing: border-box;
 }
+
+/* User lifecycle policy radio list on the group edit screen. Each option is a
+   label.radio followed by a sibling span.help-block description. By default
+   bootstrap gives the label a 5px bottom margin while .form-horizontal zeroes
+   the help-block's bottom margin, so the description drifted away from its own
+   radio and collided with the next one. Flip that: pull the description up
+   against the radio it belongs to, and put the breathing room after it. */
+.user-lifecycle-policy-options label.radio {
+  margin-bottom: 0;
+}
+.user-lifecycle-policy-options .help-block {
+  /* padding-left matches .radio's 20px so the description lines up with the
+     label text rather than the radio button itself */
+  padding-left: 20px;
+  margin-top: 1px;
+  margin-bottom: 12px;
+}
+.user-lifecycle-policy-options .help-block:last-child {
+  margin-bottom: 0;
+}
