@@ -3240,8 +3240,23 @@ function grouperComboboxSetId(jquerySelector, idValue) {
  * from root; i.e., if the object hasn't been loaded, it will query all
  * the unloaded folders in the path and load them
  */
+// Server-emitted hook (see UiV2Stem/Group/AttributeDef/AttributeDefName view logic):
+// when uiV2.refresh.menu.on.view=true, each object-view response appends a call to
+// openFolderTreePathToObject([...]) to focus the left-nav folder tree on the object
+// just navigated to.
+//
+// Originally (GRP-2048) the folder tree was a Dojo/dijit tree and this opened the path
+// via folderTree.set('path', pathArray). GRP-6521 migrated the tree to jsTree and removed
+// Dojo (including the global folderTree object), but left this stub calling the now-missing
+// folderTree.set(...), which threw "TypeError: folderTree.set is not a function" and hung
+// the view page whenever menu-refresh-on-view was enabled.
+//
+// dojoInitMenu(true) is the jsTree "refresh and focus current object" path (the same one the
+// Browse-folders refresh button and the on-view JSPs use). It re-derives the current object
+// from the browser URL -- which guiV2link has already updated via History.pushState by the
+// time this runs -- so the server-provided pathArray is no longer needed and is ignored.
 function openFolderTreePathToObject(pathArray) {
-  folderTree.set('path', pathArray);
+  dojoInitMenu(true);
 }
 
 function showLinkToRefreshSubjectSourceAttributes(focusOnElementName) {

@@ -9,7 +9,7 @@
 <script src="../../grouperExternal/public/assets/js/jstree.min.js"></script>
 <script src="../../grouperExternal/public/assets/js/grouper.js"></script>
 <script src="../../grouperExternal/public/assets/js/native.history.js"></script>
-<script src="../../grouperExternal/public/assets/js/grouperUi.js?ver=7.2.0"></script>
+<script src="../../grouperExternal/public/assets/js/grouperUi.js?ver=7.3.3"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.blockUI.js"></script>
 <script src="../../grouperExternal/public/assets/nifty/niftycube.js"></script>
 
