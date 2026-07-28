@@ -22,7 +22,7 @@
                         <li><a href="?operation=UiV2GrouperLoader.loaderOverall" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperLoader.loaderOverall'); return false;"
                             >${textContainer.text['adminLoaderLink'] }</a></li>
 
-                        <li><a href="?operation=UiV2Admin.daemonJobsSchedule" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.daemonJobsSchedule'); return false;"
+                        <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSchedule'); return false;"
                             >${textContainer.text['adminJobSchedule'] }</a></li>
 
                       </ul>
