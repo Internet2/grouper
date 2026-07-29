@@ -5,7 +5,7 @@ package edu.internet2.middleware.grouper.app.ccure;
  * clientName
  * cliendId
  * clientVersion
- * serviceUrl
+ * endpoint
  * username
  * password
  * proxyUrl
@@ -39,7 +39,7 @@ public class CCureExternalSystem extends GrouperExternalSystem {
   private String clientName;
   private String clientId;
   private String clientVersion;
-  private String serviceUrl;
+  private String endpoint;
   private Integer personnelPageSize;
   private Integer clearancePairPageSize;
   private String username;
@@ -60,13 +60,13 @@ public class CCureExternalSystem extends GrouperExternalSystem {
 
     GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
 
-    // Required: clientName, serviceUrl, username, password
+    // Required: clientName, endpoint, username, password
     // Can't call propertyValueStringRequired here since needs to apply to blank configs
     // the property metadata will handle validation in base class validatePreSave()
     this.clientName = grouperLoaderConfig.propertyValueString(getConfigItemPrefix() + "clientName");
     this.clientId = grouperLoaderConfig.propertyValueString(getConfigItemPrefix() + "clientId");
     this.clientVersion = grouperLoaderConfig.propertyValueString(getConfigItemPrefix() + "clientVersion");
-    this.serviceUrl = grouperLoaderConfig.propertyValueString(getConfigItemPrefix() + "serviceUrl");
+    this.endpoint = grouperLoaderConfig.propertyValueString(getConfigItemPrefix() + "endpoint");
     this.personnelPageSize = grouperLoaderConfig.propertyValueInt(getConfigItemPrefix() + "personnelPageSize", 2000);
     this.clearancePairPageSize = grouperLoaderConfig.propertyValueInt(getConfigItemPrefix() + "clearancePairPageSize", 2000);
     this.username = grouperLoaderConfig.propertyValueString(getConfigItemPrefix() + "username");
@@ -80,7 +80,7 @@ public class CCureExternalSystem extends GrouperExternalSystem {
   }
 
   public String constructUrl(String uri) {
-    return GrouperUtil.stripLastSlashIfExists(serviceUrl) + uri;
+    return GrouperUtil.stripLastSlashIfExists(endpoint) + uri;
   }
 
   public String getAccessToken() {
@@ -103,7 +103,7 @@ public class CCureExternalSystem extends GrouperExternalSystem {
   public void authenticate() {
     GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
-    String url = GrouperUtil.stripLastSlashIfExists(serviceUrl) + "/api/Authenticate/Login";
+    String url = GrouperUtil.stripLastSlashIfExists(endpoint) + "/api/Authenticate/Login";
 
     grouperHttpClient.assignUrl(url);
     grouperHttpClient.assignGrouperHttpMethod("POST");
@@ -185,9 +185,9 @@ public class CCureExternalSystem extends GrouperExternalSystem {
     if (!GrouperUtil.isBlank(testUrlSuffix)) {
       GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
 
-      String url = serviceUrl;
+      String url = endpoint;
       if (!StringUtils.isBlank(testUrlSuffix)) {
-        url = GrouperUtil.stripLastSlashIfExists(serviceUrl) + "/" + GrouperUtil.stripFirstSlashIfExists(testUrlSuffix);
+        url = GrouperUtil.stripLastSlashIfExists(endpoint) + "/" + GrouperUtil.stripFirstSlashIfExists(testUrlSuffix);
       }
 
       grouperHttpClient.assignUrl(url);
