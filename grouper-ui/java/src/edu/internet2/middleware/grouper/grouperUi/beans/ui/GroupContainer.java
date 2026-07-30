@@ -159,6 +159,16 @@ public class GroupContainer {
       result.add(GuiUserLifecyclePolicy.convertFromUserLifecyclePolicyConfiguration(userLifecyclePolicyConfiguration));
     }
     
+    // order the policies by their index from smallest to largest ('None' is hardcoded at the bottom in the jsp)
+    Collections.sort(result, new Comparator<GuiUserLifecyclePolicy>() {
+      @Override
+      public int compare(GuiUserLifecyclePolicy o1, GuiUserLifecyclePolicy o2) {
+        Integer index1 = o1.getIndex() == null ? Integer.MAX_VALUE : o1.getIndex();
+        Integer index2 = o2.getIndex() == null ? Integer.MAX_VALUE : o2.getIndex();
+        return index1.compareTo(index2);
+      }
+    });
+    
     return result;
   }
   
