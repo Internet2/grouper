@@ -1511,7 +1511,7 @@ public class GrouperProvisioningLogicIncremental {
     if (random100 < this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getErrorHandlingPercentLevel1()) {
       // 1/100th of the time get all errors 120 minutes back
       secondsToCheck = 60*this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getErrorHandlingMinutesLevel1() + 20;
-    } if (random100 < this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getErrorHandlingPercentLevel2()) {
+    } else if (random100 < this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getErrorHandlingPercentLevel2()) {
       // 1/20th of the time get all errors 120 minutes back
       secondsToCheck = 60*this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getErrorHandlingMinutesLevel2() + 20;
     } else if (random100 < this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getErrorHandlingPercentLevel3()) {
@@ -1572,6 +1572,18 @@ public class GrouperProvisioningLogicIncremental {
           continue;
         }
         
+        // a membership error can be caused by a stale entity/group link cache (e.g. a
+        // membership add that keeps failing because member_to_id / group_to_id points at a target
+        // object that no longer exists or has been recreated with a new id).  Re-queuing only the
+        // membership retries with the same stale data forever, so also mark the membership's entity
+        // and group for object recalc.  That forces their target objects to be re-retrieved this run
+        // (updateEntityLinkFull / updateGroupLinkFull refresh the link caches, and the sync-back load
+        // refreshes grouper_prov_user / grouper_prov_group), so the membership retry uses accurate ids.
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalEntity(memberUuid,
+            this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesForRecalc(), false, null, null);
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalGroup(groupUuid,
+            this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc(), false, null, null);
+
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalMembership(groupUuid, memberUuid, this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForRecalc(),
             null, null);
         addErrorsToQueue++;
