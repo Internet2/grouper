@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.azure;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,7 +41,10 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
@@ -74,7 +78,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testAddManyMembershipsUncgHelperIncremental"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testStaleEntityCacheMembershipErrorRetriesEntityIncremental"));
     //realAzureAddUsers();
   }
 
@@ -2806,6 +2810,125 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       assertTrue(userIds.contains(grouperAzureUsers.get(0).getId()));
 
     }
+
+  /**
+   * A membership add that keeps failing because the entity link cache holds a stale target id
+   * (e.g. the target account was recreated with a new id out of band) must not retry forever with
+   * the same stale data.  addErrorsToQueue should recalc the errored membership's entity so the
+   * link cache is refreshed and the membership retry succeeds.
+   */
+  public void testStaleEntityCacheMembershipErrorRetriesEntityIncremental() {
+
+    GrouperStartup.startup();
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
+
+    RegistrySubject.add(grouperSession, "Fred5000", "person", "Fred5000");
+    Subject fred = SubjectFinder.findById("Fred5000", true);
+
+    String configId = "AZURE_AD";
+    AzureProvisionerTestUtils.configureAzureProvisioner(
+        new AzureProvisionerTestConfigInput()
+          .assignConfigId(configId)
+          .assignProvisioningStrategy("michiganAzure")
+          .addExtraConfig("scoreConvertToFullSyncThreshold", "500"));
+
+    String azureGroupDisplayName = "test:test0";
+    List<GrouperAzureGroup> existingAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false, new HashSet<String>());
+    if (existingAzureGroups != null && existingAzureGroups.size() > 0) {
+      GrouperAzureApiCommands.deleteAzureGroups("myAzure", existingAzureGroups);
+    }
+
+    fullProvision(configId);
+    incrementalProvision(configId);
+
+    // the target user exists up front, so the entity links cleanly on the full sync below (no member error);
+    // only the membership add will later fail due to the stale link cache
+    azureAddUsersHelper(5000, 5001);
+
+    new StemSave(grouperSession).assignName("test").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:test0").save();
+    testGroup.addMember(fred, false);
+    Member member = MemberFinder.findBySubject(grouperSession, fred, true);
+
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision(configId);
+    attributeValue.setTargetName(configId);
+    Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+    metadataNameValues.put("md_grouper_resourceProvisioningOptionsTeam", true);
+    metadataNameValues.put("md_grouper_azureGroupType", "security");
+    attributeValue.setMetadataNameValues(metadataNameValues);
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, testGroup);
+
+    // full sync: group, user and membership are all in the target and the entity link cache holds the current target user id
+    fullProvision(configId);
+
+    List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false, new HashSet<String>());
+    assertEquals(1, azureGroups.size());
+    String azureGroupId = azureGroups.get(0).getId();
+
+    List<GrouperAzureUser> azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
+    assertEquals(1, azureUsers.size());
+    String staleUserId = azureUsers.get(0).getId();
+
+    Set<String> memberIds = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", azureGroupId);
+    assertTrue(memberIds.contains(staleUserId));
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member.getId());
+    // entityAttributeValueCache0 is the cached target id (michiganAzure entityAttributeValueCache0 = target "id")
+    assertEquals(staleUserId, gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertNull(gcGrouperSyncMember.getErrorCode());
+
+    // ---- simulate an out-of-band target recreate: drop the membership, delete the user, then recreate
+    //      the user with the SAME userPrincipalName but a NEW id, so the cached target id is now stale ----
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_membership where user_id = ?").addBindVar(staleUserId).executeSql();
+    GrouperAzureApiCommands.deleteAzureUsers("myAzure", azureUsers);
+
+    azureAddUsersHelper(5000, 5001);
+    List<GrouperAzureUser> recreatedAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
+    assertEquals(1, recreatedAzureUsers.size());
+    String freshUserId = recreatedAzureUsers.get(0).getId();
+    assertFalse(staleUserId.equals(freshUserId));
+
+    // ---- simulate the state left by a previous incremental that failed to add the membership: the
+    //      membership carries an error and is not in the target, but the member sync object is clean
+    //      (still "in target" with the stale link cache), so nothing would recalc the entity on its own ----
+    GcGrouperSyncMembership gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member.getId());
+    gcGrouperSyncMembership.setInTarget(false);
+    gcGrouperSyncMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
+    gcGrouperSyncMembership.setErrorMessage("could not add membership");
+    gcGrouperSyncMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+    gcGrouperSync.getGcGrouperSyncMembershipDao().internal_membershipStore(gcGrouperSyncMembership);
+
+    // ---- run incremental with NO grouper changes: addErrorsToQueue picks up the errored membership and
+    //      (with the fix) also recalcs its entity so the stale link cache is refreshed before the retry ----
+    incrementalProvision(configId, true, true, true);
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    Map<String, Object> debugMap = grouperProvisioner.getDebugMap();
+    assertTrue(GrouperUtil.intValue(debugMap.get("addErrorsToQueue"), 0) > 0);
+
+    // the entity was forced to recalc off the membership error
+    ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(member.getId());
+    assertNotNull(provisioningEntityWrapper);
+    assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject());
+
+    // the stale link cache was refreshed to the recreated target user id
+    gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member.getId());
+    assertEquals(freshUserId, gcGrouperSyncMember.getEntityAttributeValueCache0());
+
+    // membership add now succeeded against the fresh id, and the membership error is cleared
+    memberIds = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", azureGroupId);
+    assertTrue(memberIds.contains(freshUserId));
+
+    gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member.getId());
+    assertTrue("T".equals(gcGrouperSyncMembership.getInTargetDb()));
+    assertNull(gcGrouperSyncMembership.getErrorCode());
+  }
 
   public void testDeleteGroupMichiganFull() {
     deleteGroupMichiganHelper(true);
