@@ -339,14 +339,61 @@ public class UiV2CustomUi {
     if (StringUtils.equals(loggedInMember.getId(), memberId)) {
       member = loggedInMember;
     } else {
+      // working on someone else: the custom UI engine must be initialized before the
+      // manager check since isManager() reads the custom UI config from the engine
+      ensureCustomUiEngine(request);
       if (!customUiContainer.isManager()) {
         throw new RuntimeException("Not manager! " + SubjectHelper.getPretty(loggedInSubject));
       }
-      // working on someone else
       member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, true);
     }
     customUiContainer.setMember(member);
     return member;
+  }
+
+  /**
+   * make sure the custom UI engine (and its config) is initialized so that authorization
+   * checks (e.g. isManager()) can run before the full group logic executes. This only loads
+   * the custom UI config, which depends on the group and not on the operated-on subject.
+   * customUiGroupLogic() runs later and rebuilds the engine for the actual operated-on subject.
+   * @param request
+   */
+  private void ensureCustomUiEngine(final HttpServletRequest request) {
+
+    final CustomUiContainer customUiContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getCustomUiContainer();
+
+    if (customUiContainer.getCustomUiEngine() != null) {
+      return;
+    }
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    final Map<String, String> urlParamVariables = new HashMap<String, String>();
+    Enumeration<String> parameterNames = request.getParameterNames();
+    if (parameterNames != null) {
+      while (parameterNames.hasMoreElements()) {
+        String parameterName = parameterNames.nextElement();
+        if (parameterName.startsWith("cu_")) {
+          urlParamVariables.put(parameterName, request.getParameter(parameterName));
+        }
+      }
+    }
+
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession inner_grouperSession) throws GrouperSessionException {
+
+        Group group = lookupGroup(request);
+
+        CustomUiEngine customUiEngine = new CustomUiEngine();
+        customUiEngine.setUrlParameters(urlParamVariables);
+        customUiContainer.setCustomUiEngine(customUiEngine);
+
+        customUiEngine.processGroupStep1(group, loggedInSubject, loggedInSubject);
+
+        return null;
+      }
+    });
   }
 
   /**
