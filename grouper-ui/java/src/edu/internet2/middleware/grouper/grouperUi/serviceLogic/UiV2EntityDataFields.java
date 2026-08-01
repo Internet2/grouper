@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.exception.GrouperReferentialIntegrityException;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfiguration;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldType;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderChangeLogQueryConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderQueryConfiguration;
@@ -2624,7 +2625,8 @@ public class UiV2EntityDataFields {
         // build JEXL snippet for row fields
         String firstAlias = dataFieldConfig.getFieldAliases().iterator().next();
         String firstRowAlias = dataRowConfig.getRowAliases().iterator().next();
-        guiField.setJexlSnippet("entity.hasRow('" + firstRowAlias + "', \"" + firstAlias + "=='value'\")");
+        String predicate = buildRowFieldJexlPredicate(dataFieldConfig.getFieldDataType(), firstAlias);
+        guiField.setJexlSnippet("entity.hasRow('" + firstRowAlias + "', \"" + predicate + "\")");
         
         // apply search text filter
         if (!searchTerms.isEmpty() && !filterShowAll) {
@@ -2731,6 +2733,40 @@ public class UiV2EntityDataFields {
       guiTable.setDescription(GrouperTextContainer.textOrNull(descKey));
       guiTable.setDocumentation(GrouperTextContainer.textOrNull(docKey));
       result.add(guiTable);
+    }
+  }
+  
+  /**
+   * Build the generic example predicate used inside entity.hasRow(rowAlias, "predicate") for a data row field.
+   * This is only a fallback for fields that do not supply their own examples html, so it needs to be valid
+   * usage for the field data type: string compares to a quoted scalar, integer to an unquoted number, boolean
+   * is truthy so it needs no comparison at all, and timestamp compares to the timeFromNow() helper rather
+   * than to a scalar.
+   * @param grouperDataFieldType data type of the field, null is treated as string (the config default)
+   * @param fieldAlias alias of the field to reference in the predicate
+   * @return the predicate, without the surrounding double quotes
+   */
+  private static String buildRowFieldJexlPredicate(GrouperDataFieldType grouperDataFieldType, String fieldAlias) {
+    
+    if (grouperDataFieldType == null) {
+      grouperDataFieldType = GrouperDataFieldType.string;
+    }
+    
+    switch (grouperDataFieldType) {
+      
+      case integer:
+        return fieldAlias + " == 1234";
+        
+      case bool:
+        // booleans are truthy in a hasRow predicate, no comparison needed
+        return fieldAlias;
+        
+      case timestamp:
+        return fieldAlias + " <= timeFromNow('now')";
+        
+      case string:
+      default:
+        return fieldAlias + " == 'value'";
     }
   }
   
