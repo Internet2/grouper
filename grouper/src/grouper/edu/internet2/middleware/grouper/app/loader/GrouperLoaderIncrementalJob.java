@@ -159,6 +159,12 @@ public class GrouperLoaderIncrementalJob implements Job {
 
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("overallLog");
 
+    // for the job message
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    // number of messages (i.e. rows) read from the incremental membership table
+    int membershipMessageCount = 0;
+
     try {
       hib3GrouperloaderLog.setJobName(jobName);
       hib3GrouperloaderLog.setHost(GrouperUtil.hostname());
@@ -211,6 +217,8 @@ public class GrouperLoaderIncrementalJob implements Job {
         
         while (resultSet.next()) {
           GrouperDaemonUtils.stopProcessingIfJobPaused();
+
+          membershipMessageCount++;
 
           synchronized (hib3GrouperloaderLog) {
             hib3GrouperloaderLog.addTotalCount(1);
@@ -492,10 +500,17 @@ public class GrouperLoaderIncrementalJob implements Job {
         GrouperUtil.closeQuietly(connection);
       }
       
+      // total count is the number of messages (i.e. incremental rows) that were read
+      hib3GrouperloaderLog.setTotalCount(membershipMessageCount);
+
+      assignSummaryToDebugMap(debugMap, hib3GrouperloaderLog, membershipMessageCount, nonFatalWarnings.size());
+      hib3GrouperloaderLog.setJobMessage(GrouperUtil.mapToString(debugMap));
+
       if (nonFatalWarnings.size() == 0) {
         hib3GrouperloaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
       } else {
         hib3GrouperloaderLog.setStatus(GrouperLoaderStatus.WARNING.name());
+        hib3GrouperloaderLog.appendJobMessage(", ");
         for (String nonFatalWarning : nonFatalWarnings) {
           hib3GrouperloaderLog.appendJobMessage(nonFatalWarning + " ");
         }
@@ -508,7 +523,10 @@ public class GrouperLoaderIncrementalJob implements Job {
 
       LOG.error("Error running job", e);
       hib3GrouperloaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-      hib3GrouperloaderLog.appendJobMessage(ExceptionUtils.getStackTrace(e));
+      hib3GrouperloaderLog.setTotalCount(membershipMessageCount);
+      assignSummaryToDebugMap(debugMap, hib3GrouperloaderLog, membershipMessageCount, 0);
+      hib3GrouperloaderLog.setJobMessage(GrouperUtil.mapToString(debugMap));
+      hib3GrouperloaderLog.appendJobMessage(", " + ExceptionUtils.getStackTrace(e));
       
       if (!(e instanceof JobExecutionException)) {
         e = new JobExecutionException(e);
@@ -525,6 +543,23 @@ public class GrouperLoaderIncrementalJob implements Job {
     }
   }
   
+  /**
+   * summary of what this run of the incremental loader did, this ends up in the job message in the loader log
+   * @param debugMap
+   * @param hib3GrouperloaderLog
+   * @param membershipMessageCount number of rows read from the incremental membership table
+   * @param warningCount
+   */
+  private static void assignSummaryToDebugMap(Map<String, Object> debugMap, Hib3GrouperLoaderLog hib3GrouperloaderLog,
+      int membershipMessageCount, int warningCount) {
+
+    debugMap.put("messages", membershipMessageCount);
+    debugMap.put("membershipMessages", membershipMessageCount);
+    debugMap.put("membershipsAdded", GrouperUtil.defaultIfNull(hib3GrouperloaderLog.getInsertCount(), 0));
+    debugMap.put("membershipsRemoved", GrouperUtil.defaultIfNull(hib3GrouperloaderLog.getDeleteCount(), 0));
+    debugMap.put("warnings", warningCount);
+  }
+
   private static void handleSetsOfGroups(Connection connection, String tableName) {
     Statement statement = null;
     PreparedStatement statement2 = null;
