@@ -47,6 +47,8 @@ ddlScripts/
 
 **/.gradle/
 
+**/__pycache__/
+**/*.pyc
 **/*.ipr
 **/*.iws
 /grouper.*.tar.gz

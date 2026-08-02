@@ -14,11 +14,17 @@ read that file for the full spec and rationale. In short:
   * Incremental: only pages whose Confluence `version` changed are re-fetched and
     rewritten; pages that no longer exist (or moved) get their stale file pruned.
 
+It also emits sitemap.xml (public docs URLs, for Google) next to this script --
+Grouper space only, GrIntDev excluded, sorted so the file is idempotent. See the
+"Sitemap" section of convertToMarkdownAiInstructions.md for how to deploy it to
+grouperdemo after a release.
+
 Usage:
     export ATLASSIAN_EMAIL='you@example.com'
     export ATLASSIAN_API_TOKEN='...'                # id.atlassian.com API token
-    python3 wikiToMarkdown.py --out misc/wiki       # from the repo root
+    python3 wikiToMarkdown.py --out misc/wiki       # mirror + sitemap
     python3 wikiToMarkdown.py --out misc/wiki --full # rewrite every page
+    python3 wikiToMarkdown.py --sitemap-only         # just regenerate sitemap.xml
 
 Requires: Python 3, beautifulsoup4 (pip install beautifulsoup4). Uses only the
 standard library otherwise.
@@ -33,12 +39,21 @@ import argparse
 import subprocess
 import urllib.parse
 import urllib.request
+import xml.sax.saxutils
 
 from bs4 import BeautifulSoup, NavigableString, Tag
 
 SITE = "https://grouper.atlassian.net/wiki"
 API = SITE + "/rest/api"
 SPACES = ["Grouper", "GrIntDev"]
+
+# Public docs custom domain (same Confluence instance as SITE, different host).
+# Used only to build the sitemap that Google indexes.
+DOCS_SITE = "https://docs.grouper.internet2.edu/wiki"
+# Spaces that are publicly readable and therefore belong in the public sitemap.
+# GrIntDev is internal and is intentionally excluded so its pages are never
+# advertised to search engines.
+SITEMAP_SPACES = ["Grouper"]
 
 # Macros that are navigation / dynamic / non-content -- strip them entirely.
 STRIP_MACROS = {
@@ -349,6 +364,32 @@ def frontmatter(page):
 
 
 # --------------------------------------------------------------------------- #
+# sitemap.xml for the public docs site (docs.grouper.internet2.edu)
+# --------------------------------------------------------------------------- #
+def write_sitemap(pages, path):
+    """Write a Google sitemap of the public docs URLs, one <url> per page.
+
+    Only pages in SITEMAP_SPACES (public spaces) are included -- GrIntDev and any
+    other internal space are skipped so they are never advertised to search
+    engines. URLs are built against the public custom domain (DOCS_SITE), not the
+    grouper.atlassian.net host. The list is de-duplicated and sorted so the file
+    is idempotent: the same wiki state always produces byte-identical output and a
+    clean `git diff`.
+
+    Returns the number of URLs written.
+    """
+    urls = sorted({DOCS_SITE + p["webui"]
+                   for p in pages if p["space"] in SITEMAP_SPACES})
+    with open(path, "w", encoding="utf-8") as f:
+        f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+        f.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
+        for u in urls:
+            f.write(f"  <url><loc>{xml.sax.saxutils.escape(u)}</loc></url>\n")
+        f.write('</urlset>\n')
+    return len(urls)
+
+
+# --------------------------------------------------------------------------- #
 # main
 # --------------------------------------------------------------------------- #
 def main():
@@ -362,9 +403,21 @@ def main():
                     help="rewrite every page (ignore version cache)")
     ap.add_argument("--no-prune", action="store_true",
                     help="do not delete stale/moved files")
+    default_sitemap = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   "sitemap.xml")
+    ap.add_argument("--sitemap-out", default=default_sitemap,
+                    help="sitemap.xml path (default: ./sitemap.xml next to this "
+                         "script); public docs URLs for search engines")
+    ap.add_argument("--no-sitemap", action="store_true",
+                    help="do not (re)generate sitemap.xml")
+    ap.add_argument("--sitemap-only", action="store_true",
+                    help="only (re)generate sitemap.xml, skip the markdown mirror "
+                         "(lists just the public sitemap spaces -- fast)")
     args = ap.parse_args()
     auth = _auth_header()
     spaces = [s.strip() for s in args.spaces.split(",") if s.strip()]
+    if args.sitemap_only:
+        spaces = list(SITEMAP_SPACES)  # only need public pages for the sitemap
     out = args.out
 
     # 1. list every current page (cheap; also feeds link resolution)
@@ -374,6 +427,15 @@ def main():
         pages += list_pages(sp, auth)
     print(f"  {len(pages)} pages", flush=True)
     resolver = LinkResolver(pages)
+
+    # sitemap for the public docs site -- uses the full current page list, so it
+    # is regenerated whole every run (independent of the incremental md cache).
+    if not args.no_sitemap:
+        n = write_sitemap(pages, args.sitemap_out)
+        print(f"  sitemap: {n} public URLs -> {args.sitemap_out}", flush=True)
+
+    if args.sitemap_only:
+        return
 
     # 2. compute target paths; FAIL on any collision (fix the title upstream)
     targets = {}  # abspath -> page
