@@ -23,6 +23,26 @@
                         </c:if>
                         <li><a href="?operation=UiV2Admin.viewLogs&jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewLogs&jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsLogs'] }</a></li>
                         <li><a href="?operation=UiV2Admin.viewPerformanceChart&jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewPerformanceChart&jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsPerformance'] }</a></li>
+                        <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportJob && not empty grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerId}">
+                          <c:set var="daemonReportOwnerId" value="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerId}" />
+                          <c:set var="daemonReportMarkerId" value="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportAttributeAssignmentMarkerId}" />
+                          <c:choose>
+                            <c:when test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerStem}">
+                              <li><a href="?operation=UiV2Stem.viewStem&stemId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStem&stemId=${daemonReportOwnerId}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsReportViewFolder'] }</a></li>
+                              <li><a href="?operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${daemonReportOwnerId}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsReportActions'] }</a></li>
+                              <c:if test="${not empty daemonReportMarkerId}">
+                                <li><a href="?operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${daemonReportMarkerId}&stemId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportInstancesForFolder&attributeAssignmentMarkerId=${daemonReportMarkerId}&stemId=${daemonReportOwnerId}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsReportInstances'] }</a></li>
+                              </c:if>
+                            </c:when>
+                            <c:otherwise>
+                              <li><a href="?operation=UiV2Group.viewGroup&groupId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${daemonReportOwnerId}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsReportViewGroup'] }</a></li>
+                              <li><a href="?operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=${daemonReportOwnerId}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsReportActions'] }</a></li>
+                              <c:if test="${not empty daemonReportMarkerId}">
+                                <li><a href="?operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${daemonReportMarkerId}&groupId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewAllReportInstancesForGroup&attributeAssignmentMarkerId=${daemonReportMarkerId}&groupId=${daemonReportOwnerId}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsReportInstances'] }</a></li>
+                              </c:if>
+                            </c:otherwise>
+                          </c:choose>
+                        </c:if>
                         <br />
                         <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['adminDaemonJobsMoreActionsDelete']}</li>
                         <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).multiple && grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).editable}">                        

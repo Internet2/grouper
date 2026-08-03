@@ -29,6 +29,33 @@ ${grouper:titleFromKeyAndText('adminDaemonJobPageTitle', grouperRequestContainer
                     </div>
                   </div>
 
+                  <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportJob && not empty grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerId}">
+                    <c:set var="daemonReportOwnerId" value="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerId}" />
+                    <div class="row-fluid">
+                      <div class="span2">
+                        <label class="control-label" style="white-space: nowrap">${textContainer.text['daemonJobsViewLogsReportLabel'] }</label>
+                      </div>
+                      <div class="span9">
+                        <c:if test="${not empty grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportConfigName}">
+                          ${grouper:escapeHtml(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportConfigName)}
+                          ${textContainer.text['daemonJobsViewLogsReportOnLabel'] }
+                        </c:if>
+                        <c:choose>
+                          <c:when test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerStem}">
+                            <a href="?operation=UiV2Stem.viewStem&stemId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Stem.viewStem&stemId=${daemonReportOwnerId}'); return false;">${grouper:escapeHtml(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerDisplayName)}</a>
+                            &nbsp;
+                            <a href="?operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${daemonReportOwnerId}'); return false;">(${textContainer.text['adminDaemonJobsMoreActionsReportActions'] })</a>
+                          </c:when>
+                          <c:otherwise>
+                            <a href="?operation=UiV2Group.viewGroup&groupId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Group.viewGroup&groupId=${daemonReportOwnerId}'); return false;">${grouper:escapeHtml(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).reportOwnerDisplayName)}</a>
+                            &nbsp;
+                            <a href="?operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=${daemonReportOwnerId}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2GrouperReport.viewReportConfigsOnGroup&groupId=${daemonReportOwnerId}'); return false;">(${textContainer.text['adminDaemonJobsMoreActionsReportActions'] })</a>
+                          </c:otherwise>
+                        </c:choose>
+                      </div>
+                    </div>
+                  </c:if>
+
                   <div class="row-fluid">
                     <div class="span2">
                       <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 

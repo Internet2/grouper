@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -35,11 +37,18 @@ import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigService;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -53,6 +62,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.j2ee.status.DaemonJobStatus;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import net.redhogs.cronparser.CronExpressionDescriptor;
@@ -772,6 +782,147 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
 
   public boolean isEnabled() {
     return isEnabled;
+  }
+
+  /**
+   * report daemon job names are grouper_report_&lt;ownerGroupOrStemId&gt;_&lt;attributeAssignmentMarkerId&gt;
+   */
+  private static final Pattern reportJobNamePattern = Pattern.compile("^grouper_report_([a-zA-Z0-9]+)_([\\w-]+)$");
+
+  /**
+   * if the owner of the report config was already looked up
+   */
+  private boolean reportOwnerLookedUp = false;
+
+  /**
+   * group or folder the report config is assigned to, null if not a report job or not readable by the logged in user
+   */
+  private GrouperObject reportOwner = null;
+
+  /**
+   * attribute assign marker id of the report config for this job
+   */
+  private String reportAttributeAssignmentMarkerId = null;
+
+  /**
+   * if the report config name was already looked up
+   */
+  private boolean reportConfigNameLookedUp = false;
+
+  /**
+   * name of the report config for this job
+   */
+  private String reportConfigName = null;
+
+  /**
+   * if this job is a grouper report job
+   * @return true if this job is a grouper report job
+   */
+  public boolean isReportJob() {
+    return this.jobName != null && reportJobNamePattern.matcher(this.jobName).matches();
+  }
+
+  /**
+   * lazily resolve the group or folder that owns the report config for this job.  this is only
+   * done when the screen asks for it so the daemon jobs list screen is not slowed down
+   */
+  private void lookupReportOwner() {
+
+    if (this.reportOwnerLookedUp) {
+      return;
+    }
+    this.reportOwnerLookedUp = true;
+
+    if (!this.isReportJob() || !GrouperReportSettings.grouperReportsEnabled()) {
+      return;
+    }
+
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    if (grouperSession == null) {
+      return;
+    }
+
+    Matcher matcher = reportJobNamePattern.matcher(this.jobName);
+    if (!matcher.matches()) {
+      return;
+    }
+
+    String ownerGroupOrStemId = matcher.group(1);
+    this.reportAttributeAssignmentMarkerId = matcher.group(2);
+
+    try {
+      GrouperObject grouperObject = GroupFinder.findByUuid(grouperSession, ownerGroupOrStemId, false);
+      if (grouperObject == null) {
+        grouperObject = StemFinder.findByUuid(grouperSession, ownerGroupOrStemId, false);
+      }
+      this.reportOwner = grouperObject;
+    } catch (RuntimeException re) {
+      LOG.warn("Error looking up report owner for job name '" + this.jobName + "'", re);
+    }
+  }
+
+  /**
+   * id of the group or folder the report config is assigned to, null if not found or not readable
+   * @return the id
+   */
+  public String getReportOwnerId() {
+    this.lookupReportOwner();
+    return this.reportOwner == null ? null : this.reportOwner.getId();
+  }
+
+  /**
+   * display name of the group or folder the report config is assigned to
+   * @return the display name
+   */
+  public String getReportOwnerDisplayName() {
+    this.lookupReportOwner();
+    return this.reportOwner == null ? null : this.reportOwner.getDisplayName();
+  }
+
+  /**
+   * if the report config is assigned to a folder (as opposed to a group)
+   * @return true if assigned to a folder
+   */
+  public boolean isReportOwnerStem() {
+    this.lookupReportOwner();
+    return this.reportOwner instanceof Stem;
+  }
+
+  /**
+   * attribute assign marker id of the report config for this job
+   * @return the attribute assign marker id
+   */
+  public String getReportAttributeAssignmentMarkerId() {
+    this.lookupReportOwner();
+    return this.reportAttributeAssignmentMarkerId;
+  }
+
+  /**
+   * name of the report config for this job, null if it cannot be found
+   * @return the report config name
+   */
+  public String getReportConfigName() {
+
+    if (this.reportConfigNameLookedUp) {
+      return this.reportConfigName;
+    }
+    this.reportConfigNameLookedUp = true;
+
+    this.lookupReportOwner();
+
+    if (this.reportOwner == null || this.reportAttributeAssignmentMarkerId == null) {
+      return null;
+    }
+
+    try {
+      GrouperReportConfigurationBean reportConfigurationBean = GrouperReportConfigService
+          .getGrouperReportConfigBean(this.reportAttributeAssignmentMarkerId);
+      this.reportConfigName = reportConfigurationBean == null ? null : reportConfigurationBean.getReportConfigName();
+    } catch (RuntimeException re) {
+      LOG.warn("Error looking up report config for job name '" + this.jobName + "'", re);
+    }
+
+    return this.reportConfigName;
   }
 
   /**
