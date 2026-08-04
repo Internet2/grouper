@@ -18,6 +18,14 @@ GP=/var/grouper-docs/git/grouper
 SITE=/tmp/groupersite
 CURRENT_BRANCH=GROUPER_4_BRANCH
 
+# Register a new key for the National Vulnerability Database
+# at https://nvd.nist.gov/developers/request-an-api-key .
+# Then store the key in /var/grouper-docs/bin/NVD_API_KEY
+NVD_API_KEY_FILE=/var/grouper-docs/bin/NVD_API_KEY
+if [ -f "$NVD_API_KEY_FILE" ]; then
+  export NVD_API_KEY=$(grep -vE '^[[:space:]]*(#|$)' "$NVD_API_KEY_FILE" | head -n1)
+fi
+
 echo $(date) "Starting build"
 
 cd $GP
