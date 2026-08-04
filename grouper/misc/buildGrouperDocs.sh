@@ -29,6 +29,16 @@ if [ -f "$NVD_API_KEY_FILE" ]; then
   export NVD_API_KEY=$(grep -vE '^[[:space:]]*(#|$)' "$NVD_API_KEY_FILE" | head -n1)
 fi
 
+# Register an OSS Index account at https://ossindex.sonatype.org/user/register .
+# Then store OSS_INDEX_USERNAME=... and OSS_INDEX_PASSWORD=... (one per line)
+# in /var/grouper-docs/bin/OSS_API_KEY
+OSS_API_KEY_FILE=/var/grouper-docs/bin/OSS_API_KEY
+if [ -f "$OSS_API_KEY_FILE" ]; then
+  eval $(grep -vE '^[[:space:]]*(#|$)' "$OSS_API_KEY_FILE")
+  export OSS_INDEX_USERNAME
+  export OSS_INDEX_PASSWORD
+fi
+
 echo $(date) "Starting build"
 
 cd $GP
