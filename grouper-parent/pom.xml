@@ -1412,6 +1412,11 @@
                                Without an API key the NVD API is heavily rate-limited, so pull the key from an env var if present
                                (request one at https://nvd.nist.gov/developers/request-an-api-key) -->
                     <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
+                    <!-- AnalysisException: Failed to request component-reports
+                                DownloadFailedException: https://ossindex.sonatype.org/api/v3/component-report -
+                                Server status: 401 - Server reason: Unauthorized -->
+                        <ossIndexUsername>${env.OSS_INDEX_USERNAME}</ossIndexUsername>
+                        <ossIndexPassword>${env.OSS_INDEX_PASSWORD}</ossIndexPassword>
                   </configuration>
                 <reportSets>
                   <reportSet>
