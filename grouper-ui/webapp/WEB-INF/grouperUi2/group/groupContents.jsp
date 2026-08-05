@@ -49,7 +49,7 @@
                           <tr>
                             <!-- ${guiPITMembershipView.getPITMembershipView().getId()} -->
                             <td>&nbsp;</td>
-                            <td class="expand foo-clicker">${guiPITMembershipView.guiSubject.shortLinkWithIcon}<c:if test="${not empty guiPITMembershipView.guiSubject.subject.description}"> <a href="#" data-gr-copy-text="${grouperUtil.xmlEscape(guiPITMembershipView.guiSubject.subject.description)}" onclick="grouperCopyTextToClipboard(this); return false;" title="${textContainer.text['groupViewCopyEntityDescriptionTooltip']}" style="margin-left:4px;"><i class="fa fa-clone"></i></a></c:if> <br/>
+                            <td class="expand foo-clicker">${guiPITMembershipView.guiSubject.shortLinkWithIcon}<c:if test="${not empty guiPITMembershipView.guiSubject.subject.description}"> <a href="#" data-gr-copy-text="${grouperUtil.xmlEscape(guiPITMembershipView.guiSubject.subject.description)}" onclick="grouperCopyTextToClipboard(this); return false;" aria-label="${textContainer.textEscapeXml['groupViewCopyEntityDescriptionTooltip']}" title="${textContainer.text['groupViewCopyEntityDescriptionTooltip']}" style="margin-left:4px;"><i class="fa fa-clone" aria-hidden="true"></i></a></c:if> <br/>
                             </td>
                             <td>${guiPITMembershipView.getStartTimeLabel()}</td>
                             <td>${guiPITMembershipView.getEndTimeLabel()}</td>
@@ -84,7 +84,7 @@
                                 </label>
                               </c:if>
                             </td>
-                            <td class="expand foo-clicker">${guiMembershipSubjectContainer.guiSubject.shortLinkWithIcon}<c:if test="${not empty guiMembershipSubjectContainer.guiSubject.subject.description}"> <a href="#" data-gr-copy-text="${grouperUtil.xmlEscape(guiMembershipSubjectContainer.guiSubject.subject.description)}" onclick="grouperCopyTextToClipboard(this); return false;" title="${textContainer.text['groupViewCopyEntityDescriptionTooltip']}" style="margin-left:4px;"><i class="fa fa-clone"></i></a></c:if> <br/>
+                            <td class="expand foo-clicker">${guiMembershipSubjectContainer.guiSubject.shortLinkWithIcon}<c:if test="${not empty guiMembershipSubjectContainer.guiSubject.subject.description}"> <a href="#" data-gr-copy-text="${grouperUtil.xmlEscape(guiMembershipSubjectContainer.guiSubject.subject.description)}" onclick="grouperCopyTextToClipboard(this); return false;" aria-label="${textContainer.textEscapeXml['groupViewCopyEntityDescriptionTooltip']}" title="${textContainer.text['groupViewCopyEntityDescriptionTooltip']}" style="margin-left:4px;"><i class="fa fa-clone" aria-hidden="true"></i></a></c:if> <br/>
                             </td>
                             <c:if test="${grouperRequestContainer.groupContainer.showEnabledStatus}">
                               <td>${guiMembershipContainer.getImmediateMembershipEnabledLabel()}</td>
