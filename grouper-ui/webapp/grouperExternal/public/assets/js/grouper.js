@@ -79,6 +79,128 @@ $(document).ready(function() {
     selector: "a[rel=tooltip],span[rel=tooltip]"
   });
 
+  // Accessibility for rel=tooltip triggers.
+  // Bootstrap shows these tooltips on 'hover focus', but a <span> cannot receive
+  // keyboard focus, so keyboard-only and screen-reader users never see them (WAVE
+  // does not catch this - it is a keyboard/focus gap, not a static markup error).
+  // This mirrors the a11y treatment already applied to the grouperTooltip()/Tip()
+  // path in grouperUi.js:
+  //   1) give non-focusable triggers tabindex=0 so the tooltip is reachable by Tab, and
+  //   2) when shown, mark the tooltip role=tooltip and link it to its trigger via
+  //      aria-describedby so screen readers announce it (Bootstrap 2 does not do this).
+  function grouperTooltipA11yMakeFocusable() {
+    $('.top-container').find('a[rel=tooltip],span[rel=tooltip]').each(function () {
+      var $el = $(this);
+      // links/inputs are already focusable; only the plain spans need tabindex
+      if (!$el.is('a,button,input,select,textarea') && $el.attr('tabindex') == null) {
+        $el.attr('tabindex', '0');
+      }
+    });
+  }
+  grouperTooltipA11yMakeFocusable();
+  // Re-apply to content added later by ajax (new rows, reloaded panels, etc.).
+  $(document).ajaxComplete(function () {
+    grouperTooltipA11yMakeFocusable();
+  });
+
+  // Link trigger <-> tooltip for screen readers while the tooltip is visible.
+  $('.top-container').on('shown.grouperTooltipA11y', 'a[rel=tooltip],span[rel=tooltip]', function () {
+    try {
+      var data = $(this).data('tooltip');
+      var $tip = (data && data.tip) ? data.tip() : null;
+      if ($tip && $tip.length) {
+        var tipId = $tip.attr('id');
+        if (!tipId) {
+          tipId = 'grouperTooltip_' + (new Date().getTime()) + '_' + Math.floor(Math.random() * 100000);
+          $tip.attr('id', tipId);
+        }
+        if (!$tip.attr('role')) {
+          $tip.attr('role', 'tooltip');
+        }
+        $(this).attr('aria-describedby', tipId);
+      }
+    } catch (e) {
+      // ignore
+    }
+  });
+  $('.top-container').on('hidden.grouperTooltipA11y', 'a[rel=tooltip],span[rel=tooltip]', function () {
+    $(this).removeAttr('aria-describedby');
+  });
+
+  // On this Bootstrap (2.2.x) rel=tooltip is initialized hover-only, so keyboard focus
+  // never shows the tooltip even though the trigger already has tabindex. Show it on
+  // focus and hide it on blur. aria-describedby is set synchronously here because the
+  // shown/hidden handlers above only fire after Bootstrap's async fade, which would
+  // race the screen reader on focus. grouperTooltipA11ySetDescribedby is declared below
+  // (function declarations are hoisted within this ready() callback).
+  $('.top-container').on('focus.grouperRelTooltipA11yFocus', 'a[rel=tooltip],span[rel=tooltip]', function () {
+    $(this).tooltip('show');
+    grouperTooltipA11ySetDescribedby($(this));
+  });
+  $('.top-container').on('blur.grouperRelTooltipA11yFocus', 'a[rel=tooltip],span[rel=tooltip]', function () {
+    $(this).tooltip('hide');
+    $(this).removeAttr('aria-describedby');
+  });
+
+  // Accessibility for the legacy hover tooltips wired through inline handlers:
+  //   onmouseover="grouperTooltip('...')" onmouseout="UnTip()"   (detail-row labels like
+  //     Name:, Path:, ID path:, ... and privilege column headers), and
+  //   onmouseover="Tip('...')" onmouseout="UnTip()"              (permission page
+  //     allow/disallow icons - note Tip() is not even defined, so these never worked).
+  // Both were mouse-only, so keyboard and screen-reader users could never reach the help
+  // text (WAVE does not catch this - it is a keyboard/focus gap, not a static markup error).
+  // Convert each to a single Bootstrap tooltip shown on BOTH mouse hover and keyboard
+  // focus, and expose it to screen readers via aria-describedby. We use trigger:'manual'
+  // plus our own handlers because this Bootstrap (2.2.x) does not support a combined
+  // 'hover focus' trigger; one manual instance per element is reused, so no stale
+  // tooltip nodes accumulate. Same visual as before (top placement, html, on body).
+  function grouperTooltipA11ySetDescribedby($el) {
+    var data = $el.data('tooltip');
+    var $tip = (data && data.tip) ? data.tip() : null;
+    if ($tip && $tip.length) {
+      var tipId = $tip.attr('id');
+      if (!tipId) {
+        tipId = 'grouperTooltip_' + (new Date().getTime()) + '_' + Math.floor(Math.random() * 100000);
+        $tip.attr('id', tipId);
+      }
+      if (!$tip.attr('role')) { $tip.attr('role', 'tooltip'); }
+      $el.attr('aria-describedby', tipId);
+    }
+  }
+  function grouperClassTooltipA11yInit() {
+    $('[onmouseover]').each(function () {
+      var $el = $(this);
+      var match = ($el.attr('onmouseover') || '').match(/(?:grouperTooltip|Tip)\('([\s\S]*)'\)\s*;?\s*$/);
+      if (!match) { return; }  // not a grouperTooltip()/Tip() trigger
+      // grouperTooltip() messages are HTML-entity escaped (rendered with html:true below);
+      // Tip() messages are javascript-escaped, so undo the backslash escaping of quotes.
+      var message = match[1].replace(/\\'/g, "'").replace(/\\"/g, '"');
+      // Drop the mouse-only inline handlers so grouperTooltip()/UnTip() no longer run for
+      // this element (avoids a duplicate tooltip). Removing onmouseover also makes this
+      // pass idempotent - a converted element no longer matches the selector.
+      $el.removeAttr('onmouseover');
+      if (/UnTip\(\)/.test($el.attr('onmouseout') || '')) { $el.removeAttr('onmouseout'); }
+      // plain spans are not keyboard-focusable by default
+      if (!$el.is('a,button,input,select,textarea') && $el.attr('tabindex') == null) {
+        $el.attr('tabindex', '0');
+      }
+      $el.tooltip({ trigger: 'manual', html: true, container: 'body', placement: 'top', title: message });
+      $el.on('mouseenter.grouperClassTooltipA11y focus.grouperClassTooltipA11y', function () {
+        $(this).tooltip('show');
+        grouperTooltipA11ySetDescribedby($(this));
+      });
+      $el.on('mouseleave.grouperClassTooltipA11y blur.grouperClassTooltipA11y', function () {
+        $(this).tooltip('hide');
+        $(this).removeAttr('aria-describedby');
+      });
+    });
+  }
+  grouperClassTooltipA11yInit();
+  // Convert content added later by ajax (reloaded panels, new rows, etc.).
+  $(document).ajaxComplete(function () {
+    grouperClassTooltipA11yInit();
+  });
+
   // Show/hide bulk add options
   $('input[name="bulk-add-options"]').change(function() {
     if ($(this).val() === 'input') {

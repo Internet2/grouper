@@ -52,6 +52,7 @@
                       <th>
                         <label class="checkbox checkbox-no-padding">
                           <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.privilegeCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                          <span class="sr-only">${textContainer.text['groupPrivilegesInAttributeDefCheckboxAriaLabel']}</span>
                         </label>
                       </th>
                       <th>
@@ -85,20 +86,33 @@
                         <c:forEach items="attrAdmins,attrReaders,attrUpdaters,attrOptins,attrOptouts,attrDefAttrReaders,attrDefAttrUpdaters,attrViewers" var="fieldName">
                           <td data-hide="phone,medium" class="direct-actions privilege" >
                             <c:set value="${guiMembershipSubjectContainer.guiMembershipContainers[fieldName]}" var="guiMembershipContainer" />
+                            <%-- GRP-7096: build specific accessible names for this cell, e.g. "Remove Admin for someAttributeDef" (column label minus its line break) --%>
+                            <c:choose>
+                              <c:when test="${fieldName == 'attrAdmins'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colAttrAdmin'], '<br />', ' ')}" /></c:when>
+                              <c:when test="${fieldName == 'attrReaders'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colAttrRead'], '<br />', ' ')}" /></c:when>
+                              <c:when test="${fieldName == 'attrUpdaters'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colAttrUpdate'], '<br />', ' ')}" /></c:when>
+                              <c:when test="${fieldName == 'attrOptins'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colAttrOptin'], '<br />', ' ')}" /></c:when>
+                              <c:when test="${fieldName == 'attrOptouts'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colAttrOptout'], '<br />', ' ')}" /></c:when>
+                              <c:when test="${fieldName == 'attrDefAttrReaders'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colAttrDefAttributeRead'], '<br />', ' ')}" /></c:when>
+                              <c:when test="${fieldName == 'attrDefAttrUpdaters'}"><c:set var="privName" value="${fn:replace(textContainer.text['priv.colAttrDefAttributeUpdate'], '<br />', ' ')}" /></c:when>
+                              <c:otherwise><c:set var="privName" value="${fn:replace(textContainer.text['priv.colAttrView'], '<br />', ' ')}" /></c:otherwise>
+                            </c:choose>
+                            <c:set var="ariaRemovePrivilege" value="${textContainer.text['ariaLabelPrivilegeRemove']} ${privName} ${textContainer.text['ariaLabelPrivilegeForSubject']} ${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.extension}" />
+                            <c:set var="ariaAssignPrivilege" value="${textContainer.text['ariaLabelPrivilegeAssign']} ${privName} ${textContainer.text['ariaLabelPrivilegeForSubject']} ${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.extension}" />
                             <%-- if there is a container, then there is an assignment of some sort... --%>
                             <c:choose>
                               <c:when test="${guiMembershipContainer != null 
                                    && guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
-                                <i class="fa fa-check fa-direct" tabindex="0" aria-label="${textContainer.textEscapeXml['thisGroupsPrivilegesRemoveTitle'] }" onkeydown="if (event.keyCode == 13) {if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.thisGroupsPrivilegesAssignAttributeDefPrivilege?assign=false&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&parentAttributeDefId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;}"></i>
-                                <a title="${textContainer.textEscapeXml['thisGroupsPrivilegesRemoveTitle'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                <i class="fa fa-check fa-direct" tabindex="0" aria-label="${grouper:escapeHtml(ariaRemovePrivilege)}" onkeydown="if (event.keyCode == 13) {if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.thisGroupsPrivilegesAssignAttributeDefPrivilege?assign=false&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&parentAttributeDefId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;}"></i>
+                                <a title="${textContainer.textEscapeXml['thisGroupsPrivilegesRemoveTitle'] }" aria-label="${grouper:escapeHtml(ariaRemovePrivilege)}" class="btn btn-inverse btn-super-mini remove" href="#" 
                                    onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.thisGroupsPrivilegesAssignAttributeDefPrivilege?assign=false&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&parentAttributeDefId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
-                                  ><i class="fa fa-times"></i></a>
+                                  ><i class="fa fa-times" aria-hidden="true"></i></a>
                               </c:when>
                               <c:otherwise>
-                                <c:if test="${guiMembershipContainer != null}"><i class="fa fa-check fa-disabled" tabindex="0" aria-label="${textContainer.textEscapeXml['thisGroupsPrivilegesAssignTitle'] }" onkeydown="if (event.keyCode == 13) {if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.thisGroupsPrivilegesAssignAttributeDefPrivilege?assign=true&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&parentAttributeDefId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;}"></i></c:if>
-                                <a title="${textContainer.textEscapeXml['thisGroupsPrivilegesAssignTitle'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                <c:if test="${guiMembershipContainer != null}"><i class="fa fa-check fa-disabled" tabindex="0" aria-label="${grouper:escapeHtml(ariaAssignPrivilege)}" onkeydown="if (event.keyCode == 13) {if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.thisGroupsPrivilegesAssignAttributeDefPrivilege?assign=true&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&parentAttributeDefId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;}"></i></c:if>
+                                <a title="${textContainer.textEscapeXml['thisGroupsPrivilegesAssignTitle'] }" aria-label="${grouper:escapeHtml(ariaAssignPrivilege)}" class="btn btn-inverse btn-super-mini remove" href="#" 
                                    onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.thisGroupsPrivilegesAssignAttributeDefPrivilege?assign=true&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&parentAttributeDefId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
-                                  ><i class="fa fa-plus"></i></a>
+                                  ><i class="fa fa-plus" aria-hidden="true"></i></a>
                               </c:otherwise>
                             </c:choose>
                           </td>
@@ -106,17 +120,17 @@
                         <td>
                           <div class="btn-group">
                           	<a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-                          		aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+                          		aria-haspopup="true" aria-expanded="false" role="button" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                           		${textContainer.text['thisGroupsPrivilegesActionsButton']} 
                           			<span class="caret"></span>
                           	</a>
                             <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                               
                               <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate}">
-                                <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceAttributeDefPrivileges&attributeDefId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&backTo=subject'); return false;" class="actions-revoke-membership">${textContainer.text['thisGroupsPrivilegesActionsMenuTracePrivileges'] }</a></li>
+                                <li><a href="?operation=UiV2Membership.traceAttributeDefPrivileges&attributeDefId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&backTo=subject"  onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Membership.traceAttributeDefPrivileges&attributeDefId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&backTo=subject'); return false;" class="actions-revoke-membership">${textContainer.text['thisGroupsPrivilegesActionsMenuTracePrivileges'] }</a></li>
                               </c:if>
                               
-                              <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDef&groupId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}');">${textContainer.text['thisGroupsPrivilegesActionsMenuViewAttributeDef']}</a></li>
+                              <li><a href="?operation=UiV2AttributeDef.viewAttributeDef&groupId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}" onclick="return handleGuiV2LinkClick(event, 'operation=UiV2AttributeDef.viewAttributeDef&groupId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}');">${textContainer.text['thisGroupsPrivilegesActionsMenuViewAttributeDef']}</a></li>
                             </ul>
                           </div>
                         </td>
