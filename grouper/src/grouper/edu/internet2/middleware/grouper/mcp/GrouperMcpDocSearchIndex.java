@@ -1263,7 +1263,6 @@ public class GrouperMcpDocSearchIndex {
    * @return int array of [totalDocs, totalChunks]
    */
   private static int[] indexFilesystemSource(IndexWriter writer, String configId) {
-
     int totalDocs = 0;
     int totalChunks = 0;
 
@@ -1620,19 +1619,47 @@ public class GrouperMcpDocSearchIndex {
   }
 
   /**
-   * strip matching single or double quotes from around a frontmatter value
+   * strip matching single or double quotes from around a frontmatter value, and unescape the
+   * quotes and backslashes inside it.  wiki page titles really do contain quotes, e.g.
+   * {@code title: "Grouper daemon \"other job\" to run a script"}, and leaving the escaping in
+   * would put backslashes in the document name.
    * @param value the value
    * @return the unquoted value
    */
   private static String unquote(String value) {
+
     if (value == null || value.length() < 2) {
       return value;
     }
-    if ((value.startsWith("\"") && value.endsWith("\""))
-        || (value.startsWith("'") && value.endsWith("'"))) {
+
+    if (value.startsWith("'") && value.endsWith("'")) {
+      // single quoted values are not escaped
       return value.substring(1, value.length() - 1);
     }
-    return value;
+
+    if (!value.startsWith("\"") || !value.endsWith("\"")) {
+      return value;
+    }
+
+    String quoted = value.substring(1, value.length() - 1);
+
+    StringBuilder result = new StringBuilder(quoted.length());
+
+    for (int i = 0; i < quoted.length(); i++) {
+
+      char currentChar = quoted.charAt(i);
+
+      // a backslash escapes the character after it, and is dropped
+      if (currentChar == '\\' && i < quoted.length() - 1) {
+        i++;
+        result.append(quoted.charAt(i));
+        continue;
+      }
+
+      result.append(currentChar);
+    }
+
+    return result.toString();
   }
 
   /**
@@ -1810,8 +1837,15 @@ public class GrouperMcpDocSearchIndex {
           int lineBreak = content.lastIndexOf("\n", end);
           if (lineBreak > start + chunkSizeChars / 2) {
             end = lineBreak + 1;
+          } else {
+            // no line break either, which happens in long markdown tables and code blocks.
+            // back up to a word boundary so the chunk does not end mid word
+            int wordEnd = lastWordBoundary(content, end, start + chunkSizeChars / 2);
+            if (wordEnd > start + chunkSizeChars / 2) {
+              end = wordEnd;
+            }
+            // otherwise it is one very long token, just cut at chunkSizeChars
           }
-          // otherwise just cut at chunkSizeChars
         }
       }
 
@@ -1827,10 +1861,43 @@ public class GrouperMcpDocSearchIndex {
       if (nextStart <= start) {
         nextStart = end;
       }
+
+      // subtracting the overlap lands on an arbitrary character, so back up to the start of
+      // the word it landed in.  otherwise the next chunk begins with a word fragment, e.g.
+      // "incipal = ..." instead of "principal = ...", which reads badly in search results
+      // and loses a term which would otherwise have matched
+      if (nextStart > start && nextStart < content.length()
+          && !Character.isWhitespace(content.charAt(nextStart - 1))) {
+        int wordStart = lastWordBoundary(content, nextStart, start);
+        if (wordStart > start) {
+          nextStart = wordStart;
+        }
+      }
+
       start = nextStart;
     }
 
     return chunks;
+  }
+
+  /**
+   * find the boundary at or before an index where a word starts, that is the index just after
+   * the closest whitespace character.  used so chunks do not begin or end mid word.
+   * @param content the full content text
+   * @param index the index to search back from
+   * @param floor do not search back past this index
+   * @return the index just after the closest whitespace before index, or floor if there is no
+   * whitespace to be found, meaning the whole span is one long token
+   */
+  private static int lastWordBoundary(String content, int index, int floor) {
+
+    int boundary = index;
+
+    while (boundary > floor && !Character.isWhitespace(content.charAt(boundary - 1))) {
+      boundary--;
+    }
+
+    return boundary;
   }
 
   /**
