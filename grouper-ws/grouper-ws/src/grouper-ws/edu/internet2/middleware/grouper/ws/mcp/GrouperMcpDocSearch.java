@@ -59,6 +59,9 @@ public class GrouperMcpDocSearch {
   /** maximum characters in the response */
   static final int MAX_RESPONSE_CHARS = 500000;
 
+  /** maximum names returned by the listNames action */
+  static final int MAX_NAMES = 5000;
+
   /**
    * Return the MCP tool definition for doc_search.
    * The description dynamically includes documentation about configured sources
@@ -79,19 +82,23 @@ public class GrouperMcpDocSearch {
         + "Use action 'listNames' to list document names for a given sourceConfigId. "
         + "If results contain 'url' attributes, display them to the user as links so they can navigate to the source document. ");
 
+    // list every source id, with its description when the deployer configured one.  a source
+    // with no description still has to be listed, otherwise the client cannot know it exists
+    // and cannot filter to it
     Set<String> configIds = GrouperMcpDocSearchIndex.getConfigIds();
     if (!configIds.isEmpty()) {
       description.append("Available documentation sources: ");
       boolean first = true;
       for (String configId : configIds) {
+        if (!first) {
+          description.append("; ");
+        }
+        description.append(configId);
         String docForAi = GrouperMcpDocSearchIndex.getDocumentationForAiClient(configId);
         if (StringUtils.isNotBlank(docForAi)) {
-          if (!first) {
-            description.append("; ");
-          }
-          description.append(configId).append(" - ").append(docForAi);
-          first = false;
+          description.append(" - ").append(docForAi);
         }
+        first = false;
       }
       description.append(". ");
     }
@@ -253,6 +260,11 @@ public class GrouperMcpDocSearch {
           + ". Available sources: " + StringUtils.join(configIds, ", "));
     }
 
+    ObjectNode notReadyResult = checkIndexReady();
+    if (notReadyResult != null) {
+      return notReadyResult;
+    }
+
     try {
       List<DocSearchResult> results = GrouperMcpDocSearchIndex.search(
           query, maxResults, sourceConfigId, authUser.getSubject(), searchType);
@@ -272,6 +284,9 @@ public class GrouperMcpDocSearch {
         resultObj.put("score", result.getScore());
         resultObj.put("chunkIndex", result.getChunkIndex());
         resultObj.put("totalChunksForDocument", result.getTotalChunksForDocument());
+        if (StringUtils.isNotBlank(result.getLastUpdated())) {
+          resultObj.put("lastUpdated", result.getLastUpdated());
+        }
 
         String resultText = resultObj.toString();
         totalChars += resultText.length();
@@ -345,6 +360,11 @@ public class GrouperMcpDocSearch {
 
     if (chunkIndexes.size() > 50) {
       return buildErrorResult("chunkIndexes must not contain more than 50 entries.");
+    }
+
+    ObjectNode notReadyResult = checkIndexReady();
+    if (notReadyResult != null) {
+      return notReadyResult;
     }
 
     try {
@@ -454,8 +474,13 @@ public class GrouperMcpDocSearch {
           + ". Available sources: " + StringUtils.join(configIds, ", "));
     }
 
+    ObjectNode notReadyResult = checkIndexReady();
+    if (notReadyResult != null) {
+      return notReadyResult;
+    }
+
     ListNamesResult listNamesResult = GrouperMcpDocSearchIndex.listNames(
-        sourceConfigId, authUser.getSubject(), 1000);
+        sourceConfigId, authUser.getSubject(), MAX_NAMES);
 
     ObjectNode resultNode = objectMapper.createObjectNode();
     ArrayNode namesArray = objectMapper.createArrayNode();
@@ -466,7 +491,8 @@ public class GrouperMcpDocSearch {
     resultNode.put("totalNames", listNamesResult.getNames().size());
     if (listNamesResult.isTruncated()) {
       resultNode.put("truncated", true);
-      resultNode.put("notice", "List truncated to 1000 names. Use 'query' action to search for specific documents.");
+      resultNode.put("notice", "List truncated to " + MAX_NAMES
+          + " names. Use 'query' action to search for specific documents.");
     }
 
     ObjectNode response = objectMapper.createObjectNode();
@@ -478,6 +504,28 @@ public class GrouperMcpDocSearch {
     response.set("content", contentArray);
 
     return response;
+  }
+
+  /**
+   * make sure the index is built and ready to search.  on a cold start the index is built in
+   * the background, and returning no results would look to the AI client like the documentation
+   * has nothing on the topic, so it would answer from its training data instead.  tell the
+   * client to retry instead.
+   * @return an error result if the index is not ready yet, otherwise null
+   */
+  private static ObjectNode checkIndexReady() {
+
+    // this blocks briefly on a cold start waiting for the first build
+    GrouperMcpDocSearchIndex.rebuildIfNeeded();
+
+    if (!GrouperMcpDocSearchIndex.isIndexReady()) {
+      return buildErrorResult("The documentation index is still being built. "
+          + "Retry this call in a few seconds. "
+          + "Do not answer from memory in the meantime -- the documentation has not been "
+          + "searched yet, so no conclusion can be drawn about what it contains.");
+    }
+
+    return null;
   }
 
   /**

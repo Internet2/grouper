@@ -15,13 +15,19 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.mcp;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -33,12 +39,16 @@ import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -46,7 +56,6 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.ByteBuffersDirectory;
-import org.apache.lucene.store.Directory;
 
 import com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter;
 
@@ -55,24 +64,36 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * Manages an in-memory Lucene index for MCP document search (RAG).
- * Reads document content from institution-managed database tables via
- * configurable SQL queries, chunks the content, and indexes it for
- * full-text search.
+ * Manages in-memory Lucene indexes for MCP document search (RAG), chunking document content
+ * and indexing it for full-text search.
  *
- * <p>Also indexes the Grouper data field/row dictionary as a built-in source
- * ({@code grouperDataDictionary}). Search results from data dictionary entries
- * are filtered by privacy realm access at query time.</p>
+ * <p>There are three kinds of document source:</p>
+ * <ul>
+ *   <li>institution-managed database tables, read with a configurable SQL query</li>
+ *   <li>directories of markdown files on the filesystem, which is how the Grouper wiki
+ *   documentation shipped in the container ({@code grouperWiki}) is indexed</li>
+ *   <li>the Grouper data field/row dictionary ({@code grouperDataDictionary}), whose results
+ *   are filtered by privacy realm access at query time</li>
+ * </ul>
  *
- * <p>The index is built lazily on first search and rebuilt periodically
- * based on the configured reindex interval.</p>
+ * <p>Each source has its own index and its own refresh schedule, so an expensive source is not
+ * rebuilt just because a cheap one is due, and sources which are already built stay searchable
+ * while another one is being rebuilt. Searches run against a composite of every source's
+ * index.</p>
  *
- * <p>Thread-safe: builds a new index then swaps the reference atomically.</p>
+ * <p>Indexes are built lazily on first search rather than at startup, so nodes which never
+ * search never pay to build them. The first search after a restart waits a short time for that
+ * first build, see {@link #isIndexReady()}.</p>
+ *
+ * <p>Thread-safe: a source builds into a new index which is then swapped in, and readers are
+ * reference counted so a search already running against an older composite keeps working until
+ * it finishes.</p>
  *
  * @author mchyzer
  */
@@ -80,12 +101,41 @@ public class GrouperMcpDocSearchIndex {
 
   private static final Log LOG = GrouperUtil.getLog(GrouperMcpDocSearchIndex.class);
 
-  /** pattern to find all doc search config ids */
-  private static final Pattern CONFIG_ID_PATTERN =
+  /** pattern to find doc search config ids which read documents from SQL */
+  private static final Pattern SQL_CONFIG_ID_PATTERN =
       Pattern.compile("^grouper\\.mcp\\.docSearch\\.([^.]+)\\.query$");
+
+  /** pattern to find doc search config ids which read documents from a directory on the filesystem */
+  private static final Pattern FILESYSTEM_CONFIG_ID_PATTERN =
+      Pattern.compile("^grouper\\.mcp\\.docSearch\\.([^.]+)\\.directory$");
+
+  /** pattern to find doc search config ids which configure a score boost */
+  private static final Pattern BOOST_CONFIG_ID_PATTERN =
+      Pattern.compile("^grouper\\.mcp\\.docSearch\\.([^.]+)\\.boost$");
 
   /** source config id for the built-in data dictionary source */
   public static final String DATA_DICTIONARY_SOURCE_CONFIG_ID = "grouperDataDictionary";
+
+  /** source config id for the built-in Grouper wiki documentation source */
+  public static final String GROUPER_WIKI_SOURCE_CONFIG_ID = "grouperWiki";
+
+  /** directory the Grouper wiki markdown documentation is shipped to in the container */
+  public static final String DEFAULT_GROUPER_WIKI_DIRECTORY = "/opt/grouper/docs/wiki/Grouper";
+
+  /** default file extensions indexed for filesystem sources */
+  private static final String DEFAULT_FILE_EXTENSIONS = "md";
+
+  /** how deep to recurse into a filesystem source directory */
+  private static final int MAX_DIRECTORY_DEPTH = 20;
+
+  /** skip files in a filesystem source larger than this many bytes */
+  private static final int MAX_FILE_SIZE_BYTES = 5000000;
+
+  /** stop after this many files in a single filesystem source */
+  private static final int MAX_FILES_PER_SOURCE = 20000;
+
+  /** how much more a match in the title/breadcrumb of a document counts than a match in the body */
+  private static final float TITLE_BOOST = 3.0f;
 
   /** default target chunk size in characters (~800 tokens) */
   static final int CHUNK_SIZE_CHARS = 3200;
@@ -99,26 +149,83 @@ public class GrouperMcpDocSearchIndex {
   /** override chunk overlap for testing, or -1 for default */
   public static int chunkOverlapCharsOverrideForTesting = -1;
 
+  /**
+   * override the directory of the built-in Grouper wiki source for testing, or null to use the
+   * configured directory.  the wiki markdown is in the source tree under
+   * grouper-misc/grouper-docs/wikiMirror/spaces/Grouper, and ships in the container at
+   * {@link #DEFAULT_GROUPER_WIKI_DIRECTORY}
+   */
+  public static String grouperWikiDirectoryOverrideForTesting = null;
+
   /** default reindex interval in seconds (1 hour) */
   static final int DEFAULT_REINDEX_INTERVAL_SECONDS = 3600;
 
-  /** the current in-memory directory holding the index */
-  private static volatile Directory currentDirectory;
+  /**
+   * default reindex interval in seconds for filesystem sources (1 day).  documentation shipped
+   * in the container does not change while the container is running, so there is no reason to
+   * re-read it as often as a database source.
+   */
+  static final int DEFAULT_FILESYSTEM_REINDEX_INTERVAL_SECONDS = 86400;
 
-  /** the current index reader */
-  private static volatile DirectoryReader currentReader;
+  /**
+   * how long the first query after a restart waits for the index to be built before giving up
+   * and telling the client to retry
+   */
+  static final int DEFAULT_FIRST_QUERY_WAIT_SECONDS = 10;
+
+  /**
+   * how soon to retry a source whose build failed, rather than waiting out its normal reindex
+   * interval, which for the shipped documentation is a day
+   */
+  static final int FAILED_BUILD_RETRY_SECONDS = 60;
 
   /** the analyzer used for indexing and searching */
   private static final StandardAnalyzer analyzer = new StandardAnalyzer();
 
-  /** when the index was last built (millis since epoch) */
-  private static volatile long lastIndexBuildMillis = 0;
+  /**
+   * one index per doc search source, keyed by config id.  each source is built and refreshed on
+   * its own schedule, so a source which is cheap to build, e.g. a SQL query which reindexes
+   * every few minutes, does not drag an expensive source, e.g. parsing a thousand wiki files,
+   * along with it.  searches run against a composite of all of them.
+   */
+  private static final Map<String, SourceIndex> sourceIndexes =
+      new ConcurrentHashMap<String, SourceIndex>();
 
-  /** whether a background build is currently in progress */
-  private static volatile boolean buildInProgress = false;
+  /**
+   * composite of every source's reader, which is what searches run against.  it is a single
+   * reader on purpose: Lucene computes collection statistics across the whole composite, so
+   * scores from different sources are comparable.  searching each source separately and merging
+   * the result lists would compute IDF per source and produce scores which cannot be ranked
+   * against each other.
+   */
+  private static volatile MultiReader currentComposite;
 
-  /** lock for index building */
+  /** lock for index building and for swapping the composite reader */
   private static final Object INDEX_LOCK = new Object();
+
+  /**
+   * the index of one doc search source
+   */
+  private static class SourceIndex {
+
+    /** reader over this source's index, null until the source is first built */
+    private volatile DirectoryReader reader;
+
+    /** when this source was last built (millis since epoch), 0 if never */
+    private volatile long lastBuildMillis = 0;
+
+    /** whether a build of this source is currently in progress */
+    private volatile boolean buildInProgress = false;
+
+    /** whether the last build of this source failed, so it is retried sooner */
+    private volatile boolean lastBuildFailed = false;
+  }
+
+  /**
+   * monitor threads wait on for the first index build to finish.  this is deliberately not
+   * INDEX_LOCK, which is held for the duration of a build
+   */
+  private static final Object FIRST_BUILD_NOTIFIER = new Object();
 
   /**
    * result object for a search hit
@@ -132,6 +239,7 @@ public class GrouperMcpDocSearchIndex {
     private int chunkIndex;
     private int totalChunksForDocument;
     private String privacyRealmConfigId;
+    private String lastUpdated;
 
     public String getContent() {
       return this.content;
@@ -163,6 +271,15 @@ public class GrouperMcpDocSearchIndex {
 
     public String getPrivacyRealmConfigId() {
       return this.privacyRealmConfigId;
+    }
+
+    /**
+     * when the source document was last updated, if the source tracks that, e.g. the
+     * lastUpdated of a wiki page.  null if unknown
+     * @return the last updated string
+     */
+    public String getLastUpdated() {
+      return this.lastUpdated;
     }
   }
 
@@ -196,7 +313,7 @@ public class GrouperMcpDocSearchIndex {
 
     rebuildIfNeeded();
 
-    DirectoryReader reader = currentReader;
+    MultiReader reader = acquireComposite();
     if (reader == null) {
       return results;
     }
@@ -210,7 +327,14 @@ public class GrouperMcpDocSearchIndex {
 
     try {
       IndexSearcher searcher = new IndexSearcher(reader);
-      QueryParser parser = new QueryParser("content", analyzer);
+
+      // search the title/breadcrumb of the document as well as its body, and weight a title
+      // match higher, so a document about a topic outranks one which merely mentions it
+      Map<String, Float> fieldBoosts = new HashMap<String, Float>();
+      fieldBoosts.put("content", 1.0f);
+      fieldBoosts.put("title", TITLE_BOOST);
+      MultiFieldQueryParser parser = new MultiFieldQueryParser(
+          new String[] {"content", "title"}, analyzer, fieldBoosts);
 
       Query query;
       if ("lucene".equals(searchType)) {
@@ -222,7 +346,20 @@ public class GrouperMcpDocSearchIndex {
         query = parser.parse(QueryParser.escape(queryString));
       }
 
-      // fetch more than maxResults since some may be filtered out by source or privacy
+      query = applySourceBoosts(query);
+
+      // filter by source in the query, not after the search.  one source can have many more
+      // documents than another, e.g. the Grouper wiki, and post filtering would let that source
+      // fill the results and starve the source which was asked for
+      if (StringUtils.isNotBlank(filterSourceConfigId)) {
+        BooleanQuery.Builder filteredBuilder = new BooleanQuery.Builder();
+        filteredBuilder.add(query, BooleanClause.Occur.MUST);
+        filteredBuilder.add(new TermQuery(new Term("sourceConfigId", filterSourceConfigId)),
+            BooleanClause.Occur.FILTER);
+        query = filteredBuilder.build();
+      }
+
+      // fetch more than maxResults since some may be filtered out by privacy realm
       int fetchCount = maxResults * 3;
       if (fetchCount < 10) {
         fetchCount = 10;
@@ -237,11 +374,6 @@ public class GrouperMcpDocSearchIndex {
 
         Document doc = searcher.storedFields().document(scoreDoc.doc);
 
-        String sourceConfigId = doc.get("sourceConfigId");
-        if (filterSourceConfigId != null && !filterSourceConfigId.equals(sourceConfigId)) {
-          continue;
-        }
-
         // check privacy realm access
         String privacyRealmConfigId = doc.get("privacyRealmConfigId");
         if (!checkPrivacyRealmAccess(privacyRealmConfigId, subject, dataEngine)) {
@@ -254,6 +386,8 @@ public class GrouperMcpDocSearchIndex {
 
     } catch (Exception e) {
       LOG.error("Error searching document index", e);
+    } finally {
+      releaseReader(reader);
     }
 
     return results;
@@ -304,109 +438,416 @@ public class GrouperMcpDocSearchIndex {
     String totalChunksStr = doc.get("totalChunksForDocument");
     result.totalChunksForDocument = totalChunksStr != null ? Integer.parseInt(totalChunksStr) : 0;
     result.privacyRealmConfigId = doc.get("privacyRealmConfigId");
+    result.lastUpdated = doc.get("lastUpdated");
     return result;
+  }
+
+  /**
+   * wrap a query so that hits from sources with a configured boost score higher than hits from
+   * other sources.  this lets a site's own documentation outrank the shipped Grouper wiki.
+   * if no source configures a boost, the query is returned unchanged.
+   * @param query the parsed query
+   * @return the query, possibly wrapped with per source boosts
+   */
+  private static Query applySourceBoosts(Query query) {
+
+    // almost no one configures a boost, and enumerating the sources is not free, so check for
+    // the properties before doing any work
+    if (GrouperConfig.retrieveConfig().propertyConfigIds(BOOST_CONFIG_ID_PATTERN).isEmpty()) {
+      return query;
+    }
+
+    Set<String> configIds = getConfigIds();
+
+    boolean anyBoosts = false;
+    for (String configId : configIds) {
+      if (sourceBoost(configId) != 1.0f) {
+        anyBoosts = true;
+        break;
+      }
+    }
+
+    if (!anyBoosts) {
+      return query;
+    }
+
+    // every indexed document belongs to exactly one source, so a clause per source covers the
+    // whole index.  boost each source's clause by its configured boost.
+    BooleanQuery.Builder builder = new BooleanQuery.Builder();
+    for (String configId : configIds) {
+      BooleanQuery.Builder sourceBuilder = new BooleanQuery.Builder();
+      sourceBuilder.add(query, BooleanClause.Occur.MUST);
+      sourceBuilder.add(new TermQuery(new Term("sourceConfigId", configId)),
+          BooleanClause.Occur.FILTER);
+      builder.add(new BoostQuery(sourceBuilder.build(), sourceBoost(configId)),
+          BooleanClause.Occur.SHOULD);
+    }
+
+    return builder.build();
+  }
+
+  /**
+   * get the configured score boost for a doc search source
+   * @param configId the source config id
+   * @return the boost, 1.0 if not configured
+   */
+  private static float sourceBoost(String configId) {
+    String boostString = GrouperConfig.retrieveConfig().propertyValueString(
+        "grouper.mcp.docSearch." + configId + ".boost");
+    if (StringUtils.isBlank(boostString)) {
+      return 1.0f;
+    }
+    try {
+      float boost = Float.parseFloat(boostString);
+      if (boost <= 0.0f) {
+        LOG.error("Ignoring non-positive boost for doc search source '" + configId
+            + "': " + boostString);
+        return 1.0f;
+      }
+      return boost;
+    } catch (NumberFormatException nfe) {
+      LOG.error("Ignoring invalid boost for doc search source '" + configId
+          + "': " + boostString);
+      return 1.0f;
+    }
   }
 
   /**
    * rebuild the index if it is stale or not yet built.
    * runs the build in a background thread so the calling thread is not blocked.
-   * if a build is already in progress, this is a no-op.
+   *
+   * <p>On a cold start there is no index to search yet, and returning no results would look to
+   * an AI client like the documentation has nothing on the topic, so it would answer from its
+   * training data instead. So on a cold start only, wait a short time for the first build to
+   * finish. If it does not finish in time the caller sees {@link #isIndexReady()} false and can
+   * tell the client to retry, rather than silently searching nothing.</p>
    */
   public static void rebuildIfNeeded() {
-    if (currentReader != null) {
-      // check if any source needs reindexing
-      long now = System.currentTimeMillis();
-      long elapsed = now - lastIndexBuildMillis;
 
-      int minReindexSeconds = getMinReindexIntervalSeconds();
-      if (elapsed < minReindexSeconds * 1000L) {
-        return;
+    // work out the configured sources once and pass them down.  each of these is a scan of
+    // every config property, and this runs on every query
+    Set<String> filesystemConfigIds = getFilesystemConfigIds();
+    Set<String> configIds = getConfigIds(filesystemConfigIds);
+
+    boolean coldStart = !isIndexReady(configIds);
+
+    startRebuildIfNeeded(configIds, filesystemConfigIds);
+
+    if (coldStart) {
+      waitForFirstBuild(configIds);
+    }
+  }
+
+  /**
+   * check if every configured doc search source has been built and can be searched.
+   *
+   * <p>This is all sources rather than any source on purpose. A search which silently left out
+   * a source that had not finished building would look like a complete answer, and the caller
+   * has no way to tell that something was missing. Refreshes of an already built source do not
+   * affect this, so once warm, a slow source rebuilding never makes the others unavailable.</p>
+   *
+   * @return true if the index is ready to search
+   */
+  public static boolean isIndexReady() {
+    return isIndexReady(getConfigIds());
+  }
+
+  /**
+   * check if every configured doc search source has been built and can be searched
+   * @param configIds the configured source config ids
+   * @return true if the index is ready to search
+   */
+  private static boolean isIndexReady(Set<String> configIds) {
+
+    for (String configId : configIds) {
+      SourceIndex sourceIndex = sourceIndexes.get(configId);
+      if (sourceIndex == null || sourceIndex.reader == null) {
+        return false;
       }
     }
 
-    // if a build is already in progress, don't start another one
-    if (buildInProgress) {
+    // with no sources configured there is nothing to build, and an empty search result is a
+    // real answer rather than a not ready yet answer
+    return true;
+  }
+
+  /**
+   * wait a short time for the first build of each source to finish, so the first search after a
+   * restart does not silently return nothing while the background build runs
+   */
+  private static void waitForFirstBuild(Set<String> configIds) {
+
+    if (isIndexReady(configIds)) {
       return;
     }
 
-    synchronized (INDEX_LOCK) {
-      // double-check after acquiring lock
-      if (buildInProgress) {
-        return;
-      }
-      if (currentReader != null) {
-        long now = System.currentTimeMillis();
-        long elapsed = now - lastIndexBuildMillis;
-        int minReindexSeconds = getMinReindexIntervalSeconds();
-        if (elapsed < minReindexSeconds * 1000L) {
-          return;
-        }
-      }
+    int waitSeconds = GrouperConfig.retrieveConfig().propertyValueInt(
+        "grouper.mcp.docSearch.firstQueryWaitSeconds", DEFAULT_FIRST_QUERY_WAIT_SECONDS);
 
-      buildInProgress = true;
+    if (waitSeconds <= 0) {
+      return;
     }
 
-    // run the build in a background thread
-    Thread buildThread = new Thread(() -> {
-      try {
-        synchronized (INDEX_LOCK) {
-          buildIndex();
+    long deadline = System.currentTimeMillis() + (waitSeconds * 1000L);
+
+    // note: this waits on its own monitor, not INDEX_LOCK.  a build thread holds INDEX_LOCK
+    // while it swaps in its results, so waiting on that lock would tie the timeout to the
+    // build rather than to the caller's patience
+    synchronized (FIRST_BUILD_NOTIFIER) {
+      while (!isIndexReady(configIds)) {
+        long remainingMillis = deadline - System.currentTimeMillis();
+        if (remainingMillis <= 0) {
+          break;
         }
-      } finally {
-        buildInProgress = false;
+        try {
+          FIRST_BUILD_NOTIFIER.wait(remainingMillis);
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+          break;
+        }
       }
-    }, "GrouperMcpDocSearchIndexBuilder");
+    }
+
+    if (!isIndexReady(configIds)) {
+      LOG.warn("Doc search index was not built within " + waitSeconds
+          + " seconds, doc search is not ready yet");
+    }
+  }
+
+  /**
+   * let any threads waiting on the first build know that a build finished, whether it
+   * succeeded or not, so they do not wait out the full timeout after a failed build
+   */
+  private static void notifyFirstBuildDone() {
+    synchronized (FIRST_BUILD_NOTIFIER) {
+      FIRST_BUILD_NOTIFIER.notifyAll();
+    }
+  }
+
+  /**
+   * start a background rebuild of each source which is stale or not yet built.  sources are
+   * independent, so one source rebuilding does not hold up another, and a source which is
+   * already built stays searchable while another one builds.
+   */
+  private static void startRebuildIfNeeded(Set<String> configIds,
+      Set<String> filesystemConfigIds) {
+
+    pruneRemovedSources(configIds);
+
+    for (String configId : configIds) {
+
+      SourceIndex sourceIndex = sourceIndexes.get(configId);
+      if (sourceIndex == null) {
+        synchronized (INDEX_LOCK) {
+          sourceIndex = sourceIndexes.get(configId);
+          if (sourceIndex == null) {
+            sourceIndex = new SourceIndex();
+            sourceIndexes.put(configId, sourceIndex);
+          }
+        }
+      }
+
+      if (!isSourceStale(configId, sourceIndex, filesystemConfigIds)) {
+        continue;
+      }
+
+      synchronized (INDEX_LOCK) {
+        if (sourceIndex.buildInProgress) {
+          continue;
+        }
+        if (!isSourceStale(configId, sourceIndex, filesystemConfigIds)) {
+          continue;
+        }
+        sourceIndex.buildInProgress = true;
+      }
+
+      startSourceBuildThread(configId, sourceIndex);
+    }
+  }
+
+  /**
+   * check if a source has never been built or is due to be rebuilt
+   * @param configId the source config id
+   * @param sourceIndex the source index
+   * @param filesystemConfigIds the config ids of the sources which read from the filesystem
+   * @return true if the source should be built now
+   */
+  private static boolean isSourceStale(String configId, SourceIndex sourceIndex,
+      Set<String> filesystemConfigIds) {
+
+    if (sourceIndex.reader == null) {
+      return true;
+    }
+
+    int intervalSeconds = getReindexIntervalSeconds(configId, filesystemConfigIds);
+
+    // a source which failed is retried sooner than its normal interval, otherwise a source
+    // which failed once would serve nothing until its next scheduled rebuild, which for the
+    // shipped documentation is a day away
+    if (sourceIndex.lastBuildFailed && intervalSeconds > FAILED_BUILD_RETRY_SECONDS) {
+      intervalSeconds = FAILED_BUILD_RETRY_SECONDS;
+    }
+
+    long elapsed = System.currentTimeMillis() - sourceIndex.lastBuildMillis;
+    return elapsed >= intervalSeconds * 1000L;
+  }
+
+  /**
+   * build one source on a background thread
+   * @param configId the source config id
+   * @param sourceIndex the source index
+   */
+  private static void startSourceBuildThread(final String configId,
+      final SourceIndex sourceIndex) {
+
+    Thread buildThread = new Thread(new Runnable() {
+
+      @Override
+      public void run() {
+        try {
+          buildSource(configId, sourceIndex);
+        } finally {
+          sourceIndex.buildInProgress = false;
+          notifyFirstBuildDone();
+        }
+      }
+
+    }, "GrouperMcpDocSearchIndexBuilder-" + configId);
+
     buildThread.setDaemon(true);
     buildThread.start();
   }
 
   /**
-   * force rebuild the index now (synchronously, blocks the calling thread)
+   * drop the indexes of sources which are no longer configured
+   * @param configIds the currently configured source config ids
    */
-  public static void forceRebuild() {
-    synchronized (INDEX_LOCK) {
-      buildInProgress = true;
-      try {
-        buildIndex();
-      } finally {
-        buildInProgress = false;
+  private static void pruneRemovedSources(Set<String> configIds) {
+
+    List<String> removedConfigIds = new ArrayList<String>();
+    for (String configId : sourceIndexes.keySet()) {
+      if (!configIds.contains(configId)) {
+        removedConfigIds.add(configId);
       }
     }
-  }
 
-  /**
-   * get the minimum reindex interval across all configured sources
-   * @return seconds
-   */
-  private static int getMinReindexIntervalSeconds() {
-    Set<String> configIds = GrouperConfig.retrieveConfig().propertyConfigIds(CONFIG_ID_PATTERN);
-    int minSeconds = DEFAULT_REINDEX_INTERVAL_SECONDS;
-    for (String configId : configIds) {
-      int seconds = GrouperConfig.retrieveConfig().propertyValueInt(
-          "grouper.mcp.docSearch." + configId + ".reindexIntervalSeconds",
-          DEFAULT_REINDEX_INTERVAL_SECONDS);
-      if (seconds < minSeconds) {
-        minSeconds = seconds;
-      }
-    }
-    return minSeconds;
-  }
-
-  /**
-   * build the index from all configured doc search sources and the data dictionary.
-   * creates a new in-memory directory, indexes all content, then swaps
-   * the reference so searches use the new index.
-   */
-  private static void buildIndex() {
-
-    Set<String> configIds = GrouperConfig.retrieveConfig().propertyConfigIds(CONFIG_ID_PATTERN);
-    boolean dataDictionaryEnabled = isDataDictionaryEnabled();
-
-    if (configIds.isEmpty() && !dataDictionaryEnabled) {
-      LOG.debug("No doc search sources configured and data dictionary disabled");
-      lastIndexBuildMillis = System.currentTimeMillis();
+    if (removedConfigIds.isEmpty()) {
       return;
     }
+
+    synchronized (INDEX_LOCK) {
+      for (String configId : removedConfigIds) {
+        SourceIndex sourceIndex = sourceIndexes.remove(configId);
+        if (sourceIndex != null) {
+          releaseReader(sourceIndex.reader);
+          LOG.info("Doc search source no longer configured, dropped from index: " + configId);
+        }
+      }
+      refreshComposite();
+    }
+  }
+
+  /**
+   * how long to wait for a background build of a source to finish before forcing a rebuild of
+   * that source anyway
+   */
+  private static final int CLAIM_BUILD_SLOT_WAIT_SECONDS = 60;
+
+  /**
+   * mark a source as being built by this thread, waiting for any build already running to
+   * finish first.  gives up waiting after a while so a build which is stuck cannot block a
+   * forced rebuild forever.
+   * @param configId the source config id
+   * @param sourceIndex the source index
+   */
+  private static void claimBuildSlot(String configId, SourceIndex sourceIndex) {
+
+    long deadline = System.currentTimeMillis() + (CLAIM_BUILD_SLOT_WAIT_SECONDS * 1000L);
+
+    while (true) {
+
+      synchronized (INDEX_LOCK) {
+        if (!sourceIndex.buildInProgress) {
+          sourceIndex.buildInProgress = true;
+          return;
+        }
+      }
+
+      if (System.currentTimeMillis() >= deadline) {
+        LOG.warn("Waited " + CLAIM_BUILD_SLOT_WAIT_SECONDS + " seconds for a build of doc "
+            + "search source '" + configId + "' to finish, rebuilding it anyway");
+        synchronized (INDEX_LOCK) {
+          sourceIndex.buildInProgress = true;
+        }
+        return;
+      }
+
+      GrouperUtil.sleep(20);
+    }
+  }
+
+  /**
+   * force rebuild every source now (synchronously, blocks the calling thread)
+   */
+  public static void forceRebuild() {
+
+    Set<String> configIds = getConfigIds();
+
+    pruneRemovedSources(configIds);
+
+    try {
+      for (String configId : configIds) {
+
+        SourceIndex sourceIndex = null;
+        synchronized (INDEX_LOCK) {
+          sourceIndex = sourceIndexes.get(configId);
+          if (sourceIndex == null) {
+            sourceIndex = new SourceIndex();
+            sourceIndexes.put(configId, sourceIndex);
+          }
+        }
+
+        // wait for any background build of this source to finish before claiming it.  setting
+        // the flag without checking would let this build run at the same time as a background
+        // build of the same source, and would clear a flag this thread did not set
+        claimBuildSlot(configId, sourceIndex);
+
+        try {
+          buildSource(configId, sourceIndex);
+        } finally {
+          sourceIndex.buildInProgress = false;
+        }
+      }
+    } finally {
+      notifyFirstBuildDone();
+    }
+  }
+
+  /**
+   * get how often a source should be reindexed
+   * @param configId the source config id
+   * @param filesystemConfigIds the config ids of the sources which read from the filesystem
+   * @return seconds
+   */
+  private static int getReindexIntervalSeconds(String configId,
+      Set<String> filesystemConfigIds) {
+
+    int defaultSeconds = DEFAULT_REINDEX_INTERVAL_SECONDS;
+    if (filesystemConfigIds.contains(configId)) {
+      defaultSeconds = DEFAULT_FILESYSTEM_REINDEX_INTERVAL_SECONDS;
+    }
+
+    return GrouperConfig.retrieveConfig().propertyValueInt(
+        "grouper.mcp.docSearch." + configId + ".reindexIntervalSeconds", defaultSeconds);
+  }
+
+  /**
+   * build one doc search source into its own in-memory index, then swap it in.  the other
+   * sources are untouched and stay searchable throughout.
+   * @param configId the source config id
+   * @param sourceIndex the source index to swap the result into
+   */
+  private static void buildSource(String configId, SourceIndex sourceIndex) {
 
     ByteBuffersDirectory newDirectory = new ByteBuffersDirectory();
 
@@ -414,114 +855,235 @@ public class GrouperMcpDocSearchIndex {
       IndexWriterConfig writerConfig = new IndexWriterConfig(analyzer);
       IndexWriter writer = new IndexWriter(newDirectory, writerConfig);
 
-      int totalDocs = 0;
-      int totalChunks = 0;
+      int[] counts = null;
 
-      for (String configId : configIds) {
-        String externalSystemId = GrouperConfig.retrieveConfig().propertyValueString(
-            "grouper.mcp.docSearch." + configId + ".externalSystemId", "grouper");
-        String query = GrouperConfig.retrieveConfig().propertyValueStringRequired(
-            "grouper.mcp.docSearch." + configId + ".query");
-
-        try {
-          List<? extends Map<String, Object>> rows = new GcDbAccess()
-              .connectionName(externalSystemId)
-              .sql(query)
-              .selectListMap();
-
-          for (Map<String, Object> row : GrouperUtil.nonNull(rows)) {
-            totalDocs++;
-
-            String content = objectToString(row.get("grouper_content"));
-            if (content == null) {
-              content = objectToString(row.get("GROUPER_CONTENT"));
-            }
-            String url = objectToString(row.get("grouper_url"));
-            if (url == null) {
-              url = objectToString(row.get("GROUPER_URL"));
-            }
-            String name = objectToString(row.get("grouper_name"));
-            if (name == null) {
-              name = objectToString(row.get("GROUPER_NAME"));
-            }
-
-            if (StringUtils.isBlank(content)) {
-              continue;
-            }
-
-            // name is required -- skip documents without a name
-            if (StringUtils.isBlank(name)) {
-              continue;
-            }
-
-            List<String> chunks = chunkContent(content);
-            int totalChunksForDoc = chunks.size();
-            for (int i = 0; i < chunks.size(); i++) {
-              Document doc = new Document();
-              doc.add(new TextField("content", chunks.get(i), Field.Store.YES));
-              if (StringUtils.isNotBlank(url)) {
-                doc.add(new StringField("url", url, Field.Store.YES));
-              }
-              doc.add(new StringField("name", name, Field.Store.YES));
-              doc.add(new StringField("sourceConfigId", configId, Field.Store.YES));
-              doc.add(new StringField("chunkIndex", String.valueOf(i), Field.Store.YES));
-              doc.add(new StoredField("totalChunksForDocument", String.valueOf(totalChunksForDoc)));
-              writer.addDocument(doc);
-              totalChunks++;
-            }
-          }
-
-        } catch (Exception e) {
-          LOG.error("Error loading doc search source: " + configId, e);
-        }
-      }
-
-      // index the data dictionary (data fields and data rows)
-      if (dataDictionaryEnabled) {
-        int[] dataDictCounts = indexDataDictionary(writer);
-        totalDocs += dataDictCounts[0];
-        totalChunks += dataDictCounts[1];
+      if (DATA_DICTIONARY_SOURCE_CONFIG_ID.equals(configId)) {
+        counts = indexDataDictionary(writer);
+      } else if (getFilesystemConfigIds().contains(configId)) {
+        counts = indexFilesystemSource(writer, configId);
+      } else {
+        counts = indexSqlSource(writer, configId);
       }
 
       writer.close();
 
-      // swap the index reference
       DirectoryReader newReader = DirectoryReader.open(newDirectory);
-      DirectoryReader oldReader = currentReader;
-      Directory oldDirectory = currentDirectory;
 
-      currentReader = newReader;
-      currentDirectory = newDirectory;
-      lastIndexBuildMillis = System.currentTimeMillis();
+      DirectoryReader oldReader = null;
+      boolean orphaned = false;
 
-      // close old resources
-      if (oldReader != null) {
-        try {
-          oldReader.close();
-        } catch (IOException e) {
-          LOG.debug("Error closing old reader", e);
-        }
-      }
-      if (oldDirectory != null) {
-        try {
-          oldDirectory.close();
-        } catch (IOException e) {
-          LOG.debug("Error closing old directory", e);
+      synchronized (INDEX_LOCK) {
+
+        // the source could have been removed from configuration while this build was running.
+        // if so this result has nowhere to go, and must be released rather than left dangling
+        if (sourceIndexes.get(configId) != sourceIndex) {
+          orphaned = true;
+        } else {
+          oldReader = sourceIndex.reader;
+          sourceIndex.reader = newReader;
+          sourceIndex.lastBuildMillis = System.currentTimeMillis();
+          sourceIndex.lastBuildFailed = false;
+          refreshComposite();
         }
       }
 
-      int sourceCount = configIds.size() + (dataDictionaryEnabled ? 1 : 0);
-      LOG.info("Doc search index built: " + totalDocs + " documents, "
-          + totalChunks + " chunks from " + sourceCount + " sources");
+      if (orphaned) {
+        releaseReader(newReader);
+        LOG.info("Doc search source '" + configId
+            + "' was removed from configuration while it was being built, discarding the build");
+        return;
+      }
+
+      // drop this source index's own reference to the previous reader.  a composite which is
+      // still being searched holds its own reference, so the reader is not actually closed
+      // until those searches finish
+      releaseReader(oldReader);
+
+      LOG.info("Doc search source '" + configId + "' indexed: " + counts[0]
+          + " documents, " + counts[1] + " chunks");
 
     } catch (Exception e) {
-      LOG.error("Error building doc search index", e);
+      LOG.error("Error building doc search source: " + configId, e);
       try {
         newDirectory.close();
       } catch (IOException e2) {
         // ignore
       }
+      handleFailedBuild(configId, sourceIndex);
     }
+  }
+
+  /**
+   * handle a source which failed to build.  a source which cannot be built must not take doc
+   * search down for the sources which are fine, so a source which has never built successfully
+   * is given an empty index and counts as built.  it contributes no results until a later build
+   * succeeds, which is retried sooner than the source's normal reindex interval.
+   * @param configId the source config id
+   * @param sourceIndex the source index
+   */
+  private static void handleFailedBuild(String configId, SourceIndex sourceIndex) {
+
+    synchronized (INDEX_LOCK) {
+
+      // the source could have been removed from configuration while this build was running
+      if (sourceIndexes.get(configId) != sourceIndex) {
+        return;
+      }
+
+      sourceIndex.lastBuildFailed = true;
+
+      // record the attempt, otherwise this source would be stale on every search and would be
+      // rebuilt continuously, e.g. hammering a database which is down
+      sourceIndex.lastBuildMillis = System.currentTimeMillis();
+
+      if (sourceIndex.reader != null) {
+        // there is an index from an earlier successful build, keep serving it.  content which
+        // is out of date is better than no content
+        return;
+      }
+
+      try {
+        ByteBuffersDirectory emptyDirectory = new ByteBuffersDirectory();
+        IndexWriter writer = new IndexWriter(emptyDirectory, new IndexWriterConfig(analyzer));
+        writer.close();
+        sourceIndex.reader = DirectoryReader.open(emptyDirectory);
+        refreshComposite();
+
+        LOG.error("Doc search source '" + configId + "' has never built successfully, it will "
+            + "return no results and be retried in " + FAILED_BUILD_RETRY_SECONDS + " seconds. "
+            + "The other doc search sources are unaffected.");
+
+      } catch (Exception e) {
+        LOG.error("Error creating empty index for doc search source: " + configId, e);
+      }
+    }
+  }
+
+  /**
+   * rebuild the composite reader from every source which has been built.  callers must hold
+   * INDEX_LOCK.
+   */
+  private static void refreshComposite() {
+
+    List<DirectoryReader> subReaders = new ArrayList<DirectoryReader>();
+    for (SourceIndex sourceIndex : sourceIndexes.values()) {
+      if (sourceIndex.reader != null) {
+        subReaders.add(sourceIndex.reader);
+      }
+    }
+
+    MultiReader oldComposite = currentComposite;
+
+    try {
+      // closeSubReaders false means the composite incRefs each sub reader now and decRefs it
+      // when the composite is released, which is what keeps a sub reader alive for searches
+      // still running against an older composite
+      currentComposite = new MultiReader(
+          subReaders.toArray(new DirectoryReader[subReaders.size()]), false);
+    } catch (IOException e) {
+      LOG.error("Error building composite doc search reader", e);
+      return;
+    }
+
+    releaseReader(oldComposite);
+  }
+
+  /**
+   * drop a reference to a reader.  it is closed once nothing else holds a reference to it.
+   * @param reader the reader, may be null
+   */
+  private static void releaseReader(IndexReader reader) {
+    if (reader == null) {
+      return;
+    }
+    try {
+      reader.decRef();
+    } catch (IOException e) {
+      LOG.debug("Error releasing doc search reader", e);
+    }
+  }
+
+  /**
+   * get the composite reader for searching, with a reference held so it is not closed while in
+   * use.  the caller must call {@link #releaseReader(IndexReader)} when done.
+   * @return the composite reader, or null if there is nothing to search
+   */
+  private static MultiReader acquireComposite() {
+
+    while (true) {
+      MultiReader composite = currentComposite;
+      if (composite == null) {
+        return null;
+      }
+      // the composite could be swapped out and released between reading the field and using
+      // it, so only use it if a reference can still be taken
+      if (composite.tryIncRef()) {
+        return composite;
+      }
+    }
+  }
+
+  /**
+   * index one SQL based doc search source
+   * @param writer the index writer
+   * @param configId the source config id
+   * @return int array of [totalDocs, totalChunks]
+   */
+  private static int[] indexSqlSource(IndexWriter writer, String configId) {
+
+    int totalDocs = 0;
+    int totalChunks = 0;
+
+    String externalSystemId = GrouperConfig.retrieveConfig().propertyValueString(
+        "grouper.mcp.docSearch." + configId + ".externalSystemId", "grouper");
+    String query = GrouperConfig.retrieveConfig().propertyValueStringRequired(
+        "grouper.mcp.docSearch." + configId + ".query");
+
+    try {
+      List<? extends Map<String, Object>> rows = new GcDbAccess()
+          .connectionName(externalSystemId)
+          .sql(query)
+          .selectListMap();
+
+      for (Map<String, Object> row : GrouperUtil.nonNull(rows)) {
+        totalDocs++;
+
+        String content = objectToString(row.get("grouper_content"));
+        if (content == null) {
+          content = objectToString(row.get("GROUPER_CONTENT"));
+        }
+        String url = objectToString(row.get("grouper_url"));
+        if (url == null) {
+          url = objectToString(row.get("GROUPER_URL"));
+        }
+        String name = objectToString(row.get("grouper_name"));
+        if (name == null) {
+          name = objectToString(row.get("GROUPER_NAME"));
+        }
+
+        if (StringUtils.isBlank(content)) {
+          continue;
+        }
+
+        // name is required -- skip documents without a name
+        if (StringUtils.isBlank(name)) {
+          continue;
+        }
+
+        List<String> chunks = chunkContent(content);
+        int totalChunksForDoc = chunks.size();
+        for (int i = 0; i < chunks.size(); i++) {
+          addChunkDocument(writer, chunks.get(i), name, name, url, configId,
+              i, totalChunksForDoc, null, null);
+          totalChunks++;
+        }
+      }
+
+    } catch (Exception e) {
+      LOG.error("Error loading doc search source: " + configId, e);
+    }
+
+    return new int[] {totalDocs, totalChunks};
   }
 
   /**
@@ -587,16 +1149,8 @@ public class GrouperMcpDocSearchIndex {
         totalDocs++;
 
         for (int i = 0; i < chunks.size(); i++) {
-          Document doc = new Document();
-          doc.add(new TextField("content", chunks.get(i), Field.Store.YES));
-          doc.add(new StringField("name", configId, Field.Store.YES));
-          doc.add(new StringField("sourceConfigId", DATA_DICTIONARY_SOURCE_CONFIG_ID, Field.Store.YES));
-          doc.add(new StringField("chunkIndex", String.valueOf(i), Field.Store.YES));
-          doc.add(new StoredField("totalChunksForDocument", String.valueOf(totalChunksForDoc)));
-          if (StringUtils.isNotBlank(privacyRealmConfigId)) {
-            doc.add(new StringField("privacyRealmConfigId", privacyRealmConfigId, Field.Store.YES));
-          }
-          writer.addDocument(doc);
+          addChunkDocument(writer, chunks.get(i), configId, configId, null,
+              DATA_DICTIONARY_SOURCE_CONFIG_ID, i, totalChunksForDoc, privacyRealmConfigId, null);
           totalChunks++;
         }
       }
@@ -645,16 +1199,8 @@ public class GrouperMcpDocSearchIndex {
         totalDocs++;
 
         for (int i = 0; i < chunks.size(); i++) {
-          Document doc = new Document();
-          doc.add(new TextField("content", chunks.get(i), Field.Store.YES));
-          doc.add(new StringField("name", configId, Field.Store.YES));
-          doc.add(new StringField("sourceConfigId", DATA_DICTIONARY_SOURCE_CONFIG_ID, Field.Store.YES));
-          doc.add(new StringField("chunkIndex", String.valueOf(i), Field.Store.YES));
-          doc.add(new StoredField("totalChunksForDocument", String.valueOf(totalChunksForDoc)));
-          if (StringUtils.isNotBlank(privacyRealmConfigId)) {
-            doc.add(new StringField("privacyRealmConfigId", privacyRealmConfigId, Field.Store.YES));
-          }
-          writer.addDocument(doc);
+          addChunkDocument(writer, chunks.get(i), configId, configId, null,
+              DATA_DICTIONARY_SOURCE_CONFIG_ID, i, totalChunksForDoc, privacyRealmConfigId, null);
           totalChunks++;
         }
       }
@@ -664,6 +1210,516 @@ public class GrouperMcpDocSearchIndex {
     }
 
     return new int[] {totalDocs, totalChunks};
+  }
+
+  /**
+   * add one chunk of a document to the index
+   * @param writer the index writer
+   * @param chunk the chunk text, stored and indexed
+   * @param titleText the title/breadcrumb of the document, indexed but not stored, and boosted
+   * relative to the body at query time.  may be null
+   * @param name the document name, this is the key callers use to retrieve chunks
+   * @param url the source url, may be null
+   * @param sourceConfigId the doc search source this document came from
+   * @param chunkIndex the index of this chunk in the document
+   * @param totalChunksForDocument how many chunks the document has
+   * @param privacyRealmConfigId privacy realm which controls access to this document, may be null
+   * @param lastUpdated when the source document was last updated, may be null
+   * @throws IOException if the document cannot be written
+   */
+  private static void addChunkDocument(IndexWriter writer, String chunk, String titleText,
+      String name, String url, String sourceConfigId, int chunkIndex, int totalChunksForDocument,
+      String privacyRealmConfigId, String lastUpdated) throws IOException {
+
+    Document doc = new Document();
+    doc.add(new TextField("content", chunk, Field.Store.YES));
+    if (StringUtils.isNotBlank(titleText)) {
+      doc.add(new TextField("title", titleText, Field.Store.NO));
+    }
+    if (StringUtils.isNotBlank(url)) {
+      doc.add(new StringField("url", url, Field.Store.YES));
+    }
+    doc.add(new StringField("name", name, Field.Store.YES));
+    doc.add(new StringField("sourceConfigId", sourceConfigId, Field.Store.YES));
+    doc.add(new StringField("chunkIndex", String.valueOf(chunkIndex), Field.Store.YES));
+    doc.add(new StoredField("totalChunksForDocument", String.valueOf(totalChunksForDocument)));
+    if (StringUtils.isNotBlank(privacyRealmConfigId)) {
+      doc.add(new StringField("privacyRealmConfigId", privacyRealmConfigId, Field.Store.YES));
+    }
+    if (StringUtils.isNotBlank(lastUpdated)) {
+      doc.add(new StoredField("lastUpdated", lastUpdated));
+    }
+    writer.addDocument(doc);
+  }
+
+  /**
+   * index a source which reads markdown files from a directory on the filesystem.  this is how
+   * the Grouper wiki documentation shipped in the container is indexed.  each file is one
+   * document, YAML frontmatter at the top of the file supplies the title and url, and the
+   * directory structure supplies a breadcrumb which is prepended to each chunk so a chunk from
+   * the middle of a long page still says what page it came from.
+   * @param writer the index writer
+   * @param configId the doc search source config id
+   * @return int array of [totalDocs, totalChunks]
+   */
+  private static int[] indexFilesystemSource(IndexWriter writer, String configId) {
+
+    int totalDocs = 0;
+    int totalChunks = 0;
+
+    String directoryName = filesystemDirectory(configId);
+
+    if (StringUtils.isBlank(directoryName)) {
+      LOG.error("Doc search source '" + configId + "' has no directory configured");
+      return new int[] {totalDocs, totalChunks};
+    }
+
+    File directory = new File(directoryName);
+
+    if (!directory.exists() || !directory.isDirectory()) {
+      // this is normal outside the container, e.g. a WAR deployment without the shipped docs
+      LOG.info("Doc search source '" + configId + "' directory does not exist, skipping: "
+          + directoryName);
+      return new int[] {totalDocs, totalChunks};
+    }
+
+    try {
+      Set<String> extensions = filesystemFileExtensions(configId);
+
+      List<File> files = new ArrayList<File>();
+      listFilesRecursive(directory, extensions, files, 0);
+
+      if (files.size() >= MAX_FILES_PER_SOURCE) {
+        LOG.error("Doc search source '" + configId + "' has at least " + MAX_FILES_PER_SOURCE
+            + " files, only indexing the first " + MAX_FILES_PER_SOURCE);
+      }
+
+      // names are the key callers use to retrieve chunks, so they must be unique in a source
+      Set<String> namesUsed = new HashSet<String>();
+
+      // resolve the directory once, not once per file
+      String directoryCanonicalPath = GrouperUtil.fileCanonicalPath(directory);
+
+      for (File file : files) {
+
+        String relativePath = relativePath(directoryCanonicalPath, file);
+
+        String fileContents = null;
+        try {
+          fileContents = GrouperUtil.readFileIntoString(file);
+        } catch (Exception e) {
+          LOG.error("Error reading doc search file: " + relativePath, e);
+          continue;
+        }
+
+        MarkdownDocument markdownDocument = parseMarkdown(fileContents);
+
+        String body = markdownDocument.getBody();
+        if (StringUtils.isBlank(body)) {
+          continue;
+        }
+
+        String title = markdownDocument.getTitle();
+        if (StringUtils.isBlank(title)) {
+          title = titleFromPath(relativePath);
+        }
+
+        String name = title;
+        if (StringUtils.isBlank(name) || namesUsed.contains(name)) {
+          // duplicate titles across a directory tree, fall back to the path which is unique
+          name = StringUtils.removeEnd(relativePath, "." + extensionOfFile(file));
+          if (namesUsed.contains(name)) {
+            LOG.error("Skipping doc search document with duplicate name '" + name
+                + "' in source '" + configId + "'");
+            continue;
+          }
+        }
+        namesUsed.add(name);
+
+        String breadcrumb = buildBreadcrumb(relativePath, title);
+
+        List<String> chunks = chunkContent(body);
+        int totalChunksForDoc = chunks.size();
+        totalDocs++;
+
+        for (int i = 0; i < chunks.size(); i++) {
+          String chunkWithBreadcrumb = breadcrumb + "\n\n" + chunks.get(i);
+          addChunkDocument(writer, chunkWithBreadcrumb, breadcrumb, name,
+              markdownDocument.getUrl(), configId, i, totalChunksForDoc, null,
+              markdownDocument.getLastUpdated());
+          totalChunks++;
+        }
+      }
+
+      LOG.debug("Doc search source '" + configId + "' indexed " + totalDocs
+          + " documents from " + directoryName);
+
+    } catch (Exception e) {
+      LOG.error("Error indexing doc search source: " + configId, e);
+    }
+
+    return new int[] {totalDocs, totalChunks};
+  }
+
+  /**
+   * list files under a directory recursively, filtered by extension, skipping hidden files,
+   * symlinks, and files which are too large.  results are sorted so the index is built in a
+   * stable order.
+   * @param directory the directory to list
+   * @param extensions lowercase extensions to include, empty for all
+   * @param files the list to add to
+   * @param depth the current recursion depth
+   */
+  private static void listFilesRecursive(File directory, Set<String> extensions,
+      List<File> files, int depth) {
+
+    if (depth > MAX_DIRECTORY_DEPTH) {
+      LOG.error("Doc search directory is nested deeper than " + MAX_DIRECTORY_DEPTH
+          + ", not recursing: " + GrouperUtil.fileCanonicalPath(directory));
+      return;
+    }
+
+    File[] children = directory.listFiles();
+    if (children == null) {
+      return;
+    }
+
+    Arrays.sort(children, new Comparator<File>() {
+      @Override
+      public int compare(File file1, File file2) {
+        return file1.getName().compareTo(file2.getName());
+      }
+    });
+
+    for (File child : children) {
+
+      if (files.size() >= MAX_FILES_PER_SOURCE) {
+        return;
+      }
+
+      if (child.getName().startsWith(".")) {
+        continue;
+      }
+
+      // dont follow symlinks, the docs directory should be self contained
+      if (Files.isSymbolicLink(child.toPath())) {
+        continue;
+      }
+
+      if (child.isDirectory()) {
+        listFilesRecursive(child, extensions, files, depth + 1);
+        continue;
+      }
+
+      if (!child.isFile()) {
+        continue;
+      }
+
+      if (!extensions.isEmpty() && !extensions.contains(extensionOfFile(child))) {
+        continue;
+      }
+
+      if (child.length() > MAX_FILE_SIZE_BYTES) {
+        LOG.error("Skipping doc search file larger than " + MAX_FILE_SIZE_BYTES + " bytes: "
+            + GrouperUtil.fileCanonicalPath(child));
+        continue;
+      }
+
+      files.add(child);
+    }
+  }
+
+  /**
+   * get the lowercase extension of a file, without the dot
+   * @param file the file
+   * @return the extension, empty string if none
+   */
+  private static String extensionOfFile(File file) {
+    String fileName = file.getName();
+    int dotIndex = fileName.lastIndexOf('.');
+    if (dotIndex == -1 || dotIndex == fileName.length() - 1) {
+      return "";
+    }
+    return fileName.substring(dotIndex + 1).toLowerCase();
+  }
+
+  /**
+   * get the path of a file relative to the source directory, with forward slashes
+   * @param directoryCanonicalPath the canonical path of the source directory
+   * @param file the file
+   * @return the relative path
+   */
+  private static String relativePath(String directoryCanonicalPath, File file) {
+    String filePath = GrouperUtil.fileCanonicalPath(file);
+    String relativePath = filePath;
+    if (filePath.startsWith(directoryCanonicalPath)) {
+      relativePath = filePath.substring(directoryCanonicalPath.length());
+    }
+    relativePath = relativePath.replace('\\', '/');
+    return StringUtils.removeStart(relativePath, "/");
+  }
+
+  /**
+   * derive a title from a file path when the file has no title in its frontmatter
+   * @param relativePath the path relative to the source directory
+   * @return the title
+   */
+  private static String titleFromPath(String relativePath) {
+    String fileName = relativePath;
+    int slashIndex = fileName.lastIndexOf('/');
+    if (slashIndex != -1) {
+      fileName = fileName.substring(slashIndex + 1);
+    }
+    int dotIndex = fileName.lastIndexOf('.');
+    if (dotIndex > 0) {
+      fileName = fileName.substring(0, dotIndex);
+    }
+    return fileName.replace('_', ' ').trim();
+  }
+
+  /**
+   * build a breadcrumb from the directory structure, e.g.
+   * "Grouper Wiki Home &gt; Grouper Administration Guides &gt; Provisioning and Integration".
+   * the wiki mirror nests child pages in a directory named after the parent page, so the
+   * directories are the page hierarchy.
+   * @param relativePath the path relative to the source directory
+   * @param title the document title
+   * @return the breadcrumb
+   */
+  private static String buildBreadcrumb(String relativePath, String title) {
+
+    StringBuilder breadcrumb = new StringBuilder();
+
+    String[] pathParts = GrouperUtil.splitTrim(relativePath, "/");
+    // the last part is the file itself, the title covers that
+    for (int i = 0; i < GrouperUtil.length(pathParts) - 1; i++) {
+      String pathPart = pathParts[i].replace('_', ' ').trim();
+      if (StringUtils.isBlank(pathPart)) {
+        continue;
+      }
+      breadcrumb.append(pathPart).append(" > ");
+    }
+
+    breadcrumb.append(StringUtils.defaultIfBlank(title, ""));
+
+    return breadcrumb.toString();
+  }
+
+  /**
+   * a markdown file split into its YAML frontmatter and its body
+   */
+  public static class MarkdownDocument {
+
+    private String title;
+    private String url;
+    private String lastUpdated;
+    private String body;
+
+    /**
+     * the title from frontmatter, null if none
+     * @return the title
+     */
+    public String getTitle() {
+      return this.title;
+    }
+
+    /**
+     * the url of the source document from frontmatter, null if none
+     * @return the url
+     */
+    public String getUrl() {
+      return this.url;
+    }
+
+    /**
+     * when the source document was last updated, from frontmatter, null if none
+     * @return the last updated
+     */
+    public String getLastUpdated() {
+      return this.lastUpdated;
+    }
+
+    /**
+     * the file contents with the frontmatter removed
+     * @return the body
+     */
+    public String getBody() {
+      return this.body;
+    }
+  }
+
+  /**
+   * split a markdown file into its YAML frontmatter and its body.  the frontmatter is the block
+   * between a line of three dashes at the very start of the file and the next line of three
+   * dashes.  if there is no frontmatter the whole file is the body.
+   * @param fileContents the contents of the markdown file
+   * @return the parsed document, never null
+   */
+  public static MarkdownDocument parseMarkdown(String fileContents) {
+
+    MarkdownDocument markdownDocument = new MarkdownDocument();
+
+    if (fileContents == null) {
+      markdownDocument.body = "";
+      return markdownDocument;
+    }
+
+    String contents = StringUtils.removeStart(fileContents, "\uFEFF");
+
+    int firstLineEnd = contents.indexOf('\n');
+    if (firstLineEnd == -1 || !"---".equals(contents.substring(0, firstLineEnd).trim())) {
+      markdownDocument.body = contents;
+      return markdownDocument;
+    }
+
+    int bodyStart = -1;
+    int lineStart = firstLineEnd + 1;
+
+    while (lineStart < contents.length()) {
+
+      int lineEnd = contents.indexOf('\n', lineStart);
+      String line = lineEnd == -1 ? contents.substring(lineStart)
+          : contents.substring(lineStart, lineEnd);
+
+      if ("---".equals(line.trim())) {
+        bodyStart = lineEnd == -1 ? contents.length() : lineEnd + 1;
+        break;
+      }
+
+      int colonIndex = line.indexOf(':');
+      if (colonIndex > 0) {
+        String key = line.substring(0, colonIndex).trim();
+        String value = unquote(line.substring(colonIndex + 1).trim());
+        if ("title".equals(key)) {
+          markdownDocument.title = value;
+        } else if ("url".equals(key)) {
+          markdownDocument.url = value;
+        } else if ("lastUpdated".equals(key)) {
+          markdownDocument.lastUpdated = value;
+        }
+      }
+
+      if (lineEnd == -1) {
+        break;
+      }
+      lineStart = lineEnd + 1;
+    }
+
+    if (bodyStart == -1) {
+      // no closing dashes, this was not frontmatter after all
+      markdownDocument.title = null;
+      markdownDocument.url = null;
+      markdownDocument.lastUpdated = null;
+      markdownDocument.body = contents;
+      return markdownDocument;
+    }
+
+    markdownDocument.body = contents.substring(bodyStart);
+
+    return markdownDocument;
+  }
+
+  /**
+   * strip matching single or double quotes from around a frontmatter value
+   * @param value the value
+   * @return the unquoted value
+   */
+  private static String unquote(String value) {
+    if (value == null || value.length() < 2) {
+      return value;
+    }
+    if ((value.startsWith("\"") && value.endsWith("\""))
+        || (value.startsWith("'") && value.endsWith("'"))) {
+      return value.substring(1, value.length() - 1);
+    }
+    return value;
+  }
+
+  /**
+   * get the directory a filesystem doc search source reads from
+   * @param configId the source config id
+   * @return the directory name, null if not configured
+   */
+  private static String filesystemDirectory(String configId) {
+    if (GROUPER_WIKI_SOURCE_CONFIG_ID.equals(configId)) {
+      if (grouperWikiDirectoryOverrideForTesting != null) {
+        return grouperWikiDirectoryOverrideForTesting;
+      }
+      return GrouperConfig.retrieveConfig().propertyValueString(
+          "grouper.mcp.docSearch." + configId + ".directory", DEFAULT_GROUPER_WIKI_DIRECTORY);
+    }
+    return GrouperConfig.retrieveConfig().propertyValueString(
+        "grouper.mcp.docSearch." + configId + ".directory");
+  }
+
+  /**
+   * get the lowercase file extensions a filesystem doc search source indexes
+   * @param configId the source config id
+   * @return set of extensions without dots, empty set means all files
+   */
+  private static Set<String> filesystemFileExtensions(String configId) {
+
+    String extensionsString = GrouperConfig.retrieveConfig().propertyValueString(
+        "grouper.mcp.docSearch." + configId + ".fileExtensions", DEFAULT_FILE_EXTENSIONS);
+
+    Set<String> extensions = new HashSet<String>();
+    for (String extension : GrouperUtil.nonNull(GrouperUtil.splitTrim(extensionsString, ","), String.class)) {
+      extensions.add(StringUtils.removeStart(extension.toLowerCase(), "."));
+    }
+
+    return extensions;
+  }
+
+  /**
+   * check if the built-in Grouper wiki documentation source is enabled and its directory is
+   * present.  the directory ships in the container, so it is normally absent in other
+   * deployments and in development.
+   * @return true if enabled
+   */
+  public static boolean isGrouperWikiEnabled() {
+
+    boolean enabled = GrouperConfig.retrieveConfig().propertyValueBoolean(
+        "grouper.mcp.docSearch.grouperWiki.enable", true);
+    if (!enabled) {
+      return false;
+    }
+
+    String directoryName = filesystemDirectory(GROUPER_WIKI_SOURCE_CONFIG_ID);
+    if (StringUtils.isBlank(directoryName)) {
+      return false;
+    }
+
+    File directory = new File(directoryName);
+    return directory.exists() && directory.isDirectory();
+  }
+
+  /**
+   * get the doc search source config ids which read documents from SQL
+   * @return set of config ids
+   */
+  public static Set<String> getSqlConfigIds() {
+    return new LinkedHashSet<String>(
+        GrouperConfig.retrieveConfig().propertyConfigIds(SQL_CONFIG_ID_PATTERN));
+  }
+
+  /**
+   * get the doc search source config ids which read markdown files from the filesystem,
+   * including the built-in Grouper wiki source if it is enabled
+   * @return set of config ids
+   */
+  public static Set<String> getFilesystemConfigIds() {
+
+    Set<String> configIds = new LinkedHashSet<String>(
+        GrouperConfig.retrieveConfig().propertyConfigIds(FILESYSTEM_CONFIG_ID_PATTERN));
+
+    if (isGrouperWikiEnabled()) {
+      configIds.add(GROUPER_WIKI_SOURCE_CONFIG_ID);
+    } else {
+      // the directory can be configured but the source turned off, or the directory missing
+      configIds.remove(GROUPER_WIKI_SOURCE_CONFIG_ID);
+    }
+
+    return configIds;
   }
 
   /**
@@ -794,7 +1850,7 @@ public class GrouperMcpDocSearchIndex {
 
     rebuildIfNeeded();
 
-    DirectoryReader reader = currentReader;
+    MultiReader reader = acquireComposite();
     if (reader == null) {
       return results;
     }
@@ -842,6 +1898,8 @@ public class GrouperMcpDocSearchIndex {
 
     } catch (Exception e) {
       LOG.error("Error retrieving chunks from document index", e);
+    } finally {
+      releaseReader(reader);
     }
 
     return results;
@@ -868,14 +1926,19 @@ public class GrouperMcpDocSearchIndex {
 
   /**
    * check if there are any doc search sources available for the given subject.
-   * considers SQL-based sources and data dictionary access.
+   * considers SQL sources, filesystem sources, and data dictionary access.
    * @param subject the subject to check, or null to skip privacy checks
    * @return true if any sources are available
    */
   public static boolean hasAnySourcesForSubject(Subject subject) {
     // check SQL-based sources (not including data dictionary)
-    Set<String> sqlConfigIds = GrouperConfig.retrieveConfig().propertyConfigIds(CONFIG_ID_PATTERN);
+    Set<String> sqlConfigIds = getSqlConfigIds();
     if (!sqlConfigIds.isEmpty()) {
+      return true;
+    }
+
+    // check filesystem sources, e.g. the Grouper wiki, which are not privacy filtered
+    if (!getFilesystemConfigIds().isEmpty()) {
       return true;
     }
 
@@ -940,8 +2003,8 @@ public class GrouperMcpDocSearchIndex {
 
     rebuildIfNeeded();
 
-    Directory dir = currentDirectory;
-    if (dir == null) {
+    MultiReader reader = acquireComposite();
+    if (reader == null) {
       return listNamesResult;
     }
 
@@ -952,7 +2015,6 @@ public class GrouperMcpDocSearchIndex {
     }
 
     try {
-      DirectoryReader reader = DirectoryReader.open(dir);
       IndexSearcher searcher = new IndexSearcher(reader);
 
       BooleanQuery.Builder builder = new BooleanQuery.Builder();
@@ -995,6 +2057,8 @@ public class GrouperMcpDocSearchIndex {
 
     } catch (Exception e) {
       LOG.error("Error listing names for sourceConfigId: " + sourceConfigId, e);
+    } finally {
+      releaseReader(reader);
     }
 
     return listNamesResult;
@@ -1033,8 +2097,18 @@ public class GrouperMcpDocSearchIndex {
    * @return set of config ids
    */
   public static Set<String> getConfigIds() {
-    Set<String> configIds = new HashSet<>(
-        GrouperConfig.retrieveConfig().propertyConfigIds(CONFIG_ID_PATTERN));
+    return getConfigIds(getFilesystemConfigIds());
+  }
+
+  /**
+   * get the config ids of every doc search source, given the filesystem sources which the
+   * caller has already worked out
+   * @param filesystemConfigIds the config ids of the sources which read from the filesystem
+   * @return set of config ids
+   */
+  private static Set<String> getConfigIds(Set<String> filesystemConfigIds) {
+    Set<String> configIds = new LinkedHashSet<String>(getSqlConfigIds());
+    configIds.addAll(filesystemConfigIds);
     if (isDataDictionaryEnabled()) {
       configIds.add(DATA_DICTIONARY_SOURCE_CONFIG_ID);
     }
@@ -1047,12 +2121,26 @@ public class GrouperMcpDocSearchIndex {
    * @return the documentation string
    */
   public static String getDocumentationForAiClient(String configId) {
+
     if (DATA_DICTIONARY_SOURCE_CONFIG_ID.equals(configId)) {
       return "Grouper data field and data row dictionary - descriptions and examples "
           + "for configured data fields and data rows, filtered by privacy realm access";
     }
-    return GrouperConfig.retrieveConfig().propertyValueString(
+
+    String documentationForAiClient = GrouperConfig.retrieveConfig().propertyValueString(
         "grouper.mcp.docSearch." + configId + ".documentationForAiClient");
+
+    if (StringUtils.isBlank(documentationForAiClient)
+        && GROUPER_WIKI_SOURCE_CONFIG_ID.equals(configId)) {
+      // this ends up in the tool description, which is in the AI client's context for the whole
+      // session, so keep it short
+      documentationForAiClient = "Grouper product documentation wiki for Grouper "
+          + GrouperVersion.grouperVersion()
+          + ": how Grouper features work and are configured. Not institution specific, and "
+          + "frozen at that release, so check result urls for the current page.";
+    }
+
+    return documentationForAiClient;
   }
 
 }

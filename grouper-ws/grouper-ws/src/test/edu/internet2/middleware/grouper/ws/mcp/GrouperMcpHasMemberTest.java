@@ -62,7 +62,8 @@ public class GrouperMcpHasMemberTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperMcpHasMemberTest("testHasMemberIsMember"));
+    //TestRunner.run(new GrouperMcpHasMemberTest("testHasMemberIsMember"));
+    TestRunner.run(GrouperMcpHasMemberTest.class);
   }
 
   private static final ObjectMapper objectMapper = new ObjectMapper();

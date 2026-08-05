@@ -40,6 +40,7 @@ public class AllMcpTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.ws.mcp");
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperMcpDocSearchTest.class);
+    suite.addTestSuite(GrouperMcpDocSearchWikiTest.class);
     suite.addTestSuite(GrouperMcpGetSubjectsTest.class);
     suite.addTestSuite(GrouperMcpHasMemberTest.class);
     suite.addTestSuite(GrouperMcpGetMembersLiteTest.class);

@@ -15,7 +15,9 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.mcp;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,7 +58,8 @@ public class GrouperMcpDocSearchTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperMcpDocSearchTest("testDocSearchBasic"));
+    //TestRunner.run(new GrouperMcpDocSearchTest("testDocSearchBasic"));
+    TestRunner.run(GrouperMcpDocSearchTest.class);
   }
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -71,6 +74,13 @@ public class GrouperMcpDocSearchTest extends GrouperTest {
 
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+
+    // these tests assert on exactly which sources are configured, and the shipped Grouper wiki
+    // is a source which is on by default when its directory is present, e.g. in the container.
+    // it is covered by GrouperMcpDocSearchWikiTest
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.docSearch.grouperWiki.enable", "false");
+    GrouperMcpDocSearchIndex.grouperWikiDirectoryOverrideForTesting = null;
 
     GrouperWsVersionUtils.assignCurrentClientVersion(GROUPER_VERSION, new StringBuilder());
 
@@ -97,6 +107,11 @@ public class GrouperMcpDocSearchTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.mcp.docSearch.testDocs.query");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.mcp.docSearch.testDocs.documentationForAiClient");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.mcp.docSearch.testDocs.reindexIntervalSeconds");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.mcp.docSearch.grouperWiki.enable");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.mcp.docSearch.testDocs2.externalSystemId");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.mcp.docSearch.testDocs2.query");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.mcp.docSearch.testDocs2.documentationForAiClient");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.mcp.docSearch.testDocs2.reindexIntervalSeconds");
 
     // drop test table
     try {
@@ -124,6 +139,24 @@ public class GrouperMcpDocSearchTest extends GrouperTest {
         "Test documentation for unit testing");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
         "grouper.mcp.docSearch.testDocs.reindexIntervalSeconds", "0");
+  }
+
+  /**
+   * configure a second doc search source, which indexes only one of the test rows, so that
+   * filtering by sourceConfigId has something to exclude
+   */
+  private void configureSecondDocSearchSource() {
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.docSearch.testDocs2.externalSystemId", "grouper");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.docSearch.testDocs2.query",
+        "select content as grouper_content, url as grouper_url, name as grouper_name "
+        + "from test_doc_content where name = 'Second Source Page'");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.docSearch.testDocs2.documentationForAiClient",
+        "Second test documentation source for unit testing");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(
+        "grouper.mcp.docSearch.testDocs2.reindexIntervalSeconds", "0");
   }
 
   /**
@@ -326,14 +359,20 @@ public class GrouperMcpDocSearchTest extends GrouperTest {
   }
 
   /**
-   * test doc search with sourceConfigId filter
+   * test doc search with sourceConfigId filter.
+   *
+   * <p>Two sources index overlapping content, so that filtering has something to exclude.
+   * Asserting only that the call succeeds would pass even if the filter did nothing at all.</p>
    */
   public void testDocSearchSourceFilter() {
 
     configureDocSearchSource();
+    configureSecondDocSearchSource();
 
     insertTestContent("https://example.com/page1", "Test Page",
         "This is test content about grouper access management for filtering test.");
+    insertTestContent("https://example.com/page2", "Second Source Page",
+        "This is other content about grouper access management for filtering test.");
 
     GrouperMcpDocSearchIndex.forceRebuild();
 
@@ -341,14 +380,46 @@ public class GrouperMcpDocSearchTest extends GrouperTest {
     try {
       GrouperMcpAuthUser authUser = new GrouperMcpAuthUser(SubjectTestHelper.SUBJ0);
 
-      // search with valid sourceConfigId
+      // unfiltered, both sources should be represented
       ObjectNode arguments = objectMapper.createObjectNode();
+      arguments.put("query", "grouper access management");
+
+      ObjectNode result = GrouperMcpDocSearch.execute(arguments, authUser);
+      assertFalse("Expected success", result.has("isError") && result.get("isError").asBoolean());
+
+      Set<String> unfilteredSources = sourceConfigIdsOfResults(result);
+      assertTrue("Expected results from testDocs, got: " + unfilteredSources,
+          unfilteredSources.contains("testDocs"));
+      assertTrue("Expected results from testDocs2, got: " + unfilteredSources,
+          unfilteredSources.contains("testDocs2"));
+
+      // filtered to the second source, only that source may come back
+      arguments = objectMapper.createObjectNode();
+      arguments.put("query", "grouper access management");
+      arguments.put("sourceConfigId", "testDocs2");
+
+      result = GrouperMcpDocSearch.execute(arguments, authUser);
+      assertFalse("Expected success", result.has("isError") && result.get("isError").asBoolean());
+
+      Set<String> filteredSources = sourceConfigIdsOfResults(result);
+      assertFalse("Expected results when filtering to testDocs2", filteredSources.isEmpty());
+      assertEquals("Filtered search must only return the requested source, got: "
+          + filteredSources, 1, filteredSources.size());
+      assertTrue("Expected only testDocs2, got: " + filteredSources,
+          filteredSources.contains("testDocs2"));
+
+      // and the same the other way around
+      arguments = objectMapper.createObjectNode();
       arguments.put("query", "grouper access management");
       arguments.put("sourceConfigId", "testDocs");
 
-      ObjectNode result = GrouperMcpDocSearch.execute(arguments, authUser);
-
-      assertFalse("Expected success", result.has("isError") && result.get("isError").asBoolean());
+      result = GrouperMcpDocSearch.execute(arguments, authUser);
+      filteredSources = sourceConfigIdsOfResults(result);
+      assertFalse("Expected results when filtering to testDocs", filteredSources.isEmpty());
+      assertEquals("Filtered search must only return the requested source, got: "
+          + filteredSources, 1, filteredSources.size());
+      assertTrue("Expected only testDocs, got: " + filteredSources,
+          filteredSources.contains("testDocs"));
 
       // search with invalid sourceConfigId
       arguments = objectMapper.createObjectNode();
@@ -359,9 +430,36 @@ public class GrouperMcpDocSearchTest extends GrouperTest {
 
       assertTrue("Expected error for bad sourceConfigId", result.get("isError").asBoolean());
 
+    } catch (Exception e) {
+      throw new RuntimeException("Unexpected exception", e);
     } finally {
       GrouperSession.stopQuietly(session);
     }
+  }
+
+  /**
+   * collect the distinct sourceConfigId values from a doc_search query result
+   * @param result the MCP tool result
+   * @return set of sourceConfigId values
+   * @throws Exception if the response cannot be parsed
+   */
+  private Set<String> sourceConfigIdsOfResults(ObjectNode result) throws Exception {
+
+    Set<String> sourceConfigIds = new LinkedHashSet<String>();
+
+    String text = result.get("content").get(0).get("text").asText();
+    JsonNode responseNode = objectMapper.readTree(text);
+    JsonNode results = responseNode.get("results");
+
+    if (results != null) {
+      for (JsonNode resultNode : results) {
+        if (resultNode.has("sourceConfigId")) {
+          sourceConfigIds.add(resultNode.get("sourceConfigId").asText());
+        }
+      }
+    }
+
+    return sourceConfigIds;
   }
 
   /**
