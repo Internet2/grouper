@@ -191,6 +191,16 @@ public class GrouperMcpServlet extends HttpServlet {
       return;
     }
 
+    // Spec version 2026-07-28 requires a result type on every result.  "complete" means the
+    // request finished and this is the final content, which is the only kind of result this
+    // server produces; the other value, "input_required", is for servers which ask the client
+    // for more information part way through a request.  This is set here rather than in each
+    // tool so that every method and every tool gets it.  Clients on spec version 2025-03-26
+    // ignore fields they do not know about.
+    if (!result.has("resultType")) {
+      result.put("resultType", "complete");
+    }
+
     // build JSON-RPC response
     ObjectNode jsonRpcResponse = objectMapper.createObjectNode();
     jsonRpcResponse.put("jsonrpc", "2.0");
