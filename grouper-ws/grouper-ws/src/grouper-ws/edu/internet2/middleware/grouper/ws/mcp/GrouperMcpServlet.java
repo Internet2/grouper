@@ -133,6 +133,12 @@ public class GrouperMcpServlet extends HttpServlet {
    */
   private static final String META_PROTOCOL_VERSION = "io.modelcontextprotocol/protocolVersion";
 
+  /**
+   * key in a result's _meta where the server identifies itself, added in spec version
+   * 2026-07-28 since there is no longer an initialize handshake to carry it
+   */
+  private static final String META_SERVER_INFO = "io.modelcontextprotocol/serverInfo";
+
   /** JSON-RPC error code for headers which do not agree with the request body */
   private static final int ERROR_HEADER_MISMATCH = -32020;
 
@@ -267,6 +273,12 @@ public class GrouperMcpServlet extends HttpServlet {
       result.put("resultType", "complete");
     }
 
+    // Spec version 2026-07-28 has the server identify itself in every result rather than only
+    // in the initialize response, since there is no longer a handshake to carry it.  set here
+    // so that every method and every tool gets it, and without disturbing a result which
+    // already put something in its _meta.
+    addServerInfoToMeta(result);
+
     // build JSON-RPC response
     ObjectNode jsonRpcResponse = objectMapper.createObjectNode();
     jsonRpcResponse.put("jsonrpc", "2.0");
@@ -279,6 +291,33 @@ public class GrouperMcpServlet extends HttpServlet {
     response.setCharacterEncoding("UTF-8");
     response.getWriter().write(objectMapper.writeValueAsString(jsonRpcResponse));
     response.getWriter().flush();
+  }
+
+  /**
+   * add this server's name and version to the _meta of a result, so that a client which has
+   * not been through an initialize handshake still knows what it is talking to.  the _meta
+   * object is created if the result does not have one, and an entry which is already there is
+   * left alone.
+   * @param result the result to add to
+   */
+  private static void addServerInfoToMeta(ObjectNode result) {
+
+    ObjectNode meta = null;
+    if (result.has("_meta") && result.get("_meta").isObject()) {
+      meta = (ObjectNode)result.get("_meta");
+    } else {
+      meta = objectMapper.createObjectNode();
+      result.set("_meta", meta);
+    }
+
+    if (meta.has(META_SERVER_INFO)) {
+      return;
+    }
+
+    ObjectNode serverInfo = objectMapper.createObjectNode();
+    serverInfo.put("name", SERVER_NAME);
+    serverInfo.put("version", SERVER_VERSION);
+    meta.set(META_SERVER_INFO, serverInfo);
   }
 
   /**
@@ -805,13 +844,8 @@ public class GrouperMcpServlet extends HttpServlet {
     result.set("capabilities", capabilities);
 
     // the server identifies itself in the result metadata rather than at the top level, which
-    // is where initialize puts it
-    ObjectNode serverInfo = objectMapper.createObjectNode();
-    serverInfo.put("name", SERVER_NAME);
-    serverInfo.put("version", SERVER_VERSION);
-    ObjectNode meta = objectMapper.createObjectNode();
-    meta.set("io.modelcontextprotocol/serverInfo", serverInfo);
-    result.set("_meta", meta);
+    // is where initialize puts it.  every result gets this, so it is added centrally where the
+    // response is built rather than here
 
     String instructions = GrouperConfig.retrieveConfig()
         .propertyValueString("grouper.mcp.instructions");
