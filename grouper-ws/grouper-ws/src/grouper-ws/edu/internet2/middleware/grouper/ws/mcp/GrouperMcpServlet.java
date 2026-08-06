@@ -81,8 +81,9 @@ import edu.internet2.middleware.subject.Subject;
  *
  * <p>{@code server/discover} is answered so that a client on spec version 2026-07-28, which has
  * no initialize handshake, can find out which protocol versions this server speaks instead of
- * getting a "method not found" it cannot interpret. This server still implements the
- * 2025-03-26 semantics, so that is the only version it advertises.</p>
+ * getting a "method not found" it cannot interpret. This server implements the 2025-03-26
+ * semantics and accepts requests declaring any of the handshake based revisions, so those are
+ * the versions it advertises.</p>
  *
  * <p>The {@code Mcp-Session-Id} header is accepted but not required. A session id is minted on
  * {@code initialize} for clients on spec version 2025-03-26, which send it back on subsequent
@@ -100,11 +101,41 @@ public class GrouperMcpServlet extends HttpServlet {
 
   private static final String MCP_PROTOCOL_VERSION = "2025-03-26";
 
+  /**
+   * protocol versions this server accepts on a request, newest first.
+   *
+   * <p>These all establish a session with an initialize handshake and use the request and
+   * response shapes this server implements. What the later two revisions added is advertised
+   * through capabilities rather than changing the transport, so a request labelled with any of
+   * them is served the same way and gets the same tools capability. Listing them means this
+   * server will accept and serve such a request, not that it implements every feature those
+   * revisions introduced.</p>
+   *
+   * <p>{@link #MCP_PROTOCOL_VERSION} remains the version answered to initialize.</p>
+   */
+  private static final String[] SUPPORTED_PROTOCOL_VERSIONS = new String[] {
+      "2025-11-25", "2025-06-18", MCP_PROTOCOL_VERSION};
+
   private static final String SERVER_NAME = "grouper-mcp-server";
 
   private static final String SERVER_VERSION = "1.0.0";
 
   private static final String SESSION_ID_HEADER = "Mcp-Session-Id";
+
+  /** HTTP header carrying the protocol version of a request, added in spec version 2025-06-18 */
+  private static final String PROTOCOL_VERSION_HEADER = "MCP-Protocol-Version";
+
+  /**
+   * key in the request's _meta carrying the protocol version, added in spec version 2026-07-28
+   * when the initialize handshake was removed and every request became self describing
+   */
+  private static final String META_PROTOCOL_VERSION = "io.modelcontextprotocol/protocolVersion";
+
+  /** JSON-RPC error code for headers which do not agree with the request body */
+  private static final int ERROR_HEADER_MISMATCH = -32020;
+
+  /** JSON-RPC error code for a protocol version this server does not implement */
+  private static final int ERROR_UNSUPPORTED_PROTOCOL_VERSION = -32022;
 
   /**
    * how long a client may consider a tools/list result fresh, in milliseconds.  the tool list
@@ -158,6 +189,10 @@ public class GrouperMcpServlet extends HttpServlet {
 
     if (method == null) {
       sendJsonRpcError(response, id, -32600, "Invalid Request: missing method");
+      return;
+    }
+
+    if (rejectIfProtocolVersionNotSupported(request, response, params, id)) {
       return;
     }
 
@@ -547,6 +582,98 @@ public class GrouperMcpServlet extends HttpServlet {
   }
 
   /**
+   * check if this server accepts requests declaring a protocol version
+   * @param protocolVersion the version from the request
+   * @return true if supported
+   */
+  private static boolean isProtocolVersionSupported(String protocolVersion) {
+    for (String supportedVersion : SUPPORTED_PROTOCOL_VERSIONS) {
+      if (supportedVersion.equals(protocolVersion)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * the protocol versions this server accepts, as a JSON array
+   * @return the array node
+   */
+  private static ArrayNode supportedProtocolVersionsArrayNode() {
+    ArrayNode supportedVersions = objectMapper.createArrayNode();
+    for (String supportedVersion : SUPPORTED_PROTOCOL_VERSIONS) {
+      supportedVersions.add(supportedVersion);
+    }
+    return supportedVersions;
+  }
+
+  /**
+   * check the protocol version a request declares, and reject it if this server does not
+   * implement that version.
+   *
+   * <p>Spec version 2025-06-18 added the {@code MCP-Protocol-Version} HTTP header, and spec
+   * version 2026-07-28 additionally carries the version in the request body's {@code _meta}, so
+   * that a request is self describing and no handshake is needed. A request with neither is
+   * from a client on spec version 2025-03-26, which had neither, and is served the way this
+   * server has always served requests.</p>
+   *
+   * <p>A client which asks for a version this server does not implement is told which versions
+   * it does implement, so the client can retry with one of those rather than guess. Without
+   * this the request would be served under this server's own semantics, which the spec calls
+   * out as a failure mode because the client cannot tell that happened.</p>
+   *
+   * @param request the HTTP request
+   * @param response the HTTP response
+   * @param params the JSON-RPC params, may be null
+   * @param id the JSON-RPC id of the request
+   * @return true if the request was rejected and a response has already been sent
+   * @throws IOException if the response cannot be written
+   */
+  private boolean rejectIfProtocolVersionNotSupported(HttpServletRequest request,
+      HttpServletResponse response, JsonNode params, JsonNode id) throws IOException {
+
+    String versionFromHeader = StringUtils.trimToNull(request.getHeader(PROTOCOL_VERSION_HEADER));
+
+    String versionFromBody = null;
+    if (params != null && params.has("_meta")) {
+      JsonNode metaNode = params.get("_meta");
+      if (metaNode != null && metaNode.has(META_PROTOCOL_VERSION)) {
+        versionFromBody = StringUtils.trimToNull(metaNode.get(META_PROTOCOL_VERSION).asText());
+      }
+    }
+
+    // neither present, this is a client on spec version 2025-03-26
+    if (versionFromHeader == null && versionFromBody == null) {
+      return false;
+    }
+
+    // when a client sends both they must agree.  if they disagree, something in the network
+    // could route on one value while this server acts on the other
+    if (versionFromHeader != null && versionFromBody != null
+        && !versionFromHeader.equals(versionFromBody)) {
+      sendJsonRpcError(response, id, ERROR_HEADER_MISMATCH,
+          "Header mismatch: " + PROTOCOL_VERSION_HEADER + " header value '" + versionFromHeader
+          + "' does not match body value '" + versionFromBody + "'",
+          null, HttpServletResponse.SC_BAD_REQUEST);
+      return true;
+    }
+
+    String protocolVersion = versionFromBody != null ? versionFromBody : versionFromHeader;
+
+    if (isProtocolVersionSupported(protocolVersion)) {
+      return false;
+    }
+
+    ObjectNode data = objectMapper.createObjectNode();
+    data.set("supported", supportedProtocolVersionsArrayNode());
+    data.put("requested", protocolVersion);
+
+    sendJsonRpcError(response, id, ERROR_UNSUPPORTED_PROTOCOL_VERSION,
+        "Unsupported protocol version", data, HttpServletResponse.SC_BAD_REQUEST);
+    return true;
+  }
+
+  /**
    * handle the server/discover method, which advertises the protocol versions, capabilities and
    * identity of this server.
    *
@@ -569,9 +696,7 @@ public class GrouperMcpServlet extends HttpServlet {
     // revisions never call this method, so this cannot confuse them
     result.put("resultType", "complete");
 
-    ArrayNode supportedVersions = objectMapper.createArrayNode();
-    supportedVersions.add(MCP_PROTOCOL_VERSION);
-    result.set("supportedVersions", supportedVersions);
+    result.set("supportedVersions", supportedProtocolVersionsArrayNode());
 
     ObjectNode capabilities = objectMapper.createObjectNode();
     ObjectNode tools = objectMapper.createObjectNode();
@@ -1293,6 +1418,24 @@ public class GrouperMcpServlet extends HttpServlet {
    */
   private void sendJsonRpcError(HttpServletResponse response, JsonNode id,
       int code, String message) throws IOException {
+    sendJsonRpcError(response, id, code, message, null, HttpServletResponse.SC_OK);
+  }
+
+  /**
+   * send a JSON-RPC error response, with error data and an HTTP status code.  the protocol
+   * errors added in spec version 2026-07-28 are required to be returned with HTTP 400 rather
+   * than the HTTP 200 that other JSON-RPC errors use, and some of them carry data the client
+   * needs in order to correct the request.
+   * @param response the HTTP response
+   * @param id the JSON-RPC id of the request being answered, may be null
+   * @param code the JSON-RPC error code
+   * @param message the error message
+   * @param data additional error data, may be null
+   * @param httpStatus the HTTP status code to send
+   * @throws IOException if the response cannot be written
+   */
+  private void sendJsonRpcError(HttpServletResponse response, JsonNode id,
+      int code, String message, ObjectNode data, int httpStatus) throws IOException {
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.mcp.logClientErrors", false)) {
       LOG.warn("MCP client error (code " + code + "): " + message);
     }
@@ -1306,11 +1449,14 @@ public class GrouperMcpServlet extends HttpServlet {
     ObjectNode error = objectMapper.createObjectNode();
     error.put("code", code);
     error.put("message", message);
+    if (data != null) {
+      error.set("data", data);
+    }
     jsonRpcResponse.set("error", error);
 
     response.setContentType("application/json");
     response.setCharacterEncoding("UTF-8");
-    response.setStatus(HttpServletResponse.SC_OK);
+    response.setStatus(httpStatus);
     response.getWriter().write(objectMapper.writeValueAsString(jsonRpcResponse));
     response.getWriter().flush();
   }
