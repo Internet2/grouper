@@ -79,6 +79,12 @@ import edu.internet2.middleware.subject.Subject;
  *   <li>GET - Returns 405 (server-initiated SSE not needed for this tool server)</li>
  * </ul>
  *
+ * <p>The {@code Mcp-Session-Id} header is accepted but not required. A session id is minted on
+ * {@code initialize} for clients on spec version 2025-03-26, which send it back on subsequent
+ * requests. Sessions were removed from the Streamable HTTP transport in spec version
+ * 2026-07-28, so clients on that revision never send the header and do not call
+ * {@code initialize} at all. No state is kept against the session id, so both work.</p>
+ *
  * @author mchyzer
  */
 public class GrouperMcpServlet extends HttpServlet {
@@ -136,13 +142,16 @@ public class GrouperMcpServlet extends HttpServlet {
       return;
     }
 
-    // initialize does not require a session ID; all other methods do
-    if (!"initialize".equals(method)) {
+    // The Mcp-Session-Id header is optional.  Clients on spec version 2025-03-26 send it back
+    // on every request after initialize, and this server still mints one for them.  Sessions
+    // were removed from the Streamable HTTP transport in spec version 2026-07-28, so clients on
+    // that revision never send it, and requiring it would make every call after the handshake
+    // fail.  This server keeps no state against the session id, so there is nothing to look up
+    // and nothing to enforce.
+    if (LOG.isDebugEnabled()) {
       String sessionId = request.getHeader(SESSION_ID_HEADER);
-      if (StringUtils.isBlank(sessionId)) {
-        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing Mcp-Session-Id header");
-        return;
-      }
+      LOG.debug("MCP method '" + method + "' with "
+          + (StringUtils.isBlank(sessionId) ? "no session id" : "session id: " + sessionId));
     }
 
     ObjectNode result;
