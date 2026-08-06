@@ -106,6 +106,20 @@ public class GrouperMcpServlet extends HttpServlet {
 
   private static final String SESSION_ID_HEADER = "Mcp-Session-Id";
 
+  /**
+   * how long a client may consider a tools/list result fresh, in milliseconds.  the tool list
+   * changes when a user's MCP group memberships change, and those memberships are themselves
+   * cached on the server for 60 seconds, so a shorter value here would not make a change take
+   * effect any sooner.
+   */
+  private static final int TOOLS_LIST_TTL_MS = 60000;
+
+  /**
+   * how long a client may consider a server/discover result fresh, in milliseconds.  what it
+   * returns only changes when Grouper is upgraded or reconfigured.
+   */
+  private static final int DISCOVER_TTL_MS = 3600000;
+
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
   /**
@@ -580,6 +594,11 @@ public class GrouperMcpServlet extends HttpServlet {
       result.put("instructions", instructions);
     }
 
+    // caching hints, required on this operation in spec version 2026-07-28.  the scope is
+    // public because everything above is the same for every caller
+    result.put("ttlMs", DISCOVER_TTL_MS);
+    result.put("cacheScope", "public");
+
     return result;
   }
 
@@ -702,6 +721,15 @@ public class GrouperMcpServlet extends HttpServlet {
     }
 
     result.set("tools", toolsArray);
+
+    // caching hints, required on this operation in spec version 2026-07-28.  the scope is
+    // private because the tool list is filtered by what this user is authorized for, so a
+    // shared cache must not hand one user's list to another.  note this is a caching hint
+    // only, it is not what enforces authorization: tools/call checks access again on every
+    // invocation
+    result.put("ttlMs", TOOLS_LIST_TTL_MS);
+    result.put("cacheScope", "private");
+
     return result;
   }
 
