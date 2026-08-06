@@ -79,6 +79,11 @@ import edu.internet2.middleware.subject.Subject;
  *   <li>GET - Returns 405 (server-initiated SSE not needed for this tool server)</li>
  * </ul>
  *
+ * <p>{@code server/discover} is answered so that a client on spec version 2026-07-28, which has
+ * no initialize handshake, can find out which protocol versions this server speaks instead of
+ * getting a "method not found" it cannot interpret. This server still implements the
+ * 2025-03-26 semantics, so that is the only version it advertises.</p>
+ *
  * <p>The {@code Mcp-Session-Id} header is accepted but not required. A session id is minted on
  * {@code initialize} for clients on spec version 2025-03-26, which send it back on subsequent
  * requests. Sessions were removed from the Streamable HTTP transport in spec version
@@ -160,6 +165,9 @@ public class GrouperMcpServlet extends HttpServlet {
       switch (method) {
         case "initialize":
           result = handleInitialize(params, response);
+          break;
+        case "server/discover":
+          result = handleServerDiscover();
           break;
         case "notifications/initialized":
           response.setStatus(HttpServletResponse.SC_ACCEPTED);
@@ -512,6 +520,57 @@ public class GrouperMcpServlet extends HttpServlet {
       LOG.error("Error in MCP doDelete", re);
       throw re;
     }
+  }
+
+  /**
+   * handle the server/discover method, which advertises the protocol versions, capabilities and
+   * identity of this server.
+   *
+   * <p>Spec version 2026-07-28 removed the initialize handshake, so a client on that revision
+   * has no other way to find out what this server speaks. Servers on that revision MUST
+   * implement this method. It is answered here even though this server implements the older
+   * revision, so that a client which supports both eras gets a definite answer -- the supported
+   * versions listed below -- instead of a "method not found" it has to guess about.</p>
+   *
+   * <p>The result is the same for every caller, so nothing here is filtered by the
+   * authenticated user.</p>
+   *
+   * @return the discover result
+   */
+  private ObjectNode handleServerDiscover() {
+
+    ObjectNode result = objectMapper.createObjectNode();
+
+    // results carry a result type in spec version 2026-07-28 and later.  clients on earlier
+    // revisions never call this method, so this cannot confuse them
+    result.put("resultType", "complete");
+
+    ArrayNode supportedVersions = objectMapper.createArrayNode();
+    supportedVersions.add(MCP_PROTOCOL_VERSION);
+    result.set("supportedVersions", supportedVersions);
+
+    ObjectNode capabilities = objectMapper.createObjectNode();
+    ObjectNode tools = objectMapper.createObjectNode();
+    tools.put("listChanged", false);
+    capabilities.set("tools", tools);
+    result.set("capabilities", capabilities);
+
+    // the server identifies itself in the result metadata rather than at the top level, which
+    // is where initialize puts it
+    ObjectNode serverInfo = objectMapper.createObjectNode();
+    serverInfo.put("name", SERVER_NAME);
+    serverInfo.put("version", SERVER_VERSION);
+    ObjectNode meta = objectMapper.createObjectNode();
+    meta.set("io.modelcontextprotocol/serverInfo", serverInfo);
+    result.set("_meta", meta);
+
+    String instructions = GrouperConfig.retrieveConfig()
+        .propertyValueString("grouper.mcp.instructions");
+    if (StringUtils.isNotBlank(instructions)) {
+      result.put("instructions", instructions);
+    }
+
+    return result;
   }
 
   /**
