@@ -15,18 +15,22 @@
  */
 package edu.internet2.middleware.grouper.util;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.security.cert.CertPathValidatorException;
+import java.security.cert.CertificateException;
 import java.util.function.Predicate;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.conn.ConnectTimeoutException;
 
@@ -42,7 +46,7 @@ public class GrouperHttpClientTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperHttpClientTest("testRetryNetworkIssuePredicateDefault"));
+    TestRunner.run(new GrouperHttpClientTest("testRetryNetworkIssuePredicateDefaultSslHandshake"));
   }
 
   /**
@@ -73,8 +77,52 @@ public class GrouperHttpClientTest extends GrouperTest {
     assertTrue(predicate.test(new NoHttpResponseException("the target failed to respond")));
     assertTrue(predicate.test(new SSLException("Connection reset by peer")));
 
+    // a premature end of stream
+    assertTrue(predicate.test(new EOFException("SSL peer shut down incorrectly")));
+    assertTrue(predicate.test(new ConnectionClosedException(
+        "Premature end of Content-Length delimited message body")));
+
     // legacy behavior, a timeout reported by something which isnt one of the types above
     assertTrue(predicate.test(new RuntimeException("the operation timed out")));
+  }
+
+  /**
+   * a tls handshake which failed because the peer dropped the connection is transient, a handshake
+   * which failed because of a certificate or trust problem is not
+   */
+  public void testRetryNetworkIssuePredicateDefaultSslHandshake() {
+
+    Predicate<Throwable> predicate = GrouperHttpClient.RETRY_NETWORK_ISSUE_PREDICATE_DEFAULT;
+
+    // this is the one from the follow up on the ticket, the peer dropped the connection part way
+    // through the handshake, which is just as transient as a connection reset
+    SSLHandshakeException peerDroppedConnection = new SSLHandshakeException("Remote host terminated the handshake");
+    peerDroppedConnection.initCause(new EOFException("SSL peer shut down incorrectly"));
+    assertTrue(predicate.test(peerDroppedConnection));
+
+    // the provisioners wrap it before it gets to the predicate
+    assertTrue(predicate.test(new RuntimeException("Error connecting to 'https://someUrl'", peerDroppedConnection)));
+
+    // a reset instead of an end of stream part way through the handshake is transient too
+    SSLHandshakeException resetDuringHandshake = new SSLHandshakeException("Remote host terminated the handshake");
+    resetDuringHandshake.initCause(new SocketException("Connection reset"));
+    assertTrue(predicate.test(resetDuringHandshake));
+
+    // a cert which does not validate will fail the same way every time.  in real life the cause is
+    // a sun.security.validator.ValidatorException, which is a CertificateException
+    SSLHandshakeException badCertificate = new SSLHandshakeException("PKIX path building failed");
+    badCertificate.initCause(new CertificateException("unable to find valid certification path to requested target"));
+    assertFalse(predicate.test(badCertificate));
+    assertFalse(predicate.test(new RuntimeException("Error connecting to 'https://someUrl'", badCertificate)));
+
+    SSLHandshakeException certPathProblem = new SSLHandshakeException("PKIX path validation failed");
+    certPathProblem.initCause(new CertPathValidatorException("validity check failed"));
+    assertFalse(predicate.test(certPathProblem));
+
+    // a handshake which failed with no deeper cause, e.g. no cipher suites in common or a fatal
+    // alert, will not fix itself either
+    assertFalse(predicate.test(new SSLHandshakeException("no cipher suites in common")));
+    assertFalse(predicate.test(new SSLHandshakeException("Received fatal alert: handshake_failure")));
   }
 
   /**
