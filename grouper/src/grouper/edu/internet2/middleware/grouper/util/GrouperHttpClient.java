@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.util;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.net.SocketException;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElementIterator;
@@ -855,10 +858,16 @@ public class GrouperHttpClient {
    * <pre>Default decision of if an exception from an http call is a transient network problem which is
    * worth retrying.  Walks the chain of causes and retries socket level and TLS transport level
    * problems, e.g. "Connection reset", "Connection refused", "Broken pipe", read/connect timeouts,
-   * and a server closing a pooled connection (NoHttpResponseException).
+   * a premature end of stream, and a server closing a pooled connection (NoHttpResponseException).
    * 
    * Problems which will not fix themselves on a retry, e.g. an unknown host or a certificate which
-   * does not validate, are not retried.</pre>
+   * does not validate, are not retried.
+   * 
+   * A failed TLS handshake is not decided on the handshake exception itself since it can be either.
+   * "Remote host terminated the handshake" caused by an EOFException is the peer dropping the
+   * connection part way through the handshake, which is just as transient as a connection reset.
+   * "no cipher suites in common", a fatal alert, or a cert which does not validate will fail the
+   * same way every time.</pre>
    */
   public static final Predicate<Throwable> RETRY_NETWORK_ISSUE_PREDICATE_DEFAULT = new Predicate<Throwable>() {
 
@@ -870,20 +879,31 @@ public class GrouperHttpClient {
       // dont loop forever if the causes are cyclic
       for (int i = 0; i < 10 && cause != null; i++) {
 
-        // a host which doesnt resolve or a cert which doesnt validate is not transient
+        // a host which doesnt resolve, a peer which isnt who it says it is, or a certificate or
+        // trust store problem is not transient.  note that SSLException extends IOException and
+        // not GeneralSecurityException, so this does not catch transport level tls problems
         if (cause instanceof UnknownHostException
-            || cause instanceof SSLHandshakeException
-            || cause instanceof SSLPeerUnverifiedException) {
+            || cause instanceof SSLPeerUnverifiedException
+            || cause instanceof GeneralSecurityException) {
           return false;
         }
 
-        // connection reset, connection refused, broken pipe
-        // note: SocketTimeoutException and ConnectTimeoutException extend InterruptedIOException
-        if (cause instanceof SocketException
-            || cause instanceof InterruptedIOException
-            || cause instanceof NoHttpResponseException
-            || cause instanceof SSLException) {
-          return true;
+        // dont decide on the handshake exception itself, keep walking the causes.  if the peer
+        // dropped the connection there will be an EOFException or a SocketException underneath and
+        // that is retried, and if the chain ends here or ends in a certificate problem then this
+        // falls out of the loop and is not retried
+        if (!(cause instanceof SSLHandshakeException)) {
+
+          // connection reset, connection refused, broken pipe, premature end of stream
+          // note: SocketTimeoutException and ConnectTimeoutException extend InterruptedIOException
+          if (cause instanceof SocketException
+              || cause instanceof InterruptedIOException
+              || cause instanceof NoHttpResponseException
+              || cause instanceof ConnectionClosedException
+              || cause instanceof EOFException
+              || cause instanceof SSLException) {
+            return true;
+          }
         }
 
         if (cause.getCause() == cause) {
