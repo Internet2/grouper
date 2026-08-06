@@ -17,7 +17,9 @@ package edu.internet2.middleware.grouper.ws.mcp;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -137,6 +139,15 @@ public class GrouperMcpServlet extends HttpServlet {
   /** JSON-RPC error code for a protocol version this server does not implement */
   private static final int ERROR_UNSUPPORTED_PROTOCOL_VERSION = -32022;
 
+  /** HTTP header a browser sends identifying the page a request came from */
+  private static final String ORIGIN_HEADER = "Origin";
+
+  /**
+   * pattern to find all grouper.mcp.allowedOrigin.{configId}.regex config keys
+   */
+  private static final Pattern ALLOWED_ORIGIN_CONFIG_PATTERN = Pattern.compile(
+      "^grouper\\.mcp\\.allowedOrigin\\.([^.]+)\\.regex$");
+
   /**
    * how long a client may consider a tools/list result fresh, in milliseconds.  the tool list
    * changes when a user's MCP group memberships change, and those memberships are themselves
@@ -167,6 +178,12 @@ public class GrouperMcpServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
+
+    // check the origin before anything else, so credentials from a page this server does not
+    // recognize are not processed at all
+    if (rejectIfOriginNotAllowed(request, response)) {
+      return;
+    }
 
     // authenticate - try OAuth JWT first, then fall back to normal WS auth
     GrouperMcpAuthUser authUser = authenticateRequest(request, response);
@@ -579,6 +596,89 @@ public class GrouperMcpServlet extends HttpServlet {
       LOG.error("Error in MCP doDelete", re);
       throw re;
     }
+  }
+
+  /**
+   * reject a request whose Origin header this server does not allow.
+   *
+   * <p>This is protection against DNS rebinding. An attacker's web page cannot read this
+   * server's address directly, but it can make the name it was served from resolve to this
+   * server and have the victim's browser post here. The browser sends the attacker's page as
+   * the Origin, so refusing origins which are not recognized stops that.</p>
+   *
+   * <p>Only a browser sends an Origin header, so a request without one, such as from a command
+   * line client or another server, is not what this protects against and is allowed. A request
+   * whose Origin is this server itself is also allowed, since that is not cross origin.</p>
+   *
+   * <p>Any other origin must match a configured
+   * {@code grouper.mcp.allowedOrigin.<configId>.regex} pattern. If no patterns are configured
+   * then no cross origin browser request is allowed, which is the safe default and means a
+   * deployment has to opt in to browser based clients rather than opt out.</p>
+   *
+   * @param request the HTTP request
+   * @param response the HTTP response
+   * @return true if the request was rejected and a response has already been sent
+   * @throws IOException if the response cannot be written
+   */
+  private boolean rejectIfOriginNotAllowed(HttpServletRequest request,
+      HttpServletResponse response) throws IOException {
+
+    String origin = StringUtils.trimToNull(request.getHeader(ORIGIN_HEADER));
+
+    // not a browser request
+    if (origin == null) {
+      return false;
+    }
+
+    // the page was served by this server, so this is not cross origin
+    if (origin.equals(requestOrigin(request))) {
+      return false;
+    }
+
+    Map<String, String> regexMap = GrouperConfig.retrieveConfig()
+        .propertiesMap(ALLOWED_ORIGIN_CONFIG_PATTERN);
+
+    for (Map.Entry<String, String> regexEntry : GrouperUtil.nonNull(regexMap).entrySet()) {
+      String regex = regexEntry.getValue();
+      if (StringUtils.isBlank(regex)) {
+        continue;
+      }
+      try {
+        if (Pattern.matches(regex, origin)) {
+          return false;
+        }
+      } catch (Exception e) {
+        LOG.error("Invalid regex in config key '" + regexEntry.getKey() + "': " + regex, e);
+      }
+    }
+
+    LOG.warn("MCP request rejected, Origin not allowed: '" + origin + "', remoteAddr="
+        + request.getRemoteAddr() + ". Configure grouper.mcp.allowedOrigin.<configId>.regex "
+        + "to allow browser based clients from this origin.");
+
+    // no id, this is rejected before the body is read
+    sendJsonRpcError(response, null, -32600, "Origin not allowed", null,
+        HttpServletResponse.SC_FORBIDDEN);
+    return true;
+  }
+
+  /**
+   * the origin of this server as a browser would compute it for the request, that is the
+   * scheme, host and port, with the port left off when it is the default for the scheme
+   * @param request the HTTP request
+   * @return the origin
+   */
+  private static String requestOrigin(HttpServletRequest request) {
+
+    StringBuilder origin = new StringBuilder();
+    origin.append(request.getScheme()).append("://").append(request.getServerName());
+
+    if (("http".equals(request.getScheme()) && request.getServerPort() != 80)
+        || ("https".equals(request.getScheme()) && request.getServerPort() != 443)) {
+      origin.append(":").append(request.getServerPort());
+    }
+
+    return origin.toString();
   }
 
   /**
