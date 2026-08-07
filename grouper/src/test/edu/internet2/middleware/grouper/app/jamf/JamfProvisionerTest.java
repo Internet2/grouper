@@ -132,6 +132,19 @@ public class JamfProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals("Group Access", readBack.getAccessLevel());
   }
 
+  public void testDeleteAccount() {
+    insertMockAccount("601", "del@upenn.edu", "Del User");
+    assertNotNull(JamfApiCommands.retrieveAccountByName(CONFIG_ID, "del@upenn.edu"));
+
+    JamfApiCommands.deleteAccount(CONFIG_ID, "601");
+    assertNull(JamfApiCommands.retrieveAccountByName(CONFIG_ID, "del@upenn.edu"));
+  }
+
+  public void testDeleteAccountNotFoundIsNoOp() {
+    // deleting a non-existent account (404) must not throw -- it is treated as already gone
+    JamfApiCommands.deleteAccount(CONFIG_ID, "999999999");
+  }
+
   public void testRetrieveAccountGroups() {
     insertMockRole("201", "roleAlpha", "Full Access", "Auditor");
     insertMockRole("202", "roleBeta", "Full Access", "Administrator");

@@ -16,6 +16,8 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerDaoCapabilities;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteMembershipsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntityRequest;
@@ -251,6 +253,47 @@ public class JamfTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   // ============================
+  // Delete entity (hard-delete the account). Gated by provisioner config so Grouper only deletes
+  // accounts it manages (set deleteEntitiesIfNotExistInGrouper=false to avoid touching pre-existing
+  // accounts). Accounts on the ignore list are never deleted.
+  // ============================
+
+  @Override
+  public TargetDaoDeleteEntityResponse deleteEntity(
+      TargetDaoDeleteEntityRequest targetDaoDeleteEntityRequest) {
+
+    long startNanos = System.nanoTime();
+    ProvisioningEntity targetEntity = targetDaoDeleteEntityRequest.getTargetEntity();
+
+    try {
+      JamfProvisionerConfiguration config = getJamfConfiguration();
+      String configId = config.getJamfExternalSystemConfigId();
+
+      JamfAccount account = JamfAccount.fromProvisioningEntity(targetEntity);
+
+      // never delete an account on the ignore list (protect break-glass / service admins)
+      if (JamfApiCommands.isIgnored(account.getName(), ignoreAccountNames(config))) {
+        markProvisioned(targetEntity, true);
+        return new TargetDaoDeleteEntityResponse();
+      }
+
+      String accountId = targetEntity.getId();
+      if (StringUtils.isBlank(accountId)) {
+        throw new RuntimeException("account id is required for deleteEntity");
+      }
+      JamfApiCommands.deleteAccount(configId, accountId);
+      markProvisioned(targetEntity, true);
+
+      return new TargetDaoDeleteEntityResponse();
+    } catch (RuntimeException e) {
+      markProvisioned(targetEntity, false);
+      throw e;
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("deleteEntity", startNanos));
+    }
+  }
+
+  // ============================
   // Replace group memberships (full desired list -> single PUT). This is the natural Jamf op.
   // ============================
 
@@ -439,8 +482,9 @@ public class JamfTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
 
-    // accounts (entities) are create-only
+    // accounts (entities): create + delete (delete is gated by config; no update)
     grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
+    grouperProvisionerDaoCapabilities.setCanDeleteEntity(true);
 
     // memberships: full-list replace + incremental add/remove (retrieve-modify-write)
     grouperProvisionerDaoCapabilities.setCanReplaceGroupMemberships(true);

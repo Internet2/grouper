@@ -342,6 +342,31 @@ public class JamfApiCommands {
   }
 
   /**
+   * Delete an account via DELETE /JSSResource/accounts/userid/{id}. A 404 (already gone) is treated
+   * as success. Grouper only calls this for accounts it manages (delete is gated by the provisioner
+   * config so pre-existing / unmanaged accounts are never touched).
+   * @param configId the external system config id
+   * @param accountId the native Jamf account id
+   */
+  public static void deleteAccount(String configId, String accountId) {
+    Map<String, Object> debugMap = new java.util.LinkedHashMap<String, Object>();
+    debugMap.put("method", "deleteAccount");
+    debugMap.put("accountId", accountId);
+    long startNanos = System.nanoTime();
+    try {
+      if (StringUtils.isBlank(accountId)) {
+        throw new RuntimeException("account id is required for deleteAccount");
+      }
+      int[] returnCode = new int[] {-1};
+      executeMethod(debugMap, "deleteAccount", "DELETE", configId,
+          "/JSSResource/accounts/userid/" + GrouperUtil.escapeUrlEncode(accountId),
+          GrouperUtil.toSet(200, 201, 404), returnCode, null);
+    } finally {
+      JamfLog.jamfLog(debugMap, startNanos);
+    }
+  }
+
+  /**
    * Replace an account group's entire member list via PUT /JSSResource/accounts/groupid/{id}.
    * The Classic API has no atomic add/remove for account groups, so the caller supplies the full
    * desired member list (the DAO computes it via retrieve-modify-write).
