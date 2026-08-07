@@ -185,6 +185,9 @@ public class GrouperMcpServlet extends HttpServlet {
   /** JSON-RPC error code for a request which is not a well formed JSON-RPC request */
   private static final int ERROR_INVALID_REQUEST = -32600;
 
+  /** JSON-RPC error code for a fault in this server rather than in the request */
+  private static final int ERROR_INTERNAL_ERROR = -32603;
+
   /** HTTP header a browser sends identifying the page a request came from */
   private static final String ORIGIN_HEADER = "Origin";
 
@@ -246,9 +249,22 @@ public class GrouperMcpServlet extends HttpServlet {
       return;
     }
 
-    String method = jsonRpcRequest.has("method") ? jsonRpcRequest.get("method").asText() : null;
+    JsonNode methodNode = jsonRpcRequest.get("method");
+    String method = methodNode == null || !methodNode.isTextual() ? null : methodNode.asText();
     JsonNode id = jsonRpcRequest.get("id");
     JsonNode params = jsonRpcRequest.get("params");
+
+    // A method which is present but is not a string makes this something other than a JSON-RPC
+    // request, which is a different thing from naming a method this server does not have.  It
+    // is read with isTextual rather than asText, whose answer for a number is that number
+    // written out and for an object is nothing at all, either of which would go on to be
+    // looked up as though it were a method name.
+    if (methodNode != null && !methodNode.isTextual()) {
+      sendJsonRpcError(response, id, ERROR_INVALID_REQUEST,
+          "Invalid Request: method must be a string",
+          null, id == null ? HttpServletResponse.SC_BAD_REQUEST : HttpServletResponse.SC_OK);
+      return;
+    }
 
     // JSON-RPC allows an id to be a string, a number or null and nothing else.  An id of any
     // other shape cannot be echoed back on the response without this server itself emitting
@@ -315,6 +331,21 @@ public class GrouperMcpServlet extends HttpServlet {
     // This sits after the checks above so that a notification which is not well formed is still
     // told why, which the transport allows.
     if (id == null) {
+
+      // Spec version 2026-07-28 defines no notification a client can send over this transport
+      // at all, so there is nothing a notification could be asking this server to do and it
+      // cannot be accepted.  The transport says a notification the server cannot accept is
+      // refused with an HTTP error status, where one it accepts gets 202 and no body.  Clients
+      // on the earlier revisions do have a notification to send, notifications/initialized, so
+      // for them a notification is still accepted.
+      if (modernRequest) {
+        sendJsonRpcError(response, null, ERROR_INVALID_REQUEST,
+            "Invalid Request: protocol version " + MODERN_PROTOCOL_VERSION + " defines no "
+            + "notification a client sends over this transport, so '" + method
+            + "' has to carry an id", null, HttpServletResponse.SC_BAD_REQUEST);
+        return;
+      }
+
       response.setStatus(HttpServletResponse.SC_ACCEPTED);
       return;
     }
@@ -374,7 +405,7 @@ public class GrouperMcpServlet extends HttpServlet {
 
     } catch (Exception e) {
       LOG.error("Error handling MCP method: " + method, e);
-      sendJsonRpcError(response, id, -32603, "Internal error: " + e.getMessage());
+      sendJsonRpcError(response, id, ERROR_INTERNAL_ERROR, "Internal error: " + e.getMessage());
       return;
     }
 
@@ -1624,9 +1655,16 @@ public class GrouperMcpServlet extends HttpServlet {
             responseTextHolder[0] = gmpe.getMessage();
 
           } catch (Exception e) {
+            // Nothing in the tool reported this, it escaped, so it is a fault in this server
+            // rather than something the tool decided.  The spec puts a server error on the
+            // JSON-RPC error channel and not in a tool result, since a model cannot correct
+            // its input to get past it.  Logged here because it was not logged anywhere else,
+            // and held the same way so the audit log still records the call.
+            LOG.error("Error in MCP tool call: " + toolName, e);
+            protocolExceptionHolder[0] = new GrouperMcpProtocolException(ERROR_INTERNAL_ERROR,
+                "Internal error: " + e.getMessage());
             isErrorHolder[0] = true;
             responseTextHolder[0] = "Internal error: " + e.getMessage();
-            resultHolder[0] = buildMcpErrorResult(responseTextHolder[0]);
           }
           return null;
         }
