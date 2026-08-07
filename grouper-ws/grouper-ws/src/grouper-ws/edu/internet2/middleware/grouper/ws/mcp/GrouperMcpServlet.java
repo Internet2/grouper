@@ -177,6 +177,9 @@ public class GrouperMcpServlet extends HttpServlet {
   /** JSON-RPC error code for params which are not shaped the way the method requires */
   private static final int ERROR_INVALID_PARAMS = -32602;
 
+  /** JSON-RPC error code for a method this server does not implement */
+  private static final int ERROR_METHOD_NOT_FOUND = -32601;
+
   /** HTTP header a browser sends identifying the page a request came from */
   private static final String ORIGIN_HEADER = "Origin";
 
@@ -260,6 +263,22 @@ public class GrouperMcpServlet extends HttpServlet {
       return;
     }
 
+    // Spec version 2026-07-28 removed the initialize handshake, so the two methods which make
+    // it up are not methods of that revision and a request declaring it is answered the way any
+    // other method this server does not implement would be.  Without this, a request which
+    // declared 2026-07-28 and then called initialize would be served the handshake and handed
+    // back a session and a protocol version of 2025-03-26, neither of which it asked for.
+    //
+    // Only a request which declares the modern revision is turned away.  The same call without
+    // that metadata is still served the handshake, which is what a client on any of the earlier
+    // revisions opens with and depends on.
+    if (modernRequest && isLegacyLifecycleMethod(method)) {
+      sendJsonRpcError(response, id, ERROR_METHOD_NOT_FOUND,
+          "Method not found: " + method + " was removed in protocol version "
+          + MODERN_PROTOCOL_VERSION, null, HttpServletResponse.SC_NOT_FOUND);
+      return;
+    }
+
     // The Mcp-Session-Id header is optional.  Clients on spec version 2025-03-26 send it back
     // on every request after initialize, and this server still mints one for them.  Sessions
     // were removed from the Streamable HTTP transport in spec version 2026-07-28, so clients on
@@ -301,8 +320,9 @@ public class GrouperMcpServlet extends HttpServlet {
           // apart is the JSON-RPC error body sent below: a client which is working out what it
           // is talking to reads a 404 carrying one as "this is an MCP server which does not
           // implement that method", and a 404 without one as "this is not an MCP endpoint".
-          sendJsonRpcError(response, id, -32601, "Method not found: " + method, null,
-              modernRequest ? HttpServletResponse.SC_NOT_FOUND : HttpServletResponse.SC_OK);
+          sendJsonRpcError(response, id, ERROR_METHOD_NOT_FOUND, "Method not found: " + method,
+              null, modernRequest ? HttpServletResponse.SC_NOT_FOUND
+                  : HttpServletResponse.SC_OK);
           return;
       }
     } catch (Exception e) {
@@ -941,6 +961,16 @@ public class GrouperMcpServlet extends HttpServlet {
   private static String declaredProtocolVersion(HttpServletRequest request, JsonNode params) {
     String versionFromBody = protocolVersionFromMeta(params);
     return versionFromBody != null ? versionFromBody : protocolVersionFromHeader(request);
+  }
+
+  /**
+   * check if a method is part of the initialize handshake, which spec version 2026-07-28
+   * removed along with the sessions it set up
+   * @param method the JSON-RPC method
+   * @return true if the method only exists in the handshake based revisions
+   */
+  private static boolean isLegacyLifecycleMethod(String method) {
+    return "initialize".equals(method) || "notifications/initialized".equals(method);
   }
 
   /**
