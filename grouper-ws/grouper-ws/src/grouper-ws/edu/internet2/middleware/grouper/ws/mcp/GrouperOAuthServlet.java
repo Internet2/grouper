@@ -223,17 +223,11 @@ public class GrouperOAuthServlet extends HttpServlet {
       return;
     }
 
-    // construct the issuer URL
-    String issuer = request.getScheme() + "://" + request.getServerName();
-    if (("http".equals(request.getScheme()) && request.getServerPort() != 80)
-        || ("https".equals(request.getScheme()) && request.getServerPort() != 443)) {
-      issuer += ":" + request.getServerPort();
-    }
-    issuer += request.getContextPath();
-
-    // create JWT (include consent details / granted scopes)
+    // create JWT (include consent details / granted scopes).  the issuer is read from
+    // configuration inside createSignedJwt, since that is the value the token is checked
+    // against when it comes back
     String jwt = GrouperOAuthSigningKey.createSignedJwt(
-        issuer, member.getSubjectId(), member.getSubjectSourceId(), clientId,
+        member.getSubjectId(), member.getSubjectSourceId(), clientId,
         authCode.getConsentDetails());
 
     int expirationSeconds = GrouperConfig.retrieveConfig().propertyValueInt(

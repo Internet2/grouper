@@ -235,15 +235,34 @@ public class GrouperOAuthSigningKey {
   }
 
   /**
+   * Create a signed JWT access token.
+   *
+   * @param issuer ignored.  The issuer is read from configuration instead, because
+   *   {@link #verifyAndDecodeJwt(String)} checks the claim against that same configured value,
+   *   so a token stamped with anything else would fail the moment it was presented.
+   * @param subjectId the Grouper subject ID
+   * @param subjectSourceId the Grouper subject source ID
+   * @param clientId the OAuth client ID
+   * @param consentDetails JSON string with granted scopes from consent, or null
+   * @return the signed JWT string
+   * @deprecated use {@link #createSignedJwt(String, String, String, String)}, which does not
+   *   take an issuer
+   */
+  @Deprecated
+  public static String createSignedJwt(String issuer, String subjectId,
+      String subjectSourceId, String clientId, String consentDetails) {
+    return createSignedJwt(subjectId, subjectSourceId, clientId, consentDetails);
+  }
+
+  /**
    * Create a signed JWT access token
-   * @param issuer the issuer URL
    * @param subjectId the Grouper subject ID
    * @param subjectSourceId the Grouper subject source ID
    * @param clientId the OAuth client ID
    * @param consentDetails JSON string with granted scopes from consent, or null
    * @return the signed JWT string
    */
-  public static String createSignedJwt(String issuer, String subjectId,
+  public static String createSignedJwt(String subjectId,
       String subjectSourceId, String clientId, String consentDetails) {
 
     KeyBundle keyBundle = retrieveKeyBundle();
@@ -254,13 +273,21 @@ public class GrouperOAuthSigningKey {
     long nowMillis = System.currentTimeMillis();
 
     com.auth0.jwt.JWTCreator.Builder jwtBuilder = JWT.create()
-        .withIssuer(issuer)
         .withSubject(subjectId)
         .withClaim("subjectSourceId", subjectSourceId)
         .withClaim("client_id", clientId)
         .withIssuedAt(new Date(nowMillis))
         .withExpiresAt(new Date(nowMillis + (long) expirationSeconds * 1000))
         .withJWTId(UUID.randomUUID().toString());
+
+    // Say who issued this, taken from configuration rather than from the request which asked
+    // for the token.  verifyAndDecodeJwt checks this claim against the same configured value,
+    // so an issuer worked out from the request would make every token obtained through any
+    // hostname other than the configured one fail on the very next call.
+    String issuerIdentifier = GrouperOAuthStore.retrieveIssuerIdentifier();
+    if (issuerIdentifier != null) {
+      jwtBuilder.withIssuer(issuerIdentifier);
+    }
 
     // bind the token to the resource it is for, so that it cannot be used against a different
     // resource which happens to trust the same signing key
