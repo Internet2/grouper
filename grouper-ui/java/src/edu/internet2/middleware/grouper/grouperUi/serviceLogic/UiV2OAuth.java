@@ -98,43 +98,33 @@ public class UiV2OAuth extends UiServiceLogicBase {
       String state = request.getParameter("state");
       String scope = request.getParameter("scope");
 
-      // validate required parameters
-      if (StringUtils.isBlank(clientId)) {
-        sendAuthorizeError(response, redirectUri, state, "invalid_request",
-            "client_id is required", oAuthContainer);
-        throw new ControllerDone();
-      }
+      // Everything which decides whether this redirect_uri can be redirected to is checked
+      // first, and any of it failing shows an error page rather than redirecting.  Only after
+      // that is the redirect_uri known to belong to a registered client, and only then may a
+      // problem with the rest of the request be reported by sending the user back to it.
+      // Reporting an error by redirecting to a redirect_uri which has not been checked would
+      // let anyone use this endpoint to bounce a browser to any address they like, which
+      // RFC 6749 section 4.1.2.1 requires an authorization server not to do.
 
       if (StringUtils.isBlank(redirectUri)) {
-        // cannot redirect if no redirect_uri; show error page
+        // nowhere to redirect to
         oAuthContainer.setErrorMessage("redirect_uri is required");
         showJsp("/WEB-INF/grouperUi2/oauth/oauthAuthorize.jsp");
         throw new ControllerDone();
       }
 
-      if (!"code".equals(responseType)) {
-        sendAuthorizeError(response, redirectUri, state, "unsupported_response_type",
-            "Only response_type=code is supported", oAuthContainer);
-        throw new ControllerDone();
-      }
-
-      if (StringUtils.isBlank(codeChallenge)) {
-        sendAuthorizeError(response, redirectUri, state, "invalid_request",
-            "code_challenge is required (PKCE)", oAuthContainer);
-        throw new ControllerDone();
-      }
-
-      if (StringUtils.isBlank(codeChallengeMethod) || !"S256".equals(codeChallengeMethod)) {
-        sendAuthorizeError(response, redirectUri, state, "invalid_request",
-            "code_challenge_method must be S256", oAuthContainer);
+      if (StringUtils.isBlank(clientId)) {
+        // without a client there is nothing to check the redirect_uri against
+        oAuthContainer.setErrorMessage("client_id is required");
+        showJsp("/WEB-INF/grouperUi2/oauth/oauthAuthorize.jsp");
         throw new ControllerDone();
       }
 
       // validate client registration
       GrouperOAuthClient client = GrouperOAuthStore.retrieveClient(clientId);
       if (client == null) {
-        sendAuthorizeError(response, redirectUri, state, "invalid_request",
-            "Unknown client_id", oAuthContainer);
+        oAuthContainer.setErrorMessage("Unknown client_id");
+        showJsp("/WEB-INF/grouperUi2/oauth/oauthAuthorize.jsp");
         throw new ControllerDone();
       }
 
@@ -157,14 +147,31 @@ public class UiV2OAuth extends UiServiceLogicBase {
         }
       }
 
+      // the redirect_uri is now known to be one this client registered, so the rest of the
+      // request can be reported to the client by redirecting back to it
+
+      if (!"code".equals(responseType)) {
+        sendAuthorizeError(response, redirectUri, state, "unsupported_response_type",
+            "Only response_type=code is supported", oAuthContainer);
+        throw new ControllerDone();
+      }
+
+      if (StringUtils.isBlank(codeChallenge)) {
+        sendAuthorizeError(response, redirectUri, state, "invalid_request",
+            "code_challenge is required (PKCE)", oAuthContainer);
+        throw new ControllerDone();
+      }
+
+      if (StringUtils.isBlank(codeChallengeMethod) || !"S256".equals(codeChallengeMethod)) {
+        sendAuthorizeError(response, redirectUri, state, "invalid_request",
+            "code_challenge_method must be S256", oAuthContainer);
+        throw new ControllerDone();
+      }
+
       // The client says which resource it wants the token for.  This Grouper issues tokens for
       // one resource, its MCP endpoint, so a request for anything else is refused rather than
       // being quietly given a token which would not work there.  The token is bound to the MCP
       // resource when it is issued, so there is nothing to carry forward from here.
-      //
-      // Checked here rather than with the other request parameter checks above, because being
-      // refused sends the client back to its redirect_uri, and the redirect_uri is only known
-      // to be one this client registered by the two checks just above.
       {
         String resource = StringUtils.trimToNull(request.getParameter("resource"));
         String mcpResourceIdentifier = GrouperOAuthStore.retrieveMcpResourceIdentifier();
