@@ -182,6 +182,9 @@ public class GrouperMcpServlet extends HttpServlet {
   /** JSON-RPC error code for a method this server does not implement */
   private static final int ERROR_METHOD_NOT_FOUND = -32601;
 
+  /** JSON-RPC error code for a request which is not a well formed JSON-RPC request */
+  private static final int ERROR_INVALID_REQUEST = -32600;
+
   /** HTTP header a browser sends identifying the page a request came from */
   private static final String ORIGIN_HEADER = "Origin";
 
@@ -247,8 +250,25 @@ public class GrouperMcpServlet extends HttpServlet {
     JsonNode id = jsonRpcRequest.get("id");
     JsonNode params = jsonRpcRequest.get("params");
 
+    // JSON-RPC allows an id to be a string, a number or null and nothing else.  An id of any
+    // other shape cannot be echoed back on the response without this server itself emitting
+    // something which is not a valid JSON-RPC response, so it is refused rather than repeated.
+    // The error deliberately carries no id, since the id which arrived is the problem.
+    if (id != null && !id.isTextual() && !id.isNumber() && !id.isNull()) {
+      sendJsonRpcError(response, null, ERROR_INVALID_REQUEST,
+          "Invalid Request: id must be a string, a number or null");
+      return;
+    }
+
     if (method == null) {
-      sendJsonRpcError(response, id, -32600, "Invalid Request: missing method");
+      // A notification the server cannot accept has to be refused with an HTTP error status,
+      // where a request is answered with a JSON-RPC error at HTTP 200 as it always has been.
+      // The status is not simply always an error: a client working out which era this server
+      // speaks reads a 400 whose body is not one of the errors this revision defines as a
+      // legacy server and falls back to the initialize handshake, and this code is not one of
+      // those.  A notification is never used to work that out, so there the status is safe.
+      sendJsonRpcError(response, id, ERROR_INVALID_REQUEST, "Invalid Request: missing method",
+          null, id == null ? HttpServletResponse.SC_BAD_REQUEST : HttpServletResponse.SC_OK);
       return;
     }
 
@@ -278,6 +298,23 @@ public class GrouperMcpServlet extends HttpServlet {
       sendJsonRpcError(response, id, ERROR_METHOD_NOT_FOUND,
           "Method not found: " + method + " was removed in protocol version "
           + MODERN_PROTOCOL_VERSION, null, HttpServletResponse.SC_NOT_FOUND);
+      return;
+    }
+
+    // A request with no id at all is a notification.  JSON-RPC says a notification is never
+    // answered, and spec version 2026-07-28 says one the server accepts is acknowledged with
+    // 202 and no body.  Without this, a notification shaped call to something like tools/list
+    // would be run and answered with a full result, which is a response the client never asked
+    // for and which carries no id for the client to match it against anything.
+    //
+    // Note an id which is present and explicitly null is a request, not a notification.  An
+    // absent id is the only thing which marks a notification, so this cannot be told apart from
+    // a client which left the id out by mistake, and such a client stops getting results.
+    //
+    // This sits after the checks above so that a notification which is not well formed is still
+    // told why, which the transport allows.
+    if (id == null) {
+      response.setStatus(HttpServletResponse.SC_ACCEPTED);
       return;
     }
 
@@ -327,6 +364,13 @@ public class GrouperMcpServlet extends HttpServlet {
                   : HttpServletResponse.SC_OK);
           return;
       }
+    } catch (GrouperMcpProtocolException gmpe) {
+      // the request itself could not be acted on, which the spec reports as a JSON-RPC error
+      // and not as a tool result.  not logged as an error, since a client naming a tool which
+      // does not exist is the client's mistake and not a fault in this server
+      sendJsonRpcError(response, id, gmpe.getCode(), gmpe.getMessage());
+      return;
+
     } catch (Exception e) {
       LOG.error("Error handling MCP method: " + method, e);
       sendJsonRpcError(response, id, -32603, "Internal error: " + e.getMessage());
@@ -779,7 +823,7 @@ public class GrouperMcpServlet extends HttpServlet {
         + "to allow browser based clients from this origin.");
 
     // no id, this is rejected before the body is read
-    sendJsonRpcError(response, null, -32600, "Origin not allowed", null,
+    sendJsonRpcError(response, null, ERROR_INVALID_REQUEST, "Origin not allowed", null,
         HttpServletResponse.SC_FORBIDDEN);
     return true;
   }
@@ -1364,6 +1408,40 @@ public class GrouperMcpServlet extends HttpServlet {
   }
 
   /**
+   * thrown when a tools/call request is not one this server can act on at all, as opposed to a
+   * tool which ran and reported a failure.
+   *
+   * <p>The spec keeps these apart. A tool which exists and did not work says so in its result
+   * with {@code isError}, because that is feedback a model can read and correct itself from,
+   * such as a name which does not exist or a value out of range. A request naming a tool this
+   * server does not have, or leaving the name out, is not something the tool could report on
+   * because no tool was reached, so it comes back as a JSON-RPC error instead.</p>
+   */
+  private static class GrouperMcpProtocolException extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
+    /** the JSON-RPC error code to answer with */
+    private final int code;
+
+    /**
+     * @param code the JSON-RPC error code
+     * @param message what was wrong with the request
+     */
+    GrouperMcpProtocolException(int code, String message) {
+      super(message);
+      this.code = code;
+    }
+
+    /**
+     * @return the JSON-RPC error code to answer with
+     */
+    int getCode() {
+      return this.code;
+    }
+  }
+
+  /**
    * handle tools/call - wraps the tool dispatch with audit logging and throttle checking.
    * Every tool call is logged to the grouper_mcp_tool_log table with request, response,
    * timing, and error information.  Rate limits are checked before execution.
@@ -1372,7 +1450,9 @@ public class GrouperMcpServlet extends HttpServlet {
    */
   private ObjectNode handleToolsCall(JsonNode params, GrouperMcpAuthUser authUser) {
     if (params == null || !params.has("name")) {
-      return buildMcpErrorResult("Error: missing tool name");
+      // no tool was named, so there is no tool whose result could carry this
+      throw new GrouperMcpProtocolException(ERROR_INVALID_PARAMS,
+          "Invalid params: tools/call requires a tool name");
     }
 
     String toolName = params.get("name").asText();
@@ -1402,6 +1482,8 @@ public class GrouperMcpServlet extends HttpServlet {
     final ObjectNode[] resultHolder = new ObjectNode[1];
     final boolean[] isErrorHolder = new boolean[] { false };
     final String[] responseTextHolder = new String[] { null };
+    final GrouperMcpProtocolException[] protocolExceptionHolder =
+        new GrouperMcpProtocolException[1];
 
     try {
       GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
@@ -1422,6 +1504,14 @@ public class GrouperMcpServlet extends HttpServlet {
               }
             }
 
+          } catch (GrouperMcpProtocolException gmpe) {
+            // this is answered as a JSON-RPC error rather than as a result, but it is held
+            // rather than thrown from here so that the audit log below still records the
+            // attempt.  a call naming a tool which does not exist is worth having a row for
+            protocolExceptionHolder[0] = gmpe;
+            isErrorHolder[0] = true;
+            responseTextHolder[0] = gmpe.getMessage();
+
           } catch (Exception e) {
             isErrorHolder[0] = true;
             responseTextHolder[0] = "Internal error: " + e.getMessage();
@@ -1439,6 +1529,12 @@ public class GrouperMcpServlet extends HttpServlet {
     // log to audit table (errors in logging do not affect the response)
     GrouperMcpToolLogUtil.logToolCall(authUser, toolName, toolCategory,
         requestJson, responseTextHolder[0], isErrorHolder[0], startedMicros, durationMicros);
+
+    // now that the attempt is logged and the throttle has counted it, this can be answered as
+    // the JSON-RPC error it is
+    if (protocolExceptionHolder[0] != null) {
+      throw protocolExceptionHolder[0];
+    }
 
     return resultHolder[0];
   }
@@ -1660,7 +1756,8 @@ public class GrouperMcpServlet extends HttpServlet {
         }
         return GrouperMcpAdminRunDaemonJob.execute(arguments, authUser);
       default:
-        return buildMcpErrorResult("Error: unknown tool: " + toolName);
+        // no tool ran, so there is no tool result this could be reported in
+        throw new GrouperMcpProtocolException(ERROR_INVALID_PARAMS, "Unknown tool: " + toolName);
     }
   }
 
