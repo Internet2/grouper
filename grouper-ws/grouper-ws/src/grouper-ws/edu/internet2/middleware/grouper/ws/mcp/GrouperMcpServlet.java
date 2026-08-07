@@ -651,18 +651,61 @@ public class GrouperMcpServlet extends HttpServlet {
     }
 
     // no authentication succeeded
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    response.setHeader("WWW-Authenticate",
+        "Bearer resource_metadata=\"" + resourceMetadataUrl(request) + "\"");
+    return null;
+  }
+
+  /** whether the warning about a request derived resource metadata URL has been logged */
+  private static boolean loggedRequestDerivedResourceMetadataUrl = false;
+
+  /**
+   * where a client is told to look to find out which authorization server protects this MCP
+   * server, sent as the {@code resource_metadata} parameter of the {@code WWW-Authenticate}
+   * header on a request which did not authenticate.
+   *
+   * <p>Taken from {@code grouper.ws.url} rather than from the request. This is the address a
+   * client goes to next in order to be told where to authenticate, so a value taken from the
+   * request would let whoever set its Host header choose where clients are sent. A client which
+   * followed such an address would be handed an authorization server of that party's choosing
+   * and would put the user's login page in front of them. The response goes back to whoever
+   * made the request, so poisoning it for somebody else needs something in front of this server
+   * which caches without regard to Host, or which passes on a Host from one request to another;
+   * neither should be relied on not to be there.</p>
+   *
+   * <p>When {@code grouper.ws.url} is not configured there is nothing else to build this from,
+   * and leaving the parameter off would leave a client with no way to discover where to
+   * authenticate at all, so the request is used and a warning is logged. Such a deployment is
+   * already without a token audience and without an issuer, both of which come from the same
+   * property.</p>
+   *
+   * @param request the HTTP request
+   * @return the URL of this server's protected resource metadata
+   */
+  private static String resourceMetadataUrl(HttpServletRequest request) {
+
+    String wsUrl = StringUtils.trimToNull(GrouperConfig.getGrouperWsUrl(false));
+
+    if (wsUrl != null) {
+      return wsUrl + "/.well-known/oauth-protected-resource";
+    }
+
+    if (!loggedRequestDerivedResourceMetadataUrl) {
+      loggedRequestDerivedResourceMetadataUrl = true;
+      LOG.warn("grouper.ws.url is not configured, so MCP tells clients where to find its OAuth "
+          + "metadata using the host of the request they made.  Configure it, so that the "
+          + "address clients are sent to cannot be chosen by whoever set the Host header.");
+    }
+
     String resourceMetadataUrl = request.getScheme() + "://" + request.getServerName();
     if (("http".equals(request.getScheme()) && request.getServerPort() != 80)
         || ("https".equals(request.getScheme()) && request.getServerPort() != 443)) {
       resourceMetadataUrl += ":" + request.getServerPort();
     }
-    resourceMetadataUrl += request.getContextPath()
-        + "/.well-known/oauth-protected-resource";
 
-    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    response.setHeader("WWW-Authenticate",
-        "Bearer resource_metadata=\"" + resourceMetadataUrl + "\"");
-    return null;
+    return resourceMetadataUrl + request.getContextPath()
+        + "/.well-known/oauth-protected-resource";
   }
 
   /**
