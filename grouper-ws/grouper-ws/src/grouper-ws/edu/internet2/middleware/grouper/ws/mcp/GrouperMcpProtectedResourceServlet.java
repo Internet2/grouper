@@ -71,8 +71,14 @@ public class GrouperMcpProtectedResourceServlet extends HttpServlet {
       ObjectNode metadata = objectMapper.createObjectNode();
       metadata.put("resource", mcpUrl);
 
+      // RFC 9728 defines authorization_servers as a list of issuer identifiers, so this is the
+      // issuer and not the resource URL above.  A client builds the URL it fetches authorization
+      // server metadata from out of this value, and RFC 8414 section 3.3 tells it to discard that
+      // metadata unless the issuer it finds there is identical to the value it started from.
+      // Naming the MCP endpoint here rather than the issuer would therefore have a client which
+      // makes that check throw away metadata which is otherwise correct.
       ArrayNode authorizationServers = objectMapper.createArrayNode();
-      authorizationServers.add(mcpUrl);
+      authorizationServers.add(baseUrl);
       metadata.set("authorization_servers", authorizationServers);
 
       ArrayNode bearerMethods = objectMapper.createArrayNode();
