@@ -281,7 +281,8 @@ public class GrouperMcpServlet extends HttpServlet {
     // served the way this server has always served requests
     boolean modernRequest = isModernProtocolVersion(declaredProtocolVersion(request, params));
 
-    if (modernRequest && rejectIfModernRequestInvalid(request, response, method, params, id)) {
+    if (modernRequest && rejectIfModernRequestInvalid(request, response, jsonRpcRequest, method,
+        params, id)) {
       return;
     }
 
@@ -898,14 +899,18 @@ public class GrouperMcpServlet extends HttpServlet {
    * <p>Only called for a request which declares that version. Clients on the handshake based
    * revisions send none of this and must not be held to it.</p>
    *
-   * <p>Two things are checked. The request must declare what the client supports, as an object,
-   * since with no handshake there is nowhere else it could have been said. And the HTTP headers
-   * which mirror fields of the request body must all be present and must agree with the body,
-   * so that something in the network routing on a header cannot disagree with what this server
-   * acts on.</p>
+   * <p>Two things are checked. The request must carry the fields that revision requires in its
+   * {@code _meta}, which are the protocol version and what the client supports, since with no
+   * handshake there is nowhere else they could have been said. And the HTTP headers which
+   * mirror fields of the request body must all be present and must agree with the body, so that
+   * something in the network routing on a header cannot disagree with what this server acts
+   * on.</p>
+   *
+   * <p>{@code io.modelcontextprotocol/clientInfo} is not required and is not checked for.</p>
    *
    * @param request the HTTP request
    * @param response the HTTP response
+   * @param jsonRpcRequest the parsed request body
    * @param method the JSON-RPC method
    * @param params the JSON-RPC params, may be null
    * @param id the JSON-RPC id of the request
@@ -913,10 +918,69 @@ public class GrouperMcpServlet extends HttpServlet {
    * @throws IOException if the response cannot be written
    */
   private boolean rejectIfModernRequestInvalid(HttpServletRequest request,
-      HttpServletResponse response, String method, JsonNode params, JsonNode id)
-      throws IOException {
+      HttpServletResponse response, JsonNode jsonRpcRequest, String method, JsonNode params,
+      JsonNode id) throws IOException {
+
+    // Every message is a JSON-RPC 2.0 message, which means saying so.  This is not new in spec
+    // version 2026-07-28, but it is only enforced for requests on that revision: a client on
+    // one of the earlier revisions which has been talking to this server without the field has
+    // no reason to start failing now, whereas a client on this revision is new enough that its
+    // library sends it.
+    JsonNode jsonRpcNode = jsonRpcRequest == null ? null : jsonRpcRequest.get("jsonrpc");
+
+    if (jsonRpcNode == null || !jsonRpcNode.isTextual()
+        || !"2.0".equals(jsonRpcNode.asText())) {
+      sendJsonRpcError(response, id, ERROR_INVALID_REQUEST,
+          "Invalid Request: jsonrpc must be \"2.0\"",
+          null, HttpServletResponse.SC_BAD_REQUEST);
+      return true;
+    }
 
     JsonNode metaNode = params == null ? null : params.get("_meta");
+
+    // Spec version 2026-07-28 requires the protocol version in _meta on every request, not only
+    // in the header.  A request can reach here having declared the version in the header alone,
+    // since that is enough to tell which revision it is on, but that is not enough to be a well
+    // formed request of that revision.  The two disagreeing was already caught before this
+    // point, so what is left to check here is the field being absent.
+    JsonNode protocolVersionNode = metaNode == null ? null : metaNode.get(META_PROTOCOL_VERSION);
+
+    if (protocolVersionNode == null || protocolVersionNode.isNull()) {
+      sendJsonRpcError(response, id, ERROR_INVALID_PARAMS,
+          "Invalid params: " + META_PROTOCOL_VERSION + " is required in _meta",
+          null, HttpServletResponse.SC_BAD_REQUEST);
+      return true;
+    }
+
+    // A version is a string, and one which is not has to be refused rather than worked around.
+    // The text of a node which is not a string is either empty or something the client did not
+    // write, so reading it would either look like no version was declared, and let the header
+    // decide on its own, or like a version nobody asked for.
+    if (!protocolVersionNode.isTextual()) {
+      sendJsonRpcError(response, id, ERROR_INVALID_PARAMS,
+          "Invalid params: " + META_PROTOCOL_VERSION + " in _meta must be a string",
+          null, HttpServletResponse.SC_BAD_REQUEST);
+      return true;
+    }
+
+    // Spec version 2026-07-28 says explicitly that unlike plain JSON-RPC an id must not be
+    // null.  An id is what a client matches a response to a request by, so one it cannot match
+    // on is not usable.  Only requests on this revision are held to it; the earlier ones follow
+    // JSON-RPC, which allows a null id even though it discourages one.
+    //
+    // Any number is allowed, not only a whole one.  The prose of that revision says "a string
+    // or integer ID", but the schema it points to as the source of truth defines a request id
+    // as a string or a number, so a number with a fractional part is a valid id and is not
+    // refused here.
+    //
+    // Note an id which is absent is not checked here, since that is a notification rather than
+    // a request, and is answered further on.
+    if (id != null && !id.isTextual() && !id.isNumber()) {
+      sendJsonRpcError(response, id, ERROR_INVALID_REQUEST,
+          "Invalid Request: id must be a string or a number, and must not be null",
+          null, HttpServletResponse.SC_BAD_REQUEST);
+      return true;
+    }
 
     JsonNode clientCapabilitiesNode = metaNode == null ? null
         : metaNode.get(META_CLIENT_CAPABILITIES);
@@ -1044,14 +1108,18 @@ public class GrouperMcpServlet extends HttpServlet {
    * @return the version or null
    */
   private static String protocolVersionFromMeta(JsonNode params) {
-    if (params == null || !params.has("_meta")) {
+    JsonNode metaNode = params == null ? null : params.get("_meta");
+    JsonNode versionNode = metaNode == null ? null : metaNode.get(META_PROTOCOL_VERSION);
+
+    // A field explicitly set to null declares no version, the same as leaving it out.  Note
+    // this cannot be written with has(), which counts a field set to null as present, and that
+    // the text of a null node is the word "null", so reading it either way would have the
+    // request appear to be asking for a protocol version by that name.
+    if (versionNode == null || versionNode.isNull()) {
       return null;
     }
-    JsonNode metaNode = params.get("_meta");
-    if (metaNode == null || !metaNode.has(META_PROTOCOL_VERSION)) {
-      return null;
-    }
-    return StringUtils.trimToNull(metaNode.get(META_PROTOCOL_VERSION).asText());
+
+    return StringUtils.trimToNull(versionNode.asText());
   }
 
   /**
