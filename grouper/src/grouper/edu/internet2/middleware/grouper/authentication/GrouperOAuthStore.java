@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -231,6 +232,45 @@ public class GrouperOAuthStore {
    */
   private static final Pattern REDIRECT_URI_CONFIG_PATTERN = Pattern.compile(
       "^grouper\\.oauth\\.redrectUri\\.([^.]+)\\.regex$");
+
+  /** whether the warning about a missing issuer identifier has been logged */
+  private static boolean loggedMissingIssuerIdentifier = false;
+
+  /**
+   * The issuer identifier of this Grouper as an OAuth authorization server, or null if it
+   * cannot be determined.
+   *
+   * <p>This is the value published as {@code issuer} in the authorization server metadata, and
+   * it is also sent back to the client as the {@code iss} parameter on an authorization
+   * response. A client which knows about
+   * <a href="https://datatracker.ietf.org/doc/html/rfc9207">RFC 9207</a> compares the two and
+   * refuses to redeem the authorization code if they differ, which is what protects it from
+   * being tricked into sending a code issued by one authorization server to a different one.
+   * The two values are therefore read from here rather than worked out separately in each
+   * place, since a value which does not match is worse than no value at all.</p>
+   *
+   * <p>This comes from configuration only. It deliberately does not fall back to deriving a URL
+   * from the request: the metadata is served by the web services application and the
+   * authorization response is sent by the UI application, so a request derived value could
+   * differ between the two, for example behind a reverse proxy or on a different context path.
+   * When it is not configured, callers leave the {@code iss} parameter off, which RFC 9207
+   * permits, rather than send something which might be wrong.</p>
+   *
+   * @return the issuer identifier, or null if grouper.ws.url is not configured
+   */
+  public static String retrieveIssuerIdentifier() {
+
+    String issuerIdentifier = StringUtils.trimToNull(GrouperConfig.getGrouperWsUrl(false));
+
+    if (issuerIdentifier == null && !loggedMissingIssuerIdentifier) {
+      loggedMissingIssuerIdentifier = true;
+      LOG.warn("grouper.ws.url is not configured, so the iss parameter is left off OAuth "
+          + "authorization responses.  Configure it to identify this authorization server to "
+          + "clients per RFC 9207.");
+    }
+
+    return issuerIdentifier;
+  }
 
   /**
    * Validate that a single redirect URI matches at least one configured

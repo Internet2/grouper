@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -53,7 +54,9 @@ public class GrouperMcpWellKnownServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     try {
-      String baseUrl = GrouperConfig.getGrouperWsUrl(false);
+      // the same value the authorization response sends back as its iss parameter, so that a
+      // client comparing the two per RFC 9207 sees them agree
+      String baseUrl = GrouperOAuthStore.retrieveIssuerIdentifier();
       if (StringUtils.isBlank(baseUrl)) {
         baseUrl = request.getScheme() + "://" + request.getServerName();
         if (("http".equals(request.getScheme()) && request.getServerPort() != 80)

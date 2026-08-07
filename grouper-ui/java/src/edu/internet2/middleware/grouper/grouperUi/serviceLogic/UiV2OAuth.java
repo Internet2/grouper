@@ -319,6 +319,7 @@ public class UiV2OAuth extends UiServiceLogicBase {
         if (StringUtils.isNotBlank(pendingRequest.getState())) {
           redirectUrl += "&state=" + GrouperUtil.escapeUrlEncode(pendingRequest.getState());
         }
+        redirectUrl += issuerParam();
 
         LOG.info("MCP OAuth request denied by user: requestId=" + requestId);
 
@@ -464,6 +465,7 @@ public class UiV2OAuth extends UiServiceLogicBase {
       if (StringUtils.isNotBlank(pendingRequest.getState())) {
         redirectUrl += "&state=" + GrouperUtil.escapeUrlEncode(pendingRequest.getState());
       }
+      redirectUrl += issuerParam();
 
       LOG.info("MCP OAuth request approved: requestId=" + requestId
           + ", subject=" + loggedInSubject.getSourceId() + "::::" + loggedInSubject.getId());
@@ -682,9 +684,36 @@ public class UiV2OAuth extends UiServiceLogicBase {
       if (StringUtils.isNotBlank(state)) {
         errorUrl.append("&state=").append(GrouperUtil.escapeUrlEncode(state));
       }
+      errorUrl.append(issuerParam());
       response.sendRedirect(errorUrl.toString());
     } catch (Exception e) {
       throw new RuntimeException("Error sending OAuth error redirect", e);
     }
+  }
+
+  /**
+   * The {@code iss} parameter to append to an authorization response, identifying this Grouper
+   * as the authorization server which issued it, per
+   * <a href="https://datatracker.ietf.org/doc/html/rfc9207">RFC 9207</a>. A client which knows
+   * about it compares this against the issuer it recorded from the authorization server
+   * metadata and refuses the response if they differ, which stops it being tricked into sending
+   * an authorization code to the wrong authorization server.
+   *
+   * <p>Sent on error responses as well as successful ones, since a client which only checked
+   * the successful case would still be open to the mix-up this prevents.</p>
+   *
+   * @return the parameter to append, starting with an ampersand, or an empty string when the
+   * issuer identifier is not configured. Sending nothing is allowed; sending a value which does
+   * not match the metadata would make conforming clients reject the response.
+   */
+  private static String issuerParam() {
+
+    String issuerIdentifier = GrouperOAuthStore.retrieveIssuerIdentifier();
+
+    if (StringUtils.isBlank(issuerIdentifier)) {
+      return "";
+    }
+
+    return "&iss=" + GrouperUtil.escapeUrlEncode(issuerIdentifier);
   }
 }
