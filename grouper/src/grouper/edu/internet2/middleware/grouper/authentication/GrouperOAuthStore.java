@@ -272,6 +272,49 @@ public class GrouperOAuthStore {
     return issuerIdentifier;
   }
 
+  /** whether the warning about a missing MCP resource identifier has been logged */
+  private static boolean loggedMissingMcpResourceIdentifier = false;
+
+  /**
+   * The canonical URI of the MCP server, which is what an access token issued for it is bound
+   * to, or null if it cannot be determined.
+   *
+   * <p>An access token has to say which resource it was issued for, and the resource server has
+   * to refuse a token issued for anything else. Otherwise a token obtained for one resource can
+   * be replayed against another which trusts the same signing key, which is the confused deputy
+   * problem that the resource parameter of
+   * <a href="https://www.rfc-editor.org/rfc/rfc8707.html">RFC 8707</a> exists to prevent.</p>
+   *
+   * <p>Grouper hosts exactly one MCP endpoint, so this is derived from configuration rather than
+   * carried through the authorization flow from what the client asked for. That keeps the
+   * audience out of the client's control, and avoids having to store it against the pending
+   * request and the authorization code. If Grouper ever hosts more than one MCP resource this
+   * has to become a real per-request value instead.</p>
+   *
+   * <p>Like {@link #retrieveIssuerIdentifier()} this is configuration only, so that the value
+   * used when a token is issued cannot differ from the value used when it is verified. A
+   * request derived value would differ whenever a server is reachable under more than one
+   * hostname.</p>
+   *
+   * @return the canonical MCP resource URI, or null if grouper.ws.url is not configured
+   */
+  public static String retrieveMcpResourceIdentifier() {
+
+    String issuerIdentifier = retrieveIssuerIdentifier();
+
+    if (issuerIdentifier == null) {
+      if (!loggedMissingMcpResourceIdentifier) {
+        loggedMissingMcpResourceIdentifier = true;
+        LOG.warn("grouper.ws.url is not configured, so MCP access tokens are neither bound to "
+            + "nor checked against the MCP resource.  Configure it so that a token issued for "
+            + "another resource cannot be used against MCP.");
+      }
+      return null;
+    }
+
+    return issuerIdentifier + "/mcp";
+  }
+
   /**
    * Validate that a single redirect URI matches at least one configured
    * {@code grouper.oauth.redrectUri.<configId>.regex} pattern.

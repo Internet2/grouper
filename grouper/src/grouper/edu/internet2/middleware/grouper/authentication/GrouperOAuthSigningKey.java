@@ -262,6 +262,13 @@ public class GrouperOAuthSigningKey {
         .withExpiresAt(new Date(nowMillis + (long) expirationSeconds * 1000))
         .withJWTId(UUID.randomUUID().toString());
 
+    // bind the token to the resource it is for, so that it cannot be used against a different
+    // resource which happens to trust the same signing key
+    String mcpResourceIdentifier = GrouperOAuthStore.retrieveMcpResourceIdentifier();
+    if (mcpResourceIdentifier != null) {
+      jwtBuilder.withAudience(mcpResourceIdentifier);
+    }
+
     // add granted scope claims from consent details JSON
     if (StringUtils.isNotBlank(consentDetails)) {
       try {
@@ -358,7 +365,23 @@ public class GrouperOAuthSigningKey {
     KeyBundle keyBundle = retrieveKeyBundle();
 
     try {
-      JWTVerifier verifier = JWT.require(keyBundle.verificationAlgorithm).build();
+      com.auth0.jwt.interfaces.Verification verification =
+          JWT.require(keyBundle.verificationAlgorithm);
+
+      // a valid signature only says this Grouper minted the token.  it must also have been
+      // minted by this issuer for this resource, otherwise a token issued for something else
+      // which trusts the same key would be accepted here
+      String issuerIdentifier = GrouperOAuthStore.retrieveIssuerIdentifier();
+      if (issuerIdentifier != null) {
+        verification = verification.withIssuer(issuerIdentifier);
+      }
+
+      String mcpResourceIdentifier = GrouperOAuthStore.retrieveMcpResourceIdentifier();
+      if (mcpResourceIdentifier != null) {
+        verification = verification.withAudience(mcpResourceIdentifier);
+      }
+
+      JWTVerifier verifier = verification.build();
       return verifier.verify(jwt);
     } catch (JWTVerificationException e) {
       LOG.warn("OAuth JWT verification failed: " + e.getMessage());

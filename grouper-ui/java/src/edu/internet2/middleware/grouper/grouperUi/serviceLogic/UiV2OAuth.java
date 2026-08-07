@@ -157,6 +157,29 @@ public class UiV2OAuth extends UiServiceLogicBase {
         }
       }
 
+      // The client says which resource it wants the token for.  This Grouper issues tokens for
+      // one resource, its MCP endpoint, so a request for anything else is refused rather than
+      // being quietly given a token which would not work there.  The token is bound to the MCP
+      // resource when it is issued, so there is nothing to carry forward from here.
+      //
+      // Checked here rather than with the other request parameter checks above, because being
+      // refused sends the client back to its redirect_uri, and the redirect_uri is only known
+      // to be one this client registered by the two checks just above.
+      {
+        String resource = StringUtils.trimToNull(request.getParameter("resource"));
+        String mcpResourceIdentifier = GrouperOAuthStore.retrieveMcpResourceIdentifier();
+
+        if (resource != null && mcpResourceIdentifier != null
+            && !resource.equals(mcpResourceIdentifier)
+            && !resource.equals(StringUtils.removeEnd(mcpResourceIdentifier, "/"))) {
+          LOG.warn("OAuth authorization refused, resource '" + resource
+              + "' is not this server's MCP resource '" + mcpResourceIdentifier + "'");
+          sendAuthorizeError(response, redirectUri, state, "invalid_target",
+              "resource is not a resource of this authorization server", oAuthContainer);
+          throw new ControllerDone();
+        }
+      }
+
       // get logged-in user
       Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
