@@ -95,6 +95,16 @@ public class GrouperMcpWellKnownServlet extends HttpServlet {
       codeChallengeMethodsSupported.add("S256");
       metadata.set("code_challenge_methods_supported", codeChallengeMethodsSupported);
 
+      // An authorization server which sends the iss parameter on authorization responses has to
+      // say so here, per RFC 9207.  This tracks whether the issuer identifier is configured,
+      // because that is what decides whether the authorization response actually carries iss.
+      // Claiming it while leaving iss off would be worse than not claiming it at all: a client
+      // which is told to expect iss rejects a response which does not have it.  Note this reads
+      // the configured value rather than baseUrl above, which falls back to a request derived
+      // URL that the authorization response cannot use.
+      metadata.put("authorization_response_iss_parameter_supported",
+          StringUtils.isNotBlank(GrouperOAuthStore.retrieveIssuerIdentifier()));
+
       // when served as /.well-known/openid-configuration, OIDC Discovery requires these fields
       String requestUri = request.getRequestURI();
       if (requestUri != null && requestUri.contains("openid-configuration")) {
