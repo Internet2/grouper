@@ -16,6 +16,8 @@
 package edu.internet2.middleware.grouper.ws.mcp;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -104,6 +106,14 @@ public class GrouperMcpServlet extends HttpServlet {
   private static final String MCP_PROTOCOL_VERSION = "2025-03-26";
 
   /**
+   * the protocol version which has no initialize handshake, and instead has each request carry
+   * its own protocol version and client capabilities and mirror some body fields into HTTP
+   * headers.  a request declaring this version is validated and served differently to one from
+   * a client on any of the earlier, handshake based revisions.
+   */
+  private static final String MODERN_PROTOCOL_VERSION = "2026-07-28";
+
+  /**
    * protocol versions this server accepts on a request, newest first.
    *
    * <p>These all establish a session with an initialize handshake and use the request and
@@ -116,7 +126,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * <p>{@link #MCP_PROTOCOL_VERSION} remains the version answered to initialize.</p>
    */
   private static final String[] SUPPORTED_PROTOCOL_VERSIONS = new String[] {
-      "2025-11-25", "2025-06-18", MCP_PROTOCOL_VERSION};
+      MODERN_PROTOCOL_VERSION, "2025-11-25", "2025-06-18", MCP_PROTOCOL_VERSION};
 
   private static final String SERVER_NAME = "grouper-mcp-server";
 
@@ -138,6 +148,25 @@ public class GrouperMcpServlet extends HttpServlet {
    * 2026-07-28 since there is no longer an initialize handshake to carry it
    */
   private static final String META_SERVER_INFO = "io.modelcontextprotocol/serverInfo";
+
+  /**
+   * key in a request's _meta carrying what the client supports.  required on every request in
+   * spec version 2026-07-28, since without a handshake there is nowhere else to declare it
+   */
+  private static final String META_CLIENT_CAPABILITIES =
+      "io.modelcontextprotocol/clientCapabilities";
+
+  /** HTTP header mirroring the method of the request body */
+  private static final String MCP_METHOD_HEADER = "Mcp-Method";
+
+  /** HTTP header mirroring the name of the tool, resource or prompt the request is for */
+  private static final String MCP_NAME_HEADER = "Mcp-Name";
+
+  /** marks the start of a header value which is base64 encoded rather than plain */
+  private static final String BASE64_SENTINEL_PREFIX = "=?base64?";
+
+  /** marks the end of a header value which is base64 encoded rather than plain */
+  private static final String BASE64_SENTINEL_SUFFIX = "?=";
 
   /** JSON-RPC error code for headers which do not agree with the request body */
   private static final int ERROR_HEADER_MISMATCH = -32020;
@@ -219,6 +248,15 @@ public class GrouperMcpServlet extends HttpServlet {
       return;
     }
 
+    // a request which declares spec version 2026-07-28 has to carry what that revision
+    // requires.  a request from any of the handshake based revisions carries none of it and is
+    // served the way this server has always served requests
+    boolean modernRequest = isModernProtocolVersion(declaredProtocolVersion(request, params));
+
+    if (modernRequest && rejectIfModernRequestInvalid(request, response, method, params, id)) {
+      return;
+    }
+
     // The Mcp-Session-Id header is optional.  Clients on spec version 2025-03-26 send it back
     // on every request after initialize, and this server still mints one for them.  Sessions
     // were removed from the Streamable HTTP transport in spec version 2026-07-28, so clients on
@@ -254,7 +292,14 @@ public class GrouperMcpServlet extends HttpServlet {
           result = objectMapper.createObjectNode();
           break;
         default:
-          sendJsonRpcError(response, id, -32601, "Method not found: " + method);
+          // Spec version 2026-07-28 answers an unknown method with HTTP 404, where the earlier
+          // revisions use HTTP 200.  The status on its own is ambiguous, since a server which
+          // hosts no MCP endpoint at this path would answer 404 as well.  What tells the two
+          // apart is the JSON-RPC error body sent below: a client which is working out what it
+          // is talking to reads a 404 carrying one as "this is an MCP server which does not
+          // implement that method", and a 404 without one as "this is not an MCP endpoint".
+          sendJsonRpcError(response, id, -32601, "Method not found: " + method, null,
+              modernRequest ? HttpServletResponse.SC_NOT_FOUND : HttpServletResponse.SC_OK);
           return;
       }
     } catch (Exception e) {
@@ -721,6 +766,166 @@ public class GrouperMcpServlet extends HttpServlet {
   }
 
   /**
+   * validate a request from a client on spec version 2026-07-28, and reject it if it does not
+   * carry what that revision requires.
+   *
+   * <p>Only called for a request which declares that version. Clients on the handshake based
+   * revisions send none of this and must not be held to it.</p>
+   *
+   * <p>Two things are checked. The request must declare what the client supports, since with no
+   * handshake there is nowhere else it could have been said. And the HTTP headers which mirror
+   * fields of the request body must agree with the body, so that something in the network
+   * routing on a header cannot disagree with what this server acts on.</p>
+   *
+   * @param request the HTTP request
+   * @param response the HTTP response
+   * @param method the JSON-RPC method
+   * @param params the JSON-RPC params, may be null
+   * @param id the JSON-RPC id of the request
+   * @return true if the request was rejected and a response has already been sent
+   * @throws IOException if the response cannot be written
+   */
+  private boolean rejectIfModernRequestInvalid(HttpServletRequest request,
+      HttpServletResponse response, String method, JsonNode params, JsonNode id)
+      throws IOException {
+
+    JsonNode metaNode = params == null ? null : params.get("_meta");
+
+    if (metaNode == null || !metaNode.has(META_CLIENT_CAPABILITIES)) {
+      sendJsonRpcError(response, id, -32602,
+          "Invalid params: " + META_CLIENT_CAPABILITIES + " is required in _meta",
+          null, HttpServletResponse.SC_BAD_REQUEST);
+      return true;
+    }
+
+    String methodHeader = StringUtils.trimToNull(request.getHeader(MCP_METHOD_HEADER));
+
+    if (methodHeader == null) {
+      return rejectHeaderMismatch(response, id,
+          "required header " + MCP_METHOD_HEADER + " is missing");
+    }
+
+    if (!methodHeader.equals(method)) {
+      return rejectHeaderMismatch(response, id, MCP_METHOD_HEADER + " header value '"
+          + methodHeader + "' does not match body value '" + method + "'");
+    }
+
+    // the name header is only required for the methods which name what they act on, and of
+    // those this server only implements tools/call
+    if ("tools/call".equals(method)) {
+
+      String nameHeader = decodeHeaderValue(
+          StringUtils.trimToNull(request.getHeader(MCP_NAME_HEADER)));
+
+      String nameFromBody = params != null && params.has("name")
+          ? params.get("name").asText() : null;
+
+      if (nameHeader == null) {
+        return rejectHeaderMismatch(response, id,
+            "required header " + MCP_NAME_HEADER + " is missing");
+      }
+
+      if (!nameHeader.equals(nameFromBody)) {
+        return rejectHeaderMismatch(response, id, MCP_NAME_HEADER + " header value '"
+            + nameHeader + "' does not match body value '" + nameFromBody + "'");
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * reject a request whose headers do not agree with its body
+   * @param response the HTTP response
+   * @param id the JSON-RPC id of the request
+   * @param detail what did not agree
+   * @return true always, so callers can return this directly
+   * @throws IOException if the response cannot be written
+   */
+  private boolean rejectHeaderMismatch(HttpServletResponse response, JsonNode id, String detail)
+      throws IOException {
+    sendJsonRpcError(response, id, ERROR_HEADER_MISMATCH, "Header mismatch: " + detail,
+        null, HttpServletResponse.SC_BAD_REQUEST);
+    return true;
+  }
+
+  /**
+   * decode a header value which the client base64 encoded because it could not be sent as
+   * plain ASCII, for example a tool name with an accent in it.  a value which is not marked as
+   * encoded is returned as it is.
+   * @param headerValue the raw header value, may be null
+   * @return the decoded value, or the original if it is not encoded or cannot be decoded
+   */
+  private static String decodeHeaderValue(String headerValue) {
+
+    if (headerValue == null || !headerValue.startsWith(BASE64_SENTINEL_PREFIX)
+        || !headerValue.endsWith(BASE64_SENTINEL_SUFFIX)
+        || headerValue.length() < BASE64_SENTINEL_PREFIX.length()
+            + BASE64_SENTINEL_SUFFIX.length()) {
+      return headerValue;
+    }
+
+    String encoded = headerValue.substring(BASE64_SENTINEL_PREFIX.length(),
+        headerValue.length() - BASE64_SENTINEL_SUFFIX.length());
+
+    try {
+      return new String(Base64.getDecoder().decode(encoded), StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      // leave it as it was, it will not match the body and the request is rejected
+      LOG.warn("Could not base64 decode an MCP header value: " + headerValue);
+      return headerValue;
+    }
+  }
+
+  /**
+   * the protocol version from the HTTP header, null if the client did not send one
+   * @param request the HTTP request
+   * @return the version or null
+   */
+  private static String protocolVersionFromHeader(HttpServletRequest request) {
+    return StringUtils.trimToNull(request.getHeader(PROTOCOL_VERSION_HEADER));
+  }
+
+  /**
+   * the protocol version from the request body's _meta, null if the client did not send one
+   * @param params the JSON-RPC params, may be null
+   * @return the version or null
+   */
+  private static String protocolVersionFromMeta(JsonNode params) {
+    if (params == null || !params.has("_meta")) {
+      return null;
+    }
+    JsonNode metaNode = params.get("_meta");
+    if (metaNode == null || !metaNode.has(META_PROTOCOL_VERSION)) {
+      return null;
+    }
+    return StringUtils.trimToNull(metaNode.get(META_PROTOCOL_VERSION).asText());
+  }
+
+  /**
+   * the protocol version a request declares, preferring the body since that is where spec
+   * version 2026-07-28 puts it
+   * @param request the HTTP request
+   * @param params the JSON-RPC params, may be null
+   * @return the version, or null if the request declares none
+   */
+  private static String declaredProtocolVersion(HttpServletRequest request, JsonNode params) {
+    String versionFromBody = protocolVersionFromMeta(params);
+    return versionFromBody != null ? versionFromBody : protocolVersionFromHeader(request);
+  }
+
+  /**
+   * check if a request is from a client on the revision which carries per-request metadata and
+   * mirrors body fields into HTTP headers.  requests from the earlier, handshake based
+   * revisions must not be held to those rules, since their clients do not send any of it.
+   * @param protocolVersion the version the request declares, may be null
+   * @return true if the request is on spec version 2026-07-28
+   */
+  private static boolean isModernProtocolVersion(String protocolVersion) {
+    return MODERN_PROTOCOL_VERSION.equals(protocolVersion);
+  }
+
+  /**
    * check if this server accepts requests declaring a protocol version
    * @param protocolVersion the version from the request
    * @return true if supported
@@ -771,15 +976,8 @@ public class GrouperMcpServlet extends HttpServlet {
   private boolean rejectIfProtocolVersionNotSupported(HttpServletRequest request,
       HttpServletResponse response, JsonNode params, JsonNode id) throws IOException {
 
-    String versionFromHeader = StringUtils.trimToNull(request.getHeader(PROTOCOL_VERSION_HEADER));
-
-    String versionFromBody = null;
-    if (params != null && params.has("_meta")) {
-      JsonNode metaNode = params.get("_meta");
-      if (metaNode != null && metaNode.has(META_PROTOCOL_VERSION)) {
-        versionFromBody = StringUtils.trimToNull(metaNode.get(META_PROTOCOL_VERSION).asText());
-      }
-    }
+    String versionFromHeader = protocolVersionFromHeader(request);
+    String versionFromBody = protocolVersionFromMeta(params);
 
     // neither present, this is a client on spec version 2025-03-26
     if (versionFromHeader == null && versionFromBody == null) {
