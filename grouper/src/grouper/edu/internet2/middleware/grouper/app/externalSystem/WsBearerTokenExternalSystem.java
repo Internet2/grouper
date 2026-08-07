@@ -122,8 +122,16 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
 
     String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
     int expiresInSeconds = Math.max(0, (Integer) accessTokenAndExpiry[1] - 5); // subtracting 5 just in case if there are network delays
+    // ExpirableCache time-to-live is in whole minutes.  A short-lived token (e.g. a Jamf API-client
+    // token whose lifetime is under ~60s) truncates to 0 here, and ExpirableCache.put throws
+    // "Time to live in minutes must be greater than 0" -- which fails the External System Test button
+    // and every provisioner call even though the token grant itself succeeded.  Only cache when the
+    // token lives at least a minute; for a sub-minute token, skip the cache and fetch a fresh token
+    // each call (caching it for a full minute would risk serving it after it has already expired).
     int timeToLive = expiresInSeconds/60;
-    configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), timeToLive);
+    if (timeToLive > 0) {
+      configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), timeToLive);
+    }
 
     return accessToken;
   }
