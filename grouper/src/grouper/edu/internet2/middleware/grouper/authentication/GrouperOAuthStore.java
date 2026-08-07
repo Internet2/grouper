@@ -15,7 +15,11 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.authentication;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -269,7 +273,191 @@ public class GrouperOAuthStore {
           + "clients per RFC 9207.");
     }
 
+    warnIfNotSecurelyReachable(issuerIdentifier, "grouper.ws.url");
+
     return issuerIdentifier;
+  }
+
+  /** property names already warned about for not being https, so each is said once */
+  private static final Set<String> loggedNonHttpsProperties =
+      Collections.synchronizedSet(new HashSet<String>());
+
+  /**
+   * warn once when a URL this server publishes as an OAuth endpoint is not one which can be
+   * reached securely.
+   *
+   * <p>OAuth 2.1 requires every authorization server endpoint to be served over HTTPS. Whether
+   * that is true is not something this code can see, since TLS is normally terminated in front
+   * of the application and what reaches it is plain HTTP either way. What it can see is the
+   * address it publishes to clients, and publishing an {@code http} address is either a server
+   * which really is unprotected or a configuration which does not describe the deployment. Both
+   * are worth saying out loud, and neither is worth refusing to start over.</p>
+   *
+   * <p>Loopback addresses are left alone. Running a development instance over plain HTTP on the
+   * machine in front of you is normal, and the redirect URI rules carve it out for the same
+   * reason.</p>
+   *
+   * @param url the configured URL, may be null
+   * @param propertyName the property it came from, used to name it in the log
+   */
+  public static void warnIfNotSecurelyReachable(String url, String propertyName) {
+
+    // said once, and once said there is nothing more to work out.  this sits ahead of the
+    // checks below because retrieveIssuerIdentifier is called while verifying the token on
+    // every request, and there is no reason to parse the same URL again on each of them
+    if (loggedNonHttpsProperties.contains(propertyName)) {
+      return;
+    }
+
+    if (url == null || url.toLowerCase().startsWith("https://") || isLoopbackUrl(url)) {
+      return;
+    }
+
+    if (loggedNonHttpsProperties.add(propertyName)) {
+      LOG.warn(propertyName + " is '" + url + "', which is not https, so the OAuth endpoints "
+          + "this server publishes are advertised as reachable without TLS.  Access tokens are "
+          + "bearer tokens and anyone who sees one can use it, so configure this as the https "
+          + "address clients actually reach.");
+    }
+  }
+
+  /**
+   * whether an authorization code may be sent to this redirect URI over the network it names.
+   *
+   * <p>https always may. http may only when the address is the machine the client is running
+   * on, where nothing leaves that machine. Anything else, including a URI which cannot be
+   * parsed or names no host at all, may not.</p>
+   *
+   * @param redirectUri the redirect URI, may be null
+   * @return true if the URI is https or loopback
+   */
+  private static boolean isRedirectUriSecurelyReachable(String redirectUri) {
+
+    String trimmedRedirectUri = StringUtils.trimToNull(redirectUri);
+
+    if (trimmedRedirectUri == null) {
+      return false;
+    }
+
+    URI uri;
+
+    try {
+      uri = new URI(trimmedRedirectUri);
+    } catch (URISyntaxException use) {
+      return false;
+    }
+
+    String scheme = uri.getScheme();
+
+    // RFC 6749 section 3.1.2 wants an absolute URI, so a scheme and a host, and no fragment.
+    // These are checked on the parsed URI rather than by looking at how the text starts, so
+    // that something like "https://#x" or a URI with no host at all cannot get through on the
+    // strength of its first few characters.
+    if (scheme == null || uri.getHost() == null || uri.getFragment() != null) {
+      return false;
+    }
+
+    if ("https".equalsIgnoreCase(scheme)) {
+      return true;
+    }
+
+    // http only when it does not leave the machine.  Any other scheme is refused, which
+    // includes the private use schemes RFC 8252 allows a native application to register with
+    // its operating system, such as com.example.app:/callback.  Those are valid OAuth, but the
+    // MCP rule quoted above names only localhost and https, and this follows it.  A deployer
+    // cannot re-admit them through the configured patterns, since this is checked first.
+    if ("http".equalsIgnoreCase(scheme)) {
+      return isLoopbackHost(uri.getHost());
+    }
+
+    return false;
+  }
+
+  /**
+   * whether a URL names the machine it is running on, which is where plain HTTP is acceptable
+   * @param url the URL, not null
+   * @return true if the host is a loopback address
+   */
+  private static boolean isLoopbackUrl(String url) {
+
+    try {
+      return isLoopbackHost(new URI(url).getHost());
+    } catch (URISyntaxException use) {
+      return false;
+    }
+  }
+
+  /**
+   * whether a host names the machine it is running on.
+   *
+   * <p>Decided from the text of the host alone, with no name lookup. A lookup would answer a
+   * different question, namely where a name points at the moment it is asked, and the answer
+   * could differ between the moment a redirect URI is registered and the moment an
+   * authorization code is sent to it.</p>
+   *
+   * @param host the host from a URI, may be null
+   * @return true if it is a loopback address
+   */
+  private static boolean isLoopbackHost(String host) {
+
+    if (host == null) {
+      return false;
+    }
+
+    String lowerHost = host.toLowerCase();
+
+    if ("localhost".equals(lowerHost) || "::1".equals(lowerHost) || "[::1]".equals(lowerHost)) {
+      return true;
+    }
+
+    return isLoopbackIpv4Literal(lowerHost);
+  }
+
+  /**
+   * whether a host is written as an IPv4 address in 127.0.0.0/8.
+   *
+   * <p>Each part has to be a run of digits in range, so that a name which merely begins the
+   * same way is not taken for an address. {@code 127.attacker.example} is a name somebody else
+   * controls, and the only thing it has in common with a loopback address is how it starts.</p>
+   *
+   * @param host the lower cased host, not null
+   * @return true if the host is an IPv4 literal whose first part is 127
+   */
+  private static boolean isLoopbackIpv4Literal(String host) {
+
+    String[] parts = host.split("\\.", -1);
+
+    if (parts.length != 4) {
+      return false;
+    }
+
+    for (int i = 0; i < parts.length; i++) {
+
+      String part = parts[i];
+
+      if (part.length() == 0 || part.length() > 3) {
+        return false;
+      }
+
+      for (int j = 0; j < part.length(); j++) {
+        char partChar = part.charAt(j);
+        if (partChar < '0' || partChar > '9') {
+          return false;
+        }
+      }
+
+      int partValue = Integer.parseInt(part);
+
+      if (partValue > 255) {
+        return false;
+      }
+
+      if (i == 0 && partValue != 127) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /** whether the warning about a missing MCP resource identifier has been logged */
@@ -325,6 +513,22 @@ public class GrouperOAuthStore {
    * @return null if the URI is allowed, or a descriptive error message if not
    */
   public static String validateRedirectUriAllowed(String redirectUri) {
+
+    // The MCP specification says every redirect URI must be either localhost or use https.
+    // This is checked before the configured patterns rather than left to them, because it is a
+    // floor the authorization server owes whatever a deployer writes: a pattern which let an
+    // http address through would have this server send an authorization code across the network
+    // in the clear.  Note this is narrower than OAuth on its own, which also lets a native
+    // application use a private use scheme it has registered with its operating system.
+    if (!isRedirectUriSecurelyReachable(redirectUri)) {
+      LOG.warn("OAuth redirect URI rejected, '" + redirectUri + "' is not an https URL and is "
+          + "not http with a loopback host.  MCP allows only those two, since an authorization "
+          + "code is sent to this address.  Private use schemes such as com.example.app:/cb are "
+          + "deliberately not accepted, and cannot be allowed through "
+          + "grouper.oauth.redrectUri.<configId>.regex.");
+      return "redirect_uri '" + redirectUri + "' must be an https URL, or http with a loopback "
+          + "host such as 127.0.0.1";
+    }
 
     Map<String, String> regexMap = GrouperConfig.retrieveConfig()
         .propertiesMap(REDIRECT_URI_CONFIG_PATTERN);

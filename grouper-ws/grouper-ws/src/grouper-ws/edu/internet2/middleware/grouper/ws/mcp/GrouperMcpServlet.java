@@ -311,7 +311,7 @@ public class GrouperMcpServlet extends HttpServlet {
     // Only a request which declares the modern revision is turned away.  The same call without
     // that metadata is still served the handshake, which is what a client on any of the earlier
     // revisions opens with and depends on.
-    if (modernRequest && isLegacyLifecycleMethod(method)) {
+    if (modernRequest && isMethodRemovedInModernRevision(method)) {
       sendJsonRpcError(response, id, ERROR_METHOD_NOT_FOUND,
           "Method not found: " + method + " was removed in protocol version "
           + MODERN_PROTOCOL_VERSION, null, HttpServletResponse.SC_NOT_FOUND);
@@ -1209,13 +1209,19 @@ public class GrouperMcpServlet extends HttpServlet {
   }
 
   /**
-   * check if a method is part of the initialize handshake, which spec version 2026-07-28
-   * removed along with the sessions it set up
+   * check if a method is one which spec version 2026-07-28 removed, and so exists only in the
+   * earlier revisions.
+   *
+   * <p>{@code initialize} and {@code notifications/initialized} went with the handshake and the
+   * sessions it set up. {@code ping} went with them, having no purpose once a request no longer
+   * depends on a connection having been set up beforehand.</p>
+   *
    * @param method the JSON-RPC method
-   * @return true if the method only exists in the handshake based revisions
+   * @return true if the method only exists in the earlier revisions
    */
-  private static boolean isLegacyLifecycleMethod(String method) {
-    return "initialize".equals(method) || "notifications/initialized".equals(method);
+  private static boolean isMethodRemovedInModernRevision(String method) {
+    return "initialize".equals(method) || "notifications/initialized".equals(method)
+        || "ping".equals(method);
   }
 
   /**
@@ -1403,6 +1409,17 @@ public class GrouperMcpServlet extends HttpServlet {
    * @param authUser the authenticated user
    */
   private ObjectNode handleToolsList(JsonNode params, GrouperMcpAuthUser authUser) {
+
+    // This server answers tools/list in one page and never sends a nextCursor, so there is no
+    // cursor it could have handed out and any cursor which arrives is one it cannot resume
+    // from.  Returning the whole list regardless would look to the client like the cursor had
+    // been honoured and would have it read the first page a second time.
+    JsonNode cursorNode = params == null ? null : params.get("cursor");
+    if (cursorNode != null && !cursorNode.isNull()) {
+      throw new GrouperMcpProtocolException(ERROR_INVALID_PARAMS,
+          "Invalid params: cursor is not one this server issued");
+    }
+
     ObjectNode result = objectMapper.createObjectNode();
     ArrayNode toolsArray = objectMapper.createArrayNode();
 

@@ -68,6 +68,7 @@ public class GrouperMcpWellKnownServlet extends HttpServlet {
 
       // authorization endpoint is in the Grouper UI (user authenticates and sees consent page there)
       String uiUrl = GrouperConfig.getGrouperUiUrl(false);
+      GrouperOAuthStore.warnIfNotSecurelyReachable(uiUrl, "grouper.ui.url");
       if (StringUtils.isBlank(uiUrl)) {
         // fallback: assume UI is at same context path
         uiUrl = baseUrl + "/";
