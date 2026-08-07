@@ -16,6 +16,8 @@
 package edu.internet2.middleware.grouper.ws.mcp;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -674,6 +676,11 @@ public class GrouperMcpServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     try {
+      // the transport requires this on every connection, not only the ones which carry a body
+      if (rejectIfOriginNotAllowed(request, response)) {
+        return;
+      }
+
       String pathInfo = request.getPathInfo();
       // MCP clients may request well-known metadata under the MCP endpoint path
       if (pathInfo != null && pathInfo.contains(".well-known")) {
@@ -694,6 +701,11 @@ public class GrouperMcpServlet extends HttpServlet {
   protected void doDelete(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     try {
+      // the transport requires this on every connection, not only the ones which carry a body
+      if (rejectIfOriginNotAllowed(request, response)) {
+        return;
+      }
+
       String sessionId = request.getHeader(SESSION_ID_HEADER);
       if (StringUtils.isNotBlank(sessionId)) {
         LOG.info("MCP session terminated: " + sessionId);
@@ -715,7 +727,9 @@ public class GrouperMcpServlet extends HttpServlet {
    *
    * <p>Only a browser sends an Origin header, so a request without one, such as from a command
    * line client or another server, is not what this protects against and is allowed. A request
-   * whose Origin is this server itself is also allowed, since that is not cross origin.</p>
+   * whose Origin is this server's own configured origin is also allowed, since that is not
+   * cross origin. See {@link #configuredOrigin()} for why that comparison cannot be made
+   * against anything taken from the request.</p>
    *
    * <p>Any other origin must match a configured
    * {@code grouper.mcp.allowedOrigin.<configId>.regex} pattern. If no patterns are configured
@@ -738,7 +752,8 @@ public class GrouperMcpServlet extends HttpServlet {
     }
 
     // the page was served by this server, so this is not cross origin
-    if (origin.equals(requestOrigin(request))) {
+    String configuredOrigin = configuredOrigin();
+    if (configuredOrigin != null && configuredOrigin.equalsIgnoreCase(origin)) {
       return false;
     }
 
@@ -769,23 +784,67 @@ public class GrouperMcpServlet extends HttpServlet {
     return true;
   }
 
+  /** whether the warning about not being able to tell which origin is this server's has been logged */
+  private static boolean loggedMissingConfiguredOrigin = false;
+
   /**
-   * the origin of this server as a browser would compute it for the request, that is the
-   * scheme, host and port, with the port left off when it is the default for the scheme
-   * @param request the HTTP request
-   * @return the origin
+   * the origin of this server taken from {@code grouper.ws.url}, that is its scheme, host and
+   * port, with the port left off when it is the default for the scheme.
+   *
+   * <p>This is deliberately read from configuration and not worked out from the request. What
+   * the Origin check defends against is a page which made a name it controls resolve to this
+   * server's address, and in a request from such a page the Host header carries that attacker
+   * chosen name. Deciding which origin is this server's from the request would therefore be
+   * comparing the attacker's Origin against the attacker's own Host, which always agrees, and
+   * the check would pass in exactly the case it exists to catch.</p>
+   *
+   * <p>When {@code grouper.ws.url} is not set there is no origin which can be trusted to be
+   * this server's, so no request is treated as same origin and every browser request has to
+   * match a configured allowed origin pattern instead. Clients which are not browsers send no
+   * Origin at all and are not affected either way.</p>
+   *
+   * @return the origin, or null if it is not configured or cannot be parsed
    */
-  private static String requestOrigin(HttpServletRequest request) {
+  private static String configuredOrigin() {
 
-    StringBuilder origin = new StringBuilder();
-    origin.append(request.getScheme()).append("://").append(request.getServerName());
+    String wsUrl = StringUtils.trimToNull(GrouperConfig.getGrouperWsUrl(false));
 
-    if (("http".equals(request.getScheme()) && request.getServerPort() != 80)
-        || ("https".equals(request.getScheme()) && request.getServerPort() != 443)) {
-      origin.append(":").append(request.getServerPort());
+    if (wsUrl == null) {
+      if (!loggedMissingConfiguredOrigin) {
+        loggedMissingConfiguredOrigin = true;
+        LOG.warn("grouper.ws.url is not configured, so MCP cannot tell which Origin is its own "
+            + "and refuses every browser request which does not match a "
+            + "grouper.mcp.allowedOrigin.<configId>.regex pattern.  Clients which are not "
+            + "browsers send no Origin and are unaffected.");
+      }
+      return null;
     }
 
-    return origin.toString();
+    try {
+      URI wsUri = new URI(wsUrl);
+      String scheme = wsUri.getScheme();
+      String host = wsUri.getHost();
+
+      if (scheme == null || host == null) {
+        LOG.error("grouper.ws.url is not a URL an Origin can be taken from: " + wsUrl);
+        return null;
+      }
+
+      StringBuilder origin = new StringBuilder();
+      origin.append(scheme).append("://").append(host);
+
+      int port = wsUri.getPort();
+      if (port != -1 && !("http".equalsIgnoreCase(scheme) && port == 80)
+          && !("https".equalsIgnoreCase(scheme) && port == 443)) {
+        origin.append(":").append(port);
+      }
+
+      return origin.toString();
+
+    } catch (URISyntaxException use) {
+      LOG.error("grouper.ws.url cannot be parsed as a URL: " + wsUrl, use);
+      return null;
+    }
   }
 
   /**
