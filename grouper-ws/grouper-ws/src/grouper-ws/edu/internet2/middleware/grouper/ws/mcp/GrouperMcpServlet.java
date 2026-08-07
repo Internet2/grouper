@@ -174,6 +174,9 @@ public class GrouperMcpServlet extends HttpServlet {
   /** JSON-RPC error code for a protocol version this server does not implement */
   private static final int ERROR_UNSUPPORTED_PROTOCOL_VERSION = -32022;
 
+  /** JSON-RPC error code for params which are not shaped the way the method requires */
+  private static final int ERROR_INVALID_PARAMS = -32602;
+
   /** HTTP header a browser sends identifying the page a request came from */
   private static final String ORIGIN_HEADER = "Origin";
 
@@ -772,10 +775,11 @@ public class GrouperMcpServlet extends HttpServlet {
    * <p>Only called for a request which declares that version. Clients on the handshake based
    * revisions send none of this and must not be held to it.</p>
    *
-   * <p>Two things are checked. The request must declare what the client supports, since with no
-   * handshake there is nowhere else it could have been said. And the HTTP headers which mirror
-   * fields of the request body must agree with the body, so that something in the network
-   * routing on a header cannot disagree with what this server acts on.</p>
+   * <p>Two things are checked. The request must declare what the client supports, as an object,
+   * since with no handshake there is nowhere else it could have been said. And the HTTP headers
+   * which mirror fields of the request body must all be present and must agree with the body,
+   * so that something in the network routing on a header cannot disagree with what this server
+   * acts on.</p>
    *
    * @param request the HTTP request
    * @param response the HTTP response
@@ -791,11 +795,36 @@ public class GrouperMcpServlet extends HttpServlet {
 
     JsonNode metaNode = params == null ? null : params.get("_meta");
 
-    if (metaNode == null || !metaNode.has(META_CLIENT_CAPABILITIES)) {
-      sendJsonRpcError(response, id, -32602,
+    JsonNode clientCapabilitiesNode = metaNode == null ? null
+        : metaNode.get(META_CLIENT_CAPABILITIES);
+
+    // a field explicitly set to null says no more than leaving it out does, so both are treated
+    // as not declared.  note this cannot be written with has(), which counts a field set to
+    // null as present
+    if (clientCapabilitiesNode == null || clientCapabilitiesNode.isNull()) {
+      sendJsonRpcError(response, id, ERROR_INVALID_PARAMS,
           "Invalid params: " + META_CLIENT_CAPABILITIES + " is required in _meta",
           null, HttpServletResponse.SC_BAD_REQUEST);
       return true;
+    }
+
+    // what the client supports is a set of named capabilities, so a string, a number or an
+    // array cannot be read as one however well formed it is on its own
+    if (!clientCapabilitiesNode.isObject()) {
+      sendJsonRpcError(response, id, ERROR_INVALID_PARAMS,
+          "Invalid params: " + META_CLIENT_CAPABILITIES + " in _meta must be an object",
+          null, HttpServletResponse.SC_BAD_REQUEST);
+      return true;
+    }
+
+    // Spec version 2026-07-28 requires this header on every request.  A request carrying no
+    // version at all is served as spec version 2025-03-26, which had no such header, but this
+    // request declared 2026-07-28 in its body and so is held to that revision's rules.  Any
+    // disagreement between the header and the body was already caught before this point, so
+    // what is left to check here is the header being absent.
+    if (protocolVersionFromHeader(request) == null) {
+      return rejectHeaderMismatch(response, id,
+          "required header " + PROTOCOL_VERSION_HEADER + " is missing");
     }
 
     String methodHeader = StringUtils.trimToNull(request.getHeader(MCP_METHOD_HEADER));
