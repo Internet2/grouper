@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.app.subectSource.DataFieldSubjectSourceConfiguration;
 import edu.internet2.middleware.grouper.app.subectSource.SubjectSourceConfiguration;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -922,6 +923,9 @@ public class UiV2SubjectSource {
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("subjectSourceConfigAddEditSuccess")));
+      
+      appendDataProviderNotConfiguredWarning(subjectSourceConfiguration, guiResponseJs);
+      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -1078,6 +1082,8 @@ public class UiV2SubjectSource {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("subjectSourceConfigAddEditSuccess")));
       
+      appendDataProviderNotConfiguredWarning(subjectSourceConfiguration, guiResponseJs);
+      
       if (actionsPerformed.size() > 0) {
 
         for (String actionPerformed: actionsPerformed) {
@@ -1087,6 +1093,34 @@ public class UiV2SubjectSource {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+  
+  /**
+   * an entity field subject source is only populated if some data provider is marked as a subject source and
+   * points at this source.  that is not required to save the config, so if it is not setup, just tell the user
+   * what to do
+   * @param subjectSourceConfiguration
+   * @param guiResponseJs
+   */
+  private static void appendDataProviderNotConfiguredWarning(SubjectSourceConfiguration subjectSourceConfiguration, 
+      GuiResponseJs guiResponseJs) {
+    
+    if (!(subjectSourceConfiguration instanceof DataFieldSubjectSourceConfiguration)) {
+      return;
+    }
+    
+    GrouperConfigurationModuleAttribute idAttribute = subjectSourceConfiguration.retrieveAttributes().get("id");
+    
+    String subjectSourceId = idAttribute == null ? null : idAttribute.getValueOrExpressionEvaluationValue();
+    
+    if (DataFieldSubjectSourceConfiguration.hasDataProviderForSubjectSource(subjectSourceId)) {
+      return;
+    }
+    
+    String message = TextContainer.retrieveFromRequest().getText().get("subjectSourceConfigDataProviderNotConfigured");
+    message = StringUtils.replace(message, "$$subjectSourceId$$", GrouperUtil.xmlEscape(GrouperUtil.defaultString(subjectSourceId)));
+    
+    guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.info, message));
   }
   
   /**
