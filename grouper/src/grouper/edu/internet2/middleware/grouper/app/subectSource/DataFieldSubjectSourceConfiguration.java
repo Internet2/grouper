@@ -8,8 +8,11 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
+import edu.internet2.middleware.grouper.dataField.GrouperDataProviderConfig;
 import edu.internet2.middleware.grouper.subj.GrouperDataFieldSourceAdapter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -62,6 +65,34 @@ public class DataFieldSubjectSourceConfiguration extends SubjectSourceConfigurat
     
   }
 
+  /**
+   * an entity field subject source is only populated if some data provider is marked as a subject source
+   * and points at this source.  this is not required to save the config, but the user should be told about it
+   * @param subjectSourceId the source id (not the config id) of this subject source
+   * @return true if some data provider config has subjectSource = true and subjectSourceId = the source id
+   */
+  public static boolean hasDataProviderForSubjectSource(String subjectSourceId) {
+    
+    if (StringUtils.isBlank(subjectSourceId)) {
+      return false;
+    }
+    
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+    
+    for (String dataProviderConfigId : GrouperUtil.nonNull(grouperConfig.propertyConfigIds(GrouperDataEngine.dataProviderPattern))) {
+      
+      GrouperDataProviderConfig grouperDataProviderConfig = new GrouperDataProviderConfig();
+      grouperDataProviderConfig.readFromConfig(dataProviderConfigId);
+      
+      if (grouperDataProviderConfig.isSubjectSource() 
+          && StringUtils.equals(subjectSourceId, grouperDataProviderConfig.getSubjectSourceId())) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
   @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.SUBJECT_PROPERTIES;
