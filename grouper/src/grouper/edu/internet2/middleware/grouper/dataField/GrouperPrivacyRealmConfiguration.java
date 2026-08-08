@@ -16,6 +16,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperPrivacyRealmConfiguration extends GrouperConfigurationModuleBase {
   
   @Override
+  public String getConfigIdElementIdHandle() {
+    return "#privacyRealmConfigId";
+  }
+  
+  @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_PROPERTIES;
   }

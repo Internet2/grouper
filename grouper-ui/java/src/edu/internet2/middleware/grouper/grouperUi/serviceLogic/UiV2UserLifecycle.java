@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -146,6 +147,12 @@ public class UiV2UserLifecycle {
               "#userLifecycleEventConfigId",
               TextContainer.retrieveFromRequest().getText().get("dataFieldCreateErrorConfigIdRequired")));
           return;
+        }
+        
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#userLifecycleEventConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
         }
         
         eventConfiguration.setConfigId(configId);
@@ -475,6 +482,12 @@ public class UiV2UserLifecycle {
           return;
         }
         
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#userLifecycleActionConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
+        }
+        
         actionConfiguration.setConfigId(configId);
         actionConfiguration.populateConfigurationValuesFromUi(request);
         
@@ -802,6 +815,12 @@ public class UiV2UserLifecycle {
           return;
         }
         
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#userLifecyclePolicyConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
+        }
+        
         policyConfiguration.setConfigId(configId);
         policyConfiguration.populateConfigurationValuesFromUi(request);
         
@@ -1127,6 +1146,12 @@ public class UiV2UserLifecycle {
               "#userLifecyclePolicyPartConfigId",
               TextContainer.retrieveFromRequest().getText().get("dataFieldCreateErrorConfigIdRequired")));
           return;
+        }
+        
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#userLifecyclePolicyPartConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
         }
         
         policyConfiguration.setConfigId(configId);

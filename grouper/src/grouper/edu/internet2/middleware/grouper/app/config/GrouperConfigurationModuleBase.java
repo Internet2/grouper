@@ -345,6 +345,15 @@ public abstract class GrouperConfigurationModuleBase {
   }
 
   /**
+   * jquery handle of the config id input on the add/edit screen.  Defaults to #configId, override if the
+   * jsp for this configuration type uses a different element id
+   * @return the element id handle
+   */
+  public String getConfigIdElementIdHandle() {
+    return "#configId";
+  }
+
+  /**
    * validations to run before saving values into db
    * @param isInsert
    * @param errorsToDisplay
@@ -354,19 +363,29 @@ public abstract class GrouperConfigurationModuleBase {
     
     if (isInsert) {
       if (this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
-        validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdUsed"));
+        validationErrorsToDisplay.put(this.getConfigIdElementIdHandle(), GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdUsed"));
       }
 
       if (!isMultiple()) {
-        validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationNotMultiple"));
+        validationErrorsToDisplay.put(this.getConfigIdElementIdHandle(), GrouperTextContainer.textOrNull("grouperConfigurationValidationNotMultiple"));
+      }
+
+      if (StringUtils.isNotBlank(this.getConfigId()) && GrouperConfigHibernate.containsPasswordRelatedWords(this.getConfigId())) {
+        validationErrorsToDisplay.put(this.getConfigIdElementIdHandle(), GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdPasswordRelatedWords"));
       }
     }
 
     if (isMultiple()) {
       Pattern configIdPattern = Pattern.compile("^[\\w-]+$");
       if (!configIdPattern.matcher(this.getConfigId()).matches()) {
-        validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdInvalid"));
+        validationErrorsToDisplay.put(this.getConfigIdElementIdHandle(), GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdInvalid"));
       }
+    }
+
+    // if the config id itself is not valid, dont bother validating the rest of the attributes,
+    // the user needs to fix the config id first
+    if (validationErrorsToDisplay.containsKey(this.getConfigIdElementIdHandle())) {
+      return;
     }
 
 

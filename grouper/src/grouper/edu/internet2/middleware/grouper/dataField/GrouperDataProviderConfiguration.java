@@ -19,6 +19,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperDataProviderConfiguration extends GrouperConfigurationModuleBase {
   
   @Override
+  public String getConfigIdElementIdHandle() {
+    return "#dataProviderConfigId";
+  }
+  
+  @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_PROPERTIES;
   }

@@ -23,6 +23,11 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 public class GrouperDataRowConfiguration extends GrouperConfigurationModuleBase {
   
   @Override
+  public String getConfigIdElementIdHandle() {
+    return "#dataRowConfigId";
+  }
+  
+  @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_PROPERTIES;
   }

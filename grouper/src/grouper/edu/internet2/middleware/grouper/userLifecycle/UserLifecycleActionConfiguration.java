@@ -22,6 +22,11 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class UserLifecycleActionConfiguration extends GrouperConfigurationModuleBase implements OptionValueDriver {
   
+  @Override
+  public String getConfigIdElementIdHandle() {
+    return "#userLifecycleActionConfigId";
+  }
+  
   /**
    * some required config to see what the fields are
    */

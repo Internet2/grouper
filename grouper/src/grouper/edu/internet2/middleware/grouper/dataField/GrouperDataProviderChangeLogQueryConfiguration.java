@@ -11,6 +11,11 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class GrouperDataProviderChangeLogQueryConfiguration extends GrouperConfigurationModuleBase {
 
+  @Override
+  public String getConfigIdElementIdHandle() {
+    return "#dataProviderChangeLogQueryConfigId";
+  }
+
   
   @Override
   public ConfigFileName getConfigFileName() {

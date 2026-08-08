@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.app.customUi.CustomUiConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -99,6 +100,12 @@ public class UiV2CustomUiConfig {
           return;
         }
         
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(customUiConfigId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#customUiConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
+        }
+        
         customUiConfiguration.setConfigId(customUiConfigId);
         customUiConfiguration.populateConfigurationValuesFromUi(request);
         
@@ -145,6 +152,13 @@ public class UiV2CustomUiConfig {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
             "#customUiConfigId",
             TextContainer.retrieveFromRequest().getText().get("customUiCreateErrorConfigIdRequired")));
+        return;
+      }
+      
+      if (GrouperConfigHibernate.containsPasswordRelatedWords(customUiConfigId)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#customUiConfigId",
+            TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
         return;
       }
       

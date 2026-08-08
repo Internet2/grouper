@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.authentication.WsTrustedJwtConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -163,6 +164,12 @@ public class UiV2AuthenticationConfig {
               "#wsTrustedJwtConfigId",
               TextContainer.retrieveFromRequest().getText().get("wsTrustedJwtErrorConfigIdRequired")));
           return;
+        }
+        
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#configId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
         }
         
         wsTrustedJwtConfiguration.setConfigId(configId);

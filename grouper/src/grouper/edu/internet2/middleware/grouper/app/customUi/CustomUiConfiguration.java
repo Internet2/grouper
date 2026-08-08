@@ -26,6 +26,11 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
 public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
 
   @Override
+  public String getConfigIdElementIdHandle() {
+    return "#customUiConfigId";
+  }
+
+  @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_PROPERTIES;
   }
@@ -152,6 +157,10 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
       Map<String, String> validationErrorsToDisplay) {
     
     super.validatePreSave(isInsert, errorsToDisplay, validationErrorsToDisplay);
+    
+    if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+      return;
+    }
     
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
     

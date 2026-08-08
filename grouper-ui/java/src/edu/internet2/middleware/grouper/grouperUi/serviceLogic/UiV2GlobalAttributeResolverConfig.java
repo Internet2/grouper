@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.attr.resolver.GlobalAttributeResolverConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -132,6 +133,12 @@ public class UiV2GlobalAttributeResolverConfig {
               "#globalAttributeResolverConfigId",
               TextContainer.retrieveFromRequest().getText().get("globalAttributeResolverErrorConfigIdRequired")));
           return;
+        }
+        
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#globalAttributeResolverConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
         }
         
         globalAttributeResolverConfiguration.setConfigId(configId);

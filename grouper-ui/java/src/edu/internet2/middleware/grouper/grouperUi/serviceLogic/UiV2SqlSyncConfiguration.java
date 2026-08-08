@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.app.sqlSync.SqlSyncConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -94,6 +95,12 @@ public class UiV2SqlSyncConfiguration {
               "#sqlSyncConfigId",
               TextContainer.retrieveFromRequest().getText().get("sqlSyncCreateErrorConfigIdRequired")));
           return;
+        }
+        
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#sqlSyncConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
         }
         
         sqlSyncConfiguration.setConfigId(configId);
