@@ -19,6 +19,11 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
 public class GlobalAttributeResolverConfiguration extends GrouperConfigurationModuleBase {
 
   @Override
+  public String getConfigIdElementIdHandle() {
+    return "#globalAttributeResolverConfigId";
+  }
+
+  @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_PROPERTIES;
   }

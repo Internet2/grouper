@@ -72,6 +72,11 @@ import edu.internet2.middleware.subject.Subject;
 
 public abstract class ProvisioningConfiguration extends GrouperConfigurationModuleBase {
   
+  @Override
+  public String getConfigIdElementIdHandle() {
+    return "#provisionerConfigId";
+  }
+  
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(ProvisioningConfiguration.class);

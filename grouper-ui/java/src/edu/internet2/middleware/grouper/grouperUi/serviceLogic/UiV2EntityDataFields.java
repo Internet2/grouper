@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.dataField.EntityDataFieldsService;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
@@ -1470,6 +1471,12 @@ public class UiV2EntityDataFields {
           return;
         }
         
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#dataFieldConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
+        }
+        
         dataFieldConfiguration.setConfigId(configId);
         dataFieldConfiguration.populateConfigurationValuesFromUi(request);
         
@@ -1589,6 +1596,12 @@ public class UiV2EntityDataFields {
               "#privacyRealmConfigId",
               TextContainer.retrieveFromRequest().getText().get("privacyRealmCreateErrorConfigIdRequired")));
           return;
+        }
+        
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#privacyRealmConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
         }
         
         privacyRealmConfiguration.setConfigId(configId);
@@ -1713,6 +1726,12 @@ public class UiV2EntityDataFields {
           return;
         }
         
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#dataRowConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
+        }
+        
         dataRowConfiguration.setConfigId(configId);
         dataRowConfiguration.populateConfigurationValuesFromUi(request);
         
@@ -1766,6 +1785,12 @@ public class UiV2EntityDataFields {
               "#dataProviderConfigId",
               TextContainer.retrieveFromRequest().getText().get("dataProviderCreateErrorConfigIdRequired")));
           return;
+        }
+        
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#dataProviderConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
         }
         
         dataProviderConfiguration.setConfigId(configId);
@@ -1824,6 +1849,12 @@ public class UiV2EntityDataFields {
           return;
         }
         
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#dataProviderQueryConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
+        }
+        
         dataProviderQueryConfiguration.setConfigId(configId);
         dataProviderQueryConfiguration.populateConfigurationValuesFromUi(request);
         
@@ -1878,6 +1909,12 @@ public class UiV2EntityDataFields {
               "#dataProviderChangeLogQueryConfigId",
               TextContainer.retrieveFromRequest().getText().get("dataProviderChangeLogQueryCreateErrorConfigIdRequired")));
           return;
+        }
+        
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#dataProviderChangeLogQueryConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
         }
         
         dataProviderChangeLogQueryConfiguration.setConfigId(configId);

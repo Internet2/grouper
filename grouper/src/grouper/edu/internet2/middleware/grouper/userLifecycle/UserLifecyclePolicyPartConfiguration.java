@@ -13,6 +13,11 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class UserLifecyclePolicyPartConfiguration extends GrouperConfigurationModuleBase {
   
+  @Override
+  public String getConfigIdElementIdHandle() {
+    return "#userLifecyclePolicyPartConfigId";
+  }
+  
   /**
    * some required config to see what the fields are
    */

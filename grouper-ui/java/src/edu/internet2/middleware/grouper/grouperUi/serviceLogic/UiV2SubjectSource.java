@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
@@ -810,6 +811,14 @@ public class UiV2SubjectSource {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
               "#subjectSourceConfigId",
               TextContainer.retrieveFromRequest().getText().get("subjectSourceConfigCreateErrorConfigIdRequired")));
+          guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectSourceConfigType", ""));
+          return;
+        }
+        
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(subjectSourceConfigId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#subjectSourceConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
           guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectSourceConfigType", ""));
           return;
         }

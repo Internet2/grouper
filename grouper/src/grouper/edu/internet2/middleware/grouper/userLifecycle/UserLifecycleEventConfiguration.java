@@ -48,6 +48,11 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 public class UserLifecycleEventConfiguration extends GrouperConfigurationModuleBase implements OptionValueDriver {
   
   @Override
+  public String getConfigIdElementIdHandle() {
+    return "#userLifecycleEventConfigId";
+  }
+  
+  @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_PROPERTIES;
   }
@@ -114,6 +119,10 @@ public class UserLifecycleEventConfiguration extends GrouperConfigurationModuleB
   public void validatePreSave(boolean isInsert, List<String> errorsToDisplay,Map<String, String> validationErrorsToDisplay) {
     
     super.validatePreSave(isInsert, errorsToDisplay, validationErrorsToDisplay);
+    
+    if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+      return;
+    }
     
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
     
