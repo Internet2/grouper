@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfigurati
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
@@ -1115,6 +1116,14 @@ public class UiV2ProvisionerConfiguration {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
               "#provisionerConfigId",
               TextContainer.retrieveFromRequest().getText().get("provisionerConfigCreateErrorConfigIdRequired")));
+          guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("provisionerConfigType", ""));
+          return;
+        }
+        
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(provisionerConfigId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#provisionerConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
           guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("provisionerConfigType", ""));
           return;
         }

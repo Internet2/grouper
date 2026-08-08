@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -263,6 +264,12 @@ public class UiV2ExternalSystem {
               "#externalSystemConfigId",
               TextContainer.retrieveFromRequest().getText().get("grouperExternalSystemCreateErrorConfigIdGrouperCanNotBeUsed")));
           return;
+        }
+        
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(externalSystemConfigId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#externalSystemConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
         }
         
         grouperExternalSystem.setConfigId(externalSystemConfigId);

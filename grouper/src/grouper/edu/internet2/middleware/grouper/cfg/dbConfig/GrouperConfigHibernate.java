@@ -730,9 +730,8 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
     
     // look for a key with certain words inside
     if (key != null) {
-      String lowerKey = key.toLowerCase();
-  
-      if (lowerKey.contains("pass") || lowerKey.contains("secret") || lowerKey.contains("private")) {
+      
+      if (containsPasswordRelatedWords(key)) {
         return true;
       }
     
@@ -750,6 +749,14 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
       return true;
     }
     
+    return false;
+  }
+  
+  public static boolean containsPasswordRelatedWords(String key) {
+    String lowerKey = key.toLowerCase();
+    if (lowerKey.contains("pass") || lowerKey.contains("secret") || lowerKey.contains("private")) {
+      return true;
+    }
     return false;
   }
 

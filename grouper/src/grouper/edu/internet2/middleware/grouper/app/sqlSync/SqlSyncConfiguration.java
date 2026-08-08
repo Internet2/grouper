@@ -26,6 +26,11 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
 public class SqlSyncConfiguration extends GrouperConfigurationModuleBase implements OptionValueDriver {
 
   @Override
+  public String getConfigIdElementIdHandle() {
+    return "#sqlSyncConfigId";
+  }
+
+  @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_CLIENT_PROPERTIES;
   }

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -100,6 +101,12 @@ public class UiV2GshTemplateConfig {
               "#gshTemplateConfigId",
               TextContainer.retrieveFromRequest().getText().get("gshTemplateCreateErrorConfigIdRequired")));
           return;
+        }
+        
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(gshTemplateConfigId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#gshTemplateConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
         }
         
         gshTemplateConfiguration.setConfigId(gshTemplateConfigId);

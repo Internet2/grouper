@@ -8,6 +8,11 @@ import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBas
 
 public abstract class SubjectSourceConfiguration extends GrouperConfigurationModuleBase {
   
+  @Override
+  public String getConfigIdElementIdHandle() {
+    return "#subjectSourceConfigId";
+  }
+  
   public final static Set<String> sourceConfigClassNames = new LinkedHashSet<String>();
   
   static {

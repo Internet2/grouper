@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.subectSource.SubjectSourceConfiguration;
@@ -129,6 +130,14 @@ public class UiV2SubjectSource {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
               "#subjectSourceConfigId",
               TextContainer.retrieveFromRequest().getText().get("subjectSourceConfigCreateErrorConfigIdRequired")));
+          guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectSourceConfigType", ""));
+          return;
+        }
+        
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(subjectSourceConfigId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#subjectSourceConfigId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
           guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("subjectSourceConfigType", ""));
           return;
         }

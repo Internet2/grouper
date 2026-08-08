@@ -52,6 +52,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
@@ -576,6 +577,12 @@ public class UiV2Admin extends UiServiceLogicBase {
               "#daemonConfigId",
               TextContainer.retrieveFromRequest().getText().get("grouperDaemonConfigCreateErrorConfigIdRequired")));
           return;
+        }
+
+        if (GrouperConfigHibernate.containsPasswordRelatedWords(daemonConfigId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#configId",
+              TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdPasswordRelatedWords")));
         }
 
         Class<GrouperDaemonConfiguration> klass = (Class<GrouperDaemonConfiguration>) GrouperUtil.forName(daemonConfigType);
