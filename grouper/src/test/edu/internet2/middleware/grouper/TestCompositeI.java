@@ -1720,8 +1720,8 @@ public class TestCompositeI extends GrouperTest {
     }
   } // public void testAddUnionWithNoChildrenAndNoParents()
 
-  public void testFailToAddCompositeMemberWhenHasMember() {
-    LOG.info("testFailToAddCompositeMemberWhenHasMember");
+  public void testAddCompositeMemberWhenHasMemberConverts() {
+    LOG.info("testAddCompositeMemberWhenHasMemberConverts");
     try {
       runCompositeMembershipChangeLogConsumer();
 
@@ -1733,12 +1733,17 @@ public class TestCompositeI extends GrouperTest {
       runCompositeMembershipChangeLogConsumer();
 
       try {
+        // addCompositeMember now passes through to CompositeSave, which converts a group that already
+        // has members into a composite in place instead of throwing GROUP_ACTM (GRP-7187).  The
+        // factors b and c are empty, so the intersection result is empty and the pre-existing member
+        // (not in the factors) is removed as a genuine leave.
         a.addCompositeMember(CompositeType.INTERSECTION, b, c);
-        Assert.fail("FAIL: expected exception: " + E.GROUP_ACTM);
-      }
-      catch (MemberAddException eMA) {
-        Assert.assertTrue("OK: cannot add composite member to group with mship", true);
-        assertContains("error message", eMA.getMessage(), E.GROUP_ACTM);
+        runCompositeMembershipChangeLogConsumer();
+
+        Assert.assertTrue("group should now be a composite", a.hasComposite());
+        Assert.assertEquals("composite type", CompositeType.INTERSECTION, a.getComposite(true).getType());
+        Assert.assertEquals("member not in the factors is removed", 0, a.getMembers().size());
+        Assert.assertFalse("pre-existing member removed", a.hasMember(r.getSubject("a")));
       }
       finally {
         r.rs.stop();
@@ -1747,7 +1752,7 @@ public class TestCompositeI extends GrouperTest {
     catch (Exception e) {
       T.e(e);
     }
-  } // public void testFailToAddCompositeMemberWhenHasMember()
+  } // public void testAddCompositeMemberWhenHasMemberConverts()
 
   public void testFailToDeleteCompositeWhenHasMember() {
     LOG.info("testFailToDeleteCompositeWhenHasMember");

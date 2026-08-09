@@ -1011,8 +1011,13 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public Composite addCompositeMember(CompositeType type, Group left, Group right)
     throws  InsufficientPrivilegeException,
             MemberAddException {
-    return internal_addCompositeMember(GrouperSession.staticGrouperSession(), type, left, right, null);
-  } 
+    // passthrough to the CompositeSave API.  CompositeSave converts any existing immediate members
+    // in place (relabel direct -> composite, no change log/PIT churn) rather than failing with
+    // GROUP_ACTM when the group already has members (GRP-7187).
+    return new CompositeSave().assignOwnerGroup(this).assignLeftFactorGroup(left)
+        .assignRightFactorGroup(right).assignCompositeType(type)
+        .assignSaveMode(edu.internet2.middleware.grouper.misc.SaveMode.INSERT).save();
+  }
 
   /**
    * Add a subject to this group as immediate member.

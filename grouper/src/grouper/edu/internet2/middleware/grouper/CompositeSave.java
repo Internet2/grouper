@@ -38,6 +38,14 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MembershipDAO;
+import edu.internet2.middleware.grouper.membership.MembershipType;
+
 
 /**
  * <p>Use this class to insert or update or delete a composite</p>
@@ -240,7 +248,30 @@ public class CompositeSave {
     this.compositeType = theCompositeType;
     return this;
   }
-  
+
+  /**
+   * if true (the default), when inserting a composite on a group that already has immediate members,
+   * relabel those members in place (mship_type immediate -&gt; composite) instead of failing with
+   * GROUP_ACTM. Members that are also in the composite result are relabeled with no change log entry
+   * and no PIT record (their effective membership does not change); members not in the result are
+   * removed normally, and members newly included are added by the composite resync -- so only genuine
+   * joins and leaves reach the change log. Set to false to restore the historical behavior of
+   * rejecting a composite insert on a group that already has members.
+   */
+  private boolean convertMembersInPlace = true;
+
+  /**
+   * when inserting a composite on a group that already has immediate members, relabel those members
+   * in place instead of failing (see {@link #convertMembersInPlace}). Defaults to true; pass false
+   * to restore the historical behavior of rejecting the insert when the group has members.
+   * @param theConvertMembersInPlace whether to relabel existing immediate members in place
+   * @return this for chaining
+   */
+  public CompositeSave assignConvertMembersInPlace(boolean theConvertMembersInPlace) {
+    this.convertMembersInPlace = theConvertMembersInPlace;
+    return this;
+  }
+
   /**
    * massage and validate fields
    */
@@ -501,6 +532,13 @@ public class CompositeSave {
   
                 // insert
                 if (!hasComposite) {
+                  if (CompositeSave.this.convertMembersInPlace) {
+                    // relabel any existing immediate members in place so making the group a composite
+                    // does not churn the change log/PIT for members whose effective membership is
+                    // unchanged; this leaves the group with zero immediate members so the add below
+                    // passes AddCompositeMemberValidator.  Runs in this save's transaction.
+                    CompositeSave.this.relabelExistingImmediateMembersToComposite();
+                  }
                   composite = ownerGroup.internal_addCompositeMember(GrouperSession.staticGrouperSession(), compositeType, leftFactorGroup, rightFactorGroup, CompositeSave.this.id);
                   CompositeSave.this.saveResultType = SaveResultType.INSERT;
                   return composite;
@@ -516,7 +554,12 @@ public class CompositeSave {
                 
                 //its wrong
                 ownerGroup.deleteCompositeMember();
-                composite = ownerGroup.addCompositeMember(compositeType, leftFactorGroup, rightFactorGroup);
+                if (CompositeSave.this.convertMembersInPlace) {
+                  CompositeSave.this.relabelExistingImmediateMembersToComposite();
+                }
+                // call internal_addCompositeMember (not the public addCompositeMember, which now
+                // passes through to CompositeSave) so this does not recurse
+                composite = ownerGroup.internal_addCompositeMember(GrouperSession.staticGrouperSession(), compositeType, leftFactorGroup, rightFactorGroup, null);
                 CompositeSave.this.saveResultType = SaveResultType.UPDATE;
                 return composite;
               } catch (RuntimeException re) {
@@ -537,5 +580,80 @@ public class CompositeSave {
           
         }
       });
+  }
+
+  /**
+   * Relabel the owner group's existing immediate members in place so it can become a composite
+   * without churning the change log/PIT for members whose effective membership does not change.
+   * Genuine leaves (immediate today but not in the composite result) are deleted normally (real
+   * MEMBERSHIP_DELETE); the remaining immediate rows (the overlap) are relabeled to composite with a
+   * single set-based update that bypasses the membership hooks (no change log entry, no PIT record).
+   * via_composite_id is left null here (the composite does not exist yet); the resync driven by the
+   * subsequent addCompositeMember repairs it and adds genuine joins. Runs in the caller's
+   * transaction (save() is wrapped in one), so the relabel and the composite-add are atomic.
+   */
+  private void relabelExistingImmediateMembersToComposite() {
+
+    Field defaultList = Group.getDefaultList();
+    String fieldId = defaultList.getUuid();
+
+    Set<Member> resultMembers = this.compositeResult();
+
+    // delete genuine leaves so that every remaining immediate row is overlap to relabel
+    for (Member immediateMember : this.ownerGroup.getImmediateMembers(defaultList)) {
+      if (!resultMembers.contains(immediateMember)) {
+        this.ownerGroup.deleteMember(immediateMember.getSubject());
+      }
+    }
+
+    // relabel the overlap in place: immediate -> composite, no hooks, no change log, no PIT
+    HibernateSession.byHqlStatic()
+        .createQuery("update ImmediateMembershipEntry set type = :composite "
+            + "where ownerGroupId = :ownerGroupId and fieldId = :fieldId and type = :immediate")
+        .setString("composite", MembershipType.COMPOSITE.getTypeString())
+        .setString("ownerGroupId", this.ownerGroup.getUuid())
+        .setString("fieldId", fieldId)
+        .setString("immediate", MembershipType.IMMEDIATE.getTypeString())
+        .executeUpdate();
+
+    // the raw update bypasses second level cache eviction; evict the touched membership objects the
+    // same way the normal membership save/update/delete path does, so the composite-add validator
+    // reads fresh and does not see stale immediate memberships
+    Hib3DAO.evictEntity("MembershipEntry");
+    Hib3DAO.evictEntity("ImmediateMembershipEntry");
+    Hib3DAO.evictQueries(Hib3MembershipDAO.class.getName());
+  }
+
+  /**
+   * Compute the member set the composite will resolve to, from the full memberships of the two
+   * factor groups.
+   * @return the resolved composite member set
+   */
+  private Set<Member> compositeResult() {
+    Set<Member> leftMembers = this.leftFactorGroup.getMembers();
+    Set<Member> rightMembers = this.rightFactorGroup.getMembers();
+    Set<Member> resultMembers = new LinkedHashSet<Member>();
+
+    if (this.compositeType == CompositeType.UNION) {
+      resultMembers.addAll(leftMembers);
+      resultMembers.addAll(rightMembers);
+    } else if (this.compositeType == CompositeType.INTERSECTION) {
+      for (Member leftMember : leftMembers) {
+        if (rightMembers.contains(leftMember)) {
+          resultMembers.add(leftMember);
+        }
+      }
+    } else if (this.compositeType == CompositeType.COMPLEMENT) {
+      // complement is left minus right
+      for (Member leftMember : leftMembers) {
+        if (!rightMembers.contains(leftMember)) {
+          resultMembers.add(leftMember);
+        }
+      }
+    } else {
+      throw new IllegalArgumentException("Unexpected composite type: " + this.compositeType);
+    }
+
+    return resultMembers;
   }
 }

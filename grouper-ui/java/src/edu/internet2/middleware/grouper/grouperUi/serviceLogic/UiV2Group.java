@@ -5511,15 +5511,10 @@ public class UiV2Group {
       GuiGroup guiGroup = new GuiGroup(group);
       groupContainer.setGuiGroup(guiGroup);
       
-      if (composite == null) {
-        Set<Membership> enabledMemberships = group.getMemberships(true);
-        if (GrouperUtil.nonNull(enabledMemberships).size() > 0) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-              TextContainer.retrieveFromRequest().getText().get("groupCompositeException")));
-          return;
-        }
-      }
-      
+      // a group that already has members can now be converted to a composite in place: the existing
+      // members are relabeled from direct to composite without change log/PIT churn (GRP-7187), so we
+      // no longer block the operation when the group has members.
+
       int countOfFutureEnabledDeletedMemberships = 0;
       Set<Membership> memberships = group.getMemberships(false);
       for (Membership membership: GrouperUtil.nonNull(memberships)) {
@@ -5539,12 +5534,15 @@ public class UiV2Group {
         public Void callLogic() {
           try {
       
-            //to edit a composite, delete and add
-            if (composite != null) {
-              guiGroup.getGroup().deleteCompositeMember();
-            }
-            //create composite
-            guiGroup.getGroup().addCompositeMember(COMPOSITE_TYPE, leftFactorGroup, rightFactorGroup);
+            //create or update the composite; convert any existing members in place so making a group
+            //with members into a composite does not churn the change log/PIT (GRP-7187)
+            new edu.internet2.middleware.grouper.CompositeSave()
+                .assignOwnerGroup(guiGroup.getGroup())
+                .assignLeftFactorGroup(leftFactorGroup)
+                .assignRightFactorGroup(rightFactorGroup)
+                .assignCompositeType(COMPOSITE_TYPE)
+                .assignConvertMembersInPlace(true)
+                .save();
 
             GrouperUtil.sleep(1000L * GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.composite.pauseInCompositeSeconds", 0));
             
