@@ -52,18 +52,47 @@ public class ExpirableCacheTest extends TestCase {
    * test nocache
    */
   public void testNoCache() {
-    
+
     ExpirableCache<Boolean, Boolean> noCache = new ExpirableCache(0);
-    
+
     noCache.put(true, true);
-    
+
     assertNull("" + noCache.get(true), noCache.get(true));
-    
+
     noCache = new ExpirableCache(-1);
-    
+
     noCache.put(true, true);
-    
+
     assertTrue(noCache.get(true));
   }
-  
+
+  /**
+   * seconds-granularity put: a sub-minute time to live must cache (not throw). The whole-minutes
+   * put(key, value, int) truncates e.g. 30 seconds to 0 minutes and rejects it -- the seconds unit
+   * caches it for its real lifetime. Regression for the short-lived OAuth token caching bug
+   * (GRP-7228 follow-up: cache sub-minute tokens instead of skipping the cache).
+   */
+  public void testPutSeconds() {
+
+    ExpirableCache<String, String> cache = new ExpirableCache<String, String>();
+
+    // 30 seconds is 0 whole minutes -- the minutes put would throw; the seconds put must cache it
+    cache.put("k", "v", 30, ExpirableCache.ExpirableCacheUnit.SECOND);
+    assertEquals("v", cache.get("k"));
+
+    // the whole-minutes put still rejects a <= 0 minute time to live (behavior preserved)
+    try {
+      cache.put("k2", "v2", 0);
+      fail("expected exception for a 0-minute time to live");
+    } catch (RuntimeException e) {
+      // expected
+    }
+
+    // a 1-second entry is cached now and gone after it expires
+    cache.put("k3", "v3", 1, ExpirableCache.ExpirableCacheUnit.SECOND);
+    assertEquals("v3", cache.get("k3"));
+    GrouperClientCommonUtils.sleep(1500);
+    assertNull(cache.get("k3"));
+  }
+
 }
