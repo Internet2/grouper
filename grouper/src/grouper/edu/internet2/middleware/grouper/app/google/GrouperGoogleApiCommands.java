@@ -205,13 +205,20 @@ public class GrouperGoogleApiCommands {
   /**
    * Google tokens typically expire in 60 minutes. Cache well under that to avoid
    * expired tokens during long-running provisioning jobs with throttling delays.
-   * If expiry > 35 min, cap at 30 min. If 6-35 min, use expiry minus a 5 min buffer. Otherwise use as-is.
+   * If expiry > 35 min, cap at 30 min. If 6-35 min, use expiry minus a 5 min buffer. Otherwise use the
+   * remaining lifetime minus a small buffer -- returned in SECONDS so a short-lived token still caches
+   * (a whole-minutes calculation truncates a sub-minute token to 0, which ExpirableCache.put rejects).
    * @param expiresInSeconds token expiry from Google
-   * @return cache time to live in minutes
+   * @return cache time to live in seconds (always at least 1)
    */
-  static int tokenCacheMinutes(int expiresInSeconds) {
-    int expiresInMinutes = expiresInSeconds / 60;
-    return expiresInMinutes > 35 ? 30 : (expiresInMinutes > 5 ? expiresInMinutes - 5 : expiresInMinutes);
+  static int tokenCacheSeconds(int expiresInSeconds) {
+    if (expiresInSeconds > 35 * 60) {
+      return 30 * 60;
+    }
+    if (expiresInSeconds > 5 * 60) {
+      return expiresInSeconds - (5 * 60);
+    }
+    return Math.max(1, expiresInSeconds - 5);
   }
 
   /**
@@ -245,7 +252,7 @@ public class GrouperGoogleApiCommands {
           "https://www.googleapis.com/auth/admin.directory.user https://www.googleapis.com/auth/admin.directory.group https://www.googleapis.com/auth/admin.directory.group.member");
 
       String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
-      configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), tokenCacheMinutes((Integer) accessTokenAndExpiry[1]));
+      configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), tokenCacheSeconds((Integer) accessTokenAndExpiry[1]), ExpirableCache.ExpirableCacheUnit.SECOND);
       return accessToken;
     }
   }
@@ -277,7 +284,7 @@ public class GrouperGoogleApiCommands {
       Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId, "https://www.googleapis.com/auth/apps.groups.settings");
 
       String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
-      configKeyToExpiresOnAndSettingsToken.put(configId, Morph.encrypt(accessToken), tokenCacheMinutes((Integer) accessTokenAndExpiry[1]));
+      configKeyToExpiresOnAndSettingsToken.put(configId, Morph.encrypt(accessToken), tokenCacheSeconds((Integer) accessTokenAndExpiry[1]), ExpirableCache.ExpirableCacheUnit.SECOND);
       return accessToken;
     }
   }
