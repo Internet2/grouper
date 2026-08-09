@@ -79,7 +79,7 @@ ${grouper:titleFromKeyAndText('viewAttributeDefNamePageTitle', grouperRequestCon
                           <tr class="attributeDefNameDetailsName" style="display: none;">
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['attributeDefNameIdPathLabel']}</strong></td>
                             <td>
-                              <span id="attributeDefNameIdPath">${grouper:escapeHtml(grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.name)}</span> <a href="#" onclick="grouperCopyToClipboard('attributeDefNameIdPath'); return false;" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left:4px;"><i class="fa fa-clone"></i></a>
+                              <span id="attributeDefNameIdPath">${grouper:escapeHtml(grouperRequestContainer.attributeDefNameContainer.guiAttributeDefName.attributeDefName.name)}</span> <a href="#" onclick="grouperCopyToClipboard('attributeDefNameIdPath'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left:4px;"><i class="fa fa-clone" aria-hidden="true"></i></a>
                               <br /><span class="help-block description">${textContainer.text['attributeDefNameIdPathDescription'] }</span>
                             </td>
                           </tr>

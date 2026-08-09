@@ -136,8 +136,8 @@ ${grouper:title('miscAttestationDataFieldAndRowDictionaryLink')}
               <h4>${guiDataFieldRowDictionaryTable.title}
                 <c:if test="${isSysadmin && !grouper:isBlank(guiDataFieldRowDictionaryTable.configId)}">
                   <a href="?operation=UiV2EntityDataFields.editDataRowConfig&dataRowConfigId=${grouper:escapeUrl(guiDataFieldRowDictionaryTable.configId)}" 
-                     class="btn btn-mini" title="${textContainer.text['dataFieldDictionaryEditButton']}" style="margin-left: 5px;">
-                    <i class="fa fa-pencil"></i>
+                     class="btn btn-mini" aria-label="${textContainer.textEscapeXml['dataFieldDictionaryEditButton']}" title="${textContainer.text['dataFieldDictionaryEditButton']}" style="margin-left: 5px;">
+                    <i class="fa fa-pencil" aria-hidden="true"></i>
                   </a>
                 </c:if>
               </h4>
@@ -260,8 +260,8 @@ ${grouper:title('miscAttestationDataFieldAndRowDictionaryLink')}
                 <c:if test="${!grouper:isBlank(guiDataFieldRowDictionary.jexlSnippet)}">
                   <div style="margin-top: 6px; background: #f9f9f9; border: 1px solid #eee; border-radius: 3px; padding: 4px 8px; font-family: monospace; font-size: 0.85em;">
                     <code id="jexl-${j}-${i}">${grouper:escapeHtml(guiDataFieldRowDictionary.jexlSnippet)}</code>
-                    <button type="button" class="btn btn-mini" onclick="dictionaryCopyText('jexl-${j}-${i}');" title="${textContainer.text['dataFieldDictionaryCopyButton']}" style="margin-left: 6px;">
-                      <i class="fa fa-copy"></i>
+                    <button type="button" class="btn btn-mini" onclick="dictionaryCopyText('jexl-${j}-${i}');" aria-label="${textContainer.textEscapeXml['dataFieldDictionaryCopyButton']}" title="${textContainer.text['dataFieldDictionaryCopyButton']}" style="margin-left: 6px;">
+                      <i class="fa fa-copy" aria-hidden="true"></i>
                     </button>
                   </div>
                 </c:if>

@@ -179,7 +179,7 @@
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['attributeDefLabelIdPath']}</strong></td>
-                            <td><span id="attributeDefIdPath">${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.name)}</span> <a href="#" onclick="grouperCopyToClipboard('attributeDefIdPath'); return false;" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left:4px;"><i class="fa fa-clone"></i></a></td>
+                            <td><span id="attributeDefIdPath">${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.name)}</span> <a href="#" onclick="grouperCopyToClipboard('attributeDefIdPath'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left:4px;"><i class="fa fa-clone" aria-hidden="true"></i></a></td>
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['attributeDefLabelId']}</strong></td>
