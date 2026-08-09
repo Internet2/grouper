@@ -274,6 +274,29 @@ public class ExpirableCache<K,V> implements Serializable {
   }
 
   /**
+   * put a value into the cache with a time to live in a specific unit (e.g. SECOND), so a short-lived
+   * item (e.g. an OAuth token whose lifetime is under a minute) can be cached without the minutes
+   * calculation rounding down to 0.  See {@link ExpirableCacheUnit}.
+   * @param key
+   * @param value
+   * @param timeToLive time to live for this item, in the given unit.  If -1 use the cache default.
+   * @param expirableCacheUnit MINUTE or SECOND
+   */
+  public synchronized void put(K key, V value, int timeToLive, ExpirableCacheUnit expirableCacheUnit) {
+
+    //see if the default
+    if (timeToLive == -1) {
+      this.put(key, value);
+      return;
+    }
+
+    if (timeToLive <= 0) {
+      throw new RuntimeException("Time to live must be greater than 0");
+    }
+    this.putHelper(key, value, expirableCacheUnit.defaultTimeToLiveMillis(timeToLive));
+  }
+
+  /**
    * put a value into the cache, accept the default time to live for this cache
    * @param key
    * @param value
