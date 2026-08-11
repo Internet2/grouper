@@ -4989,7 +4989,7 @@ a.btn.btn-primary, a.btn-primary [class*=" fa-"] /* [class^="fa-"] , a [class*="
   vertical-align: 10% !important;
 }
 .fa-direct {
-  color: #555555 !important;
+  color: #000000 !important;
 }
 .list-widget li {
   border-bottom: 1px solid #ddd;
@@ -5239,6 +5239,19 @@ a.btn.btn-primary, a.btn-primary [class*=" fa-"] /* [class^="fa-"] , a [class*="
 }
 .table-privileges .direct-actions:hover > .fa-check.fa-disabled {
   display: none;
+}
+.table-privileges .direct-actions > .fa-check.fa-disabled {
+  color: #767676 !important;
+}
+.table-privileges .direct-actions > .privilege-check-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
+  cursor: pointer;
 }
 .table-privileges .privilege {
   text-align: center;
