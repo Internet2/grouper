@@ -714,7 +714,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @param request the HTTP request
    * @return the URL of this server's protected resource metadata
    */
-  private static String resourceMetadataUrl(HttpServletRequest request) {
+  static String resourceMetadataUrl(HttpServletRequest request) {
 
     String wsUrl = StringUtils.trimToNull(GrouperConfig.getGrouperWsUrl(false));
 
@@ -860,7 +860,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @return true if the request was rejected and a response has already been sent
    * @throws IOException if the response cannot be written
    */
-  private boolean rejectIfOriginNotAllowed(HttpServletRequest request,
+  boolean rejectIfOriginNotAllowed(HttpServletRequest request,
       HttpServletResponse response) throws IOException {
 
     String origin = StringUtils.trimToNull(request.getHeader(ORIGIN_HEADER));
@@ -924,7 +924,7 @@ public class GrouperMcpServlet extends HttpServlet {
    *
    * @return the origin, or null if it is not configured or cannot be parsed
    */
-  private static String configuredOrigin() {
+  static String configuredOrigin() {
 
     String wsUrl = StringUtils.trimToNull(GrouperConfig.getGrouperWsUrl(false));
 
@@ -991,7 +991,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @return true if the request was rejected and a response has already been sent
    * @throws IOException if the response cannot be written
    */
-  private boolean rejectIfModernRequestInvalid(HttpServletRequest request,
+  boolean rejectIfModernRequestInvalid(HttpServletRequest request,
       HttpServletResponse response, JsonNode jsonRpcRequest, String method, JsonNode params,
       JsonNode id) throws IOException {
 
@@ -1146,7 +1146,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @param headerValue the raw header value, may be null
    * @return the decoded value, or the original if it is not encoded or cannot be decoded
    */
-  private static String decodeHeaderValue(String headerValue) {
+  static String decodeHeaderValue(String headerValue) {
 
     if (headerValue == null || !headerValue.startsWith(BASE64_SENTINEL_PREFIX)
         || !headerValue.endsWith(BASE64_SENTINEL_SUFFIX)
@@ -1172,7 +1172,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @param request the HTTP request
    * @return the version or null
    */
-  private static String protocolVersionFromHeader(HttpServletRequest request) {
+  static String protocolVersionFromHeader(HttpServletRequest request) {
     return StringUtils.trimToNull(request.getHeader(PROTOCOL_VERSION_HEADER));
   }
 
@@ -1181,7 +1181,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @param params the JSON-RPC params, may be null
    * @return the version or null
    */
-  private static String protocolVersionFromMeta(JsonNode params) {
+  static String protocolVersionFromMeta(JsonNode params) {
     JsonNode metaNode = params == null ? null : params.get("_meta");
     JsonNode versionNode = metaNode == null ? null : metaNode.get(META_PROTOCOL_VERSION);
 
@@ -1203,7 +1203,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @param params the JSON-RPC params, may be null
    * @return the version, or null if the request declares none
    */
-  private static String declaredProtocolVersion(HttpServletRequest request, JsonNode params) {
+  static String declaredProtocolVersion(HttpServletRequest request, JsonNode params) {
     String versionFromBody = protocolVersionFromMeta(params);
     return versionFromBody != null ? versionFromBody : protocolVersionFromHeader(request);
   }
@@ -1219,7 +1219,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @param method the JSON-RPC method
    * @return true if the method only exists in the earlier revisions
    */
-  private static boolean isMethodRemovedInModernRevision(String method) {
+  static boolean isMethodRemovedInModernRevision(String method) {
     return "initialize".equals(method) || "notifications/initialized".equals(method)
         || "ping".equals(method);
   }
@@ -1231,7 +1231,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @param protocolVersion the version the request declares, may be null
    * @return true if the request is on spec version 2026-07-28
    */
-  private static boolean isModernProtocolVersion(String protocolVersion) {
+  static boolean isModernProtocolVersion(String protocolVersion) {
     return MODERN_PROTOCOL_VERSION.equals(protocolVersion);
   }
 
@@ -1240,7 +1240,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @param protocolVersion the version from the request
    * @return true if supported
    */
-  private static boolean isProtocolVersionSupported(String protocolVersion) {
+  static boolean isProtocolVersionSupported(String protocolVersion) {
     for (String supportedVersion : SUPPORTED_PROTOCOL_VERSIONS) {
       if (supportedVersion.equals(protocolVersion)) {
         return true;
@@ -1283,7 +1283,7 @@ public class GrouperMcpServlet extends HttpServlet {
    * @return true if the request was rejected and a response has already been sent
    * @throws IOException if the response cannot be written
    */
-  private boolean rejectIfProtocolVersionNotSupported(HttpServletRequest request,
+  boolean rejectIfProtocolVersionNotSupported(HttpServletRequest request,
       HttpServletResponse response, JsonNode params, JsonNode id) throws IOException {
 
     String versionFromHeader = protocolVersionFromHeader(request);
