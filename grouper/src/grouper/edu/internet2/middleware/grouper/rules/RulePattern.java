@@ -2287,7 +2287,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.TEXTAREA);
         attribute.setShow(true);
         attribute.setConfigSuffix("SendEmailWhenGroupMemberInvalidDueToFolder.emailTo");
         attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolder.emailTo.label"));
@@ -2485,7 +2485,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.TEXTAREA);
         attribute.setShow(true);
         attribute.setConfigSuffix("SendEmailMembershipAddDueToFolder.emailTo");
         attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailMembershipAddDueToFolder.emailTo.label"));
@@ -2717,7 +2717,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.TEXTAREA);
         attribute.setShow(true);
         attribute.setConfigSuffix("SendEmailDueToDisabledDate.emailTo");
         attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailDueToDisabledDate.emailTo.label"));
@@ -3605,7 +3605,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.TEXTAREA);
         attribute.setShow(true);
         attribute.setConfigSuffix("SendEmailAfterNewMembership.emailTo");
         attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterNewMembership.emailTo.label"));
@@ -3781,7 +3781,7 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setFormElement(ConfigItemFormElement.TEXTAREA);
         attribute.setShow(true);
         attribute.setConfigSuffix("SendEmailAfterMembershipRemove.emailTo");
         attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemove.emailTo.label"));
