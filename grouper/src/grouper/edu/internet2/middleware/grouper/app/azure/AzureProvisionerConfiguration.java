@@ -8,9 +8,11 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -86,7 +88,47 @@ public class AzureProvisionerConfiguration extends ProvisioningConfiguration {
     assignCacheConfig();
     super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
   }
-  
-  
+
+  @Override
+  public void validatePreSave(boolean isInsert, List<String> errorsToDisplay,
+      Map<String, String> validationErrorsToDisplay) {
+
+    super.validatePreSave(isInsert, errorsToDisplay, validationErrorsToDisplay);
+
+    if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+      return;
+    }
+
+    GrouperConfigurationModuleAttribute numberOfGroupAttributes = this.retrieveAttributes().get("numberOfGroupAttributes");
+
+    if (numberOfGroupAttributes == null) {
+      return;
+    }
+
+    int numberOfGroupAttributesLength = GrouperUtil.intValue(numberOfGroupAttributes.getValueOrExpressionEvaluationValue(), 0);
+
+    for (int i=0; i<numberOfGroupAttributesLength; i++) {
+
+      GrouperConfigurationModuleAttribute attributeName = this.retrieveAttributes().get("targetGroupAttribute."+i+".name");
+      if (attributeName == null) {
+        continue;
+      }
+
+      String value = attributeName.getValueOrExpressionEvaluationValue();
+
+      if (StringUtils.equals("groupOwners", value)) {
+
+        GrouperConfigurationModuleAttribute multiValuedAttribute = this.retrieveAttributes().get("targetGroupAttribute."+i+".multiValued");
+        boolean multiValued = multiValuedAttribute != null
+            && GrouperUtil.booleanValue(multiValuedAttribute.getValueOrExpressionEvaluationValue(), false);
+
+        if (!multiValued) {
+          String errorMessage = GrouperTextContainer.textOrNull("grouperAzureProvisionerConfigurationGroupOwnersMustBeMultiValued");
+          validationErrorsToDisplay.put(attributeName.getHtmlForElementIdHandle(), errorMessage);
+        }
+      }
+    }
+
+  }
 
 }
