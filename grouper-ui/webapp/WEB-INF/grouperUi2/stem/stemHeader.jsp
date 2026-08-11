@@ -212,7 +212,7 @@
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['stemLabelIdPath'] }</strong></td>
-                            <td><span id="stemIdPath">${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.name)}</span> <a href="#" onclick="grouperCopyToClipboard('stemIdPath'); return false;" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left:4px;"><i class="fa fa-clone" aria-hidden="true"></i></a></td>
+                            <td><span id="stemIdPath">${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.name)}</span> <button type="button" class="grouper-copy-btn" onclick="grouperCopyToClipboard('stemIdPath');" aria-label="${textContainer.textEscapeXml['copyToClipboardTooltip']}" title="${textContainer.text['copyToClipboardTooltip']}" style="margin-left:4px;"><i class="fa fa-clone" aria-hidden="true"></i></button></td>
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['stemLabelAlternateIdPath'] }</strong></td>

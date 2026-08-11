@@ -606,3 +606,20 @@ a:focus {
 .user-lifecycle-policy-options .help-block:last-child {
   margin-bottom: 0;
 }
+/* Copy-to-clipboard icon rendered as a real <button> (accessibility: it performs
+   an action, so it must be a button, not an <a href="#">). Strip the native button
+   chrome so it looks like the bare clone icon it replaces. */
+.grouper-copy-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #337ab7;
+  font-size: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
+}
+.grouper-copy-btn:hover,
+.grouper-copy-btn:focus {
+  color: #23527c;
+}
