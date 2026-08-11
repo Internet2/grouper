@@ -1511,6 +1511,11 @@ public class GrouperLoaderIncrementalJob implements Job {
     return groupMessageCount;
   }
 
+  /**
+   * only called for SQL_GROUP_LIST loader groups -- processGroupSyncRows filters out any other loader
+   * type before this is reached, so the group-level delete-previously-managed-groups check below can
+   * assume SQL_GROUP_LIST without re-deriving the type.
+   */
   private static void processOneGroupSyncRow(GrouperSession grouperSession, Connection connection,
       GrouperLoaderDb grouperLoaderDbForLoaderSource, GroupRow groupRow, String groupTableName,
       Group loaderGroup, Hib3GrouperLoaderLog hib3GrouperloaderLog,
@@ -1670,8 +1675,9 @@ public class GrouperLoaderIncrementalJob implements Job {
                   "loader.sqlTable.likeString.removeGroupIfNotUsed", true);
             } else {
               // per-loader attribute (grouperLoaderDeletePreviouslyManagedGroups), falling back to
-              // the global config property loader.deleteGroupsNoLongerInSource
-              shouldDeleteGroup = GrouperLoaderType.shouldDeletePreviouslyManagedGroups(loaderGroup);
+              // the global config property loader.deleteGroupsNoLongerInSource.  group-level incremental
+              // sync only applies to SQL_GROUP_LIST (checked above), so the loader type is known here.
+              shouldDeleteGroup = GrouperLoaderType.shouldDeletePreviouslyManagedGroups(loaderGroup, GrouperLoaderType.SQL_GROUP_LIST);
             }
 
             if (shouldDeleteGroup) {

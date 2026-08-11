@@ -437,12 +437,13 @@ public enum GrouperLoaderType {
           //End group metadata
           //#######################################
 
-          syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
+          syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession,
               andGroups, groupTypes, groupLikeString, groupNameOverall, hib3GrouploaderLogOverall,
-              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, 
+              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName,
               groupNameToDescription, privsToAdd, groupNamesFromGroupQuery,
               loaderJobBean.getGrouperLoaderDisplayNameSyncType(),
-              loaderJobBean.getDisplayNameSyncBaseFolderName(), loaderJobBean.getDisplayNameSyncLevels(), loaderJobBean.getGrouperFailsafeBean()
+              loaderJobBean.getDisplayNameSyncBaseFolderName(), loaderJobBean.getDisplayNameSyncLevels(), loaderJobBean.getGrouperFailsafeBean(),
+              this
               );
           
         } finally {
@@ -887,10 +888,10 @@ public enum GrouperLoaderType {
           }
         
           
-          syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
+          syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession,
               andGroups, groupTypes, groupLikeString, groupNameOverall, hib3GrouploaderLogOverall,
-              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, groupNameToDescription, 
-              privsToAdd, groupNames, null, null, null, loaderJobBean.getGrouperFailsafeBean());
+              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, groupNameToDescription,
+              privsToAdd, groupNames, null, null, null, loaderJobBean.getGrouperFailsafeBean(), this);
           
         } finally {
           hib3GrouploaderLogOverall.setStatus(statusOverall[0].name());
@@ -1032,10 +1033,10 @@ public enum GrouperLoaderType {
           }
         
           
-          syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
+          syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession,
               andGroups, groupTypes, groupLikeString, groupNameOverall, hib3GrouploaderLogOverall,
-              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, 
-              groupNameToDescription, privsToAdd, null, null, null, null, loaderJobBean.getGrouperFailsafeBean());
+              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName,
+              groupNameToDescription, privsToAdd, null, null, null, null, loaderJobBean.getGrouperFailsafeBean(), this);
           
         } finally {
           hib3GrouploaderLogOverall.setStatus(statusOverall[0].name());
@@ -1299,7 +1300,7 @@ public enum GrouperLoaderType {
       final Map<String, String> groupNameToDisplayName, final Map<String, String> groupNameToDescription,
       final Map<String, Map<Privilege, List<Subject>>> privsToAdd, final Set<String> groupNamesFromGroupQuery,
       final GrouperLoaderDisplayNameSyncType grouperLoaderDisplayNameSyncType, final String displayNameSyncBaseFolderName,
-      final Integer displayNameSyncLevels, final GrouperFailsafeBean grouperFailsafeBean) {
+      final Integer displayNameSyncLevels, final GrouperFailsafeBean grouperFailsafeBean, final GrouperLoaderType grouperLoaderType) {
         
     long startTimeLoadData = 0;
     boolean failsafeProblem = false;
@@ -1343,7 +1344,7 @@ public enum GrouperLoaderType {
       Group loaderGroupForDelete = StringUtils.isBlank(hib3GrouploaderLogOverall.getGroupUuid()) ? null
           : GroupFinder.findByUuid(grouperSession, hib3GrouploaderLogOverall.getGroupUuid(), false);
       boolean deletePreviouslyManagedGroups = StringUtils.isBlank(groupLikeString)
-          && shouldDeletePreviouslyManagedGroups(loaderGroupForDelete);
+          && shouldDeletePreviouslyManagedGroups(loaderGroupForDelete, grouperLoaderType);
 
       if (grouperFailsafeBean != null && grouperFailsafeBean.isUseFailsafe()){
         // lets see what current membership count is and see if failsafe
@@ -2213,15 +2214,18 @@ public enum GrouperLoaderType {
    * This is mutually exclusive with the deprecated grouperLoaderGroupsLike setting (the caller only
    * uses this when the groups like string is blank).
    * @param loaderGroup the loader group (may be null)
+   * @param grouperLoaderType the loader type of loaderGroup, so only the attribute applicable to that
+   * type is checked (LDAP_GROUP_LIST / LDAP_GROUPS_FROM_ATTRIBUTES check grouperLoaderLdapDeletePreviouslyManagedGroups,
+   * everything else checks the SQL-loader grouperLoaderDeletePreviouslyManagedGroups attribute)
    * @return true if groups no longer in the source should be deleted
    */
-  public static boolean shouldDeletePreviouslyManagedGroups(Group loaderGroup) {
+  public static boolean shouldDeletePreviouslyManagedGroups(Group loaderGroup, GrouperLoaderType grouperLoaderType) {
     String attributeValue = null;
     if (loaderGroup != null) {
-      // sql loader attribute
-      attributeValue = attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_DELETE_PREVIOUSLY_MANAGED_GROUPS);
-      // ldap loader attribute
-      if (StringUtils.isBlank(attributeValue)) {
+      boolean isLdapLoader = grouperLoaderType == GrouperLoaderType.LDAP_GROUP_LIST
+          || grouperLoaderType == GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES;
+      if (isLdapLoader) {
+        // ldap loader attribute
         AttributeDefName grouperLoaderLdapTypeAttributeDefName = AttributeDefNameFinder.findByName(LoaderLdapUtils.grouperLoaderLdapName(), false);
         if (grouperLoaderLdapTypeAttributeDefName != null) {
           AttributeAssign attributeAssign = loaderGroup.getAttributeDelegate().retrieveAssignment(
@@ -2230,6 +2234,9 @@ public enum GrouperLoaderType {
             attributeValue = attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapDeletePreviouslyManagedGroupsName());
           }
         }
+      } else {
+        // sql loader attribute
+        attributeValue = attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_DELETE_PREVIOUSLY_MANAGED_GROUPS);
       }
     }
     if (!StringUtils.isBlank(attributeValue)) {

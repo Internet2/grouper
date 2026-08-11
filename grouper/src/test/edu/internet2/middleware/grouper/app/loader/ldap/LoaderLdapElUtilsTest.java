@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.app.loader.TestgrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerTest;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -60,8 +61,10 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
+import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
 import edu.internet2.middleware.grouper.ldap.LdapModificationType;
+import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -384,6 +387,152 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
 
   }
   
+  /**
+   * GRP-7205: setting the per-loader grouperLoaderLdapDeletePreviouslyManagedGroups attribute to true on an
+   * LDAP_GROUP_LIST loader (with no groups like string) should delete groups previously managed by this
+   * loader once they are no longer in the LDAP source.
+   * @throws Exception
+   */
+  public void testLoaderLdapGroupListDeletePreviouslyManagedGroupsAttributeDeletesGroup() throws Exception {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    setupLdap();
+
+    try {
+
+      LdapEntry group1Entry = new LdapEntry("cn=loaderGroup1,ou=Groups,dc=example,dc=edu");
+      group1Entry.addAttribute(new LdapAttribute("cn", "loaderGroup1"));
+      group1Entry.addAttribute(new LdapAttribute("objectClass", "top"));
+      group1Entry.addAttribute(new LdapAttribute("objectClass", "groupOfUniqueNames"));
+      group1Entry.addAttribute(new LdapAttribute("uniqueMember", "uid=banderson,ou=People,dc=example,dc=edu"));
+      LdapSessionUtils.ldapSession().create("personLdap", group1Entry);
+
+      LdapEntry group2Entry = new LdapEntry("cn=loaderGroup2,ou=Groups,dc=example,dc=edu");
+      group2Entry.addAttribute(new LdapAttribute("cn", "loaderGroup2"));
+      group2Entry.addAttribute(new LdapAttribute("objectClass", "top"));
+      group2Entry.addAttribute(new LdapAttribute("objectClass", "groupOfUniqueNames"));
+      group2Entry.addAttribute(new LdapAttribute("uniqueMember", "uid=jsmith,ou=People,dc=example,dc=edu"));
+      LdapSessionUtils.ldapSession().create("personLdap", group2Entry);
+
+      Group loaderGroup = new GroupSave(grouperSession).assignName("test:testLdapGroupListDeleteAttr").assignCreateParentStemsIfNotExist(true).save();
+
+      AttributeAssign attributeAssign = loaderGroup.getAttributeDelegate().assignAttribute(LoaderLdapUtils.grouperLoaderLdapAttributeDefName()).getAttributeAssign();
+
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(|(cn=loaderGroup1)(cn=loaderGroup2))");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), "0 0 6 * * ?");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), "ou=Groups,dc=example,dc=edu");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), "SUBTREE_SCOPE");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapServerIdName(), "personLdap");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), "personLdapSource");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uniqueMember");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(),
+          "${loaderLdapElUtils.convertDnToSpecificValue(subjectId)}");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapTypeName(), "LDAP_GROUP_LIST");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), "cn");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), "someFolder:${groupAttributes['cn']}");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapDeletePreviouslyManagedGroupsName(), "true");
+
+      GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
+
+      Group group1 = GroupFinder.findByName(grouperSession, "test:someFolder:loaderGroup1", true);
+      Group group2 = GroupFinder.findByName(grouperSession, "test:someFolder:loaderGroup2", true);
+      assertEquals(1, group1.getMembers().size());
+      assertEquals(1, group2.getMembers().size());
+
+      // remove loaderGroup2 from the LDAP source
+      LdapSessionUtils.ldapSession().delete("personLdap", "cn=loaderGroup2,ou=Groups,dc=example,dc=edu");
+
+      GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
+
+      GrouperCacheUtils.clearAllCaches();
+
+      //group2 is deleted because it was previously managed by this loader and is no longer in the LDAP source
+      assertNull(GroupFinder.findByName(grouperSession, "test:someFolder:loaderGroup2", false));
+      //group1 is still in the LDAP source, so it survives with its member
+      group1 = GroupFinder.findByName(grouperSession, "test:someFolder:loaderGroup1", true);
+      assertEquals(1, group1.getMembers().size());
+
+    } finally {
+      teardownLdap();
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * GRP-7205: without the grouperLoaderLdapDeletePreviouslyManagedGroups attribute (and with the global
+   * loader.deleteGroupsNoLongerInSource left at its default of false), an LDAP_GROUP_LIST loader with no
+   * groups like string must NOT delete a group that is no longer in the LDAP source.
+   * @throws Exception
+   */
+  public void testLoaderLdapGroupListDeletePreviouslyManagedGroupsDefaultKeepsGroup() throws Exception {
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.deleteGroupsNoLongerInSource", "false");
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    setupLdap();
+
+    try {
+
+      LdapEntry group1Entry = new LdapEntry("cn=loaderGroup1,ou=Groups,dc=example,dc=edu");
+      group1Entry.addAttribute(new LdapAttribute("cn", "loaderGroup1"));
+      group1Entry.addAttribute(new LdapAttribute("objectClass", "top"));
+      group1Entry.addAttribute(new LdapAttribute("objectClass", "groupOfUniqueNames"));
+      group1Entry.addAttribute(new LdapAttribute("uniqueMember", "uid=banderson,ou=People,dc=example,dc=edu"));
+      LdapSessionUtils.ldapSession().create("personLdap", group1Entry);
+
+      LdapEntry group2Entry = new LdapEntry("cn=loaderGroup2,ou=Groups,dc=example,dc=edu");
+      group2Entry.addAttribute(new LdapAttribute("cn", "loaderGroup2"));
+      group2Entry.addAttribute(new LdapAttribute("objectClass", "top"));
+      group2Entry.addAttribute(new LdapAttribute("objectClass", "groupOfUniqueNames"));
+      group2Entry.addAttribute(new LdapAttribute("uniqueMember", "uid=jsmith,ou=People,dc=example,dc=edu"));
+      LdapSessionUtils.ldapSession().create("personLdap", group2Entry);
+
+      Group loaderGroup = new GroupSave(grouperSession).assignName("test:testLdapGroupListDeleteDefault").assignCreateParentStemsIfNotExist(true).save();
+
+      AttributeAssign attributeAssign = loaderGroup.getAttributeDelegate().assignAttribute(LoaderLdapUtils.grouperLoaderLdapAttributeDefName()).getAttributeAssign();
+
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(|(cn=loaderGroup1)(cn=loaderGroup2))");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), "0 0 6 * * ?");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), "ou=Groups,dc=example,dc=edu");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), "SUBTREE_SCOPE");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapServerIdName(), "personLdap");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), "personLdapSource");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uniqueMember");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(),
+          "${loaderLdapElUtils.convertDnToSpecificValue(subjectId)}");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapTypeName(), "LDAP_GROUP_LIST");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), "cn");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), "someFolder:${groupAttributes['cn']}");
+      // note: grouperLoaderLdapDeletePreviouslyManagedGroups is intentionally left unset here
+
+      GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
+
+      Group group1 = GroupFinder.findByName(grouperSession, "test:someFolder:loaderGroup1", true);
+      Group group2 = GroupFinder.findByName(grouperSession, "test:someFolder:loaderGroup2", true);
+      assertEquals(1, group1.getMembers().size());
+      assertEquals(1, group2.getMembers().size());
+
+      // remove loaderGroup2 from the LDAP source
+      LdapSessionUtils.ldapSession().delete("personLdap", "cn=loaderGroup2,ou=Groups,dc=example,dc=edu");
+
+      GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
+
+      GrouperCacheUtils.clearAllCaches();
+
+      //group2 is NOT deleted because neither the per-loader attribute nor the global property is set
+      assertNotNull(GroupFinder.findByName(grouperSession, "test:someFolder:loaderGroup2", false));
+      assertNotNull(GroupFinder.findByName(grouperSession, "test:someFolder:loaderGroup1", false));
+
+    } finally {
+      teardownLdap();
+      GrouperSession.stopQuietly(grouperSession);
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("loader.deleteGroupsNoLongerInSource");
+    }
+  }
+
   public void testLoaderIncremental() throws Exception {
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
