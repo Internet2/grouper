@@ -228,14 +228,14 @@
 </div>
 
 <div id="vis-copy-dot-output-btn" style="display: none; padding 3px;">
-  <a href="#" aria-label="Show .dot output text" class="btn btn-medium" aria-expanded="false" onclick="setCopyWindowDot(); $('#vis-copy-dot-output').toggle('slow')">
+  <button type="button" aria-label="Show .dot output text" class="btn btn-medium" aria-expanded="false" onclick="setCopyWindowDot(); $('#vis-copy-dot-output').toggle('slow')">
     ${textContainer.text['visualization.graph.copyDot']}
     <span class="caret"></span>
-  </a>
-  <a href="#" aria-label="Show SVG output" class="btn btn-medium" aria-expanded="false" onclick="setCopyWindowSVG(); $('#vis-copy-dot-output').toggle('slow')">
+  </button>
+  <button type="button" aria-label="Show SVG output" class="btn btn-medium" aria-expanded="false" onclick="setCopyWindowSVG(); $('#vis-copy-dot-output').toggle('slow')">
     ${textContainer.text['visualization.graph.copySVG']}
     <span class="caret"></span>
-  </a>
+  </button>
   <span class="vis-fullscreen-open"><a href="javascript:openVisualizationModal()">${textContainer.text['visualization.graph.expand']}&nbsp;<i class="fa fa-expand"></i></a></span>
 
   <div id="vis-copy-dot-output" style="display: none">
