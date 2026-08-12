@@ -19,22 +19,22 @@ ${grouper:title('externalSubjectSelfRegister.registerTitle')}
   <div class="span12">
     <form id="selfRegisterFormId" class="form-horizontal">
     
- 	  <c:forEach items="${externalRegisterContainer.registerFields}" var="registerField">
-     		
+ 	  <c:forEach items="${externalRegisterContainer.registerFields}" var="registerField" varStatus="loopStatus">
+
         <div class="control-group">
- 		  <label class="control-label">${registerField.label}
+ 		  <label class="control-label"<c:if test="${!registerField.readonly}"> for="selfRegisterField_${loopStatus.index}"</c:if>>${registerField.label}
  		    <c:if test="${registerField.required}">
 			  <span class="requiredIndicator">*</span>
             </c:if>
  		  </label>
-         			
+
           <div class="controls">
             <c:choose>
           	  <c:when test="${registerField.readonly}">
                 <span><c:out value="${registerField.value}"></c:out></span>
               </c:when>
           	  <c:otherwise>
-                <input type="text" name="${registerField.paramName}" value="${registerField.value}" />
+                <input type="text" id="selfRegisterField_${loopStatus.index}" name="${registerField.paramName}" value="${registerField.value}" />
             	<span class="help-block">${registerField.tooltip }</span>
           	  </c:otherwise>
             </c:choose>
