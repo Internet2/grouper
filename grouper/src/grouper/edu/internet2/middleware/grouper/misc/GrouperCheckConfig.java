@@ -110,6 +110,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
@@ -1461,6 +1462,18 @@ public class GrouperCheckConfig {
           GroupSave upgradeTasksGroupSave = new GroupSave().assignName(groupName).assignCreateParentStemsIfNotExist(true);
           groupSaves.add(upgradeTasksGroupSave);
 
+        }
+
+        // MCP needs to know its own address, and startup is where a deployer has a chance to
+        // see that it does not.  This does not stop startup: the properties are needed by MCP
+        // and by nothing else, and refusing to start would take the UI and the WS down with it.
+        // Each MCP and OAuth endpoint checks the same thing and refuses to serve, so a
+        // deployment in this state fails on its first MCP call rather than serving MCP in a
+        // form which publishes addresses taken from the Host header.  Note grouper.is.mcp is in
+        // grouper.hibernate.properties, not grouper.properties.
+        if (GrouperOAuthStore.mcpEnabled()) {
+          // logs the problem once when there is one
+          GrouperOAuthStore.mcpUrlConfigurationError();
         }
 
         // MCP (Model Context Protocol) authorization groups

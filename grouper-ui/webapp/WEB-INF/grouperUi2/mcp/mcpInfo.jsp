@@ -23,6 +23,12 @@
                   </div>
                 </c:if>
 
+                <c:if test="${grouperRequestContainer.mcpContainer.mcpUrlsNotConfigured}">
+                  <div class="alert alert-error">
+                    <i class="fa fa-exclamation-triangle"></i> ${textContainer.text['mcpInfoUrlsNotConfigured']}
+                  </div>
+                </c:if>
+
                 <table class="table table-condensed table-striped">
                   <tbody>
                     <c:if test="${not empty grouperRequestContainer.mcpContainer.mcpServerUrl}">

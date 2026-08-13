@@ -92,6 +92,17 @@ public class GrouperOAuthServlet extends HttpServlet {
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     try {
+      // the token this endpoint issues is bound to this server and to its MCP resource by an
+      // issuer and an audience which come from grouper.ws.url, and the authorization endpoint a
+      // client was sent to comes from grouper.ui.url.  without them there is no token worth
+      // issuing, so nothing is issued
+      String mcpUrlConfigurationError = GrouperOAuthStore.mcpUrlConfigurationError();
+      if (mcpUrlConfigurationError != null) {
+        sendJsonError(response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, "server_error",
+            mcpUrlConfigurationError);
+        return;
+      }
+
       // determine which operation based on pathInfo or servletPath
       // (servletPath is used when mapped directly to /register or /token)
       String pathInfo = request.getPathInfo();

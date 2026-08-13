@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -44,6 +45,16 @@ public class McpContainer {
   public boolean isMcpEnabled() {
     return GrouperHibernateConfig.retrieveConfig()
         .propertyValueBoolean("grouper.is.mcp", false);
+  }
+
+  /**
+   * whether MCP is enabled but cannot be served because grouper.ws.url or grouper.ui.url is not
+   * configured. The MCP info page shows this, since a deployment in that state answers every
+   * MCP and OAuth request with an error and there is otherwise nothing to see but a log line.
+   * @return true if MCP is enabled and its URLs are not configured
+   */
+  public boolean isMcpUrlsNotConfigured() {
+    return isMcpEnabled() && GrouperOAuthStore.mcpUrlConfigurationError() != null;
   }
 
   /**

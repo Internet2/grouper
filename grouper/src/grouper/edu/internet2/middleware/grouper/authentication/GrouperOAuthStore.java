@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.morphString.Morph;
@@ -237,12 +238,78 @@ public class GrouperOAuthStore {
   private static final Pattern REDIRECT_URI_CONFIG_PATTERN = Pattern.compile(
       "^grouper\\.oauth\\.redrectUri\\.([^.]+)\\.regex$");
 
-  /** whether the warning about a missing issuer identifier has been logged */
-  private static boolean loggedMissingIssuerIdentifier = false;
+  /** whether the warning about the MCP URLs not being configured has been logged */
+  private static boolean loggedMcpUrlConfigurationError = false;
 
   /**
-   * The issuer identifier of this Grouper as an OAuth authorization server, or null if it
-   * cannot be determined.
+   * whether MCP is enabled on this node.
+   *
+   * <p>Note this lives in grouper.hibernate.properties rather than grouper.properties, since it
+   * is read before the rest of the configuration is available.</p>
+   *
+   * @return true if grouper.is.mcp is true
+   */
+  public static boolean mcpEnabled() {
+    return GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.mcp", false);
+  }
+
+  /**
+   * why MCP cannot be served, when {@code grouper.ws.url} or {@code grouper.ui.url} is not
+   * configured, or null when both are.
+   *
+   * <p>Everything MCP publishes about itself is built from these two properties: the token
+   * audience and the issuer which bind an access token to this server and this resource, the
+   * addresses in the discovery metadata, the address in the {@code WWW-Authenticate} challenge,
+   * and the origin the Origin check compares against. There is nothing else to build any of
+   * them from. Deriving them from the request instead, which is what this code used to do, put
+   * every one of those addresses under the control of whoever set the Host header, and left
+   * tokens with neither an audience nor an issuer, so that a token minted by anything else
+   * holding the signing key was accepted here.</p>
+   *
+   * <p>So both are required whenever MCP is enabled. They cannot be required unconditionally,
+   * because deployments which do not use MCP have always run without them, and startup is not
+   * refused over them either, because that would take down the UI and WS over a property only
+   * MCP needs. Instead each MCP and OAuth endpoint checks this and refuses to serve, which
+   * fails closed and confines the effect to MCP.</p>
+   *
+   * @return a message naming what is missing, or null when MCP can be served
+   */
+  public static String mcpUrlConfigurationError() {
+
+    boolean wsUrlMissing = StringUtils.isBlank(GrouperConfig.getGrouperWsUrl(false));
+    boolean uiUrlMissing = StringUtils.isBlank(GrouperConfig.getGrouperUiUrl(false));
+
+    if (!wsUrlMissing && !uiUrlMissing) {
+      return null;
+    }
+
+    String missing = null;
+    if (wsUrlMissing && uiUrlMissing) {
+      missing = "grouper.ws.url and grouper.ui.url are";
+    } else if (wsUrlMissing) {
+      missing = "grouper.ws.url is";
+    } else {
+      missing = "grouper.ui.url is";
+    }
+
+    String error = "MCP is enabled but " + missing + " not configured in grouper.properties, so "
+        + "MCP requests are refused.  The addresses MCP publishes to clients, and the audience "
+        + "and issuer of its access tokens, are built from these.  "
+        + "grouper.ws.url is the URL of Grouper WS "
+        + "including its context path, for example https://server.school.edu/grouper-ws/, and "
+        + "grouper.ui.url is the URL of Grouper UI, for example "
+        + "https://server.school.edu/grouper/.";
+
+    if (!loggedMcpUrlConfigurationError) {
+      loggedMcpUrlConfigurationError = true;
+      LOG.error(error);
+    }
+
+    return error;
+  }
+
+  /**
+   * The issuer identifier of this Grouper as an OAuth authorization server.
    *
    * <p>This is the value published as {@code issuer} in the authorization server metadata, and
    * it is also sent back to the client as the {@code iss} parameter on an authorization
@@ -256,22 +323,19 @@ public class GrouperOAuthStore {
    * <p>This comes from configuration only. It deliberately does not fall back to deriving a URL
    * from the request: the metadata is served by the web services application and the
    * authorization response is sent by the UI application, so a request derived value could
-   * differ between the two, for example behind a reverse proxy or on a different context path.
-   * When it is not configured, callers leave the {@code iss} parameter off, which RFC 9207
-   * permits, rather than send something which might be wrong.</p>
+   * differ between the two, for example behind a reverse proxy or on a different context path.</p>
    *
-   * @return the issuer identifier, or null if grouper.ws.url is not configured
+   * <p>Every caller sits behind {@link #mcpUrlConfigurationError()}, which refuses the request
+   * with a message naming what is missing before anything gets here, so the property is asked
+   * for with {@code exceptionIfNull}. Returning null instead used to leave tokens with no
+   * {@code iss} and no {@code aud} claim and the code which verifies them checking neither, which
+   * is a hole that opens quietly; throwing says an entry point is missing that check.</p>
+   *
+   * @return the issuer identifier, never null
    */
   public static String retrieveIssuerIdentifier() {
 
-    String issuerIdentifier = StringUtils.trimToNull(GrouperConfig.getGrouperWsUrl(false));
-
-    if (issuerIdentifier == null && !loggedMissingIssuerIdentifier) {
-      loggedMissingIssuerIdentifier = true;
-      LOG.warn("grouper.ws.url is not configured, so the iss parameter is left off OAuth "
-          + "authorization responses.  Configure it to identify this authorization server to "
-          + "clients per RFC 9207.");
-    }
+    String issuerIdentifier = GrouperConfig.getGrouperWsUrl(true);
 
     warnIfNotSecurelyReachable(issuerIdentifier, "grouper.ws.url");
 
@@ -460,12 +524,8 @@ public class GrouperOAuthStore {
     return true;
   }
 
-  /** whether the warning about a missing MCP resource identifier has been logged */
-  private static boolean loggedMissingMcpResourceIdentifier = false;
-
   /**
-   * The canonical URI of the MCP server, which is what an access token issued for it is bound
-   * to, or null if it cannot be determined.
+   * The canonical URI of the MCP server, which is what an access token issued for it is bound to.
    *
    * <p>An access token has to say which resource it was issued for, and the resource server has
    * to refuse a token issued for anything else. Otherwise a token obtained for one resource can
@@ -484,23 +544,11 @@ public class GrouperOAuthStore {
    * request derived value would differ whenever a server is reachable under more than one
    * hostname.</p>
    *
-   * @return the canonical MCP resource URI, or null if grouper.ws.url is not configured
+   * @return the canonical MCP resource URI, never null
    */
   public static String retrieveMcpResourceIdentifier() {
 
-    String issuerIdentifier = retrieveIssuerIdentifier();
-
-    if (issuerIdentifier == null) {
-      if (!loggedMissingMcpResourceIdentifier) {
-        loggedMissingMcpResourceIdentifier = true;
-        LOG.warn("grouper.ws.url is not configured, so MCP access tokens are neither bound to "
-            + "nor checked against the MCP resource.  Configure it so that a token issued for "
-            + "another resource cannot be used against MCP.");
-      }
-      return null;
-    }
-
-    return issuerIdentifier + "/mcp";
+    return retrieveIssuerIdentifier() + "/mcp";
   }
 
   /**

@@ -26,9 +26,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -55,15 +55,24 @@ public class GrouperMcpProtectedResourceServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     try {
-      String baseUrl = GrouperConfig.getGrouperWsUrl(false);
-      if (StringUtils.isBlank(baseUrl)) {
-        baseUrl = request.getScheme() + "://" + request.getServerName();
-        if (("http".equals(request.getScheme()) && request.getServerPort() != 80)
-            || ("https".equals(request.getScheme()) && request.getServerPort() != 443)) {
-          baseUrl += ":" + request.getServerPort();
-        }
-        baseUrl += request.getContextPath();
+      // this is the first thing a client fetches, and what it learns here is which resource
+      // this is and which authorization server protects it.  both are grouper.ws.url, and
+      // taking them from the request instead, as this used to when it was not configured, let
+      // whoever set the Host header answer both questions
+      String mcpUrlConfigurationError = GrouperOAuthStore.mcpUrlConfigurationError();
+      if (mcpUrlConfigurationError != null) {
+        ObjectNode error = objectMapper.createObjectNode();
+        error.put("error", "server_error");
+        error.put("error_description", mcpUrlConfigurationError);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        response.getWriter().write(objectMapper.writeValueAsString(error));
+        response.getWriter().flush();
+        return;
       }
+
+      String baseUrl = GrouperConfig.getGrouperWsUrl(true);
 
       // resource must match the MCP server URL the client connects to
       String mcpUrl = baseUrl + "/mcp";

@@ -284,17 +284,11 @@ public class GrouperOAuthSigningKey {
     // for the token.  verifyAndDecodeJwt checks this claim against the same configured value,
     // so an issuer worked out from the request would make every token obtained through any
     // hostname other than the configured one fail on the very next call.
-    String issuerIdentifier = GrouperOAuthStore.retrieveIssuerIdentifier();
-    if (issuerIdentifier != null) {
-      jwtBuilder.withIssuer(issuerIdentifier);
-    }
+    jwtBuilder.withIssuer(GrouperOAuthStore.retrieveIssuerIdentifier());
 
     // bind the token to the resource it is for, so that it cannot be used against a different
     // resource which happens to trust the same signing key
-    String mcpResourceIdentifier = GrouperOAuthStore.retrieveMcpResourceIdentifier();
-    if (mcpResourceIdentifier != null) {
-      jwtBuilder.withAudience(mcpResourceIdentifier);
-    }
+    jwtBuilder.withAudience(GrouperOAuthStore.retrieveMcpResourceIdentifier());
 
     // add granted scope claims from consent details JSON
     if (StringUtils.isNotBlank(consentDetails)) {
@@ -398,15 +392,9 @@ public class GrouperOAuthSigningKey {
       // a valid signature only says this Grouper minted the token.  it must also have been
       // minted by this issuer for this resource, otherwise a token issued for something else
       // which trusts the same key would be accepted here
-      String issuerIdentifier = GrouperOAuthStore.retrieveIssuerIdentifier();
-      if (issuerIdentifier != null) {
-        verification = verification.withIssuer(issuerIdentifier);
-      }
+      verification = verification.withIssuer(GrouperOAuthStore.retrieveIssuerIdentifier());
 
-      String mcpResourceIdentifier = GrouperOAuthStore.retrieveMcpResourceIdentifier();
-      if (mcpResourceIdentifier != null) {
-        verification = verification.withAudience(mcpResourceIdentifier);
-      }
+      verification = verification.withAudience(GrouperOAuthStore.retrieveMcpResourceIdentifier());
 
       JWTVerifier verifier = verification.build();
       return verifier.verify(jwt);

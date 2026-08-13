@@ -123,8 +123,12 @@ public class GrouperMcpServlet20260728Test extends GrouperTest {
     super.setUp();
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.MCP, false, false);
     this.servlet = new GrouperMcpServlet();
+    // MCP refuses to serve at all without both of these, so they are set for every test here
+    // rather than only the ones which read them
     GrouperConfig.retrieveConfig().propertiesOverrideMap()
       .put("grouper.ws.url", "https://server.example.edu/grouper-ws");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap()
+      .put("grouper.ui.url", "https://server.example.edu/grouper/");
   }
 
   /**
@@ -154,6 +158,7 @@ public class GrouperMcpServlet20260728Test extends GrouperTest {
   @Override
   protected void tearDown() {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.ws.url");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.ui.url");
     super.tearDown();
   }
 
@@ -1012,30 +1017,107 @@ public class GrouperMcpServlet20260728Test extends GrouperTest {
   }
 
   /**
-   * with nothing configured there is no origin which can be trusted to be this server's,
-   * so none is claimed
+   * a value which is set but is not a URL an origin can be taken from leaves no origin
+   * which can be trusted to be this server's, so none is claimed.  every browser request then
+   * has to match a configured allowed origin pattern instead
    */
-  public void testConfiguredOriginIsNullWhenNotConfigured() {
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.ws.url", "");
+  public void testConfiguredOriginIsNullWhenNotAUrlAnOriginComesFrom() {
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.ws.url", "server.example.edu");
     assertNull(GrouperMcpServlet.configuredOrigin());
+  }
+
+  /**
+   * not configured at all is a different thing from configured as something an origin cannot be
+   * taken from.  a request cannot reach the Origin check without passing the refusal above, so
+   * arriving here with nothing configured means an entry point is missing that check, and
+   * saying so is better than quietly claiming no origin
+   */
+  public void testConfiguredOriginThrowsWhenNotConfigured() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.ws.url", "");
+
+    try {
+      GrouperMcpServlet.configuredOrigin();
+      fail("should throw when grouper.ws.url is not configured");
+    } catch (RuntimeException re) {
+      assertTrue("the message should name the property, got: " + re.getMessage(),
+          re.getMessage().contains("grouper.ws.url"));
+    }
   }
 
   /**
    * a client which did not authenticate is told where to find out how, and that address
    * is taken from configuration.  built from the request instead, whoever set the Host
    * header would choose where clients go to be told where to log in
-   * @throws IOException never in practice
    */
-  public void testResourceMetadataUrlIgnoresTheRequestHost() throws IOException {
+  public void testResourceMetadataUrlComesFromConfiguration() {
 
-    Map<String, String> hostile = new LinkedHashMap<String, String>();
-    hostile.put("Host", "attacker.example.com");
-
-    String url = GrouperMcpServlet.resourceMetadataUrl(request(hostile));
+    String url = GrouperMcpServlet.resourceMetadataUrl();
 
     assertEquals("https://server.example.edu/grouper-ws/.well-known/oauth-protected-resource", url);
-    assertFalse("the request host must not appear", url.contains("attacker"));
-    assertFalse("nor the host the request arrived at", url.contains("someotherhost"));
+  }
+
+  // ==================== refusing to serve unconfigured ====================
+
+  /**
+   * without grouper.ws.url there is no audience, no issuer, and no address to publish which
+   * does not come from the request, so a request is refused rather than served in a form
+   * which has none of those
+   * @throws Exception if the servlet throws
+   */
+  public void testRequestRefusedWhenWsUrlNotConfigured() throws Exception {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.ws.url", "");
+
+    Recorded recorded = new Recorded();
+    this.servlet.doPost(request(Collections.<String, String>emptyMap(),
+        modernJson("tools/list", "1", null)), response(recorded));
+
+    assertEquals(HttpServletResponse.SC_SERVICE_UNAVAILABLE, recorded.status);
+    assertEquals(-32603, recorded.errorCode());
+    assertTrue("the message should name the property which is missing, got: "
+        + recorded.errorMessage(), recorded.errorMessage().contains("grouper.ws.url"));
+  }
+
+  /**
+   * the authorization endpoint a client is sent to is served by the UI, so without
+   * grouper.ui.url the flow which gets a client its token cannot be described, and MCP is
+   * refused for the same reason
+   * @throws Exception if the servlet throws
+   */
+  public void testRequestRefusedWhenUiUrlNotConfigured() throws Exception {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.ui.url", "");
+
+    Recorded recorded = new Recorded();
+    this.servlet.doPost(request(Collections.<String, String>emptyMap(),
+        modernJson("tools/list", "1", null)), response(recorded));
+
+    assertEquals(HttpServletResponse.SC_SERVICE_UNAVAILABLE, recorded.status);
+    assertTrue("the message should name the property which is missing, got: "
+        + recorded.errorMessage(), recorded.errorMessage().contains("grouper.ui.url"));
+  }
+
+  /**
+   * the refusal comes before the Origin check, since that check cannot tell which origin is
+   * this server's without the same configuration.  a deployment which has not set it should
+   * be told that rather than told its own requests are cross origin
+   * @throws Exception if the servlet throws
+   */
+  public void testRefusalComesBeforeTheOriginCheck() throws Exception {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.ws.url", "");
+
+    Map<String, String> headers = new LinkedHashMap<String, String>();
+    headers.put("Origin", "https://server.example.edu");
+
+    Recorded recorded = new Recorded();
+    this.servlet.doPost(request(headers, modernJson("tools/list", "1", null)),
+        response(recorded));
+
+    assertEquals(HttpServletResponse.SC_SERVICE_UNAVAILABLE, recorded.status);
+    assertFalse("should not be reported as an Origin problem, got: " + recorded.errorMessage(),
+        recorded.errorMessage().contains("Origin"));
   }
 
   // ==================== the Origin check ====================

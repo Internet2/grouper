@@ -90,6 +90,18 @@ public class UiV2OAuth extends UiServiceLogicBase {
 
     try {
 
+      // an authorization code issued here is redeemed for a token whose issuer and audience
+      // come from grouper.ws.url, so without it there is nothing worth authorizing.  the page
+      // says only that the server is not configured, since whoever is looking at it is a user
+      // being asked to approve something and not the person who can fix it; the detail is
+      // logged once by mcpUrlConfigurationError
+      if (GrouperOAuthStore.mcpUrlConfigurationError() != null) {
+        oAuthContainer.setErrorMessage("MCP is not fully configured on this server.  "
+            + "Contact your Grouper administrator.");
+        showJsp("/WEB-INF/grouperUi2/oauth/oauthAuthorize.jsp");
+        throw new ControllerDone();
+      }
+
       String clientId = request.getParameter("client_id");
       String redirectUri = request.getParameter("redirect_uri");
       String responseType = request.getParameter("response_type");
@@ -321,6 +333,14 @@ public class UiV2OAuth extends UiServiceLogicBase {
     GrouperSession grouperSession = null;
 
     try {
+
+      // a pending request can outlive the configuration it was created under, so this is
+      // checked again here rather than relied on from the authorize step
+      if (GrouperOAuthStore.mcpUrlConfigurationError() != null) {
+        response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
+            "MCP is not fully configured on this server.  Contact your Grouper administrator.");
+        throw new ControllerDone();
+      }
 
       String requestId = request.getParameter("oauthRequestId");
       String action = request.getParameter("oauthAction");
@@ -732,18 +752,10 @@ public class UiV2OAuth extends UiServiceLogicBase {
    * <p>Sent on error responses as well as successful ones, since a client which only checked
    * the successful case would still be open to the mix-up this prevents.</p>
    *
-   * @return the parameter to append, starting with an ampersand, or an empty string when the
-   * issuer identifier is not configured. Sending nothing is allowed; sending a value which does
-   * not match the metadata would make conforming clients reject the response.
+   * @return the parameter to append, starting with an ampersand
    */
   private static String issuerParam() {
 
-    String issuerIdentifier = GrouperOAuthStore.retrieveIssuerIdentifier();
-
-    if (StringUtils.isBlank(issuerIdentifier)) {
-      return "";
-    }
-
-    return "&iss=" + GrouperUtil.escapeUrlEncode(issuerIdentifier);
+    return "&iss=" + GrouperUtil.escapeUrlEncode(GrouperOAuthStore.retrieveIssuerIdentifier());
   }
 }

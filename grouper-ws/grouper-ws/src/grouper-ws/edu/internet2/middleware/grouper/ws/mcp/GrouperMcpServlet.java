@@ -228,6 +228,13 @@ public class GrouperMcpServlet extends HttpServlet {
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
+    // this comes ahead of the Origin check, which cannot say which origin is this server's
+    // without the same configuration, so that a deployment which has not set it is told that
+    // rather than being told its own requests are cross origin
+    if (rejectIfMcpUrlsNotConfigured(response)) {
+      return;
+    }
+
     // check the origin before anything else, so credentials from a page this server does not
     // recognize are not processed at all
     if (rejectIfOriginNotAllowed(request, response)) {
@@ -684,12 +691,9 @@ public class GrouperMcpServlet extends HttpServlet {
     // no authentication succeeded
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     response.setHeader("WWW-Authenticate",
-        "Bearer resource_metadata=\"" + resourceMetadataUrl(request) + "\"");
+        "Bearer resource_metadata=\"" + resourceMetadataUrl() + "\"");
     return null;
   }
-
-  /** whether the warning about a request derived resource metadata URL has been logged */
-  private static boolean loggedRequestDerivedResourceMetadataUrl = false;
 
   /**
    * where a client is told to look to find out which authorization server protects this MCP
@@ -705,38 +709,16 @@ public class GrouperMcpServlet extends HttpServlet {
    * which caches without regard to Host, or which passes on a Host from one request to another;
    * neither should be relied on not to be there.</p>
    *
-   * <p>When {@code grouper.ws.url} is not configured there is nothing else to build this from,
-   * and leaving the parameter off would leave a client with no way to discover where to
-   * authenticate at all, so the request is used and a warning is logged. Such a deployment is
-   * already without a token audience and without an issuer, both of which come from the same
-   * property.</p>
+   * <p>There is no fallback for {@code grouper.ws.url} not being configured, since every
+   * request which could reach here has already been refused by
+   * {@link #rejectIfMcpUrlsNotConfigured(HttpServletResponse)}. It is asked for with
+   * {@code exceptionIfNull} so that an entry point added without that check fails here rather
+   * than putting the string "null" in front of the path and sending that to a client.</p>
    *
-   * @param request the HTTP request
    * @return the URL of this server's protected resource metadata
    */
-  static String resourceMetadataUrl(HttpServletRequest request) {
-
-    String wsUrl = StringUtils.trimToNull(GrouperConfig.getGrouperWsUrl(false));
-
-    if (wsUrl != null) {
-      return wsUrl + "/.well-known/oauth-protected-resource";
-    }
-
-    if (!loggedRequestDerivedResourceMetadataUrl) {
-      loggedRequestDerivedResourceMetadataUrl = true;
-      LOG.warn("grouper.ws.url is not configured, so MCP tells clients where to find its OAuth "
-          + "metadata using the host of the request they made.  Configure it, so that the "
-          + "address clients are sent to cannot be chosen by whoever set the Host header.");
-    }
-
-    String resourceMetadataUrl = request.getScheme() + "://" + request.getServerName();
-    if (("http".equals(request.getScheme()) && request.getServerPort() != 80)
-        || ("https".equals(request.getScheme()) && request.getServerPort() != 443)) {
-      resourceMetadataUrl += ":" + request.getServerPort();
-    }
-
-    return resourceMetadataUrl + request.getContextPath()
-        + "/.well-known/oauth-protected-resource";
+  static String resourceMetadataUrl() {
+    return GrouperConfig.getGrouperWsUrl(true) + "/.well-known/oauth-protected-resource";
   }
 
   /**
@@ -795,6 +777,10 @@ public class GrouperMcpServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     try {
+      if (rejectIfMcpUrlsNotConfigured(response)) {
+        return;
+      }
+
       // the transport requires this on every connection, not only the ones which carry a body
       if (rejectIfOriginNotAllowed(request, response)) {
         return;
@@ -820,6 +806,10 @@ public class GrouperMcpServlet extends HttpServlet {
   protected void doDelete(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     try {
+      if (rejectIfMcpUrlsNotConfigured(response)) {
+        return;
+      }
+
       // the transport requires this on every connection, not only the ones which carry a body
       if (rejectIfOriginNotAllowed(request, response)) {
         return;
@@ -834,6 +824,40 @@ public class GrouperMcpServlet extends HttpServlet {
       LOG.error("Error in MCP doDelete", re);
       throw re;
     }
+  }
+
+  /**
+   * refuse to serve MCP while {@code grouper.ws.url} or {@code grouper.ui.url} is not
+   * configured, and say so in the response.
+   *
+   * <p>Everything this endpoint tells a client about itself, and the audience and issuer which
+   * bind its access tokens to it, come from those two properties. Serving requests without them
+   * meant publishing addresses taken from the Host header and accepting tokens carrying neither
+   * an audience nor an issuer, so a request is refused instead of served in a weaker form.
+   * See {@link GrouperOAuthStore#mcpUrlConfigurationError()}.</p>
+   *
+   * <p>The message names the properties, since whoever gets this is the person who can fix it,
+   * and it says nothing which is not already in the sample configuration file.</p>
+   *
+   * @param response the HTTP response
+   * @return true if the request was rejected and a response has already been sent
+   * @throws IOException if the response cannot be written
+   */
+  boolean rejectIfMcpUrlsNotConfigured(HttpServletResponse response) throws IOException {
+
+    String mcpUrlConfigurationError = GrouperOAuthStore.mcpUrlConfigurationError();
+
+    if (mcpUrlConfigurationError == null) {
+      return false;
+    }
+
+    // no id, this is rejected before the body is read.  the status is 503 rather than one of
+    // the 400s, both because this is the server's problem and not the request's, and because a
+    // client working out which revision this server speaks reads a 400 it does not recognize as
+    // a legacy server and starts a handshake which would fail here in the same way
+    sendJsonRpcError(response, null, ERROR_INTERNAL_ERROR, mcpUrlConfigurationError, null,
+        HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+    return true;
   }
 
   /**
@@ -903,9 +927,6 @@ public class GrouperMcpServlet extends HttpServlet {
     return true;
   }
 
-  /** whether the warning about not being able to tell which origin is this server's has been logged */
-  private static boolean loggedMissingConfiguredOrigin = false;
-
   /**
    * the origin of this server taken from {@code grouper.ws.url}, that is its scheme, host and
    * port, with the port left off when it is the default for the scheme.
@@ -917,27 +938,19 @@ public class GrouperMcpServlet extends HttpServlet {
    * comparing the attacker's Origin against the attacker's own Host, which always agrees, and
    * the check would pass in exactly the case it exists to catch.</p>
    *
-   * <p>When {@code grouper.ws.url} is not set there is no origin which can be trusted to be
-   * this server's, so no request is treated as same origin and every browser request has to
-   * match a configured allowed origin pattern instead. Clients which are not browsers send no
-   * Origin at all and are not affected either way.</p>
+   * <p>{@code grouper.ws.url} is required whenever MCP is enabled, so a request which reaches
+   * the Origin check has already been past
+   * {@link #rejectIfMcpUrlsNotConfigured(HttpServletResponse)}. What is left here is a value
+   * which is set but is not a URL an origin can be taken from, and there is nothing to be done
+   * with that but treat no request as same origin. Every browser request then has to match a
+   * configured allowed origin pattern instead. Clients which are not browsers send no Origin at
+   * all and are not affected either way.</p>
    *
-   * @return the origin, or null if it is not configured or cannot be parsed
+   * @return the origin, or null if grouper.ws.url cannot be parsed as one
    */
   static String configuredOrigin() {
 
-    String wsUrl = StringUtils.trimToNull(GrouperConfig.getGrouperWsUrl(false));
-
-    if (wsUrl == null) {
-      if (!loggedMissingConfiguredOrigin) {
-        loggedMissingConfiguredOrigin = true;
-        LOG.warn("grouper.ws.url is not configured, so MCP cannot tell which Origin is its own "
-            + "and refuses every browser request which does not match a "
-            + "grouper.mcp.allowedOrigin.<configId>.regex pattern.  Clients which are not "
-            + "browsers send no Origin and are unaffected.");
-      }
-      return null;
-    }
+    String wsUrl = GrouperConfig.getGrouperWsUrl(true);
 
     try {
       URI wsUri = new URI(wsUrl);

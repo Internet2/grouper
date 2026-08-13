@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.authentication.GrouperOAuthStore;
@@ -54,25 +53,31 @@ public class GrouperMcpWellKnownServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     try {
+      // every address below is built from grouper.ws.url and grouper.ui.url.  deriving them
+      // from the request instead, which is what this used to do when they were not configured,
+      // published whatever the Host header said as the issuer and endpoints of this
+      // authorization server, and made the authorization endpoint resolve into the WS context
+      // where there is no UI to serve it
+      String mcpUrlConfigurationError = GrouperOAuthStore.mcpUrlConfigurationError();
+      if (mcpUrlConfigurationError != null) {
+        ObjectNode error = objectMapper.createObjectNode();
+        error.put("error", "server_error");
+        error.put("error_description", mcpUrlConfigurationError);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        response.getWriter().write(objectMapper.writeValueAsString(error));
+        response.getWriter().flush();
+        return;
+      }
+
       // the same value the authorization response sends back as its iss parameter, so that a
       // client comparing the two per RFC 9207 sees them agree
       String baseUrl = GrouperOAuthStore.retrieveIssuerIdentifier();
-      if (StringUtils.isBlank(baseUrl)) {
-        baseUrl = request.getScheme() + "://" + request.getServerName();
-        if (("http".equals(request.getScheme()) && request.getServerPort() != 80)
-            || ("https".equals(request.getScheme()) && request.getServerPort() != 443)) {
-          baseUrl += ":" + request.getServerPort();
-        }
-        baseUrl += request.getContextPath();
-      }
 
       // authorization endpoint is in the Grouper UI (user authenticates and sees consent page there)
-      String uiUrl = GrouperConfig.getGrouperUiUrl(false);
+      String uiUrl = GrouperConfig.getGrouperUiUrl(true);
       GrouperOAuthStore.warnIfNotSecurelyReachable(uiUrl, "grouper.ui.url");
-      if (StringUtils.isBlank(uiUrl)) {
-        // fallback: assume UI is at same context path
-        uiUrl = baseUrl + "/";
-      }
 
       ObjectNode metadata = objectMapper.createObjectNode();
       metadata.put("issuer", baseUrl);
@@ -97,14 +102,10 @@ public class GrouperMcpWellKnownServlet extends HttpServlet {
       metadata.set("code_challenge_methods_supported", codeChallengeMethodsSupported);
 
       // An authorization server which sends the iss parameter on authorization responses has to
-      // say so here, per RFC 9207.  This tracks whether the issuer identifier is configured,
-      // because that is what decides whether the authorization response actually carries iss.
-      // Claiming it while leaving iss off would be worse than not claiming it at all: a client
-      // which is told to expect iss rejects a response which does not have it.  Note this reads
-      // the configured value rather than baseUrl above, which falls back to a request derived
-      // URL that the authorization response cannot use.
-      metadata.put("authorization_response_iss_parameter_supported",
-          StringUtils.isNotBlank(GrouperOAuthStore.retrieveIssuerIdentifier()));
+      // say so here, per RFC 9207.  The authorization response carries iss whenever the issuer
+      // identifier is configured, which it is by the time this line is reached, since a request
+      // which got past the check above has grouper.ws.url set.
+      metadata.put("authorization_response_iss_parameter_supported", true);
 
       // when served as /.well-known/openid-configuration, OIDC Discovery requires these fields
       String requestUri = request.getRequestURI();
