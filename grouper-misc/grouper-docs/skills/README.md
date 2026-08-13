@@ -34,6 +34,12 @@ the individual skill for the expected path. Never commit tokens.
   grouper.atlassian.net via the Jira Cloud REST API with an API token (same
   cross-site token as grouper-wiki-edit). Holds the project/issue-type/transition
   ids and the resolution-field-not-on-screen gotcha.
+- **grouper-gte-cert** -- fix the Grouper Training Environment (GTE) container's
+  self-signed TLS certificate so https://localhost:8443 loads in an AI assistant's
+  built-in browser pane. The shipped cert has no subjectAltName, which Chromium
+  rejects outright and cannot be clicked past. Covers regenerating the cert inside
+  the container, trusting it on macOS and Windows, and the one-line base/Dockerfile
+  change that would stop it recurring on every fresh container.
 - **grouper-release** -- cut and record a Grouper container release: bump the
   container Tomcat/base versions, confirm no DDL/upgrade-task or server.xml-patch
   surprises since the last release, resolve the shipped GRP issues and tag them
