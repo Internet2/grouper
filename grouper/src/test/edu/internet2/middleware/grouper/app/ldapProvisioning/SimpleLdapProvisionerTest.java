@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
+import edu.internet2.middleware.grouper.ldap.LdapConfiguration;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
 import edu.internet2.middleware.grouper.ldap.LdapModificationType;
@@ -61,7 +63,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    */
   public static void main(String[] args) {
     // TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionableIncremental"));    
-    TestRunner.run(new SimpleLdapProvisionerTest("testDeletingAGroupOnGrouperSideVariousDeleteTypesIncrementalProvisioning"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testPagingConcurrent"));    
   }
   
   public SimpleLdapProvisionerTest() {
@@ -111,6 +113,66 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     super.tearDown();
   }
   
+  /**
+   * paged searches run concurrently against the openldap container.
+   *
+   * each page of a paged search is checked out of the shared connection pool separately, so pages of
+   * one search can land on a different connection than the previous page.  openldap keeps paged
+   * results state on the connection, so it should reject the replayed cookie with
+   * "paged results cookie is invalid".
+   */
+  public void testPagingConcurrent() {
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties")
+      .propertyName("ldap.personLdap.pagedResultsSize").value("100").store();
+    ConfigPropertiesCascadeBase.clearCache();
+    LdapConfiguration.removeConfig("personLdap");
+
+    final List<Throwable> failures = Collections.synchronizedList(new ArrayList<Throwable>());
+    final List<Integer> counts = Collections.synchronizedList(new ArrayList<Integer>());
+    List<Thread> threads = new ArrayList<Thread>();
+
+    for (int i = 0; i < 10; i++) {
+      Thread thread = new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+          try {
+            for (int j = 0; j < 5; j++) {
+              List<LdapEntry> entries = LdapSessionUtils.ldapSession().list(
+                  "personLdap",
+                  "ou=people,dc=example,dc=edu",
+                  LdapSearchScope.SUBTREE_SCOPE,
+                  "(uid=*)",
+                  new String[] {"uid"},
+                  null);
+              counts.add(GrouperUtil.length(entries));
+            }
+          } catch (Throwable t) {
+            failures.add(t);
+          }
+        }
+      });
+      threads.add(thread);
+    }
+
+    for (Thread thread : threads) {
+      thread.start();
+    }
+    for (Thread thread : threads) {
+      GrouperUtil.threadJoin(thread);
+    }
+
+    for (Throwable failure : failures) {
+      failure.printStackTrace();
+    }
+
+    System.out.println("entry counts returned: " + counts);
+
+    assertEquals("concurrent paged searches failed: "
+        + (failures.isEmpty() ? "" : GrouperUtil.getFullStackTrace(failures.get(0))), 0, failures.size());
+  }
+
   /**
    * simple provisioning of subject ids to ldap group
    */
