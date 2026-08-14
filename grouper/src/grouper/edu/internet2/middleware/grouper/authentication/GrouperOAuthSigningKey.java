@@ -44,19 +44,22 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.morphString.Morph;
 
 /**
  * Manages the server RSA key pair for signing and verifying OAuth JWT access tokens.
  * Key pair is stored in grouper.properties (database-backed config).
- * The private key is auto-encrypted by the config framework because the key name
- * contains "private" (see GrouperConfigHibernate.isPasswordHelper()).
+ * The private key is stored encrypted at rest: {@link #saveConfigValue(String, String)}
+ * encrypts it with {@link Morph} because its config key contains "private" (the same rule the
+ * config framework applies in GrouperConfigHibernate.isPassword), and the config framework
+ * decrypts it transparently on read.  The public key is stored in the clear.
  * @author mchyzer
  */
 public class GrouperOAuthSigningKey {
 
   private static final Log LOG = GrouperUtil.getLog(GrouperOAuthSigningKey.class);
 
-  /** config key for private key (auto-encrypted because name contains "private") */
+  /** config key for private key (stored encrypted because name contains "private") */
   private static final String CONFIG_KEY_PRIVATE_KEY = "grouper.oauth.signingKey.privateKey";
 
   /** config key for public key */
@@ -154,7 +157,7 @@ public class GrouperOAuthSigningKey {
         try {
           grouperSession = GrouperSession.startRootSession();
 
-          // save private key - auto-encrypted because key name contains "private"
+          // save private key - encrypted at rest because key name contains "private"
           saveConfigValue(CONFIG_KEY_PRIVATE_KEY, base64PrivateKey);
 
           // save public key
@@ -196,25 +199,41 @@ public class GrouperOAuthSigningKey {
   }
 
   /**
-   * Save a config value to the grouper.properties DB config.
+   * Save a config value to the grouper.properties DB config.  Password-type values (which the
+   * private key is, because its config key contains "private") are stored encrypted with
+   * {@link Morph#encrypt(String)} and flagged config_encrypted, exactly as the UI/GSH config
+   * editor (DbConfigEngine) would store them.  The config framework decrypts these transparently
+   * on read, so {@link #initializeKeyBundle()} still reads back the plain base64.
    * @param configKey
    * @param value
    */
   private static void saveConfigValue(String configKey, String value) {
+
+    // treat the value as a password by the same rule the config framework uses: the private key's
+    // config key contains "private", so isPassword is true and the value is encrypted at rest.  the
+    // public key key has no password-related word, so it is stored in the clear (it is public).
+    // callers always pass raw base64 key material (never our ciphertext), so encrypt unconditionally
+    // when it is a password.
+    boolean isPassword = GrouperConfigHibernate.isPassword(
+        ConfigFileName.GROUPER_PROPERTIES, null, configKey, value, true, null);
+
+    String valueToSave = isPassword ? Morph.encrypt(value) : value;
+
     Set<GrouperConfigHibernate> existing = GrouperDAOFactory.getFactory().getConfig()
         .findAll(ConfigFileName.GROUPER_PROPERTIES, null, configKey);
 
     if (GrouperUtil.length(existing) == 0) {
       GrouperConfigHibernate grouperConfigHibernate = new GrouperConfigHibernate();
-      grouperConfigHibernate.setConfigEncrypted(false);
+      grouperConfigHibernate.setConfigEncrypted(isPassword);
       grouperConfigHibernate.setConfigFileHierarchyDb("INSTITUTION");
       grouperConfigHibernate.setConfigFileNameDb(ConfigFileName.GROUPER_PROPERTIES.getConfigFileName());
       grouperConfigHibernate.setConfigKey(configKey);
-      grouperConfigHibernate.setValueToSave(value);
+      grouperConfigHibernate.setValueToSave(valueToSave);
       grouperConfigHibernate.saveOrUpdate(true);
     } else {
       GrouperConfigHibernate grouperConfigHibernate = existing.iterator().next();
-      grouperConfigHibernate.setValueToSave(value);
+      grouperConfigHibernate.setConfigEncrypted(isPassword);
+      grouperConfigHibernate.setValueToSave(valueToSave);
       grouperConfigHibernate.saveOrUpdate(false);
     }
   }
