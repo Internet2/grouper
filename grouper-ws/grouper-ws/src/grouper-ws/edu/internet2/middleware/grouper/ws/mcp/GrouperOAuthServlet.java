@@ -239,7 +239,7 @@ public class GrouperOAuthServlet extends HttpServlet {
 
     // prevent reuse
     if (authCode.isUsed()) {
-      GrouperOAuthStore.removeAuthorizationCode(code);
+      GrouperOAuthStore.claimAuthorizationCode(code);
       sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST,
           "invalid_grant", "Authorization code already used");
       return;
@@ -268,11 +268,21 @@ public class GrouperOAuthServlet extends HttpServlet {
       return;
     }
 
-    // mark code as used
-    authCode.setUsed(true);
-
-    // remove the code from the store
-    GrouperOAuthStore.removeAuthorizationCode(code);
+    // Claim the code, and stop here if it was already claimed.  The claim is what makes the
+    // redemption single use, so it has to come after every check the code is judged by and
+    // before the token is created: a request which loses the race gets no token, rather than a
+    // token minted from a code another request had already redeemed.  Checking a "used" flag
+    // read earlier cannot do this, since two requests can read the same unused row.
+    //
+    // The error is the one an unknown code gets, so that losing the race cannot be told apart
+    // from presenting a code which never existed.
+    if (!GrouperOAuthStore.claimAuthorizationCode(code)) {
+      LOG.warn("MCP OAuth token request could not claim authorization code for clientId: "
+          + clientId + ", so it was redeemed by another request or has already been cleaned up.");
+      sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST,
+          "invalid_grant", "Authorization code not found or expired");
+      return;
+    }
 
     // resolve member_internal_id to subject info for the JWT
     Map<Long, Member> memberMap = GrouperDAOFactory.getFactory().getMember()

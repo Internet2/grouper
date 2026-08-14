@@ -148,17 +148,30 @@ public class GrouperOAuthStore {
   }
 
   /**
-   * remove an authorization code from the database (after use)
-   * @param code
+   * claim an authorization code, so that it can be redeemed once and once only.
+   *
+   * <p>The delete is the claim. Whichever caller the database lets delete the row is the one
+   * which may go on to issue a token, and every other caller is told no rows were deleted. This
+   * used to select the row and then delete the object it read, which decided nothing: two
+   * concurrent redemptions of the same code could both find a live row, both pass every check
+   * against it, and both be issued a token, since nothing between the two statements held a
+   * lock. No amount of checking in Java can close that gap, because the token endpoint runs on
+   * more than one node and each node would be checking its own copy of the row. A single
+   * conditional statement lets the database pick the winner instead.</p>
+   *
+   * <p>{@code grouper_oauth_code_idx} is unique on {@code code}, so at most one row can match
+   * and the count is only ever 0 or 1.</p>
+   *
+   * @param code the authorization code being redeemed
+   * @return true if this caller claimed the code, false if it was already claimed or is gone
    */
-  public static void removeAuthorizationCode(String code) {
-    GrouperOAuthCode authCode = new GcDbAccess()
-        .sql("select * from grouper_oauth_code where code = ?")
+  public static boolean claimAuthorizationCode(String code) {
+    int rowsDeleted = new GcDbAccess()
+        .sql("delete from grouper_oauth_code where code = ?")
         .addBindVar(code)
-        .select(GrouperOAuthCode.class);
-    if (authCode != null) {
-      new GcDbAccess().deleteFromDatabase(authCode);
-    }
+        .executeSql();
+
+    return rowsDeleted > 0;
   }
 
   // ==================== Registered Clients ====================
