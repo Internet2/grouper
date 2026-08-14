@@ -29,11 +29,16 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
+import org.ldaptive.AbandonRequest;
 import org.ldaptive.AddOperation;
 import org.ldaptive.AddRequest;
 import org.ldaptive.AddResponse;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.BindOperation;
+import org.ldaptive.BindRequest;
+import org.ldaptive.BindResponse;
+import org.ldaptive.CompareOperationHandle;
+import org.ldaptive.CompareRequest;
 import org.ldaptive.Connection;
 import org.ldaptive.ConnectionConfig;
 import org.ldaptive.ConnectionFactory;
@@ -48,21 +53,29 @@ import org.ldaptive.FilterTemplate;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
+import org.ldaptive.LdapURL;
 import org.ldaptive.ModifyDnOperation;
 import org.ldaptive.ModifyDnRequest;
 import org.ldaptive.ModifyDnResponse;
 import org.ldaptive.ModifyOperation;
 import org.ldaptive.ModifyRequest;
 import org.ldaptive.ModifyResponse;
+import org.ldaptive.OperationHandle;
 import org.ldaptive.PooledConnectionFactory;
 import org.ldaptive.Result;
 import org.ldaptive.ResultCode;
 import org.ldaptive.SearchOperation;
+import org.ldaptive.SearchOperationHandle;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchResponse;
 import org.ldaptive.SearchScope;
 import org.ldaptive.SimpleBindRequest;
+import org.ldaptive.control.RequestControl;
 import org.ldaptive.control.util.PagedResultsClient;
+import org.ldaptive.extended.ExtendedOperationHandle;
+import org.ldaptive.extended.ExtendedRequest;
+import org.ldaptive.sasl.DefaultSaslClientRequest;
+import org.ldaptive.sasl.SaslClientRequest;
 import org.ldaptive.dn.Dn;
 import org.ldaptive.handler.LdapEntryHandler;
 import org.ldaptive.handler.ResultPredicate;
@@ -547,15 +560,28 @@ public class LdaptiveSessionImpl implements LdapSession {
       }
       response = search.execute(searchRequest);
     } else {
-      PagedResultsClient client = new PagedResultsClient(ldap, pageSize);
-      client.setThrowCondition(new IgnoreResultCodePredicate(ignoreResultCodes));
-      if (!entryHandlers.isEmpty()) {
-        client.setEntryHandlers(entryHandlers.toArray(new LdapEntryHandler[0]));
+      // PagedResultsClient runs each page through SearchOperation.execute(SearchRequest), which checks a
+      // connection out of the factory and returns it when the page is done.  Handing it the shared pool
+      // therefore lets consecutive pages run on different connections, and lets unrelated searches borrow
+      // the connection in between.  Directories keep paged results state on the connection that issued the
+      // cookie, so either one gets rejected with "paged results cookie is invalid".  Check out a single
+      // connection up front and give the client a factory pinned to it, so every page of this search shares
+      // one ldap session.  The connection goes back to the pool when the whole paged search is done, so
+      // unrelated ldap traffic against this server id still uses the rest of the pool normally.
+      // try with resources so that if the search throws and returning the connection to the pool also
+      // throws, the search exception is still the one that propagates
+      try (Connection connection = ldap.getConnection()) {
+        connection.open();
+        PagedResultsClient client = new PagedResultsClient(new PinnedConnectionFactory(ldap, connection), pageSize);
+        client.setThrowCondition(new IgnoreResultCodePredicate(ignoreResultCodes));
+        if (!entryHandlers.isEmpty()) {
+          client.setEntryHandlers(entryHandlers.toArray(new LdapEntryHandler[0]));
+        }
+        if (!resultHandlers.isEmpty()) {
+          client.setSearchResultHandlers(resultHandlers.toArray(new SearchResultHandler[0]));
+        }
+        response = client.executeToCompletion(searchRequest);
       }
-      if (!resultHandlers.isEmpty()) {
-        client.setSearchResultHandlers(resultHandlers.toArray(new SearchResultHandler[0]));
-      }
-      response = client.executeToCompletion(searchRequest);
     }
     if (resultHandler == null) {
       debugLogSearchResponse(ldapServerId, response);
@@ -1027,6 +1053,145 @@ public class LdaptiveSessionImpl implements LdapSession {
     @Override
     public String toString() {
       return getClass().getSimpleName() + "@" + hashCode() + "::" + "ignoreResultCodes=" + ignoreResultCodes;
+    }
+  }
+
+  /**
+   * Connection factory that always hands back one connection that was already checked out of the real
+   * factory.  Used so that all pages of a paged search share one ldap session; see the paged branch of
+   * processSearchRequest.  Whoever checked the connection out is responsible for closing it, so closing
+   * this factory, and closing the connections it hands out, does nothing.
+   */
+  private static class PinnedConnectionFactory implements ConnectionFactory {
+
+    /** the real factory, only consulted for the connection config */
+    private final ConnectionFactory delegateFactory;
+
+    /** the connection every caller gets */
+    private final Connection pinnedConnection;
+
+    PinnedConnectionFactory(final ConnectionFactory theDelegateFactory, final Connection thePinnedConnection) {
+      this.delegateFactory = theDelegateFactory;
+      this.pinnedConnection = new PinnedConnection(thePinnedConnection);
+    }
+
+    @Override
+    public Connection getConnection() {
+      return this.pinnedConnection;
+    }
+
+    @Override
+    public ConnectionConfig getConnectionConfig() {
+      return this.delegateFactory.getConnectionConfig();
+    }
+
+    @Override
+    public void close() {
+      // the caller that checked the connection out closes it
+    }
+
+    @Override
+    public String toString() {
+      return getClass().getSimpleName() + "@" + hashCode() + "::" + "connection=" + this.pinnedConnection;
+    }
+  }
+
+  /**
+   * Connection wrapper whose open and close do nothing, so that a borrowed connection is not opened again
+   * or returned to the pool by each page of a paged search.  Everything else delegates.
+   */
+  private static class PinnedConnection implements Connection {
+
+    /** the connection being wrapped */
+    private final Connection delegateConnection;
+
+    PinnedConnection(final Connection theDelegateConnection) {
+      this.delegateConnection = theDelegateConnection;
+    }
+
+    @Override
+    public void open() throws LdapException {
+      // already open
+    }
+
+    @Override
+    public boolean isOpen() {
+      return this.delegateConnection.isOpen();
+    }
+
+    @Override
+    public void close() {
+      // the caller that checked the connection out closes it
+    }
+
+    @Override
+    public void close(final RequestControl[] controls) {
+      // the caller that checked the connection out closes it
+    }
+
+    @Override
+    public LdapURL getLdapURL() {
+      return this.delegateConnection.getLdapURL();
+    }
+
+    @Override
+    public void operation(final AbandonRequest request) {
+      this.delegateConnection.operation(request);
+    }
+
+    @Override
+    public OperationHandle<AddRequest, AddResponse> operation(final AddRequest request) {
+      return this.delegateConnection.operation(request);
+    }
+
+    @Override
+    public OperationHandle<BindRequest, BindResponse> operation(final BindRequest request) {
+      return this.delegateConnection.operation(request);
+    }
+
+    @Override
+    public CompareOperationHandle operation(final CompareRequest request) {
+      return this.delegateConnection.operation(request);
+    }
+
+    @Override
+    public OperationHandle<DeleteRequest, DeleteResponse> operation(final DeleteRequest request) {
+      return this.delegateConnection.operation(request);
+    }
+
+    @Override
+    public ExtendedOperationHandle operation(final ExtendedRequest request) {
+      return this.delegateConnection.operation(request);
+    }
+
+    @Override
+    public OperationHandle<ModifyRequest, ModifyResponse> operation(final ModifyRequest request) {
+      return this.delegateConnection.operation(request);
+    }
+
+    @Override
+    public OperationHandle<ModifyDnRequest, ModifyDnResponse> operation(final ModifyDnRequest request) {
+      return this.delegateConnection.operation(request);
+    }
+
+    @Override
+    public SearchOperationHandle operation(final SearchRequest request) {
+      return this.delegateConnection.operation(request);
+    }
+
+    @Override
+    public BindResponse operation(final SaslClientRequest request) throws LdapException {
+      return this.delegateConnection.operation(request);
+    }
+
+    @Override
+    public BindResponse operation(final DefaultSaslClientRequest request) throws LdapException {
+      return this.delegateConnection.operation(request);
+    }
+
+    @Override
+    public String toString() {
+      return getClass().getSimpleName() + "@" + hashCode() + "::" + "connection=" + this.delegateConnection;
     }
   }
 }
